@@ -1,27 +1,27 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 // ===== DESIGN TOKENS =====
 const C = {
-  bg:           "#0d0800",
-  bgGlow:       "#1a0e00",
-  gold:         "#cd8c3a",
-  goldLight:    "#e0a84e",
-  goldBright:   "#f5c460",
-  goldDim:      "#8a5c25",
-  goldDark:     "#3d1f00",
-  goldDeep:     "#1a0e00",
-  surface:      "#130a00",
-  surface2:     "#180e00",
-  border:       "#2d1800",
-  borderGold:   "#4a2e00",
-  muted:        "#7a6a58",
-  faint:        "#1a0e00",
+  bg:           "#080500",
+  bgGlow:       "#120d00",
+  gold:         "#CFB53B",
+  goldLight:    "#E8C840",
+  goldBright:   "#F5D860",
+  goldDim:      "#9A8040",
+  goldDark:     "#3a2a00",
+  goldDeep:     "#1A1200",
+  surface:      "#0e0a00",
+  surface2:     "#130e00",
+  border:       "#251a00",
+  borderGold:   "#3a2a00",
+  muted:        "#8a8070",
+  faint:        "#1A1200",
   danger:       "#8B2020",
 };
 
 const F = {
-  royal:   "'Frank Ruhl Libre', serif",
-  heading: "'Frank Ruhl Libre', serif",
+  royal:   "'Heebo', sans-serif",
+  heading: "'Heebo', sans-serif",
   body:    "'Frank Ruhl Libre', serif",
   mono:    "'Courier New', monospace",
 };
@@ -214,101 +214,6 @@ function SectionHeader({ eyebrow, title, center = true }) {
   );
 }
 
-// ===== ANIMATION + NAV UTILS =====
-
-function FadeIn({ children, delay = 0, style = {} }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.08 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <div ref={ref} style={{
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(28px)",
-      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
-      ...style,
-    }}>{children}</div>
-  );
-}
-
-function Breadcrumb({ crumbs, onNav }) {
-  return (
-    <div style={{
-      maxWidth: 1040, margin: "0 auto", padding: "14px 24px 0",
-      display: "flex", gap: 6, alignItems: "center",
-      direction: "rtl", flexWrap: "wrap",
-    }}>
-      {crumbs.map((crumb, i) => [
-        i > 0 && (
-          <span key={`s${i}`} style={{ color: C.muted, fontSize: 11, userSelect: "none" }}>›</span>
-        ),
-        crumb.route ? (
-          <button key={`b${i}`} onClick={() => onNav(crumb.route)} style={{
-            background: "none", border: "none",
-            color: i === crumbs.length - 1 ? C.goldLight : C.muted,
-            cursor: i === crumbs.length - 1 ? "default" : "pointer",
-            fontFamily: F.heading, fontSize: 12, letterSpacing: 1, padding: 0,
-            textDecoration: i < crumbs.length - 1 ? "underline" : "none",
-          }}>{crumb.label}</button>
-        ) : (
-          <span key={`s${i}l`} style={{
-            color: i === crumbs.length - 1 ? C.goldLight : C.muted,
-            fontFamily: F.heading, fontSize: 12, letterSpacing: 1,
-          }}>{crumb.label}</span>
-        ),
-      ])}
-    </div>
-  );
-}
-
-function useSEO({ page, selectedPost, selectedTag, selectedCourse }) {
-  useEffect(() => {
-    const base = "כי לה' המלוכה · SOD1820";
-    let title = base;
-    let desc = "גימטריה היא שפה חיה שמגלה את המציאות מאחורי המציאות. קורסי גימטריה עם צוריאל פולייס.";
-    let image = LOGO_URL;
-
-    if (page === "courses") {
-      title = `קורסים · ${base}`; desc = "כל קורסי הגימטריה של צוריאל פולייס — SOD1820";
-    } else if (page === "blog") {
-      title = `פוסטים · ${base}`; desc = "תובנות ותגליות בגימטריה — בלוג SOD1820";
-    } else if (page === "about") {
-      title = `צוריאל פולייס · ${base}`; desc = "חוקר גימטריה עצמאי עם 10+ שנות מחקר";
-    } else if (page === "post" && selectedPost) {
-      title = `${stripHtml(selectedPost.title?.rendered ?? "")} · ${base}`;
-      desc = stripHtml(selectedPost.excerpt?.rendered ?? "").slice(0, 160);
-      const img = selectedPost._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
-      if (img) image = img;
-    } else if (page === "number" && selectedTag) {
-      const m = KEY_NUMBERS[parseInt(selectedTag.name, 10)];
-      title = `המספר ${selectedTag.name} · ${base}`;
-      desc = m || `כל הפוסטים עם המספר ${selectedTag.name}`;
-    } else if (page === "detail" && selectedCourse) {
-      title = `${selectedCourse.title} · ${base}`; desc = selectedCourse.desc;
-    }
-
-    document.title = title;
-    const setMeta = (sel, attr, key, val) => {
-      let el = document.querySelector(sel);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, key); document.head.appendChild(el); }
-      el.setAttribute("content", val);
-    };
-    setMeta('meta[name="description"]', "name", "description", desc);
-    setMeta('meta[property="og:title"]', "property", "og:title", title);
-    setMeta('meta[property="og:description"]', "property", "og:description", desc);
-    setMeta('meta[property="og:image"]', "property", "og:image", image);
-    setMeta('meta[property="og:type"]', "property", "og:type", "website");
-  }, [page, selectedPost, selectedTag, selectedCourse]);
-}
-
 // ===== COURSE CARD =====
 
 function CourseCard({ course, onBuy, onDetail }) {
@@ -405,18 +310,9 @@ function CourseCard({ course, onBuy, onDetail }) {
 
 // ===== COURSE DETAIL PAGE =====
 
-function CourseDetailPage({ course, onBuy, onBack, onNav }) {
+function CourseDetailPage({ course, onBuy, onBack }) {
   return (
-    <div style={{ direction: "rtl" }}>
-      <Breadcrumb
-        onNav={onNav || onBack}
-        crumbs={[
-          { label: "ראשי", route: "home" },
-          { label: "קורסים", route: "courses" },
-          { label: course?.title ?? "קורס", route: null },
-        ]}
-      />
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "32px 24px 60px" }}>
+    <div style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
       <button onClick={onBack} style={{
         background: "none", border: "none", color: C.muted,
         cursor: "pointer", fontFamily: F.heading,
@@ -623,14 +519,11 @@ function Landing({ onNav }) {
             SOD1820 &nbsp;·&nbsp; סוד המספרים
           </div>
 
-          {/* rotating crown — כתר */}
-          <div style={{ marginBottom: 24, lineHeight: 1 }}>
-            <span className="crown-spinning" style={{
-              fontSize: 68,
-              color: C.goldBright,
-              display: "inline-block",
-            }}>♛</span>
-          </div>
+          {/* crown ornament */}
+          <div style={{
+            fontSize: 36, color: C.gold, marginBottom: 20,
+            opacity: 0.7, lineHeight: 1
+          }}>✦</div>
 
           <h1 style={{
             fontSize: "clamp(40px, 8vw, 80px)",
@@ -682,9 +575,7 @@ function Landing({ onNav }) {
       </div>
 
       {/* ── LATEST POSTS ── */}
-      <FadeIn delay={100}>
-        <LatestPostsSection onNav={onNav} />
-      </FadeIn>
+      <LatestPostsSection onNav={onNav} />
 
     </div>
   );
@@ -2075,205 +1966,117 @@ function NumberSidebar({ onNav }) {
 
 const THEMES_DATA = [
   {
-    id: "gold",
-    name: "כהה/זהב — משדרג",
-    label: "א",
-    desc: "הכיוון הנוכחי — מלוטש יותר. רווח גדול, היררכיה ברורה, זהב עתיק.",
-    bg: "#09070100", bgSolid: "#090701",
-    surface: "#110d02", surfaceHover: "#181205",
-    heading: "#C9A84C", accent: "#C9A84C", accentDim: "#7a6020",
-    text: "#e8e0ce", muted: "#7a7060",
-    border: "#2a2410", borderAccent: "#C9A84C55",
-    divider: "#C9A84C",
+    id: "a", name: "תבנית א — עמוק",
+    bg: "#080500", text: "#f5f0e8", heading: "#CFB53B",
+    accent: "#CFB53B", surface: "#0e0a00",
     font: "'Heebo', sans-serif",
-    heroNum: "אמת",
-    tag: "זהב עתיק",
   },
   {
-    id: "mystic",
-    name: "מיסטי — כחול לילה",
-    label: "ב",
-    desc: "שמי לילה כהים, כסף-כחול, אווירת קבלה ורוחניות.",
-    bg: "#05081800", bgSolid: "#050818",
-    surface: "#0b1030", surfaceHover: "#111840",
-    heading: "#b8d0f0", accent: "#7b9bd0", accentDim: "#2a3a60",
-    text: "#8fa8cc", muted: "#4a5a80",
-    border: "#1a2448", borderAccent: "#7b9bd055",
-    divider: "#7b9bd0",
+    id: "b", name: "תבנית ב — זהב",
+    bg: "#0a0800", text: "#FFD700", heading: "#FFD700",
+    accent: "#FFD700", surface: "#130e00",
     font: "'Heebo', sans-serif",
-    heroNum: "אמת",
-    tag: "כחול כסף",
   },
   {
-    id: "gematria",
-    name: "ניקוד/גימטריה — ייחודי",
-    label: "ג",
-    desc: "כתב עברי קדום, מספרים כדקורציה, פרגמנט קדום. David Libre.",
-    bg: "#0c080000", bgSolid: "#0c0800",
-    surface: "#160f04", surfaceHover: "#1e1608",
-    heading: "#f0e8d0", accent: "#c87941", accentDim: "#5a3010",
-    text: "#b8a888", muted: "#685840",
-    border: "#2c1e0a", borderAccent: "#c8794155",
-    divider: "#c87941",
+    id: "c", name: "תבנית ג — קלאסי",
+    bg: "#000000", text: "#ffffff", heading: "#e8c040",
+    accent: "#e8c040", surface: "#0d0d0d",
     font: "'David Libre', serif",
-    heroNum: "אֶמֶת",
-    tag: "ספרדי קדום",
   },
 ];
 
 function ThemePreviewPage() {
-  const [active, setActive] = useState("gold");
+  const [active, setActive] = useState("a");
   const T = THEMES_DATA.find(t => t.id === active);
 
   return (
-    <div style={{ direction: "rtl", minHeight: "100vh", background: C.bg, padding: "60px 24px 100px" }}>
-      <SectionHeader eyebrow="בחר כיוון עיצובי" title="תצוגה מקדימה" />
+    <div style={{ direction: "rtl", padding: "60px 24px" }}>
+      <SectionHeader eyebrow="עיצוב" title="תצוגה מקדימה" />
 
       {/* switcher */}
-      <div style={{ display: "flex", gap: 0, justifyContent: "center", marginBottom: 52, flexWrap: "wrap" }}>
-        {THEMES_DATA.map((t, i) => (
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 44, flexWrap: "wrap" }}>
+        {THEMES_DATA.map(t => (
           <button key={t.id} onClick={() => setActive(t.id)} style={{
-            background: active === t.id ? t.bgSolid : "transparent",
-            border: `1px solid ${active === t.id ? t.accent : C.border}`,
-            borderRight: i > 0 ? "none" : undefined,
-            color: active === t.id ? t.heading : C.muted,
-            padding: "12px 32px", cursor: "pointer",
-            fontFamily: F.heading, fontSize: 13, fontWeight: 700,
-            letterSpacing: 2, transition: "all 0.2s",
-          }}>{t.label}  {t.name}</button>
+            background: active === t.id ? C.goldDark : "transparent",
+            border: `2px solid ${active === t.id ? C.gold : C.border}`,
+            color: active === t.id ? C.goldBright : C.muted,
+            padding: "10px 28px", cursor: "pointer",
+            fontFamily: F.heading, fontSize: 14, fontWeight: 700,
+            borderRadius: 2, transition: "all 0.25s",
+          }}>{t.name}</button>
         ))}
       </div>
 
-      {/* description */}
-      <div style={{ textAlign: "center", marginBottom: 40, color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>
-        {T.desc}
-      </div>
-
-      {/* ── FULL SITE MOCKUP ── */}
+      {/* preview panel */}
       <div style={{
-        maxWidth: 720, margin: "0 auto",
-        background: T.bgSolid,
-        border: `1px solid ${T.border}`,
-        borderRadius: 3,
-        boxShadow: `0 0 80px rgba(0,0,0,0.9)`,
-        overflow: "hidden",
-        transition: "all 0.3s",
+        maxWidth: 680, margin: "0 auto",
+        background: T.bg,
+        border: "1px solid #3a3a2a",
+        borderRadius: 4, padding: "52px 44px",
+        transition: "background 0.35s",
+        boxShadow: `0 0 60px rgba(0,0,0,0.8)`,
       }}>
+        <h2 style={{
+          color: T.heading, fontFamily: T.font,
+          fontSize: 28, fontWeight: 700, margin: "0 0 14px",
+          textAlign: "center", letterSpacing: 1,
+        }}>כי לה' המלוכה</h2>
 
-        {/* NAVBAR */}
-        <div style={{
-          background: T.bgSolid, borderBottom: `1px solid ${T.border}`,
-          padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center",
+        <div style={{ width: 56, height: 1, background: T.accent, margin: "0 auto 28px" }} />
+
+        <p style={{
+          color: T.text, fontFamily: T.font,
+          fontSize: 16, lineHeight: 2, margin: "0 0 36px", textAlign: "center",
         }}>
-          <div style={{ color: T.heading, fontFamily: T.font, fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>
-            סוד 1820
-          </div>
-          <div style={{ display: "flex", gap: 24 }}>
-            {["בלוג", "קורסים", "אודות"].map(n => (
-              <span key={n} style={{ color: T.muted, fontFamily: T.font, fontSize: 11, letterSpacing: 3, cursor: "pointer" }}>{n}</span>
-            ))}
-          </div>
-        </div>
+          גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה
+          את המציאות מאחורי המציאות.
+        </p>
 
-        {/* HERO */}
+        {/* sample card */}
         <div style={{
-          padding: "64px 44px 56px", textAlign: "center",
-          borderBottom: `1px solid ${T.border}`,
-          background: `linear-gradient(180deg, ${T.surface} 0%, ${T.bgSolid} 100%)`,
-        }}>
-          <div style={{
-            fontSize: 64, fontFamily: T.font, fontWeight: 900,
-            color: T.accent, letterSpacing: 8, marginBottom: 4, lineHeight: 1,
-          }}>
-            {T.heroNum}
-          </div>
-          <div style={{ width: 1, height: 32, background: T.divider, margin: "0 auto 20px", opacity: 0.5 }} />
-          <div style={{ fontSize: 9, color: T.muted, letterSpacing: 8, fontFamily: T.font, marginBottom: 28 }}>
-            SOD · 1820 · {T.tag}
-          </div>
-          <h1 style={{
-            color: T.heading, fontFamily: T.font,
-            fontSize: 26, fontWeight: 700, margin: "0 0 16px", letterSpacing: 1,
-          }}>
-            הקודים הנסתרים של השפה העברית
-          </h1>
-          <p style={{
-            color: T.text, fontFamily: T.font,
-            fontSize: 15, lineHeight: 2.1, margin: "0 auto 36px", maxWidth: 420,
-          }}>
-            גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה
-            את המציאות שמאחורי המציאות.
-          </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <button style={{
-              background: T.accent, color: T.bgSolid,
-              border: "none", padding: "11px 30px",
-              fontFamily: T.font, fontSize: 12, fontWeight: 700,
-              letterSpacing: 2, cursor: "pointer",
-            }}>לבלוג</button>
-            <button style={{
-              background: "transparent", color: T.heading,
-              border: `1px solid ${T.borderAccent}`, padding: "11px 30px",
-              fontFamily: T.font, fontSize: 12, fontWeight: 700,
-              letterSpacing: 2, cursor: "pointer",
-            }}>מי זה צוריאל?</button>
-          </div>
-        </div>
-
-        {/* POSTS GRID */}
-        <div style={{ padding: "44px 28px", borderBottom: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 9, color: T.muted, letterSpacing: 6, textAlign: "center", marginBottom: 8, fontFamily: T.font }}>פוסטים אחרונים</div>
-          <div style={{ width: 32, height: 1, background: T.divider, margin: "0 auto 32px", opacity: 0.6 }} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-            {["מספר 26 — שם הוי״ה", "גימטריה של בראשית", "סוד האות אלף"].map((title, i) => (
-              <div key={i} style={{
-                background: T.surface,
-                border: `1px solid ${T.border}`,
-                borderTop: `2px solid ${T.accent}`,
-                padding: "18px 16px",
-              }}>
-                <div style={{ color: T.accent, fontSize: 10, letterSpacing: 4, fontFamily: T.font, marginBottom: 8 }}>
-                  {["26", "2308", "1"].at(i)}
-                </div>
-                <div style={{ color: T.heading, fontFamily: T.font, fontSize: 13, fontWeight: 700, lineHeight: 1.5 }}>
-                  {title}
-                </div>
-                <div style={{ color: T.muted, fontSize: 10, marginTop: 8, fontFamily: T.font }}>
-                  קרא עוד ←
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* FOOTER */}
-        <div style={{
-          padding: "24px 28px", display: "flex", justifyContent: "space-between", alignItems: "center",
           background: T.surface,
+          border: `1px solid ${T.accent}55`,
+          borderTop: `2px solid ${T.accent}`,
+          borderRadius: 2, padding: "22px 24px",
+          display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16,
         }}>
-          <div style={{ color: T.muted, fontSize: 9, fontFamily: T.font, letterSpacing: 3 }}>© 2025 SOD1820</div>
-          <div style={{ display: "flex", gap: 16 }}>
-            {["ניהול", "תצוגה מקדימה", "דוח מספרים"].map(l => (
-              <span key={l} style={{ color: T.accentDim, fontSize: 9, fontFamily: T.font, letterSpacing: 1 }}>{l}</span>
-            ))}
+          <div>
+            <div style={{ color: T.heading, fontFamily: T.font, fontSize: 19, fontWeight: 700 }}>
+              שער האלף-בית
+            </div>
+            <div style={{ color: T.text, fontFamily: T.font, fontSize: 13, opacity: 0.65, marginTop: 5 }}>
+              גימטריה רגילה · 12 שיעורים
+            </div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: T.accent, fontFamily: T.font, fontSize: 26, fontWeight: 900, marginBottom: 10 }}>
+              ₪297
+            </div>
+            <button style={{
+              background: "transparent",
+              border: `1px solid ${T.accent}`,
+              color: T.accent, padding: "7px 20px",
+              cursor: "pointer", fontFamily: T.font,
+              fontSize: 12, fontWeight: 700, borderRadius: 2,
+            }}>לרכישה</button>
           </div>
         </div>
-      </div>
 
-      {/* COLOR PALETTE */}
-      <div style={{ maxWidth: 720, margin: "24px auto 0", display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-        {[["רקע", T.bgSolid], ["שטח", T.surface], ["כותרת", T.heading], ["הדגשה", T.accent], ["טקסט", T.text], ["אפור", T.muted]].map(([label, val]) => (
-          <div key={label} style={{
-            background: "#0a0a0a", border: "1px solid #1e1e1e",
-            borderRadius: 2, padding: "5px 12px",
-            display: "flex", gap: 8, alignItems: "center",
-          }}>
-            <div style={{ width: 10, height: 10, background: val, borderRadius: 2, border: "1px solid rgba(255,255,255,0.15)", flexShrink: 0 }} />
-            <span style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'Heebo', sans-serif", fontSize: 10, letterSpacing: 1 }}>
-              {label}
-            </span>
-          </div>
-        ))}
+        {/* color swatches */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginTop: 28 }}>
+          {[["רקע", T.bg], ["טקסט", T.text], ["כותרת", T.heading]].map(([label, val]) => (
+            <div key={label} style={{
+              background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 2, padding: "5px 12px",
+              display: "flex", gap: 8, alignItems: "center",
+            }}>
+              <div style={{ width: 11, height: 11, background: val, borderRadius: 2, border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }} />
+              <span style={{ color: "rgba(255,255,255,0.6)", fontFamily: "'Heebo', sans-serif", fontSize: 10, letterSpacing: 1 }}>
+                {label}: {val}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
