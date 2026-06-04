@@ -400,6 +400,55 @@ function CourseDetailPage({ course, onBuy, onBack }) {
   );
 }
 
+// ===== LATEST POSTS SECTION =====
+
+function LatestPostsSection({ onNav }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${WP_API}?_embed=1&per_page=6`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { if (Array.isArray(data)) setPosts(data); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (!loading && posts.length === 0) return null;
+
+  return (
+    <div style={{
+      padding: "88px 24px",
+      borderTop: `1px solid ${C.border}`,
+      borderBottom: `1px solid ${C.border}`,
+      background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
+    }}>
+      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <SectionHeader eyebrow="מהבלוג" title="פוסטים אחרונים" />
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
+          gap: 16,
+        }}>
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+            : posts.map(post => (
+                <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />
+              ))
+          }
+        </div>
+        {!loading && (
+          <div style={{ textAlign: "center", marginTop: 44 }}>
+            <GoldButton variant="secondary" onClick={() => onNav("blog")}>
+              לכל הפוסטים ←
+            </GoldButton>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ===== LANDING PAGE =====
 
 function Landing({ onNav }) {
@@ -562,6 +611,9 @@ function Landing({ onNav }) {
           </GoldButton>
         </div>
       </div>
+
+      {/* ── LATEST POSTS ── */}
+      <LatestPostsSection onNav={onNav} />
 
       {/* ── TESTIMONIALS ── */}
       <div style={{ padding: "88px 24px" }}>
@@ -1199,7 +1251,7 @@ function BlogPage({ onNav }) {
 
   return (
     <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
-      <SectionHeader eyebrow="הבלוג" title="תובנות ותגליות" />
+      <SectionHeader eyebrow="פוסטים" title="תובנות ותגליות" />
 
       {/* category filter */}
       {categories.length > 0 && (
@@ -1306,7 +1358,7 @@ function BlogPage({ onNav }) {
 // ===== POST PAGE =====
 
 const POST_CONTENT_CSS = `
-  .sod-post-content { direction: rtl; }
+  .sod-post-content { direction: rtl; color: #f0ede0; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
     font-family: 'Cinzel', serif;
@@ -1330,7 +1382,7 @@ const POST_CONTENT_CSS = `
     font-size: clamp(15px, 2.1vw, 21px);
   }
   .sod-post-content p {
-    color: ${C.goldLight};
+    color: #f0ede0;
     font-family: 'Frank Ruhl Libre', serif;
     font-size: 15.5px;
     line-height: 2.1;
@@ -1357,7 +1409,7 @@ const POST_CONTENT_CSS = `
     margin: 0 0 1.4em;
   }
   .sod-post-content li {
-    color: ${C.goldLight};
+    color: #f0ede0;
     font-family: 'Frank Ruhl Libre', serif;
     font-size: 15px;
     line-height: 2;
@@ -1482,7 +1534,7 @@ function PostPage({ post, onBack }) {
             fontSize: 10, marginBottom: 40, letterSpacing: 4,
             textTransform: "uppercase", transition: "color 0.2s",
           }}
-        >← חזרה לבלוג</button>
+        >← חזרה לפוסטים</button>
 
         {loading && (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
@@ -1497,7 +1549,7 @@ function PostPage({ post, onBack }) {
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <p style={{ color: "#b05050", fontFamily: F.body, fontSize: 14 }}>{error}</p>
             <GoldButton variant="secondary" style={{ marginTop: 20 }} onClick={onBack}>
-              חזרה לבלוג
+              חזרה לפוסטים
             </GoldButton>
           </div>
         )}
@@ -1563,7 +1615,7 @@ const WP_MENU_BASE = "https://sod1820.co.il/wp-json";
 const STATIC_NAV_ITEMS = [
   { key: "home",    label: "ראשי" },
   { key: "courses", label: "קורסים" },
-  { key: "blog",    label: "בלוג" },
+  { key: "blog",    label: "פוסטים" },
   { key: "about",   label: "אודות" },
   { key: "login",   label: "כניסה" },
 ];
@@ -1636,7 +1688,7 @@ async function fetchWpMenu() {
 const NAV_ITEMS = [
   { key: "home",    label: "ראשי" },
   { key: "courses", label: "קורסים" },
-  { key: "blog",    label: "בלוג" },
+  { key: "blog",    label: "פוסטים" },
   { key: "about",   label: "אודות" },
   { key: "login",   label: "כניסה" },
 ];
