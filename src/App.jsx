@@ -997,8 +997,11 @@ function stripHtml(html = "") {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#8230;/g, "…")
+    .replace(/&#8211;/g, "–")
+    .replace(/&#8212;/g, "—")
     .replace(/&#8216;|&#8217;/g, "'")
     .replace(/&#8220;|&#8221;/g, '"')
+    .replace(/&#(\d+);/g, (_, code) => { try { return String.fromCodePoint(parseInt(code, 10)); } catch { return ""; } })
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -1044,10 +1047,12 @@ function PostSkeleton() {
 function PostCard({ post, onPost }) {
   const [hov, setHov] = useState(false);
 
-  const image = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
-  const title = stripHtml(post.title?.rendered ?? "");
+  const image   = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
+  const title   = stripHtml(post.title?.rendered ?? "");
   const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 180);
-  const date = formatDateHe(post.date);
+  const date    = formatDateHe(post.date);
+  const tags    = (post._embedded?.["wp:term"] ?? []).flat()
+                    .filter(t => t.taxonomy === "post_tag").slice(0, 4);
 
   return (
     <div
@@ -1115,10 +1120,25 @@ function PostCard({ post, onPost }) {
 
         <p style={{
           color: C.muted, fontSize: 13, lineHeight: 1.95,
-          margin: "0 0 22px", flex: 1, fontFamily: F.body,
+          margin: "0 0 14px", flex: 1, fontFamily: F.body,
         }}>
           {excerpt}{excerpt.length >= 180 ? "…" : ""}
         </p>
+
+        {tags.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 16 }}>
+            {tags.map(tag => (
+              <span key={tag.id} style={{
+                background: C.goldDeep,
+                border: `1px solid ${C.border}`,
+                color: C.goldDim,
+                fontSize: 8, padding: "3px 9px",
+                fontFamily: F.heading, letterSpacing: 2,
+                textTransform: "uppercase", borderRadius: 1,
+              }}>{tag.name}</span>
+            ))}
+          </div>
+        )}
 
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <RoyalDivider width={28} />
@@ -1139,11 +1159,23 @@ function BlogPage({ onNav }) {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [selectedCat, setSelectedCat] = useState(0);
 
+  // fetch categories once
+  useEffect(() => {
+    fetch("https://sod1820.co.il/wp-json/wp/v2/categories?per_page=40&hide_empty=true")
+      .then(r => r.ok ? r.json() : [])
+      .then(data => Array.isArray(data) ? setCategories(data) : null)
+      .catch(() => {});
+  }, []);
+
+  // fetch posts when page or category changes
   useEffect(() => {
     setLoading(true);
     setError("");
-    fetch(`${WP_API}?_embed=1&per_page=${PER_PAGE}&page=${currentPage}`)
+    const catParam = selectedCat ? `&categories=${selectedCat}` : "";
+    fetch(`${WP_API}?_embed=1&per_page=${PER_PAGE}&page=${currentPage}${catParam}`)
       .then(r => {
         const tp = r.headers.get("X-WP-TotalPages");
         if (tp) setTotalPages(parseInt(tp, 10));
@@ -1152,16 +1184,54 @@ function BlogPage({ onNav }) {
       })
       .then(data => { setPosts(data); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, [currentPage]);
+  }, [currentPage, selectedCat]);
 
   function goTo(p) {
     setCurrentPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function selectCat(id) {
+    setSelectedCat(id);
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
     <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
       <SectionHeader eyebrow="הבלוג" title="תובנות ותגליות" />
+
+      {/* category filter */}
+      {categories.length > 0 && (
+        <div style={{
+          display: "flex", gap: 8, justifyContent: "center",
+          flexWrap: "wrap", marginBottom: 44,
+        }}>
+          <button onClick={() => selectCat(0)} style={{
+            background: selectedCat === 0 ? C.goldDark : "transparent",
+            border: `1px solid ${selectedCat === 0 ? C.gold : C.border}`,
+            color: selectedCat === 0 ? C.goldBright : C.muted,
+            padding: "7px 18px", cursor: "pointer",
+            fontFamily: F.heading, fontSize: 10,
+            letterSpacing: 3, borderRadius: 2, transition: "all 0.2s",
+            textTransform: "uppercase",
+          }}>הכל</button>
+          {categories.map(cat => (
+            <button key={cat.id} onClick={() => selectCat(cat.id)} style={{
+              background: selectedCat === cat.id ? C.goldDark : "transparent",
+              border: `1px solid ${selectedCat === cat.id ? C.gold : C.border}`,
+              color: selectedCat === cat.id ? C.goldBright : C.muted,
+              padding: "7px 18px", cursor: "pointer",
+              fontFamily: F.heading, fontSize: 10,
+              letterSpacing: 3, borderRadius: 2, transition: "all 0.2s",
+              textTransform: "uppercase",
+            }}>
+              {cat.name}
+              <span style={{ fontSize: 8, opacity: 0.5, marginRight: 5 }}>({cat.count})</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && (
         <div style={{
@@ -1239,21 +1309,31 @@ const POST_CONTENT_CSS = `
   .sod-post-content { direction: rtl; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
-    color: ${C.goldLight};
     font-family: 'Cinzel', serif;
-    font-weight: 700;
-    line-height: 1.35;
-    margin: 2.2em 0 0.8em;
-    letter-spacing: 1px;
+    font-weight: 900;
+    line-height: 1.3;
+    margin: 2.4em 0 0.9em;
+    letter-spacing: 2px;
+    text-align: center;
   }
-  .sod-post-content h1 { font-size: clamp(22px, 3vw, 32px); }
-  .sod-post-content h2 { font-size: clamp(18px, 2.5vw, 26px); }
-  .sod-post-content h3 { font-size: clamp(15px, 2vw, 20px); }
+  .sod-post-content h1 {
+    color: ${C.goldBright};
+    font-size: clamp(22px, 3.2vw, 34px);
+    text-shadow: 0 0 40px ${C.goldDeep};
+  }
+  .sod-post-content h2 {
+    color: ${C.goldLight};
+    font-size: clamp(18px, 2.6vw, 28px);
+  }
+  .sod-post-content h3 {
+    color: ${C.gold};
+    font-size: clamp(15px, 2.1vw, 21px);
+  }
   .sod-post-content p {
-    color: ${C.goldDim};
+    color: ${C.goldLight};
     font-family: 'Frank Ruhl Libre', serif;
-    font-size: 15px;
-    line-height: 2.05;
+    font-size: 15.5px;
+    line-height: 2.1;
     margin: 0 0 1.4em;
   }
   .sod-post-content a {
@@ -1277,7 +1357,7 @@ const POST_CONTENT_CSS = `
     margin: 0 0 1.4em;
   }
   .sod-post-content li {
-    color: ${C.goldDim};
+    color: ${C.goldLight};
     font-family: 'Frank Ruhl Libre', serif;
     font-size: 15px;
     line-height: 2;
@@ -1591,42 +1671,52 @@ function Navbar({ page, onNav, navItems }) {
       background: scrolled ? "rgba(5,4,0,0.98)" : "rgba(5,4,0,0.88)",
       backdropFilter: "blur(16px)",
       borderBottom: `1px solid ${scrolled ? C.borderGold : C.border}`,
-      padding: "0 36px",
-      display: "flex", alignItems: "center",
-      justifyContent: "space-between",
-      height: 60,
+      padding: "0 32px",
+      display: "grid",
+      gridTemplateColumns: "auto 1fr auto",
+      alignItems: "center",
+      height: 64,
       direction: "rtl",
       transition: "all 0.35s",
+      gap: 16,
     }}>
+      {/* logo — right in RTL */}
       <button onClick={() => onNav("home")} style={{
         background: "none", border: "none", cursor: "pointer",
         fontFamily: F.royal,
         color: C.goldBright,
         fontSize: 15, fontWeight: 700, letterSpacing: 4,
         textShadow: `0 0 20px ${C.goldDark}`,
+        whiteSpace: "nowrap",
       }}>SOD<span style={{ color: C.gold }}>1820</span></button>
 
-      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+      {/* nav items — centered */}
+      <div style={{ display: "flex", gap: 0, alignItems: "center", justifyContent: "center" }}>
         {items.map(n => (
           <button key={n.key} onClick={() => handleItem(n)} style={{
             background: isActive(n) ? C.goldDark : "none",
             border: "none",
             color: isActive(n) ? C.goldBright : C.muted,
-            padding: "6px 16px",
+            padding: "8px 22px",
             cursor: "pointer",
             fontFamily: F.heading,
-            fontSize: 11, letterSpacing: 2,
+            fontSize: 14, fontWeight: 700, letterSpacing: 3,
             borderRadius: 2, transition: "all 0.25s",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
           }}>
             {n.label}
             {n.url && !n.route && (
-              <span style={{ fontSize: 7, marginRight: 3, opacity: 0.5 }}>↗</span>
+              <span style={{ fontSize: 7, marginRight: 4, opacity: 0.45 }}>↗</span>
             )}
           </button>
         ))}
+      </div>
+
+      {/* CTA — left in RTL */}
+      <div style={{ display: "flex", justifyContent: "flex-start" }}>
         <GoldButton
-          style={{ padding: "7px 18px", fontSize: 10, marginRight: 8, letterSpacing: 2 }}
+          style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
           onClick={() => onNav("checkout", COURSES[3])}
         >
           הרשם עכשיו
@@ -1735,30 +1825,41 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", color: C.gold, fontFamily: F.body }}>
-      <Navbar page={page} onNav={nav} navItems={navItems} />
-      <main>
-        {page === "home"     && <Landing onNav={nav} />}
-        {page === "courses"  && <CoursesPage onNav={nav} />}
-        {page === "about"    && <AboutPage onNav={nav} />}
-        {page === "blog"     && <BlogPage onNav={nav} />}
-        {page === "post"     && (
-          <PostPage
-            post={selectedPost}
-            onBack={() => nav("blog")}
-          />
-        )}
-        {page === "login"    && <LoginPage onNav={nav} />}
-        {page === "detail"   && (
-          <CourseDetailPage
-            course={selectedCourse}
-            onBuy={c => nav("checkout", c)}
-            onBack={() => nav("courses")}
-          />
-        )}
-        {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
-      </main>
-      <Footer onNav={nav} navItems={navItems} />
+    <div style={{ background: C.bg, minHeight: "100vh", color: C.gold, fontFamily: F.body, position: "relative" }}>
+      {/* space background */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        backgroundImage: "url(https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=20)",
+        backgroundSize: "cover", backgroundPosition: "center center",
+        opacity: 0.06,
+      }} />
+
+      {/* content */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Navbar page={page} onNav={nav} navItems={navItems} />
+        <main>
+          {page === "home"     && <Landing onNav={nav} />}
+          {page === "courses"  && <CoursesPage onNav={nav} />}
+          {page === "about"    && <AboutPage onNav={nav} />}
+          {page === "blog"     && <BlogPage onNav={nav} />}
+          {page === "post"     && (
+            <PostPage
+              post={selectedPost}
+              onBack={() => nav("blog")}
+            />
+          )}
+          {page === "login"    && <LoginPage onNav={nav} />}
+          {page === "detail"   && (
+            <CourseDetailPage
+              course={selectedCourse}
+              onBuy={c => nav("checkout", c)}
+              onBack={() => nav("courses")}
+            />
+          )}
+          {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
+        </main>
+        <Footer onNav={nav} navItems={navItems} />
+      </div>
     </div>
   );
 }
