@@ -20,8 +20,8 @@ const C = {
 };
 
 const F = {
-  royal:   "'Cinzel Decorative', 'Cinzel', serif",
-  heading: "'Cinzel', 'Frank Ruhl Libre', serif",
+  royal:   "'Heebo', sans-serif",
+  heading: "'Heebo', sans-serif",
   body:    "'Frank Ruhl Libre', serif",
   mono:    "'Courier New', monospace",
 };
@@ -1103,8 +1103,9 @@ function PostCard({ post, onPost }) {
   const title   = stripHtml(post.title?.rendered ?? "");
   const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 180);
   const date    = formatDateHe(post.date);
-  const tags    = (post._embedded?.["wp:term"] ?? []).flat()
-                    .filter(t => t.taxonomy === "post_tag").slice(0, 4);
+  const terms   = (post._embedded?.["wp:term"] ?? []).flat();
+  const cats    = terms.filter(t => t.taxonomy === "category").slice(0, 2);
+  const tags    = terms.filter(t => t.taxonomy === "post_tag").slice(0, 3);
 
   return (
     <div
@@ -1156,41 +1157,21 @@ function PostCard({ post, onPost }) {
       </div>
 
       {/* content */}
-      <div style={{ padding: "22px 24px 28px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{
-          fontSize: 9, color: C.muted, letterSpacing: 4,
-          marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase",
-        }}>{date}</div>
-
+      <div style={{ padding: "22px 24px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
         <h3 style={{
           color: hov ? C.goldBright : C.goldLight,
-          margin: "0 0 14px", fontSize: 17,
+          margin: "0 0 12px", fontSize: 17,
           fontFamily: F.royal, fontWeight: 700,
-          lineHeight: 1.45, letterSpacing: 0.5,
+          lineHeight: 1.45,
           transition: "color 0.25s",
         }}>{title}</h3>
 
         <p style={{
           color: C.muted, fontSize: 13, lineHeight: 1.95,
-          margin: "0 0 14px", flex: 1, fontFamily: F.body,
+          margin: "0 0 18px", flex: 1, fontFamily: F.body,
         }}>
           {excerpt}{excerpt.length >= 180 ? "…" : ""}
         </p>
-
-        {tags.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 16 }}>
-            {tags.map(tag => (
-              <span key={tag.id} style={{
-                background: C.goldDeep,
-                border: `1px solid ${C.border}`,
-                color: C.goldDim,
-                fontSize: 8, padding: "3px 9px",
-                fontFamily: F.heading, letterSpacing: 2,
-                textTransform: "uppercase", borderRadius: 1,
-              }}>{tag.name}</span>
-            ))}
-          </div>
-        )}
 
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <RoyalDivider width={28} />
@@ -1200,6 +1181,43 @@ function PostCard({ post, onPost }) {
             textTransform: "uppercase", transition: "color 0.25s",
           }}>קרא עוד</span>
         </div>
+      </div>
+
+      {/* meta row */}
+      <div style={{
+        padding: "9px 20px 13px",
+        borderTop: `1px solid ${C.faint}`,
+        display: "flex", flexWrap: "wrap",
+        alignItems: "center", gap: 5,
+        background: hov ? C.surface2 : C.surface,
+        transition: "background 0.3s",
+      }}>
+        <span style={{
+          fontSize: 9, color: C.muted, fontFamily: F.heading,
+          letterSpacing: 0, marginLeft: 6, whiteSpace: "nowrap",
+        }}>{date}</span>
+
+        {cats.map(cat => (
+          <span key={cat.id} style={{
+            background: C.goldDark,
+            border: `1px solid ${C.borderGold}`,
+            color: C.goldBright,
+            fontSize: 8, padding: "2px 8px",
+            fontFamily: F.heading, letterSpacing: 1,
+            textTransform: "uppercase", borderRadius: 1,
+          }}>{cat.name}</span>
+        ))}
+
+        {tags.map(tag => (
+          <span key={tag.id} style={{
+            background: C.faint,
+            border: `1px solid ${C.border}`,
+            color: C.muted,
+            fontSize: 8, padding: "2px 8px",
+            fontFamily: F.heading, letterSpacing: 1,
+            textTransform: "uppercase", borderRadius: 1,
+          }}>{tag.name}</span>
+        ))}
       </div>
     </div>
   );
@@ -1361,25 +1379,25 @@ const POST_CONTENT_CSS = `
   .sod-post-content { direction: rtl; color: #f0ede0; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
     line-height: 1.3;
     margin: 2.4em 0 0.9em;
-    letter-spacing: 2px;
+    letter-spacing: 0;
     text-align: center;
   }
   .sod-post-content h1 {
     color: ${C.goldBright};
-    font-size: clamp(22px, 3.2vw, 34px);
+    font-size: clamp(18px, 2.6vw, 27px);
     text-shadow: 0 0 40px ${C.goldDeep};
   }
   .sod-post-content h2 {
     color: ${C.goldLight};
-    font-size: clamp(18px, 2.6vw, 28px);
+    font-size: clamp(14px, 2.1vw, 22px);
   }
   .sod-post-content h3 {
     color: ${C.gold};
-    font-size: clamp(15px, 2.1vw, 21px);
+    font-size: clamp(12px, 1.7vw, 17px);
   }
   .sod-post-content p {
     color: #f0ede0;
@@ -1466,7 +1484,7 @@ const POST_CONTENT_CSS = `
   }
   .sod-post-content th {
     background: ${C.goldDark}; color: ${C.goldBright};
-    font-family: 'Cinzel', serif; font-size: 12px;
+    font-family: 'Heebo', sans-serif; font-size: 12px;
     padding: 10px 14px; text-align: right;
     border: 1px solid ${C.borderGold};
   }
