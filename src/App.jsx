@@ -2,19 +2,19 @@ import { useState, useEffect } from "react";
 
 // ===== DESIGN TOKENS =====
 const C = {
-  bg:           "#050400",
-  bgGlow:       "#0e0900",
-  gold:         "#B8860B",
-  goldLight:    "#CFB53B",
-  goldBright:   "#E8C84A",
-  goldDim:      "#7A5A08",
-  goldDark:     "#2A1E00",
+  bg:           "#080500",
+  bgGlow:       "#120d00",
+  gold:         "#CFB53B",
+  goldLight:    "#E8C840",
+  goldBright:   "#F5D860",
+  goldDim:      "#9A8040",
+  goldDark:     "#3a2a00",
   goldDeep:     "#1A1200",
-  surface:      "#090700",
-  surface2:     "#0d0b00",
-  border:       "#1E1600",
+  surface:      "#0e0a00",
+  surface2:     "#130e00",
+  border:       "#251a00",
   borderGold:   "#3a2a00",
-  muted:        "#4A3508",
+  muted:        "#8a8070",
   faint:        "#1A1200",
   danger:       "#8B2020",
 };
@@ -37,7 +37,7 @@ const COURSES = [
     level: "מתחיל",
     tag: "פופולרי",
     desc: "הבסיס המוחלט. תלמד לקרוא מספרים כשפה חיה — כל אות, כל שורש, כל פסוק.",
-    color: "#B8860B",
+    color: "#CFB53B",
     syllabus: ["מהי גימטריה?","22 האותיות וערכן","חישוב מילים ופסוקים","שורשים ומשפחות מילים","יישום בחיי היומיום","תרגול מעשי מלא"],
   },
   {
@@ -61,7 +61,7 @@ const COURSES = [
     level: "בינוני",
     tag: "",
     desc: "א↔ל, ב↔מ — כל מילה היא גם מילה אחרת. גלה את הממד הנסתר של כל מושג.",
-    color: "#B8860B",
+    color: "#CFB53B",
     syllabus: ["שיטת אלבם","לוח ה-11 היפוכים","מילים ומשמעויות כפולות","סודות בשמות","יישומים מתקדמים","פרויקט גמר"],
   },
   {
@@ -196,14 +196,14 @@ function SectionHeader({ eyebrow, title, center = true }) {
     <div style={{ textAlign: center ? "center" : "right", marginBottom: 56 }}>
       {eyebrow && (
         <div style={{
-          fontSize: 10, letterSpacing: 6, color: C.goldDim,
+          fontSize: 12, letterSpacing: 6, color: C.goldDim,
           marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase"
         }}>{eyebrow}</div>
       )}
       <h2 style={{
         color: C.goldLight,
         margin: "0 0 20px",
-        fontSize: "clamp(22px, 3.5vw, 34px)",
+        fontSize: "clamp(26px, 4.2vw, 40px)",
         fontFamily: F.royal,
         fontWeight: 700,
         letterSpacing: 2,
@@ -283,7 +283,7 @@ function CourseCard({ course, onBuy, onDetail }) {
         }}>{course.subtitle}</div>
 
         <p style={{
-          color: C.muted, fontSize: 14, lineHeight: 1.85,
+          color: "#f5f0e8", fontSize: 16, lineHeight: 1.85,
           margin: "0 0 24px", flex: 1,
           fontFamily: F.body
         }}>{course.desc}</p>
@@ -651,7 +651,7 @@ function Landing({ onNav }) {
                   {"★".repeat(t.stars)}
                 </div>
                 <p style={{
-                  color: C.goldDim, fontSize: 14, lineHeight: 1.9,
+                  color: "#f5f0e8", fontSize: 17, lineHeight: 1.9,
                   margin: "0 0 16px", fontFamily: F.body, fontStyle: "italic"
                 }}>
                   "{t.text}"
@@ -1186,7 +1186,7 @@ function PostCard({ post, onPost }) {
         }}>{title}</h3>
 
         <p style={{
-          color: C.muted, fontSize: 13, lineHeight: 1.95,
+          color: "#f5f0e8", fontSize: 16, lineHeight: 1.95,
           margin: "0 0 18px", flex: 1, fontFamily: F.body,
         }}>
           {excerpt}{excerpt.length >= 180 ? "…" : ""}
@@ -2051,6 +2051,367 @@ function NumberSidebar({ onNav }) {
   );
 }
 
+// ===== THEME PREVIEW PAGE =====
+
+const THEMES_DATA = [
+  {
+    id: "a", name: "תבנית א — עמוק",
+    bg: "#080500", text: "#f5f0e8", heading: "#CFB53B",
+    accent: "#CFB53B", surface: "#0e0a00",
+    font: "'Heebo', sans-serif",
+  },
+  {
+    id: "b", name: "תבנית ב — זהב",
+    bg: "#0a0800", text: "#FFD700", heading: "#FFD700",
+    accent: "#FFD700", surface: "#130e00",
+    font: "'Heebo', sans-serif",
+  },
+  {
+    id: "c", name: "תבנית ג — קלאסי",
+    bg: "#000000", text: "#ffffff", heading: "#e8c040",
+    accent: "#e8c040", surface: "#0d0d0d",
+    font: "'David Libre', serif",
+  },
+];
+
+function ThemePreviewPage() {
+  const [active, setActive] = useState("a");
+  const T = THEMES_DATA.find(t => t.id === active);
+
+  return (
+    <div style={{ direction: "rtl", padding: "60px 24px" }}>
+      <SectionHeader eyebrow="עיצוב" title="תצוגה מקדימה" />
+
+      {/* switcher */}
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 44, flexWrap: "wrap" }}>
+        {THEMES_DATA.map(t => (
+          <button key={t.id} onClick={() => setActive(t.id)} style={{
+            background: active === t.id ? C.goldDark : "transparent",
+            border: `2px solid ${active === t.id ? C.gold : C.border}`,
+            color: active === t.id ? C.goldBright : C.muted,
+            padding: "10px 28px", cursor: "pointer",
+            fontFamily: F.heading, fontSize: 14, fontWeight: 700,
+            borderRadius: 2, transition: "all 0.25s",
+          }}>{t.name}</button>
+        ))}
+      </div>
+
+      {/* preview panel */}
+      <div style={{
+        maxWidth: 680, margin: "0 auto",
+        background: T.bg,
+        border: "1px solid #3a3a2a",
+        borderRadius: 4, padding: "52px 44px",
+        transition: "background 0.35s",
+        boxShadow: `0 0 60px rgba(0,0,0,0.8)`,
+      }}>
+        <h2 style={{
+          color: T.heading, fontFamily: T.font,
+          fontSize: 28, fontWeight: 700, margin: "0 0 14px",
+          textAlign: "center", letterSpacing: 1,
+        }}>כי לה' המלוכה</h2>
+
+        <div style={{ width: 56, height: 1, background: T.accent, margin: "0 auto 28px" }} />
+
+        <p style={{
+          color: T.text, fontFamily: T.font,
+          fontSize: 16, lineHeight: 2, margin: "0 0 36px", textAlign: "center",
+        }}>
+          גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה
+          את המציאות מאחורי המציאות.
+        </p>
+
+        {/* sample card */}
+        <div style={{
+          background: T.surface,
+          border: `1px solid ${T.accent}55`,
+          borderTop: `2px solid ${T.accent}`,
+          borderRadius: 2, padding: "22px 24px",
+          display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16,
+        }}>
+          <div>
+            <div style={{ color: T.heading, fontFamily: T.font, fontSize: 19, fontWeight: 700 }}>
+              שער האלף-בית
+            </div>
+            <div style={{ color: T.text, fontFamily: T.font, fontSize: 13, opacity: 0.65, marginTop: 5 }}>
+              גימטריה רגילה · 12 שיעורים
+            </div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: T.accent, fontFamily: T.font, fontSize: 26, fontWeight: 900, marginBottom: 10 }}>
+              ₪297
+            </div>
+            <button style={{
+              background: "transparent",
+              border: `1px solid ${T.accent}`,
+              color: T.accent, padding: "7px 20px",
+              cursor: "pointer", fontFamily: T.font,
+              fontSize: 12, fontWeight: 700, borderRadius: 2,
+            }}>לרכישה</button>
+          </div>
+        </div>
+
+        {/* color swatches */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginTop: 28 }}>
+          {[["רקע", T.bg], ["טקסט", T.text], ["כותרת", T.heading]].map(([label, val]) => (
+            <div key={label} style={{
+              background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 2, padding: "5px 12px",
+              display: "flex", gap: 8, alignItems: "center",
+            }}>
+              <div style={{ width: 11, height: 11, background: val, borderRadius: 2, border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }} />
+              <span style={{ color: "rgba(255,255,255,0.6)", fontFamily: "'Heebo', sans-serif", fontSize: 10, letterSpacing: 1 }}>
+                {label}: {val}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== ADMIN PAGE =====
+
+const ADMIN_PASSWORD  = "sod1820";
+const ADMIN_STORE_KEY = "sod1820_clues";
+
+function AdminPage() {
+  const [authed,  setAuthed]  = useState(false);
+  const [pw,      setPw]      = useState("");
+  const [pwError, setPwError] = useState(false);
+
+  const [fTitle,    setFTitle]    = useState("");
+  const [fContent,  setFContent]  = useState("");
+  const [fNumbers,  setFNumbers]  = useState("");
+  const [fCategory, setFCategory] = useState("");
+  const [fImage,    setFImage]    = useState(null);
+  const [fImgName,  setFImgName]  = useState("");
+  const [okMsg,     setOkMsg]     = useState("");
+
+  const [clues, setClues] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(ADMIN_STORE_KEY) || "[]"); }
+    catch { return []; }
+  });
+
+  function handleAuth() {
+    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
+    else setPwError(true);
+  }
+
+  function handleImg(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFImgName(file.name);
+    const reader = new FileReader();
+    reader.onload = ev => setFImage(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function handleSave() {
+    if (!fTitle.trim()) return;
+    const clue = {
+      id: Date.now(),
+      title: fTitle.trim(),
+      content: fContent.trim(),
+      numbers: fNumbers.split(",").map(s => s.trim()).filter(Boolean),
+      category: fCategory.trim(),
+      image: fImage,
+      imageName: fImgName,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [clue, ...clues];
+    setClues(updated);
+    try { localStorage.setItem(ADMIN_STORE_KEY, JSON.stringify(updated)); } catch {}
+    setFTitle(""); setFContent(""); setFNumbers(""); setFCategory(""); setFImage(null); setFImgName("");
+    setOkMsg("✦ הרמז נשמר בהצלחה");
+    setTimeout(() => setOkMsg(""), 3000);
+  }
+
+  function handleDelete(id) {
+    const updated = clues.filter(c => c.id !== id);
+    setClues(updated);
+    try { localStorage.setItem(ADMIN_STORE_KEY, JSON.stringify(updated)); } catch {}
+  }
+
+  if (!authed) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`, borderRadius: 2,
+        padding: "44px 40px", width: "100%", maxWidth: 360,
+        boxShadow: `0 8px 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 40, color: C.goldDim, marginBottom: 16 }}>✦</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 20, margin: "0 0 16px" }}>
+            ממשק ניהול
+          </h2>
+          <RoyalDivider width={100} />
+        </div>
+        <RoyalInput label="סיסמה" value={pw} onChange={setPw} type="password" />
+        {pwError && <div style={{ color: "#c05050", fontSize: 13, marginBottom: 12, textAlign: "center", fontFamily: F.body }}>סיסמה שגויה</div>}
+        <GoldButton style={{ width: "100%", textAlign: "center" }} onClick={handleAuth}>כניסה</GoldButton>
+      </div>
+    </div>
+  );
+
+  const labelStyle = {
+    fontSize: 10, color: C.muted, letterSpacing: 4,
+    marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase",
+    display: "block",
+  };
+  const inputStyle = {
+    width: "100%", background: C.bg,
+    border: `1px solid ${C.border}`, color: C.goldBright,
+    padding: "10px 14px", fontSize: 15,
+    fontFamily: F.body, borderRadius: 2,
+    outline: "none", boxSizing: "border-box", direction: "rtl",
+    transition: "border-color 0.2s",
+  };
+
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
+      <SectionHeader eyebrow="ניהול" title="פאנל ניהול — רמזים" />
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+
+        {/* ── ADD FORM ── */}
+        <div style={{
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "28px 28px",
+        }}>
+          <div style={{
+            fontSize: 12, color: C.goldDim, letterSpacing: 4,
+            marginBottom: 24, fontFamily: F.heading, textTransform: "uppercase",
+          }}>הוסף רמז חדש</div>
+
+          <RoyalInput label="כותרת *" value={fTitle} onChange={setFTitle} />
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>תוכן</label>
+            <textarea
+              value={fContent}
+              onChange={e => setFContent(e.target.value)}
+              rows={4}
+              style={{ ...inputStyle, resize: "vertical", lineHeight: 1.8 }}
+            />
+          </div>
+
+          <RoyalInput label="מספרים קשורים (מופרדים בפסיק)" value={fNumbers} onChange={setFNumbers} placeholder="26, 72, 1820" />
+          <RoyalInput label="קטגוריה" value={fCategory} onChange={setFCategory} />
+
+          {/* image upload */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>תמונה</label>
+            <label style={{
+              display: "flex", alignItems: "center", gap: 10,
+              background: C.bg, border: `1px solid ${C.border}`,
+              borderRadius: 2, padding: "9px 14px", cursor: "pointer",
+            }}>
+              <span style={{ color: C.goldDim, fontSize: 15, lineHeight: 1 }}>📎</span>
+              <span style={{ color: fImgName ? C.goldLight : C.muted, fontSize: 14, fontFamily: F.body }}>
+                {fImgName || "בחר תמונה..."}
+              </span>
+              <input type="file" accept="image/*" onChange={handleImg} style={{ display: "none" }} />
+            </label>
+            {fImage && (
+              <img src={fImage} alt="" style={{
+                height: 72, marginTop: 10, borderRadius: 2,
+                border: `1px solid ${C.border}`, display: "block",
+              }} />
+            )}
+          </div>
+
+          {okMsg && (
+            <div style={{
+              color: C.goldLight, fontSize: 13, marginBottom: 16,
+              textAlign: "center", fontFamily: F.body,
+            }}>{okMsg}</div>
+          )}
+
+          <GoldButton
+            style={{ width: "100%", textAlign: "center" }}
+            disabled={!fTitle.trim()}
+            onClick={handleSave}
+          >שמור רמז</GoldButton>
+        </div>
+
+        {/* ── CLUES LIST ── */}
+        <div>
+          <div style={{
+            fontSize: 12, color: C.goldDim, letterSpacing: 4,
+            marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase",
+          }}>רמזים שמורים ({clues.length})</div>
+
+          {clues.length === 0 ? (
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: "24px 0" }}>
+              אין רמזים עדיין
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 10, maxHeight: "68vh", overflowY: "auto" }}>
+              {clues.map(clue => (
+                <div key={clue.id} style={{
+                  background: C.surface, border: `1px solid ${C.border}`,
+                  borderRight: `3px solid ${C.gold}`,
+                  borderRadius: 2, padding: "14px 16px",
+                  display: "flex", gap: 12, alignItems: "flex-start",
+                }}>
+                  {clue.image && (
+                    <img src={clue.image} alt="" style={{
+                      width: 48, height: 48, objectFit: "cover",
+                      borderRadius: 2, flexShrink: 0,
+                      border: `1px solid ${C.border}`,
+                    }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      color: C.goldBright, fontFamily: F.heading,
+                      fontSize: 14, fontWeight: 700, marginBottom: 4,
+                    }}>{clue.title}</div>
+                    {clue.category && (
+                      <span style={{
+                        background: C.goldDark, border: `1px solid ${C.borderGold}`,
+                        color: C.goldLight, fontSize: 9, padding: "2px 8px",
+                        fontFamily: F.heading, letterSpacing: 2,
+                        textTransform: "uppercase", borderRadius: 1,
+                        display: "inline-block", marginBottom: 4,
+                      }}>{clue.category}</span>
+                    )}
+                    {clue.numbers.length > 0 && (
+                      <div style={{ color: C.muted, fontSize: 11, fontFamily: F.heading, letterSpacing: 1 }}>
+                        מספרים: {clue.numbers.join(" · ")}
+                      </div>
+                    )}
+                    {clue.content && (
+                      <div style={{
+                        color: C.muted, fontSize: 12, fontFamily: F.body,
+                        marginTop: 4, lineHeight: 1.7,
+                        overflow: "hidden", textOverflow: "ellipsis",
+                        display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                      }}>{clue.content}</div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(clue.id)}
+                    onMouseEnter={e => (e.currentTarget.style.color = "#c05050")}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+                    style={{
+                      background: "none", border: "none", color: C.muted,
+                      cursor: "pointer", fontSize: 16, lineHeight: 1,
+                      fontFamily: "monospace", transition: "color 0.2s", flexShrink: 0,
+                    }}
+                  >×</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== NUMBERS REPORT PAGE =====
 
 const REPORT_PASSWORD = "1820";
@@ -2379,15 +2740,17 @@ function Footer({ onNav, navItems }) {
           <div style={{ fontSize: 11, color: C.muted, fontFamily: F.body }}>
             © 2024 SOD1820 · כל הזכויות שמורות
           </div>
-          <button onClick={() => onNav("numbers-report")} style={{
-            background: "none", border: "none", color: C.faint,
-            cursor: "pointer", fontSize: 9, fontFamily: F.heading,
-            letterSpacing: 2, textTransform: "uppercase",
-            transition: "color 0.2s",
-          }}
-            onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
-            onMouseLeave={e => (e.currentTarget.style.color = C.faint)}
-          >דוח מספרים</button>
+          {[["דוח מספרים","numbers-report"],["תצוגה מקדימה","theme-preview"],["ניהול","admin"]].map(([label, key]) => (
+            <button key={key} onClick={() => onNav(key)} style={{
+              background: "none", border: "none", color: C.faint,
+              cursor: "pointer", fontSize: 9, fontFamily: F.heading,
+              letterSpacing: 2, textTransform: "uppercase",
+              transition: "color 0.2s",
+            }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.faint)}
+            >{label}</button>
+          ))}
         </div>
       </div>
     </footer>
@@ -2418,7 +2781,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", color: C.gold, fontFamily: F.body, position: "relative" }}>
+    <div style={{ background: C.bg, minHeight: "100vh", color: "#f5f0e8", fontFamily: F.body, fontSize: 16, position: "relative" }}>
       {/* space background */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
@@ -2455,6 +2818,8 @@ export default function App() {
           )}
           {page === "checkout"       && <CheckoutPage course={selectedCourse} onNav={nav} />}
           {page === "numbers-report" && <NumbersReportPage />}
+          {page === "theme-preview"  && <ThemePreviewPage />}
+          {page === "admin"          && <AdminPage />}
         </main>
         <Footer onNav={nav} navItems={navItems} />
         <NumberSidebar onNav={nav} />
