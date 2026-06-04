@@ -426,7 +426,7 @@ function LatestPostsSection({ onNav }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${WP_API}?_embed=1&per_page=6`)
+    fetch(`${WP_API}?_embed=1&per_page=10`)
       .then(r => r.ok ? r.json() : [])
       .then(data => { if (Array.isArray(data)) setPosts(data); })
       .catch(() => {})
@@ -554,7 +554,7 @@ function Landing({ onNav }) {
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <GoldButton onClick={() => onNav("courses")}>לכל הקורסים</GoldButton>
+            <GoldButton onClick={() => onNav("blog")}>לבלוג</GoldButton>
             <GoldButton variant="secondary" onClick={() => onNav("about")}>מי זה צוריאל?</GoldButton>
           </div>
 
@@ -574,97 +574,8 @@ function Landing({ onNav }) {
         </div>
       </div>
 
-      {/* ── COURSES PREVIEW ── */}
-      <div style={{ padding: "96px 24px", maxWidth: 1040, margin: "0 auto" }}>
-        <SectionHeader eyebrow="הקורסים" title="בחר את דרכך" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 20 }}>
-          {COURSES.map(c => (
-            <CourseCard
-              key={c.id}
-              course={c}
-              onBuy={course => onNav("checkout", course)}
-              onDetail={course => onNav("detail", course)}
-            />
-          ))}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 44 }}>
-          <GoldButton variant="secondary" onClick={() => onNav("courses")}>
-            כל הקורסים ←
-          </GoldButton>
-        </div>
-      </div>
-
-      {/* ── ABOUT TEASER ── */}
-      <div style={{
-        borderTop: `1px solid ${C.border}`,
-        borderBottom: `1px solid ${C.border}`,
-        background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
-        padding: "88px 24px",
-      }}>
-        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: "50%",
-            background: C.goldDark,
-            border: `1px solid ${C.borderGold}`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 28, color: C.goldLight,
-            margin: "0 auto 28px",
-          }}>✦</div>
-
-          <h2 style={{
-            color: C.goldLight, margin: "0 0 20px",
-            fontSize: 26, fontFamily: F.royal, fontWeight: 700, letterSpacing: 2,
-          }}>צוריאל פולייס</h2>
-
-          <RoyalDivider width={160} />
-
-          <p style={{
-            color: C.goldDim, fontSize: 15, lineHeight: 2.1,
-            margin: "28px 0 36px", fontFamily: F.body
-          }}>
-            חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים
-            של השפה העברית. פיתח שיטות ייחודיות שאינן מלמדות בשום מקום אחר.
-          </p>
-          <GoldButton variant="secondary" onClick={() => onNav("about")}>
-            קרא עוד
-          </GoldButton>
-        </div>
-      </div>
-
       {/* ── LATEST POSTS ── */}
       <LatestPostsSection onNav={onNav} />
-
-      {/* ── TESTIMONIALS ── */}
-      <div style={{ padding: "88px 24px" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <SectionHeader eyebrow="עדויות" title="קולות התלמידים" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} style={{
-                background: C.surface,
-                border: `1px solid ${C.border}`,
-                borderTop: `2px solid ${C.borderGold}`,
-                borderRadius: 2,
-                padding: "28px 24px",
-              }}>
-                <div style={{ color: C.gold, marginBottom: 14, fontSize: 13, letterSpacing: 2 }}>
-                  {"★".repeat(t.stars)}
-                </div>
-                <p style={{
-                  color: "#f5f0e8", fontSize: 17, lineHeight: 1.9,
-                  margin: "0 0 16px", fontFamily: F.body, fontStyle: "italic"
-                }}>
-                  "{t.text}"
-                </p>
-                <div style={{
-                  fontSize: 11, color: C.muted,
-                  fontFamily: F.heading, letterSpacing: 2
-                }}>— {t.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
     </div>
   );
@@ -1056,7 +967,7 @@ function CheckoutPage({ course, onNav }) {
 // ===== BLOG PAGE =====
 
 const WP_API = "https://sod1820.co.il/wp-json/wp/v2/posts";
-const PER_PAGE = 9;
+const PER_PAGE = 10;
 
 function stripHtml(html = "") {
   return html
