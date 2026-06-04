@@ -1683,6 +1683,309 @@ async function fetchWpMenu() {
   return null; // triggers fallback to STATIC_NAV_ITEMS
 }
 
+// ===== NUMBER SIDEBAR + PAGE =====
+
+function NumberButton({ tag, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        width: "100%", padding: "11px 18px",
+        background: hov ? C.goldDark : "none",
+        border: "none", borderBottom: `1px solid ${C.faint}`,
+        cursor: "pointer", transition: "background 0.15s",
+      }}
+    >
+      <span style={{
+        fontSize: 9, color: hov ? C.goldDim : C.muted,
+        fontFamily: F.heading, letterSpacing: 1,
+        minWidth: 32, textAlign: "left", transition: "color 0.15s",
+      }}>×{tag.count}</span>
+      <span style={{
+        fontSize: 18, fontFamily: F.heading, fontWeight: 700,
+        letterSpacing: 2, color: hov ? C.goldBright : C.goldDim,
+        transition: "color 0.15s",
+      }}>{tag.name}</span>
+    </button>
+  );
+}
+
+function NumberPage({ tag, onNav, onBack }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const PER = 9;
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    fetch(`${WP_API}?_embed=1&per_page=${PER}&page=${currentPage}&tags=${tag.id}`)
+      .then(r => {
+        const tp = r.headers.get("X-WP-TotalPages");
+        if (tp) setTotalPages(parseInt(tp, 10));
+        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
+        return r.json();
+      })
+      .then(data => { setPosts(data); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [tag.id, currentPage]);
+
+  function goTo(p) { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "64px 24px", direction: "rtl" }}>
+      <button
+        onClick={onBack}
+        onMouseEnter={e => (e.currentTarget.style.color = C.goldDim)}
+        onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+        style={{
+          background: "none", border: "none", color: C.muted,
+          cursor: "pointer", fontFamily: F.heading,
+          fontSize: 10, marginBottom: 40, letterSpacing: 4,
+          textTransform: "uppercase", transition: "color 0.2s",
+        }}
+      >← חזרה</button>
+
+      <SectionHeader
+        eyebrow={`תגית · ${tag.count} פוסטים`}
+        title={`המספר ${tag.name}`}
+      />
+
+      {error && (
+        <div style={{ textAlign: "center", padding: "40px 0", color: "#b05050", fontFamily: F.body }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 20 }}>
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+          : posts.map(post => (
+              <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />
+            ))
+        }
+      </div>
+
+      {!loading && !error && posts.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
+          אין פוסטים עם תגית זו
+        </div>
+      )}
+
+      {!loading && !error && totalPages > 1 && (
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 48, flexWrap: "wrap", alignItems: "center" }}>
+          <GoldButton variant="secondary" disabled={currentPage === 1}
+            onClick={() => goTo(currentPage - 1)}
+            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}>← הקודם</GoldButton>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button key={p} onClick={() => goTo(p)} style={{
+              background: p === currentPage ? C.goldDark : "transparent",
+              border: `1px solid ${p === currentPage ? C.gold : C.border}`,
+              color: p === currentPage ? C.goldBright : C.muted,
+              width: 38, height: 38, cursor: "pointer",
+              fontFamily: F.heading, fontSize: 12, borderRadius: 2, transition: "all 0.2s",
+            }}>{p}</button>
+          ))}
+          <GoldButton variant="secondary" disabled={currentPage === totalPages}
+            onClick={() => goTo(currentPage + 1)}
+            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}>הבא →</GoldButton>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NumberSidebar({ onNav }) {
+  const [open, setOpen] = useState(false);
+  const [allTags, setAllTags] = useState([]);
+  const [search, setSearch] = useState("");
+  const [inputFocused, setInputFocused] = useState(false);
+
+  useEffect(() => {
+    fetch("https://sod1820.co.il/wp-json/wp/v2/tags?per_page=100&hide_empty=true&orderby=count&order=desc")
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAllTags(
+            data
+              .filter(t => /^\d+$/.test(t.name.trim()))
+              .sort((a, b) => b.count - a.count)
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const filtered = search.trim()
+    ? allTags.filter(t => t.name.includes(search.trim()))
+    : allTags;
+
+  function handleSelect(tag) {
+    onNav("number", tag);
+    setOpen(false);
+    setSearch("");
+  }
+
+  return (
+    <>
+      {/* toggle tab */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        title="סוד המספרים"
+        style={{
+          position: "fixed",
+          right: open ? 280 : 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 200,
+          background: open ? C.goldDark : C.surface,
+          border: `1px solid ${C.gold}`,
+          borderRight: "none",
+          borderRadius: "4px 0 0 4px",
+          color: C.goldBright,
+          width: 30, height: 90,
+          cursor: "pointer",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", gap: 7,
+          transition: "right 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s",
+          boxShadow: `-4px 0 16px ${C.goldDeep}`,
+          padding: 0,
+        }}
+      >
+        <span style={{
+          fontSize: 12, color: C.goldBright,
+          transition: "transform 0.3s",
+          transform: open ? "rotate(45deg)" : "none",
+          display: "block", lineHeight: 1,
+        }}>✦</span>
+        <span style={{
+          fontSize: 7, color: C.muted, letterSpacing: 1,
+          fontFamily: F.heading, textTransform: "uppercase",
+          writingMode: "vertical-rl",
+        }}>מספרים</span>
+      </button>
+
+      {/* backdrop */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 198,
+            background: "rgba(5,4,0,0.6)",
+            backdropFilter: "blur(3px)",
+          }}
+        />
+      )}
+
+      {/* panel */}
+      <div style={{
+        position: "fixed",
+        right: 0, top: 0, bottom: 0,
+        width: 280,
+        zIndex: 199,
+        transform: open ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+        background: C.surface,
+        borderLeft: `2px solid ${C.borderGold}`,
+        display: "flex", flexDirection: "column",
+        direction: "rtl",
+        boxShadow: open ? `-16px 0 60px ${C.goldDeep}` : "none",
+      }}>
+
+        {/* header */}
+        <div style={{
+          height: 60, flexShrink: 0,
+          padding: "0 16px",
+          borderBottom: `1px solid ${C.border}`,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 12, letterSpacing: 3 }}>
+            סוד המספרים
+          </div>
+          <button onClick={() => setOpen(false)}
+            onMouseEnter={e => (e.currentTarget.style.color = C.goldBright)}
+            onMouseLeave={e => (e.currentTarget.style.color = C.goldDim)}
+            style={{
+              background: "none", border: "none", color: C.goldDim,
+              cursor: "pointer", fontSize: 16, lineHeight: 1,
+              fontFamily: "monospace", transition: "color 0.2s",
+            }}>✕</button>
+        </div>
+
+        {/* search */}
+        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value.replace(/\D/g, ""))}
+            placeholder="חפש מספר..."
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
+            style={{
+              width: "100%",
+              background: C.bg,
+              border: `1px solid ${inputFocused ? C.gold : C.border}`,
+              color: C.goldBright,
+              padding: "9px 14px",
+              fontFamily: F.heading, fontSize: 17, fontWeight: 700,
+              borderRadius: 2, outline: "none",
+              boxSizing: "border-box", direction: "ltr",
+              letterSpacing: 3, textAlign: "center",
+              transition: "border-color 0.2s",
+            }}
+          />
+          {search ? (
+            <div style={{
+              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
+              textAlign: "center", marginTop: 8, textTransform: "uppercase",
+            }}>
+              {filtered.length} תוצאות
+            </div>
+          ) : (
+            <div style={{
+              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
+              textAlign: "center", marginTop: 8, textTransform: "uppercase",
+            }}>
+              הקלד מספר לחיפוש חופשי
+            </div>
+          )}
+        </div>
+
+        {/* list */}
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          {filtered.length === 0 ? (
+            <div style={{
+              textAlign: "center", padding: "40px 16px",
+              color: C.muted, fontFamily: F.body, fontSize: 13,
+            }}>
+              {allTags.length === 0 ? "טוען מספרים..." : "אין תוצאות"}
+            </div>
+          ) : (
+            filtered.map(tag => (
+              <NumberButton key={tag.id} tag={tag} onClick={() => handleSelect(tag)} />
+            ))
+          )}
+        </div>
+
+        {/* footer */}
+        <div style={{
+          padding: "11px 16px", borderTop: `1px solid ${C.border}`, flexShrink: 0,
+          fontSize: 9, color: C.muted, textAlign: "center",
+          fontFamily: F.heading, letterSpacing: 3, textTransform: "uppercase",
+        }}>
+          {allTags.length} מספרים · SOD1820
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ===== NAVBAR =====
 
 const NAV_ITEMS = [
@@ -1861,6 +2164,7 @@ export default function App() {
   const [page, setPage] = useState("home");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedTag, setSelectedTag] = useState(null);
   const [navItems, setNavItems] = useState(null);
 
   useEffect(() => {
@@ -1871,8 +2175,9 @@ export default function App() {
 
   function nav(p, data = null) {
     setPage(p);
-    if (p === "post" && data) setSelectedPost(data);
-    else if (data) setSelectedCourse(data);
+    if (p === "post" && data)   setSelectedPost(data);
+    else if (p === "number" && data) setSelectedTag(data);
+    else if (data)              setSelectedCourse(data);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1895,8 +2200,12 @@ export default function App() {
           {page === "about"    && <AboutPage onNav={nav} />}
           {page === "blog"     && <BlogPage onNav={nav} />}
           {page === "post"     && (
-            <PostPage
-              post={selectedPost}
+            <PostPage post={selectedPost} onBack={() => nav("blog")} />
+          )}
+          {page === "number"   && selectedTag && (
+            <NumberPage
+              tag={selectedTag}
+              onNav={nav}
               onBack={() => nav("blog")}
             />
           )}
@@ -1911,6 +2220,7 @@ export default function App() {
           {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
         </main>
         <Footer onNav={nav} navItems={navItems} />
+        <NumberSidebar onNav={nav} />
       </div>
     </div>
   );
