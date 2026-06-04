@@ -86,6 +86,25 @@ const TESTIMONIALS = [
   { name: "רחל א׳", text: "הסברים ברורים, עמוקים ומרגשים. ממליצה לכל אחד.", stars: 5 },
 ];
 
+// ===== KEY NUMBERS =====
+
+const LOGO_URL =
+  "https://sod1820.co.il/wp-content/uploads/2018/12/cropped-cropped-%D7%9C%D7%95%D7%92%D7%95-%D7%90%D7%AA%D7%A8-1.png";
+
+const KEY_NUMBERS = {
+  1:    "האחד — שורש הכל",
+  3:    "שלמות / חשכה / קוד הבריאה 333",
+  7:    "חותם הבריאה",
+  14:   "דוד מלכות",
+  26:   "יהוה",
+  40:   "מ — זרע שינוי",
+  45:   "גאולה",
+  358:  "משיח = נחש",
+  400:  "ת — חותם התפשטות",
+  1237: "התגלות — לילה כיום יאיר",
+  1820: "סוד השם יהוה × עמים",
+};
+
 // ===== ORNAMENTS =====
 
 const Ornament = ({ size = 20, color = C.gold }) => (
@@ -1705,6 +1724,7 @@ async function fetchWpMenu() {
 
 function NumberButton({ tag, onClick }) {
   const [hov, setHov] = useState(false);
+  const meaning = KEY_NUMBERS[parseInt(tag.name, 10)];
   return (
     <button
       onClick={onClick}
@@ -1712,8 +1732,8 @@ function NumberButton({ tag, onClick }) {
       onMouseLeave={() => setHov(false)}
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        width: "100%", padding: "11px 18px",
-        background: hov ? C.goldDark : "none",
+        width: "100%", padding: meaning ? "9px 18px" : "11px 18px",
+        background: hov ? C.goldDark : (meaning ? `${C.goldDeep}88` : "none"),
         border: "none", borderBottom: `1px solid ${C.faint}`,
         cursor: "pointer", transition: "background 0.15s",
       }}
@@ -1723,11 +1743,20 @@ function NumberButton({ tag, onClick }) {
         fontFamily: F.heading, letterSpacing: 1,
         minWidth: 32, textAlign: "left", transition: "color 0.15s",
       }}>×{tag.count}</span>
-      <span style={{
-        fontSize: 18, fontFamily: F.heading, fontWeight: 700,
-        letterSpacing: 2, color: hov ? C.goldBright : C.goldDim,
-        transition: "color 0.15s",
-      }}>{tag.name}</span>
+      <div style={{ textAlign: "right" }}>
+        <div style={{
+          fontSize: 18, fontFamily: F.heading, fontWeight: 700,
+          color: hov ? C.goldBright : (meaning ? C.goldLight : C.goldDim),
+          transition: "color 0.15s", lineHeight: 1.2,
+        }}>{tag.name}</div>
+        {meaning && (
+          <div style={{
+            fontSize: 8, color: hov ? C.goldDim : C.muted,
+            fontFamily: F.body, marginTop: 2, fontStyle: "italic",
+            lineHeight: 1.3, maxWidth: 160,
+          }}>{meaning}</div>
+        )}
+      </div>
     </button>
   );
 }
@@ -1774,6 +1803,24 @@ function NumberPage({ tag, onNav, onBack }) {
         eyebrow={`תגית · ${tag.count} פוסטים`}
         title={`המספר ${tag.name}`}
       />
+
+      {KEY_NUMBERS[parseInt(tag.name, 10)] && (
+        <div style={{
+          textAlign: "center", margin: "-28px auto 44px",
+          maxWidth: 520,
+          padding: "14px 24px",
+          background: `linear-gradient(135deg, ${C.goldDeep}, transparent)`,
+          border: `1px solid ${C.borderGold}`,
+          borderRadius: 2,
+        }}>
+          <p style={{
+            color: C.goldLight, fontFamily: F.body,
+            fontSize: 15, fontStyle: "italic", margin: 0, lineHeight: 1.8,
+          }}>
+            {KEY_NUMBERS[parseInt(tag.name, 10)]}
+          </p>
+        </div>
+      )}
 
       {error && (
         <div style={{ textAlign: "center", padding: "40px 0", color: "#b05050", fontFamily: F.body }}>
@@ -2004,6 +2051,152 @@ function NumberSidebar({ onNav }) {
   );
 }
 
+// ===== NUMBERS REPORT PAGE =====
+
+const REPORT_PASSWORD = "1820";
+
+function NumbersReportPage() {
+  const [authed,   setAuthed]   = useState(false);
+  const [pw,       setPw]       = useState("");
+  const [pwError,  setPwError]  = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 1 });
+  const [report,   setReport]   = useState(null);
+
+  function handleAuth() {
+    if (pw.trim() === REPORT_PASSWORD) { setAuthed(true); setPwError(false); }
+    else setPwError(true);
+  }
+
+  async function runScan() {
+    setScanning(true);
+    setReport(null);
+    setProgress({ done: 0, total: 1 });
+    try {
+      const first = await fetch(`${WP_API}?per_page=100&page=1&_fields=id,title,content`);
+      const totalPages = parseInt(first.headers.get("X-WP-TotalPages") || "1", 10);
+      const posts1 = await first.json();
+      setProgress({ done: 1, total: totalPages });
+
+      const rest = await Promise.all(
+        Array.from({ length: totalPages - 1 }, (_, i) =>
+          fetch(`${WP_API}?per_page=100&page=${i + 2}&_fields=id,title,content`)
+            .then(r => r.json())
+            .then(d => { setProgress(p => ({ ...p, done: p.done + 1 })); return d; })
+        )
+      );
+      const allPosts = [posts1, ...rest].flat();
+
+      const counts = {};
+      for (const post of allPosts) {
+        const text = (post.title?.rendered ?? "") + " " + (post.content?.rendered ?? "");
+        for (const match of text.matchAll(/\b(\d{1,5})\b/g)) {
+          const k = parseInt(match[1], 10);
+          if (k > 0) counts[k] = (counts[k] || 0) + 1;
+        }
+      }
+
+      const numbers = Object.entries(counts)
+        .map(([n, count]) => ({ num: parseInt(n, 10), count, meaning: KEY_NUMBERS[parseInt(n, 10)] ?? null }))
+        .filter(r => r.count >= 2 || r.meaning)
+        .sort((a, b) => b.count - a.count);
+
+      setReport({ generated: new Date().toISOString(), totalPosts: allPosts.length, numbers });
+    } catch { /* silent */ }
+    finally { setScanning(false); }
+  }
+
+  function downloadJson() {
+    if (!report) return;
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = "numbers-report.json";
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+
+  if (!authed) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`, borderRadius: 2,
+        padding: "44px 40px", width: "100%", maxWidth: 360,
+        boxShadow: `0 8px 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 40, color: C.goldDim, marginBottom: 16 }}>✦</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 20, margin: "0 0 16px" }}>דוח מספרים</h2>
+          <RoyalDivider width={100} />
+        </div>
+        <RoyalInput label="סיסמה" value={pw} onChange={setPw} type="password" />
+        {pwError && <div style={{ color: "#c05050", fontSize: 12, marginBottom: 12, textAlign: "center", fontFamily: F.body }}>סיסמה שגויה</div>}
+        <GoldButton style={{ width: "100%", textAlign: "center" }} onClick={handleAuth}>כניסה</GoldButton>
+      </div>
+    </div>
+  );
+
+  const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0;
+
+  return (
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "64px 24px", direction: "rtl" }}>
+      <SectionHeader eyebrow="כלי ניתוח" title="דוח מספרים" />
+
+      {!report && !scanning && (
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 2, marginBottom: 28 }}>
+            הכלי סורק את כל הפוסטים, מחלץ מספרים חוזרים וממיין לפי תדירות.<br />
+            מספרי מפתח מסומנים בזהב.
+          </p>
+          <GoldButton onClick={runScan}>הפעל סריקה</GoldButton>
+        </div>
+      )}
+
+      {scanning && (
+        <div style={{ textAlign: "center", padding: "48px 0" }}>
+          <div style={{ fontSize: 40, color: C.goldDim, marginBottom: 20 }}>✦</div>
+          <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14, marginBottom: 20 }}>
+            סורק... {progress.done} / {progress.total} עמודים ({pct}%)
+          </p>
+          <div style={{ maxWidth: 280, margin: "0 auto", height: 3, background: C.faint, borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: C.gold, borderRadius: 2, width: `${pct}%`, transition: "width 0.35s" }} />
+          </div>
+        </div>
+      )}
+
+      {report && (
+        <>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 28, flexWrap: "wrap" }}>
+            <GoldButton variant="secondary" onClick={runScan} style={{ fontSize: 11 }}>סרוק מחדש</GoldButton>
+            <GoldButton onClick={downloadJson} style={{ fontSize: 11 }}>הורד JSON</GoldButton>
+          </div>
+          <div style={{ textAlign: "center", marginBottom: 32, color: C.muted, fontFamily: F.body, fontSize: 13 }}>
+            {report.totalPosts} פוסטים · {report.numbers.length} מספרים ייחודיים חוזרים
+          </div>
+
+          <div style={{ display: "grid", gap: 4 }}>
+            {report.numbers.map(({ num, count, meaning }) => (
+              <div key={num} style={{
+                display: "grid", gridTemplateColumns: "56px 1fr 44px",
+                alignItems: "center", gap: 16, padding: "10px 18px",
+                background: meaning ? `linear-gradient(to left, ${C.goldDeep}99, transparent)` : "transparent",
+                border: `1px solid ${meaning ? C.borderGold : C.faint}`,
+                borderRadius: 2,
+              }}>
+                <span style={{ color: meaning ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{num}</span>
+                <span style={{ color: meaning ? C.goldLight : C.muted, fontFamily: F.body, fontSize: 13 }}>
+                  {meaning || "—"}
+                </span>
+                <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, textAlign: "left" }}>×{count}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ===== NAVBAR =====
 
 const NAV_ITEMS = [
@@ -2056,12 +2249,23 @@ function Navbar({ page, onNav, navItems }) {
       {/* logo — right in RTL */}
       <button onClick={() => onNav("home")} style={{
         background: "none", border: "none", cursor: "pointer",
-        fontFamily: F.royal,
-        color: C.goldBright,
-        fontSize: 15, fontWeight: 700, letterSpacing: 4,
-        textShadow: `0 0 20px ${C.goldDark}`,
-        whiteSpace: "nowrap",
-      }}>SOD<span style={{ color: C.gold }}>1820</span></button>
+        display: "flex", alignItems: "center", gap: 10, padding: 0,
+      }}>
+        <img
+          src={LOGO_URL}
+          alt="SOD1820"
+          className="logo-animated"
+          style={{ height: 38, width: "auto" }}
+        />
+        <div style={{ textAlign: "right" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>
+            כי לה' המלוכה
+          </div>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 7, letterSpacing: 3, textTransform: "uppercase" }}>
+            SOD1820
+          </div>
+        </div>
+      </button>
 
       {/* nav items — centered */}
       <div style={{ display: "flex", gap: 0, alignItems: "center", justifyContent: "center" }}>
@@ -2124,10 +2328,13 @@ function Footer({ onNav, navItems }) {
         paddingBottom: 36,
       }}>
         <div style={{ maxWidth: 220 }}>
-          <div style={{
-            color: C.goldBright, fontFamily: F.royal,
-            fontSize: 15, fontWeight: 700, letterSpacing: 3, marginBottom: 12
-          }}>SOD<span style={{ color: C.gold }}>1820</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 32, width: "auto" }} />
+            <div>
+              <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 11, fontWeight: 800, lineHeight: 1.3 }}>כי לה' המלוכה</div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 7, letterSpacing: 2 }}>SOD1820</div>
+            </div>
+          </div>
           <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8 }}>
             צוריאל פולייס<br />sod1820.co.il
           </div>
@@ -2168,8 +2375,19 @@ function Footer({ onNav, navItems }) {
         <div style={{ fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 3 }}>
           א↔ל &nbsp;·&nbsp; ב↔מ &nbsp;·&nbsp; ג↔נ &nbsp;·&nbsp; כ↔ת
         </div>
-        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.body }}>
-          © 2024 SOD1820 · כל הזכויות שמורות
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <div style={{ fontSize: 11, color: C.muted, fontFamily: F.body }}>
+            © 2024 SOD1820 · כל הזכויות שמורות
+          </div>
+          <button onClick={() => onNav("numbers-report")} style={{
+            background: "none", border: "none", color: C.faint,
+            cursor: "pointer", fontSize: 9, fontFamily: F.heading,
+            letterSpacing: 2, textTransform: "uppercase",
+            transition: "color 0.2s",
+          }}
+            onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
+            onMouseLeave={e => (e.currentTarget.style.color = C.faint)}
+          >דוח מספרים</button>
         </div>
       </div>
     </footer>
@@ -2235,7 +2453,8 @@ export default function App() {
               onBack={() => nav("courses")}
             />
           )}
-          {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
+          {page === "checkout"       && <CheckoutPage course={selectedCourse} onNav={nav} />}
+          {page === "numbers-report" && <NumbersReportPage />}
         </main>
         <Footer onNav={nav} navItems={navItems} />
         <NumberSidebar onNav={nav} />
