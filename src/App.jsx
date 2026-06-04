@@ -1,0 +1,1764 @@
+import { useState, useEffect } from "react";
+
+// ===== DESIGN TOKENS =====
+const C = {
+  bg:           "#050400",
+  bgGlow:       "#0e0900",
+  gold:         "#B8860B",
+  goldLight:    "#CFB53B",
+  goldBright:   "#E8C84A",
+  goldDim:      "#7A5A08",
+  goldDark:     "#2A1E00",
+  goldDeep:     "#1A1200",
+  surface:      "#090700",
+  surface2:     "#0d0b00",
+  border:       "#1E1600",
+  borderGold:   "#3a2a00",
+  muted:        "#4A3508",
+  faint:        "#1A1200",
+  danger:       "#8B2020",
+};
+
+const F = {
+  royal:   "'Cinzel Decorative', 'Cinzel', serif",
+  heading: "'Cinzel', 'Frank Ruhl Libre', serif",
+  body:    "'Frank Ruhl Libre', serif",
+  mono:    "'Courier New', monospace",
+};
+
+// ===== DATA =====
+const COURSES = [
+  {
+    id: 1,
+    title: "שער האלף-בית",
+    subtitle: "גימטריה רגילה — מהאות לעולם",
+    price: 297,
+    lessons: 12,
+    level: "מתחיל",
+    tag: "פופולרי",
+    desc: "הבסיס המוחלט. תלמד לקרוא מספרים כשפה חיה — כל אות, כל שורש, כל פסוק.",
+    color: "#B8860B",
+    syllabus: ["מהי גימטריה?","22 האותיות וערכן","חישוב מילים ופסוקים","שורשים ומשפחות מילים","יישום בחיי היומיום","תרגול מעשי מלא"],
+  },
+  {
+    id: 2,
+    title: "המסתתר",
+    subtitle: "שיטת ההפרשים — מה שמסתתר בין האותיות",
+    price: 397,
+    lessons: 10,
+    level: "מתקדם",
+    tag: "חדש",
+    desc: "שיטה ייחודית של צוריאל פולייס. גלה את הקוד שמסתתר בין אות לאות.",
+    color: "#CFB53B",
+    syllabus: ["עקרון ההפרש","מה מסתתר בין שתי אותיות","פענוח מילים מורכבות","דוגמאות מהתנ״ך","שיטת הפולייס","תרגול עצמאי"],
+  },
+  {
+    id: 3,
+    title: "אלבם — הצד השני",
+    subtitle: "הצופן הקדום של ההיפוך",
+    price: 347,
+    lessons: 8,
+    level: "בינוני",
+    tag: "",
+    desc: "א↔ל, ב↔מ — כל מילה היא גם מילה אחרת. גלה את הממד הנסתר של כל מושג.",
+    color: "#B8860B",
+    syllabus: ["שיטת אלבם","לוח ה-11 היפוכים","מילים ומשמעויות כפולות","סודות בשמות","יישומים מתקדמים","פרויקט גמר"],
+  },
+  {
+    id: 4,
+    title: "ארבעת העולמות",
+    subtitle: "ארבע שיטות · ארבע רמות · מספר אחד",
+    price: 597,
+    lessons: 20,
+    level: "מאסטר",
+    tag: "הכי מקיף",
+    desc: "זהות, מסתתר, פוטנציאל, נשמה — ארבע שיטות הגימטריה של sod1820 בקורס אחד שלם.",
+    color: "#E8C84A",
+    syllabus: ["עולם הזהות","עולם המסתתר","עולם הפוטנציאל","עולם הנשמה","שילוב ארבעת השיטות","אנליזה עמוקה","פרויקטים מיוחדים","מאסטרקלאס חי"],
+  },
+];
+
+const TESTIMONIALS = [
+  { name: "מיכל ר׳", text: "אחרי השיעור הראשון ראיתי את המספר שלי בכל מקום. זה שינה לי את החיים.", stars: 5 },
+  { name: "דוד כ׳", text: "צוריאל מסביר דברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
+  { name: "שרה מ׳", text: "הקורס על המסתתר פתח לי ממד שלם שלא ידעתי שקיים.", stars: 5 },
+  { name: "יוסף ב׳", text: "השקעתי בקורס ארבעת העולמות ושינה את האופן שבו אני רואה את המציאות.", stars: 5 },
+  { name: "רחל א׳", text: "הסברים ברורים, עמוקים ומרגשים. ממליצה לכל אחד.", stars: 5 },
+];
+
+// ===== ORNAMENTS =====
+
+const Ornament = ({ size = 20, color = C.gold }) => (
+  <span style={{ color, fontSize: size, fontFamily: "serif", lineHeight: 1, userSelect: "none" }}>✦</span>
+);
+
+const RoyalDivider = ({ width = 280 }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "0 auto", width, justifyContent: "center" }}>
+    <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, ${C.gold}, transparent)` }} />
+    <Ornament size={10} color={C.goldDim} />
+    <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${C.gold}, transparent)` }} />
+  </div>
+);
+
+// ===== SHARED COMPONENTS =====
+
+function GoldButton({ children, onClick, variant = "primary", style = {}, disabled = false }) {
+  const [hov, setHov] = useState(false);
+  const isPrimary = variant === "primary";
+  return (
+    <button
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: isPrimary
+          ? (hov ? `linear-gradient(135deg, #3a2a00, #4a3600)` : `linear-gradient(135deg, #2A1E00, #3a2a00)`)
+          : "transparent",
+        border: `1px solid ${hov ? C.goldBright : C.gold}`,
+        color: hov ? C.goldBright : C.goldLight,
+        padding: "13px 36px",
+        cursor: disabled ? "not-allowed" : "pointer",
+        fontFamily: F.heading,
+        fontSize: 13,
+        letterSpacing: 3,
+        borderRadius: 2,
+        transition: "all 0.25s",
+        fontWeight: 600,
+        opacity: disabled ? 0.4 : 1,
+        textTransform: "uppercase",
+        boxShadow: hov && isPrimary ? `0 0 24px ${C.goldDark}` : "none",
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function RoyalInput({ label, value, onChange, type = "text", placeholder = "" }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{
+        fontSize: 10, color: C.muted, letterSpacing: 4,
+        marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase"
+      }}>{label}</div>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          width: "100%",
+          background: C.bg,
+          border: `1px solid ${focused ? C.gold : C.border}`,
+          borderBottom: `1px solid ${focused ? C.goldBright : C.borderGold}`,
+          color: C.goldBright,
+          padding: "12px 16px",
+          fontSize: 15,
+          fontFamily: F.body,
+          borderRadius: 2,
+          outline: "none",
+          boxSizing: "border-box",
+          direction: (type === "email" || type === "password") ? "ltr" : "rtl",
+          transition: "border-color 0.25s",
+          boxShadow: focused ? `inset 0 0 20px ${C.goldDeep}` : "none",
+        }}
+      />
+    </div>
+  );
+}
+
+function SectionHeader({ eyebrow, title, center = true }) {
+  return (
+    <div style={{ textAlign: center ? "center" : "right", marginBottom: 56 }}>
+      {eyebrow && (
+        <div style={{
+          fontSize: 10, letterSpacing: 6, color: C.goldDim,
+          marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase"
+        }}>{eyebrow}</div>
+      )}
+      <h2 style={{
+        color: C.goldLight,
+        margin: "0 0 20px",
+        fontSize: "clamp(22px, 3.5vw, 34px)",
+        fontFamily: F.royal,
+        fontWeight: 700,
+        letterSpacing: 2,
+        textShadow: `0 0 40px ${C.goldDark}`,
+      }}>{title}</h2>
+      <RoyalDivider />
+    </div>
+  );
+}
+
+// ===== COURSE CARD =====
+
+function CourseCard({ course, onBuy, onDetail }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={() => onDetail(course)}
+      style={{
+        background: hov
+          ? `linear-gradient(160deg, ${C.surface2} 0%, ${C.bg} 100%)`
+          : C.surface,
+        border: `1px solid ${hov ? course.color : C.border}`,
+        borderTop: `2px solid ${hov ? course.color : C.borderGold}`,
+        borderRadius: 2,
+        padding: "32px 28px",
+        transition: "all 0.3s",
+        cursor: "pointer",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: hov ? `0 8px 40px ${C.goldDeep}, inset 0 1px 0 ${C.borderGold}` : `inset 0 1px 0 ${C.faint}`,
+      }}
+    >
+      {/* corner ornament */}
+      <div style={{
+        position: "absolute", top: 12, left: 14,
+        fontSize: 9, color: hov ? course.color : C.muted,
+        fontFamily: F.heading, letterSpacing: 2, transition: "color 0.3s"
+      }}>✦ ✦ ✦</div>
+
+      {course.tag && (
+        <div style={{
+          position: "absolute", top: -1, right: 28,
+          background: C.goldDark,
+          border: `1px solid ${C.gold}`,
+          borderTop: "none",
+          color: C.goldBright,
+          fontSize: 9, letterSpacing: 3,
+          padding: "5px 12px", fontFamily: F.heading,
+          textTransform: "uppercase"
+        }}>{course.tag}</div>
+      )}
+
+      <div style={{ marginTop: 16 }}>
+        <div style={{
+          fontSize: 10, color: C.muted, letterSpacing: 3,
+          marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase"
+        }}>
+          {course.level} &nbsp;·&nbsp; {course.lessons} שיעורים
+        </div>
+
+        <h3 style={{
+          color: C.goldLight,
+          margin: "0 0 8px",
+          fontSize: 22,
+          fontFamily: F.royal,
+          fontWeight: 700,
+          letterSpacing: 1,
+          lineHeight: 1.3,
+        }}>{course.title}</h3>
+
+        <div style={{
+          color: C.goldDim, fontSize: 13, marginBottom: 18,
+          fontFamily: F.body, fontStyle: "italic"
+        }}>{course.subtitle}</div>
+
+        <p style={{
+          color: C.muted, fontSize: 14, lineHeight: 1.85,
+          margin: "0 0 24px", flex: 1,
+          fontFamily: F.body
+        }}>{course.desc}</p>
+      </div>
+
+      <div style={{
+        borderTop: `1px solid ${C.border}`,
+        paddingTop: 20, marginTop: "auto",
+        display: "flex", justifyContent: "space-between", alignItems: "center"
+      }}>
+        <span style={{
+          fontSize: 26, color: C.goldBright, fontWeight: 900,
+          fontFamily: F.heading
+        }}>₪{course.price}</span>
+        <GoldButton
+          variant="secondary"
+          style={{ padding: "8px 20px", fontSize: 11 }}
+          onClick={e => { e.stopPropagation(); onBuy(course); }}
+        >לרכישה</GoldButton>
+      </div>
+    </div>
+  );
+}
+
+// ===== COURSE DETAIL PAGE =====
+
+function CourseDetailPage({ course, onBuy, onBack }) {
+  return (
+    <div style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
+      <button onClick={onBack} style={{
+        background: "none", border: "none", color: C.muted,
+        cursor: "pointer", fontFamily: F.heading,
+        fontSize: 11, marginBottom: 40, letterSpacing: 3,
+        textTransform: "uppercase", transition: "color 0.2s",
+      }}
+        onMouseEnter={e => e.target.style.color = C.goldDim}
+        onMouseLeave={e => e.target.style.color = C.muted}
+      >← חזרה לקורסים</button>
+
+      <div style={{
+        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        border: `1px solid ${course.color}`,
+        borderTop: `3px solid ${course.color}`,
+        borderRadius: 2,
+        padding: "44px 40px",
+        marginBottom: 20,
+        boxShadow: `0 0 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
+          <div style={{ flex: 1 }}>
+            {course.tag && (
+              <div style={{
+                display: "inline-block", marginBottom: 16,
+                background: C.goldDark, border: `1px solid ${C.gold}`,
+                color: C.goldBright, fontSize: 9, letterSpacing: 4,
+                padding: "5px 14px", fontFamily: F.heading, textTransform: "uppercase"
+              }}>{course.tag}</div>
+            )}
+            <div style={{
+              fontSize: 10, color: C.muted, letterSpacing: 4,
+              marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase"
+            }}>{course.level} · {course.lessons} שיעורים</div>
+
+            <h1 style={{
+              color: C.goldBright, margin: "0 0 12px",
+              fontSize: "clamp(26px, 4vw, 38px)",
+              fontFamily: F.royal, fontWeight: 700,
+              textShadow: `0 0 50px ${C.goldDark}`, lineHeight: 1.2,
+            }}>{course.title}</h1>
+
+            <p style={{ color: C.goldDim, fontSize: 16, margin: 0, fontFamily: F.body, fontStyle: "italic" }}>
+              {course.subtitle}
+            </p>
+          </div>
+
+          <div style={{ textAlign: "center", minWidth: 140 }}>
+            <div style={{
+              fontSize: 40, color: C.goldBright, fontWeight: 900,
+              fontFamily: F.heading, marginBottom: 16
+            }}>₪{course.price}</div>
+            <GoldButton onClick={() => onBuy(course)} style={{ width: "100%", textAlign: "center" }}>
+              לרכישה
+            </GoldButton>
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: 32, paddingTop: 28,
+          borderTop: `1px solid ${C.border}`
+        }}>
+          <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.1, margin: 0, fontFamily: F.body }}>
+            {course.desc}
+          </p>
+        </div>
+      </div>
+
+      <div style={{
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: 2,
+        padding: "36px 40px",
+      }}>
+        <div style={{
+          fontSize: 11, color: C.goldDim, letterSpacing: 5,
+          marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase"
+        }}>תוכן הקורס</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+          {course.syllabus.map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, color: C.goldDim, fontSize: 14, fontFamily: F.body }}>
+              <span style={{
+                color: C.gold, fontSize: 9, minWidth: 22,
+                fontFamily: F.heading, letterSpacing: 1, paddingTop: 3
+              }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              {item}
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop: 28, paddingTop: 24,
+          borderTop: `1px solid ${C.border}`,
+          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+          gap: 10
+        }}>
+          {["✓ גישה מיידית", "✓ צפייה ללא הגבלה", "✓ עדכונים לנצח", "✓ תמיכה ישירה"].map(f => (
+            <div key={f} style={{ fontSize: 13, color: C.goldDim, fontFamily: F.body }}>{f}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== LANDING PAGE =====
+
+function Landing({ onNav }) {
+  const hebrewLetters = "אבגדהוזחטיכלמנסעפצקרשת".split("");
+
+  return (
+    <div style={{ direction: "rtl" }}>
+
+      {/* ── HERO ── */}
+      <div style={{
+        minHeight: "96vh",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        textAlign: "center",
+        padding: "80px 24px",
+        background: `radial-gradient(ellipse at 50% 20%, #1a1200 0%, ${C.bg} 60%)`,
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        {/* subtle grid */}
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.025,
+          backgroundImage: `linear-gradient(${C.gold} 1px, transparent 1px), linear-gradient(90deg, ${C.gold} 1px, transparent 1px)`,
+          backgroundSize: "80px 80px",
+        }} />
+
+        {/* floating letters */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          {hebrewLetters.map((l, i) => (
+            <span key={i} style={{
+              position: "absolute",
+              left: `${(i * 4.5 + 3) % 96}%`,
+              top: `${(i * 8 + 5) % 88}%`,
+              fontSize: 16 + (i % 4) * 6,
+              color: C.gold,
+              opacity: 0.03 + (i % 6) * 0.008,
+              fontFamily: F.body,
+              userSelect: "none",
+            }}>{l}</span>
+          ))}
+        </div>
+
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 720 }}>
+          {/* eyebrow */}
+          <div style={{
+            fontSize: 10, letterSpacing: 8, color: C.muted,
+            marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase"
+          }}>
+            SOD1820 &nbsp;·&nbsp; סוד המספרים
+          </div>
+
+          {/* crown ornament */}
+          <div style={{
+            fontSize: 36, color: C.gold, marginBottom: 20,
+            opacity: 0.7, lineHeight: 1
+          }}>✦</div>
+
+          <h1 style={{
+            fontSize: "clamp(40px, 8vw, 80px)",
+            color: C.goldBright,
+            margin: "0 0 12px",
+            lineHeight: 1.15,
+            fontWeight: 900,
+            fontFamily: F.royal,
+            letterSpacing: 2,
+            textShadow: `0 0 80px ${C.goldDark}, 0 2px 4px rgba(0,0,0,0.8)`,
+          }}>
+            הקוד שהסתירו
+          </h1>
+
+          <div style={{ margin: "20px auto 32px" }}>
+            <RoyalDivider width={200} />
+          </div>
+
+          <p style={{
+            fontSize: 17, color: C.goldDim,
+            maxWidth: 520, margin: "0 auto 48px",
+            lineHeight: 2.1, fontFamily: F.body, fontWeight: 400,
+          }}>
+            גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה
+            את המציאות מאחורי המציאות.
+            למד אותה עם{" "}
+            <strong style={{ color: C.goldLight, fontWeight: 700 }}>צוריאל פולייס</strong>.
+          </p>
+
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            <GoldButton onClick={() => onNav("courses")}>לכל הקורסים</GoldButton>
+            <GoldButton variant="secondary" onClick={() => onNav("about")}>מי זה צוריאל?</GoldButton>
+          </div>
+
+          {/* stats */}
+          <div style={{ display: "flex", gap: 56, justifyContent: "center", marginTop: 72, flexWrap: "wrap" }}>
+            {[["1820","תלמידים"],["4","שיטות"],["10+","שנות מחקר"],["50+","שיעורים"]].map(([n, l]) => (
+              <div key={l} style={{ textAlign: "center" }}>
+                <div style={{
+                  fontSize: 32, color: C.goldBright, fontWeight: 900,
+                  fontFamily: F.heading, lineHeight: 1, marginBottom: 8,
+                  textShadow: `0 0 30px ${C.goldDark}`
+                }}>{n}</div>
+                <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase" }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── COURSES PREVIEW ── */}
+      <div style={{ padding: "96px 24px", maxWidth: 1040, margin: "0 auto" }}>
+        <SectionHeader eyebrow="הקורסים" title="בחר את דרכך" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 20 }}>
+          {COURSES.map(c => (
+            <CourseCard
+              key={c.id}
+              course={c}
+              onBuy={course => onNav("checkout", course)}
+              onDetail={course => onNav("detail", course)}
+            />
+          ))}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 44 }}>
+          <GoldButton variant="secondary" onClick={() => onNav("courses")}>
+            כל הקורסים ←
+          </GoldButton>
+        </div>
+      </div>
+
+      {/* ── ABOUT TEASER ── */}
+      <div style={{
+        borderTop: `1px solid ${C.border}`,
+        borderBottom: `1px solid ${C.border}`,
+        background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        padding: "88px 24px",
+      }}>
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            background: C.goldDark,
+            border: `1px solid ${C.borderGold}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 28, color: C.goldLight,
+            margin: "0 auto 28px",
+          }}>✦</div>
+
+          <h2 style={{
+            color: C.goldLight, margin: "0 0 20px",
+            fontSize: 26, fontFamily: F.royal, fontWeight: 700, letterSpacing: 2,
+          }}>צוריאל פולייס</h2>
+
+          <RoyalDivider width={160} />
+
+          <p style={{
+            color: C.goldDim, fontSize: 15, lineHeight: 2.1,
+            margin: "28px 0 36px", fontFamily: F.body
+          }}>
+            חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים
+            של השפה העברית. פיתח שיטות ייחודיות שאינן מלמדות בשום מקום אחר.
+          </p>
+          <GoldButton variant="secondary" onClick={() => onNav("about")}>
+            קרא עוד
+          </GoldButton>
+        </div>
+      </div>
+
+      {/* ── TESTIMONIALS ── */}
+      <div style={{ padding: "88px 24px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <SectionHeader eyebrow="עדויות" title="קולות התלמידים" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderTop: `2px solid ${C.borderGold}`,
+                borderRadius: 2,
+                padding: "28px 24px",
+              }}>
+                <div style={{ color: C.gold, marginBottom: 14, fontSize: 13, letterSpacing: 2 }}>
+                  {"★".repeat(t.stars)}
+                </div>
+                <p style={{
+                  color: C.goldDim, fontSize: 14, lineHeight: 1.9,
+                  margin: "0 0 16px", fontFamily: F.body, fontStyle: "italic"
+                }}>
+                  "{t.text}"
+                </p>
+                <div style={{
+                  fontSize: 11, color: C.muted,
+                  fontFamily: F.heading, letterSpacing: 2
+                }}>— {t.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ===== COURSES PAGE =====
+
+function CoursesPage({ onNav }) {
+  const [filter, setFilter] = useState("הכל");
+  const levels = ["הכל", "מתחיל", "בינוני", "מתקדם", "מאסטר"];
+  const filtered = filter === "הכל" ? COURSES : COURSES.filter(c => c.level === filter);
+
+  return (
+    <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
+      <SectionHeader eyebrow="SOD1820" title="כל הקורסים" />
+
+      <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 48, flexWrap: "wrap" }}>
+        {levels.map(l => (
+          <button key={l} onClick={() => setFilter(l)} style={{
+            background: filter === l ? C.goldDark : "transparent",
+            border: `1px solid ${filter === l ? C.gold : C.border}`,
+            color: filter === l ? C.goldBright : C.muted,
+            padding: "8px 20px",
+            cursor: "pointer",
+            fontFamily: F.heading,
+            fontSize: 11,
+            letterSpacing: 3,
+            borderRadius: 2,
+            transition: "all 0.25s",
+            textTransform: "uppercase",
+          }}>{l}</button>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+        {filtered.map(c => (
+          <CourseCard
+            key={c.id}
+            course={c}
+            onBuy={course => onNav("checkout", course)}
+            onDetail={course => onNav("detail", course)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ===== ABOUT PAGE =====
+
+function AboutPage({ onNav }) {
+  return (
+    <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "64px 24px" }}>
+      <SectionHeader eyebrow="אודות" title="צוריאל פולייס" />
+
+      <div style={{
+        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`,
+        borderRadius: 2,
+        padding: "48px 40px",
+        marginBottom: 20,
+        boxShadow: `0 4px 40px ${C.goldDeep}`,
+      }}>
+        <div style={{
+          width: 88, height: 88, borderRadius: "50%",
+          background: `radial-gradient(circle, ${C.goldDark} 0%, ${C.bg} 100%)`,
+          border: `1px solid ${C.gold}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 32, color: C.goldLight,
+          margin: "0 auto 32px",
+          boxShadow: `0 0 30px ${C.goldDeep}`,
+        }}>✦</div>
+
+        <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.2, marginBottom: 20, fontFamily: F.body, textAlign: "center" }}>
+          צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים
+          הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום
+          אחר — ביניהן שיטת ההפרשים ("המסתתר") ומסגרת "ארבעת העולמות".
+        </p>
+
+        <div style={{ margin: "24px 0" }}>
+          <RoyalDivider width={160} />
+        </div>
+
+        <p style={{ color: C.goldDim, fontSize: 14, lineHeight: 2.1, fontFamily: F.body, textAlign: "center" }}>
+          עם קהילה של למעלה מ-1820 תלמידים, צוריאל מאמין שגימטריה אינה מיסטיקה —
+          היא מתמטיקה של השפה, כלי חשיבה שמשנה את האופן שבו רואים מילים, מספרים ומציאות.
+        </p>
+      </div>
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))",
+        gap: 12,
+        marginBottom: 40
+      }}>
+        {[["10+","שנות מחקר"],["1820","תלמידים"],["4","שיטות ייחודיות"],["50+","שיעורים מוקלטים"]].map(([n, l]) => (
+          <div key={l} style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderTop: `2px solid ${C.borderGold}`,
+            borderRadius: 2,
+            padding: "24px 16px",
+            textAlign: "center"
+          }}>
+            <div style={{
+              fontSize: 28, color: C.goldBright, fontWeight: 900,
+              fontFamily: F.heading, textShadow: `0 0 20px ${C.goldDeep}`
+            }}>{n}</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 8, letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase" }}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ textAlign: "center" }}>
+        <GoldButton onClick={() => onNav("courses")}>לקורסים של צוריאל</GoldButton>
+      </div>
+    </div>
+  );
+}
+
+// ===== LOGIN PAGE =====
+
+function LoginPage({ onNav }) {
+  const [mode, setMode] = useState("login");
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [name, setName] = useState("");
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleSubmit() {
+    if (!email || !pass) { setError("יש למלא את כל השדות"); return; }
+    setError(""); setDone(true);
+  }
+
+  if (done) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 56, marginBottom: 24, color: C.goldLight, textShadow: `0 0 40px ${C.goldDark}` }}>✦</div>
+        <h2 style={{ color: C.goldBright, margin: "0 0 12px", fontFamily: F.royal, fontSize: 26 }}>
+          {mode === "login" ? "ברוך הבא" : "ברוך הצטרפותך"}
+        </h2>
+        <RoyalDivider width={120} />
+        <p style={{ color: C.muted, fontSize: 13, marginTop: 16, fontFamily: F.body }}>
+          {mode === "login" ? "הכניסה הצליחה" : "החשבון נוצר בהצלחה"}
+        </p>
+        <GoldButton style={{ marginTop: 32 }} onClick={() => onNav("courses")}>לקורסים שלי →</GoldButton>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, direction: "rtl" }}>
+      <div style={{
+        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`,
+        borderRadius: 2,
+        padding: "48px 40px",
+        width: "100%", maxWidth: 400,
+        boxShadow: `0 8px 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{ fontSize: 9, letterSpacing: 6, color: C.muted, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>SOD1820</div>
+          <h2 style={{ color: C.goldBright, margin: "0 0 16px", fontSize: 22, fontFamily: F.royal }}>
+            {mode === "login" ? "כניסה לחשבון" : "הרשמה"}
+          </h2>
+          <RoyalDivider width={120} />
+        </div>
+
+        <div style={{ display: "flex", marginBottom: 28, border: `1px solid ${C.border}`, borderRadius: 2, overflow: "hidden" }}>
+          {[["login","כניסה"],["register","הרשמה"]].map(([k, v]) => (
+            <button key={k} onClick={() => { setMode(k); setError(""); }} style={{
+              flex: 1,
+              background: mode === k ? C.goldDark : "transparent",
+              border: "none",
+              color: mode === k ? C.goldBright : C.muted,
+              padding: "10px 0", cursor: "pointer",
+              fontFamily: F.heading, fontSize: 11,
+              letterSpacing: 2, transition: "all 0.2s",
+              textTransform: "uppercase"
+            }}>{v}</button>
+          ))}
+        </div>
+
+        {mode === "register" && <RoyalInput label="שם מלא" value={name} onChange={setName} />}
+        <RoyalInput label="אימייל" value={email} onChange={setEmail} type="email" />
+        <RoyalInput label="סיסמה" value={pass} onChange={setPass} type="password" />
+
+        {error && <div style={{ color: "#c05050", fontSize: 12, marginBottom: 16, textAlign: "center", fontFamily: F.body }}>{error}</div>}
+
+        <GoldButton style={{ width: "100%", textAlign: "center", marginTop: 8 }} onClick={handleSubmit}>
+          {mode === "login" ? "כניסה" : "יצירת חשבון"}
+        </GoldButton>
+
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <span style={{ fontSize: 12, color: C.muted, fontFamily: F.body }}>
+            {mode === "login" ? "אין לך חשבון? " : "כבר רשום? "}
+          </span>
+          <button onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }} style={{
+            background: "none", border: "none", color: C.goldDim,
+            cursor: "pointer", fontSize: 12, fontFamily: F.heading,
+            letterSpacing: 1, textDecoration: "underline"
+          }}>{mode === "login" ? "הרשמה" : "כניסה"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== CHECKOUT PAGE =====
+
+function CheckoutPage({ course, onNav }) {
+  const [email, setEmail] = useState("");
+  const [card, setCard] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!course) return (
+    <div style={{ padding: 60, textAlign: "center", direction: "rtl" }}>
+      <p style={{ color: C.muted, marginBottom: 24, fontFamily: F.body }}>לא נבחר קורס</p>
+      <GoldButton onClick={() => onNav("courses")}>לקורסים</GoldButton>
+    </div>
+  );
+
+  if (done) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 64, marginBottom: 24, color: C.goldBright, textShadow: `0 0 60px ${C.goldDark}` }}>✦</div>
+        <h2 style={{ color: C.goldBright, margin: "0 0 12px", fontFamily: F.royal, fontSize: 28 }}>
+          התשלום התקבל
+        </h2>
+        <RoyalDivider width={140} />
+        <p style={{ color: C.goldDim, fontSize: 15, margin: "20px 0 8px", fontFamily: F.body }}>
+          הקורס <strong>"{course.title}"</strong> מחכה לך
+        </p>
+        <p style={{ color: C.muted, fontSize: 12, fontFamily: F.body }}>קישור גישה נשלח לאימייל</p>
+        <GoldButton style={{ marginTop: 36 }} onClick={() => onNav("courses")}>לקורסים שלי →</GoldButton>
+      </div>
+    </div>
+  );
+
+  function handlePay() {
+    if (!email) { setError("יש להזין אימייל"); return; }
+    if (card.length !== 16) { setError("מספר כרטיס לא תקין"); return; }
+    if (cvv.length < 3) { setError("CVV לא תקין"); return; }
+    if (!expiry) { setError("יש להזין תוקף"); return; }
+    setError(""); setDone(true);
+  }
+
+  return (
+    <div style={{ minHeight: "80vh", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "56px 24px", direction: "rtl" }}>
+      <div style={{
+        width: "100%", maxWidth: 880,
+        display: "grid",
+        gridTemplateColumns: "minmax(240px, 340px) 1fr",
+        gap: 24,
+      }}>
+
+        {/* Order summary */}
+        <div style={{
+          background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+          border: `1px solid ${C.border}`,
+          borderTop: `3px solid ${course.color}`,
+          borderRadius: 2,
+          padding: "32px 28px",
+          alignSelf: "start",
+          position: "sticky", top: 76,
+        }}>
+          <div style={{ fontSize: 9, letterSpacing: 5, color: C.muted, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>
+            סיכום הזמנה
+          </div>
+          {course.tag && (
+            <div style={{
+              display: "inline-block", marginBottom: 12,
+              background: C.goldDark, border: `1px solid ${C.gold}`,
+              color: C.goldBright, fontSize: 9, letterSpacing: 3,
+              padding: "4px 12px", fontFamily: F.heading, textTransform: "uppercase"
+            }}>{course.tag}</div>
+          )}
+          <h3 style={{ color: C.goldBright, margin: "0 0 8px", fontSize: 20, fontFamily: F.royal }}>{course.title}</h3>
+          <div style={{ color: C.muted, fontSize: 12, marginBottom: 24, fontFamily: F.body }}>
+            {course.lessons} שיעורים · {course.level}
+          </div>
+          <div style={{
+            borderTop: `1px solid ${C.border}`, paddingTop: 20,
+            display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20
+          }}>
+            <span style={{ color: C.muted, fontSize: 13, fontFamily: F.body }}>סה״כ לתשלום</span>
+            <span style={{ fontSize: 26, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>₪{course.price}</span>
+          </div>
+          <div style={{ fontSize: 13, color: C.goldDim, lineHeight: 2.2, fontFamily: F.body }}>
+            ✓ גישה מיידית<br />
+            ✓ צפייה ללא הגבלה<br />
+            ✓ עדכונים לנצח<br />
+            ✓ תמיכה ישירה
+          </div>
+        </div>
+
+        {/* Payment form */}
+        <div style={{
+          background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+          border: `1px solid ${C.border}`,
+          borderTop: `3px solid ${C.borderGold}`,
+          borderRadius: 2,
+          padding: "36px 32px",
+        }}>
+          <div style={{ fontSize: 9, letterSpacing: 5, color: C.muted, marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase" }}>
+            פרטי תשלום
+          </div>
+
+          <RoyalInput label="אימייל" value={email} onChange={setEmail} type="email" placeholder="your@email.com" />
+
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>מספר כרטיס</div>
+            <input
+              value={card.replace(/(.{4})/g, "$1 ").trim()}
+              onChange={e => setCard(e.target.value.replace(/\D/g, "").slice(0, 16))}
+              placeholder="1234 5678 9012 3456"
+              style={{
+                width: "100%", background: C.bg,
+                border: `1px solid ${C.border}`,
+                color: C.goldBright, padding: "12px 16px", fontSize: 15,
+                fontFamily: F.mono, borderRadius: 2,
+                outline: "none", boxSizing: "border-box", direction: "ltr",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>תוקף</div>
+              <input
+                value={expiry}
+                onChange={e => {
+                  let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                  if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+                  setExpiry(v);
+                }}
+                placeholder="MM/YY"
+                style={{
+                  width: "100%", background: C.bg,
+                  border: `1px solid ${C.border}`,
+                  color: C.goldBright, padding: "12px 16px", fontSize: 14,
+                  fontFamily: F.mono, borderRadius: 2,
+                  outline: "none", boxSizing: "border-box", direction: "ltr",
+                }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>CVV</div>
+              <input
+                value={cvv}
+                onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                placeholder="123"
+                type="password"
+                style={{
+                  width: "100%", background: C.bg,
+                  border: `1px solid ${C.border}`,
+                  color: C.goldBright, padding: "12px 16px", fontSize: 14,
+                  fontFamily: F.mono, borderRadius: 2,
+                  outline: "none", boxSizing: "border-box", direction: "ltr",
+                }}
+              />
+            </div>
+          </div>
+
+          {error && <div style={{ color: "#c05050", fontSize: 12, margin: "8px 0 16px", textAlign: "center", fontFamily: F.body }}>{error}</div>}
+
+          <GoldButton
+            style={{ width: "100%", textAlign: "center", fontSize: 15, padding: "16px", marginTop: 8 }}
+            onClick={handlePay}
+          >
+            לתשלום &nbsp;·&nbsp; ₪{course.price}
+          </GoldButton>
+
+          <div style={{ textAlign: "center", marginTop: 16, fontSize: 10, color: C.muted, fontFamily: F.heading, letterSpacing: 2 }}>
+            🔒 תשלום מאובטח · SSL · 256-bit
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== BLOG PAGE =====
+
+const WP_API = "https://sod1820.co.il/wp-json/wp/v2/posts";
+const PER_PAGE = 9;
+
+function stripHtml(html = "") {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/\[.*?\]/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#8230;/g, "…")
+    .replace(/&#8216;|&#8217;/g, "'")
+    .replace(/&#8220;|&#8221;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatDateHe(dateStr) {
+  try {
+    return new Date(dateStr).toLocaleDateString("he-IL", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function PostSkeleton() {
+  const bar = (w, h = 10, mt = 0) => (
+    <div style={{
+      height: h, width: w, background: C.faint,
+      borderRadius: 1, marginTop: mt,
+    }} />
+  );
+  return (
+    <div style={{
+      background: C.surface,
+      border: `1px solid ${C.border}`,
+      borderTop: `2px solid ${C.borderGold}`,
+      borderRadius: 2, overflow: "hidden",
+    }}>
+      <div style={{ height: 196, background: C.faint }} />
+      <div style={{ padding: "24px 24px 28px" }}>
+        {bar("28%", 8)}
+        {bar("88%", 14, 14)}
+        {bar("65%", 14, 8)}
+        {bar("95%", 10, 20)}
+        {bar("80%", 10, 8)}
+        {bar("70%", 10, 8)}
+        {bar("22%", 10, 20)}
+      </div>
+    </div>
+  );
+}
+
+function PostCard({ post, onPost }) {
+  const [hov, setHov] = useState(false);
+
+  const image = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
+  const title = stripHtml(post.title?.rendered ?? "");
+  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 180);
+  const date = formatDateHe(post.date);
+
+  return (
+    <div
+      onClick={onPost}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex", flexDirection: "column",
+        background: hov ? C.surface2 : C.surface,
+        border: `1px solid ${hov ? C.gold : C.border}`,
+        borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
+        borderRadius: 2, overflow: "hidden",
+        cursor: "pointer",
+        transition: "all 0.3s",
+        boxShadow: hov ? `0 8px 40px ${C.goldDeep}` : "none",
+      }}
+    >
+      {/* featured image */}
+      <div style={{
+        height: 196, position: "relative", overflow: "hidden", flexShrink: 0,
+        background: image ? "transparent" : `linear-gradient(135deg, ${C.goldDeep} 0%, ${C.faint} 100%)`,
+      }}>
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            loading="lazy"
+            style={{
+              width: "100%", height: "100%", objectFit: "cover",
+              filter: "brightness(0.72) sepia(0.25)",
+              transition: "transform 0.45s",
+              transform: hov ? "scale(1.05)" : "scale(1)",
+              display: "block",
+            }}
+          />
+        ) : (
+          <div style={{
+            width: "100%", height: "100%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 52, color: C.borderGold, fontFamily: F.body,
+          }}>✦</div>
+        )}
+        {/* fade to card bg */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0, height: 48,
+          background: `linear-gradient(to top, ${hov ? C.surface2 : C.surface}, transparent)`,
+          transition: "background 0.3s",
+        }} />
+      </div>
+
+      {/* content */}
+      <div style={{ padding: "22px 24px 28px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{
+          fontSize: 9, color: C.muted, letterSpacing: 4,
+          marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase",
+        }}>{date}</div>
+
+        <h3 style={{
+          color: hov ? C.goldBright : C.goldLight,
+          margin: "0 0 14px", fontSize: 17,
+          fontFamily: F.royal, fontWeight: 700,
+          lineHeight: 1.45, letterSpacing: 0.5,
+          transition: "color 0.25s",
+        }}>{title}</h3>
+
+        <p style={{
+          color: C.muted, fontSize: 13, lineHeight: 1.95,
+          margin: "0 0 22px", flex: 1, fontFamily: F.body,
+        }}>
+          {excerpt}{excerpt.length >= 180 ? "…" : ""}
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <RoyalDivider width={28} />
+          <span style={{
+            fontSize: 10, color: hov ? C.goldBright : C.goldDim,
+            fontFamily: F.heading, letterSpacing: 3,
+            textTransform: "uppercase", transition: "color 0.25s",
+          }}>קרא עוד</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BlogPage({ onNav }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    fetch(`${WP_API}?_embed=1&per_page=${PER_PAGE}&page=${currentPage}`)
+      .then(r => {
+        const tp = r.headers.get("X-WP-TotalPages");
+        if (tp) setTotalPages(parseInt(tp, 10));
+        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
+        return r.json();
+      })
+      .then(data => { setPosts(data); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [currentPage]);
+
+  function goTo(p) {
+    setCurrentPage(p);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  return (
+    <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
+      <SectionHeader eyebrow="הבלוג" title="תובנות ותגליות" />
+
+      {error && (
+        <div style={{
+          background: C.surface,
+          border: `1px solid ${C.borderGold}`,
+          borderRadius: 2, padding: "36px",
+          textAlign: "center", marginBottom: 40,
+        }}>
+          <div style={{ fontSize: 32, color: C.goldDim, marginBottom: 16 }}>✦</div>
+          <p style={{ color: "#b05050", fontSize: 14, fontFamily: F.body, marginBottom: 20 }}>
+            לא ניתן לטעון פוסטים: {error}
+          </p>
+          <GoldButton variant="secondary" onClick={() => setCurrentPage(c => c)}>
+            נסה שוב
+          </GoldButton>
+        </div>
+      )}
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
+        gap: 20,
+      }}>
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+          : posts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+        }
+      </div>
+
+      {!loading && !error && posts.length === 0 && (
+        <div style={{ textAlign: "center", padding: "72px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
+          אין פוסטים להצגה
+        </div>
+      )}
+
+      {/* pagination */}
+      {!loading && !error && totalPages > 1 && (
+        <div style={{
+          display: "flex", gap: 8, justifyContent: "center",
+          marginTop: 56, flexWrap: "wrap", alignItems: "center",
+        }}>
+          <GoldButton
+            variant="secondary"
+            onClick={() => goTo(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
+          >← הקודם</GoldButton>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button key={p} onClick={() => goTo(p)} style={{
+              background: p === currentPage ? C.goldDark : "transparent",
+              border: `1px solid ${p === currentPage ? C.gold : C.border}`,
+              color: p === currentPage ? C.goldBright : C.muted,
+              width: 38, height: 38, cursor: "pointer",
+              fontFamily: F.heading, fontSize: 12,
+              borderRadius: 2, transition: "all 0.2s",
+            }}>{p}</button>
+          ))}
+
+          <GoldButton
+            variant="secondary"
+            onClick={() => goTo(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
+          >הבא →</GoldButton>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== POST PAGE =====
+
+const POST_CONTENT_CSS = `
+  .sod-post-content { direction: rtl; }
+  .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
+  .sod-post-content h4, .sod-post-content h5 {
+    color: ${C.goldLight};
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 2.2em 0 0.8em;
+    letter-spacing: 1px;
+  }
+  .sod-post-content h1 { font-size: clamp(22px, 3vw, 32px); }
+  .sod-post-content h2 { font-size: clamp(18px, 2.5vw, 26px); }
+  .sod-post-content h3 { font-size: clamp(15px, 2vw, 20px); }
+  .sod-post-content p {
+    color: ${C.goldDim};
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px;
+    line-height: 2.05;
+    margin: 0 0 1.4em;
+  }
+  .sod-post-content a {
+    color: ${C.gold};
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+  .sod-post-content a:hover { color: ${C.goldBright}; }
+  .sod-post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 2em auto;
+    border-radius: 2px;
+    border: 1px solid ${C.border};
+    filter: brightness(0.85) sepia(0.15);
+  }
+  .sod-post-content ul, .sod-post-content ol {
+    padding-right: 1.6em;
+    margin: 0 0 1.4em;
+  }
+  .sod-post-content li {
+    color: ${C.goldDim};
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px;
+    line-height: 2;
+    margin-bottom: 0.4em;
+  }
+  .sod-post-content blockquote {
+    border-right: 3px solid ${C.gold};
+    margin: 2em 0;
+    padding: 16px 24px;
+    background: ${C.surface};
+    border-radius: 0 2px 2px 0;
+  }
+  .sod-post-content blockquote p {
+    color: ${C.goldLight};
+    font-style: italic;
+    margin: 0;
+  }
+  .sod-post-content code {
+    background: ${C.faint};
+    color: ${C.goldLight};
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
+  .sod-post-content pre {
+    background: ${C.surface};
+    border: 1px solid ${C.border};
+    border-radius: 2px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 1.6em 0;
+  }
+  .sod-post-content pre code { background: none; padding: 0; }
+  .sod-post-content hr {
+    border: none;
+    border-top: 1px solid ${C.border};
+    margin: 2.5em 0;
+  }
+  .sod-post-content strong { color: ${C.goldLight}; font-weight: 700; }
+  .sod-post-content em { font-style: italic; color: ${C.gold}; }
+  .sod-post-content figure { margin: 2em 0; }
+  .sod-post-content figcaption {
+    text-align: center;
+    font-size: 11px;
+    color: ${C.muted};
+    font-family: 'Frank Ruhl Libre', serif;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+  .sod-post-content .wp-block-quote { border-right: 3px solid ${C.gold}; }
+  .sod-post-content table {
+    width: 100%; border-collapse: collapse; margin: 1.6em 0;
+  }
+  .sod-post-content th {
+    background: ${C.goldDark}; color: ${C.goldBright};
+    font-family: 'Cinzel', serif; font-size: 12px;
+    padding: 10px 14px; text-align: right;
+    border: 1px solid ${C.borderGold};
+  }
+  .sod-post-content td {
+    color: ${C.goldDim}; padding: 9px 14px;
+    border: 1px solid ${C.border};
+    font-family: 'Frank Ruhl Libre', serif; font-size: 14px;
+  }
+  .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
+`;
+
+function PostPage({ post, onBack }) {
+  const [fullPost, setFullPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    fetch(`${WP_API}/${post.id}?_embed=1`)
+      .then(r => {
+        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
+        return r.json();
+      })
+      .then(data => { setFullPost(data); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [post.id]);
+
+  const image = fullPost?._embedded?.["wp:featuredmedia"]?.[0]?.source_url
+    ?? post?._embedded?.["wp:featuredmedia"]?.[0]?.source_url
+    ?? null;
+  const author = fullPost?._embedded?.author?.[0]?.name ?? "";
+  const title  = stripHtml(fullPost?.title?.rendered ?? post?.title?.rendered ?? "");
+  const date   = formatDateHe(fullPost?.date ?? post?.date ?? "");
+  const content = fullPost?.content?.rendered ?? "";
+
+  return (
+    <div style={{ direction: "rtl" }}>
+      {/* hero image */}
+      {image && !loading && (
+        <div style={{
+          height: "clamp(220px, 40vw, 480px)",
+          position: "relative", overflow: "hidden",
+          background: C.goldDeep,
+        }}>
+          <img src={image} alt={title} style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            filter: "brightness(0.5) sepia(0.3)", display: "block",
+          }} />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${C.bg} 100%)`,
+          }} />
+        </div>
+      )}
+
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
+        <button
+          onClick={onBack}
+          onMouseEnter={e => (e.currentTarget.style.color = C.goldDim)}
+          onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+          style={{
+            background: "none", border: "none", color: C.muted,
+            cursor: "pointer", fontFamily: F.heading,
+            fontSize: 10, marginBottom: 40, letterSpacing: 4,
+            textTransform: "uppercase", transition: "color 0.2s",
+          }}
+        >← חזרה לבלוג</button>
+
+        {loading && (
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div>
+            <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>
+              טוען פוסט...
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ textAlign: "center", padding: "60px 0" }}>
+            <p style={{ color: "#b05050", fontFamily: F.body, fontSize: 14 }}>{error}</p>
+            <GoldButton variant="secondary" style={{ marginTop: 20 }} onClick={onBack}>
+              חזרה לבלוג
+            </GoldButton>
+          </div>
+        )}
+
+        {fullPost && !loading && (
+          <>
+            <div style={{
+              fontSize: 9, color: C.muted, letterSpacing: 4,
+              marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase",
+            }}>
+              {date}{author && ` · ${author}`}
+            </div>
+
+            <h1 style={{
+              color: C.goldBright, margin: "0 0 28px",
+              fontSize: "clamp(24px, 4.5vw, 44px)",
+              fontFamily: F.royal, fontWeight: 700,
+              lineHeight: 1.2, letterSpacing: 1,
+              textShadow: `0 0 70px ${C.goldDeep}`,
+            }}>{title}</h1>
+
+            <div style={{ marginBottom: 48 }}>
+              <RoyalDivider width={160} />
+            </div>
+
+            <style>{POST_CONTENT_CSS}</style>
+            <div
+              className="sod-post-content"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+
+            <div style={{
+              marginTop: 60, paddingTop: 28,
+              borderTop: `1px solid ${C.border}`,
+              textAlign: "center",
+            }}>
+              <a
+                href={fullPost.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: C.muted, fontSize: 10, fontFamily: F.heading,
+                  letterSpacing: 4, textTransform: "uppercase",
+                  textDecoration: "none", transition: "color 0.2s",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.goldDim)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              >
+                קרא באתר המקורי ↗
+              </a>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== DYNAMIC MENU =====
+
+const WP_MENU_BASE = "https://sod1820.co.il/wp-json";
+
+const STATIC_NAV_ITEMS = [
+  { key: "home",    label: "ראשי" },
+  { key: "courses", label: "קורסים" },
+  { key: "blog",    label: "בלוג" },
+  { key: "about",   label: "אודות" },
+  { key: "login",   label: "כניסה" },
+];
+
+function mapUrlToRoute(url) {
+  if (!url) return null;
+  try {
+    const path = new URL(url).pathname.replace(/\/+$/, "") || "/";
+    if (path === "/" || path === "") return "home";
+    if (/course|קורס|shop|product/i.test(path)) return "courses";
+    if (/about|אודות|who|me/i.test(path)) return "about";
+    if (/blog|post|article|בלוג|news/i.test(path)) return "blog";
+    if (/login|account|my-account/i.test(path)) return "login";
+  } catch { /* invalid URL */ }
+  return null;
+}
+
+async function fetchWpMenu() {
+  // Try WP REST API Menus plugin (menus/v1)
+  try {
+    const listRes = await fetch(`${WP_MENU_BASE}/menus/v1/menus`, { signal: AbortSignal.timeout(5000) });
+    if (listRes.ok) {
+      const menus = await listRes.json();
+      const menu = Array.isArray(menus) && menus.length > 0
+        ? (menus.find(m => /primary|main|ראשי/i.test(m.slug || m.name || "")) ?? menus[0])
+        : null;
+      if (menu) {
+        const menuId = menu.ID ?? menu.id;
+        const detailRes = await fetch(`${WP_MENU_BASE}/menus/v1/menus/${menuId}`, { signal: AbortSignal.timeout(5000) });
+        if (detailRes.ok) {
+          const detail = await detailRes.json();
+          const items = detail.items ?? [];
+          return items
+            .filter(it => !it.parent || it.parent === 0)
+            .map(it => ({
+              key:      String(it.ID ?? it.id),
+              label:    stripHtml(it.title ?? ""),
+              url:      it.url ?? "",
+              route:    mapUrlToRoute(it.url),
+            }));
+        }
+      }
+    }
+  } catch { /* plugin not installed or CORS */ }
+
+  // Try wp/v2/menu-items (WordPress 5.9+ core)
+  try {
+    const res = await fetch(`${WP_MENU_BASE}/wp/v2/menu-items?per_page=20`, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const items = await res.json();
+      if (Array.isArray(items) && items.length > 0) {
+        return items
+          .filter(it => !it.parent || it.parent === 0)
+          .sort((a, b) => (a.menu_order ?? 0) - (b.menu_order ?? 0))
+          .map(it => ({
+            key:   String(it.id),
+            label: stripHtml(it.title?.rendered ?? ""),
+            url:   it.url ?? "",
+            route: mapUrlToRoute(it.url),
+          }));
+      }
+    }
+  } catch { /* not available */ }
+
+  return null; // triggers fallback to STATIC_NAV_ITEMS
+}
+
+// ===== NAVBAR =====
+
+const NAV_ITEMS = [
+  { key: "home",    label: "ראשי" },
+  { key: "courses", label: "קורסים" },
+  { key: "blog",    label: "בלוג" },
+  { key: "about",   label: "אודות" },
+  { key: "login",   label: "כניסה" },
+];
+
+function Navbar({ page, onNav, navItems }) {
+  const [scrolled, setScrolled] = useState(false);
+  const items = navItems?.length ? navItems : NAV_ITEMS;
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  function handleItem(item) {
+    if (item.route) {
+      onNav(item.route);
+    } else if (item.url && item.url !== "#") {
+      window.open(item.url, "_blank", "noopener,noreferrer");
+    } else if (item.key && !item.url) {
+      onNav(item.key);
+    }
+  }
+
+  function isActive(item) {
+    return item.route ? page === item.route : page === item.key;
+  }
+
+  return (
+    <nav style={{
+      position: "sticky", top: 0, zIndex: 100,
+      background: scrolled ? "rgba(5,4,0,0.98)" : "rgba(5,4,0,0.88)",
+      backdropFilter: "blur(16px)",
+      borderBottom: `1px solid ${scrolled ? C.borderGold : C.border}`,
+      padding: "0 36px",
+      display: "flex", alignItems: "center",
+      justifyContent: "space-between",
+      height: 60,
+      direction: "rtl",
+      transition: "all 0.35s",
+    }}>
+      <button onClick={() => onNav("home")} style={{
+        background: "none", border: "none", cursor: "pointer",
+        fontFamily: F.royal,
+        color: C.goldBright,
+        fontSize: 15, fontWeight: 700, letterSpacing: 4,
+        textShadow: `0 0 20px ${C.goldDark}`,
+      }}>SOD<span style={{ color: C.gold }}>1820</span></button>
+
+      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+        {items.map(n => (
+          <button key={n.key} onClick={() => handleItem(n)} style={{
+            background: isActive(n) ? C.goldDark : "none",
+            border: "none",
+            color: isActive(n) ? C.goldBright : C.muted,
+            padding: "6px 16px",
+            cursor: "pointer",
+            fontFamily: F.heading,
+            fontSize: 11, letterSpacing: 2,
+            borderRadius: 2, transition: "all 0.25s",
+            textTransform: "uppercase",
+          }}>
+            {n.label}
+            {n.url && !n.route && (
+              <span style={{ fontSize: 7, marginRight: 3, opacity: 0.5 }}>↗</span>
+            )}
+          </button>
+        ))}
+        <GoldButton
+          style={{ padding: "7px 18px", fontSize: 10, marginRight: 8, letterSpacing: 2 }}
+          onClick={() => onNav("checkout", COURSES[3])}
+        >
+          הרשם עכשיו
+        </GoldButton>
+      </div>
+    </nav>
+  );
+}
+
+// ===== FOOTER =====
+
+function Footer({ onNav, navItems }) {
+  const items = navItems?.length ? navItems : NAV_ITEMS;
+
+  function handleItem(item) {
+    if (item.route) onNav(item.route);
+    else if (item.url && item.url !== "#") window.open(item.url, "_blank", "noopener,noreferrer");
+    else if (item.key && !item.url) onNav(item.key);
+  }
+
+  return (
+    <footer style={{
+      borderTop: `1px solid ${C.border}`,
+      background: C.surface,
+      padding: "48px 36px 32px",
+      direction: "rtl",
+    }}>
+      <div style={{
+        maxWidth: 1040, margin: "0 auto",
+        display: "flex", justifyContent: "space-between",
+        alignItems: "flex-start", flexWrap: "wrap", gap: 32,
+        paddingBottom: 36,
+      }}>
+        <div style={{ maxWidth: 220 }}>
+          <div style={{
+            color: C.goldBright, fontFamily: F.royal,
+            fontSize: 15, fontWeight: 700, letterSpacing: 3, marginBottom: 12
+          }}>SOD<span style={{ color: C.gold }}>1820</span></div>
+          <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8 }}>
+            צוריאל פולייס<br />sod1820.co.il
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>ניווט</div>
+            {items.map(n => (
+              <div key={n.key} style={{ marginBottom: 10 }}>
+                <button onClick={() => handleItem(n)} style={{
+                  background: "none", border: "none", color: C.goldDim,
+                  cursor: "pointer", fontSize: 13, fontFamily: F.body, padding: 0,
+                }}>{n.label}</button>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>קורסים</div>
+            {COURSES.map(c => (
+              <div key={c.id} style={{ marginBottom: 10 }}>
+                <button onClick={() => onNav("detail", c)} style={{
+                  background: "none", border: "none", color: C.goldDim,
+                  cursor: "pointer", fontSize: 13, fontFamily: F.body, padding: 0,
+                }}>{c.title}</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        maxWidth: 1040, margin: "0 auto",
+        paddingTop: 24, borderTop: `1px solid ${C.faint}`,
+        display: "flex", justifyContent: "space-between",
+        alignItems: "center", flexWrap: "wrap", gap: 10
+      }}>
+        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 3 }}>
+          א↔ל &nbsp;·&nbsp; ב↔מ &nbsp;·&nbsp; ג↔נ &nbsp;·&nbsp; כ↔ת
+        </div>
+        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.body }}>
+          © 2024 SOD1820 · כל הזכויות שמורות
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ===== APP ROOT =====
+
+export default function App() {
+  const [page, setPage] = useState("home");
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [navItems, setNavItems] = useState(null);
+
+  useEffect(() => {
+    fetchWpMenu().then(items => {
+      if (items?.length) setNavItems(items);
+    });
+  }, []);
+
+  function nav(p, data = null) {
+    setPage(p);
+    if (p === "post" && data) setSelectedPost(data);
+    else if (data) setSelectedCourse(data);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", color: C.gold, fontFamily: F.body }}>
+      <Navbar page={page} onNav={nav} navItems={navItems} />
+      <main>
+        {page === "home"     && <Landing onNav={nav} />}
+        {page === "courses"  && <CoursesPage onNav={nav} />}
+        {page === "about"    && <AboutPage onNav={nav} />}
+        {page === "blog"     && <BlogPage onNav={nav} />}
+        {page === "post"     && (
+          <PostPage
+            post={selectedPost}
+            onBack={() => nav("blog")}
+          />
+        )}
+        {page === "login"    && <LoginPage onNav={nav} />}
+        {page === "detail"   && (
+          <CourseDetailPage
+            course={selectedCourse}
+            onBuy={c => nav("checkout", c)}
+            onBack={() => nav("courses")}
+          />
+        )}
+        {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
+      </main>
+      <Footer onNav={nav} navItems={navItems} />
+    </div>
+  );
+}
