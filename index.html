@@ -12,7 +12,7 @@
     <style>
       *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; }
-      body { background: #0d0800; color: #f0e6cc; }
+      body { background: #080500; color: #f5f0e8; }
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: #050400; }
       ::-webkit-scrollbar-thumb { background: #3a2a00; border-radius: 3px; }
@@ -29,19 +29,6 @@
       .logo-animated {
         animation: logo-float 3.6s ease-in-out infinite,
                    logo-glow  3.6s ease-in-out infinite;
-      }
-      @keyframes crown-spin {
-        from { transform: rotate(0deg); }
-        to   { transform: rotate(360deg); }
-      }
-      @keyframes crown-pulse {
-        0%, 100% { filter: drop-shadow(0 0 8px #cd8c3a) drop-shadow(0 0 2px #f5c460); }
-        50%       { filter: drop-shadow(0 0 22px #e0a84e) drop-shadow(0 0 8px #f5c460); }
-      }
-      .crown-spinning {
-        display: inline-block;
-        animation: crown-spin 12s linear infinite,
-                   crown-pulse 3s ease-in-out infinite;
       }
     </style>
   </head>
