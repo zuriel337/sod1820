@@ -535,7 +535,7 @@ function Landing({ onNav }) {
             letterSpacing: 2,
             textShadow: `0 0 80px ${C.goldDark}, 0 2px 4px rgba(0,0,0,0.8)`,
           }}>
-            הקוד שהסתירו
+            סוד 1820 
           </h1>
 
           <div style={{ margin: "20px auto 32px" }}>
