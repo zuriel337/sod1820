@@ -478,11 +478,11 @@ function Landing({ onNav }) {
 
       {/* ── HERO ── */}
       <div style={{
-        minHeight: "96vh",
+        minHeight: "86vh",
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "80px 24px",
+        padding: "64px 18px",
         background: `radial-gradient(ellipse at 50% 20%, #1a1200 0%, ${C.bg} 60%)`,
         position: "relative",
         overflow: "hidden",
@@ -559,15 +559,15 @@ function Landing({ onNav }) {
           </div>
 
           {/* stats */}
-          <div style={{ display: "flex", gap: 56, justifyContent: "center", marginTop: 72, flexWrap: "wrap" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 18, justifyContent: "center", marginTop: 60, width: "100%" }}>
             {[["1820","תלמידים"],["4","שיטות"],["10+","שנות מחקר"],["50+","שיעורים"]].map(([n, l]) => (
-              <div key={l} style={{ textAlign: "center" }}>
+              <div key={l} style={{ textAlign: "center", padding: "12px 6px" }}>
                 <div style={{
-                  fontSize: 32, color: C.goldBright, fontWeight: 900,
-                  fontFamily: F.heading, lineHeight: 1, marginBottom: 8,
+                  fontSize: 28, color: C.goldBright, fontWeight: 900,
+                  fontFamily: F.heading, lineHeight: 1.1, marginBottom: 8,
                   textShadow: `0 0 30px ${C.goldDark}`
                 }}>{n}</div>
-                <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase" }}>{l}</div>
+                <div style={{ fontSize: 10, color: C.muted, letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase" }}>{l}</div>
               </div>
             ))}
           </div>
@@ -1782,6 +1782,13 @@ function NumberSidebar({ onNav }) {
   const [allTags, setAllTags] = useState([]);
   const [search, setSearch] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 760 : false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 760);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     fetch("https://sod1820.co.il/wp-json/wp/v2/tags?per_page=100&hide_empty=true&orderby=count&order=desc")
@@ -1816,7 +1823,7 @@ function NumberSidebar({ onNav }) {
         title="סוד המספרים"
         style={{
           position: "fixed",
-          right: open ? 280 : 0,
+          right: 0,
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 200,
@@ -1825,11 +1832,11 @@ function NumberSidebar({ onNav }) {
           borderRight: "none",
           borderRadius: "4px 0 0 4px",
           color: C.goldBright,
-          width: 30, height: 90,
+          width: 34, height: 90,
           cursor: "pointer",
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center", gap: 7,
-          transition: "right 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s",
+          transition: "background 0.2s",
           boxShadow: `-4px 0 16px ${C.goldDeep}`,
           padding: 0,
         }}
@@ -1863,7 +1870,8 @@ function NumberSidebar({ onNav }) {
       <div style={{
         position: "fixed",
         right: 0, top: 0, bottom: 0,
-        width: 280,
+        width: isMobile ? "100vw" : 280,
+        maxWidth: 280,
         zIndex: 199,
         transform: open ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
@@ -1888,9 +1896,19 @@ function NumberSidebar({ onNav }) {
             onMouseEnter={e => (e.currentTarget.style.color = C.goldBright)}
             onMouseLeave={e => (e.currentTarget.style.color = C.goldDim)}
             style={{
-              background: "none", border: "none", color: C.goldDim,
-              cursor: "pointer", fontSize: 16, lineHeight: 1,
-              fontFamily: "monospace", transition: "color 0.2s",
+              background: C.bgGlow,
+              border: `1px solid ${C.gold}`,
+              borderRadius: 6,
+              color: C.goldBright,
+              cursor: "pointer",
+              fontSize: 18,
+              lineHeight: 1,
+              width: 36,
+              height: 36,
+              display: "grid",
+              placeItems: "center",
+              fontFamily: "monospace",
+              transition: "all 0.2s",
             }}>✕</button>
         </div>
 
@@ -2481,7 +2499,16 @@ const NAV_ITEMS = [
 
 function Navbar({ page, onNav, navItems }) {
   const [scrolled, setScrolled] = useState(false);
+  const [mobile, setMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 860 : false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const items = navItems?.length ? navItems : NAV_ITEMS;
+
+  useEffect(() => {
+    const onResize = () => setMobile(window.innerWidth <= 860);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 30);
@@ -2490,6 +2517,7 @@ function Navbar({ page, onNav, navItems }) {
   }, []);
 
   function handleItem(item) {
+    setMenuOpen(false);
     if (item.route) {
       onNav(item.route);
     } else if (item.url && item.url !== "#") {
@@ -2509,9 +2537,9 @@ function Navbar({ page, onNav, navItems }) {
       background: scrolled ? "rgba(5,4,0,0.98)" : "rgba(5,4,0,0.88)",
       backdropFilter: "blur(16px)",
       borderBottom: `1px solid ${scrolled ? C.borderGold : C.border}`,
-      padding: "0 32px",
+      padding: mobile ? "0 16px" : "0 32px",
       display: "grid",
-      gridTemplateColumns: "auto 1fr auto",
+      gridTemplateColumns: mobile ? "auto auto" : "auto 1fr auto",
       alignItems: "center",
       height: 64,
       direction: "rtl",
@@ -2519,7 +2547,7 @@ function Navbar({ page, onNav, navItems }) {
       gap: 16,
     }}>
       {/* logo — right in RTL */}
-      <button onClick={() => onNav("home")} style={{
+      <button onClick={() => { setMenuOpen(false); onNav("home"); }} style={{
         background: "none", border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 10, padding: 0,
       }}>
@@ -2527,7 +2555,7 @@ function Navbar({ page, onNav, navItems }) {
           src={LOGO_URL}
           alt="SOD1820"
           className="logo-animated"
-          style={{ height: 38, width: "auto" }}
+          style={{ height: 36, width: "auto" }}
         />
         <div style={{ textAlign: "right" }}>
           <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>
@@ -2539,38 +2567,88 @@ function Navbar({ page, onNav, navItems }) {
         </div>
       </button>
 
-      {/* nav items — centered */}
-      <div style={{ display: "flex", gap: 0, alignItems: "center", justifyContent: "center" }}>
-        {items.map(n => (
-          <button key={n.key} onClick={() => handleItem(n)} style={{
-            background: isActive(n) ? C.goldDark : "none",
-            border: "none",
-            color: isActive(n) ? C.goldBright : C.muted,
-            padding: "8px 22px",
-            cursor: "pointer",
-            fontFamily: F.heading,
-            fontSize: 14, fontWeight: 700, letterSpacing: 3,
-            borderRadius: 2, transition: "all 0.25s",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-          }}>
-            {n.label}
-            {n.url && !n.route && (
-              <span style={{ fontSize: 7, marginRight: 4, opacity: 0.45 }}>↗</span>
-            )}
-          </button>
-        ))}
-      </div>
+      {!mobile && (
+        <div style={{ display: "flex", gap: 0, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+          {items.map(n => (
+            <button key={n.key} onClick={() => handleItem(n)} style={{
+              background: isActive(n) ? C.goldDark : "none",
+              border: "none",
+              color: isActive(n) ? C.goldBright : C.muted,
+              padding: "8px 22px",
+              cursor: "pointer",
+              fontFamily: F.heading,
+              fontSize: 14, fontWeight: 700, letterSpacing: 3,
+              borderRadius: 2, transition: "all 0.25s",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}>
+              {n.label}
+              {n.url && !n.route && (
+                <span style={{ fontSize: 7, marginRight: 4, opacity: 0.45 }}>↗</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* CTA — left in RTL */}
-      <div style={{ display: "flex", justifyContent: "flex-start" }}>
-        <GoldButton
-          style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
-          onClick={() => onNav("checkout", COURSES[3])}
-        >
-          הרשם עכשיו
-        </GoldButton>
-      </div>
+      {mobile ? (
+        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+          <button onClick={() => setMenuOpen(o => !o)} style={{
+            background: "none", border: "1px solid rgba(255,255,255,0.14)",
+            color: C.goldLight, padding: "10px 12px", borderRadius: 4,
+            cursor: "pointer", fontSize: 16, fontFamily: F.heading,
+            letterSpacing: 2, transition: "all 0.2s",
+          }}>
+            ☰
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          <GoldButton
+            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
+            onClick={() => onNav("checkout", COURSES[3])}
+          >
+            הרשם עכשיו
+          </GoldButton>
+        </div>
+      )}
+
+      {mobile && menuOpen && (
+        <div style={{
+          position: "absolute",
+          top: 64, right: 0, left: 0,
+          background: C.surface,
+          borderBottom: `1px solid ${C.border}`,
+          boxShadow: `0 10px 40px rgba(0,0,0,0.35)`,
+          zIndex: 90,
+          padding: "18px 16px 22px",
+        }}>
+          <div style={{ display: "grid", gap: 10 }}>
+            {items.map(n => (
+              <button key={n.key} onClick={() => handleItem(n)} style={{
+                background: isActive(n) ? C.goldDark : C.bg,
+                border: `1px solid ${isActive(n) ? C.gold : C.border}`,
+                color: isActive(n) ? C.goldBright : C.goldLight,
+                padding: "14px 16px",
+                cursor: "pointer",
+                fontFamily: F.heading,
+                fontSize: 14, letterSpacing: 2,
+                borderRadius: 4,
+                textAlign: "right",
+                textTransform: "uppercase",
+              }}>
+                {n.label}
+              </button>
+            ))}
+            <GoldButton
+              style={{ width: "100%", padding: "14px 16px", fontSize: 14, letterSpacing: 2 }}
+              onClick={() => { setMenuOpen(false); onNav("checkout", COURSES[3]); }}
+            >
+              הרשם עכשיו
+            </GoldButton>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
