@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { syncCategory47, getPostsFromSupabase, adaptPost } from "./lib/supabase.js";
 
 // ===== DESIGN TOKENS =====
 const C = {
