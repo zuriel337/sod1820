@@ -8,6 +8,7 @@ const WP_API = 'https://sod1820.co.il/wp-json/wp/v2/posts';
 const CATEGORY_ID = 47;
 
 export async function syncCategory47() {
+  if (!supabase) throw new Error('Supabase not configured');
   const rows = [];
   let page = 1, totalPages = 1;
 
