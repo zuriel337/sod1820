@@ -572,12 +572,42 @@ function Landing({ onNav, pageContent, adminMode }) {
 
           {/* crown ornament */}
           <div style={{
+            position: "relative",
             display: "inline-block",
-            fontSize: 56, color: C.gold, marginBottom: 20,
-            opacity: 0.8, lineHeight: 1,
-            animation: "crown-spin 10s linear infinite",
-            transformOrigin: "50% 50%",
-          }}>✦</div>
+            marginBottom: 20,
+            opacity: 0.95,
+            transform: "translateZ(0)",
+          }}>
+            <img
+              src={LOGO_URL}
+              alt="SOD1820 logo"
+              style={{
+                height: 76,
+                width: "auto",
+                display: "block",
+                animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
+                filter: "drop-shadow(0 0 18px rgba(232,200,74,0.6))",
+              }}
+            />
+            <span style={{
+              position: "absolute",
+              top: "-16%",
+              left: "-14%",
+              color: C.goldLight,
+              fontSize: 18,
+              opacity: 0.9,
+              animation: "royal-sparkle 3.6s ease-in-out infinite",
+            }}>✦</span>
+            <span style={{
+              position: "absolute",
+              top: "4%",
+              right: "-12%",
+              color: C.goldBright,
+              fontSize: 14,
+              opacity: 0.85,
+              animation: "royal-sparkle 4.6s ease-in-out infinite reverse",
+            }}>✦</span>
+          </div>
 
           {adminMode && (
             <div style={{ position: "absolute", top: 24, left: 24, right: "auto", textAlign: "left" }}>
