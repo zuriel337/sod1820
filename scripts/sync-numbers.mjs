@@ -25,25 +25,25 @@ function extractNumbers(text = '') {
 
 async function findCategory(nameQuery) {
   console.log(`🔍 מחפש קטגוריה "${nameQuery}"...`);
-  const res = await fetch(
-    `https://sod1820.co.il/wp-json/wp/v2/categories?search=${encodeURIComponent(nameQuery)}&per_page=5`
-  ).catch(() => null);
-
-  if (res?.ok) {
+  try {
+    const res = await wpFetch(`/categories?search=${encodeURIComponent(nameQuery)}&per_page=5`);
     const cats = await res.json();
     if (cats.length) {
       console.log(`  נמצאו: ${cats.map(c => `${c.name} (${c.id})`).join(', ')}`);
       return cats[0].id;
     }
-  }
+  } catch {}
   return null;
 }
 
 async function syncCategory(categoryId, categoryName) {
   console.log(`\n📥 סורק קטגוריה ${categoryName} (${categoryId}), 10 פוסטים ראשונים...`);
 
-  const res = await fetch(`${API_BASE}?category=${categoryId}&per_page=10&page=1`);
-  if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`);
+  const res = await wpFetch(
+    `/posts?categories=${categoryId}&per_page=10&page=1&_embed=1` +
+    `&_fields=id,title,date,slug,link,excerpt,_embedded`
+  );
+  if (!res.ok) throw new Error(`WP error ${res.status}`);
 
   const posts = await res.json();
   console.log(`  ✓ התקבלו ${posts.length} פוסטים`);
