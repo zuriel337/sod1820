@@ -2290,6 +2290,7 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
   const [fImage,    setFImage]    = useState(null);
   const [fImgName,  setFImgName]  = useState("");
   const [okMsg,     setOkMsg]     = useState("");
+  const [syncing,   setSyncing]   = useState(false);
 
   const [clues, setClues] = useState(() => {
     try { return JSON.parse(localStorage.getItem(ADMIN_STORE_KEY) || "[]"); }
