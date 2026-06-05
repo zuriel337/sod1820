@@ -535,155 +535,58 @@ function LatestPostsSection({ onNav }) {
 
 // ===== LANDING PAGE =====
 
-function Landing({ onNav, pageContent, adminMode }) {
-  const hebrewLetters = "אבגדהוזחטיכלמנסעפצקרשת".split("");
-  const { title, description, bodyHtml } = pageContent || {};
-
+function Landing({ onNav }) {
   return (
     <div style={{ direction: "rtl" }}>
 
-      {/* ── HERO ── */}
+      {/* ── CROWN ── */}
       <div style={{
-        minHeight: "86vh",
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "64px 18px",
+        padding: "48px 18px 32px",
         background: `radial-gradient(ellipse at 50% 20%, #1a1200 0%, ${C.bg} 60%)`,
-        position: "relative",
-        overflow: "hidden",
       }}>
-        {/* subtle grid */}
         <div style={{
-          position: "absolute", inset: 0, opacity: 0.025,
-          backgroundImage: `linear-gradient(${C.gold} 1px, transparent 1px), linear-gradient(90deg, ${C.gold} 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-        }} />
-
-        {/* floating letters */}
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-          {hebrewLetters.map((l, i) => (
-            <span key={i} style={{
-              position: "absolute",
-              left: `${(i * 4.5 + 3) % 96}%`,
-              top: `${(i * 8 + 5) % 88}%`,
-              fontSize: 16 + (i % 4) * 6,
-              color: C.gold,
-              opacity: 0.03 + (i % 6) * 0.008,
-              fontFamily: F.body,
-              userSelect: "none",
-            }}>{l}</span>
-          ))}
-        </div>
-
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 720 }}>
-          {/* eyebrow */}
-          <div style={{
-            fontSize: 10, letterSpacing: 8, color: C.muted,
-            marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase"
-          }}>
-            SOD1820 &nbsp;·&nbsp; סוד המספרים
-          </div>
-
-          {/* crown ornament */}
-          <div style={{
-            position: "relative",
-            display: "inline-block",
-            marginBottom: 20,
-            opacity: 0.95,
-            transform: "translateZ(0)",
-          }}>
-            <img
-              src={LOGO_URL}
-              alt="SOD1820 logo"
-              style={{
-                height: 76,
-                width: "auto",
-                display: "block",
-                animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-                filter: "drop-shadow(0 0 18px rgba(232,200,74,0.6))",
-              }}
-            />
-            <span style={{
-              position: "absolute",
-              top: "-16%",
-              left: "-14%",
-              color: C.goldLight,
-              fontSize: 18,
-              opacity: 0.9,
-              animation: "royal-sparkle 3.6s ease-in-out infinite",
-            }}>✦</span>
-            <span style={{
-              position: "absolute",
-              top: "4%",
-              right: "-12%",
-              color: C.goldBright,
-              fontSize: 14,
-              opacity: 0.85,
-              animation: "royal-sparkle 4.6s ease-in-out infinite reverse",
-            }}>✦</span>
-          </div>
-
-          {adminMode && (
-            <div style={{ position: "absolute", top: 24, left: 24, right: "auto", textAlign: "left" }}>
-              <button onClick={() => onNav("admin", "home")} style={{
-                background: C.bgGlow, border: `1px solid ${C.gold}`,
-                color: C.goldLight, padding: "8px 14px", borderRadius: 4,
-                cursor: "pointer", fontFamily: F.heading, fontSize: 12,
-                letterSpacing: 2, textTransform: "uppercase",
-              }}>
-                ערוך דף
-              </button>
-            </div>
-          )}
-
-          <h1 style={{
-            fontSize: "clamp(40px, 8vw, 80px)",
+          position: "relative",
+          display: "inline-block",
+          marginBottom: 20,
+          opacity: 0.95,
+          transform: "translateZ(0)",
+        }}>
+          <img
+            src={LOGO_URL}
+            alt="SOD1820 logo"
+            style={{
+              height: 76,
+              width: "auto",
+              display: "block",
+              animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
+              filter: "drop-shadow(0 0 18px rgba(232,200,74,0.6))",
+            }}
+          />
+          <span style={{
+            position: "absolute",
+            top: "-16%",
+            left: "-14%",
+            color: C.goldLight,
+            fontSize: 18,
+            opacity: 0.9,
+            animation: "royal-sparkle 3.6s ease-in-out infinite",
+          }}>✦</span>
+          <span style={{
+            position: "absolute",
+            top: "4%",
+            right: "-12%",
             color: C.goldBright,
-            margin: "0 0 12px",
-            lineHeight: 1.15,
-            fontWeight: 900,
-            fontFamily: F.royal,
-            letterSpacing: 2,
-            textShadow: `0 0 80px ${C.goldDark}, 0 2px 4px rgba(0,0,0,0.8)`,
-          }}>
-            {title}
-          </h1>
-
-          <div style={{ margin: "20px auto 32px" }}>
-            <RoyalDivider width={200} />
-          </div>
-
-          <p style={{
-            fontSize: 17, color: C.goldDim,
-            maxWidth: 520, margin: "0 auto 24px",
-            lineHeight: 2.1, fontFamily: F.body, fontWeight: 400,
-          }}>
-            {description}
-          </p>
-
-          <PageBody bodyHtml={bodyHtml} />
-
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <GoldButton onClick={() => onNav("blog")}>לבלוג</GoldButton>
-            <GoldButton variant="secondary" onClick={() => onNav("about")}>מי זה צוריאל?</GoldButton>
-          </div>
-
-          {/* stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 18, justifyContent: "center", marginTop: 60, width: "100%" }}>
-            {[["1820","תלמידים"],["4","שיטות"],["10+","שנות מחקר"],["50+","שיעורים"]].map(([n, l]) => (
-              <div key={l} style={{ textAlign: "center", padding: "12px 6px" }}>
-                <div style={{
-                  fontSize: 28, color: C.goldBright, fontWeight: 900,
-                  fontFamily: F.heading, lineHeight: 1.1, marginBottom: 8,
-                  textShadow: `0 0 30px ${C.goldDark}`
-                }}>{n}</div>
-                <div style={{ fontSize: 10, color: C.muted, letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase" }}>{l}</div>
-              </div>
-            ))}
-          </div>
+            fontSize: 14,
+            opacity: 0.85,
+            animation: "royal-sparkle 4.6s ease-in-out infinite reverse",
+          }}>✦</span>
         </div>
       </div>
+
+      {/* ── GEMATRIA CALCULATOR placeholder ── */}
 
       {/* ── LATEST POSTS ── */}
       <LatestPostsSection onNav={onNav} />
