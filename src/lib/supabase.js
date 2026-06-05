@@ -48,6 +48,7 @@ export async function syncCategory47() {
 }
 
 export async function getPostsFromSupabase(limit = 10) {
+  if (!supabase) return { posts: [], total: 0 };
   const { data, error, count } = await supabase
     .from('posts')
     .select('*', { count: 'exact' })
