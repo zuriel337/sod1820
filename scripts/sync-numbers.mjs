@@ -57,7 +57,6 @@ async function syncCategory(categoryId, categoryName) {
       date:       p.date,
       slug:       p.slug,
       link:       p.link,
-      author:     p._embedded?.author?.[0]?.name ?? '',
       categories: [categoryName],
     };
   });
