@@ -2457,6 +2457,31 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
                 setTimeout(() => setOkMsg(""), 3000);
               }}
             >שמור עמוד</GoldButton>
+
+            <div style={{ marginTop: 16, borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
+              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 3, marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase" }}>
+                סנכרון Supabase — קטגוריה 47
+              </div>
+              <GoldButton
+                variant="secondary"
+                disabled={syncing}
+                style={{ width: "100%", textAlign: "center" }}
+                onClick={async () => {
+                  setSyncing(true);
+                  try {
+                    const count = await syncCategory47();
+                    setOkMsg(`✦ סונכרנו ${count} פוסטים ל-Supabase`);
+                  } catch (e) {
+                    setOkMsg(`⚠ שגיאה: ${e.message}`);
+                  } finally {
+                    setSyncing(false);
+                    setTimeout(() => setOkMsg(""), 4000);
+                  }
+                }}
+              >
+                {syncing ? "מסנכרן..." : "סנכרן פוסטים מ-WordPress"}
+              </GoldButton>
+            </div>
           </div>
         </div>
       </div>
