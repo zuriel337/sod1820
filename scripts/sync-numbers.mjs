@@ -5,8 +5,15 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_ANON_KEY
 );
 
-// Vercel API proxy — accessible from Codespace
-const API_BASE = 'https://sod1820.vercel.app/api/wp-posts';
+const PROXY = 'https://api.allorigins.win/raw?url=';
+const WP_BASE = 'https://sod1820.co.il/wp-json/wp/v2';
+
+async function wpFetch(path) {
+  const url = PROXY + encodeURIComponent(`${WP_BASE}${path}`);
+  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(`proxy ${res.status}`);
+  return res;
+}
 
 function extractNumbers(text = '') {
   const plain = text.replace(/<[^>]*>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ');
