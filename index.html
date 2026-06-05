@@ -26,6 +26,10 @@
         0%, 100% { filter: drop-shadow(0 0 4px rgba(184,134,11,0.45)) brightness(0.92); }
         50%       { filter: drop-shadow(0 0 14px rgba(232,200,74,0.85)) brightness(1.12); }
       }
+      @keyframes crown-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
       .logo-animated {
         animation: logo-float 3.6s ease-in-out infinite,
                    logo-glow  3.6s ease-in-out infinite;

@@ -105,6 +105,38 @@ const KEY_NUMBERS = {
   1820: "סוד השם יהוה × עמים",
 };
 
+const PAGE_CONTENT_STORE_KEY = "sod1820_page_content";
+const PAGE_CONTENT_DEFAULTS = {
+  home: {
+    title: "סוד 1820",
+    description: "גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה את המציאות מאחורי המציאות.",
+    bodyHtml: "<p>גלה איך המילים והמספרים מתחברים כדי לחשוף מבנים נסתרות. כאן תוכל לקדם את עצמך עם שיטות למידה חדשות ולראות את המספרים כחלופה לשפה.</p>",
+    category: "ראשי",
+    tag: "home",
+  },
+  about: {
+    title: "צוריאל פולייס",
+    description: "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
+    bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p>",
+    category: "אודות",
+    tag: "about",
+  },
+  courses: {
+    title: "כל הקורסים",
+    description: "בחר קורס שמתאים לרמתך ופתח עולם חדש של משמעות במספרים ובמילים.",
+    bodyHtml: "<p>כל קורס מעריך את התובנות שלך ומלמד אותך כיצד להשתמש בגימטריה באופן יומיומי בבחירה של מילים, שמות והחלטות.</p>",
+    category: "קורסים",
+    tag: "courses",
+  },
+  blog: {
+    title: "הבלוג",
+    description: "מחשבות, שיעורים ותובנות על הקוד הנסתר בתוך הגימטריה והשפה העברית.",
+    bodyHtml: "<p>כאן תמצא פוסטים עדכניים, ניתוחים ושיתופים שנועדו לשפר את ההבנה שלך על עולם הגימטריה.</p>",
+    category: "בלוג",
+    tag: "blog",
+  },
+};
+
 // ===== ORNAMENTS =====
 
 const Ornament = ({ size = 20, color = C.gold }) => (
@@ -211,6 +243,24 @@ function SectionHeader({ eyebrow, title, center = true }) {
       }}>{title}</h2>
       <RoyalDivider />
     </div>
+  );
+}
+
+function PageBody({ bodyHtml }) {
+  if (!bodyHtml) return null;
+  return (
+    <div
+      style={{
+        color: C.goldDim,
+        fontFamily: F.body,
+        fontSize: 16,
+        lineHeight: 2,
+        maxWidth: 750,
+        margin: "0 auto 40px",
+        textAlign: "center",
+      }}
+      dangerouslySetInnerHTML={{ __html: bodyHtml }}
+    />
   );
 }
 
@@ -470,8 +520,9 @@ function LatestPostsSection({ onNav }) {
 
 // ===== LANDING PAGE =====
 
-function Landing({ onNav }) {
+function Landing({ onNav, pageContent, adminMode }) {
   const hebrewLetters = "אבגדהוזחטיכלמנסעפצקרשת".split("");
+  const { title, description, bodyHtml } = pageContent || {};
 
   return (
     <div style={{ direction: "rtl" }}>
@@ -521,9 +572,25 @@ function Landing({ onNav }) {
 
           {/* crown ornament */}
           <div style={{
-            fontSize: 36, color: C.gold, marginBottom: 20,
-            opacity: 0.7, lineHeight: 1
+            display: "inline-block",
+            fontSize: 56, color: C.gold, marginBottom: 20,
+            opacity: 0.8, lineHeight: 1,
+            animation: "crown-spin 10s linear infinite",
+            transformOrigin: "50% 50%",
           }}>✦</div>
+
+          {adminMode && (
+            <div style={{ position: "absolute", top: 24, left: 24, right: "auto", textAlign: "left" }}>
+              <button onClick={() => onNav("admin", "home")} style={{
+                background: C.bgGlow, border: `1px solid ${C.gold}`,
+                color: C.goldLight, padding: "8px 14px", borderRadius: 4,
+                cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+                letterSpacing: 2, textTransform: "uppercase",
+              }}>
+                ערוך דף
+              </button>
+            </div>
+          )}
 
           <h1 style={{
             fontSize: "clamp(40px, 8vw, 80px)",
@@ -535,7 +602,7 @@ function Landing({ onNav }) {
             letterSpacing: 2,
             textShadow: `0 0 80px ${C.goldDark}, 0 2px 4px rgba(0,0,0,0.8)`,
           }}>
-            סוד 1820 
+            {title}
           </h1>
 
           <div style={{ margin: "20px auto 32px" }}>
@@ -544,14 +611,13 @@ function Landing({ onNav }) {
 
           <p style={{
             fontSize: 17, color: C.goldDim,
-            maxWidth: 520, margin: "0 auto 48px",
+            maxWidth: 520, margin: "0 auto 24px",
             lineHeight: 2.1, fontFamily: F.body, fontWeight: 400,
           }}>
-            גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה
-            את המציאות מאחורי המציאות.
-            למד אותה עם{" "}
-            <strong style={{ color: C.goldLight, fontWeight: 700 }}>צוריאל פולייס</strong>.
+            {description}
           </p>
+
+          <PageBody bodyHtml={bodyHtml} />
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
             <GoldButton onClick={() => onNav("blog")}>לבלוג</GoldButton>
@@ -583,14 +649,34 @@ function Landing({ onNav }) {
 
 // ===== COURSES PAGE =====
 
-function CoursesPage({ onNav }) {
+function CoursesPage({ onNav, pageContent, adminMode }) {
   const [filter, setFilter] = useState("הכל");
   const levels = ["הכל", "מתחיל", "בינוני", "מתקדם", "מאסטר"];
   const filtered = filter === "הכל" ? COURSES : COURSES.filter(c => c.level === filter);
+  const { title, description, bodyHtml, category } = pageContent || {};
 
   return (
     <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
-      <SectionHeader eyebrow="SOD1820" title="כל הקורסים" />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
+        <SectionHeader eyebrow={category || "SOD1820"} title={title || "כל הקורסים"} />
+        {adminMode && (
+          <button onClick={() => onNav("admin", "courses")} style={{
+            background: C.bgGlow, border: `1px solid ${C.gold}`,
+            color: C.goldLight, padding: "10px 16px", borderRadius: 4,
+            cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+            letterSpacing: 2, textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}>
+            ערוך דף
+          </button>
+        )}
+      </div>
+      {description && (
+        <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
+          {description}
+        </p>
+      )}
+      <PageBody bodyHtml={bodyHtml} />
 
       <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 48, flexWrap: "wrap" }}>
         {levels.map(l => (
@@ -626,10 +712,24 @@ function CoursesPage({ onNav }) {
 
 // ===== ABOUT PAGE =====
 
-function AboutPage({ onNav }) {
+function AboutPage({ onNav, pageContent, adminMode }) {
+  const { title, description, bodyHtml, category } = pageContent || {};
   return (
     <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "64px 24px" }}>
-      <SectionHeader eyebrow="אודות" title="צוריאל פולייס" />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
+        <SectionHeader eyebrow={category || "אודות"} title={title || "צוריאל פולייס"} />
+        {adminMode && (
+          <button onClick={() => onNav("admin", "about")} style={{
+            background: C.bgGlow, border: `1px solid ${C.gold}`,
+            color: C.goldLight, padding: "10px 16px", borderRadius: 4,
+            cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+            letterSpacing: 2, textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}>
+            ערוך דף
+          </button>
+        )}
+      </div>
 
       <div style={{
         background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
@@ -651,10 +751,10 @@ function AboutPage({ onNav }) {
         }}>✦</div>
 
         <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.2, marginBottom: 20, fontFamily: F.body, textAlign: "center" }}>
-          צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים
-          הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום
-          אחר — ביניהן שיטת ההפרשים ("המסתתר") ומסגרת "ארבעת העולמות".
+          {description || "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום אחר — ביניהן שיטת ההפרשים (\"המסתתר\") ומסגרת \"ארבעת העולמות\"."}
         </p>
+
+        <PageBody bodyHtml={bodyHtml} />
 
         <div style={{ margin: "24px 0" }}>
           <RoyalDivider width={160} />
@@ -1153,7 +1253,7 @@ function PostCard({ post, onPost }) {
   );
 }
 
-function BlogPage({ onNav }) {
+function BlogPage({ onNav, pageContent, adminMode }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1161,6 +1261,7 @@ function BlogPage({ onNav }) {
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState([]);
   const [selectedCat, setSelectedCat] = useState(0);
+  const { title, description, bodyHtml, category } = pageContent || {};
 
   // fetch categories once
   useEffect(() => {
@@ -1199,7 +1300,27 @@ function BlogPage({ onNav }) {
 
   return (
     <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
-      <SectionHeader eyebrow="פוסטים" title="תובנות ותגליות" />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
+        <SectionHeader eyebrow={category || "פוסטים"} title={title || "תובנות ותגליות"} />
+        {adminMode && (
+          <button onClick={() => onNav("admin", "blog")} style={{
+            background: C.bgGlow, border: `1px solid ${C.gold}`,
+            color: C.goldLight, padding: "10px 16px", borderRadius: 4,
+            cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+            letterSpacing: 2, textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}>
+            ערוך דף
+          </button>
+        )}
+      </div>
+
+      {description && (
+        <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
+          {description}
+        </p>
+      )}
+      <PageBody bodyHtml={bodyHtml} />
 
       {/* category filter */}
       {categories.length > 0 && (
@@ -2105,10 +2226,17 @@ function ThemePreviewPage() {
 const ADMIN_PASSWORD  = "sod1820";
 const ADMIN_STORE_KEY = "sod1820_clues";
 
-function AdminPage() {
+function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKey, setAdminMode }) {
   const [authed,  setAuthed]  = useState(false);
   const [pw,      setPw]      = useState("");
   const [pwError, setPwError] = useState(false);
+
+  const [editPageKey, setEditPageKey] = useState(selectedPageKey || "home");
+  const [pageTitle, setPageTitle] = useState("");
+  const [pageDescription, setPageDescription] = useState("");
+  const [pageBodyHtml, setPageBodyHtml] = useState("");
+  const [pageCategory, setPageCategory] = useState("");
+  const [pageTag, setPageTag] = useState("");
 
   const [fTitle,    setFTitle]    = useState("");
   const [fContent,  setFContent]  = useState("");
@@ -2123,9 +2251,23 @@ function AdminPage() {
     catch { return []; }
   });
 
+  useEffect(() => {
+    const currentPage = selectedPageKey || editPageKey || "home";
+    const pageData = (pageContent?.[currentPage] || PAGE_CONTENT_DEFAULTS[currentPage] || {});
+    setPageTitle(pageData.title || "");
+    setPageDescription(pageData.description || "");
+    setPageBodyHtml(pageData.bodyHtml || "");
+    setPageCategory(pageData.category || "");
+    setPageTag(pageData.tag || "");
+    setEditPageKey(currentPage);
+  }, [selectedPageKey, editPageKey, pageContent]);
+
   function handleAuth() {
-    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
-    else setPwError(true);
+    if (pw.trim() === ADMIN_PASSWORD) {
+      setAuthed(true);
+      setPwError(false);
+      setAdminMode && setAdminMode(true);
+    } else setPwError(true);
   }
 
   function handleImg(e) {
@@ -2201,7 +2343,77 @@ function AdminPage() {
 
   return (
     <div style={{ maxWidth: 1040, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
-      <SectionHeader eyebrow="ניהול" title="פאנל ניהול — רמזים" />
+      <SectionHeader eyebrow="ניהול" title="פאנל ניהול — עמודים ורמזים" />
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, alignItems: "start", marginBottom: 40 }}>
+        <div style={{
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "28px 28px",
+        }}>
+          <div style={{
+            fontSize: 12, color: C.goldDim, letterSpacing: 4,
+            marginBottom: 24, fontFamily: F.heading, textTransform: "uppercase",
+          }}>עריכת עמוד</div>
+
+          <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "center" }}>
+              <div>
+                <label style={labelStyle}>בחר עמוד</label>
+                <select value={editPageKey} onChange={e => setEditPageKey(e.target.value)} style={inputStyle}>
+                  {Object.keys(PAGE_CONTENT_DEFAULTS).map(key => (
+                    <option key={key} value={key}>{PAGE_CONTENT_DEFAULTS[key].category || key}</option>
+                  ))}
+                </select>
+              </div>
+              <button onClick={() => { setSelectedPageKey(editPageKey); setAdminMode(true); }} style={{
+                background: C.bgGlow, border: `1px solid ${C.gold}`,
+                color: C.goldLight, padding: "12px 18px", borderRadius: 4,
+                cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+                letterSpacing: 2, textTransform: "uppercase",
+              }}>
+                פתח עמוד
+              </button>
+            </div>
+
+            <RoyalInput label="כותרת עמוד" value={pageTitle} onChange={setPageTitle} />
+            <div>
+              <label style={labelStyle}>תיאור עמוד</label>
+              <textarea
+                value={pageDescription}
+                onChange={e => setPageDescription(e.target.value)}
+                rows={3}
+                style={{ ...inputStyle, resize: "vertical", lineHeight: 1.8 }}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>תוכן HTML מלא</label>
+              <textarea
+                value={pageBodyHtml}
+                onChange={e => setPageBodyHtml(e.target.value)}
+                rows={6}
+                style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6, fontFamily: "monospace" }}
+                placeholder="הכנס HTML תקין כאן: <p>קטע תיאור נוסף</p>"
+              />
+            </div>
+            <RoyalInput label="קטגוריה" value={pageCategory} onChange={setPageCategory} />
+            <RoyalInput label="תגית" value={pageTag} onChange={setPageTag} />
+            <GoldButton
+              style={{ width: "100%", textAlign: "center" }}
+              onClick={() => {
+                onSavePage(editPageKey, {
+                  title: pageTitle,
+                  description: pageDescription,
+                  bodyHtml: pageBodyHtml,
+                  category: pageCategory,
+                  tag: pageTag,
+                });
+                setOkMsg("✦ תוכן העמוד נשמר בהצלחה");
+                setTimeout(() => setOkMsg(""), 3000);
+              }}
+            >שמור עמוד</GoldButton>
+          </div>
+        </div>
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
 
@@ -2754,6 +2966,13 @@ export default function App() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedTag, setSelectedTag] = useState(null);
   const [navItems, setNavItems] = useState(null);
+  const [adminMode, setAdminMode] = useState(false);
+  const [selectedPageKey, setSelectedPageKey] = useState("home");
+  const [pageContent, setPageContent] = useState(() => {
+    if (typeof window === "undefined") return {};
+    try { return JSON.parse(localStorage.getItem(PAGE_CONTENT_STORE_KEY) || "{}"); }
+    catch { return {}; }
+  });
 
   useEffect(() => {
     fetchWpMenu().then(items => {
@@ -2761,11 +2980,33 @@ export default function App() {
     });
   }, []);
 
+  useEffect(() => {
+    try { localStorage.setItem(PAGE_CONTENT_STORE_KEY, JSON.stringify(pageContent)); }
+    catch {}
+  }, [pageContent]);
+
+  function getPageContent(key) {
+    return { ...PAGE_CONTENT_DEFAULTS[key], ...(pageContent[key] || {}) };
+  }
+
+  function savePageContent(key, values) {
+    setPageContent(prev => ({
+      ...prev,
+      [key]: { ...(prev[key] || {}), ...values },
+    }));
+  }
+
   function nav(p, data = null) {
     setPage(p);
-    if (p === "post" && data)   setSelectedPost(data);
-    else if (p === "number" && data) setSelectedTag(data);
-    else if (data)              setSelectedCourse(data);
+    if (p === "admin") {
+      setSelectedPageKey(typeof data === "string" ? data : selectedPageKey || "home");
+    } else if (p === "post" && data) {
+      setSelectedPost(data);
+    } else if (p === "number" && data) {
+      setSelectedTag(data);
+    } else if (data) {
+      setSelectedCourse(data);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -2783,10 +3024,10 @@ export default function App() {
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar page={page} onNav={nav} navItems={navItems} />
         <main>
-          {page === "home"     && <Landing onNav={nav} />}
-          {page === "courses"  && <CoursesPage onNav={nav} />}
-          {page === "about"    && <AboutPage onNav={nav} />}
-          {page === "blog"     && <BlogPage onNav={nav} />}
+          {page === "home"     && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+          {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
+          {page === "about"    && <AboutPage onNav={nav} pageContent={getPageContent("about")} adminMode={adminMode} />}
+          {page === "blog"     && <BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />}
           {page === "post"     && (
             <PostPage post={selectedPost} onBack={() => nav("blog")} />
           )}
@@ -2808,7 +3049,13 @@ export default function App() {
           {page === "checkout"       && <CheckoutPage course={selectedCourse} onNav={nav} />}
           {page === "numbers-report" && <NumbersReportPage />}
           {page === "theme-preview"  && <ThemePreviewPage />}
-          {page === "admin"          && <AdminPage />}
+          {page === "admin"          && <AdminPage
+            pageContent={pageContent}
+            onSavePage={savePageContent}
+            selectedPageKey={selectedPageKey}
+            setSelectedPageKey={setSelectedPageKey}
+            setAdminMode={setAdminMode}
+          />}
         </main>
         <Footer onNav={nav} navItems={navItems} />
         <NumberSidebar onNav={nav} />
