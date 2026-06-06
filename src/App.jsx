@@ -509,7 +509,7 @@ function LatestPostsSection({ onNav }) {
       background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
     }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-        <SectionHeader eyebrow="מהבלוג" title="פוסטים אחרונים" />
+        <SectionHeader eyebrow="" title="פוסטים אחרונים" />
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
