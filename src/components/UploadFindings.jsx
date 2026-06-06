@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabase.js";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vyUxS9qIkxqbOqiNd-L-BQ_LBPZhwhg';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const S = {
   wrap: {
