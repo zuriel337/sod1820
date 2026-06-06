@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { syncCategory47, getPostsFromSupabase, adaptPost } from "./lib/supabase.js";
+import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== DESIGN TOKENS =====
 const C = {
