@@ -192,12 +192,6 @@ export default function UploadFindings() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!supabase) {
-      setErrorMsg("Supabase לא מחובר — חסרים משתני סביבה");
-      setStatus("error");
-      return;
-    }
-
     setStatus("saving");
     setErrorMsg("");
 
