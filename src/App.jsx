@@ -587,7 +587,8 @@ function Landing({ onNav }) {
         </div>
       </div>
 
-      {/* ── GEMATRIA CALCULATOR placeholder ── */}
+      {/* ── GEMATRIA UPLOAD FINDINGS ── */}
+      <UploadFindings />
 
       {/* ── LATEST POSTS ── */}
       <LatestPostsSection onNav={onNav} />
