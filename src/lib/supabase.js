@@ -9,17 +9,18 @@ export default supabase;
 export { supabase };
 
 const WP_API = 'https://sod1820.co.il/wp-json/wp/v2/posts';
-const CATEGORY_ID = 47;
 
 export async function syncCategory47() {
+  return syncAllPosts();
+}
+
+export async function syncAllPosts() {
   if (!supabase) throw new Error('Supabase not configured');
   const rows = [];
   let page = 1, totalPages = 1;
 
   while (page <= totalPages) {
-    const res = await fetch(
-      `${WP_API}?categories=${CATEGORY_ID}&per_page=100&page=${page}&_embed=1`
-    );
+    const res = await fetch(`${WP_API}?per_page=100&page=${page}&_embed=1`);
     if (!res.ok) break;
     totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
     const data = await res.json();
@@ -52,23 +53,37 @@ export async function syncCategory47() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase(limit = 10) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null } = {}) {
   if (!supabase) return { posts: [], total: 0 };
-  const { data, error, count } = await supabase
+  let query = supabase
     .from('posts')
     .select('*', { count: 'exact' })
     .order('date', { ascending: false })
-    .limit(limit);
+    .range((page - 1) * limit, page * limit - 1);
+
+  if (category) query = query.contains('categories', [category]);
+
+  const { data, error, count } = await query;
   if (error) throw error;
   return { posts: data ?? [], total: count ?? 0 };
 }
 
-// Converts Supabase row → format compatible with PostCard
+export async function getPostBySlug(slug) {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+  if (error) return null;
+  return data;
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
     title: { rendered: row.title },
-    excerpt: { rendered: row.excerpt },
+    excerpt: { rendered: row.excerpt ?? '' },
     date: row.date,
     link: row.link,
     slug: row.slug,
