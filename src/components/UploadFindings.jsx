@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "../lib/supabase.js";
 
 const S = {
   wrap: {
@@ -89,18 +90,6 @@ const S = {
     lineHeight: 1,
     padding: "0 4px",
   },
-  valueTag: {
-    background: "#1a1a35",
-    border: "1px solid #2d2d4e",
-    borderRadius: 5,
-    color: "#f59e0b",
-    padding: "10px 10px",
-    fontSize: 14,
-    fontWeight: 700,
-    textAlign: "center",
-    minWidth: 60,
-    boxSizing: "border-box",
-  },
   submit: {
     width: "100%",
     padding: "13px",
@@ -113,6 +102,7 @@ const S = {
     fontFamily: "'Heebo', sans-serif",
     cursor: "pointer",
     marginTop: 8,
+    opacity: 1,
   },
   sectionTitle: {
     fontSize: 13,
@@ -133,6 +123,15 @@ const S = {
     borderRadius: 8,
     marginTop: 12,
   },
+  error: {
+    textAlign: "center",
+    color: "#f87171",
+    fontSize: 14,
+    padding: "12px",
+    background: "#2b0d0d",
+    borderRadius: 8,
+    marginTop: 12,
+  },
 };
 
 const EMPTY_WORD = { word: "", value: "" };
@@ -146,7 +145,8 @@ export default function UploadFindings() {
     analysis: "",
   });
   const [words, setWords] = useState([{ ...EMPTY_WORD }]);
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState(null); // null | "saving" | "ok" | "error"
+  const [errorMsg, setErrorMsg] = useState("");
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -156,11 +156,40 @@ export default function UploadFindings() {
   const addWord = () => setWords(ws => [...ws, { ...EMPTY_WORD }]);
   const removeWord = i => setWords(ws => ws.filter((_, idx) => idx !== i));
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    console.log("ממצא גמטריה:", { ...form, words });
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!supabase) {
+      setErrorMsg("Supabase לא מחובר — חסרים משתני סביבה");
+      setStatus("error");
+      return;
+    }
+
+    setStatus("saving");
+    setErrorMsg("");
+
+    const wordValues = words
+      .filter(w => w.word.trim())
+      .map(w => ({ word: w.word.trim(), value: Number(w.value) || 0 }));
+
+    const { error } = await supabase.from("gallery_posts").insert({
+      title: form.title,
+      primary_number: form.mainNumber ? Number(form.mainNumber) : null,
+      event_date: form.date || null,
+      source_name: form.source || null,
+      analysis_text: form.analysis || null,
+      word_values: wordValues.length ? wordValues : null,
+      is_published: false,
+    });
+
+    if (error) {
+      setErrorMsg(error.message);
+      setStatus("error");
+    } else {
+      setStatus("ok");
+      setForm({ title: "", mainNumber: "", date: new Date().toISOString().slice(0, 10), source: "", analysis: "" });
+      setWords([{ ...EMPTY_WORD }]);
+      setTimeout(() => setStatus(null), 4000);
+    }
   };
 
   return (
@@ -189,7 +218,6 @@ export default function UploadFindings() {
                 placeholder="1820"
                 value={form.mainNumber}
                 onChange={e => set("mainNumber", e.target.value)}
-                required
               />
             </div>
           </div>
@@ -255,10 +283,19 @@ export default function UploadFindings() {
             + הוסף מילה
           </button>
 
-          <button type="submit" style={S.submit}>שמור ממצא</button>
+          <button
+            type="submit"
+            style={{ ...S.submit, opacity: status === "saving" ? 0.6 : 1 }}
+            disabled={status === "saving"}
+          >
+            {status === "saving" ? "שומר..." : "שמור ממצא"}
+          </button>
 
-          {submitted && (
-            <div style={S.success}>✓ הממצא נשמר בהצלחה!</div>
+          {status === "ok" && (
+            <div style={S.success}>✓ הממצא נשמר בהצלחה ב-Supabase!</div>
+          )}
+          {status === "error" && (
+            <div style={S.error}>שגיאה: {errorMsg}</div>
           )}
         </form>
       </div>
