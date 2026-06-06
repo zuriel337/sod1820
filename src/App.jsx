@@ -1096,6 +1096,7 @@ function PostCard({ post, onPost }) {
       onMouseLeave={() => setHov(false)}
       style={{
         display: "flex", flexDirection: "column",
+        height: "100%",
         background: hov ? C.surface2 : C.surface,
         border: `1px solid ${hov ? C.gold : C.border}`,
         borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
