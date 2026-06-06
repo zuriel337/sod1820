@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-export const supabase = (url && key) ? createClient(url, key) : null;
+const supabase = createClient(
+  'https://linswmnnkjxvweumprav.supabase.co',
+  'sb_publishable_vyUxS9qIkxqbOqiNd-L-BQ_LBPZhwhg'
+);
+
+export default supabase;
+export { supabase };
 
 const WP_API = 'https://sod1820.co.il/wp-json/wp/v2/posts';
 const CATEGORY_ID = 47;
