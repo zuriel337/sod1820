@@ -145,6 +145,8 @@ export default function UploadFindings() {
     analysis: "",
   });
   const [words, setWords] = useState([{ ...EMPTY_WORD }]);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [status, setStatus] = useState(null); // null | "saving" | "ok" | "error"
   const [errorMsg, setErrorMsg] = useState("");
 
