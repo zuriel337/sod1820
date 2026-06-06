@@ -327,6 +327,27 @@ export default function UploadFindings() {
             + הוסף מילה
           </button>
 
+          {/* תמונה */}
+          <div style={S.sectionTitle}>תמונה</div>
+          <label style={{
+            display: "block",
+            background: "#13132a",
+            border: "1px dashed #2d2d4e",
+            borderRadius: 7,
+            padding: "16px",
+            textAlign: "center",
+            cursor: "pointer",
+            marginBottom: 18,
+            color: "#a0a0c0",
+            fontFamily: "'Heebo', sans-serif",
+            fontSize: 14,
+          }}>
+            {imagePreview ? (
+              <img src={imagePreview} alt="preview" style={{ maxHeight: 160, maxWidth: "100%", borderRadius: 6, display: "block", margin: "0 auto 8px" }} />
+            ) : "לחץ לבחירת תמונה"}
+            <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
+          </label>
+
           <button
             type="submit"
             style={{ ...S.submit, opacity: status === "saving" ? 0.6 : 1 }}
