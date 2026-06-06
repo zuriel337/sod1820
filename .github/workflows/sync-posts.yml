@@ -1,9 +1,9 @@
-name: Sync WP Category 47 → Supabase
+name: Sync WP → Supabase (כל הפוסטים)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'   # כל יום ב-06:00 UTC
+    - cron: '0 4 * * *'   # כל יום ב-04:00 UTC
 
 jobs:
   sync:
@@ -18,8 +18,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Sync posts
+      - name: Sync all posts
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: node scripts/sync-posts.mjs
+        run: node scripts/sync-all.mjs
