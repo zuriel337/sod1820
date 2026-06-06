@@ -210,7 +210,7 @@ export default function UploadFindings() {
       .filter(w => w.word.trim())
       .map(w => ({ word: w.word.trim(), value: Number(w.value) || 0 }));
 
-    const { error } = await supabase.from("gallery_posts").insert({
+    const payload = {
       title: form.title,
       primary_number: form.mainNumber ? Number(form.mainNumber) : null,
       event_date: form.date || null,
@@ -219,7 +219,11 @@ export default function UploadFindings() {
       word_values: wordValues.length ? wordValues : null,
       image_url,
       is_published: false,
-    });
+    };
+
+    console.log("📤 Supabase payload:", payload);
+
+    const { error } = await supabase.from("gallery_posts").insert(payload);
 
     if (error) {
       setErrorMsg(error.message);
