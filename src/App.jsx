@@ -1057,6 +1057,8 @@ function PostSkeleton() {
   );
   return (
     <div style={{
+      display: "flex", flexDirection: "column",
+      height: "100%",
       background: C.surface,
       border: `1px solid ${C.border}`,
       borderTop: `2px solid ${C.borderGold}`,
