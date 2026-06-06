@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { syncCategory47, getPostsFromSupabase, adaptPost } from "./lib/supabase.js";
+import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
+import { syncCategory47, getPostsFromSupabase, getPostBySlug, adaptPost } from "./lib/supabase.js";
 import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== DESIGN TOKENS =====
