@@ -158,6 +158,34 @@ export default function UploadFindings() {
   const addWord = () => setWords(ws => [...ws, { ...EMPTY_WORD }]);
   const removeWord = i => setWords(ws => ws.filter((_, idx) => idx !== i));
 
+  const handleImageChange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImage = async file => {
+    const ext = file.name.split(".").pop();
+    const res = await fetch(
+      `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/gallery/${Date.now()}.${ext}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer sb_publishable_vyUxS9qIkxqbOqiNd-L-BQ_LBPZhwhg",
+          "Content-Type": file.type,
+        },
+        body: file,
+      }
+    );
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`העלאת תמונה נכשלה: ${err}`);
+    }
+    const { Key } = await res.json();
+    return `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/${Key}`;
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     if (!supabase) {
@@ -168,6 +196,17 @@ export default function UploadFindings() {
 
     setStatus("saving");
     setErrorMsg("");
+
+    let image_url = null;
+    if (imageFile) {
+      try {
+        image_url = await uploadImage(imageFile);
+      } catch (err) {
+        setErrorMsg(err.message);
+        setStatus("error");
+        return;
+      }
+    }
 
     const wordValues = words
       .filter(w => w.word.trim())
@@ -180,6 +219,7 @@ export default function UploadFindings() {
       source_name: form.source || null,
       analysis_text: form.analysis || null,
       word_values: wordValues.length ? wordValues : null,
+      image_url,
       is_published: false,
     });
 
@@ -190,6 +230,8 @@ export default function UploadFindings() {
       setStatus("ok");
       setForm({ title: "", mainNumber: "", date: new Date().toISOString().slice(0, 10), source: "", analysis: "" });
       setWords([{ ...EMPTY_WORD }]);
+      setImageFile(null);
+      setImagePreview(null);
       setTimeout(() => setStatus(null), 4000);
     }
   };
