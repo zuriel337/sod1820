@@ -3470,6 +3470,7 @@ function AppContent() {
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh", color: "#f5f0e8", fontFamily: F.body, fontSize: 16, position: "relative" }}>
+      <style>{GLOBAL_CSS}</style>
       {/* space background */}
       <SpaceBackground />
 
