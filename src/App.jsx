@@ -3141,7 +3141,10 @@ function PostPageBySlug({ onNav }) {
   const title    = stripHtml(post?.title ?? "");
   const date     = formatDateHe(post?.date ?? "");
   const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
-  const content  = post?.content ?? "";
+  const content  = (post?.content ?? "")
+    .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
+    .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
+    .replace(/(\s*<br\s*\/?>\s*){3,}/gi, "<br>");
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
