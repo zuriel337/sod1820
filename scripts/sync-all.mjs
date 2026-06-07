@@ -1,4 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const ws = require('ws');
 
 const supabase = createClient(
   'https://linswmnnkjxvweumprav.supabase.co',
