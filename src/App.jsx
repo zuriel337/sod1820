@@ -1213,7 +1213,7 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
   useEffect(() => {
     setLoading(true);
     setError("");
-    getPostsFromSupabase({ limit: PER_PAGE, page: currentPage, category: filterCategory })
+    getPostsFromSupabase({ limit: PER_PAGE, page: currentPage, category: filterCategory, tag: filterTag })
       .then(({ posts: rows, total }) => {
         const adapted = rows.map(adaptPost);
         setPosts(adapted);
