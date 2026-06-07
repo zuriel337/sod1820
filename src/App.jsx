@@ -1631,6 +1631,32 @@ const POST_CONTENT_CSS = `
     letter-spacing: 1px;
   }
   .sod-post-content .wp-block-quote { border-right: 3px solid ${C.gold}; }
+
+  /* ── iframes & embeds ── */
+  .sod-post-content iframe {
+    display: block;
+    max-width: 100%;
+    margin: 1.5em auto;
+    border: none;
+  }
+  .sod-post-content .wp-block-embed,
+  .sod-post-content figure.wp-block-embed {
+    max-width: 100%;
+    margin: 2em 0;
+    direction: ltr;
+  }
+  .sod-post-content .wp-block-embed__wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+  }
+  .sod-post-content .wp-block-embed__wrapper iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    margin: 0;
+  }
   .sod-post-content table {
     width: 100%; border-collapse: collapse; margin: 1.6em 0;
   }
