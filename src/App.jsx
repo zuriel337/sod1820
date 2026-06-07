@@ -1525,6 +1525,23 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
   );
 }
 
+// ===== GLOBAL STYLES =====
+const GLOBAL_CSS = `
+  .sod-inflate {
+    display: inline-block;
+    transition: transform 0.16s ease, text-shadow 0.18s ease;
+    cursor: pointer;
+  }
+  .sod-inflate:hover {
+    transform: scale(1.09);
+    text-shadow: 0 0 10px currentColor;
+  }
+  .sod-inflate:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+`;
+
 // ===== POST PAGE =====
 
 const POST_CONTENT_CSS = `
