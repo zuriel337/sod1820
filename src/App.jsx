@@ -3298,11 +3298,11 @@ function PostPageBySlug({ onNav }) {
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
-                  <span key={name} onClick={() => navigate('/tag/' + toSlug(name))} style={{
+                  <span key={name} className="sod-inflate" onClick={() => navigate('/tag/' + toSlug(name))} style={{
                     background: C.faint, border: `1px solid ${C.border}`,
                     color: C.muted, fontSize: 10, padding: "3px 10px",
                     fontFamily: F.heading, letterSpacing: 1,
-                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
+                    textTransform: "uppercase", borderRadius: 1,
                   }}>{name}</span>
                 ))}
               </div>
