@@ -94,9 +94,10 @@ export function adaptPost(row) {
     slug: row.slug,
     _embedded: {
       'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
-      'wp:term': [(row.categories ?? []).map(name => ({
-        taxonomy: 'category', id: name, name,
-      }))],
+      'wp:term': [
+        (row.categories ?? []).map(name => ({ taxonomy: 'category', id: name, name })),
+        (row.tags ?? []).map(name => ({ taxonomy: 'post_tag', id: name, name })),
+      ],
     },
   };
 }
