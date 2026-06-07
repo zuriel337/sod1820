@@ -3367,12 +3367,7 @@ function AppContent() {
   return (
     <div style={{ background: C.bg, minHeight: "100vh", color: "#f5f0e8", fontFamily: F.body, fontSize: 16, position: "relative" }}>
       {/* space background */}
-      <div style={{
-        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        backgroundImage: "url(https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=20)",
-        backgroundSize: "cover", backgroundPosition: "center center",
-        opacity: 0.06,
-      }} />
+      <SpaceBackground />
 
       {/* content */}
       <div style={{ position: "relative", zIndex: 1 }}>
