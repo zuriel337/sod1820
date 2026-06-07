@@ -40,6 +40,11 @@ export async function syncAllPosts() {
           .flat()
           .filter(t => t.taxonomy === 'category')
           .map(t => t.name),
+        tags: (p._embedded?.['wp:term'] ?? [])
+          .flat()
+          .filter(t => t.taxonomy === 'post_tag')
+          .map(t => t.name),
+        modified: p.modified ?? null,
       });
     }
     page++;
