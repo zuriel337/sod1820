@@ -2986,7 +2986,7 @@ function AppContent() {
   function nav(p, data = null) {
     // URL-based navigation for posts, blog, category, tag
     if (p === "post" && data?.slug) {
-      navigate(`/post/${data.slug}`);
+      navigate(`/${data.slug}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -3022,7 +3022,7 @@ function AppContent() {
         <main>
           <Routes>
             <Route path="/post" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
-            <Route path="/post/:slug" element={<PostPageBySlug onNav={nav} />} />
+            <Route path="/:slug" element={<PostPageBySlug onNav={nav} />} />
             <Route path="/category/:slug" element={<CategoryPage onNav={nav} />} />
             <Route path="/tag/:slug" element={<TagPage onNav={nav} />} />
             <Route path="*" element={
