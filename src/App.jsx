@@ -3284,10 +3284,10 @@ function PostPageBySlug({ onNav }) {
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {gematriaItems.map(({ phrase, ragil }) => (
-                    <span key={phrase} onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
+                    <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
                       background: "#1a0a2e", border: "1px solid #7c3aed",
                       color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
-                      fontFamily: F.heading, letterSpacing: 1, borderRadius: 1, cursor: "pointer",
+                      fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
                     }}>{phrase} | {ragil}</span>
                   ))}
                 </div>
