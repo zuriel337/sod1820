@@ -1639,14 +1639,19 @@ const POST_CONTENT_CSS = `
   /* ── iframes & embeds ── */
   .sod-post-content iframe {
     display: block;
-    max-width: 100%;
-    margin: 1.5em auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 16/9;
+    height: auto !important;
+    margin: 1.5em auto !important;
     border: none;
+    direction: ltr;
   }
+  /* WordPress block embed wrapper (padding-bottom trick) */
   .sod-post-content .wp-block-embed,
   .sod-post-content figure.wp-block-embed {
     max-width: 100%;
-    margin: 2em 0;
+    margin: 2em auto;
     direction: ltr;
   }
   .sod-post-content .wp-block-embed__wrapper {
@@ -1658,8 +1663,31 @@ const POST_CONTENT_CSS = `
   .sod-post-content .wp-block-embed__wrapper iframe {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 100%;
-    margin: 0;
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: unset;
+    margin: 0 !important;
+  }
+  /* YouTube span wrapper (old WP embed format) */
+  .sod-post-content .embed-youtube,
+  .sod-post-content span.embed-youtube {
+    display: block !important;
+    max-width: 100% !important;
+    margin: 1.5em auto !important;
+    text-align: center;
+  }
+  .sod-post-content .embed-youtube iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 16/9;
+    height: auto !important;
+  }
+  /* WordPress video shortcode container */
+  .sod-post-content .wp-video {
+    width: auto !important;
+    max-width: min(100%, 360px) !important;
+    margin: 1.5em auto !important;
+    display: block !important;
   }
 
   /* ── author attribution ── */
