@@ -2962,6 +2962,34 @@ function PostPageBySlug({ onNav }) {
   );
 }
 
+// ===== GEMATRIA PHRASE PAGE =====
+
+function GematriaPhrasePage({ onNav }) {
+  const { phrase } = useParams();
+  const navigate = useNavigate();
+  const decoded = decodeURIComponent(phrase);
+  const [item, setItem] = useState(null);
+
+  useEffect(() => {
+    getGematriaByPhrases([decoded]).then(rows => setItem(rows[0] ?? null)).catch(() => {});
+  }, [decoded]);
+
+  return (
+    <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
+      <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>← חזרה</button>
+      <h1 style={{ color: "#c4b5fd", fontFamily: F.royal, fontSize: "clamp(22px, 4vw, 38px)", marginBottom: 16 }}>{decoded}</h1>
+      {item && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 48 }}>
+          {[["רגיל", item.ragil]].filter(([,v]) => v).map(([label, val]) => (
+            <span key={label} style={{ background: "#1a0a2e", border: "1px solid #7c3aed", color: "#c4b5fd", fontSize: 12, padding: "4px 14px", fontFamily: F.heading, borderRadius: 1 }}>{label}: {val}</span>
+          ))}
+        </div>
+      )}
+      <BlogPage onNav={onNav} filterTag={decoded} />
+    </div>
+  );
+}
+
 // ===== CATEGORY PAGE =====
 
 function CategoryPage({ onNav }) {
