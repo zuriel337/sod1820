@@ -3034,10 +3034,10 @@ function AppContent() {
         <Navbar page={page} onNav={nav} navItems={navItems} />
         <main>
           <Routes>
-            <Route path="/blog" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/post" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/post/:slug" element={<PostPageBySlug onNav={nav} />} />
             <Route path="/category/:slug" element={<CategoryPage onNav={nav} />} />
             <Route path="/tag/:slug" element={<TagPage onNav={nav} />} />
-            <Route path="/:slug" element={<PostPageBySlug onNav={nav} />} />
             <Route path="*" element={
               <>
                 {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
