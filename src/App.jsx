@@ -3194,9 +3194,19 @@ function PostPageBySlug({ onNav }) {
   const date     = formatDateHe(post?.date ?? "");
   const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
   const content  = (post?.content ?? "")
+    // strip injected full-HTML boilerplate (common from pasted AI-generated content)
+    .replace(/<!DOCTYPE[^>]*>/gi, "")
+    .replace(/<\/?html[^>]*>/gi, "")
+    .replace(/<head[\s\S]*?<\/head>/gi, "")
+    .replace(/<\/?body[^>]*>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<meta[^>]*>/gi, "")
+    .replace(/<title[\s\S]*?<\/title>/gi, "")
+    .replace(/<link[^>]*>/gi, "")
+    // collapse whitespace artifacts left by the above
+    .replace(/(<br\s*\/?>\s*){3,}/gi, "<br>")
     .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
     .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
-    .replace(/(\s*<br\s*\/?>\s*){3,}/gi, "<br>")
     .replace(/(מאת[:\s]+[^\n<]{2,40})/g, '<span class="post-author">$1</span>');
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
