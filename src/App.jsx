@@ -2909,10 +2909,30 @@ function PostPageBySlug({ onNav }) {
         {post && !loading && (
           <>
             <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-              {date}{author && ` · ${author}`}
+              {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
             </div>
             <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
-            <div style={{ marginBottom: 48 }}><RoyalDivider width={160} /></div>
+            <div style={{ marginBottom: 24 }}><RoyalDivider width={160} /></div>
+            {(cats.length > 0 || tags.length > 0) && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 40 }}>
+                {cats.map(name => (
+                  <span key={name} style={{
+                    background: C.goldDark, border: `1px solid ${C.borderGold}`,
+                    color: C.goldBright, fontSize: 10, padding: "3px 10px",
+                    fontFamily: F.heading, letterSpacing: 1,
+                    textTransform: "uppercase", borderRadius: 1,
+                  }}>{name}</span>
+                ))}
+                {tags.map(name => (
+                  <span key={name} style={{
+                    background: C.faint, border: `1px solid ${C.border}`,
+                    color: C.muted, fontSize: 10, padding: "3px 10px",
+                    fontFamily: F.heading, letterSpacing: 1,
+                    textTransform: "uppercase", borderRadius: 1,
+                  }}>{name}</span>
+                ))}
+              </div>
+            )}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" dangerouslySetInnerHTML={{ __html: content }} />
           </>
