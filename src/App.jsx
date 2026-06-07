@@ -2882,11 +2882,14 @@ function PostPageBySlug({ onNav }) {
       .catch(() => { setError("שגיאה בטעינה"); setLoading(false); });
   }, [slug]);
 
-  const image   = post?.image_url ?? null;
-  const author  = post?.author ?? "";
-  const title   = stripHtml(post?.title ?? "");
-  const date    = formatDateHe(post?.date ?? "");
-  const content = post?.content ?? "";
+  const image    = post?.image_url ?? null;
+  const author   = post?.author ?? "";
+  const title    = stripHtml(post?.title ?? "");
+  const date     = formatDateHe(post?.date ?? "");
+  const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
+  const content  = post?.content ?? "";
+  const cats     = post?.categories ?? [];
+  const tags     = post?.tags ?? [];
 
   return (
     <div style={{ direction: "rtl" }}>
