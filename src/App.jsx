@@ -1657,6 +1657,14 @@ const POST_CONTENT_CSS = `
     width: 100%; height: 100%;
     margin: 0;
   }
+
+  /* ── vertical videos (reels/shorts) ── */
+  .sod-post-content video {
+    max-width: min(100%, 360px);
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+  }
   .sod-post-content table {
     width: 100%; border-collapse: collapse; margin: 1.6em 0;
   }
