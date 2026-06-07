@@ -75,12 +75,15 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
+  const decoded = decodeURIComponent(slug);
+  const encoded = encodeURIComponent(decoded).toLowerCase();
+  const slugs = [...new Set([slug, decoded, encoded])];
   const { data, error } = await supabase
     .from('posts')
     .select('*')
-    .eq('slug', slug)
-    .single();
-  if (error) return null;
+    .in('slug', slugs)
+    .limit(1);
+  if (error || !data?.length) return null;
   return data;
 }
 
