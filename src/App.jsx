@@ -479,25 +479,12 @@ function LatestPostsSection({ onNav }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      try {
-        let { posts: rows, total } = await getPostsFromSupabase(10);
-        if (total === 0) {
-          await syncCategory47();
-          ({ posts: rows } = await getPostsFromSupabase(10));
-        }
+    getPostsFromSupabase({ limit: 10 })
+      .then(({ posts: rows }) => {
         setPosts(rows.map(adaptPost));
-      } catch {
-        // fallback to WP if Supabase unavailable
-        try {
-          const res = await fetch(`${WP_API}?_embed=1&per_page=10&categories=47`);
-          if (res.ok) { const d = await res.json(); if (Array.isArray(d)) setPosts(d); }
-        } catch {}
-      } finally {
         setLoading(false);
-      }
-    }
-    load();
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   if (!loading && posts.length === 0) return null;
