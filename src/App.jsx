@@ -1229,7 +1229,7 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
   }
 
   return (
-    <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
+    <div style={{ padding: "64px 16px", maxWidth: 1200, margin: "0 auto", direction: "rtl" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
         <SectionHeader
           eyebrow={filterCategory ? `קטגוריה` : filterTag ? `תגית` : (category || "פוסטים")}
