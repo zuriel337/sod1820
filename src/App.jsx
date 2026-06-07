@@ -1559,12 +1559,16 @@ const POST_CONTENT_CSS = `
     margin: 0 0 1.4em;
   }
   .sod-post-content a {
-    color: ${C.gold};
-    text-decoration: underline;
+    color: ${C.gold} !important;
+    text-decoration: underline !important;
     text-underline-offset: 3px;
     transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .sod-post-content a:hover { color: ${C.goldBright}; }
+  .sod-post-content a:hover,
+  .sod-post-content a:focus { color: ${C.goldBright} !important; }
+  .sod-post-content a:active { color: #fff !important; opacity: 0.85; }
+  .sod-post-content a:visited { color: ${C.goldLight} !important; }
   .sod-post-content img {
     max-width: 100%;
     height: auto;
