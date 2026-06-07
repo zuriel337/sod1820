@@ -87,6 +87,16 @@ export async function getPostBySlug(slug) {
   return data[0];
 }
 
+export async function getGematriaByPhrases(phrases) {
+  if (!supabase || !phrases?.length) return [];
+  const { data } = await supabase
+    .from('gematria_words')
+    .select('phrase, ragil')
+    .in('phrase', phrases)
+    .limit(5);
+  return data ?? [];
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
