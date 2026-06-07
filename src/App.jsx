@@ -1207,55 +1207,45 @@ function PostCard({ post, onPost }) {
   );
 }
 
-function BlogPage({ onNav, pageContent, adminMode }) {
+function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filterTag = null }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [categories, setCategories] = useState([]);
-  const [selectedCat, setSelectedCat] = useState(0);
   const { title, description, bodyHtml, category } = pageContent || {};
 
-  // fetch categories once
-  useEffect(() => {
-    fetch("https://sod1820.co.il/wp-json/wp/v2/categories?per_page=40&hide_empty=true")
-      .then(r => r.ok ? r.json() : [])
-      .then(data => Array.isArray(data) ? setCategories(data) : null)
-      .catch(() => {});
-  }, []);
-
-  // fetch posts when page or category changes
   useEffect(() => {
     setLoading(true);
     setError("");
-    const catParam = selectedCat ? `&categories=${selectedCat}` : "";
-    fetch(`${WP_API}?_embed=1&per_page=${PER_PAGE}&page=${currentPage}${catParam}`)
-      .then(r => {
-        const tp = r.headers.get("X-WP-TotalPages");
-        if (tp) setTotalPages(parseInt(tp, 10));
-        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
-        return r.json();
+    setCurrentPage(1);
+  }, [filterCategory, filterTag]);
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    getPostsFromSupabase({ limit: PER_PAGE, page: currentPage, category: filterCategory })
+      .then(({ posts: rows, total }) => {
+        const adapted = rows.map(adaptPost);
+        setPosts(adapted);
+        setTotalPages(Math.ceil(total / PER_PAGE) || 1);
+        setLoading(false);
       })
-      .then(data => { setPosts(data); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, [currentPage, selectedCat]);
+  }, [currentPage, filterCategory, filterTag]);
 
   function goTo(p) {
     setCurrentPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function selectCat(id) {
-    setSelectedCat(id);
-    setCurrentPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
   return (
     <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-        <SectionHeader eyebrow={category || "פוסטים"} title={title || "תובנות ותגליות"} />
+        <SectionHeader
+          eyebrow={filterCategory ? `קטגוריה` : filterTag ? `תגית` : (category || "פוסטים")}
+          title={filterCategory || filterTag || title || "תובנות ותגליות"}
+        />
         {adminMode && (
           <button onClick={() => onNav("admin", "blog")} style={{
             background: C.bgGlow, border: `1px solid ${C.gold}`,
@@ -1269,44 +1259,12 @@ function BlogPage({ onNav, pageContent, adminMode }) {
         )}
       </div>
 
-      {description && (
+      {description && !filterCategory && !filterTag && (
         <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
           {description}
         </p>
       )}
-      <PageBody bodyHtml={bodyHtml} />
-
-      {/* category filter */}
-      {categories.length > 0 && (
-        <div style={{
-          display: "flex", gap: 8, justifyContent: "center",
-          flexWrap: "wrap", marginBottom: 44,
-        }}>
-          <button onClick={() => selectCat(0)} style={{
-            background: selectedCat === 0 ? C.goldDark : "transparent",
-            border: `1px solid ${selectedCat === 0 ? C.gold : C.border}`,
-            color: selectedCat === 0 ? C.goldBright : C.muted,
-            padding: "7px 18px", cursor: "pointer",
-            fontFamily: F.heading, fontSize: 10,
-            letterSpacing: 3, borderRadius: 2, transition: "all 0.2s",
-            textTransform: "uppercase",
-          }}>הכל</button>
-          {categories.map(cat => (
-            <button key={cat.id} onClick={() => selectCat(cat.id)} style={{
-              background: selectedCat === cat.id ? C.goldDark : "transparent",
-              border: `1px solid ${selectedCat === cat.id ? C.gold : C.border}`,
-              color: selectedCat === cat.id ? C.goldBright : C.muted,
-              padding: "7px 18px", cursor: "pointer",
-              fontFamily: F.heading, fontSize: 10,
-              letterSpacing: 3, borderRadius: 2, transition: "all 0.2s",
-              textTransform: "uppercase",
-            }}>
-              {cat.name}
-              <span style={{ fontSize: 8, opacity: 0.5, marginRight: 5 }}>({cat.count})</span>
-            </button>
-          ))}
-        </div>
-      )}
+      {!filterCategory && !filterTag && <PageBody bodyHtml={bodyHtml} />}
 
       {error && (
         <div style={{
@@ -1319,7 +1277,7 @@ function BlogPage({ onNav, pageContent, adminMode }) {
           <p style={{ color: "#b05050", fontSize: 14, fontFamily: F.body, marginBottom: 20 }}>
             לא ניתן לטעון פוסטים: {error}
           </p>
-          <GoldButton variant="secondary" onClick={() => setCurrentPage(c => c)}>
+          <GoldButton variant="secondary" onClick={() => setCurrentPage(p => p)}>
             נסה שוב
           </GoldButton>
         </div>
@@ -1342,7 +1300,6 @@ function BlogPage({ onNav, pageContent, adminMode }) {
         </div>
       )}
 
-      {/* pagination */}
       {!loading && !error && totalPages > 1 && (
         <div style={{
           display: "flex", gap: 8, justifyContent: "center",
@@ -1355,7 +1312,7 @@ function BlogPage({ onNav, pageContent, adminMode }) {
             style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
           >← הקודם</GoldButton>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map(p => (
             <button key={p} onClick={() => goTo(p)} style={{
               background: p === currentPage ? C.goldDark : "transparent",
               border: `1px solid ${p === currentPage ? C.gold : C.border}`,
