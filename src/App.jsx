@@ -3038,9 +3038,8 @@ function AppContent() {
             <Route path="/category/:slug" element={<CategoryPage onNav={nav} />} />
             <Route path="/tag/:slug" element={<TagPage onNav={nav} />} />
             <Route path="/:slug" element={<PostPageBySlug onNav={nav} />} />
-            <Route path="/" element={
+            <Route path="*" element={
               <>
-                {page === "home"     && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
                 {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
                 {page === "about"    && <AboutPage onNav={nav} pageContent={getPageContent("about")} adminMode={adminMode} />}
                 {page === "number"   && selectedTag && <NumberPage tag={selectedTag} onNav={nav} onBack={() => nav("blog")} />}
@@ -3050,7 +3049,7 @@ function AppContent() {
                 {page === "numbers-report" && <NumbersReportPage />}
                 {page === "theme-preview"  && <ThemePreviewPage />}
                 {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
-                {page === "home" || ["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) ? null : <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
               </>
             } />
           </Routes>
