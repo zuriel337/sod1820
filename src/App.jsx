@@ -2920,23 +2920,37 @@ function PostPageBySlug({ onNav }) {
             <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
             <div style={{ marginBottom: 24 }}><RoyalDivider width={160} /></div>
             {(cats.length > 0 || tags.length > 0) && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 40 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
                 {cats.map(name => (
-                  <span key={name} style={{
+                  <span key={name} onClick={() => navigate('/category/' + encodeURIComponent(name))} style={{
                     background: C.goldDark, border: `1px solid ${C.borderGold}`,
                     color: C.goldBright, fontSize: 10, padding: "3px 10px",
                     fontFamily: F.heading, letterSpacing: 1,
-                    textTransform: "uppercase", borderRadius: 1,
+                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
                   }}>{name}</span>
                 ))}
                 {tags.map(name => (
-                  <span key={name} style={{
+                  <span key={name} onClick={() => navigate('/tag/' + encodeURIComponent(name))} style={{
                     background: C.faint, border: `1px solid ${C.border}`,
                     color: C.muted, fontSize: 10, padding: "3px 10px",
                     fontFamily: F.heading, letterSpacing: 1,
-                    textTransform: "uppercase", borderRadius: 1,
+                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
                   }}>{name}</span>
                 ))}
+              </div>
+            )}
+            {gematriaItems.length > 0 && (
+              <div style={{ marginBottom: 40 }}>
+                <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {gematriaItems.map(({ phrase, ragil }) => (
+                    <span key={phrase} onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
+                      background: "#1a0a2e", border: "1px solid #7c3aed",
+                      color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
+                      fontFamily: F.heading, letterSpacing: 1, borderRadius: 1, cursor: "pointer",
+                    }}>{phrase} | {ragil}</span>
+                  ))}
+                </div>
               </div>
             )}
             <style>{POST_CONTENT_CSS}</style>
