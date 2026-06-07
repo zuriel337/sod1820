@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const ws = require('ws');
+import { WebSocket } from 'ws';
+
+if (!globalThis.WebSocket) globalThis.WebSocket = WebSocket;
 
 const supabase = createClient(
   'https://linswmnnkjxvweumprav.supabase.co',
@@ -12,7 +12,6 @@ const WP_API = 'https://sod1820.co.il/wp-json/wp/v2/posts';
 
 async function run() {
   let page = 1, totalPages = 1, total = 0;
-
   while (page <= totalPages) {
     console.log(`📥 מביא דף ${page}/${totalPages}...`);
     const res = await fetch(
@@ -20,10 +19,8 @@ async function run() {
       { headers: { 'User-Agent': 'SOD1820-Sync/1.0' }, signal: AbortSignal.timeout(30000) }
     );
     if (!res.ok) { console.error(`שגיאה ${res.status}`); break; }
-
     totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
     const posts = await res.json();
-
     const rows = posts.map(p => ({
       wp_id: p.id,
       title: p.title?.rendered ?? '',
@@ -39,19 +36,15 @@ async function run() {
         .filter(t => t.taxonomy === 'category')
         .map(t => t.name),
     }));
-
     const { error } = await supabase
       .from('posts')
       .upsert(rows, { onConflict: 'wp_id' });
-
     if (error) { console.error('❌ Supabase:', error.message); process.exit(1); }
-
     total += rows.length;
     console.log(`  ✓ נשמרו ${rows.length} פוסטים (סה"כ: ${total})`);
     page++;
   }
-
   console.log(`\n✅ סנכרון הושלם — ${total} פוסטים`);
 }
 
-run().catch(e => { console.error('❌', e.message); process.exit(1); });
+run().catch(console.error);
