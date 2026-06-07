@@ -1658,6 +1658,12 @@ const POST_CONTENT_CSS = `
     margin: 0;
   }
 
+  /* ── collapse Elementor spacers & excess whitespace ── */
+  .sod-post-content div[style*="height"] { height: auto !important; max-height: 24px !important; }
+  .sod-post-content div[style*="min-height"] { min-height: 0 !important; }
+  .sod-post-content .elementor-spacer,
+  .sod-post-content .elementor-spacer-inner { height: 16px !important; }
+
   /* ── override dark inline colors from WordPress/Elementor ── */
   .sod-post-content [style*="color:#000"],
   .sod-post-content [style*="color: #000"],
