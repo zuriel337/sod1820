@@ -1579,12 +1579,21 @@ const POST_CONTENT_CSS = `
     color: ${C.gold} !important;
     text-decoration: underline !important;
     text-underline-offset: 3px;
-    transition: color 0.2s;
+    display: inline-block;
+    transition: color 0.18s, transform 0.16s ease, text-shadow 0.18s ease;
     -webkit-tap-highlight-color: transparent;
   }
   .sod-post-content a:hover,
-  .sod-post-content a:focus { color: ${C.goldBright} !important; }
-  .sod-post-content a:active { color: #fff !important; opacity: 0.85; }
+  .sod-post-content a:focus {
+    color: ${C.goldBright} !important;
+    transform: scale(1.07);
+    text-shadow: 0 0 12px ${C.gold};
+  }
+  .sod-post-content a:active {
+    color: #fff !important;
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
   .sod-post-content a:visited { color: ${C.goldLight} !important; }
   .sod-post-content img {
     max-width: 100%;
