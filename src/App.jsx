@@ -2996,7 +2996,7 @@ function GematriaPhrasePage({ onNav }) {
 
 function CategoryPage({ onNav }) {
   const { slug } = useParams();
-  const categoryName = decodeURIComponent(slug);
+  const categoryName = decodeURIComponent(slug).replace(/-/g, ' ');
   return <BlogPage onNav={onNav} filterCategory={categoryName} />;
 }
 
@@ -3004,7 +3004,7 @@ function CategoryPage({ onNav }) {
 
 function TagPage({ onNav }) {
   const { slug } = useParams();
-  const tagName = decodeURIComponent(slug);
+  const tagName = decodeURIComponent(slug).replace(/-/g, ' ');
   return <BlogPage onNav={onNav} filterTag={tagName} />;
 }
 
