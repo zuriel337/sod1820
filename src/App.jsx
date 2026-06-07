@@ -2924,7 +2924,7 @@ function PostPageBySlug({ onNav }) {
             {(cats.length > 0 || tags.length > 0) && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
                 {cats.map(name => (
-                  <span key={name} onClick={() => navigate('/category/' + encodeURIComponent(name))} style={{
+                  <span key={name} onClick={() => navigate('/category/' + toSlug(name))} style={{
                     background: C.goldDark, border: `1px solid ${C.borderGold}`,
                     color: C.goldBright, fontSize: 10, padding: "3px 10px",
                     fontFamily: F.heading, letterSpacing: 1,
@@ -2932,7 +2932,7 @@ function PostPageBySlug({ onNav }) {
                   }}>{name}</span>
                 ))}
                 {tags.map(name => (
-                  <span key={name} onClick={() => navigate('/tag/' + encodeURIComponent(name))} style={{
+                  <span key={name} onClick={() => navigate('/tag/' + toSlug(name))} style={{
                     background: C.faint, border: `1px solid ${C.border}`,
                     color: C.muted, fontSize: 10, padding: "3px 10px",
                     fontFamily: F.heading, letterSpacing: 1,
