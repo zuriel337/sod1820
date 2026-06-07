@@ -3033,38 +3033,27 @@ function AppContent() {
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar page={page} onNav={nav} navItems={navItems} />
         <main>
-          {page === "home"     && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
-          {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
-          {page === "about"    && <AboutPage onNav={nav} pageContent={getPageContent("about")} adminMode={adminMode} />}
-          {page === "blog"     && <BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />}
-          {page === "post"     && (
-            <PostPage post={selectedPost} onBack={() => nav("blog")} />
-          )}
-          {page === "number"   && selectedTag && (
-            <NumberPage
-              tag={selectedTag}
-              onNav={nav}
-              onBack={() => nav("blog")}
-            />
-          )}
-          {page === "login"    && <LoginPage onNav={nav} />}
-          {page === "detail"   && (
-            <CourseDetailPage
-              course={selectedCourse}
-              onBuy={c => nav("checkout", c)}
-              onBack={() => nav("courses")}
-            />
-          )}
-          {page === "checkout"       && <CheckoutPage course={selectedCourse} onNav={nav} />}
-          {page === "numbers-report" && <NumbersReportPage />}
-          {page === "theme-preview"  && <ThemePreviewPage />}
-          {page === "admin"          && <AdminPage
-            pageContent={pageContent}
-            onSavePage={savePageContent}
-            selectedPageKey={selectedPageKey}
-            setSelectedPageKey={setSelectedPageKey}
-            setAdminMode={setAdminMode}
-          />}
+          <Routes>
+            <Route path="/blog" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/category/:slug" element={<CategoryPage onNav={nav} />} />
+            <Route path="/tag/:slug" element={<TagPage onNav={nav} />} />
+            <Route path="/:slug" element={<PostPageBySlug onNav={nav} />} />
+            <Route path="/" element={
+              <>
+                {page === "home"     && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
+                {page === "about"    && <AboutPage onNav={nav} pageContent={getPageContent("about")} adminMode={adminMode} />}
+                {page === "number"   && selectedTag && <NumberPage tag={selectedTag} onNav={nav} onBack={() => nav("blog")} />}
+                {page === "login"    && <LoginPage onNav={nav} />}
+                {page === "detail"   && <CourseDetailPage course={selectedCourse} onBuy={c => nav("checkout", c)} onBack={() => nav("courses")} />}
+                {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
+                {page === "numbers-report" && <NumbersReportPage />}
+                {page === "theme-preview"  && <ThemePreviewPage />}
+                {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
+                {page === "home" || ["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) ? null : <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+              </>
+            } />
+          </Routes>
         </main>
         <Footer onNav={nav} navItems={navItems} />
         <NumberSidebar onNav={nav} />
@@ -3072,4 +3061,4 @@ function AppContent() {
     </div>
   );
 }
-1
+
