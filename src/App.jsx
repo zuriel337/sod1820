@@ -3004,7 +3004,7 @@ function CategoryPage({ onNav }) {
 
 function TagPage({ onNav }) {
   const { slug } = useParams();
-  const tagName = decodeURIComponent(slug).replace(/-/g, ' ');
+  const tagName = decodeURIComponent(slug);
   return <BlogPage onNav={onNav} filterTag={tagName} />;
 }
 
