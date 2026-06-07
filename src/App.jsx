@@ -1464,24 +1464,23 @@ function PostPage({ post, onBack }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!post?.slug) return;
     setLoading(true);
     setError("");
-    fetch(`${WP_API}/${post.id}?_embed=1`)
-      .then(r => {
-        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
-        return r.json();
+    getPostBySlug(post.slug)
+      .then(row => {
+        if (row) setFullPost(row);
+        else setError("הפוסט לא נמצא");
+        setLoading(false);
       })
-      .then(data => { setFullPost(data); setLoading(false); })
-      .catch(err => { setError(err.message); setLoading(false); });
-  }, [post.id]);
+      .catch(() => { setError("שגיאה בטעינה"); setLoading(false); });
+  }, [post?.slug]);
 
-  const image = fullPost?._embedded?.["wp:featuredmedia"]?.[0]?.source_url
-    ?? post?._embedded?.["wp:featuredmedia"]?.[0]?.source_url
-    ?? null;
-  const author = fullPost?._embedded?.author?.[0]?.name ?? "";
-  const title  = stripHtml(fullPost?.title?.rendered ?? post?.title?.rendered ?? "");
-  const date   = formatDateHe(fullPost?.date ?? post?.date ?? "");
-  const content = fullPost?.content?.rendered ?? "";
+  const image   = fullPost?.image_url ?? post?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
+  const author  = fullPost?.author ?? "";
+  const title   = stripHtml(fullPost?.title ?? post?.title?.rendered ?? "");
+  const date    = formatDateHe(fullPost?.date ?? post?.date ?? "");
+  const content = fullPost?.content ?? "";
 
   return (
     <div style={{ direction: "rtl" }}>
