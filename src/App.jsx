@@ -3191,23 +3191,25 @@ function PostPageBySlug({ onNav }) {
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
           <>
-            {cats.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-                {cats.map(name => (
-                  <span key={name} onClick={() => navigate('/category/' + toSlug(name))} style={{
-                    background: C.goldDark, border: `1px solid ${C.borderGold}`,
-                    color: C.goldBright, fontSize: 10, padding: "3px 10px",
-                    fontFamily: F.heading, letterSpacing: 1,
-                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
-                  }}>{name}</span>
-                ))}
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              {cats.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14, justifyContent: "center" }}>
+                  {cats.map(name => (
+                    <span key={name} onClick={() => navigate('/category/' + toSlug(name))} style={{
+                      background: C.goldDark, border: `1px solid ${C.borderGold}`,
+                      color: C.goldBright, fontSize: 10, padding: "3px 10px",
+                      fontFamily: F.heading, letterSpacing: 1,
+                      textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
+                    }}>{name}</span>
+                  ))}
+                </div>
+              )}
+              <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
+                {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
               </div>
-            )}
-            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-              {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
+              <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              <RoyalDivider width={160} />
             </div>
-            <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
-            <div style={{ marginBottom: 24 }}><RoyalDivider width={160} /></div>
             {gematriaItems.length > 0 && (
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
