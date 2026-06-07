@@ -5,20 +5,20 @@ import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== DESIGN TOKENS =====
 const C = {
-  bg:           "#05070F",
-  bgGlow:       "#0a0e1a",
+  bg:           "#07050E",
+  bgGlow:       "#110e1e",
   gold:         "#CFB53B",
   goldLight:    "#E8C840",
   goldBright:   "#F5D860",
   goldDim:      "#9A8040",
   goldDark:     "#3a2a00",
   goldDeep:     "#1A1200",
-  surface:      "#0e0a00",
-  surface2:     "#130e00",
-  border:       "#251a00",
+  surface:      "#0d0b1a",
+  surface2:     "#121025",
+  border:       "#1e1a30",
   borderGold:   "#3a2a00",
   muted:        "#8a8070",
-  faint:        "#1A1200",
+  faint:        "#150f28",
   danger:       "#8B2020",
 };
 
