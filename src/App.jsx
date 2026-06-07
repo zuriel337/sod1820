@@ -1272,11 +1272,17 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         </div>
       )}
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
-        gap: 20,
-      }}>
+      <style>{`
+        .blog-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+        }
+        @media (max-width: 600px) {
+          .blog-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+      <div className="blog-grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
           : posts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
