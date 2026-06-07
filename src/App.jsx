@@ -1559,27 +1559,6 @@ function PostPage({ post, onBack }) {
               className="sod-post-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
-
-            <div style={{
-              marginTop: 60, paddingTop: 28,
-              borderTop: `1px solid ${C.border}`,
-              textAlign: "center",
-            }}>
-              <a
-                href={fullPost.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: C.muted, fontSize: 10, fontFamily: F.heading,
-                  letterSpacing: 4, textTransform: "uppercase",
-                  textDecoration: "none", transition: "color 0.2s",
-                }}
-                onMouseEnter={e => (e.currentTarget.style.color = C.goldDim)}
-                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
-              >
-                קרא באתר המקורי ↗
-              </a>
-            </div>
           </>
         )}
       </div>
