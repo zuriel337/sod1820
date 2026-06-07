@@ -42,6 +42,11 @@ async function run() {
           .flat()
           .filter(t => t.taxonomy === 'category')
           .map(t => t.name),
+        tags: (p._embedded?.['wp:term'] ?? [])
+          .flat()
+          .filter(t => t.taxonomy === 'post_tag')
+          .map(t => t.name),
+        modified: p.modified ?? null,
       }));
       const { error } = await supabase
         .from('posts')
