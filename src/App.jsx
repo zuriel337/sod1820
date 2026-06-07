@@ -2875,7 +2875,90 @@ function Footer({ onNav, navItems }) {
 
 // ===== APP ROOT =====
 
+// ===== SLUG-BASED POST PAGE =====
+
+function PostPageBySlug({ onNav }) {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+    getPostBySlug(slug)
+      .then(row => {
+        if (row) setPost(row);
+        else setError("הפוסט לא נמצא");
+        setLoading(false);
+      })
+      .catch(() => { setError("שגיאה בטעינה"); setLoading(false); });
+  }, [slug]);
+
+  const image   = post?.image_url ?? null;
+  const author  = post?.author ?? "";
+  const title   = stripHtml(post?.title ?? "");
+  const date    = formatDateHe(post?.date ?? "");
+  const content = post?.content ?? "";
+
+  return (
+    <div style={{ direction: "rtl" }}>
+      {image && !loading && (
+        <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: C.goldDeep }}>
+          <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.5) sepia(0.3)", display: "block" }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${C.bg} 100%)` }} />
+        </div>
+      )}
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
+        <button onClick={() => navigate(-1)}
+          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
+          ← חזרה לפוסטים
+        </button>
+        {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
+        {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
+        {post && !loading && (
+          <>
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
+              {date}{author && ` · ${author}`}
+            </div>
+            <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+            <div style={{ marginBottom: 48 }}><RoyalDivider width={160} /></div>
+            <style>{POST_CONTENT_CSS}</style>
+            <div className="sod-post-content" dangerouslySetInnerHTML={{ __html: content }} />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== CATEGORY PAGE =====
+
+function CategoryPage({ onNav }) {
+  const { slug } = useParams();
+  const categoryName = decodeURIComponent(slug);
+  return <BlogPage onNav={onNav} filterCategory={categoryName} />;
+}
+
+// ===== TAG PAGE =====
+
+function TagPage({ onNav }) {
+  const { slug } = useParams();
+  const tagName = decodeURIComponent(slug);
+  return <BlogPage onNav={onNav} filterTag={tagName} />;
+}
+
+// ===== MAIN APP =====
+
 export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function AppContent() {
   const [page, setPage] = useState("home");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
