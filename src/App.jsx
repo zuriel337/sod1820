@@ -1658,6 +1658,17 @@ const POST_CONTENT_CSS = `
     margin: 0;
   }
 
+  /* ── override dark inline colors from WordPress/Elementor ── */
+  .sod-post-content [style*="color:#000"],
+  .sod-post-content [style*="color: #000"],
+  .sod-post-content [style*="color:black"],
+  .sod-post-content [style*="color: black"],
+  .sod-post-content [style*="color:#111"],
+  .sod-post-content [style*="color:#222"],
+  .sod-post-content [style*="color:#333"] {
+    color: #f0ede0 !important;
+  }
+
   /* ── vertical videos (reels/shorts) ── */
   .sod-post-content video {
     max-width: min(100%, 360px);
