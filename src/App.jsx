@@ -1553,7 +1553,7 @@ const POST_CONTENT_CSS = `
   }
   .sod-post-content p {
     color: #f0ede0;
-    font-family: 'Frank Ruhl Libre', serif;
+    font-family: 'Heebo', sans-serif;
     font-size: 15.5px;
     line-height: 2.1;
     margin: 0 0 1.4em;
@@ -1580,7 +1580,7 @@ const POST_CONTENT_CSS = `
   }
   .sod-post-content li {
     color: #f0ede0;
-    font-family: 'Frank Ruhl Libre', serif;
+    font-family: 'Heebo', sans-serif;
     font-size: 15px;
     line-height: 2;
     margin-bottom: 0.4em;
@@ -1626,7 +1626,7 @@ const POST_CONTENT_CSS = `
     text-align: center;
     font-size: 11px;
     color: ${C.muted};
-    font-family: 'Frank Ruhl Libre', serif;
+    font-family: 'Heebo', sans-serif;
     margin-top: 8px;
     letter-spacing: 1px;
   }
@@ -1677,7 +1677,7 @@ const POST_CONTENT_CSS = `
   .sod-post-content td {
     color: ${C.goldDim}; padding: 9px 14px;
     border: 1px solid ${C.border};
-    font-family: 'Frank Ruhl Libre', serif; font-size: 14px;
+    font-family: 'Heebo', sans-serif; font-size: 14px;
   }
   .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
 `;
