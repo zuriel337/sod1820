@@ -2959,6 +2959,8 @@ export default function App() {
 }
 
 function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [page, setPage] = useState("home");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
