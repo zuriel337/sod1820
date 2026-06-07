@@ -3293,6 +3293,45 @@ function TagPage({ onNav }) {
   return <BlogPage onNav={onNav} filterTag={tagName} />;
 }
 
+// ===== SPACE BACKGROUND =====
+const _genStars = (n, spread) =>
+  Array.from({ length: n }, () => {
+    const x = Math.floor(Math.random() * spread);
+    const y = Math.floor(Math.random() * spread);
+    const o = (0.12 + Math.random() * 0.65).toFixed(2);
+    return `${x}px ${y}px 0 0 rgba(255,255,255,${o})`;
+  }).join(',');
+const _genStars2 = (n, spread) =>
+  Array.from({ length: n }, () => {
+    const x = Math.floor(Math.random() * spread);
+    const y = Math.floor(Math.random() * spread);
+    const o = (0.25 + Math.random() * 0.5).toFixed(2);
+    return `${x}px ${y}px 0 1px rgba(255,255,255,${o})`;
+  }).join(',');
+const STARS_SM = _genStars(180, 2400);
+const STARS_LG = _genStars2(35, 2400);
+
+function SpaceBackground() {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+      {/* nebula clouds */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: [
+          "radial-gradient(ellipse at 18% 28%, rgba(90,40,160,0.22) 0%, transparent 52%)",
+          "radial-gradient(ellipse at 82% 68%, rgba(60,20,120,0.18) 0%, transparent 48%)",
+          "radial-gradient(ellipse at 55% 8%,  rgba(110,60,200,0.10) 0%, transparent 38%)",
+          "radial-gradient(ellipse at 35% 85%, rgba(70,30,140,0.12) 0%, transparent 44%)",
+        ].join(','),
+      }} />
+      {/* small stars */}
+      <div style={{ position: "absolute", top: 0, left: 0, width: 1, height: 1, boxShadow: STARS_SM }} />
+      {/* larger stars */}
+      <div style={{ position: "absolute", top: 0, left: 0, width: 2, height: 2, boxShadow: STARS_LG }} />
+    </div>
+  );
+}
+
 // ===== MAIN APP =====
 
 export default function App() {
