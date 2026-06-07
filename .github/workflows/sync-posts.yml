@@ -6,7 +6,7 @@ on:
     - cron: '0 4 * * *'   # כל יום ב-04:00 UTC
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   sync:
