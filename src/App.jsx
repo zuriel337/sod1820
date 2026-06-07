@@ -585,6 +585,201 @@ function Landing({ onNav }) {
   );
 }
 
+// ===== HOME PAGE =====
+
+function HeroSection({ onNav }) {
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      textAlign: "center",
+      padding: "72px 24px 56px",
+      background: `radial-gradient(ellipse at 50% 0%, #1a1200 0%, ${C.bg} 70%)`,
+    }}>
+      <div style={{ position: "relative", display: "inline-block", marginBottom: 32 }}>
+        <img
+          src={LOGO_URL}
+          alt="SOD1820 logo"
+          style={{
+            height: 80, width: "auto", display: "block",
+            animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
+            filter: "drop-shadow(0 0 24px rgba(232,200,74,0.7))",
+          }}
+        />
+        <span style={{ position: "absolute", top: "-16%", left: "-14%", color: C.goldLight, fontSize: 18, opacity: 0.9, animation: "royal-sparkle 3.6s ease-in-out infinite" }}>✦</span>
+        <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse" }}>✦</span>
+      </div>
+
+      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 6, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>SOD1820 · צוריאל פולייס</div>
+
+      <h1 style={{
+        color: C.goldBright,
+        margin: "0 0 20px",
+        fontSize: "clamp(32px, 6vw, 62px)",
+        fontFamily: F.royal,
+        fontWeight: 700,
+        letterSpacing: 2,
+        lineHeight: 1.2,
+        textShadow: `0 0 60px ${C.goldDark}`,
+        maxWidth: 680,
+      }}>
+        הקוד הנסתר בשפה העברית
+      </h1>
+
+      <p style={{
+        color: C.goldDim,
+        fontSize: "clamp(14px, 2vw, 17px)",
+        fontFamily: F.body,
+        lineHeight: 2,
+        maxWidth: 540,
+        margin: "0 0 40px",
+      }}>
+        גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה את המציאות מאחורי המציאות. למד לקרוא את הקוד שמסתתר בכל מילה.
+      </p>
+
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        <GoldButton onClick={() => onNav("courses")}>לכל הקורסים</GoldButton>
+        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות צוריאל</GoldButton>
+      </div>
+
+      <div style={{ marginTop: 52 }}>
+        <RoyalDivider width={220} />
+      </div>
+    </div>
+  );
+}
+
+function StatsBar() {
+  const stats = [
+    ["1820+", "תלמידים"],
+    ["4", "שיטות ייחודיות"],
+    ["50+", "שיעורים מוקלטים"],
+    ["10+", "שנות מחקר"],
+  ];
+  return (
+    <div style={{
+      background: C.surface,
+      borderTop: `1px solid ${C.border}`,
+      borderBottom: `1px solid ${C.border}`,
+      padding: "28px 24px",
+    }}>
+      <div style={{
+        maxWidth: 840, margin: "0 auto",
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+      }}>
+        {stats.map(([num, label], i) => (
+          <div key={label} style={{
+            textAlign: "center",
+            padding: "12px 16px",
+            borderRight: i < stats.length - 1 ? `1px solid ${C.border}` : "none",
+          }}>
+            <div style={{
+              fontSize: 28, color: C.goldBright, fontWeight: 900,
+              fontFamily: F.heading, textShadow: `0 0 20px ${C.goldDeep}`,
+            }}>{num}</div>
+            <div style={{
+              fontSize: 9, color: C.muted, marginTop: 6,
+              letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase",
+            }}>{label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeaturedCoursesSection({ onNav }) {
+  return (
+    <div style={{
+      padding: "80px 24px",
+      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
+    }}>
+      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <SectionHeader eyebrow="קורסים" title="בחר את הדרך שלך" />
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 20,
+          marginBottom: 44,
+        }}>
+          {COURSES.map(c => (
+            <CourseCard
+              key={c.id}
+              course={c}
+              onBuy={course => onNav("checkout", course)}
+              onDetail={course => onNav("detail", course)}
+            />
+          ))}
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <GoldButton variant="secondary" onClick={() => onNav("courses")}>
+            לכל הקורסים ←
+          </GoldButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialsSection() {
+  return (
+    <div style={{
+      padding: "80px 24px",
+      borderTop: `1px solid ${C.border}`,
+      background: C.bg,
+    }}>
+      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <SectionHeader eyebrow="תלמידים" title="מה אומרים התלמידים" />
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
+          gap: 16,
+        }}>
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderTop: `2px solid ${C.borderGold}`,
+              borderRadius: 2,
+              padding: "28px 24px",
+            }}>
+              <div style={{ color: C.goldBright, fontSize: 14, marginBottom: 12 }}>
+                {"★".repeat(t.stars)}
+              </div>
+              <p style={{
+                color: "#f0ede0", fontFamily: F.body,
+                fontSize: 14, lineHeight: 2,
+                margin: "0 0 16px", fontStyle: "italic",
+              }}>"{t.text}"</p>
+              <div style={{
+                fontSize: 10, color: C.goldDim,
+                fontFamily: F.heading, letterSpacing: 3,
+                textTransform: "uppercase",
+              }}>{t.name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HomePage({ onNav, pageContent, adminMode }) {
+  return (
+    <div style={{ direction: "rtl" }}>
+      <HeroSection onNav={onNav} />
+      <StatsBar />
+      <FeaturedCoursesSection onNav={onNav} />
+      <div style={{ padding: "40px 0", background: C.surface }}>
+        <UploadFindings />
+      </div>
+      <TestimonialsSection />
+      <LatestPostsSection onNav={onNav} />
+    </div>
+  );
+}
+
 // ===== COURSES PAGE =====
 
 function CoursesPage({ onNav, pageContent, adminMode }) {
