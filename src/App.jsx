@@ -2891,6 +2891,12 @@ function PostPageBySlug({ onNav }) {
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
+  const [gematriaItems, setGematriaItems] = useState([]);
+  useEffect(() => {
+    if (!tags.length) { setGematriaItems([]); return; }
+    getGematriaByPhrases(tags).then(setGematriaItems).catch(() => {});
+  }, [tags.join(",")]);  // eslint-disable-line
+
   return (
     <div style={{ direction: "rtl" }}>
       {image && !loading && (
