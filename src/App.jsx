@@ -1658,6 +1658,19 @@ const POST_CONTENT_CSS = `
     margin: 0;
   }
 
+  /* ── author attribution ── */
+  .sod-post-content .post-author {
+    display: block;
+    text-align: right;
+    color: #c9a535;
+    font-style: italic;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin: 6px 0;
+    opacity: 0.92;
+  }
+
   /* ── collapse Elementor spacers & excess whitespace ── */
   .sod-post-content div[style*="height"] { height: auto !important; max-height: 24px !important; }
   .sod-post-content div[style*="min-height"] { min-height: 0 !important; }
