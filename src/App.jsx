@@ -2997,11 +2997,20 @@ function AppContent() {
   }
 
   function nav(p, data = null) {
+    // URL-based navigation for posts, blog, category, tag
+    if (p === "post" && data?.slug) {
+      navigate(`/${data.slug}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (p === "blog") {
+      navigate("/blog");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setPage(p);
     if (p === "admin") {
       setSelectedPageKey(typeof data === "string" ? data : selectedPageKey || "home");
-    } else if (p === "post" && data) {
-      setSelectedPost(data);
     } else if (p === "number" && data) {
       setSelectedTag(data);
     } else if (data) {
