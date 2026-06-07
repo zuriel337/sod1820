@@ -3150,7 +3150,8 @@ function PostPageBySlug({ onNav }) {
   const content  = (post?.content ?? "")
     .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
     .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
-    .replace(/(\s*<br\s*\/?>\s*){3,}/gi, "<br>");
+    .replace(/(\s*<br\s*\/?>\s*){3,}/gi, "<br>")
+    .replace(/(מאת[:\s]+[^\n<]{2,40})/g, '<span class="post-author">$1</span>');
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
