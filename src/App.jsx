@@ -3207,7 +3207,7 @@ function PostPageBySlug({ onNav }) {
               <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
                 {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
               </div>
-              <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: "#E8D5A3", margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
               <RoyalDivider width={160} />
             </div>
             {gematriaItems.length > 0 && (
