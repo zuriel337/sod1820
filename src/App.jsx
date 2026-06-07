@@ -2910,7 +2910,7 @@ function PostPageBySlug({ onNav }) {
         </div>
       )}
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
-        <button onClick={() => navigate(-1)}
+        <button onClick={() => navigate("/post")}
           style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
         </button>
