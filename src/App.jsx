@@ -3390,7 +3390,7 @@ function SpaceBackground() {
       {/* strong center mask — keeps text readable, city glows at edges */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse 70% 80% at 50% 48%, rgba(7,5,14,0.93) 0%, rgba(7,5,14,0.72) 38%, rgba(7,5,14,0.28) 68%, rgba(7,5,14,0.05) 100%)",
+        background: "radial-gradient(ellipse 70% 80% at 50% 48%, rgba(7,5,14,0.97) 0%, rgba(7,5,14,0.85) 40%, rgba(7,5,14,0.45) 68%, rgba(7,5,14,0.08) 100%)",
       }} />
       {/* purple nebula tint */}
       <div style={{
