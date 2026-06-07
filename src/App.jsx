@@ -2999,12 +2999,12 @@ function AppContent() {
   function nav(p, data = null) {
     // URL-based navigation for posts, blog, category, tag
     if (p === "post" && data?.slug) {
-      navigate(`/${data.slug}`);
+      navigate(`/post/${data.slug}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     if (p === "blog") {
-      navigate("/blog");
+      navigate("/post");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
