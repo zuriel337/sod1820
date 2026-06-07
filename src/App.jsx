@@ -1726,12 +1726,13 @@ const POST_CONTENT_CSS = `
     color: ${C.goldBright} !important;
   }
 
-  /* ── vertical videos (reels/shorts) ── */
+  /* ── videos (mp4 / shortcode / reels) ── */
   .sod-post-content video {
-    max-width: min(100%, 360px);
-    height: auto;
-    display: block;
-    margin: 1.5em auto;
+    max-width: min(100%, 360px) !important;
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    margin: 1.5em auto !important;
   }
   .sod-post-content table {
     width: 100%; border-collapse: collapse; margin: 1.6em 0;
