@@ -3315,7 +3315,7 @@ function AppContent() {
                 {page === "numbers-report" && <NumbersReportPage />}
                 {page === "theme-preview"  && <ThemePreviewPage />}
                 {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
-                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) && <Landing onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
               </>
             } />
           </Routes>
