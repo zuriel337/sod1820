@@ -2922,13 +2922,8 @@ function PostPageBySlug({ onNav }) {
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
           <>
-            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-              {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
-            </div>
-            <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
-            <div style={{ marginBottom: 24 }}><RoyalDivider width={160} /></div>
-            {(cats.length > 0 || tags.length > 0) && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+            {cats.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
                 {cats.map(name => (
                   <span key={name} onClick={() => navigate('/category/' + toSlug(name))} style={{
                     background: C.goldDark, border: `1px solid ${C.borderGold}`,
@@ -2937,16 +2932,13 @@ function PostPageBySlug({ onNav }) {
                     textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
                   }}>{name}</span>
                 ))}
-                {tags.map(name => (
-                  <span key={name} onClick={() => navigate('/tag/' + toSlug(name))} style={{
-                    background: C.faint, border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 10, padding: "3px 10px",
-                    fontFamily: F.heading, letterSpacing: 1,
-                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
-                  }}>{name}</span>
-                ))}
               </div>
             )}
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
+              {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
+            </div>
+            <h1 style={{ color: C.goldBright, margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+            <div style={{ marginBottom: 24 }}><RoyalDivider width={160} /></div>
             {gematriaItems.length > 0 && (
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
@@ -2963,6 +2955,18 @@ function PostPageBySlug({ onNav }) {
             )}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" dangerouslySetInnerHTML={{ __html: content }} />
+            {tags.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
+                {tags.map(name => (
+                  <span key={name} onClick={() => navigate('/tag/' + toSlug(name))} style={{
+                    background: C.faint, border: `1px solid ${C.border}`,
+                    color: C.muted, fontSize: 10, padding: "3px 10px",
+                    fontFamily: F.heading, letterSpacing: 1,
+                    textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
+                  }}>{name}</span>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
