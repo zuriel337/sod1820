@@ -58,7 +58,7 @@ export async function syncAllPosts() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
@@ -67,6 +67,7 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
     .range((page - 1) * limit, page * limit - 1);
 
   if (category) query = query.contains('categories', [category]);
+  if (tag) query = query.contains('tags', [tag]);
 
   const { data, error, count } = await query;
   if (error) throw error;
