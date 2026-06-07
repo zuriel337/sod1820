@@ -1668,6 +1668,12 @@ const POST_CONTENT_CSS = `
   .sod-post-content [style*="color:#333"] {
     color: #f0ede0 !important;
   }
+  .sod-post-content [style*="color:#0000ff"],
+  .sod-post-content [style*="color: #0000ff"],
+  .sod-post-content [style*="color:blue"],
+  .sod-post-content [style*="color: blue"] {
+    color: ${C.goldBright} !important;
+  }
 
   /* ── vertical videos (reels/shorts) ── */
   .sod-post-content video {
