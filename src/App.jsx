@@ -5,8 +5,8 @@ import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== DESIGN TOKENS =====
 const C = {
-  bg:           "#080500",
-  bgGlow:       "#120d00",
+  bg:           "#05070F",
+  bgGlow:       "#0a0e1a",
   gold:         "#CFB53B",
   goldLight:    "#E8C840",
   goldBright:   "#F5D860",
