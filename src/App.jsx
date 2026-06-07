@@ -3379,20 +3379,29 @@ const STARS_LG = _genStars2(35, 2400);
 function SpaceBackground() {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
-      {/* nebula clouds */}
+      {/* city night photo — LA skyline */}
+      <div style={{
+        position: "absolute", inset: 0,
+        backgroundImage: "url(https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=1920&q=80)",
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        opacity: 0.28,
+      }} />
+      {/* strong center mask — keeps text readable, city glows at edges */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse 70% 80% at 50% 48%, rgba(7,5,14,0.93) 0%, rgba(7,5,14,0.72) 38%, rgba(7,5,14,0.28) 68%, rgba(7,5,14,0.05) 100%)",
+      }} />
+      {/* purple nebula tint */}
       <div style={{
         position: "absolute", inset: 0,
         background: [
-          "radial-gradient(ellipse at 18% 28%, rgba(90,40,160,0.22) 0%, transparent 52%)",
-          "radial-gradient(ellipse at 82% 68%, rgba(60,20,120,0.18) 0%, transparent 48%)",
-          "radial-gradient(ellipse at 55% 8%,  rgba(110,60,200,0.10) 0%, transparent 38%)",
-          "radial-gradient(ellipse at 35% 85%, rgba(70,30,140,0.12) 0%, transparent 44%)",
+          "radial-gradient(ellipse at 15% 25%, rgba(80,30,150,0.18) 0%, transparent 50%)",
+          "radial-gradient(ellipse at 85% 70%, rgba(55,15,110,0.14) 0%, transparent 46%)",
         ].join(','),
       }} />
-      {/* small stars */}
-      <div style={{ position: "absolute", top: 0, left: 0, width: 1, height: 1, boxShadow: STARS_SM }} />
-      {/* larger stars */}
-      <div style={{ position: "absolute", top: 0, left: 0, width: 2, height: 2, boxShadow: STARS_LG }} />
+      {/* subtle stars over the city */}
+      <div style={{ position: "absolute", top: 0, left: 0, width: 1, height: 1, boxShadow: STARS_SM, opacity: 0.35 }} />
     </div>
   );
 }
