@@ -2913,7 +2913,7 @@ function PostPageBySlug({ onNav }) {
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${C.bg} 100%)` }} />
         </div>
       )}
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
           style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
