@@ -84,7 +84,7 @@ export async function getPostBySlug(slug) {
     .in('slug', slugs)
     .limit(1);
   if (error || !data?.length) return null;
-  return data;
+  return data[0];
 }
 
 export function adaptPost(row) {
