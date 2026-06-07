@@ -3264,11 +3264,11 @@ function PostPageBySlug({ onNav }) {
               {cats.length > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14, justifyContent: "center" }}>
                   {cats.map(name => (
-                    <span key={name} onClick={() => navigate('/category/' + toSlug(name))} style={{
+                    <span key={name} className="sod-inflate" onClick={() => navigate('/category/' + toSlug(name))} style={{
                       background: C.goldDark, border: `1px solid ${C.borderGold}`,
                       color: C.goldBright, fontSize: 10, padding: "3px 10px",
                       fontFamily: F.heading, letterSpacing: 1,
-                      textTransform: "uppercase", borderRadius: 1, cursor: "pointer",
+                      textTransform: "uppercase", borderRadius: 1,
                     }}>{name}</span>
                   ))}
                 </div>
