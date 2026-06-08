@@ -254,10 +254,10 @@ function SectionHeader({ eyebrow, title, center = true }) {
         color: C.goldLight,
         margin: "0 0 20px",
         fontSize: "clamp(26px, 4.2vw, 40px)",
-        fontFamily: F.royal,
+        fontFamily: F.regal,
         fontWeight: 700,
         letterSpacing: 2,
-        textShadow: `0 0 40px ${C.goldDark}`,
+        textShadow: `0 0 50px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.7)`,
       }}>{title}</h2>
       <RoyalDivider />
     </div>
