@@ -1632,29 +1632,50 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
     outline: "none", flex: 1,
   };
 
+  const isFilteredView = !!(filterCategory || filterTag);
+
   return (
     <div style={{ padding: "64px 16px", maxWidth: 1200, margin: "0 auto", direction: "rtl" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-        <SectionHeader
-          eyebrow={filterCategory ? `קטגוריה` : filterTag ? `תגית` : (category || "פוסטים")}
-          title={filterCategory || filterTag || title || "תובנות ותגליות"}
-        />
-        {adminMode && (
-          <button onClick={() => onNav("admin", "blog")} style={{
-            background: C.bgGlow, border: `1px solid ${C.gold}`,
-            color: C.goldLight, padding: "10px 16px", borderRadius: 4,
-            cursor: "pointer", fontFamily: F.heading, fontSize: 12,
-            letterSpacing: 2, textTransform: "uppercase", whiteSpace: "nowrap",
-          }}>ערוך דף</button>
-        )}
-      </div>
 
-      {description && !filterCategory && !filterTag && (
-        <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
-          {description}
-        </p>
+      {/* ── CATEGORY/TAG HEADER (WordPress style) ── */}
+      {isFilteredView ? (
+        <header style={{ marginBottom: 36, paddingBottom: 24, borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ fontSize: 11, color: C.goldDim, fontFamily: F.heading, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>
+            {filterCategory ? "קטגוריה" : "תגית"}
+          </div>
+          <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontWeight: 700, fontSize: "clamp(22px, 4vw, 36px)", margin: "0 0 12px", lineHeight: 1.3 }}>
+            {filterCategory || filterTag}
+          </h1>
+          {filterCategory === "תיעוד אירועים" && (
+            <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, margin: 0, lineHeight: 1.8 }}>
+              תיעוד אירועים ורמזים – בנושאי אחרית הימים וגאולת ישראל
+            </p>
+          )}
+        </header>
+      ) : (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
+            <SectionHeader
+              eyebrow={category || "פוסטים"}
+              title={title || "תובנות ותגליות"}
+            />
+            {adminMode && (
+              <button onClick={() => onNav("admin", "blog")} style={{
+                background: C.bgGlow, border: `1px solid ${C.gold}`,
+                color: C.goldLight, padding: "10px 16px", borderRadius: 4,
+                cursor: "pointer", fontFamily: F.heading, fontSize: 12,
+                letterSpacing: 2, textTransform: "uppercase", whiteSpace: "nowrap",
+              }}>ערוך דף</button>
+            )}
+          </div>
+          {description && (
+            <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
+              {description}
+            </p>
+          )}
+          <PageBody bodyHtml={bodyHtml} />
+        </>
       )}
-      {!filterCategory && !filterTag && <PageBody bodyHtml={bodyHtml} />}
 
       {/* ── SEARCH PANEL ── */}
       {showPanel && (
