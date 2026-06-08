@@ -1640,86 +1640,105 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         </div>
       )}
 
-      {error && (
-        <div style={{
-          background: C.surface,
-          border: `1px solid ${C.borderGold}`,
-          borderRadius: 2, padding: "36px",
-          textAlign: "center", marginBottom: 40,
-        }}>
-          <div style={{ fontSize: 32, color: C.goldDim, marginBottom: 16 }}>✦</div>
-          <p style={{ color: "#b05050", fontSize: 14, fontFamily: F.body, marginBottom: 20 }}>
-            לא ניתן לטעון פוסטים: {error}
-          </p>
-          <GoldButton variant="secondary" onClick={() => setCurrentPage(p => p)}>
-            נסה שוב
-          </GoldButton>
-        </div>
-      )}
-
       <style>{`
+        .blog-two-col { display: flex; gap: 24px; align-items: flex-start; }
+        .blog-main { flex: 1 1 0; min-width: 0; }
         .blog-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 20px;
+        }
+        @media (max-width: 900px) {
+          .blog-two-col { flex-direction: column-reverse; }
+          .blog-events-sidebar { width: 100% !important; position: static !important; }
         }
         @media (max-width: 600px) {
           .blog-grid { grid-template-columns: 1fr; }
         }
       `}</style>
-      <div className="blog-grid">
-        {isSearching
-          ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
-          : activeMode
-            ? displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
-            : loading
-              ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-              : displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
-        }
+
+      <div className="blog-two-col">
+        {/* sidebar — first child = right side in RTL */}
+        {showPanel && !activeMode && (
+          <div className="blog-events-sidebar">
+            <EventsSidebar onNav={onNav} />
+          </div>
+        )}
+
+        {/* main content */}
+        <div className="blog-main">
+          {error && (
+            <div style={{
+              background: C.surface,
+              border: `1px solid ${C.borderGold}`,
+              borderRadius: 2, padding: "36px",
+              textAlign: "center", marginBottom: 40,
+            }}>
+              <div style={{ fontSize: 32, color: C.goldDim, marginBottom: 16 }}>✦</div>
+              <p style={{ color: "#b05050", fontSize: 14, fontFamily: F.body, marginBottom: 20 }}>
+                לא ניתן לטעון פוסטים: {error}
+              </p>
+              <GoldButton variant="secondary" onClick={() => setCurrentPage(p => p)}>
+                נסה שוב
+              </GoldButton>
+            </div>
+          )}
+
+          <div className="blog-grid">
+            {isSearching
+              ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
+              : activeMode
+                ? displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+                : loading
+                  ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+                  : displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+            }
+          </div>
+
+          {!isSearching && !activeMode && !loading && !error && displayPosts.length === 0 && (
+            <div style={{ textAlign: "center", padding: "72px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
+              אין פוסטים להצגה
+            </div>
+          )}
+          {!isSearching && activeMode && displayPosts.length === 0 && (
+            <div style={{ textAlign: "center", padding: "48px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
+              לא נמצאו תוצאות
+            </div>
+          )}
+
+          {!loading && !error && !searchResults && totalPages > 1 && (
+            <div style={{
+              display: "flex", gap: 8, justifyContent: "center",
+              marginTop: 56, flexWrap: "wrap", alignItems: "center",
+            }}>
+              <GoldButton
+                variant="secondary"
+                onClick={() => goTo(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
+              >← הקודם</GoldButton>
+
+              {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map(p => (
+                <button key={p} onClick={() => goTo(p)} style={{
+                  background: p === currentPage ? C.goldDark : "transparent",
+                  border: `1px solid ${p === currentPage ? C.gold : C.border}`,
+                  color: p === currentPage ? C.goldBright : C.muted,
+                  width: 38, height: 38, cursor: "pointer",
+                  fontFamily: F.heading, fontSize: 12,
+                  borderRadius: 2, transition: "all 0.2s",
+                }}>{p}</button>
+              ))}
+
+              <GoldButton
+                variant="secondary"
+                onClick={() => goTo(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
+              >הבא →</GoldButton>
+            </div>
+          )}
+        </div>
       </div>
-
-      {!isSearching && !activeMode && !loading && !error && displayPosts.length === 0 && (
-        <div style={{ textAlign: "center", padding: "72px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
-          אין פוסטים להצגה
-        </div>
-      )}
-      {!isSearching && activeMode && displayPosts.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
-          לא נמצאו תוצאות
-        </div>
-      )}
-
-      {!loading && !error && !searchResults && totalPages > 1 && (
-        <div style={{
-          display: "flex", gap: 8, justifyContent: "center",
-          marginTop: 56, flexWrap: "wrap", alignItems: "center",
-        }}>
-          <GoldButton
-            variant="secondary"
-            onClick={() => goTo(currentPage - 1)}
-            disabled={currentPage === 1}
-            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
-          >← הקודם</GoldButton>
-
-          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map(p => (
-            <button key={p} onClick={() => goTo(p)} style={{
-              background: p === currentPage ? C.goldDark : "transparent",
-              border: `1px solid ${p === currentPage ? C.gold : C.border}`,
-              color: p === currentPage ? C.goldBright : C.muted,
-              width: 38, height: 38, cursor: "pointer",
-              fontFamily: F.heading, fontSize: 12,
-              borderRadius: 2, transition: "all 0.2s",
-            }}>{p}</button>
-          ))}
-
-          <GoldButton
-            variant="secondary"
-            onClick={() => goTo(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}
-          >הבא →</GoldButton>
-        </div>
-      )}
     </div>
   );
 }
