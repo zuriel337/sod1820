@@ -1241,6 +1241,104 @@ function formatDateHe(dateStr) {
   }
 }
 
+function formatDateWP(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`;
+}
+
+function WPArticleCard({ post, onPost }) {
+  const [hov, setHov] = useState(false);
+  const title  = stripHtml(post.title?.rendered ?? "");
+  const terms  = (post._embedded?.["wp:term"] ?? []).flat();
+  const cats   = terms.filter(t => t.taxonomy === "category");
+  const tags   = terms.filter(t => t.taxonomy === "post_tag").slice(0, 5);
+  const date   = formatDateWP(post.date);
+  const author = post.author || "מערכת כי לה' המלוכה";
+  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 320);
+
+  return (
+    <div
+      style={{
+        breakInside: "avoid",
+        marginBottom: 20,
+        background: hov ? C.surface2 : C.surface,
+        border: `1px solid ${hov ? C.borderGold : C.border}`,
+        borderTop: `2px solid ${hov ? C.goldBright : C.gold}`,
+        borderRadius: 2,
+        padding: "20px 24px 22px",
+        cursor: "pointer",
+        transition: "all 0.25s",
+        boxShadow: hov ? `0 6px 32px ${C.goldDeep}` : "none",
+        direction: "rtl",
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={onPost}
+    >
+      {/* categories line */}
+      {cats.length > 0 && (
+        <div style={{ marginBottom: 10, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
+          <span style={{ color: C.goldDim, fontSize: 12, marginLeft: 4 }}>📁</span>
+          {cats.map((cat, i) => (
+            <span key={cat.id}>
+              <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 11, letterSpacing: 0.5 }}>
+                {cat.name}
+              </span>
+              {i < cats.length - 1 && <span style={{ color: C.border, margin: "0 3px" }}>,</span>}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* title */}
+      <h2 style={{
+        color: hov ? C.goldBright : "#ede4d3",
+        fontFamily: F.royal, fontWeight: 700,
+        fontSize: "clamp(15px, 2vw, 19px)",
+        lineHeight: 1.5, margin: "0 0 12px",
+        transition: "color 0.2s",
+      }}>{title}</h2>
+
+      {/* meta row */}
+      <div style={{
+        display: "flex", flexWrap: "wrap", gap: "4px 10px",
+        alignItems: "center", marginBottom: excerpt ? 14 : 0,
+        paddingBottom: excerpt ? 12 : 0,
+        borderBottom: excerpt ? `1px solid ${C.border}` : "none",
+        fontSize: 10.5, color: C.muted, fontFamily: F.heading,
+      }}>
+        <span>מאת {author}</span>
+        <span style={{ color: C.border }}>|</span>
+        <span style={{ direction: "ltr", display: "inline-block" }}>{date}</span>
+        {tags.length > 0 && (
+          <>
+            <span style={{ color: C.border }}>|</span>
+            {tags.map(tag => (
+              <span key={tag.id} style={{ color: C.goldDim }}>#{tag.name}</span>
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* excerpt */}
+      {excerpt && (
+        <p style={{
+          color: "#c8bfb0", fontSize: 14.5, lineHeight: 1.9,
+          fontFamily: F.body, margin: 0,
+        }}>
+          {excerpt}{excerpt.length >= 320 ? "…" : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function PostSkeleton() {
   const bar = (w, h = 10, mt = 0) => (
     <div style={{
