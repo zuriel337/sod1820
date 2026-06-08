@@ -3658,6 +3658,36 @@ function ChatPage() {
   );
 }
 
+// ===== SPOTIM CHAT PAGE =====
+function SpotimChatPage() {
+  useEffect(() => {
+    if (document.getElementById("spotim-script")) return;
+    const s = document.createElement("script");
+    s.id = "spotim-script";
+    s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
+    s.async = true;
+    s.setAttribute("data-spotim-module", "spotim-launcher");
+    s.setAttribute("data-post-id", "daf-tzaat-rashi");
+    document.body.appendChild(s);
+    return () => { document.getElementById("spotim-script")?.remove(); };
+  }, []);
+
+  return (
+    <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
+      <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
+          קהילת סוד 1820
+        </div>
+        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
+          צאט האתר
+        </h1>
+        <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+      </div>
+      <div id="spotim-container" style={{ minHeight: 400 }} />
+    </div>
+  );
+}
+
 // ===== FOOTER =====
 
 function Footer({ onNav, navItems }) {
