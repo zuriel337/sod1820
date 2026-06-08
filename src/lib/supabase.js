@@ -202,6 +202,35 @@ export async function getCommentsByPostId(postWpId) {
   return data ?? [];
 }
 
+// ── Chat ───────────────────────────────────────────────────
+export async function getChatMessages({ limit = 80 } = {}) {
+  const { data } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return (data ?? []).reverse();
+}
+
+export async function sendChatMessage({ author, content }) {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .insert([{ author: author.trim(), content: content.trim() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export function subscribeToChatMessages(callback) {
+  return supabase
+    .channel('chat_messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+      callback(payload.new);
+    })
+    .subscribe();
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
