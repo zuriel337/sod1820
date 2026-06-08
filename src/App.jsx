@@ -3471,6 +3471,16 @@ function Navbar({ page, onNav }) {
         }}>
           צאט האתר
         </button>
+        <button onClick={() => onNav("contact")} style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: page === "contact" ? C.goldBright : C.muted,
+          fontFamily: F.royal, fontSize: 14, fontWeight: 700,
+          letterSpacing: 1, padding: "8px 14px", borderRadius: 3,
+          transition: "color 0.2s",
+          borderBottom: page === "contact" ? `2px solid ${C.gold}` : "2px solid transparent",
+        }}>
+          צור קשר
+        </button>
       </div>
 
       {/* register button — left in RTL */}
