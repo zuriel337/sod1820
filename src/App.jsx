@@ -1984,6 +1984,14 @@ const GLOBAL_CSS = `
     transform: scale(0.95);
     opacity: 0.8;
   }
+  @keyframes light-rays {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  @keyframes hero-shimmer {
+    0%, 100% { opacity: 0.88; }
+    50%       { opacity: 1; filter: drop-shadow(0 0 18px rgba(246,226,122,0.35)); }
+  }
 `;
 
 // ===== POST PAGE =====
