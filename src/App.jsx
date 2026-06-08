@@ -3484,6 +3484,187 @@ function Navbar({ page, onNav }) {
   );
 }
 
+// ===== CONTACT PAGE =====
+function ContactPage() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [err, setErr] = useState("");
+
+  function set(k, v) { setForm(f => ({ ...f, [k]: v })); }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setErr("נא למלא שם, אימייל והודעה"); return;
+    }
+    setSending(true); setErr("");
+    try {
+      await sendContactMessage(form);
+      setSent(true);
+    } catch { setErr("שגיאה בשליחה — נסה שוב"); }
+    finally { setSending(false); }
+  }
+
+  const field = (label, key, type = "text", rows) => (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
+        {label}
+      </label>
+      {rows ? (
+        <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
+      ) : (
+        <input type={type} value={form[key]} onChange={e => set(key, e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ direction: "rtl", maxWidth: 1000, margin: "0 auto", padding: "64px 16px 96px" }}>
+      {/* hero */}
+      <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
+        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
+          נשמח לשמוע ממך
+        </h1>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
+          שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
+        </p>
+        <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
+
+        {/* left — form */}
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "36px 32px" }}>
+          {sent ? (
+            <div style={{ textAlign: "center", padding: "48px 0" }}>
+              <div style={{ fontSize: 52, marginBottom: 20 }}>✦</div>
+              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
+              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
+              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
+                style={{ marginTop: 24, background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
+                שלח הודעה נוספת
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              {field("שם מלא *", "name")}
+              {field("אימייל *", "email", "email")}
+              {field("נושא", "subject")}
+              {field("הודעה *", "message", "text", 6)}
+              {err && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, marginBottom: 16 }}>{err}</p>}
+              <GoldButton type="submit" disabled={sending} style={{ width: "100%", padding: "14px", fontSize: 13, letterSpacing: 3 }}>
+                {sending ? "שולח..." : "שלח הודעה ✦"}
+              </GoldButton>
+            </form>
+          )}
+        </div>
+
+        {/* right — author card + info */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+          {/* author card */}
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
+            <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 18 }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
+                background: `linear-gradient(135deg, ${C.goldDark}, ${C.crimson})`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 26, border: `2px solid ${C.borderGold}`,
+              }}>✦</div>
+              <div>
+                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
+                  יוסי וינר
+                </div>
+                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+                  מייסד ועורך — סוד 1820
+                </div>
+              </div>
+            </div>
+            <p style={{ color: "#c8bfb0", fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
+              חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
+            </p>
+          </div>
+
+          {/* contact info boxes */}
+          {[
+            { icon: "✉", label: "אימייל", value: "yosiviner7@gmail.com" },
+            { icon: "🌐", label: "אתר", value: "sod1820.co.il" },
+          ].map(({ icon, label, value }) => (
+            <div key={label} style={{
+              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2,
+              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center",
+            }}>
+              <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
+              <div>
+                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
+                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 14 }}>{value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== POPULAR POSTS WIDGET =====
+function PopularPostsWidget({ onNav }) {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    getPopularPosts({ limit: 8 }).then(rows => {
+      setPosts(rows.map(r => ({
+        id: r.wp_id, title: r.title, slug: r.slug,
+        image_url: r.image_url, date: r.date, commentCount: r.comment_count,
+      })));
+    }).catch(() => {});
+  }, []);
+
+  if (!posts.length) return null;
+
+  return (
+    <div style={{ marginTop: 64 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+        <RoyalDivider width={48} />
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+          פוסטים פופולריים
+        </span>
+        <RoyalDivider width={48} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {posts.map((post, i) => {
+          const d = post.date ? new Date(post.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+          return (
+            <div key={post.id} onClick={() => onNav("post", { slug: post.slug, id: post.id })}
+              style={{ display: "flex", gap: 14, alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: `1px solid ${C.border}`, borderRadius: 2, cursor: "pointer", transition: "background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(212,175,55,0.05)"}
+              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+            >
+              <span style={{ color: C.borderGold, fontFamily: F.heading, fontSize: 13, fontWeight: 700, width: 24, textAlign: "center", flexShrink: 0 }}>
+                {i + 1}
+              </span>
+              {post.image_url && (
+                <img src={post.image_url} alt="" style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 2, flexShrink: 0, filter: "brightness(0.8)" }} />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                  {post.title}
+                </div>
+                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, marginTop: 3 }}>
+                  {d}{post.commentCount > 0 && ` · ${post.commentCount} תגובות`}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ===== CHAT PAGE =====
 function ChatPage() {
   const [messages, setMessages]   = useState([]);
