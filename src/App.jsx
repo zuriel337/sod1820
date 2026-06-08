@@ -1401,12 +1401,18 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimer = useState(null);
   const { title, description, bodyHtml, category } = pageContent || {};
 
   useEffect(() => {
     setLoading(true);
     setError("");
     setCurrentPage(1);
+    setSearchQuery("");
+    setSearchResults(null);
   }, [filterCategory, filterTag]);
 
   useEffect(() => {
@@ -1421,6 +1427,18 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
       })
       .catch(err => { setError(err.message); setLoading(false); });
   }, [currentPage, filterCategory, filterTag]);
+
+  function handleSearch(q) {
+    setSearchQuery(q);
+    clearTimeout(searchTimer[0]);
+    if (!q.trim()) { setSearchResults(null); return; }
+    setSearchLoading(true);
+    searchTimer[0] = setTimeout(() => {
+      searchPosts(q)
+        .then(rows => { setSearchResults(rows.map(adaptPost)); setSearchLoading(false); })
+        .catch(() => setSearchLoading(false));
+    }, 350);
+  }
 
   function goTo(p) {
     setCurrentPage(p);
