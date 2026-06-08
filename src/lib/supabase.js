@@ -202,6 +202,25 @@ export async function getCommentsByPostId(postWpId) {
   return data ?? [];
 }
 
+// ── Popular posts (by comment count) ──────────────────────
+export async function getPopularPosts({ limit = 10 } = {}) {
+  const { data } = await supabase.rpc('popular_posts_by_comments', { lim: limit });
+  if (data?.length) return data;
+  // fallback: most recent
+  const { data: recent } = await supabase
+    .from('posts').select('*').order('date', { ascending: false }).limit(limit);
+  return recent ?? [];
+}
+
+// ── Contact ────────────────────────────────────────────────
+export async function sendContactMessage({ name, email, subject, message }) {
+  const { error } = await supabase.from('contact_messages').insert([{
+    name: name.trim(), email: email.trim(),
+    subject: subject.trim(), message: message.trim(),
+  }]);
+  if (error) throw error;
+}
+
 // ── Chat ───────────────────────────────────────────────────
 export async function getChatMessages({ limit = 80 } = {}) {
   const { data } = await supabase
