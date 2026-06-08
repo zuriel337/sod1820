@@ -1767,9 +1767,13 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
           grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 20px;
         }
+        .wp-masonry { columns: 2 360px; column-gap: 24px; }
         @media (max-width: 900px) {
           .blog-two-col { flex-direction: column-reverse; }
           .blog-events-sidebar { width: 100% !important; position: static !important; }
+        }
+        @media (max-width: 700px) {
+          .wp-masonry { columns: 1; }
         }
         @media (max-width: 600px) {
           .blog-grid { grid-template-columns: 1fr; }
@@ -1803,16 +1807,28 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
             </div>
           )}
 
-          <div className="blog-grid">
-            {isSearching
-              ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
-              : activeMode
-                ? displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
-                : loading
-                  ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-                  : displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
-            }
-          </div>
+          {/* WordPress-style masonry for category/tag pages */}
+          {isFilteredView ? (
+            <div className="wp-masonry">
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+                : displayPosts.map(post => (
+                    <WPArticleCard key={post.id} post={post} onPost={() => onNav("post", post)} />
+                  ))
+              }
+            </div>
+          ) : (
+            <div className="blog-grid">
+              {isSearching
+                ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
+                : activeMode
+                  ? displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+                  : loading
+                    ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+                    : displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+              }
+            </div>
+          )}
 
           {!isSearching && !activeMode && !loading && !error && displayPosts.length === 0 && (
             <div style={{ textAlign: "center", padding: "72px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
