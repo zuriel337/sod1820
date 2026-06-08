@@ -1210,7 +1210,8 @@ function CheckoutPage({ course, onNav }) {
 const WP_API = "https://sod1820.co.il/wp-json/wp/v2/posts";
 const PER_PAGE = 10;
 
-const toSlug = name => encodeURIComponent(name.trim());
+const toSlug = name => name.trim().replace(/\s+/g, '-');
+const fromSlug = slug => decodeURIComponent(slug).replace(/-/g, ' ');
 
 function stripHtml(html = "") {
   return html
