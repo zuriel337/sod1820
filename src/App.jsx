@@ -1400,49 +1400,122 @@ function PostCard({ post, onPost }) {
 }
 
 function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filterTag = null }) {
+  // paginated posts
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // search
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  const searchTimer = useState(null);
+  const searchTimer = { current: null };
+
+  // gematria
+  const [gemInput, setGemInput] = useState("");
+  const [gemValue, setGemValue] = useState(null);
+  const [gemWords, setGemWords] = useState([]);
+  const [gemResults, setGemResults] = useState(null);
+  const [gemLoading, setGemLoading] = useState(false);
+  const gemTimer = { current: null };
+
+  // filters
+  const [filterCat, setFilterCat] = useState(null);
+  const [filterTagL, setFilterTagL] = useState(null);
+  const [filterYear, setFilterYear] = useState(null);
+  const [allCats, setAllCats] = useState([]);
+  const [allTags, setAllTags] = useState([]);
+
   const { title, description, bodyHtml, category } = pageContent || {};
+  const showPanel = !filterCategory && !filterTag;
+
+  // active search mode: "text" | "gem" | null
+  const activeMode = searchResults !== null ? "text" : gemResults !== null ? "gem" : null;
+  const activeCat  = filterCategory || filterCat;
+  const activeTag  = filterTag || filterTagL;
 
   useEffect(() => {
-    setLoading(true);
-    setError("");
-    setCurrentPage(1);
-    setSearchQuery("");
-    setSearchResults(null);
+    setLoading(true); setError(""); setCurrentPage(1);
+    setSearchQuery(""); setSearchResults(null);
+    setGemInput(""); setGemResults(null); setGemValue(null); setGemWords([]);
+    setFilterCat(null); setFilterTagL(null); setFilterYear(null);
   }, [filterCategory, filterTag]);
 
+  // load categories + tags for dropdowns once
   useEffect(() => {
-    setLoading(true);
-    setError("");
-    getPostsFromSupabase({ limit: PER_PAGE, page: currentPage, category: filterCategory, tag: filterTag })
+    if (!showPanel) return;
+    getDistinctCategoriesAndTags().then(({ categories, tags }) => {
+      setAllCats(categories); setAllTags(tags);
+    }).catch(() => {});
+  }, [showPanel]);
+
+  // paginated posts (when no search active)
+  useEffect(() => {
+    if (activeMode) return;
+    setLoading(true); setError("");
+    getPostsFromSupabase({ limit: PER_PAGE, page: currentPage, category: activeCat, tag: activeTag, year: filterYear })
       .then(({ posts: rows, total }) => {
-        const adapted = rows.map(adaptPost);
-        setPosts(adapted);
+        setPosts(rows.map(adaptPost));
         setTotalPages(Math.ceil(total / PER_PAGE) || 1);
         setLoading(false);
       })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, [currentPage, filterCategory, filterTag]);
+  }, [currentPage, activeCat, activeTag, filterYear, activeMode]);
 
+  // reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [filterCat, filterTagL, filterYear]);
+
+  function goTo(p) { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  // text search with debounce
   function handleSearch(q) {
     setSearchQuery(q);
-    clearTimeout(searchTimer[0]);
+    clearTimeout(searchTimer.current);
     if (!q.trim()) { setSearchResults(null); return; }
     setSearchLoading(true);
-    searchTimer[0] = setTimeout(() => {
-      searchPosts(q)
+    searchTimer.current = setTimeout(() => {
+      searchPosts(q, { category: activeCat, tag: activeTag, year: filterYear })
         .then(rows => { setSearchResults(rows.map(adaptPost)); setSearchLoading(false); })
         .catch(() => setSearchLoading(false));
     }, 350);
   }
+
+  // gematria input handler
+  function handleGemInput(val) {
+    setGemInput(val);
+    setGemResults(null); setGemValue(null); setGemWords([]);
+    clearTimeout(gemTimer.current);
+    if (!val.trim()) return;
+    gemTimer.current = setTimeout(async () => {
+      setGemLoading(true);
+      const isNum = /^\d+$/.test(val.trim());
+      const num = isNum ? parseInt(val.trim()) : calcGem(val.trim());
+      setGemValue(num);
+      try {
+        const [posts, words] = await Promise.all([
+          searchPosts(String(num), { category: activeCat, tag: activeTag, year: filterYear }),
+          getGematriaByValue(num),
+        ]);
+        setGemResults(posts.map(adaptPost));
+        setGemWords(words);
+      } catch {}
+      setGemLoading(false);
+    }, 400);
+  }
+
+  function clearAll() {
+    setSearchQuery(""); setSearchResults(null);
+    setGemInput(""); setGemResults(null); setGemValue(null); setGemWords([]);
+    setFilterCat(null); setFilterTagL(null); setFilterYear(null);
+    setCurrentPage(1);
+  }
+
+  const hasAnyFilter = searchQuery || gemInput || filterCat || filterTagL || filterYear;
+  const displayPosts = activeMode === "text" ? searchResults : activeMode === "gem" ? gemResults : posts;
+  const isSearching  = searchLoading || gemLoading;
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
   function goTo(p) {
     setCurrentPage(p);
