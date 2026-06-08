@@ -1668,24 +1668,24 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         }
       `}</style>
       <div className="blog-grid">
-        {searchLoading
+        {isSearching
           ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
-          : searchResults
-            ? searchResults.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+          : activeMode
+            ? displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
             : loading
               ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-              : posts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
+              : displayPosts.map(post => <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />)
         }
       </div>
 
-      {!loading && !searchResults && !error && posts.length === 0 && (
+      {!isSearching && !activeMode && !loading && !error && displayPosts.length === 0 && (
         <div style={{ textAlign: "center", padding: "72px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
           אין פוסטים להצגה
         </div>
       )}
-      {searchResults && !searchLoading && searchResults.length === 0 && (
+      {!isSearching && activeMode && displayPosts.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
-          לא נמצאו פוסטים עבור "{searchQuery}"
+          לא נמצאו תוצאות
         </div>
       )}
 
