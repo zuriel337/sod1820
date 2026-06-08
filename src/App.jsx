@@ -784,6 +784,9 @@ function HomePage({ onNav, pageContent, adminMode }) {
       </div>
       <TestimonialsSection />
       <LatestPostsSection onNav={onNav} />
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 16px 80px" }}>
+        <PopularPostsWidget onNav={onNav} />
+      </div>
     </div>
   );
 }
