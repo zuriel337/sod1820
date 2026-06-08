@@ -3461,15 +3461,15 @@ function Navbar({ page, onNav }) {
         }}>
           פוסטים אחרונים
         </button>
-        <button onClick={() => onNav("chat")} style={{
+        <button onClick={() => onNav("spotchat")} style={{
           background: "none", border: "none", cursor: "pointer",
-          color: page === "chat" ? C.goldBright : C.muted,
+          color: page === "spotchat" ? C.goldBright : C.muted,
           fontFamily: F.royal, fontSize: 14, fontWeight: 700,
           letterSpacing: 1, padding: "8px 14px", borderRadius: 3,
           transition: "color 0.2s",
-          borderBottom: page === "chat" ? `2px solid ${C.gold}` : "2px solid transparent",
+          borderBottom: page === "spotchat" ? `2px solid ${C.gold}` : "2px solid transparent",
         }}>
-          צ׳אט
+          צאט האתר
         </button>
       </div>
 
