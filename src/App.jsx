@@ -4086,6 +4086,11 @@ function AppContent() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+    if (p === "chat") {
+      navigate("/chat");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setPage(p);
     if (p === "admin") {
       setSelectedPageKey(typeof data === "string" ? data : selectedPageKey || "home");
