@@ -156,11 +156,16 @@ const Ornament = ({ size = 20, color = C.gold }) => (
   <span style={{ color, fontSize: size, fontFamily: "serif", lineHeight: 1, userSelect: "none" }}>✦</span>
 );
 
-const RoyalDivider = ({ width = 280 }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "0 auto", width, justifyContent: "center" }}>
-    <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, ${C.gold}, transparent)` }} />
-    <Ornament size={10} color={C.goldDim} />
-    <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${C.gold}, transparent)` }} />
+const RoyalDivider = ({ width = 300 }) => (
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, margin: "0 auto", width }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, ${C.gold}, transparent)` }} />
+      <span style={{ color: C.goldDim, fontSize: 7, lineHeight: 1, userSelect: "none" }}>✦</span>
+      <span style={{ color: C.gold, fontSize: 13, lineHeight: 1, userSelect: "none" }}>❖</span>
+      <span style={{ color: C.goldDim, fontSize: 7, lineHeight: 1, userSelect: "none" }}>✦</span>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${C.gold}, transparent)` }} />
+    </div>
+    <div style={{ width: "54%", height: 1, background: `linear-gradient(to right, transparent, ${C.borderGold}, transparent)` }} />
   </div>
 );
 
