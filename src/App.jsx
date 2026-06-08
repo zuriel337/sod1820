@@ -3144,7 +3144,18 @@ function Footer({ onNav, navItems }) {
       }}>
         <div style={{ maxWidth: 220 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-            <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 32, width: "auto" }} />
+            <div style={{ position: "relative", display: "inline-flex" }}>
+              <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 32, width: "auto" }} />
+              <span style={{
+                position: "absolute", top: -5, right: -8,
+                background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
+                color: "#f6e27a", fontSize: 7, fontWeight: 800,
+                fontFamily: F.heading, padding: "1.5px 4px",
+                borderRadius: 3, border: `1px solid ${C.goldDim}`,
+                lineHeight: 1.3, boxShadow: "0 0 6px rgba(122,19,32,0.6)",
+                textTransform: "uppercase",
+              }}>AI</span>
+            </div>
             <div>
               <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 11, fontWeight: 800, lineHeight: 1.3 }}>כי לה' המלוכה</div>
               <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 7, letterSpacing: 2 }}>SOD1820</div>
