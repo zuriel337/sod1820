@@ -340,7 +340,7 @@ function CourseCard({ course, onBuy, onDetail }) {
         }}>{course.subtitle}</div>
 
         <p style={{
-          color: "#f5f0e8", fontSize: 16, lineHeight: 1.85,
+          color: "#ede4d3", fontSize: 16, lineHeight: 1.85,
           margin: "0 0 24px", flex: 1,
           fontFamily: F.body
         }}>{course.desc}</p>
@@ -752,7 +752,7 @@ function TestimonialsSection() {
                 {"★".repeat(t.stars)}
               </div>
               <p style={{
-                color: "#f0ede0", fontFamily: F.body,
+                color: "#ede4d3", fontFamily: F.body,
                 fontSize: 14, lineHeight: 2,
                 margin: "0 0 16px", fontStyle: "italic",
               }}>"{t.text}"</p>
@@ -1339,7 +1339,7 @@ function PostCard({ post, onPost }) {
         }}>{title}</h3>
 
         <p style={{
-          color: "#f5f0e8", fontSize: 16, lineHeight: 1.95,
+          color: "#ede4d3", fontSize: 16, lineHeight: 1.95,
           margin: "0 0 18px", flex: 1, fontFamily: F.body,
         }}>
           {excerpt}{excerpt.length >= 180 ? "…" : ""}
@@ -1613,7 +1613,7 @@ const POST_CONTENT_CSS = `
     margin: 0 0 1.4em;
   }
   .sod-post-content li {
-    color: #f0ede0;
+    color: #ede4d3;
     font-family: 'Heebo', sans-serif;
     font-size: 15px;
     line-height: 2;
@@ -1747,7 +1747,7 @@ const POST_CONTENT_CSS = `
   .sod-post-content [style*="color:#111"],
   .sod-post-content [style*="color:#222"],
   .sod-post-content [style*="color:#333"] {
-    color: #f0ede0 !important;
+    color: #ede4d3 !important;
   }
   .sod-post-content [style*="color:#0000ff"],
   .sod-post-content [style*="color: #0000ff"],
@@ -2318,7 +2318,7 @@ function NumberSidebar({ onNav }) {
 const THEMES_DATA = [
   {
     id: "a", name: "תבנית א — עמוק",
-    bg: "#080500", text: "#f5f0e8", heading: "#CFB53B",
+    bg: "#080500", text: "#ede4d3", heading: "#CFB53B",
     accent: "#CFB53B", surface: "#0e0a00",
     font: "'Heebo', sans-serif",
   },
@@ -3001,12 +3001,27 @@ function Navbar({ page, onNav, navItems }) {
         background: "none", border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 10, padding: 0,
       }}>
-        <img
-          src={LOGO_URL}
-          alt="SOD1820"
-          className="logo-animated"
-          style={{ height: 36, width: "auto" }}
-        />
+        <div style={{ position: "relative", display: "inline-flex" }}>
+          <img
+            src={LOGO_URL}
+            alt="SOD1820"
+            className="logo-animated"
+            style={{ height: 36, width: "auto" }}
+          />
+          <span style={{
+            position: "absolute", top: -5, right: -8,
+            background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
+            color: "#f6e27a",
+            fontSize: 7, fontWeight: 800, letterSpacing: 0.5,
+            fontFamily: F.heading,
+            padding: "1.5px 4px",
+            borderRadius: 3,
+            border: `1px solid ${C.goldDim}`,
+            lineHeight: 1.3,
+            boxShadow: `0 0 6px rgba(122,19,32,0.6)`,
+            textTransform: "uppercase",
+          }}>AI</span>
+        </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>
             כי לה' המלוכה
