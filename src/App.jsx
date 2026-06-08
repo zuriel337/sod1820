@@ -609,34 +609,50 @@ function HeroSection({ onNav }) {
       alignItems: "center", justifyContent: "center",
       textAlign: "center",
       padding: "72px 24px 56px",
-      background: `radial-gradient(ellipse at 50% 0%, #1a1200 0%, ${C.bg} 70%)`,
+      background: `radial-gradient(ellipse at 50% 0%, rgba(26,18,0,0.55) 0%, transparent 65%)`,
     }}>
       <div style={{ position: "relative", display: "inline-block", marginBottom: 32 }}>
+        {/* קרני אור מסתובבות */}
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          width: 180, height: 180,
+          background: `conic-gradient(from 0deg,
+            transparent 0deg, rgba(212,175,55,0.18) 12deg, transparent 24deg,
+            transparent 60deg, rgba(212,175,55,0.12) 72deg, transparent 84deg,
+            transparent 120deg, rgba(212,175,55,0.15) 132deg, transparent 144deg,
+            transparent 180deg, rgba(212,175,55,0.1) 192deg, transparent 204deg,
+            transparent 240deg, rgba(212,175,55,0.13) 252deg, transparent 264deg,
+            transparent 300deg, rgba(212,175,55,0.09) 312deg, transparent 324deg)`,
+          borderRadius: "50%",
+          animation: "light-rays 14s linear infinite",
+          pointerEvents: "none",
+        }} />
         <img
           src={LOGO_URL}
           alt="SOD1820 logo"
           style={{
-            height: 80, width: "auto", display: "block",
+            height: 80, width: "auto", display: "block", position: "relative", zIndex: 1,
             animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-            filter: "drop-shadow(0 0 24px rgba(232,200,74,0.7))",
+            filter: "drop-shadow(0 0 28px rgba(232,200,74,0.85))",
           }}
         />
-        <span style={{ position: "absolute", top: "-16%", left: "-14%", color: C.goldLight, fontSize: 18, opacity: 0.9, animation: "royal-sparkle 3.6s ease-in-out infinite" }}>✦</span>
-        <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse" }}>✦</span>
+        <span style={{ position: "absolute", top: "-16%", left: "-14%", color: C.goldLight, fontSize: 18, opacity: 0.9, animation: "royal-sparkle 3.6s ease-in-out infinite", zIndex: 2 }}>✦</span>
+        <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse", zIndex: 2 }}>✦</span>
       </div>
 
-      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 6, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>SOD1820 · צוריאל פולייס</div>
+      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · צוריאל פולייס</div>
 
       <h1 style={{
         color: C.goldBright,
         margin: "0 0 20px",
         fontSize: "clamp(32px, 6vw, 62px)",
-        fontFamily: F.royal,
+        fontFamily: F.regal,
         fontWeight: 700,
         letterSpacing: 2,
         lineHeight: 1.2,
-        textShadow: `0 0 60px ${C.goldDark}`,
+        textShadow: `0 0 80px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)`,
         maxWidth: 680,
+        animation: "hero-shimmer 5s ease-in-out infinite",
       }}>
         הקוד הנסתר בשפה העברית
       </h1>
