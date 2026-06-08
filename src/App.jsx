@@ -3471,6 +3471,180 @@ function Navbar({ page, onNav }) {
   );
 }
 
+// ===== CHAT PAGE =====
+function ChatPage() {
+  const [messages, setMessages]   = useState([]);
+  const [author,   setAuthor]     = useState(() => localStorage.getItem("chat_author") || "");
+  const [text,     setText]       = useState("");
+  const [sending,  setSending]    = useState(false);
+  const [error,    setError]      = useState("");
+  const bottomRef = React.useRef(null);
+
+  // load messages
+  useEffect(() => {
+    getChatMessages().then(setMessages).catch(() => {});
+  }, []);
+
+  // realtime subscription
+  useEffect(() => {
+    const channel = subscribeToChatMessages(msg => {
+      setMessages(prev => [...prev, msg]);
+    });
+    return () => { channel.unsubscribe?.(); };
+  }, []);
+
+  // scroll to bottom on new messages
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  async function handleSend(e) {
+    e.preventDefault();
+    const name = author.trim() || "אנונימי";
+    const body = text.trim();
+    if (!body) return;
+    setSending(true); setError("");
+    try {
+      await sendChatMessage({ author: name, content: body });
+      localStorage.setItem("chat_author", name);
+      setText("");
+      // reload to pick up any missed messages
+      getChatMessages().then(setMessages).catch(() => {});
+    } catch (err) {
+      setError("שגיאה בשליחה — נסה שוב");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const formatTime = iso => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${dd}/${mm} ${hh}:${mi}`;
+  };
+
+  return (
+    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "52px 16px 96px" }}>
+      {/* header */}
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
+          קהילת סוד 1820
+        </div>
+        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px, 5vw, 38px)", fontWeight: 700, margin: "0 0 10px" }}>
+          צ׳אט קהילתי
+        </h1>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, margin: 0 }}>
+          שאל, שתף, התחבר — בית הפגישה של חוקרי הסוד
+        </p>
+        <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+      </div>
+
+      {/* messages */}
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderRadius: 4, padding: "20px 16px",
+        minHeight: 320, maxHeight: 520, overflowY: "auto",
+        marginBottom: 20, display: "flex", flexDirection: "column", gap: 2,
+      }}>
+        {messages.length === 0 && (
+          <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, fontSize: 14, padding: "60px 0" }}>
+            אין הודעות עדיין — היה הראשון לכתוב
+          </div>
+        )}
+        {messages.map((msg, i) => {
+          const prev = messages[i - 1];
+          const sameAuthor = prev?.author === msg.author;
+          return (
+            <div key={msg.id} style={{ marginTop: sameAuthor ? 3 : 14 }}>
+              {!sameAuthor && (
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                  <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                    {msg.author}
+                  </span>
+                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>
+                    {formatTime(msg.created_at)}
+                  </span>
+                </div>
+              )}
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${C.border}`,
+                borderRadius: 3,
+                padding: "8px 14px",
+                color: "#d8d0c4",
+                fontFamily: F.body,
+                fontSize: 15,
+                lineHeight: 1.7,
+                wordBreak: "break-word",
+              }}>
+                {msg.content}
+              </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* compose form */}
+      <form onSubmit={handleSend} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <input
+          type="text"
+          placeholder="שמך (אופציונלי)"
+          value={author}
+          onChange={e => setAuthor(e.target.value)}
+          maxLength={60}
+          style={{
+            background: C.surface2, border: `1px solid ${C.border}`,
+            color: "#ede4d3", fontFamily: F.heading, fontSize: 13,
+            padding: "10px 14px", borderRadius: 3, outline: "none",
+            direction: "rtl",
+          }}
+        />
+        <div style={{ display: "flex", gap: 10 }}>
+          <textarea
+            placeholder="כתוב הודעה..."
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }}
+            maxLength={1000}
+            rows={3}
+            style={{
+              flex: 1,
+              background: C.surface2, border: `1px solid ${C.border}`,
+              color: "#ede4d3", fontFamily: F.body, fontSize: 15,
+              padding: "10px 14px", borderRadius: 3, outline: "none",
+              resize: "vertical", direction: "rtl", lineHeight: 1.7,
+            }}
+          />
+          <button
+            type="submit"
+            disabled={sending || !text.trim()}
+            style={{
+              alignSelf: "flex-end",
+              background: text.trim() ? `linear-gradient(135deg, ${C.goldDark}, ${C.goldDeep})` : C.surface2,
+              border: `1px solid ${text.trim() ? C.gold : C.border}`,
+              color: text.trim() ? C.goldBright : C.muted,
+              fontFamily: F.heading, fontSize: 11, letterSpacing: 2,
+              padding: "10px 20px", borderRadius: 3, cursor: text.trim() ? "pointer" : "not-allowed",
+              transition: "all 0.2s", whiteSpace: "nowrap",
+            }}
+          >
+            {sending ? "שולח..." : "שלח ✦"}
+          </button>
+        </div>
+        {error && <div style={{ color: "#c05050", fontFamily: F.heading, fontSize: 11 }}>{error}</div>}
+        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 9, letterSpacing: 1 }}>
+          Enter לשליחה • Shift+Enter לשורה חדשה
+        </div>
+      </form>
+    </div>
+  );
+}
+
 // ===== FOOTER =====
 
 function Footer({ onNav, navItems }) {
