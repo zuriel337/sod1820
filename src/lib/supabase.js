@@ -8,7 +8,8 @@ const supabase = createClient(
 export default supabase;
 export { supabase };
 
-const WP_API = 'https://sod1820.co.il/wp-json/wp/v2/posts';
+const WP_API      = 'https://sod1820.co.il/wp-json/wp/v2/posts';
+const WP_COMMENTS = 'https://sod1820.co.il/wp-json/wp/v2/comments';
 
 export async function syncCategory47() {
   return syncAllPosts();
