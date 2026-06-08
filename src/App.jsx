@@ -3396,12 +3396,14 @@ function SpaceBackground() {
         position: "absolute", inset: 0,
         background: "radial-gradient(ellipse 70% 80% at 50% 48%, rgba(7,5,14,0.97) 0%, rgba(7,5,14,0.85) 40%, rgba(7,5,14,0.45) 68%, rgba(7,5,14,0.08) 100%)",
       }} />
-      {/* purple nebula tint */}
+      {/* crimson glow top + royal purple bottom — from new palette */}
       <div style={{
         position: "absolute", inset: 0,
         background: [
-          "radial-gradient(ellipse at 15% 25%, rgba(80,30,150,0.18) 0%, transparent 50%)",
-          "radial-gradient(ellipse at 85% 70%, rgba(55,15,110,0.14) 0%, transparent 46%)",
+          "radial-gradient(ellipse at 50% -10%, rgba(122,19,32,0.30) 0%, transparent 55%)",
+          "radial-gradient(ellipse at 50% 110%, rgba(61,31,92,0.25) 0%, transparent 50%)",
+          "radial-gradient(ellipse at 15% 25%, rgba(80,30,150,0.14) 0%, transparent 48%)",
+          "radial-gradient(ellipse at 85% 70%, rgba(122,19,32,0.12) 0%, transparent 44%)",
         ].join(','),
       }} />
       {/* subtle stars over the city */}
