@@ -4096,6 +4096,7 @@ function AppContent() {
         <main>
           <Routes>
             <Route path="/post" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/number/:phrase" element={<GematriaPhrasePage onNav={nav} />} />
             <Route path="/category/:slug" element={<CategoryPage onNav={nav} />} />
             <Route path="/tag/:slug" element={<TagPage onNav={nav} />} />
