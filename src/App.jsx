@@ -1558,7 +1558,7 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         </div>
       )}
 
-      {!loading && !error && totalPages > 1 && (
+      {!loading && !error && !searchResults && totalPages > 1 && (
         <div style={{
           display: "flex", gap: 8, justifyContent: "center",
           marginTop: 56, flexWrap: "wrap", alignItems: "center",
