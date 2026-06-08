@@ -140,10 +140,10 @@ const PAGE_CONTENT_DEFAULTS = {
     tag: "courses",
   },
   blog: {
-    title: "הבלוג",
-    description: "מחשבות, שיעורים ותובנות על הקוד הנסתר בתוך הגימטריה והשפה העברית.",
-    bodyHtml: "<p>כאן תמצא פוסטים עדכניים, ניתוחים ושיתופים שנועדו לשפר את ההבנה שלך על עולם הגימטריה.</p>",
-    category: "בלוג",
+    title: "פוסטים אחרונים",
+    description: "",
+    bodyHtml: "",
+    category: "",
     tag: "blog",
   },
 };
