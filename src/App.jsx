@@ -1472,6 +1472,43 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
       )}
       {!filterCategory && !filterTag && <PageBody bodyHtml={bodyHtml} />}
 
+      {/* search bar */}
+      {!filterCategory && !filterTag && (
+        <div style={{ maxWidth: 520, margin: "0 auto 36px", position: "relative" }}>
+          <div style={{
+            display: "flex", alignItems: "center",
+            background: C.surface, border: `1px solid ${searchQuery ? C.gold : C.border}`,
+            borderRadius: 4, overflow: "hidden",
+            boxShadow: searchQuery ? `0 0 18px rgba(212,175,55,0.15)` : "none",
+            transition: "border-color 0.2s, box-shadow 0.2s",
+          }}>
+            <span style={{ padding: "0 14px", color: C.goldDim, fontSize: 16 }}>🔍</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => handleSearch(e.target.value)}
+              placeholder="חיפוש פוסטים..."
+              style={{
+                flex: 1, background: "transparent", border: "none", outline: "none",
+                color: "#ede4d3", fontFamily: F.body, fontSize: 15,
+                padding: "13px 0", direction: "rtl",
+              }}
+            />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(""); setSearchResults(null); }} style={{
+                background: "none", border: "none", color: C.muted,
+                cursor: "pointer", padding: "0 14px", fontSize: 18, lineHeight: 1,
+              }}>×</button>
+            )}
+          </div>
+          {searchQuery && (
+            <div style={{ fontSize: 11, color: C.muted, textAlign: "center", marginTop: 8, letterSpacing: 1 }}>
+              {searchLoading ? "מחפש..." : searchResults ? `${searchResults.length} תוצאות` : ""}
+            </div>
+          )}
+        </div>
+      )}
+
       {error && (
         <div style={{
           background: C.surface,
