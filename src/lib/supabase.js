@@ -58,7 +58,7 @@ export async function syncAllPosts() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
@@ -68,22 +68,46 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
   if (category) query = query.contains('categories', [category]);
   if (tag) query = query.contains('tags', [tag]);
+  if (year) {
+    query = query
+      .gte('date', `${year}-01-01`)
+      .lte('date', `${year}-12-31T23:59:59`);
+  }
 
   const { data, error, count } = await query;
   if (error) throw error;
   return { posts: data ?? [], total: count ?? 0 };
 }
 
-export async function searchPosts(query, { limit = 30 } = {}) {
+// Search in title + content, optional filters
+export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
-  const { data, error } = await supabase
+  const q = query.trim();
+  let dbq = supabase
     .from('posts')
     .select('*')
-    .ilike('title', `%${query.trim()}%`)
+    .or(`title.ilike.%${q}%,content.ilike.%${q}%`)
     .order('date', { ascending: false })
     .limit(limit);
+  if (category) dbq = dbq.contains('categories', [category]);
+  if (tag) dbq = dbq.contains('tags', [tag]);
+  if (year) dbq = dbq.gte('date', `${year}-01-01`).lte('date', `${year}-12-31T23:59:59`);
+  const { data, error } = await dbq;
   if (error) throw error;
   return data ?? [];
+}
+
+// Fetch all distinct categories and tags (for dropdowns)
+export async function getDistinctCategoriesAndTags() {
+  if (!supabase) return { categories: [], tags: [] };
+  const { data } = await supabase.from('posts').select('categories, tags');
+  if (!data) return { categories: [], tags: [] };
+  const cats = new Set(), tags = new Set();
+  data.forEach(r => {
+    (r.categories || []).forEach(c => c && cats.add(c));
+    (r.tags || []).forEach(t => t && tags.add(t));
+  });
+  return { categories: [...cats].sort(), tags: [...tags].sort() };
 }
 
 export async function getPostBySlug(slug) {
@@ -107,6 +131,17 @@ export async function getGematriaByPhrases(phrases) {
     .select('phrase, ragil')
     .in('phrase', phrases)
     .limit(5);
+  return data ?? [];
+}
+
+// Get gematria words matching a specific value
+export async function getGematriaByValue(value) {
+  if (!supabase || !value) return [];
+  const { data } = await supabase
+    .from('gematria_words')
+    .select('phrase, ragil')
+    .eq('ragil', value)
+    .limit(12);
   return data ?? [];
 }
 
