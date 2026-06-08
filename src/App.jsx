@@ -3241,18 +3241,8 @@ const NAV_ITEMS = [
   { key: "login",   label: "כניסה" },
 ];
 
-function Navbar({ page, onNav, navItems }) {
+function Navbar({ page, onNav }) {
   const [scrolled, setScrolled] = useState(false);
-  const [mobile, setMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 860 : false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const items = navItems?.length ? navItems : NAV_ITEMS;
-
-  useEffect(() => {
-    const onResize = () => setMobile(window.innerWidth <= 860);
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 30);
@@ -3260,30 +3250,15 @@ function Navbar({ page, onNav, navItems }) {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  function handleItem(item) {
-    setMenuOpen(false);
-    if (item.route) {
-      onNav(item.route);
-    } else if (item.url && item.url !== "#") {
-      window.open(item.url, "_blank", "noopener,noreferrer");
-    } else if (item.key && !item.url) {
-      onNav(item.key);
-    }
-  }
-
-  function isActive(item) {
-    return item.route ? page === item.route : page === item.key;
-  }
-
   return (
     <nav style={{
       position: "sticky", top: 0, zIndex: 100,
       background: scrolled ? "rgba(5,4,0,0.98)" : "rgba(5,4,0,0.88)",
       backdropFilter: "blur(16px)",
       borderBottom: `1px solid ${scrolled ? C.borderGold : C.border}`,
-      padding: mobile ? "0 16px" : "0 32px",
+      padding: "0 24px",
       display: "grid",
-      gridTemplateColumns: mobile ? "auto auto" : "auto 1fr auto",
+      gridTemplateColumns: "auto 1fr auto",
       alignItems: "center",
       height: 64,
       direction: "rtl",
@@ -3291,29 +3266,19 @@ function Navbar({ page, onNav, navItems }) {
       gap: 16,
     }}>
       {/* logo — right in RTL */}
-      <button onClick={() => { setMenuOpen(false); onNav("home"); }} style={{
+      <button onClick={() => onNav("home")} style={{
         background: "none", border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 10, padding: 0,
       }}>
         <div style={{ position: "relative", display: "inline-flex" }}>
-          <img
-            src={LOGO_URL}
-            alt="SOD1820"
-            className="logo-animated"
-            style={{ height: 36, width: "auto" }}
-          />
+          <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 36, width: "auto" }} />
           <span style={{
             position: "absolute", top: -5, right: -8,
             background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
-            color: "#f6e27a",
-            fontSize: 7, fontWeight: 800, letterSpacing: 0.5,
-            fontFamily: F.heading,
-            padding: "1.5px 4px",
-            borderRadius: 3,
-            border: `1px solid ${C.goldDim}`,
-            lineHeight: 1.3,
-            boxShadow: `0 0 6px rgba(122,19,32,0.6)`,
-            textTransform: "uppercase",
+            color: "#f6e27a", fontSize: 7, fontWeight: 800, letterSpacing: 0.5,
+            fontFamily: F.heading, padding: "1.5px 4px", borderRadius: 3,
+            border: `1px solid ${C.goldDim}`, lineHeight: 1.3,
+            boxShadow: `0 0 6px rgba(122,19,32,0.6)`, textTransform: "uppercase",
           }}>AI</span>
         </div>
         <div style={{ textAlign: "right" }}>
@@ -3326,88 +3291,24 @@ function Navbar({ page, onNav, navItems }) {
         </div>
       </button>
 
-      {!mobile && (
-        <div style={{ display: "flex", gap: 0, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-          {items.map(n => (
-            <button key={n.key} onClick={() => handleItem(n)} style={{
-              background: isActive(n) ? C.goldDark : "none",
-              border: "none",
-              color: isActive(n) ? C.goldBright : C.muted,
-              padding: "8px 22px",
-              cursor: "pointer",
-              fontFamily: F.heading,
-              fontSize: 14, fontWeight: 700, letterSpacing: 3,
-              borderRadius: 2, transition: "all 0.25s",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}>
-              {n.label}
-              {n.url && !n.route && (
-                <span style={{ fontSize: 7, marginRight: 4, opacity: 0.45 }}>↗</span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* center label */}
+      <button onClick={() => onNav("blog")} style={{
+        background: "none", border: "none", cursor: "pointer",
+        color: page === "blog" ? C.goldBright : C.muted,
+        fontFamily: F.royal, fontSize: 15, fontWeight: 700,
+        letterSpacing: 2, textAlign: "center", padding: "8px 0",
+        transition: "color 0.2s",
+      }}>
+        פוסטים אחרונים
+      </button>
 
-      {mobile ? (
-        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-          <button onClick={() => setMenuOpen(o => !o)} style={{
-            background: "none", border: "1px solid rgba(255,255,255,0.14)",
-            color: C.goldLight, padding: "10px 12px", borderRadius: 4,
-            cursor: "pointer", fontSize: 16, fontFamily: F.heading,
-            letterSpacing: 2, transition: "all 0.2s",
-          }}>
-            ☰
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: "flex", justifyContent: "flex-start" }}>
-          <GoldButton
-            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
-            onClick={() => onNav("checkout", COURSES[3])}
-          >
-            הרשם עכשיו
-          </GoldButton>
-        </div>
-      )}
-
-      {mobile && menuOpen && (
-        <div style={{
-          position: "absolute",
-          top: 64, right: 0, left: 0,
-          background: C.surface,
-          borderBottom: `1px solid ${C.border}`,
-          boxShadow: `0 10px 40px rgba(0,0,0,0.35)`,
-          zIndex: 90,
-          padding: "18px 16px 22px",
-        }}>
-          <div style={{ display: "grid", gap: 10 }}>
-            {items.map(n => (
-              <button key={n.key} onClick={() => handleItem(n)} style={{
-                background: isActive(n) ? C.goldDark : C.bg,
-                border: `1px solid ${isActive(n) ? C.gold : C.border}`,
-                color: isActive(n) ? C.goldBright : C.goldLight,
-                padding: "14px 16px",
-                cursor: "pointer",
-                fontFamily: F.heading,
-                fontSize: 14, letterSpacing: 2,
-                borderRadius: 4,
-                textAlign: "right",
-                textTransform: "uppercase",
-              }}>
-                {n.label}
-              </button>
-            ))}
-            <GoldButton
-              style={{ width: "100%", padding: "14px 16px", fontSize: 14, letterSpacing: 2 }}
-              onClick={() => { setMenuOpen(false); onNav("checkout", COURSES[3]); }}
-            >
-              הרשם עכשיו
-            </GoldButton>
-          </div>
-        </div>
-      )}
+      {/* register button — left in RTL */}
+      <GoldButton
+        style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
+        onClick={() => onNav("checkout", COURSES[3])}
+      >
+        הרשם עכשיו
+      </GoldButton>
     </nav>
   );
 }
