@@ -549,7 +549,7 @@ function Landing({ onNav }) {
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
         padding: "48px 18px 32px",
-        background: `radial-gradient(ellipse at 50% 20%, #1a1200 0%, ${C.bg} 60%)`,
+        background: `radial-gradient(ellipse at 50% 20%, rgba(26,18,0,0.5) 0%, transparent 60%)`,
       }}>
         <div style={{
           position: "relative",
@@ -558,6 +558,21 @@ function Landing({ onNav }) {
           opacity: 0.95,
           transform: "translateZ(0)",
         }}>
+          {/* קרני אור */}
+          <div style={{
+            position: "absolute", top: "50%", left: "50%",
+            width: 160, height: 160,
+            background: `conic-gradient(from 0deg,
+              transparent 0deg, rgba(212,175,55,0.16) 12deg, transparent 24deg,
+              transparent 60deg, rgba(212,175,55,0.11) 72deg, transparent 84deg,
+              transparent 120deg, rgba(212,175,55,0.14) 132deg, transparent 144deg,
+              transparent 180deg, rgba(212,175,55,0.09) 192deg, transparent 204deg,
+              transparent 240deg, rgba(212,175,55,0.12) 252deg, transparent 264deg,
+              transparent 300deg, rgba(212,175,55,0.08) 312deg, transparent 324deg)`,
+            borderRadius: "50%",
+            animation: "light-rays 16s linear infinite",
+            pointerEvents: "none",
+          }} />
           <img
             src={LOGO_URL}
             alt="SOD1820 logo"
@@ -565,26 +580,21 @@ function Landing({ onNav }) {
               height: 76,
               width: "auto",
               display: "block",
+              position: "relative", zIndex: 1,
               animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-              filter: "drop-shadow(0 0 18px rgba(232,200,74,0.6))",
+              filter: "drop-shadow(0 0 24px rgba(232,200,74,0.78))",
             }}
           />
           <span style={{
-            position: "absolute",
-            top: "-16%",
-            left: "-14%",
-            color: C.goldLight,
-            fontSize: 18,
-            opacity: 0.9,
+            position: "absolute", zIndex: 2,
+            top: "-16%", left: "-14%",
+            color: C.goldLight, fontSize: 18, opacity: 0.9,
             animation: "royal-sparkle 3.6s ease-in-out infinite",
           }}>✦</span>
           <span style={{
-            position: "absolute",
-            top: "4%",
-            right: "-12%",
-            color: C.goldBright,
-            fontSize: 14,
-            opacity: 0.85,
+            position: "absolute", zIndex: 2,
+            top: "4%", right: "-12%",
+            color: C.goldBright, fontSize: 14, opacity: 0.85,
             animation: "royal-sparkle 4.6s ease-in-out infinite reverse",
           }}>✦</span>
         </div>
