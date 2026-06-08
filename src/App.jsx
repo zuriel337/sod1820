@@ -3491,7 +3491,7 @@ function ChatPage() {
   const [text,     setText]       = useState("");
   const [sending,  setSending]    = useState(false);
   const [error,    setError]      = useState("");
-  const bottomRef = React.useRef(null);
+  const bottomRef = useRef(null);
 
   // load messages
   useEffect(() => {
