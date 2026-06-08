@@ -74,6 +74,18 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
+export async function searchPosts(query, { limit = 30 } = {}) {
+  if (!supabase || !query?.trim()) return [];
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .ilike('title', `%${query.trim()}%`)
+    .order('date', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
   const decoded = decodeURIComponent(slug);
