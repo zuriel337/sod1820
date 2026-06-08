@@ -3062,7 +3062,7 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
               <GoldButton
                 variant="secondary"
                 disabled={syncing}
-                style={{ width: "100%", textAlign: "center" }}
+                style={{ width: "100%", textAlign: "center", marginBottom: 10 }}
                 onClick={async () => {
                   setSyncing(true);
                   try {
@@ -3077,6 +3077,28 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
                 }}
               >
                 {syncing ? "מסנכרן..." : "סנכרן פוסטים מ-WordPress"}
+              </GoldButton>
+              <GoldButton
+                variant="secondary"
+                disabled={syncing}
+                style={{ width: "100%", textAlign: "center", borderColor: C.crimsonLight, color: "#c87070" }}
+                onClick={async () => {
+                  setSyncing(true);
+                  setOkMsg("מסנכרן תגובות...");
+                  try {
+                    const count = await syncAllComments(({ page, totalPages, totalSynced }) => {
+                      setOkMsg(`עמוד ${page}/${totalPages} — ${totalSynced} תגובות`);
+                    });
+                    setOkMsg(`✦ סונכרנו ${count} תגובות ל-Supabase`);
+                  } catch (e) {
+                    setOkMsg(`⚠ שגיאה: ${e.message}`);
+                  } finally {
+                    setSyncing(false);
+                    setTimeout(() => setOkMsg(""), 6000);
+                  }
+                }}
+              >
+                {syncing ? "מסנכרן..." : "סנכרן תגובות מ-WordPress"}
               </GoldButton>
             </div>
           </div>
