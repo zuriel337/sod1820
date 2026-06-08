@@ -1944,7 +1944,7 @@ function EventsSidebar({ onNav }) {
 
       {/* footer */}
       <div
-        onClick={() => navigate('/category/' + encodeURIComponent('תיעוד אירועים'))}
+        onClick={() => navigate('/category/' + toSlug('תיעוד אירועים'))}
         style={{
           padding: "11px 16px", textAlign: "center", cursor: "pointer",
           color: "#c87070", fontFamily: F.heading, fontSize: 11, letterSpacing: 2,
