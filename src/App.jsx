@@ -1549,7 +1549,7 @@ const GLOBAL_CSS = `
 // ===== POST PAGE =====
 
 const POST_CONTENT_CSS = `
-  .sod-post-content { direction: rtl; color: #f0ede0; overflow-x: hidden; font-family: 'Heebo', sans-serif; text-align: center; }
+  .sod-post-content { direction: rtl; color: #ede4d3; overflow-x: hidden; font-family: 'Heebo', sans-serif; text-align: center; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
     font-family: 'Heebo', sans-serif;
