@@ -4093,6 +4093,7 @@ function AppContent() {
     const p = location.pathname;
     if (p === "/post") setPage("blog");
     else if (p === "/chat") setPage("chat");
+    else if (p === "/דף-צאט-ראשי") setPage("spotchat");
   }, [location.pathname]);
 
   useEffect(() => {
