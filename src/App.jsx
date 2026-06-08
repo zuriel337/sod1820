@@ -3604,6 +3604,12 @@ function PostPageBySlug({ onNav }) {
     getGematriaByPhrases(tags).then(setGematriaItems).catch(() => {});
   }, [tags.join(",")]);  // eslint-disable-line
 
+  const [comments, setComments] = useState([]);
+  useEffect(() => {
+    if (!post?.wp_id) return;
+    getCommentsByPostId(post.wp_id).then(setComments).catch(() => {});
+  }, [post?.wp_id]);
+
   return (
     <div style={{ direction: "rtl" }}>
       {image && !loading && (
