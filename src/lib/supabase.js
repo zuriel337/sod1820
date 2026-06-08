@@ -153,6 +153,7 @@ export function adaptPost(row) {
     date: row.date,
     link: row.link,
     slug: row.slug,
+    author: row.author ?? '',
     _embedded: {
       'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
       'wp:term': [
