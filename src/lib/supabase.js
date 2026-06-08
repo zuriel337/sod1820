@@ -146,6 +146,62 @@ export async function getGematriaByValue(value) {
   return data ?? [];
 }
 
+// ── Comments ──────────────────────────────────────────────
+export async function syncAllComments(onProgress) {
+  if (!supabase) throw new Error('Supabase not configured');
+  let page = 1, totalPages = 1, totalSynced = 0;
+
+  while (page <= totalPages) {
+    const res = await fetch(
+      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&_fields=id,post,parent,author_name,date,content,status`
+    );
+    if (!res.ok) break;
+    totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
+    const data = await res.json();
+
+    // filter only comments whose post exists in our DB
+    const postIds = [...new Set(data.map(c => c.post))];
+    const { data: existingPosts } = await supabase
+      .from('posts').select('wp_id').in('wp_id', postIds);
+    const validIds = new Set((existingPosts ?? []).map(p => p.wp_id));
+
+    const rows = data
+      .filter(c => validIds.has(c.post))
+      .map(c => ({
+        wp_id:        c.id,
+        post_wp_id:   c.post,
+        parent_wp_id: c.parent ?? 0,
+        author_name:  c.author_name ?? '',
+        date:         c.date,
+        content:      c.content?.rendered ?? '',
+        status:       c.status ?? 'approved',
+      }));
+
+    if (rows.length) {
+      const { error } = await supabase
+        .from('comments')
+        .upsert(rows, { onConflict: 'wp_id' });
+      if (error) throw error;
+      totalSynced += rows.length;
+    }
+
+    if (onProgress) onProgress({ page, totalPages, totalSynced });
+    page++;
+  }
+  return totalSynced;
+}
+
+export async function getCommentsByPostId(postWpId) {
+  if (!supabase || !postWpId) return [];
+  const { data } = await supabase
+    .from('comments')
+    .select('*')
+    .eq('post_wp_id', postWpId)
+    .eq('status', 'approved')
+    .order('date', { ascending: true });
+  return data ?? [];
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
