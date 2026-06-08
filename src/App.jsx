@@ -4275,6 +4275,7 @@ function AppContent() {
     if (p === "/post") setPage("blog");
     else if (p === "/chat") setPage("chat");
     else if (p === "/דף-צאט-ראשי") setPage("spotchat");
+    else if (p === "/צור-קשר") setPage("contact");
   }, [location.pathname]);
 
   useEffect(() => {
