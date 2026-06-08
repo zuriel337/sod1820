@@ -1522,6 +1522,18 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  const inputStyle = {
+    flex: 1, background: "transparent", border: "none", outline: "none",
+    color: "#ede4d3", fontFamily: F.body, fontSize: 15,
+    padding: "12px 0", direction: "rtl",
+  };
+  const selectStyle = {
+    background: C.surface2, border: `1px solid ${C.border}`,
+    color: C.muted, fontFamily: F.heading, fontSize: 12,
+    padding: "8px 12px", borderRadius: 3, cursor: "pointer",
+    outline: "none", flex: 1,
+  };
+
   return (
     <div style={{ padding: "64px 16px", maxWidth: 1200, margin: "0 auto", direction: "rtl" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
@@ -1534,11 +1546,8 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
             background: C.bgGlow, border: `1px solid ${C.gold}`,
             color: C.goldLight, padding: "10px 16px", borderRadius: 4,
             cursor: "pointer", fontFamily: F.heading, fontSize: 12,
-            letterSpacing: 2, textTransform: "uppercase",
-            whiteSpace: "nowrap",
-          }}>
-            ערוך דף
-          </button>
+            letterSpacing: 2, textTransform: "uppercase", whiteSpace: "nowrap",
+          }}>ערוך דף</button>
         )}
       </div>
 
@@ -1549,38 +1558,83 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
       )}
       {!filterCategory && !filterTag && <PageBody bodyHtml={bodyHtml} />}
 
-      {/* search bar */}
-      {!filterCategory && !filterTag && (
-        <div style={{ maxWidth: 520, margin: "0 auto 36px", position: "relative" }}>
-          <div style={{
-            display: "flex", alignItems: "center",
-            background: C.surface, border: `1px solid ${searchQuery ? C.gold : C.border}`,
-            borderRadius: 4, overflow: "hidden",
-            boxShadow: searchQuery ? `0 0 18px rgba(212,175,55,0.15)` : "none",
-            transition: "border-color 0.2s, box-shadow 0.2s",
-          }}>
-            <span style={{ padding: "0 14px", color: C.goldDim, fontSize: 16 }}>🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
-              placeholder="חיפוש פוסטים..."
-              style={{
-                flex: 1, background: "transparent", border: "none", outline: "none",
-                color: "#ede4d3", fontFamily: F.body, fontSize: 15,
-                padding: "13px 0", direction: "rtl",
-              }}
-            />
-            {searchQuery && (
-              <button onClick={() => { setSearchQuery(""); setSearchResults(null); }} style={{
-                background: "none", border: "none", color: C.muted,
-                cursor: "pointer", padding: "0 14px", fontSize: 18, lineHeight: 1,
-              }}>×</button>
+      {/* ── SEARCH PANEL ── */}
+      {showPanel && (
+        <div style={{
+          maxWidth: 700, margin: "0 auto 40px",
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: 6, overflow: "hidden",
+        }}>
+          {/* 1. חיפוש טקסט */}
+          <div style={{ borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "0 16px" }}>
+              <span style={{ color: C.goldDim, fontSize: 15, marginLeft: 10 }}>🔍</span>
+              <input
+                value={searchQuery}
+                onChange={e => { setGemInput(""); setGemResults(null); handleSearch(e.target.value); }}
+                placeholder="חיפוש בכותרת ובתוכן הפוסט..."
+                style={inputStyle}
+              />
+              {searchQuery && <button onClick={() => { setSearchQuery(""); setSearchResults(null); }} style={{ background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px" }}>×</button>}
+            </div>
+          </div>
+
+          {/* 2. גימטריה */}
+          <div style={{ borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "0 16px" }}>
+              <span style={{ color: "#b39ddb", fontSize: 13, marginLeft: 10, whiteSpace: "nowrap" }}>✡ גימטריה</span>
+              <input
+                value={gemInput}
+                onChange={e => { setSearchQuery(""); setSearchResults(null); handleGemInput(e.target.value); }}
+                placeholder="הכנס מילה או מספר — למשל: משיח או 358"
+                style={{ ...inputStyle, fontSize: 14 }}
+              />
+              {gemInput && <button onClick={() => { setGemInput(""); setGemResults(null); setGemValue(null); setGemWords([]); }} style={{ background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px" }}>×</button>}
+            </div>
+            {gemValue !== null && (
+              <div style={{ padding: "6px 16px 10px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 12, color: "#c4b5fd", fontFamily: F.heading }}>
+                  = <strong style={{ fontSize: 16 }}>{gemValue}</strong>
+                </span>
+                {gemWords.length > 0 && (
+                  <span style={{ fontSize: 11, color: C.muted }}>
+                    · מילים זהות: {gemWords.map(w => w.phrase).join(" · ")}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-          {searchQuery && (
-            <div style={{ fontSize: 11, color: C.muted, textAlign: "center", marginTop: 8, letterSpacing: 1 }}>
-              {searchLoading ? "מחפש..." : searchResults ? `${searchResults.length} תוצאות` : ""}
+
+          {/* 3. פילטרים */}
+          <div style={{ display: "flex", gap: 8, padding: "10px 12px", flexWrap: "wrap", alignItems: "center" }}>
+            <select value={filterCat || ""} onChange={e => { setFilterCat(e.target.value || null); setCurrentPage(1); }} style={selectStyle}>
+              <option value="">📂 כל הקטגוריות</option>
+              {allCats.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <select value={filterTagL || ""} onChange={e => { setFilterTagL(e.target.value || null); setCurrentPage(1); }} style={selectStyle}>
+              <option value="">🏷 כל התגיות</option>
+              {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+
+            <select value={filterYear || ""} onChange={e => { setFilterYear(e.target.value ? parseInt(e.target.value) : null); setCurrentPage(1); }} style={selectStyle}>
+              <option value="">📅 כל התקופות</option>
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+
+            {hasAnyFilter && (
+              <button onClick={clearAll} style={{
+                background: "none", border: `1px solid ${C.crimson}`,
+                color: C.crimsonLight, borderRadius: 3, padding: "7px 14px",
+                cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 1,
+              }}>נקה הכל ×</button>
+            )}
+          </div>
+
+          {/* status */}
+          {(isSearching || activeMode) && (
+            <div style={{ padding: "6px 16px 10px", fontSize: 11, color: C.muted, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
+              {isSearching ? "מחפש..." : activeMode === "text" ? `${searchResults?.length ?? 0} תוצאות עבור "${searchQuery}"` : activeMode === "gem" ? `${gemResults?.length ?? 0} פוסטים עם המספר ${gemValue}` : ""}
             </div>
           )}
         </div>
