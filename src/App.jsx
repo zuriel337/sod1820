@@ -3674,6 +3674,48 @@ function PostPageBySlug({ onNav }) {
                 ))}
               </div>
             )}
+
+            {/* ── COMMENTS ── */}
+            {comments.length > 0 && (
+              <div style={{ marginTop: 64 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
+                  <RoyalDivider width={48} />
+                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>
+                    תגובות ({comments.length})
+                  </span>
+                  <RoyalDivider width={48} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {comments.map(c => {
+                    const isReply = c.parent_wp_id && c.parent_wp_id !== 0;
+                    const cDate = c.date
+                      ? new Date(c.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      : '';
+                    return (
+                      <div key={c.wp_id} style={{
+                        marginRight: isReply ? 32 : 0,
+                        background: isReply ? "rgba(61,31,92,0.12)" : C.surface,
+                        border: `1px solid ${isReply ? "rgba(107,63,160,0.25)" : C.border}`,
+                        borderRight: `3px solid ${isReply ? C.royalLight : C.borderGold}`,
+                        borderRadius: 2, padding: "14px 18px 16px",
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
+                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                            {isReply && <span style={{ color: C.royalLight, marginLeft: 6 }}>↩</span>}
+                            {c.author_name}
+                          </span>
+                          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>{cDate}</span>
+                        </div>
+                        <div
+                          style={{ color: "#d4ccbf", fontSize: 14, lineHeight: 1.85, fontFamily: F.body }}
+                          dangerouslySetInnerHTML={{ __html: c.content }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
