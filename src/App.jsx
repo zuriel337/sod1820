@@ -3449,16 +3449,29 @@ function Navbar({ page, onNav }) {
         </div>
       </button>
 
-      {/* center label */}
-      <button onClick={() => onNav("blog")} style={{
-        background: "none", border: "none", cursor: "pointer",
-        color: page === "blog" ? C.goldBright : C.muted,
-        fontFamily: F.royal, fontSize: 15, fontWeight: 700,
-        letterSpacing: 2, textAlign: "center", padding: "8px 0",
-        transition: "color 0.2s",
-      }}>
-        פוסטים אחרונים
-      </button>
+      {/* center nav */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
+        <button onClick={() => onNav("blog")} style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: page === "blog" ? C.goldBright : C.muted,
+          fontFamily: F.royal, fontSize: 14, fontWeight: 700,
+          letterSpacing: 1, padding: "8px 14px", borderRadius: 3,
+          transition: "color 0.2s",
+          borderBottom: page === "blog" ? `2px solid ${C.gold}` : "2px solid transparent",
+        }}>
+          פוסטים אחרונים
+        </button>
+        <button onClick={() => onNav("chat")} style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: page === "chat" ? C.goldBright : C.muted,
+          fontFamily: F.royal, fontSize: 14, fontWeight: 700,
+          letterSpacing: 1, padding: "8px 14px", borderRadius: 3,
+          transition: "color 0.2s",
+          borderBottom: page === "chat" ? `2px solid ${C.gold}` : "2px solid transparent",
+        }}>
+          צ׳אט
+        </button>
+      </div>
 
       {/* register button — left in RTL */}
       <GoldButton
