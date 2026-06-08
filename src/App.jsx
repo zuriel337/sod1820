@@ -1573,7 +1573,7 @@ const POST_CONTENT_CSS = `
     font-size: clamp(12px, 1.7vw, 17px);
   }
   .sod-post-content p {
-    color: #f0ede0;
+    color: #ede4d3;
     font-family: 'Heebo', sans-serif;
     font-size: 15.5px;
     line-height: 2.1;
