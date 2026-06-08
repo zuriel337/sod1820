@@ -806,10 +806,380 @@ function TestimonialsSection() {
   );
 }
 
+// ===== AXIS / TIMELINE CONSTANTS =====
+const AXIS_COLOR = {
+  '7.10':      '#c0392b',
+  'אירן':      '#8e44ad',
+  'טראמפ':    '#2471a3',
+  'קורונה':   '#b7950b',
+  'אסון_טבע': '#935116',
+  'ירושלים':  '#b7770d',
+};
+const AXIS_LABEL = {
+  '7.10':      '7.10 — שמחת תורה',
+  'אירן':      'אירן',
+  'טראמפ':    'טראמפ',
+  'קורונה':   'קורונה',
+  'אסון_טבע': 'אסון טבע',
+  'ירושלים':  'ירושלים',
+};
+const WEIGHT_R = [0, 5, 7, 10, 14, 20];
+const cleanLabel = s => s ? s.replace(/&quot;/g, '"').replace(/&#8211;/g, '–').replace(/&#\d+;/g, '').trim() : '';
+
+// ── LIVE SIGNAL BAR ───────────────────────────────────────────────────────────
+function LiveSignalBar({ events }) {
+  const anchors = events
+    .filter(e => (e.weight || 1) >= 3)
+    .sort((a, b) => (b.metadata?.occurred_at || '').localeCompare(a.metadata?.occurred_at || ''))
+    .slice(0, 6);
+
+  if (!anchors.length) return null;
+
+  const items = [...anchors, ...anchors];
+
+  return (
+    <div style={{
+      background: `linear-gradient(90deg, ${C.bg} 0%, ${C.surface} 50%, ${C.bg} 100%)`,
+      borderTop: `1px solid ${C.borderGold}`,
+      borderBottom: `1px solid ${C.border}`,
+      overflow: 'hidden',
+      height: 44,
+      display: 'flex',
+      alignItems: 'center',
+    }}>
+      <div style={{ display: 'flex', animation: 'ticker-scroll 50s linear infinite', whiteSpace: 'nowrap' }}>
+        {items.map((e, i) => (
+          <span key={i} style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '0 28px',
+            color: e.axis_theme ? (AXIS_COLOR[e.axis_theme] || C.goldDim) : C.goldDim,
+            fontSize: 11, fontFamily: F.heading, letterSpacing: 2,
+          }}>
+            <span style={{ color: C.goldDim, fontSize: 7 }}>✦</span>
+            {e.hebrew_date && <span style={{ color: C.goldDim, fontSize: 10 }}>{e.hebrew_date}</span>}
+            {e.hebrew_date && <span style={{ color: C.border, margin: '0 2px' }}>·</span>}
+            <span>{cleanLabel(e.label).slice(0, 55)}{cleanLabel(e.label).length > 55 ? '…' : ''}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── TIME AXIS SECTION ─────────────────────────────────────────────────────────
+function TimelineSection({ events, onNav }) {
+  const [sel, setSel] = useState(null);
+
+  const byYear = {};
+  events.forEach(e => {
+    const yr = e.metadata?.year;
+    if (!yr || yr < 2014 || yr > 2027) return;
+    if (!byYear[yr]) byYear[yr] = [];
+    byYear[yr].push(e);
+  });
+
+  const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+  if (!years.length) return null;
+
+  return (
+    <section style={{
+      padding: '72px 0 56px',
+      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
+      borderTop: `1px solid ${C.border}`,
+    }}>
+      <div style={{ padding: '0 24px', maxWidth: 1200, margin: '0 auto 40px' }}>
+        <SectionHeader eyebrow="ציר הזמן" title="עשר שנות רמזים" />
+      </div>
+
+      <div style={{ overflowX: 'auto', paddingBottom: 12 }}>
+        <div style={{
+          position: 'relative',
+          display: 'flex',
+          padding: '0 40px',
+          minWidth: years.length * 110 + 80,
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 48, left: 40, right: 40, height: 1,
+            background: `linear-gradient(to right, transparent, ${C.borderGold} 15%, ${C.gold} 50%, ${C.borderGold} 85%, transparent)`,
+            zIndex: 0,
+          }} />
+
+          {years.map(yr => {
+            const evts = byYear[yr].sort((a, b) => (b.weight || 1) - (a.weight || 1));
+            const topW = evts[0]?.weight || 1;
+            const markerR = topW >= 4 ? 6 : topW >= 3 ? 4 : 3;
+
+            return (
+              <div key={yr} style={{
+                flex: '0 0 110px', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', zIndex: 1, paddingTop: 8,
+              }}>
+                <div style={{
+                  fontSize: 10, lineHeight: '22px', marginBottom: 8,
+                  color: topW >= 4 ? C.goldBright : topW >= 3 ? C.goldLight : C.goldDim,
+                  fontFamily: F.cinzel, letterSpacing: 2, fontWeight: topW >= 4 ? 700 : 400,
+                }}>{yr}</div>
+
+                <div style={{
+                  width: markerR * 2, height: markerR * 2, borderRadius: '50%',
+                  background: topW >= 4 ? C.goldBright : topW >= 3 ? C.gold : C.borderGold,
+                  boxShadow: topW >= 4 ? `0 0 14px ${C.gold}88` : 'none',
+                  marginBottom: 14, flexShrink: 0,
+                }} />
+
+                {evts.slice(0, 7).map((e, i) => {
+                  const r = WEIGHT_R[e.weight || 1];
+                  const col = e.axis_theme ? (AXIS_COLOR[e.axis_theme] || '#55504a') : '#55504a';
+                  const isSel = sel?.id === e.id;
+                  return (
+                    <div
+                      key={e.id || i}
+                      title={cleanLabel(e.label).slice(0, 80)}
+                      onClick={() => setSel(isSel ? null : e)}
+                      style={{
+                        width: r * 2, height: r * 2, borderRadius: '50%',
+                        background: col,
+                        border: `1px solid ${isSel ? C.goldBright : 'rgba(255,255,255,0.1)'}`,
+                        cursor: 'pointer', marginBottom: 6, flexShrink: 0,
+                        transition: 'transform 0.15s, box-shadow 0.15s',
+                        transform: isSel ? 'scale(1.3)' : 'scale(1)',
+                        boxShadow: isSel ? `0 0 ${r + 4}px ${col}` : e.weight >= 4 ? `0 0 ${r}px ${col}88` : 'none',
+                      }}
+                    />
+                  );
+                })}
+                {evts.length > 7 && (
+                  <div style={{ fontSize: 8, color: C.muted, fontFamily: F.heading, letterSpacing: 1, marginTop: 2 }}>
+                    +{evts.length - 7}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', padding: '20px 24px 0' }}>
+        {Object.entries(AXIS_COLOR).map(([theme, color]) => (
+          <div key={theme} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: C.muted, fontFamily: F.heading }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+            {AXIS_LABEL[theme] || theme}
+          </div>
+        ))}
+      </div>
+
+      {sel && (
+        <div
+          onClick={() => setSel(null)}
+          style={{
+            maxWidth: 560, margin: '28px auto 0',
+            padding: '20px 24px',
+            background: C.surface,
+            border: `1px solid ${sel.axis_theme ? (AXIS_COLOR[sel.axis_theme] || C.borderGold) : C.borderGold}`,
+            borderTop: `3px solid ${sel.axis_theme ? (AXIS_COLOR[sel.axis_theme] || C.gold) : C.gold}`,
+            borderRadius: 2, direction: 'rtl', cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+            <div style={{ fontSize: 14, color: C.goldLight, fontFamily: F.body, lineHeight: 1.7, flex: 1 }}>
+              {cleanLabel(sel.label)}
+            </div>
+            <div style={{ fontSize: 9, color: C.muted, fontFamily: F.heading, letterSpacing: 2, flexShrink: 0 }}>
+              {sel.metadata?.year}
+            </div>
+          </div>
+          {sel.hebrew_date && (
+            <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 3, marginBottom: 10 }}>
+              {sel.hebrew_date}{sel.metadata?.occurred_at ? ` · ${sel.metadata.occurred_at.slice(0, 10)}` : ''}
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {sel.axis_theme && (
+              <div style={{
+                background: (AXIS_COLOR[sel.axis_theme] || C.goldDark) + '22',
+                border: `1px solid ${AXIS_COLOR[sel.axis_theme] || C.borderGold}`,
+                color: AXIS_COLOR[sel.axis_theme] || C.goldDim,
+                fontSize: 9, letterSpacing: 3, padding: '3px 10px', fontFamily: F.heading,
+              }}>{sel.axis_theme}</div>
+            )}
+            {sel.metadata?.post_wp_id && (
+              <button
+                onClick={ev => { ev.stopPropagation(); onNav('blog'); }}
+                style={{
+                  background: 'none', border: `1px solid ${C.border}`,
+                  color: C.goldDim, fontSize: 9, letterSpacing: 2,
+                  fontFamily: F.heading, padding: '3px 10px', cursor: 'pointer',
+                }}
+              >לפוסט ←</button>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── AXIS THEME CARDS ──────────────────────────────────────────────────────────
+function AxisThemeCards({ events, onNav }) {
+  const [hovTheme, setHovTheme] = useState(null);
+
+  const themes = {};
+  events.forEach(e => {
+    if (!e.axis_theme) return;
+    if (!themes[e.axis_theme]) themes[e.axis_theme] = { count: 0, maxWeight: 0, latest: null };
+    themes[e.axis_theme].count++;
+    if ((e.weight || 1) > themes[e.axis_theme].maxWeight) themes[e.axis_theme].maxWeight = e.weight || 1;
+    const d = e.metadata?.occurred_at || '';
+    if (!themes[e.axis_theme].latest || d > (themes[e.axis_theme].latest.date || ''))
+      themes[e.axis_theme].latest = { label: e.label, date: d, hebrew_date: e.hebrew_date };
+  });
+
+  const sorted = Object.entries(themes).sort((a, b) => b[1].maxWeight - a[1].maxWeight || b[1].count - a[1].count);
+  if (!sorted.length) return null;
+
+  return (
+    <section style={{ padding: '64px 24px', background: C.bg, borderTop: `1px solid ${C.border}` }}>
+      <div style={{ maxWidth: 1040, margin: '0 auto' }}>
+        <SectionHeader eyebrow="צירים" title="ציריי המחקר" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+          {sorted.map(([theme, data]) => {
+            const col = AXIS_COLOR[theme] || C.goldDim;
+            const hov = hovTheme === theme;
+            return (
+              <div
+                key={theme}
+                onMouseEnter={() => setHovTheme(theme)}
+                onMouseLeave={() => setHovTheme(null)}
+                onClick={() => onNav('blog')}
+                style={{
+                  background: hov ? C.surface2 : C.surface,
+                  border: `1px solid ${hov ? col : C.border}`,
+                  borderTop: `3px solid ${col}`,
+                  borderRadius: 2, padding: '24px 20px',
+                  cursor: 'pointer', transition: 'all 0.22s', direction: 'rtl',
+                }}
+              >
+                <div style={{
+                  fontSize: 20, color: col, fontFamily: F.regal, fontWeight: 700, marginBottom: 8,
+                  textShadow: hov ? `0 0 20px ${col}66` : 'none', transition: 'text-shadow 0.22s',
+                }}>{AXIS_LABEL[theme] || theme}</div>
+                <div style={{ fontSize: 30, color: C.goldBright, fontFamily: F.heading, fontWeight: 900, lineHeight: 1, marginBottom: 4 }}>
+                  {data.count}
+                </div>
+                <div style={{ fontSize: 9, color: C.muted, fontFamily: F.heading, letterSpacing: 3, marginBottom: 14 }}>
+                  רמזים מתועדים
+                </div>
+                {data.latest?.hebrew_date && (
+                  <div style={{ fontSize: 9, color: col, fontFamily: F.heading, letterSpacing: 2, marginBottom: 12 }}>
+                    {data.latest.hebrew_date}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {[1, 2, 3, 4, 5].map(w => (
+                    <div key={w} style={{
+                      flex: 1, height: 3, borderRadius: 2,
+                      background: w <= data.maxWeight ? col : C.faint, transition: 'background 0.22s',
+                    }} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── GALLERY NUMBERS SECTION ───────────────────────────────────────────────────
+function GalleryNumbersSection() {
+  const [galleries, setGalleries] = useState([]);
+  const [hovIdx, setHovIdx] = useState(null);
+
+  useEffect(() => {
+    supabase
+      .from('galleries')
+      .select('id, name, gallery_type, anchor_number, img_count')
+      .gt('anchor_number', 0)
+      .order('anchor_number', { ascending: true })
+      .limit(30)
+      .then(({ data }) => setGalleries(data ?? []));
+  }, []);
+
+  if (!galleries.length) return null;
+
+  return (
+    <section style={{
+      padding: '64px 0',
+      background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
+      borderTop: `1px solid ${C.border}`,
+    }}>
+      <div style={{ padding: '0 24px', maxWidth: 1040, margin: '0 auto 32px' }}>
+        <SectionHeader eyebrow="גלריות" title="המספרים הגדולים" />
+      </div>
+      <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
+        <div style={{ display: 'flex', gap: 16, padding: '0 32px', width: 'max-content' }}>
+          {galleries.map((g, i) => {
+            const hov = hovIdx === i;
+            return (
+              <div
+                key={g.id}
+                onMouseEnter={() => setHovIdx(i)}
+                onMouseLeave={() => setHovIdx(null)}
+                style={{
+                  width: 140, flexShrink: 0,
+                  background: hov ? C.surface2 : C.surface,
+                  border: `1px solid ${hov ? C.gold : C.border}`,
+                  borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
+                  borderRadius: 2, padding: '20px 16px',
+                  cursor: 'pointer', transition: 'all 0.22s',
+                  textAlign: 'center', direction: 'rtl',
+                }}
+              >
+                <div style={{
+                  fontSize: g.anchor_number > 9999 ? 22 : g.anchor_number > 999 ? 28 : 36,
+                  color: hov ? C.goldBright : C.goldLight,
+                  fontFamily: F.regal, fontWeight: 700, lineHeight: 1.1, marginBottom: 8,
+                  textShadow: hov ? `0 0 24px ${C.goldDark}` : 'none', transition: 'all 0.22s',
+                }}>{g.anchor_number}</div>
+                <div style={{
+                  fontSize: 9, color: C.muted, fontFamily: F.heading,
+                  letterSpacing: 1, lineHeight: 1.5, overflow: 'hidden',
+                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                }}>{g.name}</div>
+                {g.img_count > 0 && (
+                  <div style={{ marginTop: 8, fontSize: 8, color: C.goldDim, fontFamily: F.heading, letterSpacing: 2 }}>
+                    {g.img_count} תמונות
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomePage({ onNav, pageContent, adminMode }) {
+  const [axisEvents, setAxisEvents] = useState([]);
+
+  useEffect(() => {
+    supabase
+      .from('nodes')
+      .select('id, label, weight, hebrew_date, axis_theme, metadata')
+      .eq('type', 'event')
+      .then(({ data }) => setAxisEvents(data ?? []));
+  }, []);
+
   return (
     <div style={{ direction: "rtl" }}>
       <HeroSection onNav={onNav} />
+      <LiveSignalBar events={axisEvents} />
+      <TimelineSection events={axisEvents} onNav={onNav} />
+      <AxisThemeCards events={axisEvents} onNav={onNav} />
+      <GalleryNumbersSection />
       <StatsBar />
       <FeaturedCoursesSection onNav={onNav} />
       <div style={{ padding: "40px 0", background: C.surface }}>
