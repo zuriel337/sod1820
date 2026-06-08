@@ -1094,20 +1094,37 @@ function AxisThemeCards({ events, onNav }) {
 
 // ── GALLERY NUMBERS SECTION ───────────────────────────────────────────────────
 function GalleryNumbersSection() {
-  const [galleries, setGalleries] = useState([]);
+  const [byNumber, setByNumber] = useState([]);
   const [hovIdx, setHovIdx] = useState(null);
 
   useEffect(() => {
     supabase
       .from('galleries')
-      .select('id, name, gallery_type, anchor_number, img_count')
+      .select('id, name, anchor_number, img_count')
       .gt('anchor_number', 0)
       .order('anchor_number', { ascending: true })
-      .limit(30)
-      .then(({ data }) => setGalleries(data ?? []));
+      .limit(300)
+      .then(({ data }) => {
+        if (!data) return;
+        const grouped = {};
+        data.forEach(g => {
+          const n = g.anchor_number;
+          if (!grouped[n]) grouped[n] = { anchor_number: n, rows: [], total: 0 };
+          grouped[n].rows.push(g);
+          grouped[n].total += g.img_count || 0;
+        });
+        setByNumber(
+          Object.values(grouped).map(g => ({
+            anchor_number: g.anchor_number,
+            name: g.rows.sort((a, b) => (a.name?.length || 99) - (b.name?.length || 99))[0]?.name || '',
+            count: g.rows.length,
+            total: g.total,
+          }))
+        );
+      });
   }, []);
 
-  if (!galleries.length) return null;
+  if (!byNumber.length) return null;
 
   return (
     <section style={{
@@ -1120,11 +1137,11 @@ function GalleryNumbersSection() {
       </div>
       <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
         <div style={{ display: 'flex', gap: 16, padding: '0 32px', width: 'max-content' }}>
-          {galleries.map((g, i) => {
+          {byNumber.map((g, i) => {
             const hov = hovIdx === i;
             return (
               <div
-                key={g.id}
+                key={g.anchor_number}
                 onMouseEnter={() => setHovIdx(i)}
                 onMouseLeave={() => setHovIdx(null)}
                 style={{
@@ -1148,9 +1165,9 @@ function GalleryNumbersSection() {
                   letterSpacing: 1, lineHeight: 1.5, overflow: 'hidden',
                   display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                 }}>{g.name}</div>
-                {g.img_count > 0 && (
+                {g.total > 0 && (
                   <div style={{ marginTop: 8, fontSize: 8, color: C.goldDim, fontFamily: F.heading, letterSpacing: 2 }}>
-                    {g.img_count} תמונות
+                    {g.total} תמונות{g.count > 1 ? ` · ${g.count} גלריות` : ''}
                   </div>
                 )}
               </div>
