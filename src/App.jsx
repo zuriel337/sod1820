@@ -4058,6 +4058,13 @@ function AppContent() {
     });
   }, []);
 
+  // sync page state from URL
+  useEffect(() => {
+    const p = location.pathname;
+    if (p === "/post") setPage("blog");
+    else if (p === "/chat") setPage("chat");
+  }, [location.pathname]);
+
   useEffect(() => {
     try { localStorage.setItem(PAGE_CONTENT_STORE_KEY, JSON.stringify(pageContent)); }
     catch {}
