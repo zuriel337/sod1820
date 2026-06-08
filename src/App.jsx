@@ -32,6 +32,8 @@ const C = {
 
 const F = {
   royal:   "'Heebo', sans-serif",
+  regal:   "'David Libre', serif",
+  cinzel:  "'Cinzel', serif",
   heading: "'Heebo', sans-serif",
   body:    "'Frank Ruhl Libre', serif",
   mono:    "'Courier New', monospace",
