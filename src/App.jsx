@@ -746,42 +746,80 @@ function elsNormalize(s) {
   return [...(s || "")].filter(ch => /[א-ת]/.test(ch))
     .map(ch => ELS_FINALS[ch] || ch).join('');
 }
-const ELS_LETTERS = elsNormalize(ELS_SOURCE);
+const ELS_SAMPLE = elsNormalize(ELS_SOURCE); // fallback אם טעינת התורה נכשלת
+const ELS_HIT_CAP = 300; // הגבלת מספר המופעים שנאספים
 
-function elsSearch(targetRaw, skipMin, skipMax, dir) {
+// חיפוש ELS יעיל: עוברים רק על מופעי האות הראשונה ומנסים דילוגים מהם
+function elsSearch(letters, targetRaw, skipMin, skipMax, dir) {
   const target = elsNormalize(targetRaw);
-  const N = ELS_LETTERS.length, L = target.length;
+  const N = letters.length, L = target.length;
   const hits = [];
-  if (L < 2) return { hits, N, target };
+  if (L < 2 || N === 0) return { hits, N, target, capped: false };
   const dirs = dir === 'fwd' ? [1] : dir === 'back' ? [-1] : [1, -1];
-  for (let skip = skipMin; skip <= skipMax; skip++) {
+  let capped = false;
+
+  for (let start = 0; start < N && !capped; start++) {
+    if (letters[start] !== target[0]) continue; // קפיצה מהירה
     for (const d of dirs) {
-      const step = skip * d;
-      for (let start = 0; start < N; start++) {
+      for (let skip = skipMin; skip <= skipMax; skip++) {
+        const step = skip * d;
         const end = start + step * (L - 1);
         if (end < 0 || end >= N) continue;
         let ok = true;
-        for (let k = 0; k < L; k++) {
-          if (ELS_LETTERS[start + step * k] !== target[k]) { ok = false; break; }
+        for (let k = 1; k < L; k++) {
+          if (letters[start + step * k] !== target[k]) { ok = false; break; }
         }
         if (ok) {
           const positions = [];
           for (let k = 0; k < L; k++) positions.push(start + step * k);
           hits.push({ skip, dir: d, start, positions });
+          if (hits.length >= ELS_HIT_CAP) { capped = true; break; }
         }
       }
+      if (capped) break;
     }
   }
-  return { hits, N, target };
+  return { hits, N, target, capped };
 }
 
-function ELSMatrix({ hit }) {
+function ELSMatrix({ letters, hit }) {
   const cols = Math.abs(hit.skip);
+  // מטריצה רחבה מדי לא ניתנת להצגה — מציגים את הרצף בשורה אחת עם הקשר
+  if (cols > 60) {
+    const min = Math.min(...hit.positions);
+    const max = Math.max(...hit.positions);
+    const from = Math.max(0, min - 2);
+    const to = Math.min(letters.length, max + 3);
+    const set = new Set(hit.positions);
+    const cells = [];
+    for (let i = from; i < to; i++) {
+      const isHit = set.has(i);
+      cells.push(
+        <span key={i} style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          minWidth: 22, padding: "2px 1px", borderRadius: 3, margin: 1,
+          background: isHit ? `linear-gradient(135deg, ${C.crimson}, #4a0c14)` : "transparent",
+          color: isHit ? C.goldBright : "#6f6347",
+          fontWeight: isHit ? 700 : 400,
+          boxShadow: isHit ? `0 0 8px rgba(122,19,32,0.6)` : "none",
+        }}>{letters[i]}</span>
+      );
+    }
+    return (
+      <div style={{ direction: "rtl", fontFamily: F.regal, fontSize: 15, lineHeight: 1.9 }}>
+        <div style={{ color: C.goldDim, fontSize: 10, marginBottom: 4 }}>
+          דילוג גדול ({cols}) — מוצג הרצף בהקשרו
+        </div>
+        {cells}
+      </div>
+    );
+  }
+
   const set = new Set(hit.positions);
   const min = Math.min(...hit.positions);
   const max = Math.max(...hit.positions);
   const startRow = Math.max(0, Math.floor(min / cols) - 1);
-  const endRow = Math.min(Math.ceil(ELS_LETTERS.length / cols), Math.floor(max / cols) + 2);
+  const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
   const rows = [];
   for (let r = startRow; r < endRow; r++) {
     for (let c = 0; c < cols; c++) {
@@ -795,7 +833,7 @@ function ELSMatrix({ hit }) {
           color: isHit ? C.goldBright : "#6f6347",
           fontWeight: isHit ? 700 : 400,
           boxShadow: isHit ? `0 0 8px rgba(122,19,32,0.6)` : "none",
-        }}>{idx < ELS_LETTERS.length ? ELS_LETTERS[idx] : ""}</div>
+        }}>{idx < letters.length ? letters[idx] : ""}</div>
       );
     }
   }
@@ -813,12 +851,39 @@ function ELSSection() {
   const [skipMin, setSkipMin] = useState(1);
   const [skipMax, setSkipMax] = useState(100);
   const [dir, setDir] = useState("both");
-  const [result, setResult] = useState(() => elsSearch("אור", 1, 100, "both"));
+  const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
+  const [loaded, setLoaded] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [result, setResult] = useState(null);
+
+  // טעינת טקסט התורה המלא פעם אחת
+  useEffect(() => {
+    let alive = true;
+    fetch("/torah-letters.txt")
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(txt => {
+        if (!alive) return;
+        const clean = elsNormalize(txt);
+        if (clean.length > 1000) { setLetters(clean); setLoaded(true); }
+      })
+      .catch(() => {/* נשארים עם קטע הדוגמה */});
+    return () => { alive = false; };
+  }, []);
+
+  // חיפוש ראשוני אוטומטי כשהטקסט מוכן
+  useEffect(() => {
+    setResult(elsSearch(letters, "אור", 1, 100, "both"));
+  }, [letters]);
 
   function run() {
     const lo = Math.max(1, parseInt(skipMin) || 1);
     const hi = Math.max(lo, parseInt(skipMax) || lo);
-    setResult(elsSearch(target, lo, hi, dir));
+    setSearching(true);
+    // נותנים ל-UI להתעדכן לפני חישוב כבד
+    setTimeout(() => {
+      setResult(elsSearch(letters, target, lo, hi, dir));
+      setSearching(false);
+    }, 10);
   }
 
   const inputStyle = {
@@ -871,7 +936,9 @@ function ELSSection() {
             </div>
           </div>
           <div style={{ textAlign: "center", marginTop: 18 }}>
-            <GoldButton onClick={run}>חפש דילוגים ◆</GoldButton>
+            <GoldButton onClick={run} disabled={searching}>
+              {searching ? "מחפש…" : "חפש דילוגים ◆"}
+            </GoldButton>
           </div>
         </div>
 
@@ -880,29 +947,34 @@ function ELSSection() {
           borderRadius: 10, padding: 20,
         }}>
           <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
-            טקסט: <b style={{ color: C.goldBright }}>{result.N}</b> אותיות ·
-            יעד: <b style={{ color: C.goldBright }}>{result.target || "—"}</b> ·
-            נמצאו <b style={{ color: C.goldBright }}>{result.hits.length}</b> מופעים
+            טקסט: <b style={{ color: C.goldBright }}>{(result?.N ?? letters.length).toLocaleString("he")}</b> אותיות ·
+            יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b> ·
+            נמצאו <b style={{ color: C.goldBright }}>{result?.hits.length ?? 0}{result?.capped ? "+" : ""}</b> מופעים
           </div>
-          {result.hits.length === 0 ? (
+          {!result || result.hits.length === 0 ? (
             <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
               לא נמצאו מופעים בטווח הזה. נסה להרחיב את טווח הדילוג או מילה קצרה יותר.
             </div>
           ) : (
             <>
+              {result.capped && (
+                <div style={{ color: C.goldDim, fontSize: 12, marginBottom: 10, fontFamily: F.royal }}>
+                  נמצאו מופעים רבים — מוצגים הראשונים. צמצם את טווח הדילוג למיקוד התוצאות.
+                </div>
+              )}
               {result.hits.slice(0, 6).map((h, i) => (
                 <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
                   <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
                     מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
                     כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
-                    מיקום התחלה <b style={{ color: C.goldBright }}>{h.start + 1}</b>
+                    מיקום התחלה <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
                   </div>
-                  <ELSMatrix hit={h} />
+                  <ELSMatrix letters={letters} hit={h} />
                 </div>
               ))}
               {result.hits.length > 6 && (
                 <div style={{ color: C.muted, textAlign: "center", padding: 16, fontSize: 13 }}>
-                  ...ועוד {result.hits.length - 6} מופעים
+                  ...ועוד {result.hits.length - 6}{result.capped ? "+" : ""} מופעים
                 </div>
               )}
             </>
@@ -910,7 +982,9 @@ function ELSSection() {
         </div>
 
         <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading }}>
-          טקסט המקור: בראשית א׳ (נחלת הכלל) · גרסה מלאה תחפש בכל 304,805 אותיות התורה
+          {loaded
+            ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח לנינגרד, נחלת הכלל)`
+            : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
         </div>
       </div>
     </div>
