@@ -730,6 +730,193 @@ function StatsBar() {
   );
 }
 
+// ===== ELS — דילוגי אותיות =====
+const ELS_SOURCE = `
+  בראשית ברא אלהים את השמים ואת הארץ
+  והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים
+  ויאמר אלהים יהי אור ויהי אור
+  וירא אלהים את האור כי טוב ויבדל אלהים בין האור ובין החשך
+  ויקרא אלהים לאור יום ולחשך קרא לילה ויהי ערב ויהי בקר יום אחד
+  ויאמר אלהים יהי רקיע בתוך המים ויהי מבדיל בין מים למים
+  ויעש אלהים את הרקיע ויבדל בין המים אשר מתחת לרקיע ובין המים אשר מעל לרקיע ויהי כן
+  ויקרא אלהים לרקיע שמים ויהי ערב ויהי בקר יום שני
+`;
+const ELS_FINALS = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
+function elsNormalize(s) {
+  return [...(s || "")].filter(ch => /[א-ת]/.test(ch))
+    .map(ch => ELS_FINALS[ch] || ch).join('');
+}
+const ELS_LETTERS = elsNormalize(ELS_SOURCE);
+
+function elsSearch(targetRaw, skipMin, skipMax, dir) {
+  const target = elsNormalize(targetRaw);
+  const N = ELS_LETTERS.length, L = target.length;
+  const hits = [];
+  if (L < 2) return { hits, N, target };
+  const dirs = dir === 'fwd' ? [1] : dir === 'back' ? [-1] : [1, -1];
+  for (let skip = skipMin; skip <= skipMax; skip++) {
+    for (const d of dirs) {
+      const step = skip * d;
+      for (let start = 0; start < N; start++) {
+        const end = start + step * (L - 1);
+        if (end < 0 || end >= N) continue;
+        let ok = true;
+        for (let k = 0; k < L; k++) {
+          if (ELS_LETTERS[start + step * k] !== target[k]) { ok = false; break; }
+        }
+        if (ok) {
+          const positions = [];
+          for (let k = 0; k < L; k++) positions.push(start + step * k);
+          hits.push({ skip, dir: d, start, positions });
+        }
+      }
+    }
+  }
+  return { hits, N, target };
+}
+
+function ELSMatrix({ hit }) {
+  const cols = Math.abs(hit.skip);
+  const set = new Set(hit.positions);
+  const min = Math.min(...hit.positions);
+  const max = Math.max(...hit.positions);
+  const startRow = Math.max(0, Math.floor(min / cols) - 1);
+  const endRow = Math.min(Math.ceil(ELS_LETTERS.length / cols), Math.floor(max / cols) + 2);
+  const rows = [];
+  for (let r = startRow; r < endRow; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      const isHit = set.has(idx);
+      rows.push(
+        <div key={idx} style={{
+          width: 26, height: 30, display: "flex", alignItems: "center",
+          justifyContent: "center", borderRadius: 3,
+          background: isHit ? `linear-gradient(135deg, ${C.crimson}, #4a0c14)` : "#0a0700",
+          color: isHit ? C.goldBright : "#6f6347",
+          fontWeight: isHit ? 700 : 400,
+          boxShadow: isHit ? `0 0 8px rgba(122,19,32,0.6)` : "none",
+        }}>{idx < ELS_LETTERS.length ? ELS_LETTERS[idx] : ""}</div>
+      );
+    }
+  }
+  return (
+    <div style={{
+      display: "grid", gap: 3, direction: "rtl",
+      gridTemplateColumns: `repeat(${cols}, 26px)`,
+      fontFamily: F.regal, fontSize: 15, overflowX: "auto", padding: 4,
+    }}>{rows}</div>
+  );
+}
+
+function ELSSection() {
+  const [target, setTarget] = useState("אור");
+  const [skipMin, setSkipMin] = useState(1);
+  const [skipMax, setSkipMax] = useState(100);
+  const [dir, setDir] = useState("both");
+  const [result, setResult] = useState(() => elsSearch("אור", 1, 100, "both"));
+
+  function run() {
+    const lo = Math.max(1, parseInt(skipMin) || 1);
+    const hi = Math.max(lo, parseInt(skipMax) || lo);
+    setResult(elsSearch(target, lo, hi, dir));
+  }
+
+  const inputStyle = {
+    width: "100%", background: "#050400", border: `1px solid ${C.border}`,
+    color: C.goldBright, padding: "10px 12px", borderRadius: 6,
+    fontFamily: F.royal, fontSize: 15, outline: "none",
+  };
+  const labelStyle = {
+    display: "block", fontSize: 11, color: C.goldDim, letterSpacing: 2,
+    textTransform: "uppercase", marginBottom: 6, fontFamily: F.heading,
+  };
+
+  return (
+    <div style={{
+      padding: "80px 24px",
+      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
+      direction: "rtl",
+    }}>
+      <div style={{ maxWidth: 880, margin: "0 auto" }}>
+        <SectionHeader eyebrow="כלי דילוגי אותיות" title="הצופן שמסתתר בטקסט" />
+
+        <div style={{
+          background: C.surface2, border: `1px solid ${C.border}`,
+          borderRadius: 10, padding: 20, marginBottom: 20,
+        }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={labelStyle}>מילת היעד</label>
+              <input style={inputStyle} value={target} maxLength={20}
+                onChange={e => setTarget(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && run()} />
+            </div>
+            <div>
+              <label style={labelStyle}>דילוג מינימלי</label>
+              <input style={inputStyle} type="number" value={skipMin} min={1}
+                onChange={e => setSkipMin(e.target.value)} />
+            </div>
+            <div>
+              <label style={labelStyle}>דילוג מקסימלי</label>
+              <input style={inputStyle} type="number" value={skipMax} min={1}
+                onChange={e => setSkipMax(e.target.value)} />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={labelStyle}>כיוון</label>
+              <select style={inputStyle} value={dir} onChange={e => setDir(e.target.value)}>
+                <option value="both">שני הכיוונים</option>
+                <option value="fwd">קדימה בלבד</option>
+                <option value="back">אחורה בלבד</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ textAlign: "center", marginTop: 18 }}>
+            <GoldButton onClick={run}>חפש דילוגים ◆</GoldButton>
+          </div>
+        </div>
+
+        <div style={{
+          background: C.surface2, border: `1px solid ${C.border}`,
+          borderRadius: 10, padding: 20,
+        }}>
+          <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
+            טקסט: <b style={{ color: C.goldBright }}>{result.N}</b> אותיות ·
+            יעד: <b style={{ color: C.goldBright }}>{result.target || "—"}</b> ·
+            נמצאו <b style={{ color: C.goldBright }}>{result.hits.length}</b> מופעים
+          </div>
+          {result.hits.length === 0 ? (
+            <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
+              לא נמצאו מופעים בטווח הזה. נסה להרחיב את טווח הדילוג או מילה קצרה יותר.
+            </div>
+          ) : (
+            <>
+              {result.hits.slice(0, 6).map((h, i) => (
+                <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
+                    מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
+                    כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
+                    מיקום התחלה <b style={{ color: C.goldBright }}>{h.start + 1}</b>
+                  </div>
+                  <ELSMatrix hit={h} />
+                </div>
+              ))}
+              {result.hits.length > 6 && (
+                <div style={{ color: C.muted, textAlign: "center", padding: 16, fontSize: 13 }}>
+                  ...ועוד {result.hits.length - 6} מופעים
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading }}>
+          טקסט המקור: בראשית א׳ (נחלת הכלל) · גרסה מלאה תחפש בכל 304,805 אותיות התורה
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FeaturedCoursesSection({ onNav }) {
   return (
     <div style={{
@@ -1198,7 +1385,7 @@ function HomePage({ onNav, pageContent, adminMode }) {
       <AxisThemeCards events={axisEvents} onNav={onNav} />
       <GalleryNumbersSection />
       <StatsBar />
-      <FeaturedCoursesSection onNav={onNav} />
+      <ELSSection />
       <div style={{ padding: "40px 0", background: C.surface }}>
         <UploadFindings />
       </div>
