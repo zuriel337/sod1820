@@ -197,7 +197,6 @@ export async function getCommentsByPostId(postWpId) {
     .from('comments')
     .select('*')
     .eq('post_wp_id', postWpId)
-    .eq('status', 'approved')
     .order('date', { ascending: true });
   return data ?? [];
 }
