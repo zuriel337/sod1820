@@ -983,7 +983,7 @@ function ELSSection() {
 
         <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading }}>
           {loaded
-            ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח לנינגרד, נחלת הכלל)`
+            ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח קורן המסורתי, נחלת הכלל)`
             : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
         </div>
       </div>
