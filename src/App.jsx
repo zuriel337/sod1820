@@ -4328,20 +4328,24 @@ function Footer({ onNav, navItems }) {
   return (
     <footer style={{
       borderTop: `1px solid ${C.border}`,
-      background: C.surface,
-      padding: "48px 36px 32px",
+      background: `linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%)`,
+      padding: "56px 36px 28px",
       direction: "rtl",
     }}>
       <div style={{
-        maxWidth: 1040, margin: "0 auto",
-        display: "flex", justifyContent: "space-between",
-        alignItems: "flex-start", flexWrap: "wrap", gap: 32,
+        maxWidth: 1040,
+        margin: "0 auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        flexWrap: "wrap",
+        gap: 32,
         paddingBottom: 36,
       }}>
-        <div style={{ maxWidth: 220 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <div style={{ minWidth: 240, flex: 1, maxWidth: 280 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
             <div style={{ position: "relative", display: "inline-flex" }}>
-              <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 32, width: "auto" }} />
+              <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 36, width: "auto" }} />
               <span style={{
                 position: "absolute", top: -5, right: -8,
                 background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
@@ -4353,65 +4357,114 @@ function Footer({ onNav, navItems }) {
               }}>AI</span>
             </div>
             <div>
-              <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 11, fontWeight: 800, lineHeight: 1.3 }}>כי לה' המלוכה</div>
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 7, letterSpacing: 2 }}>SOD1820</div>
+              <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>
+                סוד המספרים
+              </div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9, letterSpacing: 2, marginTop: 4 }}>
+                לימוד גימטריה מעמיק לדרך שלמה
+              </div>
             </div>
           </div>
-          <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8 }}>
-            צוריאל פולייס<br />sod1820.co.il
+          <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 260 }}>
+            צוריאל פולייס · sod1820.co.il<br />
+            נחזור בקרוב עם שיעורים חיים, כלים מיוחדים וגישה אישית.
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>ניווט</div>
+        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", flex: 2, minWidth: 240 }}>
+          <div style={{ minWidth: 160 }}>
+            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
+              קישורים מהירים
+            </div>
             {items.map(n => (
-              <div key={n.key} style={{ marginBottom: 10 }}>
-                <button onClick={() => handleItem(n)} style={{
-                  background: "none", border: "none", color: C.goldDim,
-                  cursor: "pointer", fontSize: 13, fontFamily: F.body, padding: 0,
-                }}>{n.label}</button>
-              </div>
+              <button key={n.key} onClick={() => handleItem(n)} style={{
+                display: "block",
+                background: "none",
+                border: "none",
+                color: C.goldDim,
+                cursor: "pointer",
+                fontSize: 13,
+                fontFamily: F.body,
+                padding: "6px 0",
+                textAlign: "right",
+              }}>
+                {n.label}
+              </button>
             ))}
           </div>
-          <div>
-            <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>קורסים</div>
+
+          <div style={{ minWidth: 160 }}>
+            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
+              קורסים פופולריים
+            </div>
             {COURSES.map(c => (
-              <div key={c.id} style={{ marginBottom: 10 }}>
-                <button onClick={() => onNav("detail", c)} style={{
-                  background: "none", border: "none", color: C.goldDim,
-                  cursor: "pointer", fontSize: 13, fontFamily: F.body, padding: 0,
-                }}>{c.title}</button>
-              </div>
+              <button key={c.id} onClick={() => onNav("detail", c)} style={{
+                display: "block",
+                background: "none",
+                border: "none",
+                color: C.goldDim,
+                cursor: "pointer",
+                fontSize: 13,
+                fontFamily: F.body,
+                padding: "6px 0",
+                textAlign: "right",
+              }}>
+                {c.title}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ minWidth: 220, flex: 1, maxWidth: 260 }}>
+          <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
+            כלים
+          </div>
+          <div style={{ display: "grid", gap: 12 }}>
+            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["ניהול", "admin"]].map(([label, key]) => (
+              <button key={key} onClick={() => onNav(key)} style={{
+                background: C.bgGlow,
+                border: `1px solid ${C.borderGold}`,
+                color: C.goldBright,
+                cursor: "pointer",
+                fontSize: 12,
+                fontFamily: F.heading,
+                letterSpacing: 1.5,
+                padding: "12px 14px",
+                textTransform: "uppercase",
+                borderRadius: 4,
+                textAlign: "right",
+                transition: "transform 0.2s, background 0.2s",
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = C.surface;
+                  e.currentTarget.style.transform = "translateX(-2px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = C.bgGlow;
+                  e.currentTarget.style.transform = "none";
+                }}
+              >{label}</button>
             ))}
           </div>
         </div>
       </div>
 
       <div style={{
-        maxWidth: 1040, margin: "0 auto",
-        paddingTop: 24, borderTop: `1px solid ${C.faint}`,
-        display: "flex", justifyContent: "space-between",
-        alignItems: "center", flexWrap: "wrap", gap: 10
+        maxWidth: 1040,
+        margin: "0 auto",
+        paddingTop: 26,
+        borderTop: `1px solid ${C.faint}`,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 10,
       }}>
-        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 3 }}>
-          א↔ל &nbsp;·&nbsp; ב↔מ &nbsp;·&nbsp; ג↔נ &nbsp;·&nbsp; כ↔ת
+        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 3, lineHeight: 1.5 }}>
+          © {new Date().getFullYear()} SOD1820 · כל הזכויות שמורות
         </div>
-        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-          <div style={{ fontSize: 11, color: C.muted, fontFamily: F.body }}>
-            © 2024 SOD1820 · כל הזכויות שמורות
-          </div>
-          {[["דוח מספרים","numbers-report"],["תצוגה מקדימה","theme-preview"],["ניהול","admin"]].map(([label, key]) => (
-            <button key={key} onClick={() => onNav(key)} style={{
-              background: "none", border: "none", color: C.faint,
-              cursor: "pointer", fontSize: 9, fontFamily: F.heading,
-              letterSpacing: 2, textTransform: "uppercase",
-              transition: "color 0.2s",
-            }}
-              onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
-              onMouseLeave={e => (e.currentTarget.style.color = C.faint)}
-            >{label}</button>
-          ))}
+        <div style={{ fontSize: 11, color: C.goldDim, fontFamily: F.body, textAlign: "right" }}>
+          א↔ל · ב↔מ · ג↔נ · כ↔ת
         </div>
       </div>
     </footer>
