@@ -1048,16 +1048,28 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
 }
 
 function ELSSection() {
-  const [target, setTarget] = useState("אור");
-  const [skipMin, setSkipMin] = useState(1);
-  const [skipMax, setSkipMax] = useState(100);
-  const [dir, setDir] = useState("both");
-  const [maxMismatches, setMaxMismatches] = useState(0);
+  // קישור עמוק — קריאת פרמטרי החיפוש מה-URL
+  const deepLink = React.useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get("terms");
+    if (!t || elsNormalize(t).length < 2) return null;
+    const num = k => { const v = parseInt(sp.get(k)); return Number.isFinite(v) ? v : null; };
+    return { terms: t, skipMin: num("skipMin"), skipMax: num("skipMax"), dir: sp.get("dir"), mm: num("mm") };
+  }, []);
+
+  const sectionRef = useRef(null);
+  const [target, setTarget] = useState(deepLink?.terms ?? "אור");
+  const [skipMin, setSkipMin] = useState(deepLink?.skipMin ?? 1);
+  const [skipMax, setSkipMax] = useState(deepLink?.skipMax ?? 100);
+  const [dir, setDir] = useState(deepLink?.dir ?? "both");
+  const [maxMismatches, setMaxMismatches] = useState(deepLink?.mm ?? 0);
   const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
   const [loaded, setLoaded] = useState(false);
   const [searching, setSearching] = useState(false);
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
+  const [copied, setCopied] = useState(false);
   const [cfg, setCfg] = useState({ contextRows: 12, innerMaxSkip: 12, freeQuota: 5 });
 
   // טעינת הגדרות הכלי מ-Supabase (טבלת els_settings)
@@ -1071,8 +1083,9 @@ function ELSSection() {
         innerMaxSkip: m.inner_search_max_skip ?? 12,
         freeQuota: m.free_quota_searches ?? 5,
       });
-      if (m.default_skip_min != null) setSkipMin(m.default_skip_min);
-      if (m.default_skip_max != null) setSkipMax(m.default_skip_max);
+      // ברירות מחדל מההגדרות — רק אם אין קישור עמוק שגובר עליהן
+      if (!deepLink && m.default_skip_min != null) setSkipMin(m.default_skip_min);
+      if (!deepLink && m.default_skip_max != null) setSkipMax(m.default_skip_max);
     });
   }, []);
 
@@ -1090,10 +1103,26 @@ function ELSSection() {
     return () => { alive = false; };
   }, []);
 
-  // חיפוש ראשוני אוטומטי כשהטקסט מוכן
+  // חיפוש ראשוני / לפי קישור עמוק כשהטקסט מוכן
   useEffect(() => {
-    setResult({ mode: "single", ...elsSearch(letters, "אור", 1, 100, "both", 0) });
+    if (deepLink) {
+      const lo = Math.max(1, parseInt(skipMin) || 1);
+      const hi = Math.max(lo, parseInt(skipMax) || lo);
+      const mm = Math.max(0, parseInt(maxMismatches) || 0);
+      const terms = deepLink.terms.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
+      if (terms.length >= 2) setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
+      else setResult({ mode: "single", ...elsSearch(letters, terms[0] || deepLink.terms, lo, hi, dir, mm) });
+    } else {
+      setResult({ mode: "single", ...elsSearch(letters, "אור", 1, 100, "both", 0) });
+    }
   }, [letters]);
+
+  // גלילה אוטומטית לכלי כשמגיעים דרך קישור עמוק
+  useEffect(() => {
+    if (!deepLink) return;
+    const t = setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   function run() {
     const lo = Math.max(1, parseInt(skipMin) || 1);
@@ -1114,6 +1143,25 @@ function ELSSection() {
     }, 10);
   }
 
+  // בניית קישור עמוק לחיפוש הנוכחי + העתקה ללוח
+  function copyLink() {
+    const sp = new URLSearchParams();
+    sp.set("terms", target);
+    sp.set("skipMin", String(Math.max(1, parseInt(skipMin) || 1)));
+    sp.set("skipMax", String(Math.max(1, parseInt(skipMax) || 1)));
+    sp.set("dir", dir);
+    if (parseInt(maxMismatches) > 0) sp.set("mm", String(parseInt(maxMismatches)));
+    const url = `${window.location.origin}/?${sp.toString()}#els`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => { setCopied(true); setTimeout(() => setCopied(false), 2200); },
+        () => window.prompt("העתק את הקישור:", url)
+      );
+    } else {
+      window.prompt("העתק את הקישור:", url);
+    }
+  }
+
   const inputStyle = {
     width: "100%", background: "#050400", border: `1px solid ${C.border}`,
     color: C.goldBright, padding: "10px 12px", borderRadius: 6,
@@ -1125,7 +1173,7 @@ function ELSSection() {
   };
 
   return (
-    <div style={{
+    <div ref={sectionRef} id="els" style={{
       padding: "80px 24px",
       background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
       direction: "rtl",
@@ -1184,10 +1232,16 @@ function ELSSection() {
               </select>
             </div>
           </div>
-          <div style={{ textAlign: "center", marginTop: 18 }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
             <GoldButton onClick={run} disabled={searching}>
               {searching ? "מחפש…" : "חפש דילוגים ◆"}
             </GoldButton>
+            <button onClick={copyLink} style={{
+              background: "transparent", color: C.goldBright,
+              border: `1px solid ${C.borderGold}`, borderRadius: 6,
+              padding: "10px 18px", cursor: "pointer", fontFamily: F.heading,
+              fontSize: 12, fontWeight: 700, letterSpacing: 1,
+            }}>{copied ? "✓ הקישור הועתק" : "🔗 העתק קישור לחיפוש"}</button>
           </div>
         </div>
 
