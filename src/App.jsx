@@ -749,8 +749,11 @@ function elsNormalize(s) {
 const ELS_SAMPLE = elsNormalize(ELS_SOURCE); // fallback אם טעינת התורה נכשלת
 const ELS_HIT_CAP = 300; // הגבלת מספר המופעים שנאספים
 
-// חיפוש ELS יעיל: עוברים רק על מופעי האות הראשונה ומנסים דילוגים מהם
-function elsSearch(letters, targetRaw, skipMin, skipMax, dir) {
+// צבעים לכל מונח בחיפוש מונחים מרובים (האחראי=זהב)
+const ELS_TERM_COLORS = ["#E8C84A", "#a01f2e", "#6b3fa0", "#3a9b6e", "#c77d2e"];
+
+// חיפוש ELS: תומך בסבילות לשגיאות וממוין לפי מובהקות (דילוג קצר קודם)
+function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0) {
   const target = elsNormalize(targetRaw);
   const N = letters.length, L = target.length;
   const hits = [];
@@ -759,27 +762,69 @@ function elsSearch(letters, targetRaw, skipMin, skipMax, dir) {
   let capped = false;
 
   for (let start = 0; start < N && !capped; start++) {
-    if (letters[start] !== target[0]) continue; // קפיצה מהירה
+    // קפיצה מהירה אפשרית רק בחיפוש מדויק (ללא סבילות)
+    if (maxMismatches === 0 && letters[start] !== target[0]) continue;
     for (const d of dirs) {
       for (let skip = skipMin; skip <= skipMax; skip++) {
         const step = skip * d;
         const end = start + step * (L - 1);
         if (end < 0 || end >= N) continue;
-        let ok = true;
-        for (let k = 1; k < L; k++) {
-          if (letters[start + step * k] !== target[k]) { ok = false; break; }
+        let mm = 0, bad = false;
+        for (let k = 0; k < L; k++) {
+          if (letters[start + step * k] !== target[k]) {
+            if (++mm > maxMismatches) { bad = true; break; }
+          }
         }
-        if (ok) {
+        if (!bad) {
           const positions = [];
           for (let k = 0; k < L; k++) positions.push(start + step * k);
-          hits.push({ skip, dir: d, start, positions });
+          hits.push({ skip, dir: d, start, positions, mismatches: mm });
           if (hits.length >= ELS_HIT_CAP) { capped = true; break; }
         }
       }
       if (capped) break;
     }
   }
+  // מיון מובהקות: התאמה מדויקת קודם, ואז דילוג קצר קודם
+  hits.sort((a, b) => (a.mismatches - b.mismatches) || (Math.abs(a.skip) - Math.abs(b.skip)));
   return { hits, N, target, capped };
+}
+
+// אשכול מונחים: מחפש כל מונח, בוחר עוגן (הנדיר ביותר), ומודד קרבה במטריצה
+function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches) {
+  const perTerm = terms.map(t => {
+    const r = elsSearch(letters, t, skipMin, skipMax, dir, maxMismatches);
+    return { term: r.target, hits: r.hits };
+  });
+  const missing = perTerm.filter(p => p.hits.length === 0).map(p => p.term);
+  const allTerms = perTerm.map(p => p.term);
+  if (missing.length) return { clusters: [], missing, terms: allTerms };
+
+  const sorted = [...perTerm].sort((a, b) => a.hits.length - b.hits.length);
+  const anchor = sorted[0], others = sorted.slice(1);
+  const center = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
+
+  const clusters = [];
+  for (const aHit of anchor.hits.slice(0, 200)) {
+    const aC = center(aHit);
+    const picks = [{ term: anchor.term, hit: aHit }];
+    let ok = true;
+    for (const o of others) {
+      let best = null, bestD = Infinity;
+      for (const h of o.hits) {
+        const d = Math.abs(center(h) - aC);
+        if (d < bestD) { bestD = d; best = h; }
+      }
+      if (!best) { ok = false; break; }
+      picks.push({ term: o.term, hit: best });
+    }
+    if (!ok) continue;
+    const allPos = picks.flatMap(p => p.hit.positions);
+    const span = Math.max(...allPos) - Math.min(...allPos);
+    clusters.push({ picks, span, anchorHit: aHit });
+  }
+  clusters.sort((a, b) => a.span - b.span);
+  return { clusters: clusters.slice(0, 12), terms: allTerms, anchorTerm: anchor.term };
 }
 
 function ELSMatrix({ letters, hit }) {
@@ -846,11 +891,53 @@ function ELSMatrix({ letters, hit }) {
   );
 }
 
+// מטריצת אשכול: כל מונח בצבע משלו, לפי רוחב העוגן
+function ELSClusterMatrix({ letters, cluster }) {
+  const cols = Math.abs(cluster.anchorHit.skip);
+  const colorByIdx = new Map();
+  cluster.picks.forEach((p, ti) => {
+    const color = ELS_TERM_COLORS[ti % ELS_TERM_COLORS.length];
+    p.hit.positions.forEach(idx => colorByIdx.set(idx, color));
+  });
+  const allPos = cluster.picks.flatMap(p => p.hit.positions);
+  const min = Math.min(...allPos), max = Math.max(...allPos);
+  const startRow = Math.max(0, Math.floor(min / cols) - 1);
+  const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
+  // מטריצה רחבה/ארוכה מדי — לא מציגים גריד (יוצג סיכום טקסטואלי בלבד)
+  if (cols > 60 || (endRow - startRow) > 60) return null;
+
+  const cells = [];
+  for (let r = startRow; r < endRow; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      const color = colorByIdx.get(idx);
+      cells.push(
+        <div key={idx} style={{
+          width: 24, height: 28, display: "flex", alignItems: "center",
+          justifyContent: "center", borderRadius: 3,
+          background: color ? color : "#0a0700",
+          color: color ? "#0a0700" : "#6f6347",
+          fontWeight: color ? 800 : 400,
+          boxShadow: color ? `0 0 8px ${color}88` : "none",
+        }}>{idx < letters.length ? letters[idx] : ""}</div>
+      );
+    }
+  }
+  return (
+    <div style={{
+      display: "grid", gap: 3, direction: "rtl",
+      gridTemplateColumns: `repeat(${cols}, 24px)`,
+      fontFamily: F.regal, fontSize: 14, overflowX: "auto", padding: 4,
+    }}>{cells}</div>
+  );
+}
+
 function ELSSection() {
   const [target, setTarget] = useState("אור");
   const [skipMin, setSkipMin] = useState(1);
   const [skipMax, setSkipMax] = useState(100);
   const [dir, setDir] = useState("both");
+  const [maxMismatches, setMaxMismatches] = useState(0);
   const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
   const [loaded, setLoaded] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -872,16 +959,23 @@ function ELSSection() {
 
   // חיפוש ראשוני אוטומטי כשהטקסט מוכן
   useEffect(() => {
-    setResult(elsSearch(letters, "אור", 1, 100, "both"));
+    setResult({ mode: "single", ...elsSearch(letters, "אור", 1, 100, "both", 0) });
   }, [letters]);
 
   function run() {
     const lo = Math.max(1, parseInt(skipMin) || 1);
     const hi = Math.max(lo, parseInt(skipMax) || lo);
+    const mm = Math.max(0, parseInt(maxMismatches) || 0);
+    // מספר מונחים מופרדים בפסיק → חיפוש אשכול
+    const terms = target.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
     setSearching(true);
     // נותנים ל-UI להתעדכן לפני חישוב כבד
     setTimeout(() => {
-      setResult(elsSearch(letters, target, lo, hi, dir));
+      if (terms.length >= 2) {
+        setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
+      } else {
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || target, lo, hi, dir, mm) });
+      }
       setSearching(false);
     }, 10);
   }
@@ -922,8 +1016,9 @@ function ELSSection() {
         }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <div style={{ gridColumn: "1 / -1" }}>
-              <label style={labelStyle}>מילת היעד</label>
-              <input style={inputStyle} value={target} maxLength={20}
+              <label style={labelStyle}>מילת היעד  ·  לאשכול הפרד מונחים בפסיק</label>
+              <input style={inputStyle} value={target} maxLength={80}
+                placeholder="לדוגמה: משיח, דוד, גאולה"
                 onChange={e => setTarget(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && run()} />
             </div>
@@ -937,12 +1032,21 @@ function ELSSection() {
               <input style={inputStyle} type="number" value={skipMax} min={1}
                 onChange={e => setSkipMax(e.target.value)} />
             </div>
-            <div style={{ gridColumn: "1 / -1" }}>
+            <div>
               <label style={labelStyle}>כיוון</label>
               <select style={inputStyle} value={dir} onChange={e => setDir(e.target.value)}>
                 <option value="both">שני הכיוונים</option>
                 <option value="fwd">קדימה בלבד</option>
                 <option value="back">אחורה בלבד</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>סבילות לשגיאות</label>
+              <select style={inputStyle} value={maxMismatches}
+                onChange={e => setMaxMismatches(e.target.value)}>
+                <option value={0}>התאמה מדויקת</option>
+                <option value={1}>עד שגיאה אחת</option>
+                <option value={2}>עד 2 שגיאות</option>
               </select>
             </div>
           </div>
@@ -957,38 +1061,83 @@ function ELSSection() {
           background: C.surface2, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: 20,
         }}>
-          <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
-            טקסט: <b style={{ color: C.goldBright }}>{(result?.N ?? letters.length).toLocaleString("he")}</b> אותיות ·
-            יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b> ·
-            נמצאו <b style={{ color: C.goldBright }}>{result?.hits.length ?? 0}{result?.capped ? "+" : ""}</b> מופעים
-          </div>
-          {!result || result.hits.length === 0 ? (
-            <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
-              לא נמצאו מופעים בטווח הזה. נסה להרחיב את טווח הדילוג או מילה קצרה יותר.
-            </div>
-          ) : (
+          {/* ── מצב יחיד ── */}
+          {(!result || result.mode === "single") && (
             <>
-              {result.capped && (
-                <div style={{ color: C.goldDim, fontSize: 12, marginBottom: 10, fontFamily: F.royal }}>
-                  נמצאו מופעים רבים — מוצגים הראשונים. צמצם את טווח הדילוג למיקוד התוצאות.
+              <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
+                טקסט: <b style={{ color: C.goldBright }}>{(result?.N ?? letters.length).toLocaleString("he")}</b> אותיות ·
+                יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b> ·
+                נמצאו <b style={{ color: C.goldBright }}>{(result?.hits.length ?? 0).toLocaleString("he")}{result?.capped ? "+" : ""}</b> מופעים
+                {(result?.hits.length ?? 0) > 0 && <span> · ממוין לפי מובהקות</span>}
+              </div>
+              {!result || result.hits.length === 0 ? (
+                <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
+                  לא נמצאו מופעים. נסה להרחיב את טווח הדילוג, להעלות סבילות לשגיאות, או מילה קצרה יותר.
                 </div>
-              )}
-              {result.hits.slice(0, 6).map((h, i) => (
-                <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
-                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
-                    מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
-                    כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
-                    מיקום התחלה <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
-                  </div>
-                  <ELSMatrix letters={letters} hit={h} />
-                </div>
-              ))}
-              {result.hits.length > 6 && (
-                <div style={{ color: C.muted, textAlign: "center", padding: 16, fontSize: 13 }}>
-                  ...ועוד {result.hits.length - 6}{result.capped ? "+" : ""} מופעים
-                </div>
+              ) : (
+                <>
+                  {result.capped && (
+                    <div style={{ color: C.goldDim, fontSize: 12, marginBottom: 10, fontFamily: F.royal }}>
+                      נמצאו מופעים רבים — מוצגים החזקים ביותר (דילוג קצר). צמצם את הטווח למיקוד.
+                    </div>
+                  )}
+                  {result.hits.slice(0, 6).map((h, i) => (
+                    <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
+                      <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
+                        מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
+                        כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
+                        מיקום <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
+                        {h.mismatches > 0 && <> · <b style={{ color: C.crimsonLight }}>{h.mismatches} שגיאות</b></>}
+                      </div>
+                      <ELSMatrix letters={letters} hit={h} />
+                    </div>
+                  ))}
+                  {result.hits.length > 6 && (
+                    <div style={{ color: C.muted, textAlign: "center", padding: 16, fontSize: 13 }}>
+                      ...ועוד {(result.hits.length - 6).toLocaleString("he")}{result.capped ? "+" : ""} מופעים
+                    </div>
+                  )}
+                </>
               )}
             </>
+          )}
+
+          {/* ── מצב אשכול (מונחים מרובים) ── */}
+          {result?.mode === "cluster" && (
+            result.missing?.length ? (
+              <div style={{ color: C.muted, fontSize: 13.5, fontFamily: F.royal, padding: "8px 0", lineHeight: 1.8 }}>
+                המונחים <b style={{ color: C.crimsonLight }}>{result.missing.join(", ")}</b> לא נמצאו בטווח הנוכחי — לכן אין אשכול.
+                נסה להרחיב את טווח הדילוג או להעלות סבילות לשגיאות.
+              </div>
+            ) : (
+              <>
+                <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
+                  חיפוש אשכול · מונחים: <b style={{ color: C.goldBright }}>{result.terms.join(" · ")}</b> ·
+                  עוגן: <b style={{ color: C.goldBright }}>{result.anchorTerm}</b> ·
+                  נמצאו <b style={{ color: C.goldBright }}>{(result.clusters?.length ?? 0).toLocaleString("he")}</b> אשכולות (ממוין לפי קומפקטיות)
+                </div>
+                {(result.clusters?.length ?? 0) === 0 ? (
+                  <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
+                    כל המונחים נמצאו בנפרד, אך לא נוצר אשכול קרוב בטווח הזה.
+                  </div>
+                ) : result.clusters.slice(0, 5).map((cl, ci) => (
+                  <div key={ci} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
+                    <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
+                      אשכול {ci + 1} · כל המונחים בתוך <b style={{ color: C.goldBright }}>{cl.span.toLocaleString("he")}</b> אותיות
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+                      {cl.picks.map((p, ti) => (
+                        <span key={ti} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontFamily: F.royal, color: C.muted }}>
+                          <span style={{ width: 12, height: 12, borderRadius: 3, background: ELS_TERM_COLORS[ti % ELS_TERM_COLORS.length] }} />
+                          <b style={{ color: C.goldBright }}>{p.term}</b> (דילוג {p.hit.skip}{p.hit.mismatches > 0 ? `, ${p.hit.mismatches} שג׳` : ""})
+                        </span>
+                      ))}
+                    </div>
+                    <ELSClusterMatrix letters={letters} cluster={cl} />
+                  </div>
+                ))}
+              </>
+            )
           )}
         </div>
 
