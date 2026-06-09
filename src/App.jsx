@@ -906,6 +906,17 @@ function ELSSection() {
         <SectionHeader eyebrow="כלי דילוגי אותיות" title="הצופן שמסתתר בטקסט" />
 
         <div style={{
+          maxWidth: 640, margin: "-32px auto 28px", textAlign: "center",
+          color: C.muted, fontSize: 13.5, fontFamily: F.royal, lineHeight: 1.8,
+          borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`,
+          padding: "14px 16px",
+        }}>
+          <b style={{ color: C.goldBright, letterSpacing: 1 }}>עדות — ולא ניבוי.</b>{" "}
+          הדילוגים מתעדים התאמות בטקסט הקדום; הם אינם חיזוי עתידות ואינם הוכחה.
+          כלי לימוד והתבוננות, לא נבואה.
+        </div>
+
+        <div style={{
           background: C.surface2, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: 20, marginBottom: 20,
         }}>
