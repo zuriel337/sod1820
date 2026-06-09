@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דילוגי אותיות · SOD1820 — דמו</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #080500; --panel: #0f0a02; --gold: #B8860B; --gold-bright: #E8C84A;
+      --gold-dim: #6b5410; --text: #f5f0e8; --muted: #a08d6a; --border: #2a2000;
+      --hit: #7a1320;
+    }
+    body {
+      background: radial-gradient(ellipse at top, #14100400 0%, var(--bg) 70%), var(--bg);
+      color: var(--text); font-family: "Heebo", system-ui, sans-serif;
+      min-height: 100vh; padding: 32px 16px; line-height: 1.6;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 28px; }
+    header .eyebrow {
+      color: var(--gold-dim); letter-spacing: 6px; font-size: 11px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    header h1 {
+      font-size: 30px; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    header p { color: var(--muted); font-size: 14px; margin-top: 8px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px; margin-bottom: 20px;
+    }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .controls .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 11px; color: var(--gold-dim);
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    input, select {
+      width: 100%; background: #050400; border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: 6px;
+      font-family: inherit; font-size: 15px; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--gold); }
+    button.go {
+      grid-column: 1 / -1; margin-top: 6px;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+      color: #0a0700; border: none; padding: 12px; border-radius: 6px;
+      font-weight: 800; font-size: 14px; letter-spacing: 2px; cursor: pointer;
+    }
+    button.go:hover { filter: brightness(1.1); }
+    .summary { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+    .summary b { color: var(--gold-bright); }
+    .result { border-top: 1px solid var(--border); padding: 14px 0; }
+    .result .meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .result .meta b { color: var(--gold-bright); }
+    /* matrix */
+    .matrix {
+      display: grid; gap: 3px; direction: rtl;
+      font-family: "David Libre", serif; font-size: 15px;
+      overflow-x: auto; padding: 4px;
+    }
+    .cell {
+      width: 26px; height: 30px; display: flex; align-items: center;
+      justify-content: center; background: #0a0700; border-radius: 3px;
+      color: #6f6347;
+    }
+    .cell.hit {
+      background: linear-gradient(135deg, var(--hit), #4a0c14);
+      color: var(--gold-bright); font-weight: 700;
+      box-shadow: 0 0 8px rgba(122,19,32,0.6);
+    }
+    .empty { color: var(--muted); text-align: center; padding: 24px; font-size: 14px; }
+    .note { color: var(--gold-dim); font-size: 11px; text-align: center; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">SOD1820 · כלי מקורי</div>
+      <h1>דילוגי אותיות</h1>
+      <p>חיפוש רצף אותיות בדילוג שווה (ELS) — דמו על פתיחת ספר בראשית</p>
+    </header>
+
+    <div class="panel">
+      <div class="controls">
+        <div class="full">
+          <label>מילת היעד</label>
+          <input id="target" value="אור" maxlength="20" />
+        </div>
+        <div>
+          <label>דילוג מינימלי</label>
+          <input id="skipMin" type="number" value="1" min="1" />
+        </div>
+        <div>
+          <label>דילוג מקסימלי</label>
+          <input id="skipMax" type="number" value="100" min="1" />
+        </div>
+        <div class="full">
+          <label>כיוון</label>
+          <select id="dir">
+            <option value="both">שני הכיוונים</option>
+            <option value="fwd">קדימה בלבד</option>
+            <option value="back">אחורה בלבד</option>
+          </select>
+        </div>
+        <button class="go" onclick="run()">חפש דילוגים ◆</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="summary" id="summary"></div>
+      <div id="results"></div>
+    </div>
+
+    <div class="note">
+      טקסט המקור: בראשית א׳ (נחלת הכלל) · גרסה מלאה תחפש בכל 304,805 אותיות התורה
+    </div>
+  </div>
+
+  <script>
+    // ── טקסט מקור: פתיחת ספר בראשית (נחלת הכלל) ──
+    const SOURCE = `
+      בראשית ברא אלהים את השמים ואת הארץ
+      והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים
+      ויאמר אלהים יהי אור ויהי אור
+      וירא אלהים את האור כי טוב ויבדל אלהים בין האור ובין החשך
+      ויקרא אלהים לאור יום ולחשך קרא לילה ויהי ערב ויהי בקר יום אחד
+      ויאמר אלהים יהי רקיע בתוך המים ויהי מבדיל בין מים למים
+      ויעש אלהים את הרקיע ויבדל בין המים אשר מתחת לרקיע ובין המים אשר מעל לרקיע ויהי כן
+      ויקרא אלהים לרקיע שמים ויהי ערב ויהי בקר יום שני
+    `;
+
+    // נרמול אותיות סופיות לרגילות (סטנדרט ב-ELS)
+    const FINALS = { 'ך':'כ', 'ם':'מ', 'ן':'נ', 'ף':'פ', 'ץ':'צ' };
+    function normalize(s) {
+      return [...s].filter(ch => /[א-ת]/.test(ch))
+                   .map(ch => FINALS[ch] || ch).join('');
+    }
+
+    const LETTERS = normalize(SOURCE); // מחרוזת אותיות רצופה
+
+    // ── אלגוריתם ELS ──
+    function searchELS(targetRaw, skipMin, skipMax, dir) {
+      const target = normalize(targetRaw);
+      const N = LETTERS.length, L = target.length;
+      const hits = [];
+      if (L < 2) return { hits, N, target };
+
+      const dirs = dir === 'fwd' ? [1] : dir === 'back' ? [-1] : [1, -1];
+
+      for (let skip = skipMin; skip <= skipMax; skip++) {
+        for (const d of dirs) {
+          const step = skip * d;
+          for (let start = 0; start < N; start++) {
+            const end = start + step * (L - 1);
+            if (end < 0 || end >= N) continue;
+            let ok = true;
+            for (let k = 0; k < L; k++) {
+              if (LETTERS[start + step * k] !== target[k]) { ok = false; break; }
+            }
+            if (ok) {
+              const positions = [];
+              for (let k = 0; k < L; k++) positions.push(start + step * k);
+              hits.push({ skip, dir: d, start, positions });
+            }
+          }
+        }
+      }
+      return { hits, N, target };
+    }
+
+    // ── הצגת מטריצה סביב המופע ──
+    function renderMatrix(hit) {
+      const cols = Math.abs(hit.skip);
+      const set = new Set(hit.positions);
+      const min = Math.min(...hit.positions);
+      const max = Math.max(...hit.positions);
+      const startRow = Math.max(0, Math.floor(min / cols) - 1);
+      const endRow = Math.min(Math.ceil(LETTERS.length / cols), Math.floor(max / cols) + 2);
+
+      let html = `<div class="matrix" style="grid-template-columns: repeat(${cols}, 26px)">`;
+      for (let r = startRow; r < endRow; r++) {
+        for (let c = 0; c < cols; c++) {
+          const idx = r * cols + c;
+          if (idx >= LETTERS.length) { html += `<div class="cell"></div>`; continue; }
+          const hitCls = set.has(idx) ? ' hit' : '';
+          html += `<div class="cell${hitCls}">${LETTERS[idx]}</div>`;
+        }
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function run() {
+      const target = document.getElementById('target').value;
+      const skipMin = Math.max(1, parseInt(document.getElementById('skipMin').value) || 1);
+      const skipMax = Math.max(skipMin, parseInt(document.getElementById('skipMax').value) || skipMin);
+      const dir = document.getElementById('dir').value;
+
+      const { hits, N, target: norm } = searchELS(target, skipMin, skipMax, dir);
+
+      document.getElementById('summary').innerHTML =
+        `טקסט: <b>${N}</b> אותיות · יעד: <b>${norm}</b> · דילוג <b>${skipMin}–${skipMax}</b> · נמצאו <b>${hits.length}</b> מופעים`;
+
+      const res = document.getElementById('results');
+      if (!hits.length) {
+        res.innerHTML = `<div class="empty">לא נמצאו מופעים בטווח הזה. נסה להרחיב את טווח הדילוג או מילה קצרה יותר.</div>`;
+        return;
+      }
+      // הצג עד 6 מופעים ראשונים
+      res.innerHTML = hits.slice(0, 6).map((h, i) => {
+        const dirTxt = h.dir === 1 ? 'קדימה' : 'אחורה';
+        return `<div class="result">
+          <div class="meta">מופע ${i + 1} · דילוג <b>${h.skip}</b> · כיוון <b>${dirTxt}</b> · מיקום התחלה <b>${h.start + 1}</b></div>
+          ${renderMatrix(h)}
+        </div>`;
+      }).join('') + (hits.length > 6 ? `<div class="empty">...ועוד ${hits.length - 6} מופעים</div>` : '');
+    }
+
+    run(); // הרצה ראשונית
+  </script>
+</body>
+</html>
