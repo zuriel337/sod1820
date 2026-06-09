@@ -932,6 +932,121 @@ function ELSClusterMatrix({ letters, cluster }) {
   );
 }
 
+// תצוגת ציר אנכי (העמודה שבה הרצף יורד מלמעלה למטה) + חיפוש פנימי בתוך הציר
+function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
+  const [query, setQuery] = useState("");
+  const [applied, setApplied] = useState("");
+
+  const axis = React.useMemo(() => {
+    const S = Math.abs(hit.skip);
+    const col = ((hit.start % S) + S) % S;
+    const colIdx = [];
+    for (let p = col; p < letters.length; p += S) colIdx.push(p);
+    const colLetters = colIdx.map(p => letters[p]);
+    const posSet = new Set(hit.positions);
+    const termRowSet = new Set();
+    colIdx.forEach((p, i) => { if (posSet.has(p)) termRowSet.add(i); });
+    return { S, col, colLetters, termRowSet };
+  }, [letters, hit]);
+
+  const inner = React.useMemo(() => {
+    const q = elsNormalize(applied);
+    const set = new Set();
+    let info = null;
+    const { colLetters } = axis;
+    if (q.length >= 2) {
+      for (let sk = 1; sk <= innerMaxSkip && !info; sk++) {
+        for (const d of [1, -1]) {
+          let done = false;
+          for (let s = 0; s < colLetters.length; s++) {
+            const end = s + sk * d * (q.length - 1);
+            if (end < 0 || end >= colLetters.length) continue;
+            let ok = true;
+            for (let k = 0; k < q.length; k++) {
+              if (colLetters[s + sk * d * k] !== q[k]) { ok = false; break; }
+            }
+            if (ok) {
+              for (let k = 0; k < q.length; k++) set.add(s + sk * d * k);
+              info = { skip: sk, dir: d }; done = true; break;
+            }
+          }
+          if (done) break;
+        }
+      }
+    }
+    return { set, info, q };
+  }, [applied, axis, innerMaxSkip]);
+
+  const termRows = [...axis.termRowSet];
+  const tMin = Math.min(...termRows), tMax = Math.max(...termRows);
+  const from = Math.max(0, tMin - contextRows);
+  const to = Math.min(axis.colLetters.length, tMax + contextRows + 1);
+
+  const inputStyle = {
+    flex: 1, background: "#050400", border: `1px solid ${C.border}`,
+    color: C.goldBright, padding: "8px 10px", borderRadius: 6,
+    fontFamily: F.royal, fontSize: 14, outline: "none",
+  };
+
+  return (
+    <div style={{
+      marginTop: 12, padding: 14, borderRadius: 8,
+      background: "#0a0700", border: `1px solid ${C.border}`,
+    }}>
+      <div style={{ color: C.goldDim, fontSize: 11, marginBottom: 10, fontFamily: F.heading, letterSpacing: 1 }}>
+        ציר אנכי · עמודה {(axis.col + 1).toLocaleString("he")} · דילוג {axis.S} · הרצף יורד מלמעלה למטה
+      </div>
+
+      {/* הציר עצמו — אנכי */}
+      <div style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+        direction: "rtl", fontFamily: F.regal, fontSize: 16,
+        maxHeight: 420, overflowY: "auto", padding: "4px 0",
+      }}>
+        {Array.from({ length: to - from }, (_, j) => {
+          const i = from + j;
+          const isTerm = axis.termRowSet.has(i);
+          const isInner = inner.set.has(i);
+          return (
+            <div key={i} style={{
+              width: 34, height: 30, display: "flex", alignItems: "center",
+              justifyContent: "center", borderRadius: 4,
+              background: isInner ? "#2f7d57" : isTerm ? `linear-gradient(135deg, ${C.crimson}, #4a0c14)` : "transparent",
+              color: (isInner || isTerm) ? C.goldBright : "#6f6347",
+              fontWeight: (isInner || isTerm) ? 700 : 400,
+              boxShadow: isTerm ? `0 0 8px rgba(122,19,32,0.6)`
+                : isInner ? `0 0 8px rgba(58,155,110,0.6)` : "none",
+            }}>{axis.colLetters[i]}</div>
+          );
+        })}
+      </div>
+
+      {/* חיפוש פנימי בתוך הציר */}
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <input
+          style={inputStyle}
+          value={query}
+          placeholder="חיפוש בתוך הציר…"
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && setApplied(query)}
+        />
+        <button onClick={() => setApplied(query)} style={{
+          background: "#2f7d57", color: C.goldBright, border: "none",
+          padding: "0 16px", borderRadius: 6, cursor: "pointer",
+          fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1,
+        }}>חפש בציר</button>
+      </div>
+      {applied && (
+        <div style={{ marginTop: 8, fontSize: 12.5, fontFamily: F.royal, color: C.muted }}>
+          {inner.info
+            ? <>נמצא <b style={{ color: "#4fc78c" }}>{inner.q}</b> בתוך הציר (דילוג פנימי {inner.info.skip}, {inner.info.dir === 1 ? "למטה" : "למעלה"})</>
+            : <>הביטוי <b style={{ color: C.crimsonLight }}>{inner.q || applied}</b> לא נמצא בתוך הציר (דילוג עד {innerMaxSkip}).</>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ELSSection() {
   const [target, setTarget] = useState("אור");
   const [skipMin, setSkipMin] = useState(1);
@@ -942,6 +1057,24 @@ function ELSSection() {
   const [loaded, setLoaded] = useState(false);
   const [searching, setSearching] = useState(false);
   const [result, setResult] = useState(null);
+  const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
+  const [cfg, setCfg] = useState({ contextRows: 12, innerMaxSkip: 12, freeQuota: 5 });
+
+  // טעינת הגדרות הכלי מ-Supabase (טבלת els_settings)
+  useEffect(() => {
+    supabase.from("els_settings").select("key,value").then(({ data }) => {
+      if (!data) return;
+      const m = {};
+      data.forEach(r => { m[r.key] = r.value; });
+      setCfg({
+        contextRows: m.axis_context_rows ?? 12,
+        innerMaxSkip: m.inner_search_max_skip ?? 12,
+        freeQuota: m.free_quota_searches ?? 5,
+      });
+      if (m.default_skip_min != null) setSkipMin(m.default_skip_min);
+      if (m.default_skip_max != null) setSkipMax(m.default_skip_max);
+    });
+  }, []);
 
   // טעינת טקסט התורה המלא פעם אחת
   useEffect(() => {
@@ -968,6 +1101,7 @@ function ELSSection() {
     const mm = Math.max(0, parseInt(maxMismatches) || 0);
     // מספר מונחים מופרדים בפסיק → חיפוש אשכול
     const terms = target.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
+    setAxisHit(null);
     setSearching(true);
     // נותנים ל-UI להתעדכן לפני חישוב כבד
     setTimeout(() => {
@@ -1083,13 +1217,26 @@ function ELSSection() {
                   )}
                   {result.hits.slice(0, 6).map((h, i) => (
                     <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
-                      <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal }}>
-                        מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
-                        כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
-                        מיקום <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
-                        {h.mismatches > 0 && <> · <b style={{ color: C.crimsonLight }}>{h.mismatches} שגיאות</b></>}
+                      <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                        <span>
+                          מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
+                          כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
+                          מיקום <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
+                          {h.mismatches > 0 && <> · <b style={{ color: C.crimsonLight }}>{h.mismatches} שגיאות</b></>}
+                        </span>
+                        <button onClick={() => setAxisHit(axisHit === h ? null : h)} style={{
+                          background: axisHit === h ? C.gold : "transparent",
+                          color: axisHit === h ? "#0a0700" : C.goldBright,
+                          border: `1px solid ${C.borderGold}`, borderRadius: 5,
+                          padding: "3px 10px", cursor: "pointer", fontFamily: F.heading,
+                          fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                        }}>{axisHit === h ? "סגור ציר ▲" : "ציר אנכי ▼"}</button>
                       </div>
                       <ELSMatrix letters={letters} hit={h} />
+                      {axisHit === h && (
+                        <ELSAxisView letters={letters} hit={h}
+                          contextRows={cfg.contextRows} innerMaxSkip={cfg.innerMaxSkip} />
+                      )}
                     </div>
                   ))}
                   {result.hits.length > 6 && (
@@ -1141,10 +1288,12 @@ function ELSSection() {
           )}
         </div>
 
-        <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading }}>
+        <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading, lineHeight: 1.9 }}>
           {loaded
             ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח קורן המסורתי, נחלת הכלל)`
             : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
+          <br />
+          חינם: עד {cfg.freeQuota} חיפושים · גישה מלאה לבני ההיכל (מנוי)
         </div>
       </div>
     </div>
