@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage } from "./lib/supabase.js";
+import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats } from "./lib/supabase.js";
 import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== GEMATRIA =====
@@ -4302,6 +4302,165 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
   );
 }
 
+// ===== TRAFFIC DASHBOARD — היסטוריית גלישה (Jetpack 2015→) =====
+
+function TrafficDashboardPage({ onNav }) {
+  const [authed, setAuthed]   = useState(false);
+  const [pw, setPw]           = useState("");
+  const [pwError, setPwError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr]         = useState("");
+  const [data, setData]       = useState({ yearly: [], posts: [] });
+  const [year, setYear]       = useState("all");
+
+  function handleAuth() {
+    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
+    else setPwError(true);
+  }
+
+  useEffect(() => {
+    if (!authed) return;
+    setLoading(true); setErr("");
+    getTrafficStats()
+      .then(d => { setData(d); setLoading(false); })
+      .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
+  }, [authed]);
+
+  if (!authed) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`, borderRadius: 2,
+        padding: "44px 40px", width: "100%", maxWidth: 360,
+        boxShadow: `0 8px 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 40, color: C.goldDim, marginBottom: 16 }}>✦</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 20, margin: "0 0 16px" }}>
+            לוח גלישה
+          </h2>
+          <RoyalDivider width={100} />
+        </div>
+        <RoyalInput label="סיסמה" value={pw} onChange={setPw} type="password" />
+        {pwError && <div style={{ color: "#c05050", fontSize: 13, marginBottom: 12, textAlign: "center", fontFamily: F.body }}>סיסמה שגויה</div>}
+        <GoldButton style={{ width: "100%", textAlign: "center" }} onClick={handleAuth}>כניסה</GoldButton>
+      </div>
+    </div>
+  );
+
+  const maxYearViews = Math.max(1, ...data.yearly.map(y => y.views));
+  const totalAll = data.yearly.reduce((s, y) => s + y.views, 0);
+  const filtered = year === "all" ? data.posts : data.posts.filter(p => p.period === year);
+  const topPosts = filtered.slice(0, 50);
+  const nf = n => (Number(n) || 0).toLocaleString("he");
+
+  const chipStyle = active => ({
+    background: active ? C.goldDark : C.bgGlow,
+    border: `1px solid ${active ? C.gold : C.borderGold}`,
+    color: active ? C.goldBright : C.goldDim,
+    cursor: "pointer", fontSize: 12, fontFamily: F.heading,
+    letterSpacing: 1, padding: "6px 14px", borderRadius: 20,
+  });
+
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
+      <SectionHeader eyebrow="ניהול · Jetpack" title="היסטוריית גלישה — מ-2015" />
+
+      {loading && <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען נתונים…</div>}
+      {err && <div style={{ textAlign: "center", color: "#c05050", fontFamily: F.body, padding: 20 }}>{err}</div>}
+
+      {!loading && !err && (
+        <>
+          {/* סיכום כללי */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: 14, marginBottom: 36,
+          }}>
+            {[["סך צפיות (2015→)", nf(totalAll)],
+              ["שנים מתועדות", String(data.yearly.length)],
+              ["פוסטים מובילים", nf(data.posts.length)]].map(([label, val]) => (
+              <div key={label} style={{
+                background: C.surface, border: `1px solid ${C.border}`,
+                borderTop: `2px solid ${C.borderGold}`, borderRadius: 4, padding: "20px 18px", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 28, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>{val}</div>
+                <div style={{ fontSize: 10, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* צפיות לפי שנה */}
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8,
+            padding: "24px 24px", marginBottom: 32,
+          }}>
+            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>
+              צפיות לפי שנה
+            </div>
+            <div style={{ display: "grid", gap: 10 }}>
+              {data.yearly.map(y => (
+                <div key={y.period} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 44, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{y.period}</div>
+                  <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 22 }}>
+                    <div style={{
+                      width: `${Math.max(3, (y.views / maxYearViews) * 100)}%`, height: "100%",
+                      background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})`,
+                    }} />
+                  </div>
+                  <div style={{ width: 80, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>{nf(y.views)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* פוסטים מובילים */}
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 24px",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
+              <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase" }}>
+                פוסטים מובילים
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => setYear("all")} style={chipStyle(year === "all")}>הכל</button>
+                {data.yearly.map(y => (
+                  <button key={y.period} onClick={() => setYear(y.period)} style={chipStyle(year === y.period)}>{y.period}</button>
+                ))}
+              </div>
+            </div>
+
+            {topPosts.length === 0 ? (
+              <div style={{ color: C.muted, fontFamily: F.body, padding: "20px 0", textAlign: "center" }}>אין נתונים לתקופה זו</div>
+            ) : (
+              <div style={{ display: "grid", gap: 2 }}>
+                {topPosts.map((p, i) => (
+                  <div key={`${p.post_id}-${p.period}-${i}`} style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 8px", borderBottom: `1px solid ${C.faint}`,
+                  }}>
+                    <div style={{ width: 28, color: C.gold, fontFamily: F.heading, fontSize: 12, textAlign: "center" }}>{i + 1}</div>
+                    <div style={{ flex: 1, color: "#ede4d3", fontFamily: F.body, fontSize: 14, lineHeight: 1.5 }}>
+                      {p.url
+                        ? <a href={p.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{p.title || `#${p.post_id}`}</a>
+                        : (p.title || `#${p.post_id}`)}
+                      {year === "all" && <span style={{ color: C.muted, fontSize: 11, marginRight: 8 }}> · {p.period}</span>}
+                    </div>
+                    <div style={{ width: 70, textAlign: "left", color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{nf(p.views)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 32 }}>
+            <GoldButton variant="secondary" onClick={() => onNav && onNav("home")}>← חזרה</GoldButton>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ===== NUMBERS REPORT PAGE =====
 
 const REPORT_PASSWORD = "1820";
@@ -5044,7 +5203,7 @@ function Footer({ onNav, navItems }) {
             כלים
           </div>
           <div style={{ display: "grid", gap: 12 }}>
-            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["ניהול", "admin"]].map(([label, key]) => (
+            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["לוח גלישה", "traffic"], ["ניהול", "admin"]].map(([label, key]) => (
               <button key={key} onClick={() => onNav(key)} style={{
                 background: C.bgGlow,
                 border: `1px solid ${C.borderGold}`,
@@ -5484,7 +5643,8 @@ function AppContent() {
                 {page === "numbers-report" && <NumbersReportPage />}
                 {page === "theme-preview"  && <ThemePreviewPage />}
                 {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
-                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {page === "traffic"  && <TrafficDashboardPage onNav={nav} />}
+                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin","traffic"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
               </>
             } />
           </Routes>

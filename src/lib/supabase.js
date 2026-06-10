@@ -249,6 +249,28 @@ export function subscribeToChatMessages(callback) {
     .subscribe();
 }
 
+// ── Traffic / Jetpack stats (legacy_traffic) ───────────────
+// היסטוריית גלישה שיובאה מ-Jetpack/WordPress.com (ראה scripts/sync-jetpack-stats.mjs).
+export async function getTrafficStats() {
+  if (!supabase) return { yearly: [], posts: [] };
+  const { data, error } = await supabase
+    .from('legacy_traffic')
+    .select('post_id, title, url, views, period, source')
+    .like('source', 'jetpack%')
+    .order('views', { ascending: false })
+    .limit(5000);
+  if (error) throw error;
+  const rows = data ?? [];
+  const yearly = rows
+    .filter(r => r.source === 'jetpack-total')
+    .map(r => ({ period: r.period, views: Number(r.views) || 0 }))
+    .sort((a, b) => a.period.localeCompare(b.period));
+  const posts = rows
+    .filter(r => r.source === 'jetpack')
+    .map(r => ({ ...r, views: Number(r.views) || 0 }));
+  return { yearly, posts };
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
