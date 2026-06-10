@@ -4304,14 +4304,36 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
 
 // ===== TRAFFIC DASHBOARD — היסטוריית גלישה (Jetpack 2015→) =====
 
+function trafPretty(u) {
+  if (!u) return "";
+  let s = String(u);
+  if (s === "WordPress Dashboard") return "לוח WordPress";
+  s = s.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+  try { s = decodeURIComponent(s); } catch {}
+  return s.length > 60 ? s.slice(0, 60) + "…" : s;
+}
+
+function trafBucketKey(dateStr, gran) {
+  if (gran === "yearly")  return dateStr.slice(0, 4);
+  if (gran === "monthly") return dateStr.slice(0, 7);
+  if (gran === "weekly") {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    const dow = d.getUTCDay() || 7;            // ראשון=7
+    d.setUTCDate(d.getUTCDate() - (dow - 1));  // תחילת השבוע (שני)
+    return d.toISOString().slice(0, 10);
+  }
+  return dateStr;                              // יומי
+}
+
 function TrafficDashboardPage({ onNav }) {
   const [authed, setAuthed]   = useState(false);
   const [pw, setPw]           = useState("");
   const [pwError, setPwError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr]         = useState("");
-  const [data, setData]       = useState({ yearly: [], posts: [] });
+  const [data, setData]       = useState({ yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] });
   const [year, setYear]       = useState("all");
+  const [gran, setGran]       = useState("monthly");
 
   function handleAuth() {
     if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
@@ -4325,6 +4347,15 @@ function TrafficDashboardPage({ onNav }) {
       .then(d => { setData(d); setLoading(false); })
       .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
   }, [authed]);
+
+  const series = React.useMemo(() => {
+    const map = new Map();
+    for (const d of data.daily) {
+      const k = trafBucketKey(d.date, gran);
+      map.set(k, (map.get(k) || 0) + d.views);
+    }
+    return [...map.entries()].map(([key, views]) => ({ key, views })).sort((a, b) => a.key.localeCompare(b.key));
+  }, [data.daily, gran]);
 
   if (!authed) return (
     <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
@@ -4348,11 +4379,23 @@ function TrafficDashboardPage({ onNav }) {
     </div>
   );
 
+  const nf = n => (Number(n) || 0).toLocaleString("he");
   const maxYearViews = Math.max(1, ...data.yearly.map(y => y.views));
+  const maxRef   = Math.max(1, ...data.referrers.map(r => r.views));
+  const maxClick = Math.max(1, ...data.clicks.map(c => c.views));
   const totalAll = data.yearly.reduce((s, y) => s + y.views, 0);
+  const peakYear = data.yearly.reduce((m, y) => (y.views > m.views ? y : m), { period: "—", views: 0 });
+
+  const GRANS  = [["יומי", "daily"], ["שבועי", "weekly"], ["חודשי", "monthly"], ["שנתי", "yearly"]];
+  const WINDOW = { daily: 120, weekly: 104, monthly: 72, yearly: 99 }[gran];
+  const shown  = series.slice(-WINDOW);
+  const maxSeries  = Math.max(1, ...shown.map(b => b.views));
+  const seriesAvg  = shown.length ? Math.round(shown.reduce((s, b) => s + b.views, 0) / shown.length) : 0;
+  const seriesPeak = shown.reduce((m, b) => (b.views > m.views ? b : m), { key: "—", views: 0 });
+  const barMinW    = { daily: 7, weekly: 9, monthly: 15, yearly: 46 }[gran];
+
   const filtered = year === "all" ? data.posts : data.posts.filter(p => p.period === year);
   const topPosts = filtered.slice(0, 50);
-  const nf = n => (Number(n) || 0).toLocaleString("he");
 
   const chipStyle = active => ({
     background: active ? C.goldDark : C.bgGlow,
@@ -4361,9 +4404,50 @@ function TrafficDashboardPage({ onNav }) {
     cursor: "pointer", fontSize: 12, fontFamily: F.heading,
     letterSpacing: 1, padding: "6px 14px", borderRadius: 20,
   });
+  const cardStyle = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 24px" };
+  const panelTitle = { fontSize: 11, color: C.goldDim, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" };
+
+  function postCell(p) {
+    if ((p.title || "").trim() === "דף ראשי")
+      return <button onClick={() => onNav && onNav("home")} style={{ background: "none", border: "none", color: C.goldLight, cursor: "pointer", fontFamily: F.body, fontSize: 14, padding: 0, textAlign: "right" }}>{p.title} ↗</button>;
+    if (p.url)
+      return <a href={p.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{p.title || `#${p.post_id}`}</a>;
+    return p.title || `#${p.post_id}`;
+  }
+
+  // פאנל רשימה עם פסי-יחס (מקורות תנועה / קליקים)
+  const ListPanel = ({ title, rows, max, link }) => (
+    <div style={cardStyle}>
+      <div style={panelTitle}>{title}</div>
+      {rows.length === 0 ? (
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "12px 0" }}>אין נתונים</div>
+      ) : (
+        <div style={{ display: "grid", gap: 12 }}>
+          {rows.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={r.title}>
+                  {link && r.url
+                    ? <a href={r.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{trafPretty(r.title)}</a>
+                    : trafPretty(r.title)}
+                </div>
+                <div style={{ background: C.bg, borderRadius: 3, height: 6, marginTop: 5, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.max(3, (r.views / max) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})` }} />
+                </div>
+              </div>
+              <div style={{ width: 64, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{nf(r.views)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
-    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "40px 24px 60px", direction: "rtl" }}>
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4 }}>
+        <GoldButton variant="secondary" style={{ padding: "8px 20px", fontSize: 11 }} onClick={() => onNav && onNav("home")}>דף ראשי →</GoldButton>
+      </div>
       <SectionHeader eyebrow="ניהול · Jetpack" title="היסטוריית גלישה — מ-2015" />
 
       {loading && <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען נתונים…</div>}
@@ -4371,41 +4455,81 @@ function TrafficDashboardPage({ onNav }) {
 
       {!loading && !err && (
         <>
-          {/* סיכום כללי */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-            gap: 14, marginBottom: 36,
-          }}>
+          {/* כרטיסי סיכום */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 32 }}>
             {[["סך צפיות (2015→)", nf(totalAll)],
+              [`שיא — ${peakYear.period}`, nf(peakYear.views)],
               ["שנים מתועדות", String(data.yearly.length)],
-              ["פוסטים מובילים", nf(data.posts.length)]].map(([label, val]) => (
-              <div key={label} style={{
-                background: C.surface, border: `1px solid ${C.border}`,
-                borderTop: `2px solid ${C.borderGold}`, borderRadius: 4, padding: "20px 18px", textAlign: "center",
-              }}>
-                <div style={{ fontSize: 28, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>{val}</div>
-                <div style={{ fontSize: 10, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
+              ["פוסטים", nf(data.posts.length)],
+              ["מקורות תנועה", nf(data.referrers.length)]].map(([label, val]) => (
+              <div key={label} style={{ ...cardStyle, padding: "18px 16px", textAlign: "center", borderTop: `2px solid ${C.borderGold}` }}>
+                <div style={{ fontSize: 24, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>{val}</div>
+                <div style={{ fontSize: 9.5, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
               </div>
             ))}
           </div>
 
-          {/* צפיות לפי שנה */}
-          <div style={{
-            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8,
-            padding: "24px 24px", marginBottom: 32,
-          }}>
-            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>
-              צפיות לפי שנה
+          {/* ציר זמן — יומי / שבועי / חודשי / שנתי */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+              <div style={{ ...panelTitle, marginBottom: 0 }}>ציר זמן — צפיות</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {GRANS.map(([label, key]) => (
+                  <button key={key} onClick={() => setGran(key)} style={chipStyle(gran === key)}>{label}</button>
+                ))}
+              </div>
             </div>
+
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 12, fontFamily: F.body, fontSize: 12, color: C.muted }}>
+              <span>ממוצע: <b style={{ color: C.goldLight }}>{nf(seriesAvg)}</b></span>
+              <span>שיא: <b style={{ color: C.goldLight }}>{nf(seriesPeak.views)}</b> ({seriesPeak.key})</span>
+              <span>מציג: <b style={{ color: C.goldLight }}>{shown.length}</b> מתוך {series.length}</span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 168, overflowX: "auto", direction: "ltr", padding: "6px 2px", background: C.bg, borderRadius: 6 }}>
+              {shown.map(b => (
+                <div key={b.key} title={`${b.key} · ${nf(b.views)} צפיות`} style={{ minWidth: barMinW, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
+                  <div style={{ width: "72%", margin: "0 auto", height: `${Math.max(2, (b.views / maxSeries) * 150)}px`, background: `linear-gradient(180deg, ${C.goldBright}, ${C.goldDark})`, borderRadius: "2px 2px 0 0" }} />
+                </div>
+              ))}
+            </div>
+            {shown.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontFamily: F.mono, fontSize: 11, color: C.muted, direction: "ltr" }}>
+                <span>{shown[0].key}</span>
+                <span>{shown[shown.length - 1].key}</span>
+              </div>
+            )}
+          </div>
+
+          {/* מקורות תנועה + קליקים */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 28 }}>
+            <ListPanel title="מאיפה נכנסים — מקורות תנועה" rows={data.referrers} max={maxRef} link />
+            <ListPanel title="קליקים יוצאים ושיתופים" rows={data.clicks} max={maxClick} link />
+          </div>
+
+          {/* מילות חיפוש */}
+          {data.searches.length > 0 && (
+            <div style={{ ...cardStyle, marginBottom: 28 }}>
+              <div style={panelTitle}>מילות חיפוש</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {data.searches.map((s, i) => (
+                  <span key={i} style={{ background: C.bgGlow, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "5px 12px", fontFamily: F.body, fontSize: 12, color: "#ede4d3" }}>
+                    {s.title} <span style={{ color: C.gold }}>· {nf(s.views)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* צפיות לפי שנה */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={panelTitle}>צפיות לפי שנה</div>
             <div style={{ display: "grid", gap: 10 }}>
               {data.yearly.map(y => (
                 <div key={y.period} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 44, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{y.period}</div>
                   <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 22 }}>
-                    <div style={{
-                      width: `${Math.max(3, (y.views / maxYearViews) * 100)}%`, height: "100%",
-                      background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})`,
-                    }} />
+                    <div style={{ width: `${Math.max(3, (y.views / maxYearViews) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})` }} />
                   </div>
                   <div style={{ width: 80, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>{nf(y.views)}</div>
                 </div>
@@ -4414,13 +4538,9 @@ function TrafficDashboardPage({ onNav }) {
           </div>
 
           {/* פוסטים מובילים */}
-          <div style={{
-            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 24px",
-          }}>
+          <div style={cardStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
-              <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase" }}>
-                פוסטים מובילים
-              </div>
+              <div style={{ ...panelTitle, marginBottom: 0 }}>פוסטים מובילים</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button onClick={() => setYear("all")} style={chipStyle(year === "all")}>הכל</button>
                 {data.yearly.map(y => (
@@ -4434,15 +4554,10 @@ function TrafficDashboardPage({ onNav }) {
             ) : (
               <div style={{ display: "grid", gap: 2 }}>
                 {topPosts.map((p, i) => (
-                  <div key={`${p.post_id}-${p.period}-${i}`} style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "10px 8px", borderBottom: `1px solid ${C.faint}`,
-                  }}>
+                  <div key={`${p.post_id}-${p.period}-${i}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 8px", borderBottom: `1px solid ${C.faint}` }}>
                     <div style={{ width: 28, color: C.gold, fontFamily: F.heading, fontSize: 12, textAlign: "center" }}>{i + 1}</div>
                     <div style={{ flex: 1, color: "#ede4d3", fontFamily: F.body, fontSize: 14, lineHeight: 1.5 }}>
-                      {p.url
-                        ? <a href={p.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{p.title || `#${p.post_id}`}</a>
-                        : (p.title || `#${p.post_id}`)}
+                      {postCell(p)}
                       {year === "all" && <span style={{ color: C.muted, fontSize: 11, marginRight: 8 }}> · {p.period}</span>}
                     </div>
                     <div style={{ width: 70, textAlign: "left", color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{nf(p.views)}</div>
@@ -4453,7 +4568,7 @@ function TrafficDashboardPage({ onNav }) {
           </div>
 
           <div style={{ textAlign: "center", marginTop: 32 }}>
-            <GoldButton variant="secondary" onClick={() => onNav && onNav("home")}>← חזרה</GoldButton>
+            <GoldButton variant="secondary" onClick={() => onNav && onNav("home")}>← חזרה לדף הבית</GoldButton>
           </div>
         </>
       )}

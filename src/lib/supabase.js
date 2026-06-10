@@ -251,24 +251,49 @@ export function subscribeToChatMessages(callback) {
 
 // ── Traffic / Jetpack stats (legacy_traffic) ───────────────
 // היסטוריית גלישה שיובאה מ-Jetpack/WordPress.com (ראה scripts/sync-jetpack-stats.mjs).
+const TRAFFIC_SEL = 'post_id, title, url, views, period, source';
+
+// PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים עד שמתרוקן
+async function fetchAllTraffic(source, orderCol, asc) {
+  const PAGE = 1000;
+  let from = 0, out = [];
+  for (;;) {
+    const { data, error } = await supabase
+      .from('legacy_traffic').select(TRAFFIC_SEL)
+      .eq('source', source).order(orderCol, { ascending: asc })
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    out = out.concat(data ?? []);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return out;
+}
+
 export async function getTrafficStats() {
-  if (!supabase) return { yearly: [], posts: [] };
-  const { data, error } = await supabase
-    .from('legacy_traffic')
-    .select('post_id, title, url, views, period, source')
-    .like('source', 'jetpack%')
-    .order('views', { ascending: false })
-    .limit(5000);
-  if (error) throw error;
-  const rows = data ?? [];
-  const yearly = rows
-    .filter(r => r.source === 'jetpack-total')
-    .map(r => ({ period: r.period, views: Number(r.views) || 0 }))
-    .sort((a, b) => a.period.localeCompare(b.period));
-  const posts = rows
-    .filter(r => r.source === 'jetpack')
-    .map(r => ({ ...r, views: Number(r.views) || 0 }));
-  return { yearly, posts };
+  const empty = { yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] };
+  if (!supabase) return empty;
+  const small = (source, col, asc) =>
+    supabase.from('legacy_traffic').select(TRAFFIC_SEL).eq('source', source).order(col, { ascending: asc }).limit(200);
+  const [daily, posts, yearlyR, refR, clickR, searchR] = await Promise.all([
+    fetchAllTraffic('jetpack-daily', 'period', true),
+    fetchAllTraffic('jetpack', 'views', false),
+    small('jetpack-total', 'period', true),
+    small('jetpack-referrer', 'views', false),
+    small('jetpack-click', 'views', false),
+    small('jetpack-search', 'views', false),
+  ]);
+  const bad = [yearlyR, refR, clickR, searchR].find(r => r.error);
+  if (bad?.error) throw bad.error;
+  const num = arr => (arr ?? []).map(x => ({ ...x, views: Number(x.views) || 0 }));
+  return {
+    yearly: num(yearlyR.data).map(r => ({ period: r.period, views: r.views })),
+    daily: num(daily).map(r => ({ date: r.period, views: r.views })),
+    posts: num(posts),
+    referrers: num(refR.data),
+    clicks: num(clickR.data),
+    searches: num(searchR.data),
+  };
 }
 
 export function adaptPost(row) {
