@@ -4910,20 +4910,23 @@ function ChatPage() {
 
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
+  // Load the Spot.IM SDK. The conversation renders INLINE into the
+  // [data-spotim-module="conversation"] element below (centered, framed box)
+  // instead of the floating bottom "launcher" widget used previously.
   useEffect(() => {
     if (document.getElementById("spotim-script")) return;
     const s = document.createElement("script");
     s.id = "spotim-script";
     s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
     s.async = true;
-    s.setAttribute("data-spotim-module", "spotim-launcher");
-    s.setAttribute("data-post-id", "daf-tzaat-rashi");
     document.body.appendChild(s);
     return () => { document.getElementById("spotim-script")?.remove(); };
   }, []);
 
+  const postUrl = "https://sod1820.co.il/דף-צאט-ראשי";
+
   return (
-    <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
+    <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "52px 16px 96px" }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
           קהילת סוד 1820
@@ -4933,7 +4936,28 @@ function SpotimChatPage() {
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
-      <div id="spotim-container" style={{ minHeight: 400 }} />
+
+      {/* centered, framed box that holds the inline chat */}
+      <div style={{
+        maxWidth: 680,
+        margin: "0 auto",
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: 6,
+        boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
+        padding: "16px",
+        minHeight: 520,
+        overflow: "hidden",
+      }}>
+        <div
+          id="spotim-container"
+          data-spotim-module="conversation"
+          data-spot-id="sp_OVtajBTj"
+          data-post-id="daf-tzaat-rashi"
+          data-post-url={postUrl}
+          style={{ minHeight: 480 }}
+        />
+      </div>
     </div>
   );
 }
