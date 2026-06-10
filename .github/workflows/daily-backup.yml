@@ -1,0 +1,30 @@
+name: גיבוי יומי (snapshot)
+
+on:
+  workflow_dispatch:        # מאפשר הרצה ידנית מ-Actions
+  schedule:
+    - cron: '0 3 * * *'     # כל יום ב-03:00 UTC
+
+permissions:
+  contents: write           # נדרש ליצירת Release/tag
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: צור snapshot יומי כ-Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u +'%Y-%m-%d')
+          TAG="backup-$DATE"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG כבר קיים — מדלג."
+            exit 0
+          fi
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "גיבוי $DATE" \
+            --notes "snapshot אוטומטי של ה-repo · $DATE"

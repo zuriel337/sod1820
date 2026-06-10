@@ -97,3 +97,23 @@
 - להפנות (redirect 301) `/post` → `/blog`, `/צור-קשר` → `/contact`.
 - להמיר את דפי ה‑`state` (courses/about/checkout) ל‑`<Route>` אמיתיים.
 - להוציא `/:slug` תחת `/blog/:slug` כדי לבטל את ההתנגשות.
+
+---
+
+## 5. תשתית וגיבויים
+
+### גיבוי יומי אוטומטי
+ה‑repo מגובה אוטומטית **כל יום** דרך GitHub Actions —
+`.github/workflows/daily-backup.yml` (רץ ב‑03:00 UTC, וגם ניתן להרצה ידנית מלשונית Actions).
+
+- כל גיבוי נשמר כ‑**GitHub Release** בשם `backup-YYYY-MM-DD`.
+- GitHub מצרף לכל Release אוטומטית ארכיון מלא של ה‑repo: `Source code (zip)` + `tar.gz`.
+- אין צורך בסודות חיצוניים — ה‑workflow משתמש ב‑`GITHUB_TOKEN` המובנה בלבד.
+
+### איך לשחזר גיבוי
+- **הורדת קבצים**: GitHub → לשונית **Releases** → לבחור את `backup-YYYY-MM-DD` הרצוי →
+  להוריד את `Source code (zip)`.
+- **דרך git**: `git checkout backup-YYYY-MM-DD` (כל גיבוי הוא גם tag בנקודת ה‑commit של אותו יום).
+
+### Workflows מתוזמנים נוספים
+- `.github/workflows/sync-posts.yml` — סנכרון WordPress → Supabase, רץ יומית ב‑04:00 UTC.
