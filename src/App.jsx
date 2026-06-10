@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage } from "./lib/supabase.js";
+import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead } from "./lib/supabase.js";
 import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== GEMATRIA =====
@@ -1998,6 +1998,7 @@ function LoginPage({ onNav }) {
   function handleSubmit() {
     if (!email || !pass) { setError("יש למלא את כל השדות"); return; }
     setError(""); setDone(true);
+    if (mode === "register") subscribeEmail({ email, name, source: "register" }).catch(() => {});
   }
 
   if (done) return (
@@ -4302,6 +4303,424 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
   );
 }
 
+// ===== TRAFFIC DASHBOARD — היסטוריית גלישה (Jetpack 2015→) =====
+
+function trafPretty(u) {
+  if (!u) return "";
+  let s = String(u);
+  if (s === "WordPress Dashboard") return "לוח WordPress";
+  s = s.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+  try { s = decodeURIComponent(s); } catch {}
+  return s.length > 60 ? s.slice(0, 60) + "…" : s;
+}
+
+function trafBucketKey(dateStr, gran) {
+  if (gran === "yearly")  return dateStr.slice(0, 4);
+  if (gran === "monthly") return dateStr.slice(0, 7);
+  if (gran === "weekly") {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    const dow = d.getUTCDay() || 7;            // ראשון=7
+    d.setUTCDate(d.getUTCDate() - (dow - 1));  // תחילת השבוע (שני)
+    return d.toISOString().slice(0, 10);
+  }
+  return dateStr;                              // יומי
+}
+
+function TrafficDashboardPage({ onNav }) {
+  const [authed, setAuthed]   = useState(false);
+  const [pw, setPw]           = useState("");
+  const [pwError, setPwError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr]         = useState("");
+  const [data, setData]       = useState({ yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] });
+  const [year, setYear]       = useState("all");
+  const [gran, setGran]       = useState("monthly");
+  const [inbox, setInbox]     = useState({ messages: [], subscribers: [], unread: 0, subscriber_count: 0 });
+  const [tab, setTab]         = useState("traffic"); // traffic | inbox
+
+  function handleAuth() {
+    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
+    else setPwError(true);
+  }
+
+  const reload = React.useCallback(() => {
+    setLoading(true); setErr("");
+    const inboxEmpty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };
+    Promise.all([
+      getTrafficStats(),
+      getAdminInbox(ADMIN_PASSWORD).catch(() => inboxEmpty),
+    ])
+      .then(([d, ib]) => { setData(d); setInbox(ib || inboxEmpty); setLoading(false); })
+      .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
+  }, []);
+
+  useEffect(() => { if (authed) reload(); }, [authed, reload]);
+
+  async function toggleRead(m) {
+    try {
+      await markMessageRead(ADMIN_PASSWORD, m.id, !m.read);
+      setInbox(prev => ({
+        ...prev,
+        messages: prev.messages.map(x => x.id === m.id ? { ...x, read: !x.read } : x),
+        unread: prev.messages.reduce((s, x) => s + ((x.id === m.id ? !x.read : x.read) ? 0 : 1), 0),
+      }));
+    } catch {}
+  }
+
+  const series = React.useMemo(() => {
+    const map = new Map();
+    for (const d of data.daily) {
+      const k = trafBucketKey(d.date, gran);
+      map.set(k, (map.get(k) || 0) + d.views);
+    }
+    return [...map.entries()].map(([key, views]) => ({ key, views })).sort((a, b) => a.key.localeCompare(b.key));
+  }, [data.daily, gran]);
+
+  if (!authed) return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderTop: `3px solid ${C.gold}`, borderRadius: 2,
+        padding: "44px 40px", width: "100%", maxWidth: 360,
+        boxShadow: `0 8px 60px ${C.goldDeep}`,
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 40, color: C.goldDim, marginBottom: 16 }}>✦</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 20, margin: "0 0 16px" }}>
+            לוח גלישה
+          </h2>
+          <RoyalDivider width={100} />
+        </div>
+        <RoyalInput label="סיסמה" value={pw} onChange={setPw} type="password" />
+        {pwError && <div style={{ color: "#c05050", fontSize: 13, marginBottom: 12, textAlign: "center", fontFamily: F.body }}>סיסמה שגויה</div>}
+        <GoldButton style={{ width: "100%", textAlign: "center" }} onClick={handleAuth}>כניסה</GoldButton>
+      </div>
+    </div>
+  );
+
+  const nf = n => (Number(n) || 0).toLocaleString("he");
+  const maxYearViews = Math.max(1, ...data.yearly.map(y => y.views));
+  const maxRef   = Math.max(1, ...data.referrers.map(r => r.views));
+  const maxClick = Math.max(1, ...data.clicks.map(c => c.views));
+  const totalAll = data.yearly.reduce((s, y) => s + y.views, 0);
+  const peakYear = data.yearly.reduce((m, y) => (y.views > m.views ? y : m), { period: "—", views: 0 });
+
+  const GRANS  = [["יומי", "daily"], ["שבועי", "weekly"], ["חודשי", "monthly"], ["שנתי", "yearly"]];
+  const WINDOW = { daily: 120, weekly: 104, monthly: 72, yearly: 99 }[gran];
+  const shown  = series.slice(-WINDOW);
+  const maxSeries  = Math.max(1, ...shown.map(b => b.views));
+  const seriesAvg  = shown.length ? Math.round(shown.reduce((s, b) => s + b.views, 0) / shown.length) : 0;
+  const seriesPeak = shown.reduce((m, b) => (b.views > m.views ? b : m), { key: "—", views: 0 });
+  const barMinW    = { daily: 7, weekly: 9, monthly: 15, yearly: 46 }[gran];
+
+  const filtered = year === "all" ? data.posts : data.posts.filter(p => p.period === year);
+  const topPosts = filtered.slice(0, 50);
+
+  // פילוח לפי יום בשבוע (ממוצע צפיות מהנתונים היומיים)
+  const DOW = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  const dowAgg = (() => {
+    const sum = Array(7).fill(0), cnt = Array(7).fill(0);
+    for (const d of data.daily) {
+      const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
+      sum[wd] += d.views; cnt[wd] += 1;
+    }
+    return DOW.map((label, i) => ({ label, avg: cnt[i] ? Math.round(sum[i] / cnt[i]) : 0 }));
+  })();
+  const maxDow = Math.max(1, ...dowAgg.map(d => d.avg));
+  const bestDay = data.daily.reduce((m, d) => (d.views > m.views ? d : m), { date: "—", views: 0 });
+
+  // צמיחה שנתית (YoY)
+  const yoy = data.yearly.map((y, i) => {
+    const prev = data.yearly[i - 1];
+    const pct = prev && prev.views ? Math.round(((y.views - prev.views) / prev.views) * 100) : null;
+    return { ...y, pct };
+  });
+
+  // ייצוא CSV
+  function downloadCsv(filename, rows, headers) {
+    const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [headers.map(esc).join(","), ...rows.map(r => r.map(esc).join(","))].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  const exportDaily = () => downloadCsv("traffic-daily.csv", data.daily.map(d => [d.date, d.views]), ["תאריך", "צפיות"]);
+  const exportPosts = () => downloadCsv("top-posts.csv", data.posts.map(p => [p.period, p.title, p.views, p.url || ""]), ["שנה", "כותרת", "צפיות", "קישור"]);
+  const exportRefs  = () => downloadCsv("referrers.csv", data.referrers.map(r => [r.title, r.views]), ["מקור", "צפיות"]);
+  const exportSubs  = () => downloadCsv("subscribers.csv", inbox.subscribers.map(s => [s.email, s.name || "", s.source, s.created_at]), ["אימייל", "שם", "מקור", "תאריך"]);
+
+  const smallBtn = {
+    background: C.bgGlow, border: `1px solid ${C.borderGold}`, color: C.goldBright,
+    cursor: "pointer", fontSize: 11, fontFamily: F.heading, letterSpacing: 1,
+    padding: "8px 14px", borderRadius: 6,
+  };
+
+  const chipStyle = active => ({
+    background: active ? C.goldDark : C.bgGlow,
+    border: `1px solid ${active ? C.gold : C.borderGold}`,
+    color: active ? C.goldBright : C.goldDim,
+    cursor: "pointer", fontSize: 12, fontFamily: F.heading,
+    letterSpacing: 1, padding: "6px 14px", borderRadius: 20,
+  });
+  const cardStyle = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 24px" };
+  const panelTitle = { fontSize: 11, color: C.goldDim, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" };
+
+  function postCell(p) {
+    if ((p.title || "").trim() === "דף ראשי")
+      return <button onClick={() => onNav && onNav("home")} style={{ background: "none", border: "none", color: C.goldLight, cursor: "pointer", fontFamily: F.body, fontSize: 14, padding: 0, textAlign: "right" }}>{p.title} ↗</button>;
+    if (p.url)
+      return <a href={p.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{p.title || `#${p.post_id}`}</a>;
+    return p.title || `#${p.post_id}`;
+  }
+
+  // פאנל רשימה עם פסי-יחס (מקורות תנועה / קליקים)
+  const ListPanel = ({ title, rows, max, link }) => (
+    <div style={cardStyle}>
+      <div style={panelTitle}>{title}</div>
+      {rows.length === 0 ? (
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "12px 0" }}>אין נתונים</div>
+      ) : (
+        <div style={{ display: "grid", gap: 12 }}>
+          {rows.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={r.title}>
+                  {link && r.url
+                    ? <a href={r.url} target="_blank" rel="noreferrer" style={{ color: "#ede4d3", textDecoration: "none" }}>{trafPretty(r.title)}</a>
+                    : trafPretty(r.title)}
+                </div>
+                <div style={{ background: C.bg, borderRadius: 3, height: 6, marginTop: 5, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.max(3, (r.views / max) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})` }} />
+                </div>
+              </div>
+              <div style={{ width: 64, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{nf(r.views)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "40px 24px 60px", direction: "rtl" }}>
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4 }}>
+        <GoldButton variant="secondary" style={{ padding: "8px 20px", fontSize: 11 }} onClick={() => onNav && onNav("home")}>דף ראשי →</GoldButton>
+      </div>
+      <SectionHeader eyebrow="ניהול · Jetpack" title="היסטוריית גלישה — מ-2015" />
+
+      {loading && <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען נתונים…</div>}
+      {err && <div style={{ textAlign: "center", color: "#c05050", fontFamily: F.body, padding: 20 }}>{err}</div>}
+
+      {!loading && !err && (
+        <>
+          {/* סרגל כלים */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 22 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button onClick={reload} style={smallBtn}>↻ רענון</button>
+              <button onClick={exportDaily} style={smallBtn}>⬇ צפיות יומיות</button>
+              <button onClick={exportPosts} style={smallBtn}>⬇ פוסטים</button>
+              <button onClick={exportRefs} style={smallBtn}>⬇ מקורות</button>
+            </div>
+            <a href="#inbox" style={{ ...smallBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              ✉ הודעות ומנויים
+              {inbox.unread > 0 && <span style={{ background: C.crimson, color: C.goldBright, borderRadius: 10, padding: "1px 8px", fontSize: 11 }}>{inbox.unread}</span>}
+            </a>
+          </div>
+
+          {/* כרטיסי סיכום */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 32 }}>
+            {[["סך צפיות (2015→)", nf(totalAll)],
+              [`שיא — ${peakYear.period}`, nf(peakYear.views)],
+              [`היום החזק · ${bestDay.date}`, nf(bestDay.views)],
+              ["פוסטים", nf(data.posts.length)],
+              ["מקורות תנועה", nf(data.referrers.length)],
+              ["מנויים", nf(inbox.subscriber_count)]].map(([label, val]) => (
+              <div key={label} style={{ ...cardStyle, padding: "18px 16px", textAlign: "center", borderTop: `2px solid ${C.borderGold}` }}>
+                <div style={{ fontSize: 24, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>{val}</div>
+                <div style={{ fontSize: 9.5, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ציר זמן — יומי / שבועי / חודשי / שנתי */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+              <div style={{ ...panelTitle, marginBottom: 0 }}>ציר זמן — צפיות</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {GRANS.map(([label, key]) => (
+                  <button key={key} onClick={() => setGran(key)} style={chipStyle(gran === key)}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 12, fontFamily: F.body, fontSize: 12, color: C.muted }}>
+              <span>ממוצע: <b style={{ color: C.goldLight }}>{nf(seriesAvg)}</b></span>
+              <span>שיא: <b style={{ color: C.goldLight }}>{nf(seriesPeak.views)}</b> ({seriesPeak.key})</span>
+              <span>מציג: <b style={{ color: C.goldLight }}>{shown.length}</b> מתוך {series.length}</span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 168, overflowX: "auto", direction: "ltr", padding: "6px 2px", background: C.bg, borderRadius: 6 }}>
+              {shown.map(b => (
+                <div key={b.key} title={`${b.key} · ${nf(b.views)} צפיות`} style={{ minWidth: barMinW, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
+                  <div style={{ width: "72%", margin: "0 auto", height: `${Math.max(2, (b.views / maxSeries) * 150)}px`, background: `linear-gradient(180deg, ${C.goldBright}, ${C.goldDark})`, borderRadius: "2px 2px 0 0" }} />
+                </div>
+              ))}
+            </div>
+            {shown.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontFamily: F.mono, fontSize: 11, color: C.muted, direction: "ltr" }}>
+                <span>{shown[0].key}</span>
+                <span>{shown[shown.length - 1].key}</span>
+              </div>
+            )}
+          </div>
+
+          {/* פילוח לפי יום בשבוע */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={panelTitle}>צפיות לפי יום בשבוע (ממוצע ליום)</div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {dowAgg.map(d => (
+                <div key={d.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 52, color: C.goldLight, fontFamily: F.heading, fontSize: 12 }}>{d.label}</div>
+                  <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 18 }}>
+                    <div style={{ width: `${Math.max(3, (d.avg / maxDow) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.royalLight}, ${C.gold})` }} />
+                  </div>
+                  <div style={{ width: 60, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{nf(d.avg)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* מקורות תנועה + קליקים */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 28 }}>
+            <ListPanel title="מאיפה נכנסים — מקורות תנועה" rows={data.referrers} max={maxRef} link />
+            <ListPanel title="קליקים יוצאים ושיתופים" rows={data.clicks} max={maxClick} link />
+          </div>
+
+          {/* מילות חיפוש */}
+          {data.searches.length > 0 && (
+            <div style={{ ...cardStyle, marginBottom: 28 }}>
+              <div style={panelTitle}>מילות חיפוש</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {data.searches.map((s, i) => (
+                  <span key={i} style={{ background: C.bgGlow, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "5px 12px", fontFamily: F.body, fontSize: 12, color: "#ede4d3" }}>
+                    {s.title} <span style={{ color: C.gold }}>· {nf(s.views)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* צפיות לפי שנה */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={panelTitle}>צפיות לפי שנה</div>
+            <div style={{ display: "grid", gap: 10 }}>
+              {yoy.map(y => (
+                <div key={y.period} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 44, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{y.period}</div>
+                  <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 22 }}>
+                    <div style={{ width: `${Math.max(3, (y.views / maxYearViews) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})` }} />
+                  </div>
+                  <div style={{ width: 56, textAlign: "left", fontFamily: F.mono, fontSize: 12, color: y.pct == null ? C.muted : y.pct >= 0 ? "#3a9b6e" : C.crimsonLight }}>
+                    {y.pct == null ? "—" : `${y.pct >= 0 ? "▲" : "▼"}${Math.abs(y.pct)}%`}
+                  </div>
+                  <div style={{ width: 80, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>{nf(y.views)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* פוסטים מובילים */}
+          <div style={cardStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
+              <div style={{ ...panelTitle, marginBottom: 0 }}>פוסטים מובילים</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => setYear("all")} style={chipStyle(year === "all")}>הכל</button>
+                {data.yearly.map(y => (
+                  <button key={y.period} onClick={() => setYear(y.period)} style={chipStyle(year === y.period)}>{y.period}</button>
+                ))}
+              </div>
+            </div>
+
+            {topPosts.length === 0 ? (
+              <div style={{ color: C.muted, fontFamily: F.body, padding: "20px 0", textAlign: "center" }}>אין נתונים לתקופה זו</div>
+            ) : (
+              <div style={{ display: "grid", gap: 2 }}>
+                {topPosts.map((p, i) => (
+                  <div key={`${p.post_id}-${p.period}-${i}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 8px", borderBottom: `1px solid ${C.faint}` }}>
+                    <div style={{ width: 28, color: C.gold, fontFamily: F.heading, fontSize: 12, textAlign: "center" }}>{i + 1}</div>
+                    <div style={{ flex: 1, color: "#ede4d3", fontFamily: F.body, fontSize: 14, lineHeight: 1.5 }}>
+                      {postCell(p)}
+                      {year === "all" && <span style={{ color: C.muted, fontSize: 11, marginRight: 8 }}> · {p.period}</span>}
+                    </div>
+                    <div style={{ width: 70, textAlign: "left", color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{nf(p.views)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* תיבת דואר — הודעות ומנויים */}
+          <div id="inbox" style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ ...panelTitle, marginBottom: 0 }}>הודעות שנשלחו לאתר</div>
+                {inbox.unread > 0 && <span style={{ background: C.crimson, color: C.goldBright, borderRadius: 10, padding: "1px 9px", fontSize: 11, fontFamily: F.heading }}>{inbox.unread} חדשות</span>}
+              </div>
+              {inbox.messages.length === 0 ? (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין הודעות עדיין. הודעות מטופס "צור קשר" יופיעו כאן.</div>
+              ) : (
+                <div style={{ display: "grid", gap: 10, maxHeight: 440, overflowY: "auto" }}>
+                  {inbox.messages.map(m => (
+                    <div key={m.id} onClick={() => toggleRead(m)} title="לחץ לסימון נקרא / לא-נקרא" style={{
+                      cursor: "pointer", padding: "12px 14px", borderRadius: 6,
+                      background: m.read ? C.bg : C.surface2,
+                      border: `1px solid ${m.read ? C.faint : C.borderGold}`,
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.name}{!m.read && <span style={{ color: C.crimsonLight }}> ●</span>}</span>
+                        <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(m.created_at || "").slice(0, 10)}</span>
+                      </div>
+                      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 4 }}>{m.email}{m.subject ? ` · ${m.subject}` : ""}</div>
+                      <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.message}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ ...panelTitle, marginBottom: 0 }}>מנויים — רשימת תפוצה</div>
+                <button onClick={exportSubs} style={smallBtn}>⬇ CSV</button>
+              </div>
+              <div style={{ fontSize: 28, color: C.goldBright, fontWeight: 900, fontFamily: F.heading, marginBottom: 12 }}>{nf(inbox.subscriber_count)}</div>
+              {inbox.subscribers.length === 0 ? (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0", lineHeight: 1.7 }}>
+                  אין מנויים עדיין. טופס ההרשמה כבר פעיל — כל הרשמה חדשה תופיע כאן אוטומטית.
+                </div>
+              ) : (
+                <div style={{ display: "grid", gap: 6, maxHeight: 400, overflowY: "auto" }}>
+                  {inbox.subscribers.map(s => (
+                    <div key={s.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "8px 10px", borderBottom: `1px solid ${C.faint}` }}>
+                      <span style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13 }}>{s.email}{s.name ? ` · ${s.name}` : ""}</span>
+                      <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(s.created_at || "").slice(0, 10)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 32 }}>
+            <GoldButton variant="secondary" onClick={() => onNav && onNav("home")}>← חזרה לדף הבית</GoldButton>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ===== NUMBERS REPORT PAGE =====
 
 const REPORT_PASSWORD = "1820";
@@ -4940,6 +5359,39 @@ function SpotimChatPage() {
 
 // ===== FOOTER =====
 
+function NewsletterSignup() {
+  const [email, setEmail] = useState("");
+  const [done, setDone]   = useState(false);
+  const [busy, setBusy]   = useState(false);
+  async function submit() {
+    const e = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return;
+    setBusy(true);
+    try { await subscribeEmail({ email: e, source: "newsletter" }); } catch {}
+    setDone(true); setBusy(false);
+  }
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto 28px", paddingBottom: 28, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
+        <div>
+          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>הרשמה לרשימת התפוצה</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>קבלו עדכונים וחידושים מסוד 1820</div>
+        </div>
+        {done ? (
+          <div style={{ color: C.gold, fontFamily: F.body, fontSize: 14 }}>✦ נרשמת בהצלחה — תודה!</div>
+        ) : (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="האימייל שלך" dir="ltr"
+              onKeyDown={e => e.key === "Enter" && submit()}
+              style={{ background: C.bg, border: `1px solid ${C.borderGold}`, color: C.goldBright, padding: "10px 14px", borderRadius: 4, fontFamily: F.body, fontSize: 14, minWidth: 220, outline: "none" }} />
+            <GoldButton onClick={submit} disabled={busy} style={{ padding: "10px 24px", fontSize: 11 }}>{busy ? "..." : "הרשמה"}</GoldButton>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Footer({ onNav, navItems }) {
   const items = navItems?.length ? navItems : NAV_ITEMS;
 
@@ -4956,6 +5408,7 @@ function Footer({ onNav, navItems }) {
       padding: "56px 36px 28px",
       direction: "rtl",
     }}>
+      <NewsletterSignup />
       <div style={{
         maxWidth: 1040,
         margin: "0 auto",
@@ -5044,7 +5497,7 @@ function Footer({ onNav, navItems }) {
             כלים
           </div>
           <div style={{ display: "grid", gap: 12 }}>
-            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["ניהול", "admin"]].map(([label, key]) => (
+            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["לוח גלישה", "traffic"], ["ניהול", "admin"]].map(([label, key]) => (
               <button key={key} onClick={() => onNav(key)} style={{
                 background: C.bgGlow,
                 border: `1px solid ${C.borderGold}`,
@@ -5466,6 +5919,7 @@ function AppContent() {
         <main>
           <Routes>
             <Route path="/post" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/traffic" element={<TrafficDashboardPage onNav={nav} />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/דף-צאט-ראשי" element={<SpotimChatPage />} />
             <Route path="/צור-קשר" element={<ContactPage />} />
@@ -5484,7 +5938,8 @@ function AppContent() {
                 {page === "numbers-report" && <NumbersReportPage />}
                 {page === "theme-preview"  && <ThemePreviewPage />}
                 {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
-                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {page === "traffic"  && <TrafficDashboardPage onNav={nav} />}
+                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin","traffic"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
               </>
             } />
           </Routes>
