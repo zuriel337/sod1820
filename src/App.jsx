@@ -4530,6 +4530,16 @@ function Navbar({ page, onNav }) {
         }}>
           צאט האתר
         </button>
+        <button onClick={() => onNav("chat")} style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: page === "chat" ? C.goldBright : C.muted,
+          fontFamily: F.royal, fontSize: 14, fontWeight: 700,
+          letterSpacing: 1, padding: "8px 14px", borderRadius: 3,
+          transition: "color 0.2s",
+          borderBottom: page === "chat" ? `2px solid ${C.gold}` : "2px solid transparent",
+        }}>
+          צ׳אט קהילתי
+        </button>
         <button onClick={() => onNav("contact")} style={{
           background: "none", border: "none", cursor: "pointer",
           color: page === "contact" ? C.goldBright : C.muted,
@@ -4734,45 +4744,155 @@ function PopularPostsWidget({ onNav }) {
   );
 }
 
-// ===== CHAT PAGE =====
-function ChatPage() {
-  const [messages, setMessages]   = useState([]);
-  const [author,   setAuthor]     = useState(() => localStorage.getItem("chat_author") || "");
-  const [text,     setText]       = useState("");
-  const [sending,  setSending]    = useState(false);
-  const [error,    setError]      = useState("");
-  const bottomRef = useRef(null);
+// ===== CHAT PAGE (feature-rich community chat) =====
+const CHAT_EMOJIS = ["😀","😂","😍","🤔","🙏","🔥","💡","✡️","👑","✨","❤️","👍","😮","😢","🎉","💯"];
+const CHAT_AVATAR_COLORS = ["#b8902f","#7a1320","#2f6b6b","#5a3e8f","#8f5a2f","#3e6b3e","#9c2f6b","#2f4f8f"];
 
-  // load messages
+function chatAvatarColor(name) {
+  let h = 0;
+  const s = name || "?";
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return CHAT_AVATAR_COLORS[h % CHAT_AVATAR_COLORS.length];
+}
+
+function ChatPage() {
+  const [messages, setMessages] = useState([]);
+  const [author, setAuthor]     = useState(() => localStorage.getItem("chat_author") || "");
+  const [text, setText]         = useState("");
+  const [sending, setSending]   = useState(false);
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [online, setOnline]     = useState(1);
+  const [typing, setTyping]     = useState({});   // name -> last-seen ms
+  const [, forceTick]           = useState(0);     // re-render for typing/age
+  const [replyTo, setReplyTo]   = useState(null);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [soundOn, setSoundOn]   = useState(() => localStorage.getItem("chat_sound") === "1");
+  const [search, setSearch]     = useState("");
+  const [newCount, setNewCount] = useState(0);
+  const [editingName, setEditingName] = useState(false);
+
+  const scrollRef   = useRef(null);
+  const bottomRef   = useRef(null);
+  const atBottomRef = useRef(true);
+  const channelRef  = useRef(null);
+  const clientId    = useRef(Math.random().toString(36).slice(2));
+  const lastTyping  = useRef(0);
+
+  const displayName = author.trim() || "אנונימי";
+
+  // keep latest name/sound for stable subscriptions
+  const nameRef  = useRef(displayName);
+  const soundRef = useRef(soundOn);
+  useEffect(() => { nameRef.current = displayName; }, [displayName]);
+  useEffect(() => { soundRef.current = soundOn; }, [soundOn]);
+
+  function scrollToBottom() {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    atBottomRef.current = true;
+    setNewCount(0);
+  }
+
+  function playPing() {
+    if (!soundRef.current) return;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new Ctx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine"; o.frequency.value = 680; g.gain.value = 0.04;
+      o.start(); o.stop(ctx.currentTime + 0.12);
+      o.onended = () => ctx.close();
+    } catch {}
+  }
+
+  // initial load
   useEffect(() => {
-    getChatMessages().then(setMessages).catch(() => {});
+    getChatMessages()
+      .then(msgs => { setMessages(msgs || []); setLoading(false); requestAnimationFrame(scrollToBottom); })
+      .catch(() => setLoading(false));
   }, []);
 
-  // realtime subscription
+  // realtime new messages (subscribe once)
   useEffect(() => {
     const channel = subscribeToChatMessages(msg => {
-      setMessages(prev => [...prev, msg]);
+      setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
+      if (atBottomRef.current) requestAnimationFrame(scrollToBottom);
+      else setNewCount(c => c + 1);
+      if (msg.author !== nameRef.current) playPing();
     });
-    return () => { channel.unsubscribe?.(); };
+    return () => { channel?.unsubscribe?.(); };
   }, []);
 
-  // scroll to bottom on new messages
+  // presence + typing (subscribe once)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    const channel = supabase.channel("chat_room", { config: { presence: { key: clientId.current } } });
+    channel
+      .on("presence", { event: "sync" }, () => {
+        setOnline(Object.keys(channel.presenceState()).length || 1);
+      })
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (!payload || payload.id === clientId.current) return;
+        setTyping(prev => ({ ...prev, [payload.name]: Date.now() }));
+      })
+      .subscribe(status => {
+        if (status === "SUBSCRIBED") channel.track({ name: nameRef.current });
+      });
+    channelRef.current = channel;
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // re-announce presence when the name changes
+  useEffect(() => {
+    try { channelRef.current?.track?.({ name: displayName }); } catch {}
+  }, [displayName]);
+
+  // ticker to expire typing indicators
+  useEffect(() => {
+    const t = setInterval(() => forceTick(x => x + 1), 1500);
+    return () => clearInterval(t);
+  }, []);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    atBottomRef.current = near;
+    if (near && newCount) setNewCount(0);
+  }
+
+  function toggleSound() {
+    setSoundOn(s => { localStorage.setItem("chat_sound", s ? "0" : "1"); return !s; });
+  }
+
+  function onTextChange(v) {
+    setText(v);
+    const now = Date.now();
+    if (v && now - lastTyping.current > 1500) {
+      lastTyping.current = now;
+      try {
+        channelRef.current?.send({ type: "broadcast", event: "typing", payload: { name: displayName, id: clientId.current } });
+      } catch {}
+    }
+  }
 
   async function handleSend(e) {
-    e.preventDefault();
-    const name = author.trim() || "אנונימי";
+    e?.preventDefault?.();
     const body = text.trim();
     if (!body) return;
+    let content = body;
+    if (replyTo) {
+      const snip = replyTo.content.replace(/^> .*?\n/, "").replace(/\n/g, " ").slice(0, 80);
+      content = `> ${replyTo.author}: ${snip}\n${body}`;
+    }
     setSending(true); setError("");
     try {
-      await sendChatMessage({ author: name, content: body });
-      localStorage.setItem("chat_author", name);
-      setText("");
-      // reload to pick up any missed messages
-      getChatMessages().then(setMessages).catch(() => {});
+      await sendChatMessage({ author: displayName, content });
+      localStorage.setItem("chat_author", displayName);
+      setText(""); setReplyTo(null); setShowEmoji(false);
+      requestAnimationFrame(scrollToBottom);
     } catch (err) {
       setError("שגיאה בשליחה — נסה שוב");
     } finally {
@@ -4783,17 +4903,49 @@ function ChatPage() {
   const formatTime = iso => {
     if (!iso) return "";
     const d = new Date(iso);
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    return `${dd}/${mm} ${hh}:${mi}`;
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
 
+  const dayLabel = iso => {
+    const d = new Date(iso);
+    const today = new Date();
+    const yest = new Date(); yest.setDate(today.getDate() - 1);
+    const same = (a, b) => a.toDateString() === b.toDateString();
+    if (same(d, today)) return "היום";
+    if (same(d, yest)) return "אתמול";
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+  };
+
+  function linkify(str) {
+    return str.split(/(https?:\/\/[^\s]+)/g).map((p, i) =>
+      /^https?:\/\//.test(p)
+        ? <a key={i} href={p} target="_blank" rel="noopener noreferrer" style={{ color: C.goldBright, textDecoration: "underline" }}>{p}</a>
+        : p
+    );
+  }
+
+  function renderContent(content) {
+    return content.split("\n").map((line, i) =>
+      line.startsWith("> ")
+        ? <div key={i} style={{ borderRight: `3px solid ${C.gold}`, paddingRight: 8, margin: "0 0 4px", color: C.muted, fontSize: 13, fontStyle: "italic", opacity: 0.85 }}>{line.slice(2)}</div>
+        : <div key={i}>{linkify(line)}</div>
+    );
+  }
+
+  const typingNames = Object.entries(typing)
+    .filter(([n, ts]) => Date.now() - ts < 4000 && n !== displayName)
+    .map(([n]) => n);
+
+  const visible = search.trim()
+    ? messages.filter(m =>
+        (m.content || "").toLowerCase().includes(search.toLowerCase()) ||
+        (m.author || "").toLowerCase().includes(search.toLowerCase()))
+    : messages;
+
   return (
-    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "52px 16px 96px" }}>
+    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "40px 16px 80px" }}>
       {/* header */}
-      <div style={{ textAlign: "center", marginBottom: 36 }}>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
         <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
           קהילת סוד 1820
         </div>
@@ -4803,48 +4955,89 @@ function ChatPage() {
         <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, margin: 0 }}>
           שאל, שתף, התחבר — בית הפגישה של חוקרי הסוד
         </p>
-        <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+        <RoyalDivider width={120} style={{ margin: "16px auto 0" }} />
+      </div>
+
+      {/* toolbar: presence + search + sound */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4caf50", boxShadow: "0 0 6px #4caf50" }} />
+          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 11, letterSpacing: 1 }}>{online} מחוברים</span>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {messages.length} הודעות</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="🔍 חיפוש"
+            style={{ background: C.surface2, border: `1px solid ${C.border}`, color: "#ede4d3", fontFamily: F.heading, fontSize: 12, padding: "6px 10px", borderRadius: 3, outline: "none", direction: "rtl", width: 120 }}
+          />
+          <button type="button" onClick={toggleSound} title="צליל התראה" style={{ background: soundOn ? C.surface2 : "none", border: `1px solid ${C.border}`, color: soundOn ? C.goldBright : C.muted, cursor: "pointer", fontSize: 14, padding: "5px 9px", borderRadius: 3 }}>
+            {soundOn ? "🔔" : "🔕"}
+          </button>
+        </div>
       </div>
 
       {/* messages */}
-      <div style={{
+      <div ref={scrollRef} onScroll={onScroll} style={{
+        position: "relative",
         background: C.surface, border: `1px solid ${C.border}`,
-        borderRadius: 4, padding: "20px 16px",
-        minHeight: 320, maxHeight: 520, overflowY: "auto",
-        marginBottom: 20, display: "flex", flexDirection: "column", gap: 2,
+        borderRadius: 6, padding: "16px 14px",
+        minHeight: 360, maxHeight: 540, overflowY: "auto",
+        marginBottom: 10, display: "flex", flexDirection: "column", gap: 2,
       }}>
-        {messages.length === 0 && (
+        {loading && (
+          <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, fontSize: 14, padding: "60px 0" }}>טוען הודעות…</div>
+        )}
+        {!loading && visible.length === 0 && (
           <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, fontSize: 14, padding: "60px 0" }}>
-            אין הודעות עדיין — היה הראשון לכתוב
+            {search ? "לא נמצאו הודעות תואמות" : "אין הודעות עדיין — היה הראשון לכתוב"}
           </div>
         )}
-        {messages.map((msg, i) => {
-          const prev = messages[i - 1];
-          const sameAuthor = prev?.author === msg.author;
+        {visible.map((msg, i) => {
+          const prev = visible[i - 1];
+          const sameAuthor = prev?.author === msg.author &&
+            (new Date(msg.created_at) - new Date(prev?.created_at)) < 5 * 60 * 1000;
+          const showDay = !prev || dayLabel(prev.created_at) !== dayLabel(msg.created_at);
+          const mine = msg.author === displayName;
+          const color = chatAvatarColor(msg.author);
           return (
-            <div key={msg.id} style={{ marginTop: sameAuthor ? 3 : 14 }}>
-              {!sameAuthor && (
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                  <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-                    {msg.author}
-                  </span>
-                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>
-                    {formatTime(msg.created_at)}
+            <div key={msg.id}>
+              {showDay && (
+                <div style={{ textAlign: "center", margin: "12px 0 8px" }}>
+                  <span style={{ background: C.surface2, color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, padding: "3px 12px", borderRadius: 10, border: `1px solid ${C.border}` }}>
+                    {dayLabel(msg.created_at)}
                   </span>
                 </div>
               )}
-              <div style={{
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${C.border}`,
-                borderRadius: 3,
-                padding: "8px 14px",
-                color: "#d8d0c4",
-                fontFamily: F.body,
-                fontSize: 15,
-                lineHeight: 1.7,
-                wordBreak: "break-word",
-              }}>
-                {msg.content}
+              <div style={{ display: "flex", gap: 9, marginTop: sameAuthor ? 2 : 12, alignItems: "flex-start" }}>
+                <div style={{ width: 30, flexShrink: 0, visibility: sameAuthor ? "hidden" : "visible" }}>
+                  <div style={{ width: 30, height: 30, borderRadius: "50%", background: color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                    {(msg.author || "?").trim().charAt(0)}
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {!sameAuthor && (
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 3 }}>
+                      <span style={{ color: mine ? C.goldBright : C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                        {msg.author}{mine ? " (אתה)" : ""}
+                      </span>
+                      <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>{formatTime(msg.created_at)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{
+                      background: mine ? "rgba(184,144,47,0.10)" : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${mine ? C.borderGold : C.border}`,
+                      borderRadius: 4, padding: "8px 13px",
+                      color: "#d8d0c4", fontFamily: F.body, fontSize: 15,
+                      lineHeight: 1.7, wordBreak: "break-word", maxWidth: "100%",
+                    }}>
+                      {renderContent(msg.content)}
+                    </div>
+                    <button type="button" onClick={() => setReplyTo(msg)} title="השב" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 13, padding: 2, flexShrink: 0 }}>↩</button>
+                  </div>
+                </div>
               </div>
             </div>
           );
@@ -4852,56 +5045,85 @@ function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
+      {/* typing + scroll-to-bottom */}
+      <div style={{ height: 18, marginBottom: 6, position: "relative" }}>
+        {typingNames.length > 0 && (
+          <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontStyle: "italic" }}>
+            {typingNames.slice(0, 2).join(", ")} {typingNames.length > 1 ? "מקלידים…" : "מקליד…"}
+          </span>
+        )}
+        {newCount > 0 && (
+          <button type="button" onClick={scrollToBottom} style={{ position: "absolute", left: 0, top: -4, background: `linear-gradient(135deg, ${C.goldDark}, ${C.goldDeep})`, border: `1px solid ${C.gold}`, color: C.goldBright, fontFamily: F.heading, fontSize: 11, padding: "4px 12px", borderRadius: 14, cursor: "pointer" }}>
+            ↓ {newCount} חדשות
+          </button>
+        )}
+      </div>
+
+      {/* reply bar */}
+      {replyTo && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.surface2, border: `1px solid ${C.borderGold}`, borderRadius: "4px 4px 0 0", padding: "6px 12px", marginBottom: -1 }}>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            ↩ משיב ל־<b style={{ color: C.goldLight }}>{replyTo.author}</b>: {replyTo.content.replace(/^> .*?\n/, "").slice(0, 50)}
+          </span>
+          <button type="button" onClick={() => setReplyTo(null)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 16 }}>✕</button>
+        </div>
+      )}
+
       {/* compose form */}
-      <form onSubmit={handleSend} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <input
-          type="text"
-          placeholder="שמך (אופציונלי)"
-          value={author}
-          onChange={e => setAuthor(e.target.value)}
-          maxLength={60}
-          style={{
-            background: C.surface2, border: `1px solid ${C.border}`,
-            color: "#ede4d3", fontFamily: F.heading, fontSize: 13,
-            padding: "10px 14px", borderRadius: 3, outline: "none",
-            direction: "rtl",
-          }}
-        />
-        <div style={{ display: "flex", gap: 10 }}>
+      <form onSubmit={handleSend} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {/* identity row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, background: chatAvatarColor(displayName), color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+            {displayName.charAt(0)}
+          </div>
+          {editingName ? (
+            <input
+              autoFocus
+              value={author}
+              onChange={e => setAuthor(e.target.value)}
+              onBlur={() => { setEditingName(false); localStorage.setItem("chat_author", displayName); }}
+              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); setEditingName(false); localStorage.setItem("chat_author", displayName); } }}
+              placeholder="שמך"
+              maxLength={60}
+              style={{ background: C.surface2, border: `1px solid ${C.border}`, color: "#ede4d3", fontFamily: F.heading, fontSize: 13, padding: "5px 10px", borderRadius: 3, outline: "none", direction: "rtl" }}
+            />
+          ) : (
+            <button type="button" onClick={() => setEditingName(true)} style={{ background: "none", border: "none", cursor: "pointer", color: C.goldLight, fontFamily: F.heading, fontSize: 12 }}>
+              מחובר כ־<b>{displayName}</b> ✎
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "stretch", position: "relative" }}>
+          <button type="button" onClick={() => setShowEmoji(s => !s)} style={{ background: C.surface2, border: `1px solid ${C.border}`, cursor: "pointer", fontSize: 18, padding: "0 11px", borderRadius: 3 }}>😊</button>
+          {showEmoji && (
+            <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 6, background: C.surface2, border: `1px solid ${C.borderGold}`, borderRadius: 6, padding: 8, display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 2, zIndex: 20, boxShadow: "0 8px 30px rgba(0,0,0,0.5)" }}>
+              {CHAT_EMOJIS.map(em => (
+                <button key={em} type="button" onClick={() => { setText(t => t + em); setShowEmoji(false); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, padding: 3, borderRadius: 3 }}>{em}</button>
+              ))}
+            </div>
+          )}
           <textarea
-            placeholder="כתוב הודעה..."
+            placeholder="כתוב הודעה…"
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={e => onTextChange(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }}
             maxLength={1000}
-            rows={3}
-            style={{
-              flex: 1,
-              background: C.surface2, border: `1px solid ${C.border}`,
-              color: "#ede4d3", fontFamily: F.body, fontSize: 15,
-              padding: "10px 14px", borderRadius: 3, outline: "none",
-              resize: "vertical", direction: "rtl", lineHeight: 1.7,
-            }}
+            rows={2}
+            style={{ flex: 1, background: C.surface2, border: `1px solid ${C.border}`, color: "#ede4d3", fontFamily: F.body, fontSize: 15, padding: "9px 13px", borderRadius: 3, outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }}
           />
           <button
             type="submit"
             disabled={sending || !text.trim()}
-            style={{
-              alignSelf: "flex-end",
-              background: text.trim() ? `linear-gradient(135deg, ${C.goldDark}, ${C.goldDeep})` : C.surface2,
-              border: `1px solid ${text.trim() ? C.gold : C.border}`,
-              color: text.trim() ? C.goldBright : C.muted,
-              fontFamily: F.heading, fontSize: 11, letterSpacing: 2,
-              padding: "10px 20px", borderRadius: 3, cursor: text.trim() ? "pointer" : "not-allowed",
-              transition: "all 0.2s", whiteSpace: "nowrap",
-            }}
+            style={{ background: text.trim() ? `linear-gradient(135deg, ${C.goldDark}, ${C.goldDeep})` : C.surface2, border: `1px solid ${text.trim() ? C.gold : C.border}`, color: text.trim() ? C.goldBright : C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "0 18px", borderRadius: 3, cursor: text.trim() ? "pointer" : "not-allowed", transition: "all 0.2s", whiteSpace: "nowrap" }}
           >
-            {sending ? "שולח..." : "שלח ✦"}
+            {sending ? "שולח…" : "שלח ✦"}
           </button>
         </div>
         {error && <div style={{ color: "#c05050", fontFamily: F.heading, fontSize: 11 }}>{error}</div>}
-        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 9, letterSpacing: 1 }}>
-          Enter לשליחה • Shift+Enter לשורה חדשה
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 9, letterSpacing: 1 }}>Enter לשליחה • Shift+Enter לשורה חדשה • ↩ להשיב</span>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 9 }}>{text.length}/1000</span>
         </div>
       </form>
     </div>
@@ -4925,39 +5147,18 @@ function SpotimChatPage() {
 
   const postUrl = "https://sod1820.co.il/דף-צאט-ראשי";
 
+  // Clean, bare page — just the chat. This is the legacy URL that
+  // long-time users open directly, so it stays free of extra chrome.
   return (
-    <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "52px 16px 96px" }}>
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
-          קהילת סוד 1820
-        </div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
-          צאט האתר
-        </h1>
-        <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
-      </div>
-
-      {/* centered, framed box that holds the inline chat */}
-      <div style={{
-        maxWidth: 680,
-        margin: "0 auto",
-        background: C.surface,
-        border: `1px solid ${C.border}`,
-        borderRadius: 6,
-        boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
-        padding: "16px",
-        minHeight: 520,
-        overflow: "hidden",
-      }}>
-        <div
-          id="spotim-container"
-          data-spotim-module="conversation"
-          data-spot-id="sp_OVtajBTj"
-          data-post-id="daf-tzaat-rashi"
-          data-post-url={postUrl}
-          style={{ minHeight: 480 }}
-        />
-      </div>
+    <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "28px 16px 64px", minHeight: "72vh" }}>
+      <div
+        id="spotim-container"
+        data-spotim-module="conversation"
+        data-spot-id="sp_OVtajBTj"
+        data-post-id="daf-tzaat-rashi"
+        data-post-url={postUrl}
+        style={{ minHeight: 560 }}
+      />
     </div>
   );
 }
