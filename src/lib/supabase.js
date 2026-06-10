@@ -296,6 +296,31 @@ export async function getTrafficStats() {
   };
 }
 
+// ── Subscribers (רשימת תפוצה) ──────────────────────────────
+export async function subscribeEmail({ email, name = null, source = 'site' }) {
+  if (!supabase || !email?.trim()) return { ok: false };
+  const { error } = await supabase
+    .from('subscribers')
+    .insert([{ email: email.trim(), name: name?.trim() || null, source }]);
+  if (error && !/duplicate|unique/i.test(error.message)) throw error;
+  return { ok: true, duplicate: !!error };
+}
+
+// ── Admin inbox (הודעות + מנויים) — מאחורי סיסמת ניהול בצד-שרת ──
+export async function getAdminInbox(key) {
+  const empty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };
+  if (!supabase) return empty;
+  const { data, error } = await supabase.rpc('admin_inbox', { p_key: key });
+  if (error) throw error;
+  return data || empty;
+}
+
+export async function markMessageRead(key, id, read = true) {
+  if (!supabase) return;
+  const { error } = await supabase.rpc('admin_mark_message_read', { p_key: key, p_id: id, p_read: read });
+  if (error) throw error;
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,

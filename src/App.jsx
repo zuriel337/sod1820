@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats } from "./lib/supabase.js";
+import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead } from "./lib/supabase.js";
 import UploadFindings from "./components/UploadFindings.jsx";
 
 // ===== GEMATRIA =====
@@ -1998,6 +1998,7 @@ function LoginPage({ onNav }) {
   function handleSubmit() {
     if (!email || !pass) { setError("יש למלא את כל השדות"); return; }
     setError(""); setDone(true);
+    if (mode === "register") subscribeEmail({ email, name, source: "register" }).catch(() => {});
   }
 
   if (done) return (
@@ -4334,19 +4335,37 @@ function TrafficDashboardPage({ onNav }) {
   const [data, setData]       = useState({ yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] });
   const [year, setYear]       = useState("all");
   const [gran, setGran]       = useState("monthly");
+  const [inbox, setInbox]     = useState({ messages: [], subscribers: [], unread: 0, subscriber_count: 0 });
+  const [tab, setTab]         = useState("traffic"); // traffic | inbox
 
   function handleAuth() {
     if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
     else setPwError(true);
   }
 
-  useEffect(() => {
-    if (!authed) return;
+  const reload = React.useCallback(() => {
     setLoading(true); setErr("");
-    getTrafficStats()
-      .then(d => { setData(d); setLoading(false); })
+    const inboxEmpty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };
+    Promise.all([
+      getTrafficStats(),
+      getAdminInbox(ADMIN_PASSWORD).catch(() => inboxEmpty),
+    ])
+      .then(([d, ib]) => { setData(d); setInbox(ib || inboxEmpty); setLoading(false); })
       .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
-  }, [authed]);
+  }, []);
+
+  useEffect(() => { if (authed) reload(); }, [authed, reload]);
+
+  async function toggleRead(m) {
+    try {
+      await markMessageRead(ADMIN_PASSWORD, m.id, !m.read);
+      setInbox(prev => ({
+        ...prev,
+        messages: prev.messages.map(x => x.id === m.id ? { ...x, read: !x.read } : x),
+        unread: prev.messages.reduce((s, x) => s + ((x.id === m.id ? !x.read : x.read) ? 0 : 1), 0),
+      }));
+    } catch {}
+  }
 
   const series = React.useMemo(() => {
     const map = new Map();
@@ -4396,6 +4415,46 @@ function TrafficDashboardPage({ onNav }) {
 
   const filtered = year === "all" ? data.posts : data.posts.filter(p => p.period === year);
   const topPosts = filtered.slice(0, 50);
+
+  // פילוח לפי יום בשבוע (ממוצע צפיות מהנתונים היומיים)
+  const DOW = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  const dowAgg = (() => {
+    const sum = Array(7).fill(0), cnt = Array(7).fill(0);
+    for (const d of data.daily) {
+      const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
+      sum[wd] += d.views; cnt[wd] += 1;
+    }
+    return DOW.map((label, i) => ({ label, avg: cnt[i] ? Math.round(sum[i] / cnt[i]) : 0 }));
+  })();
+  const maxDow = Math.max(1, ...dowAgg.map(d => d.avg));
+  const bestDay = data.daily.reduce((m, d) => (d.views > m.views ? d : m), { date: "—", views: 0 });
+
+  // צמיחה שנתית (YoY)
+  const yoy = data.yearly.map((y, i) => {
+    const prev = data.yearly[i - 1];
+    const pct = prev && prev.views ? Math.round(((y.views - prev.views) / prev.views) * 100) : null;
+    return { ...y, pct };
+  });
+
+  // ייצוא CSV
+  function downloadCsv(filename, rows, headers) {
+    const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [headers.map(esc).join(","), ...rows.map(r => r.map(esc).join(","))].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  const exportDaily = () => downloadCsv("traffic-daily.csv", data.daily.map(d => [d.date, d.views]), ["תאריך", "צפיות"]);
+  const exportPosts = () => downloadCsv("top-posts.csv", data.posts.map(p => [p.period, p.title, p.views, p.url || ""]), ["שנה", "כותרת", "צפיות", "קישור"]);
+  const exportRefs  = () => downloadCsv("referrers.csv", data.referrers.map(r => [r.title, r.views]), ["מקור", "צפיות"]);
+  const exportSubs  = () => downloadCsv("subscribers.csv", inbox.subscribers.map(s => [s.email, s.name || "", s.source, s.created_at]), ["אימייל", "שם", "מקור", "תאריך"]);
+
+  const smallBtn = {
+    background: C.bgGlow, border: `1px solid ${C.borderGold}`, color: C.goldBright,
+    cursor: "pointer", fontSize: 11, fontFamily: F.heading, letterSpacing: 1,
+    padding: "8px 14px", borderRadius: 6,
+  };
 
   const chipStyle = active => ({
     background: active ? C.goldDark : C.bgGlow,
@@ -4455,13 +4514,28 @@ function TrafficDashboardPage({ onNav }) {
 
       {!loading && !err && (
         <>
+          {/* סרגל כלים */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 22 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button onClick={reload} style={smallBtn}>↻ רענון</button>
+              <button onClick={exportDaily} style={smallBtn}>⬇ צפיות יומיות</button>
+              <button onClick={exportPosts} style={smallBtn}>⬇ פוסטים</button>
+              <button onClick={exportRefs} style={smallBtn}>⬇ מקורות</button>
+            </div>
+            <a href="#inbox" style={{ ...smallBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              ✉ הודעות ומנויים
+              {inbox.unread > 0 && <span style={{ background: C.crimson, color: C.goldBright, borderRadius: 10, padding: "1px 8px", fontSize: 11 }}>{inbox.unread}</span>}
+            </a>
+          </div>
+
           {/* כרטיסי סיכום */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 32 }}>
             {[["סך צפיות (2015→)", nf(totalAll)],
               [`שיא — ${peakYear.period}`, nf(peakYear.views)],
-              ["שנים מתועדות", String(data.yearly.length)],
+              [`היום החזק · ${bestDay.date}`, nf(bestDay.views)],
               ["פוסטים", nf(data.posts.length)],
-              ["מקורות תנועה", nf(data.referrers.length)]].map(([label, val]) => (
+              ["מקורות תנועה", nf(data.referrers.length)],
+              ["מנויים", nf(inbox.subscriber_count)]].map(([label, val]) => (
               <div key={label} style={{ ...cardStyle, padding: "18px 16px", textAlign: "center", borderTop: `2px solid ${C.borderGold}` }}>
                 <div style={{ fontSize: 24, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>{val}</div>
                 <div style={{ fontSize: 9.5, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
@@ -4501,6 +4575,22 @@ function TrafficDashboardPage({ onNav }) {
             )}
           </div>
 
+          {/* פילוח לפי יום בשבוע */}
+          <div style={{ ...cardStyle, marginBottom: 28 }}>
+            <div style={panelTitle}>צפיות לפי יום בשבוע (ממוצע ליום)</div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {dowAgg.map(d => (
+                <div key={d.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 52, color: C.goldLight, fontFamily: F.heading, fontSize: 12 }}>{d.label}</div>
+                  <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 18 }}>
+                    <div style={{ width: `${Math.max(3, (d.avg / maxDow) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.royalLight}, ${C.gold})` }} />
+                  </div>
+                  <div style={{ width: 60, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{nf(d.avg)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* מקורות תנועה + קליקים */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 28 }}>
             <ListPanel title="מאיפה נכנסים — מקורות תנועה" rows={data.referrers} max={maxRef} link />
@@ -4525,11 +4615,14 @@ function TrafficDashboardPage({ onNav }) {
           <div style={{ ...cardStyle, marginBottom: 28 }}>
             <div style={panelTitle}>צפיות לפי שנה</div>
             <div style={{ display: "grid", gap: 10 }}>
-              {data.yearly.map(y => (
+              {yoy.map(y => (
                 <div key={y.period} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 44, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{y.period}</div>
                   <div style={{ flex: 1, background: C.bg, borderRadius: 4, overflow: "hidden", height: 22 }}>
                     <div style={{ width: `${Math.max(3, (y.views / maxYearViews) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${C.goldDark}, ${C.gold})` }} />
+                  </div>
+                  <div style={{ width: 56, textAlign: "left", fontFamily: F.mono, fontSize: 12, color: y.pct == null ? C.muted : y.pct >= 0 ? "#3a9b6e" : C.crimsonLight }}>
+                    {y.pct == null ? "—" : `${y.pct >= 0 ? "▲" : "▼"}${Math.abs(y.pct)}%`}
                   </div>
                   <div style={{ width: 80, textAlign: "left", color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>{nf(y.views)}</div>
                 </div>
@@ -4565,6 +4658,58 @@ function TrafficDashboardPage({ onNav }) {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* תיבת דואר — הודעות ומנויים */}
+          <div id="inbox" style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ ...panelTitle, marginBottom: 0 }}>הודעות שנשלחו לאתר</div>
+                {inbox.unread > 0 && <span style={{ background: C.crimson, color: C.goldBright, borderRadius: 10, padding: "1px 9px", fontSize: 11, fontFamily: F.heading }}>{inbox.unread} חדשות</span>}
+              </div>
+              {inbox.messages.length === 0 ? (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין הודעות עדיין. הודעות מטופס "צור קשר" יופיעו כאן.</div>
+              ) : (
+                <div style={{ display: "grid", gap: 10, maxHeight: 440, overflowY: "auto" }}>
+                  {inbox.messages.map(m => (
+                    <div key={m.id} onClick={() => toggleRead(m)} title="לחץ לסימון נקרא / לא-נקרא" style={{
+                      cursor: "pointer", padding: "12px 14px", borderRadius: 6,
+                      background: m.read ? C.bg : C.surface2,
+                      border: `1px solid ${m.read ? C.faint : C.borderGold}`,
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.name}{!m.read && <span style={{ color: C.crimsonLight }}> ●</span>}</span>
+                        <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(m.created_at || "").slice(0, 10)}</span>
+                      </div>
+                      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 4 }}>{m.email}{m.subject ? ` · ${m.subject}` : ""}</div>
+                      <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.message}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ ...panelTitle, marginBottom: 0 }}>מנויים — רשימת תפוצה</div>
+                <button onClick={exportSubs} style={smallBtn}>⬇ CSV</button>
+              </div>
+              <div style={{ fontSize: 28, color: C.goldBright, fontWeight: 900, fontFamily: F.heading, marginBottom: 12 }}>{nf(inbox.subscriber_count)}</div>
+              {inbox.subscribers.length === 0 ? (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0", lineHeight: 1.7 }}>
+                  אין מנויים עדיין. טופס ההרשמה כבר פעיל — כל הרשמה חדשה תופיע כאן אוטומטית.
+                </div>
+              ) : (
+                <div style={{ display: "grid", gap: 6, maxHeight: 400, overflowY: "auto" }}>
+                  {inbox.subscribers.map(s => (
+                    <div key={s.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "8px 10px", borderBottom: `1px solid ${C.faint}` }}>
+                      <span style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13 }}>{s.email}{s.name ? ` · ${s.name}` : ""}</span>
+                      <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(s.created_at || "").slice(0, 10)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div style={{ textAlign: "center", marginTop: 32 }}>
@@ -5214,6 +5359,39 @@ function SpotimChatPage() {
 
 // ===== FOOTER =====
 
+function NewsletterSignup() {
+  const [email, setEmail] = useState("");
+  const [done, setDone]   = useState(false);
+  const [busy, setBusy]   = useState(false);
+  async function submit() {
+    const e = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return;
+    setBusy(true);
+    try { await subscribeEmail({ email: e, source: "newsletter" }); } catch {}
+    setDone(true); setBusy(false);
+  }
+  return (
+    <div style={{ maxWidth: 1040, margin: "0 auto 28px", paddingBottom: 28, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
+        <div>
+          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>הרשמה לרשימת התפוצה</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>קבלו עדכונים וחידושים מסוד 1820</div>
+        </div>
+        {done ? (
+          <div style={{ color: C.gold, fontFamily: F.body, fontSize: 14 }}>✦ נרשמת בהצלחה — תודה!</div>
+        ) : (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="האימייל שלך" dir="ltr"
+              onKeyDown={e => e.key === "Enter" && submit()}
+              style={{ background: C.bg, border: `1px solid ${C.borderGold}`, color: C.goldBright, padding: "10px 14px", borderRadius: 4, fontFamily: F.body, fontSize: 14, minWidth: 220, outline: "none" }} />
+            <GoldButton onClick={submit} disabled={busy} style={{ padding: "10px 24px", fontSize: 11 }}>{busy ? "..." : "הרשמה"}</GoldButton>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Footer({ onNav, navItems }) {
   const items = navItems?.length ? navItems : NAV_ITEMS;
 
@@ -5230,6 +5408,7 @@ function Footer({ onNav, navItems }) {
       padding: "56px 36px 28px",
       direction: "rtl",
     }}>
+      <NewsletterSignup />
       <div style={{
         maxWidth: 1040,
         margin: "0 auto",
@@ -5740,6 +5919,7 @@ function AppContent() {
         <main>
           <Routes>
             <Route path="/post" element={<BlogPage onNav={nav} pageContent={getPageContent("blog")} adminMode={adminMode} />} />
+            <Route path="/traffic" element={<TrafficDashboardPage onNav={nav} />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/דף-צאט-ראשי" element={<SpotimChatPage />} />
             <Route path="/צור-קשר" element={<ContactPage />} />
