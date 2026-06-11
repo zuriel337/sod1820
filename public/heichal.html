@@ -57,6 +57,22 @@
     transition:background .2s,transform .2s}
   #world .back:hover{background:rgba(232,200,64,.14);transform:translateY(-1px)}
   #world .back:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  /* תוויות שערים — DOM overlay חד שמוקרן מעל כל שער */
+  #gate-labels{position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+  .glabel{position:absolute;transform:translate(-50%,-50%);text-align:center;white-space:nowrap;
+    background:rgba(6,4,1,.74);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    border:1px solid rgba(232,200,64,.42);border-radius:13px;padding:7px 15px;
+    box-shadow:0 8px 26px rgba(0,0,0,.55);transition:opacity .25s ease}
+  .glabel .gl-name{font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:16px;
+    color:#ffe9a8;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+  .glabel .gl-status{font-family:"Heebo",sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:.4px;margin-top:3px;color:#bfa46a}
+  .glabel.locked .gl-status{color:#c9a24a}
+  .glabel.featured{border-color:var(--gold);
+    box-shadow:0 0 24px rgba(232,200,64,.4),0 8px 26px rgba(0,0,0,.55)}
+  .glabel.featured .gl-status{color:#f6e27a;font-weight:800;font-size:13.5px;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(232,200,64,.5)}
+  .glabel.behind{opacity:0}
   #audioBtn{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;z-index:6;
     width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;
     background:rgba(8,5,2,.6);color:var(--gold);border:1px solid rgba(232,200,64,.35);
@@ -81,6 +97,7 @@
     <div class="emoji"></div><div class="wname"></div><div class="wsub"></div>
     <button class="back" type="button">חזרה להיכל →</button>
   </div>
+  <div id="gate-labels" aria-hidden="true"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -432,27 +449,22 @@ function buildGate(cfg,i){
   const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
 
   const featured=(cfg.key==='ai');   // שער ai — "שעון יפה" בולט
-  const timer=makeSprite({text:'',font:`${featured?'800':'700'} ${featured?54:48}px "Heebo"`,
-    color:featured?'#f6e27a':lighten(col,0.55),w:720,h:150,plaque:true});
-  timer.sprite.position.set(0,DH+1.78,inFront+0.14);
-  timer.sprite.scale.set(featured?4.4:3.7,featured?0.92:0.76,1);group.add(timer.sprite);
-  if(featured){ // טבעת זוהר זהובה סביב השעון
-    const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(0xe8c840),color:0xffffff,
-      transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.55}));
-    halo.scale.set(5.2,2.4,1);halo.position.set(0,DH+1.78,inFront+0.06);group.add(halo);
-    animated.push({tick:(dt,t)=>{ halo.material.opacity=0.4+Math.sin(t*1.8)*0.18; }});
-  }
-  const name=makeSprite({text:`${cfg.emoji} ${cfg.title}`,font:'700 58px "Frank Ruhl Libre"',color:'#ffe9a8',w:680,h:160,plaque:true});
-  name.sprite.position.set(0,DH+2.7,inFront+0.14);name.sprite.scale.set(3.9,0.92,1);group.add(name.sprite);
+  // תווית שם + סטטוס כ-DOM overlay — טקסט חד וקריא בכל מרחק
+  const labelEl=document.createElement('div');
+  labelEl.className='glabel '+(featured?'featured':'locked');
+  labelEl.innerHTML=`<div class="gl-name">${cfg.emoji} ${cfg.title}</div><div class="gl-status"></div>`;
+  document.getElementById('gate-labels').appendChild(labelEl);
+  const statusEl=labelEl.querySelector('.gl-status');
+  const labelAnchor=new THREE.Vector3(x,DH+0.9,z);   // מעט מעל הקשת — בתוך שדה הראייה
 
   // ── הלוגו מרחף מעל השער ──
-  const LOGO_Y=DH+4.05;
+  const LOGO_Y=DH+2.2;
   const logoGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(col),color:0xffffff,
     transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.5}));
-  logoGlow.scale.set(2.6,2.6,1);logoGlow.position.set(0,LOGO_Y,inFront+0.05);group.add(logoGlow);
+  logoGlow.scale.set(2.2,2.2,1);logoGlow.position.set(0,LOGO_Y,inFront+0.05);group.add(logoGlow);
   const logo=new THREE.Sprite(new THREE.SpriteMaterial({map:getLogoTex(),
     transparent:true,depthWrite:false}));
-  logo.scale.set(1.7,1.7,1);logo.position.set(0,LOGO_Y,inFront+0.12);group.add(logo);
+  logo.scale.set(1.5,1.5,1);logo.position.set(0,LOGO_Y,inFront+0.12);group.add(logo);
   animated.push({tick:(dt,t)=>{ const m=reduced?0.4:1;
     const yy=LOGO_Y+Math.sin(t*0.9+i)*0.08*m;
     logo.position.y=yy; logoGlow.position.y=yy;
@@ -464,7 +476,8 @@ function buildGate(cfg,i){
   scene.add(group);
   // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
   const base=featured?0.06:0;
-  gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, timer, featured,
+  gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
+    labelEl, statusEl, labelAnchor,
     worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
     baseOpen:base, openAmt:base, targetOpen:base, hover:0, hoverTarget:0, hit });
 }
@@ -484,7 +497,7 @@ function updateTimers(){
         // שעון חי: ימים + שעון מתקתק
         txt = d>0 ? `נפתח בעוד ${d}י׳ · ${p(h)}:${p(m)}:${p(s)}`
                   : `נפתח בעוד ${p(h)}:${p(m)}:${p(s)}`; } }
-    g.timer.update(txt); });
+    if(g.statusEl) g.statusEl.textContent=txt; });
 }
 
 /* ---------- motes ---------- */
@@ -567,7 +580,7 @@ function onDown(e){ if(state!=='idle')return;dragging=true;dragDist=0;lastX=e.cl
 function onMove(e){ if(state!=='idle')return;
   if(dragging){ const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
     dragDist+=Math.abs(dx)+Math.abs(dy);targetYaw-=dx*0.0042;targetPitch-=dy*0.0042;
-    targetPitch=Math.max(-0.45,Math.min(0.45,targetPitch));lastInteract=clock.elapsedTime; }
+    targetPitch=Math.max(-0.45,Math.min(0.62,targetPitch));lastInteract=clock.elapsedTime; }
   const hit=pick(e);
   if(hit!==hovered){ hovered=hit;renderer.domElement.style.cursor=hit?'pointer':'default';
     gates.forEach(g=>g.hoverTarget=(g===hit)?1:0); }
@@ -654,6 +667,16 @@ function animate(){
     if(tween.mode==='in')renderer.toneMappingExposure=1.12+e*0.7;
     if(p>=1){ tween.active=false;renderer.toneMappingExposure=1.12;
       if(tween.onMid)tween.onMid();if(tween.mode==='out'){state='idle';lastInteract=t;} }
+  }
+  // הקרנת תוויות השערים (DOM) למיקום המתאים על המסך
+  const showLabels=(state==='idle');
+  for(const g of gates){
+    if(!showLabels){ g.labelEl.classList.add('behind'); continue; }
+    const v=g.labelAnchor.clone().project(camera);
+    if(v.z>1 || v.x<-1.05||v.x>1.05||v.y<-1.05||v.y>1.05){ g.labelEl.classList.add('behind'); }
+    else{ g.labelEl.classList.remove('behind');
+      g.labelEl.style.left=((v.x*0.5+0.5)*innerWidth)+'px';
+      g.labelEl.style.top=((-v.y*0.5+0.5)*innerHeight)+'px'; }
   }
   renderer.render(scene,camera);
 }
