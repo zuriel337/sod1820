@@ -362,6 +362,70 @@ function RoyalGate({ p }) {
   );
 }
 
+// ===== דמו "רקע שער מלא" (דסקטופ) — מוכן לחיבור תמונת PNG =====
+// שכבת רקע מלאה (gate-bg.png) + scrim לקריאות + תוכן סגול חי מעליה.
+// ברגע שמעלים public/gate-bg.png — הוא נכנס אוטומטית במקום ה-fallback.
+function FullGateDemo({ p }) {
+  return (
+    <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", marginBottom: 28,
+      minHeight: "clamp(460px,76vh,640px)", background: `radial-gradient(circle at 50% 20%, ${p.bgGlow}, ${p.bg} 75%)`,
+      border: "1px solid #C9971E55", boxShadow: `0 0 70px ${p.accent2}22, inset 0 0 60px #000` }}>
+
+      {/* שכבת תמונת השער המלאה (כשתועלה) */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 1,
+        backgroundImage: "url('/gate-bg.png')", backgroundSize: "cover",
+        backgroundPosition: "center top", backgroundRepeat: "no-repeat" }} />
+
+      {/* fallback מעוצב כל עוד אין תמונה: עמודי זהב + קשת + ערפילית סגולה */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "13%",
+          background: "linear-gradient(90deg,#5a3f0c,#F6E27A 30%,#C9971E 55%,#5a3f0c)", opacity: .85,
+          boxShadow: "0 0 40px #C9971E55" }} />
+        <div style={{ position: "absolute", top: 0, bottom: 0, right: 0, width: "13%",
+          background: "linear-gradient(90deg,#5a3f0c,#C9971E 45%,#F6E27A 70%,#5a3f0c)", opacity: .85,
+          boxShadow: "0 0 40px #C9971E55" }} />
+        <svg viewBox="0 0 600 130" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "76%", height: 130, opacity: .9 }}>
+          <path d="M10,128 Q300,-46 590,128" fill="none" stroke="#C9971E" strokeWidth="6" style={{ filter: "drop-shadow(0 0 8px #C9971E)" }} />
+        </svg>
+        <div style={{ position: "absolute", inset: 0,
+          background: `radial-gradient(50% 45% at 50% 30%, ${p.accent2}33, transparent 70%)` }} />
+      </div>
+
+      {/* scrim לקריאות מתחת לטקסט */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 2,
+        background: `radial-gradient(58% 64% at 50% 46%, ${p.bg}d9 0%, ${p.bg}99 42%, transparent 78%)` }} />
+
+      {/* תוכן חי מעל הרקע */}
+      <div style={{ position: "relative", zIndex: 3, textAlign: "center",
+        padding: "clamp(40px,7vw,70px) clamp(18px,16vw,180px)" }}>
+        <div style={{ animation: "rg-float 5s ease-in-out infinite", display: "inline-block" }}>
+          <Crown size={104} />
+        </div>
+        <h1 style={{ fontFamily: F.regal, fontWeight: 800, fontSize: "clamp(30px,5.5vw,52px)", margin: "10px 0 12px",
+          color: "#f6d264", textShadow: `0 0 22px gold, 0 0 60px ${p.accent2}66, 0 2px 4px #000` }}>
+          כי לה' המלוכה
+        </h1>
+        <p style={{ color: p.text, fontFamily: F.body, fontSize: "clamp(14px,2.4vw,18px)", maxWidth: 520,
+          margin: "0 auto 26px", lineHeight: 1.9, textShadow: `0 1px 3px ${p.bg}` }}>
+          הוכחה שהתוכן נשאר חד וקריא — גם כשרקע השער מלא את כל המסך מאחוריו.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14, maxWidth: 560, margin: "0 auto 26px" }}>
+          {["מסע התדר", "עץ המספרים", "הצופן התנ\"כי"].map((t, i) => (
+            <div key={i} style={{ padding: "16px 12px", borderRadius: 14,
+              background: p.glass, backdropFilter: "blur(12px)", border: `1px solid ${p.glassBorder}`,
+              boxShadow: `0 0 22px ${[p.accent2, p.accent3, p.accent][i]}33`,
+              fontFamily: F.heading, fontSize: 15, fontWeight: 600, color: p.text }}>{t}</div>
+          ))}
+        </div>
+        <NeonButton p={p} primary>היכנס אל ההיכל →</NeonButton>
+        <div style={{ marginTop: 22, fontFamily: F.mono, fontSize: 12, color: p.textDim, direction: "ltr" }}>
+          ⬑ drop public/gate-bg.png — desktop only
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ThemePreviewPage() {
   const [key, setKey] = useState("stellar");
   const p = PALETTES[key];
@@ -392,8 +456,14 @@ export default function ThemePreviewPage() {
           {p.tagline}
         </div>
 
-        {/* HERO — שער מלכותי */}
+        {/* HERO — שער מלכותי (אינטרו אימרסיבי) */}
         <RoyalGate p={p} />
+
+        {/* דמו — רקע שער מלא (דסקטופ), מוכן לחיבור gate-bg.png */}
+        <div style={{ fontFamily: F.heading, fontSize: 12, letterSpacing: 5, color: p.accent3, margin: "0 0 14px", textAlign: "center" }}>
+          ▸ קונספט: רקע שער מלא · תוכן קריא מעליו
+        </div>
+        <FullGateDemo p={p} />
 
         {/* SWATCHES */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
