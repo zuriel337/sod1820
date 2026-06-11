@@ -59,6 +59,11 @@ const CSS = `
   .tp-card { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
   .tp-card:hover { transform: translateY(-6px); }
   .tp-btn { transition: all .25s ease; cursor: pointer; }
+  .tp-gatebg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: url('/gate-bg.jpg') center top / cover no-repeat;
+  }
+  @media (max-width: 768px) { .tp-gatebg { display: none; } }
 `;
 
 function Nebula({ p }) {
@@ -416,6 +421,13 @@ export default function ThemePreviewPage() {
   return (
     <div dir="rtl" style={{ position: "relative", minHeight: "100vh", background: p.bg, color: p.text, overflow: "hidden", transition: "background .5s ease" }}>
       <style>{CSS}</style>
+
+      {/* רקע שער מלא — נעול (fixed): התוכן גולל מעליו, השער נשאר יציב. דסקטופ בלבד */}
+      <div className="tp-gatebg" />
+      {/* scrim עדין כדי שכרטיסי הזכוכית והטקסט יישארו קריאים מעל התמונה */}
+      <div className="tp-gatebg" style={{ backgroundImage: "none",
+        background: `linear-gradient(180deg, ${p.bg}b8 0%, ${p.bg}8c 38%, ${p.bg}c9 100%)` }} />
+
       <Nebula p={p} />
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1180, margin: "0 auto", padding: "32px 20px 90px" }}>
