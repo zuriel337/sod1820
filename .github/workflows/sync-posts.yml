@@ -1,9 +1,9 @@
 name: Sync WP → Supabase (כל הפוסטים)
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 4 * * *'   # כל יום ב-04:00 UTC
+  workflow_dispatch:   # הרצה ידנית בלבד
+  # הסנכרון האוטומטי היומי בוטל — התוכן הוקפא ב-Supabase, נותק החיבור ל-WordPress.
+  # (ניתן עדיין להריץ ידנית מלשונית Actions אם יידרש סנכרון חד-פעמי לפני ה-cutover.)
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"

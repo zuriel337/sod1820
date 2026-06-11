@@ -4751,6 +4751,24 @@ function Footer({ onNav, navItems }) {
 
 // ===== SLUG-BASED POST PAGE =====
 
+// ===== 404 / דף לא נמצא =====
+function NotFound({ onNav }) {
+  const navigate = useNavigate();
+  return (
+    <div style={{ direction: "rtl", textAlign: "center", padding: "100px 24px 120px", maxWidth: 600, margin: "0 auto" }}>
+      <div style={{ fontSize: 64, color: C.goldDim, marginBottom: 16 }}>✦</div>
+      <h1 style={{ color: "#E8D5A3", fontFamily: F.royal, fontSize: "clamp(28px, 5vw, 48px)", margin: "0 0 16px" }}>404</h1>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 1.8, marginBottom: 36 }}>
+        הדף שחיפשת לא נמצא. ייתכן שהכתובת השתנתה או שהדף הוסר.
+      </p>
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <GoldButton onClick={() => navigate("/")}>חזרה לדף הבית</GoldButton>
+        <GoldButton variant="secondary" onClick={() => navigate("/post")}>לכל הפוסטים</GoldButton>
+      </div>
+    </div>
+  );
+}
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -4814,8 +4832,18 @@ function PostPageBySlug({ onNav }) {
       path: "/" + slug,
       image: image || undefined,
       type: "article",
+      article: {
+        datePublished: post.date || undefined,
+        dateModified: post.modified || post.date || undefined,
+        author: author || undefined,
+      },
     });
   }, [post, title, image, slug]);
+
+  // SEO לדף לא-נמצא — noindex כדי שגוגל לא יאנדקס דפי שגיאה
+  useEffect(() => {
+    if (error === "הפוסט לא נמצא") applySeo({ title: "הדף לא נמצא", noindex: true, path: "/" + slug });
+  }, [error, slug]);
 
   return (
     <div style={{ direction: "rtl" }}>
@@ -4831,7 +4859,8 @@ function PostPageBySlug({ onNav }) {
           ← חזרה לפוסטים
         </button>
         {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
-        {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
+        {!loading && error === "הפוסט לא נמצא" && <NotFound onNav={onNav} />}
+        {!loading && error && error !== "הפוסט לא נמצא" && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
           <>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -5059,11 +5088,7 @@ function AppContent() {
     catch { return {}; }
   });
 
-  useEffect(() => {
-    fetchWpMenu().then(items => {
-      if (items?.length) setNavItems(items);
-    });
-  }, []);
+  // התפריט סטטי (NAV_ITEMS) — נותק החיבור ל-WordPress (הקפאה מלאה).
 
   // sync page state from URL
   useEffect(() => {
