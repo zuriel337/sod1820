@@ -58,6 +58,7 @@ export const ROUTE_META = {
   "/members":       { title: "בני ההיכל", description: "אזור המנויים — שיעורים, קורסים, עץ מתקדם וצפנים בלעדיים.", noindex: true },
   "/about":         { title: "אודות", description: "אודות צוריאל פולייס — חוקר גימטריה ושפת המספרים." },
   "/contact":       { title: "צור קשר", description: "יצירת קשר עם צוריאל פולייס ו-SOD1820." },
+  "/theme-preview": { title: "תצוגת צבעים", description: "עמוד תצוגה זמני לבחירת פלטת הצבעים.", noindex: true },
 };
 
 // שיטוח כל הקישורים (כולל ילדים) לרשימה אחת
