@@ -18,7 +18,8 @@ const APPLY        = process.env.APPLY === "true";
 if (!SUPABASE_KEY) { console.error("חסר SUPABASE_SERVICE_KEY"); process.exit(1); }
 
 const PUBLIC_BASE = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/uploads/`;
-const URL_RE = /(?:https?:)?\/\/(?:www\.)?sod1820\.co\.il\/wp-content\/uploads\/([^\s"'<>)\\]+)/gi;
+// תופס גם כתובות ישירות (sod1820.co.il) וגם דרך Jetpack CDN (iN.wp.com/sod1820.co.il)
+const URL_RE = /(?:https?:)?\/\/(?:i\d\.wp\.com\/)?(?:www\.)?sod1820\.co\.il\/wp-content\/uploads\/([^\s"'<>)\\]+)/gi;
 const pathOf = (cap) => cap.replace(/[?#].*$/, "");           // ללא query/fragment
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 
@@ -66,7 +67,7 @@ async function main() {
   console.log(`קיימים ב-storage: ${okCount}; חסרים (יישארו ללא שינוי): ${paths.size - okCount}`);
 
   const rewrite = (s) => (typeof s !== "string" ? s : s.replace(URL_RE, (m, cap) =>
-    exists.get(pathOf(cap)) ? PUBLIC_BASE + cap : m));
+    exists.get(pathOf(cap)) ? PUBLIC_BASE + pathOf(cap) : m));
 
   let changed = 0, updated = 0;
   for (const r of rows) {

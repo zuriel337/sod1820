@@ -53,7 +53,8 @@ async function resolveStorageName(folder, file) {
   return cand || null;
 }
 
-const URL_RE = /(?:https?:)?\/\/(?:www\.)?sod1820\.co\.il\/wp-content\/uploads\/(\d{4}\/\d{2})\/([^\s"'<>)\\]+)/g;
+// תופס גם כתובות ישירות וגם דרך Jetpack CDN (iN.wp.com/sod1820.co.il)
+const URL_RE = /(?:https?:)?\/\/(?:i\d\.wp\.com\/)?(?:www\.)?sod1820\.co\.il\/wp-content\/uploads\/(\d{4}\/\d{2})\/([^\s"'<>)\\]+)/g;
 
 async function main() {
   // שלב 1: איסוף כל הפוסטים
