@@ -373,7 +373,7 @@ function FullGateDemo({ p }) {
 
       {/* שכבת תמונת השער המלאה (כשתועלה) */}
       <div style={{ position: "absolute", inset: 0, zIndex: 1,
-        backgroundImage: "url('/gate-bg.png')", backgroundSize: "cover",
+        backgroundImage: "url('/gate-bg.jpg')", backgroundSize: "cover",
         backgroundPosition: "center top", backgroundRepeat: "no-repeat" }} />
 
       {/* fallback מעוצב כל עוד אין תמונה: עמודי זהב + קשת + ערפילית סגולה */}
@@ -419,7 +419,7 @@ function FullGateDemo({ p }) {
         </div>
         <NeonButton p={p} primary>היכנס אל ההיכל →</NeonButton>
         <div style={{ marginTop: 22, fontFamily: F.mono, fontSize: 12, color: p.textDim, direction: "ltr" }}>
-          ⬑ drop public/gate-bg.png — desktop only
+          ⬑ drop public/gate-bg.jpg — desktop only
         </div>
       </div>
     </div>
