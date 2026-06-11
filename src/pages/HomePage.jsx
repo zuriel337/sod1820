@@ -1,22 +1,11 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { supabase, getPostsFromSupabase, adaptPost, searchPosts } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
 import { C, F, LOGO_URL } from "../theme.js";
-import { stripHtml } from "../lib/format.js";
-import { GoldButton, RoyalDivider } from "../components/ui.jsx";
+import { stripHtml, formatDateHe } from "../lib/format.js";
+import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
-import { LatestPostsSection, PostCard } from "../legacy/legacy.jsx";
-
-const NumberTree = lazy(() => import("../features/numbertree/NumberTree.jsx"));
-
-function TreeFallback({ height }) {
-  return (
-    <div style={{ height, borderRadius: 12, border: `1px solid ${C.border}`, background: "radial-gradient(ellipse at 50% 40%, #0d0a14 0%, #050307 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2 }}>
-      טוען את עץ המספרים…
-    </div>
-  );
-}
 
 function Hero() {
   return (
@@ -58,149 +47,91 @@ function Hero() {
   );
 }
 
-// טור שמאל — ציר התדר (אירועים) שמעדכן את המרכז
-function TimelineRail({ events, selected, onSelect }) {
+// טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון
+function LatestPostsRail({ posts, onPost }) {
   return (
     <div style={{ direction: "rtl" }}>
       <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
-        🛤 ציר ההתגלות
+        📖 פוסטים אחרונים
       </div>
-      <div style={{ position: "relative", paddingInlineEnd: 14, borderInlineEnd: `1px solid ${C.border}`, maxHeight: 560, overflowY: "auto" }}>
-        {events.map((ev) => {
-          const active = selected?.id === ev.id;
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {posts.map(p => {
+          const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
+          const title = stripHtml(p.title?.rendered ?? "");
+          const date = formatDateHe(p.modified || p.date);
           return (
-            <button key={ev.id} onClick={() => onSelect(ev)} style={{
-              display: "block", width: "100%", textAlign: "right", cursor: "pointer",
-              background: active ? C.surface2 : "transparent",
-              border: `1px solid ${active ? C.borderGold : "transparent"}`,
-              borderRadius: 8, padding: "10px 12px", marginBottom: 6, transition: "all 0.18s",
-            }}>
-              <div style={{ color: active ? C.goldBright : C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700 }}>
-                {stripHtml(ev.label || "")}
+            <button key={p.id} onClick={() => onPost(p)} style={{
+              display: "flex", alignItems: "stretch", gap: 12, width: "100%", textAlign: "right",
+              cursor: "pointer", background: C.surface, border: `1px solid ${C.border}`,
+              borderInlineStart: `2px solid ${C.borderGold}`, borderRadius: 8, padding: 0,
+              overflow: "hidden", transition: "all 0.2s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = C.surface2; e.currentTarget.style.borderColor = C.gold; }}
+              onMouseLeave={e => { e.currentTarget.style.background = C.surface; e.currentTarget.style.borderColor = C.border; }}
+            >
+              <div style={{
+                width: 64, flexShrink: 0, alignSelf: "stretch", minHeight: 64,
+                background: image ? `center/cover no-repeat url(${image})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})`,
+                filter: image ? "brightness(0.78) sepia(0.2)" : "none",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: C.borderGold, fontSize: 24, fontFamily: F.body,
+              }}>{!image && "✦"}</div>
+              <div style={{ flex: 1, padding: "10px 4px 10px 0", minWidth: 0 }}>
+                <div style={{
+                  color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, lineHeight: 1.4,
+                  display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                }}>{title}</div>
+                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, marginTop: 4, letterSpacing: 0.5 }}>
+                  עודכן · {date}
+                </div>
               </div>
-              {ev.hebrew_date && <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, marginTop: 3, letterSpacing: 1 }}>{ev.hebrew_date}</div>}
             </button>
           );
         })}
-        {!events.length && <div style={{ color: C.muted, fontSize: 13, padding: 12 }}>טוען אירועים…</div>}
+        {!posts.length && <div style={{ color: C.muted, fontSize: 13, padding: 12 }}>טוען פוסטים…</div>}
       </div>
-      <Link to="/timeline" style={{ display: "inline-block", marginTop: 12, color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>
-        אל ציר ההתגלות המלא →
+      <Link to="/post" style={{ display: "inline-block", marginTop: 14, color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>
+        אל כל הפוסטים →
       </Link>
-    </div>
-  );
-}
-
-// טור מרכז — תוכן שמתעדכן לפי בחירת אירוע
-function CenterContent({ selected, relatedPost, posts, onPost }) {
-  return (
-    <div style={{ direction: "rtl" }}>
-      {selected ? (
-        <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: "22px 24px", marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: C.crimsonLight, letterSpacing: 3, fontFamily: F.heading, marginBottom: 8 }}>תחנת תדר</div>
-          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 24, margin: "0 0 10px" }}>{stripHtml(selected.label || "")}</h3>
-          {selected.axis_theme && <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginBottom: 12, letterSpacing: 1 }}>ציר: {selected.axis_theme}</div>}
-          {relatedPost ? (
-            <Link to={"/" + relatedPost.slug} onClick={() => onPost(relatedPost)} style={{ display: "block", textDecoration: "none", borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-              <div style={{ color: C.muted, fontSize: 11, marginBottom: 4, fontFamily: F.heading }}>פוסט קשור ←</div>
-              <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(relatedPost.title || "")}</div>
-            </Link>
-          ) : (
-            <div style={{ color: C.muted, fontSize: 13, fontFamily: F.body, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-              מחפש פוסט קשור… או <Link to="/post" style={{ color: C.goldBright }}>עיין בכל הפוסטים</Link>.
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: "22px 24px", marginBottom: 20, textAlign: "center" }}>
-          <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 20, marginBottom: 8 }}>בחר תחנה בציר התדר</div>
-          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>
-            כל אירוע מחובר לפוסט, לצופן ולמספרים שלו. לחץ על תחנה כדי לפתוח אותה — או עיין בפוסטים האחרונים למטה.
-          </div>
-        </div>
-      )}
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
-        {posts.slice(0, 4).map(p => <PostCard key={p.id} post={p} onPost={() => onPost(p)} />)}
-      </div>
     </div>
   );
 }
 
 export default function HomePage() {
   const nav = useLegacyNav();
-  const [events, setEvents] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [relatedPost, setRelatedPost] = useState(null);
 
   useEffect(() => {
-    supabase.from("nodes")
-      .select("id,label,weight,hebrew_date,axis_theme,metadata,created_at")
-      .eq("type", "event")
-      .order("weight", { ascending: false })
-      .limit(14)
-      .then(({ data }) => setEvents(data || []));
-    getPostsFromSupabase({ limit: 8 })
-      .then(({ posts: rows }) => setPosts((rows || []).map(adaptPost)))
+    getPostsFromSupabase({ limit: 5, orderBy: "modified" })
+      .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
       .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (!selected) { setRelatedPost(null); return; }
-    let alive = true;
-    searchPosts(stripHtml(selected.label || ""), { limit: 1 })
-      .then(rows => { if (alive) setRelatedPost(rows?.[0] ? adaptPost(rows[0]) : null); })
-      .catch(() => { if (alive) setRelatedPost(null); });
-    return () => { alive = false; };
-  }, [selected]);
 
   return (
     <div style={{ direction: "rtl" }}>
       <Hero />
       <DailyMessage />
 
-      {/* פריסת 3 טורים: ציר תדר · תוכן · עץ מספרים */}
-      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 8px" }}>
+      {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
+      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
         <div className="sod-home-grid" style={{
-          display: "grid", gridTemplateColumns: "260px 1fr 380px", gap: 24, alignItems: "start",
+          display: "grid", gridTemplateColumns: "320px 1fr", gap: 24, alignItems: "start",
         }}>
-          <TimelineRail events={events} selected={selected} onSelect={setSelected} />
-          <CenterContent selected={selected} relatedPost={relatedPost} posts={posts} onPost={(p) => nav("post", p)} />
+          <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
+
           <div style={{ direction: "rtl" }}>
-            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
-              🌳 עץ המספרים
+            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+              👑 היכל השערים
             </div>
-            <Suspense fallback={<TreeFallback height={420} />}>
-              <NumberTree height={420} />
-            </Suspense>
-            <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-              <Link to="/numbers" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 6, padding: "8px 12px" }}>עץ מלא →</Link>
-              <Link to="/members" style={{ color: C.goldDim, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px" }}>עץ מתקדם · בני ההיכל</Link>
+            <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
+              <iframe
+                src="/heichal.html"
+                title="היכל השערים"
+                loading="lazy"
+                style={{ width: "100%", height: "min(82vh, 720px)", border: "none", display: "block" }}
+              />
             </div>
           </div>
-        </div>
-      </div>
-
-      <div style={{ padding: "20px 0" }}><RoyalDivider width={240} /></div>
-
-      {/* פוסטים אחרונים — נשמר מהאתר הקיים */}
-      <LatestPostsSection onNav={nav} />
-
-      <div style={{ padding: "20px 0" }}><RoyalDivider width={240} /></div>
-
-      {/* היכל השערים — חוויית 3D */}
-      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 40px" }}>
-        <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
-          👑 היכל השערים
-        </div>
-        <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
-          <iframe
-            src="/heichal.html"
-            title="היכל השערים"
-            loading="lazy"
-            style={{ width: "100%", height: "min(80vh, 700px)", border: "none", display: "block" }}
-          />
         </div>
       </div>
 
