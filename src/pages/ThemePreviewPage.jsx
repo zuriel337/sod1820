@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { F, LOGO_URL } from "../theme.js";
+import { F } from "../theme.js";
 
 // ===== עמוד תצוגת צבעים =====
 // מציג שתי פלטות מועמדות לעיצוב החדש ("מלכותי · עתידני · רוחני · חללי · מיסטי")
@@ -134,6 +134,111 @@ function NumberNode({ p, n, color, size = 78 }) {
   );
 }
 
+// ===== שער מלכותי — כתר, עמודים מעוטרים משני הצדדים, קשת וזוהר זהב =====
+
+function Crown({ size = 150 }) {
+  return (
+    <svg width={size} height={size * 0.82} viewBox="0 0 200 164" style={{ display: "block", margin: "0 auto" }}>
+      <defs>
+        <linearGradient id="rgCrown" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FBEFB0" />
+          <stop offset="38%" stopColor="#F2D27A" />
+          <stop offset="68%" stopColor="#D4A92E" />
+          <stop offset="100%" stopColor="#9A7818" />
+        </linearGradient>
+        <filter id="rgGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3.4" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      <g filter="url(#rgGlow)">
+        <path d="M28,104 L42,44 L70,82 L100,30 L130,82 L158,44 L172,104 Z" fill="url(#rgCrown)" stroke="#6e4e10" strokeWidth="2" strokeLinejoin="round" />
+        <rect x="28" y="100" width="144" height="34" rx="6" fill="url(#rgCrown)" stroke="#6e4e10" strokeWidth="2" />
+        <circle cx="42" cy="42" r="7.5" fill="#FBEFB0" stroke="#6e4e10" strokeWidth="1.5" />
+        <circle cx="158" cy="42" r="7.5" fill="#FBEFB0" stroke="#6e4e10" strokeWidth="1.5" />
+        <circle cx="100" cy="24" r="8.5" fill="#FBEFB0" stroke="#6e4e10" strokeWidth="1.5" />
+        <circle cx="100" cy="11" r="4.5" fill="#F6E27A" stroke="#6e4e10" strokeWidth="1" />
+        <circle cx="62" cy="117" r="7.5" fill="#b02a2a" stroke="#7a1320" strokeWidth="1.5" />
+        <circle cx="100" cy="117" r="8.5" fill="#2a5bb0" stroke="#16356e" strokeWidth="1.5" />
+        <circle cx="138" cy="117" r="7.5" fill="#b02a2a" stroke="#7a1320" strokeWidth="1.5" />
+      </g>
+    </svg>
+  );
+}
+
+function Pillar({ side }) {
+  // עמוד זהב מעוטר עם פינים (כיפה) למעלה — מסגרת השער משני הצדדים
+  return (
+    <div style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, width: 58, zIndex: 1, pointerEvents: "none" }}>
+      {/* פינים עליון */}
+      <div style={{ position: "absolute", top: -22, [side]: 6,
+        width: 46, height: 46, borderRadius: "50% 50% 46% 46%",
+        background: "linear-gradient(90deg,#6e4e10,#F6E27A 30%,#C9971E 55%,#F6E27A 78%,#6e4e10)",
+        boxShadow: "0 0 18px #C9971E88", border: "1px solid #6e4e10" }} />
+      {/* גוף העמוד */}
+      <div style={{ position: "absolute", top: 14, bottom: 0, [side]: 0, width: 58,
+        background: "linear-gradient(90deg,#5a3f0c 0%,#F6E27A 22%,#E8C84A 40%,#C9971E 50%,#E8C84A 60%,#F6E27A 78%,#5a3f0c 100%)",
+        boxShadow: "0 0 30px #C9971E55, inset 0 0 12px #6e4e1066",
+        backgroundImage: `repeating-linear-gradient(0deg, transparent 0 26px, rgba(110,78,16,0.45) 26px 28px),
+                          linear-gradient(90deg,#5a3f0c 0%,#F6E27A 22%,#E8C84A 40%,#C9971E 50%,#E8C84A 60%,#F6E27A 78%,#5a3f0c 100%)` }} />
+    </div>
+  );
+}
+
+function CountdownBox({ p, n, label }) {
+  return (
+    <div style={{ minWidth: 72, padding: "12px 8px 9px", borderRadius: 12, textAlign: "center",
+      background: "rgba(20,12,2,0.5)", backdropFilter: "blur(6px)",
+      border: "1px solid #C9971E66", boxShadow: "inset 0 0 16px #6e4e1055, 0 0 18px #C9971E22" }}>
+      <div style={{ fontFamily: F.heading, fontWeight: 800, fontSize: 30, color: "#F6E27A", textShadow: `0 0 16px ${p.accent}88`, lineHeight: 1 }}>{n}</div>
+      <div style={{ fontFamily: F.heading, fontSize: 11, letterSpacing: 2, color: "#C9971E", marginTop: 6 }}>{label}</div>
+    </div>
+  );
+}
+
+function RoyalGate({ p }) {
+  return (
+    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", marginBottom: 28,
+      minHeight: 540, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      padding: "44px 72px",
+      background: `radial-gradient(120% 80% at 50% 0%, #1a1206 0%, ${p.bg} 60%),
+                   radial-gradient(60% 40% at 50% 8%, ${p.accent}33, transparent 70%)`,
+      border: `1px solid #C9971E55`, boxShadow: `inset 0 0 80px ${p.bg}, 0 0 50px ${p.accent2}22` }}>
+      <Pillar side="left" />
+      <Pillar side="right" />
+
+      {/* קשת עליונה */}
+      <svg viewBox="0 0 600 120" preserveAspectRatio="none" style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", width: "78%", height: 120, zIndex: 0, opacity: 0.9 }}>
+        <path d="M20,118 Q300,-40 580,118" fill="none" stroke="#C9971E" strokeWidth="5" style={{ filter: "drop-shadow(0 0 8px #C9971E99)" }} />
+        <path d="M20,118 Q300,-28 580,118" fill="none" stroke="#F6E27A" strokeWidth="1.5" opacity="0.8" />
+      </svg>
+
+      <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+        <Crown size={156} />
+        <h1 style={{ fontFamily: F.regal, fontWeight: 800, fontSize: "clamp(34px,6vw,58px)", margin: "10px 0 14px",
+          color: "#F6E27A", textShadow: `0 0 26px #C9971E, 0 0 60px ${p.accent}77, 0 2px 4px #000` }}>
+          כי לה' המלוכה
+        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "4px auto 18px", color: "#C9971E" }}>
+          <span style={{ height: 1, width: 60, background: "linear-gradient(to left,#C9971E,transparent)" }} />
+          <span style={{ fontSize: 12 }}>❖</span>
+          <span style={{ height: 1, width: 60, background: "linear-gradient(to right,#C9971E,transparent)" }} />
+        </div>
+        <div style={{ fontFamily: F.heading, fontSize: 15, letterSpacing: 3, color: p.textDim, marginBottom: 18 }}>
+          ספירה לאחור · נפתח בקרוב
+        </div>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 26 }}>
+          <CountdownBox p={p} n={7} label="ימים" />
+          <CountdownBox p={p} n="00" label="שעות" />
+          <CountdownBox p={p} n="00" label="דקות" />
+          <CountdownBox p={p} n="00" label="שניות" />
+        </div>
+        <NeonButton p={p} primary>היכנס אל ההיכל →</NeonButton>
+      </div>
+    </div>
+  );
+}
+
 export default function ThemePreviewPage() {
   const [key, setKey] = useState("stellar");
   const p = PALETTES[key];
@@ -164,30 +269,8 @@ export default function ThemePreviewPage() {
           {p.tagline}
         </div>
 
-        {/* HERO */}
-        <Glass p={p} glow={p.accent2} style={{ padding: "48px 28px", textAlign: "center", marginBottom: 28, position: "relative", overflow: "hidden" }}>
-          <div style={{
-            position: "absolute", top: "-60%", left: "50%", width: 520, height: 520, marginLeft: -260,
-            background: `conic-gradient(from 0deg, transparent, ${p.accent2}22, transparent, ${p.accent3}22, transparent)`,
-            animation: "tp-spin 24s linear infinite", pointerEvents: "none",
-          }} />
-          <img src={LOGO_URL} alt="SOD1820" style={{ width: 92, height: 92, objectFit: "contain", filter: `drop-shadow(0 0 22px ${p.accent}aa)`, position: "relative" }} />
-          <div style={{ fontFamily: F.heading, fontSize: 12, letterSpacing: 7, color: p.accent3, marginTop: 20, position: "relative" }}>SOD · 1820</div>
-          <h1 style={{
-            fontFamily: F.regal, fontWeight: 800, fontSize: "clamp(34px,6vw,62px)", margin: "12px 0 14px",
-            position: "relative",
-            background: `linear-gradient(120deg, ${p.accent}, ${p.accent3}, ${p.accent2})`,
-            WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-            textShadow: `0 0 60px ${p.accent2}55`,
-          }}>כי לה' המלוכה</h1>
-          <p style={{ color: p.textDim, fontFamily: F.body, fontSize: 17, maxWidth: 540, margin: "0 auto 28px", lineHeight: 1.9, position: "relative" }}>
-            מפה חיה של שפת המספרים — גימטריה, ציר התדר, עץ המספרים והצופן התנ"כי, במרחב אחד מואר.
-          </p>
-          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
-            <NeonButton p={p} primary>התחל את המסע →</NeonButton>
-            <NeonButton p={p}>מרכז הניווט</NeonButton>
-          </div>
-        </Glass>
+        {/* HERO — שער מלכותי */}
+        <RoyalGate p={p} />
 
         {/* SWATCHES */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
