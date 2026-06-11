@@ -169,21 +169,25 @@
   הפניות 301 היגייניות ב-`vercel.json` לנקודות-קצה וורדפרס שבוטלו (`/feed`, `/wp-admin`, `/wp-login.php`, `/xmlrpc.php`).
 - **אבטחה:** סיסמאות האדמין והדוח עברו ממחרוזת מקודדת למשתני סביבה (`VITE_ADMIN_PASSWORD`, `VITE_REPORT_PASSWORD`).
 - **OCR גלריה:** עיבוד כל תמונות הגלריה דרך ה-Edge Function `gallery-ocr` הושלם (זיהוי מספרים/גימטריה/תאריכים).
-- **מדיה (תמונות בתוכן הפוסטים):** התברר שהמדיה כבר הועברה ל-Supabase storage (מיגרציית FTP מיותרת).
-  שני סקריפטים חדשים החליפו כתובות `wp-content` בכתובות storage, **רק לקבצים שאומתו כקיימים** (בלי נסיגה):
-  - `scripts/rewrite-content-urls.mjs` — מדיה באנגלית: **174 קבצים → 93 פוסטים**.
-  - `scripts/rewrite-hebrew-media.mjs` — מדיה בעברית (שחזור התעתוק עברית→אנגלית + אימות): **401 קבצים → 177 פוסטים**.
-  - תוצאה: **~94% מהפניות המדיה מצביעות עכשיו ל-storage** (18,730 מול 1,106).
-  ⚠️ **נותר:** 217 קבצים ייחודיים (185 עברית + 32 אנגלית) **שמעולם לא הועלו ל-storage** — בעיקר וידאו/אודיו
-  גדולים, PDFים ותמונות בודדות (`mp4:31 pdf:29 mp3/wav:11 jpg/png:138`). יישברו ב-cutover אם לא יועלו מחדש.
+- **מדיה (תמונות בתוכן הפוסטים) — הושלם ל-99.5%:** החלפת כל כתובות `wp-content` בכתובות Supabase storage,
+  **רק לקבצים שאומתו כקיימים** (בלי נסיגה). שלושה שלבים:
+  - `scripts/rewrite-content-urls.mjs` — מדיה באנגלית (כולל כתובות Jetpack CDN `iN.wp.com`).
+  - `scripts/rewrite-hebrew-media.mjs` — מדיה בעברית: שחזור התעתוק עברית→אנגלית של כלי המיגרציה + אימות.
+  - `scripts/recover-missing-media.mjs` — שחזור 148 קבצים שחסרו ב-storage ע"י הורדה מהוורדפרס החי והעלאה מחדש
+    (קבצים עבריים תחת שם מתועתק, כי storage דוחה מפתחות עבריים).
+  - **תוצאה: ~99.5% מהפניות המדיה ב-storage** (19,790 מול 90). הקושי המרכזי: רוב התמונות הוגשו דרך **Jetpack CDN**
+    (`i0.wp.com/sod1820.co.il/...`) — נדרש regex ייעודי.
+  ⚠️ **נותר ~60 קבצים שלא ניתנים לשחזור:** 44 נמחקו מהוורדפרס (404), 7 גדולים מ-50MB (מעבר למגבלת storage),
+  ~9 מקרי-קצה. זנב קטן — אפשר להשלים ידנית או להשלים עם אובדנו.
 
 **קבצים שהשתנו:** `src/App.jsx`, `src/lib/seo.js`, `vercel.json`, `.github/workflows/sync-posts.yml`,
-`migrate-media.mjs`, `scripts/rewrite-content-urls.mjs`, `scripts/gen-sitemap.mjs`, `public/robots.txt`, `public/sitemap.xml`.
+`migrate-media.mjs`, `scripts/rewrite-content-urls.mjs`, `scripts/rewrite-hebrew-media.mjs`,
+`scripts/recover-missing-media.mjs`, `scripts/gen-sitemap.mjs`, `public/robots.txt`, `public/sitemap.xml`.
 
 **הערות / להמשך — דרוש הגדרה ממך לפני ה-cutover:**
 1. **Vercel → Environment Variables:** `VITE_ADMIN_PASSWORD`, `VITE_REPORT_PASSWORD` (אחרת `/admin` ו-`/traffic` נעולים).
-2. **217 קבצי מדיה חסרים** — לא קיימים ב-storage (185 עברית + 32 אנגלית; וידאו/אודיו/PDF גדולים בעיקר).
-   רוב המדיה כבר מופתה (94%). את ה-217 צריך להעלות מחדש מהשרת הישן (FTP) לפני ה-cutover, או להשלים עם אובדנם.
-3. **הרשאות RLS** לטבלאות ב-Supabase (E בצ'קליסט).
-4. **תמונת שיתוף** `og:image` בגודל 1200×630 (D.8).
-5. **Vercel → Domains:** הוספת `sod1820.co.il` + `www` (F).
+2. **מדיה — 99.5% הושלם.** נותר זנב של ~60 קבצים (44 נמחקו מ-WP, 7 גדולים מדי, 9 מקרי-קצה) — לא קריטי.
+3. **לסובב את מפתח ה-`service_role`** ב-Supabase (שימש להרצת הסקריפטים; הומלץ אך נדחה לבקשת המשתמש).
+4. **הרשאות RLS** לטבלאות ב-Supabase (E בצ'קליסט).
+5. **תמונת שיתוף** `og:image` בגודל 1200×630 (D.8).
+6. **Vercel → Domains:** הוספת `sod1820.co.il` + `www` (F).
