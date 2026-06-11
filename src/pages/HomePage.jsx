@@ -187,6 +187,23 @@ export default function HomePage() {
       {/* פוסטים אחרונים — נשמר מהאתר הקיים */}
       <LatestPostsSection onNav={nav} />
 
+      <div style={{ padding: "20px 0" }}><RoyalDivider width={240} /></div>
+
+      {/* היכל השערים — חוויית 3D */}
+      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 40px" }}>
+        <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+          👑 היכל השערים
+        </div>
+        <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
+          <iframe
+            src="/heichal.html"
+            title="היכל השערים"
+            loading="lazy"
+            style={{ width: "100%", height: "min(80vh, 700px)", border: "none", display: "block" }}
+          />
+        </div>
+      </div>
+
       <style>{`
         @media (max-width: 1080px) {
           .sod-home-grid { grid-template-columns: 1fr !important; }
