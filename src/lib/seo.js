@@ -30,6 +30,20 @@ function upsertLink(rel, href) {
   el.setAttribute("href", href);
 }
 
+// מוסיף/מעדכן/מסיר בלוק JSON-LD לפי id. data=null מסיר אותו.
+function upsertJsonLd(id, data) {
+  if (typeof document === "undefined") return;
+  let el = document.getElementById(id);
+  if (!data) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement("script");
+    el.type = "application/ld+json";
+    el.id = id;
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
+
 /**
  * מעדכן את כל תגיות ה-SEO של הדף הנוכחי.
  * @param {object} o
@@ -66,4 +80,24 @@ export function applySeo(o = {}) {
   upsertMeta("name", "twitter:title", title);
   upsertMeta("name", "twitter:description", description);
   upsertMeta("name", "twitter:image", image);
+
+  // schema.org/Article בדפי פוסט — לתצוגת rich snippets בגוגל
+  if (type === "article" && o.article) {
+    upsertJsonLd("ld-article", {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: o.title || SITE_NAME,
+      description,
+      image: o.image ? [o.image] : undefined,
+      datePublished: o.article.datePublished || undefined,
+      dateModified: o.article.dateModified || o.article.datePublished || undefined,
+      author: o.article.author
+        ? { "@type": "Person", name: o.article.author }
+        : { "@type": "Organization", name: SITE_NAME },
+      publisher: { "@type": "Organization", name: SITE_NAME },
+      mainEntityOfPage: canonical,
+    });
+  } else {
+    upsertJsonLd("ld-article", null);
+  }
 }

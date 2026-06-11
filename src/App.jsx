@@ -2917,46 +2917,7 @@ async function fetchWpMenu() {
   return null; // triggers fallback to STATIC_NAV_ITEMS
 }
 
-// ===== NUMBER SIDEBAR + PAGE =====
-
-function NumberButton({ tag, onClick }) {
-  const [hov, setHov] = useState(false);
-  const meaning = KEY_NUMBERS[parseInt(tag.name, 10)];
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        width: "100%", padding: meaning ? "9px 18px" : "11px 18px",
-        background: hov ? C.goldDark : (meaning ? `${C.goldDeep}88` : "none"),
-        border: "none", borderBottom: `1px solid ${C.faint}`,
-        cursor: "pointer", transition: "background 0.15s",
-      }}
-    >
-      <span style={{
-        fontSize: 9, color: hov ? C.goldDim : C.muted,
-        fontFamily: F.heading, letterSpacing: 1,
-        minWidth: 32, textAlign: "left", transition: "color 0.15s",
-      }}>×{tag.count}</span>
-      <div style={{ textAlign: "right" }}>
-        <div style={{
-          fontSize: 18, fontFamily: F.heading, fontWeight: 700,
-          color: hov ? C.goldBright : (meaning ? C.goldLight : C.goldDim),
-          transition: "color 0.15s", lineHeight: 1.2,
-        }}>{tag.name}</div>
-        {meaning && (
-          <div style={{
-            fontSize: 8, color: hov ? C.goldDim : C.muted,
-            fontFamily: F.body, marginTop: 2, fontStyle: "italic",
-            lineHeight: 1.3, maxWidth: 160,
-          }}>{meaning}</div>
-        )}
-      </div>
-    </button>
-  );
-}
+// ===== NUMBER PAGE =====
 
 function NumberPage({ tag, onNav, onBack }) {
   const [posts, setPosts] = useState([]);
@@ -3060,209 +3021,6 @@ function NumberPage({ tag, onNav, onBack }) {
         </div>
       )}
     </div>
-  );
-}
-
-function NumberSidebar({ onNav }) {
-  const [open, setOpen] = useState(false);
-  const [allTags, setAllTags] = useState([]);
-  const [search, setSearch] = useState("");
-  const [inputFocused, setInputFocused] = useState(false);
-  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 760 : false);
-
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 760);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    fetch("https://sod1820.co.il/wp-json/wp/v2/tags?per_page=100&hide_empty=true&orderby=count&order=desc")
-      .then(r => r.ok ? r.json() : [])
-      .then(data => {
-        if (Array.isArray(data)) {
-          setAllTags(
-            data
-              .filter(t => /^\d+$/.test(t.name.trim()))
-              .sort((a, b) => b.count - a.count)
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const filtered = search.trim()
-    ? allTags.filter(t => t.name.includes(search.trim()))
-    : allTags;
-
-  function handleSelect(tag) {
-    onNav("number", tag);
-    setOpen(false);
-    setSearch("");
-  }
-
-  return (
-    <>
-      {/* toggle tab */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        title="סוד המספרים"
-        style={{
-          position: "fixed",
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 200,
-          background: open ? C.goldDark : C.surface,
-          border: `1px solid ${C.gold}`,
-          borderRight: "none",
-          borderRadius: "4px 0 0 4px",
-          color: C.goldBright,
-          width: 34, height: 90,
-          cursor: "pointer",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: 7,
-          transition: "background 0.2s",
-          boxShadow: `-4px 0 16px ${C.goldDeep}`,
-          padding: 0,
-        }}
-      >
-        <span style={{
-          fontSize: 12, color: C.goldBright,
-          transition: "transform 0.3s",
-          transform: open ? "rotate(45deg)" : "none",
-          display: "block", lineHeight: 1,
-        }}>✦</span>
-        <span style={{
-          fontSize: 7, color: C.muted, letterSpacing: 1,
-          fontFamily: F.heading, textTransform: "uppercase",
-          writingMode: "vertical-rl",
-        }}>מספרים</span>
-      </button>
-
-      {/* backdrop */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 198,
-            background: "rgba(5,4,0,0.6)",
-            backdropFilter: "blur(3px)",
-          }}
-        />
-      )}
-
-      {/* panel */}
-      <div style={{
-        position: "fixed",
-        right: 0, top: 0, bottom: 0,
-        width: isMobile ? "100vw" : 280,
-        maxWidth: 280,
-        zIndex: 199,
-        transform: open ? "translateX(0)" : "translateX(100%)",
-        transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-        background: C.surface,
-        borderLeft: `2px solid ${C.borderGold}`,
-        display: "flex", flexDirection: "column",
-        direction: "rtl",
-        boxShadow: open ? `-16px 0 60px ${C.goldDeep}` : "none",
-      }}>
-
-        {/* header */}
-        <div style={{
-          height: 60, flexShrink: 0,
-          padding: "0 16px",
-          borderBottom: `1px solid ${C.border}`,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 12, letterSpacing: 3 }}>
-            סוד המספרים
-          </div>
-          <button onClick={() => setOpen(false)}
-            onMouseEnter={e => (e.currentTarget.style.color = C.goldBright)}
-            onMouseLeave={e => (e.currentTarget.style.color = C.goldDim)}
-            style={{
-              background: C.bgGlow,
-              border: `1px solid ${C.gold}`,
-              borderRadius: 6,
-              color: C.goldBright,
-              cursor: "pointer",
-              fontSize: 18,
-              lineHeight: 1,
-              width: 36,
-              height: 36,
-              display: "grid",
-              placeItems: "center",
-              fontFamily: "monospace",
-              transition: "all 0.2s",
-            }}>✕</button>
-        </div>
-
-        {/* search */}
-        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value.replace(/\D/g, ""))}
-            placeholder="חפש מספר..."
-            onFocus={() => setInputFocused(true)}
-            onBlur={() => setInputFocused(false)}
-            style={{
-              width: "100%",
-              background: C.bg,
-              border: `1px solid ${inputFocused ? C.gold : C.border}`,
-              color: C.goldBright,
-              padding: "9px 14px",
-              fontFamily: F.heading, fontSize: 17, fontWeight: 700,
-              borderRadius: 2, outline: "none",
-              boxSizing: "border-box", direction: "ltr",
-              letterSpacing: 3, textAlign: "center",
-              transition: "border-color 0.2s",
-            }}
-          />
-          {search ? (
-            <div style={{
-              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
-              textAlign: "center", marginTop: 8, textTransform: "uppercase",
-            }}>
-              {filtered.length} תוצאות
-            </div>
-          ) : (
-            <div style={{
-              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
-              textAlign: "center", marginTop: 8, textTransform: "uppercase",
-            }}>
-              הקלד מספר לחיפוש חופשי
-            </div>
-          )}
-        </div>
-
-        {/* list */}
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {filtered.length === 0 ? (
-            <div style={{
-              textAlign: "center", padding: "40px 16px",
-              color: C.muted, fontFamily: F.body, fontSize: 13,
-            }}>
-              {allTags.length === 0 ? "טוען מספרים..." : "אין תוצאות"}
-            </div>
-          ) : (
-            filtered.map(tag => (
-              <NumberButton key={tag.id} tag={tag} onClick={() => handleSelect(tag)} />
-            ))
-          )}
-        </div>
-
-        {/* footer */}
-        <div style={{
-          padding: "11px 16px", borderTop: `1px solid ${C.border}`, flexShrink: 0,
-          fontSize: 9, color: C.muted, textAlign: "center",
-          fontFamily: F.heading, letterSpacing: 3, textTransform: "uppercase",
-        }}>
-          {allTags.length} מספרים · SOD1820
-        </div>
-      </div>
-    </>
   );
 }
 
@@ -3388,7 +3146,8 @@ function ThemePreviewPage() {
 
 // ===== ADMIN PAGE =====
 
-const ADMIN_PASSWORD  = "sod1820";
+// הסיסמה נטענת ממשתנה סביבה (Vercel ENV) ולא מקודדת בקוד. בדיב מקומי ברירת מחדל "dev".
+const ADMIN_PASSWORD  = import.meta.env.VITE_ADMIN_PASSWORD || (import.meta.env.DEV ? "dev" : "");
 const ADMIN_STORE_KEY = "sod1820_clues";
 
 function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKey, setAdminMode }) {
@@ -3429,7 +3188,7 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
   }, [selectedPageKey, editPageKey, pageContent]);
 
   function handleAuth() {
-    if (pw.trim() === ADMIN_PASSWORD) {
+    if (ADMIN_PASSWORD && pw.trim() === ADMIN_PASSWORD) {
       setAuthed(true);
       setPwError(false);
       setAdminMode && setAdminMode(true);
@@ -3802,7 +3561,7 @@ function TrafficDashboardPage({ onNav }) {
   const [tab, setTab]         = useState("traffic"); // traffic | inbox
 
   function handleAuth() {
-    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
+    if (ADMIN_PASSWORD && pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
     else setPwError(true);
   }
 
@@ -4186,7 +3945,7 @@ function TrafficDashboardPage({ onNav }) {
 
 // ===== NUMBERS REPORT PAGE =====
 
-const REPORT_PASSWORD = "1820";
+const REPORT_PASSWORD = import.meta.env.VITE_REPORT_PASSWORD || (import.meta.env.DEV ? "dev" : "");
 
 function NumbersReportPage() {
   const [authed,   setAuthed]   = useState(false);
@@ -4197,7 +3956,7 @@ function NumbersReportPage() {
   const [report,   setReport]   = useState(null);
 
   function handleAuth() {
-    if (pw.trim() === REPORT_PASSWORD) { setAuthed(true); setPwError(false); }
+    if (REPORT_PASSWORD && pw.trim() === REPORT_PASSWORD) { setAuthed(true); setPwError(false); }
     else setPwError(true);
   }
 
@@ -4993,6 +4752,24 @@ function Footer({ onNav, navItems }) {
 
 // ===== SLUG-BASED POST PAGE =====
 
+// ===== 404 / דף לא נמצא =====
+function NotFound({ onNav }) {
+  const navigate = useNavigate();
+  return (
+    <div style={{ direction: "rtl", textAlign: "center", padding: "100px 24px 120px", maxWidth: 600, margin: "0 auto" }}>
+      <div style={{ fontSize: 64, color: C.goldDim, marginBottom: 16 }}>✦</div>
+      <h1 style={{ color: "#E8D5A3", fontFamily: F.royal, fontSize: "clamp(28px, 5vw, 48px)", margin: "0 0 16px" }}>404</h1>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 1.8, marginBottom: 36 }}>
+        הדף שחיפשת לא נמצא. ייתכן שהכתובת השתנתה או שהדף הוסר.
+      </p>
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <GoldButton onClick={() => navigate("/")}>חזרה לדף הבית</GoldButton>
+        <GoldButton variant="secondary" onClick={() => navigate("/post")}>לכל הפוסטים</GoldButton>
+      </div>
+    </div>
+  );
+}
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -5056,8 +4833,18 @@ function PostPageBySlug({ onNav }) {
       path: "/" + slug,
       image: image || undefined,
       type: "article",
+      article: {
+        datePublished: post.date || undefined,
+        dateModified: post.modified || post.date || undefined,
+        author: author || undefined,
+      },
     });
   }, [post, title, image, slug]);
+
+  // SEO לדף לא-נמצא — noindex כדי שגוגל לא יאנדקס דפי שגיאה
+  useEffect(() => {
+    if (error === "הפוסט לא נמצא") applySeo({ title: "הדף לא נמצא", noindex: true, path: "/" + slug });
+  }, [error, slug]);
 
   return (
     <div style={{ direction: "rtl" }}>
@@ -5073,7 +4860,8 @@ function PostPageBySlug({ onNav }) {
           ← חזרה לפוסטים
         </button>
         {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
-        {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
+        {!loading && error === "הפוסט לא נמצא" && <NotFound onNav={onNav} />}
+        {!loading && error && error !== "הפוסט לא נמצא" && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
           <>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -5301,11 +5089,7 @@ function AppContent() {
     catch { return {}; }
   });
 
-  useEffect(() => {
-    fetchWpMenu().then(items => {
-      if (items?.length) setNavItems(items);
-    });
-  }, []);
+  // התפריט סטטי (NAV_ITEMS) — נותק החיבור ל-WordPress (הקפאה מלאה).
 
   // sync page state from URL
   useEffect(() => {
@@ -5425,7 +5209,6 @@ function AppContent() {
           </Routes>
         </main>
         <Footer onNav={nav} navItems={navItems} />
-        <NumberSidebar onNav={nav} />
       </div>
     </div>
   );

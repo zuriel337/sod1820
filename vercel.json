@@ -1,5 +1,12 @@
 {
   "redirects": [
+    { "source": "/wp-admin", "destination": "/", "permanent": true },
+    { "source": "/wp-admin/(.*)", "destination": "/", "permanent": true },
+    { "source": "/wp-login.php", "destination": "/", "permanent": true },
+    { "source": "/xmlrpc.php", "destination": "/", "permanent": true },
+    { "source": "/feed", "destination": "/", "permanent": true },
+    { "source": "/comments/feed", "destination": "/", "permanent": true },
+    { "source": "/(.*)/feed", "destination": "/$1", "permanent": true },
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
