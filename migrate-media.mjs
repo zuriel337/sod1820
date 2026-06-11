@@ -15,7 +15,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const BUCKET = process.env.BUCKET || "media";
 const REMOTE_BASE = process.env.REMOTE_BASE || "httpdocs/wp-content/uploads";
-const YEAR_FOLDERS = ["2013"];
+// כל השנים 2013→היום (ניתן לעקוף עם YEAR_FOLDERS="2013,2014,..." במשתנה סביבה)
+const YEAR_FOLDERS = process.env.YEAR_FOLDERS
+  ? process.env.YEAR_FOLDERS.split(",").map((s) => s.trim()).filter(Boolean)
+  : Array.from({ length: new Date().getFullYear() - 2013 + 1 }, (_, i) => String(2013 + i));
 const SKIP_FOLDERS = new Set(["elementor","woocommerce_uploads","wpforms","mailpoet","redux"]);
 const LOG_FILE = "migration-log.json";
 

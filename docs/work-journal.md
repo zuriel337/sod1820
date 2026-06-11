@@ -157,3 +157,30 @@
 - קבצים שהשתנו:
 - הערות / להמשך:
 ```
+
+---
+
+## 2026-06-11 — הכנות לפני העברת הדומיין (cutover)
+
+**מה נעשה:**
+- **ניתוק מ-WordPress (הקפאה מלאה):** כיבוי הסנכרון היומי האוטומטי (`sync-posts.yml` → הרצה ידנית בלבד),
+  הסרת קריאת תפריט WordPress (`fetchWpMenu` — התפריט סטטי), ומחיקת `api/wp-posts.js`.
+- **SEO/UX:** רכיב דף 404 אמיתי (`NotFound`) + `noindex` לסלאגים לא-מוכרים; `schema.org/Article` בדפי פוסט;
+  הפניות 301 היגייניות ב-`vercel.json` לנקודות-קצה וורדפרס שבוטלו (`/feed`, `/wp-admin`, `/wp-login.php`, `/xmlrpc.php`).
+- **אבטחה:** סיסמאות האדמין והדוח עברו ממחרוזת מקודדת למשתני סביבה (`VITE_ADMIN_PASSWORD`, `VITE_REPORT_PASSWORD`).
+- **OCR גלריה:** עיבוד כל תמונות הגלריה דרך ה-Edge Function `gallery-ocr` הושלם (זיהוי מספרים/גימטריה/תאריכים).
+- **הכנת מיגרציית מדיה:** `migrate-media.mjs` עודכן לכסות את **כל השנים 2013→היום** (במקום 2013 בלבד);
+  נוסף `scripts/rewrite-content-urls.mjs` להחלפת כתובות `sod1820.co.il/wp-content/uploads/...`
+  בכתובות אחסון Supabase בעמודות `posts` (עם מצב dry-run כברירת מחדל).
+
+**קבצים שהשתנו:** `src/App.jsx`, `src/lib/seo.js`, `vercel.json`, `.github/workflows/sync-posts.yml`,
+`migrate-media.mjs`, `scripts/rewrite-content-urls.mjs`, `scripts/gen-sitemap.mjs`, `public/robots.txt`, `public/sitemap.xml`.
+
+**הערות / להמשך — דרוש הגדרה ממך לפני ה-cutover:**
+1. **Vercel → Environment Variables:** `VITE_ADMIN_PASSWORD`, `VITE_REPORT_PASSWORD` (אחרת `/admin` ו-`/traffic` נעולים).
+2. **מיגרציית מדיה** — להגדיר משתני סביבה ולהריץ:
+   `FTP_USER`, `FTP_PASS`, (`FTP_SECURE=true` אם FTPS), `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` →
+   `node migrate-media.mjs`, ואז `APPLY=true node scripts/rewrite-content-urls.mjs`.
+3. **הרשאות RLS** לטבלאות ב-Supabase (E בצ'קליסט).
+4. **תמונת שיתוף** `og:image` בגודל 1200×630 (D.8).
+5. **Vercel → Domains:** הוספת `sod1820.co.il` + `www` (F).
