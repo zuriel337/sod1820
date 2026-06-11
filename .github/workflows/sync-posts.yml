@@ -8,6 +8,9 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -23,3 +26,18 @@ jobs:
 
       - name: Sync all posts
         run: node scripts/sync-all.mjs
+
+      - name: Regenerate sitemap
+        run: node scripts/gen-sitemap.mjs
+
+      - name: Commit sitemap if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- public/sitemap.xml; then
+            git add public/sitemap.xml
+            git commit -m "עדכון אוטומטי של sitemap.xml"
+            git push
+          else
+            echo "sitemap unchanged"
+          fi

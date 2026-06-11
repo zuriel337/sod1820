@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead } from "./lib/supabase.js";
 import UploadFindings from "./components/UploadFindings.jsx";
+import { applySeo, SITE_URL } from "./lib/seo.js";
 
 // ===== GEMATRIA =====
 const GEM = {'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
@@ -5045,6 +5046,19 @@ function PostPageBySlug({ onNav }) {
     getCommentsByPostId(post.wp_id).then(setComments).catch(() => {});
   }, [post?.wp_id]);
 
+  // SEO ספציפי לפוסט — מתעדכן כשהפוסט נטען
+  useEffect(() => {
+    if (!post) return;
+    const desc = stripHtml(post.excerpt || post.content || "").slice(0, 160).trim();
+    applySeo({
+      title,
+      description: desc || undefined,
+      path: "/" + slug,
+      image: image || undefined,
+      type: "article",
+    });
+  }, [post, title, image, slug]);
+
   return (
     <div style={{ direction: "rtl" }}>
       {image && !loading && (
@@ -5170,6 +5184,10 @@ function GematriaPhrasePage({ onNav }) {
     getGematriaByPhrases([decoded]).then(rows => setItem(rows[0] ?? null)).catch(() => {});
   }, [decoded]);
 
+  useEffect(() => {
+    applySeo({ title: `גימטריה: ${decoded}`, description: `ערך הגימטריה ופוסטים הקשורים ל"${decoded}" באתר SOD1820.`, path: "/number/" + phrase });
+  }, [decoded, phrase]);
+
   return (
     <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "52px 24px 96px" }}>
       <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>← חזרה</button>
@@ -5191,6 +5209,9 @@ function GematriaPhrasePage({ onNav }) {
 function CategoryPage({ onNav }) {
   const { slug } = useParams();
   const categoryName = fromSlug(slug);
+  useEffect(() => {
+    applySeo({ title: `קטגוריה: ${categoryName}`, description: `כל הפוסטים בקטגוריה "${categoryName}" באתר SOD1820.`, path: "/category/" + slug });
+  }, [categoryName, slug]);
   return <BlogPage onNav={onNav} filterCategory={categoryName} />;
 }
 
@@ -5199,6 +5220,9 @@ function CategoryPage({ onNav }) {
 function TagPage({ onNav }) {
   const { slug } = useParams();
   const tagName = fromSlug(slug);
+  useEffect(() => {
+    applySeo({ title: `תגית: ${tagName}`, description: `כל הפוסטים בתגית "${tagName}" באתר SOD1820.`, path: "/tag/" + slug });
+  }, [tagName, slug]);
   return <BlogPage onNav={onNav} filterTag={tagName} />;
 }
 
@@ -5291,6 +5315,28 @@ function AppContent() {
     else if (p === "/דף-צאט-ראשי") setPage("spotchat");
     else if (p === "/צור-קשר") setPage("contact");
   }, [location.pathname]);
+
+  // SEO ברמת ראוט. דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
+  useEffect(() => {
+    const p = location.pathname;
+    // נתיבים שדפי התוכן שלהם מנהלים SEO עצמאי — לא לדרוס כאן
+    if (p.startsWith("/category/") || p.startsWith("/tag/") || p.startsWith("/number/")) return;
+    if (p === "/post") {
+      applySeo({ title: "פוסטים אחרונים", description: "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון לפי קטגוריה ותגית.", path: "/post" });
+    } else if (p === "/chat" || p === "/דף-צאט-ראשי") {
+      applySeo({ title: "צ'אט האתר", description: "צ'אט הקהילה של SOD1820 — שיחה בזמן אמת.", path: p });
+    } else if (p === "/צור-קשר") {
+      applySeo({ title: "צור קשר", description: "יצירת קשר עם צוריאל פולייס ו-SOD1820.", path: "/צור-קשר" });
+    } else if (p === "/traffic") {
+      applySeo({ title: "לוח גלישה", noindex: true, path: "/traffic" });
+    } else if (p === "/") {
+      // דף הבית או דף-state פנימי (about/login/admin וכו')
+      if (page === "about") applySeo({ title: "אודות", description: "אודות צוריאל פולייס — חוקר גימטריה ושפת המספרים.", path: "/" });
+      else if (page === "login") applySeo({ title: "כניסה / הרשמה", noindex: true, path: "/" });
+      else if (page === "admin" || page === "traffic" || page === "numbers-report" || page === "theme-preview") applySeo({ title: "ניהול", noindex: true, path: "/" });
+      else applySeo({ title: "כי לה' המלוכה", description: "SOD1820 — צוריאל פולייס. גימטריה, דילוגי אותיות (ELS) ותיעוד אירועים בשפת המספרים.", path: "/" });
+    }
+  }, [location.pathname, page]);
 
   useEffect(() => {
     try { localStorage.setItem(PAGE_CONTENT_STORE_KEY, JSON.stringify(pageContent)); }

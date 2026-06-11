@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /traffic
+
+Sitemap: https://sod1820.co.il/sitemap.xml
