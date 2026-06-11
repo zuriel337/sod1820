@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="g4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6e27a"/>
+      <stop offset="0.5" stop-color="#d4af37"/>
+      <stop offset="1" stop-color="#9a7818"/>
+    </linearGradient>
+    <radialGradient id="bg4" cx="0.5" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#3d1f5c"/>
+      <stop offset="0.6" stop-color="#140f0c"/>
+      <stop offset="1" stop-color="#07050E"/>
+    </radialGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#bg4)"/>
+  <rect x="0.6" y="0.6" width="30.8" height="30.8" rx="6.4" fill="none" stroke="url(#g4)" stroke-width="0.8" opacity="0.5"/>
+  <!-- tiny crown above -->
+  <path d="M11 8.5 L11.6 5.4 L13.6 7 L16 4 L18.4 7 L20.4 5.4 L21 8.5 Z"
+        fill="url(#g4)"/>
+  <!-- SOD letters -->
+  <text x="16" y="25" font-size="13" text-anchor="middle"
+        font-family="'Cinzel',serif" font-weight="700" letter-spacing="0.5"
+        fill="url(#g4)">סוד</text>
+</svg>
