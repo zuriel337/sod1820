@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { F } from "../theme.js";
 
 // ===== עמוד תצוגת צבעים =====
@@ -100,10 +100,10 @@ function Glass({ p, children, style = {}, glow }) {
   );
 }
 
-function NeonButton({ p, children, primary }) {
+function NeonButton({ p, children, primary, onClick }) {
   const [h, setH] = useState(false);
   return (
-    <span className="tp-btn" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+    <span className="tp-btn" onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
       display: "inline-block", padding: "13px 34px", borderRadius: 12,
       fontFamily: F.heading, fontWeight: 700, fontSize: 14, letterSpacing: 2,
       color: primary ? p.bg : p.accent3,
@@ -166,75 +166,198 @@ function Crown({ size = 150 }) {
   );
 }
 
-function Pillar({ side }) {
-  // עמוד זהב מעוטר עם פינים (כיפה) למעלה — מסגרת השער משני הצדדים
+// אנימציות השער: כתר מרחף+זוהר, חלקיקים עולים, פתיחת דלתות תלת-ממד
+const GATE_CSS = `
+  @keyframes rg-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  @keyframes rg-glow {
+    0%,100% { filter: drop-shadow(0 0 16px #C9971E) drop-shadow(0 0 36px rgba(255,205,90,.35)); }
+    50%     { filter: drop-shadow(0 0 30px #F6E27A) drop-shadow(0 0 66px rgba(255,215,110,.6)); }
+  }
+  @keyframes rg-rise {
+    0%   { transform: translate(0,0) scale(1); opacity: 0; }
+    12%  { opacity: .9; }
+    85%  { opacity: .55; }
+    100% { transform: translate(var(--drift,0px), -520px) scale(.25); opacity: 0; }
+  }
+  @keyframes rg-light { 0%,100% { opacity: .5; } 50% { opacity: .9; } }
+  .rg-gate  { transition: transform 2.6s cubic-bezier(.55,.03,.18,1); will-change: transform; backface-visibility: hidden; }
+  .rg-front { transition: opacity 1.1s ease, transform 1.1s ease; }
+  .rg-hallmsg { transition: opacity 1.6s ease .9s, transform 1.6s ease .9s; }
+  .rg-scene.is-open .rg-gate-l { transform: rotateY(-115deg); }
+  .rg-scene.is-open .rg-gate-r { transform: rotateY(115deg); }
+  .rg-scene.is-open .rg-front  { opacity: 0; transform: scale(.92); pointer-events: none; }
+  .rg-scene.is-open .rg-hallmsg{ opacity: 1; transform: translate(-50%,-50%) scale(1); }
+`;
+
+function getRemaining(target) {
+  const ms = target - Date.now();
+  if (ms <= 0) return { d: 0, h: 0, m: 0, s: 0, done: true };
+  const s = Math.floor(ms / 1000);
+  return { d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60), s: s % 60, done: false };
+}
+const pad = n => String(n).padStart(2, "0");
+
+function CountdownBox({ p, n, label }) {
   return (
-    <div style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, width: 58, zIndex: 1, pointerEvents: "none" }}>
-      {/* פינים עליון */}
-      <div style={{ position: "absolute", top: -22, [side]: 6,
-        width: 46, height: 46, borderRadius: "50% 50% 46% 46%",
-        background: "linear-gradient(90deg,#6e4e10,#F6E27A 30%,#C9971E 55%,#F6E27A 78%,#6e4e10)",
-        boxShadow: "0 0 18px #C9971E88", border: "1px solid #6e4e10" }} />
-      {/* גוף העמוד */}
-      <div style={{ position: "absolute", top: 14, bottom: 0, [side]: 0, width: 58,
-        background: "linear-gradient(90deg,#5a3f0c 0%,#F6E27A 22%,#E8C84A 40%,#C9971E 50%,#E8C84A 60%,#F6E27A 78%,#5a3f0c 100%)",
-        boxShadow: "0 0 30px #C9971E55, inset 0 0 12px #6e4e1066",
-        backgroundImage: `repeating-linear-gradient(0deg, transparent 0 26px, rgba(110,78,16,0.45) 26px 28px),
-                          linear-gradient(90deg,#5a3f0c 0%,#F6E27A 22%,#E8C84A 40%,#C9971E 50%,#E8C84A 60%,#F6E27A 78%,#5a3f0c 100%)` }} />
+    <div style={{
+      width: "clamp(66px,17vw,108px)", height: "clamp(66px,17vw,108px)", borderRadius: 15,
+      display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+      background: "linear-gradient(180deg,#241400,#0f0900)", border: "1px solid #e2b536",
+      boxShadow: `inset 0 0 18px #6e4e1055, 0 0 20px rgba(255,196,0,.18)`,
+    }}>
+      <span style={{ fontFamily: F.heading, fontWeight: 800, fontSize: "clamp(28px,7vw,46px)", color: "#ffe17c", textShadow: `0 0 12px ${p.accent}` }}>{n}</span>
+      <small style={{ fontFamily: F.heading, fontSize: "clamp(9px,2.4vw,12px)", letterSpacing: 1, color: "#b89a45", marginTop: 6 }}>{label}</small>
     </div>
   );
 }
 
-function CountdownBox({ p, n, label }) {
+// שער ברזל-זהב יחיד (חצי), נפתח בסיבוב תלת-ממד
+function IronGate({ side, p }) {
+  const inner = side === "left" ? "right" : "left";
   return (
-    <div style={{ minWidth: 72, padding: "12px 8px 9px", borderRadius: 12, textAlign: "center",
-      background: "rgba(20,12,2,0.5)", backdropFilter: "blur(6px)",
-      border: "1px solid #C9971E66", boxShadow: "inset 0 0 16px #6e4e1055, 0 0 18px #C9971E22" }}>
-      <div style={{ fontFamily: F.heading, fontWeight: 800, fontSize: 30, color: "#F6E27A", textShadow: `0 0 16px ${p.accent}88`, lineHeight: 1 }}>{n}</div>
-      <div style={{ fontFamily: F.heading, fontSize: 11, letterSpacing: 2, color: "#C9971E", marginTop: 6 }}>{label}</div>
+    <div className={`rg-gate rg-gate-${side[0]}`} style={{
+      position: "absolute", top: 0, [side]: 0, width: "50%", height: "100%",
+      transformOrigin: `${side} center`, zIndex: 4,
+      background: "linear-gradient(180deg, rgba(8,6,2,.82), rgba(2,1,0,.9))",
+      boxShadow: "inset 0 0 70px rgba(0,0,0,.85)",
+      borderTop: "3px solid #C9971E",
+    }}>
+      {/* סורגים אנכיים */}
+      <div style={{ position: "absolute", inset: 0, opacity: .92, backgroundImage:
+        `repeating-linear-gradient(90deg, transparent 0 15px, rgba(110,71,0,.5) 15px 16px, #C9971E 16px 18px, #F7D75B 18px 19px, #C9971E 19px 21px, transparent 21px 36px)` }} />
+      {/* מסילות אופקיות */}
+      {["24%", "70%"].map(top => (
+        <div key={top} style={{ position: "absolute", left: 0, right: 0, top, height: 6,
+          background: "linear-gradient(90deg,#6f4700,#F7D75B,#C58F12,#F7D75B,#6f4700)", boxShadow: "0 0 8px #C9971E88" }} />
+      ))}
+      {/* חודי חנית למעלה */}
+      <div style={{ position: "absolute", left: 0, right: 0, top: -10, height: 14, backgroundImage:
+        `repeating-linear-gradient(90deg, transparent 0 7px, #C9971E 7px 9px, #F7D75B 9px 10px, transparent 10px 13px)` }} />
+      {/* מדליון מרכזי (מנעול) בקצה הפנימי */}
+      <div style={{ position: "absolute", top: "50%", [inner]: -24, transform: "translateY(-50%)",
+        width: 48, height: 48, borderRadius: "50%",
+        background: "radial-gradient(circle at 38% 32%, #F7D75B, #C58F12 58%, #6f4700)",
+        border: "2px solid #6f4700", boxShadow: "0 0 18px #C9971E", zIndex: 2 }} />
+    </div>
+  );
+}
+
+function Particles() {
+  const dots = React.useMemo(() => Array.from({ length: 30 }, () => ({
+    left: Math.random() * 100, size: 2 + Math.random() * 4,
+    dur: 6 + Math.random() * 7, delay: Math.random() * 8, drift: (Math.random() * 2 - 1) * 38,
+  })), []);
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 5 }}>
+      {dots.map((d, i) => (
+        <span key={i} style={{
+          position: "absolute", bottom: -8, left: `${d.left}%`, width: d.size, height: d.size, borderRadius: "50%",
+          background: "radial-gradient(circle,#FFE9A8,#C9971E)", boxShadow: "0 0 8px #FFD45A",
+          animation: `rg-rise ${d.dur}s linear ${d.delay}s infinite`, "--drift": `${d.drift}px`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// היכל עמוק בפרספקטיבה — נחשף מאחורי השערים
+function DeepHall({ p, open }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0 }}>
+      {/* אור בקצה ההיכל */}
+      <div style={{ position: "absolute", left: "50%", top: "40%", transform: "translate(-50%,-50%)",
+        width: "44%", height: "62%", borderRadius: "50%",
+        background: "radial-gradient(circle,#FBE8A6 0%,rgba(201,151,30,.28) 36%,transparent 72%)",
+        filter: "blur(4px)", animation: "rg-light 5s ease-in-out infinite" }} />
+      {/* קשתות נסוגות */}
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} style={{ position: "absolute", left: "50%", bottom: "30%", transform: "translateX(-50%)",
+          width: `${80 - i * 16}%`, height: `${74 - i * 15}%`,
+          borderTopLeftRadius: "50% 90%", borderTopRightRadius: "50% 90%",
+          border: `2px solid rgba(201,151,30,${0.5 - i * 0.1})`, borderBottom: "none",
+          boxShadow: `0 0 20px rgba(201,151,30,${0.22 - i * 0.05})` }} />
+      ))}
+      {/* רצפה בפרספקטיבה */}
+      <div style={{ position: "absolute", left: "-25%", right: "-25%", bottom: 0, height: "34%",
+        background: "linear-gradient(180deg, transparent, #1a1206 45%, #060401)",
+        backgroundImage: "repeating-linear-gradient(90deg, rgba(201,151,30,.16) 0 1px, transparent 1px 44px)",
+        transform: "perspective(320px) rotateX(62deg)", transformOrigin: "bottom" }} />
+      {/* ברכה בעומק — נחשפת בפתיחה */}
+      <div className="rg-hallmsg" style={{ position: "absolute", left: "50%", top: "36%",
+        transform: "translate(-50%,-50%) scale(.86)", textAlign: "center", opacity: 0, zIndex: 1 }}>
+        <div style={{ fontFamily: F.regal, fontWeight: 700, fontSize: "clamp(22px,4vw,34px)", color: "#FBE8A6", textShadow: "0 0 26px #C9971E" }}>
+          ברוכים הבאים אל ההיכל
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <NeonButton p={p}>המשך אל האתר →</NeonButton>
+        </div>
+      </div>
     </div>
   );
 }
 
 function RoyalGate({ p }) {
+  const target = React.useMemo(() => Date.now() + 7 * 86400000 + 1000, []);
+  const [t, setT] = useState(() => getRemaining(target));
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const r = getRemaining(target);
+      setT(r);
+      if (r.done) setOpen(true);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [target]);
+
   return (
-    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", marginBottom: 28,
-      minHeight: 540, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "44px 72px",
-      background: `radial-gradient(120% 80% at 50% 0%, #1a1206 0%, ${p.bg} 60%),
-                   radial-gradient(60% 40% at 50% 8%, ${p.accent}33, transparent 70%)`,
-      border: `1px solid #C9971E55`, boxShadow: `inset 0 0 80px ${p.bg}, 0 0 50px ${p.accent2}22` }}>
-      <Pillar side="left" />
-      <Pillar side="right" />
+    <div className={`rg-scene${open ? " is-open" : ""}`} style={{
+      position: "relative", borderRadius: 22, overflow: "hidden", marginBottom: 28, minHeight: "clamp(440px,72vh,600px)",
+      perspective: 1700, perspectiveOrigin: "50% 44%",
+      background: `radial-gradient(circle at 50% 0%, #3d2500 0%, #120c02 32%, ${p.bg} 80%)`,
+      border: "1px solid #C9971E55", boxShadow: `0 0 80px ${p.accent}33, inset 0 0 70px #000` }}>
+      <style>{GATE_CSS}</style>
 
-      {/* קשת עליונה */}
-      <svg viewBox="0 0 600 120" preserveAspectRatio="none" style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", width: "78%", height: 120, zIndex: 0, opacity: 0.9 }}>
-        <path d="M20,118 Q300,-40 580,118" fill="none" stroke="#C9971E" strokeWidth="5" style={{ filter: "drop-shadow(0 0 8px #C9971E99)" }} />
-        <path d="M20,118 Q300,-28 580,118" fill="none" stroke="#F6E27A" strokeWidth="1.5" opacity="0.8" />
-      </svg>
+      <DeepHall p={p} open={open} />
+      <Particles />
+      <IronGate side="left" p={p} />
+      <IronGate side="right" p={p} />
 
-      <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-        <Crown size={156} />
-        <h1 style={{ fontFamily: F.regal, fontWeight: 800, fontSize: "clamp(34px,6vw,58px)", margin: "10px 0 14px",
-          color: "#F6E27A", textShadow: `0 0 26px #C9971E, 0 0 60px ${p.accent}77, 0 2px 4px #000` }}>
+      {/* תוכן קדמי — כתר מרחף, כותרת, ספירה; מתפוגג בפתיחה */}
+      <div className="rg-front" style={{ position: "relative", zIndex: 6, textAlign: "center",
+        padding: "clamp(34px,6vw,58px) clamp(18px,5vw,64px)", minHeight: "inherit",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ animation: "rg-float 5s ease-in-out infinite" }}>
+          <div style={{ display: "inline-block", animation: "rg-glow 4s ease-in-out infinite" }}>
+            <Crown size={148} />
+          </div>
+        </div>
+        <h1 style={{ fontFamily: F.regal, fontWeight: 800, fontSize: "clamp(34px,6vw,60px)", margin: "14px 0 12px",
+          color: "#f6d264", textShadow: `0 0 22px gold, 0 0 60px rgba(255,215,0,.45), 0 2px 4px #000` }}>
           כי לה' המלוכה
         </h1>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "4px auto 18px", color: "#C9971E" }}>
-          <span style={{ height: 1, width: 60, background: "linear-gradient(to left,#C9971E,transparent)" }} />
-          <span style={{ fontSize: 12 }}>❖</span>
-          <span style={{ height: 1, width: 60, background: "linear-gradient(to right,#C9971E,transparent)" }} />
+        <div style={{ width: 200, height: 2, background: "linear-gradient(90deg,transparent,gold,transparent)", margin: "0 auto 22px" }} />
+        <div style={{ fontFamily: F.heading, fontSize: "clamp(14px,2.4vw,20px)", letterSpacing: 2, color: "#b8a97f", marginBottom: 22 }}>
+          ספירה לאחור לפתיחת השער
         </div>
-        <div style={{ fontFamily: F.heading, fontSize: 15, letterSpacing: 3, color: p.textDim, marginBottom: 18 }}>
-          ספירה לאחור · נפתח בקרוב
+        <div style={{ display: "flex", gap: "clamp(8px,2vw,18px)", justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
+          <CountdownBox p={p} n={t.d} label="ימים" />
+          <CountdownBox p={p} n={pad(t.h)} label="שעות" />
+          <CountdownBox p={p} n={pad(t.m)} label="דקות" />
+          <CountdownBox p={p} n={pad(t.s)} label="שניות" />
         </div>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 26 }}>
-          <CountdownBox p={p} n={7} label="ימים" />
-          <CountdownBox p={p} n="00" label="שעות" />
-          <CountdownBox p={p} n="00" label="דקות" />
-          <CountdownBox p={p} n="00" label="שניות" />
-        </div>
-        <NeonButton p={p} primary>היכנס אל ההיכל →</NeonButton>
+        <NeonButton p={p} primary onClick={() => setOpen(true)}>✨ פתח את השער</NeonButton>
       </div>
+
+      {/* כפתור איפוס להדגמה (מופיע כשהשער פתוח) */}
+      {open && (
+        <button onClick={() => setOpen(false)} style={{
+          position: "absolute", bottom: 14, left: 14, zIndex: 8, cursor: "pointer",
+          padding: "8px 16px", borderRadius: 999, fontFamily: F.heading, fontSize: 12, letterSpacing: 1,
+          background: "rgba(8,6,2,.6)", color: "#C9971E", border: "1px solid #C9971E66" }}>
+          ↺ סגור שוב
+        </button>
+      )}
     </div>
   );
 }
