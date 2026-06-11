@@ -2,7 +2,7 @@
 // מקור אמת יחיד: ממנו נגזרים גם התפריט/פוטר וגם ה-SEO לכל route.
 
 export const NAV = [
-  { label: "בית", emoji: "🏠", to: "/" },
+  { label: "ראשי", emoji: "🏠", to: "/" },
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🛤", to: "/timeline" },
@@ -39,7 +39,7 @@ export const NAV = [
 
 // פריטים שמוצגים בשורת התפריט הראשית (השאר נגישים דרך מרכז הניווט / המבורגר)
 export const PRIMARY_KEYS = [
-  "/start", "/timeline", "/numbers", "/beit-midrash", "/post",
+  "/", "/start", "/timeline", "/numbers", "/beit-midrash", "/post",
   "/archive", "/code", "/community", "/members",
 ];
 

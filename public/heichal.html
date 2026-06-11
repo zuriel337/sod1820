@@ -57,13 +57,22 @@
     transition:background .2s,transform .2s}
   #world .back:hover{background:rgba(232,200,64,.14);transform:translateY(-1px)}
   #world .back:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-  @media (prefers-reduced-motion:reduce){#loader .spinner{animation-duration:2.4s}}
+  #audioBtn{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;z-index:6;
+    width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;
+    background:rgba(8,5,2,.6);color:var(--gold);border:1px solid rgba(232,200,64,.35);
+    backdrop-filter:blur(6px);transition:background .2s,box-shadow .2s,transform .2s;opacity:0;
+    animation:audio-in .6s ease 1.6s forwards}
+  #audioBtn:hover{background:rgba(20,15,12,.8);transform:translateY(-1px)}
+  #audioBtn.on{color:var(--gold-soft);border-color:var(--gold);box-shadow:0 0 16px rgba(232,200,64,.4)}
+  @keyframes audio-in{to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){#loader .spinner{animation-duration:2.4s}#audioBtn{animation:none;opacity:1}}
 </style>
 </head>
 <body>
   <div id="vignette"></div>
   <div id="brand"><div class="name">סוד1820</div><div class="sub">הֵיכַל הַשְּׁעָרִים</div></div>
   <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
+  <button id="audioBtn" type="button" title="מוזיקת רקע" aria-label="מוזיקת רקע">🔈</button>
   <div id="loader">
     <div class="mark">כי לה' המלוכה</div><div class="spinner"></div>
     <div class="status">בונה את ההיכל…</div>
@@ -422,8 +431,17 @@ function buildGate(cfg,i){
   pool.rotation.x=-Math.PI/2;pool.position.set(0,0.014,inFront-0.6);group.add(pool);
   const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
 
-  const timer=makeSprite({text:'',font:'700 48px "Heebo"',color:lighten(col,0.55),w:680,h:140,plaque:true});
-  timer.sprite.position.set(0,DH+1.78,inFront+0.14);timer.sprite.scale.set(3.7,0.76,1);group.add(timer.sprite);
+  const featured=(cfg.key==='ai');   // שער ai — "שעון יפה" בולט
+  const timer=makeSprite({text:'',font:`${featured?'800':'700'} ${featured?54:48}px "Heebo"`,
+    color:featured?'#f6e27a':lighten(col,0.55),w:720,h:150,plaque:true});
+  timer.sprite.position.set(0,DH+1.78,inFront+0.14);
+  timer.sprite.scale.set(featured?4.4:3.7,featured?0.92:0.76,1);group.add(timer.sprite);
+  if(featured){ // טבעת זוהר זהובה סביב השעון
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(0xe8c840),color:0xffffff,
+      transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.55}));
+    halo.scale.set(5.2,2.4,1);halo.position.set(0,DH+1.78,inFront+0.06);group.add(halo);
+    animated.push({tick:(dt,t)=>{ halo.material.opacity=0.4+Math.sin(t*1.8)*0.18; }});
+  }
   const name=makeSprite({text:`${cfg.emoji} ${cfg.title}`,font:'700 58px "Frank Ruhl Libre"',color:'#ffe9a8',w:680,h:160,plaque:true});
   name.sprite.position.set(0,DH+2.7,inFront+0.14);name.sprite.scale.set(3.9,0.92,1);group.add(name.sprite);
 
@@ -444,10 +462,11 @@ function buildGate(cfg,i){
   hit.position.set(0,(DH+DW/2)/2+0.2,inFront+0.05);group.add(hit);
 
   scene.add(group);
-  const isOpen=(cfg.openAt===null);
-  gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, timer,
+  // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
+  const base=featured?0.06:0;
+  gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, timer, featured,
     worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
-    baseOpen:isOpen?0.16:0, openAmt:0, targetOpen:isOpen?0.16:0, hover:0, hoverTarget:0, hit });
+    baseOpen:base, openAmt:base, targetOpen:base, hover:0, hoverTarget:0, hit });
 }
 
 /* ---------- timers ---------- */
@@ -455,13 +474,16 @@ function updateTimers(){
   const now=Date.now();
   if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
-    if(o===null) txt='✦ השער פתוח ✦';
+    if(o===null) txt='🔒 בקרוב';
     else{ let rem=Math.floor((o-now)/1000);
-      if(rem<=0) txt='נפתח עכשיו';
-      else{ const d=Math.ceil(rem/86400);
-        if(rem>=86400) txt=d===1?'נפתח מחר':`נפתח בעוד ${d} ימים`;
-        else{ const h=Math.floor(rem/3600);rem-=h*3600;const m=Math.floor(rem/60);const s=rem-m*60;
-          const p=n=>String(n).padStart(2,'0');txt=`נפתח בעוד ${p(h)}:${p(m)}:${p(s)}`; } } }
+      if(rem<=0) txt='✦ נפתח! ✦';
+      else{ const p=n=>String(n).padStart(2,'0');
+        const d=Math.floor(rem/86400); rem-=d*86400;
+        const h=Math.floor(rem/3600);  rem-=h*3600;
+        const m=Math.floor(rem/60);    const s=rem-m*60;
+        // שעון חי: ימים + שעון מתקתק
+        txt = d>0 ? `נפתח בעוד ${d}י׳ · ${p(h)}:${p(m)}:${p(s)}`
+                  : `נפתח בעוד ${p(h)}:${p(m)}:${p(s)}`; } }
     g.timer.update(txt); });
 }
 
@@ -497,6 +519,40 @@ function makeSprite({text,font,color,w,h,plaque}){
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);
   ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
 
+/* ---------- ambient music (WebAudio — ללא קובץ חיצוני) ---------- */
+let audioCtx=null, audioOn=false, audioMaster=null;
+function startAmbient(){
+  if(audioCtx) return true;
+  const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return false;
+  audioCtx=new Ctx();
+  audioMaster=audioCtx.createGain(); audioMaster.gain.value=0.0001; audioMaster.connect(audioCtx.destination);
+  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(audioMaster);
+  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=520; filt.Q.value=0.8; filt.connect(voice);
+  // אקורד מלכותי שקט (לה מינור): A2 · E3 · A3 · C4
+  [110,164.81,220,261.63].forEach((f,i)=>{ const o=audioCtx.createOscillator();
+    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*5;
+    const g=audioCtx.createGain(); g.gain.value=0.16/(i+1); o.connect(g); g.connect(filt); o.start(); });
+  // תנועה איטית על הפילטר + טרמולו עדין
+  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.05;
+  const lfoG=audioCtx.createGain(); lfoG.gain.value=160; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
+  const trem=audioCtx.createOscillator(); trem.frequency.value=0.13;
+  const tremG=audioCtx.createGain(); tremG.gain.value=0.06; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
+  return true;
+}
+function toggleAudio(){
+  const btn=document.getElementById('audioBtn');
+  if(!audioCtx){ if(!startAmbient()) return; }
+  if(audioCtx.resume) audioCtx.resume();
+  const now=audioCtx.currentTime;
+  if(audioOn){ audioMaster.gain.cancelScheduledValues(now);
+    audioMaster.gain.setValueAtTime(audioMaster.gain.value,now);
+    audioMaster.gain.linearRampToValueAtTime(0.0001,now+0.6); audioOn=false; }
+  else{ audioMaster.gain.cancelScheduledValues(now);
+    audioMaster.gain.setValueAtTime(Math.max(0.0001,audioMaster.gain.value),now);
+    audioMaster.gain.linearRampToValueAtTime(0.10,now+2.2); audioOn=true; }
+  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn);
+}
+
 /* ---------- interaction ---------- */
 function addEventListeners(){
   addEventListener('resize',onResize);
@@ -504,6 +560,7 @@ function addEventListeners(){
   el.addEventListener('pointerdown',onDown);el.addEventListener('pointermove',onMove);
   el.addEventListener('pointerup',onUp);el.addEventListener('pointerleave',()=>dragging=false);
   document.querySelector('#world .back').addEventListener('click',exitWorld);
+  document.getElementById('audioBtn').addEventListener('click',toggleAudio);
 }
 function onResize(){ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight); }
 function onDown(e){ if(state!=='idle')return;dragging=true;dragDist=0;lastX=e.clientX;lastY=e.clientY;lastInteract=clock.elapsedTime; }
@@ -533,18 +590,23 @@ function enterWorld(g){
   tween.q0.copy(camera.quaternion);tween.q1.copy(dummy.quaternion);
   tween.t=0;tween.dur=1.5;tween.active=true;tween.mode='in';tween.gate=g;tween.onMid=()=>showWorldPanel(g);
 }
+function gateUnlocked(g){ const o=g.cfg.openAt; return o!==null && o<=Date.now(); }
 function showWorldPanel(g){
-  // ניווט אמיתי אל ה-route של האתר (גם כשמוטמע ב-iframe — מנווטים את החלון העליון)
-  const url=g.cfg.url;
-  if(url && url.charAt(0)==='/'){
-    try{ (window.top||window).location.href=url; }catch(e){ window.location.href=url; }
+  // שער פתוח → ניווט אמיתי אל ה-route (גם כשמוטמע ב-iframe — מנווטים את החלון העליון)
+  if(gateUnlocked(g) && g.cfg.url && g.cfg.url.charAt(0)==='/'){
+    try{ (window.top||window).location.href=g.cfg.url; }catch(e){ window.location.href=g.cfg.url; }
     return;
   }
-  // נפילה: אם אין route אמיתי (#) — מציגים פאנל פנימי
+  // שער נעול → פאנל "בקרוב" / ספירה לאחור
   state='inworld';
   const w=document.getElementById('world'),col='#'+new THREE.Color(g.cfg.color).getHexString();
-  w.style.color=col;w.querySelector('.emoji').textContent=g.cfg.emoji;w.querySelector('.emoji').style.color=col;
-  w.querySelector('.wname').textContent=g.cfg.title;w.querySelector('.wsub').textContent=g.cfg.world;
+  w.style.color=col;
+  w.querySelector('.emoji').textContent=g.cfg.emoji;w.querySelector('.emoji').style.color=col;
+  w.querySelector('.wname').textContent=g.cfg.title;
+  const o=g.cfg.openAt;
+  let status='🔒 השער ייפתח בקרוב';
+  if(o!==null){ const d=Math.max(0,Math.ceil((o-Date.now())/86400000)); status=`⏳ נפתח בעוד ${d} ימים`; }
+  w.querySelector('.wsub').textContent=`${status} · ${g.cfg.world}`;
   w.classList.add('show');
   document.getElementById('brand').style.opacity='0';document.getElementById('hint').style.opacity='0';
 }
