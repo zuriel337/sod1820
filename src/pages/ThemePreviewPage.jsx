@@ -424,9 +424,12 @@ export default function ThemePreviewPage() {
 
       {/* רקע שער מלא — נעול (fixed): התוכן גולל מעליו, השער נשאר יציב. דסקטופ בלבד */}
       <div className="tp-gatebg" />
-      {/* scrim עדין כדי שכרטיסי הזכוכית והטקסט יישארו קריאים מעל התמונה */}
+      {/* וינייטה — חושך עמוק במרכז, מתבהר לקצוות: מסגרת הזהב נשארת, התוכן יושב בחושך */}
       <div className="tp-gatebg" style={{ backgroundImage: "none",
-        background: `linear-gradient(180deg, ${p.bg}b8 0%, ${p.bg}8c 38%, ${p.bg}c9 100%)` }} />
+        background: `radial-gradient(ellipse 52% 78% at 50% 46%, ${p.bg}f7 0%, ${p.bg}f0 32%, ${p.bg}c4 58%, ${p.bg}66 78%, ${p.bg}1a 100%)` }} />
+      {/* חיזוק כהות בקצה העליון והתחתון לעיגון התוכן */}
+      <div className="tp-gatebg" style={{ backgroundImage: "none",
+        background: `linear-gradient(180deg, ${p.bg}cc 0%, transparent 18%, transparent 82%, ${p.bg}e6 100%)` }} />
 
       <Nebula p={p} />
 
