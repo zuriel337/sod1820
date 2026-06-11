@@ -9,6 +9,7 @@ import StartHerePage from "./pages/StartHerePage.jsx";
 import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
 import NumbersPage from "./pages/NumbersPage.jsx";
 import CodePage from "./pages/CodePage.jsx";
+import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import {
   TimelinePage, ArchivePage, MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, BeitMidrashPage, MethodPage,
@@ -16,7 +17,7 @@ import {
 import {
   PostsRoute, PostBySlugRoute, CategoryRoute, TagRoute, GematriaRoute,
   AboutRoute, LoginRoute, ContactRoute, ChatRoute,
-  TrafficRoute, NumbersReportRoute, ThemePreviewRoute, AdminRoute,
+  TrafficRoute, NumbersReportRoute, AdminRoute,
 } from "./pages/legacyRoutes.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
@@ -58,7 +59,7 @@ export default function App() {
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
-          <Route path="/theme-preview" element={<ThemePreviewRoute />} />
+          <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryRoute />} />
           <Route path="/tag/:slug" element={<TagRoute />} />
           <Route path="/number/:phrase" element={<GematriaRoute />} />
