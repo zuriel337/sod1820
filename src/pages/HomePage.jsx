@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
-import { C, F, LOGO_URL } from "../theme.js";
+import { C, F, LOGO_URL, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
@@ -47,42 +47,46 @@ function Hero() {
   );
 }
 
-// טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון
+// טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
 function LatestPostsRail({ posts, onPost }) {
   return (
-    <div style={{ direction: "rtl" }}>
-      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
-        📖 פוסטים אחרונים
+    <div className="sod-pf" style={{ direction: "rtl" }}>
+      <div className="sod-pf-head">
+        <span className="sod-pf-dot" />
+        <span className="sod-pf-title">פוסטים אחרונים</span>
+        <span className="sod-pf-line" />
+        <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {posts.map(p => {
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
           const date = formatDateHe(p.modified || p.date);
+          const gem = calcGem(title);
           return (
-            <button key={p.id} onClick={() => onPost(p)} style={{
-              display: "flex", alignItems: "stretch", gap: 12, width: "100%", textAlign: "right",
-              cursor: "pointer", background: C.surface, border: `1px solid ${C.border}`,
-              borderInlineStart: `2px solid ${C.borderGold}`, borderRadius: 8, padding: 0,
-              overflow: "hidden", transition: "all 0.2s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.surface2; e.currentTarget.style.borderColor = C.gold; }}
-              onMouseLeave={e => { e.currentTarget.style.background = C.surface; e.currentTarget.style.borderColor = C.border; }}
+            <button
+              key={p.id}
+              onClick={() => onPost(p)}
+              className="sod-pf-card"
+              style={{ animationDelay: `${i * 90}ms` }}
             >
-              <div style={{
-                width: 64, flexShrink: 0, alignSelf: "stretch", minHeight: 64,
+              <span className="sod-pf-scan" />
+              <span className="sod-pf-idx">{String(i + 1).padStart(2, "0")}</span>
+
+              <div className="sod-pf-thumb" style={{
                 background: image ? `center/cover no-repeat url(${image})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})`,
-                filter: image ? "brightness(0.78) sepia(0.2)" : "none",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: C.borderGold, fontSize: 24, fontFamily: F.body,
-              }}>{!image && "✦"}</div>
-              <div style={{ flex: 1, padding: "10px 4px 10px 0", minWidth: 0 }}>
-                <div style={{
-                  color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, lineHeight: 1.4,
-                  display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-                }}>{title}</div>
-                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, marginTop: 4, letterSpacing: 0.5 }}>
-                  עודכן · {date}
+              }}>
+                {!image && <span className="sod-pf-thumb-mark">✦</span>}
+                <span className="sod-pf-thumb-holo" />
+                <span className="sod-pf-corner tl" /><span className="sod-pf-corner br" />
+              </div>
+
+              <div className="sod-pf-body">
+                <div className="sod-pf-name">{title}</div>
+                <div className="sod-pf-meta">
+                  <span className="sod-pf-date">עודכן · {date}</span>
+                  {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
                 </div>
               </div>
             </button>
@@ -90,8 +94,9 @@ function LatestPostsRail({ posts, onPost }) {
         })}
         {!posts.length && <div style={{ color: C.muted, fontSize: 13, padding: 12 }}>טוען פוסטים…</div>}
       </div>
-      <Link to="/post" style={{ display: "inline-block", marginTop: 14, color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>
-        אל כל הפוסטים →
+
+      <Link to="/post" className="sod-pf-all">
+        אל כל הפוסטים <span aria-hidden>→</span>
       </Link>
     </div>
   );
@@ -138,6 +143,130 @@ export default function HomePage() {
       <style>{`
         @media (max-width: 1080px) {
           .sod-home-grid { grid-template-columns: 1fr !important; }
+        }
+
+        /* ===== פוסטים אחרונים — עיצוב עתידני ===== */
+        .sod-pf-head { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; }
+        .sod-pf-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: ${C.goldBright}; box-shadow: 0 0 10px ${C.goldBright}, 0 0 4px ${C.goldBright};
+          animation: sod-pf-pulse 2.2s ease-in-out infinite;
+        }
+        .sod-pf-title {
+          font-family: ${F.heading}; font-size: 12px; font-weight: 800;
+          letter-spacing: 3px; text-transform: uppercase; color: ${C.goldBright};
+        }
+        .sod-pf-line {
+          flex: 1; height: 1px;
+          background: linear-gradient(90deg, ${C.borderGold}, transparent);
+        }
+        .sod-pf-count {
+          font-family: ${F.mono}; font-size: 11px; font-weight: 700;
+          color: ${C.goldDim}; letter-spacing: 1px;
+          border: 1px solid ${C.border}; border-radius: 4px; padding: 1px 6px;
+        }
+        @keyframes sod-pf-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.78); }
+        }
+
+        .sod-pf-card {
+          position: relative; display: flex; align-items: stretch; gap: 12px;
+          width: 100%; text-align: right; cursor: pointer; overflow: hidden;
+          padding: 10px 12px 10px 10px; border-radius: 12px;
+          background: linear-gradient(135deg, rgba(20,15,12,0.72), rgba(8,5,2,0.55));
+          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          border: 1px solid ${C.border};
+          box-shadow: inset 0 1px 0 rgba(246,226,122,0.06);
+          transition: transform 0.28s cubic-bezier(.2,.8,.2,1), border-color 0.28s, box-shadow 0.28s;
+          opacity: 0; transform: translateY(14px);
+          animation: sod-pf-in 0.6s cubic-bezier(.2,.8,.2,1) forwards;
+        }
+        @keyframes sod-pf-in { to { opacity: 1; transform: translateY(0); } }
+        /* קו זוהר נע בצד ההתחלה (ימין ב-RTL) */
+        .sod-pf-card::before {
+          content: ""; position: absolute; top: 10%; right: 0; width: 2px; height: 80%;
+          background: linear-gradient(${C.goldDim}, ${C.goldBright}, ${C.goldDim});
+          opacity: 0.45; transition: opacity 0.28s, box-shadow 0.28s;
+        }
+        .sod-pf-card:hover {
+          transform: translateY(-3px); border-color: ${C.gold};
+          box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 24px rgba(212,175,55,0.14);
+        }
+        .sod-pf-card:hover::before { opacity: 1; box-shadow: 0 0 14px ${C.goldBright}; }
+        .sod-pf-card:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
+
+        /* קו סריקה במעבר עכבר */
+        .sod-pf-scan {
+          position: absolute; inset: 0; pointer-events: none; opacity: 0;
+          background: linear-gradient(180deg, transparent 0%, rgba(246,226,122,0.10) 50%, transparent 100%);
+          transform: translateY(-100%);
+        }
+        .sod-pf-card:hover .sod-pf-scan { opacity: 1; animation: sod-pf-scan 1.1s ease-in-out; }
+        @keyframes sod-pf-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+        .sod-pf-idx {
+          position: absolute; top: 6px; left: 10px;
+          font-family: ${F.mono}; font-size: 22px; font-weight: 700; line-height: 1;
+          color: rgba(246,226,122,0.10); letter-spacing: -1px; pointer-events: none;
+          transition: color 0.28s;
+        }
+        .sod-pf-card:hover .sod-pf-idx { color: rgba(246,226,122,0.22); }
+
+        .sod-pf-thumb {
+          position: relative; width: 62px; height: 62px; flex-shrink: 0;
+          border-radius: 9px; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          filter: brightness(0.82) saturate(0.9);
+          transition: filter 0.28s, transform 0.28s;
+          border: 1px solid ${C.border};
+        }
+        .sod-pf-card:hover .sod-pf-thumb { filter: brightness(1) saturate(1.05); transform: scale(1.04); }
+        .sod-pf-thumb-mark { color: ${C.borderGold}; font-size: 26px; font-family: ${F.body}; }
+        .sod-pf-thumb-holo {
+          position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+          background: linear-gradient(125deg, transparent 40%, rgba(246,226,122,0.22) 50%, transparent 60%);
+          background-size: 200% 200%; transition: opacity 0.28s;
+        }
+        .sod-pf-card:hover .sod-pf-thumb-holo { opacity: 1; animation: sod-pf-holo 1.4s ease-in-out infinite; }
+        @keyframes sod-pf-holo { 0% { background-position: 0% 0%; } 100% { background-position: -200% -200%; } }
+        .sod-pf-corner {
+          position: absolute; width: 9px; height: 9px; pointer-events: none;
+          border-color: ${C.goldBright}; opacity: 0.7;
+        }
+        .sod-pf-corner.tl { top: 4px; right: 4px; border-top: 1.5px solid; border-right: 1.5px solid; }
+        .sod-pf-corner.br { bottom: 4px; left: 4px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+
+        .sod-pf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; padding-left: 4px; }
+        .sod-pf-name {
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14px; font-weight: 700; line-height: 1.42;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+          transition: color 0.28s;
+        }
+        .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
+        .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 10px; letter-spacing: 0.5px; }
+        .sod-pf-gem {
+          font-family: ${F.mono}; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+          color: ${C.goldBright};
+          background: linear-gradient(135deg, rgba(122,19,32,0.55), rgba(160,31,46,0.35));
+          border: 1px solid ${C.borderGold}; border-radius: 20px; padding: 2px 8px;
+          box-shadow: 0 0 0 rgba(212,175,55,0); transition: box-shadow 0.28s;
+        }
+        .sod-pf-card:hover .sod-pf-gem { box-shadow: 0 0 14px rgba(212,175,55,0.3); }
+
+        .sod-pf-all {
+          display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
+          color: ${C.goldBright}; text-decoration: none; font-family: ${F.heading};
+          font-size: 12px; font-weight: 700; letter-spacing: 1px;
+          padding: 9px 16px; border-radius: 8px; border: 1px solid ${C.borderGold};
+          background: rgba(20,15,12,0.5); transition: background 0.2s, gap 0.2s, box-shadow 0.2s;
+        }
+        .sod-pf-all:hover { background: ${C.surface2}; gap: 10px; box-shadow: 0 0 18px rgba(212,175,55,0.18); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .sod-pf-card { animation: none; opacity: 1; transform: none; }
+          .sod-pf-dot, .sod-pf-card:hover .sod-pf-scan, .sod-pf-card:hover .sod-pf-thumb-holo { animation: none; }
         }
       `}</style>
     </div>
