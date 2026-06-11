@@ -17,6 +17,22 @@ if (!SVC) { console.error("חסר SUPABASE_SERVICE_KEY"); process.exit(1); }
 const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
 const PUBLIC_BASE = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/uploads/`;
 
+// Supabase storage דוחה מפתחות עם עברית → מעלים תחת שם מתועתק (כמו שאר ה-storage).
+const MAP = {'א':'a','ב':'b','ג':'g','ד':'d','ה':'h','ו':'v','ז':'z','ח':'ch','ט':'t','י':'y','כ':'k','ך':'k','ל':'l','מ':'m','ם':'m','נ':'n','ן':'n','ס':'s','ע':'a','פ':'p','ף':'p','צ':'tz','ץ':'tz','ק':'k','ר':'r','ש':'sh','ת':'t'};
+const hasHebrew = (s) => /[֐-׿]/.test(s);
+function translitFile(fname) {
+  const dot = fname.lastIndexOf("."); const ext = dot >= 0 ? fname.slice(dot).toLowerCase() : "";
+  let s = (dot >= 0 ? fname.slice(0, dot) : fname).replace(/[‎‏‪-‮]/g, "").replace(/[֑-ׇ]/g, "");
+  let o = ""; for (const ch of s) o += (MAP[ch] !== undefined) ? MAP[ch] : (/[A-Za-z0-9.]/.test(ch) ? ch.toLowerCase() : "-");
+  return o.replace(/-+/g, "-").replace(/^-|-$/g, "") + ext;
+}
+// נתיב-יעד ב-storage (יחסי ל-uploads/) — מתעתק את שם הקובץ אם הוא בעברית
+function targetRel(path) {
+  const slash = path.lastIndexOf("/"); const dir = slash >= 0 ? path.slice(0, slash + 1) : "";
+  const fname = slash >= 0 ? path.slice(slash + 1) : path;
+  return dir + (hasHebrew(fname) ? translitFile(fname) : fname);
+}
+
 async function allPosts() {
   const rows = [];
   for (let from = 0; ; from += 500) {
@@ -44,7 +60,8 @@ async function main() {
   async function worker() {
     while (list.length) {
       const path = list.shift(); i++;
-      if (await existsInStorage(path)) { already++; continue; }      // כבר ב-storage
+      const rel = targetRel(path);                                    // שם-יעד (מתועתק אם עברית)
+      if (await existsInStorage(rel)) { already++; continue; }        // כבר ב-storage
       let buf;
       try {
         const res = await fetch(WP_BASE + encodeURI(path), { signal: AbortSignal.timeout(60000) });
@@ -52,7 +69,7 @@ async function main() {
         buf = Buffer.from(await res.arrayBuffer());
       } catch { failed++; continue; }
       const ct = mime.lookup(path) || "application/octet-stream";
-      const up = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURI("uploads/" + path)}`, {
+      const up = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURI("uploads/" + rel)}`, {
         method: "POST",
         headers: { apikey: SVC, Authorization: `Bearer ${SVC}`, "Content-Type": ct, "x-upsert": "true" },
         body: buf,
