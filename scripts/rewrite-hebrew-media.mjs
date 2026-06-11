@@ -70,16 +70,22 @@ async function main() {
     while ((m = URL_RE.exec(f)) !== null) { if (hasHebrew(decodeURIComponent(m[2]))) rawUrls.add(m[0]); }
   }
   console.log(`כתובות מדיה עבריות ייחודיות: ${rawUrls.size} — פותר מול storage...`);
-  // שלב 3: בניית מפת החלפה raw→new (רק מאומתים)
+  // שלב 3: בניית מפת החלפה raw→new (רק מאומתים) — במקביל
   const map = new Map(); let resolved = 0, i = 0;
-  for (const raw of rawUrls) {
-    const m = URL_RE.exec(raw); URL_RE.lastIndex = 0;
-    const mm = raw.match(/uploads\/(\d{4}\/\d{2})\/([^\s"'<>)\\]+)/);
-    const folder = mm[1]; const file = decodeURIComponent(mm[2].replace(/[?#].*$/, ""));
-    const name = await resolveStorageName(folder, file);
-    if (name) { map.set(raw, `${PUBLIC_BASE}${folder}/${encodeURI(name)}`); resolved++; }
-    if (++i % 40 === 0) process.stdout.write(`\r  ${i}/${rawUrls.size}`);
+  const rawList = [...rawUrls];
+  async function worker() {
+    while (rawList.length) {
+      const raw = rawList.shift();
+      const mm = raw.match(/uploads\/(\d{4}\/\d{2})\/([^\s"'<>)\\]+)/);
+      if (!mm) continue;
+      const folder = "uploads/" + mm[1];                       // ← כולל uploads/
+      const file = decodeURIComponent(mm[2].replace(/[?#].*$/, ""));
+      const name = await resolveStorageName(folder, file);
+      if (name) { map.set(raw, `${PUBLIC_BASE}${folder}/${encodeURI(name)}`); resolved++; }
+      if (++i % 40 === 0) process.stdout.write(`\r  ${i}/${rawUrls.size}`);
+    }
   }
+  await Promise.all(Array.from({ length: 12 }, worker));
   console.log(`\nנפתרו ${resolved}/${rawUrls.size}; ללא קובץ ב-storage: ${rawUrls.size - resolved} (יישארו ללא שינוי).`);
   // שלב 4: החלפה בפוסטים
   let changed = 0, updated = 0;
