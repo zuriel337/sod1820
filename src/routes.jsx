@@ -5,7 +5,7 @@ export const NAV = [
   { label: "בית", emoji: "🏠", to: "/" },
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
-  { label: "מסע התדר", emoji: "🕰", to: "/timeline" },
+  { label: "ציר ההתגלות", emoji: "🛤", to: "/timeline" },
   { label: "עץ המספרים", emoji: "🌳", to: "/numbers" },
   {
     label: "בית המדרש", emoji: "📚", to: "/beit-midrash", children: [
@@ -48,7 +48,7 @@ export const ROUTE_META = {
   "/":              { title: "כי לה' המלוכה", description: "SOD1820 — צוריאל פולייס. גימטריה, ציר התדר, עץ המספרים והצופן התנ\"כי — מפה חיה של שפת המספרים." },
   "/start":         { title: "כאן מתחילים", description: "מה זה SOD1820 ואיך מתחילים — גימטריה, ציר התדר, עץ המספרים והצופן התנ\"כי בשתי דקות." },
   "/map":           { title: "מרכז הניווט", description: "מפת האתר החיה — כל מערכות SOD1820 במקום אחד." },
-  "/timeline":      { title: "מסע התדר", description: "ציר הזמן של אירועי הגאולה — כל תחנה עולם בפני עצמו." },
+  "/timeline":      { title: "ציר ההתגלות", description: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים." },
   "/numbers":       { title: "עץ המספרים", description: "עץ המספרים האינטראקטיבי — קשרים בין מספרים, מושגים ואירועים." },
   "/beit-midrash":  { title: "בית המדרש", description: "לימוד שיטות הגימטריה — מסתתר, קדמי, מילוי, אלב\"ם, אתב\"ש ועוד." },
   "/post":          { title: "פוסטים אחרונים", description: "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון." },

@@ -63,7 +63,7 @@ function TimelineRail({ events, selected, onSelect }) {
   return (
     <div style={{ direction: "rtl" }}>
       <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
-        🕰 מסע התדר
+        🛤 ציר ההתגלות
       </div>
       <div style={{ position: "relative", paddingInlineEnd: 14, borderInlineEnd: `1px solid ${C.border}`, maxHeight: 560, overflowY: "auto" }}>
         {events.map((ev) => {
@@ -85,7 +85,7 @@ function TimelineRail({ events, selected, onSelect }) {
         {!events.length && <div style={{ color: C.muted, fontSize: 13, padding: 12 }}>טוען אירועים…</div>}
       </div>
       <Link to="/timeline" style={{ display: "inline-block", marginTop: 12, color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>
-        לכל ציר התדר →
+        אל ציר ההתגלות המלא →
       </Link>
     </div>
   );

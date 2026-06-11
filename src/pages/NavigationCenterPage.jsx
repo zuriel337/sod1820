@@ -5,7 +5,7 @@ import { SectionHeader } from "../components/ui.jsx";
 
 const SYSTEMS = [
   { emoji: "🚀", title: "כאן מתחילים", to: "/start", desc: "המדריך למתחילים — מה זה ואיך משתמשים." },
-  { emoji: "🕰", title: "מסע התדר", to: "/timeline", desc: "ציר הזמן של אירועי הגאולה." },
+  { emoji: "🛤", title: "ציר ההתגלות", to: "/timeline", desc: "ציר הזמן של אירועי הגאולה — מחובר לפוסטים ולגלריות." },
   { emoji: "🌳", title: "עץ המספרים", to: "/numbers", desc: "מפת הקשרים התלת-מימדית בין המספרים." },
   { emoji: "📖", title: "פוסטים", to: "/post", desc: "כל התיעודים, החיפושים והגימטריות." },
   { emoji: "🖼", title: "ארכיון ההתגלות", to: "/archive", desc: "התמונות, הצפנים והממצאים במקום אחד." },
