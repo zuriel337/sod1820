@@ -95,6 +95,9 @@ function getLogoTex(){
     _logoTex.anisotropy=4; _logoTex.encoding=THREE.sRGBEncoding; }
   return _logoTex;
 }
+// הבהרת צבע לכיוון לבן — לשיפור קריאוּת טקסט על שערים כהים
+function lighten(hex, amt){ const c=new THREE.Color(hex); c.lerp(new THREE.Color(0xffffff), amt); return '#'+c.getHexString(); }
+let clockUpdate = null;   // פונקציית עדכון השעון המרכזי (מתעדכן כל שנייה)
 
 // ברירת־מחדל — צבעים תואמים לפלטת האתר (זהב / ארגמן / סגול־מלכותי). days = בעוד כמה ימים (null = פתוח).
 const FALLBACK_GATES = [
@@ -328,12 +331,19 @@ function buildCrown(){
   const ring=new THREE.Mesh(new THREE.RingGeometry(1.7,1.78,80),
     new THREE.MeshBasicMaterial({color:0xe8c840,transparent:true,opacity:0.5,
       blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));group.add(ring);
-  const tex = (CROWN_URI && CROWN_URI!=='auto')
-    ? (function(){const t=new THREE.TextureLoader().load(CROWN_URI);t.anisotropy=4;t.encoding=THREE.sRGBEncoding;return t;})()
-    : makeCrownTexture();
-  const crown=new THREE.Mesh(new THREE.PlaneGeometry(2.7,2.7),
-    new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+  // הכתר המרכזי = הלוגו שלך
+  const crown=new THREE.Mesh(new THREE.PlaneGeometry(2.9,2.9),
+    new THREE.MeshBasicMaterial({map:getLogoTex(),transparent:true,side:THREE.DoubleSide,depthWrite:false}));
   group.add(crown);
+  // כיתוב "כי לה' המלוכה" מתחת לכתר
+  const sub=makeSprite({text:"כי לה' המלוכה",font:'900 70px "Frank Ruhl Libre"',color:'#ffe9a8',w:760,h:170,plaque:false});
+  sub.sprite.position.set(0,-1.95,0.02);sub.sprite.scale.set(3.6,0.8,1);group.add(sub.sprite);
+  // שעון חי מתחת לכיתוב — מתעדכן כל שנייה
+  const clk=makeSprite({text:'',font:'700 60px "Heebo"',color:'#f6e27a',w:560,h:170,plaque:true});
+  clk.sprite.position.set(0,-2.78,0.02);clk.sprite.scale.set(2.7,0.82,1);group.add(clk.sprite);
+  clockUpdate=()=>{ const d=new Date(); const p=n=>String(n).padStart(2,'0');
+    clk.update(`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`); };
+  clockUpdate();
   const beam=new THREE.Mesh(new THREE.CylinderGeometry(0.15,1.4,WALL_H-3,24,1,true),
     new THREE.MeshBasicMaterial({map:radialGlow(0xe8c840),color:0xe8c840,transparent:true,opacity:0.10,
       blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false}));
@@ -412,20 +422,21 @@ function buildGate(cfg,i){
   pool.rotation.x=-Math.PI/2;pool.position.set(0,0.014,inFront-0.6);group.add(pool);
   const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
 
-  const timer=makeSprite({text:'',font:'600 46px "Heebo"',color:'#'+c.getHexString(),w:640,h:130,plaque:true});
-  timer.sprite.position.set(0,DH+1.7,inFront+0.1);timer.sprite.scale.set(3.4,0.69,1);group.add(timer.sprite);
-  const name=makeSprite({text:`${cfg.emoji} ${cfg.title}`,font:'700 52px "Frank Ruhl Libre"',color:'#f7d994',w:640,h:150,plaque:true});
-  name.sprite.position.set(0,DH+2.55,inFront+0.1);name.sprite.scale.set(3.4,0.8,1);group.add(name.sprite);
+  const timer=makeSprite({text:'',font:'700 48px "Heebo"',color:lighten(col,0.55),w:680,h:140,plaque:true});
+  timer.sprite.position.set(0,DH+1.78,inFront+0.14);timer.sprite.scale.set(3.7,0.76,1);group.add(timer.sprite);
+  const name=makeSprite({text:`${cfg.emoji} ${cfg.title}`,font:'700 58px "Frank Ruhl Libre"',color:'#ffe9a8',w:680,h:160,plaque:true});
+  name.sprite.position.set(0,DH+2.7,inFront+0.14);name.sprite.scale.set(3.9,0.92,1);group.add(name.sprite);
 
   // ── הלוגו מרחף מעל השער ──
+  const LOGO_Y=DH+4.05;
   const logoGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(col),color:0xffffff,
     transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.5}));
-  logoGlow.scale.set(2.6,2.6,1);logoGlow.position.set(0,DH+3.7,inFront+0.05);group.add(logoGlow);
+  logoGlow.scale.set(2.6,2.6,1);logoGlow.position.set(0,LOGO_Y,inFront+0.05);group.add(logoGlow);
   const logo=new THREE.Sprite(new THREE.SpriteMaterial({map:getLogoTex(),
     transparent:true,depthWrite:false}));
-  logo.scale.set(1.7,1.7,1);logo.position.set(0,DH+3.7,inFront+0.12);group.add(logo);
+  logo.scale.set(1.7,1.7,1);logo.position.set(0,LOGO_Y,inFront+0.12);group.add(logo);
   animated.push({tick:(dt,t)=>{ const m=reduced?0.4:1;
-    const yy=DH+3.7+Math.sin(t*0.9+i)*0.08*m;
+    const yy=LOGO_Y+Math.sin(t*0.9+i)*0.08*m;
     logo.position.y=yy; logoGlow.position.y=yy;
     logoGlow.material.opacity=0.4+Math.sin(t*1.4+i)*0.12; }});
 
@@ -442,6 +453,7 @@ function buildGate(cfg,i){
 /* ---------- timers ---------- */
 function updateTimers(){
   const now=Date.now();
+  if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
     if(o===null) txt='✦ השער פתוח ✦';
     else{ let rem=Math.floor((o-now)/1000);
@@ -471,10 +483,15 @@ function makeSprite({text,font,color,w,h,plaque}){
   const tex=new THREE.CanvasTexture(c);tex.anisotropy=4;
   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));
   function draw(t){ ctx.clearRect(0,0,w,h);
-    if(plaque){ ctx.fillStyle='rgba(7,5,2,0.55)';roundRect(ctx,8,h*0.16,w-16,h*0.68,24);ctx.fill();
-      ctx.strokeStyle='rgba(232,200,64,0.26)';ctx.lineWidth=2;roundRect(ctx,8,h*0.16,w-16,h*0.68,24);ctx.stroke(); }
+    if(plaque){ ctx.fillStyle='rgba(5,3,1,0.86)';roundRect(ctx,6,h*0.12,w-12,h*0.76,26);ctx.fill();
+      ctx.strokeStyle='rgba(232,200,64,0.5)';ctx.lineWidth=3;roundRect(ctx,6,h*0.12,w-12,h*0.76,26);ctx.stroke(); }
     ctx.font=font;ctx.textAlign='center';ctx.textBaseline='middle';ctx.direction='rtl';
-    ctx.shadowColor=color;ctx.shadowBlur=16;ctx.fillStyle=color;ctx.fillText(t,w/2,h/2);tex.needsUpdate=true; }
+    ctx.lineJoin='round';ctx.miterLimit=2;
+    // מתאר כהה — מבטיח שהאותיות בולטות גם על רקע זוהר
+    ctx.shadowColor='transparent';ctx.strokeStyle='rgba(0,0,0,0.92)';ctx.lineWidth=8;ctx.strokeText(t,w/2,h/2);
+    // מילוי זוהר
+    ctx.shadowColor=color;ctx.shadowBlur=10;ctx.fillStyle=color;ctx.fillText(t,w/2,h/2);
+    ctx.shadowBlur=0;tex.needsUpdate=true; }
   draw(text);return {sprite,update:draw};
 }
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);
