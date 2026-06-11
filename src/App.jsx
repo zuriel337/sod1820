@@ -40,57 +40,6 @@ const F = {
 };
 
 // ===== DATA =====
-const COURSES = [
-  {
-    id: 1,
-    title: "שער האלף-בית",
-    subtitle: "גימטריה רגילה — מהאות לעולם",
-    price: 297,
-    lessons: 12,
-    level: "מתחיל",
-    tag: "פופולרי",
-    desc: "הבסיס המוחלט. תלמד לקרוא מספרים כשפה חיה — כל אות, כל שורש, כל פסוק.",
-    color: "#CFB53B",
-    syllabus: ["מהי גימטריה?","22 האותיות וערכן","חישוב מילים ופסוקים","שורשים ומשפחות מילים","יישום בחיי היומיום","תרגול מעשי מלא"],
-  },
-  {
-    id: 2,
-    title: "המסתתר",
-    subtitle: "שיטת ההפרשים — מה שמסתתר בין האותיות",
-    price: 397,
-    lessons: 10,
-    level: "מתקדם",
-    tag: "חדש",
-    desc: "שיטה ייחודית של צוריאל פולייס. גלה את הקוד שמסתתר בין אות לאות.",
-    color: "#CFB53B",
-    syllabus: ["עקרון ההפרש","מה מסתתר בין שתי אותיות","פענוח מילים מורכבות","דוגמאות מהתנ״ך","שיטת הפולייס","תרגול עצמאי"],
-  },
-  {
-    id: 3,
-    title: "אלבם — הצד השני",
-    subtitle: "הצופן הקדום של ההיפוך",
-    price: 347,
-    lessons: 8,
-    level: "בינוני",
-    tag: "",
-    desc: "א↔ל, ב↔מ — כל מילה היא גם מילה אחרת. גלה את הממד הנסתר של כל מושג.",
-    color: "#CFB53B",
-    syllabus: ["שיטת אלבם","לוח ה-11 היפוכים","מילים ומשמעויות כפולות","סודות בשמות","יישומים מתקדמים","פרויקט גמר"],
-  },
-  {
-    id: 4,
-    title: "ארבעת העולמות",
-    subtitle: "ארבע שיטות · ארבע רמות · מספר אחד",
-    price: 597,
-    lessons: 20,
-    level: "מאסטר",
-    tag: "הכי מקיף",
-    desc: "זהות, מסתתר, פוטנציאל, נשמה — ארבע שיטות הגימטריה של sod1820 בקורס אחד שלם.",
-    color: "#E8C84A",
-    syllabus: ["עולם הזהות","עולם המסתתר","עולם הפוטנציאל","עולם הנשמה","שילוב ארבעת השיטות","אנליזה עמוקה","פרויקטים מיוחדים","מאסטרקלאס חי"],
-  },
-];
-
 const TESTIMONIALS = [
   { name: "מיכל ר׳", text: "אחרי השיעור הראשון ראיתי את המספר שלי בכל מקום. זה שינה לי את החיים.", stars: 5 },
   { name: "דוד כ׳", text: "צוריאל מסביר דברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
@@ -133,13 +82,6 @@ const PAGE_CONTENT_DEFAULTS = {
     bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p>",
     category: "אודות",
     tag: "about",
-  },
-  courses: {
-    title: "כל הקורסים",
-    description: "בחר קורס שמתאים לרמתך ופתח עולם חדש של משמעות במספרים ובמילים.",
-    bodyHtml: "<p>כל קורס מעריך את התובנות שלך ומלמד אותך כיצד להשתמש בגימטריה באופן יומיומי בבחירה של מילים, שמות והחלטות.</p>",
-    category: "קורסים",
-    tag: "courses",
   },
   blog: {
     title: "פוסטים אחרונים",
@@ -279,211 +221,6 @@ function PageBody({ bodyHtml }) {
       }}
       dangerouslySetInnerHTML={{ __html: bodyHtml }}
     />
-  );
-}
-
-// ===== COURSE CARD =====
-
-function CourseCard({ course, onBuy, onDetail }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      onClick={() => onDetail(course)}
-      style={{
-        background: hov
-          ? `linear-gradient(160deg, ${C.surface2} 0%, ${C.bg} 100%)`
-          : C.surface,
-        border: `1px solid ${hov ? course.color : C.border}`,
-        borderTop: `2px solid ${hov ? course.color : C.borderGold}`,
-        borderRadius: 2,
-        padding: "32px 28px",
-        transition: "all 0.3s",
-        cursor: "pointer",
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: hov ? `0 8px 40px ${C.goldDeep}, inset 0 1px 0 ${C.borderGold}` : `inset 0 1px 0 ${C.faint}`,
-      }}
-    >
-      {/* corner ornament */}
-      <div style={{
-        position: "absolute", top: 12, left: 14,
-        fontSize: 9, color: hov ? course.color : C.muted,
-        fontFamily: F.heading, letterSpacing: 2, transition: "color 0.3s"
-      }}>✦ ✦ ✦</div>
-
-      {course.tag && (
-        <div style={{
-          position: "absolute", top: -1, right: 28,
-          background: C.goldDark,
-          border: `1px solid ${C.gold}`,
-          borderTop: "none",
-          color: C.goldBright,
-          fontSize: 9, letterSpacing: 3,
-          padding: "5px 12px", fontFamily: F.heading,
-          textTransform: "uppercase"
-        }}>{course.tag}</div>
-      )}
-
-      <div style={{ marginTop: 16 }}>
-        <div style={{
-          fontSize: 10, color: C.muted, letterSpacing: 3,
-          marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase"
-        }}>
-          {course.level} &nbsp;·&nbsp; {course.lessons} שיעורים
-        </div>
-
-        <h3 style={{
-          color: C.goldLight,
-          margin: "0 0 8px",
-          fontSize: 22,
-          fontFamily: F.royal,
-          fontWeight: 700,
-          letterSpacing: 1,
-          lineHeight: 1.3,
-        }}>{course.title}</h3>
-
-        <div style={{
-          color: C.goldDim, fontSize: 13, marginBottom: 18,
-          fontFamily: F.body, fontStyle: "italic"
-        }}>{course.subtitle}</div>
-
-        <p style={{
-          color: "#ede4d3", fontSize: 16, lineHeight: 1.85,
-          margin: "0 0 24px", flex: 1,
-          fontFamily: F.body
-        }}>{course.desc}</p>
-      </div>
-
-      <div style={{
-        borderTop: `1px solid ${C.border}`,
-        paddingTop: 20, marginTop: "auto",
-        display: "flex", justifyContent: "space-between", alignItems: "center"
-      }}>
-        <span style={{
-          fontSize: 26, color: C.goldBright, fontWeight: 900,
-          fontFamily: F.heading
-        }}>₪{course.price}</span>
-        <GoldButton
-          variant="secondary"
-          style={{ padding: "8px 20px", fontSize: 11 }}
-          onClick={e => { e.stopPropagation(); onBuy(course); }}
-        >לרכישה</GoldButton>
-      </div>
-    </div>
-  );
-}
-
-// ===== COURSE DETAIL PAGE =====
-
-function CourseDetailPage({ course, onBuy, onBack }) {
-  return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", direction: "rtl" }}>
-      <button onClick={onBack} style={{
-        background: "none", border: "none", color: C.muted,
-        cursor: "pointer", fontFamily: F.heading,
-        fontSize: 11, marginBottom: 40, letterSpacing: 3,
-        textTransform: "uppercase", transition: "color 0.2s",
-      }}
-        onMouseEnter={e => e.target.style.color = C.goldDim}
-        onMouseLeave={e => e.target.style.color = C.muted}
-      >← חזרה לקורסים</button>
-
-      <div style={{
-        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-        border: `1px solid ${course.color}`,
-        borderTop: `3px solid ${course.color}`,
-        borderRadius: 2,
-        padding: "44px 40px",
-        marginBottom: 20,
-        boxShadow: `0 0 60px ${C.goldDeep}`,
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
-          <div style={{ flex: 1 }}>
-            {course.tag && (
-              <div style={{
-                display: "inline-block", marginBottom: 16,
-                background: C.goldDark, border: `1px solid ${C.gold}`,
-                color: C.goldBright, fontSize: 9, letterSpacing: 4,
-                padding: "5px 14px", fontFamily: F.heading, textTransform: "uppercase"
-              }}>{course.tag}</div>
-            )}
-            <div style={{
-              fontSize: 10, color: C.muted, letterSpacing: 4,
-              marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase"
-            }}>{course.level} · {course.lessons} שיעורים</div>
-
-            <h1 style={{
-              color: C.goldBright, margin: "0 0 12px",
-              fontSize: "clamp(26px, 4vw, 38px)",
-              fontFamily: F.royal, fontWeight: 700,
-              textShadow: `0 0 50px ${C.goldDark}`, lineHeight: 1.2,
-            }}>{course.title}</h1>
-
-            <p style={{ color: C.goldDim, fontSize: 16, margin: 0, fontFamily: F.body, fontStyle: "italic" }}>
-              {course.subtitle}
-            </p>
-          </div>
-
-          <div style={{ textAlign: "center", minWidth: 140 }}>
-            <div style={{
-              fontSize: 40, color: C.goldBright, fontWeight: 900,
-              fontFamily: F.heading, marginBottom: 16
-            }}>₪{course.price}</div>
-            <GoldButton onClick={() => onBuy(course)} style={{ width: "100%", textAlign: "center" }}>
-              לרכישה
-            </GoldButton>
-          </div>
-        </div>
-
-        <div style={{
-          marginTop: 32, paddingTop: 28,
-          borderTop: `1px solid ${C.border}`
-        }}>
-          <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.1, margin: 0, fontFamily: F.body }}>
-            {course.desc}
-          </p>
-        </div>
-      </div>
-
-      <div style={{
-        background: C.surface,
-        border: `1px solid ${C.border}`,
-        borderRadius: 2,
-        padding: "36px 40px",
-      }}>
-        <div style={{
-          fontSize: 11, color: C.goldDim, letterSpacing: 5,
-          marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase"
-        }}>תוכן הקורס</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
-          {course.syllabus.map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, color: C.goldDim, fontSize: 14, fontFamily: F.body }}>
-              <span style={{
-                color: C.gold, fontSize: 9, minWidth: 22,
-                fontFamily: F.heading, letterSpacing: 1, paddingTop: 3
-              }}>
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              {item}
-            </div>
-          ))}
-        </div>
-
-        <div style={{
-          marginTop: 28, paddingTop: 24,
-          borderTop: `1px solid ${C.border}`,
-          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-          gap: 10
-        }}>
-          {["✓ גישה מיידית", "✓ צפייה ללא הגבלה", "✓ עדכונים לנצח", "✓ תמיכה ישירה"].map(f => (
-            <div key={f} style={{ fontSize: 13, color: C.goldDim, fontFamily: F.body }}>{f}</div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -679,7 +416,7 @@ function HeroSection({ onNav }) {
       </p>
 
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-        <GoldButton onClick={() => onNav("courses")}>לכל הקורסים</GoldButton>
+        <GoldButton onClick={() => onNav("blog")}>לפוסטים האחרונים</GoldButton>
         <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות צוריאל</GoldButton>
       </div>
 
@@ -1354,39 +1091,6 @@ function ELSSection() {
   );
 }
 
-function FeaturedCoursesSection({ onNav }) {
-  return (
-    <div style={{
-      padding: "80px 24px",
-      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
-    }}>
-      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-        <SectionHeader eyebrow="קורסים" title="בחר את הדרך שלך" />
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-          gap: 20,
-          marginBottom: 44,
-        }}>
-          {COURSES.map(c => (
-            <CourseCard
-              key={c.id}
-              course={c}
-              onBuy={course => onNav("checkout", course)}
-              onDetail={course => onNav("detail", course)}
-            />
-          ))}
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <GoldButton variant="secondary" onClick={() => onNav("courses")}>
-            לכל הקורסים ←
-          </GoldButton>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function TestimonialsSection() {
   return (
     <div style={{
@@ -1835,69 +1539,6 @@ function HomePage({ onNav, pageContent, adminMode }) {
   );
 }
 
-// ===== COURSES PAGE =====
-
-function CoursesPage({ onNav, pageContent, adminMode }) {
-  const [filter, setFilter] = useState("הכל");
-  const levels = ["הכל", "מתחיל", "בינוני", "מתקדם", "מאסטר"];
-  const filtered = filter === "הכל" ? COURSES : COURSES.filter(c => c.level === filter);
-  const { title, description, bodyHtml, category } = pageContent || {};
-
-  return (
-    <div style={{ padding: "64px 24px", maxWidth: 1040, margin: "0 auto", direction: "rtl" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-        <SectionHeader eyebrow={category || "SOD1820"} title={title || "כל הקורסים"} />
-        {adminMode && (
-          <button onClick={() => onNav("admin", "courses")} style={{
-            background: C.bgGlow, border: `1px solid ${C.gold}`,
-            color: C.goldLight, padding: "10px 16px", borderRadius: 4,
-            cursor: "pointer", fontFamily: F.heading, fontSize: 12,
-            letterSpacing: 2, textTransform: "uppercase",
-            whiteSpace: "nowrap",
-          }}>
-            ערוך דף
-          </button>
-        )}
-      </div>
-      {description && (
-        <p style={{ color: C.goldDim, fontSize: 15, lineHeight: 2, marginBottom: 32, fontFamily: F.body, textAlign: "center" }}>
-          {description}
-        </p>
-      )}
-      <PageBody bodyHtml={bodyHtml} />
-
-      <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 48, flexWrap: "wrap" }}>
-        {levels.map(l => (
-          <button key={l} onClick={() => setFilter(l)} style={{
-            background: filter === l ? C.goldDark : "transparent",
-            border: `1px solid ${filter === l ? C.gold : C.border}`,
-            color: filter === l ? C.goldBright : C.muted,
-            padding: "8px 20px",
-            cursor: "pointer",
-            fontFamily: F.heading,
-            fontSize: 11,
-            letterSpacing: 3,
-            borderRadius: 2,
-            transition: "all 0.25s",
-            textTransform: "uppercase",
-          }}>{l}</button>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-        {filtered.map(c => (
-          <CourseCard
-            key={c.id}
-            course={c}
-            onBuy={course => onNav("checkout", course)}
-            onDetail={course => onNav("detail", course)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ===== ABOUT PAGE =====
 
 function AboutPage({ onNav, pageContent, adminMode }) {
@@ -1979,7 +1620,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <GoldButton onClick={() => onNav("courses")}>לקורסים של צוריאל</GoldButton>
+        <GoldButton onClick={() => onNav("blog")}>לפוסטים של צוריאל</GoldButton>
       </div>
     </div>
   );
@@ -2012,7 +1653,7 @@ function LoginPage({ onNav }) {
         <p style={{ color: C.muted, fontSize: 13, marginTop: 16, fontFamily: F.body }}>
           {mode === "login" ? "הכניסה הצליחה" : "החשבון נוצר בהצלחה"}
         </p>
-        <GoldButton style={{ marginTop: 32 }} onClick={() => onNav("courses")}>לקורסים שלי →</GoldButton>
+        <GoldButton style={{ marginTop: 32 }} onClick={() => onNav("home")}>לדף הבית →</GoldButton>
       </div>
     </div>
   );
@@ -2070,183 +1711,6 @@ function LoginPage({ onNav }) {
             cursor: "pointer", fontSize: 12, fontFamily: F.heading,
             letterSpacing: 1, textDecoration: "underline"
           }}>{mode === "login" ? "הרשמה" : "כניסה"}</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ===== CHECKOUT PAGE =====
-
-function CheckoutPage({ course, onNav }) {
-  const [email, setEmail] = useState("");
-  const [card, setCard] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState("");
-
-  if (!course) return (
-    <div style={{ padding: 60, textAlign: "center", direction: "rtl" }}>
-      <p style={{ color: C.muted, marginBottom: 24, fontFamily: F.body }}>לא נבחר קורס</p>
-      <GoldButton onClick={() => onNav("courses")}>לקורסים</GoldButton>
-    </div>
-  );
-
-  if (done) return (
-    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
-      <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 64, marginBottom: 24, color: C.goldBright, textShadow: `0 0 60px ${C.goldDark}` }}>✦</div>
-        <h2 style={{ color: C.goldBright, margin: "0 0 12px", fontFamily: F.royal, fontSize: 28 }}>
-          התשלום התקבל
-        </h2>
-        <RoyalDivider width={140} />
-        <p style={{ color: C.goldDim, fontSize: 15, margin: "20px 0 8px", fontFamily: F.body }}>
-          הקורס <strong>"{course.title}"</strong> מחכה לך
-        </p>
-        <p style={{ color: C.muted, fontSize: 12, fontFamily: F.body }}>קישור גישה נשלח לאימייל</p>
-        <GoldButton style={{ marginTop: 36 }} onClick={() => onNav("courses")}>לקורסים שלי →</GoldButton>
-      </div>
-    </div>
-  );
-
-  function handlePay() {
-    if (!email) { setError("יש להזין אימייל"); return; }
-    if (card.length !== 16) { setError("מספר כרטיס לא תקין"); return; }
-    if (cvv.length < 3) { setError("CVV לא תקין"); return; }
-    if (!expiry) { setError("יש להזין תוקף"); return; }
-    setError(""); setDone(true);
-  }
-
-  return (
-    <div style={{ minHeight: "80vh", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "56px 24px", direction: "rtl" }}>
-      <div style={{
-        width: "100%", maxWidth: 880,
-        display: "grid",
-        gridTemplateColumns: "minmax(240px, 340px) 1fr",
-        gap: 24,
-      }}>
-
-        {/* Order summary */}
-        <div style={{
-          background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-          border: `1px solid ${C.border}`,
-          borderTop: `3px solid ${course.color}`,
-          borderRadius: 2,
-          padding: "32px 28px",
-          alignSelf: "start",
-          position: "sticky", top: 76,
-        }}>
-          <div style={{ fontSize: 9, letterSpacing: 5, color: C.muted, marginBottom: 20, fontFamily: F.heading, textTransform: "uppercase" }}>
-            סיכום הזמנה
-          </div>
-          {course.tag && (
-            <div style={{
-              display: "inline-block", marginBottom: 12,
-              background: C.goldDark, border: `1px solid ${C.gold}`,
-              color: C.goldBright, fontSize: 9, letterSpacing: 3,
-              padding: "4px 12px", fontFamily: F.heading, textTransform: "uppercase"
-            }}>{course.tag}</div>
-          )}
-          <h3 style={{ color: C.goldBright, margin: "0 0 8px", fontSize: 20, fontFamily: F.royal }}>{course.title}</h3>
-          <div style={{ color: C.muted, fontSize: 12, marginBottom: 24, fontFamily: F.body }}>
-            {course.lessons} שיעורים · {course.level}
-          </div>
-          <div style={{
-            borderTop: `1px solid ${C.border}`, paddingTop: 20,
-            display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20
-          }}>
-            <span style={{ color: C.muted, fontSize: 13, fontFamily: F.body }}>סה״כ לתשלום</span>
-            <span style={{ fontSize: 26, color: C.goldBright, fontWeight: 900, fontFamily: F.heading }}>₪{course.price}</span>
-          </div>
-          <div style={{ fontSize: 13, color: C.goldDim, lineHeight: 2.2, fontFamily: F.body }}>
-            ✓ גישה מיידית<br />
-            ✓ צפייה ללא הגבלה<br />
-            ✓ עדכונים לנצח<br />
-            ✓ תמיכה ישירה
-          </div>
-        </div>
-
-        {/* Payment form */}
-        <div style={{
-          background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-          border: `1px solid ${C.border}`,
-          borderTop: `3px solid ${C.borderGold}`,
-          borderRadius: 2,
-          padding: "36px 32px",
-        }}>
-          <div style={{ fontSize: 9, letterSpacing: 5, color: C.muted, marginBottom: 28, fontFamily: F.heading, textTransform: "uppercase" }}>
-            פרטי תשלום
-          </div>
-
-          <RoyalInput label="אימייל" value={email} onChange={setEmail} type="email" placeholder="your@email.com" />
-
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>מספר כרטיס</div>
-            <input
-              value={card.replace(/(.{4})/g, "$1 ").trim()}
-              onChange={e => setCard(e.target.value.replace(/\D/g, "").slice(0, 16))}
-              placeholder="1234 5678 9012 3456"
-              style={{
-                width: "100%", background: C.bg,
-                border: `1px solid ${C.border}`,
-                color: C.goldBright, padding: "12px 16px", fontSize: 15,
-                fontFamily: F.mono, borderRadius: 2,
-                outline: "none", boxSizing: "border-box", direction: "ltr",
-              }}
-            />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 8 }}>
-            <div>
-              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>תוקף</div>
-              <input
-                value={expiry}
-                onChange={e => {
-                  let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                  if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-                  setExpiry(v);
-                }}
-                placeholder="MM/YY"
-                style={{
-                  width: "100%", background: C.bg,
-                  border: `1px solid ${C.border}`,
-                  color: C.goldBright, padding: "12px 16px", fontSize: 14,
-                  fontFamily: F.mono, borderRadius: 2,
-                  outline: "none", boxSizing: "border-box", direction: "ltr",
-                }}
-              />
-            </div>
-            <div>
-              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase" }}>CVV</div>
-              <input
-                value={cvv}
-                onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                placeholder="123"
-                type="password"
-                style={{
-                  width: "100%", background: C.bg,
-                  border: `1px solid ${C.border}`,
-                  color: C.goldBright, padding: "12px 16px", fontSize: 14,
-                  fontFamily: F.mono, borderRadius: 2,
-                  outline: "none", boxSizing: "border-box", direction: "ltr",
-                }}
-              />
-            </div>
-          </div>
-
-          {error && <div style={{ color: "#c05050", fontSize: 12, margin: "8px 0 16px", textAlign: "center", fontFamily: F.body }}>{error}</div>}
-
-          <GoldButton
-            style={{ width: "100%", textAlign: "center", fontSize: 15, padding: "16px", marginTop: 8 }}
-            onClick={handlePay}
-          >
-            לתשלום &nbsp;·&nbsp; ₪{course.price}
-          </GoldButton>
-
-          <div style={{ textAlign: "center", marginTop: 16, fontSize: 10, color: C.muted, fontFamily: F.heading, letterSpacing: 2 }}>
-            🔒 תשלום מאובטח · SSL · 256-bit
-          </div>
         </div>
       </div>
     </div>
@@ -3385,7 +2849,6 @@ const WP_MENU_BASE = "https://sod1820.co.il/wp-json";
 
 const STATIC_NAV_ITEMS = [
   { key: "home",    label: "ראשי" },
-  { key: "courses", label: "קורסים" },
   { key: "blog",    label: "פוסטים" },
   { key: "about",   label: "אודות" },
   { key: "login",   label: "כניסה" },
@@ -3396,7 +2859,6 @@ function mapUrlToRoute(url) {
   try {
     const path = new URL(url).pathname.replace(/\/+$/, "") || "/";
     if (path === "/" || path === "") return "home";
-    if (/course|קורס|shop|product/i.test(path)) return "courses";
     if (/about|אודות|who|me/i.test(path)) return "about";
     if (/blog|post|article|בלוג|news/i.test(path)) return "blog";
     if (/login|account|my-account/i.test(path)) return "login";
@@ -4871,7 +4333,6 @@ function NumbersReportPage() {
 
 const NAV_ITEMS = [
   { key: "home",    label: "ראשי" },
-  { key: "courses", label: "קורסים" },
   { key: "blog",    label: "פוסטים" },
   { key: "about",   label: "אודות" },
   { key: "login",   label: "כניסה" },
@@ -4964,7 +4425,7 @@ function Navbar({ page, onNav }) {
       {/* register button — left in RTL */}
       <GoldButton
         style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}
-        onClick={() => onNav("checkout", COURSES[3])}
+        onClick={() => onNav("login")}
       >
         הרשם עכשיו
       </GoldButton>
@@ -5469,27 +4930,6 @@ function Footer({ onNav, navItems }) {
               </button>
             ))}
           </div>
-
-          <div style={{ minWidth: 160 }}>
-            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
-              קורסים פופולריים
-            </div>
-            {COURSES.map(c => (
-              <button key={c.id} onClick={() => onNav("detail", c)} style={{
-                display: "block",
-                background: "none",
-                border: "none",
-                color: C.goldDim,
-                cursor: "pointer",
-                fontSize: 13,
-                fontFamily: F.body,
-                padding: "6px 0",
-                textAlign: "right",
-              }}>
-                {c.title}
-              </button>
-            ))}
-          </div>
         </div>
 
         <div style={{ minWidth: 220, flex: 1, maxWidth: 260 }}>
@@ -5826,7 +5266,6 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const [page, setPage] = useState("home");
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedTag, setSelectedTag] = useState(null);
   const [navItems, setNavItems] = useState(null);
@@ -5901,8 +5340,6 @@ function AppContent() {
       setSelectedPageKey(typeof data === "string" ? data : selectedPageKey || "home");
     } else if (p === "number" && data) {
       setSelectedTag(data);
-    } else if (data) {
-      setSelectedCourse(data);
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -5929,17 +5366,14 @@ function AppContent() {
             <Route path="/:slug" element={<PostPageBySlug onNav={nav} />} />
             <Route path="*" element={
               <>
-                {page === "courses"  && <CoursesPage onNav={nav} pageContent={getPageContent("courses")} adminMode={adminMode} />}
                 {page === "about"    && <AboutPage onNav={nav} pageContent={getPageContent("about")} adminMode={adminMode} />}
                 {page === "number"   && selectedTag && <NumberPage tag={selectedTag} onNav={nav} onBack={() => nav("blog")} />}
                 {page === "login"    && <LoginPage onNav={nav} />}
-                {page === "detail"   && <CourseDetailPage course={selectedCourse} onBuy={c => nav("checkout", c)} onBack={() => nav("courses")} />}
-                {page === "checkout" && <CheckoutPage course={selectedCourse} onNav={nav} />}
                 {page === "numbers-report" && <NumbersReportPage />}
                 {page === "theme-preview"  && <ThemePreviewPage />}
                 {page === "admin"    && <AdminPage pageContent={pageContent} onSavePage={savePageContent} selectedPageKey={selectedPageKey} setSelectedPageKey={setSelectedPageKey} setAdminMode={setAdminMode} />}
                 {page === "traffic"  && <TrafficDashboardPage onNav={nav} />}
-                {!["courses","about","number","login","detail","checkout","numbers-report","theme-preview","admin","traffic"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
+                {!["about","number","login","numbers-report","theme-preview","admin","traffic"].includes(page) && <HomePage onNav={nav} pageContent={getPageContent("home")} adminMode={adminMode} />}
               </>
             } />
           </Routes>
