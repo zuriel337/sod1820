@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>סוד1820 · היכל השערים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* פלטת SOD1820 — זהב / ארגמן / סגול־מלכותי על רקע כהה */
+  :root{ --void:#07050E; --gold:#e8c840; --gold-soft:#f6e27a; --ink:#f5f0e8; --mute:#8a7a5e; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--void);
+    font-family:"Heebo",system-ui,sans-serif;color:var(--ink)}
+  canvas{display:block;touch-action:none}
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(125% 95% at 50% 44%,transparent 52%,rgba(5,4,0,.65) 100%)}
+
+  #brand{position:fixed;top:max(16px,env(safe-area-inset-top));left:0;right:0;z-index:5;
+    text-align:center;pointer-events:none;opacity:0;transition:opacity 1.2s ease .3s}
+  #brand .name{font-family:"Frank Ruhl Libre",serif;font-weight:900;
+    font-size:clamp(20px,4.2vw,32px);letter-spacing:.04em;color:var(--gold);
+    text-shadow:0 0 26px rgba(232,200,64,.45)}
+  #brand .sub{margin-top:1px;font-size:clamp(10px,2.3vw,12px);font-weight:300;
+    letter-spacing:.46em;color:var(--mute);padding-right:.46em}
+
+  #hint{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:0;right:0;z-index:5;
+    text-align:center;pointer-events:none;opacity:0;transition:opacity 1s ease 1.4s;
+    font-size:13px;font-weight:300;color:var(--mute);letter-spacing:.05em}
+  #hint b{color:var(--gold-soft);font-weight:600}
+  .ready #brand,.ready #hint{opacity:1}
+
+  #loader{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:24px;
+    background:radial-gradient(70% 70% at 50% 42%,#140f0c,#07050E 76%);transition:opacity .9s ease}
+  #loader.gone{opacity:0;pointer-events:none}
+  #loader .mark{font-family:"Frank Ruhl Libre",serif;font-weight:900;
+    font-size:clamp(28px,7vw,50px);color:var(--gold);letter-spacing:.03em;
+    text-shadow:0 0 34px rgba(232,200,64,.5)}
+  #loader .spinner{width:70px;height:70px;border-radius:50%;
+    border:1.5px solid rgba(232,200,64,.16);border-top-color:var(--gold);animation:spin 1.1s linear infinite}
+  #loader .status{font-size:12px;letter-spacing:.32em;color:var(--mute);padding-right:.32em}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #world{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:20px;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .55s ease;padding:24px}
+  #world.show{opacity:1;pointer-events:auto}
+  #world .emoji{font-size:clamp(44px,10vw,76px);filter:drop-shadow(0 0 24px currentColor)}
+  #world .wname{font-family:"Frank Ruhl Libre",serif;font-weight:900;
+    font-size:clamp(32px,8vw,64px);letter-spacing:.02em;text-shadow:0 0 40px currentColor}
+  #world .wsub{font-size:14px;font-weight:300;color:var(--ink);opacity:.78;letter-spacing:.05em;max-width:30ch}
+  #world .back{margin-top:6px;border:1px solid rgba(232,200,64,.32);background:rgba(232,200,64,.06);
+    color:var(--ink);font-family:"Heebo";font-size:14px;font-weight:600;letter-spacing:.06em;
+    padding:11px 24px;border-radius:40px;cursor:pointer;backdrop-filter:blur(6px);
+    transition:background .2s,transform .2s}
+  #world .back:hover{background:rgba(232,200,64,.14);transform:translateY(-1px)}
+  #world .back:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  /* תוויות שערים — DOM overlay חד שמוקרן מעל כל שער */
+  #gate-labels{position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+  .glabel{position:absolute;transform:translate(-50%,-50%);text-align:center;white-space:nowrap;
+    background:rgba(6,4,1,.74);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    border:1px solid rgba(232,200,64,.42);border-radius:13px;padding:7px 15px;
+    box-shadow:0 8px 26px rgba(0,0,0,.55);transition:opacity .25s ease}
+  .glabel .gl-name{font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:16px;
+    color:#ffe9a8;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+  .glabel .gl-status{font-family:"Heebo",sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:.4px;margin-top:3px;color:#bfa46a}
+  .glabel.locked .gl-status{color:#c9a24a}
+  .glabel.featured{border-color:var(--gold);
+    box-shadow:0 0 24px rgba(232,200,64,.4),0 8px 26px rgba(0,0,0,.55)}
+  .glabel.featured .gl-status{color:#f6e27a;font-weight:800;font-size:13.5px;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(232,200,64,.5)}
+  .glabel.behind{opacity:0}
+  #audioBtn{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;z-index:6;
+    width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;
+    background:rgba(8,5,2,.6);color:var(--gold);border:1px solid rgba(232,200,64,.35);
+    backdrop-filter:blur(6px);transition:background .2s,box-shadow .2s,transform .2s;opacity:0;
+    animation:audio-in .6s ease 1.6s forwards}
+  #audioBtn:hover{background:rgba(20,15,12,.8);transform:translateY(-1px)}
+  #audioBtn.on{color:var(--gold-soft);border-color:var(--gold);box-shadow:0 0 16px rgba(232,200,64,.4)}
+  @keyframes audio-in{to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){#loader .spinner{animation-duration:2.4s}#audioBtn{animation:none;opacity:1}}
+</style>
+</head>
+<body>
+  <div id="vignette"></div>
+  <div id="brand"><div class="name">סוד1820</div><div class="sub">הֵיכַל הַשְּׁעָרִים</div></div>
+  <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
+  <button id="audioBtn" type="button" title="מוזיקת רקע" aria-label="מוזיקת רקע">🔈</button>
+  <div id="loader">
+    <div class="mark">כי לה' המלוכה</div><div class="spinner"></div>
+    <div class="status">בונה את ההיכל…</div>
+  </div>
+  <div id="world">
+    <div class="emoji"></div><div class="wname"></div><div class="wsub"></div>
+    <button class="back" type="button">חזרה להיכל →</button>
+  </div>
+  <div id="gate-labels" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =======================================================================
+   סוד1820 · היכל השערים
+   אולם אבן סגור · עמודים מוזהבים · שבעה שערים עם דלתות שנפתחות ·
+   הכתר "כי לה' המלוכה" מרחף ומאיר במרכז · הלוגו מרחף מעל כל שער.
+   תלות יחידה: three.js (r128).
+   ======================================================================= */
+
+const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM'; // anon — ציבורי ובטוח לחשיפה (RLS מגן). לעולם לא service key כאן.
+
+const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
+
+// הלוגו של האתר — מרחף מעל כל שער
+const LOGO_URL = 'https://sod1820.co.il/wp-content/uploads/2018/12/cropped-cropped-%D7%9C%D7%95%D7%92%D7%95-%D7%90%D7%AA%D7%A8-1.png';
+let _logoTex = null;
+function getLogoTex(){
+  if(!_logoTex){ _logoTex=new THREE.TextureLoader().load(LOGO_URL);
+    _logoTex.anisotropy=4; _logoTex.encoding=THREE.sRGBEncoding; }
+  return _logoTex;
+}
+// הבהרת צבע לכיוון לבן — לשיפור קריאוּת טקסט על שערים כהים
+function lighten(hex, amt){ const c=new THREE.Color(hex); c.lerp(new THREE.Color(0xffffff), amt); return '#'+c.getHexString(); }
+let clockUpdate = null;   // פונקציית עדכון השעון המרכזי (מתעדכן כל שנייה)
+
+// ברירת־מחדל — צבעים תואמים לפלטת האתר (זהב / ארגמן / סגול־מלכותי). days = בעוד כמה ימים (null = פתוח).
+const FALLBACK_GATES = [
+  { key:'remez',   title:'עולם הרמזים', world:'מנוע הגימטריה — מספרים, רמזים וצירופים.',
+    color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:6 },
+  { key:'beit',    title:'בית המדרש',   world:'לימוד, שיעורים וקהילה לומדת.',
+    color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:13 },
+  { key:'tzofen',  title:'צפני התורה',  world:'חיפוש דילוגים (ELS) וצפנים סמויים.',
+    color:0x9d6bff, emoji:'🧩', url:'/code',     days:null },
+  { key:'ai',      title:'חידושי AI',   world:'כלים חכמים שמרחיבים את החקר.',
+    color:0xf6e27a, emoji:'🤖', url:'/map',      days:2 },
+  { key:'gilui',   title:'ציר ההתגלות', world:'מסע לאורך קוד ההתגלות — 1237.',
+    color:0xc9962f, emoji:'🌳', url:'/timeline', days:40 },
+  { key:'heichal', title:'בני ההיכל',   world:'מרחב סגור לחברים — פנים ההיכל.',
+    color:0xa01f2e, emoji:'🔐', url:'/members',  days:null },
+  { key:'engine',  title:'מנוע המספרים', world:'כל מספר משמעותי — דף משלו. 1820.',
+    color:0xd4af37, emoji:'🔢', url:'/numbers',  days:26 },
+];
+
+let N = FALLBACK_GATES.length;     // מתעדכן למספר השערים שנטענו בפועל
+const R_WALL  = 8.6;               // centre → wall
+const WALL_H  = 9.4;
+const DW = 2.7, DH = 4.4;          // doorway width / door height
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let scene, camera, renderer, clock, raycaster;
+const gates = [], animated = [];
+let state='idle', hovered=null;
+let yaw=0, pitch=0, targetYaw=0, targetPitch=0;
+let dragging=false,lastX=0,lastY=0,lastInteract=0,dragDist=0;
+const HOME = new THREE.Vector3(0,1.6,0);
+const tween = { active:false,t:0,dur:1.3,p0:new THREE.Vector3(),p1:new THREE.Vector3(),
+                q0:new THREE.Quaternion(),q1:new THREE.Quaternion(),onMid:null,mode:'in',gate:null };
+
+init();
+
+async function init(){
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x06050d, 0.020);
+  camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
+  camera.position.copy(HOME);
+  renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
+  document.body.appendChild(renderer.domElement);
+  clock = new THREE.Clock(); raycaster = new THREE.Raycaster();
+
+  const gateData = await loadGates();      // Supabase (or fallback if offline)
+  N = gateData.length;
+
+  buildHall();
+  buildColumns();
+  buildLights();
+  buildMotes();
+
+  try{ await document.fonts.load('900 80px "Frank Ruhl Libre"'); await document.fonts.ready; }catch(e){}
+
+  buildCrown();                       // after fonts (the crown carries Hebrew text)
+  gateData.forEach((g,i)=>buildGate(g,i));
+  updateTimers(); setInterval(updateTimers,1000);
+
+  addEventListeners(); animate();
+  requestAnimationFrame(()=>{ document.getElementById('loader').classList.add('gone');
+    document.body.classList.add('ready'); });
+}
+
+/* ---------- gate data: Supabase → fallback ---------- */
+function normalizeGate(g){
+  let color = g.color;
+  if(typeof color==='string') color = parseInt(color.replace('#',''),16);
+  if(color==null || isNaN(color)) color = 0xe8c840;
+  let openAt = null;
+  if('open_at' in g)    openAt = g.open_at ? new Date(g.open_at).getTime() : null;  // DB row
+  else if(g.days!=null) openAt = Date.now() + g.days*86400000;                       // fallback
+  return { key:g.key, title:g.title, world:g.world||'', color,
+           emoji:g.emoji||'', url:g.url||'#', openAt };
+}
+async function loadGates(){
+  const fb = FALLBACK_GATES.map(normalizeGate);
+  if(!SUPABASE_URL || !SUPABASE_KEY) return fb;
+  try{
+    const r = await fetch(SUPABASE_URL+'/rest/v1/gates?select=*&is_active=eq.true&order=sort_order',
+      { headers:{ apikey:SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY } });
+    if(!r.ok) return fb;
+    const rows = await r.json();
+    return (Array.isArray(rows) && rows.length) ? rows.map(normalizeGate) : fb;
+  }catch(e){ return fb; }
+}
+
+/* ---------- textures ---------- */
+function softCircle(){ const c=document.createElement('canvas');c.width=c.height=64;
+  const x=c.getContext('2d');const g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.4,'rgba(255,255,255,.6)');
+  g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c); }
+function radialGlow(hex){ const col=new THREE.Color(hex);
+  const r=Math.round(col.r*255),g=Math.round(col.g*255),b=Math.round(col.b*255);
+  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  const grd=x.createRadialGradient(128,128,0,128,128,128);
+  grd.addColorStop(0,`rgba(${r},${g},${b},.95)`);grd.addColorStop(.25,`rgba(${r},${g},${b},.42)`);
+  grd.addColorStop(.6,`rgba(${r},${g},${b},.08)`);grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  x.fillStyle=grd;x.fillRect(0,0,256,256);return new THREE.CanvasTexture(c); }
+function shaftTex(hex){ const col=new THREE.Color(hex);
+  const r=Math.round(col.r*255),g=Math.round(col.g*255),b=Math.round(col.b*255);
+  const c=document.createElement('canvas');c.width=64;c.height=256;const x=c.getContext('2d');
+  const grd=x.createLinearGradient(0,0,64,0);
+  grd.addColorStop(0,`rgba(${r},${g},${b},0)`);grd.addColorStop(.5,`rgba(${r},${g},${b},.6)`);
+  grd.addColorStop(1,`rgba(${r},${g},${b},0)`);x.fillStyle=grd;x.fillRect(0,0,64,256);
+  return new THREE.CanvasTexture(c); }
+function stoneTex(base, line, reps){
+  const s=256;const c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+  x.fillStyle=base;x.fillRect(0,0,s,s);
+  const img=x.getImageData(0,0,s,s),d=img.data;
+  for(let i=0;i<d.length;i+=4){ const n=(Math.random()-0.5)*22; d[i]+=n;d[i+1]+=n;d[i+2]+=n; }
+  x.putImageData(img,0,0);
+  x.strokeStyle=line;x.lineWidth=1;
+  for(let yy=0;yy<s;yy+=64){ x.beginPath();x.moveTo(0,yy);x.lineTo(s,yy);x.stroke();
+    const off=(yy/64)%2?32:0;
+    for(let xx=off;xx<s;xx+=64){ x.beginPath();x.moveTo(xx,yy);x.lineTo(xx,yy+64);x.stroke(); } }
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  if(reps)t.repeat.set(reps,reps);return t;
+}
+function doorTex(gemHex){
+  const w=256,h=384;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
+  const grd=x.createLinearGradient(0,0,w,0);
+  grd.addColorStop(0,'#5a430f');grd.addColorStop(.45,'#caa033');grd.addColorStop(.5,'#f0d27a');
+  grd.addColorStop(.55,'#caa033');grd.addColorStop(1,'#3c2c08');
+  x.fillStyle=grd;x.fillRect(0,0,w,h);
+  x.strokeStyle='#7a5c16';x.lineWidth=10;x.strokeRect(8,8,w-16,h-16);
+  x.strokeStyle='#f6e3a0';x.lineWidth=2;x.strokeRect(16,16,w-32,h-32);
+  function panel(py,ph){ x.fillStyle='rgba(60,42,10,.45)';x.fillRect(34,py,w-68,ph);
+    x.strokeStyle='#f0d27a';x.lineWidth=2;x.strokeRect(34,py,w-68,ph);
+    x.beginPath();x.arc(w/2,py+ph*0.34,(w-90)/2,Math.PI,0);x.stroke(); }
+  panel(40,170);panel(228,118);
+  x.fillStyle='#fbeeb0';
+  for(let yy=40;yy<h-30;yy+=34){ x.beginPath();x.arc(w-26,yy,5,0,7);x.fill(); }
+  const col=new THREE.Color(gemHex);
+  x.fillStyle='#'+col.getHexString();x.beginPath();x.arc(w/2,118,14,0,7);x.fill();
+  x.strokeStyle='#fff8e0';x.lineWidth=2;x.stroke();
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;
+}
+function makeCrownTexture(){
+  const s=512;const c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+  const grd=x.createLinearGradient(0,120,0,410);
+  grd.addColorStop(0,'#ffe9a8');grd.addColorStop(.45,'#f3c150');grd.addColorStop(1,'#a9740f');
+  x.lineJoin='round';x.fillStyle=grd;x.strokeStyle='#7a5410';x.lineWidth=6;
+  // crown points
+  const pts=[[96,330],[140,182],[190,278],[256,128],[322,278],[372,182],[416,330]];
+  x.beginPath();x.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)x.lineTo(pts[i][0],pts[i][1]);
+  x.lineTo(416,330);x.lineTo(96,330);x.closePath();x.fill();x.stroke();
+  // band
+  x.beginPath();x.moveTo(94,330);x.lineTo(418,330);x.lineTo(406,402);x.lineTo(106,402);x.closePath();x.fill();x.stroke();
+  // ball tips
+  [[140,182],[256,128],[372,182]].forEach(t=>{ x.beginPath();x.arc(t[0],t[1]-4,15,0,7);x.fillStyle=grd;x.fill();x.stroke();
+    x.beginPath();x.arc(t[0],t[1]-20,7,0,7);x.fillStyle='#f6e3a0';x.fill();x.stroke(); });
+  // gems on band — ארגמן וזהב בלבד (תואם לאתר)
+  [['#a01f2e',150],['#caa033',208],['#a01f2e',256],['#caa033',304],['#a01f2e',362]].forEach(([cc,gx])=>{
+    x.beginPath();x.arc(gx,366,13,0,7);x.fillStyle=cc;x.fill();x.strokeStyle='#fff4d0';x.lineWidth=3;x.stroke(); });
+  // centre gem
+  x.beginPath();x.arc(256,248,19,0,7);x.fillStyle='#a01f2e';x.fill();x.strokeStyle='#ffe9a8';x.lineWidth=4;x.stroke();
+  // text
+  x.font='900 58px "Frank Ruhl Libre", serif';x.textAlign='center';x.textBaseline='middle';x.direction='rtl';
+  x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=8;x.fillStyle='#f3c969';
+  x.fillText("כי לה' המלוכה",256,462);
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;
+}
+
+/* ---------- hall ---------- */
+function buildHall(){
+  const floorMat=new THREE.MeshStandardMaterial({ map:stoneTex('#1a1626','rgba(0,0,0,.4)',7),
+    color:0x6b6478, metalness:0.55, roughness:0.55 });
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(20,64),floorMat);
+  floor.rotation.x=-Math.PI/2;scene.add(floor);
+  [3.2,5.4,7.6].forEach((r,i)=>{ const ring=new THREE.Mesh(new THREE.RingGeometry(r-0.02,r+0.02,96),
+    new THREE.MeshBasicMaterial({color:0xe8c840,transparent:true,opacity:0.14-i*0.03,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+    ring.rotation.x=-Math.PI/2;ring.position.y=0.012;scene.add(ring); });
+  // heptagram {7/3}
+  const rs=2.4, pts=[];
+  for(let k=0;k<N;k++){ const a=k*2*Math.PI/N-Math.PI/2; pts.push(new THREE.Vector3(Math.cos(a)*rs,0.02,Math.sin(a)*rs)); }
+  const arr=[];let idx=0;
+  for(let k=0;k<N;k++){ const a=pts[idx],b=pts[(idx+3)%N];arr.push(a.x,a.y,a.z,b.x,b.y,b.z);idx=(idx+3)%N; }
+  const hg=new THREE.BufferGeometry();hg.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));
+  scene.add(new THREE.LineSegments(hg,new THREE.LineBasicMaterial({color:0xe8c840,transparent:true,
+    opacity:0.30,blending:THREE.AdditiveBlending})));
+  // walls
+  const wallMat=new THREE.MeshStandardMaterial({ map:stoneTex('#171326','rgba(0,0,0,.5)',2),
+    color:0x4f4860, metalness:0.2, roughness:0.85, side:THREE.DoubleSide });
+  const wallW=2*R_WALL*Math.tan(Math.PI/N)+1.0;
+  for(let i=0;i<N;i++){ const a=i*2*Math.PI/N;
+    const wall=new THREE.Mesh(new THREE.PlaneGeometry(wallW,WALL_H),wallMat);
+    wall.position.set(R_WALL*Math.sin(a),WALL_H/2,-R_WALL*Math.cos(a));
+    wall.lookAt(0,WALL_H/2,0);scene.add(wall); }
+  // ceiling
+  const ceil=new THREE.Mesh(new THREE.CircleGeometry(13,N*2),
+    new THREE.MeshStandardMaterial({color:0x0d0a18,metalness:0.3,roughness:0.9,side:THREE.DoubleSide}));
+  ceil.rotation.x=Math.PI/2;ceil.position.y=WALL_H;scene.add(ceil);
+  const oc=new THREE.Mesh(new THREE.CircleGeometry(3.2,40),
+    new THREE.MeshBasicMaterial({color:0xe8c840,transparent:true,opacity:0.12,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+  oc.rotation.x=Math.PI/2;oc.position.y=WALL_H-0.05;scene.add(oc);
+}
+
+/* ---------- gilded columns ---------- */
+function buildColumns(){
+  const gold=new THREE.MeshStandardMaterial({color:0xc9962f,metalness:0.95,roughness:0.32,
+    emissive:0x3a2a05,emissiveIntensity:0.5});
+  const Rv=R_WALL/Math.cos(Math.PI/N)-0.2, H=WALL_H;
+  for(let i=0;i<N;i++){ const a=(i+0.5)*2*Math.PI/N;
+    const x=Rv*Math.sin(a),z=-Rv*Math.cos(a);const col=new THREE.Group();
+    const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.4,H,20),gold);shaft.position.y=H/2;col.add(shaft);
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.7,0.6,20),gold);base.position.y=0.3;col.add(base);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.5,0.6,20),gold);cap.position.y=H-0.1;col.add(cap);
+    col.position.set(x,0,z);scene.add(col); }
+}
+function buildLights(){
+  scene.add(new THREE.AmbientLight(0x3a3550,0.55));
+  const fill=new THREE.PointLight(0xbfa9ff,0.35,40);fill.position.set(0,WALL_H-1,0);scene.add(fill);
+}
+
+/* ---------- floating crown ---------- */
+function buildCrown(){
+  const group=new THREE.Group();group.position.set(0,3.25,0);
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(0xe8c840),color:0xffffff,
+    transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.85}));
+  halo.scale.set(6,6,1);halo.position.z=-0.15;group.add(halo);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(1.7,1.78,80),
+    new THREE.MeshBasicMaterial({color:0xe8c840,transparent:true,opacity:0.5,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));group.add(ring);
+  // הכתר המרכזי = הלוגו שלך
+  const crown=new THREE.Mesh(new THREE.PlaneGeometry(2.9,2.9),
+    new THREE.MeshBasicMaterial({map:getLogoTex(),transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+  group.add(crown);
+  // כיתוב "כי לה' המלוכה" מתחת לכתר
+  const sub=makeSprite({text:"כי לה' המלוכה",font:'900 70px "Frank Ruhl Libre"',color:'#ffe9a8',w:760,h:170,plaque:false});
+  sub.sprite.position.set(0,-1.95,0.02);sub.sprite.scale.set(3.6,0.8,1);group.add(sub.sprite);
+  // שעון חי מתחת לכיתוב — מתעדכן כל שנייה
+  const clk=makeSprite({text:'',font:'700 60px "Heebo"',color:'#f6e27a',w:560,h:170,plaque:true});
+  clk.sprite.position.set(0,-2.78,0.02);clk.sprite.scale.set(2.7,0.82,1);group.add(clk.sprite);
+  clockUpdate=()=>{ const d=new Date(); const p=n=>String(n).padStart(2,'0');
+    clk.update(`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`); };
+  clockUpdate();
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(0.15,1.4,WALL_H-3,24,1,true),
+    new THREE.MeshBasicMaterial({map:radialGlow(0xe8c840),color:0xe8c840,transparent:true,opacity:0.10,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false}));
+  beam.position.y=(WALL_H-3)/2+0.6;group.add(beam);
+  const SN=90,pp=new Float32Array(SN*3),seeds=[];
+  for(let k=0;k<SN;k++)seeds.push({a:Math.random()*7,r:1.6+Math.random()*1.0,y:(Math.random()-0.5)*1.6,s:0.3+Math.random()*0.6});
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+  const sp=new THREE.Points(pg,new THREE.PointsMaterial({size:0.1,map:softCircle(),color:0xf7d994,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.95}));group.add(sp);
+  const cl=new THREE.PointLight(0xffd97a,1.3,22,2);group.add(cl);
+  const pool=new THREE.Mesh(new THREE.RingGeometry(0.1,2.2,48),
+    new THREE.MeshBasicMaterial({color:0xe8c840,transparent:true,opacity:0.16,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+  pool.rotation.x=-Math.PI/2;pool.position.y=-3.24;group.add(pool);
+  scene.add(group);
+  animated.push({tick:(dt,t)=>{ const m=reduced?0.4:1;
+    group.position.y=3.25+Math.sin(t*0.8)*0.12*m;
+    crown.rotation.y=Math.sin(t*0.5*m)*0.32;          // gentle sway → keeps "כי לה' המלוכה" readable
+    crown.rotation.z=Math.sin(t*0.37*m)*0.04;
+    halo.material.rotation=t*0.15*m; ring.rotation.z=-t*0.25*m;
+    cl.intensity=1.2+Math.sin(t*1.6)*0.25;
+    for(let k=0;k<SN;k++){ const s=seeds[k];s.a+=dt*s.s*m;
+      pp[k*3]=Math.cos(s.a)*s.r;pp[k*3+1]=s.y+Math.sin(t*0.6+s.a)*0.15;pp[k*3+2]=Math.sin(s.a)*s.r; }
+    pg.attributes.position.needsUpdate=true; }});
+}
+
+/* ---------- gate ---------- */
+function buildGate(cfg,i){
+  const a=i*2*Math.PI/N, x=R_WALL*Math.sin(a), z=-R_WALL*Math.cos(a);
+  const group=new THREE.Group();group.position.set(x,0,z);group.lookAt(0,0,0);
+  const col=cfg.color, c=new THREE.Color(col), inFront=0.25;
+
+  const innerMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,
+    blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    uniforms:{uTime:{value:Math.random()*9},uColor:{value:new THREE.Vector3(c.r,c.g,c.b)},uBright:{value:0.25}},
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`uniform vec3 uColor;uniform float uBright;uniform float uTime;varying vec2 vUv;
+      void main(){ float v=smoothstep(0.0,0.4,vUv.y)*smoothstep(1.0,0.55,vUv.y);
+        float h=smoothstep(0.0,0.18,vUv.x)*smoothstep(1.0,0.82,vUv.x);
+        float sh=0.85+0.15*sin(vUv.y*22.0-uTime*3.0);
+        float al=(0.25+0.75*v)*h*sh*uBright;
+        gl_FragColor=vec4(uColor*(0.55+uBright*0.9),al);}`});
+  const inner=new THREE.Mesh(new THREE.PlaneGeometry(DW,DH),innerMat);
+  inner.position.set(0,DH/2+0.2,inFront-0.12);group.add(inner);
+  animated.push({tick:(dt)=>{innerMat.uniforms.uTime.value+=dt*(reduced?0.4:1);}});
+
+  const tymMat=innerMat.clone();tymMat.uniforms.uBright.value=0.55;
+  const tym=new THREE.Mesh(new THREE.CircleGeometry(DW/2,40,0,Math.PI),tymMat);
+  tym.position.set(0,DH+0.2,inFront-0.1);group.add(tym);
+
+  const leafW=DW/2, dGeo=new THREE.BoxGeometry(leafW,DH,0.14);
+  const lMat=new THREE.MeshStandardMaterial({map:doorTex(col),metalness:0.85,roughness:0.4,emissive:col,emissiveIntensity:0.06});
+  const rMat=new THREE.MeshStandardMaterial({map:doorTex(col),metalness:0.85,roughness:0.4,emissive:col,emissiveIntensity:0.06});
+  const left=new THREE.Mesh(dGeo,lMat); left.position.set(-leafW/2,DH/2+0.2,inFront);
+  const right=new THREE.Mesh(dGeo,rMat); right.position.set(leafW/2,DH/2+0.2,inFront);right.scale.x=-1;
+  group.add(left);group.add(right);
+  const lx=left.position.x, rx=right.position.x;
+
+  const gold=new THREE.MeshStandardMaterial({color:0xc9962f,metalness:0.95,roughness:0.3,emissive:0x3a2a05,emissiveIntensity:0.4});
+  const postGeo=new THREE.BoxGeometry(0.26,DH+0.2,0.4);
+  [-1,1].forEach(s=>{ const p=new THREE.Mesh(postGeo,gold);p.position.set(s*(DW/2+0.13),(DH+0.2)/2+0.1,inFront);group.add(p); });
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(DW/2+0.13,0.13,12,40,Math.PI),gold);
+  arch.position.set(0,DH+0.2,inFront);group.add(arch);
+  const sill=new THREE.Mesh(new THREE.BoxGeometry(DW+0.6,0.3,0.5),gold);
+  sill.position.set(0,0.15,inFront);group.add(sill);
+
+  const rays=[];
+  for(let k=0;k<3;k++){ const r=new THREE.Mesh(new THREE.PlaneGeometry(DW*0.5,DH*1.3),
+      new THREE.MeshBasicMaterial({map:shaftTex(col),color:col,transparent:true,opacity:0,
+        blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    r.position.set((k-1)*0.5,DH/2+0.4,inFront-0.5);group.add(r);rays.push(r); }
+
+  const pool=new THREE.Mesh(new THREE.RingGeometry(0.1,1.6,40),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.2,
+      blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+  pool.rotation.x=-Math.PI/2;pool.position.set(0,0.014,inFront-0.6);group.add(pool);
+  const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
+
+  const featured=(cfg.key==='ai');   // שער ai — "שעון יפה" בולט
+  // תווית שם + סטטוס כ-DOM overlay — טקסט חד וקריא בכל מרחק
+  const labelEl=document.createElement('div');
+  labelEl.className='glabel '+(featured?'featured':'locked');
+  labelEl.innerHTML=`<div class="gl-name">${cfg.emoji} ${cfg.title}</div><div class="gl-status"></div>`;
+  document.getElementById('gate-labels').appendChild(labelEl);
+  const statusEl=labelEl.querySelector('.gl-status');
+  const labelAnchor=new THREE.Vector3(x,DH+0.9,z);   // מעט מעל הקשת — בתוך שדה הראייה
+
+  // ── הלוגו מרחף מעל השער ──
+  const LOGO_Y=DH+2.2;
+  const logoGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(col),color:0xffffff,
+    transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.5}));
+  logoGlow.scale.set(2.2,2.2,1);logoGlow.position.set(0,LOGO_Y,inFront+0.05);group.add(logoGlow);
+  const logo=new THREE.Sprite(new THREE.SpriteMaterial({map:getLogoTex(),
+    transparent:true,depthWrite:false}));
+  logo.scale.set(1.5,1.5,1);logo.position.set(0,LOGO_Y,inFront+0.12);group.add(logo);
+  animated.push({tick:(dt,t)=>{ const m=reduced?0.4:1;
+    const yy=LOGO_Y+Math.sin(t*0.9+i)*0.08*m;
+    logo.position.y=yy; logoGlow.position.y=yy;
+    logoGlow.material.opacity=0.4+Math.sin(t*1.4+i)*0.12; }});
+
+  const hit=new THREE.Mesh(new THREE.PlaneGeometry(DW+0.4,DH+DW/2+0.4),new THREE.MeshBasicMaterial({visible:false}));
+  hit.position.set(0,(DH+DW/2)/2+0.2,inFront+0.05);group.add(hit);
+
+  scene.add(group);
+  // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
+  const base=featured?0.06:0;
+  gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
+    labelEl, statusEl, labelAnchor,
+    worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
+    baseOpen:base, openAmt:base, targetOpen:base, hover:0, hoverTarget:0, hit });
+}
+
+/* ---------- timers ---------- */
+function updateTimers(){
+  const now=Date.now();
+  if(clockUpdate) clockUpdate();
+  gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
+    if(o===null) txt='🔒 בקרוב';
+    else{ let rem=Math.floor((o-now)/1000);
+      if(rem<=0) txt='✦ נפתח! ✦';
+      else{ const p=n=>String(n).padStart(2,'0');
+        const d=Math.floor(rem/86400); rem-=d*86400;
+        const h=Math.floor(rem/3600);  rem-=h*3600;
+        const m=Math.floor(rem/60);    const s=rem-m*60;
+        // שעון חי: ימים + שעון מתקתק
+        txt = d>0 ? `נפתח בעוד ${d}י׳ · ${p(h)}:${p(m)}:${p(s)}`
+                  : `נפתח בעוד ${p(h)}:${p(m)}:${p(s)}`; } }
+    if(g.statusEl) g.statusEl.textContent=txt; });
+}
+
+/* ---------- motes ---------- */
+function buildMotes(){
+  const M=500,pos=new Float32Array(M*3),v=[];
+  for(let i=0;i<M;i++){ const r=Math.random()*R_WALL,a=Math.random()*7;
+    pos[i*3]=Math.cos(a)*r;pos[i*3+1]=Math.random()*WALL_H;pos[i*3+2]=Math.sin(a)*r;v.push(0.1+Math.random()*0.3); }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const m=new THREE.Points(g,new THREE.PointsMaterial({size:0.06,map:softCircle(),color:0xd8c7ff,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.5}));scene.add(m);
+  animated.push({tick:(dt)=>{ for(let i=0;i<M;i++){ pos[i*3+1]+=v[i]*dt*(reduced?0.4:1);
+    if(pos[i*3+1]>WALL_H)pos[i*3+1]=0; } g.attributes.position.needsUpdate=true; }});
+}
+
+/* ---------- sprite labels ---------- */
+function makeSprite({text,font,color,w,h,plaque}){
+  const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');
+  const tex=new THREE.CanvasTexture(c);tex.anisotropy=4;
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));
+  function draw(t){ ctx.clearRect(0,0,w,h);
+    if(plaque){ ctx.fillStyle='rgba(5,3,1,0.86)';roundRect(ctx,6,h*0.12,w-12,h*0.76,26);ctx.fill();
+      ctx.strokeStyle='rgba(232,200,64,0.5)';ctx.lineWidth=3;roundRect(ctx,6,h*0.12,w-12,h*0.76,26);ctx.stroke(); }
+    ctx.font=font;ctx.textAlign='center';ctx.textBaseline='middle';ctx.direction='rtl';
+    ctx.lineJoin='round';ctx.miterLimit=2;
+    // מתאר כהה — מבטיח שהאותיות בולטות גם על רקע זוהר
+    ctx.shadowColor='transparent';ctx.strokeStyle='rgba(0,0,0,0.92)';ctx.lineWidth=8;ctx.strokeText(t,w/2,h/2);
+    // מילוי זוהר
+    ctx.shadowColor=color;ctx.shadowBlur=10;ctx.fillStyle=color;ctx.fillText(t,w/2,h/2);
+    ctx.shadowBlur=0;tex.needsUpdate=true; }
+  draw(text);return {sprite,update:draw};
+}
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
+
+/* ---------- ambient music (WebAudio — ללא קובץ חיצוני) ---------- */
+let audioCtx=null, audioOn=false, audioMaster=null;
+function startAmbient(){
+  if(audioCtx) return true;
+  const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return false;
+  audioCtx=new Ctx();
+  audioMaster=audioCtx.createGain(); audioMaster.gain.value=0.0001; audioMaster.connect(audioCtx.destination);
+  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(audioMaster);
+  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=520; filt.Q.value=0.8; filt.connect(voice);
+  // אקורד מלכותי שקט (לה מינור): A2 · E3 · A3 · C4
+  [110,164.81,220,261.63].forEach((f,i)=>{ const o=audioCtx.createOscillator();
+    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*5;
+    const g=audioCtx.createGain(); g.gain.value=0.16/(i+1); o.connect(g); g.connect(filt); o.start(); });
+  // תנועה איטית על הפילטר + טרמולו עדין
+  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.05;
+  const lfoG=audioCtx.createGain(); lfoG.gain.value=160; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
+  const trem=audioCtx.createOscillator(); trem.frequency.value=0.13;
+  const tremG=audioCtx.createGain(); tremG.gain.value=0.06; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
+  return true;
+}
+function toggleAudio(){
+  const btn=document.getElementById('audioBtn');
+  if(!audioCtx){ if(!startAmbient()) return; }
+  if(audioCtx.resume) audioCtx.resume();
+  const now=audioCtx.currentTime;
+  if(audioOn){ audioMaster.gain.cancelScheduledValues(now);
+    audioMaster.gain.setValueAtTime(audioMaster.gain.value,now);
+    audioMaster.gain.linearRampToValueAtTime(0.0001,now+0.6); audioOn=false; }
+  else{ audioMaster.gain.cancelScheduledValues(now);
+    audioMaster.gain.setValueAtTime(Math.max(0.0001,audioMaster.gain.value),now);
+    audioMaster.gain.linearRampToValueAtTime(0.10,now+2.2); audioOn=true; }
+  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn);
+}
+
+/* ---------- interaction ---------- */
+function addEventListeners(){
+  addEventListener('resize',onResize);
+  const el=renderer.domElement;
+  el.addEventListener('pointerdown',onDown);el.addEventListener('pointermove',onMove);
+  el.addEventListener('pointerup',onUp);el.addEventListener('pointerleave',()=>dragging=false);
+  document.querySelector('#world .back').addEventListener('click',exitWorld);
+  document.getElementById('audioBtn').addEventListener('click',toggleAudio);
+}
+function onResize(){ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight); }
+function onDown(e){ if(state!=='idle')return;dragging=true;dragDist=0;lastX=e.clientX;lastY=e.clientY;lastInteract=clock.elapsedTime; }
+function onMove(e){ if(state!=='idle')return;
+  if(dragging){ const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
+    dragDist+=Math.abs(dx)+Math.abs(dy);targetYaw-=dx*0.0042;targetPitch-=dy*0.0042;
+    targetPitch=Math.max(-0.45,Math.min(0.62,targetPitch));lastInteract=clock.elapsedTime; }
+  const hit=pick(e);
+  if(hit!==hovered){ hovered=hit;renderer.domElement.style.cursor=hit?'pointer':'default';
+    gates.forEach(g=>g.hoverTarget=(g===hit)?1:0); }
+}
+function onUp(e){ if(state!=='idle'){dragging=false;return;} dragging=false;
+  if(dragDist<8){ const hit=pick(e);if(hit)enterWorld(hit); } }
+function pick(e){ const ndc=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.clientY/innerHeight)*2+1);
+  raycaster.setFromCamera(ndc,camera);
+  const hits=raycaster.intersectObjects(gates.map(g=>g.hit),false);
+  if(hits.length)return gates.find(g=>g.hit===hits[0].object);return null; }
+
+/* ---------- enter / exit ---------- */
+function enterWorld(g){
+  state='entering';hovered=null;renderer.domElement.style.cursor='default';
+  gates.forEach(q=>q.hoverTarget=0);g.targetOpen=1;
+  const door=g.worldDoor.clone(), dir=new THREE.Vector3(door.x,0,door.z).normalize();
+  const endPos=door.clone().sub(dir.multiplyScalar(0.4));endPos.y=1.7;
+  const dummy=new THREE.Object3D();dummy.position.copy(endPos);dummy.lookAt(door.x,door.y,door.z);
+  tween.p0.copy(camera.position);tween.p1.copy(endPos);
+  tween.q0.copy(camera.quaternion);tween.q1.copy(dummy.quaternion);
+  tween.t=0;tween.dur=1.5;tween.active=true;tween.mode='in';tween.gate=g;tween.onMid=()=>showWorldPanel(g);
+}
+function gateUnlocked(g){ const o=g.cfg.openAt; return o!==null && o<=Date.now(); }
+function showWorldPanel(g){
+  // שער פתוח → ניווט אמיתי אל ה-route (גם כשמוטמע ב-iframe — מנווטים את החלון העליון)
+  if(gateUnlocked(g) && g.cfg.url && g.cfg.url.charAt(0)==='/'){
+    try{ (window.top||window).location.href=g.cfg.url; }catch(e){ window.location.href=g.cfg.url; }
+    return;
+  }
+  // שער נעול → פאנל "בקרוב" / ספירה לאחור
+  state='inworld';
+  const w=document.getElementById('world'),col='#'+new THREE.Color(g.cfg.color).getHexString();
+  w.style.color=col;
+  w.querySelector('.emoji').textContent=g.cfg.emoji;w.querySelector('.emoji').style.color=col;
+  w.querySelector('.wname').textContent=g.cfg.title;
+  const o=g.cfg.openAt;
+  let status='🔒 השער ייפתח בקרוב';
+  if(o!==null){ const d=Math.max(0,Math.ceil((o-Date.now())/86400000)); status=`⏳ נפתח בעוד ${d} ימים`; }
+  w.querySelector('.wsub').textContent=`${status} · ${g.cfg.world}`;
+  w.classList.add('show');
+  document.getElementById('brand').style.opacity='0';document.getElementById('hint').style.opacity='0';
+}
+function exitWorld(){
+  if(state!=='inworld')return;
+  document.getElementById('world').classList.remove('show');
+  if(tween.gate) tween.gate.targetOpen=tween.gate.baseOpen;
+  state='returning';
+  tween.p0.copy(camera.position);tween.p1.copy(HOME);
+  const dummy=new THREE.Object3D();dummy.position.copy(HOME);
+  dummy.quaternion.setFromEuler(new THREE.Euler(pitch,yaw,0,'YXZ'));
+  tween.q0.copy(camera.quaternion);tween.q1.copy(dummy.quaternion);
+  tween.t=0;tween.dur=1.2;tween.active=true;tween.mode='out';tween.onMid=null;
+  try{history.replaceState(null,'',location.pathname);}catch(e){}
+  setTimeout(()=>{ if(document.body.classList.contains('ready')){
+    document.getElementById('brand').style.opacity='';document.getElementById('hint').style.opacity=''; } },700);
+}
+const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* ---------- loop ---------- */
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
+  animated.forEach(a=>a.tick(dt,t));
+  gates.forEach(g=>{
+    g.openAmt += (g.targetOpen-g.openAmt)*Math.min(1,dt*4);
+    g.left.position.x=g.lx-g.openAmt*g.leafW;
+    g.right.position.x=g.rx+g.openAmt*g.leafW;
+    g.hover += (g.hoverTarget-g.hover)*Math.min(1,dt*8);
+    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05;
+    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2+g.hover*0.4;
+    g.light.intensity=0.9+g.openAmt*2.2+g.hover*0.5;
+    const ro=Math.min(1,g.openAmt*1.2);
+    g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3; });
+  });
+  if(state==='idle'){
+    yaw+=(targetYaw-yaw)*Math.min(1,dt*6);pitch+=(targetPitch-pitch)*Math.min(1,dt*6);
+    if(!dragging&&!reduced&&(t-lastInteract)>4)targetYaw-=dt*0.04;
+    camera.position.copy(HOME);camera.quaternion.setFromEuler(new THREE.Euler(pitch,yaw,0,'YXZ'));
+  }
+  if(tween.active){
+    tween.t+=dt;const p=Math.min(1,tween.t/tween.dur),e=ease(p);
+    camera.position.lerpVectors(tween.p0,tween.p1,e);
+    THREE.Quaternion.slerp(tween.q0,tween.q1,camera.quaternion,e);
+    if(tween.mode==='in')renderer.toneMappingExposure=1.12+e*0.7;
+    if(p>=1){ tween.active=false;renderer.toneMappingExposure=1.12;
+      if(tween.onMid)tween.onMid();if(tween.mode==='out'){state='idle';lastInteract=t;} }
+  }
+  // הקרנת תוויות השערים (DOM) למיקום המתאים על המסך
+  const showLabels=(state==='idle');
+  for(const g of gates){
+    if(!showLabels){ g.labelEl.classList.add('behind'); continue; }
+    const v=g.labelAnchor.clone().project(camera);
+    if(v.z>1 || v.x<-1.05||v.x>1.05||v.y<-1.05||v.y>1.05){ g.labelEl.classList.add('behind'); }
+    else{ g.labelEl.classList.remove('behind');
+      g.labelEl.style.left=((v.x*0.5+0.5)*innerWidth)+'px';
+      g.labelEl.style.top=((-v.y*0.5+0.5)*innerHeight)+'px'; }
+  }
+  renderer.render(scene,camera);
+}
+</script>
+</body>
+</html>
