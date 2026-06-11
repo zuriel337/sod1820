@@ -3146,7 +3146,8 @@ function ThemePreviewPage() {
 
 // ===== ADMIN PAGE =====
 
-const ADMIN_PASSWORD  = "sod1820";
+// הסיסמה נטענת ממשתנה סביבה (Vercel ENV) ולא מקודדת בקוד. בדיב מקומי ברירת מחדל "dev".
+const ADMIN_PASSWORD  = import.meta.env.VITE_ADMIN_PASSWORD || (import.meta.env.DEV ? "dev" : "");
 const ADMIN_STORE_KEY = "sod1820_clues";
 
 function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKey, setAdminMode }) {
@@ -3187,7 +3188,7 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
   }, [selectedPageKey, editPageKey, pageContent]);
 
   function handleAuth() {
-    if (pw.trim() === ADMIN_PASSWORD) {
+    if (ADMIN_PASSWORD && pw.trim() === ADMIN_PASSWORD) {
       setAuthed(true);
       setPwError(false);
       setAdminMode && setAdminMode(true);
@@ -3560,7 +3561,7 @@ function TrafficDashboardPage({ onNav }) {
   const [tab, setTab]         = useState("traffic"); // traffic | inbox
 
   function handleAuth() {
-    if (pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
+    if (ADMIN_PASSWORD && pw.trim() === ADMIN_PASSWORD) { setAuthed(true); setPwError(false); }
     else setPwError(true);
   }
 
@@ -3944,7 +3945,7 @@ function TrafficDashboardPage({ onNav }) {
 
 // ===== NUMBERS REPORT PAGE =====
 
-const REPORT_PASSWORD = "1820";
+const REPORT_PASSWORD = import.meta.env.VITE_REPORT_PASSWORD || (import.meta.env.DEV ? "dev" : "");
 
 function NumbersReportPage() {
   const [authed,   setAuthed]   = useState(false);
@@ -3955,7 +3956,7 @@ function NumbersReportPage() {
   const [report,   setReport]   = useState(null);
 
   function handleAuth() {
-    if (pw.trim() === REPORT_PASSWORD) { setAuthed(true); setPwError(false); }
+    if (REPORT_PASSWORD && pw.trim() === REPORT_PASSWORD) { setAuthed(true); setPwError(false); }
     else setPwError(true);
   }
 
