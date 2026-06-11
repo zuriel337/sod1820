@@ -2283,7 +2283,6 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         .wp-masonry { columns: 2 360px; column-gap: 24px; }
         @media (max-width: 900px) {
           .blog-two-col { flex-direction: column-reverse; }
-          .blog-events-sidebar { width: 100% !important; position: static !important; }
         }
         @media (max-width: 700px) {
           .wp-masonry { columns: 1; }
@@ -2294,13 +2293,6 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
       `}</style>
 
       <div className="blog-two-col">
-        {/* sidebar — first child = right side in RTL */}
-        {showPanel && !activeMode && (
-          <div className="blog-events-sidebar">
-            <EventsSidebar onNav={onNav} />
-          </div>
-        )}
-
         {/* main content */}
         <div className="blog-main">
           {error && (
@@ -2386,86 +2378,6 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ===== EVENTS SIDEBAR =====
-function EventsSidebar({ onNav }) {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    getPostsFromSupabase({ limit: 10, page: 1, category: "תיעוד אירועים" })
-      .then(({ posts }) => { setEvents(posts); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
-  return (
-    <div style={{
-      width: 270, flexShrink: 0,
-      background: "linear-gradient(180deg, rgba(122,19,32,0.14), rgba(122,19,32,0.06))",
-      border: "1px solid rgba(160,31,46,0.30)",
-      borderRadius: 6, overflow: "hidden",
-      position: "sticky", top: 80, alignSelf: "flex-start",
-    }}>
-      {/* header */}
-      <div style={{
-        padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center",
-        borderBottom: "1px solid rgba(160,31,46,0.22)",
-        background: "rgba(122,19,32,0.18)",
-      }}>
-        <span style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 700 }}>
-          📋 תיעוד אירועים
-        </span>
-        <span style={{
-          background: C.crimson, color: "#f6e27a",
-          fontSize: 9, padding: "2px 7px", borderRadius: 10,
-          fontFamily: F.heading, letterSpacing: 1, fontWeight: 700,
-        }}>חי</span>
-      </div>
-
-      {/* event list */}
-      <div>
-        {loading
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ padding: "11px 16px", borderBottom: "1px solid rgba(160,31,46,0.12)" }}>
-                <div style={{ height: 9, background: C.surface2, borderRadius: 2, marginBottom: 6, width: "50%" }} />
-                <div style={{ height: 11, background: C.surface2, borderRadius: 2, width: "85%" }} />
-              </div>
-            ))
-          : events.map(post => {
-              const d = post.date ? new Date(post.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-              return (
-                <div
-                  key={post.wp_id}
-                  onClick={() => onNav("post", adaptPost(post))}
-                  style={{ padding: "11px 16px", borderBottom: "1px solid rgba(160,31,46,0.12)", cursor: "pointer", transition: "background 0.15s" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(122,19,32,0.15)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                >
-                  <div style={{ fontSize: 9, color: "#c87070", fontFamily: F.heading, letterSpacing: 1, marginBottom: 3 }}>{d}</div>
-                  <div style={{ fontSize: 13, color: "#ede4d3", fontFamily: F.body, lineHeight: 1.45 }}>{post.title}</div>
-                </div>
-              );
-            })
-        }
-      </div>
-
-      {/* footer */}
-      <div
-        onClick={() => navigate('/category/' + toSlug('תיעוד אירועים'))}
-        style={{
-          padding: "11px 16px", textAlign: "center", cursor: "pointer",
-          color: "#c87070", fontFamily: F.heading, fontSize: 11, letterSpacing: 2,
-          borderTop: "1px solid rgba(160,31,46,0.22)", transition: "color 0.2s",
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = C.goldBright}
-        onMouseLeave={e => e.currentTarget.style.color = "#c87070"}
-      >
-        ← כל תיעוד האירועים
       </div>
     </div>
   );
