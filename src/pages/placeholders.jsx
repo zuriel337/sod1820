@@ -5,12 +5,6 @@ import { SectionHeader } from "../components/ui.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import { NAV } from "../routes.jsx";
 
-export function TimelinePage() {
-  return <UnderConstruction emoji="🕰" title="מסע התדר"
-    description="ציר הזמן של אירועי הגאולה. כל תחנה תהיה עמוד חי: האירוע, הפוסט, הסרטון, התמונות, דילוגי האותיות, מספרי האם, התגובות והקשרים לעץ המספרים."
-    links={[{ to: "/numbers", label: "עץ המספרים" }, { to: "/post", label: "פוסטים" }, { to: "/code", label: "הצופן התנ\"כי" }]} />;
-}
-
 export function ArchivePage() {
   return <UnderConstruction emoji="🖼" title="ארכיון ההתגלות"
     description="כל התמונות, הצפנים והממצאים במקום אחד — עם סינון לפי שנה, נושא, תגית, מספר, מלחמות, צפנים, משיח ותורה, מנוע OCR, וחיבור חי לעץ המספרים."

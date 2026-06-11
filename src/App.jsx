@@ -10,8 +10,9 @@ import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
 import NumbersPage from "./pages/NumbersPage.jsx";
 import CodePage from "./pages/CodePage.jsx";
 import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
+import TimelinePage from "./pages/TimelinePage.jsx";
 import {
-  TimelinePage, ArchivePage, MembersPage, CommunityPage,
+  ArchivePage, MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, BeitMidrashPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {
