@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
 import { C, F, LOGO_URL, calcGem } from "../theme.js";
-import { stripHtml, formatDateHe } from "../lib/format.js";
+import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
+import InsightCard from "../components/InsightCard.jsx";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
 function Hero() {
   return (
@@ -48,12 +50,23 @@ function Hero() {
 }
 
 // טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
+// תנועה: "זרקור" אוטומטי שעובר בין הכרטיסים כל 3 שניות (נעצר במעבר עכבר).
 function LatestPostsRail({ posts, onPost }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || posts.length < 2) return;
+    const t = setInterval(() => setActive(a => (a + 1) % posts.length), 3000);
+    return () => clearInterval(t);
+  }, [paused, posts.length]);
+
   return (
-    <div className="sod-pf" style={{ direction: "rtl" }}>
+    <div className="sod-pf" style={{ direction: "rtl" }}
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="sod-pf-head">
-        <span className="sod-pf-dot" />
-        <span className="sod-pf-title">פוסטים אחרונים</span>
+        <span className="sod-pf-title">עדכונים אחרונים</span>
+        <span className="sod-pf-live"><span className="sod-pf-dot" />LIVE</span>
         <span className="sod-pf-line" />
         <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
@@ -62,13 +75,13 @@ function LatestPostsRail({ posts, onPost }) {
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
-          const date = formatDateHe(p.modified || p.date);
+          const date = timeAgoHe(p.modified || p.date);
           const gem = calcGem(title);
           return (
             <button
               key={p.id}
               onClick={() => onPost(p)}
-              className="sod-pf-card"
+              className={`sod-pf-card${i === active ? " is-active" : ""}`}
               style={{ animationDelay: `${i * 90}ms` }}
             >
               <span className="sod-pf-scan" />
@@ -85,7 +98,7 @@ function LatestPostsRail({ posts, onPost }) {
               <div className="sod-pf-body">
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
-                  <span className="sod-pf-date">עודכן · {date}</span>
+                  <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
                   {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
                 </div>
               </div>
@@ -102,13 +115,51 @@ function LatestPostsRail({ posts, onPost }) {
   );
 }
 
+// מקום מכובד בעמוד הבית — חידושי AI (3 אחרונים) + מעבר לבית המדרש.
+// חוק stream_separation: עדכוני צוריאל (פוסטים) נפרדים מחידושי AI.
+function AiInsightsBox({ insights }) {
+  return (
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
+      <div style={{
+        background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
+        border: `1px solid ${C.borderGold}`, borderRadius: 18, padding: "26px 22px",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
+          <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
+            🔵 חידושי AI
+          </h2>
+          <VerifiedBadge variant="ai" size={15} />
+          <span style={{ flex: 1 }} />
+          <Link to="/beit-midrash" style={{
+            color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12,
+            fontWeight: 700, letterSpacing: 1, padding: "8px 16px", borderRadius: 8,
+            border: `1px solid ${C.borderGold}`, background: "rgba(20,15,12,0.5)", whiteSpace: "nowrap",
+          }}>עוד בבית המדרש →</Link>
+        </div>
+        {insights.length ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+            {insights.map(it => <InsightCard key={it.id} insight={it} badgeVariant="ai" />)}
+          </div>
+        ) : (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: 8 }}>טוען חידושים…</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const nav = useLegacyNav();
   const [posts, setPosts] = useState([]);
+  const [aiInsights, setAiInsights] = useState([]);
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 5, orderBy: "modified" })
       .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
+      .catch(() => {});
+    getInsights({ origin: "ai", limit: 3 })
+      .then(setAiInsights)
       .catch(() => {});
   }, []);
 
@@ -140,6 +191,8 @@ export default function HomePage() {
         </div>
       </div>
 
+      <AiInsightsBox insights={aiInsights} />
+
       <style>{`
         @media (max-width: 1080px) {
           .sod-home-grid { grid-template-columns: 1fr !important; }
@@ -156,6 +209,14 @@ export default function HomePage() {
           font-family: ${F.heading}; font-size: 12px; font-weight: 800;
           letter-spacing: 3px; text-transform: uppercase; color: ${C.goldBright};
         }
+        .sod-pf-live {
+          display: inline-flex; align-items: center; gap: 5px;
+          font-family: ${F.mono}; font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+          color: #ff6b6b; text-transform: uppercase;
+          border: 1px solid rgba(255,107,107,0.4); border-radius: 4px; padding: 1px 6px 1px 5px;
+          background: rgba(255,107,107,0.08);
+        }
+        .sod-pf-live .sod-pf-dot { background: #ff6b6b; box-shadow: 0 0 8px #ff6b6b, 0 0 3px #ff6b6b; }
         .sod-pf-line {
           flex: 1; height: 1px;
           background: linear-gradient(90deg, ${C.borderGold}, transparent);
@@ -189,11 +250,18 @@ export default function HomePage() {
           background: linear-gradient(${C.goldDim}, ${C.goldBright}, ${C.goldDim});
           opacity: 0.45; transition: opacity 0.28s, box-shadow 0.28s;
         }
-        .sod-pf-card:hover {
+        .sod-pf-card:hover,
+        .sod-pf-card.is-active {
           transform: translateY(-3px); border-color: ${C.gold};
           box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 24px rgba(212,175,55,0.14);
         }
-        .sod-pf-card:hover::before { opacity: 1; box-shadow: 0 0 14px ${C.goldBright}; }
+        .sod-pf-card:hover::before,
+        .sod-pf-card.is-active::before { opacity: 1; box-shadow: 0 0 14px ${C.goldBright}; }
+        .sod-pf-card.is-active .sod-pf-thumb { filter: brightness(1) saturate(1.05); }
+        .sod-pf-card.is-active .sod-pf-name { color: ${C.goldBright}; }
+        @media (prefers-reduced-motion: reduce) {
+          .sod-pf-card.is-active { transform: none; }
+        }
         .sod-pf-card:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
 
         /* קו סריקה במעבר עכבר */

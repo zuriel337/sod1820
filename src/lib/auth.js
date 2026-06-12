@@ -1,10 +1,9 @@
 import { supabase } from './supabase.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
-
 const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at';
 
-// התחברות עם Google (OAuth) — דורש הגדרת ספק Google בלוח Supabase
+// ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
 export function signInWithGoogle() {
   return supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -12,16 +11,11 @@ export function signInWithGoogle() {
   });
 }
 
-// התחברות בקוד/קישור למייל (Magic Link) — עובד ללא הגדרות נוספות
 export function signInWithMagicLink(email) {
   return supabase.auth.signInWithOtp({
     email: (email || '').trim(),
     options: { emailRedirectTo: SITE_URL + '/' },
   });
-}
-
-export function signOut() {
-  return supabase.auth.signOut();
 }
 
 export async function fetchProfile(userId) {
@@ -41,4 +35,43 @@ export async function updateProfile(userId, fields) {
     .from('users').update(allowed).eq('id', userId).select(PROFILE_COLS).maybeSingle();
   if (error) throw error;
   return data;
+}
+
+// ── שער החידושים: אימות OTP במייל (בית המדרש) ──
+export async function requestEmailOtp(email) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email: email.trim(),
+    options: { shouldCreateUser: true },
+  });
+  if (error) throw error;
+  return { ok: true };
+}
+
+export async function verifyEmailOtp(email, token) {
+  const { data, error } = await supabase.auth.verifyOtp({
+    email: email.trim(), token: token.trim(), type: 'email',
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function getCurrentUser() {
+  const { data } = await supabase.auth.getUser();
+  return data?.user ?? null;
+}
+
+export async function getSession() {
+  const { data } = await supabase.auth.getSession();
+  return data?.session ?? null;
+}
+
+export function onAuthChange(callback) {
+  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    callback(session?.user ?? null);
+  });
+  return () => data?.subscription?.unsubscribe?.();
+}
+
+export function signOut() {
+  return supabase.auth.signOut();
 }

@@ -38,6 +38,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user, profile, loading,
+    verified: !!user,
     isAdmin: profile?.role === 'admin',
     isMember: profile?.tier === 'member',
     signOut: async () => { await doSignOut(); setUser(null); setProfile(null); },

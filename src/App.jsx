@@ -14,9 +14,10 @@ import NumbersPage from "./pages/NumbersPage.jsx";
 import CodePage from "./pages/CodePage.jsx";
 import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import TimelinePage from "./pages/TimelinePage.jsx";
+import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import {
   ArchivePage, MembersPage, CommunityPage,
-  CommunityCalculatorPage, CommunityCommentsPage, BeitMidrashPage, MethodPage,
+  CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {
   PostsRoute, PostBySlugRoute, CategoryRoute, TagRoute, GematriaRoute,
@@ -40,9 +41,9 @@ export default function App() {
   return (
     <AuthProvider>
     <BrowserRouter>
-      <RouteEffects />
-      <Routes>
-        <Route element={<Layout />}>
+        <RouteEffects />
+        <Routes>
+          <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
@@ -79,7 +80,7 @@ export default function App() {
           <Route path="/:slug" element={<PostBySlugRoute />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-      </Routes>
+        </Routes>
     </BrowserRouter>
     </AuthProvider>
   );
