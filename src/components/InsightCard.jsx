@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
+import ShareButton from "./ShareButton.jsx";
 
 /**
  * חוק מערכת: insight_card_law
@@ -67,16 +68,25 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
     borderRadius: 12, padding: "16px 18px", textDecoration: "none",
   };
 
+  // רצועת שיתוף מתחת לכרטיס (אח של האלמנט הלחיץ — לא מקונן בתוכו).
+  const shareRow = (
+    <div style={{ display: "flex", justifyContent: "flex-start", marginTop: 8 }}>
+      <ShareButton insight={insight} source="insight_card" />
+    </div>
+  );
+
   // מקושר לפוסט → ניווט
   if (href) {
     const internal = href.startsWith("/");
-    return internal
+    const link = internal
       ? <Link to={href} style={cardStyle}>{head}</Link>
       : <a href={href} target="_blank" rel="noreferrer" style={cardStyle}>{head}</a>;
+    return <div>{link}{shareRow}</div>;
   }
 
   // לא מקושר → נפתח במקום
   return (
+    <div>
     <button onClick={() => setOpen(o => !o)} style={{ ...cardStyle, font: "inherit" }}>
       {head}
       {open && (
@@ -105,5 +115,7 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
         </div>
       )}
     </button>
+    {shareRow}
+    </div>
   );
 }

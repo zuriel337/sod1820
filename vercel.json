@@ -2,7 +2,10 @@
   "redirects": [
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/i/:id", "destination": "/api/share?id=:id" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/",
