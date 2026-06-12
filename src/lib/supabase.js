@@ -159,29 +159,23 @@ export async function syncAllComments(onProgress) {
 
   while (page <= totalPages) {
     const res = await fetch(
-      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&_fields=id,post,parent,author_name,date,content,status`
+      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&orderby=id&order=asc&_fields=id,post,parent,author_name,date_gmt,content,status`
     );
     if (!res.ok) break;
     totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
     const data = await res.json();
 
-    // filter only comments whose post exists in our DB
-    const postIds = [...new Set(data.map(c => c.post))];
-    const { data: existingPosts } = await supabase
-      .from('posts').select('wp_id').in('wp_id', postIds);
-    const validIds = new Set((existingPosts ?? []).map(p => p.wp_id));
-
-    const rows = data
-      .filter(c => validIds.has(c.post))
-      .map(c => ({
-        wp_id:        c.id,
-        post_wp_id:   c.post,
-        parent_wp_id: c.parent ?? 0,
-        author_name:  c.author_name ?? '',
-        date:         c.date,
-        content:      c.content?.rendered ?? '',
-        status:       c.status ?? 'approved',
-      }));
+    // שומרים את כל התגובות (גם על פוסטים שעוד לא סונכרנו).
+    // status='publish' כדי שיהיו קריאות תחת ה-RLS הציבורי.
+    const rows = data.map(c => ({
+      wp_id:        c.id,
+      post_wp_id:   c.post,
+      parent_wp_id: c.parent ?? 0,
+      author_name:  c.author_name ?? '',
+      date:         (c.date_gmt ? c.date_gmt + '+00:00' : c.date),
+      content:      c.content?.rendered ?? '',
+      status:       'publish',
+    }));
 
     if (rows.length) {
       const { error } = await supabase
@@ -205,6 +199,42 @@ export async function getCommentsByPostId(postWpId) {
     .eq('post_wp_id', postWpId)
     .order('date', { ascending: true });
   return data ?? [];
+}
+
+// כל התגובות מהאתר הישן, מקובצות תחת כל פוסט (לתצוגת ניהול)
+export async function getOldSiteComments() {
+  if (!supabase) return [];
+  // PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים
+  async function fetchAll(table, cols, order) {
+    const CH = 1000, out = [];
+    for (let from = 0; ; from += CH) {
+      let q = supabase.from(table).select(cols).range(from, from + CH - 1);
+      if (order) q = q.order(order, { ascending: false });
+      const { data } = await q;
+      if (!data || !data.length) break;
+      out.push(...data);
+      if (data.length < CH) break;
+    }
+    return out;
+  }
+  const [cms, ps] = await Promise.all([
+    fetchAll('comments', 'wp_id,post_wp_id,author_name,date,content', 'date'),
+    fetchAll('posts', 'wp_id,title,slug', null),
+  ]);
+  const pmap = {};
+  ps.forEach(p => { pmap[p.wp_id] = { title: p.title || '', slug: p.slug }; });
+  const groups = new Map();
+  for (const c of cms) {
+    let g = groups.get(c.post_wp_id);
+    if (!g) {
+      g = { post_wp_id: c.post_wp_id, title: pmap[c.post_wp_id]?.title || `פוסט #${c.post_wp_id}`,
+            slug: pmap[c.post_wp_id]?.slug || null, comments: [], latest: c.date };
+      groups.set(c.post_wp_id, g);
+    }
+    g.comments.push(c);
+    if (c.date > g.latest) g.latest = c.date;
+  }
+  return [...groups.values()].sort((a, b) => (a.latest < b.latest ? 1 : -1));
 }
 
 // ── Popular posts (by comment count) ──────────────────────
@@ -314,7 +344,8 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
 
 // ── Insights / חידושים (בית המדרש) ─────────────────────────
 // origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
-export async function getInsights({ origin = null, convergence = false, limit = 30 } = {}) {
+// space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)
+export async function getInsights({ origin = null, convergence = false, space = 'core', limit = 30 } = {}) {
   if (!supabase) return [];
   let q = supabase
     .from('insights')
@@ -323,6 +354,7 @@ export async function getInsights({ origin = null, convergence = false, limit = 
     .order('created_at', { ascending: false })
     .limit(limit);
   if (origin) q = q.eq('origin', origin);
+  if (space) q = q.eq('space', space);
   if (convergence) q = q.or('has_1820.eq.true,convergence_score.gt.0');
   const { data, error } = await q;
   if (error) throw error;
