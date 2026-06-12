@@ -401,7 +401,7 @@ function FullGateDemo({ p }) {
           השער פתוח. הנתיב מואר. כל מה שנותר — להיכנס.
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14, maxWidth: 560, margin: "0 auto 24px" }}>
-          {["מסע התדר", "עץ המספרים", "הצופן התנ\"כי"].map((t, i) => (
+          {["ציר ההתגלות", "עץ המספרים", "הצופן התנ\"כי"].map((t, i) => (
             <div key={i} style={{ padding: "15px 12px", borderRadius: 14,
               background: `${p.bg}b3`, backdropFilter: "blur(12px)", border: `1px solid ${p.glassBorder}`,
               boxShadow: `0 0 22px ${[p.accent2, p.accent3, p.accent][i]}44`,

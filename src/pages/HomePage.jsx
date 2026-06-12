@@ -12,7 +12,7 @@ import VideoGallery from "../components/VideoGallery.jsx";
 // כותרת מתחלפת — CSS fade בלבד, טיימר יחיד (זניח לביצועים)
 const HERO_PHRASES = [
   "השם 1820 פעם בתורה",
-  "ציר התדר · עץ המספרים · הצופן",
+  "ציר ההתגלות · עץ המספרים · הצופן",
   "כל לחיצה — מסלול חקירה חדש",
 ];
 
@@ -32,7 +32,7 @@ function Hero() {
         <div className="sod-hero-eyebrow">SOD1820</div>
         <h1 className="sod-hero-title" key={phrase}>{HERO_PHRASES[phrase]}</h1>
         <p className="sod-hero-sub">
-          ציר התדר, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
+          ציר ההתגלות, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
         </p>
         <div className="sod-hero-cta">
           <GoldButton to="/start">היכנס לצופן →</GoldButton>
@@ -45,7 +45,7 @@ function Hero() {
 
 // שערי החדר — רצועת כניסה סימטרית לחדרי המערכת (מתחבר להיכל השערים)
 const GATES = [
-  { to: "/timeline", icon: "✦", title: "ציר ההתגלות", sub: "ציר התדר בזמן" },
+  { to: "/timeline", icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
   { to: "/numbers", icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
   { to: "/beit-midrash", icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
   { to: "/code", icon: "🔯", title: "הצופן התנ\"כי", sub: "השם 1820 פעם" },
