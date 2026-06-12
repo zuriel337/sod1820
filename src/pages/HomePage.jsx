@@ -3,75 +3,82 @@ import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
 import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
-import { GoldButton } from "../components/ui.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 
-// כותרת מתחלפת — CSS fade בלבד, טיימר יחיד (זניח לביצועים)
-const HERO_PHRASES = [
-  "השם 1820 פעם בתורה",
-  "ציר ההתגלות · עץ המספרים · הצופן",
-  "כל לחיצה — מסלול חקירה חדש",
+// מילות הברכה — מתחלפות שורה אחת בכל פעם (קל לביצועים)
+const WELCOME_LINES = [
+  "ברוכים הבאים לעולם החדש",
+  "המסע כבר החל — ובכל יום מתווספים עולמות, כלים ותגליות",
+  "בינה מלאכותית בשירות הגאולה",
+  "✨ עדכונים נוספים וחדשים בקרוב",
 ];
 
-function Hero() {
-  const [phrase, setPhrase] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setPhrase(p => (p + 1) % HERO_PHRASES.length), 3800);
-    return () => clearInterval(t);
-  }, []);
-
+// רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
+function BrandStrip() {
   return (
-    <section className="sod-hero">
-      {/* אורבי זוהר — transform/opacity בלבד (GPU), בלי canvas */}
-      <span className="sod-hero-orb o1" aria-hidden />
-      <span className="sod-hero-orb o2" aria-hidden />
-      <div className="sod-hero-inner">
-        <div className="sod-hero-eyebrow">SOD1820</div>
-        <h1 className="sod-hero-title" key={phrase}>{HERO_PHRASES[phrase]}</h1>
-        <p className="sod-hero-sub">
-          ציר ההתגלות, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
-        </p>
-        <div className="sod-hero-cta">
-          <GoldButton to="/start">היכנס לצופן →</GoldButton>
-          <GoldButton to="/map" variant="secondary">מרכז הניווט</GoldButton>
-        </div>
-      </div>
+    <section className="sod-brand">
+      <span className="sod-brand-mark">סוד 1820</span>
+      <span className="sod-brand-tag">בינה מלאכותית בשירות הגאולה</span>
     </section>
   );
 }
 
-// שערי החדר — רצועת כניסה סימטרית לחדרי המערכת (מתחבר להיכל השערים)
+// שערי המערכת — כרגע כל הדפים סגורים → מצב "🔒 בקרוב". הצופן = ELS (לא קשור ל-1820).
 const GATES = [
-  { to: "/timeline", icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
-  { to: "/numbers", icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
-  { to: "/beit-midrash", icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
-  { to: "/code", icon: "🔯", title: "הצופן התנ\"כי", sub: "השם 1820 פעם" },
+  { icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
+  { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
+  { icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
+  { icon: "🔯", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
 
 function GatesDeck() {
   return (
     <section className="sod-gates-wrap">
-      <div className="sod-gates-eyebrow">⟡ שערי החדר</div>
+      <div className="sod-gates-eyebrow">⟡ שערי המערכת</div>
       <div className="sod-gates">
         {GATES.map(g => (
-          <Link key={g.to} to={g.to} className="sod-gate">
+          <div key={g.title} className="sod-gate is-locked" aria-disabled="true">
             <span className="sod-gate-holo" aria-hidden />
             <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
             <span className="sod-gate-icon">{g.icon}</span>
             <span className="sod-gate-title">{g.title}</span>
             <span className="sod-gate-sub">{g.sub}</span>
-            <span className="sod-gate-go">היכנס →</span>
-          </Link>
+            <span className="sod-gate-go">🔒 בקרוב</span>
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-// טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
+// פרומו "ברוכים הבאים" — מתחת לשני הטורים. שורה מתחלפת + לוגו + כפתור הרשמה (הפעולה הראשית כל עוד הכל נעול).
+function WelcomePromo() {
+  const [line, setLine] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setLine(l => (l + 1) % WELCOME_LINES.length), 5000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <section className="sod-welcome">
+      <div className="sod-welcome-chip">✨ בינה מלאכותית בשירות הגאולה</div>
+      <div className="sod-welcome-rotin" key={line}>{WELCOME_LINES[line]}</div>
+      <UpdatesBox
+        variant="panel"
+        source="home-welcome"
+        title="ברוכים הבאים לעולם החדש"
+        body="המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות חדשות. תודה שאתם צועדים איתנו מההתחלה — הטוב ביותר עוד לפנינו."
+        cta="הצטרפו לעדכונים →"
+        style={{ maxWidth: 560, margin: "0 auto" }}
+      />
+    </section>
+  );
+}
+
+// טור ימין — 6 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
 // תנועה: "זרקור" אוטומטי שעובר בין הכרטיסים כל 3 שניות (נעצר במעבר עכבר).
 function LatestPostsRail({ posts, onPost }) {
   const [active, setActive] = useState(0);
@@ -187,7 +194,7 @@ export default function HomePage() {
   const [aiInsights, setAiInsights] = useState([]);
 
   useEffect(() => {
-    getPostsFromSupabase({ limit: 5, orderBy: "modified" })
+    getPostsFromSupabase({ limit: 6, orderBy: "modified" })
       .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
       .catch(() => {});
     getInsights({ origin: "ai", limit: 3 })
@@ -197,7 +204,7 @@ export default function HomePage() {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <Hero />
+      <BrandStrip />
       <GatesDeck />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
@@ -223,6 +230,9 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* פרומו ברוכים הבאים — מתחת לשני הטורים */}
+      <WelcomePromo />
+
       {/* גלריית הסרטים — לרוחב */}
       <VideoGallery />
 
@@ -233,49 +243,36 @@ export default function HomePage() {
           .sod-home-grid { grid-template-columns: 1fr !important; }
         }
 
-        /* ===== Hero — באנר זכוכית קליל ===== */
-        .sod-hero {
-          position: relative; overflow: hidden;
-          display: flex; align-items: center; justify-content: center;
-          text-align: center; padding: 56px 24px 40px;
-          background: radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 60%);
+        /* ===== חזית הבית — רצועת מותג · שערים · פרומו ===== */
+        /* כניסת fade משותפת לשורות המתחלפות */
+        @keyframes sod-hero-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== רצועת מותג ===== */
+        .sod-brand { text-align: center; padding: 30px 20px 4px; direction: rtl; }
+        .sod-brand-mark {
+          display: block; font-family: ${F.cinzel}; font-size: clamp(26px, 4vw, 40px);
+          font-weight: 700; letter-spacing: 6px; color: ${C.goldBright};
+          text-shadow: 0 0 40px rgba(212,175,55,0.35);
         }
-        .sod-hero-inner { position: relative; z-index: 2; max-width: 740px; }
-        .sod-hero-eyebrow {
-          font-size: 10px; color: ${C.goldDim}; letter-spacing: 7px; margin-bottom: 16px;
-          font-family: ${F.cinzel}; text-transform: uppercase;
+        .sod-brand-tag {
+          display: block; margin-top: 8px; font-family: ${F.heading};
+          font-size: 12px; letter-spacing: 3px; color: ${C.goldDim};
         }
-        .sod-hero-title {
-          color: ${C.goldBright}; margin: 0 0 16px; min-height: 1.2em;
-          font-size: clamp(28px, 5vw, 52px); font-family: ${F.regal}; font-weight: 700;
-          letter-spacing: 2px; line-height: 1.2;
-          text-shadow: 0 0 60px rgba(212,175,55,0.4), 0 2px 4px rgba(0,0,0,0.8);
+
+        /* ===== פרומו ברוכים הבאים ===== */
+        .sod-welcome { max-width: 1360px; margin: 0 auto; padding: 6px 18px 20px; text-align: center; direction: rtl; }
+        .sod-welcome-chip {
+          display: inline-block; margin-bottom: 14px; padding: 5px 16px; border-radius: 999px;
+          border: 1px solid ${C.borderGold}; background: rgba(20,15,12,0.5);
+          color: ${C.goldBright}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 1px;
+        }
+        .sod-welcome-rotin {
+          min-height: 1.5em; margin-bottom: 18px; color: ${C.goldLight};
+          font-family: ${F.regal}; font-size: clamp(16px, 2.4vw, 22px); font-weight: 700;
           animation: sod-hero-fade 0.7s ease;
         }
-        @keyframes sod-hero-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .sod-hero-sub {
-          color: ${C.goldDim}; font-size: clamp(14px, 2vw, 17px); font-family: ${F.body};
-          line-height: 2; max-width: 560px; margin: 0 auto 28px;
-        }
-        .sod-hero-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-        .sod-hero-orb {
-          position: absolute; border-radius: 50%; pointer-events: none; z-index: 1;
-          filter: blur(42px); opacity: 0.5; will-change: transform;
-        }
-        .sod-hero-orb.o1 {
-          width: 240px; height: 240px; top: -50px; right: 12%;
-          background: radial-gradient(circle, rgba(212,175,55,0.28), transparent 70%);
-          animation: sod-orb-a 14s ease-in-out infinite;
-        }
-        .sod-hero-orb.o2 {
-          width: 200px; height: 200px; bottom: -60px; left: 14%;
-          background: radial-gradient(circle, rgba(107,63,160,0.26), transparent 70%);
-          animation: sod-orb-b 18s ease-in-out infinite;
-        }
-        @keyframes sod-orb-a { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-24px, 20px); } }
-        @keyframes sod-orb-b { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(28px, -18px); } }
 
-        /* ===== שערי החדר ===== */
+        /* ===== שערי המערכת ===== */
         .sod-gates-wrap { max-width: 1360px; margin: 0 auto; padding: 8px 18px 6px; direction: rtl; }
         .sod-gates-eyebrow {
           text-align: center; font-size: 11px; color: ${C.goldDim}; letter-spacing: 4px;
@@ -315,10 +312,20 @@ export default function HomePage() {
           opacity: 0; transform: translateY(4px); transition: opacity 0.28s, transform 0.28s;
         }
         .sod-gate:hover .sod-gate-go { opacity: 1; transform: translateY(0); }
+        /* מצב נעול — "בקרוב": בלי הרמה, התווית תמיד גלויה */
+        .sod-gate.is-locked { cursor: default; }
+        .sod-gate.is-locked:hover {
+          transform: none; border-color: ${C.borderGold};
+          box-shadow: inset 0 1px 0 rgba(246,226,122,0.06);
+        }
+        .sod-gate.is-locked:hover .sod-gate-holo { opacity: 0; animation: none; }
+        .sod-gate.is-locked .sod-gate-go {
+          opacity: 1; transform: none; color: ${C.muted}; letter-spacing: 0.5px;
+        }
         @media (max-width: 760px) { .sod-gates { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 420px) { .sod-gates { grid-template-columns: 1fr; } }
         @media (prefers-reduced-motion: reduce) {
-          .sod-hero-orb, .sod-hero-title { animation: none; }
+          .sod-welcome-rotin { animation: none; }
           .sod-gate:hover .sod-gate-holo { animation: none; }
         }
 
