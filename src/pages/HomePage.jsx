@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
-import { C, F, LOGO_URL, calcGem } from "../theme.js";
+import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
-import DailyMessage from "../components/DailyMessage.jsx";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -14,31 +13,12 @@ function Hero() {
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      textAlign: "center", padding: "56px 24px 36px",
+      textAlign: "center", padding: "48px 24px 32px",
       background: `radial-gradient(ellipse at 50% 0%, rgba(26,18,0,0.55) 0%, transparent 65%)`,
     }}>
-      <div style={{ position: "relative", display: "inline-block", marginBottom: 22 }}>
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", width: 170, height: 170,
-          background: `conic-gradient(from 0deg, transparent 0deg, rgba(212,175,55,0.16) 12deg, transparent 24deg, transparent 120deg, rgba(212,175,55,0.13) 132deg, transparent 144deg, transparent 240deg, rgba(212,175,55,0.12) 252deg, transparent 264deg)`,
-          borderRadius: "50%", animation: "light-rays 16s linear infinite", pointerEvents: "none",
-        }} />
-        <img src={LOGO_URL} alt="SOD1820" style={{
-          height: 78, width: "auto", display: "block", position: "relative", zIndex: 1,
-          animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-          filter: "drop-shadow(0 0 26px rgba(232,200,74,0.82))",
-        }} />
-      </div>
       <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 16, fontFamily: F.cinzel, textTransform: "uppercase" }}>
         SOD1820
       </div>
-      <h1 style={{
-        color: C.goldBright, margin: "0 0 16px", fontSize: "clamp(30px, 5.4vw, 56px)",
-        fontFamily: F.regal, fontWeight: 700, letterSpacing: 2, lineHeight: 1.2, maxWidth: 720,
-        textShadow: `0 0 80px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)`, animation: "hero-shimmer 5s ease-in-out infinite",
-      }}>
-        מפה חיה של שפת המספרים
-      </h1>
       <p style={{ color: C.goldDim, fontSize: "clamp(14px, 2vw, 17px)", fontFamily: F.body, lineHeight: 2, maxWidth: 560, margin: "0 0 30px" }}>
         ציר התדר, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
       </p>
@@ -63,16 +43,25 @@ function LatestPostsRail({ posts, onPost }) {
   }, [paused, posts.length]);
 
   return (
-    <div className="sod-pf" style={{ direction: "rtl" }}
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div style={{ direction: "rtl" }}>
+      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+        📜 עדכונים אחרונים
+      </div>
+      {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
+      <div className="sod-pf" style={{
+        direction: "rtl", height: "min(82vh, 720px)", display: "flex", flexDirection: "column",
+        borderRadius: 14, border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+        background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+        padding: "16px 14px",
+      }}
+        onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="sod-pf-head">
-        <span className="sod-pf-title">עדכונים אחרונים</span>
         <span className="sod-pf-live"><span className="sod-pf-dot" />LIVE</span>
         <span className="sod-pf-line" />
         <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, overflowY: "auto", paddingLeft: 2 }}>
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
@@ -112,6 +101,7 @@ function LatestPostsRail({ posts, onPost }) {
       <Link to="/post" className="sod-pf-all">
         אל כל הפוסטים <span aria-hidden>→</span>
       </Link>
+      </div>
     </div>
   );
 }
@@ -167,7 +157,6 @@ export default function HomePage() {
   return (
     <div style={{ direction: "rtl" }}>
       <Hero />
-      <DailyMessage />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
