@@ -18,14 +18,14 @@ export const C = {
   surface2:     "#140f0c",
   border:       "rgba(212,175,55,0.18)",
   borderGold:   "rgba(212,175,55,0.38)",
-  muted:        "#8a7a5e",
+  muted:        "#bdb6c4",
   faint:        "#1a0f0a",
   danger:       "#8B2020",
 };
 
 export const F = {
   royal:   "'Heebo', sans-serif",
-  regal:   "'Suez One', 'David Libre', serif",
+  regal:   "'Noto Serif Hebrew', 'David Libre', serif",
   cinzel:  "'Cinzel', serif",
   heading: "'Heebo', sans-serif",
   body:    "'Frank Ruhl Libre', serif",
