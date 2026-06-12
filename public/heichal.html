@@ -481,6 +481,35 @@ function buildGate(cfg,i){
   hit.position.set(0,(DH+DW/2)/2+0.2,inFront+0.05);group.add(hit);
 
   scene.add(group);
+
+  // ── הדלת הפתוחה (ציר ההתגלות): זרם מספרי-קוד עולה מתוך הפתח (במקום הצפת אור) ──
+  if(isOpen){
+    const CH=['1','8','2','0','א','ה','ו','ם','ש','ת'];
+    const nums=[];
+    for(let k=0;k<14;k++){
+      const sp=makeSprite({text:CH[(Math.random()*CH.length)|0],font:'900 90px "Frank Ruhl Libre"',
+        color:'#f6e27a',w:96,h:96,plaque:false});
+      sp.sprite.scale.set(0.42,0.42,1);
+      group.add(sp.sprite);
+      nums.push({sp,ox:(Math.random()-0.5)*1.7,ph:Math.random(),spd:0.10+Math.random()*0.10});
+    }
+    animated.push({tick:(dt)=>{ nums.forEach(n=>{
+      n.ph+=dt*n.spd*(reduced?0.4:1);
+      if(n.ph>=1){ n.ph=0; n.ox=(Math.random()-0.5)*1.7; n.sp.update(CH[(Math.random()*CH.length)|0]); }
+      const y=0.25+n.ph*(DH+1.0);
+      n.sp.sprite.position.set(n.ox,y,inFront+0.25);
+      n.sp.sprite.material.opacity=Math.sin(n.ph*Math.PI)*0.9;
+    }); }});
+  }
+
+  // ── החדר הסודי (בני ההיכל): חור-מנעול אדום זוהר שפועם ──
+  if(cfg.key==='heichal'){
+    const kh=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(0xff3b3b),
+      transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.6}));
+    kh.scale.set(0.62,0.62,1); kh.position.set(0,DH*0.46,inFront+0.22); group.add(kh);
+    animated.push({tick:(dt,t)=>{ kh.material.opacity=0.32+Math.sin(t*2.2)*0.26; }});
+  }
+
   // כל הדלתות סגורות; רק דלת פתוחה (ציר ההתגלות) עומדת פתוחה לרווחה.
   const base=isOpen?1:0;
   gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
@@ -652,7 +681,16 @@ function pick(e){ const ndc=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.cli
   if(hits.length)return gates.find(g=>g.hit===hits[0].object);return null; }
 
 /* ---------- enter / exit ---------- */
+// החדר הסודי — לא נכנסים: הדלת "מרטטת" (נעולה), ויברציה במובייל, ואז מסר.
+function secretRattle(g){
+  state='entering'; hovered=null; renderer.domElement.style.cursor='default';
+  gates.forEach(q=>q.hoverTarget=0);
+  try{ navigator.vibrate && navigator.vibrate([35,45,35,45,35]); }catch(e){}
+  let n=0; const iv=setInterval(()=>{ g.targetOpen=(n%2?0.07:0); n++;
+    if(n>5){ clearInterval(iv); g.targetOpen=g.baseOpen; showWorldPanel(g); } },85);
+}
 function enterWorld(g){
+  if(g.cfg.key==='heichal'){ secretRattle(g); return; }
   state='entering';hovered=null;renderer.domElement.style.cursor='default';
   gates.forEach(q=>q.hoverTarget=0);g.targetOpen=1;
   const door=g.worldDoor.clone(), dir=new THREE.Vector3(door.x,0,door.z).normalize();
@@ -708,13 +746,15 @@ function animate(){
     g.left.position.x=g.lx-g.openAmt*g.leafW;
     g.right.position.x=g.rx+g.openAmt*g.leafW;
     g.hover += (g.hoverTarget-g.hover)*Math.min(1,dt*8);
-    // קסם הדלת הפתוחה — נשימת אור זהובה מבפנים החוצה
-    const op=(g.baseOpen>=1)?(reduced?0.5:(Math.sin(t*1.6)*0.5+0.5)):0;
-    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05+op*1.0;
-    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2+g.hover*0.4+op*0.5;
-    g.light.intensity=0.9+g.openAmt*2.2+g.hover*0.5+op*1.8;
-    const ro=Math.min(1,g.openAmt*1.2+op*0.4);
-    g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3+op*0.25; });
+    // דלת פתוחה: מעמעמים את האור (לא מסנוור) — העניין עובר לזרם המספרים
+    const isOpenGate=g.baseOpen>=1;
+    const glow=isOpenGate?0.5:1;
+    const op=isOpenGate?(reduced?0.2:(Math.sin(t*1.4)*0.5+0.5)*0.3):0;
+    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4*glow+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05+op*0.3;
+    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2*glow+g.hover*0.4+op*0.2;
+    g.light.intensity=0.9+g.openAmt*2.2*glow+g.hover*0.5+op*0.6;
+    const ro=Math.min(1,g.openAmt*1.2*glow+op*0.2);
+    g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3; });
   });
   if(state==='idle'){
     yaw+=(targetYaw-yaw)*Math.min(1,dt*6);pitch+=(targetPitch-pitch)*Math.min(1,dt*6);
