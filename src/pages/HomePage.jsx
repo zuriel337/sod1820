@@ -272,6 +272,9 @@ export default function HomePage() {
           <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
 
           <div style={{ direction: "rtl" }}>
+            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+              👑 היכל השערים
+            </div>
             <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
               <iframe
                 src="/heichal.html"

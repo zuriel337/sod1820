@@ -114,7 +114,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
 
-// פסקול קולנועי אמיתי. כרגע: "Lord of the Land" מאת Kevin MacLeod (incompetech.com),
+// פסקול קולנועי אמיתי. כרגע: "Floating Cities" מאת Kevin MacLeod (incompetech.com),
 // רישיון Creative Commons BY 4.0 — חופשי לשימוש מסחרי בתנאי מתן קרדיט (ראו קרדיט באתר).
 // להחלפה: שימו כאן קישור ל-MP3 אחר. ריק = פסקול מסונתז (WebAudio) כגיבוי.
 const MUSIC_URL = '/heichal-theme.mp3';
@@ -500,15 +500,6 @@ function buildGate(cfg,i){
       n.sp.sprite.position.set(n.ox,y,inFront+0.25);
       n.sp.sprite.material.opacity=Math.sin(n.ph*Math.PI)*0.9;
     }); }});
-    // תגית חדשות חיה מרחפת מעל הדלת הפתוחה
-    const news=makeSprite({text:'📰 חדשות · LIVE',font:'800 46px "Frank Ruhl Libre"',
-      color:'#ffe9a8',w:512,h:140,plaque:true});
-    news.sprite.scale.set(2.5,0.68,1);
-    news.sprite.position.set(0,DH+1.5,inFront+0.1); group.add(news.sprite);
-    animated.push({tick:(dt,t)=>{
-      news.sprite.position.y=DH+1.5+(reduced?0:Math.sin(t*0.9)*0.06);
-      news.sprite.material.opacity=reduced?0.95:(0.78+Math.sin(t*3.0)*0.22);  // הבהוב LIVE עדין
-    }});
   }
 
   // ── החדר הסודי (בני ההיכל): חור-מנעול אדום זוהר שפועם ──
@@ -532,7 +523,8 @@ function updateTimers(){
   const now=Date.now();
   if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
-    if(g.cfg.key==='remez') txt='🌌 נרקם סוד גדול · 🔑 כשהזמן יבשיל';   // שער חתום — בלי שעון
+    if(g.cfg.key==='gilui') txt='🔴 חדשות · שידור חי';                   // הדלת הפתוחה — LIVE מלפנים
+    else if(g.cfg.key==='remez') txt='🌌 נרקם סוד גדול · 🔑 כשהזמן יבשיל'; // שער חתום — בלי שעון
     else if(g.cfg.key==='heichal') txt='🔐 רק בני ההיכל';                 // החדר הסודי
     else if(o===null) txt='🔒 בקרוב';
     else{ let rem=Math.floor((o-now)/1000);

@@ -34,12 +34,41 @@ const COLUMNS = [
   },
 ];
 
-// רשתות — אייקון = path (SVG) או emoji
+// רשתות — אייקוני מותג אמיתיים (SVG) כדי שיהיו מזוהים
 const SOCIAL = [
-  { label: "אינסטגרם", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp", emoji: "📷" },
-  { label: "פייסבוק", href: "https://www.facebook.com/share/1ECyfiRu3e/", path: "M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" },
-  { label: "וואטסאפ", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql", emoji: "💬" },
-  { label: "TikTok", href: "https://www.tiktok.com/@sod_1820", path: "M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.3v12.1a2.4 2.4 0 1 1-2.4-2.4c.2 0 .5 0 .7.1V9.5a5.7 5.7 0 0 0-.7 0 5.6 5.6 0 1 0 5.6 5.6V9.3a7.5 7.5 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z" },
+  {
+    label: "אינסטגרם", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" /><circle cx="12" cy="12" r="4.4" />
+        <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    label: "וואטסאפ", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "פייסבוק", href: "https://www.facebook.com/share/1ECyfiRu3e/",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" />
+      </svg>
+    ),
+  },
+  {
+    label: "TikTok", href: "https://www.tiktok.com/@sod_1820",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.3v12.1a2.4 2.4 0 1 1-2.4-2.4c.2 0 .5 0 .7.1V9.5a5.7 5.7 0 0 0-.7 0 5.6 5.6 0 1 0 5.6 5.6V9.3a7.5 7.5 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z" />
+      </svg>
+    ),
+  },
 ];
 
 const FOOTER_CSS = `
@@ -107,12 +136,11 @@ export default function Footer() {
               <span className="ai-scan" aria-hidden />
               <img src={LOGO_URL} alt="SOD1820" />
             </span>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
-              סוד 1820
+            {/* שתי שורות מקבילות לגובה הלוגו */}
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.18 }}>
+              <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד 1820</span>
+              <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
             </div>
-          </div>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-            כי לה' המלוכה
           </div>
           <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
             אתר רמזי הגאולה הגדול בעולם
@@ -121,12 +149,15 @@ export default function Footer() {
             13 שנות מחקר • מאגר חי • כלים לקריאת המציאות בשפת המספרים
           </div>
 
-          <div className="foot-social" style={{ display: "flex", gap: 12, marginTop: 18 }}>
+          {/* קריאה לעקוב בטיקטוק */}
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 16 }}>
+            🎬 אל תשכחו לעקוב אחרינו בטיקטוק – המקום שבו הרמזים הופכים למציאות, וההתגלויות נחשפות בזמן אמת. 🚀
+          </div>
+
+          <div className="foot-social" style={{ display: "flex", gap: 12, marginTop: 14 }}>
             {SOCIAL.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
-                {s.path
-                  ? <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={s.path} /></svg>
-                  : <span aria-hidden>{s.emoji}</span>}
+                {s.svg}
               </a>
             ))}
           </div>
@@ -166,7 +197,7 @@ export default function Footer() {
       <div className="foot-bottom">
         <span>© {new Date().getFullYear()} סוד 1820 · כל הזכויות שמורות</span>
         <span style={{ opacity: 0.85 }}>
-          מוזיקה: "Lord of the Land" — Kevin MacLeod (incompetech.com) · CC BY 4.0
+          מוזיקה: "Floating Cities" — Kevin MacLeod (incompetech.com) · CC BY 4.0
         </span>
         <span style={{ color: C.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
       </div>

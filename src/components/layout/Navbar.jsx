@@ -16,8 +16,16 @@ function isActive(pathname, to) {
 function Brand() {
   return (
     <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-      <div style={{ position: "relative", display: "inline-flex" }}>
+      <style>{`
+        @keyframes nav-logo-scan { 0% { transform: translateY(-130%); } 100% { transform: translateY(330%); } }
+        .nav-logo-wrap .nav-scan { position: absolute; inset: 0; overflow: hidden; border-radius: 6px; pointer-events: none; z-index: 1; }
+        .nav-logo-wrap .nav-scan::after { content: ""; position: absolute; left: -10%; right: -10%; height: 38%;
+          background: linear-gradient(180deg, transparent, rgba(246,226,122,0.6), transparent); animation: nav-logo-scan 2.6s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .nav-logo-wrap .nav-scan::after { animation: none; } }
+      `}</style>
+      <div className="nav-logo-wrap" style={{ position: "relative", display: "inline-flex" }}>
         <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 36, width: "auto" }} />
+        <span className="nav-scan" aria-hidden />
         <span style={{
           position: "absolute", top: -5, right: -8,
           background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
