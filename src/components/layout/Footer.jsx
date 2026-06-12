@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { C, F, LOGO_URL } from "../../theme.js";
 import { NAV } from "../../routes.jsx";
-import { NewsletterSignup } from "../../legacy/legacy.jsx";
+import UpdatesBox from "../UpdatesBox.jsx";
 
 const quickLinks = NAV.filter(i => ["/start", "/map", "/timeline", "/numbers", "/post", "/archive", "/code", "/community", "/members", "/about"].includes(i.to));
 
@@ -16,7 +16,7 @@ export default function Footer() {
       position: "relative",
       zIndex: 1,
     }}>
-      <NewsletterSignup />
+      <UpdatesBox variant="inline" source="footer" />
       <div style={{
         maxWidth: 1040, margin: "0 auto", display: "flex",
         justifyContent: "space-between", alignItems: "flex-start",

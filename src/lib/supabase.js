@@ -125,6 +125,12 @@ export async function getPostBySlug(slug) {
   return data[0];
 }
 
+export async function getPostByWpId(wpId) {
+  if (!supabase || !wpId) return null;
+  const { data } = await supabase.from('posts').select('*').eq('wp_id', wpId).limit(1);
+  return data?.[0] ?? null;
+}
+
 export async function getGematriaByPhrases(phrases) {
   if (!supabase || !phrases?.length) return [];
   const { data } = await supabase
@@ -304,6 +310,23 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
     .insert([{ email: email.trim(), name: name?.trim() || null, source }]);
   if (error && !/duplicate|unique/i.test(error.message)) throw error;
   return { ok: true, duplicate: !!error };
+}
+
+// ── Insights / חידושים (בית המדרש) ─────────────────────────
+// origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
+export async function getInsights({ origin = null, convergence = false, limit = 30 } = {}) {
+  if (!supabase) return [];
+  let q = supabase
+    .from('insights')
+    .select('id, title, body, proof, related_numbers, related_phrases, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (origin) q = q.eq('origin', origin);
+  if (convergence) q = q.or('has_1820.eq.true,convergence_score.gt.0');
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
 }
 
 // ── Admin inbox (הודעות + מנויים) — מאחורי סיסמת ניהול בצד-שרת ──
