@@ -27,7 +27,7 @@ function Hero() {
         }} />
       </div>
       <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 16, fontFamily: F.cinzel, textTransform: "uppercase" }}>
-        SOD1820 · צוריאל פולייס
+        SOD1820
       </div>
       <h1 style={{
         color: C.goldBright, margin: "0 0 16px", fontSize: "clamp(30px, 5.4vw, 56px)",

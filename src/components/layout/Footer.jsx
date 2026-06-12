@@ -35,7 +35,7 @@ export default function Footer() {
             </div>
           </div>
           <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 280 }}>
-            צוריאל פולייס · sod1820.co.il<br />
+            sod1820.co.il<br />
             גימטריה, ציר התדר, עץ המספרים והצופן התנ"כי — מערכת אחת חיה.
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function Footer() {
         justifyContent: "space-between", flexWrap: "wrap", gap: 12,
         fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 1,
       }}>
-        <span>© {new Date().getFullYear()} SOD1820 · צוריאל פולייס</span>
+        <span>© {new Date().getFullYear()} SOD1820</span>
         <span style={{ color: C.goldDim }}>כל הזכויות שמורות</span>
       </div>
     </footer>
