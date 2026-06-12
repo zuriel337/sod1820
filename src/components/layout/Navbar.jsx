@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { C, F, LOGO_URL } from "../../theme.js";
 import { NAV, PRIMARY_KEYS } from "../../routes.jsx";
 import { GoldButton } from "../ui.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
+import { Avatar } from "../../pages/AuthPage.jsx";
 
 const primaryItems = NAV.filter(i => PRIMARY_KEYS.includes(i.to));
 
@@ -88,6 +90,7 @@ function NavLinkItem({ item, pathname, onNavigate }) {
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { user, profile } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
 
@@ -142,9 +145,21 @@ export default function Navbar() {
             color: C.goldDim, textDecoration: "none", fontSize: 18,
             padding: "4px 8px", borderRadius: 6, border: `1px solid ${C.border}`,
           }}>🏛</Link>
-          <GoldButton to="/community" style={{ padding: "8px 18px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}>
-            הרשם
-          </GoldButton>
+          {user ? (
+            <Link to="/profile" title="הפרופיל שלי" style={{
+              display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+              padding: "3px 6px 3px 12px", border: `1px solid ${C.border}`, borderRadius: 22,
+            }}>
+              <span style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {profile?.display_name || profile?.username || "פרופיל"}
+              </span>
+              <Avatar profile={profile} user={user} size={28} />
+            </Link>
+          ) : (
+            <GoldButton to="/login" style={{ padding: "8px 18px", fontSize: 11, letterSpacing: 2, whiteSpace: "nowrap" }}>
+              התחבר
+            </GoldButton>
+          )}
         </div>
 
         {/* hamburger — mobile */}
@@ -161,6 +176,14 @@ export default function Navbar() {
           borderTop: `1px solid ${C.border}`, padding: "12px 4px 20px",
           maxHeight: "75vh", overflowY: "auto",
         }}>
+          <Link to={user ? "/profile" : "/login"} onClick={() => setDrawer(false)} style={{
+            display: "flex", alignItems: "center", gap: 10, color: C.goldBright, textDecoration: "none",
+            fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
+            borderBottom: `1px solid ${C.border}`, marginBottom: 6,
+          }}>
+            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>👤</span>}
+            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "התחברות / הרשמה"}
+          </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
               <Link to={item.to} onClick={() => setDrawer(false)} style={{

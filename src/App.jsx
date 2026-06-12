@@ -5,6 +5,9 @@ import { ROUTE_META } from "./routes.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import { AuthProvider } from "./lib/AuthContext.jsx";
 import StartHerePage from "./pages/StartHerePage.jsx";
 import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
 import NumbersPage from "./pages/NumbersPage.jsx";
@@ -35,6 +38,7 @@ function RouteEffects() {
 
 export default function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <RouteEffects />
       <Routes>
@@ -56,7 +60,8 @@ export default function App() {
           <Route path="/members" element={<MembersPage />} />
           <Route path="/about" element={<AboutRoute />} />
           <Route path="/contact" element={<ContactRoute />} />
-          <Route path="/login" element={<LoginRoute />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
@@ -76,5 +81,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
