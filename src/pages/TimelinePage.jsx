@@ -173,7 +173,7 @@ export default function TimelinePage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <style>{PAGE_CSS}</style>
-      <SectionHeader eyebrow="המסע בזמן" title="✦ ציר ההתגלות" />
+      <SectionHeader eyebrow="המסע בזמן" title="🌅 ציר ההתגלות" />
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 52px" }}>
         אירועי הגאולה כפי שנגלו, שנה אחר שנה. כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים —
         והכוכבים בפס הצדדי ילוו אתכם בכל האתר.
