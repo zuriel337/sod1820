@@ -197,7 +197,7 @@ export default function Footer() {
       <div className="foot-bottom">
         <span>© {new Date().getFullYear()} סוד 1820 · כל הזכויות שמורות</span>
         <span style={{ opacity: 0.85 }}>
-          מוזיקה: "Floating Cities" — Kevin MacLeod (incompetech.com) · CC BY 4.0
+          מוזיקה: "Echoes of Time v2" — Kevin MacLeod (incompetech.com) · CC BY 4.0
         </span>
         <span style={{ color: C.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
       </div>

@@ -25,10 +25,10 @@ export const C = {
 
 export const F = {
   royal:   "'Heebo', sans-serif",
-  regal:   "'Noto Serif Hebrew', 'David Libre', serif",
+  regal:   "'Cinzel', 'Frank Ruhl Libre', serif",
   cinzel:  "'Cinzel', serif",
   heading: "'Heebo', sans-serif",
-  body:    "'Frank Ruhl Libre', serif",
+  body:    "'Assistant', sans-serif",
   mono:    "'Courier New', monospace",
 };
 

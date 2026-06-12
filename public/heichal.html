@@ -114,7 +114,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
 
-// פסקול קולנועי אמיתי. כרגע: "Floating Cities" מאת Kevin MacLeod (incompetech.com),
+// פסקול קולנועי אמיתי. כרגע: "Echoes of Time v2" מאת Kevin MacLeod (incompetech.com),
 // רישיון Creative Commons BY 4.0 — חופשי לשימוש מסחרי בתנאי מתן קרדיט (ראו קרדיט באתר).
 // להחלפה: שימו כאן קישור ל-MP3 אחר. ריק = פסקול מסונתז (WebAudio) כגיבוי.
 const MUSIC_URL = '/heichal-theme.mp3';
@@ -637,7 +637,7 @@ function toggleAudio(){
   // אם הוגדר קובץ מוזיקה אמיתי — מנגנים אותו (פסקול קולנועי)
   if(MUSIC_URL){
     const bgm=document.getElementById('bgm');
-    if(!bgm.src){ bgm.src=MUSIC_URL; bgm.loop=true; bgm.volume=0.6; }
+    if(!bgm.src){ bgm.src=MUSIC_URL; bgm.loop=true; bgm.volume=0.85; }
     if(audioOn){ bgm.pause(); audioOn=false; }
     else{ const p=bgm.play(); if(p&&p.catch) p.catch(()=>{}); audioOn=true; }
     setAudioBtn(); return;
