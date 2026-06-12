@@ -20,10 +20,10 @@ function BrandStrip() {
 
 // שערי המערכת — כרגע כל הדפים סגורים → מצב "🔒 בקרוב". הצופן = ELS (לא קשור ל-1820).
 const GATES = [
-  { icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
+  { icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline", open: true },
   { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
   { icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
-  { icon: "🔯", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
+  { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
 
 function GatesDeck() {
@@ -31,7 +31,16 @@ function GatesDeck() {
     <section className="sod-gates-wrap">
       <div className="sod-gates-eyebrow">⟡ שערי המערכת</div>
       <div className="sod-gates">
-        {GATES.map(g => (
+        {GATES.map(g => g.open ? (
+          <Link key={g.title} to={g.to} className="sod-gate">
+            <span className="sod-gate-holo" aria-hidden />
+            <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
+            <span className="sod-gate-icon">{g.icon}</span>
+            <span className="sod-gate-title">{g.title}</span>
+            <span className="sod-gate-sub">{g.sub}</span>
+            <span className="sod-gate-go sod-gate-open">✦ נפתח →</span>
+          </Link>
+        ) : (
           <div key={g.title} className="sod-gate is-locked" aria-disabled="true">
             <span className="sod-gate-holo" aria-hidden />
             <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
@@ -268,6 +277,7 @@ export default function HomePage() {
                 src="/heichal.html"
                 title="היכל השערים"
                 loading="lazy"
+                allow="autoplay"
                 style={{ width: "100%", height: "min(82vh, 720px)", border: "none", display: "block" }}
               />
             </div>
@@ -384,6 +394,11 @@ export default function HomePage() {
           opacity: 0; transform: translateY(4px); transition: opacity 0.28s, transform 0.28s;
         }
         .sod-gate:hover .sod-gate-go { opacity: 1; transform: translateY(0); }
+        /* שער פתוח — "נפתח" תמיד גלוי, מודגש */
+        .sod-gate-go.sod-gate-open {
+          opacity: 1; transform: none; color: ${C.goldBright};
+          text-shadow: 0 0 14px rgba(212,175,55,0.5);
+        }
         /* מצב נעול — "בקרוב": בלי הרמה, התווית תמיד גלויה */
         .sod-gate.is-locked { cursor: default; }
         .sod-gate.is-locked:hover {

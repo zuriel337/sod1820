@@ -86,9 +86,9 @@
 </head>
 <body>
   <div id="vignette"></div>
-  <div id="brand"><div class="sub">הֵיכַל הַשְּׁעָרִים</div></div>
   <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
   <button id="audioBtn" type="button" title="מוזיקת רקע" aria-label="מוזיקת רקע">🔈</button>
+  <audio id="bgm" loop preload="none"></audio>
   <div id="loader">
     <div class="mark">כי לה' המלוכה</div><div class="spinner"></div>
     <div class="status">בונה את ההיכל…</div>
@@ -113,6 +113,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
 
+// פסקול קולנועי אמיתי — שימו כאן קישור ל-MP3/OGG (למשל קובץ שהועלה למדיה של האתר).
+// כל עוד ריק — מתנגן פסקול מסונתז (WebAudio) כגיבוי. דוגמה:
+// const MUSIC_URL = 'https://sod1820.co.il/wp-content/uploads/2026/06/heichal-theme.mp3';
+const MUSIC_URL = '';
+
 // הלוגו של האתר — מרחף מעל כל שער
 const LOGO_URL = 'https://sod1820.co.il/wp-content/uploads/2018/12/cropped-cropped-%D7%9C%D7%95%D7%92%D7%95-%D7%90%D7%AA%D7%A8-1.png';
 let _logoTex = null;
@@ -127,16 +132,16 @@ let clockUpdate = null;   // פונקציית עדכון השעון המרכזי
 
 // ברירת־מחדל — צבעים תואמים לפלטת האתר (זהב / ארגמן / סגול־מלכותי). days = בעוד כמה ימים (null = פתוח).
 const FALLBACK_GATES = [
-  { key:'remez',   title:'עולם הרמזים', world:'מנוע הגימטריה — מספרים, רמזים וצירופים.',
-    color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:6 },
+  { key:'remez',   title:'עולם הרמזים', world:'הדלת הזאת לא מחכה למפתח — היא מחכה לרגע.',
+    color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:null },
   { key:'beit',    title:'בית המדרש',   world:'לימוד, שיעורים וקהילה לומדת.',
     color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:14 },
-  { key:'tzofen',  title:'מנוע דילוגי האותיות',  world:'חיפוש דילוגי אותיות (ELS) וצפנים סמויים.',
-    color:0x9d6bff, emoji:'🧩', url:'/code',     days:null },
+  { key:'tzofen',  title:'מנוע דילוגי האותיות',  world:'מנוע חיפוש האותיות הטוב בעולם — חפשו את שמכם, את שמות יקיריכם או כל מילה אחרת, וגלו את העולם המופלא של דילוגי האותיות והצפנים.',
+    color:0x9d6bff, emoji:'🔍', url:'/code',     days:null },
   { key:'ai',      title:'חידושי AI',   world:'כלים חכמים שמרחיבים את החקר.',
     color:0xf6e27a, emoji:'🤖', url:'/map',      days:7 },
   { key:'gilui',   title:'ציר ההתגלות', world:'מסע לאורך קוד ההתגלות — 1237.',
-    color:0xc9962f, emoji:'🌳', url:'/timeline', days:40 },
+    color:0xc9962f, emoji:'🌳', url:'/timeline', days:-1 },
   { key:'heichal', title:'בני ההיכל',   world:'מרחב סגור לחברים — פנים ההיכל.',
     color:0xa01f2e, emoji:'🔐', url:'/members',  days:null },
   { key:'engine',  title:'מנוע המספרים', world:'כל מספר משמעותי — דף משלו. 1820.',
@@ -449,9 +454,10 @@ function buildGate(cfg,i){
   const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
 
   const featured=(cfg.key==='ai');   // שער ai — "שעון יפה" בולט
+  const isOpen=(cfg.openAt!==null && cfg.openAt<=Date.now());  // נפתח לגמרי (ציר ההתגלות)
   // תווית שם + סטטוס כ-DOM overlay — טקסט חד וקריא בכל מרחק
   const labelEl=document.createElement('div');
-  labelEl.className='glabel '+(featured?'featured':'locked');
+  labelEl.className='glabel '+(isOpen?'featured':(featured?'featured':'locked'));
   labelEl.innerHTML=`<div class="gl-name">${cfg.emoji} ${cfg.title}</div><div class="gl-status"></div>`;
   document.getElementById('gate-labels').appendChild(labelEl);
   const statusEl=labelEl.querySelector('.gl-status');
@@ -474,9 +480,8 @@ function buildGate(cfg,i){
   hit.position.set(0,(DH+DW/2)/2+0.2,inFront+0.05);group.add(hit);
 
   scene.add(group);
-  // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
-  // דלתות עומדות מעט פתוחות (חצי-פתוח) כברירת מחדל; נפתחות עד הסוף בריחוף/כניסה.
-  const base=featured?0.34:0.24;
+  // כל הדלתות סגורות; רק דלת פתוחה (ציר ההתגלות) עומדת פתוחה לרווחה.
+  const base=isOpen?1:0;
   gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
     labelEl, statusEl, labelAnchor,
     worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
@@ -488,9 +493,10 @@ function updateTimers(){
   const now=Date.now();
   if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
-    if(o===null) txt='🔒 בקרוב';
+    if(g.cfg.key==='remez') txt='✦ הדלת מחכה לרגע ✦';        // מסתורי — בלי שעון
+    else if(o===null) txt='🔒 בקרוב';
     else{ let rem=Math.floor((o-now)/1000);
-      if(rem<=0) txt='✦ נפתח! ✦';
+      if(rem<=0) txt='✦ ההיכל נפתח ✦';
       else{ const p=n=>String(n).padStart(2,'0');
         const d=Math.floor(rem/86400); rem-=d*86400;
         const h=Math.floor(rem/3600);  rem-=h*3600;
@@ -593,8 +599,18 @@ function startAmbient(){
   const tremG=audioCtx.createGain(); tremG.gain.value=0.05; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
   return true;
 }
+function setAudioBtn(){ const btn=document.getElementById('audioBtn');
+  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn); }
 function toggleAudio(){
-  const btn=document.getElementById('audioBtn');
+  // אם הוגדר קובץ מוזיקה אמיתי — מנגנים אותו (פסקול קולנועי)
+  if(MUSIC_URL){
+    const bgm=document.getElementById('bgm');
+    if(!bgm.src){ bgm.src=MUSIC_URL; bgm.loop=true; bgm.volume=0.6; }
+    if(audioOn){ bgm.pause(); audioOn=false; }
+    else{ const p=bgm.play(); if(p&&p.catch) p.catch(()=>{}); audioOn=true; }
+    setAudioBtn(); return;
+  }
+  // אחרת — פסקול מסונתז (גיבוי עד שיהיה קובץ)
   if(!audioCtx){ if(!startAmbient()) return; }
   if(audioCtx.resume) audioCtx.resume();
   const now=audioCtx.currentTime;
@@ -603,8 +619,8 @@ function toggleAudio(){
     audioMaster.gain.linearRampToValueAtTime(0.0001,now+0.6); audioOn=false; }
   else{ audioMaster.gain.cancelScheduledValues(now);
     audioMaster.gain.setValueAtTime(Math.max(0.0001,audioMaster.gain.value),now);
-    audioMaster.gain.linearRampToValueAtTime(0.10,now+2.2); audioOn=true; }
-  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn);
+    audioMaster.gain.linearRampToValueAtTime(0.12,now+2.2); audioOn=true; }
+  setAudioBtn();
 }
 
 /* ---------- interaction ---------- */
