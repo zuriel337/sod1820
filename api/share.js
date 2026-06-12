@@ -2,23 +2,25 @@
 // תגיות Open Graph מלאות עם תמונת כרטיס דינמית; גולש אנושי מנותב ליעד האמיתי.
 // נגיש דרך /i/:id (rewrite ב-vercel.json).
 
-import { fetchInsight, humanDestination, clip, escapeHtml, SITE } from './_lib.js';
+import { fetchInsight, humanDestination, clip, escapeHtml } from './_lib.js';
 
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
+  const reqUrl = new URL(req.url);
+  // מקור ההגשה בפועל — עובד גם על דומיין ה-Vercel הנוכחי וגם על sod1820.co.il.
+  const origin = reqUrl.origin;
+  const id = reqUrl.searchParams.get('id');
   const insight = await fetchInsight(id);
 
   // אין חידוש תקף → הפניה לבית המדרש
   if (!insight) {
-    return Response.redirect(`${SITE}/beit-midrash`, 302);
+    return Response.redirect(`${origin}/beit-midrash`, 302);
   }
 
-  const shareUrl = `${SITE}/i/${encodeURIComponent(insight.id)}`;
-  const ogImage = `${SITE}/api/og?id=${encodeURIComponent(insight.id)}`;
-  const dest = humanDestination(insight);
+  const shareUrl = `${origin}/i/${encodeURIComponent(insight.id)}`;
+  const ogImage = `${origin}/api/og?id=${encodeURIComponent(insight.id)}`;
+  const dest = humanDestination(insight, origin);
 
   const title = clip(insight.title, 110) || 'חידוש מאומת · סוד1820';
   const descSrc = insight.body || insight.proof || 'חידוש מאומת מבית המדרש של סוד1820 — השפה האלוקית של היקום.';

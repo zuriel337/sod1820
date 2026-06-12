@@ -27,19 +27,20 @@ export async function fetchInsight(id) {
 }
 
 // יעד הניווט לגולש אנושי: אם החידוש מקושר לפוסט — לפוסט; אחרת לבית המדרש.
-export function humanDestination(insight) {
+// base = מקור ההגשה בפועל (דומיין ה-Vercel הנוכחי או sod1820.co.il לאחר העברה).
+export function humanDestination(insight, base = SITE) {
   const ref = insight?.source_ref;
   if (typeof ref === 'string' && ref.trim()) {
     const v = ref.trim();
     if (/^https?:\/\//.test(v)) return v;
-    if (v.startsWith('/')) return `${SITE}${v}`;
+    if (v.startsWith('/')) return `${base}${v}`;
     const numeric = /^\d+$/.test(v);
     const isPost = !insight.source_type || insight.source_type === 'post';
     if (!(numeric && !isPost) && !/\s/.test(v) && v.length <= 200) {
-      return `${SITE}/${v.replace(/^\/+/, '')}`;
+      return `${base}/${v.replace(/^\/+/, '')}`;
     }
   }
-  return `${SITE}/beit-midrash`;
+  return `${base}/beit-midrash`;
 }
 
 export function clip(str, max) {

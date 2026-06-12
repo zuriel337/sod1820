@@ -9,14 +9,16 @@ import { C, F } from "../theme.js";
  * נייד: Web Share API (שיתוף מקורי). מחשב: וואטסאפ ואז fallback להעתקה.
  */
 
-// הדומיין הקנוני — כדי שכל שיתוף יצביע לפרודקשן (לא לדומיין preview).
+// בסיס הקישור = הדומיין שממנו האתר מוגש כרגע (sod1820.vercel.app היום,
+// sod1820.co.il לאחר העברת הדומיין). נופל חזרה לדומיין הקנוני אם אין window.
 const SITE = "https://sod1820.co.il";
+const base = (typeof window !== "undefined" && window.location.origin) || SITE;
 
 export default function ShareButton({ insight, source = "card" }) {
   const [copied, setCopied] = useState(false);
   if (!insight?.id) return null;
 
-  const url = `${SITE}/i/${insight.id}`;
+  const url = `${base}/i/${insight.id}`;
   const text = `${insight.title}\n\nחידוש מאומת ✓ מבית המדרש של סוד1820:`;
 
   async function handleShare(e) {
