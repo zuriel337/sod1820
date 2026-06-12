@@ -4,6 +4,7 @@ import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
+import { AuthProvider } from "./components/AuthProvider.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import StartHerePage from "./pages/StartHerePage.jsx";
 import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
@@ -37,9 +38,10 @@ function RouteEffects() {
 export default function App() {
   return (
     <BrowserRouter>
-      <RouteEffects />
-      <Routes>
-        <Route element={<Layout />}>
+      <AuthProvider>
+        <RouteEffects />
+        <Routes>
+          <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
@@ -75,7 +77,8 @@ export default function App() {
           <Route path="/:slug" element={<PostBySlugRoute />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-      </Routes>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

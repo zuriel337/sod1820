@@ -50,9 +50,20 @@ function Hero() {
 }
 
 // טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
+// תנועה: "זרקור" אוטומטי שעובר בין הכרטיסים כל 3 שניות (נעצר במעבר עכבר).
 function LatestPostsRail({ posts, onPost }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || posts.length < 2) return;
+    const t = setInterval(() => setActive(a => (a + 1) % posts.length), 3000);
+    return () => clearInterval(t);
+  }, [paused, posts.length]);
+
   return (
-    <div className="sod-pf" style={{ direction: "rtl" }}>
+    <div className="sod-pf" style={{ direction: "rtl" }}
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="sod-pf-head">
         <span className="sod-pf-dot" />
         <span className="sod-pf-title">עדכונים אחרונים</span>
@@ -70,7 +81,7 @@ function LatestPostsRail({ posts, onPost }) {
             <button
               key={p.id}
               onClick={() => onPost(p)}
-              className="sod-pf-card"
+              className={`sod-pf-card${i === active ? " is-active" : ""}`}
               style={{ animationDelay: `${i * 90}ms` }}
             >
               <span className="sod-pf-scan" />
@@ -231,11 +242,18 @@ export default function HomePage() {
           background: linear-gradient(${C.goldDim}, ${C.goldBright}, ${C.goldDim});
           opacity: 0.45; transition: opacity 0.28s, box-shadow 0.28s;
         }
-        .sod-pf-card:hover {
+        .sod-pf-card:hover,
+        .sod-pf-card.is-active {
           transform: translateY(-3px); border-color: ${C.gold};
           box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 24px rgba(212,175,55,0.14);
         }
-        .sod-pf-card:hover::before { opacity: 1; box-shadow: 0 0 14px ${C.goldBright}; }
+        .sod-pf-card:hover::before,
+        .sod-pf-card.is-active::before { opacity: 1; box-shadow: 0 0 14px ${C.goldBright}; }
+        .sod-pf-card.is-active .sod-pf-thumb { filter: brightness(1) saturate(1.05); }
+        .sod-pf-card.is-active .sod-pf-name { color: ${C.goldBright}; }
+        @media (prefers-reduced-motion: reduce) {
+          .sod-pf-card.is-active { transform: none; }
+        }
         .sod-pf-card:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
 
         /* קו סריקה במעבר עכבר */
