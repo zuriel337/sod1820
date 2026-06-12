@@ -5,15 +5,19 @@ import { ROUTE_META } from "./routes.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import { AuthProvider } from "./lib/AuthContext.jsx";
 import StartHerePage from "./pages/StartHerePage.jsx";
 import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
 import NumbersPage from "./pages/NumbersPage.jsx";
 import CodePage from "./pages/CodePage.jsx";
 import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import TimelinePage from "./pages/TimelinePage.jsx";
+import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import {
   ArchivePage, MembersPage, CommunityPage,
-  CommunityCalculatorPage, CommunityCommentsPage, BeitMidrashPage, MethodPage,
+  CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {
   PostsRoute, PostBySlugRoute, CategoryRoute, TagRoute, GematriaRoute,
@@ -35,10 +39,11 @@ function RouteEffects() {
 
 export default function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
-      <RouteEffects />
-      <Routes>
-        <Route element={<Layout />}>
+        <RouteEffects />
+        <Routes>
+          <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
@@ -56,7 +61,8 @@ export default function App() {
           <Route path="/members" element={<MembersPage />} />
           <Route path="/about" element={<AboutRoute />} />
           <Route path="/contact" element={<ContactRoute />} />
-          <Route path="/login" element={<LoginRoute />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
@@ -74,7 +80,8 @@ export default function App() {
           <Route path="/:slug" element={<PostBySlugRoute />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-      </Routes>
+        </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }

@@ -62,7 +62,7 @@ export default function DailyMessage() {
         boxShadow: `0 0 30px rgba(212,175,55,0.08)`,
       }}>
         <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", whiteSpace: "nowrap" }}>
-          ✨ המסר היומי
+          💎 פנינים
         </div>
         {msg.number != null && (
           <Link to={"/number/" + encodeURIComponent(msg.number)} style={{
