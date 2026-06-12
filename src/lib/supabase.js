@@ -125,6 +125,12 @@ export async function getPostBySlug(slug) {
   return data[0];
 }
 
+export async function getPostByWpId(wpId) {
+  if (!supabase || !wpId) return null;
+  const { data } = await supabase.from('posts').select('*').eq('wp_id', wpId).limit(1);
+  return data?.[0] ?? null;
+}
+
 export async function getGematriaByPhrases(phrases) {
   if (!supabase || !phrases?.length) return [];
   const { data } = await supabase

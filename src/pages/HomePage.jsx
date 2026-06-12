@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
 import { C, F, LOGO_URL, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
+import InsightCard from "../components/InsightCard.jsx";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
 function Hero() {
   return (
@@ -53,7 +55,7 @@ function LatestPostsRail({ posts, onPost }) {
     <div className="sod-pf" style={{ direction: "rtl" }}>
       <div className="sod-pf-head">
         <span className="sod-pf-dot" />
-        <span className="sod-pf-title">פוסטים אחרונים</span>
+        <span className="sod-pf-title">עדכונים אחרונים</span>
         <span className="sod-pf-line" />
         <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
@@ -102,13 +104,51 @@ function LatestPostsRail({ posts, onPost }) {
   );
 }
 
+// מקום מכובד בעמוד הבית — חידושי AI (3 אחרונים) + מעבר לבית המדרש.
+// חוק stream_separation: עדכוני צוריאל (פוסטים) נפרדים מחידושי AI.
+function AiInsightsBox({ insights }) {
+  return (
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
+      <div style={{
+        background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
+        border: `1px solid ${C.borderGold}`, borderRadius: 18, padding: "26px 22px",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
+          <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
+            🔵 חידושי AI
+          </h2>
+          <VerifiedBadge variant="ai" size={15} />
+          <span style={{ flex: 1 }} />
+          <Link to="/beit-midrash" style={{
+            color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12,
+            fontWeight: 700, letterSpacing: 1, padding: "8px 16px", borderRadius: 8,
+            border: `1px solid ${C.borderGold}`, background: "rgba(20,15,12,0.5)", whiteSpace: "nowrap",
+          }}>עוד בבית המדרש →</Link>
+        </div>
+        {insights.length ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+            {insights.map(it => <InsightCard key={it.id} insight={it} badgeVariant="ai" />)}
+          </div>
+        ) : (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: 8 }}>טוען חידושים…</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const nav = useLegacyNav();
   const [posts, setPosts] = useState([]);
+  const [aiInsights, setAiInsights] = useState([]);
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 5, orderBy: "modified" })
       .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
+      .catch(() => {});
+    getInsights({ origin: "ai", limit: 3 })
+      .then(setAiInsights)
       .catch(() => {});
   }, []);
 
@@ -139,6 +179,8 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <AiInsightsBox insights={aiInsights} />
 
       <style>{`
         @media (max-width: 1080px) {
