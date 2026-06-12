@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { GoldButton, RoyalDivider } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
+import VideoGallery from "../components/VideoGallery.jsx";
 import { LatestPostsSection, PostCard } from "../legacy/legacy.jsx";
 
 const NumberTree = lazy(() => import("../features/numbertree/NumberTree.jsx"));
@@ -181,6 +182,11 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <div style={{ padding: "20px 0" }}><RoyalDivider width={240} /></div>
+
+      {/* גלריית הסרטים — לרוחב */}
+      <VideoGallery />
 
       <div style={{ padding: "20px 0" }}><RoyalDivider width={240} /></div>
 
