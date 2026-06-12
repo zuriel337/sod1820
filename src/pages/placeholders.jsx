@@ -72,17 +72,28 @@ export function CommunityCommentsPage() {
     if (!unlocked || comments !== null) return;
     let alive = true;
     (async () => {
+      // PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים עד שמתרוקן
+      async function fetchAll(table, cols, order) {
+        const CH = 1000; const out = [];
+        for (let from = 0; ; from += CH) {
+          let qy = supabase.from(table).select(cols).range(from, from + CH - 1);
+          if (order) qy = qy.order(order, { ascending: false });
+          const { data } = await qy;
+          if (!data || !data.length) break;
+          out.push(...data);
+          if (data.length < CH) break;
+        }
+        return out;
+      }
       const [cms, ps] = await Promise.all([
-        supabase.from("comments")
-          .select("wp_id,post_wp_id,author_name,date,content")
-          .order("date", { ascending: false }),
-        supabase.from("posts").select("wp_id,title,slug"),
+        fetchAll("comments", "wp_id,post_wp_id,author_name,date,content", "date"),
+        fetchAll("posts", "wp_id,title,slug", null),
       ]);
       if (!alive) return;
       const map = {};
-      (ps.data || []).forEach(p => { map[p.wp_id] = { title: stripHtml(p.title || ""), slug: p.slug }; });
+      ps.forEach(p => { map[p.wp_id] = { title: stripHtml(p.title || ""), slug: p.slug }; });
       setPostMap(map);
-      setComments(cms.data || []);
+      setComments(cms);
     })();
     return () => { alive = false; };
   }, [unlocked, comments]);

@@ -153,29 +153,23 @@ export async function syncAllComments(onProgress) {
 
   while (page <= totalPages) {
     const res = await fetch(
-      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&_fields=id,post,parent,author_name,date,content,status`
+      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&orderby=id&order=asc&_fields=id,post,parent,author_name,date_gmt,content,status`
     );
     if (!res.ok) break;
     totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
     const data = await res.json();
 
-    // filter only comments whose post exists in our DB
-    const postIds = [...new Set(data.map(c => c.post))];
-    const { data: existingPosts } = await supabase
-      .from('posts').select('wp_id').in('wp_id', postIds);
-    const validIds = new Set((existingPosts ?? []).map(p => p.wp_id));
-
-    const rows = data
-      .filter(c => validIds.has(c.post))
-      .map(c => ({
-        wp_id:        c.id,
-        post_wp_id:   c.post,
-        parent_wp_id: c.parent ?? 0,
-        author_name:  c.author_name ?? '',
-        date:         c.date,
-        content:      c.content?.rendered ?? '',
-        status:       c.status ?? 'approved',
-      }));
+    // שומרים את כל התגובות (גם על פוסטים שעוד לא סונכרנו).
+    // status='publish' כדי שיהיו קריאות תחת ה-RLS הציבורי.
+    const rows = data.map(c => ({
+      wp_id:        c.id,
+      post_wp_id:   c.post,
+      parent_wp_id: c.parent ?? 0,
+      author_name:  c.author_name ?? '',
+      date:         (c.date_gmt ? c.date_gmt + '+00:00' : c.date),
+      content:      c.content?.rendered ?? '',
+      status:       'publish',
+    }));
 
     if (rows.length) {
       const { error } = await supabase
