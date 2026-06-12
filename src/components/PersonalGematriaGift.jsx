@@ -5,9 +5,9 @@ import { subscribeEmail } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
 
 /**
- * מתנת הצטרפות — דוח גימטריה אישי.
- * הגולש מזין שם + אימייל → נרשם (תלמידי ההיכל) → מקבל מיד דוח גימטריה אישי.
- * דחיפות עדינה ("מתנה למצטרפים החדשים"), בלי תחושת מכירה.
+ * דו״ח כניסה אישי להיכל — כלי פנימי (לא "מתנה"/מבצע).
+ * הגולש מזין שם + אימייל → נכנס למעגל (תלמידי ההיכל) → מקבל דו״ח גימטריה אישי
+ * ("מפת התדר האישי"). מסגור של מערכת/עומק/סטטוס, לא שיווק.
  */
 
 const digitRoot = n => { while (n > 9) n = String(n).split("").reduce((s, d) => s + +d, 0); return n; };
@@ -49,14 +49,14 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
     return (
       <div style={panel}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-          🎁 המתנה שלך מוכנה
+          📜 דו״ח הכניסה האישי שלך
         </div>
         <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 4 }}>{report.name}</div>
         <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 56, fontWeight: 800, lineHeight: 1, textShadow: "0 0 30px rgba(212,175,55,0.4)" }}>
           {report.val}
         </div>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, margin: "6px 0 16px" }}>
-          הגימטריה של שמך · שורש {digitRoot(report.val)}
+          התדר האישי שלך (גימטריית השם) · שורש {digitRoot(report.val)}
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", marginBottom: 18 }}>
@@ -81,7 +81,7 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
         </Link>
 
         <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 14, fontWeight: 700, marginTop: 18 }}>
-          ✦ נרשמתם בהצלחה — ברוכים הבאים לתלמידי ההיכל 🙏
+          ✦ נכנסתם למעגל ההיכל — ברוכים הבאים לתלמידי ההיכל 🙏
         </div>
       </div>
     );
@@ -98,10 +98,10 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
       <img src={LOGO_URL} alt="סוד 1820" width={42} height={42}
         style={{ borderRadius: "50%", objectFit: "cover", marginBottom: 10, filter: "drop-shadow(0 0 14px rgba(232,200,74,0.5))" }} />
       <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(19px,3vw,24px)", fontWeight: 700, lineHeight: 1.35 }}>
-        🎁 מתנה למצטרפים החדשים
+        📜 דו״ח כניסה אישי להיכל
       </div>
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 440, margin: "8px auto 20px" }}>
-        גלו את <b style={{ color: C.goldLight }}>דוח הגימטריה האישי</b> של שמכם — והצטרפו לתלמידי ההיכל כדי לקבל את החידושים לפני כולם.
+      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 460, margin: "8px auto 20px" }}>
+        כחלק מהכניסה למעגל ההיכל, כל חבר מקבל <b style={{ color: C.goldLight }}>דו״ח גימטריה אישי</b> — כלי להבנת השם והתדר האישי בתוך המערכת.
       </p>
       <form onSubmit={submit} style={{ display: "grid", gap: 10, maxWidth: 360, margin: "0 auto" }}>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="השם שלכם (בעברית)" style={inputStyle} />
@@ -111,11 +111,11 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
           padding: "13px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
           background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
           fontFamily: F.heading, fontSize: 15, fontWeight: 800,
-        }}>{busy ? "מחשב…" : "גלו את הדוח שלי 🎁"}</button>
+        }}>{busy ? "מפיק…" : "הפיקו את דו״ח הכניסה שלי"}</button>
       </form>
       {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 10 }}>{err}</div>}
       <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 0.3, marginTop: 12, opacity: 0.7 }}>
-        חינם · ללא התחייבות · אפשר לבטל בכל רגע
+        הכניסה מצרפת אתכם למעגל ההיכל ולעדכוני המערכת
       </div>
     </div>
   );
