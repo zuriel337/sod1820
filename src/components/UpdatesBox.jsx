@@ -72,7 +72,7 @@ export default function UpdatesBox({
   );
   const success = (
     <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>
-      ✦ אתם בפנים — תודה! נתראה בעדכון הבא.
+      ✦ אתם בפנים! 🙏❤️ תודה שאתם איתנו. נתראה בעדכון הבא.
     </div>
   );
 
