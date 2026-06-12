@@ -1,77 +1,78 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
 import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
-import { GoldButton } from "../components/ui.jsx";
+import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
-import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 
-// כותרת מתחלפת — CSS fade בלבד, טיימר יחיד (זניח לביצועים)
-const HERO_PHRASES = [
-  "השם 1820 פעם בתורה",
-  "ציר ההתגלות · עץ המספרים · הצופן",
-  "כל לחיצה — מסלול חקירה חדש",
-];
-
-function Hero() {
-  const [phrase, setPhrase] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setPhrase(p => (p + 1) % HERO_PHRASES.length), 3800);
-    return () => clearInterval(t);
-  }, []);
-
+// רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
+function BrandStrip() {
   return (
-    <section className="sod-hero">
-      {/* אורבי זוהר — transform/opacity בלבד (GPU), בלי canvas */}
-      <span className="sod-hero-orb o1" aria-hidden />
-      <span className="sod-hero-orb o2" aria-hidden />
-      <div className="sod-hero-inner">
-        <div className="sod-hero-eyebrow">SOD1820</div>
-        <h1 className="sod-hero-title" key={phrase}>{HERO_PHRASES[phrase]}</h1>
-        <p className="sod-hero-sub">
-          ציר ההתגלות, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
-        </p>
-        <div className="sod-hero-cta">
-          <GoldButton to="/start">היכנס לצופן →</GoldButton>
-          <GoldButton to="/map" variant="secondary">מרכז הניווט</GoldButton>
-        </div>
-      </div>
+    <section className="sod-brand">
+      <span className="sod-brand-mark">סוד 1820</span>
+      <span className="sod-brand-tag">בינה מלאכותית בשירות הגאולה</span>
     </section>
   );
 }
 
-// שערי החדר — רצועת כניסה סימטרית לחדרי המערכת (מתחבר להיכל השערים)
+// שערי המערכת — כרגע כל הדפים סגורים → מצב "🔒 בקרוב". הצופן = ELS (לא קשור ל-1820).
 const GATES = [
-  { to: "/timeline", icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
-  { to: "/numbers", icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
-  { to: "/beit-midrash", icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
-  { to: "/code", icon: "🔯", title: "הצופן התנ\"כי", sub: "השם 1820 פעם" },
+  { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline", open: true },
+  { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
+  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI · בהקמה" },
+  { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
 
 function GatesDeck() {
   return (
     <section className="sod-gates-wrap">
-      <div className="sod-gates-eyebrow">⟡ שערי החדר</div>
+      <div className="sod-gates-eyebrow">⟡ שערי המערכת</div>
       <div className="sod-gates">
-        {GATES.map(g => (
-          <Link key={g.to} to={g.to} className="sod-gate">
+        {GATES.map(g => g.open ? (
+          <Link key={g.title} to={g.to} className="sod-gate">
             <span className="sod-gate-holo" aria-hidden />
             <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
             <span className="sod-gate-icon">{g.icon}</span>
             <span className="sod-gate-title">{g.title}</span>
             <span className="sod-gate-sub">{g.sub}</span>
-            <span className="sod-gate-go">היכנס →</span>
+            <span className="sod-gate-go sod-gate-open">✦ נפתח →</span>
           </Link>
+        ) : (
+          <div key={g.title} className="sod-gate is-locked" aria-disabled="true">
+            <span className="sod-gate-holo" aria-hidden />
+            <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
+            <span className="sod-gate-icon">{g.icon}</span>
+            <span className="sod-gate-title">{g.title}</span>
+            <span className="sod-gate-sub">{g.sub}</span>
+            <span className="sod-gate-go">🔒 בקרוב</span>
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-// טור ימין — 5 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
+// פרומו "ברוכים הבאים" — מתחת לשני הטורים. לוגו + ברכה + כפתור הרשמה (הפעולה הראשית כל עוד הכל נעול).
+function WelcomePromo() {
+  return (
+    <section className="sod-welcome">
+      <div style={{ textAlign: "center", maxWidth: 560, margin: "0 auto 18px" }}>
+        <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,3.4vw,30px)", fontWeight: 700, margin: "0 0 8px" }}>
+          ברוכים הבאים לעולם החדש
+        </h2>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: 0 }}>
+          המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות. תודה שאתם צועדים איתנו מההתחלה 🙏❤️
+        </p>
+      </div>
+      <PersonalGematriaGift source="home-welcome" />
+    </section>
+  );
+}
+
+// טור ימין — 6 הפוסטים האחרונים לפי תאריך עדכון אחרון · עיצוב עתידני (HUD + זכוכית)
 // תנועה: "זרקור" אוטומטי שעובר בין הכרטיסים כל 3 שניות (נעצר במעבר עכבר).
 function LatestPostsRail({ posts, onPost }) {
   const [active, setActive] = useState(0);
@@ -147,11 +148,10 @@ function LatestPostsRail({ posts, onPost }) {
   );
 }
 
-// מקום מכובד בעמוד הבית — חידושי AI (3 אחרונים) + מעבר לבית המדרש.
-// חוק stream_separation: עדכוני צוריאל (פוסטים) נפרדים מחידושי AI.
-function AiInsightsBox({ insights }) {
+// חידושי AI — בבנייה. נפתח בעוד שבוע (ספירה לאחור). מעל גלריית הסרטים.
+function AiInsightsBox() {
   return (
-    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 16px", direction: "rtl" }}>
       <div style={{
         background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
         border: `1px solid ${C.borderGold}`, borderRadius: 18, padding: "26px 22px",
@@ -163,19 +163,88 @@ function AiInsightsBox({ insights }) {
           </h2>
           <VerifiedBadge variant="ai" size={15} />
           <span style={{ flex: 1 }} />
-          <Link to="/beit-midrash" style={{
-            color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12,
-            fontWeight: 700, letterSpacing: 1, padding: "8px 16px", borderRadius: 8,
-            border: `1px solid ${C.borderGold}`, background: "rgba(20,15,12,0.5)", whiteSpace: "nowrap",
-          }}>עוד בבית המדרש →</Link>
+          <span className="sod-soon">🚧 בבנייה</span>
         </div>
-        {insights.length ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-            {insights.map(it => <InsightCard key={it.id} insight={it} badgeVariant="ai" />)}
-          </div>
-        ) : (
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: 8 }}>טוען חידושים…</div>
-        )}
+        <div style={{ textAlign: "center", padding: "10px 8px 4px" }}>
+          <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 22px" }}>
+            החידושים החדשים שמופקים בעזרת בינה מלאכותית בדרך אליכם. נפתח בעוד שבוע:
+          </p>
+          <Countdown target={AI_LAUNCH} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ===== ספירה לאחור משותפת =====
+// יעדים: חידושי AI — שבוע · ארכיון ההתגלות — שבוע. נעדכן כשנפתח לאוויר.
+const AI_LAUNCH = new Date("2026-06-19T20:00:00+03:00").getTime();
+const ARCHIVE_LAUNCH = new Date("2026-06-19T20:00:00+03:00").getTime();
+
+function useCountdown(target) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, target - now);
+  return {
+    d: Math.floor(diff / 86400000),
+    h: Math.floor((diff % 86400000) / 3600000),
+    m: Math.floor((diff % 3600000) / 60000),
+    s: Math.floor((diff % 60000) / 1000),
+  };
+}
+
+function Countdown({ target }) {
+  const { d, h, m, s } = useCountdown(target);
+  const unit = (val, label) => (
+    <div className="sod-cd-unit">
+      <span className="sod-cd-num">{String(val).padStart(2, "0")}</span>
+      <span className="sod-cd-lab">{label}</span>
+    </div>
+  );
+  return (
+    <div className="sod-cd">
+      {unit(d, "ימים")}<span className="sod-cd-sep">:</span>
+      {unit(h, "שעות")}<span className="sod-cd-sep">:</span>
+      {unit(m, "דקות")}<span className="sod-cd-sep">:</span>
+      {unit(s, "שניות")}
+    </div>
+  );
+}
+
+const ARCHIVE_FEATURES = [
+  { e: "🌳", t: "לראות כל תמונה מחוברת לעץ המספרים ולערכים שלה" },
+  { e: "🔍", t: "לגלות קשרים נסתרים בין גלריות, פוסטים וצפנים" },
+  { e: "📜", t: "לנווט לפי שנים, אירועים, מספרי אם ונושאים" },
+  { e: "🤖", t: "ליהנות מחיבורים חדשים שמופקים בעזרת בינה מלאכותית" },
+  { e: "💎", t: "לפתוח שכבות עומק והפתעות שלא נחשפו מעולם" },
+];
+
+function ArchiveBox() {
+  return (
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
+      <div className="sod-arch">
+        <div className="sod-arch-head">
+          <h2 className="sod-arch-title">🖼️ ארכיון ההתגלות</h2>
+          <span className="sod-soon">🔒 בקרוב</span>
+        </div>
+        <p className="sod-arch-lead">עשר שנות מחקר. אלפי תמונות. אינספור רמזים, במקום אחד.</p>
+        <p className="sod-arch-text">
+          כאן נבנה מאגר חי שיחבר בין הגלריות הוותיקות, עץ המספרים, הגימטריות והצפנים,
+          ויהפוך כל תמונה לשער לעולם שלם של משמעות.
+        </p>
+        <div className="sod-arch-sub">✨ בקרוב תוכלו:</div>
+        <ul className="sod-arch-list">
+          {ARCHIVE_FEATURES.map((f, i) => (
+            <li key={i}><span className="sod-arch-emo">{f.e}</span>{f.t}</li>
+          ))}
+        </ul>
+        <p className="sod-arch-foot">
+          זו לא רק גלריה. זה ארכיון חי של התגלות, שבו כל תמונה היא רמז, וכל רמז פותח שער חדש.
+        </p>
+        <Countdown target={ARCHIVE_LAUNCH} />
       </div>
     </section>
   );
@@ -184,20 +253,16 @@ function AiInsightsBox({ insights }) {
 export default function HomePage() {
   const nav = useLegacyNav();
   const [posts, setPosts] = useState([]);
-  const [aiInsights, setAiInsights] = useState([]);
 
   useEffect(() => {
-    getPostsFromSupabase({ limit: 5, orderBy: "modified" })
+    getPostsFromSupabase({ limit: 6, orderBy: "modified" })
       .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
-      .catch(() => {});
-    getInsights({ origin: "ai", limit: 3 })
-      .then(setAiInsights)
       .catch(() => {});
   }, []);
 
   return (
     <div style={{ direction: "rtl" }}>
-      <Hero />
+      <BrandStrip />
       <GatesDeck />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
@@ -216,6 +281,7 @@ export default function HomePage() {
                 src="/heichal.html"
                 title="היכל השערים"
                 loading="lazy"
+                allow="autoplay"
                 style={{ width: "100%", height: "min(82vh, 720px)", border: "none", display: "block" }}
               />
             </div>
@@ -223,59 +289,76 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* גלריית הסרטים — לרוחב */}
+      {/* פרומו ברוכים הבאים — מתחת לשני הטורים */}
+      <WelcomePromo />
+
+      {/* חידושי AI מעל גלריית הסרטים */}
+      <AiInsightsBox />
+
+      {/* גלריית הסרטים — מתחת לחידושי AI */}
       <VideoGallery />
 
-      <AiInsightsBox insights={aiInsights} />
+      {/* ארכיון ההתגלות — הריבוע הגדול (מקום הגלריות) */}
+      <ArchiveBox />
 
       <style>{`
         @media (max-width: 1080px) {
           .sod-home-grid { grid-template-columns: 1fr !important; }
         }
 
-        /* ===== Hero — באנר זכוכית קליל ===== */
-        .sod-hero {
-          position: relative; overflow: hidden;
-          display: flex; align-items: center; justify-content: center;
-          text-align: center; padding: 56px 24px 40px;
-          background: radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 60%);
-        }
-        .sod-hero-inner { position: relative; z-index: 2; max-width: 740px; }
-        .sod-hero-eyebrow {
-          font-size: 10px; color: ${C.goldDim}; letter-spacing: 7px; margin-bottom: 16px;
-          font-family: ${F.cinzel}; text-transform: uppercase;
-        }
-        .sod-hero-title {
-          color: ${C.goldBright}; margin: 0 0 16px; min-height: 1.2em;
-          font-size: clamp(28px, 5vw, 52px); font-family: ${F.regal}; font-weight: 700;
-          letter-spacing: 2px; line-height: 1.2;
-          text-shadow: 0 0 60px rgba(212,175,55,0.4), 0 2px 4px rgba(0,0,0,0.8);
-          animation: sod-hero-fade 0.7s ease;
-        }
-        @keyframes sod-hero-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .sod-hero-sub {
-          color: ${C.goldDim}; font-size: clamp(14px, 2vw, 17px); font-family: ${F.body};
-          line-height: 2; max-width: 560px; margin: 0 auto 28px;
-        }
-        .sod-hero-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-        .sod-hero-orb {
-          position: absolute; border-radius: 50%; pointer-events: none; z-index: 1;
-          filter: blur(42px); opacity: 0.5; will-change: transform;
-        }
-        .sod-hero-orb.o1 {
-          width: 240px; height: 240px; top: -50px; right: 12%;
-          background: radial-gradient(circle, rgba(212,175,55,0.28), transparent 70%);
-          animation: sod-orb-a 14s ease-in-out infinite;
-        }
-        .sod-hero-orb.o2 {
-          width: 200px; height: 200px; bottom: -60px; left: 14%;
-          background: radial-gradient(circle, rgba(107,63,160,0.26), transparent 70%);
-          animation: sod-orb-b 18s ease-in-out infinite;
-        }
-        @keyframes sod-orb-a { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-24px, 20px); } }
-        @keyframes sod-orb-b { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(28px, -18px); } }
+        /* ===== חזית הבית — רצועת מותג · שערים · פרומו ===== */
 
-        /* ===== שערי החדר ===== */
+        /* ===== רצועת מותג ===== */
+        .sod-brand { text-align: center; padding: 30px 20px 4px; direction: rtl; }
+        .sod-brand-mark {
+          display: block; font-family: ${F.cinzel}; font-size: clamp(26px, 4vw, 40px);
+          font-weight: 700; letter-spacing: 6px; color: ${C.goldBright};
+          text-shadow: 0 0 40px rgba(212,175,55,0.35);
+        }
+        .sod-brand-tag {
+          display: block; margin-top: 8px; font-family: ${F.heading};
+          font-size: 12px; letter-spacing: 3px; color: ${C.goldDim};
+        }
+
+        /* ===== פרומו ברוכים הבאים ===== */
+        .sod-welcome { max-width: 1360px; margin: 0 auto; padding: 6px 18px 20px; text-align: center; direction: rtl; }
+
+        /* ===== ארכיון ההתגלות — ריבוע גדול + ספירה לאחור ===== */
+        .sod-arch {
+          background: linear-gradient(135deg, rgba(132,88,255,0.07), rgba(62,166,255,0.05), rgba(8,5,2,0.45));
+          border: 1px solid ${C.borderGold}; border-radius: 18px; padding: 44px 30px 38px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.45); text-align: center;
+        }
+        .sod-arch-head { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+        .sod-arch-title { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(24px,3.6vw,34px); font-weight: 700; margin: 0; text-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        /* תג אחיד "בבנייה / בקרוב" לכל המדורים */
+        .sod-soon {
+          padding: 4px 14px; border-radius: 999px; border: 1px solid ${C.borderGold};
+          background: rgba(212,175,55,0.08); color: ${C.goldBright};
+          font-family: ${F.heading}; font-size: 12px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+        }
+        .sod-arch-lead { color: ${C.goldLight}; font-family: ${F.regal}; font-size: clamp(16px,2.2vw,20px); font-weight: 700; margin: 0 auto 14px; max-width: 680px; line-height: 1.7; }
+        .sod-arch-text { color: ${C.goldDim}; font-family: ${F.body}; font-size: 15.5px; line-height: 1.95; margin: 0 auto 24px; max-width: 680px; }
+        .sod-arch-sub { color: ${C.goldBright}; font-family: ${F.heading}; font-size: 14px; font-weight: 700; letter-spacing: 1px; margin-bottom: 14px; }
+        .sod-arch-list { list-style: none; margin: 0 auto 26px; padding: 0; max-width: 600px; text-align: right; display: grid; gap: 11px; }
+        .sod-arch-list li { color: ${C.goldLight}; font-family: ${F.body}; font-size: 15px; line-height: 1.6; display: flex; gap: 11px; align-items: flex-start; }
+        .sod-arch-emo { flex: 0 0 auto; font-size: 18px; line-height: 1.4; }
+        .sod-arch-foot { color: ${C.goldDim}; font-family: ${F.regal}; font-size: clamp(15px,2vw,18px); font-style: italic; line-height: 1.8; margin: 0 auto 30px; max-width: 660px; }
+
+        /* ספירה לאחור */
+        .sod-cd { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .sod-cd-unit {
+          display: flex; flex-direction: column; align-items: center; gap: 6px;
+          min-width: 72px; padding: 14px 10px; border-radius: 12px;
+          border: 1px solid ${C.borderGold}; background: rgba(8,5,2,0.55);
+          box-shadow: inset 0 1px 0 rgba(246,226,122,0.06);
+        }
+        .sod-cd-num { font-family: ${F.mono}; font-size: clamp(26px,4vw,38px); font-weight: 800; color: ${C.goldBright}; line-height: 1; text-shadow: 0 0 18px rgba(212,175,55,0.35); }
+        .sod-cd-lab { font-family: ${F.heading}; font-size: 11px; letter-spacing: 2px; color: ${C.goldDim}; }
+        .sod-cd-sep { color: ${C.goldDim}; font-family: ${F.mono}; font-size: 26px; font-weight: 800; align-self: flex-start; margin-top: 10px; }
+        @media (max-width: 460px) { .sod-cd-sep { display: none; } .sod-cd-unit { min-width: 64px; } }
+
+        /* ===== שערי המערכת ===== */
         .sod-gates-wrap { max-width: 1360px; margin: 0 auto; padding: 8px 18px 6px; direction: rtl; }
         .sod-gates-eyebrow {
           text-align: center; font-size: 11px; color: ${C.goldDim}; letter-spacing: 4px;
@@ -315,10 +398,24 @@ export default function HomePage() {
           opacity: 0; transform: translateY(4px); transition: opacity 0.28s, transform 0.28s;
         }
         .sod-gate:hover .sod-gate-go { opacity: 1; transform: translateY(0); }
+        /* שער פתוח — "נפתח" תמיד גלוי, מודגש */
+        .sod-gate-go.sod-gate-open {
+          opacity: 1; transform: none; color: ${C.goldBright};
+          text-shadow: 0 0 14px rgba(212,175,55,0.5);
+        }
+        /* מצב נעול — "בקרוב": בלי הרמה, התווית תמיד גלויה */
+        .sod-gate.is-locked { cursor: default; }
+        .sod-gate.is-locked:hover {
+          transform: none; border-color: ${C.borderGold};
+          box-shadow: inset 0 1px 0 rgba(246,226,122,0.06);
+        }
+        .sod-gate.is-locked:hover .sod-gate-holo { opacity: 0; animation: none; }
+        .sod-gate.is-locked .sod-gate-go {
+          opacity: 1; transform: none; color: ${C.muted}; letter-spacing: 0.5px;
+        }
         @media (max-width: 760px) { .sod-gates { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 420px) { .sod-gates { grid-template-columns: 1fr; } }
         @media (prefers-reduced-motion: reduce) {
-          .sod-hero-orb, .sod-hero-title { animation: none; }
           .sod-gate:hover .sod-gate-holo { animation: none; }
         }
 
@@ -429,7 +526,12 @@ export default function HomePage() {
         .sod-pf-corner.tl { top: 4px; right: 4px; border-top: 1.5px solid; border-right: 1.5px solid; }
         .sod-pf-corner.br { bottom: 4px; left: 4px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
 
-        .sod-pf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; padding-left: 4px; }
+        .sod-pf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; padding-left: 30px; }
+        @media (max-width: 1080px) {
+          .sod-pf-idx { font-size: 17px; top: 5px; left: 8px; }
+          .sod-pf-body { padding-left: 26px; }
+          .sod-pf-name { font-size: 15px; }
+        }
         .sod-pf-name {
           color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14px; font-weight: 700; line-height: 1.42;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;

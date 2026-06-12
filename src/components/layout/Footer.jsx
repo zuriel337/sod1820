@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F, LOGO_URL } from "../../theme.js";
 import UpdatesBox from "../UpdatesBox.jsx";
 
-// עמודות נושאיות לפי המוקאפ — ההיכל (כלים) · הגנזך (תוכן) · השער (קשר והצטרפות)
+// עמודות נושאיות — ההיכל (כלים) · הגנזך (תוכן) · השער (קשר והצטרפות)
 const COLUMNS = [
   {
     title: "ההיכל",
@@ -11,16 +11,16 @@ const COLUMNS = [
       { label: "עץ המספרים", to: "/numbers" },
       { label: "ציר ההתגלות", to: "/timeline" },
       { label: 'הצופן התנ"כי', to: "/code" },
-      { label: "מספרי־אם", to: "/beit-midrash/em" },
+      { label: "מספרי אם", to: "/beit-midrash/em" },
     ],
   },
   {
     title: "הגנזך",
     links: [
       { label: "פוסטים", to: "/post" },
-      { label: "ארכיון ההתגלות", to: "/archive" },
       { label: "בית המדרש", to: "/beit-midrash" },
       { label: "בני ההיכל", to: "/members" },
+      { label: "קהילה", to: "/community" },
     ],
   },
   {
@@ -29,92 +29,184 @@ const COLUMNS = [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
       { label: "אודות", to: "/about" },
-      { label: "קהילה", to: "/community" },
+      { label: "צור קשר", to: "/contact" },
     ],
   },
 ];
 
+// רשתות — אייקוני מותג אמיתיים (SVG) כדי שיהיו מזוהים
 const SOCIAL = [
-  { label: "Facebook", href: "https://www.facebook.com/sod1820", path: "M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" },
-  { label: "TikTok", href: "https://www.tiktok.com/@sod_1820", path: "M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.3v12.1a2.4 2.4 0 1 1-2.4-2.4c.2 0 .5 0 .7.1V9.5a5.7 5.7 0 0 0-.7 0 5.6 5.6 0 1 0 5.6 5.6V9.3a7.5 7.5 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z" },
+  {
+    label: "אינסטגרם", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" /><circle cx="12" cy="12" r="4.4" />
+        <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    label: "וואטסאפ", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "פייסבוק — הדף", href: "https://www.facebook.com/sod1820",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" />
+      </svg>
+    ),
+  },
+  {
+    label: "פייסבוק — אישי", href: "https://www.facebook.com/share/1ECyfiRu3e/",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" />
+      </svg>
+    ),
+  },
+  {
+    label: "TikTok", href: "https://www.tiktok.com/@sod_1820",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.3v12.1a2.4 2.4 0 1 1-2.4-2.4c.2 0 .5 0 .7.1V9.5a5.7 5.7 0 0 0-.7 0 5.6 5.6 0 1 0 5.6 5.6V9.3a7.5 7.5 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z" />
+      </svg>
+    ),
+  },
 ];
+
+const FOOTER_CSS = `
+  .foot { border-top: 1px solid ${C.border}; background: linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%);
+    padding: 52px 28px 26px; direction: rtl; position: relative; z-index: 1; }
+  .foot-main { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between;
+    align-items: flex-start; flex-wrap: wrap; gap: 36px; padding-bottom: 34px; }
+  .foot-brand { min-width: 240px; flex: 1.4; max-width: 340px; }
+  .foot-cols { display: flex; gap: 40px; flex-wrap: wrap; }
+  .foot-col { min-width: 130px; }
+  .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 22px; border-top: 1px solid ${C.faint};
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px;
+    font-size: 11px; color: ${C.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
+
+  /* לוגו עם סריקת-AI */
+  .foot-logo { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
+  .foot-logo img { width: 46px; height: 46px; object-fit: contain; position: relative; z-index: 2; }
+  .foot-logo .ai-ring { position: absolute; inset: -7px; border: 1px dashed rgba(212,175,55,0.55);
+    border-radius: 50%; animation: foot-ring 9s linear infinite; }
+  .foot-logo .ai-ring::before { content: "AI"; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+    font-family: ${F.mono}; font-size: 8px; font-weight: 800; color: ${C.goldBright};
+    background: ${C.surface}; padding: 0 3px; letter-spacing: 1px; }
+  .foot-logo .ai-scan { position: absolute; inset: 0; overflow: hidden; border-radius: 8px; z-index: 3; pointer-events: none; }
+  .foot-logo .ai-scan::after { content: ""; position: absolute; left: -10%; right: -10%; height: 34%;
+    background: linear-gradient(180deg, transparent, rgba(246,226,122,0.55), transparent);
+    animation: foot-scan 2.8s ease-in-out infinite; }
+  @keyframes foot-ring { to { transform: rotate(360deg); } }
+  @keyframes foot-scan { 0% { transform: translateY(-130%); } 100% { transform: translateY(330%); } }
+
+  .foot-social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid ${C.borderGold};
+    background: ${C.surface2}; display: inline-flex; align-items: center; justify-content: center;
+    color: ${C.goldBright}; font-size: 18px; text-decoration: none; transition: all 0.2s; }
+  .foot-social a:hover { background: ${C.gold}; color: ${C.bg}; box-shadow: 0 0 16px ${C.goldDim}; }
+  .foot-link { color: ${C.goldDim}; text-decoration: none; font-size: 13.5px; font-family: ${F.heading};
+    padding: 6px 0; display: block; transition: color 0.18s; }
+  .foot-link:hover { color: ${C.goldBright}; }
+
+  @media (max-width: 760px) {
+    .foot { padding: 40px 20px 24px; text-align: center; }
+    .foot-main { flex-direction: column; align-items: center; gap: 30px; }
+    .foot-brand { max-width: 100%; }
+    .foot-cols { justify-content: center; gap: 30px; width: 100%; }
+    .foot-col { min-width: 0; flex: 1; text-align: center; }
+    .foot-brand-head, .foot-social { justify-content: center !important; }
+    .foot-bottom { justify-content: center; text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .foot-logo .ai-ring, .foot-logo .ai-scan::after { animation: none; }
+  }
+`;
 
 export default function Footer() {
   return (
-    <footer style={{
-      borderTop: `1px solid ${C.border}`,
-      background: `linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%)`,
-      padding: "56px 36px 28px",
-      direction: "rtl",
-      position: "relative",
-      zIndex: 1,
-    }}>
+    <footer className="foot">
+      <style>{FOOTER_CSS}</style>
+
       <UpdatesBox variant="inline" source="footer" />
 
-      <div style={{
-        maxWidth: 1040, margin: "0 auto", display: "flex",
-        justifyContent: "space-between", alignItems: "flex-start",
-        flexWrap: "wrap", gap: 36, paddingBottom: 36,
-      }}>
+      <div className="foot-main">
         {/* מותג */}
-        <div style={{ minWidth: 240, flex: 1.4, maxWidth: 320 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-            <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 40, width: "auto" }} />
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, lineHeight: 1.1 }}>
-              סוד 1820
+        <div className="foot-brand">
+          <div className="foot-brand-head" style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 14 }}>
+            <span className="foot-logo">
+              <span className="ai-ring" aria-hidden />
+              <span className="ai-scan" aria-hidden />
+              <img src={LOGO_URL} alt="SOD1820" />
+            </span>
+            {/* שתי שורות מקבילות לגובה הלוגו */}
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.18 }}>
+              <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד 1820</span>
+              <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
             </div>
           </div>
           <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
-            השפה האלוקית של היקום
+            אתר רמזי הגאולה הגדול בעולם
           </div>
-          <div style={{ fontSize: 12.5, color: C.muted, fontFamily: F.body, lineHeight: 1.9, maxWidth: 290 }}>
-            עשר שנות מחקר · מאגר חי · וכלים לקרוא את המציאות בשפת המספרים.
+          <div style={{ fontSize: 13, color: C.muted, fontFamily: F.heading, lineHeight: 1.9 }}>
+            13 שנות מחקר • מאגר חי • כלים לקריאת המציאות בשפת המספרים
           </div>
-          <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
+
+          {/* קריאה לעקוב בטיקטוק */}
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 16 }}>
+            🎬 אל תשכחו לעקוב אחרינו בטיקטוק – המקום שבו הרמזים הופכים למציאות, וההתגלויות נחשפות בזמן אמת. 🚀
+          </div>
+
+          <div className="foot-social" style={{ display: "flex", gap: 12, marginTop: 14 }}>
             {SOCIAL.map(s => (
-              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}
-                style={{
-                  width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.borderGold}`,
-                  background: C.surface2, display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  color: C.goldBright, transition: "all 0.2s",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = C.gold; e.currentTarget.style.color = C.bg; e.currentTarget.style.boxShadow = `0 0 16px ${C.goldDim}`; }}
-                onMouseLeave={e => { e.currentTarget.style.background = C.surface2; e.currentTarget.style.color = C.goldBright; e.currentTarget.style.boxShadow = "none"; }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={s.path} /></svg>
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
+                {s.svg}
               </a>
             ))}
+          </div>
+
+          {/* וואטסאפ — קבוצה + טלפון */}
+          <div style={{ marginTop: 18 }}>
+            <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)",
+                color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800,
+                padding: "10px 18px", borderRadius: 999, boxShadow: "0 0 16px rgba(31,170,85,0.35)" }}>
+              💬 קבוצת הגימטריה בוואטסאפ
+            </a>
+            <div style={{ marginTop: 10 }}>
+              <a href="https://wa.me/972556651237" target="_blank" rel="noopener noreferrer"
+                style={{ color: C.goldDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>
+                🤝 וואטסאפ לשיתופי פעולה · 055-6651237
+              </a>
+            </div>
           </div>
         </div>
 
         {/* עמודות הקישורים */}
-        {COLUMNS.map(col => (
-          <div key={col.title} style={{ minWidth: 150 }}>
-            <div style={{ fontSize: 13, color: C.goldLight, fontFamily: F.regal, fontWeight: 700, marginBottom: 14 }}>
-              {col.title}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <div className="foot-cols">
+          {COLUMNS.map(col => (
+            <div key={col.title} className="foot-col">
+              <div style={{ fontSize: 13, color: C.goldLight, fontFamily: F.regal, fontWeight: 700, marginBottom: 12 }}>
+                {col.title}
+              </div>
               {col.links.map(l => (
-                <Link key={l.to} to={l.to} style={{
-                  color: C.goldDim, textDecoration: "none", fontSize: 13,
-                  fontFamily: F.body, padding: "6px 0", transition: "color 0.18s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.color = C.goldBright; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = C.goldDim; }}
-                >{l.label}</Link>
+                <Link key={l.to} to={l.to} className="foot-link">{l.label}</Link>
               ))}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <div style={{
-        maxWidth: 1040, margin: "0 auto", paddingTop: 26,
-        borderTop: `1px solid ${C.faint}`, display: "flex",
-        justifyContent: "space-between", flexWrap: "wrap", gap: 12,
-        fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 1,
-      }}>
+      <div className="foot-bottom">
         <span>© {new Date().getFullYear()} סוד 1820 · כל הזכויות שמורות</span>
+        <span style={{ opacity: 0.85 }}>
+          מוזיקה: "Strength of the Titans" — Kevin MacLeod (incompetech.com) · CC BY 4.0
+        </span>
         <span style={{ color: C.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
       </div>
     </footer>

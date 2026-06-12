@@ -143,7 +143,7 @@ export default function RevelationAxis() {
       <button onClick={() => nav("/timeline")} style={{
         position: "absolute", bottom: "1.8%", left: 0, width: 86, background: "none", border: "none",
         color: C.goldDim, fontFamily: F.heading, fontSize: 16, cursor: "pointer", pointerEvents: "auto",
-      }} aria-label="אל ציר ההתגלות המלא">🛤</button>
+      }} aria-label="אל ציר ההתגלות המלא">🌅</button>
     </div>
   );
 }

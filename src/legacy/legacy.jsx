@@ -1619,6 +1619,20 @@ function AboutPage({ onNav, pageContent, adminMode }) {
             ))}
           </div>
         </div>
+
+        <div style={{ margin: "26px 0 0" }}><RoyalDivider width={120} /></div>
+        <div style={{ textAlign: "center", marginTop: 22 }}>
+          <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)", color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "12px 22px", borderRadius: 999, boxShadow: "0 0 18px rgba(31,170,85,0.4)" }}>
+            💬 הצטרפו לקבוצת הגימטריה בוואטסאפ
+          </a>
+          <div style={{ marginTop: 12 }}>
+            <a href="https://wa.me/972556651237" target="_blank" rel="noopener noreferrer"
+              style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.body, fontSize: 14 }}>
+              📞 וואטסאפ ישיר · 055-6651237
+            </a>
+          </div>
+        </div>
       </div>
 
       <div style={{
@@ -4577,7 +4591,7 @@ function ContactPage() {
               }}>✦</div>
               <div>
                 <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
-                  יוסי וינר
+                  צוריאל
                 </div>
                 <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
                   מייסד ועורך — סוד 1820
@@ -4591,19 +4605,26 @@ function ContactPage() {
 
           {/* contact info boxes */}
           {[
-            { icon: "✉", label: "אימייל", value: "yosiviner7@gmail.com" },
-            { icon: "🌐", label: "אתר", value: "sod1820.co.il" },
-          ].map(({ icon, label, value }) => (
-            <div key={label} style={{
-              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2,
-              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center",
-            }}>
+            { icon: "✉", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
+            { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
+            { icon: "👥", label: "קבוצת גימטריה בוואטסאפ", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
+            { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
+            { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
+            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל פולייס", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
+            { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
+          ].map(({ icon, label, value, href }) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
+              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2, textDecoration: "none",
+              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
               <div>
                 <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
                 <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 14 }}>{value}</div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

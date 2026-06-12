@@ -5,7 +5,7 @@ export const NAV = [
   { label: "ראשי", emoji: "🏠", to: "/" },
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
-  { label: "ציר ההתגלות", emoji: "🛤", to: "/timeline" },
+  { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
   { label: "עץ המספרים", emoji: "🌳", to: "/numbers" },
   {
     label: "בית המדרש", emoji: "📚", to: "/beit-midrash", children: [
@@ -40,7 +40,7 @@ export const NAV = [
 // פריטים שמוצגים בשורת התפריט הראשית (השאר נגישים דרך מרכז הניווט / המבורגר)
 export const PRIMARY_KEYS = [
   "/", "/start", "/timeline", "/numbers", "/beit-midrash", "/post",
-  "/archive", "/code", "/community", "/members",
+  "/code", "/community", "/members",
 ];
 
 // SEO לכל route. דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם.

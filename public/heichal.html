@@ -86,9 +86,10 @@
 </head>
 <body>
   <div id="vignette"></div>
-  <div id="brand"><div class="sub">הֵיכַל הַשְּׁעָרִים</div></div>
+  <div id="brand"></div>
   <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
   <button id="audioBtn" type="button" title="מוזיקת רקע" aria-label="מוזיקת רקע">🔈</button>
+  <audio id="bgm" loop preload="none"></audio>
   <div id="loader">
     <div class="mark">כי לה' המלוכה</div><div class="spinner"></div>
     <div class="status">בונה את ההיכל…</div>
@@ -113,6 +114,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
 
+// פסקול קולנועי אמיתי. כרגע: "Strength of the Titans" מאת Kevin MacLeod (incompetech.com),
+// רישיון Creative Commons BY 4.0 — חופשי לשימוש מסחרי בתנאי מתן קרדיט (ראו קרדיט באתר).
+// להחלפה: שימו כאן קישור ל-MP3 אחר. ריק = פסקול מסונתז (WebAudio) כגיבוי.
+const MUSIC_URL = '/heichal-theme.mp3';
+
 // הלוגו של האתר — מרחף מעל כל שער
 const LOGO_URL = 'https://sod1820.co.il/wp-content/uploads/2018/12/cropped-cropped-%D7%9C%D7%95%D7%92%D7%95-%D7%90%D7%AA%D7%A8-1.png';
 let _logoTex = null;
@@ -127,17 +133,17 @@ let clockUpdate = null;   // פונקציית עדכון השעון המרכזי
 
 // ברירת־מחדל — צבעים תואמים לפלטת האתר (זהב / ארגמן / סגול־מלכותי). days = בעוד כמה ימים (null = פתוח).
 const FALLBACK_GATES = [
-  { key:'remez',   title:'עולם הרמזים', world:'מנוע הגימטריה — מספרים, רמזים וצירופים.',
-    color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:6 },
+  { key:'remez',   title:'שער חתום', world:'מאחורי הדלת הזו נרקם בימים אלו אחד הסודות הגדולים ביותר של האתר. המפתחות כבר קיימים… אך רק כשהזמן יבשיל — השער ייפתח.',
+    color:0xe8c840, emoji:'🚪', url:'#', days:null },
   { key:'beit',    title:'בית המדרש',   world:'לימוד, שיעורים וקהילה לומדת.',
-    color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:13 },
-  { key:'tzofen',  title:'צפני התורה',  world:'חיפוש דילוגים (ELS) וצפנים סמויים.',
-    color:0x9d6bff, emoji:'🧩', url:'/code',     days:null },
+    color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:14 },
+  { key:'tzofen',  title:'מנוע דילוגי האותיות',  world:'מנוע חיפוש האותיות הטוב בעולם — חפשו את שמכם, את שמות יקיריכם או כל מילה אחרת, וגלו את העולם המופלא של דילוגי האותיות והצפנים.',
+    color:0x9d6bff, emoji:'🔍', url:'/code',     days:null },
   { key:'ai',      title:'חידושי AI',   world:'כלים חכמים שמרחיבים את החקר.',
-    color:0xf6e27a, emoji:'🤖', url:'/map',      days:2 },
+    color:0xf6e27a, emoji:'🤖', url:'/map',      days:7 },
   { key:'gilui',   title:'ציר ההתגלות', world:'מסע לאורך קוד ההתגלות — 1237.',
-    color:0xc9962f, emoji:'🌳', url:'/timeline', days:40 },
-  { key:'heichal', title:'בני ההיכל',   world:'מרחב סגור לחברים — פנים ההיכל.',
+    color:0xc9962f, emoji:'🌳', url:'/timeline', days:-1 },
+  { key:'heichal', title:'החדר הסודי',   world:'השער ייפתח למוזמנים בלבד — רק בני ההיכל.',
     color:0xa01f2e, emoji:'🔐', url:'/members',  days:null },
   { key:'engine',  title:'מנוע המספרים', world:'כל מספר משמעותי — דף משלו. 1820.',
     color:0xd4af37, emoji:'🔢', url:'/numbers',  days:26 },
@@ -449,9 +455,10 @@ function buildGate(cfg,i){
   const light=new THREE.PointLight(col,0.9,11,2);light.position.set(0,DH/2+0.4,inFront-0.8);group.add(light);
 
   const featured=(cfg.key==='ai');   // שער ai — "שעון יפה" בולט
+  const isOpen=(cfg.openAt!==null && cfg.openAt<=Date.now());  // נפתח לגמרי (ציר ההתגלות)
   // תווית שם + סטטוס כ-DOM overlay — טקסט חד וקריא בכל מרחק
   const labelEl=document.createElement('div');
-  labelEl.className='glabel '+(featured?'featured':'locked');
+  labelEl.className='glabel '+(isOpen?'featured':(featured?'featured':'locked'));
   labelEl.innerHTML=`<div class="gl-name">${cfg.emoji} ${cfg.title}</div><div class="gl-status"></div>`;
   document.getElementById('gate-labels').appendChild(labelEl);
   const statusEl=labelEl.querySelector('.gl-status');
@@ -474,8 +481,37 @@ function buildGate(cfg,i){
   hit.position.set(0,(DH+DW/2)/2+0.2,inFront+0.05);group.add(hit);
 
   scene.add(group);
-  // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
-  const base=featured?0.06:0;
+
+  // ── הדלת הפתוחה (ציר ההתגלות): זרם מספרי-קוד עולה מתוך הפתח (במקום הצפת אור) ──
+  if(isOpen){
+    const CH=['1','8','2','0','א','ה','ו','ם','ש','ת'];
+    const nums=[];
+    for(let k=0;k<14;k++){
+      const sp=makeSprite({text:CH[(Math.random()*CH.length)|0],font:'900 90px "Frank Ruhl Libre"',
+        color:'#f6e27a',w:96,h:96,plaque:false});
+      sp.sprite.scale.set(0.42,0.42,1);
+      group.add(sp.sprite);
+      nums.push({sp,ox:(Math.random()-0.5)*1.7,ph:Math.random(),spd:0.10+Math.random()*0.10});
+    }
+    animated.push({tick:(dt)=>{ nums.forEach(n=>{
+      n.ph+=dt*n.spd*(reduced?0.4:1);
+      if(n.ph>=1){ n.ph=0; n.ox=(Math.random()-0.5)*1.7; n.sp.update(CH[(Math.random()*CH.length)|0]); }
+      const y=0.25+n.ph*(DH+1.0);
+      n.sp.sprite.position.set(n.ox,y,inFront+0.25);
+      n.sp.sprite.material.opacity=Math.sin(n.ph*Math.PI)*0.9;
+    }); }});
+  }
+
+  // ── החדר הסודי (בני ההיכל): חור-מנעול אדום זוהר שפועם ──
+  if(cfg.key==='heichal'){
+    const kh=new THREE.Sprite(new THREE.SpriteMaterial({map:radialGlow(0xff3b3b),
+      transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.6}));
+    kh.scale.set(0.62,0.62,1); kh.position.set(0,DH*0.46,inFront+0.22); group.add(kh);
+    animated.push({tick:(dt,t)=>{ kh.material.opacity=0.32+Math.sin(t*2.2)*0.26; }});
+  }
+
+  // כל הדלתות סגורות; רק דלת פתוחה (ציר ההתגלות) עומדת פתוחה לרווחה.
+  const base=isOpen?1:0;
   gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
     labelEl, statusEl, labelAnchor,
     worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
@@ -487,9 +523,12 @@ function updateTimers(){
   const now=Date.now();
   if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
-    if(o===null) txt='🔒 בקרוב';
+    if(g.cfg.key==='gilui') txt='🔴 חדשות · שידור חי';                   // הדלת הפתוחה — LIVE מלפנים
+    else if(g.cfg.key==='remez') txt='🌌 נרקם סוד גדול · 🔑 כשהזמן יבשיל'; // שער חתום — בלי שעון
+    else if(g.cfg.key==='heichal') txt='🔐 רק בני ההיכל';                 // החדר הסודי
+    else if(o===null) txt='🔒 בקרוב';
     else{ let rem=Math.floor((o-now)/1000);
-      if(rem<=0) txt='✦ נפתח! ✦';
+      if(rem<=0) txt='✦ ההיכל נפתח ✦';
       else{ const p=n=>String(n).padStart(2,'0');
         const d=Math.floor(rem/86400); rem-=d*86400;
         const h=Math.floor(rem/3600);  rem-=h*3600;
@@ -532,28 +571,84 @@ function makeSprite({text,font,color,w,h,plaque}){
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);
   ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
 
-/* ---------- ambient music (WebAudio — ללא קובץ חיצוני) ---------- */
+/* ---------- ambient music (WebAudio — פסקול קולנועי, ללא קובץ חיצוני) ---------- */
 let audioCtx=null, audioOn=false, audioMaster=null;
+// reverb "אולם אבן" — תגובת־הלם מחושבת, בלי קובץ
+function makeReverb(ctx, seconds=3.4, decay=2.6){
+  const len=Math.floor(ctx.sampleRate*seconds);
+  const buf=ctx.createBuffer(2,len,ctx.sampleRate);
+  for(let ch=0;ch<2;ch++){ const d=buf.getChannelData(ch);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
+  const c=ctx.createConvolver(); c.buffer=buf; return c;
+}
 function startAmbient(){
   if(audioCtx) return true;
   const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return false;
   audioCtx=new Ctx();
   audioMaster=audioCtx.createGain(); audioMaster.gain.value=0.0001; audioMaster.connect(audioCtx.destination);
-  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(audioMaster);
-  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=520; filt.Q.value=0.8; filt.connect(voice);
-  // אקורד מלכותי שקט (לה מינור): A2 · E3 · A3 · C4
-  [110,164.81,220,261.63].forEach((f,i)=>{ const o=audioCtx.createOscillator();
-    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*5;
-    const g=audioCtx.createGain(); g.gain.value=0.16/(i+1); o.connect(g); g.connect(filt); o.start(); });
-  // תנועה איטית על הפילטר + טרמולו עדין
-  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.05;
-  const lfoG=audioCtx.createGain(); lfoG.gain.value=160; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
-  const trem=audioCtx.createOscillator(); trem.frequency.value=0.13;
-  const tremG=audioCtx.createGain(); tremG.gain.value=0.06; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
+
+  // wet/dry — מרחב קולנועי
+  const wet=audioCtx.createGain(); wet.gain.value=0.55; wet.connect(audioMaster);
+  const dry=audioCtx.createGain(); dry.gain.value=0.70; dry.connect(audioMaster);
+  const verb=makeReverb(audioCtx); verb.connect(wet);
+
+  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(dry); voice.connect(verb);
+  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=620; filt.Q.value=0.7; filt.connect(voice);
+
+  // ארבעה קולות פד — אקורד שמתחלף לאורך פרוגרסיה אפית (Am · F · C · G)
+  const CHORDS=[
+    [110.00,130.81,164.81,220.00], // Am
+    [ 87.31,110.00,130.81,174.61], // F
+    [130.81,164.81,196.00,261.63], // C
+    [ 98.00,123.47,146.83,196.00], // G
+  ];
+  const voices=CHORDS[0].map((f,i)=>{ const o=audioCtx.createOscillator();
+    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*6;
+    const g=audioCtx.createGain(); g.gain.value=0.14/(i+1); o.connect(g); g.connect(filt); o.start(); return o; });
+
+  // סאב־דרון לעומק + נצנוץ גבוה רחוק
+  const sub=audioCtx.createOscillator(); sub.type='sine'; sub.frequency.value=55;
+  const subG=audioCtx.createGain(); subG.gain.value=0.10; sub.connect(subG); subG.connect(dry); sub.start();
+  const shim=audioCtx.createOscillator(); shim.type='sine'; shim.frequency.value=880;
+  const shimG=audioCtx.createGain(); shimG.gain.value=0.022; shim.connect(shimG); shimG.connect(verb); shim.start();
+
+  // פרוגרסיית אקורדים — גלישה רכה בין האקורדים כל 7 שניות
+  let ci=0;
+  setInterval(()=>{ if(!audioCtx) return; ci=(ci+1)%CHORDS.length;
+    const t=audioCtx.currentTime, ch=CHORDS[ci];
+    voices.forEach((o,i)=>{ o.frequency.cancelScheduledValues(t);
+      o.frequency.setValueAtTime(o.frequency.value,t);
+      o.frequency.linearRampToValueAtTime(ch[i],t+3.5); });
+    sub.frequency.cancelScheduledValues(t);
+    sub.frequency.setValueAtTime(sub.frequency.value,t);
+    sub.frequency.linearRampToValueAtTime(ch[0]/2,t+3.5);
+  },7000);
+
+  // תנועה איטית על הפילטר + נשימה רחבה
+  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.045;
+  const lfoG=audioCtx.createGain(); lfoG.gain.value=220; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
+  const trem=audioCtx.createOscillator(); trem.frequency.value=0.08;
+  const tremG=audioCtx.createGain(); tremG.gain.value=0.05; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
   return true;
 }
+function setAudioBtn(){ const btn=document.getElementById('audioBtn');
+  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn); }
 function toggleAudio(){
-  const btn=document.getElementById('audioBtn');
+  // אם הוגדר קובץ מוזיקה אמיתי — מנגנים אותו (פסקול קולנועי)
+  if(MUSIC_URL){
+    const bgm=document.getElementById('bgm');
+    const START=20;   // מתחילים מהאמצע — לדלג על ההתחלה המהירה/חזקה; ללופ מאותה נקודה
+    if(!bgm.src){
+      bgm.src=MUSIC_URL; bgm.loop=false; bgm.volume=0.85;
+      // לופ ידני מנקודת ההתחלה (לא מ-0) כדי לעקוף את ההתחלה המהירה
+      bgm.addEventListener('ended', ()=>{ try{ bgm.currentTime=START; }catch(e){} bgm.play().catch(()=>{}); });
+      bgm.addEventListener('loadedmetadata', ()=>{ try{ bgm.currentTime=START; }catch(e){} }, { once:true });
+    }
+    if(audioOn){ bgm.pause(); audioOn=false; }
+    else{ try{ if(bgm.currentTime<START) bgm.currentTime=START; }catch(e){} const p=bgm.play(); if(p&&p.catch) p.catch(()=>{}); audioOn=true; }
+    setAudioBtn(); return;
+  }
+  // אחרת — פסקול מסונתז (גיבוי עד שיהיה קובץ)
   if(!audioCtx){ if(!startAmbient()) return; }
   if(audioCtx.resume) audioCtx.resume();
   const now=audioCtx.currentTime;
@@ -562,8 +657,8 @@ function toggleAudio(){
     audioMaster.gain.linearRampToValueAtTime(0.0001,now+0.6); audioOn=false; }
   else{ audioMaster.gain.cancelScheduledValues(now);
     audioMaster.gain.setValueAtTime(Math.max(0.0001,audioMaster.gain.value),now);
-    audioMaster.gain.linearRampToValueAtTime(0.10,now+2.2); audioOn=true; }
-  btn.textContent=audioOn?'🔊':'🔈'; btn.classList.toggle('on',audioOn);
+    audioMaster.gain.linearRampToValueAtTime(0.12,now+2.2); audioOn=true; }
+  setAudioBtn();
 }
 
 /* ---------- interaction ---------- */
@@ -593,7 +688,16 @@ function pick(e){ const ndc=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.cli
   if(hits.length)return gates.find(g=>g.hit===hits[0].object);return null; }
 
 /* ---------- enter / exit ---------- */
+// החדר הסודי — לא נכנסים: הדלת "מרטטת" (נעולה), ויברציה במובייל, ואז מסר.
+function secretRattle(g){
+  state='entering'; hovered=null; renderer.domElement.style.cursor='default';
+  gates.forEach(q=>q.hoverTarget=0);
+  try{ navigator.vibrate && navigator.vibrate([35,45,35,45,35]); }catch(e){}
+  let n=0; const iv=setInterval(()=>{ g.targetOpen=(n%2?0.07:0); n++;
+    if(n>5){ clearInterval(iv); g.targetOpen=g.baseOpen; showWorldPanel(g); } },85);
+}
 function enterWorld(g){
+  if(g.cfg.key==='heichal'){ secretRattle(g); return; }
   state='entering';hovered=null;renderer.domElement.style.cursor='default';
   gates.forEach(q=>q.hoverTarget=0);g.targetOpen=1;
   const door=g.worldDoor.clone(), dir=new THREE.Vector3(door.x,0,door.z).normalize();
@@ -649,10 +753,14 @@ function animate(){
     g.left.position.x=g.lx-g.openAmt*g.leafW;
     g.right.position.x=g.rx+g.openAmt*g.leafW;
     g.hover += (g.hoverTarget-g.hover)*Math.min(1,dt*8);
-    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05;
-    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2+g.hover*0.4;
-    g.light.intensity=0.9+g.openAmt*2.2+g.hover*0.5;
-    const ro=Math.min(1,g.openAmt*1.2);
+    // דלת פתוחה: מעמעמים את האור (לא מסנוור) — העניין עובר לזרם המספרים
+    const isOpenGate=g.baseOpen>=1;
+    const glow=isOpenGate?0.5:1;
+    const op=isOpenGate?(reduced?0.2:(Math.sin(t*1.4)*0.5+0.5)*0.3):0;
+    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4*glow+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05+op*0.3;
+    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2*glow+g.hover*0.4+op*0.2;
+    g.light.intensity=0.9+g.openAmt*2.2*glow+g.hover*0.5+op*0.6;
+    const ro=Math.min(1,g.openAmt*1.2*glow+op*0.2);
     g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3; });
   });
   if(state==='idle'){
