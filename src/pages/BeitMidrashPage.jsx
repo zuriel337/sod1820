@@ -8,7 +8,7 @@ import { stripHtml } from "../lib/format.js";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
-import UpdatesBox from "../components/UpdatesBox.jsx";
+import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 
 const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
 const FREE_LIMIT = 2;        // חוק subscribe_gate_law — 2 חידושים חינם ואז הרשמה
@@ -103,16 +103,9 @@ export default function BeitMidrashPage() {
         אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
       </p>
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 30px" }}>
-        רוצים להיכנס ראשונים? הירשמו וקבלו <b style={{ color: C.goldLight }}>גישה מוקדמת</b> ועדכון ברגע שנפתח.
+        הכניסה למעגל ההיכל מתחילה כאן: הפיקו את <b style={{ color: C.goldLight }}>דו״ח הכניסה האישי</b> שלכם — ותהיו הראשונים שייכנסו לבית המדרש כשייפתח.
       </p>
-      <UpdatesBox
-        variant="panel"
-        source="beit-midrash-gate"
-        title="הרשמה וקבלת גישה מוקדמת"
-        body="השאירו אימייל — תהיו הראשונים שייכנסו לבית המדרש כשייפתח, ותקבלו את החידושים לפני כולם."
-        cta="קבלו גישה מוקדמת →"
-        style={{ maxWidth: 520, margin: "0 auto" }}
-      />
+      <PersonalGematriaGift source="beit-midrash-gate" />
     </div>
   );
 }
