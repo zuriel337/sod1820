@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
+import { timeAgoHe } from "../lib/format.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
 
 /**
@@ -33,6 +34,16 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
           <VerifiedBadge variant={badgeVariant} size={15} />
+          {badgeVariant === "ai" && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#3ea6ff", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>
+              🤖 נוצר ע״י AI
+            </span>
+          )}
+          {insight.created_at && (
+            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>
+              · {timeAgoHe(insight.created_at)}
+            </span>
+          )}
           {!!numbers.length && (
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 0.5 }}>
               {numbers.slice(0, 3).join(" · ")}

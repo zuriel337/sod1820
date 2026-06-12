@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
 import { C, F, LOGO_URL, calcGem } from "../theme.js";
-import { stripHtml, formatDateHe } from "../lib/format.js";
+import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
@@ -75,7 +75,7 @@ function LatestPostsRail({ posts, onPost }) {
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
-          const date = formatDateHe(p.modified || p.date);
+          const date = timeAgoHe(p.modified || p.date);
           const gem = calcGem(title);
           return (
             <button
@@ -98,7 +98,7 @@ function LatestPostsRail({ posts, onPost }) {
               <div className="sod-pf-body">
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
-                  <span className="sod-pf-date">עודכן · {date}</span>
+                  <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
                   {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
                 </div>
               </div>
