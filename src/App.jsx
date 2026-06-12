@@ -17,6 +17,7 @@ import TimelinePage from "./pages/TimelinePage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
+import LaddersDemo from "./pages/LaddersDemo.jsx";
 import {
   MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/category/:slug" element={<CategoryRoute />} />
           <Route path="/tag/:slug" element={<TagRoute />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/sulamot" element={<LaddersDemo />} />
 
           {/* הפניות מכתובות ישנות (שמירת קישורים) */}
           <Route path="/צור-קשר" element={<Navigate to="/contact" replace />} />
