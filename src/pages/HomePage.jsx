@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
 import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
-import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 
@@ -139,11 +138,10 @@ function LatestPostsRail({ posts, onPost }) {
   );
 }
 
-// מקום מכובד בעמוד הבית — חידושי AI (3 אחרונים) + מעבר לבית המדרש.
-// חוק stream_separation: עדכוני צוריאל (פוסטים) נפרדים מחידושי AI.
-function AiInsightsBox({ insights }) {
+// חידושי AI — בבנייה. נפתח בעוד שבוע (ספירה לאחור). מעל גלריית הסרטים.
+function AiInsightsBox() {
   return (
-    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 16px", direction: "rtl" }}>
       <div style={{
         background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
         border: `1px solid ${C.borderGold}`, borderRadius: 18, padding: "26px 22px",
@@ -155,26 +153,22 @@ function AiInsightsBox({ insights }) {
           </h2>
           <VerifiedBadge variant="ai" size={15} />
           <span style={{ flex: 1 }} />
-          <span style={{
-            color: C.muted, fontFamily: F.heading, fontSize: 12,
-            fontWeight: 700, letterSpacing: 1, padding: "8px 16px", borderRadius: 8,
-            border: `1px solid ${C.border}`, background: "rgba(20,15,12,0.5)", whiteSpace: "nowrap",
-          }}>🚧 בית המדרש · בבנייה</span>
+          <span className="sod-soon">🚧 בבנייה</span>
         </div>
-        {insights.length ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-            {insights.map(it => <InsightCard key={it.id} insight={it} badgeVariant="ai" />)}
-          </div>
-        ) : (
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: 8 }}>טוען חידושים…</div>
-        )}
+        <div style={{ textAlign: "center", padding: "10px 8px 4px" }}>
+          <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 22px" }}>
+            החידושים החדשים שמופקים בעזרת בינה מלאכותית בדרך אליכם. נפתח בעוד שבוע:
+          </p>
+          <Countdown target={AI_LAUNCH} />
+        </div>
       </div>
     </section>
   );
 }
 
-// ===== ארכיון ההתגלות — ריבוע גדול (כפול בגובה) מתחת לחידושי AI =====
-// יעד הספירה לאחור: שבוע מהשקה. נעדכן את התאריך כשנפתח לאוויר.
+// ===== ספירה לאחור משותפת =====
+// יעדים: חידושי AI — שבוע · ארכיון ההתגלות — שבוע. נעדכן כשנפתח לאוויר.
+const AI_LAUNCH = new Date("2026-06-19T20:00:00+03:00").getTime();
 const ARCHIVE_LAUNCH = new Date("2026-06-19T20:00:00+03:00").getTime();
 
 function useCountdown(target) {
@@ -192,6 +186,24 @@ function useCountdown(target) {
   };
 }
 
+function Countdown({ target }) {
+  const { d, h, m, s } = useCountdown(target);
+  const unit = (val, label) => (
+    <div className="sod-cd-unit">
+      <span className="sod-cd-num">{String(val).padStart(2, "0")}</span>
+      <span className="sod-cd-lab">{label}</span>
+    </div>
+  );
+  return (
+    <div className="sod-cd">
+      {unit(d, "ימים")}<span className="sod-cd-sep">:</span>
+      {unit(h, "שעות")}<span className="sod-cd-sep">:</span>
+      {unit(m, "דקות")}<span className="sod-cd-sep">:</span>
+      {unit(s, "שניות")}
+    </div>
+  );
+}
+
 const ARCHIVE_FEATURES = [
   { e: "🌳", t: "לראות כל תמונה מחוברת לעץ המספרים ולערכים שלה" },
   { e: "🔍", t: "לגלות קשרים נסתרים בין גלריות, פוסטים וצפנים" },
@@ -201,19 +213,12 @@ const ARCHIVE_FEATURES = [
 ];
 
 function ArchiveBox() {
-  const { d, h, m, s } = useCountdown(ARCHIVE_LAUNCH);
-  const unit = (val, label) => (
-    <div className="sod-cd-unit">
-      <span className="sod-cd-num">{String(val).padStart(2, "0")}</span>
-      <span className="sod-cd-lab">{label}</span>
-    </div>
-  );
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 56px", direction: "rtl" }}>
       <div className="sod-arch">
         <div className="sod-arch-head">
           <h2 className="sod-arch-title">🖼️ ארכיון ההתגלות</h2>
-          <span className="sod-arch-badge">🔒 בקרוב</span>
+          <span className="sod-soon">🔒 בקרוב</span>
         </div>
         <p className="sod-arch-lead">עשר שנות מחקר. אלפי תמונות. אינספור רמזים, במקום אחד.</p>
         <p className="sod-arch-text">
@@ -229,12 +234,7 @@ function ArchiveBox() {
         <p className="sod-arch-foot">
           זו לא רק גלריה. זה ארכיון חי של התגלות, שבו כל תמונה היא רמז, וכל רמז פותח שער חדש.
         </p>
-        <div className="sod-cd">
-          {unit(d, "ימים")}<span className="sod-cd-sep">:</span>
-          {unit(h, "שעות")}<span className="sod-cd-sep">:</span>
-          {unit(m, "דקות")}<span className="sod-cd-sep">:</span>
-          {unit(s, "שניות")}
-        </div>
+        <Countdown target={ARCHIVE_LAUNCH} />
       </div>
     </section>
   );
@@ -243,14 +243,10 @@ function ArchiveBox() {
 export default function HomePage() {
   const nav = useLegacyNav();
   const [posts, setPosts] = useState([]);
-  const [aiInsights, setAiInsights] = useState([]);
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 6, orderBy: "modified" })
       .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
-      .catch(() => {});
-    getInsights({ origin: "ai", limit: 3 })
-      .then(setAiInsights)
       .catch(() => {});
   }, []);
 
@@ -267,9 +263,6 @@ export default function HomePage() {
           <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
 
           <div style={{ direction: "rtl" }}>
-            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
-              👑 היכל השערים
-            </div>
             <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
               <iframe
                 src="/heichal.html"
@@ -285,10 +278,11 @@ export default function HomePage() {
       {/* פרומו ברוכים הבאים — מתחת לשני הטורים */}
       <WelcomePromo />
 
-      {/* גלריית הסרטים — לרוחב */}
-      <VideoGallery />
+      {/* חידושי AI מעל גלריית הסרטים */}
+      <AiInsightsBox />
 
-      <AiInsightsBox insights={aiInsights} />
+      {/* גלריית הסרטים — מתחת לחידושי AI */}
+      <VideoGallery />
 
       {/* ארכיון ההתגלות — הריבוע הגדול (מקום הגלריות) */}
       <ArchiveBox />
@@ -323,10 +317,11 @@ export default function HomePage() {
         }
         .sod-arch-head { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
         .sod-arch-title { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(24px,3.6vw,34px); font-weight: 700; margin: 0; text-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        .sod-arch-badge {
+        /* תג אחיד "בבנייה / בקרוב" לכל המדורים */
+        .sod-soon {
           padding: 4px 14px; border-radius: 999px; border: 1px solid ${C.borderGold};
           background: rgba(212,175,55,0.08); color: ${C.goldBright};
-          font-family: ${F.heading}; font-size: 12px; letter-spacing: 1px; white-space: nowrap;
+          font-family: ${F.heading}; font-size: 12px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
         }
         .sod-arch-lead { color: ${C.goldLight}; font-family: ${F.regal}; font-size: clamp(16px,2.2vw,20px); font-weight: 700; margin: 0 auto 14px; max-width: 680px; line-height: 1.7; }
         .sod-arch-text { color: ${C.goldDim}; font-family: ${F.body}; font-size: 15.5px; line-height: 1.95; margin: 0 auto 24px; max-width: 680px; }

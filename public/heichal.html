@@ -130,11 +130,11 @@ const FALLBACK_GATES = [
   { key:'remez',   title:'עולם הרמזים', world:'מנוע הגימטריה — מספרים, רמזים וצירופים.',
     color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:6 },
   { key:'beit',    title:'בית המדרש',   world:'לימוד, שיעורים וקהילה לומדת.',
-    color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:13 },
-  { key:'tzofen',  title:'צפני התורה',  world:'חיפוש דילוגים (ELS) וצפנים סמויים.',
+    color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:14 },
+  { key:'tzofen',  title:'מנוע דילוגי האותיות',  world:'חיפוש דילוגי אותיות (ELS) וצפנים סמויים.',
     color:0x9d6bff, emoji:'🧩', url:'/code',     days:null },
   { key:'ai',      title:'חידושי AI',   world:'כלים חכמים שמרחיבים את החקר.',
-    color:0xf6e27a, emoji:'🤖', url:'/map',      days:2 },
+    color:0xf6e27a, emoji:'🤖', url:'/map',      days:7 },
   { key:'gilui',   title:'ציר ההתגלות', world:'מסע לאורך קוד ההתגלות — 1237.',
     color:0xc9962f, emoji:'🌳', url:'/timeline', days:40 },
   { key:'heichal', title:'בני ההיכל',   world:'מרחב סגור לחברים — פנים ההיכל.',
@@ -475,7 +475,8 @@ function buildGate(cfg,i){
 
   scene.add(group);
   // כל השערים סגורים (בקרוב). שער ai מקבל הצצת-פתח קטנה כדי לבלוט.
-  const base=featured?0.06:0;
+  // דלתות עומדות מעט פתוחות (חצי-פתוח) כברירת מחדל; נפתחות עד הסוף בריחוף/כניסה.
+  const base=featured?0.34:0.24;
   gates.push({ cfg, group, left, right, lx, rx, leafW, innerMat, tymMat, rays, light, featured,
     labelEl, statusEl, labelAnchor,
     worldDoor:new THREE.Vector3(x,DH/2+0.4,z),
@@ -532,24 +533,64 @@ function makeSprite({text,font,color,w,h,plaque}){
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);
   ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
 
-/* ---------- ambient music (WebAudio — ללא קובץ חיצוני) ---------- */
+/* ---------- ambient music (WebAudio — פסקול קולנועי, ללא קובץ חיצוני) ---------- */
 let audioCtx=null, audioOn=false, audioMaster=null;
+// reverb "אולם אבן" — תגובת־הלם מחושבת, בלי קובץ
+function makeReverb(ctx, seconds=3.4, decay=2.6){
+  const len=Math.floor(ctx.sampleRate*seconds);
+  const buf=ctx.createBuffer(2,len,ctx.sampleRate);
+  for(let ch=0;ch<2;ch++){ const d=buf.getChannelData(ch);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
+  const c=ctx.createConvolver(); c.buffer=buf; return c;
+}
 function startAmbient(){
   if(audioCtx) return true;
   const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return false;
   audioCtx=new Ctx();
   audioMaster=audioCtx.createGain(); audioMaster.gain.value=0.0001; audioMaster.connect(audioCtx.destination);
-  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(audioMaster);
-  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=520; filt.Q.value=0.8; filt.connect(voice);
-  // אקורד מלכותי שקט (לה מינור): A2 · E3 · A3 · C4
-  [110,164.81,220,261.63].forEach((f,i)=>{ const o=audioCtx.createOscillator();
-    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*5;
-    const g=audioCtx.createGain(); g.gain.value=0.16/(i+1); o.connect(g); g.connect(filt); o.start(); });
-  // תנועה איטית על הפילטר + טרמולו עדין
-  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.05;
-  const lfoG=audioCtx.createGain(); lfoG.gain.value=160; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
-  const trem=audioCtx.createOscillator(); trem.frequency.value=0.13;
-  const tremG=audioCtx.createGain(); tremG.gain.value=0.06; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
+
+  // wet/dry — מרחב קולנועי
+  const wet=audioCtx.createGain(); wet.gain.value=0.55; wet.connect(audioMaster);
+  const dry=audioCtx.createGain(); dry.gain.value=0.70; dry.connect(audioMaster);
+  const verb=makeReverb(audioCtx); verb.connect(wet);
+
+  const voice=audioCtx.createGain(); voice.gain.value=0.9; voice.connect(dry); voice.connect(verb);
+  const filt=audioCtx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=620; filt.Q.value=0.7; filt.connect(voice);
+
+  // ארבעה קולות פד — אקורד שמתחלף לאורך פרוגרסיה אפית (Am · F · C · G)
+  const CHORDS=[
+    [110.00,130.81,164.81,220.00], // Am
+    [ 87.31,110.00,130.81,174.61], // F
+    [130.81,164.81,196.00,261.63], // C
+    [ 98.00,123.47,146.83,196.00], // G
+  ];
+  const voices=CHORDS[0].map((f,i)=>{ const o=audioCtx.createOscillator();
+    o.type=(i%2)?'sine':'triangle'; o.frequency.value=f; o.detune.value=(i-1.5)*6;
+    const g=audioCtx.createGain(); g.gain.value=0.14/(i+1); o.connect(g); g.connect(filt); o.start(); return o; });
+
+  // סאב־דרון לעומק + נצנוץ גבוה רחוק
+  const sub=audioCtx.createOscillator(); sub.type='sine'; sub.frequency.value=55;
+  const subG=audioCtx.createGain(); subG.gain.value=0.10; sub.connect(subG); subG.connect(dry); sub.start();
+  const shim=audioCtx.createOscillator(); shim.type='sine'; shim.frequency.value=880;
+  const shimG=audioCtx.createGain(); shimG.gain.value=0.022; shim.connect(shimG); shimG.connect(verb); shim.start();
+
+  // פרוגרסיית אקורדים — גלישה רכה בין האקורדים כל 7 שניות
+  let ci=0;
+  setInterval(()=>{ if(!audioCtx) return; ci=(ci+1)%CHORDS.length;
+    const t=audioCtx.currentTime, ch=CHORDS[ci];
+    voices.forEach((o,i)=>{ o.frequency.cancelScheduledValues(t);
+      o.frequency.setValueAtTime(o.frequency.value,t);
+      o.frequency.linearRampToValueAtTime(ch[i],t+3.5); });
+    sub.frequency.cancelScheduledValues(t);
+    sub.frequency.setValueAtTime(sub.frequency.value,t);
+    sub.frequency.linearRampToValueAtTime(ch[0]/2,t+3.5);
+  },7000);
+
+  // תנועה איטית על הפילטר + נשימה רחבה
+  const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.045;
+  const lfoG=audioCtx.createGain(); lfoG.gain.value=220; lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
+  const trem=audioCtx.createOscillator(); trem.frequency.value=0.08;
+  const tremG=audioCtx.createGain(); tremG.gain.value=0.05; trem.connect(tremG); tremG.connect(voice.gain); trem.start();
   return true;
 }
 function toggleAudio(){

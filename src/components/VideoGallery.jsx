@@ -81,11 +81,7 @@ export default function VideoGallery() {
           <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
             🎬 גלריית הסרטים
           </h2>
-          <span style={{
-            padding: "3px 11px", borderRadius: 999, border: `1px solid ${C.borderGold}`,
-            color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1,
-            background: "rgba(212,175,55,0.08)",
-          }}>🚧 בבנייה</span>
+          <span className="sod-soon">🚧 בבנייה</span>
           <span style={{ flex: 1 }} />
           <Link to="/post" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
             לכל הסרטים והפוסטים →
