@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead } from "../lib/supabase.js";
+import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 
@@ -3799,6 +3799,8 @@ function TrafficDashboardPage({ onNav }) {
   const [year, setYear]       = useState("all");
   const [gran, setGran]       = useState("monthly");
   const [inbox, setInbox]     = useState({ messages: [], subscribers: [], unread: 0, subscriber_count: 0 });
+  const [oldComments, setOldComments] = useState([]);   // תגובות מהאתר הישן, מקובצות לפי פוסט
+  const [openGroups, setOpenGroups]   = useState({});   // אילו פוסטים פתוחים
   const [tab, setTab]         = useState("traffic"); // traffic | inbox
 
   function handleAuth() {
@@ -3812,8 +3814,9 @@ function TrafficDashboardPage({ onNav }) {
     Promise.all([
       getTrafficStats(),
       getAdminInbox(ADMIN_PASSWORD).catch(() => inboxEmpty),
+      getOldSiteComments().catch(() => []),
     ])
-      .then(([d, ib]) => { setData(d); setInbox(ib || inboxEmpty); setLoading(false); })
+      .then(([d, ib, oc]) => { setData(d); setInbox(ib || inboxEmpty); setOldComments(oc || []); setLoading(false); })
       .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
   }, []);
 
@@ -4127,27 +4130,49 @@ function TrafficDashboardPage({ onNav }) {
           <div id="inbox" style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
             <div style={cardStyle}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div style={{ ...panelTitle, marginBottom: 0 }}>הודעות שנשלחו לאתר</div>
-                {inbox.unread > 0 && <span style={{ background: C.crimson, color: C.goldBright, borderRadius: 10, padding: "1px 9px", fontSize: 11, fontFamily: F.heading }}>{inbox.unread} חדשות</span>}
+                <div style={{ ...panelTitle, marginBottom: 0 }}>הודעות מהאתר הישן</div>
+                <span style={{ background: C.surface2, color: C.goldDim, borderRadius: 10, padding: "1px 9px", fontSize: 11, fontFamily: F.heading }}>
+                  {oldComments.reduce((s, g) => s + g.comments.length, 0)} תגובות · {oldComments.length} פוסטים
+                </span>
               </div>
-              {inbox.messages.length === 0 ? (
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין הודעות עדיין. הודעות מטופס "צור קשר" יופיעו כאן.</div>
+              {oldComments.length === 0 ? (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין תגובות עדיין. תגובות מהאתר הישן יופיעו כאן, מקובצות לפי פוסט.</div>
               ) : (
-                <div style={{ display: "grid", gap: 10, maxHeight: 440, overflowY: "auto" }}>
-                  {inbox.messages.map(m => (
-                    <div key={m.id} onClick={() => toggleRead(m)} title="לחץ לסימון נקרא / לא-נקרא" style={{
-                      cursor: "pointer", padding: "12px 14px", borderRadius: 6,
-                      background: m.read ? C.bg : C.surface2,
-                      border: `1px solid ${m.read ? C.faint : C.borderGold}`,
-                    }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-                        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.name}{!m.read && <span style={{ color: C.crimsonLight }}> ●</span>}</span>
-                        <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(m.created_at || "").slice(0, 10)}</span>
+                <div style={{ display: "grid", gap: 8, maxHeight: 520, overflowY: "auto" }}>
+                  {oldComments.map(g => {
+                    const open = !!openGroups[g.post_wp_id];
+                    return (
+                      <div key={g.post_wp_id} style={{ border: `1px solid ${C.faint}`, borderRadius: 6, overflow: "hidden" }}>
+                        <div
+                          onClick={() => setOpenGroups(prev => ({ ...prev, [g.post_wp_id]: !prev[g.post_wp_id] }))}
+                          title="לחץ להצגת/הסתרת התגובות"
+                          style={{
+                            cursor: "pointer", padding: "10px 12px", background: C.surface2,
+                            display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
+                          }}
+                        >
+                          <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.4 }}>
+                            <span style={{ color: C.goldDim, marginInlineEnd: 6 }}>{open ? "▾" : "▸"}</span>
+                            {stripHtml(g.title)}
+                          </span>
+                          <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, whiteSpace: "nowrap" }}>{g.comments.length}</span>
+                        </div>
+                        {open && (
+                          <div style={{ display: "grid", gap: 6, padding: "8px 10px" }}>
+                            {g.comments.map(c => (
+                              <div key={c.wp_id} style={{ padding: "9px 11px", borderRadius: 6, background: C.bg, border: `1px solid ${C.faint}` }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 3 }}>
+                                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{c.author_name || "אנונימי"}</span>
+                                  <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{(c.date || "").slice(0, 10)}</span>
+                                </div>
+                                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{stripHtml(c.content || "")}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 4 }}>{m.email}{m.subject ? ` · ${m.subject}` : ""}</div>
-                      <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.message}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

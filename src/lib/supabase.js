@@ -195,6 +195,42 @@ export async function getCommentsByPostId(postWpId) {
   return data ?? [];
 }
 
+// כל התגובות מהאתר הישן, מקובצות תחת כל פוסט (לתצוגת ניהול)
+export async function getOldSiteComments() {
+  if (!supabase) return [];
+  // PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים
+  async function fetchAll(table, cols, order) {
+    const CH = 1000, out = [];
+    for (let from = 0; ; from += CH) {
+      let q = supabase.from(table).select(cols).range(from, from + CH - 1);
+      if (order) q = q.order(order, { ascending: false });
+      const { data } = await q;
+      if (!data || !data.length) break;
+      out.push(...data);
+      if (data.length < CH) break;
+    }
+    return out;
+  }
+  const [cms, ps] = await Promise.all([
+    fetchAll('comments', 'wp_id,post_wp_id,author_name,date,content', 'date'),
+    fetchAll('posts', 'wp_id,title,slug', null),
+  ]);
+  const pmap = {};
+  ps.forEach(p => { pmap[p.wp_id] = { title: p.title || '', slug: p.slug }; });
+  const groups = new Map();
+  for (const c of cms) {
+    let g = groups.get(c.post_wp_id);
+    if (!g) {
+      g = { post_wp_id: c.post_wp_id, title: pmap[c.post_wp_id]?.title || `פוסט #${c.post_wp_id}`,
+            slug: pmap[c.post_wp_id]?.slug || null, comments: [], latest: c.date };
+      groups.set(c.post_wp_id, g);
+    }
+    g.comments.push(c);
+    if (c.date > g.latest) g.latest = c.date;
+  }
+  return [...groups.values()].sort((a, b) => (a.latest < b.latest ? 1 : -1));
+}
+
 // ── Popular posts (by comment count) ──────────────────────
 export async function getPopularPosts({ limit = 10 } = {}) {
   const { data } = await supabase.rpc('popular_posts_by_comments', { lim: limit });
