@@ -2,7 +2,7 @@
 // מקור אמת יחיד: ממנו נגזרים גם התפריט/פוטר וגם ה-SEO לכל route.
 
 export const NAV = [
-  { label: "ראשי", emoji: "🏠", to: "/" },
+  { label: "בית", emoji: "🏠", to: "/" },
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
