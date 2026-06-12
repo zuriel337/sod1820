@@ -114,7 +114,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const CROWN_URI = 'auto';   // 'auto' = כתר מצויר · או 'crown.png' · או data:image/png;base64,...
 
-// פסקול קולנועי אמיתי. כרגע: "Despair and Triumph" מאת Kevin MacLeod (incompetech.com),
+// פסקול קולנועי אמיתי. כרגע: "Strength of the Titans" מאת Kevin MacLeod (incompetech.com),
 // רישיון Creative Commons BY 4.0 — חופשי לשימוש מסחרי בתנאי מתן קרדיט (ראו קרדיט באתר).
 // להחלפה: שימו כאן קישור ל-MP3 אחר. ריק = פסקול מסונתז (WebAudio) כגיבוי.
 const MUSIC_URL = '/heichal-theme.mp3';
@@ -637,9 +637,15 @@ function toggleAudio(){
   // אם הוגדר קובץ מוזיקה אמיתי — מנגנים אותו (פסקול קולנועי)
   if(MUSIC_URL){
     const bgm=document.getElementById('bgm');
-    if(!bgm.src){ bgm.src=MUSIC_URL; bgm.loop=true; bgm.volume=0.85; }
+    const START=20;   // מתחילים מהאמצע — לדלג על ההתחלה המהירה/חזקה; ללופ מאותה נקודה
+    if(!bgm.src){
+      bgm.src=MUSIC_URL; bgm.loop=false; bgm.volume=0.85;
+      // לופ ידני מנקודת ההתחלה (לא מ-0) כדי לעקוף את ההתחלה המהירה
+      bgm.addEventListener('ended', ()=>{ try{ bgm.currentTime=START; }catch(e){} bgm.play().catch(()=>{}); });
+      bgm.addEventListener('loadedmetadata', ()=>{ try{ bgm.currentTime=START; }catch(e){} }, { once:true });
+    }
     if(audioOn){ bgm.pause(); audioOn=false; }
-    else{ const p=bgm.play(); if(p&&p.catch) p.catch(()=>{}); audioOn=true; }
+    else{ try{ if(bgm.currentTime<START) bgm.currentTime=START; }catch(e){} const p=bgm.play(); if(p&&p.catch) p.catch(()=>{}); audioOn=true; }
     setAudioBtn(); return;
   }
   // אחרת — פסקול מסונתז (גיבוי עד שיהיה קובץ)
