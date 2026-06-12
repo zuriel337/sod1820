@@ -4886,8 +4886,8 @@ function NewsletterSignup() {
     <div style={{ maxWidth: 1040, margin: "0 auto 28px", paddingBottom: 28, borderBottom: `1px solid ${C.border}` }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
         <div>
-          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>הרשמה לרשימת התפוצה</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>קבלו עדכונים וחידושים מסוד 1820</div>
+          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>המספרים כבר מדברים — אתם מקשיבים?</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>הצטרפו לבני ההיכל וקבלו ראשונים כל צופן, רמז וגילוי חדש מסוד 1820.</div>
         </div>
         {done ? (
           <div style={{ color: C.gold, fontFamily: F.body, fontSize: 14 }}>✦ נרשמת בהצלחה — תודה!</div>
