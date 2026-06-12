@@ -16,8 +16,9 @@ import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import TimelinePage from "./pages/TimelinePage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
+import ArchivePage from "./pages/ArchivePage.jsx";
 import {
-  ArchivePage, MembersPage, CommunityPage,
+  MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {

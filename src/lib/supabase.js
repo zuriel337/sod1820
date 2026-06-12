@@ -152,6 +152,40 @@ export async function getGematriaByValue(value) {
   return data ?? [];
 }
 
+// ===== ארכיון הגלריות ("גלריית רמזי הגאולה") =====
+// סקירה: רשימת גלריות + תמונות קלות (לכריכה+ספירה).
+export async function getGalleriesOverview() {
+  if (!supabase) return { gals: [], imgs: [] };
+  const { data: gals } = await supabase
+    .from('galleries')
+    .select('id,name,anchor_number,img_count');
+  let imgs = [], from = 0;
+  while (true) {
+    const { data } = await supabase
+      .from('gallery_images')
+      .select('gallery_id,image_url,ordering,primary_value')
+      .not('image_url', 'is', null)
+      .order('ordering', { ascending: true })
+      .range(from, from + 999);
+    if (!data || !data.length) break;
+    imgs = imgs.concat(data);
+    if (data.length < 1000) break;
+    from += 1000;
+  }
+  return { gals: gals || [], imgs };
+}
+
+// פירוט גלריה אחת — כל התמונות בסדר כרונולוגי (ordering) עם תיאורים.
+export async function getGalleryDetail(galleryId) {
+  if (!supabase || !galleryId) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,name,description,image_url,ordering,primary_value,all_values')
+    .eq('gallery_id', galleryId)
+    .order('ordering', { ascending: true });
+  return data || [];
+}
+
 // ===== דף הישות — איסוף כל המידע סביב מספר/ביטוי =====
 // מחזיר ספירות + פריטים לכל מדור (פוסטים, גלריות, אירועים, תגובות, חידושי AI, מילים שוות).
 export async function getEntityBundle({ term, value, isNumber }) {
