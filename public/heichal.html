@@ -86,6 +86,7 @@
 </head>
 <body>
   <div id="vignette"></div>
+  <div id="brand"></div>
   <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
   <button id="audioBtn" type="button" title="מוזיקת רקע" aria-label="מוזיקת רקע">🔈</button>
   <audio id="bgm" loop preload="none"></audio>
@@ -132,8 +133,8 @@ let clockUpdate = null;   // פונקציית עדכון השעון המרכזי
 
 // ברירת־מחדל — צבעים תואמים לפלטת האתר (זהב / ארגמן / סגול־מלכותי). days = בעוד כמה ימים (null = פתוח).
 const FALLBACK_GATES = [
-  { key:'remez',   title:'עולם הרמזים', world:'הדלת הזאת לא מחכה למפתח — היא מחכה לרגע.',
-    color:0xe8c840, emoji:'👑', url:'/beit-midrash/gematria', days:null },
+  { key:'remez',   title:'שער חתום', world:'מאחורי הדלת הזו נרקם בימים אלו אחד הסודות הגדולים ביותר של האתר. המפתחות כבר קיימים… אך רק כשהזמן יבשיל — השער ייפתח.',
+    color:0xe8c840, emoji:'🚪', url:'#', days:null },
   { key:'beit',    title:'בית המדרש',   world:'לימוד, שיעורים וקהילה לומדת.',
     color:0x6b3fa0, emoji:'📜', url:'/beit-midrash', days:14 },
   { key:'tzofen',  title:'מנוע דילוגי האותיות',  world:'מנוע חיפוש האותיות הטוב בעולם — חפשו את שמכם, את שמות יקיריכם או כל מילה אחרת, וגלו את העולם המופלא של דילוגי האותיות והצפנים.',
@@ -142,7 +143,7 @@ const FALLBACK_GATES = [
     color:0xf6e27a, emoji:'🤖', url:'/map',      days:7 },
   { key:'gilui',   title:'ציר ההתגלות', world:'מסע לאורך קוד ההתגלות — 1237.',
     color:0xc9962f, emoji:'🌳', url:'/timeline', days:-1 },
-  { key:'heichal', title:'בני ההיכל',   world:'מרחב סגור לחברים — פנים ההיכל.',
+  { key:'heichal', title:'בני ההיכל',   world:'השער ייפתח למוזמנים בלבד — רק בני ההיכל.',
     color:0xa01f2e, emoji:'🔐', url:'/members',  days:null },
   { key:'engine',  title:'מנוע המספרים', world:'כל מספר משמעותי — דף משלו. 1820.',
     color:0xd4af37, emoji:'🔢', url:'/numbers',  days:26 },
@@ -493,7 +494,8 @@ function updateTimers(){
   const now=Date.now();
   if(clockUpdate) clockUpdate();
   gates.forEach(g=>{ const o=g.cfg.openAt; let txt;
-    if(g.cfg.key==='remez') txt='✦ הדלת מחכה לרגע ✦';        // מסתורי — בלי שעון
+    if(g.cfg.key==='remez') txt='🌌 נרקם סוד גדול · 🔑 כשהזמן יבשיל';   // שער חתום — בלי שעון
+    else if(g.cfg.key==='heichal') txt='🔐 רק בני ההיכל';                 // החדר הסודי
     else if(o===null) txt='🔒 בקרוב';
     else{ let rem=Math.floor((o-now)/1000);
       if(rem<=0) txt='✦ ההיכל נפתח ✦';
@@ -706,11 +708,13 @@ function animate(){
     g.left.position.x=g.lx-g.openAmt*g.leafW;
     g.right.position.x=g.rx+g.openAmt*g.leafW;
     g.hover += (g.hoverTarget-g.hover)*Math.min(1,dt*8);
-    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05;
-    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2+g.hover*0.4;
-    g.light.intensity=0.9+g.openAmt*2.2+g.hover*0.5;
-    const ro=Math.min(1,g.openAmt*1.2);
-    g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3; });
+    // קסם הדלת הפתוחה — נשימת אור זהובה מבפנים החוצה
+    const op=(g.baseOpen>=1)?(reduced?0.5:(Math.sin(t*1.6)*0.5+0.5)):0;
+    g.innerMat.uniforms.uBright.value=0.25+g.openAmt*1.4+g.hover*0.35+Math.sin(t*1.5+g.worldDoor.x)*0.05+op*1.0;
+    g.tymMat.uniforms.uBright.value=0.55+g.openAmt*1.2+g.hover*0.4+op*0.5;
+    g.light.intensity=0.9+g.openAmt*2.2+g.hover*0.5+op*1.8;
+    const ro=Math.min(1,g.openAmt*1.2+op*0.4);
+    g.rays.forEach((r,k)=>{ r.material.opacity=ro*(0.5-k*0.12); r.scale.y=1+g.openAmt*0.3+op*0.25; });
   });
   if(state==='idle'){
     yaw+=(targetYaw-yaw)*Math.min(1,dt*6);pitch+=(targetPitch-pitch)*Math.min(1,dt*6);
