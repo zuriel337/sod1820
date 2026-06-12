@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
 import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
-import UpdatesBox from "../components/UpdatesBox.jsx";
+import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -59,14 +59,15 @@ function GatesDeck() {
 function WelcomePromo() {
   return (
     <section className="sod-welcome">
-      <UpdatesBox
-        variant="panel"
-        source="home-welcome"
-        title="ברוכים הבאים לעולם החדש"
-        body="המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות חדשות. תודה שאתם צועדים איתנו מההתחלה 🙏❤️ הטוב ביותר עוד לפנינו."
-        cta="הצטרפו לעדכונים →"
-        style={{ maxWidth: 560, margin: "0 auto" }}
-      />
+      <div style={{ textAlign: "center", maxWidth: 560, margin: "0 auto 18px" }}>
+        <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,3.4vw,30px)", fontWeight: 700, margin: "0 0 8px" }}>
+          ברוכים הבאים לעולם החדש
+        </h2>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: 0 }}>
+          המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות. תודה שאתם צועדים איתנו מההתחלה 🙏❤️
+        </p>
+      </div>
+      <PersonalGematriaGift source="home-welcome" />
     </section>
   );
 }
