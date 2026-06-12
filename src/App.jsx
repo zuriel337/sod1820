@@ -15,6 +15,7 @@ import CodePage from "./pages/CodePage.jsx";
 import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import TimelinePage from "./pages/TimelinePage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
+import EntityPage from "./pages/EntityPage.jsx";
 import {
   ArchivePage, MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -69,7 +70,7 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryRoute />} />
           <Route path="/tag/:slug" element={<TagRoute />} />
-          <Route path="/number/:phrase" element={<GematriaRoute />} />
+          <Route path="/number/:phrase" element={<EntityPage />} />
 
           {/* הפניות מכתובות ישנות (שמירת קישורים) */}
           <Route path="/צור-קשר" element={<Navigate to="/contact" replace />} />

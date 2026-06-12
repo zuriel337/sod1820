@@ -152,6 +152,53 @@ export async function getGematriaByValue(value) {
   return data ?? [];
 }
 
+// ===== דף הישות — איסוף כל המידע סביב מספר/ביטוי =====
+// מחזיר ספירות + פריטים לכל מדור (פוסטים, גלריות, אירועים, תגובות, חידושי AI, מילים שוות).
+export async function getEntityBundle({ term, value, isNumber }) {
+  if (!supabase || !term) return null;
+  const t = String(term).trim();
+  const like = `%${t}%`;
+  // שאילתה עם ספירה כוללת + פריטים מוגבלים, עטופה ב-try כדי שלא תפיל את שאר המדורים
+  const sec = (table, cols, build) => {
+    try {
+      let q = supabase.from(table).select(cols, { count: 'exact' });
+      q = build(q);
+      return q.then(({ data, count }) => ({ items: data || [], count: count ?? (data?.length || 0) }))
+              .catch(() => ({ items: [], count: 0 }));
+    } catch { return Promise.resolve({ items: [], count: 0 }); }
+  };
+
+  const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
+    value
+      ? supabase.from('gematria_words').select('phrase,ragil').eq('ragil', value).limit(40)
+          .then(({ data }) => data || []).catch(() => [])
+      : Promise.resolve([]),
+    sec('posts', 'wp_id,slug,title,date',
+      q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12)),
+    sec('gallery_images', 'id,name,image_url,primary_value,gallery_id',
+      q => (isNumber ? q.or(`primary_value.eq.${value},name.ilike.${like}`) : q.ilike('name', like)).limit(18)),
+    sec('nodes', 'id,label,hebrew_date,weight',
+      q => q.eq('type', 'event').eq('is_active', true).ilike('label', like).order('weight', { ascending: false }).limit(12)),
+    sec('comments', 'wp_id,post_wp_id,author_name,content,date',
+      q => q.ilike('content', like).order('date', { ascending: false }).limit(8)),
+    sec('insights', 'id,title,body,source_ref,source_type,origin,related_numbers,related_phrases',
+      q => q.eq('is_active', true).or(
+        isNumber
+          ? `related_numbers.cs.{${value}},title.ilike.${like},body.ilike.${like}`
+          : `related_phrases.cs.{"${t}"},title.ilike.${like},body.ilike.${like}`
+      ).limit(12)),
+  ]);
+
+  return {
+    term: t, value, isNumber, phrases,
+    posts: posts.items, postsCount: posts.count,
+    galleries: galleries.items, galleriesCount: galleries.count,
+    events: events.items, eventsCount: events.count,
+    comments: comments.items, commentsCount: comments.count,
+    insights: insights.items, insightsCount: insights.count,
+  };
+}
+
 // ── Comments ──────────────────────────────────────────────
 export async function syncAllComments(onProgress) {
   if (!supabase) throw new Error('Supabase not configured');
