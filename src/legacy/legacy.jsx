@@ -4887,7 +4887,7 @@ function NewsletterSignup() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
         <div>
           <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>השער נפתח — אל תישארו בחוץ.</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>הצטרפו לבני ההיכל וקבלו את הסודות — כל צופן, רמז וגילוי חדש, ראשונים.</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>הצטרפו למנויים וקבלו את הסודות — כל צופן, רמז וגילוי חדש, ראשונים.</div>
         </div>
         {done ? (
           <div style={{ color: C.gold, fontFamily: F.body, fontSize: 14 }}>✦ נרשמת בהצלחה — תודה!</div>
