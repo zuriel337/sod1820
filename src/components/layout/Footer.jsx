@@ -54,7 +54,15 @@ const SOCIAL = [
     ),
   },
   {
-    label: "פייסבוק", href: "https://www.facebook.com/share/1ECyfiRu3e/",
+    label: "פייסבוק — הדף", href: "https://www.facebook.com/sod1820",
+    svg: (
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" />
+      </svg>
+    ),
+  },
+  {
+    label: "פייסבוק — אישי", href: "https://www.facebook.com/share/1ECyfiRu3e/",
     svg: (
       <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.4 2 14 2c-2.9 0-4.8 1.7-4.8 4.9V9.5H6V13h3.2v9H13z" />
@@ -173,7 +181,7 @@ export default function Footer() {
             <div style={{ marginTop: 10 }}>
               <a href="https://wa.me/972556651237" target="_blank" rel="noopener noreferrer"
                 style={{ color: C.goldDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>
-                📞 וואטסאפ ישיר · 055-6651237
+                🤝 וואטסאפ לשיתופי פעולה · 055-6651237
               </a>
             </div>
           </div>

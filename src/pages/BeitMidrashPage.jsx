@@ -8,6 +8,7 @@ import { stripHtml } from "../lib/format.js";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 
 const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
 const FREE_LIMIT = 2;        // חוק subscribe_gate_law — 2 חידושים חינם ואז הרשמה
@@ -85,76 +86,33 @@ function InsightList({ items, badgeVariant }) {
   );
 }
 
+// 🔒 בית המדרש סגור לחלוטין כרגע — מסך "בבנייה + הרשמה לגישה מוקדמת" בלבד.
 export default function BeitMidrashPage() {
-  const [ai, setAi] = useState(null);
-  const [system, setSystem] = useState(null);
-  const [foundation, setFoundation] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-    getInsights({ origin: "ai", limit: 30 })
-      .then(d => alive && setAi(d)).catch(() => alive && setAi([]));
-    getInsights({ convergence: true, limit: 30 })
-      .then(d => alive && setSystem(d)).catch(() => alive && setSystem([]));
-    getPostByWpId(FOUNDATION_WP_ID)
-      .then(p => alive && setFoundation(p)).catch(() => {});
-    return () => { alive = false; };
-  }, []);
-
   return (
-    <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
-      <SectionHeader eyebrow="כמו אוניברסיטה" title="📚 בית המדרש" />
-
-      {/* באנר — מערכת הגימטריה המתקדמת בהקמה */}
-      <div style={{
-        margin: "0 0 28px", textAlign: "center", padding: "16px 20px", borderRadius: 14,
-        border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
-        color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(15px,2.2vw,19px)", fontWeight: 700, lineHeight: 1.7,
-      }}>
-        🔍 מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI — בהקמה בבית המדרש
+    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "72px 24px 110px", position: "relative", zIndex: 1, textAlign: "center" }}>
+      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
+        🚧 בבנייה
       </div>
-
-      <FoundationPost post={foundation} />
-
-      {/* ── חידושי AI ── */}
-      <section style={{ marginBottom: 52 }}>
-        <SectionTitle emoji="🔵" title="חידושי AI" badge={<VerifiedBadge variant="ai" size={15} />}>
-          חידושי גימטריה שנוצרו ואומתו חישובית על-ידי הבינה של סוד 1820. כל חידוש קצר — לחיצה פותחת את העומק.
-        </SectionTitle>
-        {ai === null ? <ComingSoon text="טוען חידושים…" />
-          : ai.length === 0 ? <ComingSoon text="בקרוב" />
-          : <InsightList items={ai} badgeVariant="ai" />}
-      </section>
-
-      {/* ── חידושי גולשים ── */}
-      <section style={{ marginBottom: 52 }}>
-        <SectionTitle emoji="👥" title="חידושי גולשים">
-          המקום שבו הקהילה תשתף חידושים משלה — בבדיקה ובאישור צוות סוד 1820.
-        </SectionTitle>
-        <ComingSoon text="בקרוב — שיתוף חידושים מהקהילה" />
-      </section>
-
-      {/* ── חידושי המערכת ── */}
-      <section style={{ marginBottom: 56 }}>
-        <SectionTitle emoji="⚡" title="חידושי המערכת" badge={<VerifiedBadge variant="post" label="התכנסות" size={15} />}>
-          התראות אוטומטיות של התכנסות וחותם 1820 — כשהמערכת מזהה צירים מתלכדים באירוע.
-        </SectionTitle>
-        {system === null ? <ComingSoon text="טוען…" />
-          : system.length === 0 ? <ComingSoon text="בקרוב — אין עדיין התראות התכנסות פעילות" />
-          : <InsightList items={system} badgeVariant="post" />}
-      </section>
-
-      {/* ── שיטות הלימוד ── */}
-      <SectionHeader eyebrow="שיטות הגימטריה" title="🎓 שיטות הלימוד" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
-        {METHODS.map(m => (
-          <Link key={m.to} to={m.to} style={{
-            textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`,
-            borderInlineStart: `3px solid ${C.gold}`, borderRadius: 10, padding: "18px 20px",
-            color: C.goldLight, fontFamily: F.royal, fontSize: 16, fontWeight: 700,
-          }}>{m.label}</Link>
-        ))}
+      <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(28px,5vw,44px)", fontWeight: 700, margin: "0 0 18px", lineHeight: 1.25 }}>
+        📚 בית המדרש
+      </h1>
+      <div style={{ display: "inline-block", margin: "0 auto 24px", padding: "8px 18px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+        🔒 ההיכל סגור לעבודות — נפתח בקרוב
       </div>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 8px" }}>
+        אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
+      </p>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 30px" }}>
+        רוצים להיכנס ראשונים? הירשמו וקבלו <b style={{ color: C.goldLight }}>גישה מוקדמת</b> ועדכון ברגע שנפתח.
+      </p>
+      <UpdatesBox
+        variant="panel"
+        source="beit-midrash-gate"
+        title="הרשמה וקבלת גישה מוקדמת"
+        body="השאירו אימייל — תהיו הראשונים שייכנסו לבית המדרש כשייפתח, ותקבלו את החידושים לפני כולם."
+        cta="קבלו גישה מוקדמת →"
+        style={{ maxWidth: 520, margin: "0 auto" }}
+      />
     </div>
   );
 }
