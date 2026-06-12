@@ -306,6 +306,23 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
   return { ok: true, duplicate: !!error };
 }
 
+// ── Insights / חידושים (בית המדרש) ─────────────────────────
+// origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
+export async function getInsights({ origin = null, convergence = false, limit = 30 } = {}) {
+  if (!supabase) return [];
+  let q = supabase
+    .from('insights')
+    .select('id, title, body, proof, related_numbers, related_phrases, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (origin) q = q.eq('origin', origin);
+  if (convergence) q = q.or('has_1820.eq.true,convergence_score.gt.0');
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
 // ── Admin inbox (הודעות + מנויים) — מאחורי סיסמת ניהול בצד-שרת ──
 export async function getAdminInbox(key) {
   const empty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };

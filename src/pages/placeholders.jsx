@@ -61,26 +61,6 @@ export function CommunityCommentsPage() {
 
 const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
 
-export function BeitMidrashPage() {
-  return (
-    <div style={{ direction: "rtl", maxWidth: 980, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
-      <SectionHeader eyebrow="כמו אוניברסיטה" title="📚 בית המדרש" />
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 600, margin: "-24px auto 44px" }}>
-        כל שיטה תכלול הסבר, דוגמאות, מחשבון אינטראקטיבי, שאלות נפוצות, קישור לרמזים אמיתיים ותוכן מתקדם למנויים.
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
-        {METHODS.map(m => (
-          <Link key={m.to} to={m.to} style={{
-            textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`,
-            borderInlineStart: `3px solid ${C.gold}`, borderRadius: 10, padding: "18px 20px",
-            color: C.goldLight, fontFamily: F.royal, fontSize: 16, fontWeight: 700,
-          }}>{m.label}</Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function MethodPage() {
   const { method } = useParams();
   const found = METHODS.find(m => m.to === `/beit-midrash/${method}`);
