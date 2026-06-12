@@ -81,9 +81,14 @@ export default function UpdatesBox({
     return (
       <div style={{ maxWidth: 1040, margin: "0 auto 28px", paddingBottom: 28, borderBottom: `1px solid ${C.border}`, direction: "rtl", ...style }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
-          <div style={{ maxWidth: 420 }}>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{title}</div>
+          <div style={{ maxWidth: 440 }}>
+            <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{title}</div>
             <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, marginTop: 4, lineHeight: 1.7 }}>{body}</div>
+            {!done && (
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 0.3, marginTop: 8, opacity: 0.7 }}>
+                חינם · אימות חד-פעמי במייל · אפשר לבטל בכל רגע
+              </div>
+            )}
           </div>
           {done ? success : (
             <form onSubmit={submit} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -95,7 +100,6 @@ export default function UpdatesBox({
             </form>
           )}
         </div>
-        {!done && micro}
       </div>
     );
   }

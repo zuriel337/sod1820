@@ -105,6 +105,15 @@ export default function BeitMidrashPage() {
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="כמו אוניברסיטה" title="📚 בית המדרש" />
 
+      {/* באנר — מערכת הגימטריה המתקדמת בהקמה */}
+      <div style={{
+        margin: "0 0 28px", textAlign: "center", padding: "16px 20px", borderRadius: 14,
+        border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(62,166,255,0.06), rgba(8,5,2,0.4))",
+        color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(15px,2.2vw,19px)", fontWeight: 700, lineHeight: 1.7,
+      }}>
+        🔍 מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI — בהקמה בבית המדרש
+      </div>
+
       <FoundationPost post={foundation} />
 
       {/* ── חידושי AI ── */}
