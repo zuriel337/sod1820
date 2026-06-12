@@ -8,6 +8,7 @@ import { useLegacyNav } from "../lib/legacyNav.js";
 import DailyMessage from "../components/DailyMessage.jsx";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import VideoGallery from "../components/VideoGallery.jsx";
 
 function Hero() {
   return (
@@ -190,6 +191,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* גלריית הסרטים — לרוחב */}
+      <VideoGallery />
 
       <AiInsightsBox insights={aiInsights} />
 
