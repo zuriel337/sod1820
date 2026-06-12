@@ -1,52 +1,73 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getInsights } from "../lib/supabase.js";
-import { C, F, LOGO_URL, calcGem } from "../theme.js";
+import { C, F, calcGem } from "../theme.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
-import DailyMessage from "../components/DailyMessage.jsx";
 import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 
+// כותרת מתחלפת — CSS fade בלבד, טיימר יחיד (זניח לביצועים)
+const HERO_PHRASES = [
+  "השם 1820 פעם בתורה",
+  "ציר ההתגלות · עץ המספרים · הצופן",
+  "כל לחיצה — מסלול חקירה חדש",
+];
+
 function Hero() {
+  const [phrase, setPhrase] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setPhrase(p => (p + 1) % HERO_PHRASES.length), 3800);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      textAlign: "center", padding: "56px 24px 36px",
-      background: `radial-gradient(ellipse at 50% 0%, rgba(26,18,0,0.55) 0%, transparent 65%)`,
-    }}>
-      <div style={{ position: "relative", display: "inline-block", marginBottom: 22 }}>
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", width: 170, height: 170,
-          background: `conic-gradient(from 0deg, transparent 0deg, rgba(212,175,55,0.16) 12deg, transparent 24deg, transparent 120deg, rgba(212,175,55,0.13) 132deg, transparent 144deg, transparent 240deg, rgba(212,175,55,0.12) 252deg, transparent 264deg)`,
-          borderRadius: "50%", animation: "light-rays 16s linear infinite", pointerEvents: "none",
-        }} />
-        <img src={LOGO_URL} alt="SOD1820" style={{
-          height: 78, width: "auto", display: "block", position: "relative", zIndex: 1,
-          animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-          filter: "drop-shadow(0 0 26px rgba(232,200,74,0.82))",
-        }} />
+    <section className="sod-hero">
+      {/* אורבי זוהר — transform/opacity בלבד (GPU), בלי canvas */}
+      <span className="sod-hero-orb o1" aria-hidden />
+      <span className="sod-hero-orb o2" aria-hidden />
+      <div className="sod-hero-inner">
+        <div className="sod-hero-eyebrow">SOD1820</div>
+        <h1 className="sod-hero-title" key={phrase}>{HERO_PHRASES[phrase]}</h1>
+        <p className="sod-hero-sub">
+          ציר ההתגלות, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
+        </p>
+        <div className="sod-hero-cta">
+          <GoldButton to="/start">היכנס לצופן →</GoldButton>
+          <GoldButton to="/map" variant="secondary">מרכז הניווט</GoldButton>
+        </div>
       </div>
-      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 16, fontFamily: F.cinzel, textTransform: "uppercase" }}>
-        SOD1820
+    </section>
+  );
+}
+
+// שערי החדר — רצועת כניסה סימטרית לחדרי המערכת (מתחבר להיכל השערים)
+const GATES = [
+  { to: "/timeline", icon: "✦", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
+  { to: "/numbers", icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
+  { to: "/beit-midrash", icon: "📖", title: "בית המדרש", sub: "חידושי AI ומערכת" },
+  { to: "/code", icon: "🔯", title: "הצופן התנ\"כי", sub: "השם 1820 פעם" },
+];
+
+function GatesDeck() {
+  return (
+    <section className="sod-gates-wrap">
+      <div className="sod-gates-eyebrow">⟡ שערי החדר</div>
+      <div className="sod-gates">
+        {GATES.map(g => (
+          <Link key={g.to} to={g.to} className="sod-gate">
+            <span className="sod-gate-holo" aria-hidden />
+            <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
+            <span className="sod-gate-icon">{g.icon}</span>
+            <span className="sod-gate-title">{g.title}</span>
+            <span className="sod-gate-sub">{g.sub}</span>
+            <span className="sod-gate-go">היכנס →</span>
+          </Link>
+        ))}
       </div>
-      <h1 style={{
-        color: C.goldBright, margin: "0 0 16px", fontSize: "clamp(30px, 5.4vw, 56px)",
-        fontFamily: F.regal, fontWeight: 700, letterSpacing: 2, lineHeight: 1.2, maxWidth: 720,
-        textShadow: `0 0 80px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)`, animation: "hero-shimmer 5s ease-in-out infinite",
-      }}>
-        מפה חיה של שפת המספרים
-      </h1>
-      <p style={{ color: C.goldDim, fontSize: "clamp(14px, 2vw, 17px)", fontFamily: F.body, lineHeight: 2, maxWidth: 560, margin: "0 0 30px" }}>
-        ציר התדר, עץ המספרים והצופן התנ"כי — מערכת אחת שבה כל לחיצה פותחת מסלול חקירה חדש.
-      </p>
-      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
-        <GoldButton to="/start">התחל את המסע →</GoldButton>
-        <GoldButton to="/map" variant="secondary">מרכז הניווט</GoldButton>
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -63,16 +84,25 @@ function LatestPostsRail({ posts, onPost }) {
   }, [paused, posts.length]);
 
   return (
-    <div className="sod-pf" style={{ direction: "rtl" }}
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div style={{ direction: "rtl" }}>
+      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+        📜 עדכונים אחרונים
+      </div>
+      {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
+      <div className="sod-pf" style={{
+        direction: "rtl", height: "min(82vh, 720px)", display: "flex", flexDirection: "column",
+        borderRadius: 14, border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+        background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+        padding: "16px 14px",
+      }}
+        onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="sod-pf-head">
-        <span className="sod-pf-title">עדכונים אחרונים</span>
         <span className="sod-pf-live"><span className="sod-pf-dot" />LIVE</span>
         <span className="sod-pf-line" />
         <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, overflowY: "auto", paddingLeft: 2 }}>
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
@@ -112,6 +142,7 @@ function LatestPostsRail({ posts, onPost }) {
       <Link to="/post" className="sod-pf-all">
         אל כל הפוסטים <span aria-hidden>→</span>
       </Link>
+      </div>
     </div>
   );
 }
@@ -167,7 +198,7 @@ export default function HomePage() {
   return (
     <div style={{ direction: "rtl" }}>
       <Hero />
-      <DailyMessage />
+      <GatesDeck />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
@@ -200,6 +231,95 @@ export default function HomePage() {
       <style>{`
         @media (max-width: 1080px) {
           .sod-home-grid { grid-template-columns: 1fr !important; }
+        }
+
+        /* ===== Hero — באנר זכוכית קליל ===== */
+        .sod-hero {
+          position: relative; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          text-align: center; padding: 56px 24px 40px;
+          background: radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 60%);
+        }
+        .sod-hero-inner { position: relative; z-index: 2; max-width: 740px; }
+        .sod-hero-eyebrow {
+          font-size: 10px; color: ${C.goldDim}; letter-spacing: 7px; margin-bottom: 16px;
+          font-family: ${F.cinzel}; text-transform: uppercase;
+        }
+        .sod-hero-title {
+          color: ${C.goldBright}; margin: 0 0 16px; min-height: 1.2em;
+          font-size: clamp(28px, 5vw, 52px); font-family: ${F.regal}; font-weight: 700;
+          letter-spacing: 2px; line-height: 1.2;
+          text-shadow: 0 0 60px rgba(212,175,55,0.4), 0 2px 4px rgba(0,0,0,0.8);
+          animation: sod-hero-fade 0.7s ease;
+        }
+        @keyframes sod-hero-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .sod-hero-sub {
+          color: ${C.goldDim}; font-size: clamp(14px, 2vw, 17px); font-family: ${F.body};
+          line-height: 2; max-width: 560px; margin: 0 auto 28px;
+        }
+        .sod-hero-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+        .sod-hero-orb {
+          position: absolute; border-radius: 50%; pointer-events: none; z-index: 1;
+          filter: blur(42px); opacity: 0.5; will-change: transform;
+        }
+        .sod-hero-orb.o1 {
+          width: 240px; height: 240px; top: -50px; right: 12%;
+          background: radial-gradient(circle, rgba(212,175,55,0.28), transparent 70%);
+          animation: sod-orb-a 14s ease-in-out infinite;
+        }
+        .sod-hero-orb.o2 {
+          width: 200px; height: 200px; bottom: -60px; left: 14%;
+          background: radial-gradient(circle, rgba(107,63,160,0.26), transparent 70%);
+          animation: sod-orb-b 18s ease-in-out infinite;
+        }
+        @keyframes sod-orb-a { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-24px, 20px); } }
+        @keyframes sod-orb-b { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(28px, -18px); } }
+
+        /* ===== שערי החדר ===== */
+        .sod-gates-wrap { max-width: 1360px; margin: 0 auto; padding: 8px 18px 6px; direction: rtl; }
+        .sod-gates-eyebrow {
+          text-align: center; font-size: 11px; color: ${C.goldDim}; letter-spacing: 4px;
+          font-family: ${F.heading}; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .sod-gates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .sod-gate {
+          position: relative; overflow: hidden; text-decoration: none;
+          display: flex; flex-direction: column; align-items: center; gap: 6px;
+          padding: 22px 16px 18px; border-radius: 14px;
+          border: 1px solid ${C.border};
+          background: linear-gradient(160deg, rgba(20,15,12,0.6), rgba(8,5,2,0.5));
+          box-shadow: inset 0 1px 0 rgba(246,226,122,0.06);
+          transition: transform 0.28s cubic-bezier(.2,.8,.2,1), border-color 0.28s, box-shadow 0.28s;
+        }
+        .sod-gate:hover {
+          transform: translateY(-4px); border-color: ${C.gold};
+          box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 26px rgba(212,175,55,0.14);
+        }
+        .sod-gate:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
+        .sod-gate-holo {
+          position: absolute; inset: 0; pointer-events: none; opacity: 0;
+          background: linear-gradient(125deg, transparent 40%, rgba(246,226,122,0.10) 50%, transparent 60%);
+          background-size: 220% 220%;
+        }
+        .sod-gate:hover .sod-gate-holo { opacity: 1; animation: sod-pf-holo 1.5s ease-in-out infinite; }
+        .sod-gate-corner { position: absolute; width: 12px; height: 12px; border-color: ${C.goldBright}; opacity: 0.55; }
+        .sod-gate-corner.tl { top: 8px; right: 8px; border-top: 1.5px solid; border-right: 1.5px solid; }
+        .sod-gate-corner.br { bottom: 8px; left: 8px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+        .sod-gate-icon { font-size: 30px; line-height: 1; filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); }
+        .sod-gate-title { color: ${C.goldLight}; font-family: ${F.royal}; font-size: 16px; font-weight: 700; transition: color 0.28s; }
+        .sod-gate:hover .sod-gate-title { color: ${C.goldBright}; }
+        .sod-gate-sub { color: ${C.muted}; font-family: ${F.heading}; font-size: 11px; letter-spacing: 0.5px; }
+        .sod-gate-go {
+          margin-top: 6px; color: ${C.goldBright}; font-family: ${F.heading};
+          font-size: 11px; font-weight: 700; letter-spacing: 1px;
+          opacity: 0; transform: translateY(4px); transition: opacity 0.28s, transform 0.28s;
+        }
+        .sod-gate:hover .sod-gate-go { opacity: 1; transform: translateY(0); }
+        @media (max-width: 760px) { .sod-gates { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 420px) { .sod-gates { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) {
+          .sod-hero-orb, .sod-hero-title { animation: none; }
+          .sod-gate:hover .sod-gate-holo { animation: none; }
         }
 
         /* ===== פוסטים אחרונים — עיצוב עתידני ===== */

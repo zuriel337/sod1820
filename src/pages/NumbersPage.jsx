@@ -17,7 +17,7 @@ export default function NumbersPage() {
         <NumberTree height={560} />
       </Suspense>
       <div style={{ textAlign: "center", marginTop: 28, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link to="/timeline" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 6, padding: "10px 18px" }}>חיבור למסע התדר →</Link>
+        <Link to="/timeline" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 6, padding: "10px 18px" }}>חיבור לציר ההתגלות →</Link>
         <Link to="/members" style={{ color: C.goldDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700, border: `1px solid ${C.border}`, borderRadius: 6, padding: "10px 18px" }}>העץ המתקדם · בני ההיכל</Link>
       </div>
     </div>
