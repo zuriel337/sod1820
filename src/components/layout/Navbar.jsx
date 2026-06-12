@@ -70,7 +70,7 @@ function UniversalSearch({ onDone, full }) {
       <form onSubmit={submit} className="nav-gem" style={{ width: full ? "100%" : undefined }}>
         <span className="nav-gem-ico" aria-hidden>🔎</span>
         <input value={q} onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); }}
-          placeholder="חפש מילה • מספר • צופן • פוסט" aria-label="חיפוש באתר" />
+          placeholder="מה תרצו לגלות היום?" aria-label="חיפוש באתר" />
         <button type="submit" aria-label="חפש">←</button>
       </form>
 
@@ -104,18 +104,25 @@ function UniversalSearch({ onDone, full }) {
 function SurpriseButton({ onDone }) {
   const nav = useNavigate();
   const [pool, setPool] = useState([]);
+  const [spin, setSpin] = useState(false);
   useEffect(() => {
     getPopularPosts({ limit: 60 }).then(r => setPool((r || []).map(p => p.slug).filter(Boolean))).catch(() => {});
   }, []);
   function surprise() {
-    const r = Math.random();
-    if (pool.length && r < 0.6) nav(`/${pool[Math.floor(Math.random() * pool.length)]}`);
-    else if (r < 0.82) nav(`/number/${SURPRISE_NUMS[Math.floor(Math.random() * SURPRISE_NUMS.length)]}`);
-    else nav("/timeline");
-    onDone?.();
+    if (spin) return;
+    setSpin(true);
+    // גלגל מסתובב קצר ואז חשיפה
+    setTimeout(() => {
+      const r = Math.random();
+      if (pool.length && r < 0.6) nav(`/${pool[Math.floor(Math.random() * pool.length)]}`);
+      else if (r < 0.82) nav(`/number/${SURPRISE_NUMS[Math.floor(Math.random() * SURPRISE_NUMS.length)]}`);
+      else nav("/timeline");
+      setSpin(false);
+      onDone?.();
+    }, 520);
   }
   return (
-    <button onClick={surprise} className="nav-dice" title="הפתיעו אותי" aria-label="הפתיעו אותי">🎲</button>
+    <button onClick={surprise} className={`nav-dice${spin ? " spin" : ""}`} title="הפתיעו אותי" aria-label="הפתיעו אותי">🎲</button>
   );
 }
 
@@ -354,6 +361,8 @@ export default function Navbar() {
           background: rgba(8,5,2,0.6); border: 1px solid ${C.borderGold}; border-radius: 10px; color: ${C.goldBright};
           transition: transform 0.25s, box-shadow 0.2s, background 0.2s; }
         .nav-dice:hover { transform: rotate(18deg) scale(1.06); box-shadow: 0 0 16px rgba(212,175,55,0.3); background: ${C.surface}; }
+        .nav-dice.spin { animation: nav-dice-spin 0.55s cubic-bezier(.2,.8,.2,1); box-shadow: 0 0 22px rgba(212,175,55,0.45); }
+        @keyframes nav-dice-spin { 0% { transform: rotate(0) scale(1); } 60% { transform: rotate(540deg) scale(1.18); } 100% { transform: rotate(720deg) scale(1); } }
 
         .sod-nav-drawer { animation: nav-drawer-in 0.25s ease; }
         @keyframes nav-drawer-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
