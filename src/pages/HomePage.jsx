@@ -65,8 +65,8 @@ function LatestPostsRail({ posts, onPost }) {
     <div className="sod-pf" style={{ direction: "rtl" }}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="sod-pf-head">
-        <span className="sod-pf-dot" />
         <span className="sod-pf-title">עדכונים אחרונים</span>
+        <span className="sod-pf-live"><span className="sod-pf-dot" />LIVE</span>
         <span className="sod-pf-line" />
         <span className="sod-pf-count">{String(posts.length).padStart(2, "0")}</span>
       </div>
@@ -209,6 +209,14 @@ export default function HomePage() {
           font-family: ${F.heading}; font-size: 12px; font-weight: 800;
           letter-spacing: 3px; text-transform: uppercase; color: ${C.goldBright};
         }
+        .sod-pf-live {
+          display: inline-flex; align-items: center; gap: 5px;
+          font-family: ${F.mono}; font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+          color: #ff6b6b; text-transform: uppercase;
+          border: 1px solid rgba(255,107,107,0.4); border-radius: 4px; padding: 1px 6px 1px 5px;
+          background: rgba(255,107,107,0.08);
+        }
+        .sod-pf-live .sod-pf-dot { background: #ff6b6b; box-shadow: 0 0 8px #ff6b6b, 0 0 3px #ff6b6b; }
         .sod-pf-line {
           flex: 1; height: 1px;
           background: linear-gradient(90deg, ${C.borderGold}, transparent);
