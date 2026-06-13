@@ -2756,6 +2756,41 @@ const POST_CONTENT_CSS = `
     font-family: 'Heebo', sans-serif; font-size: 14px;
   }
   .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
+
+  /* ── רכיבי Elementor (ללא ה-CSS/JS המקורי של אלמנטור) ──
+     התוכן עצמו גלוי; כאן רק מנקים ומעצבים כדי שלא ייראה שבור. */
+  .sod-post-content .elementor-element,
+  .sod-post-content .elementor-widget-container,
+  .sod-post-content .elementor-widget-wrap,
+  .sod-post-content .elementor-column,
+  .sod-post-content .elementor-row { max-width: 100% !important; width: auto !important; }
+  /* אקורדיון: התוכן ממילא פתוח — מסתירים אייקון "פתוח" כפול ומעצבים כותרת */
+  .sod-post-content .elementor-accordion-item {
+    border: 1px solid ${C.border}; border-radius: 8px; margin: 12px 0; overflow: hidden;
+  }
+  .sod-post-content .elementor-tab-title {
+    background: ${C.surface}; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    color: ${C.goldLight}; font-family: 'Heebo', sans-serif; font-weight: 700;
+    border-bottom: 1px solid ${C.border};
+  }
+  .sod-post-content .elementor-tab-title a,
+  .sod-post-content .elementor-accordion-title { color: ${C.goldLight} !important; text-decoration: none; }
+  .sod-post-content .elementor-accordion-icon-opened { display: none !important; }
+  .sod-post-content .elementor-accordion-icon svg { width: 14px; height: 14px; fill: ${C.gold}; }
+  .sod-post-content .elementor-tab-content { padding: 12px 16px 4px; }
+  /* קו מפריד — נדרש border כדי שייראה */
+  .sod-post-content .elementor-divider { padding: 14px 0; text-align: center; }
+  .sod-post-content .elementor-divider-separator {
+    display: block; height: 0; width: 60%; margin: 0 auto;
+    border-top: 1px solid ${C.borderGold};
+  }
+  /* כפתורי אלמנטור */
+  .sod-post-content .elementor-button {
+    display: inline-block; background: ${C.goldDark}; color: ${C.goldBright} !important;
+    text-decoration: none; padding: 10px 22px; border-radius: 999px;
+    border: 1px solid ${C.borderGold}; font-family: 'Heebo', sans-serif; font-weight: 700; margin: 4px 0;
+  }
 `;
 
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
