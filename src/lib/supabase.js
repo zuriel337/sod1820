@@ -59,12 +59,12 @@ export async function syncAllPosts() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date' } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
     .select('*', { count: 'exact' })
-    .order(orderBy, { ascending: false, nullsFirst: false })
+    .order(orderBy, { ascending, nullsFirst: false })
     .range((page - 1) * limit, page * limit - 1);
 
   if (category) query = query.contains('categories', [category]);
@@ -329,6 +329,15 @@ export async function getPopularPosts({ limit = 10 } = {}) {
   const { data: recent } = await supabase
     .from('posts').select('*').order('date', { ascending: false }).limit(limit);
   return recent ?? [];
+}
+
+// ── Popular posts (by Jetpack views — legacy_traffic, source='jetpack') ──
+// מחזיר פוסטים מדורגים לפי סך הצפיות שיובאו מ-Jetpack (ראה RPC popular_posts_by_views).
+export async function getPopularByViews({ limit = 60 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('popular_posts_by_views', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
 }
 
 // ── Contact ────────────────────────────────────────────────
