@@ -17,6 +17,7 @@ import TimelinePage from "./pages/TimelinePage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
+import VerifiedPostsPage from "./pages/VerifiedPostsPage.jsx";
 import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
@@ -67,6 +68,7 @@ export default function App() {
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
           <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
+          <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/community/chat" element={<ChatRoute />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
