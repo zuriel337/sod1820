@@ -4,6 +4,7 @@ import { F, KEY_NUMBERS } from "../theme.js";
 import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
+import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -21,6 +22,7 @@ const SECTIONS = [
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
   { key: "numbers", icon: "🔢", label: "מספרי יסוד" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
+  { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "ai", icon: "🔵", label: "חידושי AI", ai: true },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "mine", icon: "✦", label: "חידושי המערכת" },
@@ -284,6 +286,55 @@ function CalcTab() {
   );
 }
 
+// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מ-8 השיטות.
+const METHOD_INFO = {
+  "רגיל": { what: "השיטה הבסיסית של הגימטריה — היסוד של כולן.", how: "כל אות מקבלת את ערכה המספרי (א=1, ב=2 … י=10, כ=20 … ת=400), וסוכמים." },
+  "מילוי": { what: "ערך שֵם האות המלא — הרובד הפנימי, ה'נשמה' של האות.", how: "כותבים כל אות במילואה (א→אָלֶף, ה→הֵי) ומחשבים את גימטריית השם המלא. למשל א = אלף = 111." },
+  "מסתתר": { what: "השיטה הייחודית של סוד 1820 — מה שמסתתר בֵּין האותיות.", how: "סוכמים את ההפרש (בערך מוחלט) בין כל שתי אותיות סמוכות.", insight: "💎 חכמה → |8−20|+|20−40|+|40−5| = 12+20+35 = 67 = בִּינָה. החכמה יוצאת מן הבינה.", star: true },
+  "קדמי": { what: "ערך מצטבר ('משולש') — בנייה שכבה על שכבה.", how: "כל אות = סכום כל האותיות שלפניה ועד אליה (א=1, ב=1+2=3, ג=1+2+3=6 …), וסוכמים." },
+  "גדול": { what: "כמו רגיל — אך עם ערכי האותיות הסופיות.", how: "האותיות הסופיות מקבלות ערך גבוה: ך=500, ם=600, ן=700, ף=800, ץ=900. השאר כמו רגיל." },
+  "סידורי": { what: "ערך לפי הסדר באלף-בית — ה'מספר הפשוט'.", how: "כל אות לפי מיקומה: א=1, ב=2 … י=10, כ=11, ל=12 … ת=22." },
+  "אתבש": { what: "צופן הראי של האלף-בית — קדום ומופיע בתנ״ך.", how: "מחליפים כל אות בבת-זוגה מהקצה הנגדי: א↔ת, ב↔ש, ג↔ר … וסוכמים את ערכי האותיות המוחלפות.", insight: "בתנ״ך: «שֵׁשַׁךְ» באתבש = «בָּבֶל»." },
+  "אלבם": { what: "צופן חצי-אלפבית — מחילופי הצפנים הקדומים.", how: "מחלקים את הא״ב לשניים (11+11) ומחליפים אות מול אות: א↔ל, ב↔מ, ג↔נ … וסוכמים." },
+};
+const SAMPLE = "חכמה";
+function methodExample(m) {
+  const Lt = onlyHeb(SAMPLE);
+  if (m.key === "מסתתר") {
+    return Lt.slice(0, -1).map((c, i) => `|${c}−${Lt[i + 1]}|`).join(" + ") + " = " + Lt.slice(0, -1).map((c, i) => Math.abs(GEM[c] - GEM[Lt[i + 1]])).join(" + ") + " = " + m.fn(SAMPLE);
+  }
+  const map = m.map || GEM;
+  return Lt.map(c => `${c}(${map[c]})`).join(" + ") + " = " + m.fn(SAMPLE);
+}
+function MethodsTab() {
+  return (
+    <div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
+        כל שיטה חושפת רובד אחר באותו ביטוי. הנה 8 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+        {METHODS.map(m => {
+          const info = METHOD_INFO[m.key] || {};
+          return (
+            <div key={m.key} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, margin: 0 }}>{m.key}</h3>
+                {info.star && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>★ שיטת הבית</span>}
+              </div>
+              <p style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, margin: "0 0 8px" }}>{info.what}</p>
+              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: "0 0 10px" }}><b style={{ color: L.goldDeep }}>איך מחשבים: </b>{info.how}</p>
+              <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "8px 12px", color: L.ink, fontFamily: F.mono, fontSize: 13, lineHeight: 1.7 }}>
+                <span style={{ color: L.sub }}>דוגמה · </span>{methodExample(m)}
+              </div>
+              {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Soon({ title, note }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
@@ -358,6 +409,7 @@ export default function BeitMidrashPage() {
             {tab === "sod1820" && <Sod1820Tab />}
             {tab === "numbers" && <NumbersTab initial={nParam} />}
             {tab === "calc" && <CalcTab />}
+            {tab === "methods" && <MethodsTab />}
             {tab === "ai" && (ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
               <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>)}
             {tab === "mine" && (mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
