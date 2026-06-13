@@ -3,7 +3,7 @@
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/wp-content/(.*)", "destination": "https://i0.wp.com/sod1820.co.il/wp-content/$1" },
+    { "source": "/wp-content/(.*)", "destination": "https://wp.sod1820.co.il/wp-content/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
