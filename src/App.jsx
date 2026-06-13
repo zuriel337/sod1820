@@ -23,10 +23,11 @@ import {
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {
-  PostsRoute, PostBySlugRoute, CategoryRoute, TagRoute, GematriaRoute,
+  PostsRoute, PostBySlugRoute, GematriaRoute,
   AboutRoute, LoginRoute, ContactRoute, ChatRoute,
   TrafficRoute, NumbersReportRoute, AdminRoute,
 } from "./pages/legacyRoutes.jsx";
+import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -70,8 +71,8 @@ export default function App() {
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
-          <Route path="/category/:slug" element={<CategoryRoute />} />
-          <Route path="/tag/:slug" element={<TagRoute />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
 
