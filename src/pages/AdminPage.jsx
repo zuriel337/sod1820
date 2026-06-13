@@ -71,6 +71,7 @@ function OcrTab() {
   const [running, setRunning] = useState(false);
   const [auto, setAuto] = useState(false);
   const [log, setLog] = useState([]);
+  const [retryErrors, setRetryErrors] = useState(false);
   const stopRef = React.useRef(false);
 
   const refresh = useCallback(() => getOcrCounts().then(setCounts).catch(() => {}), []);
@@ -87,16 +88,16 @@ function OcrTab() {
     setRunning(true); setAuto(true); stopRef.current = false;
     try {
       for (let i = 0; i < 80 && !stopRef.current; i++) {
-        const r = await runOnce(false);
+        const r = await runOnce(retryErrors);
         await refresh();
-        if (!r || r.picked === 0) { addLog("✅ הסתיים — אין עוד תמונות ממתינות"); break; }
+        if (!r || r.picked === 0) { addLog("✅ הסתיים — אין עוד תמונות לעיבוד"); break; }
       }
     } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
     finally { setRunning(false); setAuto(false); }
   }
   async function runSingle() {
     setRunning(true);
-    try { await runOnce(false); await refresh(); } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
+    try { await runOnce(retryErrors); await refresh(); } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
     finally { setRunning(false); }
   }
 
@@ -120,6 +121,10 @@ function OcrTab() {
         </div>
         <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, marginBottom: 14 }}>{pct}% הושלמו</div>
 
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.goldLight, fontFamily: F.heading, fontSize: 13, marginBottom: 12, cursor: "pointer" }}>
+          <input type="checkbox" checked={retryErrors} onChange={e => setRetryErrors(e.target.checked)} />
+          כלול גם תמונות שנכשלו (נסה שוב שגיאות) — לאחר טעינת קרדיטים ב-Anthropic
+        </label>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <input value={runKey} onChange={e => setRunKey(e.target.value)} placeholder="x-run-key (אם הוגדר)"
             style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.mono, fontSize: 13, direction: "ltr" }} />
