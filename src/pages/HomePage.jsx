@@ -21,9 +21,9 @@ function BrandStrip() {
 // שערי המערכת — כרגע כל הדפים סגורים → מצב "🔒 בקרוב". הצופן = ELS (לא קשור ל-1820).
 const GATES = [
   { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline", open: true },
-  { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
-  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI · בהקמה" },
-  { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
+  { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר", to: "/numbers", open: true },
+  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI", to: "/beit-midrash", open: true },
+  { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)", to: "/code", open: true },
 ];
 
 function GatesDeck() {
