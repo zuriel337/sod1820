@@ -5274,6 +5274,40 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
 
+            {/* שיתוף — קריאה מיוחדת בפוסטי הינוקא */}
+            {(() => {
+              const shareUrl = `${SITE_URL}/${post.slug || slug}`;
+              const isYenuka = (tags || []).some(t => YENUKA_TAGS.includes(t));
+              return (
+                <div style={{ marginTop: 52 }}>
+                  <RoyalDivider width={120} />
+                  {isYenuka ? (
+                    <div style={{
+                      marginTop: 28, background: "linear-gradient(150deg, rgba(212,175,55,0.14), rgba(122,19,32,0.16))",
+                      border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
+                    }}>
+                      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
+                        🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.
+                      </div>
+                      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
+                        אולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <ShareBar url={shareUrl} title={title} text={YENUKA_SHARE_TEXT} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: 24 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                        שתפו את הפוסט
+                      </div>
+                      <ShareBar url={shareUrl} title={title} text={title} />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* ── COMMENTS ── */}
             {comments.length > 0 && (
               <div style={{ marginTop: 64 }}>

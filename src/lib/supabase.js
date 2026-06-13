@@ -179,7 +179,7 @@ export async function getGalleriesOverview() {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('gallery_id,image_url,ordering,primary_value,occurred_at,created_at')
+      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at')
       .not('image_url', 'is', null)
       .order('occurred_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
@@ -190,6 +190,40 @@ export async function getGalleriesOverview() {
     from += 1000;
   }
   return { gals: gals || [], imgs };
+}
+
+// ===== סטים של מספרים (number_sets) =====
+export async function getNumberSets() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('number_sets').select('*')
+    .eq('is_active', true).order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  return data || [];
+}
+export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined }) {
+  if (!supabase) throw new Error('no supabase');
+  const row = { name, numbers, description, sort_order };
+  if (image_order !== undefined) row.image_order = image_order;
+  if (id) {
+    const { data, error } = await supabase.from('number_sets')
+      .update({ ...row, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
+    if (error) throw error; return data;
+  }
+  const { data, error } = await supabase.from('number_sets').insert(row).select().maybeSingle();
+  if (error) throw error; return data;
+}
+export async function deleteNumberSet(id) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('number_sets').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// תחנות ציר ההתגלות (לגשר בין סט מספרים לאירועים)
+export async function getTederStations() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('teder_stations')
+    .select('id,title,year,event_date,central_numbers,post_ref,description,sort_order,is_active')
+    .eq('is_active', true).order('year', { ascending: false });
+  return data || [];
 }
 
 // פירוט גלריה אחת — כל התמונות בסדר כרונולוגי (ordering) עם תיאורים.
@@ -465,7 +499,7 @@ export async function getInsights({ origin = null, convergence = false, space = 
   if (!supabase) return [];
   let q = supabase
     .from('insights')
-    .select('id, title, body, proof, related_numbers, related_phrases, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
+    .select('id, title, body, proof, related_numbers, related_phrases, tags, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(limit);
