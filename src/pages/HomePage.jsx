@@ -67,16 +67,16 @@ const DASH = [
 ];
 function HomeDashboard() {
   return (
-    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "4px 18px 30px", direction: "rtl" }}>
-      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
-        ❤️ שולחן העבודה · דופק מספרי המפתח
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 18px 10px", direction: "rtl" }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>🔢 מספרי המפתח</span>
+        <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>בהקמה</span>
       </div>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
         {DASH.map(d => (
           <Link key={d.n} to={`/number/${d.n}`} style={{ textDecoration: "none", textAlign: "center" }} className="sod-dash-num">
             <PulseRing value={d.pulse} size={82} core={d.core} label={false} />
             <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18, fontWeight: 800, marginTop: 4 }}>{d.n}</div>
-            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, maxWidth: 110, lineHeight: 1.4 }}>{KEY_NUMBERS[d.n] || ""}</div>
           </Link>
         ))}
       </div>
@@ -294,7 +294,6 @@ export default function HomePage() {
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
       <GatesDeck />
-      <HomeDashboard />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
@@ -328,6 +327,9 @@ export default function HomePage() {
 
       {/* גלריית הסרטים — מתחת לחידושי AI */}
       <VideoGallery />
+
+      {/* מספרי המפתח (בהקמה) — ליד אזור הגלריות; יתחבר לגלריות */}
+      <HomeDashboard />
 
       {/* ארכיון ההתגלות — הריבוע הגדול (מקום הגלריות) */}
       <ArchiveBox />
