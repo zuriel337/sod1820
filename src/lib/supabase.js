@@ -547,6 +547,28 @@ export async function adminGetSubscribers() {
   return data || [];
 }
 
+// ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──
+export async function getOcrCounts() {
+  if (!supabase) return { total: 0, done: 0, pending: 0, error: 0, other: 0 };
+  const c = { total: 0, done: 0, pending: 0, error: 0, other: 0 };
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from('gallery_images').select('ocr_status').range(from, from + 999);
+    if (!data || !data.length) break;
+    for (const r of data) { c.total++; const k = r.ocr_status; if (k === 'done' || k === 'pending' || k === 'error') c[k]++; else c.other++; }
+    if (data.length < 1000) break;
+  }
+  return c;
+}
+export async function runOcrBatch({ limit = 50, retry = false, runKey = '' } = {}) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.functions.invoke('gallery-ocr', {
+    body: { limit, retry_errors: retry },
+    ...(runKey ? { headers: { 'x-run-key': runKey } } : {}),
+  });
+  if (error) throw error;
+  return data; // { picked, done, errors, sample }
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
