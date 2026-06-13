@@ -89,23 +89,39 @@ function InsightList({ items, badgeVariant }) {
   );
 }
 
-// 🧮 רשימות גימטריה — בוחרים מספר ורואים את כל הביטויים ששווים לו (gematria_words).
-const ANCHORS = [1820, 1237, 358, 541, 318, 86, 45, 26];
-function GematriaLists() {
+// ===== עוזרי טבלה =====
+const tWrap = { overflowX: "auto", border: `1px solid ${C.borderGold}`, borderRadius: 14, background: C.surface2 };
+const tEl = { width: "100%", borderCollapse: "collapse", direction: "rtl", minWidth: 0 };
+const thS = { background: C.goldDark, color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "10px 12px", textAlign: "right", whiteSpace: "nowrap", borderBottom: `1px solid ${C.borderGold}` };
+const tdS = { color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 12px", borderBottom: `1px solid ${C.border}`, verticalAlign: "top" };
+const numCell = { ...tdS, fontFamily: F.mono, fontWeight: 700, color: C.goldBright, textAlign: "center", whiteSpace: "nowrap" };
+
+// 🧮 טבלת גימטריה רב-שיטתית — בוחרים מספר ורואים ביטויים ששווים לו בכל השיטות (bidim).
+const ANCHORS = [1820, 1237, 776, 358, 541, 318, 1202, 86, 45, 26];
+const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
+function GematriaTable() {
   const [val, setVal] = useState(1820);
-  const [words, setWords] = useState(null);
+  const [rows, setRows] = useState(null);
   useEffect(() => {
-    let live = true; setWords(null);
-    supabase.from("gematria_words").select("phrase").eq("ragil", val).not("phrase", "is", null).limit(120)
-      .then(({ data }) => { if (live) setWords((data || []).map(r => r.phrase).filter(Boolean)); });
+    let live = true; setRows(null);
+    (async () => {
+      const { data: ph } = await supabase.from("bidim").select("phrase").eq("method", "רגיל").eq("value", val).limit(80);
+      const phrases = [...new Set((ph || []).map(r => r.phrase).filter(Boolean))];
+      if (!phrases.length) { if (live) setRows([]); return; }
+      const { data: all } = await supabase.from("bidim").select("phrase,method,value").in("phrase", phrases);
+      const map = {};
+      (all || []).forEach(r => { (map[r.phrase] ||= {})[r.method] = r.value; });
+      const out = phrases.map(p => ({ phrase: p, vals: map[p] || {} })).sort((a, b) => a.phrase.length - b.phrase.length);
+      if (live) setRows(out);
+    })();
     return () => { live = false; };
   }, [val]);
   return (
-    <div style={{ margin: "44px auto 8px", maxWidth: 640, textAlign: "right" }}>
+    <div style={{ margin: "44px auto 8px", maxWidth: 720, textAlign: "right" }}>
       <div style={{ textAlign: "center", marginBottom: 14 }}>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>🧮 רשימות גימטריה</div>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>🧮 טבלאות הגימטריה</div>
         <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
-          בחרו מספר וראו את כל הביטויים ששווים לו בגימטריה רגילה. לחיצה פותחת את דף המספר המלא.
+          בחרו מספר וראו את הביטויים ששווים לו, וכמה הם שווים בכל שיטה. לחיצה על ביטוי פותחת את דף המספר.
         </p>
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
@@ -117,26 +133,71 @@ function GematriaLists() {
           }}>{n}</button>
         ))}
       </div>
-      <div style={{ background: C.surface2, border: `1px solid ${C.borderGold}`, borderRadius: 14, padding: "16px 18px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-          <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{val}</span>
-          {KEY_NUMBERS[val] && <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[val]}</span>}
-          {words && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13, marginInlineStart: "auto" }}>{words.length} ביטויים</span>}
-        </div>
-        {words === null ? (
-          <div style={{ color: C.muted, fontFamily: F.body, padding: 12, textAlign: "center" }}>טוען…</div>
-        ) : (
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-            {words.map((p, i) => (
-              <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
-                textDecoration: "none", color: C.goldLight, fontFamily: F.body, fontSize: 13.5,
-                background: C.surface, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px",
-                maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>{p}</Link>
-            ))}
-          </div>
-        )}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10, flexWrap: "wrap", justifyContent: "center" }}>
+        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>{val}</span>
+        {KEY_NUMBERS[val] && <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15 }}>{KEY_NUMBERS[val]}</span>}
+        {rows && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>· {rows.length} ביטויים</span>}
       </div>
+      {rows === null ? (
+        <div style={{ color: C.muted, fontFamily: F.body, padding: 16, textAlign: "center" }}>טוען…</div>
+      ) : rows.length === 0 ? (
+        <div style={{ color: C.muted, fontFamily: F.body, padding: 16, textAlign: "center" }}>אין ביטויים מאומתים למספר זה ב-bidim.</div>
+      ) : (
+        <div style={tWrap}>
+          <table style={tEl}>
+            <thead><tr><th style={thS}>ביטוי</th>{COLS.map(c => <th key={c} style={{ ...thS, textAlign: "center" }}>{c}</th>)}</tr></thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={i}>
+                  <td style={tdS}>
+                    <Link to={`/number/${encodeURIComponent(r.phrase)}`} style={{ color: C.goldLight, textDecoration: "none", fontWeight: 700 }}>{r.phrase}</Link>
+                  </td>
+                  {COLS.map(c => <td key={c} style={numCell}>{r.vals[c] ?? "—"}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// טבלת חידושים — כותרת + מספרים; לחיצה על שורה פותחת את גוף החידוש.
+function InsightTable({ items, accent = C.gold }) {
+  const [open, setOpen] = useState(null);
+  return (
+    <div style={tWrap}>
+      <table style={tEl}>
+        <thead><tr><th style={thS}>חידוש</th><th style={{ ...thS, textAlign: "center" }}>מספרים</th></tr></thead>
+        <tbody>
+          {items.map(it => {
+            const isOpen = open === it.id;
+            const nums = (it.related_numbers || []).slice(0, 4).join(" · ");
+            return (
+              <React.Fragment key={it.id}>
+                <tr onClick={() => setOpen(isOpen ? null : it.id)} style={{ cursor: "pointer" }}>
+                  <td style={{ ...tdS, fontFamily: F.regal, fontWeight: 700, color: C.goldLight, borderInlineStart: `3px solid ${accent}` }}>
+                    <span style={{ color: accent, marginInlineEnd: 6 }}>{isOpen ? "▴" : "▾"}</span>{it.title}
+                  </td>
+                  <td style={numCell}>{nums || "—"}</td>
+                </tr>
+                {isOpen && (
+                  <tr><td colSpan={2} style={{ ...tdS, background: C.surface }}>
+                    {it.body && <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 0 8px", whiteSpace: "pre-wrap" }}>{it.body}</p>}
+                    {it.proof && <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.8, margin: 0 }}><b style={{ color: C.gold }}>הוכחה: </b>{it.proof}</p>}
+                    {!!(it.related_phrases || []).length && (
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                        {it.related_phrases.map((p, i) => <span key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldLight, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px" }}>{p}</span>)}
+                      </div>
+                    )}
+                  </td></tr>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -178,40 +239,38 @@ export default function BeitMidrashPage() {
         </React.Suspense>
       </div>
 
-      {/* ✦ פיד חידושי הגימטריה — חידושים מאומתים (2 פתוחים ואז שער הרשמה) */}
+      {/* ✦ טבלת חידושי הגימטריה — חידושים מאומתים (צוריאל) */}
       {insights.length > 0 && (
-        <div style={{ margin: "40px auto 8px", maxWidth: 640, textAlign: "right" }}>
+        <div style={{ margin: "40px auto 8px", maxWidth: 720, textAlign: "right" }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-              ✦ חידושי הגימטריה
+              ✦ חידושי הגימטריה ({insights.length})
             </div>
             <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
-              חידושים מאומתים מתוך עבודת השנים — מילים, מספרים והצפנים שמאחוריהם. שניים פתוחים כאן; ההמשך נפתח עם ההרשמה.
+              חידושים מאומתים מתוך עבודת השנים. לחיצה על שורה פותחת את החידוש המלא.
             </p>
           </div>
-          <InsightList items={insights} badgeVariant="post" />
+          <InsightTable items={insights} accent={C.gold} />
         </div>
       )}
 
-      {/* 🔵 חידושי AI */}
+      {/* 🔵 טבלת חידושי AI */}
       {aiInsights.length > 0 && (
-        <div style={{ margin: "44px auto 8px", maxWidth: 640, textAlign: "right" }}>
+        <div style={{ margin: "44px auto 8px", maxWidth: 720, textAlign: "right" }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-              🔵 חידושי AI
+              🔵 חידושי AI ({aiInsights.length})
             </div>
             <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
-              חידושים שהופקו בעזרת בינה מלאכותית — מסומנים כ-AI, פתוחים לעיון.
+              חידושים שהופקו בעזרת בינה מלאכותית. לחיצה על שורה פותחת את החידוש.
             </p>
           </div>
-          <div style={{ display: "grid", gap: 12 }}>
-            {aiInsights.map(it => <InsightCard key={it.id} insight={it} badgeVariant="ai" />)}
-          </div>
+          <InsightTable items={aiInsights} accent="#3ea6ff" />
         </div>
       )}
 
-      {/* 🧮 רשימות גימטריה */}
-      <GematriaLists />
+      {/* 🧮 טבלאות גימטריה */}
+      <GematriaTable />
 
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "40px auto 30px" }}>
         הכניסה למעגל ההיכל מתחילה כאן: הפיקו את <b style={{ color: C.goldLight }}>דו״ח הכניסה האישי</b> שלכם — ותהיו הראשונים שייכנסו לבית המדרש כשייפתח.
