@@ -267,19 +267,24 @@ export async function getEntityBundle({ term, value, isNumber }) {
           .then(({ data }) => data || []).catch(() => [])
       : Promise.resolve([]),
     postsP,
+    // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
     sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
-      q => (isNumber ? q.or(`primary_value.eq.${value},name.ilike.${like}`) : q.ilike('name', like))
+      q => (isNumber ? q.or(`primary_value.eq.${value},all_values.cs.{${value}}`) : q.ilike('name', like))
             .order('occurred_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false }).limit(18)),
-    sec('nodes', 'id,label,hebrew_date,weight',
-      q => q.eq('type', 'event').eq('is_active', true).ilike('label', like).order('weight', { ascending: false }).limit(12)),
-    sec('comments', 'wp_id,post_wp_id,author_name,content,date',
-      q => q.ilike('content', like).order('date', { ascending: false }).limit(8)),
+    // אירועים: רק לטקסט (למספר אין שדה מספרי בנודים — נמנע מרעש כמו 2026 עבור 26).
+    isNumber ? Promise.resolve({ items: [], count: 0 }) :
+      sec('nodes', 'id,label,hebrew_date,weight',
+        q => q.eq('type', 'event').eq('is_active', true).ilike('label', like).order('weight', { ascending: false }).limit(12)),
+    // תגובות: רק לטקסט (למספר תת-מחרוזת מייצרת רעש).
+    isNumber ? Promise.resolve({ items: [], count: 0 }) :
+      sec('comments', 'wp_id,post_wp_id,author_name,content,date',
+        q => q.ilike('content', like).order('date', { ascending: false }).limit(8)),
+    // חידושים: למספר — לפי related_numbers מדויק בלבד; לטקסט — לפי ביטוי + כותרת/גוף.
     sec('insights', 'id,title,body,source_ref,source_type,origin,related_numbers,related_phrases',
-      q => q.eq('is_active', true).or(
-        isNumber
-          ? `related_numbers.cs.{${value}},title.ilike.${like},body.ilike.${like}`
-          : `related_phrases.cs.{"${t}"},title.ilike.${like},body.ilike.${like}`
+      q => (isNumber
+        ? q.eq('is_active', true).contains('related_numbers', [value])
+        : q.eq('is_active', true).or(`related_phrases.cs.{"${t}"},title.ilike.${like},body.ilike.${like}`)
       ).limit(12)),
   ]);
 
