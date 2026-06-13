@@ -2710,6 +2710,65 @@ const POST_CONTENT_CSS = `
   .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
 `;
 
+// ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
+// משתף את הקישור הקנוני (SITE_URL + slug) כדי שגם לפני העברת הדומיין הקישור יהיה תקין.
+function ShareBar({ url, title, text }) {
+  const [copied, setCopied] = useState(false);
+  const enc = encodeURIComponent;
+  const body = (text || title || "").trim();
+  const wa = `https://wa.me/?text=${enc((body ? body + "\n" : "") + url)}`;
+  const tg = `https://t.me/share/url?url=${enc(url)}&text=${enc(body)}`;
+  const fb = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+  const x  = `https://twitter.com/intent/tweet?text=${enc(body)}&url=${enc(url)}`;
+
+  const btns = [
+    { label: "וואטסאפ", emoji: "💬", href: wa, bg: "#1faa55" },
+    { label: "טלגרם", emoji: "✈️", href: tg, bg: "#2aabee" },
+    { label: "פייסבוק", emoji: "👍", href: fb, bg: "#1877f2" },
+    { label: "X", emoji: "𝕏", href: x, bg: "#111" },
+  ];
+
+  function copy() {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+    } else { window.prompt("העתיקו את הקישור:", url); }
+  }
+  function native() {
+    if (navigator.share) navigator.share({ title, text: body, url }).catch(() => {});
+  }
+  const canNative = typeof navigator !== "undefined" && !!navigator.share;
+
+  const base = {
+    display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+    color: "#fff", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
+    padding: "9px 15px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)",
+    cursor: "pointer", transition: "transform .12s, box-shadow .15s",
+  };
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+      {btns.map(b => (
+        <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer" style={{ ...base, background: b.bg }}
+          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+          <span aria-hidden>{b.emoji}</span>{b.label}
+        </a>
+      ))}
+      <button onClick={copy} style={{ ...base, background: copied ? C.goldDark : "transparent", color: C.goldBright, borderColor: C.borderGold }}>
+        <span aria-hidden>🔗</span>{copied ? "הקישור הועתק ✓" : "העתק קישור"}
+      </button>
+      {canNative && (
+        <button onClick={native} style={{ ...base, background: "transparent", color: C.goldBright, borderColor: C.borderGold }}>
+          <span aria-hidden>↗</span>שיתוף…
+        </button>
+      )}
+    </div>
+  );
+}
+
+const YENUKA_TAGS = ["הינוקא", "ינוקא"];
+const YENUKA_SHARE_TEXT = "🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.\nאולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏";
+
 function PostPage({ post, onBack }) {
   const [fullPost, setFullPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -2811,6 +2870,42 @@ function PostPage({ post, onBack }) {
               className="sod-post-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
+
+            {/* שיתוף */}
+            {(() => {
+              const slug = fullPost.slug || post?.slug || "";
+              const shareUrl = `${SITE_URL}/${slug}`;
+              const tags = fullPost.tags || [];
+              const isYenuka = tags.some(t => YENUKA_TAGS.includes(t));
+              return (
+                <div style={{ marginTop: 56 }}>
+                  <RoyalDivider width={120} />
+                  {isYenuka ? (
+                    <div style={{
+                      marginTop: 28, background: "linear-gradient(150deg, rgba(212,175,55,0.14), rgba(122,19,32,0.16))",
+                      border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
+                    }}>
+                      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
+                        🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.
+                      </div>
+                      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
+                        אולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <ShareBar url={shareUrl} title={title} text={YENUKA_SHARE_TEXT} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: 24 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                        שתפו את הפוסט
+                      </div>
+                      <ShareBar url={shareUrl} title={title} text={title} />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>
