@@ -16,15 +16,19 @@ export default function ArchivePage() {
 
   useEffect(() => {
     getGalleriesOverview().then(({ gals, imgs }) => {
-      const cover = {}, count = {};
+      // תאריך התוכן = שנה/חודש מכתובת ההעלאה (uploads/YYYY/MM) — אמין לכל התמונות.
+      const dateOf = url => { const m = (url || "").match(/\/uploads\/(\d{4})\/(\d{2})\//); return m ? Number(m[1] + m[2]) : 0; };
+      const agg = {};
       for (const im of imgs) {
-        count[im.gallery_id] = (count[im.gallery_id] || 0) + 1;
-        if (!cover[im.gallery_id]) cover[im.gallery_id] = im.image_url;
+        const g = im.gallery_id, d = dateOf(im.image_url);
+        if (!agg[g]) agg[g] = { count: 0, maxd: 0, cover: null };
+        agg[g].count++;
+        if (d >= agg[g].maxd) { agg[g].maxd = d; agg[g].cover = im.image_url; }   // כריכה = התמונה החדשה ביותר
       }
       const list = gals
-        .map(g => ({ id: g.id, name: g.name, anchor: g.anchor_number, count: count[g.id] || 0, cover: cover[g.id] }))
+        .map(g => ({ id: g.id, name: g.name, anchor: g.anchor_number, count: agg[g.id]?.count || 0, cover: agg[g.id]?.cover, maxd: agg[g.id]?.maxd || 0 }))
         .filter(g => g.count > 0)
-        .sort((a, b) => (b.anchor ? 1 : 0) - (a.anchor ? 1 : 0) || b.count - a.count);
+        .sort((a, b) => b.maxd - a.maxd);   // גלריות חדשות (לפי תאריך התמונות) למעלה
       setGals(list);
     }).catch(() => setGals([]));
   }, []);
