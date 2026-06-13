@@ -331,6 +331,15 @@ export async function getPopularPosts({ limit = 10 } = {}) {
   return recent ?? [];
 }
 
+// ── Popular posts (by Jetpack views — legacy_traffic, source='jetpack') ──
+// מחזיר פוסטים מדורגים לפי סך הצפיות שיובאו מ-Jetpack (ראה RPC popular_posts_by_views).
+export async function getPopularByViews({ limit = 60 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('popular_posts_by_views', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
 // ── Contact ────────────────────────────────────────────────
 export async function sendContactMessage({ name, email, subject, message }) {
   const { error } = await supabase.from('contact_messages').insert([{
