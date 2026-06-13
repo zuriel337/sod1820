@@ -1922,16 +1922,15 @@ function PostSkeleton() {
   );
 }
 
+// כרטיס פוסט — בעיצוב דפי התגיות/קטגוריות (זהב מלכותי, מסגרת מעוגלת, גימטריה).
 function PostCard({ post, onPost }) {
   const [hov, setHov] = useState(false);
 
   const image   = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title   = stripHtml(post.title?.rendered ?? "");
-  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 180);
+  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 120);
   const date    = formatDateHe(post.date);
-  const terms   = (post._embedded?.["wp:term"] ?? []).flat();
-  const cats    = terms.filter(t => t.taxonomy === "category").slice(0, 2);
-  const tags    = terms.filter(t => t.taxonomy === "post_tag").slice(0, 3);
+  const gem     = calcGem(title);
 
   return (
     <div
@@ -1939,112 +1938,48 @@ function PostCard({ post, onPost }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        display: "flex", flexDirection: "column",
-        height: "100%",
-        background: hov ? C.surface2 : C.surface,
-        border: `1px solid ${hov ? C.gold : C.border}`,
-        borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
-        borderRadius: 2, overflow: "hidden",
-        cursor: "pointer",
-        transition: "all 0.3s",
-        boxShadow: hov ? `0 8px 40px ${C.goldDeep}` : "none",
+        display: "flex", flexDirection: "column", height: "100%", cursor: "pointer", overflow: "hidden",
+        border: `1px solid ${hov ? C.gold : C.border}`, borderRadius: 14,
+        background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+        transform: hov ? "translateY(-3px)" : "none",
+        boxShadow: hov ? "0 14px 38px rgba(0,0,0,0.5), 0 0 22px rgba(212,175,55,0.16)" : "none",
+        transition: "border-color .18s, transform .18s, box-shadow .18s",
       }}
     >
-      {/* featured image */}
+      {/* תמונה — יחס 16:10 */}
       <div style={{
-        height: 196, position: "relative", overflow: "hidden", flexShrink: 0,
-        background: image ? "transparent" : `linear-gradient(135deg, ${C.goldDeep} 0%, ${C.faint} 100%)`,
+        position: "relative", aspectRatio: "16/10", display: "flex", alignItems: "center", justifyContent: "center",
+        background: image ? `center/cover no-repeat url(${image})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})`,
       }}>
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            loading="lazy"
-            style={{
-              width: "100%", height: "100%", objectFit: "cover",
-              filter: "brightness(0.72) sepia(0.25)",
-              transition: "transform 0.45s",
-              transform: hov ? "scale(1.05)" : "scale(1)",
-              display: "block",
-            }}
-          />
-        ) : (
-          <div style={{
-            width: "100%", height: "100%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 52, color: C.borderGold, fontFamily: F.body,
-          }}>✦</div>
+        {!image && <span style={{ color: C.goldDim, fontSize: 30, opacity: 0.5 }}>✦</span>}
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(5,4,0,0.85))" }} />
+        {gem > 0 && (
+          <span title={`גימטריה: ${gem}`} style={{
+            position: "absolute", top: 8, right: 8, background: "rgba(212,175,55,0.92)", color: "#1a0e00",
+            fontFamily: F.mono, fontSize: 12, fontWeight: 800, padding: "2px 9px", borderRadius: 999, zIndex: 2,
+          }}>ג׳ {gem}</span>
         )}
-        {/* fade to card bg */}
+      </div>
+
+      {/* תוכן */}
+      <div style={{ padding: "13px 15px 15px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
         <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 48,
-          background: `linear-gradient(to top, ${hov ? C.surface2 : C.surface}, transparent)`,
-          transition: "background 0.3s",
-        }} />
-      </div>
-
-      {/* content */}
-      <div style={{ padding: "22px 24px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{
-          color: hov ? C.goldBright : C.goldLight,
-          margin: "0 0 12px", fontSize: 17,
-          fontFamily: F.royal, fontWeight: 700,
-          lineHeight: 1.45,
-          transition: "color 0.25s",
-        }}>{title}</h3>
-
-        <p style={{
-          color: "#ede4d3", fontSize: 16, lineHeight: 1.95,
-          margin: "0 0 18px", flex: 1, fontFamily: F.body,
+          color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4,
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>{title}</div>
+        {excerpt && (
+          <div style={{
+            color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7,
+            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+          }}>{excerpt}…</div>
+        )}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: 6,
+          color: C.goldDim, fontFamily: F.heading, fontSize: 11.5,
         }}>
-          {excerpt}{excerpt.length >= 180 ? "…" : ""}
-        </p>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <RoyalDivider width={28} />
-          <span style={{
-            fontSize: 10, color: hov ? C.goldBright : C.goldDim,
-            fontFamily: F.heading, letterSpacing: 3,
-            textTransform: "uppercase", transition: "color 0.25s",
-          }}>קרא עוד</span>
+          <span>{date}</span>
+          <span aria-hidden>←</span>
         </div>
-      </div>
-
-      {/* meta row */}
-      <div style={{
-        padding: "9px 20px 13px",
-        borderTop: `1px solid ${C.faint}`,
-        display: "flex", flexWrap: "wrap",
-        alignItems: "center", gap: 5,
-        background: hov ? C.surface2 : C.surface,
-        transition: "background 0.3s",
-      }}>
-        <span style={{
-          fontSize: 9, color: C.muted, fontFamily: F.heading,
-          letterSpacing: 0, marginLeft: 6, whiteSpace: "nowrap",
-        }}>{date}</span>
-
-        {cats.map(cat => (
-          <span key={cat.id} style={{
-            background: C.goldDark,
-            border: `1px solid ${C.borderGold}`,
-            color: C.goldBright,
-            fontSize: 8, padding: "2px 8px",
-            fontFamily: F.heading, letterSpacing: 1,
-            textTransform: "uppercase", borderRadius: 1,
-          }}>{cat.name}</span>
-        ))}
-
-        {tags.map(tag => (
-          <span key={tag.id} style={{
-            background: C.faint,
-            border: `1px solid ${C.border}`,
-            color: C.muted,
-            fontSize: 8, padding: "2px 8px",
-            fontFamily: F.heading, letterSpacing: 1,
-            textTransform: "uppercase", borderRadius: 1,
-          }}>{tag.name}</span>
-        ))}
       </div>
     </div>
   );
@@ -2317,8 +2252,8 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         .blog-main { flex: 1 1 0; min-width: 0; }
         .blog-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 18px;
         }
         .wp-masonry { columns: 2 360px; column-gap: 24px; }
         @media (max-width: 900px) {
@@ -2775,6 +2710,65 @@ const POST_CONTENT_CSS = `
   .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
 `;
 
+// ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
+// משתף את הקישור הקנוני (SITE_URL + slug) כדי שגם לפני העברת הדומיין הקישור יהיה תקין.
+function ShareBar({ url, title, text }) {
+  const [copied, setCopied] = useState(false);
+  const enc = encodeURIComponent;
+  const body = (text || title || "").trim();
+  const wa = `https://wa.me/?text=${enc((body ? body + "\n" : "") + url)}`;
+  const tg = `https://t.me/share/url?url=${enc(url)}&text=${enc(body)}`;
+  const fb = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+  const x  = `https://twitter.com/intent/tweet?text=${enc(body)}&url=${enc(url)}`;
+
+  const btns = [
+    { label: "וואטסאפ", emoji: "💬", href: wa, bg: "#1faa55" },
+    { label: "טלגרם", emoji: "✈️", href: tg, bg: "#2aabee" },
+    { label: "פייסבוק", emoji: "👍", href: fb, bg: "#1877f2" },
+    { label: "X", emoji: "𝕏", href: x, bg: "#111" },
+  ];
+
+  function copy() {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+    } else { window.prompt("העתיקו את הקישור:", url); }
+  }
+  function native() {
+    if (navigator.share) navigator.share({ title, text: body, url }).catch(() => {});
+  }
+  const canNative = typeof navigator !== "undefined" && !!navigator.share;
+
+  const base = {
+    display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+    color: "#fff", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
+    padding: "9px 15px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)",
+    cursor: "pointer", transition: "transform .12s, box-shadow .15s",
+  };
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+      {btns.map(b => (
+        <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer" style={{ ...base, background: b.bg }}
+          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+          <span aria-hidden>{b.emoji}</span>{b.label}
+        </a>
+      ))}
+      <button onClick={copy} style={{ ...base, background: copied ? C.goldDark : "transparent", color: C.goldBright, borderColor: C.borderGold }}>
+        <span aria-hidden>🔗</span>{copied ? "הקישור הועתק ✓" : "העתק קישור"}
+      </button>
+      {canNative && (
+        <button onClick={native} style={{ ...base, background: "transparent", color: C.goldBright, borderColor: C.borderGold }}>
+          <span aria-hidden>↗</span>שיתוף…
+        </button>
+      )}
+    </div>
+  );
+}
+
+const YENUKA_TAGS = ["הינוקא", "ינוקא"];
+const YENUKA_SHARE_TEXT = "🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.\nאולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏";
+
 function PostPage({ post, onBack }) {
   const [fullPost, setFullPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -2876,6 +2870,42 @@ function PostPage({ post, onBack }) {
               className="sod-post-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
+
+            {/* שיתוף */}
+            {(() => {
+              const slug = fullPost.slug || post?.slug || "";
+              const shareUrl = `${SITE_URL}/${slug}`;
+              const tags = fullPost.tags || [];
+              const isYenuka = tags.some(t => YENUKA_TAGS.includes(t));
+              return (
+                <div style={{ marginTop: 56 }}>
+                  <RoyalDivider width={120} />
+                  {isYenuka ? (
+                    <div style={{
+                      marginTop: 28, background: "linear-gradient(150deg, rgba(212,175,55,0.14), rgba(122,19,32,0.16))",
+                      border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
+                    }}>
+                      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
+                        🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.
+                      </div>
+                      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
+                        אולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <ShareBar url={shareUrl} title={title} text={YENUKA_SHARE_TEXT} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: 24 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                        שתפו את הפוסט
+                      </div>
+                      <ShareBar url={shareUrl} title={title} text={title} />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>
@@ -4549,6 +4579,28 @@ function ContactPage() {
         <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
       </div>
 
+      {/* אודות — החזון מאחורי המיזם */}
+      <div style={{
+        maxWidth: 820, margin: "0 auto 56px",
+        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`,
+        borderRadius: 2, padding: "36px 34px",
+      }}>
+        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
+          אודות המיזם
+        </div>
+        {[
+          "מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.",
+          "במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות, שהפכו בהדרגה למערכת חיה ומתפתחת המחברת בין מסורת, מחקר וטכנולוגיה מתקדמת.",
+          "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
+        ].map((para, i) => (
+          <p key={i} style={{
+            color: i === 2 ? C.goldLight : "#d8cdb8", fontFamily: F.body,
+            fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
+          }}>{para}</p>
+        ))}
+      </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
 
         {/* left — form */}
@@ -5221,6 +5273,40 @@ function PostPageBySlug({ onNav }) {
                 ))}
               </div>
             )}
+
+            {/* שיתוף — קריאה מיוחדת בפוסטי הינוקא */}
+            {(() => {
+              const shareUrl = `${SITE_URL}/${post.slug || slug}`;
+              const isYenuka = (tags || []).some(t => YENUKA_TAGS.includes(t));
+              return (
+                <div style={{ marginTop: 52 }}>
+                  <RoyalDivider width={120} />
+                  {isYenuka ? (
+                    <div style={{
+                      marginTop: 28, background: "linear-gradient(150deg, rgba(212,175,55,0.14), rgba(122,19,32,0.16))",
+                      border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
+                    }}>
+                      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
+                        🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.
+                      </div>
+                      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
+                        אולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <ShareBar url={shareUrl} title={title} text={YENUKA_SHARE_TEXT} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: 24 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                        שתפו את הפוסט
+                      </div>
+                      <ShareBar url={shareUrl} title={title} text={title} />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* ── COMMENTS ── */}
             {comments.length > 0 && (

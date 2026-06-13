@@ -25,11 +25,12 @@ import {
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
 import {
-  PostsRoute, PostBySlugRoute, GematriaRoute,
-  AboutRoute, LoginRoute, ContactRoute, ChatRoute,
+  PostBySlugRoute, GematriaRoute,
+  LoginRoute, ContactRoute, ChatRoute,
   TrafficRoute, NumbersReportRoute, AdminRoute,
 } from "./pages/legacyRoutes.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
+import PostsPage from "./pages/PostsPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -63,14 +64,14 @@ export default function App() {
           <Route path="/code" element={<CodePage />} />
           <Route path="/beit-midrash" element={<BeitMidrashPage />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
-          <Route path="/post" element={<PostsRoute />} />
+          <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/community/chat" element={<ChatRoute />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/members" element={<MembersPage />} />
-          <Route path="/about" element={<AboutRoute />} />
+          <Route path="/about" element={<Navigate to="/contact" replace />} />
           <Route path="/contact" element={<ContactRoute />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />

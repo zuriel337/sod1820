@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { C, F, LOGO_URL } from "../theme.js";
 import { GoldButton } from "../components/ui.jsx";
-import { signInWithGoogle, signInWithMagicLink } from "../lib/auth.js";
+import { signInWithGoogle, requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 const card = {
@@ -15,7 +15,8 @@ export default function AuthPage() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState("email");   // "email" | "code"
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -39,14 +40,27 @@ export default function AuthPage() {
     );
   }
 
-  async function sendMagic(e) {
+  async function sendCode(e) {
     e.preventDefault();
     setErr("");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("אנא הזן כתובת מייל תקינה"); return; }
     setBusy(true);
-    const { error } = await signInWithMagicLink(email);
-    setBusy(false);
-    if (error) setErr(error.message || "שגיאה בשליחה"); else setSent(true);
+    try { await requestEmailOtp(email); setStep("code"); }
+    catch (e) { setErr(e.message || "שגיאה בשליחת הקוד"); }
+    finally { setBusy(false); }
+  }
+
+  async function verifyCode(e) {
+    e.preventDefault();
+    setErr("");
+    if (!/^\d{6}$/.test(code.trim())) { setErr("הזינו קוד בן 6 ספרות מהמייל"); return; }
+    setBusy(true);
+    try {
+      await verifyEmailOtp(email, code);
+      // onAuthStateChange יעדכן את ההקשר; ננווט הביתה
+      navigate("/");
+    } catch (e) { setErr(e.message || "קוד שגוי או שפג תוקפו"); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -58,15 +72,31 @@ export default function AuthPage() {
       </div>
 
       <div style={card}>
-        {sent ? (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>✉️</div>
-            <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 8 }}>בדקו את המייל</div>
-            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>
-              שלחנו קישור כניסה אל <b style={{ color: C.goldBright }}>{email}</b>. לחצו עליו כדי להתחבר.
+        {step === "code" ? (
+          <form onSubmit={verifyCode}>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 38, marginBottom: 10 }}>✉️</div>
+              <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 6 }}>הזינו את הקוד מהמייל</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+                שלחנו קוד בן 6 ספרות אל <b style={{ color: C.goldBright }} dir="ltr">{email}</b>
+              </div>
             </div>
-            <button onClick={() => { setSent(false); }} style={linkBtn}>חזרה</button>
-          </div>
+            <input
+              type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} dir="ltr"
+              placeholder="______" autoFocus
+              onChange={e => { setCode(e.target.value.replace(/\D/g, "")); setErr(""); }}
+              style={{ width: "100%", padding: "14px", background: C.bg, color: C.goldBright, textAlign: "center",
+                letterSpacing: 10, fontSize: 26, fontFamily: F.mono,
+                border: `1px solid ${err ? C.danger : C.borderGold}`, borderRadius: 8, outline: "none", boxSizing: "border-box" }}
+            />
+            {err && <div style={{ color: C.danger, fontSize: 12, marginTop: 6, fontFamily: F.heading, textAlign: "center" }}>{err}</div>}
+            <button type="submit" disabled={busy} style={{ ...googleBtn, marginTop: 14, justifyContent: "center", background: C.gold, color: "#1a0e00" }}>
+              {busy ? "מאמת…" : "התחבר ←"}
+            </button>
+            <div style={{ textAlign: "center" }}>
+              <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); }} style={linkBtn}>← שינוי מייל / שליחה מחדש</button>
+            </div>
+          </form>
         ) : (
           <>
             <button onClick={() => signInWithGoogle()} style={googleBtn}>
@@ -78,17 +108,17 @@ export default function AuthPage() {
               <div style={{ flex: 1, height: 1, background: C.border }} /> או <div style={{ flex: 1, height: 1, background: C.border }} />
             </div>
 
-            <form onSubmit={sendMagic}>
-              <label style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, display: "block", marginBottom: 6 }}>קוד כניסה למייל</label>
+            <form onSubmit={sendCode}>
+              <label style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, display: "block", marginBottom: 6 }}>כניסה עם קוד למייל</label>
               <input
                 type="email" value={email} dir="ltr" placeholder="you@example.com"
                 onChange={e => { setEmail(e.target.value); setErr(""); }}
                 style={{ width: "100%", padding: "12px 14px", background: C.bg, color: C.goldLight,
-                  border: `1px solid ${err ? C.danger : C.borderGold}`, borderRadius: 8, fontFamily: F.body, fontSize: 15, outline: "none" }}
+                  border: `1px solid ${err ? C.danger : C.borderGold}`, borderRadius: 8, fontFamily: F.body, fontSize: 15, outline: "none", boxSizing: "border-box" }}
               />
               {err && <div style={{ color: C.danger, fontSize: 12, marginTop: 6, fontFamily: F.heading }}>{err}</div>}
               <button type="submit" disabled={busy} style={{ ...googleBtn, marginTop: 12, justifyContent: "center", background: C.surface2, color: C.goldBright }}>
-                {busy ? "שולח…" : "שלחו לי קישור כניסה"}
+                {busy ? "שולח…" : "שלחו לי קוד כניסה"}
               </button>
             </form>
           </>

@@ -59,12 +59,12 @@ export async function syncAllPosts() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date' } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
     .select('*', { count: 'exact' })
-    .order(orderBy, { ascending: false, nullsFirst: false })
+    .order(orderBy, { ascending, nullsFirst: false })
     .range((page - 1) * limit, page * limit - 1);
 
   if (category) query = query.contains('categories', [category]);
@@ -109,6 +109,22 @@ export async function getDistinctCategoriesAndTags() {
     (r.tags || []).forEach(t => t && tags.add(t));
   });
   return { categories: [...cats].sort(), tags: [...tags].sort() };
+}
+
+// תגיות לפי פופולריות (כמות פוסטים) — לתצוגת "תגיות פופולריות"
+export async function getTagCounts({ limit = 200 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('tag_counts', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
+// "תגיות המספרים" מהגלריה — מספרי עוגן + כמות תמונות לכל מספר (מחבר לדף המספרים/מגירה)
+export async function getGalleryNumberTags() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('gallery_number_tags');
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function getPostBySlug(slug) {
@@ -163,7 +179,7 @@ export async function getGalleriesOverview() {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('gallery_id,image_url,ordering,primary_value,occurred_at,created_at')
+      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at')
       .not('image_url', 'is', null)
       .order('occurred_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
@@ -174,6 +190,40 @@ export async function getGalleriesOverview() {
     from += 1000;
   }
   return { gals: gals || [], imgs };
+}
+
+// ===== סטים של מספרים (number_sets) =====
+export async function getNumberSets() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('number_sets').select('*')
+    .eq('is_active', true).order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  return data || [];
+}
+export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined }) {
+  if (!supabase) throw new Error('no supabase');
+  const row = { name, numbers, description, sort_order };
+  if (image_order !== undefined) row.image_order = image_order;
+  if (id) {
+    const { data, error } = await supabase.from('number_sets')
+      .update({ ...row, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
+    if (error) throw error; return data;
+  }
+  const { data, error } = await supabase.from('number_sets').insert(row).select().maybeSingle();
+  if (error) throw error; return data;
+}
+export async function deleteNumberSet(id) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('number_sets').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// תחנות ציר ההתגלות (לגשר בין סט מספרים לאירועים)
+export async function getTederStations() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('teder_stations')
+    .select('id,title,year,event_date,central_numbers,post_ref,description,sort_order,is_active')
+    .eq('is_active', true).order('year', { ascending: false });
+  return data || [];
 }
 
 // פירוט גלריה אחת — כל התמונות בסדר כרונולוגי (ordering) עם תיאורים.
@@ -203,13 +253,20 @@ export async function getEntityBundle({ term, value, isNumber }) {
     } catch { return Promise.resolve({ items: [], count: 0 }); }
   };
 
+  // פוסטים: למספר — לפי תגית-מספר מדויקת (RPC), כדי שלא ייתפסו "2016"/"163"; לטקסט — חיפוש בכותרת/תוכן.
+  const postsP = isNumber
+    ? supabase.rpc('posts_by_number_tag', { num: value, lim: 40 })
+        .then(({ data }) => ({ items: data || [], count: (data || []).length }))
+        .catch(() => ({ items: [], count: 0 }))
+    : sec('posts', 'wp_id,slug,title,date',
+        q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12));
+
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
       ? supabase.from('gematria_words').select('phrase,ragil').eq('ragil', value).limit(40)
           .then(({ data }) => data || []).catch(() => [])
       : Promise.resolve([]),
-    sec('posts', 'wp_id,slug,title,date',
-      q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12)),
+    postsP,
     sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
       q => (isNumber ? q.or(`primary_value.eq.${value},name.ilike.${like}`) : q.ilike('name', like))
             .order('occurred_at', { ascending: false, nullsFirst: false })
@@ -331,6 +388,15 @@ export async function getPopularPosts({ limit = 10 } = {}) {
   return recent ?? [];
 }
 
+// ── Popular posts (by Jetpack views — legacy_traffic, source='jetpack') ──
+// מחזיר פוסטים מדורגים לפי סך הצפיות שיובאו מ-Jetpack (ראה RPC popular_posts_by_views).
+export async function getPopularByViews({ limit = 60 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('popular_posts_by_views', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
 // ── Contact ────────────────────────────────────────────────
 export async function sendContactMessage({ name, email, subject, message }) {
   const { error } = await supabase.from('contact_messages').insert([{
@@ -433,7 +499,7 @@ export async function getInsights({ origin = null, convergence = false, space = 
   if (!supabase) return [];
   let q = supabase
     .from('insights')
-    .select('id, title, body, proof, related_numbers, related_phrases, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
+    .select('id, title, body, proof, related_numbers, related_phrases, tags, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(limit);
