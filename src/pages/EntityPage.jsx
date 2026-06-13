@@ -44,6 +44,7 @@ export default function EntityPage() {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -57,9 +58,9 @@ export default function EntityPage() {
 
   const d = data || {};
   const chips = [
+    d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
     d.phrases?.length && { id: "tree", e: "🌳", n: d.phrases.length, l: "מילים שוות" },
     d.postsCount && { id: "posts", e: "📖", n: d.postsCount, l: "פוסטים" },
-    d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
     d.eventsCount && { id: "events", e: "🕰", n: d.eventsCount, l: "אירועים" },
     d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "חידושי AI" },
     d.commentsCount && { id: "comments", e: "💬", n: d.commentsCount, l: "דיונים" },
@@ -111,6 +112,24 @@ export default function EntityPage() {
         </div>
       )}
 
+      {/* ── 🖼 גלריות (למעלה — התמונות הברורות ביותר) ── */}
+      {d.galleries?.length > 0 && (
+        <section id="galleries" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
+          <SectionHead icon="🖼" title="גלריות ותמונות" count={d.galleriesCount} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+            {d.galleries.map(g => (
+              <button key={g.id} onClick={() => setLightbox(g)} style={{
+                cursor: "pointer", padding: 0, aspectRatio: "1", borderRadius: 10, overflow: "hidden",
+                border: `1px solid ${C.border}`, background: "#000",
+              }}>
+                <img src={g.image_url} alt={g.name || ""} loading="lazy"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── 🌳 עץ המספרים + מילים שוות ── */}
       <section id="tree" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
         <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrases?.length || null} />
@@ -145,24 +164,6 @@ export default function EntityPage() {
                   {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                 </div>
               </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── 🖼 גלריות ── */}
-      {d.galleries?.length > 0 && (
-        <section id="galleries" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-          <SectionHead icon="🖼" title="גלריות ותמונות" count={d.galleriesCount} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
-            {d.galleries.map(g => (
-              <a key={g.id} href={g.image_url} target="_blank" rel="noopener noreferrer" style={{
-                display: "block", aspectRatio: "1", borderRadius: 10, overflow: "hidden",
-                border: `1px solid ${C.border}`, background: "#000",
-              }}>
-                <img src={g.image_url} alt={g.name || ""} loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              </a>
             ))}
           </div>
         </section>
@@ -236,6 +237,38 @@ export default function EntityPage() {
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל התוכן באתר</div>
         </Link>
       </section>
+
+      {/* ── Lightbox (סגירה ב-× או לחיצה על הרקע) ── */}
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{
+          position: "fixed", inset: 0, zIndex: 300, background: "rgba(3,2,8,0.94)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: "min(820px,96vw)", maxHeight: "92vh", overflowY: "auto", direction: "rtl" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+              <button onClick={() => setLightbox(null)} aria-label="סגור" style={{
+                background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright,
+                fontSize: 24, cursor: "pointer", borderRadius: 8, width: 44, height: 44, lineHeight: 1,
+              }}>×</button>
+            </div>
+            <img src={lightbox.image_url} alt={lightbox.name || ""}
+              style={{ width: "100%", borderRadius: 12, border: `1px solid ${C.borderGold}`, display: "block" }} />
+            {lightbox.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginTop: 12 }}>{lightbox.name}</div>}
+            {(lightbox.all_values?.length > 0) && (
+              <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
+                {lightbox.all_values.slice(0, 10).map((v, i) => (
+                  <Link key={i} to={`/number/${v}`} onClick={() => setLightbox(null)} style={{
+                    textDecoration: "none", color: v === lightbox.primary_value ? "#1a0e00" : C.goldLight,
+                    background: v === lightbox.primary_value ? C.gold : "rgba(8,5,2,0.5)",
+                    border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px",
+                    fontFamily: F.mono, fontSize: 12, fontWeight: 700,
+                  }}>{v}</Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
