@@ -55,6 +55,8 @@ export default function ArchivePage() {
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
+  const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
+  const [draftOrder, setDraftOrder] = useState([]);   // רשימת מזהי תמונות מובלטות (סדר)
 
   useEffect(() => {
     getGalleriesOverview().then(({ gals, imgs }) => {
@@ -131,6 +133,27 @@ export default function ArchivePage() {
 
   const shownNums = showAllNums ? numOptions : numOptions.slice(0, 16);
   const hasFilter = activeSet || numFilter != null || yearFilter != null || q;
+
+  // ── הבלטה / סידור ידני בתוך סט ──
+  useEffect(() => { setCurating(false); }, [activeSet]);
+  const poolById = useMemo(() => { const m = {}; for (const im of pool) m[im.id] = im; return m; }, [pool]);
+  const orderIds = curating ? draftOrder : (activeSet?.image_order || []);
+  const highlighted = useMemo(() => orderIds.map(id => poolById[id]).filter(Boolean), [orderIds, poolById]);
+  const hiSet = useMemo(() => new Set(highlighted.map(im => im.id)), [highlighted]);
+  const rest = useMemo(() => pool.filter(im => !hiSet.has(im.id)), [pool, hiSet]);
+  const curated = activeSet && (highlighted.length > 0 || curating);
+
+  function startCurate() { setDraftOrder([...(activeSet.image_order || [])]); setCurating(true); }
+  function toggleHi(id) { setDraftOrder(o => o.includes(id) ? o.filter(x => x !== id) : [...o, id]); }
+  function moveHi(id, dir) {
+    setDraftOrder(o => { const i = o.indexOf(id), j = i + dir; if (i < 0 || j < 0 || j >= o.length) return o; const n = [...o]; [n[i], n[j]] = [n[j], n[i]]; return n; });
+  }
+  async function saveOrder() {
+    try {
+      await saveNumberSet({ id: activeSet.id, name: activeSet.name, numbers: activeSet.numbers, image_order: draftOrder });
+      const fresh = await getNumberSets(); setSets(fresh); setActiveSet(fresh.find(s => s.id === activeSet.id) || null); setCurating(false);
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
 
   async function reloadSets() { try { setSets(await getNumberSets()); } catch {} }
   async function saveBuilder() {
@@ -307,10 +330,76 @@ export default function ArchivePage() {
             </div>
           )}
 
-          <div className="ar-status">{pool.length.toLocaleString()} תמונות{hasFilter ? " (מסוננות)" : ""} · מסודר מהחדש לישן</div>
+          {/* סרגל סידור ידני (מנהל, כשסט פעיל) */}
+          {activeSet && isAdmin && (
+            <div className="ar-curatebar">
+              {!curating ? (
+                <button className="ar-pill" onClick={startCurate}>✋ סדר/הבלט ידנית</button>
+              ) : (
+                <>
+                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>
+                    לחץ תמונה כדי להבליט/להסיר · סדר עם «מוקדם/מאוחר» · {draftOrder.length} מובלטות
+                  </span>
+                  <div style={{ flex: 1 }} />
+                  <button className="ar-save" onClick={saveOrder}>💾 שמור סדר</button>
+                  <button className="ar-cancel" onClick={() => setCurating(false)}>ביטול</button>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="ar-status">
+            {curated
+              ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
+              : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · מהחדש לישן`}
+          </div>
 
           {pool.length === 0 ? (
             <div className="ar-empty">לא נמצאו תמונות תואמות.</div>
+          ) : curated ? (
+            <>
+              {highlighted.length > 0 && (
+                <>
+                  <div className="ar-subhead">⭐ מובלטים — ציר ידני</div>
+                  <div className="ar-grid">
+                    {highlighted.map((im, idx) => (
+                      <div key={im.id} className="ar-imgwrap">
+                        <button onClick={() => curating ? toggleHi(im.id) : setLightbox(im)} className={`arch-card ar-imgcard${curating ? " ar-on" : ""}`}>
+                          <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                          <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
+                          <span className="ar-pos">{idx + 1}</span>
+                          {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
+                          {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
+                        </button>
+                        {curating && (
+                          <div className="ar-movebar">
+                            <button onClick={() => moveHi(im.id, -1)} title="מוקדם יותר">מוקדם</button>
+                            <button onClick={() => toggleHi(im.id)} title="הסר">✕</button>
+                            <button onClick={() => moveHi(im.id, +1)} title="מאוחר יותר">מאוחר</button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              <div className="ar-subhead">{curating ? "↓ לחץ תמונה כדי להבליט" : "שבילים — שאר התמונות"}</div>
+              <div className="ar-grid">
+                {rest.slice(0, limit).map(im => (
+                  <button key={im.id} onClick={() => curating ? toggleHi(im.id) : setLightbox(im)} className="arch-card ar-imgcard">
+                    <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
+                    {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
+                    {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
+                  </button>
+                ))}
+              </div>
+              {rest.length > limit && (
+                <div style={{ textAlign: "center", marginTop: 30 }}>
+                  <button className="ar-loadmore" onClick={() => setLimit(l => l + PER)}>טען עוד · נותרו {(rest.length - limit).toLocaleString()}</button>
+                </div>
+              )}
+            </>
           ) : (
             <>
               <div className="ar-grid">
@@ -427,6 +516,14 @@ export default function ArchivePage() {
         .ar-anchor { position: absolute; top: 7px; inset-inline-end: 7px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
         .ar-imgdate { position: absolute; bottom: 6px; inset-inline-start: 7px; color: ${C.goldBright}; font-family: ${F.heading}; font-size: 10px; font-weight: 700; background: rgba(5,4,0,0.6); border-radius: 6px; padding: 2px 6px; }
         .ar-loadmore { cursor: pointer; background: linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4)); border: 1px solid ${C.borderGold}; border-radius: 999px; color: ${C.goldBright}; font-family: ${F.heading}; font-weight: 700; font-size: 15px; padding: 12px 36px; }
+        .ar-curatebar { max-width: 980px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed ${C.borderGold}; border-radius: 12px; background: rgba(8,5,2,0.4); }
+        .ar-subhead { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 2; text-transform: uppercase; margin: 18px 0 10px; }
+        .ar-imgwrap { display: flex; flex-direction: column; gap: 4px; }
+        .ar-imgcard.ar-on { outline: 2px solid ${C.gold}; outline-offset: -2px; }
+        .ar-pos { position: absolute; top: 7px; inset-inline-start: 7px; background: ${C.gold}; color: #1a0e00; font-family: ${F.mono}; font-size: 12px; font-weight: 800; min-width: 20px; text-align: center; padding: 1px 5px; border-radius: 999px; }
+        .ar-movebar { display: flex; gap: 4px; }
+        .ar-movebar button { flex: 1; cursor: pointer; background: rgba(20,15,12,0.7); border: 1px solid ${C.border}; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 11px; font-weight: 700; padding: 4px 0; border-radius: 6px; }
+        .ar-movebar button:hover { border-color: ${C.gold}; color: ${C.goldBright}; }
       `}</style>
     </div>
   );

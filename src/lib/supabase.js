@@ -199,9 +199,10 @@ export async function getNumberSets() {
     .eq('is_active', true).order('sort_order', { ascending: true }).order('created_at', { ascending: true });
   return data || [];
 }
-export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0 }) {
+export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined }) {
   if (!supabase) throw new Error('no supabase');
   const row = { name, numbers, description, sort_order };
+  if (image_order !== undefined) row.image_order = image_order;
   if (id) {
     const { data, error } = await supabase.from('number_sets')
       .update({ ...row, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
@@ -498,7 +499,7 @@ export async function getInsights({ origin = null, convergence = false, space = 
   if (!supabase) return [];
   let q = supabase
     .from('insights')
-    .select('id, title, body, proof, related_numbers, related_phrases, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
+    .select('id, title, body, proof, related_numbers, related_phrases, tags, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(limit);
