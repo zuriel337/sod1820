@@ -181,25 +181,71 @@ function Sod1820Tab() {
   );
 }
 
-// טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה טוענת את המספר).
+// פאנל תוצאות למספר נבחר — מילים שוות (מהמאגר) + מילים מהקהילה (community_words).
+function NumberResults({ value }) {
+  const [eq, setEq] = useState(null);
+  const [comm, setComm] = useState(null);
+  useEffect(() => {
+    let live = true; setEq(null); setComm(null);
+    supabase.from("gematria_words").select("phrase").eq("ragil", value).limit(60)
+      .then(({ data }) => { if (live) setEq([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
+    supabase.from("community_words").select("phrase,author").eq("value", value).order("created_at", { ascending: false }).limit(40)
+      .then(({ data }) => { if (live) setComm(data || []); });
+    return () => { live = false; };
+  }, [value]);
+  const chip = { textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 13.5, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 12px" };
+  return (
+    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "16px 18px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 28, fontWeight: 800 }}>{value}</span>
+        {KEY_NUMBERS[value] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[value]}</span>}
+        <Link to={`/number/${value}`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הדף המלא →</Link>
+      </div>
+
+      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>מילים שוות</div>
+      {eq === null ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>מחשב…</div> :
+        eq.length === 0 ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>אין מילים בערך זה במאגר.</div> :
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{eq.map((p, i) => <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={chip}>{p}</Link>)}</div>}
+
+      <div style={{ color: L.blue, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1, margin: "16px 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
+        💬 מילים מהקהילה
+      </div>
+      {comm === null ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div> :
+        comm.length === 0 ? (
+          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+            עדיין אין מילים מהקהילה לערך הזה. <span style={{ color: L.blue }}>היו הראשונים להוסיף — בקרוב.</span>
+          </div>
+        ) : (
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+            {comm.map((c, i) => (
+              <span key={i} title={c.author ? `מאת ${c.author}` : ""} style={{ ...chip, background: L.blueBg, borderColor: L.blueLine, color: L.blue }}>{c.phrase}</span>
+            ))}
+          </div>
+        )}
+    </div>
+  );
+}
+
+// טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
 function CalcTab() {
-  const [seed, setSeed] = useState(null);
+  const [num, setNum] = useState(1820);
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
           מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
         </p>
-        <GematriaCalculator seed={seed} />
+        <GematriaCalculator />
+        <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
       <aside className="bm-numlist" style={{ width: 92, flex: "0 0 auto", position: "sticky", top: 20 }}>
         <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>מספרים</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 5, maxHeight: "70vh", overflowY: "auto" }}>
           {NUM_LIST.map(n => (
-            <button key={n} onClick={() => setSeed(String(n))} title={KEY_NUMBERS[n] || ""} style={{
+            <button key={n} onClick={() => setNum(n)} title={KEY_NUMBERS[n] || ""} style={{
               cursor: "pointer", fontFamily: F.mono, fontSize: 14, fontWeight: 800, padding: "7px 4px", borderRadius: 8,
-              border: `1px solid ${L.line}`, background: L.panel, color: L.goldDeep,
+              border: `1px solid ${n === num ? L.gold : L.line}`, background: n === num ? L.active : L.panel, color: L.goldDeep,
             }}>{n}</button>
           ))}
         </div>
