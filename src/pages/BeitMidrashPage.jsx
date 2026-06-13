@@ -10,6 +10,9 @@ import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 
+// טעימת מנוע הגימטריה (תלת-מימד) — נטענת עצמאית כך ש-three.js לא מנפח את שאר האתר.
+const GematriaTeaser = React.lazy(() => import("../components/GematriaTeaser.jsx"));
+
 const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
 const FREE_LIMIT = 2;        // חוק subscribe_gate_law — 2 חידושים חינם ואז הרשמה
 const FOUNDATION_WP_ID = 17; // פוסט היסוד — "שם ה' בתורה 1820 פעם" (סוד 1820 המקורי)
@@ -102,6 +105,19 @@ export default function BeitMidrashPage() {
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 8px" }}>
         אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
       </p>
+
+      {/* 🎬 טעימה — קליפ תלת-מימדי של מנוע הגימטריה (סגור, רק הצצה) */}
+      <div style={{ margin: "30px auto 8px", maxWidth: 640 }}>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
+          ✦ טעימה ממה שמחכה לכם
+        </div>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto 14px", maxWidth: 520 }}>
+          המנוע שמחשב כל מילה בכל שיטות הגימטריה — <b style={{ color: C.goldLight }}>רגיל · מילוי · מסתתר</b> ועוד — חי ובתלת-מימד. זו רק הצצה; הכלי המלא נפתח כאן בקרוב.
+        </p>
+        <React.Suspense fallback={<div style={{ height: "min(74vh,640px)", borderRadius: 18, border: `1px solid ${C.border}`, background: "#070414" }} />}>
+          <GematriaTeaser />
+        </React.Suspense>
+      </div>
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 30px" }}>
         הכניסה למעגל ההיכל מתחילה כאן: הפיקו את <b style={{ color: C.goldLight }}>דו״ח הכניסה האישי</b> שלכם — ותהיו הראשונים שייכנסו לבית המדרש כשייפתח.
       </p>
