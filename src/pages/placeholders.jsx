@@ -6,7 +6,7 @@ import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import { NAV } from "../routes.jsx";
 import { supabase } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
-import { METHODS, onlyHeb } from "../lib/gematria.js";
+import { METHODS as GEM_METHODS, onlyHeb } from "../lib/gematria.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 
 export function ArchivePage() {
@@ -58,7 +58,7 @@ export function CommunityPage() {
 
 // ===== 🧮 מחשבון גימטריה — דף ויראלי (שם/שניים + שיתוף וואטסאפ) =====
 function gemAll(name) {
-  const all = METHODS.map(m => ({ key: m.key, sub: m.sub, value: m.fn(name) }));
+  const all = GEM_METHODS.map(m => ({ key: m.key, sub: m.sub, value: m.fn(name) }));
   return { regular: all[0].value, all };
 }
 
