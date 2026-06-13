@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
-import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
+import { getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
@@ -20,13 +20,13 @@ const L = {
 };
 
 const SECTIONS = [
-  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
-  { key: "numbers", icon: "🔢", label: "מספרי יסוד" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
-  { key: "ai", icon: "🔵", label: "חידושי AI", ai: true },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
-  { key: "mine", icon: "✦", label: "חידושי המערכת" },
+  { key: "numbers", icon: "🔢", label: "מספרי יסוד", soon: true },
+  { key: "ai", icon: "🔵", label: "חידושי AI", ai: true, soon: true },
+  { key: "mine", icon: "✦", label: "חידושי המערכת", soon: true },
+  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
   { key: "community", icon: "💬", label: "חידושי גולשים", soon: true },
   { key: "submit", icon: "✍️", label: "הגשת חידוש משלך", soon: true },
 ];
@@ -238,8 +238,8 @@ function NumberResults({ value }) {
 // טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
 const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה — פנינים גדולות יותר
-function CalcTab() {
-  const [num, setNum] = useState(1820);
+function CalcTab({ initial }) {
+  const [num, setNum] = useState(initial || 1820);
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -366,8 +366,8 @@ function MethodsTab() {
   );
 }
 
-// שער: המחשבון פתוח לכולם; שאר המדורים בבנייה — מטושטשים, נפתחים בהרשמה.
-const GATED = new Set(["sod1820", "numbers", "ai", "verified", "mine"]);
+// שער: המחשבון, השיטות והפוסטים המאומתים פתוחים לכולם; 1820 מטושטש עד הרשמה.
+const GATED = new Set(["sod1820"]);
 function Gated({ children }) {
   const { subscribed } = useSubscribed();
   if (subscribed) return children;
@@ -404,15 +404,8 @@ export default function BeitMidrashPage() {
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "sod1820"));
-  const [ai, setAi] = useState(null);
-  const [mine, setMine] = useState(null);
+  const [tab, setTab] = useState(nParam ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
   const { subscribed } = useSubscribed();
-
-  useEffect(() => {
-    if (tab === "ai" && ai === null) getInsights({ origin: "ai", space: null, limit: 60 }).then(d => setAi(d || [])).catch(() => setAi([]));
-    if (tab === "mine" && mine === null) getInsights({ origin: "צוריאל", space: "core", limit: 60 }).then(d => setMine(d || [])).catch(() => setMine([]));
-  }, [tab, ai, mine]);
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
@@ -424,7 +417,7 @@ export default function BeitMidrashPage() {
           <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>בית המדרש · סוד 1820</div>
           <h1 style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", fontWeight: 700, margin: 0 }}>📖 לימוד הסודות</h1>
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
-            ארכיון חי של גימטריה, חידושים ומחקר — חידושי המערכת, חידושי AI מאומתים, וכלים אינטראקטיביים, במקום אחד.
+            מחשבון גימטריה מלא, שיטות החישוב ופוסטים מאומתים — במקום אחד. מדורי החידושים בבנייה וייפתחו בקרוב.
           </p>
           {!subscribed && (
             <p style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "10px 0 0" }}>
@@ -466,15 +459,13 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
-            {tab === "numbers" && <Gated><NumbersTab initial={nParam} /></Gated>}
-            {tab === "calc" && <CalcTab />}
+            {tab === "calc" && <CalcTab initial={nParam} />}
             {tab === "methods" && <MethodsTab />}
-            {tab === "ai" && <Gated>{ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>}</Gated>}
-            {tab === "mine" && <Gated>{mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>}</Gated>}
-            {tab === "verified" && <Gated><VerifiedTab /></Gated>}
+            {tab === "verified" && <VerifiedTab />}
+            {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}
+            {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
+            {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
+            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
