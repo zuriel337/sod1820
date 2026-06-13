@@ -5,7 +5,7 @@ import { NAV } from "../../routes.jsx";
 import { GoldButton } from "../ui.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { Avatar } from "../../pages/AuthPage.jsx";
-import { searchPosts, getPopularPosts } from "../../lib/supabase.js";
+import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 
@@ -17,8 +17,11 @@ const moreItems = [
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
-// יעדים ל"הפתיע אותי" — מספרים משמעותיים
-const SURPRISE_NUMS = [1820, 1237, 376, 358, 86, 26, 613, 358];
+// יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
+const SURPRISE_NUMS = [
+  1820, 1237, 376, 358, 86, 26, 613, 541, 65, 72, 137, 314, 749, 631, 776,
+  "משיח", "גאולה", "ישראל", "אהבה", "אמת", "תורה", "חכמה", "בינה", "דעת", "אור",
+];
 
 function isActive(pathname, to) {
   if (to === "/") return pathname === "/";
@@ -105,20 +108,14 @@ function UniversalSearch({ onDone, full }) {
 
 function SurpriseButton({ onDone }) {
   const nav = useNavigate();
-  const [pool, setPool] = useState([]);
   const [spin, setSpin] = useState(false);
-  useEffect(() => {
-    getPopularPosts({ limit: 60 }).then(r => setPool((r || []).map(p => p.slug).filter(Boolean))).catch(() => {});
-  }, []);
   function surprise() {
     if (spin) return;
     setSpin(true);
-    // גלגל מסתובב קצר ואז חשיפה
+    // גלגל מסתובב קצר ואז חשיפה — מקפיץ תמיד לדף ישות (מספר/ביטוי), לא לפוסטים
     setTimeout(() => {
-      const r = Math.random();
-      if (pool.length && r < 0.6) nav(`/${pool[Math.floor(Math.random() * pool.length)]}`);
-      else if (r < 0.82) nav(`/number/${SURPRISE_NUMS[Math.floor(Math.random() * SURPRISE_NUMS.length)]}`);
-      else nav("/timeline");
+      const t = SURPRISE_NUMS[Math.floor(Math.random() * SURPRISE_NUMS.length)];
+      nav(`/number/${encodeURIComponent(t)}`);
       setSpin(false);
       onDone?.();
     }, 520);

@@ -2536,6 +2536,53 @@ const POST_CONTENT_CSS = `
     border: 1px solid ${C.border};
     filter: brightness(0.85) sepia(0.15);
   }
+
+  /* ── Jetpack "tiled gallery" + WordPress classic gallery ──
+     מקור הבעיה: גלריות אלו מגיעות עם רוחב/גובה קבועים בפיקסלים (inline)
+     ותלויות ב-CSS של ג'טפק שלא נטען — בלעדיו התמונות נערמות אחת על השנייה.
+     כאן מאפסים את המידות הקבועות והופכים לרשת רספונסיבית נקייה. */
+  .sod-post-content .tiled-gallery,
+  .sod-post-content .gallery {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 1.8em 0 !important;
+  }
+  /* שיטוח עוטפי-הביניים בעלי הרוחב הקבוע כך שהפריטים יושבים ישירות ברשת */
+  .sod-post-content .gallery-row,
+  .sod-post-content .gallery-group {
+    display: contents !important;
+  }
+  .sod-post-content .tiled-gallery-item,
+  .sod-post-content .gallery-item,
+  .sod-post-content figure.gallery-item {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+  }
+  .sod-post-content .tiled-gallery-item a,
+  .sod-post-content .tiled-gallery-item img,
+  .sod-post-content .gallery-item img,
+  .sod-post-content .gallery img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 8px;
+  }
+  .sod-post-content .gallery-caption,
+  .sod-post-content .tiled-gallery-caption {
+    grid-column: 1 / -1;
+    color: ${C.goldDim}; font-family: 'Heebo', sans-serif; font-size: 12px;
+    text-align: center; margin-top: -4px;
+  }
+
   .sod-post-content ul, .sod-post-content ol {
     padding-right: 1.6em;
     margin: 0 0 1.4em;
