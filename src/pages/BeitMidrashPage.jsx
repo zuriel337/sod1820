@@ -152,7 +152,7 @@ function VerifiedTab() {
               {p.ai_number && <div style={{ color: L.sub, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
             </div>
           </Link>
-          <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.co.il/${p.slug}`} /></div>
+          <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.com/${p.slug}`} /></div>
         </div>
       ))}
     </div>

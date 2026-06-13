@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /traffic
 
-Sitemap: https://sod1820.co.il/sitemap.xml
+Sitemap: https://sod1820.com/sitemap.xml
