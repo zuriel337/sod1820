@@ -19,6 +19,7 @@ import EntityPage from "./pages/EntityPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
 import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
+const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
 import {
   MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -51,6 +52,8 @@ export default function App() {
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           <Route path="/ניסיון" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
           <Route path="/experience" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
+          <Route path="/חישוב" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
+          <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
