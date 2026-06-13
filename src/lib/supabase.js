@@ -209,7 +209,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
       : Promise.resolve([]),
     sec('posts', 'wp_id,slug,title,date',
       q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12)),
-    sec('gallery_images', 'id,name,image_url,primary_value,gallery_id,all_values',
+    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
       q => (isNumber ? q.or(`primary_value.eq.${value},name.ilike.${like}`) : q.ilike('name', like)).limit(18)),
     sec('nodes', 'id,label,hebrew_date,weight',
       q => q.eq('type', 'event').eq('is_active', true).ilike('label', like).order('weight', { ascending: false }).limit(12)),

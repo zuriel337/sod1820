@@ -66,6 +66,22 @@ export default function EntityPage() {
     d.commentsCount && { id: "comments", e: "💬", n: d.commentsCount, l: "דיונים" },
   ].filter(Boolean);
 
+  // מספר ספרה-בודדת (1–9) → מספר יסוד; מפנים לסולמות במקום להציף תוצאות.
+  if (isNumber && value < 10) {
+    return (
+      <div style={{ direction: "rtl", maxWidth: 620, margin: "0 auto", padding: "72px 24px", textAlign: "center", position: "relative", zIndex: 1 }}>
+        <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 30 }}>← חזרה</button>
+        <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(60px,12vw,110px)", fontWeight: 800, lineHeight: 1, textShadow: "0 0 40px rgba(212,175,55,0.4)" }}>{value}</div>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 460, margin: "18px auto 26px" }}>
+          זהו <b style={{ color: C.goldLight }}>מספר יסוד</b> (ספרה בודדת). מספר בודד מופיע באינספור מקומות — לכן חוקרים אותו דרך מסע «סולמות ההתגלות», שם כל ספרה נפתחת לרבדים.
+        </p>
+        <Link to="/sulamot" style={{ display: "inline-block", padding: "13px 26px", borderRadius: 10, textDecoration: "none", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>
+          🪜 לסולמות ההתגלות →
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "44px 20px 100px", position: "relative", zIndex: 1 }}>
       <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 26 }}>← חזרה</button>
@@ -254,6 +270,7 @@ export default function EntityPage() {
             <img src={lightbox.image_url} alt={lightbox.name || ""}
               style={{ width: "100%", borderRadius: 12, border: `1px solid ${C.borderGold}`, display: "block" }} />
             {lightbox.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginTop: 12 }}>{lightbox.name}</div>}
+            {lightbox.description && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap" }}>{stripHtml(lightbox.description)}</div>}
             {(lightbox.all_values?.length > 0) && (
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
                 {lightbox.all_values.slice(0, 10).map((v, i) => (
