@@ -339,6 +339,7 @@ export function ELSSection() {
   const [maxMismatches, setMaxMismatches] = useState(deepLink?.mm ?? 0);
   const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [searching, setSearching] = useState(false);
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
@@ -362,19 +363,22 @@ export function ELSSection() {
     });
   }, []);
 
-  // טעינת טקסט התורה המלא פעם אחת
+  // טעינת טקסט התורה המלא (עם זיהוי כשל — למשל אם השרת מחזיר HTML במקום הקובץ)
+  const [reloadKey, setReloadKey] = useState(0);
   useEffect(() => {
     let alive = true;
-    fetch("/torah-letters.txt")
+    setLoadError(false);
+    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
       .then(txt => {
         if (!alive) return;
         const clean = elsNormalize(txt);
-        if (clean.length > 1000) { setLetters(clean); setLoaded(true); }
+        if (clean.length > 1000) { setLetters(clean); setLoaded(true); setLoadError(false); }
+        else { setLoadError(true); }   // קיבלנו תוכן לא תקין (למשל דף HTML)
       })
-      .catch(() => {/* נשארים עם קטע הדוגמה */});
+      .catch(() => { if (alive) setLoadError(true); });
     return () => { alive = false; };
-  }, []);
+  }, [reloadKey]);
 
   // חיפוש ראשוני / לפי קישור עמוק כשהטקסט מוכן
   useEffect(() => {
@@ -618,7 +622,17 @@ export function ELSSection() {
         <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading, lineHeight: 1.9 }}>
           {loaded
             ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח קורן המסורתי, נחלת הכלל)`
-            : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
+            : loadError
+              ? (
+                <span style={{ color: C.crimsonLight }}>
+                  ⚠ לא הצלחנו לטעון את טקסט התורה המלא — מוצג קטע דוגמה בלבד, ולכן רוב החיפושים לא יחזירו תוצאות.{" "}
+                  <button onClick={() => setReloadKey(k => k + 1)} style={{
+                    background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright,
+                    borderRadius: 6, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11, marginInlineStart: 6,
+                  }}>נסה שוב</button>
+                </span>
+              )
+              : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
           <br />
           חינם: עד {cfg.freeQuota} חיפושים · גישה מלאה לבני ההיכל (מנוי)
         </div>

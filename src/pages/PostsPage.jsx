@@ -4,6 +4,7 @@ import { C, F, calcGem } from "../theme.js";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
   getDistinctCategoriesAndTags, getGematriaByValue, getPopularByViews,
+  getTagCounts, getGalleryNumberTags,
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
@@ -15,7 +16,8 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 const PER = 12;
 const POPULAR_LIMIT = 60;  // כמה פוסטים מדורגים למשוך ב"הכי מדובר" (לפי צפיות Jetpack)
 const TOP_CATS = 10;       // כמה גלולות קטגוריה להציג לפני "עוד"
-const TOP_TAGS = 24;       // כמה תגיות בענן
+const TOP_TAGS = 14;       // כמה תגיות פופולריות להציג לפני "עוד"
+const MAX_TAGS = 80;       // כמה תגיות בסך הכל לאחר הרחבה
 const SORTS = [
   { key: "date_desc", label: "חדש", orderBy: "date", ascending: false },
   { key: "date_asc",  label: "ישן", orderBy: "date", ascending: true },
@@ -55,7 +57,8 @@ function PostCard({ p, i, view }) {
 export default function PostsPage() {
   // נתוני עזר
   const [cats, setCats] = useState([]);
-  const [tags, setTags] = useState([]);
+  const [tagList, setTagList] = useState([]);     // [{ tag, posts }] לפי פופולריות
+  const [galleryNums, setGalleryNums] = useState([]); // [{ n, imgs, galleries }] מהגלריה
 
   // חיפוש / פילטרים / מיון / תצוגה
   const [query, setQuery] = useState("");
@@ -67,6 +70,7 @@ export default function PostsPage() {
   const [view, setView] = useState("grid");
   const [showAllCats, setShowAllCats] = useState(false);
   const [showTags, setShowTags] = useState(false);
+  const [showNums, setShowNums] = useState(false);
 
   // תוצאות
   const [posts, setPosts] = useState([]);
@@ -84,11 +88,11 @@ export default function PostsPage() {
   const gemValue = isNumeric(q) ? parseInt(q, 10) : (isHebrew(q) ? calcGem(q) : null);
   const sortDef = SORTS.find(s => s.key === sort) || SORTS[0];
 
-  // טעינת קטגוריות ותגיות פעם אחת
+  // טעינת קטגוריות, תגיות (לפי פופולריות) ותגיות-מספר מהגלריה — פעם אחת
   useEffect(() => {
-    getDistinctCategoriesAndTags()
-      .then(({ categories, tags }) => { setCats(categories); setTags(tags); })
-      .catch(() => {});
+    getDistinctCategoriesAndTags().then(({ categories }) => setCats(categories)).catch(() => {});
+    getTagCounts({ limit: MAX_TAGS }).then(setTagList).catch(() => {});
+    getGalleryNumberTags().then(setGalleryNums).catch(() => {});
   }, []);
 
   // קיצור מקלדת "/" למיקוד החיפוש
@@ -176,6 +180,9 @@ export default function PostsPage() {
 
   const hasFilter = q || filterCat || filterTag || filterYear;
   const hasMore = !searching && posts.length < total;
+  // תגית-מספר פעילה? (למשל "16" או "14 = דוד") — גשר אל הגלריה/מגירת המספר
+  const tagNum = filterTag && /^\d+/.test(filterTag) ? parseInt(filterTag.match(/^\d+/)[0], 10) : null;
+  const tagGallery = tagNum != null ? galleryNums.find(g => g.n === tagNum) : null;
   const years = Array.from({ length: 8 }, (_, i) => new Date().getFullYear() - i);
   const shownCats = showAllCats ? cats : cats.slice(0, TOP_CATS);
 
@@ -220,7 +227,7 @@ export default function PostsPage() {
             <button className={`pp-gem-toggle${byGematria ? " on" : ""}`} onClick={() => setByGematria(v => !v)}>
               {byGematria ? "מחפש לפי הערך ✓" : "חפש פוסטים עם הערך"}
             </button>
-            <button className="pp-gem-drawer" onClick={() => openNumberDrawer(String(gemValue))} title="פתח מגירת מספר">פתח מגירה 🔢</button>
+            <button className="pp-gem-drawer" onClick={() => openNumberDrawer(String(gemValue))} title="פתח מגירת המספר — פוסטים, גלריה וגימטריה">🖼 גלריה ומספרים</button>
             {gemWords.length > 0 && (
               <span className="pp-gem-words">· מילים שוות־ערך: {gemWords.slice(0, 6).map(w => w.phrase).join(" · ")}</span>
             )}
@@ -262,18 +269,33 @@ export default function PostsPage() {
           ))}
         </div>
 
-        {/* תגיות (נפתח) */}
-        {tags.length > 0 && (
-          <div className="pp-row pp-tags-wrap">
-            <button className="pp-pill pp-more" onClick={() => setShowTags(v => !v)}>
-              🏷 תגיות {showTags ? "▲" : "▾"}
-            </button>
-            {showTags && (
-              <div className="pp-pills pp-tag-cloud">
-                {tags.slice(0, TOP_TAGS).map(t => (
-                  <button key={t} className={`pp-pill pp-pill-sm${filterTag === t ? " active" : ""}`} onClick={() => toggleTag(t)}>{t}</button>
-                ))}
-              </div>
+        {/* תגיות פופולריות — לפי כמות פוסטים (פופולרי בהתחלה) */}
+        {tagList.length > 0 && (
+          <div className="pp-row pp-pills pp-tags">
+            <span className="pp-row-label">🏷</span>
+            {(showTags ? tagList : tagList.slice(0, TOP_TAGS)).map(({ tag, posts }) => (
+              <button key={tag} className={`pp-pill pp-tag${filterTag === tag ? " active" : ""}`} onClick={() => toggleTag(tag)}>
+                {tag}<span className="pp-count">{posts}</span>
+              </button>
+            ))}
+            {tagList.length > TOP_TAGS && (
+              <button className="pp-pill pp-more" onClick={() => setShowTags(v => !v)}>{showTags ? "פחות ▲" : "עוד תגיות ▾"}</button>
+            )}
+          </div>
+        )}
+
+        {/* מספרים מהגלריה — לחיצה פותחת את מגירת המספר (פוסטים + גלריה + גימטריה) */}
+        {galleryNums.length > 0 && (
+          <div className="pp-row pp-pills pp-nums">
+            <span className="pp-row-label" title="מספרים משמעותיים מהגלריה — לחצו לפתיחת מגירת המספר">🔢 מספרים</span>
+            {(showNums ? galleryNums : galleryNums.slice(0, 12)).map(({ n, imgs }) => (
+              <button key={n} className="pp-pill pp-pill-sm pp-num" onClick={() => openNumberDrawer(String(n))}
+                title={`${imgs} תמונות בגלריה · פתח מגירת המספר`}>
+                {n}<span className="pp-count">🖼{imgs}</span>
+              </button>
+            ))}
+            {galleryNums.length > 12 && (
+              <button className="pp-pill pp-more" onClick={() => setShowNums(v => !v)}>{showNums ? "פחות ▲" : "עוד ▾"}</button>
             )}
           </div>
         )}
@@ -289,6 +311,18 @@ export default function PostsPage() {
           </div>
         )}
       </div>
+
+      {/* גשר אל הגלריה/מגירת המספר — כשמסננים תגית-מספר */}
+      {tagNum != null && (
+        <button className="pp-bridge" onClick={() => openNumberDrawer(String(tagNum))}>
+          <span className="pp-bridge-n">🔢 {tagNum}</span>
+          <span>
+            {tagGallery ? `יש ${tagGallery.imgs.toLocaleString()} תמונות בגלריה למספר ${tagNum} · ` : ""}
+            פתחו את מגירת המספר — פוסטים, גלריה וגימטריה
+          </span>
+          <span aria-hidden>←</span>
+        </button>
+      )}
 
       {/* מצב/סטטוס */}
       {!loading && !error && (
@@ -371,8 +405,15 @@ export default function PostsPage() {
         .pp-pill.pp-icon { font-size: 15px; padding: 6px 12px; }
         .pp-pill.pp-more { background: transparent; border-style: dashed; color: ${C.goldDim}; }
         .pp-years { gap: 6px; }
-        .pp-tags-wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
-        .pp-tag-cloud { max-height: 168px; overflow-y: auto; padding: 2px; }
+        .pp-tags { row-gap: 8px; }
+        .pp-tag { padding-inline-end: 6px; }
+        .pp-count { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 7px;
+          font-family: ${F.mono}; font-size: 11px; font-weight: 700; border-radius: 999px;
+          background: rgba(8,5,2,0.55); color: ${C.goldDim}; }
+        .pp-pill.active .pp-count { background: rgba(0,0,0,0.22); color: #1a0e00; }
+        .pp-nums .pp-num { font-family: ${F.mono}; border-color: ${C.borderGold};
+          background: linear-gradient(135deg, rgba(122,19,32,0.32), rgba(61,31,92,0.22)); color: ${C.goldBright}; }
+        .pp-nums .pp-num:hover { border-color: ${C.gold}; background: linear-gradient(135deg, rgba(122,19,32,0.5), rgba(61,31,92,0.4)); }
 
         .pp-chips { padding-top: 4px; border-top: 1px solid ${C.faint}; }
         .pp-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(212,175,55,0.12);
@@ -383,6 +424,17 @@ export default function PostsPage() {
         .pp-clear-all { background: none; border: 1px solid ${C.crimsonLight}; color: #d98a92;
           border-radius: 999px; padding: 5px 14px; cursor: pointer; font-family: ${F.heading}; font-size: 12px; }
         .pp-clear-all:hover { background: rgba(160,31,46,0.2); }
+
+        .pp-bridge { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 920px; margin: 0 auto 14px;
+          cursor: pointer; text-align: right; border-radius: 14px; padding: 12px 18px;
+          border: 1px solid ${C.borderGold};
+          background: linear-gradient(120deg, rgba(122,19,32,0.34), rgba(61,31,92,0.26));
+          color: ${C.goldLight}; font-family: ${F.body}; font-size: 14.5px;
+          box-shadow: 0 8px 26px rgba(0,0,0,0.4); transition: border-color .18s, transform .12s, box-shadow .18s; }
+        .pp-bridge:hover { border-color: ${C.gold}; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 22px rgba(212,175,55,0.18); }
+        .pp-bridge > span:nth-child(2) { flex: 1; }
+        .pp-bridge-n { font-family: ${F.mono}; font-weight: 800; font-size: 17px; color: ${C.goldBright};
+          background: rgba(8,5,2,0.45); border: 1px solid ${C.borderGold}; border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
 
         .pp-status { text-align: center; color: ${C.muted}; font-family: ${F.heading}; font-size: 13px; margin: 6px 0 22px; }
         .pp-empty { text-align: center; color: ${C.muted}; font-family: ${F.body}; padding: 56px 20px; font-size: 15px; }

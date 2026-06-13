@@ -68,8 +68,8 @@ function UniversalSearch({ onDone, full }) {
   ];
 
   return (
-    <div ref={ref} style={{ position: "relative", width: full ? "100%" : undefined }}>
-      <form onSubmit={submit} className="nav-gem" style={{ width: full ? "100%" : undefined }}>
+    <div ref={ref} style={{ position: "relative", flex: full ? 1 : undefined, minWidth: 0, width: full ? "100%" : undefined }}>
+      <form onSubmit={submit} className={`nav-gem${full ? " nav-gem-full" : ""}`} style={{ width: full ? "100%" : undefined }}>
         <span className="nav-gem-ico" aria-hidden>🔎</span>
         <input value={q} onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); }}
           placeholder="מה תרצו לגלות היום?" aria-label="חיפוש באתר" />
@@ -276,7 +276,7 @@ export default function Navbar() {
             </Link>
           ) : (
             <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 11, letterSpacing: 1, whiteSpace: "nowrap" }}>
-              👑 הצטרפו לבני ההיכל
+              👑 הצטרפו לחברי ההיכל
             </GoldButton>
           )}
         </div>
@@ -300,7 +300,7 @@ export default function Navbar() {
             borderBottom: `1px solid ${C.border}`, marginBottom: 6,
           }}>
             {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>👑</span>}
-            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "הצטרפו לבני ההיכל"}
+            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "הצטרפו לחברי ההיכל"}
           </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
@@ -337,8 +337,12 @@ export default function Navbar() {
         .nav-gem:focus-within { border-color: ${C.gold}; box-shadow: 0 0 16px rgba(212,175,55,0.18); }
         .nav-gem-ico { font-size: 13px; opacity: 0.85; }
         .nav-gem input { width: 168px; max-width: 40vw; background: none; border: none; outline: none; color: ${C.goldLight};
-          font-family: ${F.body}; font-size: 13px; padding: 5px 2px; }
+          font-family: ${F.body}; font-size: 13px; padding: 5px 2px; min-width: 0; }
         .nav-gem input::placeholder { color: ${C.muted}; opacity: 0.85; }
+        /* מצב מלא (מגירת המובייל) — תיבה רספונסיבית ברוחב מלא */
+        .nav-gem.nav-gem-full { width: 100%; box-sizing: border-box; }
+        .nav-gem.nav-gem-full input { width: 100%; max-width: none; flex: 1; font-size: 16px; }
+        .nav-gem.nav-gem-full input::placeholder { font-size: 14px; }
         .nav-gem button { background: ${C.gold}; color: #1a0e00; border: none; border-radius: 999px;
           width: 26px; height: 26px; cursor: pointer; font-size: 14px; font-weight: 800; flex-shrink: 0; }
         .nav-gem button:hover { background: ${C.goldLight}; }

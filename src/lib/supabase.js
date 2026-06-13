@@ -111,6 +111,22 @@ export async function getDistinctCategoriesAndTags() {
   return { categories: [...cats].sort(), tags: [...tags].sort() };
 }
 
+// תגיות לפי פופולריות (כמות פוסטים) — לתצוגת "תגיות פופולריות"
+export async function getTagCounts({ limit = 200 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('tag_counts', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
+// "תגיות המספרים" מהגלריה — מספרי עוגן + כמות תמונות לכל מספר (מחבר לדף המספרים/מגירה)
+export async function getGalleryNumberTags() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('gallery_number_tags');
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
   const decoded = decodeURIComponent(slug);
@@ -203,13 +219,20 @@ export async function getEntityBundle({ term, value, isNumber }) {
     } catch { return Promise.resolve({ items: [], count: 0 }); }
   };
 
+  // פוסטים: למספר — לפי תגית-מספר מדויקת (RPC), כדי שלא ייתפסו "2016"/"163"; לטקסט — חיפוש בכותרת/תוכן.
+  const postsP = isNumber
+    ? supabase.rpc('posts_by_number_tag', { num: value, lim: 40 })
+        .then(({ data }) => ({ items: data || [], count: (data || []).length }))
+        .catch(() => ({ items: [], count: 0 }))
+    : sec('posts', 'wp_id,slug,title,date',
+        q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12));
+
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
       ? supabase.from('gematria_words').select('phrase,ragil').eq('ragil', value).limit(40)
           .then(({ data }) => data || []).catch(() => [])
       : Promise.resolve([]),
-    sec('posts', 'wp_id,slug,title,date',
-      q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12)),
+    postsP,
     sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
       q => (isNumber ? q.or(`primary_value.eq.${value},name.ilike.${like}`) : q.ilike('name', like))
             .order('occurred_at', { ascending: false, nullsFirst: false })
