@@ -89,7 +89,8 @@ function Box({ value, x }) {
 
 function Scene({ word, method }) {
   const L = useMemo(() => lettersOf(word), [word]);
-  const lx = (i, n) => (i - (n - 1) / 2) * 1.5;
+  // עברית מימין לשמאל: האות הראשונה בצד ימין (x חיובי).
+  const lx = (i, n) => ((n - 1) / 2 - i) * 1.5;
   const tex = useMemo(() => L.map(hebTile), [L]);
   const items = useMemo(() => methodItems(word, method, lx), [word, method]);
   return (
@@ -142,13 +143,16 @@ function stopAmbient(a) {
 }
 
 export default function GematriaTeaser() {
-  const [step, setStep] = useState(0);
+  const [wordIdx, setWordIdx] = useState(0);
+  const [method, setMethod] = useState(0);
   const [sound, setSound] = useState(false);
   const ambRef = useRef(null);
-  useEffect(() => { const t = setInterval(() => setStep(s => s + 1), 5200); return () => clearInterval(t); }, []);
+  useEffect(() => {
+    const t = setInterval(() => setMethod(m => { const nm = (m + 1) % 3; if (nm === 0) setWordIdx(w => (w + 1) % WORDS.length); return nm; }), 5200);
+    return () => clearInterval(t);
+  }, []);
   useEffect(() => () => { if (ambRef.current) stopAmbient(ambRef.current); }, []);
-  const method = step % 3;
-  const word = WORDS[Math.floor(step / 3) % WORDS.length];
+  const word = WORDS[wordIdx];
   const total = useMemo(() => methodItems(word, method, (i, n) => i).reduce((s, it) => s + it.value, 0), [word, method]);
   const breakdown = useMemo(() => explain(word, method), [word, method]);
 
@@ -169,15 +173,15 @@ export default function GematriaTeaser() {
         border: `1px solid ${C.borderGold}`, background: sound ? "rgba(212,175,55,0.2)" : "rgba(8,5,16,0.6)", color: C.goldBright, fontSize: 16, backdropFilter: "blur(6px)",
       }}>{sound ? "🔊" : "🎵"}</button>
 
-      {/* טאבים של השיטות */}
-      <div style={{ position: "absolute", top: 12, insetInline: 0, display: "flex", gap: 8, justifyContent: "center", pointerEvents: "none" }}>
+      {/* טאבים של השיטות — לחיצים */}
+      <div style={{ position: "absolute", top: 12, insetInline: 0, display: "flex", gap: 8, justifyContent: "center" }}>
         {METHODS.map((m, i) => (
-          <span key={m.key} style={{
-            fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "5px 14px", borderRadius: 999,
+          <button key={m.key} onClick={() => setMethod(i)} style={{
+            cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 15px", borderRadius: 999,
             border: `1px solid ${i === method ? C.gold : C.border}`,
-            background: i === method ? "rgba(212,175,55,0.16)" : "rgba(8,5,16,0.5)",
-            color: i === method ? C.goldBright : C.goldDim, transition: "all .3s",
-          }}>{m.key}</span>
+            background: i === method ? "rgba(212,175,55,0.18)" : "rgba(8,5,16,0.5)",
+            color: i === method ? C.goldBright : C.goldDim, transition: "all .25s", backdropFilter: "blur(6px)",
+          }}>{m.key}</button>
         ))}
       </div>
 
