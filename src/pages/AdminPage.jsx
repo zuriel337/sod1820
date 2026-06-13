@@ -4,7 +4,7 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
-  getNumberSets, saveNumberSet, deleteNumberSet,
+  getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
 } from "../lib/supabase.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
@@ -14,6 +14,7 @@ const TABS = [
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
   { key: "sets",     label: "🖼 סטים ותמונות" },
+  { key: "ocr",      label: "🔤 OCR" },
 ];
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -58,6 +59,93 @@ export default function AdminPage() {
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
       {tab === "sets" && <SetsTab />}
+      {tab === "ocr" && <OcrTab />}
+    </div>
+  );
+}
+
+// ===== 🔤 OCR (Edge Function gallery-ocr) =====
+function OcrTab() {
+  const [counts, setCounts] = useState(null);
+  const [runKey, setRunKey] = useState("");
+  const [running, setRunning] = useState(false);
+  const [auto, setAuto] = useState(false);
+  const [log, setLog] = useState([]);
+  const stopRef = React.useRef(false);
+
+  const refresh = useCallback(() => getOcrCounts().then(setCounts).catch(() => {}), []);
+  useEffect(() => { refresh(); }, [refresh]);
+
+  function addLog(m) { setLog(l => [`${new Date().toLocaleTimeString("he-IL")} · ${m}`, ...l].slice(0, 40)); }
+
+  async function runOnce(retry = false) {
+    const r = await runOcrBatch({ limit: 50, retry, runKey });
+    addLog(`עובדו ${r.picked} · הצליחו ${r.done} · שגיאות ${r.errors}`);
+    return r;
+  }
+  async function runAll() {
+    setRunning(true); setAuto(true); stopRef.current = false;
+    try {
+      for (let i = 0; i < 80 && !stopRef.current; i++) {
+        const r = await runOnce(false);
+        await refresh();
+        if (!r || r.picked === 0) { addLog("✅ הסתיים — אין עוד תמונות ממתינות"); break; }
+      }
+    } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
+    finally { setRunning(false); setAuto(false); }
+  }
+  async function runSingle() {
+    setRunning(true);
+    try { await runOnce(false); await refresh(); } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
+    finally { setRunning(false); }
+  }
+
+  const pct = counts && counts.total ? Math.round((counts.done) / counts.total * 100) : 0;
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <Stat label="הושלמו (done)" value={counts ? counts.done.toLocaleString() : "…"} />
+        <Stat label="ממתינים (pending)" value={counts ? counts.pending.toLocaleString() : "…"} />
+        <Stat label="שגיאות" value={counts ? counts.error.toLocaleString() : "…"} />
+        <Stat label="סה״כ" value={counts ? counts.total.toLocaleString() : "…"} />
+      </div>
+
+      <div style={card}>
+        <H>OCR לתמונות הגלריה (Claude Vision)</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "6px 0 12px" }}>
+          מריץ את ה-Edge Function <code style={{ color: C.goldLight }}>gallery-ocr</code> על תמונות שטרם עובדו (50 בכל מנה). רץ על מפתח ה-Anthropic שלך. "הרץ עד הסוף" ממשיך אוטומטית עד שאין ממתינים.
+        </div>
+        <div style={{ height: 10, background: "rgba(8,5,2,0.5)", borderRadius: 999, overflow: "hidden", marginBottom: 6 }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg, ${C.gold}, ${C.goldDark})` }} />
+        </div>
+        <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, marginBottom: 14 }}>{pct}% הושלמו</div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={runKey} onChange={e => setRunKey(e.target.value)} placeholder="x-run-key (אם הוגדר)"
+            style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.mono, fontSize: 13, direction: "ltr" }} />
+          {!running ? (
+            <>
+              <BtnGold onClick={runSingle}>הרץ 50 הבאים</BtnGold>
+              <BtnGold onClick={runAll}>▶ הרץ עד הסוף</BtnGold>
+            </>
+          ) : (
+            <>
+              <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13 }}>⏳ {auto ? "רץ אוטומטית…" : "מריץ…"}</span>
+              {auto && <button onClick={() => { stopRef.current = true; }} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.crimsonLight}`, color: "#d98a92", borderRadius: 999, padding: "8px 16px", fontFamily: F.heading }}>עצור</button>}
+            </>
+          )}
+          <button onClick={refresh} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "8px 14px", fontFamily: F.heading, fontSize: 12 }}>רענן ספירה</button>
+        </div>
+      </div>
+
+      {log.length > 0 && (
+        <div style={card}>
+          <H>יומן הרצה</H>
+          <div style={{ marginTop: 8, fontFamily: F.mono, fontSize: 12.5, color: C.goldDim, display: "grid", gap: 4, maxHeight: 240, overflowY: "auto" }}>
+            {log.map((l, i) => <div key={i}>{l}</div>)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
