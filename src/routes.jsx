@@ -30,7 +30,7 @@ export const NAV = [
       { label: "צ'אט", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
       { label: "תגובות", to: "/community/comments" },
-      { label: "צור קשר", to: "/contact" },
+      { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
   { label: "בני ההיכל", emoji: "👑", to: "/members" },
