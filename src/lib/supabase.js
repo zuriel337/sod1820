@@ -111,6 +111,22 @@ export async function getDistinctCategoriesAndTags() {
   return { categories: [...cats].sort(), tags: [...tags].sort() };
 }
 
+// תגיות לפי פופולריות (כמות פוסטים) — לתצוגת "תגיות פופולריות"
+export async function getTagCounts({ limit = 200 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('tag_counts', { lim: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
+// "תגיות המספרים" מהגלריה — מספרי עוגן + כמות תמונות לכל מספר (מחבר לדף המספרים/מגירה)
+export async function getGalleryNumberTags() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('gallery_number_tags');
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
   const decoded = decodeURIComponent(slug);
