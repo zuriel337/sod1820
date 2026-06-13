@@ -5247,6 +5247,7 @@ function PostPageBySlug({ onNav }) {
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
+            {post.ai_addition && <AiAdditionBox html={post.ai_addition} />}
             {gematriaItems.length > 0 && (
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
@@ -5263,7 +5264,6 @@ function PostPageBySlug({ onNav }) {
             )}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
-            {post.ai_addition && <AiAdditionBox html={post.ai_addition} />}
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
