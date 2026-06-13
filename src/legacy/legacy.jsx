@@ -4466,15 +4466,16 @@ function ChatPage() {
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
   useEffect(() => {
-    if (document.getElementById("spotim-script")) return;
-    const s = document.createElement("script");
-    s.id = "spotim-script";
-    s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
-    s.async = true;
-    s.setAttribute("data-spotim-module", "spotim-launcher");
-    s.setAttribute("data-post-id", "daf-tzaat-rashi");
-    document.body.appendChild(s);
-    return () => { document.getElementById("spotim-script")?.remove(); };
+    // טוענים את ה-launcher של Spot.IM פעם אחת ומשאירים אותו טעון —
+    // כך כשחוזרים לדף ה-SDK מזהה מחדש את אלמנט ה-conversation ולא "בורח".
+    if (!document.getElementById("spotim-script")) {
+      const s = document.createElement("script");
+      s.id = "spotim-script";
+      s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
+      s.async = true;
+      s.setAttribute("data-spotim-module", "spotim-launcher");
+      document.body.appendChild(s);
+    }
   }, []);
 
   return (
@@ -4488,7 +4489,13 @@ function SpotimChatPage() {
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
-      <div id="spotim-container" style={{ minHeight: 400 }} />
+      {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
+      <div
+        data-spotim-module="conversation"
+        data-post-id="daf-tzaat-rashi"
+        data-post-url="https://sod1820.co.il/community/chat"
+        style={{ minHeight: 400 }}
+      />
     </div>
   );
 }
