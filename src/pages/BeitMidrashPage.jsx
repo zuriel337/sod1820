@@ -228,6 +228,7 @@ function NumberResults({ value }) {
 
 // טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
+const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה — פנינים גדולות יותר
 function CalcTab() {
   const [num, setNum] = useState(1820);
   return (
@@ -239,15 +240,38 @@ function CalcTab() {
         <GematriaCalculator />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
-      <aside className="bm-numlist" style={{ width: 92, flex: "0 0 auto", position: "sticky", top: 20 }}>
-        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>מספרים</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, maxHeight: "70vh", overflowY: "auto" }}>
-          {NUM_LIST.map(n => (
-            <button key={n} onClick={() => setNum(n)} title={KEY_NUMBERS[n] || ""} style={{
-              cursor: "pointer", fontFamily: F.mono, fontSize: 14, fontWeight: 800, padding: "7px 4px", borderRadius: 8,
-              border: `1px solid ${n === num ? L.gold : L.line}`, background: n === num ? L.active : L.panel, color: L.goldDeep,
-            }}>{n}</button>
-          ))}
+      <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
+        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>✦ ציר המספרים</div>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxHeight: "72vh", overflowY: "auto", padding: "4px 0" }}>
+          {/* קו הציר */}
+          <span className="axis-line" aria-hidden style={{ position: "absolute", top: 8, bottom: 8, insetInlineStart: "50%", width: 2, transform: "translateX(-50%)", background: `linear-gradient(${L.line}, ${L.gold}, ${L.line})`, borderRadius: 2 }} />
+          {NUM_LIST.map((n, i) => {
+            const on = n === num;
+            const core = CORE.has(n);
+            const base = core ? 50 : 42;
+            const size = on ? base + 6 : base;
+            return (
+              <div key={n} style={{ position: "relative", display: "flex", justifyContent: "center", width: "100%" }}>
+                {on && KEY_NUMBERS[n] && (
+                  <span style={{
+                    position: "absolute", insetInlineEnd: "calc(100% + 10px)", top: "50%", transform: "translateY(-50%)",
+                    whiteSpace: "nowrap", background: L.panel, border: `1px solid ${L.gold}`, color: L.goldDeep,
+                    borderRadius: 8, padding: "4px 10px", fontFamily: F.body, fontSize: 12, fontWeight: 700,
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.12)", zIndex: 4, pointerEvents: "none",
+                  }} className="axis-label">{KEY_NUMBERS[n]}</span>
+                )}
+                <button onClick={() => setNum(n)} title={KEY_NUMBERS[n] || ""} style={{
+                  position: "relative", zIndex: 1, cursor: "pointer", width: size, height: size, borderRadius: "50%",
+                  fontFamily: F.mono, fontSize: on ? 14 : (core ? 13 : 11.5), fontWeight: 800, flex: "0 0 auto",
+                  border: `2px solid ${L.gold}`, background: on ? L.gold : L.panel, color: on ? "#fff" : L.goldDeep,
+                  boxShadow: on ? "0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4)" : "0 1px 3px rgba(0,0,0,0.1)",
+                  transition: "width .2s, height .2s, background .2s, color .2s",
+                  animation: on ? "axisPulse 1.9s ease-in-out infinite" : "axisBeadIn .45s ease both",
+                  animationDelay: on ? "0s" : `${i * 45}ms`,
+                }}>{n}</button>
+              </div>
+            );
+          })}
         </div>
       </aside>
     </div>
@@ -350,7 +374,11 @@ export default function BeitMidrashPage() {
           .bm-calc { flex-direction: column; }
           .bm-numlist { width: 100% !important; position: static !important; }
           .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important; }
+          .axis-line { display: none !important; }
+          .axis-label { display: none !important; }
         }
+        @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
+        @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>
     </div>
   );
