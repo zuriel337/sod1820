@@ -27,7 +27,7 @@ import {
 } from "./pages/placeholders.jsx";
 import {
   PostBySlugRoute, GematriaRoute,
-  LoginRoute, ContactRoute, CommunityChatRoute,
+  LoginRoute, ContactRoute, SpotimChatRoute,
   TrafficRoute, NumbersReportRoute,
 } from "./pages/legacyRoutes.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
@@ -70,7 +70,7 @@ export default function App() {
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
-          <Route path="/community/chat" element={<CommunityChatRoute />} />
+          <Route path="/community/chat" element={<SpotimChatRoute />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/members" element={<MembersPage />} />
