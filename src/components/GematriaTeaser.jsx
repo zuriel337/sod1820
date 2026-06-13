@@ -71,12 +71,12 @@ function makeGlow() {
 function Dust() {
   const ref = useRef(); const tex = useMemo(makeGlow, []);
   const geo = useMemo(() => {
-    const n = 400, p = new Float32Array(n * 3);
+    const n = 220, p = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { const r = 4 + Math.random() * 12, t = Math.random() * 6.28; p[i * 3] = Math.cos(t) * r; p[i * 3 + 1] = (Math.random() - 0.5) * 9; p[i * 3 + 2] = Math.sin(t) * r - 3; }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(p, 3)); return g;
   }, []);
   useFrame((_, dt) => { if (ref.current) ref.current.rotation.y += dt * 0.02; });
-  return <points ref={ref} geometry={geo}><pointsMaterial map={tex} size={0.4} transparent depthWrite={false} blending={THREE.AdditiveBlending} color="#ffd86b" opacity={0.8} /></points>;
+  return <points ref={ref} geometry={geo}><pointsMaterial map={tex} size={0.36} transparent depthWrite={false} blending={THREE.AdditiveBlending} color="#ffd86b" opacity={0.5} /></points>;
 }
 
 function Letter({ tex, x }) {
@@ -99,11 +99,11 @@ function Scene({ word, method }) {
   const items = useMemo(() => methodItems(word, method, lx), [word, method]);
   return (
     <>
-      <color attach="background" args={["#070414"]} />
-      <fog attach="fog" args={["#070414", 9, 26]} />
+      <color attach="background" args={["#030108"]} />
+      <fog attach="fog" args={["#030108", 8, 22]} />
       <ambientLight intensity={0.6} />
       <pointLight position={[3, 4, 6]} intensity={1.1} color="#fff3cf" />
-      <Stars radius={50} depth={30} count={1400} factor={3} fade speed={0.4} />
+      <Stars radius={50} depth={30} count={700} factor={2.4} fade speed={0.35} />
       <Dust />
       <group key={word}>{L.map((_, i) => <Letter key={i} tex={tex[i]} x={lx(i, L.length)} />)}</group>
       <group key={`${word}-${method}`}>{items.map((it, i) => <Box key={i} value={it.value} x={it.x} />)}</group>
@@ -125,20 +125,33 @@ function startAmbient() {
   const Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return null;
   const ctx = new Ctx();
   const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
-  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 650; lp.Q.value = 0.6; lp.connect(master);
-  const freqs = [110, 164.81, 220, 277.18];   // A2 · E3 · A3 · C#4 — אקורד פתוח
-  freqs.forEach((f, i) => {
-    const o = ctx.createOscillator(); o.type = i % 2 ? "triangle" : "sine"; o.frequency.value = f; o.detune.value = (i - 1.5) * 4;
-    const g = ctx.createGain(); g.gain.value = 0.16 / (i + 1);
-    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.04 + 0.025 * i;
-    const lg = ctx.createGain(); lg.gain.value = 0.07; lfo.connect(lg); lg.connect(g.gain); lfo.start();
+  // הד עדין (delay עם משוב) לתחושת מרחב
+  const delay = ctx.createDelay(); delay.delayTime.value = 0.34; const fb = ctx.createGain(); fb.gain.value = 0.34; delay.connect(fb); fb.connect(delay);
+  const wet = ctx.createGain(); wet.gain.value = 0.28; delay.connect(wet); wet.connect(master);
+  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = 0.5; lp.connect(master); lp.connect(delay);
+  // כרית אקורד רכה (D · A · C#  · E)
+  [146.83, 220, 277.18, 329.63].forEach((f, i) => {
+    const o = ctx.createOscillator(); o.type = i % 2 ? "sine" : "triangle"; o.frequency.value = f; o.detune.value = (i - 1.5) * 5;
+    const g = ctx.createGain(); g.gain.value = 0.11 / (i + 1);
+    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.03 + 0.02 * i;
+    const lg = ctx.createGain(); lg.gain.value = 0.05; lfo.connect(lg); lg.connect(g.gain); lfo.start();
     o.connect(g); g.connect(lp); o.start();
   });
-  master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 2.2);
-  return { ctx, master };
+  // פעמונים עדינים אקראיים (סולם פנטטוני) — נותן מוזיקליות
+  const scale = [587.33, 659.25, 739.99, 880, 987.77];
+  const bell = () => {
+    const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = scale[Math.floor(Math.random() * scale.length)];
+    const g = ctx.createGain(); g.gain.value = 0; o.connect(g); g.connect(lp);
+    const t = ctx.currentTime; g.gain.linearRampToValueAtTime(0.06, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
+    o.start(t); o.stop(t + 2.8);
+  };
+  const bi = setInterval(bell, 2800);
+  master.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 2.4);
+  return { ctx, master, bi };
 }
 function stopAmbient(a) {
   try {
+    clearInterval(a.bi);
     a.master.gain.cancelScheduledValues(a.ctx.currentTime);
     a.master.gain.setValueAtTime(a.master.gain.value, a.ctx.currentTime);
     a.master.gain.linearRampToValueAtTime(0, a.ctx.currentTime + 0.6);
@@ -166,7 +179,7 @@ export default function GematriaTeaser() {
   }
 
   return (
-    <div style={{ position: "relative", height: "min(74vh, 640px)", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.borderGold}`, background: "#070414", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", direction: "rtl" }}>
+    <div style={{ position: "relative", height: "min(74vh, 640px)", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.borderGold}`, background: "#030108", boxShadow: "0 20px 60px rgba(0,0,0,0.6)", direction: "rtl" }}>
       <Canvas camera={{ position: [0, 0.7, 9.4], fov: 55 }} dpr={[1, 2]} gl={{ antialias: true }}>
         <Scene word={word} method={method} />
       </Canvas>
@@ -189,25 +202,21 @@ export default function GematriaTeaser() {
         ))}
       </div>
 
-      {/* הסבר השיטה — ברור, כדי שיהיה זמן להבין */}
-      <div style={{ position: "absolute", top: 52, insetInline: 0, textAlign: "center", pointerEvents: "none", padding: "0 16px" }}>
-        <span key={method} style={{
-          display: "inline-block", maxWidth: 560, color: C.goldLight, fontFamily: F.body, fontSize: "clamp(13px,2.6vw,15.5px)", lineHeight: 1.7,
-          background: "rgba(6,4,14,0.6)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 16px", backdropFilter: "blur(6px)",
-          animation: "teaserIn .5s ease both",
-        }}>{METHODS[method].desc}</span>
-      </div>
-
-      {/* ★ הלב: המספר הגדול במרכז, עם הסבר יפה ★ */}
-      <div style={{ position: "absolute", insetInline: 0, top: "60%", transform: "translateY(-50%)", textAlign: "center", pointerEvents: "none", padding: "0 16px" }}>
+      {/* ★ הלב: המספר הגדול במרכז, עם החישוב וההסבר לידו למטה ★ */}
+      <div style={{ position: "absolute", insetInline: 0, top: "62%", transform: "translateY(-50%)", textAlign: "center", pointerEvents: "none", padding: "0 16px" }}>
         <div key={`${word}-${method}`} style={{ position: "relative", display: "inline-block", animation: "teaserIn .6s ease both" }}>
-          <span style={{ position: "absolute", inset: "-40% -30%", background: "radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)", filter: "blur(6px)" }} />
-          <div style={{ position: "relative", color: C.goldDim, fontFamily: F.heading, fontSize: 14, letterSpacing: 3 }}>{word} · {METHODS[method].key}</div>
-          <div style={{ position: "relative", color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(58px,13vw,118px)", fontWeight: 800, lineHeight: 1, textShadow: "0 0 50px rgba(246,226,122,0.5)" }}>
+          <span style={{ position: "absolute", inset: "-45% -35%", background: "radial-gradient(circle, rgba(212,175,55,0.2), transparent 70%)", filter: "blur(8px)" }} />
+          <div style={{ position: "relative", color: C.goldDim, fontFamily: F.heading, fontSize: 15, letterSpacing: 3 }}>{word} · {METHODS[method].key}</div>
+          <div style={{ position: "relative", color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(66px,15vw,132px)", fontWeight: 800, lineHeight: 1, textShadow: "0 0 50px rgba(246,226,122,0.5)" }}>
             <Odometer to={total} k={`${word}-${method}`} />
           </div>
-          <div style={{ position: "relative", marginTop: 14, display: "inline-block", maxWidth: 580, color: C.goldLight, fontFamily: F.mono, fontSize: "clamp(12px,2.5vw,15px)", lineHeight: 1.8, background: "rgba(8,5,16,0.55)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 15px" }}>
+          {/* החישוב — גדול וקריא, ליד המספר */}
+          <div style={{ position: "relative", marginTop: 14, display: "inline-block", maxWidth: 600, color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(15px,3.4vw,21px)", fontWeight: 700, lineHeight: 1.8, background: "rgba(3,1,8,0.7)", border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "10px 16px" }}>
             {breakdown}
+          </div>
+          {/* ההסבר — ליד החישוב */}
+          <div style={{ position: "relative", marginTop: 9, color: C.goldLight, fontFamily: F.body, fontSize: "clamp(13px,2.8vw,16px)", lineHeight: 1.7, maxWidth: 540, marginInline: "auto" }}>
+            {METHODS[method].desc}
           </div>
         </div>
       </div>
