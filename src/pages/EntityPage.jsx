@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
-import PulseRing from "../components/PulseRing.jsx";
+import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 
 // ===== דף הישות (Entity Page) — מרכז כל המידע סביב מספר/ביטוי =====
 // /number/:phrase — מספר (1237) או ביטוי (דוד המלך). מרכז: ערך+מילים שוות,
@@ -113,7 +113,7 @@ export default function EntityPage() {
         if (cnt.events) parts.push(`${cnt.events} אירועים בציר`);
         if (cnt.ai) parts.push(`${cnt.ai} חידושי AI`);
         if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
-        const pulse = Math.max(6, Math.min(100, Math.round(cnt.posts * 3 + cnt.galleries * 2 + cnt.events * 6 + cnt.ai * 8 + cnt.comm * 2 + cnt.words * 0.6)));
+        const pulse = pulseFromCounts(cnt);
         return (
           <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))", display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
             <PulseRing value={pulse} size={104} core={isNumber && !!KEY_NUMBERS[value]} />
