@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { Link } from "react-router-dom";
@@ -32,10 +32,10 @@ function cardTex(name, value, sub, on) {
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 
-function Letter({ tex, x }) {
+function Letter({ tex, x, y }) {
   const ref = useRef();
-  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.15, Math.min(1, dt * 3))); ref.current.position.y = 2.7 + Math.sin(st.clock.elapsedTime + x) * 0.05; });
-  return <sprite ref={ref} position={[x, 2.7, 0]} scale={0.001}><spriteMaterial map={tex} transparent depthWrite={false} /></sprite>;
+  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.05, Math.min(1, dt * 3))); ref.current.position.y = y + Math.sin(st.clock.elapsedTime + x) * 0.05; });
+  return <sprite ref={ref} position={[x, y, 0]} scale={0.001}><spriteMaterial map={tex} transparent depthWrite={false} /></sprite>;
 }
 
 function Card({ name, value, sub, x, y, on, onPick }) {
@@ -58,20 +58,37 @@ function Card({ name, value, sub, x, y, on, onPick }) {
 }
 
 function Scene({ word, results, active, setActive }) {
+  const { viewport } = useThree();
+  const portrait = viewport.width < viewport.height * 0.95;   // מסך צר (מובייל)
   const letters = useMemo(() => onlyHeb(word), [word]);
   const ltex = useMemo(() => letters.map(hebTile), [letters]);
-  const lx = (i, n) => ((n - 1) / 2 - i) * 1.4;
-  const cols = [-3.3, -1.1, 1.1, 3.3], rows = [0.55, -1.45];
+
+  // פריסה מותאמת: 2 טורים במסך צר, 4 במסך רחב
+  const perRow = portrait ? 2 : 4;
+  const colXs = portrait ? [-1.95, 1.95] : [-3.3, -1.1, 1.1, 3.3];
+  const rowYs = portrait ? [3.0, 1.0, -1.0, -3.0] : [0.55, -1.45];
+  const letterY = portrait ? 4.8 : 2.7;
+  const lx = (i, n) => ((n - 1) / 2 - i) * (portrait ? 1.15 : 1.4);
+
+  // התאמת קנה-מידה כדי שהכל ייכנס למסך (רוחב/גובה)
+  const contentW = portrait ? 5.9 : 8.6;
+  const topY = letterY + 0.9;
+  const botY = rowYs[rowYs.length - 1] - 0.75;
+  const contentH = topY - botY;
+  const fit = Math.min(1, Math.min(viewport.width / contentW, viewport.height / contentH) * 0.94);
+
   return (
     <>
       <color attach="background" args={["#030108"]} />
-      <fog attach="fog" args={["#030108", 11, 30]} />
-      <Stars radius={60} depth={35} count={700} factor={2.4} fade speed={0.3} />
-      {letters.map((_, i) => <Letter key={i} tex={ltex[i]} x={lx(i, letters.length)} />)}
-      {results.map((r, i) => (
-        <Card key={r.key} name={r.key} value={r.value} sub={r.sub}
-          x={cols[i % 4]} y={rows[Math.floor(i / 4)]} on={r.key === active} onPick={() => setActive(r.key)} />
-      ))}
+      <fog attach="fog" args={["#030108", 13, 34]} />
+      <Stars radius={60} depth={35} count={600} factor={2.2} fade speed={0.3} />
+      <group scale={fit}>
+        {letters.map((_, i) => <Letter key={i} tex={ltex[i]} x={lx(i, letters.length)} y={letterY} />)}
+        {results.map((r, i) => (
+          <Card key={r.key} name={r.key} value={r.value} sub={r.sub}
+            x={colXs[i % perRow]} y={rowYs[Math.floor(i / perRow)]} on={r.key === active} onPick={() => setActive(r.key)} />
+        ))}
+      </group>
     </>
   );
 }
