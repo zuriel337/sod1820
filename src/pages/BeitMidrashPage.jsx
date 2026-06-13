@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
-import { getInsights, supabase } from "../lib/supabase.js";
+import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -185,18 +186,23 @@ function Sod1820Tab() {
 function NumberResults({ value }) {
   const [eq, setEq] = useState(null);
   const [comm, setComm] = useState(null);
+  const [pulse, setPulse] = useState(null);
   useEffect(() => {
-    let live = true; setEq(null); setComm(null);
+    let live = true; setEq(null); setComm(null); setPulse(null);
     supabase.from("gematria_words").select("phrase").eq("ragil", value).limit(60)
       .then(({ data }) => { if (live) setEq([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
     supabase.from("community_words").select("phrase,author").eq("value", value).order("created_at", { ascending: false }).limit(40)
       .then(({ data }) => { if (live) setComm(data || []); });
+    getEntityBundle({ term: String(value), value, isNumber: true })
+      .then(b => { if (live && b) setPulse(pulseFromCounts({ posts: b.postsCount, galleries: b.galleriesCount, words: b.phrases?.length, events: b.eventsCount, ai: b.insightsCount, comm: b.commentsCount })); })
+      .catch(() => {});
     return () => { live = false; };
   }, [value]);
   const chip = { textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 13.5, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 12px" };
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "16px 18px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+        {pulse != null && <PulseRing value={pulse} size={62} core={!!KEY_NUMBERS[value]} label={false} />}
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 28, fontWeight: 800 }}>{value}</span>
         {KEY_NUMBERS[value] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[value]}</span>}
         <Link to={`/number/${value}`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הדף המלא →</Link>

@@ -1,6 +1,11 @@
 import React from "react";
 import { F } from "../theme.js";
 
+// נוסחת "דופק" אחידה מהספירות (חוק האות) — מקור אמת אחד לכל מקום באתר.
+export function pulseFromCounts({ posts = 0, galleries = 0, words = 0, events = 0, ai = 0, comm = 0 } = {}) {
+  return Math.max(6, Math.min(100, Math.round(posts * 3 + galleries * 2 + events * 6 + ai * 8 + comm * 2 + words * 0.6)));
+}
+
 // ❤️ דופק המספר — טבעת זוהרת מדורגת. עוצמת המספר במבט אחד.
 // רמות: ❤️ חלש · 💛 מתפתח · 💙 פעיל · 💜 חזק · 👑 מספר יסוד.
 function tierOf(p, core) {
