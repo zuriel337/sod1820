@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
+import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 
 // ===== GEMATRIA =====
@@ -5245,6 +5246,7 @@ function PostPageBySlug({ onNav }) {
               <h1 style={{ color: "#E8D5A3", margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
               <RoyalDivider width={160} />
             </div>
+            {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {gematriaItems.length > 0 && (
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
@@ -5261,6 +5263,7 @@ function PostPageBySlug({ onNav }) {
             )}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
+            {post.ai_addition && <AiAdditionBox html={post.ai_addition} />}
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
