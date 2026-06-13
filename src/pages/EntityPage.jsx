@@ -163,18 +163,25 @@ export default function EntityPage() {
         }}>📖 לא מכירים את שיטות הגימטריה (מסתתר · מילוי · קדמי)? למדו בבית המדרש ←</Link>
       </div>
 
-      {/* ── 🖼 גלריות (למעלה — התמונות הברורות ביותר) ── */}
+      {/* ── 🖼 גלריות — תמונות רחבות מלאות (האחרונות קודם), 2 טורים ── */}
       {d.galleries?.length > 0 && (
         <section id="galleries" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-          <SectionHead icon="🖼" title="גלריות ותמונות" count={d.galleriesCount} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+          <SectionHead icon="🖼" title="גלריות ותמונות · האחרונות" count={d.galleriesCount} />
+          <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
+          <div className="ent-gal">
             {d.galleries.map(g => (
               <button key={g.id} onClick={() => setLightbox(g)} style={{
-                cursor: "pointer", padding: 0, aspectRatio: "1", borderRadius: 10, overflow: "hidden",
-                border: `1px solid ${C.border}`, background: "#000",
-              }}>
+                cursor: "pointer", padding: 0, borderRadius: 12, overflow: "hidden", textAlign: "right",
+                border: `1px solid ${C.border}`, background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+              }} className="ent-gal-card">
                 <img src={g.image_url} alt={g.name || ""} loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  style={{ width: "100%", height: "auto", display: "block" }} />
+                {(g.name || g.description) && (
+                  <div style={{ padding: "10px 13px" }}>
+                    {g.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 4, lineHeight: 1.4 }}>{g.name}</div>}
+                    {g.description && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, maxHeight: 66, overflow: "hidden" }}>{stripHtml(g.description).slice(0, 160)}</div>}
+                  </div>
+                )}
               </button>
             ))}
           </div>
