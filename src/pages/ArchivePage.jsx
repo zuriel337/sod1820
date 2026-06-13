@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { C, F } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
@@ -35,7 +35,8 @@ const imgNums = im => [...new Set([...(im.all_values || []), ...(im.primary_valu
 
 export default function ArchivePage() {
   const { isAdmin } = useAuth();
-  const [tab, setTab] = useState("galleries");
+  const loc = useLocation();
+  const [tab, setTab] = useState(() => new URLSearchParams(loc.search).get("tab") === "pool" ? "pool" : "galleries");
   const [gals, setGals] = useState(null);
   const [imgs, setImgs] = useState([]);
   const [sets, setSets] = useState([]);
