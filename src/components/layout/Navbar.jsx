@@ -55,8 +55,8 @@ function UniversalSearch({ onDone, full }) {
 
   function close() { setQ(""); setPosts([]); setOpen(false); onDone?.(); }
   function go(to) { nav(to); close(); }
-  function drawer(t) { openNumberDrawer(t); close(); }
-  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) drawer(v); }
+  // חיפוש מספר/מילה → דף הישות המלא (לא הסרגל הצף).
+  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) go("/number/" + encodeURIComponent(v)); }
 
   const v = q.trim();
   const gem = /[א-ת]/.test(v) ? calcGem(v) : (/^\d+$/.test(v) ? +v : null);
@@ -79,8 +79,8 @@ function UniversalSearch({ onDone, full }) {
       {open && v.length >= 2 && (
         <div className="nav-gem-drop">
           {gem != null && (
-            <button className="nav-drop-row" onClick={() => drawer(v)}>
-              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · פתח מגירה</span>
+            <button className="nav-drop-row" onClick={() => go("/number/" + encodeURIComponent(v))}>
+              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · גלה הכל ←</span>
             </button>
           )}
           {posts.map(p => (
