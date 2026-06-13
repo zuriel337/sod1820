@@ -3,23 +3,23 @@ import { Link } from "react-router-dom";
 import { C, F, LOGO_URL } from "../../theme.js";
 import UpdatesBox from "../UpdatesBox.jsx";
 
-// עמודות נושאיות — ההיכל (כלים) · הגנזך (תוכן) · השער (קשר והצטרפות)
+// עמודות נושאיות — ההיכל (כלים) · הגנזך (תוכן) · השער (התחלה וקשר)
 const COLUMNS = [
   {
     title: "ההיכל",
     links: [
-      { label: "עץ המספרים", to: "/numbers" },
+      { label: "מחשבון הגימטריה", to: "/beit-midrash?tab=calc" },
+      { label: "בית המדרש", to: "/beit-midrash" },
       { label: "ציר ההתגלות", to: "/timeline" },
-      { label: 'הצופן התנ"כי', to: "/code" },
-      { label: "מספרי אם", to: "/beit-midrash/em" },
+      { label: "דף המספר 1820", to: "/number/1820" },
     ],
   },
   {
     title: "הגנזך",
     links: [
       { label: "פוסטים", to: "/post" },
-      { label: "בית המדרש", to: "/beit-midrash" },
-      { label: "בני ההיכל", to: "/members" },
+      { label: "פוסטים מאומתים", to: "/verified" },
+      { label: "ארכיון", to: "/archive" },
       { label: "קהילה", to: "/community" },
     ],
   },
@@ -28,6 +28,7 @@ const COLUMNS = [
     links: [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
+      { label: "בני ההיכל", to: "/members" },
       { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
@@ -84,8 +85,10 @@ const FOOTER_CSS = `
   .foot-main { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between;
     align-items: flex-start; flex-wrap: wrap; gap: 28px; padding-bottom: 22px; }
   .foot-brand { min-width: 240px; flex: 1.4; max-width: 340px; }
-  .foot-cols { display: flex; gap: 40px; flex-wrap: wrap; }
-  .foot-col { min-width: 130px; }
+  /* שלוש עמודות בגובה אחיד ובחלוקה שווה, מיושרות לראש */
+  .foot-cols { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr));
+    gap: 32px; align-items: start; flex: 1.2; }
+  .foot-col { min-width: 0; }
   .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 16px; border-top: 1px solid ${C.faint};
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px;
     font-size: 11px; color: ${C.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
@@ -169,13 +172,13 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* וואטסאפ — קבוצה (שורה אחת) */}
-          <div style={{ marginTop: 16 }}>
+          {/* וואטסאפ — קבוצה (כפתור קומפקטי) */}
+          <div style={{ marginTop: 14 }}>
             <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)",
-                color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800,
-                padding: "10px 18px", borderRadius: 999, boxShadow: "0 0 16px rgba(31,170,85,0.35)" }}>
-              💬 קבוצת הגימטריה בוואטסאפ
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg,#1faa55,#128c43)",
+                color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                padding: "6px 13px", borderRadius: 999, boxShadow: "0 0 10px rgba(31,170,85,0.28)" }}>
+              💬 קבוצת הוואטסאפ
             </a>
           </div>
         </div>
