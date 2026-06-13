@@ -276,7 +276,7 @@ export default function Navbar() {
             </Link>
           ) : (
             <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 11, letterSpacing: 1, whiteSpace: "nowrap" }}>
-              👑 הצטרפו לחברי ההיכל
+              🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
         </div>
@@ -299,8 +299,8 @@ export default function Navbar() {
             fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
             borderBottom: `1px solid ${C.border}`, marginBottom: 6,
           }}>
-            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>👑</span>}
-            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "הצטרפו לחברי ההיכל"}
+            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
+            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
