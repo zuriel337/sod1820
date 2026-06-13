@@ -6,7 +6,11 @@ const subs = new Set();
 const emit = () => subs.forEach(f => f());
 
 export function openNumberDrawer(term) {
-  state = { open: true, term: String(term).trim() };
+  state = { open: true, term: term != null ? String(term).trim() : (state.term || null) };
+  emit();
+}
+export function toggleNumberDrawer() {
+  state = { ...state, open: !state.open };
   emit();
 }
 export function closeNumberDrawer() {
