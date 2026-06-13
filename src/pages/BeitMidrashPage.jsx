@@ -239,15 +239,22 @@ function CalcTab() {
         <GematriaCalculator />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
-      <aside className="bm-numlist" style={{ width: 92, flex: "0 0 auto", position: "sticky", top: 20 }}>
-        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>מספרים</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, maxHeight: "70vh", overflowY: "auto" }}>
-          {NUM_LIST.map(n => (
-            <button key={n} onClick={() => setNum(n)} title={KEY_NUMBERS[n] || ""} style={{
-              cursor: "pointer", fontFamily: F.mono, fontSize: 14, fontWeight: 800, padding: "7px 4px", borderRadius: 8,
-              border: `1px solid ${n === num ? L.gold : L.line}`, background: n === num ? L.active : L.panel, color: L.goldDeep,
-            }}>{n}</button>
-          ))}
+      <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
+        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>✦ ציר המספרים</div>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxHeight: "72vh", overflowY: "auto", padding: "4px 0" }}>
+          {/* קו הציר */}
+          <span className="axis-line" aria-hidden style={{ position: "absolute", top: 8, bottom: 8, insetInlineStart: "50%", width: 2, transform: "translateX(-50%)", background: `linear-gradient(${L.line}, ${L.gold}, ${L.line})`, borderRadius: 2 }} />
+          {NUM_LIST.map(n => {
+            const on = n === num;
+            return (
+              <button key={n} onClick={() => setNum(n)} title={KEY_NUMBERS[n] || ""} style={{
+                position: "relative", zIndex: 1, cursor: "pointer", width: on ? 48 : 44, height: on ? 48 : 44, borderRadius: "50%",
+                fontFamily: F.mono, fontSize: on ? 13.5 : 12, fontWeight: 800, flex: "0 0 auto",
+                border: `2px solid ${L.gold}`, background: on ? L.gold : L.panel, color: on ? "#fff" : L.goldDeep,
+                boxShadow: on ? "0 0 0 4px #fbf3da, 0 2px 6px rgba(154,120,24,0.35)" : "0 1px 3px rgba(0,0,0,0.1)", transition: "all .2s",
+              }}>{n}</button>
+            );
+          })}
         </div>
       </aside>
     </div>
@@ -350,6 +357,7 @@ export default function BeitMidrashPage() {
           .bm-calc { flex-direction: column; }
           .bm-numlist { width: 100% !important; position: static !important; }
           .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important; }
+          .axis-line { display: none !important; }
         }
       `}</style>
     </div>
