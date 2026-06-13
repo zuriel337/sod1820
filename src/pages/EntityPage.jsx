@@ -53,7 +53,7 @@ export default function EntityPage() {
     getEntityBundle({ term, value, isNumber })
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
-    document.title = `${term} · ${value} — דף הישות · סוד 1820`;
+    document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
@@ -90,7 +90,7 @@ export default function EntityPage() {
       {/* ── ראש: הערך ── */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>
-          דף הישות
+          {isNumber ? "דף המספר" : "דף הביטוי"}
         </div>
         {!isNumber && (
           <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 700, marginBottom: 2 }}>{term}</div>
