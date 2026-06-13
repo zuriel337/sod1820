@@ -27,10 +27,11 @@ import {
 import {
   PostBySlugRoute, GematriaRoute,
   LoginRoute, ContactRoute, ChatRoute,
-  TrafficRoute, NumbersReportRoute, AdminRoute,
+  TrafficRoute, NumbersReportRoute,
 } from "./pages/legacyRoutes.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -75,7 +76,7 @@ export default function App() {
           <Route path="/contact" element={<ContactRoute />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminRoute />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
           <Route path="/theme-preview" element={<ThemePreviewPage />} />

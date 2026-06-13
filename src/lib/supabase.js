@@ -526,6 +526,27 @@ export async function markMessageRead(key, id, read = true) {
   if (error) throw error;
 }
 
+// ── פאנל ניהול חדש (מבוסס role=admin דרך RLS) ──
+export async function adminGetMessages() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('contact_messages')
+    .select('id,name,email,subject,message,created_at,read').order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+export async function adminSetMessageRead(id, read = true) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('contact_messages').update({ read }).eq('id', id);
+  if (error) throw error;
+}
+export async function adminGetSubscribers() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('subscribers')
+    .select('id,email,name,source,active,created_at').order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
