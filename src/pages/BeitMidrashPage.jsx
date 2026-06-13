@@ -133,8 +133,26 @@ function NumbersTab({ initial }) {
   );
 }
 
+const VGRID = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 };
+function VerifiedCard({ p }) {
+  return (
+    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <Link to={`/${p.slug}`} style={{ textDecoration: "none" }}>
+        <div style={{ position: "relative", aspectRatio: "16/10", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : "#ece4d2" }}>
+          <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><AiTag small /></span>
+        </div>
+        <div style={{ padding: "12px 14px" }}>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
+          {p.ai_number && <div style={{ color: L.sub, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
+        </div>
+      </Link>
+      <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.co.il/${p.slug}`} /></div>
+    </div>
+  );
+}
 function VerifiedTab() {
   const [posts, setPosts] = useState(null);
+  const { subscribed } = useSubscribed();
   useEffect(() => {
     let live = true;
     supabase.from("posts").select("wp_id,title,slug,image_url,ai_number").eq("verified", true).order("modified", { ascending: false, nullsFirst: false }).limit(60)
@@ -143,22 +161,30 @@ function VerifiedTab() {
   }, []);
   if (posts === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!posts.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין פוסטים מאומתים.</div>;
+
+  // משתמש לא רשום רואה פוסט מאומת אחד; השאר מטושטשים מאחורי שער הרשמה (חינם).
+  if (subscribed) return <div style={VGRID}>{posts.map(p => <VerifiedCard key={p.wp_id} p={p} />)}</div>;
+  const locked = posts.slice(1);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
-      {posts.map(p => (
-        <div key={p.wp_id} style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-          <Link to={`/${p.slug}`} style={{ textDecoration: "none" }}>
-            <div style={{ position: "relative", aspectRatio: "16/10", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : "#ece4d2" }}>
-              <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><AiTag small /></span>
+    <div>
+      <div style={VGRID}><VerifiedCard p={posts[0]} /></div>
+      {locked.length > 0 && (
+        <div style={{ position: "relative", marginTop: 16 }}>
+          <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 360, overflow: "hidden", ...VGRID }} aria-hidden>
+            {locked.slice(0, 6).map(p => <VerifiedCard key={p.wp_id} p={p} />)}
+          </div>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, rgba(244,241,232,0.25), rgba(244,241,232,0.96))" }}>
+            <div style={{ textAlign: "center", maxWidth: 420, padding: 20 }}>
+              <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
+              <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>עוד {locked.length} פוסטים מאומתים</div>
+              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
+                צפיתם בפוסט מאומת אחד 🎁 · להמשך צפייה בכל הפוסטים המאומתים — <b style={{ color: L.goldDeep }}>הרשמה חינם</b>.
+              </p>
+              <SubscribeGate source="verified-posts" />
             </div>
-            <div style={{ padding: "12px 14px" }}>
-              <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-              {p.ai_number && <div style={{ color: L.sub, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
-            </div>
-          </Link>
-          <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.co.il/${p.slug}`} /></div>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }
@@ -338,9 +364,56 @@ function MethodAnim({ m }) {
     </div>
   );
 }
+// טבלת ערכי האותיות — הבסיס לכל חישוב גימטריה (שיטת "רגיל")
+const ABC = [
+  ["א", 1], ["ב", 2], ["ג", 3], ["ד", 4], ["ה", 5], ["ו", 6], ["ז", 7], ["ח", 8], ["ט", 9],
+  ["י", 10], ["כ", 20], ["ל", 30], ["מ", 40], ["נ", 50], ["ס", 60], ["ע", 70], ["פ", 80], ["צ", 90],
+  ["ק", 100], ["ר", 200], ["ש", 300], ["ת", 400],
+];
+// המדריך הבסיסי — מה זה גימטריה ואיך מחשבים. פתוח לכולם.
+function HowToGuide() {
+  return (
+    <div style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "20px 22px", marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: "0 0 10px" }}>📖 איך עושים גימטריה? — המדריך</h3>
+      <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 15.5, lineHeight: 1.95, margin: "0 0 14px", maxWidth: 700 }}>
+        גימטריה היא שיטה עתיקה שבה <b style={{ color: L.goldDeep }}>לכל אות עברית יש ערך מספרי קבוע</b>. הגימטריה של מילה היא <b style={{ color: L.goldDeep }}>סכום הערכים</b> של אותיותיה. כששתי מילים שונות מגיעות לאותו ערך — נחשף קשר נסתר ביניהן.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, margin: "0 0 16px", maxWidth: 560 }}>
+        {[["1", "מפרקים את המילה לאותיות"], ["2", "כותבים לכל אות את ערכה"], ["3", "מחברים את הכל יחד"]].map(([n, t]) => (
+          <div key={n} style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+            <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{n}</div>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>{t}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, margin: "0 0 8px" }}>ערכי האותיות</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(46px, 1fr))", gap: 6, marginBottom: 12 }}>
+        {ABC.map(([l, v]) => (
+          <div key={l} style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 8, padding: "6px 2px", textAlign: "center" }}>
+            <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{l}</div>
+            <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 12, marginTop: 2 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, margin: "0 0 12px" }}>
+        <b style={{ color: L.goldDeep }}>אותיות סופיות</b> (ך ם ן ף ץ): ברגיל שוות לערך הרגיל (20, 40, 50, 80, 90); בשיטת "גדול" הן מקבלות 500–900.
+      </p>
+      <div style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "12px 16px" }}>
+        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 6 }}>דוגמה</div>
+        <div style={{ color: L.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 700, lineHeight: 1.8 }}>
+          אמת = א(1) + מ(40) + ת(400) = <span style={{ color: L.goldDeep, fontSize: 20 }}>{GEM("אמת")}</span>
+        </div>
+      </div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד 7 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+      </p>
+    </div>
+  );
+}
 function MethodsTab() {
   return (
     <div>
+      <HowToGuide />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
         כל שיטה חושפת רובד אחר באותו ביטוי. הנה 8 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
       </p>
