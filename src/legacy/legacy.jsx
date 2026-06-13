@@ -4214,7 +4214,7 @@ function ContactPage() {
             { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
             { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
             { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל פולייס", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
-            { icon: "🌐", label: "אתר", value: "sod1820.com", href: "https://sod1820.com" },
+            { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
           ].map(({ icon, label, value, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
               background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2, textDecoration: "none",
@@ -4579,7 +4579,7 @@ function Footer({ onNav, navItems }) {
             </div>
           </div>
           <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 260 }}>
-            צוריאל פולייס · sod1820.com<br />
+            צוריאל פולייס · sod1820.co.il<br />
             נחזור בקרוב עם שיעורים חיים, כלים מיוחדים וגישה אישית.
           </div>
         </div>

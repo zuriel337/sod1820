@@ -2,7 +2,7 @@
 // ה-SPA מוגש כ-index.html יחיד, ולכן כל דף מעדכן את התגיות בעצמו בעת טעינה.
 
 // כתובת האתר הקנונית (דומיין המותג). לשנות כאן אם הדומיין משתנה.
-export const SITE_URL = "https://sod1820.com";
+export const SITE_URL = "https://sod1820.co.il";
 export const SITE_NAME = "SOD1820";
 export const DEFAULT_DESC =
   "SOD1820 — צוריאל פולייס. גימטריה, דילוגי אותיות (ELS) ותיעוד אירועים בשפת המספרים.";
