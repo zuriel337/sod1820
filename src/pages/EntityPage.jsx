@@ -154,6 +154,15 @@ export default function EntityPage() {
         </div>
       )}
 
+      {/* קישור-לימוד: הסבר על שיטות הגימטריה (רגיל/מילוי/מסתתר...) */}
+      <div style={{ textAlign: "center", marginBottom: 34 }}>
+        <Link to="/beit-midrash" style={{
+          display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+          background: "rgba(212,175,55,0.08)", border: `1px solid ${C.border}`, borderRadius: 999,
+          color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 16px",
+        }}>📖 לא מכירים את שיטות הגימטריה (מסתתר · מילוי · קדמי)? למדו בבית המדרש ←</Link>
+      </div>
+
       {/* ── 🖼 גלריות (למעלה — התמונות הברורות ביותר) ── */}
       {d.galleries?.length > 0 && (
         <section id="galleries" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
