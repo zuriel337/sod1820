@@ -268,7 +268,7 @@ export default function HomePage() {
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
         <div className="sod-home-grid" style={{
-          display: "grid", gridTemplateColumns: "320px 1fr", gap: 24, alignItems: "start",
+          display: "grid", gridTemplateColumns: "380px 1fr", gap: 24, alignItems: "start",
         }}>
           <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
 
