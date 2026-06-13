@@ -12,10 +12,7 @@ import { openNumberDrawer } from "../../lib/numberDrawer.js";
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
 const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
-const moreItems = [
-  ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !["/start"].includes(i.to)),
-  { label: "צור קשר", emoji: "✉", to: "/contact" },
-];
+const moreItems = NAV.filter(i => !CORE_KEYS.includes(i.to) && !["/start"].includes(i.to));
 
 // יעדים ל"הפתיע אותי" — מספרים משמעותיים
 const SURPRISE_NUMS = [1820, 1237, 376, 358, 86, 26, 613, 358];
