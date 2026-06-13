@@ -95,9 +95,13 @@ function OcrTab() {
     } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
     finally { setRunning(false); setAuto(false); }
   }
-  async function runSingle() {
+  async function runSingle() {   // "הרץ 3" — מנה קטנה ומהירה של 3 תמונות
     setRunning(true);
-    try { await runOnce(retryErrors); await refresh(); } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
+    try {
+      const r = await runOcrBatch({ limit: 3, retry: retryErrors, runKey });
+      addLog(`עובדו ${r.picked} · הצליחו ${r.done} · שגיאות ${r.errors}`);
+      await refresh();
+    } catch (e) { addLog("⚠ שגיאה: " + (e.message || e)); }
     finally { setRunning(false); }
   }
 
@@ -130,7 +134,7 @@ function OcrTab() {
             style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.mono, fontSize: 13, direction: "ltr" }} />
           {!running ? (
             <>
-              <BtnGold onClick={runSingle}>הרץ מנה (5)</BtnGold>
+              <BtnGold onClick={runSingle}>הרץ 3</BtnGold>
               <BtnGold onClick={runAll}>▶ הרץ עד הסוף</BtnGold>
             </>
           ) : (
