@@ -59,12 +59,12 @@ export async function syncAllPosts() {
   return rows.length;
 }
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date' } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
     .select('*', { count: 'exact' })
-    .order(orderBy, { ascending: false, nullsFirst: false })
+    .order(orderBy, { ascending, nullsFirst: false })
     .range((page - 1) * limit, page * limit - 1);
 
   if (category) query = query.contains('categories', [category]);
