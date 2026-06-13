@@ -16,22 +16,33 @@ export default function ArchivePage() {
 
   useEffect(() => {
     getGalleriesOverview().then(({ gals, imgs }) => {
-      // תאריך התוכן = שנה/חודש מכתובת ההעלאה (uploads/YYYY/MM) — אמין לכל התמונות.
-      const dateOf = url => { const m = (url || "").match(/\/uploads\/(\d{4})\/(\d{2})\//); return m ? Number(m[1] + m[2]) : 0; };
+      // תאריך תוכן לכריכה — occurred_at (אם יש), אחרת שנה/חודש מכתובת ההעלאה.
+      const dateOf = im => {
+        if (im.occurred_at) return Number(im.occurred_at.slice(0, 7).replace("-", ""));
+        const m = (im.image_url || "").match(/\/uploads\/(\d{4})\/(\d{2})\//); return m ? Number(m[1] + m[2]) : 0;
+      };
       const agg = {};
       for (const im of imgs) {
-        const g = im.gallery_id, d = dateOf(im.image_url);
+        const g = im.gallery_id, d = dateOf(im);
         if (!agg[g]) agg[g] = { count: 0, maxd: 0, cover: null };
         agg[g].count++;
-        if (d >= agg[g].maxd) { agg[g].maxd = d; agg[g].cover = im.image_url; }   // כריכה = התמונה החדשה ביותר
+        if (d >= agg[g].maxd) { agg[g].maxd = d; agg[g].cover = im.image_url; }   // כריכה = התמונה העדכנית בגלריה
       }
+      // סדר הגלריות = רצף היצירה המקורי (wp_gallery_id) — הסדר הכרונולוגי הקדוש: החדשה ביותר למעלה.
       const list = gals
-        .map(g => ({ id: g.id, name: g.name, anchor: g.anchor_number, count: agg[g.id]?.count || 0, cover: agg[g.id]?.cover, maxd: agg[g.id]?.maxd || 0 }))
+        .map(g => ({ id: g.id, name: g.name, anchor: g.anchor_number, seq: g.wp_gallery_id ?? -1, count: agg[g.id]?.count || 0, cover: agg[g.id]?.cover }))
         .filter(g => g.count > 0)
-        .sort((a, b) => b.maxd - a.maxd);   // גלריות חדשות (לפי תאריך התמונות) למעלה
+        .sort((a, b) => b.seq - a.seq);
       setGals(list);
     }).catch(() => setGals([]));
   }, []);
+
+  // תאריך התמונה (לפי המידע שנכרה מהתיאור) — חודש ושנה בעברית. ריק אם אין מידע.
+  const imgDate = occ => {
+    if (!occ) return null;
+    try { return new Date(occ).toLocaleDateString("he-IL", { year: "numeric", month: "long" }); }
+    catch { return null; }
+  };
 
   useEffect(() => {
     if (!sel) { setDetail(null); return; }
@@ -97,6 +108,11 @@ export default function ArchivePage() {
               <div style={{ display: "grid", gap: 26 }}>
                 {(detail || []).map(im => (
                   <div key={im.id} style={{ background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+                    {imgDate(im.occurred_at) && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 14px", borderBottom: `1px solid ${C.border}`, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
+                        <span aria-hidden>🗓️</span>{imgDate(im.occurred_at)}
+                      </div>
+                    )}
                     <a href={im.image_url} target="_blank" rel="noopener noreferrer">
                       <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                     </a>
