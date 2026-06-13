@@ -102,6 +102,34 @@ export default function EntityPage() {
         </div>
       </div>
 
+      {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
+      {!loading && chips.length > 0 && (() => {
+        const cnt = { posts: d.postsCount || 0, galleries: d.galleriesCount || 0, words: d.phrases?.length || 0, events: d.eventsCount || 0, ai: d.insightsCount || 0, comm: d.commentsCount || 0 };
+        const parts = [];
+        if (cnt.posts) parts.push(`${cnt.posts} פוסטים`);
+        if (cnt.galleries) parts.push(`${cnt.galleries} גלריות`);
+        if (cnt.words) parts.push(`${cnt.words} מילים שוות`);
+        if (cnt.events) parts.push(`${cnt.events} אירועים בציר`);
+        if (cnt.ai) parts.push(`${cnt.ai} חידושי AI`);
+        if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
+        const pulse = Math.max(6, Math.min(100, Math.round(cnt.posts * 3 + cnt.galleries * 2 + cnt.events * 6 + cnt.ai * 8 + cnt.comm * 2 + cnt.words * 0.6)));
+        return (
+          <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))" }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
+            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
+              <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+            </p>
+            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, whiteSpace: "nowrap" }}>❤️ דופק המספר</span>
+              <span style={{ flex: 1, height: 10, borderRadius: 999, background: "rgba(255,255,255,0.07)", overflow: "hidden", border: `1px solid ${C.border}` }}>
+                <span style={{ display: "block", height: "100%", width: `${pulse}%`, background: `linear-gradient(90deg, ${C.goldDeep}, ${C.goldBright})`, transition: "width .6s ease" }} />
+              </span>
+              <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800 }}>{pulse}%</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── מפת קשרים מהירה ── */}
       {loading ? (
         <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 30 }}>טוען את כל הקשרים…</div>
