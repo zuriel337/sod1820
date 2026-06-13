@@ -28,7 +28,8 @@ const COLUMNS = [
     links: [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
-      { label: "אודות וצור קשר", to: "/about" },
+      { label: "אודות", to: "/about" },
+      { label: "צור קשר", to: "/contact" },
     ],
   },
 ];

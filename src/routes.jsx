@@ -30,10 +30,11 @@ export const NAV = [
       { label: "צ'אט", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
       { label: "תגובות", to: "/community/comments" },
-      { label: "אודות וצור קשר", to: "/about" },
+      { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
   { label: "בני ההיכל", emoji: "👑", to: "/members" },
+  { label: "אודות", emoji: "ℹ️", to: "/about" },
 ];
 
 // פריטים שמוצגים בשורת התפריט הראשית (השאר נגישים דרך מרכז הניווט / המבורגר)
