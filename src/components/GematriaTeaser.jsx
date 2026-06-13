@@ -8,8 +8,19 @@ import { C, F, GEM } from "../theme.js";
 // מציג מילה בכמה שיטות (רגיל · מילוי · מסתתר) עם תיבות-ערך תלת-מימדיות.
 // ערכים תואמים ל-bidim במסד (המקור המאומת). פסיבי — בלי קלט (טעימה בלבד).
 
-// מילוי (איות מאומת מול bidim): התגלות=1026, חכמה=613, משיח=878.
-const MILUI = { "א": 111, "ב": 412, "ג": 83, "ד": 434, "ה": 15, "ו": 22, "ז": 67, "ח": 418, "ט": 419, "י": 20, "כ": 100, "ך": 100, "ל": 74, "מ": 80, "ם": 80, "נ": 106, "ן": 106, "ס": 120, "ע": 130, "פ": 81, "ף": 81, "צ": 104, "ץ": 104, "ק": 186, "ר": 510, "ש": 360, "ת": 416 };
+// מילוי — שם האות המלא וערכו (איות מאומת מול bidim: התגלות=1026, חכמה=613, משיח=878).
+const MILUI_NAME = { "א": "אלף", "ב": "בית", "ג": "גימל", "ד": "דלת", "ה": "הי", "ו": "ויו", "ז": "זין", "ח": "חית", "ט": "טית", "י": "יוד", "כ": "כף", "ך": "כף", "ל": "למד", "מ": "מם", "ם": "מם", "נ": "נון", "ן": "נון", "ס": "סמך", "ע": "עין", "פ": "פא", "ף": "פא", "צ": "צדי", "ץ": "צדי", "ק": "קוף", "ר": "ריש", "ש": "שין", "ת": "תיו" };
+const MILUI = Object.fromEntries(Object.entries(MILUI_NAME).map(([k, v]) => [k, [...v].reduce((s, c) => s + (GEM[c] || 0), 0)]));
+
+// הסבר החישוב לפי השיטה — איך מגיעים לכל ערך.
+function explain(word, method) {
+  const L = lettersOf(word);
+  if (method === 0) return L.map(c => `${c}=${GEM[c]}`).join("  ·  ");
+  if (method === 1) return L.map(c => `${c}→${MILUI_NAME[c]} (${MILUI[c]})`).join("  ·  ");
+  const out = [];
+  for (let i = 0; i < L.length - 1; i++) out.push(`|${L[i]}−${L[i + 1]}|=${Math.abs(GEM[L[i]] - GEM[L[i + 1]])}`);
+  return out.join("  ·  ");
+}
 const WORDS = ["התגלות", "חכמה", "משיח", "גאולה"];
 const METHODS = [
   { key: "רגיל", sub: "חיבור ערכי האותיות" },
@@ -39,10 +50,12 @@ function hebTile(ch) {
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 function numTile(n) {
-  const s = 128, cv = document.createElement("canvas"); cv.width = cv.height = s;
+  const s = 192, cv = document.createElement("canvas"); cv.width = cv.height = s;
   const g = cv.getContext("2d");
-  g.fillStyle = "#130d02"; g.fillRect(0, 0, s, s); g.strokeStyle = "#d4af37"; g.lineWidth = 8; g.strokeRect(7, 7, s - 14, s - 14);
-  g.font = "bold 50px 'Courier New', monospace"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#f6e27a"; g.fillText(String(n), s / 2, s / 2 + 2);
+  g.fillStyle = "#130d02"; g.fillRect(0, 0, s, s); g.strokeStyle = "#d4af37"; g.lineWidth = 10; g.strokeRect(8, 8, s - 16, s - 16);
+  const str = String(n);
+  g.font = `bold ${str.length >= 4 ? 78 : 96}px 'Courier New', monospace`; g.textAlign = "center"; g.textBaseline = "middle";
+  g.shadowColor = "rgba(255,220,120,0.6)"; g.shadowBlur = 12; g.fillStyle = "#f6e27a"; g.fillText(str, s / 2, s / 2 + 4);
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 function makeGlow() {
@@ -70,13 +83,13 @@ function Letter({ tex, x }) {
 }
 function Box({ value, x }) {
   const ref = useRef(); const tex = useMemo(() => numTile(value), [value]);
-  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 0.78, Math.min(1, dt * 3.4))); ref.current.rotation.y += dt * 0.9; });
-  return <mesh ref={ref} position={[x, -0.95, 0]} scale={0.001}><boxGeometry args={[0.6, 0.6, 0.6]} /><meshStandardMaterial map={tex} color="#caa83a" emissive="#3a2c00" emissiveIntensity={0.5} metalness={0.5} roughness={0.35} /></mesh>;
+  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.02, Math.min(1, dt * 3.4))); ref.current.rotation.y += dt * 0.9; });
+  return <mesh ref={ref} position={[x, -1.05, 0]} scale={0.001}><boxGeometry args={[0.92, 0.92, 0.92]} /><meshStandardMaterial map={tex} color="#caa83a" emissive="#3a2c00" emissiveIntensity={0.55} metalness={0.5} roughness={0.35} /></mesh>;
 }
 
 function Scene({ word, method }) {
   const L = useMemo(() => lettersOf(word), [word]);
-  const lx = (i, n) => (i - (n - 1) / 2) * 1.3;
+  const lx = (i, n) => (i - (n - 1) / 2) * 1.5;
   const tex = useMemo(() => L.map(hebTile), [L]);
   const items = useMemo(() => methodItems(word, method, lx), [word, method]);
   return (
@@ -104,16 +117,32 @@ function Odometer({ to, k }) {
 
 export default function GematriaTeaser() {
   const [step, setStep] = useState(0);
-  useEffect(() => { const t = setInterval(() => setStep(s => s + 1), 4600); return () => clearInterval(t); }, []);
+  const [sound, setSound] = useState(false);
+  const audioRef = useRef(null);
+  useEffect(() => { const t = setInterval(() => setStep(s => s + 1), 5200); return () => clearInterval(t); }, []);
   const method = step % 3;
   const word = WORDS[Math.floor(step / 3) % WORDS.length];
   const total = useMemo(() => methodItems(word, method, (i, n) => i).reduce((s, it) => s + it.value, 0), [word, method]);
+  const breakdown = useMemo(() => explain(word, method), [word, method]);
+
+  function toggleSound() {
+    const a = audioRef.current; if (!a) return;
+    if (a.paused) { a.volume = 0.55; a.play().then(() => setSound(true)).catch(() => {}); }
+    else { a.pause(); setSound(false); }
+  }
 
   return (
     <div style={{ position: "relative", height: "min(74vh, 640px)", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.borderGold}`, background: "#070414", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", direction: "rtl" }}>
-      <Canvas camera={{ position: [0, 0, 7.6], fov: 55 }} dpr={[1, 2]} gl={{ antialias: true }}>
+      <Canvas camera={{ position: [0, 0, 8.4], fov: 55 }} dpr={[1, 2]} gl={{ antialias: true }}>
         <Scene word={word} method={method} />
       </Canvas>
+
+      {/* מוזיקה (בלחיצה — דפדפנים חוסמים אוטומטי) */}
+      <audio ref={audioRef} loop preload="none" src="/heichal-theme.mp3" />
+      <button onClick={toggleSound} aria-label="מוזיקה" style={{
+        position: "absolute", top: 12, insetInlineStart: 12, width: 38, height: 38, borderRadius: "50%", cursor: "pointer",
+        border: `1px solid ${C.borderGold}`, background: "rgba(8,5,16,0.6)", color: C.goldBright, fontSize: 16, backdropFilter: "blur(6px)",
+      }}>{sound ? "🔊" : "🎵"}</button>
 
       {/* טאבים של השיטות */}
       <div style={{ position: "absolute", top: 12, insetInline: 0, display: "flex", gap: 8, justifyContent: "center", pointerEvents: "none" }}>
@@ -133,11 +162,22 @@ export default function GematriaTeaser() {
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,40px)", fontWeight: 700, marginTop: 2, textShadow: "0 0 30px rgba(212,175,55,0.4)" }}>{word}</div>
       </div>
 
-      {/* הסכום */}
-      <div style={{ position: "absolute", bottom: 56, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
-        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 2 }}>{METHODS[method].key} = </span>
-        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 34, fontWeight: 800 }}><Odometer to={total} k={`${word}-${method}`} /></span>
+      {/* הסבר החישוב — איך מגיעים לערך (אותיות→שם/ערך/הפרש) */}
+      <div style={{ position: "absolute", bottom: 138, insetInline: 0, textAlign: "center", pointerEvents: "none", padding: "0 16px" }}>
+        <div key={`${word}-${method}`} style={{
+          display: "inline-block", maxWidth: 600, color: C.goldLight, fontFamily: F.mono, fontSize: "clamp(12px,2.4vw,15px)",
+          lineHeight: 1.7, background: "rgba(8,5,16,0.5)", border: `1px solid ${C.border}`, borderRadius: 12,
+          padding: "8px 14px", animation: "teaserIn .5s ease both",
+        }}>{breakdown}</div>
       </div>
+
+      {/* הסכום — גדול */}
+      <div style={{ position: "absolute", bottom: 52, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 14, letterSpacing: 2 }}>{METHODS[method].key} = </span>
+        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(44px,9vw,68px)", fontWeight: 800, textShadow: "0 0 30px rgba(212,175,55,0.45)" }}><Odometer to={total} k={`${word}-${method}`} /></span>
+      </div>
+
+      <style>{`@keyframes teaserIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }`}</style>
 
       {/* תווית סגור */}
       <div style={{ position: "absolute", bottom: 14, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
