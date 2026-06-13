@@ -80,14 +80,14 @@ function OcrTab() {
   function addLog(m) { setLog(l => [`${new Date().toLocaleTimeString("he-IL")} · ${m}`, ...l].slice(0, 40)); }
 
   async function runOnce(retry = false) {
-    const r = await runOcrBatch({ limit: 50, retry, runKey });
+    const r = await runOcrBatch({ limit: 5, retry, runKey });   // 5 = יציב מתחת לטיימאאוט 150ש' של ה-Edge Function
     addLog(`עובדו ${r.picked} · הצליחו ${r.done} · שגיאות ${r.errors}`);
     return r;
   }
   async function runAll() {
     setRunning(true); setAuto(true); stopRef.current = false;
     try {
-      for (let i = 0; i < 80 && !stopRef.current; i++) {
+      for (let i = 0; i < 600 && !stopRef.current; i++) {
         const r = await runOnce(retryErrors);
         await refresh();
         if (!r || r.picked === 0) { addLog("✅ הסתיים — אין עוד תמונות לעיבוד"); break; }
@@ -114,7 +114,7 @@ function OcrTab() {
       <div style={card}>
         <H>OCR לתמונות הגלריה (Claude Vision)</H>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "6px 0 12px" }}>
-          מריץ את ה-Edge Function <code style={{ color: C.goldLight }}>gallery-ocr</code> על תמונות שטרם עובדו (50 בכל מנה). רץ על מפתח ה-Anthropic שלך. "הרץ עד הסוף" ממשיך אוטומטית עד שאין ממתינים.
+          מריץ את ה-Edge Function <code style={{ color: C.goldLight }}>gallery-ocr</code> על תמונות שטרם עובדו (5 בכל מנה — יציב). רץ על מפתח ה-Anthropic שלך. "הרץ עד הסוף" ממשיך אוטומטית עד שאין ממתינים.
         </div>
         <div style={{ height: 10, background: "rgba(8,5,2,0.5)", borderRadius: 999, overflow: "hidden", marginBottom: 6 }}>
           <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg, ${C.gold}, ${C.goldDark})` }} />
@@ -130,7 +130,7 @@ function OcrTab() {
             style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.mono, fontSize: 13, direction: "ltr" }} />
           {!running ? (
             <>
-              <BtnGold onClick={runSingle}>הרץ 50 הבאים</BtnGold>
+              <BtnGold onClick={runSingle}>הרץ מנה (5)</BtnGold>
               <BtnGold onClick={runAll}>▶ הרץ עד הסוף</BtnGold>
             </>
           ) : (
