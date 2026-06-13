@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { C, F, calcGem } from "../theme.js";
+import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import PulseRing from "../components/PulseRing.jsx";
 
 // ===== דף הישות (Entity Page) — מרכז כל המידע סביב מספר/ביטוי =====
 // /number/:phrase — מספר (1237) או ביטוי (דוד המלך). מרכז: ערך+מילים שוות,
@@ -114,17 +115,14 @@ export default function EntityPage() {
         if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
         const pulse = Math.max(6, Math.min(100, Math.round(cnt.posts * 3 + cnt.galleries * 2 + cnt.events * 6 + cnt.ai * 8 + cnt.comm * 2 + cnt.words * 0.6)));
         return (
-          <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))" }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
-            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
-              <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
-            </p>
-            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, whiteSpace: "nowrap" }}>❤️ דופק המספר</span>
-              <span style={{ flex: 1, height: 10, borderRadius: 999, background: "rgba(255,255,255,0.07)", overflow: "hidden", border: `1px solid ${C.border}` }}>
-                <span style={{ display: "block", height: "100%", width: `${pulse}%`, background: `linear-gradient(90deg, ${C.goldDeep}, ${C.goldBright})`, transition: "width .6s ease" }} />
-              </span>
-              <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800 }}>{pulse}%</span>
+          <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))", display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+            <PulseRing value={pulse} size={104} core={isNumber && !!KEY_NUMBERS[value]} />
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
+              <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
+                <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+                {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
+              </p>
             </div>
           </div>
         );
