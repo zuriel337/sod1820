@@ -119,7 +119,7 @@ function GematriaTable() {
     return () => { live = false; };
   }, [val]);
   return (
-    <div style={{ margin: "44px auto 8px", maxWidth: 720, textAlign: "right" }}>
+    <div style={{ margin: "44px auto 8px", maxWidth: 1080, textAlign: "right" }}>
       <div style={{ textAlign: "center", marginBottom: 14 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>🧮 טבלאות הגימטריה</div>
         <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
@@ -214,7 +214,7 @@ export default function BeitMidrashPage() {
   }, []);
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "72px 24px 110px", position: "relative", zIndex: 1, textAlign: "center" }}>
+    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "72px 24px 110px", position: "relative", zIndex: 1, textAlign: "center" }}>
       <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
         🕯️ נפתח לאט — תוכן ראשון
       </div>
@@ -233,13 +233,13 @@ export default function BeitMidrashPage() {
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>
           🧮 מחשבון הגימטריה התלת-מימדי
         </div>
-        <React.Suspense fallback={<div style={{ height: "min(78vh,660px)", maxWidth: 760, margin: "0 auto", borderRadius: 18, border: `1px solid ${C.border}`, background: "#030108" }} />}>
+        <React.Suspense fallback={<div style={{ height: "min(78vh,660px)", maxWidth: 980, margin: "0 auto", borderRadius: 18, border: `1px solid ${C.border}`, background: "#030108" }} />}>
           <GematriaCalculator3D />
         </React.Suspense>
       </div>
 
       {/* גרסה רגילה (טבלאית) — פירוט אות-אות מלא */}
-      <details style={{ maxWidth: 720, margin: "0 auto 8px", textAlign: "right" }}>
+      <details style={{ maxWidth: 900, margin: "0 auto 8px", textAlign: "right" }}>
         <summary style={{ cursor: "pointer", color: C.goldDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
           ▾ מחשבון בתצוגה רגילה (עם פירוט אות-אות בטבלה)
         </summary>
@@ -261,7 +261,7 @@ export default function BeitMidrashPage() {
 
       {/* ✦ טבלת חידושי הגימטריה — חידושים מאומתים (צוריאל) */}
       {insights.length > 0 && (
-        <div style={{ margin: "40px auto 8px", maxWidth: 720, textAlign: "right" }}>
+        <div style={{ margin: "40px auto 8px", maxWidth: 1080, textAlign: "right" }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
               ✦ חידושי הגימטריה ({insights.length})
@@ -276,7 +276,7 @@ export default function BeitMidrashPage() {
 
       {/* 🔵 טבלת חידושי AI */}
       {aiInsights.length > 0 && (
-        <div style={{ margin: "44px auto 8px", maxWidth: 720, textAlign: "right" }}>
+        <div style={{ margin: "44px auto 8px", maxWidth: 1080, textAlign: "right" }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
               🔵 חידושי AI ({aiInsights.length})

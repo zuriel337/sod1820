@@ -6,7 +6,7 @@ export const NAV = [
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
-  { label: "עץ המספרים", emoji: "🌳", to: "/numbers" },
+  { label: "עץ המספרים · בקרוב", emoji: "🔒", to: "/numbers" },
   {
     label: "בית המדרש", emoji: "📚", to: "/beit-midrash", children: [
       { label: "מבוא", to: "/beit-midrash/intro" },
@@ -24,7 +24,7 @@ export const NAV = [
   },
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive" },
-  { label: 'הצופן התנ"כי', emoji: "🔍", to: "/code" },
+  { label: 'הצופן התנ"כי · בקרוב', emoji: "🔒", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "צ'אט", to: "/community/chat" },

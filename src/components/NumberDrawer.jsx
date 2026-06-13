@@ -180,14 +180,14 @@ export default function NumberDrawer() {
           {!term ? (
             <div style={{ display: "grid", gap: 10 }}>
               <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginTop: 4 }}>הקלידו מספר או מילה למעלה, או היכנסו לאחד מהמרחבים:</p>
-              <button onClick={() => goTo("/numbers")} style={bigLink}>🌳 כל המספרים (העץ)</button>
+              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🌳 כל המספרים (העץ) · 🔒 בקרוב</div>
               <button onClick={() => goTo("/archive")} style={bigLink}>🖼 גלריית רמזי הגאולה</button>
-              <button onClick={() => goTo("/sulamot")} style={bigLink}>🪜 סולמות ההתגלות</button>
+              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
             </div>
           ) : b.tooSmall ? (
             <div style={{ textAlign: "center", padding: "26px 8px" }}>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.9 }}>מספר יסוד (ספרה בודדת) — בסולמות ההתגלות.</p>
-              <button onClick={() => goTo("/sulamot")} style={bigLink}>🪜 לסולמות →</button>
+              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.9 }}>מספר יסוד (ספרה בודדת) — סולמות ההתגלות בקרוב.</p>
+              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
             </div>
           ) : loading ? (
             <div style={{ color: C.muted, textAlign: "center", padding: 28, fontFamily: F.body }}>טוען קשרים…</div>
