@@ -66,11 +66,11 @@ export default function NumberDrawer() {
     <>
       {/* בועה צפה — פותחת/סוגרת */}
       <button onClick={() => toggleNumberDrawer()} aria-label="מגירת המספר" style={{
-        position: "fixed", insetInlineEnd: open ? "calc(min(380px,92vw) + 26px)" : "20px", bottom: 22, zIndex: 160,
+        position: "fixed", right: open ? "calc(min(380px,92vw) + 26px)" : "20px", bottom: 22, zIndex: 160,
         width: 56, height: 56, borderRadius: "50%", cursor: "pointer", border: `1px solid ${C.goldBright}`,
         background: "radial-gradient(circle at 38% 32%, #fff6d8, #d4af37 60%, #1a0e00)", color: "#241500",
         fontSize: 24, fontWeight: 800, boxShadow: `0 0 24px ${C.gold}aa, 0 6px 24px rgba(0,0,0,0.5)`,
-        transition: "inset-inline-end .34s cubic-bezier(.2,.8,.2,1)", display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "right .34s cubic-bezier(.2,.8,.2,1)", display: "flex", alignItems: "center", justifyContent: "center",
       }}>🔢</button>
 
       {/* חוט אל הפוסט */}
@@ -86,7 +86,7 @@ export default function NumberDrawer() {
 
       {/* הפאנל הצף */}
       <aside style={{
-        position: "fixed", top: 72, bottom: 16, insetInlineEnd: 16, width: "min(380px, 92vw)", zIndex: 150,
+        position: "fixed", top: 72, bottom: 16, right: 16, width: "min(380px, 92vw)", zIndex: 150,
         background: "linear-gradient(160deg, rgba(13,10,24,0.97), rgba(7,5,16,0.97))", backdropFilter: "blur(10px)",
         border: `1px solid ${C.borderGold}`, borderRadius: 18, boxShadow: `0 18px 60px rgba(0,0,0,0.7), 0 0 30px ${C.gold}22`,
         direction: "rtl", display: "flex", flexDirection: "column", overflow: "hidden",
