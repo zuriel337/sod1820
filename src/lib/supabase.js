@@ -163,9 +163,10 @@ export async function getGalleriesOverview() {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('gallery_id,image_url,ordering,primary_value')
+      .select('gallery_id,image_url,ordering,primary_value,occurred_at,created_at')
       .not('image_url', 'is', null)
-      .order('ordering', { ascending: true })
+      .order('occurred_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
       .range(from, from + 999);
     if (!data || !data.length) break;
     imgs = imgs.concat(data);
