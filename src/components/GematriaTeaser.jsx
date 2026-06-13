@@ -23,9 +23,9 @@ function explain(word, method) {
 }
 const WORDS = ["התגלות", "חכמה", "משיח", "גאולה"];
 const METHODS = [
-  { key: "רגיל", sub: "חיבור ערכי האותיות" },
-  { key: "מילוי", sub: "ערך שם האות המלא" },
-  { key: "מסתתר", sub: "ההפרשים בין אותיות" },
+  { key: "רגיל", sub: "חיבור ערכי האותיות", desc: "סוכמים את הערך המספרי של כל אות במילה." },
+  { key: "מילוי", sub: "ערך שם האות המלא", desc: "כותבים את שֵם כל אות במלואו (א→אלף) וסוכמים את ערכו." },
+  { key: "מסתתר", sub: "ההפרשים בין אותיות", desc: "מחשבים את ההפרש בין כל שתי אותיות סמוכות, וסוכמים — מה שמסתתר ביניהן." },
 ];
 
 const lettersOf = w => [...w].filter(c => GEM[c] != null);
@@ -45,8 +45,11 @@ function methodItems(word, method, lx) {
 function hebTile(ch) {
   const s = 256, cv = document.createElement("canvas"); cv.width = cv.height = s;
   const g = cv.getContext("2d");
-  g.font = "bold 168px 'Times New Roman', serif"; g.textAlign = "center"; g.textBaseline = "middle";
-  g.shadowColor = "rgba(255,220,120,0.95)"; g.shadowBlur = 30; g.fillStyle = "#f6e27a"; g.fillText(ch, s / 2, s / 2 + 12);
+  // רקע כהה + מסגרת זהב כדי שהאות תיקרא בבירור
+  g.fillStyle = "rgba(6,4,14,0.92)"; g.fillRect(20, 20, s - 40, s - 40);
+  g.lineWidth = 6; g.strokeStyle = "#d4af37"; g.strokeRect(20, 20, s - 40, s - 40);
+  g.font = "900 176px 'Arial Hebrew', 'Times New Roman', serif"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.shadowColor = "rgba(255,220,120,0.9)"; g.shadowBlur = 22; g.fillStyle = "#ffe9a8"; g.fillText(ch, s / 2, s / 2 + 14);
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 function numTile(n) {
@@ -78,19 +81,20 @@ function Dust() {
 
 function Letter({ tex, x }) {
   const ref = useRef();
-  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.0, Math.min(1, dt * 3))); ref.current.position.y = 1.95 + Math.sin(st.clock.elapsedTime + x) * 0.05; });
-  return <sprite ref={ref} position={[x, 1.95, 0]} scale={0.001}><spriteMaterial map={tex} transparent blending={THREE.AdditiveBlending} depthWrite={false} /></sprite>;
+  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.35, Math.min(1, dt * 3))); ref.current.position.y = 1.95 + Math.sin(st.clock.elapsedTime + x) * 0.05; });
+  return <sprite ref={ref} position={[x, 1.95, 0]} scale={0.001}><spriteMaterial map={tex} transparent depthWrite={false} /></sprite>;
 }
 function Box({ value, x }) {
   const ref = useRef(); const tex = useMemo(() => numTile(value), [value]);
-  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 0.92, Math.min(1, dt * 3.4))); ref.current.rotation.y += dt * 0.9; });
-  return <mesh ref={ref} position={[x, 0.95, 0]} scale={0.001}><boxGeometry args={[0.82, 0.82, 0.82]} /><meshStandardMaterial map={tex} color="#caa83a" emissive="#3a2c00" emissiveIntensity={0.55} metalness={0.5} roughness={0.35} /></mesh>;
+  // תנודה עדינה (לא סיבוב מלא) — כדי שהמספר יישאר קריא
+  useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.0, Math.min(1, dt * 3.4))); ref.current.rotation.y = Math.sin(st.clock.elapsedTime * 0.8 + x) * 0.35; });
+  return <mesh ref={ref} position={[x, 0.85, 0]} scale={0.001}><boxGeometry args={[0.92, 0.92, 0.92]} /><meshStandardMaterial map={tex} color="#caa83a" emissive="#3a2c00" emissiveIntensity={0.55} metalness={0.5} roughness={0.35} /></mesh>;
 }
 
 function Scene({ word, method }) {
   const L = useMemo(() => lettersOf(word), [word]);
   // עברית מימין לשמאל: האות הראשונה בצד ימין (x חיובי).
-  const lx = (i, n) => ((n - 1) / 2 - i) * 1.5;
+  const lx = (i, n) => ((n - 1) / 2 - i) * 1.6;
   const tex = useMemo(() => L.map(hebTile), [L]);
   const items = useMemo(() => methodItems(word, method, lx), [word, method]);
   return (
@@ -148,7 +152,7 @@ export default function GematriaTeaser() {
   const [sound, setSound] = useState(false);
   const ambRef = useRef(null);
   useEffect(() => {
-    const t = setInterval(() => setMethod(m => { const nm = (m + 1) % 3; if (nm === 0) setWordIdx(w => (w + 1) % WORDS.length); return nm; }), 5200);
+    const t = setInterval(() => setMethod(m => { const nm = (m + 1) % 3; if (nm === 0) setWordIdx(w => (w + 1) % WORDS.length); return nm; }), 8800);
     return () => clearInterval(t);
   }, []);
   useEffect(() => () => { if (ambRef.current) stopAmbient(ambRef.current); }, []);
@@ -163,7 +167,7 @@ export default function GematriaTeaser() {
 
   return (
     <div style={{ position: "relative", height: "min(74vh, 640px)", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.borderGold}`, background: "#070414", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", direction: "rtl" }}>
-      <Canvas camera={{ position: [0, 0.7, 8.6], fov: 55 }} dpr={[1, 2]} gl={{ antialias: true }}>
+      <Canvas camera={{ position: [0, 0.7, 9.4], fov: 55 }} dpr={[1, 2]} gl={{ antialias: true }}>
         <Scene word={word} method={method} />
       </Canvas>
 
@@ -185,9 +189,13 @@ export default function GematriaTeaser() {
         ))}
       </div>
 
-      {/* תת-כותרת השיטה (המילה מוצגת כאותיות זוהרות בתלת-מימד) */}
-      <div style={{ position: "absolute", top: 50, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
-        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13.5 }}>{METHODS[method].sub}</span>
+      {/* הסבר השיטה — ברור, כדי שיהיה זמן להבין */}
+      <div style={{ position: "absolute", top: 52, insetInline: 0, textAlign: "center", pointerEvents: "none", padding: "0 16px" }}>
+        <span key={method} style={{
+          display: "inline-block", maxWidth: 560, color: C.goldLight, fontFamily: F.body, fontSize: "clamp(13px,2.6vw,15.5px)", lineHeight: 1.7,
+          background: "rgba(6,4,14,0.6)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 16px", backdropFilter: "blur(6px)",
+          animation: "teaserIn .5s ease both",
+        }}>{METHODS[method].desc}</span>
       </div>
 
       {/* ★ הלב: המספר הגדול במרכז, עם הסבר יפה ★ */}
