@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F, LOGO_URL, GEM, calcGem } from "../theme.js";
 import { subscribeEmail } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
+import { SITE_URL } from "../lib/seo.js";
 
 /**
  * דו״ח כניסה אישי להיכל — כלי פנימי (לא "מתנה"/מבצע).
@@ -18,6 +19,7 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [report, setReport] = useState(null);
+  const [copied, setCopied] = useState(false);
   const { markSubscribed } = useSubscribed();
 
   async function submit(e) {
@@ -79,6 +81,22 @@ export default function PersonalGematriaGift({ source = "gift-gematria", style =
         }}>
           לדוח המלא ולכל המילים בערך {report.val} →
         </Link>
+
+        {(() => {
+          const shareText = `הגימטריה של השם שלי "${report.name}" = ${report.val} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/community/calculator`;
+          return (
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
+              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
+                style={{ background: "#25D366", color: "#06310f", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "10px 22px", borderRadius: 999, textDecoration: "none" }}>
+                🟢 שתפו עם חבר
+              </a>
+              <button onClick={() => { navigator.clipboard?.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+                style={{ cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 999 }}>
+                {copied ? "✓ הועתק" : "🔗 העתק"}
+              </button>
+            </div>
+          );
+        })()}
 
         <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 14, fontWeight: 700, marginTop: 18 }}>
           ✦ נכנסתם למעגל ההיכל — ברוכים הבאים לתלמידי ההיכל 🙏

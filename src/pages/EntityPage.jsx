@@ -4,6 +4,24 @@ import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
+import { SITE_URL } from "../lib/seo.js";
+
+// כפתורי שיתוף (וואטסאפ + העתקה) — לולאת ויראליות "שתפו עם חבר"
+function ShareButtons({ text }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
+      <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer"
+        style={{ background: "#25D366", color: "#06310f", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "10px 22px", borderRadius: 999, textDecoration: "none" }}>
+        🟢 שתפו עם חבר
+      </a>
+      <button onClick={() => { navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+        style={{ cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 999 }}>
+        {copied ? "✓ הועתק" : "🔗 העתק קישור"}
+      </button>
+    </div>
+  );
+}
 
 // ===== דף הישות (Entity Page) — מרכז כל המידע סביב מספר/ביטוי =====
 // /number/:phrase — מספר (1237) או ביטוי (דוד המלך). מרכז: ערך+מילים שוות,
@@ -101,6 +119,9 @@ export default function EntityPage() {
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, marginTop: 6 }}>
           {isNumber ? "הערך המספרי" : "גימטריית הביטוי"}
         </div>
+        <ShareButtons text={isNumber
+          ? `המספר ${value} — גלו מה מסתתר בו 🔢✨\n${SITE_URL}/number/${value}`
+          : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
       </div>
 
       {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}

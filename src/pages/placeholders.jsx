@@ -162,11 +162,21 @@ export function CommunityCalculatorPage() {
         </div>
       )}
 
-      <div style={{ marginTop: 30, background: C.surface2, border: `1px dashed ${C.borderGold}`, borderRadius: 14, padding: "20px 18px", textAlign: "center" }}>
-        <div style={{ display: "inline-block", background: "rgba(122,19,32,0.25)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "3px 12px", fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 10 }}>בקרוב</div>
-        <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginBottom: 6 }}>🤖 ניתוח AI אישי</div>
-        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, maxWidth: 480, margin: "0 auto" }}>
-          בקרוב — ה-AI ינתח את השמות, ימצא מילים שוות, קשרים נסתרים ומשמעויות בשפת המספרים, וייצור לכם פירוש אישי מלא.
+      <div style={{ marginTop: 32 }}>
+        <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>בקרוב במחשבון</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 12 }}>
+          {[
+            { icon: "🤖", title: "ניתוח AI אישי", desc: "ה-AI ינתח שמות, ימצא מילים שוות, קשרים נסתרים ומשמעויות — והשוואות חכמות בין שני שמות." },
+            { icon: "📸", title: "חיפוש מסרים מתמונה", desc: "צלמו לוחית רכב / שעון / קבלה — המספר ייקרא וינותח. (התמונה לא נשמרת — רק המספר.)" },
+            { icon: "🔄", title: "סנכרוניות", desc: "חיבור המספר שלכם לאירועים אמיתיים בעולם ולרמזי הגאולה — בשפת המספרים." },
+          ].map(c => (
+            <div key={c.title} style={{ background: C.surface2, border: `1px dashed ${C.borderGold}`, borderRadius: 14, padding: "18px 16px", textAlign: "center" }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>{c.icon}</div>
+              <div style={{ display: "inline-block", background: "rgba(122,19,32,0.25)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 10, fontWeight: 700, marginBottom: 8 }}>בקרוב</div>
+              <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 5 }}>{c.title}</div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>{c.desc}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
