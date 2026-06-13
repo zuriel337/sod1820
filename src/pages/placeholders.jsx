@@ -6,6 +6,8 @@ import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import { NAV } from "../routes.jsx";
 import { supabase } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
+import { METHODS, onlyHeb } from "../lib/gematria.js";
+import { applySeo, SITE_URL } from "../lib/seo.js";
 
 export function ArchivePage() {
   return <UnderConstruction emoji="🖼" title="ארכיון ההתגלות"
@@ -21,7 +23,7 @@ export function MembersPage() {
 
 const COMMUNITY = [
   { emoji: "💬", title: "הצ'אט הוותיק", to: "/community/chat", live: true, stat: "133.7k הודעות" },
-  { emoji: "🧮", title: "המחשבון הקהילתי", to: "/community/calculator", live: false },
+  { emoji: "🧮", title: "מחשבון גימטריה", to: "/community/calculator", live: true, stat: "8 שיטות · שיתוף" },
   { emoji: "📝", title: "כל התגובות באתר", to: "/community/comments", live: false },
   { emoji: "✉️", title: "צור קשר", to: "/contact", live: true },
 ];
@@ -54,10 +56,121 @@ export function CommunityPage() {
   );
 }
 
+// ===== 🧮 מחשבון גימטריה — דף ויראלי (שם/שניים + שיתוף וואטסאפ) =====
+function gemAll(name) {
+  const all = METHODS.map(m => ({ key: m.key, sub: m.sub, value: m.fn(name) }));
+  return { regular: all[0].value, all };
+}
+
 export function CommunityCalculatorPage() {
-  return <UnderConstruction emoji="🧮" title="המחשבון הקהילתי"
-    description="מחשבון גימטריה ויראלי שמאפשר לקהילה להזין מילים ולגלות קשרים מהמאגר."
-    links={[{ to: "/community", label: "קהילה" }, { to: "/numbers", label: "עץ המספרים" }]} />;
+  const [name1, setName1] = useState("");
+  const [name2, setName2] = useState("");
+  const [compare, setCompare] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    applySeo({
+      title: "מחשבון גימטריה",
+      description: "מחשבון גימטריה חינמי ומדויק — חשבו את ערך השם או המילה ב-8 שיטות (רגיל, מילוי, מסתתר, קדמי, אתב\"ש, אלב\"ם, סידורי, גדול), השוו בין שני שמות וגלו את הסוד שמאחורי המספרים. שתפו בוואטסאפ.",
+      path: "/community/calculator",
+    });
+  }, []);
+
+  const r1 = onlyHeb(name1).length ? gemAll(name1) : null;
+  const r2 = (compare && onlyHeb(name2).length) ? gemAll(name2) : null;
+  const matches = (r1 && r2) ? r1.all.filter((a, i) => a.value === r2.all[i].value) : [];
+
+  const shareText = !r1 ? "" : (
+    r2
+      ? `גימטריה: "${name1.trim()}" = ${r1.regular} · "${name2.trim()}" = ${r2.regular}${matches.length ? " ✨ יש ביניהם התאמה!" : ""}\nבדקו את שלכם במחשבון הגימטריה של סוד 1820:\n${SITE_URL}/community/calculator`
+      : `הגימטריה של "${name1.trim()}" = ${r1.regular} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/community/calculator`
+  );
+
+  const inp = { width: "100%", background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 10, color: C.goldBright, fontFamily: F.heading, fontSize: 20, fontWeight: 700, padding: "14px 16px", textAlign: "center", outline: "none" };
+
+  function ResultBlock({ name, r }) {
+    return (
+      <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 18px" }}>
+        <div style={{ textAlign: "center", marginBottom: 14 }}>
+          <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 13, marginBottom: 2 }}>{name.trim()}</div>
+          <Link to={`/number/${r.regular}`} style={{ textDecoration: "none" }}>
+            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 54, fontWeight: 800, lineHeight: 1.1 }}>{r.regular}</div>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>גימטריה רגילה · לחצו לחקירה →</div>
+          </Link>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(104px,1fr))", gap: 8 }}>
+          {r.all.map(a => (
+            <Link key={a.key} to={`/number/${a.value}`} title={a.sub} style={{ textDecoration: "none", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 6px", textAlign: "center" }}>
+              <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{a.key}</div>
+              <div style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "56px 18px 100px", position: "relative", zIndex: 1 }}>
+      <SectionHeader eyebrow="כלי חינמי" title="🧮 מחשבון גימטריה" />
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, textAlign: "center", margin: "-8px auto 26px", maxWidth: 580 }}>
+        מחשבון הגימטריה של <b style={{ color: C.goldLight }}>סוד 1820</b> — הזינו שם או מילה בעברית וגלו את ערכם ב-8 שיטות. אפשר גם להשוות בין שני שמות ולמצוא התאמות נסתרות. ✨
+      </p>
+
+      <div style={{ display: "grid", gap: 12, marginBottom: 8 }}>
+        <input style={inp} value={name1} onChange={e => setName1(e.target.value)} placeholder="הקלידו שם / מילה בעברית…" autoFocus />
+        {compare && <input style={inp} value={name2} onChange={e => setName2(e.target.value)} placeholder="שם שני להשוואה…" />}
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 26 }}>
+        <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: C.goldDim, fontFamily: F.heading, fontSize: 13, textDecoration: "underline" }}>
+          {compare ? "− הסר השוואה" : "+ השוואת שני שמות"}
+        </button>
+      </div>
+
+      {r1 && (
+        <div style={{ display: "grid", gap: 16 }}>
+          <ResultBlock name={name1} r={r1} />
+          {r2 && <ResultBlock name={name2} r={r2} />}
+
+          {r2 && (
+            <div style={{ background: matches.length ? "rgba(212,175,55,0.12)" : C.surface2, border: `1px solid ${matches.length ? C.gold : C.border}`, borderRadius: 14, padding: "18px", textAlign: "center" }}>
+              {matches.length ? (
+                <>
+                  <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 6 }}>✨ נמצאה התאמה!</div>
+                  <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>
+                    שני השמות שווים ב{matches.length === 1 ? "שיטת" : "שיטות"}: {matches.map(m => `${m.key} (${m.value})`).join(" · ")}
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14 }}>
+                  אין התאמה ישירה. סכום שתי הגימטריות הרגילות: <b style={{ color: C.goldLight }}>{r1.regular + r2.regular}</b>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 2 }}>
+            <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
+              style={{ background: "#25D366", color: "#06310f", fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", borderRadius: 999, textDecoration: "none" }}>
+              🟢 שתפו בוואטסאפ
+            </a>
+            <button onClick={() => { navigator.clipboard?.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+              style={{ cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 15, fontWeight: 700, padding: "12px 22px", borderRadius: 999 }}>
+              {copied ? "✓ הועתק" : "🔗 העתק"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginTop: 30, background: C.surface2, border: `1px dashed ${C.borderGold}`, borderRadius: 14, padding: "20px 18px", textAlign: "center" }}>
+        <div style={{ display: "inline-block", background: "rgba(122,19,32,0.25)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "3px 12px", fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 10 }}>בקרוב</div>
+        <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginBottom: 6 }}>🤖 ניתוח AI אישי</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, maxWidth: 480, margin: "0 auto" }}>
+          בקרוב — ה-AI ינתח את השמות, ימצא מילים שוות, קשרים נסתרים ומשמעויות בשפת המספרים, וייצור לכם פירוש אישי מלא.
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // סיסמת תצוגה מקדימה — הדף עדיין סגור לציבור (כמו ADMIN_PASSWORD בקוד הקיים)
