@@ -10,6 +10,9 @@ import { stripHtml } from "../lib/format.js";
 
 const VIOLET = "#8458ff";
 
+// סרטון מובלט — צופן החותים (מאות אלפי צפיות)
+const FEATURED = { yt: "Jp0pxGofPjQ", title: 'צופן חותים בתורה (דילוג 5784) — הצופן שזכה למאות אלפי צפיות', slug: "%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90", feat: true };
+
 const VIDEOS = [
   { yt: "PAzHf6Flzsk", title: 'צופן התורה לקראת חג השבועות "יום משיח בא"', slug: "%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%90-%d7%94%d7%a4%d7%aa%d7%a2%d7%95%d7%aa-%d7%a8%d7%91" },
   { yt: "9L8KHXPdcxI", title: 'גימטריות ליל הסדר תשפ"ו · רמזי שנת 5786', slug: "%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%97%d7%98%d7%95%d7%a4%d7%99%d7%9d-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%99%d7%9d-%d7%91%d7%a2%d7%96%d7%94-%d7%a8%d7%9e%d7%96%d7%99-%d7%a9%d7%a0%d7%aa" },
@@ -18,16 +21,18 @@ const VIDEOS = [
   { yt: "uEygVYFmsDw", title: 'רמזי רצח צאלה גז · "עם מספרים אי אפשר להתווכח"', slug: "%d7%a8%d7%9e%d7%96%d7%99-%d7%a8%d7%a6%d7%97-%d7%a6%d7%90%d7%9c%d7%94-%d7%92%d7%96-%d7%a2%d7%9d-%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-%d7%90%d7%99-%d7%90%d7%a4%d7%a9%d7%a8-%d7%9c%d7%94%d7%aa%d7%95" },
 ];
 
-function VideoCard({ v, onPlay }) {
+function VideoCard({ v, onPlay, featured }) {
   return (
-    <div>
+    <div className={`vg-item${featured ? " vg-feat" : ""}`}>
       <button onClick={() => onPlay(v)} style={{
         position: "relative", display: "block", width: "100%", aspectRatio: "16/9",
         borderRadius: 12, overflow: "hidden", cursor: "pointer", padding: 0,
-        border: `1px solid ${C.border}`, background: "#000",
+        border: `1px solid ${featured ? VIOLET : C.border}`, background: "#000",
+        boxShadow: featured ? `0 0 24px ${VIOLET}66` : "none",
       }} className="vg-card">
         <img src={`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        {featured && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: VIOLET, color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>⭐ הכי נצפה</span>}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55))" }} />
         <div className="vg-play" style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
@@ -68,8 +73,12 @@ export default function VideoGallery() {
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px", direction: "rtl" }}>
       <style>{`
         .vg-card:hover .vg-play { transform: translate(-50%,-50%) scale(1.12); }
-        .vg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
-        @media (max-width: 520px) { .vg-grid { grid-template-columns: repeat(2, 1fr); } }
+        .vg-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+        .vg-row::-webkit-scrollbar { height: 8px; }
+        .vg-row::-webkit-scrollbar-thumb { background: ${C.borderGold}; border-radius: 999px; }
+        .vg-row > .vg-item { flex: 0 0 240px; scroll-snap-align: start; }
+        .vg-row > .vg-item.vg-feat { flex: 0 0 330px; }
+        @media (max-width: 520px) { .vg-row > .vg-item { flex: 0 0 80%; } .vg-row > .vg-item.vg-feat { flex: 0 0 88%; } }
       `}</style>
 
       <div style={{
@@ -88,10 +97,9 @@ export default function VideoGallery() {
           </Link>
         </div>
 
-        {/* 7 ריבועים: 2 "בקרוב" ריקים + 5 סרטונים */}
-        <div className="vg-grid">
-          <ComingCard />
-          <ComingCard />
+        {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
+        <div className="vg-row">
+          <VideoCard v={FEATURED} onPlay={setPlaying} featured />
           {VIDEOS.map(v => <VideoCard key={v.yt} v={v} onPlay={setPlaying} />)}
         </div>
       </div>
