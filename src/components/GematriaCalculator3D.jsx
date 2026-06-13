@@ -32,6 +32,25 @@ function cardTex(name, value, sub, on) {
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 
+function makeGlow() {
+  const s = 128, cv = document.createElement("canvas"); cv.width = cv.height = s;
+  const g = cv.getContext("2d"); const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  grd.addColorStop(0, "#ffe9a8"); grd.addColorStop(0.3, "#ffd86b"); grd.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = grd; g.fillRect(0, 0, s, s); return new THREE.CanvasTexture(cv);
+}
+
+// "רקיע" — קו אור רך שמפריד בין המילה המרחפת לבין המנוע שמתחת.
+function Firmament({ y, width }) {
+  const tex = useMemo(makeGlow, []);
+  const ref = useRef();
+  useFrame((st) => { if (ref.current) ref.current.material.opacity = 0.4 + Math.sin(st.clock.elapsedTime * 0.8) * 0.12; });
+  return (
+    <sprite ref={ref} position={[0, y, -0.6]} scale={[width, 0.55, 1]}>
+      <spriteMaterial map={tex} color="#ffd86b" transparent opacity={0.45} depthWrite={false} blending={THREE.AdditiveBlending} />
+    </sprite>
+  );
+}
+
 function Letter({ tex, x, y }) {
   const ref = useRef();
   useFrame((st, dt) => { if (!ref.current) return; ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, 1.05, Math.min(1, dt * 3))); ref.current.position.y = y + Math.sin(st.clock.elapsedTime + x) * 0.05; });
@@ -66,8 +85,8 @@ function Scene({ word, results, active, setActive }) {
   // פריסה מותאמת: 2 טורים במסך צר, 4 במסך רחב
   const perRow = portrait ? 2 : 4;
   const colXs = portrait ? [-1.95, 1.95] : [-3.3, -1.1, 1.1, 3.3];
-  const rowYs = portrait ? [3.0, 1.0, -1.0, -3.0] : [0.55, -1.45];
-  const letterY = portrait ? 4.8 : 2.7;
+  const rowYs = portrait ? [2.7, 0.75, -1.2, -3.15] : [0.4, -1.55];
+  const letterY = portrait ? 5.2 : 3.2;
   const lx = (i, n) => ((n - 1) / 2 - i) * (portrait ? 1.15 : 1.4);
 
   // התאמת קנה-מידה כדי שהכל ייכנס למסך (רוחב/גובה)
@@ -84,6 +103,7 @@ function Scene({ word, results, active, setActive }) {
       <Stars radius={60} depth={35} count={600} factor={2.2} fade speed={0.3} />
       <group scale={fit}>
         {letters.map((_, i) => <Letter key={i} tex={ltex[i]} x={lx(i, letters.length)} y={letterY} />)}
+        <Firmament y={letterY - 1.25} width={contentW * 1.15} />
         {results.map((r, i) => (
           <Card key={r.key} name={r.key} value={r.value} sub={r.sub}
             x={colXs[i % perRow]} y={rowYs[Math.floor(i / perRow)]} on={r.key === active} onPick={() => setActive(r.key)} />
