@@ -64,24 +64,25 @@ export default function NumberDrawer() {
     return () => { clearInterval(iv); window.removeEventListener("scroll", tick, true); window.removeEventListener("resize", tick); };
   }, [open]);
 
-  // חוטים פנימיים במגירה — מהמספר (בכותרת) אל כל גלריה מחוברת. כך החוטים תמיד נראים.
+  // חוטים פנימיים במגירה — מהמספר (בכותרת) אל כל פריט מחובר (גלריה/מילה/פוסט). כך החוטים תמיד נראים.
   useEffect(() => {
-    if (!open || !bundle?.galleries?.length) { setWebs([]); return; }
+    if (!open || !term) { setWebs([]); return; }
     const tick = () => {
       const aside = asideRef.current, head = headRef.current, scroll = scrollRef.current;
-      if (!aside || !head || !scroll) return;
+      if (!aside || !head || !scroll) { setWebs([]); return; }
       const ar = aside.getBoundingClientRect();
       const hr = head.getBoundingClientRect();
-      const sx = hr.left + hr.width / 2 - ar.left, sy = hr.bottom - ar.top;
-      const imgs = scroll.querySelectorAll(".nd-gal-img");
       const sr = scroll.getBoundingClientRect();
+      // מקור החוטים — תחת המספר, בראש אזור התוצאות (כדי לא לחצות את המחשבון)
+      const sx = hr.left + hr.width / 2 - ar.left, sy = sr.top - ar.top + 6;
+      const nodes = scroll.querySelectorAll(".nd-node");
       const out = [];
-      imgs.forEach(im => {
-        const r = im.getBoundingClientRect();
-        if (r.bottom < sr.top || r.top > sr.bottom) return;   // מחוץ לאזור הנגלל
-        out.push({ x1: sx, y1: sy, x2: r.right - ar.left - 6, y2: r.top - ar.top + r.height / 2 });
+      nodes.forEach(n => {
+        const r = n.getBoundingClientRect();
+        if (r.bottom < sr.top + 4 || r.top > sr.bottom - 2 || r.width === 0) return;   // רק מה שגלוי באזור הנגלל
+        out.push({ x1: sx, y1: sy, x2: r.right - ar.left - 4, y2: r.top - ar.top + Math.min(r.height / 2, 26) });
       });
-      setWebs(out);
+      setWebs(out.slice(0, 14));
     };
     tick();
     const iv = setInterval(tick, 200);
@@ -89,7 +90,7 @@ export default function NumberDrawer() {
     sc && sc.addEventListener("scroll", tick);
     window.addEventListener("resize", tick);
     return () => { clearInterval(iv); sc && sc.removeEventListener("scroll", tick); window.removeEventListener("resize", tick); };
-  }, [open, bundle]);
+  }, [open, term, bundle]);
 
   function goCalc(e) { e.preventDefault(); const v = calc.trim(); if (v) { setCalc(""); openNumberDrawer(v); } }
   function goTo(to) { nav(to); }   // לא סוגר — הפאנל צף ונשאר
@@ -98,14 +99,14 @@ export default function NumberDrawer() {
 
   return (
     <>
-      {/* בועה צפה — פותחת/סוגרת */}
-      <button onClick={() => toggleNumberDrawer()} aria-label="מגירת המספר" style={{
-        position: "fixed", right: open ? "calc(min(380px,92vw) + 26px)" : "20px", bottom: 22, zIndex: 160,
-        width: 56, height: 56, borderRadius: "50%", cursor: "pointer", border: `1px solid ${C.goldBright}`,
-        background: "radial-gradient(circle at 38% 32%, #fff6d8, #d4af37 60%, #1a0e00)", color: "#241500",
-        fontSize: 24, fontWeight: 800, boxShadow: `0 0 24px ${C.gold}aa, 0 6px 24px rgba(0,0,0,0.5)`,
+      {/* בועה צפה — קטנה וכהה, סמל מחשבון הגימטריה (ℵ) */}
+      <button onClick={() => toggleNumberDrawer()} aria-label="מחשבון גימטריה — מגירת המספר" title="מחשבון גימטריה" style={{
+        position: "fixed", right: open ? "calc(min(380px,92vw) + 24px)" : "18px", bottom: 22, zIndex: 160,
+        width: 44, height: 44, borderRadius: "50%", cursor: "pointer", border: `1px solid ${C.borderGold}`,
+        background: "radial-gradient(circle at 38% 30%, #1c1630, #0c0a18 70%, #050410)", color: C.goldBright,
+        fontSize: 21, fontWeight: 800, fontFamily: F.mono, boxShadow: `0 0 14px ${C.gold}44, 0 5px 18px rgba(0,0,0,0.55)`,
         transition: "right .34s cubic-bezier(.2,.8,.2,1)", display: "flex", alignItems: "center", justifyContent: "center",
-      }}>🔢</button>
+      }}>ℵ</button>
 
       {/* חוטים אל המספר בעמוד (פוסט / גלריה) */}
       {open && thread?.length > 0 && (
@@ -142,21 +143,33 @@ export default function NumberDrawer() {
           <button onClick={() => closeNumberDrawer()} aria-label="סגור" style={{ background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 19, cursor: "pointer", borderRadius: 8, width: 36, height: 36, lineHeight: 1, flexShrink: 0 }}>×</button>
         </div>
 
-        <form onSubmit={goCalc} style={{ display: "flex", gap: 6, padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
-          <input value={calc} onChange={e => setCalc(e.target.value)} placeholder="🔢 חשב גימטריה / מספר…"
-            style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 12px", outline: "none" }} />
-          <button type="submit" style={{ background: C.gold, color: "#1a0e00", border: "none", borderRadius: 8, fontWeight: 800, fontSize: 14, padding: "0 14px", cursor: "pointer" }}>←</button>
+        <form onSubmit={goCalc} style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>🧮 מחשבון גימטריה</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input value={calc} onChange={e => setCalc(e.target.value)} placeholder="הקלידו מילה או מספר…"
+              style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 12px", outline: "none" }} />
+            <button type="submit" style={{ background: C.gold, color: "#1a0e00", border: "none", borderRadius: 8, fontWeight: 800, fontSize: 14, padding: "0 14px", cursor: "pointer" }}>←</button>
+          </div>
+          {calc.trim() && !/^\d+$/.test(calc.trim()) && (
+            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, marginTop: 6 }}>
+              {calc.trim()} = <b>{calcGem(calc.trim())}</b>
+            </div>
+          )}
         </form>
 
-        {/* חוטים פנימיים — מהמספר אל כל גלריה מחוברת */}
+        {/* חוטים פנימיים — מהמספר אל כל פריט מחובר (רשת הקשרים) */}
         {open && webs.length > 0 && (
           <svg style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" }}>
+            {/* מקור החוטים — נקודה זוהרת מתחת למספר */}
+            <circle cx={webs[0].x1} cy={webs[0].y1} r="4.5" fill={C.goldBright} />
             {webs.map((w, i) => (
               <g key={i}>
-                <path d={`M ${w.x1} ${w.y1} C ${w.x1} ${(w.y1 + w.y2) / 2}, ${w.x2 + 40} ${w.y2}, ${w.x2} ${w.y2}`}
-                  fill="none" stroke={C.gold} strokeWidth="1.5" strokeDasharray="5 5" opacity="0.55" />
-                <circle cx={w.x2} cy={w.y2} r="4" fill={C.goldBright} opacity="0.9">
-                  <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite" />
+                <path d={`M ${w.x1} ${w.y1} C ${w.x1} ${(w.y1 + w.y2) / 2}, ${w.x2 + 44} ${w.y2}, ${w.x2} ${w.y2}`}
+                  fill="none" stroke={C.goldBright} strokeWidth="2" strokeDasharray="5 6" opacity="0.8">
+                  <animate attributeName="stroke-dashoffset" values="22;0" dur="0.9s" repeatCount="indefinite" />
+                </path>
+                <circle cx={w.x2} cy={w.y2} r="4.5" fill={C.gold}>
+                  <animate attributeName="r" values="3.5;6;3.5" dur="1.5s" repeatCount="indefinite" />
                 </circle>
               </g>
             ))}
@@ -184,9 +197,9 @@ export default function NumberDrawer() {
                 <Section title={`🖼 גלריות · חדשות למעלה (${b.galleriesCount})`}>
                   <div style={{ display: "grid", gap: 14 }}>
                     {b.galleries.map(g => (
-                      <div key={g.id}>
+                      <div key={g.id} className="nd-node">
                         <button onClick={() => setZoom(g)} style={{ display: "block", width: "100%", padding: 0, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden", cursor: "pointer", background: "#000" }}>
-                          <img className="nd-gal-img" src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
+                          <img src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                         </button>
                         {(g.name || g.description) && (
                           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 5, maxHeight: 84, overflow: "hidden" }}>
@@ -201,7 +214,7 @@ export default function NumberDrawer() {
               {b.phrases?.length > 0 && (
                 <Section title={`🌳 מילים שוות (${b.phrases.length})`}>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {b.phrases.map((p, i) => <button key={i} onClick={() => openNumberDrawer(p.phrase)} style={chip}>{p.phrase}</button>)}
+                    {b.phrases.map((p, i) => <button key={i} className="nd-node" onClick={() => openNumberDrawer(p.phrase)} style={chip}>{p.phrase}</button>)}
                   </div>
                 </Section>
               )}
@@ -209,7 +222,7 @@ export default function NumberDrawer() {
                 <Section title={`📖 פוסטים (${b.postsCount})`}>
                   <div style={{ display: "grid", gap: 6 }}>
                     {b.posts.map(p => (
-                      <button key={p.wp_id || p.slug} onClick={() => goTo(`/${p.slug}?n=${isNumber ? value : encodeURIComponent(term)}`)} style={row}>
+                      <button key={p.wp_id || p.slug} className="nd-node" onClick={() => goTo(`/${p.slug}?n=${isNumber ? value : encodeURIComponent(term)}`)} style={row}>
                         {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                       </button>
                     ))}

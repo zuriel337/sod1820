@@ -158,7 +158,7 @@ export async function getGalleriesOverview() {
   if (!supabase) return { gals: [], imgs: [] };
   const { data: gals } = await supabase
     .from('galleries')
-    .select('id,name,anchor_number,img_count');
+    .select('id,name,anchor_number,img_count,wp_gallery_id');
   let imgs = [], from = 0;
   while (true) {
     const { data } = await supabase
@@ -181,7 +181,7 @@ export async function getGalleryDetail(galleryId) {
   if (!supabase || !galleryId) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,ordering,primary_value,all_values')
+    .select('id,name,description,image_url,ordering,primary_value,all_values,occurred_at')
     .eq('gallery_id', galleryId)
     .order('ordering', { ascending: true });
   return data || [];
