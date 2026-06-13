@@ -5070,6 +5070,8 @@ function PostPageBySlug({ onNav }) {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const contentRef = useRef(null);
+  const loc = useLocation();
 
   useEffect(() => {
     setLoading(true);
@@ -5081,6 +5083,31 @@ function PostPageBySlug({ onNav }) {
       })
       .catch(() => { setError("שגיאה בטעינה"); setLoading(false); });
   }, [slug]);
+
+  // מאתר-מספר: כשמגיעים מחיפוש (?n=...) — הדגשה וגלילה אוטומטית למיקום בפוסט
+  useEffect(() => {
+    const hn = new URLSearchParams(loc.search).get("n");
+    const el = contentRef.current;
+    if (!hn || !el || !post) return;
+    const id = setTimeout(() => {
+      const term = (() => { try { return decodeURIComponent(hn); } catch { return hn; } })();
+      const isNum = /^\d+$/.test(term);
+      const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      let re; try { re = new RegExp(isNum ? `(?<!\\d)(${esc})(?!\\d)` : `(${esc})`, "g"); } catch { re = new RegExp(`(${esc})`, "g"); }
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+      let first = null;
+      nodes.forEach(node => {
+        if (!node.nodeValue) return; re.lastIndex = 0; if (!re.test(node.nodeValue)) return; re.lastIndex = 0;
+        const span = document.createElement("span");
+        span.innerHTML = node.nodeValue.replace(re, '<mark style="background:#d4af37;color:#1a0e00;border-radius:3px;padding:0 3px;box-shadow:0 0 12px rgba(212,175,55,.7)">$1</mark>');
+        node.parentNode && node.parentNode.replaceChild(span, node);
+        if (!first) first = span.querySelector("mark");
+      });
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 140);
+    return () => clearTimeout(id);
+  }, [post, loc.search]);
 
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";
@@ -5181,7 +5208,7 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
             <style>{POST_CONTENT_CSS}</style>
-            <div className="sod-post-content" dangerouslySetInnerHTML={{ __html: content }} />
+            <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
