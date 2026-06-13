@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { C, F, calcGem } from "../theme.js";
+import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 
 // ===== דף הישות (Entity Page) — מרכז כל המידע סביב מספר/ביטוי =====
 // /number/:phrase — מספר (1237) או ביטוי (דוד המלך). מרכז: ערך+מילים שוות,
@@ -52,7 +53,7 @@ export default function EntityPage() {
     getEntityBundle({ term, value, isNumber })
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
-    document.title = `${term} · ${value} — דף הישות · סוד 1820`;
+    document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
@@ -89,7 +90,7 @@ export default function EntityPage() {
       {/* ── ראש: הערך ── */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>
-          דף הישות
+          {isNumber ? "דף המספר" : "דף הביטוי"}
         </div>
         {!isNumber && (
           <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 700, marginBottom: 2 }}>{term}</div>
@@ -101,6 +102,31 @@ export default function EntityPage() {
           {isNumber ? "הערך המספרי" : "גימטריית הביטוי"}
         </div>
       </div>
+
+      {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
+      {!loading && chips.length > 0 && (() => {
+        const cnt = { posts: d.postsCount || 0, galleries: d.galleriesCount || 0, words: d.phrases?.length || 0, events: d.eventsCount || 0, ai: d.insightsCount || 0, comm: d.commentsCount || 0 };
+        const parts = [];
+        if (cnt.posts) parts.push(`${cnt.posts} פוסטים`);
+        if (cnt.galleries) parts.push(`${cnt.galleries} גלריות`);
+        if (cnt.words) parts.push(`${cnt.words} מילים שוות`);
+        if (cnt.events) parts.push(`${cnt.events} אירועים בציר`);
+        if (cnt.ai) parts.push(`${cnt.ai} חידושי AI`);
+        if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
+        const pulse = pulseFromCounts(cnt);
+        return (
+          <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))", display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+            <PulseRing value={pulse} size={104} core={isNumber && !!KEY_NUMBERS[value]} />
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
+              <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
+                <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+                {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── מפת קשרים מהירה ── */}
       {loading ? (
@@ -128,18 +154,34 @@ export default function EntityPage() {
         </div>
       )}
 
-      {/* ── 🖼 גלריות (למעלה — התמונות הברורות ביותר) ── */}
+      {/* קישור-לימוד: הסבר על שיטות הגימטריה (רגיל/מילוי/מסתתר...) */}
+      <div style={{ textAlign: "center", marginBottom: 34 }}>
+        <Link to="/beit-midrash?tab=methods" style={{
+          display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+          background: "rgba(212,175,55,0.08)", border: `1px solid ${C.border}`, borderRadius: 999,
+          color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 16px",
+        }}>📖 לא מכירים את שיטות הגימטריה (מסתתר · מילוי · קדמי)? למדו בבית המדרש ←</Link>
+      </div>
+
+      {/* ── 🖼 גלריות — תמונות רחבות מלאות (האחרונות קודם), 2 טורים ── */}
       {d.galleries?.length > 0 && (
         <section id="galleries" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-          <SectionHead icon="🖼" title="גלריות ותמונות" count={d.galleriesCount} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+          <SectionHead icon="🖼" title="גלריות ותמונות · האחרונות" count={d.galleriesCount} />
+          <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
+          <div className="ent-gal">
             {d.galleries.map(g => (
               <button key={g.id} onClick={() => setLightbox(g)} style={{
-                cursor: "pointer", padding: 0, aspectRatio: "1", borderRadius: 10, overflow: "hidden",
-                border: `1px solid ${C.border}`, background: "#000",
-              }}>
+                cursor: "pointer", padding: 0, borderRadius: 12, overflow: "hidden", textAlign: "right",
+                border: `1px solid ${C.border}`, background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+              }} className="ent-gal-card">
                 <img src={g.image_url} alt={g.name || ""} loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  style={{ width: "100%", height: "auto", display: "block" }} />
+                {(g.name || g.description) && (
+                  <div style={{ padding: "10px 13px" }}>
+                    {g.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 4, lineHeight: 1.4 }}>{g.name}</div>}
+                    {g.description && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, maxHeight: 66, overflow: "hidden" }}>{stripHtml(g.description).slice(0, 160)}</div>}
+                  </div>
+                )}
               </button>
             ))}
           </div>

@@ -97,16 +97,9 @@ export default function NumberDrawer() {
 
   const b = bundle || {};
 
+  // הסרגל הצף נפתח רק בהקשר (לחיצה על מספר בפוסט/גלריה) — אין בועה גלובלית קבועה.
   return (
     <>
-      {/* בועה צפה — קטנה וכהה, סמל מחשבון הגימטריה (ℵ) */}
-      <button onClick={() => toggleNumberDrawer()} aria-label="מחשבון גימטריה — מגירת המספר" title="מחשבון גימטריה" style={{
-        position: "fixed", right: open ? "calc(min(380px,92vw) + 24px)" : "18px", bottom: 22, zIndex: 160,
-        width: 44, height: 44, borderRadius: "50%", cursor: "pointer", border: `1px solid ${C.borderGold}`,
-        background: "radial-gradient(circle at 38% 30%, #1c1630, #0c0a18 70%, #050410)", color: C.goldBright,
-        fontSize: 21, fontWeight: 800, fontFamily: F.mono, boxShadow: `0 0 14px ${C.gold}44, 0 5px 18px rgba(0,0,0,0.55)`,
-        transition: "right .34s cubic-bezier(.2,.8,.2,1)", display: "flex", alignItems: "center", justifyContent: "center",
-      }}>ℵ</button>
 
       {/* חוטים אל המספר בעמוד (פוסט / גלריה) */}
       {open && thread?.length > 0 && (

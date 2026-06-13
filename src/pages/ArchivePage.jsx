@@ -7,6 +7,7 @@ import {
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 
 // ===== גלריית רמזי הגאולה (/archive) =====
 // טאב 1 "גלריות" — המבנה ההיסטורי, ללא שינוי.
@@ -734,11 +735,11 @@ function ImageMeta({ im, onClose }) {
       )}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
         {(im.all_values || []).slice(0, 8).map((v, i) => (
-          <Link key={i} to={`/number/${v}`} onClick={onClose} style={{
-            textDecoration: "none", color: v === im.primary_value ? "#1a0e00" : C.goldLight,
+          <button key={i} onClick={() => openNumberDrawer(String(v))} title="הצצה מהירה למספר" style={{
+            cursor: "pointer", color: v === im.primary_value ? "#1a0e00" : C.goldLight,
             background: v === im.primary_value ? C.gold : "rgba(8,5,2,0.5)",
             border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.mono, fontSize: 12, fontWeight: 700,
-          }}>{v}</Link>
+          }}>{v}</button>
         ))}
       </div>
     </div>

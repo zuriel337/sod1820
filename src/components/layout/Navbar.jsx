@@ -55,8 +55,8 @@ function UniversalSearch({ onDone, full }) {
 
   function close() { setQ(""); setPosts([]); setOpen(false); onDone?.(); }
   function go(to) { nav(to); close(); }
-  function drawer(t) { openNumberDrawer(t); close(); }
-  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) drawer(v); }
+  // חיפוש מספר/מילה → דף הישות המלא (לא הסרגל הצף).
+  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) go("/number/" + encodeURIComponent(v)); }
 
   const v = q.trim();
   const gem = /[א-ת]/.test(v) ? calcGem(v) : (/^\d+$/.test(v) ? +v : null);
@@ -79,8 +79,8 @@ function UniversalSearch({ onDone, full }) {
       {open && v.length >= 2 && (
         <div className="nav-gem-drop">
           {gem != null && (
-            <button className="nav-drop-row" onClick={() => drawer(v)}>
-              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · פתח מגירה</span>
+            <button className="nav-drop-row" onClick={() => go("/number/" + encodeURIComponent(v))}>
+              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · גלה הכל ←</span>
             </button>
           )}
           {posts.map(p => (
@@ -276,7 +276,7 @@ export default function Navbar() {
             </Link>
           ) : (
             <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 11, letterSpacing: 1, whiteSpace: "nowrap" }}>
-              👑 הצטרפו לחברי ההיכל
+              🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
         </div>
@@ -299,8 +299,8 @@ export default function Navbar() {
             fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
             borderBottom: `1px solid ${C.border}`, marginBottom: 6,
           }}>
-            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>👑</span>}
-            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "הצטרפו לחברי ההיכל"}
+            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
+            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>

@@ -202,10 +202,28 @@ function BarRow({ items, labelKey, valueKey, hrefKey }) {
   );
 }
 
+// סקאלת גרף: מחזיר פונקציית-גובה (%) + ticks לציר-Y (לינארי או לוגריתמי)
+function buildScale(maxV, scale) {
+  const fmt = n => n >= 1000 ? +(n / 1000).toFixed(n >= 10000 ? 0 : 1) + "k" : String(Math.round(n));
+  if (scale === "log") {
+    const top = Math.pow(10, Math.max(1, Math.ceil(Math.log10(Math.max(maxV, 1)))));
+    const denom = Math.log10(top + 1);
+    const ticks = [{ pct: 0, label: "0" }];
+    for (let t = 1; t <= top; t *= 10) ticks.push({ pct: Math.log10(t + 1) / denom * 100, label: fmt(t) });
+    return { h: v => v <= 0 ? 0 : Math.min(100, Math.log10(v + 1) / denom * 100), ticks };
+  }
+  const p = Math.pow(10, Math.floor(Math.log10(Math.max(maxV, 1))));
+  const f = maxV / p; const nf = f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10;
+  const top = nf * p;
+  const ticks = [0, .25, .5, .75, 1].map(fr => ({ pct: fr * 100, label: fmt(top * fr) }));
+  return { h: v => Math.min(100, v / top * 100), ticks };
+}
+
 function StatsTab() {
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
   const [gran, setGran] = useState("day");   // day | month | year
+  const [scale, setScale] = useState("linear"); // linear | log
   const [sel, setSel] = useState(null);       // נקודת זמן שנבחרה
   useEffect(() => { getTrafficStats().then(setS).catch(e => setErr(e.message || "שגיאה")); }, []);
 
@@ -227,8 +245,9 @@ function StatsTab() {
   if (!s) return <Loading />;
 
   const totalViews = (s.yearly || []).reduce((a, r) => a + (r.views || 0), 0);
-  const max = Math.max(...series.map(x => x.views), 1);
   const view = series.slice(gran === "day" ? -120 : -60);   // לא להציף ברצועות
+  const max = Math.max(...view.map(x => x.views), 1);
+  const { h: barH, ticks } = buildScale(max, scale);
   const referrers = (s.referrers || []).slice(0, 12);
   const searches = (s.searches || []).slice(0, 12);
   const clicksOut = (s.clicks || []).slice(0, 12);
@@ -255,23 +274,49 @@ function StatsTab() {
         <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>בקרוב</span>
       </div>
 
-      {/* צפיות — יום / חודש / שנה, לחיץ */}
+      {/* צפיות — יום / חודש / שנה, עם ציר-Y, לחיץ */}
       <div style={card}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
           <H>צפיות לפי {granLabel}</H>
           <span style={{ flex: 1 }} />
-          {[["day", "יום"], ["month", "חודש"], ["year", "שנה"]].map(([k, l]) => (
-            <button key={k} onClick={() => setGran(k)} style={{ cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 14px", borderRadius: 999, border: `1px solid ${gran === k ? C.gold : C.border}`, background: gran === k ? "rgba(212,175,55,0.18)" : "transparent", color: gran === k ? C.goldBright : C.muted }}>{l}</button>
-          ))}
+          <div style={segWrap}>
+            {[["linear", "רגיל"], ["log", "לוג"]].map(([k, l]) => (
+              <button key={k} onClick={() => setScale(k)} title={k === "log" ? "סקאלה לוגריתמית — כשיש יום חריג עם הרבה צפיות" : "סקאלה רגילה"} style={segBtn(scale === k)}>{l}</button>
+            ))}
+          </div>
+          <div style={segWrap}>
+            {[["day", "יום"], ["month", "חודש"], ["year", "שנה"]].map(([k, l]) => (
+              <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: 150, marginTop: 14, overflowX: "auto" }}>
-          {view.map(r => (
-            <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות`} style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, cursor: "pointer", textAlign: "center" }}>
-              <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${Math.round(r.views / max * 120)}px`, minHeight: 2, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
-              {gran !== "day" && <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 9, marginTop: 4, whiteSpace: "nowrap" }}>{r.key}</div>}
+
+        {/* גרף: אזור עמודות (ימין) + ציר-Y עם תוויות וקווי-עזר */}
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative", height: 190, borderInlineStart: `1px solid ${C.border}` }}>
+            {ticks.map((t, i) => (
+              <div key={i} style={{ position: "absolute", insetInline: 0, bottom: `${t.pct}%`, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
+            ))}
+            <div style={{ position: "absolute", inset: 0, overflowX: "auto", overflowY: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", minWidth: gran === "day" ? view.length * 8 : "100%", paddingInline: 2 }}>
+                {view.map(r => (
+                  <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות`}
+                    style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
+                    <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${barH(r.views)}%`, minHeight: r.views > 0 ? 2 : 0, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          </div>
+          {/* ציר-Y (כמות גולשים) — בצד ימin */}
+          <div style={{ width: 50, position: "relative", height: 190, flexShrink: 0 }}>
+            {ticks.map((t, i) => (
+              <div key={i} style={{ position: "absolute", right: 0, bottom: `${t.pct}%`, transform: "translateY(50%)", color: C.goldDim, fontFamily: F.mono, fontSize: 10, whiteSpace: "nowrap" }}>{t.label}</div>
+            ))}
+          </div>
         </div>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1, textAlign: "center", marginTop: 4 }}>כמות צפיות {scale === "log" ? "(לוגריתמי)" : ""}</div>
+
         {sel && (
           <div style={{ marginTop: 12, padding: "12px 16px", border: `1px solid ${C.borderGold}`, borderRadius: 12, background: "rgba(212,175,55,0.06)" }}>
             <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>📅 {sel.key} · {sel.views.toLocaleString()} צפיות</div>
@@ -516,6 +561,8 @@ function SetsTab() {
 }
 
 const iconBtn = { cursor: "pointer", background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12 };
+const segWrap = { display: "inline-flex", gap: 6, background: "rgba(8,5,2,0.4)", border: `1px solid ${C.border}`, borderRadius: 999, padding: 4 };
+function segBtn(active) { return { cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 14px", borderRadius: 999, border: "none", background: active ? "rgba(212,175,55,0.22)" : "transparent", color: active ? C.goldBright : C.muted }; }
 function BtnGold({ children, onClick }) {
   return <button onClick={onClick} style={{ cursor: "pointer", background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(8,5,2,0.4))", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "8px 16px", fontFamily: F.heading, fontSize: 13, fontWeight: 700, whiteSpace: "nowrap" }}>{children}</button>;
 }
