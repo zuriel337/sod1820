@@ -20,7 +20,7 @@ export function MembersPage() {
 }
 
 const COMMUNITY = [
-  { emoji: "💬", title: "הצ'אט הוותיק", to: "/community/chat", live: true },
+  { emoji: "💬", title: "הצ'אט הוותיק", to: "/community/chat", live: true, stat: "133.7k הודעות" },
   { emoji: "🧮", title: "המחשבון הקהילתי", to: "/community/calculator", live: false },
   { emoji: "📝", title: "כל התגובות באתר", to: "/community/comments", live: false },
   { emoji: "✉️", title: "צור קשר", to: "/contact", live: true },
@@ -38,6 +38,11 @@ export function CommunityPage() {
           }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>{c.emoji}</div>
             <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</div>
+            {c.stat && (
+              <div style={{ marginTop: 6, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                <span style={{ fontFamily: F.mono }}>💬 {c.stat}</span>
+              </div>
+            )}
             <div style={{
               marginTop: 8, fontSize: 10, letterSpacing: 1, fontFamily: F.heading,
               color: c.live ? "#4fc78c" : C.muted,
