@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
-import { C, F, calcGem } from "../theme.js";
+import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
+import PulseRing from "../components/PulseRing.jsx";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
@@ -51,6 +52,35 @@ function GatesDeck() {
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+// ❤️ שולחן העבודה — דופק מספרי המפתח. קליל (ערכי דופק קבועים, בלי שאילתות) → לחיצה לדף המספר.
+const DASH = [
+  { n: 1820, pulse: 99, core: true },
+  { n: 358, pulse: 90 },
+  { n: 1237, pulse: 86 },
+  { n: 776, pulse: 80 },
+  { n: 26, pulse: 78 },
+  { n: 541, pulse: 72 },
+];
+function HomeDashboard() {
+  return (
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "4px 18px 30px", direction: "rtl" }}>
+      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+        ❤️ שולחן העבודה · דופק מספרי המפתח
+      </div>
+      <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
+        {DASH.map(d => (
+          <Link key={d.n} to={`/number/${d.n}`} style={{ textDecoration: "none", textAlign: "center" }} className="sod-dash-num">
+            <PulseRing value={d.pulse} size={82} core={d.core} label={false} />
+            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18, fontWeight: 800, marginTop: 4 }}>{d.n}</div>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, maxWidth: 110, lineHeight: 1.4 }}>{KEY_NUMBERS[d.n] || ""}</div>
+          </Link>
+        ))}
+      </div>
+      <style>{`.sod-dash-num{transition:transform .2s} .sod-dash-num:hover{transform:translateY(-3px)}`}</style>
     </section>
   );
 }
@@ -264,6 +294,7 @@ export default function HomePage() {
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
       <GatesDeck />
+      <HomeDashboard />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>

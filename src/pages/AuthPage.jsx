@@ -80,7 +80,7 @@ export default function AuthPage() {
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <img src={LOGO_URL} alt="SOD1820" style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 18px rgba(232,200,74,0.6))" }} />
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 26, fontWeight: 700, margin: "16px 0 6px" }}>כניסה להיכל</h1>
-        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13 }}>התחברו כדי להצטרף לקהילה ולקבל את הסודות.</div>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13 }}>כניסה / הרשמה חינם — קבלו גישה לכלים ולסודות.</div>
       </div>
 
       <div style={card}>
@@ -103,7 +103,7 @@ export default function AuthPage() {
             />
             {err && <div style={{ color: C.danger, fontSize: 12, marginTop: 6, fontFamily: F.heading, textAlign: "center" }}>{err}</div>}
             <button type="submit" disabled={busy} style={{ ...googleBtn, marginTop: 14, justifyContent: "center", background: C.gold, color: "#1a0e00" }}>
-              {busy ? "מאמת…" : "התחבר ←"}
+              {busy ? "מאמת…" : "כניסה / הרשמה ←"}
             </button>
             <div style={{ textAlign: "center" }}>
               <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); }} style={linkBtn}>← שינוי מייל / שליחה מחדש</button>

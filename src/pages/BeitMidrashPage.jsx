@@ -307,6 +307,37 @@ function methodExample(m) {
   const map = m.map || GEM;
   return Lt.map(c => `${c}(${map[c]})`).join(" + ") + " = " + m.fn(SAMPLE);
 }
+// מונה קטן לאנימציית הסכום
+function Odo({ to, run }) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    let raf, t0; setV(0);
+    const step = t => { t0 ??= t; const p = Math.min(1, (t - t0) / 900); setV(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf);
+  }, [to, run]);
+  return <>{v}</>;
+}
+// "סרטון" קל — האותיות נחשפות אחת-אחת עם ערכן, ואז הסכום מתגלגל. ריצה חוזרת בריחוף.
+function MethodAnim({ m }) {
+  const [run, setRun] = useState(0);
+  const Lt = onlyHeb(SAMPLE);
+  const items = m.key === "מסתתר"
+    ? Lt.slice(0, -1).map((c, i) => ({ top: `${c}–${Lt[i + 1]}`, val: Math.abs(GEM[c] - GEM[Lt[i + 1]]) }))
+    : Lt.map(c => ({ top: c, val: (m.map || GEM)[c] }));
+  const delay = i => `${i * 0.32}s`;
+  return (
+    <div onMouseEnter={() => setRun(r => r + 1)} title="ריחוף = הרצה חוזרת" style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", direction: "rtl", cursor: "default" }}>
+      {items.map((it, i) => (
+        <span key={`${run}-${i}`} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "3px 8px", opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(i) }}>
+          <b style={{ color: L.goldDeep, fontFamily: F.regal, fontSize: 15, lineHeight: 1.1 }}>{it.top}</b>
+          <small style={{ color: L.sub, fontFamily: F.mono, fontSize: 11 }}>{it.val}</small>
+        </span>
+      ))}
+      <span key={`eq-${run}`} style={{ color: L.sub, fontFamily: F.mono, fontSize: 16, opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(items.length) }}>=</span>
+      <b key={`tot-${run}`} style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800, opacity: 0, animation: "maIn .5s ease forwards", animationDelay: `${items.length * 0.32 + 0.1}s` }}><Odo to={m.fn(SAMPLE)} run={run} /></b>
+    </div>
+  );
+}
 function MethodsTab() {
   return (
     <div>
@@ -324,9 +355,8 @@ function MethodsTab() {
               </div>
               <p style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, margin: "0 0 8px" }}>{info.what}</p>
               <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: "0 0 10px" }}><b style={{ color: L.goldDeep }}>איך מחשבים: </b>{info.how}</p>
-              <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "8px 12px", color: L.ink, fontFamily: F.mono, fontSize: 13, lineHeight: 1.7 }}>
-                <span style={{ color: L.sub }}>דוגמה · </span>{methodExample(m)}
-              </div>
+              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, margin: "2px 0 6px" }}>דוגמה חיה · {SAMPLE}</div>
+              <MethodAnim m={m} />
               {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
             </div>
           );
@@ -465,6 +495,7 @@ export default function BeitMidrashPage() {
           .axis-line { display: none !important; }
           .axis-label { display: none !important; }
         }
+        @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
         @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>
