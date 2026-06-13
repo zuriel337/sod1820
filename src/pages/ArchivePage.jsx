@@ -53,7 +53,8 @@ export default function ArchivePage() {
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState("gallery");   // gallery (סדר התוסף) | date
-  const [viewMode, setViewMode] = useState("galleries"); // galleries (שורות) | images (רשת תמונות)
+  const [viewMode, setViewMode] = useState("galleries"); // galleries (אקורדיון) | images (רשת תמונות)
+  const [openGal, setOpenGal] = useState(null);          // גלריה פתוחה בפיד (האחרונה כברירת מחדל)
   const [showAllNums, setShowAllNums] = useState(false);
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
@@ -153,6 +154,10 @@ export default function ArchivePage() {
     else if (q) list = list.filter(g => (g.name || "").toLowerCase().includes(q));
     return list;
   }, [gals, setNums, galMeta, numFilter, q, qNum]);
+
+  // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
+  const firstGalId = memberGals[0]?.id ?? null;
+  useEffect(() => { setOpenGal(firstGalId); }, [firstGalId]);
 
   const pool = useMemo(() => sortedImgs.filter(im => {
     if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
@@ -264,9 +269,10 @@ export default function ArchivePage() {
 
       {/* ============ טאב מאגר / סטים ============ */}
       {tab === "pool" && (
-        <>
+        <div className="ar-layout">
+          <aside className="ar-side">
           {/* סטים */}
-          <div className="ar-row" style={{ justifyContent: "center" }}>
+          <div className="ar-row">
             <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>הכול</button>
             {sets.map(s => (
               <span key={s.id} style={{ display: "inline-flex", alignItems: "center" }}>
@@ -370,6 +376,9 @@ export default function ArchivePage() {
             )}
           </div>
 
+          </aside>
+
+          <div className="ar-feed">
           {/* גשר לציר האירועים */}
           {bridgeEvents.length > 0 && (
             <div className="ar-bridge">
@@ -410,19 +419,52 @@ export default function ArchivePage() {
             memberGals.length === 0 ? (
               <div className="ar-empty">אין גלריות תואמות בסט הזה.</div>
             ) : (
-              <div style={{ display: "grid", gap: 12 }}>
-                {memberGals.map(g => (
-                  <button key={g.id} onClick={() => setSel(g)} className="ar-galrow">
-                    <span className="ar-galrow-thumb" style={{ background: g.cover ? `center/cover no-repeat url(${g.cover})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})` }}>
-                      {g.anchor != null && <span className="ar-anchor">{g.anchor}</span>}
-                    </span>
-                    <span className="ar-galrow-body">
-                      <span className="ar-galrow-name">{g.name || "גלריה"}</span>
-                      <span className="ar-galrow-sub">{g.count} תמונות</span>
-                    </span>
-                    <span className="ar-galrow-go">פתח ←</span>
-                  </button>
-                ))}
+              <div style={{ display: "grid", gap: 14 }}>
+                {memberGals.map(g => {
+                  const open = openGal === g.id;
+                  const gimgs = open
+                    ? imgs.filter(im => im.gallery_id === g.id).sort((a, b) => {
+                        const da = eventDate(a), db = eventDate(b);
+                        if (da && db) return db - da; if (db) return 1; if (da) return -1;
+                        return (a.ordering ?? 0) - (b.ordering ?? 0);
+                      })
+                    : [];
+                  return (
+                    <div key={g.id} className="ar-acc">
+                      <button className="ar-acc-head" onClick={() => setOpenGal(open ? null : g.id)}>
+                        <span className="ar-acc-thumb" style={{ background: g.cover ? `center/cover no-repeat url(${g.cover})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})` }}>
+                          {g.anchor != null && <span className="ar-anchor">{g.anchor}</span>}
+                        </span>
+                        <span className="ar-acc-name">{g.name || "גלריה"}<span className="ar-acc-sub">{g.count} תמונות</span></span>
+                        <span className="ar-acc-arrow">{open ? "▲" : "▼"}</span>
+                      </button>
+                      {open && (
+                        <div className="ar-acc-body">
+                          {gimgs.map(im => (
+                            <figure key={im.id} className="ar-feed-img">
+                              {eventLabel(im) && <div className="ar-feed-date">🗓️ {eventLabel(im)}</div>}
+                              <a href={im.image_url} target="_blank" rel="noopener noreferrer">
+                                <img src={im.image_url} alt={im.name || ""} loading="lazy" />
+                              </a>
+                              {(im.name || im.description || (im.all_values || []).length > 0) && (
+                                <figcaption className="ar-feed-cap">
+                                  {im.name && <div className="ar-feed-name">{im.name}</div>}
+                                  {im.description && <div className="ar-feed-desc">{stripHtml(im.description)}</div>}
+                                  <div className="ar-feed-nums">
+                                    {(im.all_values || []).slice(0, 8).map((v, i) => (
+                                      <Link key={i} to={`/number/${v}`} className={`ar-feed-num${v === im.primary_value ? " primary" : ""}`}>{v}</Link>
+                                    ))}
+                                  </div>
+                                </figcaption>
+                              )}
+                            </figure>
+                          ))}
+                          {gimgs.length === 0 && <div className="ar-empty">אין תמונות בגלריה זו.</div>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )
           ) : pool.length === 0 ? (
@@ -490,7 +532,8 @@ export default function ArchivePage() {
               )}
             </>
           )}
-        </>
+          </div>
+        </div>
       )}
 
       {/* מודאל גלריה (טאב גלריות) — ללא שינוי */}
@@ -597,6 +640,37 @@ export default function ArchivePage() {
         .ar-galrow-sub { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
         .ar-galrow-go { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; padding-inline: 16px; white-space: nowrap; }
         @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
+
+        /* פריסת מאגר: אזור ראשי (ימין) + סרגל צד (שמאל) */
+        .ar-layout { display: grid; grid-template-columns: 1fr 330px; gap: 22px; align-items: start; }
+        .ar-feed { grid-column: 1; min-width: 0; }
+        .ar-side { grid-column: 2; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
+          display: flex; flex-direction: column; gap: 12px; padding: 4px; }
+        .ar-side .ar-row { justify-content: flex-start; }
+        @media (max-width: 900px) {
+          .ar-layout { grid-template-columns: 1fr; }
+          .ar-side { grid-column: 1; grid-row: 1; position: static; max-height: none; }
+          .ar-feed { grid-column: 1; }
+        }
+        /* אקורדיון גלריות */
+        .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }
+        .ar-acc-head { display: flex; align-items: center; gap: 14px; width: 100%; cursor: pointer; text-align: right; background: none; border: none; padding: 10px 14px; }
+        .ar-acc-head:hover { background: rgba(212,175,55,0.06); }
+        .ar-acc-thumb { position: relative; width: 88px; height: 62px; border-radius: 8px; flex-shrink: 0; }
+        .ar-acc-name { flex: 1; min-width: 0; color: ${C.goldBright}; font-family: ${F.regal}; font-size: 17px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+        .ar-acc-name { white-space: nowrap; text-overflow: ellipsis; }
+        .ar-acc-sub { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; font-weight: 700; }
+        .ar-acc-arrow { color: ${C.goldDim}; font-size: 12px; }
+        .ar-acc-body { display: grid; gap: 24px; padding: 10px 16px 20px; border-top: 1px solid ${C.faint}; }
+        .ar-feed-img { margin: 0; }
+        .ar-feed-date { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        .ar-feed-img img { width: 100%; display: block; border-radius: 12px; border: 1px solid ${C.border}; }
+        .ar-feed-cap { padding-top: 10px; }
+        .ar-feed-name { color: ${C.goldLight}; font-family: ${F.regal}; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .ar-feed-desc { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; line-height: 1.85; white-space: pre-wrap; }
+        .ar-feed-nums { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .ar-feed-num { text-decoration: none; font-family: ${F.mono}; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid ${C.borderGold}; color: ${C.goldLight}; background: rgba(8,5,2,0.5); }
+        .ar-feed-num.primary { background: ${C.gold}; color: #1a0e00; }
         .ar-curatebar { max-width: 980px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed ${C.borderGold}; border-radius: 12px; background: rgba(8,5,2,0.4); }
         .ar-subhead { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 2; text-transform: uppercase; margin: 18px 0 10px; }
         .ar-imgwrap { display: flex; flex-direction: column; gap: 4px; }
