@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, syncCategory47, syncAllComments, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import { applySeo, SITE_URL } from "../lib/seo.js";
@@ -1759,7 +1759,6 @@ function LoginPage({ onNav }) {
 
 // ===== BLOG PAGE =====
 
-const WP_API = "https://sod1820.co.il/wp-json/wp/v2/posts";
 const PER_PAGE = 10;
 
 const toSlug = name => name.trim().replace(/\s+/g, '-');
@@ -2915,8 +2914,6 @@ function PostPage({ post, onBack }) {
 
 // ===== DYNAMIC MENU =====
 
-const WP_MENU_BASE = "https://sod1820.co.il/wp-json";
-
 const STATIC_NAV_ITEMS = [
   { key: "home",    label: "ראשי" },
   { key: "blog",    label: "פוסטים" },
@@ -2936,404 +2933,6 @@ function mapUrlToRoute(url) {
   return null;
 }
 
-async function fetchWpMenu() {
-  // Try WP REST API Menus plugin (menus/v1)
-  try {
-    const listRes = await fetch(`${WP_MENU_BASE}/menus/v1/menus`, { signal: AbortSignal.timeout(5000) });
-    if (listRes.ok) {
-      const menus = await listRes.json();
-      const menu = Array.isArray(menus) && menus.length > 0
-        ? (menus.find(m => /primary|main|ראשי/i.test(m.slug || m.name || "")) ?? menus[0])
-        : null;
-      if (menu) {
-        const menuId = menu.ID ?? menu.id;
-        const detailRes = await fetch(`${WP_MENU_BASE}/menus/v1/menus/${menuId}`, { signal: AbortSignal.timeout(5000) });
-        if (detailRes.ok) {
-          const detail = await detailRes.json();
-          const items = detail.items ?? [];
-          return items
-            .filter(it => !it.parent || it.parent === 0)
-            .map(it => ({
-              key:      String(it.ID ?? it.id),
-              label:    stripHtml(it.title ?? ""),
-              url:      it.url ?? "",
-              route:    mapUrlToRoute(it.url),
-            }));
-        }
-      }
-    }
-  } catch { /* plugin not installed or CORS */ }
-
-  // Try wp/v2/menu-items (WordPress 5.9+ core)
-  try {
-    const res = await fetch(`${WP_MENU_BASE}/wp/v2/menu-items?per_page=20`, { signal: AbortSignal.timeout(5000) });
-    if (res.ok) {
-      const items = await res.json();
-      if (Array.isArray(items) && items.length > 0) {
-        return items
-          .filter(it => !it.parent || it.parent === 0)
-          .sort((a, b) => (a.menu_order ?? 0) - (b.menu_order ?? 0))
-          .map(it => ({
-            key:   String(it.id),
-            label: stripHtml(it.title?.rendered ?? ""),
-            url:   it.url ?? "",
-            route: mapUrlToRoute(it.url),
-          }));
-      }
-    }
-  } catch { /* not available */ }
-
-  return null; // triggers fallback to STATIC_NAV_ITEMS
-}
-
-// ===== NUMBER SIDEBAR + PAGE =====
-
-function NumberButton({ tag, onClick }) {
-  const [hov, setHov] = useState(false);
-  const meaning = KEY_NUMBERS[parseInt(tag.name, 10)];
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        width: "100%", padding: meaning ? "9px 18px" : "11px 18px",
-        background: hov ? C.goldDark : (meaning ? `${C.goldDeep}88` : "none"),
-        border: "none", borderBottom: `1px solid ${C.faint}`,
-        cursor: "pointer", transition: "background 0.15s",
-      }}
-    >
-      <span style={{
-        fontSize: 9, color: hov ? C.goldDim : C.muted,
-        fontFamily: F.heading, letterSpacing: 1,
-        minWidth: 32, textAlign: "left", transition: "color 0.15s",
-      }}>×{tag.count}</span>
-      <div style={{ textAlign: "right" }}>
-        <div style={{
-          fontSize: 18, fontFamily: F.heading, fontWeight: 700,
-          color: hov ? C.goldBright : (meaning ? C.goldLight : C.goldDim),
-          transition: "color 0.15s", lineHeight: 1.2,
-        }}>{tag.name}</div>
-        {meaning && (
-          <div style={{
-            fontSize: 8, color: hov ? C.goldDim : C.muted,
-            fontFamily: F.body, marginTop: 2, fontStyle: "italic",
-            lineHeight: 1.3, maxWidth: 160,
-          }}>{meaning}</div>
-        )}
-      </div>
-    </button>
-  );
-}
-
-function NumberPage({ tag, onNav, onBack }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const PER = 9;
-
-  useEffect(() => {
-    setLoading(true);
-    setError("");
-    fetch(`${WP_API}?_embed=1&per_page=${PER}&page=${currentPage}&tags=${tag.id}`)
-      .then(r => {
-        const tp = r.headers.get("X-WP-TotalPages");
-        if (tp) setTotalPages(parseInt(tp, 10));
-        if (!r.ok) throw new Error(`שגיאה ${r.status}`);
-        return r.json();
-      })
-      .then(data => { setPosts(data); setLoading(false); })
-      .catch(err => { setError(err.message); setLoading(false); });
-  }, [tag.id, currentPage]);
-
-  function goTo(p) { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }
-
-  return (
-    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "64px 24px", direction: "rtl" }}>
-      <button
-        onClick={onBack}
-        onMouseEnter={e => (e.currentTarget.style.color = C.goldDim)}
-        onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
-        style={{
-          background: "none", border: "none", color: C.muted,
-          cursor: "pointer", fontFamily: F.heading,
-          fontSize: 10, marginBottom: 40, letterSpacing: 4,
-          textTransform: "uppercase", transition: "color 0.2s",
-        }}
-      >← חזרה</button>
-
-      <SectionHeader
-        eyebrow={`תגית · ${tag.count} פוסטים`}
-        title={`המספר ${tag.name}`}
-      />
-
-      {KEY_NUMBERS[parseInt(tag.name, 10)] && (
-        <div style={{
-          textAlign: "center", margin: "-28px auto 44px",
-          maxWidth: 520,
-          padding: "14px 24px",
-          background: `linear-gradient(135deg, ${C.goldDeep}, transparent)`,
-          border: `1px solid ${C.borderGold}`,
-          borderRadius: 2,
-        }}>
-          <p style={{
-            color: C.goldLight, fontFamily: F.body,
-            fontSize: 15, fontStyle: "italic", margin: 0, lineHeight: 1.8,
-          }}>
-            {KEY_NUMBERS[parseInt(tag.name, 10)]}
-          </p>
-        </div>
-      )}
-
-      {error && (
-        <div style={{ textAlign: "center", padding: "40px 0", color: "#b05050", fontFamily: F.body }}>
-          {error}
-        </div>
-      )}
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 20 }}>
-        {loading
-          ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-          : posts.map(post => (
-              <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />
-            ))
-        }
-      </div>
-
-      {!loading && !error && posts.length === 0 && (
-        <div style={{ textAlign: "center", padding: "60px 0", color: C.muted, fontFamily: F.body, fontSize: 15 }}>
-          אין פוסטים עם תגית זו
-        </div>
-      )}
-
-      {!loading && !error && totalPages > 1 && (
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 48, flexWrap: "wrap", alignItems: "center" }}>
-          <GoldButton variant="secondary" disabled={currentPage === 1}
-            onClick={() => goTo(currentPage - 1)}
-            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}>← הקודם</GoldButton>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button key={p} onClick={() => goTo(p)} style={{
-              background: p === currentPage ? C.goldDark : "transparent",
-              border: `1px solid ${p === currentPage ? C.gold : C.border}`,
-              color: p === currentPage ? C.goldBright : C.muted,
-              width: 38, height: 38, cursor: "pointer",
-              fontFamily: F.heading, fontSize: 12, borderRadius: 2, transition: "all 0.2s",
-            }}>{p}</button>
-          ))}
-          <GoldButton variant="secondary" disabled={currentPage === totalPages}
-            onClick={() => goTo(currentPage + 1)}
-            style={{ padding: "8px 20px", fontSize: 11, letterSpacing: 2 }}>הבא →</GoldButton>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function NumberSidebar({ onNav }) {
-  const [open, setOpen] = useState(false);
-  const [allTags, setAllTags] = useState([]);
-  const [search, setSearch] = useState("");
-  const [inputFocused, setInputFocused] = useState(false);
-  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 760 : false);
-
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 760);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    fetch("https://sod1820.co.il/wp-json/wp/v2/tags?per_page=100&hide_empty=true&orderby=count&order=desc")
-      .then(r => r.ok ? r.json() : [])
-      .then(data => {
-        if (Array.isArray(data)) {
-          setAllTags(
-            data
-              .filter(t => /^\d+$/.test(t.name.trim()))
-              .sort((a, b) => b.count - a.count)
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const filtered = search.trim()
-    ? allTags.filter(t => t.name.includes(search.trim()))
-    : allTags;
-
-  function handleSelect(tag) {
-    onNav("number", tag);
-    setOpen(false);
-    setSearch("");
-  }
-
-  return (
-    <>
-      {/* toggle tab */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        title="סוד המספרים"
-        style={{
-          position: "fixed",
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 200,
-          background: open ? C.goldDark : C.surface,
-          border: `1px solid ${C.gold}`,
-          borderRight: "none",
-          borderRadius: "4px 0 0 4px",
-          color: C.goldBright,
-          width: 34, height: 90,
-          cursor: "pointer",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: 7,
-          transition: "background 0.2s",
-          boxShadow: `-4px 0 16px ${C.goldDeep}`,
-          padding: 0,
-        }}
-      >
-        <span style={{
-          fontSize: 12, color: C.goldBright,
-          transition: "transform 0.3s",
-          transform: open ? "rotate(45deg)" : "none",
-          display: "block", lineHeight: 1,
-        }}>✦</span>
-        <span style={{
-          fontSize: 7, color: C.muted, letterSpacing: 1,
-          fontFamily: F.heading, textTransform: "uppercase",
-          writingMode: "vertical-rl",
-        }}>מספרים</span>
-      </button>
-
-      {/* backdrop */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 198,
-            background: "rgba(5,4,0,0.6)",
-            backdropFilter: "blur(3px)",
-          }}
-        />
-      )}
-
-      {/* panel */}
-      <div style={{
-        position: "fixed",
-        right: 0, top: 0, bottom: 0,
-        width: isMobile ? "100vw" : 280,
-        maxWidth: 280,
-        zIndex: 199,
-        transform: open ? "translateX(0)" : "translateX(100%)",
-        transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-        background: C.surface,
-        borderLeft: `2px solid ${C.borderGold}`,
-        display: "flex", flexDirection: "column",
-        direction: "rtl",
-        boxShadow: open ? `-16px 0 60px ${C.goldDeep}` : "none",
-      }}>
-
-        {/* header */}
-        <div style={{
-          height: 60, flexShrink: 0,
-          padding: "0 16px",
-          borderBottom: `1px solid ${C.border}`,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 12, letterSpacing: 3 }}>
-            סוד המספרים
-          </div>
-          <button onClick={() => setOpen(false)}
-            onMouseEnter={e => (e.currentTarget.style.color = C.goldBright)}
-            onMouseLeave={e => (e.currentTarget.style.color = C.goldDim)}
-            style={{
-              background: C.bgGlow,
-              border: `1px solid ${C.gold}`,
-              borderRadius: 6,
-              color: C.goldBright,
-              cursor: "pointer",
-              fontSize: 18,
-              lineHeight: 1,
-              width: 36,
-              height: 36,
-              display: "grid",
-              placeItems: "center",
-              fontFamily: "monospace",
-              transition: "all 0.2s",
-            }}>✕</button>
-        </div>
-
-        {/* search */}
-        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value.replace(/\D/g, ""))}
-            placeholder="חפש מספר..."
-            onFocus={() => setInputFocused(true)}
-            onBlur={() => setInputFocused(false)}
-            style={{
-              width: "100%",
-              background: C.bg,
-              border: `1px solid ${inputFocused ? C.gold : C.border}`,
-              color: C.goldBright,
-              padding: "9px 14px",
-              fontFamily: F.heading, fontSize: 17, fontWeight: 700,
-              borderRadius: 2, outline: "none",
-              boxSizing: "border-box", direction: "ltr",
-              letterSpacing: 3, textAlign: "center",
-              transition: "border-color 0.2s",
-            }}
-          />
-          {search ? (
-            <div style={{
-              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
-              textAlign: "center", marginTop: 8, textTransform: "uppercase",
-            }}>
-              {filtered.length} תוצאות
-            </div>
-          ) : (
-            <div style={{
-              fontSize: 9, color: C.muted, letterSpacing: 2, fontFamily: F.heading,
-              textAlign: "center", marginTop: 8, textTransform: "uppercase",
-            }}>
-              הקלד מספר לחיפוש חופשי
-            </div>
-          )}
-        </div>
-
-        {/* list */}
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {filtered.length === 0 ? (
-            <div style={{
-              textAlign: "center", padding: "40px 16px",
-              color: C.muted, fontFamily: F.body, fontSize: 13,
-            }}>
-              {allTags.length === 0 ? "טוען מספרים..." : "אין תוצאות"}
-            </div>
-          ) : (
-            filtered.map(tag => (
-              <NumberButton key={tag.id} tag={tag} onClick={() => handleSelect(tag)} />
-            ))
-          )}
-        </div>
-
-        {/* footer */}
-        <div style={{
-          padding: "11px 16px", borderTop: `1px solid ${C.border}`, flexShrink: 0,
-          fontSize: 9, color: C.muted, textAlign: "center",
-          fontFamily: F.heading, letterSpacing: 3, textTransform: "uppercase",
-        }}>
-          {allTags.length} מספרים · SOD1820
-        </div>
-      </div>
-    </>
-  );
-}
 
 // ===== THEME PREVIEW PAGE =====
 
@@ -3647,52 +3246,6 @@ function AdminPage({ pageContent, onSavePage, selectedPageKey, setSelectedPageKe
               }}
             >שמור עמוד</GoldButton>
 
-            <div style={{ marginTop: 16, borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
-              <div style={{ fontSize: 10, color: C.muted, letterSpacing: 3, marginBottom: 12, fontFamily: F.heading, textTransform: "uppercase" }}>
-                סנכרון Supabase — קטגוריה 47
-              </div>
-              <GoldButton
-                variant="secondary"
-                disabled={syncing}
-                style={{ width: "100%", textAlign: "center", marginBottom: 10 }}
-                onClick={async () => {
-                  setSyncing(true);
-                  try {
-                    const count = await syncCategory47();
-                    setOkMsg(`✦ סונכרנו ${count} פוסטים ל-Supabase`);
-                  } catch (e) {
-                    setOkMsg(`⚠ שגיאה: ${e.message}`);
-                  } finally {
-                    setSyncing(false);
-                    setTimeout(() => setOkMsg(""), 4000);
-                  }
-                }}
-              >
-                {syncing ? "מסנכרן..." : "סנכרן פוסטים מ-WordPress"}
-              </GoldButton>
-              <GoldButton
-                variant="secondary"
-                disabled={syncing}
-                style={{ width: "100%", textAlign: "center", borderColor: C.crimsonLight, color: "#c87070" }}
-                onClick={async () => {
-                  setSyncing(true);
-                  setOkMsg("מסנכרן תגובות...");
-                  try {
-                    const count = await syncAllComments(({ page, totalPages, totalSynced }) => {
-                      setOkMsg(`עמוד ${page}/${totalPages} — ${totalSynced} תגובות`);
-                    });
-                    setOkMsg(`✦ סונכרנו ${count} תגובות ל-Supabase`);
-                  } catch (e) {
-                    setOkMsg(`⚠ שגיאה: ${e.message}`);
-                  } finally {
-                    setSyncing(false);
-                    setTimeout(() => setOkMsg(""), 6000);
-                  }
-                }}
-              >
-                {syncing ? "מסנכרן..." : "סנכרן תגובות מ-WordPress"}
-              </GoldButton>
-            </div>
           </div>
         </div>
       </div>
@@ -4300,23 +3853,21 @@ function NumbersReportPage() {
     setReport(null);
     setProgress({ done: 0, total: 1 });
     try {
-      const first = await fetch(`${WP_API}?per_page=100&page=1&_fields=id,title,content`);
-      const totalPages = parseInt(first.headers.get("X-WP-TotalPages") || "1", 10);
-      const posts1 = await first.json();
-      setProgress({ done: 1, total: totalPages });
-
-      const rest = await Promise.all(
-        Array.from({ length: totalPages - 1 }, (_, i) =>
-          fetch(`${WP_API}?per_page=100&page=${i + 2}&_fields=id,title,content`)
-            .then(r => r.json())
-            .then(d => { setProgress(p => ({ ...p, done: p.done + 1 })); return d; })
-        )
-      );
-      const allPosts = [posts1, ...rest].flat();
+      // קוראים את כל הפוסטים מ-Supabase בעמודים (PostgREST מגביל ~1000 שורות)
+      const allPosts = [];
+      const CH = 1000;
+      for (let from = 0; ; from += CH) {
+        const { data } = await supabase
+          .from("posts").select("wp_id,title,content").range(from, from + CH - 1);
+        if (!data || !data.length) break;
+        allPosts.push(...data);
+        setProgress({ done: allPosts.length, total: allPosts.length });
+        if (data.length < CH) break;
+      }
 
       const counts = {};
       for (const post of allPosts) {
-        const text = (post.title?.rendered ?? "") + " " + (post.content?.rendered ?? "");
+        const text = (post.title ?? "") + " " + (post.content ?? "");
         for (const match of text.matchAll(/\b(\d{1,5})\b/g)) {
           const k = parseInt(match[1], 10);
           if (k > 0) counts[k] = (counts[k] || 0) + 1;
@@ -5469,14 +5020,14 @@ function SpaceBackground() {
 export {
   // עמודים שמחוברים ל-routes
   BlogPage, PostPageBySlug, CategoryPage, TagPage, GematriaPhrasePage,
-  NumberPage, AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
+  AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
   AdminPage, TrafficDashboardPage, NumbersReportPage, ThemePreviewPage,
   // מקטעים/וידג'טים לשימוש בדף הבית ובמקומות אחרים
   LatestPostsSection, TimelineSection, LiveSignalBar, AxisThemeCards,
   GalleryNumbersSection, StatsBar, TestimonialsSection, PopularPostsWidget,
-  NewsletterSignup, NumberSidebar, EventsSidebar, HeroSection,
+  NewsletterSignup, EventsSidebar, HeroSection,
   PostCard, PostSkeleton, WPArticleCard,
   // עזרים/קבועים
-  fetchWpMenu, STATIC_NAV_ITEMS, mapUrlToRoute,
+  STATIC_NAV_ITEMS, mapUrlToRoute,
   PAGE_CONTENT_DEFAULTS, PAGE_CONTENT_STORE_KEY,
 };

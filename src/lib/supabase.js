@@ -8,56 +8,6 @@ const supabase = createClient(
 export default supabase;
 export { supabase };
 
-const WP_API      = 'https://sod1820.co.il/wp-json/wp/v2/posts';
-const WP_COMMENTS = 'https://sod1820.co.il/wp-json/wp/v2/comments';
-
-export async function syncCategory47() {
-  return syncAllPosts();
-}
-
-export async function syncAllPosts() {
-  if (!supabase) throw new Error('Supabase not configured');
-  const rows = [];
-  let page = 1, totalPages = 1;
-
-  while (page <= totalPages) {
-    const res = await fetch(`${WP_API}?per_page=100&page=${page}&_embed=1`);
-    if (!res.ok) break;
-    totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
-    const data = await res.json();
-
-    for (const p of data) {
-      rows.push({
-        wp_id: p.id,
-        title: p.title?.rendered ?? '',
-        content: p.content?.rendered ?? '',
-        excerpt: p.excerpt?.rendered ?? '',
-        image_url: p._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null,
-        date: p.date,
-        slug: p.slug,
-        link: p.link,
-        author: p._embedded?.author?.[0]?.name ?? '',
-        categories: (p._embedded?.['wp:term'] ?? [])
-          .flat()
-          .filter(t => t.taxonomy === 'category')
-          .map(t => t.name),
-        tags: (p._embedded?.['wp:term'] ?? [])
-          .flat()
-          .filter(t => t.taxonomy === 'post_tag')
-          .map(t => t.name),
-        modified: p.modified ?? null,
-      });
-    }
-    page++;
-  }
-
-  if (!rows.length) return 0;
-  const { error } = await supabase
-    .from('posts')
-    .upsert(rows, { onConflict: 'wp_id' });
-  if (error) throw error;
-  return rows.length;
-}
 
 export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
@@ -294,44 +244,6 @@ export async function getEntityBundle({ term, value, isNumber }) {
 }
 
 // ── Comments ──────────────────────────────────────────────
-export async function syncAllComments(onProgress) {
-  if (!supabase) throw new Error('Supabase not configured');
-  let page = 1, totalPages = 1, totalSynced = 0;
-
-  while (page <= totalPages) {
-    const res = await fetch(
-      `${WP_COMMENTS}?per_page=100&page=${page}&status=approved&orderby=id&order=asc&_fields=id,post,parent,author_name,date_gmt,content,status`
-    );
-    if (!res.ok) break;
-    totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
-    const data = await res.json();
-
-    // שומרים את כל התגובות (גם על פוסטים שעוד לא סונכרנו).
-    // status='publish' כדי שיהיו קריאות תחת ה-RLS הציבורי.
-    const rows = data.map(c => ({
-      wp_id:        c.id,
-      post_wp_id:   c.post,
-      parent_wp_id: c.parent ?? 0,
-      author_name:  c.author_name ?? '',
-      date:         (c.date_gmt ? c.date_gmt + '+00:00' : c.date),
-      content:      c.content?.rendered ?? '',
-      status:       'publish',
-    }));
-
-    if (rows.length) {
-      const { error } = await supabase
-        .from('comments')
-        .upsert(rows, { onConflict: 'wp_id' });
-      if (error) throw error;
-      totalSynced += rows.length;
-    }
-
-    if (onProgress) onProgress({ page, totalPages, totalSynced });
-    page++;
-  }
-  return totalSynced;
-}
-
 export async function getCommentsByPostId(postWpId) {
   if (!supabase || !postWpId) return [];
   const { data } = await supabase
