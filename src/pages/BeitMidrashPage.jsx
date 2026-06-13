@@ -11,8 +11,9 @@ import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 
-// טעימת מנוע הגימטריה (תלת-מימד) — נטענת עצמאית כך ש-three.js לא מנפח את שאר האתר.
+// טעימות תלת-מימד — נטענות עצמאית כך ש-three.js לא מנפח את שאר האתר.
 const GematriaTeaser = React.lazy(() => import("../components/GematriaTeaser.jsx"));
+const GematriaCalculator3D = React.lazy(() => import("../components/GematriaCalculator3D.jsx"));
 
 const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
 const FREE_LIMIT = 2;        // חוק subscribe_gate_law — 2 חידושים חינם ואז הרשמה
@@ -227,13 +228,23 @@ export default function BeitMidrashPage() {
         אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
       </p>
 
-      {/* 🧮 מחשבון הגימטריה המלא — 8 שיטות, מילים שוות, פירוט אות-אות */}
-      <div style={{ marginBottom: 8 }}>
+      {/* 🧮 מחשבון הגימטריה התלת-מימדי — 8 שיטות, כרטיסים לחיצים */}
+      <div style={{ marginBottom: 18 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>
-          🧮 מחשבון הגימטריה
+          🧮 מחשבון הגימטריה התלת-מימדי
         </div>
-        <GematriaCalculator />
+        <React.Suspense fallback={<div style={{ height: "min(78vh,660px)", maxWidth: 760, margin: "0 auto", borderRadius: 18, border: `1px solid ${C.border}`, background: "#030108" }} />}>
+          <GematriaCalculator3D />
+        </React.Suspense>
       </div>
+
+      {/* גרסה רגילה (טבלאית) — פירוט אות-אות מלא */}
+      <details style={{ maxWidth: 720, margin: "0 auto 8px", textAlign: "right" }}>
+        <summary style={{ cursor: "pointer", color: C.goldDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
+          ▾ מחשבון בתצוגה רגילה (עם פירוט אות-אות בטבלה)
+        </summary>
+        <GematriaCalculator />
+      </details>
 
       {/* 🎬 טעימה — קליפ תלת-מימדי של מנוע הגימטריה (סגור, רק הצצה) */}
       <div style={{ margin: "30px auto 8px", maxWidth: 640 }}>
