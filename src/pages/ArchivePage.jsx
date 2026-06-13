@@ -36,7 +36,7 @@ const imgNums = im => [...new Set([...(im.all_values || []), ...(im.primary_valu
 export default function ArchivePage() {
   const { isAdmin } = useAuth();
   const loc = useLocation();
-  const [tab, setTab] = useState(() => new URLSearchParams(loc.search).get("tab") === "pool" ? "pool" : "galleries");
+  const [tab, setTab] = useState(() => new URLSearchParams(loc.search).get("tab") === "galleries" ? "galleries" : "pool");
   const [gals, setGals] = useState(null);
   const [imgs, setImgs] = useState([]);
   const [sets, setSets] = useState([]);
@@ -53,6 +53,7 @@ export default function ArchivePage() {
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState("gallery");   // gallery (סדר התוסף) | date
+  const [viewMode, setViewMode] = useState("galleries"); // galleries (שורות) | images (רשת תמונות)
   const [showAllNums, setShowAllNums] = useState(false);
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
@@ -80,7 +81,7 @@ export default function ArchivePage() {
         .sort((a, b) => b.seq - a.seq);
       setGals(list);
     }).catch(() => setGals([]));
-    getNumberSets().then(setSets).catch(() => {});
+    getNumberSets().then(rows => { setSets(rows); if (rows.length) setActiveSet(rows[0]); }).catch(() => {});
     getTederStations().then(setTeder).catch(() => {});
   }, []);
 
@@ -129,6 +130,30 @@ export default function ArchivePage() {
   const qNum = /^\d+$/.test(qRaw) ? parseInt(qRaw, 10) : null;   // חיפוש מספר → סינון לפי ערך
   const q = qRaw.toLowerCase();
   const setNums = activeSet ? new Set(activeSet.numbers) : null;
+
+  // מטא לכל גלריה: אילו מספרים/שנים מופיעים בה
+  const galMeta = useMemo(() => {
+    const m = {};
+    for (const im of imgs) {
+      const g = im.gallery_id;
+      if (!m[g]) m[g] = { nums: new Set(), years: new Set() };
+      for (const v of imgNums(im)) m[g].nums.add(v);
+      const y = eventYear(im); if (y) m[g].years.add(y);
+    }
+    return m;
+  }, [imgs]);
+
+  // גלריות החברות בסט (לתצוגת "גלריות" — שורות רחבות, החדשה למעלה לפי seq)
+  const memberGals = useMemo(() => {
+    let list = gals || [];
+    const inSet = g => setNums && (setNums.has(g.anchor) || (galMeta[g.id] && [...galMeta[g.id].nums].some(v => setNums.has(v))));
+    if (setNums) list = list.filter(inSet);
+    if (numFilter != null) list = list.filter(g => g.anchor === numFilter || (galMeta[g.id] && galMeta[g.id].nums.has(numFilter)));
+    if (qNum != null) list = list.filter(g => g.anchor === qNum || (galMeta[g.id] && galMeta[g.id].nums.has(qNum)));
+    else if (q) list = list.filter(g => (g.name || "").toLowerCase().includes(q));
+    return list;
+  }, [gals, setNums, galMeta, numFilter, q, qNum]);
+
   const pool = useMemo(() => sortedImgs.filter(im => {
     if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
     if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
@@ -304,10 +329,16 @@ export default function ArchivePage() {
                 <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש לפי מספר (למשל 1237) או טקסט בתיאור…" aria-label="חיפוש" />
                 {query && <button className="ar-x" onClick={() => setQuery("")}>×</button>}
               </div>
-              <div className="ar-seg" role="group" aria-label="מיון">
-                <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
-                <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+              <div className="ar-seg" role="group" aria-label="תצוגה">
+                <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
+                <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
               </div>
+              {viewMode === "images" && (
+                <div className="ar-seg" role="group" aria-label="מיון">
+                  <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
+                  <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                </div>
+              )}
             </div>
             {numOptions.length > 0 && (
               <div className="ar-row">
@@ -349,8 +380,8 @@ export default function ArchivePage() {
             </div>
           )}
 
-          {/* סרגל סידור ידני (מנהל, כשסט פעיל) */}
-          {activeSet && isAdmin && (
+          {/* סרגל סידור ידני (מנהל, כשסט פעיל) — רק בתצוגת תמונות */}
+          {viewMode === "images" && activeSet && isAdmin && (
             <div className="ar-curatebar">
               {!curating ? (
                 <button className="ar-pill" onClick={startCurate}>✋ סדר/הבלט ידנית</button>
@@ -368,12 +399,33 @@ export default function ArchivePage() {
           )}
 
           <div className="ar-status">
-            {curated
-              ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
-              : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : "מהחדש לישן"}`}
+            {viewMode === "galleries"
+              ? `${memberGals.length} גלריות${activeSet ? ` בסט «${activeSet.name}»` : ""} · החדשה למעלה`
+              : curated
+                ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
+                : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : "מהחדש לישן"}`}
           </div>
 
-          {pool.length === 0 ? (
+          {viewMode === "galleries" ? (
+            memberGals.length === 0 ? (
+              <div className="ar-empty">אין גלריות תואמות בסט הזה.</div>
+            ) : (
+              <div style={{ display: "grid", gap: 12 }}>
+                {memberGals.map(g => (
+                  <button key={g.id} onClick={() => setSel(g)} className="ar-galrow">
+                    <span className="ar-galrow-thumb" style={{ background: g.cover ? `center/cover no-repeat url(${g.cover})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})` }}>
+                      {g.anchor != null && <span className="ar-anchor">{g.anchor}</span>}
+                    </span>
+                    <span className="ar-galrow-body">
+                      <span className="ar-galrow-name">{g.name || "גלריה"}</span>
+                      <span className="ar-galrow-sub">{g.count} תמונות</span>
+                    </span>
+                    <span className="ar-galrow-go">פתח ←</span>
+                  </button>
+                ))}
+              </div>
+            )
+          ) : pool.length === 0 ? (
             <div className="ar-empty">לא נמצאו תמונות תואמות.</div>
           ) : curated ? (
             <>
@@ -535,6 +587,16 @@ export default function ArchivePage() {
         .ar-anchor { position: absolute; top: 7px; inset-inline-end: 7px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
         .ar-imgdate { position: absolute; bottom: 6px; inset-inline-start: 7px; color: ${C.goldBright}; font-family: ${F.heading}; font-size: 10px; font-weight: 700; background: rgba(5,4,0,0.6); border-radius: 6px; padding: 2px 6px; }
         .ar-loadmore { cursor: pointer; background: linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4)); border: 1px solid ${C.borderGold}; border-radius: 999px; color: ${C.goldBright}; font-family: ${F.heading}; font-weight: 700; font-size: 15px; padding: 12px 36px; }
+        /* שורת גלריה רחבה (תצוגת גלריות בסט) */
+        .ar-galrow { display: flex; align-items: center; gap: 16px; width: 100%; text-align: right; cursor: pointer; padding: 0; overflow: hidden;
+          border: 1px solid ${C.border}; border-radius: 14px; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); transition: border-color .18s, transform .12s, box-shadow .18s; }
+        .ar-galrow:hover { border-color: ${C.gold}; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.16); }
+        .ar-galrow-thumb { position: relative; width: 130px; height: 90px; flex-shrink: 0; }
+        .ar-galrow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 10px 0; }
+        .ar-galrow-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 18px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ar-galrow-sub { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
+        .ar-galrow-go { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; padding-inline: 16px; white-space: nowrap; }
+        @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
         .ar-curatebar { max-width: 980px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed ${C.borderGold}; border-radius: 12px; background: rgba(8,5,2,0.4); }
         .ar-subhead { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 2; text-transform: uppercase; margin: 18px 0 10px; }
         .ar-imgwrap { display: flex; flex-direction: column; gap: 4px; }
