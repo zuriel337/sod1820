@@ -18,11 +18,11 @@ function BrandStrip() {
   );
 }
 
-// שערי המערכת — כרגע כל הדפים סגורים → מצב "🔒 בקרוב". הצופן = ELS (לא קשור ל-1820).
+// שערי המערכת — כולם סגורים ("🔒 בקרוב"), פרט לבית המדרש שמקושר לדף ("🛠️ בהקמה").
 const GATES = [
-  { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline", open: true },
+  { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה" },
   { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
-  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI · בהקמה" },
+  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI", to: "/beit-midrash" },
   { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
 
@@ -31,14 +31,14 @@ function GatesDeck() {
     <section className="sod-gates-wrap">
       <div className="sod-gates-eyebrow">⟡ שערי המערכת</div>
       <div className="sod-gates">
-        {GATES.map(g => g.open ? (
+        {GATES.map(g => g.to ? (
           <Link key={g.title} to={g.to} className="sod-gate">
             <span className="sod-gate-holo" aria-hidden />
             <span className="sod-gate-corner tl" /><span className="sod-gate-corner br" />
             <span className="sod-gate-icon">{g.icon}</span>
             <span className="sod-gate-title">{g.title}</span>
             <span className="sod-gate-sub">{g.sub}</span>
-            <span className="sod-gate-go sod-gate-open">✦ נפתח →</span>
+            <span className="sod-gate-go sod-gate-open">🛠️ בהקמה →</span>
           </Link>
         ) : (
           <div key={g.title} className="sod-gate is-locked" aria-disabled="true">
