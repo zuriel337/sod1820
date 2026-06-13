@@ -526,14 +526,13 @@ export default function HomePage() {
         .sod-pf-corner.tl { top: 4px; right: 4px; border-top: 1.5px solid; border-right: 1.5px solid; }
         .sod-pf-corner.br { bottom: 4px; left: 4px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
 
-        .sod-pf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; padding-left: 30px; }
+        .sod-pf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding-left: 30px; }
         @media (max-width: 1080px) {
           .sod-pf-idx { font-size: 17px; top: 5px; left: 8px; }
           .sod-pf-body { padding-left: 26px; }
-          .sod-pf-name { font-size: 15px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14px; font-weight: 700; line-height: 1.42;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 12.5px; font-weight: 700; line-height: 1.38;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           transition: color 0.28s;
         }

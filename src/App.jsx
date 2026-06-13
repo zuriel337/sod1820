@@ -26,7 +26,7 @@ import {
 } from "./pages/placeholders.jsx";
 import {
   PostsRoute, PostBySlugRoute, GematriaRoute,
-  AboutRoute, LoginRoute, ContactRoute, ChatRoute,
+  LoginRoute, ContactRoute, ChatRoute,
   TrafficRoute, NumbersReportRoute, AdminRoute,
 } from "./pages/legacyRoutes.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
@@ -70,7 +70,7 @@ export default function App() {
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/members" element={<MembersPage />} />
-          <Route path="/about" element={<AboutRoute />} />
+          <Route path="/about" element={<Navigate to="/contact" replace />} />
           <Route path="/contact" element={<ContactRoute />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />

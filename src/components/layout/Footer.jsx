@@ -28,8 +28,7 @@ const COLUMNS = [
     links: [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
-      { label: "אודות", to: "/about" },
-      { label: "צור קשר", to: "/contact" },
+      { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
 ];
@@ -81,13 +80,13 @@ const SOCIAL = [
 
 const FOOTER_CSS = `
   .foot { border-top: 1px solid ${C.border}; background: linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%);
-    padding: 52px 28px 26px; direction: rtl; position: relative; z-index: 1; }
+    padding: 32px 28px 18px; direction: rtl; position: relative; z-index: 1; }
   .foot-main { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between;
-    align-items: flex-start; flex-wrap: wrap; gap: 36px; padding-bottom: 34px; }
+    align-items: flex-start; flex-wrap: wrap; gap: 28px; padding-bottom: 22px; }
   .foot-brand { min-width: 240px; flex: 1.4; max-width: 340px; }
   .foot-cols { display: flex; gap: 40px; flex-wrap: wrap; }
   .foot-col { min-width: 130px; }
-  .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 22px; border-top: 1px solid ${C.faint};
+  .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 16px; border-top: 1px solid ${C.faint};
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px;
     font-size: 11px; color: ${C.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
 
@@ -170,20 +169,14 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* וואטסאפ — קבוצה + טלפון */}
-          <div style={{ marginTop: 18 }}>
+          {/* וואטסאפ — קבוצה (שורה אחת) */}
+          <div style={{ marginTop: 16 }}>
             <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
               style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)",
                 color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800,
                 padding: "10px 18px", borderRadius: 999, boxShadow: "0 0 16px rgba(31,170,85,0.35)" }}>
               💬 קבוצת הגימטריה בוואטסאפ
             </a>
-            <div style={{ marginTop: 10 }}>
-              <a href="https://wa.me/972556651237" target="_blank" rel="noopener noreferrer"
-                style={{ color: C.goldDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>
-                🤝 וואטסאפ לשיתופי פעולה · 055-6651237
-              </a>
-            </div>
           </div>
         </div>
 

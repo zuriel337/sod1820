@@ -80,7 +80,7 @@ const PAGE_CONTENT_DEFAULTS = {
   about: {
     title: "צוריאל פולייס",
     description: "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
-    bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p><p>מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.</p><p>במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות, שהפכו בהדרגה למערכת חיה ומתפתחת המחברת בין מסורת, מחקר וטכנולוגיה מתקדמת.</p><p>החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨</p>",
+    bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p>",
     category: "אודות",
     tag: "about",
   },
@@ -1922,16 +1922,15 @@ function PostSkeleton() {
   );
 }
 
+// כרטיס פוסט — בעיצוב דפי התגיות/קטגוריות (זהב מלכותי, מסגרת מעוגלת, גימטריה).
 function PostCard({ post, onPost }) {
   const [hov, setHov] = useState(false);
 
   const image   = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title   = stripHtml(post.title?.rendered ?? "");
-  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 180);
+  const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 120);
   const date    = formatDateHe(post.date);
-  const terms   = (post._embedded?.["wp:term"] ?? []).flat();
-  const cats    = terms.filter(t => t.taxonomy === "category").slice(0, 2);
-  const tags    = terms.filter(t => t.taxonomy === "post_tag").slice(0, 3);
+  const gem     = calcGem(title);
 
   return (
     <div
@@ -1939,112 +1938,48 @@ function PostCard({ post, onPost }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        display: "flex", flexDirection: "column",
-        height: "100%",
-        background: hov ? C.surface2 : C.surface,
-        border: `1px solid ${hov ? C.gold : C.border}`,
-        borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
-        borderRadius: 2, overflow: "hidden",
-        cursor: "pointer",
-        transition: "all 0.3s",
-        boxShadow: hov ? `0 8px 40px ${C.goldDeep}` : "none",
+        display: "flex", flexDirection: "column", height: "100%", cursor: "pointer", overflow: "hidden",
+        border: `1px solid ${hov ? C.gold : C.border}`, borderRadius: 14,
+        background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))",
+        transform: hov ? "translateY(-3px)" : "none",
+        boxShadow: hov ? "0 14px 38px rgba(0,0,0,0.5), 0 0 22px rgba(212,175,55,0.16)" : "none",
+        transition: "border-color .18s, transform .18s, box-shadow .18s",
       }}
     >
-      {/* featured image */}
+      {/* תמונה — יחס 16:10 */}
       <div style={{
-        height: 196, position: "relative", overflow: "hidden", flexShrink: 0,
-        background: image ? "transparent" : `linear-gradient(135deg, ${C.goldDeep} 0%, ${C.faint} 100%)`,
+        position: "relative", aspectRatio: "16/10", display: "flex", alignItems: "center", justifyContent: "center",
+        background: image ? `center/cover no-repeat url(${image})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})`,
       }}>
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            loading="lazy"
-            style={{
-              width: "100%", height: "100%", objectFit: "cover",
-              filter: "brightness(0.72) sepia(0.25)",
-              transition: "transform 0.45s",
-              transform: hov ? "scale(1.05)" : "scale(1)",
-              display: "block",
-            }}
-          />
-        ) : (
-          <div style={{
-            width: "100%", height: "100%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 52, color: C.borderGold, fontFamily: F.body,
-          }}>✦</div>
+        {!image && <span style={{ color: C.goldDim, fontSize: 30, opacity: 0.5 }}>✦</span>}
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(5,4,0,0.85))" }} />
+        {gem > 0 && (
+          <span title={`גימטריה: ${gem}`} style={{
+            position: "absolute", top: 8, right: 8, background: "rgba(212,175,55,0.92)", color: "#1a0e00",
+            fontFamily: F.mono, fontSize: 12, fontWeight: 800, padding: "2px 9px", borderRadius: 999, zIndex: 2,
+          }}>ג׳ {gem}</span>
         )}
-        {/* fade to card bg */}
+      </div>
+
+      {/* תוכן */}
+      <div style={{ padding: "13px 15px 15px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
         <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 48,
-          background: `linear-gradient(to top, ${hov ? C.surface2 : C.surface}, transparent)`,
-          transition: "background 0.3s",
-        }} />
-      </div>
-
-      {/* content */}
-      <div style={{ padding: "22px 24px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{
-          color: hov ? C.goldBright : C.goldLight,
-          margin: "0 0 12px", fontSize: 17,
-          fontFamily: F.royal, fontWeight: 700,
-          lineHeight: 1.45,
-          transition: "color 0.25s",
-        }}>{title}</h3>
-
-        <p style={{
-          color: "#ede4d3", fontSize: 16, lineHeight: 1.95,
-          margin: "0 0 18px", flex: 1, fontFamily: F.body,
+          color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4,
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>{title}</div>
+        {excerpt && (
+          <div style={{
+            color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7,
+            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+          }}>{excerpt}…</div>
+        )}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: 6,
+          color: C.goldDim, fontFamily: F.heading, fontSize: 11.5,
         }}>
-          {excerpt}{excerpt.length >= 180 ? "…" : ""}
-        </p>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <RoyalDivider width={28} />
-          <span style={{
-            fontSize: 10, color: hov ? C.goldBright : C.goldDim,
-            fontFamily: F.heading, letterSpacing: 3,
-            textTransform: "uppercase", transition: "color 0.25s",
-          }}>קרא עוד</span>
+          <span>{date}</span>
+          <span aria-hidden>←</span>
         </div>
-      </div>
-
-      {/* meta row */}
-      <div style={{
-        padding: "9px 20px 13px",
-        borderTop: `1px solid ${C.faint}`,
-        display: "flex", flexWrap: "wrap",
-        alignItems: "center", gap: 5,
-        background: hov ? C.surface2 : C.surface,
-        transition: "background 0.3s",
-      }}>
-        <span style={{
-          fontSize: 9, color: C.muted, fontFamily: F.heading,
-          letterSpacing: 0, marginLeft: 6, whiteSpace: "nowrap",
-        }}>{date}</span>
-
-        {cats.map(cat => (
-          <span key={cat.id} style={{
-            background: C.goldDark,
-            border: `1px solid ${C.borderGold}`,
-            color: C.goldBright,
-            fontSize: 8, padding: "2px 8px",
-            fontFamily: F.heading, letterSpacing: 1,
-            textTransform: "uppercase", borderRadius: 1,
-          }}>{cat.name}</span>
-        ))}
-
-        {tags.map(tag => (
-          <span key={tag.id} style={{
-            background: C.faint,
-            border: `1px solid ${C.border}`,
-            color: C.muted,
-            fontSize: 8, padding: "2px 8px",
-            fontFamily: F.heading, letterSpacing: 1,
-            textTransform: "uppercase", borderRadius: 1,
-          }}>{tag.name}</span>
-        ))}
       </div>
     </div>
   );
@@ -2317,8 +2252,8 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
         .blog-main { flex: 1 1 0; min-width: 0; }
         .blog-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 18px;
         }
         .wp-masonry { columns: 2 360px; column-gap: 24px; }
         @media (max-width: 900px) {
@@ -4547,6 +4482,28 @@ function ContactPage() {
           שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
         </p>
         <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
+      </div>
+
+      {/* אודות — החזון מאחורי המיזם */}
+      <div style={{
+        maxWidth: 820, margin: "0 auto 56px",
+        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+        border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`,
+        borderRadius: 2, padding: "36px 34px",
+      }}>
+        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
+          אודות המיזם
+        </div>
+        {[
+          "מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.",
+          "במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות, שהפכו בהדרגה למערכת חיה ומתפתחת המחברת בין מסורת, מחקר וטכנולוגיה מתקדמת.",
+          "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
+        ].map((para, i) => (
+          <p key={i} style={{
+            color: i === 2 ? C.goldLight : "#d8cdb8", fontFamily: F.body,
+            fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
+          }}>{para}</p>
+        ))}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
