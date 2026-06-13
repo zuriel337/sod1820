@@ -151,9 +151,16 @@ export default function ArchivePage() {
     if (setNums) list = list.filter(inSet);
     if (numFilter != null) list = list.filter(g => g.anchor === numFilter || (galMeta[g.id] && galMeta[g.id].nums.has(numFilter)));
     if (qNum != null) list = list.filter(g => g.anchor === qNum || (galMeta[g.id] && galMeta[g.id].nums.has(qNum)));
-    else if (q) list = list.filter(g => (g.name || "").toLowerCase().includes(q));
+    else if (q) {
+      // התאמת טקסט/OCR: גלריה תואמת אם שמה מכיל, או שיש בה תמונה שהשם/תיאור/OCR שלה מכיל
+      const gidMatch = new Set();
+      for (const im of imgs) {
+        if ((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q)) gidMatch.add(im.gallery_id);
+      }
+      list = list.filter(g => (g.name || "").toLowerCase().includes(q) || gidMatch.has(g.id));
+    }
     return list;
-  }, [gals, setNums, galMeta, numFilter, q, qNum]);
+  }, [gals, setNums, galMeta, numFilter, q, qNum, imgs]);
 
   // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
   const firstGalId = memberGals[0]?.id ?? null;
@@ -164,7 +171,7 @@ export default function ArchivePage() {
     if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
     if (yearFilter != null && eventYear(im) !== yearFilter) return false;
     if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
-    else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q))) return false;
+    else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q))) return false;
     return true;
   }), [sortedImgs, setNums, numFilter, yearFilter, q, qNum]);
 
@@ -272,8 +279,8 @@ export default function ArchivePage() {
         <div className="ar-layout">
           <aside className="ar-side">
           {/* סטים */}
+          <div className="ar-side-title">🔢 מאגר סטים</div>
           <div className="ar-row">
-            <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>הכול</button>
             {sets.map(s => (
               <span key={s.id} style={{ display: "inline-flex", alignItems: "center" }}>
                 <button className={`ar-set${activeSet?.id === s.id ? " active" : ""}`} onClick={() => setActiveSet(activeSet?.id === s.id ? null : s)}
@@ -289,6 +296,7 @@ export default function ArchivePage() {
               </span>
             ))}
             {isAdmin && <button className="ar-set ar-new" onClick={() => setBuilder({ name: "", numbers: new Set() })}>➕ סט חדש</button>}
+            <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>הכול</button>
           </div>
 
           {/* בונה-סטים (מנהלים) */}
@@ -416,7 +424,9 @@ export default function ArchivePage() {
           </div>
 
           {viewMode === "galleries" ? (
-            memberGals.length === 0 ? (
+            gals === null ? (
+              <div className="ar-empty">טוען גלריות…</div>
+            ) : memberGals.length === 0 ? (
               <div className="ar-empty">אין גלריות תואמות בסט הזה.</div>
             ) : (
               <div style={{ display: "grid", gap: 14 }}>
@@ -440,9 +450,14 @@ export default function ArchivePage() {
                       </button>
                       {open && (
                         <div className="ar-acc-body">
-                          {gimgs.map(im => (
+                          {gimgs.map(im => {
+                            const xs = setNums ? imgNums(im).filter(v => setNums.has(v)) : [];
+                            return (
                             <figure key={im.id} className="ar-feed-img">
-                              {eventLabel(im) && <div className="ar-feed-date">🗓️ {eventLabel(im)}</div>}
+                              <div className="ar-feed-date">
+                                {eventLabel(im) && <span>🗓️ {eventLabel(im)}</span>}
+                                {xs.length >= 2 && <span className="ar-cross" title={`הצטלבות חזקה: ${xs.join(" ∩ ")}`}>⚡ הצטלבות חזקה · {xs.join("∩")}</span>}
+                              </div>
                               <a href={im.image_url} target="_blank" rel="noopener noreferrer">
                                 <img src={im.image_url} alt={im.name || ""} loading="lazy" />
                               </a>
@@ -458,7 +473,8 @@ export default function ArchivePage() {
                                 </figcaption>
                               )}
                             </figure>
-                          ))}
+                            );
+                          })}
                           {gimgs.length === 0 && <div className="ar-empty">אין תמונות בגלריה זו.</div>}
                         </div>
                       )}
@@ -642,9 +658,9 @@ export default function ArchivePage() {
         @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
 
         /* פריסת מאגר: אזור ראשי (ימין) + סרגל צד (שמאל) */
-        .ar-layout { display: grid; grid-template-columns: 1fr 330px; gap: 22px; align-items: start; }
-        .ar-feed { grid-column: 1; min-width: 0; }
-        .ar-side { grid-column: 2; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
+        .ar-layout { display: grid; grid-template-columns: 330px 1fr; gap: 22px; align-items: start; }
+        .ar-feed { grid-column: 2; min-width: 0; }
+        .ar-side { grid-column: 1; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
           display: flex; flex-direction: column; gap: 12px; padding: 4px; }
         .ar-side .ar-row { justify-content: flex-start; }
         @media (max-width: 900px) {
@@ -671,6 +687,10 @@ export default function ArchivePage() {
         .ar-feed-nums { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
         .ar-feed-num { text-decoration: none; font-family: ${F.mono}; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid ${C.borderGold}; color: ${C.goldLight}; background: rgba(8,5,2,0.5); }
         .ar-feed-num.primary { background: ${C.gold}; color: #1a0e00; }
+        .ar-side-title { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 18px; font-weight: 700; padding: 2px 4px; }
+        .ar-feed-date { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .ar-cross { background: linear-gradient(135deg, rgba(122,19,32,0.55), rgba(212,175,55,0.3)); border: 1px solid ${C.borderGold};
+          border-radius: 999px; padding: 2px 11px; color: ${C.goldBright}; font-family: ${F.heading}; font-size: 11px; font-weight: 800; }
         .ar-curatebar { max-width: 980px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed ${C.borderGold}; border-radius: 12px; background: rgba(8,5,2,0.4); }
         .ar-subhead { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 2; text-transform: uppercase; margin: 18px 0 10px; }
         .ar-imgwrap { display: flex; flex-direction: column; gap: 4px; }
