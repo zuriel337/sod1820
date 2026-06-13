@@ -181,6 +181,33 @@ function Sod1820Tab() {
   );
 }
 
+// טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה טוענת את המספר).
+const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
+function CalcTab() {
+  const [seed, setSeed] = useState(null);
+  return (
+    <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
+          מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
+        </p>
+        <GematriaCalculator seed={seed} />
+      </div>
+      <aside className="bm-numlist" style={{ width: 92, flex: "0 0 auto", position: "sticky", top: 20 }}>
+        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>מספרים</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, maxHeight: "70vh", overflowY: "auto" }}>
+          {NUM_LIST.map(n => (
+            <button key={n} onClick={() => setSeed(String(n))} title={KEY_NUMBERS[n] || ""} style={{
+              cursor: "pointer", fontFamily: F.mono, fontSize: 14, fontWeight: 800, padding: "7px 4px", borderRadius: 8,
+              border: `1px solid ${L.line}`, background: L.panel, color: L.goldDeep,
+            }}>{n}</button>
+          ))}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 function Soon({ title, note }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
@@ -254,14 +281,7 @@ export default function BeitMidrashPage() {
 
             {tab === "sod1820" && <Sod1820Tab />}
             {tab === "numbers" && <NumbersTab initial={nParam} />}
-            {tab === "calc" && (
-              <div>
-                <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
-                  מחשבון גימטריה מתקדם — כל 8 השיטות (רגיל · מילוי · מסתתר · קדמי · גדול · סידורי · אתבש · אלבם), מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
-                </p>
-                <GematriaCalculator />
-              </div>
-            )}
+            {tab === "calc" && <CalcTab />}
             {tab === "ai" && (ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
               <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>)}
             {tab === "mine" && (mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
@@ -279,6 +299,11 @@ export default function BeitMidrashPage() {
           .bm-side { width: 100% !important; position: static !important; }
           .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 6px !important; padding-bottom: 6px; }
           .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap; border: 1px solid ${L.line} !important; }
+        }
+        @media (max-width: 700px) {
+          .bm-calc { flex-direction: column; }
+          .bm-numlist { width: 100% !important; position: static !important; }
+          .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important; }
         }
       `}</style>
     </div>
