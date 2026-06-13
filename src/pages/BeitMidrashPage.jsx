@@ -7,6 +7,7 @@ import { stripHtml } from "../lib/format.js";
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
 const GematriaCalculator3D = React.lazy(() => import("../components/GematriaCalculator3D.jsx"));
+import GematriaCalculator from "../components/GematriaCalculator.jsx";
 
 // פלטה בהירה מקומית (רק לבית המדרש)
 const L = {
@@ -16,11 +17,12 @@ const L = {
 };
 
 const SECTIONS = [
+  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
   { key: "numbers", icon: "🔢", label: "מספרי יסוד" },
+  { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "ai", icon: "🔵", label: "חידושי AI", ai: true },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "mine", icon: "✦", label: "חידושי המערכת" },
-  { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "community", icon: "💬", label: "חידושי גולשים", soon: true },
   { key: "submit", icon: "✍️", label: "הגשת חידוש משלך", soon: true },
 ];
@@ -157,6 +159,28 @@ function VerifiedTab() {
   );
 }
 
+// ✦ 1820 — המקום הקבוע: סוד השם / סוד הסודות + לימוד
+function Sod1820Tab() {
+  return (
+    <div>
+      <div style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "22px 24px", marginBottom: 22, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: "clamp(42px,8vw,64px)", fontWeight: 800, lineHeight: 1 }}>1820</span>
+          <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד השם · קוד האתר</span>
+        </div>
+        <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 16, lineHeight: 2, margin: "14px 0 0", maxWidth: 700 }}>
+          <b style={{ color: L.goldDeep }}>1820 = מספר הפעמים ששם הוי״ה (יהוה) מופיע בתורה.</b> זהו סוד הסודות של האתר — הציר שסביבו נסובים כל החידושים, האירועים והמספרים. {KEY_NUMBERS[1820]}.
+        </p>
+        <div style={{ marginTop: 14 }}>
+          <Link to="/שם-ה-בתורה-1820-פעם" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: "#fbf3da", border: `1px solid ${L.gold}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "8px 16px" }}>★ פוסט היסוד — שם ה' בתורה 1820 פעם ←</Link>
+        </div>
+      </div>
+      <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, margin: "0 0 14px" }}>הביטויים ששווים ל-1820</h3>
+      <NumbersTab initial={1820} />
+    </div>
+  );
+}
+
 function Soon({ title, note }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
@@ -173,7 +197,7 @@ export default function BeitMidrashPage() {
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "numbers"));
+  const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "sod1820"));
   const [ai, setAi] = useState(null);
   const [mine, setMine] = useState(null);
 
@@ -190,7 +214,7 @@ export default function BeitMidrashPage() {
         {/* כותרת */}
         <div style={{ borderBottom: `2px solid ${L.line}`, paddingBottom: 18, marginBottom: 22 }}>
           <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>בית המדרש · סוד 1820</div>
-          <h1 style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", fontWeight: 700, margin: 0 }}>📖 היכל הלימוד</h1>
+          <h1 style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", fontWeight: 700, margin: 0 }}>📖 לימוד הסודות</h1>
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
             ארכיון חי של גימטריה, חידושים ומחקר — חידושי המערכת, חידושי AI מאומתים, וכלים אינטראקטיביים, במקום אחד.
           </p>
@@ -228,11 +252,15 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
+            {tab === "sod1820" && <Sod1820Tab />}
             {tab === "numbers" && <NumbersTab initial={nParam} />}
             {tab === "calc" && (
-              <React.Suspense fallback={<div style={{ height: "min(74vh,640px)", borderRadius: 16, border: `1px solid ${L.line}`, background: "#030108" }} />}>
-                <GematriaCalculator3D />
-              </React.Suspense>
+              <div>
+                <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
+                  מחשבון גימטריה מתקדם — כל 8 השיטות (רגיל · מילוי · מסתתר · קדמי · גדול · סידורי · אתבש · אלבם), מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
+                </p>
+                <GematriaCalculator />
+              </div>
             )}
             {tab === "ai" && (ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
               <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>)}
