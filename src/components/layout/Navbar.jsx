@@ -7,6 +7,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { Avatar } from "../../pages/AuthPage.jsx";
 import { searchPosts, getPopularPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
+import { openNumberDrawer } from "../../lib/numberDrawer.js";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
 const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
@@ -54,7 +55,8 @@ function UniversalSearch({ onDone, full }) {
 
   function close() { setQ(""); setPosts([]); setOpen(false); onDone?.(); }
   function go(to) { nav(to); close(); }
-  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) go(`/number/${encodeURIComponent(v)}`); }
+  function drawer(t) { openNumberDrawer(t); close(); }
+  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) drawer(v); }
 
   const v = q.trim();
   const gem = /[א-ת]/.test(v) ? calcGem(v) : (/^\d+$/.test(v) ? +v : null);
@@ -77,8 +79,8 @@ function UniversalSearch({ onDone, full }) {
       {open && v.length >= 2 && (
         <div className="nav-gem-drop">
           {gem != null && (
-            <button className="nav-drop-row" onClick={() => go(`/number/${encodeURIComponent(v)}`)}>
-              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · לדוח המלא</span>
+            <button className="nav-drop-row" onClick={() => drawer(v)}>
+              <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: C.goldBright }}>{gem}</b> · פתח מגירה</span>
             </button>
           )}
           {posts.map(p => (

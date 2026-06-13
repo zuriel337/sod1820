@@ -6,6 +6,7 @@ import Navbar from "./Navbar.jsx";
 import LiveActivityBar from "./LiveActivityBar.jsx";
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
+import NumberDrawer from "../NumberDrawer.jsx";
 
 export default function Layout() {
   return (
@@ -21,6 +22,7 @@ export default function Layout() {
         </main>
         <Footer />
       </div>
+      <NumberDrawer />
     </div>
   );
 }
