@@ -5100,7 +5100,7 @@ function PostPageBySlug({ onNav }) {
       nodes.forEach(node => {
         if (!node.nodeValue) return; re.lastIndex = 0; if (!re.test(node.nodeValue)) return; re.lastIndex = 0;
         const span = document.createElement("span");
-        span.innerHTML = node.nodeValue.replace(re, '<mark style="background:#d4af37;color:#1a0e00;border-radius:3px;padding:0 3px;box-shadow:0 0 12px rgba(212,175,55,.7)">$1</mark>');
+        span.innerHTML = node.nodeValue.replace(re, '<mark class="sod-hl" style="background:#d4af37;color:#1a0e00;border-radius:3px;padding:0 3px;box-shadow:0 0 12px rgba(212,175,55,.7)">$1</mark>');
         node.parentNode && node.parentNode.replaceChild(span, node);
         if (!first) first = span.querySelector("mark");
       });
