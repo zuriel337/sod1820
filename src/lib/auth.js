@@ -18,6 +18,15 @@ export function signInWithMagicLink(email) {
   });
 }
 
+// כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין
+export async function signInWithPassword(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: (email || '').trim(), password: password || '',
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchProfile(userId) {
   if (!userId) return null;
   const { data } = await supabase
