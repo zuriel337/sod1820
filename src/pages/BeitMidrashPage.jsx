@@ -91,6 +91,9 @@ function InsightList({ items, badgeVariant }) {
 
 // 🔒 בית המדרש סגור לחלוטין כרגע — מסך "בבנייה + הרשמה לגישה מוקדמת" בלבד.
 export default function BeitMidrashPage() {
+  const [insights, setInsights] = useState([]);
+  useEffect(() => { getInsights({ space: "core", limit: 40 }).then(d => setInsights(d || [])).catch(() => {}); }, []);
+
   return (
     <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "72px 24px 110px", position: "relative", zIndex: 1, textAlign: "center" }}>
       <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
@@ -118,6 +121,21 @@ export default function BeitMidrashPage() {
           <GematriaTeaser />
         </React.Suspense>
       </div>
+
+      {/* ✦ פיד חידושי הגימטריה — חידושים מאומתים (2 פתוחים ואז שער הרשמה) */}
+      {insights.length > 0 && (
+        <div style={{ margin: "40px auto 8px", maxWidth: 640, textAlign: "right" }}>
+          <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
+              ✦ חידושי הגימטריה
+            </div>
+            <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
+              חידושים מאומתים מתוך עבודת השנים — מילים, מספרים והצפנים שמאחוריהם. שניים פתוחים כאן; ההמשך נפתח עם ההרשמה.
+            </p>
+          </div>
+          <InsightList items={insights} badgeVariant="post" />
+        </div>
+      )}
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 30px" }}>
         הכניסה למעגל ההיכל מתחילה כאן: הפיקו את <b style={{ color: C.goldLight }}>דו״ח הכניסה האישי</b> שלכם — ותהיו הראשונים שייכנסו לבית המדרש כשייפתח.
       </p>
