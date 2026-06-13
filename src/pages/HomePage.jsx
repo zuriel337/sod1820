@@ -532,9 +532,9 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 12.5px; font-weight: 700; line-height: 1.38;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 12px; font-weight: 700; line-height: 1.6;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-          transition: color 0.28s;
+          padding-bottom: 2px; transition: color 0.28s;
         }
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
