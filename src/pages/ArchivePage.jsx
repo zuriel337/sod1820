@@ -52,6 +52,7 @@ export default function ArchivePage() {
   const [numFilter, setNumFilter] = useState(null);
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
+  const [sortMode, setSortMode] = useState("gallery");   // gallery (סדר התוסף) | date
   const [showAllNums, setShowAllNums] = useState(false);
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
@@ -93,13 +94,23 @@ export default function ArchivePage() {
 
   const total = useMemo(() => (gals || []).reduce((s, g) => s + g.count, 0), [gals]);
 
-  // ── מאגר: מיון כרונולוגי (חדש למעלה, ללא-תאריך בסוף) ──
+  // מיפוי גלריה → סדר התוסף (wp_gallery_id); גבוה = חדש יותר
+  const galSeqById = useMemo(() => { const m = {}; for (const g of (gals || [])) m[g.id] = g.seq; return m; }, [gals]);
+
+  // ── מאגר: מיון. ברירת מחדל "גלריה" = כסדר התוסף (גלריה חדשה למעלה, בתוכה לפי ordering). או "תאריך".
   const sortedImgs = useMemo(() => {
+    const arr = [...imgs];
+    if (sortMode === "gallery") {
+      arr.sort((a, b) =>
+        (galSeqById[b.gallery_id] ?? -1) - (galSeqById[a.gallery_id] ?? -1) ||
+        (a.ordering ?? 0) - (b.ordering ?? 0));
+      return arr;
+    }
     const withD = [], without = [];
-    for (const im of imgs) (eventDate(im) ? withD : without).push(im);
+    for (const im of arr) (eventDate(im) ? withD : without).push(im);
     withD.sort((a, b) => eventDate(b) - eventDate(a));
     return [...withD, ...without];
-  }, [imgs]);
+  }, [imgs, sortMode, galSeqById]);
 
   const numOptions = useMemo(() => {
     const c = {};
@@ -114,15 +125,18 @@ export default function ArchivePage() {
 
   useEffect(() => { setLimit(PER); }, [activeSet, numFilter, yearFilter, query, tab]);
 
-  const q = query.trim().toLowerCase();
+  const qRaw = query.trim();
+  const qNum = /^\d+$/.test(qRaw) ? parseInt(qRaw, 10) : null;   // חיפוש מספר → סינון לפי ערך
+  const q = qRaw.toLowerCase();
   const setNums = activeSet ? new Set(activeSet.numbers) : null;
   const pool = useMemo(() => sortedImgs.filter(im => {
     if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
     if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
     if (yearFilter != null && eventYear(im) !== yearFilter) return false;
-    if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q))) return false;
+    if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
+    else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q))) return false;
     return true;
-  }), [sortedImgs, setNums, numFilter, yearFilter, q]);
+  }), [sortedImgs, setNums, numFilter, yearFilter, q, qNum]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilter != null ? [numFilter] : null);
@@ -287,8 +301,12 @@ export default function ArchivePage() {
             <div className="ar-row">
               <div className="ar-search">
                 <span aria-hidden>🔎</span>
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש בתיאור התמונה…" aria-label="חיפוש" />
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש לפי מספר (למשל 1237) או טקסט בתיאור…" aria-label="חיפוש" />
                 {query && <button className="ar-x" onClick={() => setQuery("")}>×</button>}
+              </div>
+              <div className="ar-seg" role="group" aria-label="מיון">
+                <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
+                <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
               </div>
             </div>
             {numOptions.length > 0 && (
@@ -352,7 +370,7 @@ export default function ArchivePage() {
           <div className="ar-status">
             {curated
               ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
-              : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · מהחדש לישן`}
+              : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : "מהחדש לישן"}`}
           </div>
 
           {pool.length === 0 ? (

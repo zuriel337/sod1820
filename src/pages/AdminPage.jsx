@@ -36,7 +36,7 @@ export default function AdminPage() {
   if (!isAdmin) return <Center>אין לך הרשאת ניהול.</Center>;
 
   return (
-    <div style={{ direction: "rtl", width: "100%", maxWidth: 1600, margin: "0 auto", padding: "40px clamp(12px, 4vw, 48px) 90px", boxSizing: "border-box" }}>
+    <div style={{ direction: "rtl", width: "100%", margin: 0, padding: "36px clamp(14px, 3vw, 56px) 90px", boxSizing: "border-box" }}>
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>לוח בקרה</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>⚙️ ניהול סוד 1820</h1>
