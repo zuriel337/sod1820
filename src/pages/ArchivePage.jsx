@@ -126,8 +126,6 @@ export default function ArchivePage() {
   }, [imgs]);
 
   useEffect(() => { setLimit(PER); }, [activeSet, numFilter, yearFilter, query, tab]);
-  // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
-  useEffect(() => { setOpenGal(memberGals[0]?.id ?? null); }, [activeSet, numFilter, yearFilter, q]);   // eslint-disable-line
 
   const qRaw = query.trim();
   const qNum = /^\d+$/.test(qRaw) ? parseInt(qRaw, 10) : null;   // חיפוש מספר → סינון לפי ערך
@@ -156,6 +154,10 @@ export default function ArchivePage() {
     else if (q) list = list.filter(g => (g.name || "").toLowerCase().includes(q));
     return list;
   }, [gals, setNums, galMeta, numFilter, q, qNum]);
+
+  // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
+  const firstGalId = memberGals[0]?.id ?? null;
+  useEffect(() => { setOpenGal(firstGalId); }, [firstGalId]);
 
   const pool = useMemo(() => sortedImgs.filter(im => {
     if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
