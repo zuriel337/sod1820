@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { C, F, LOGO_URL } from "../theme.js";
 import { GoldButton } from "../components/ui.jsx";
-import { signInWithGoogle, requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
+import { signInWithGoogle, requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../lib/auth.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 const card = {
@@ -16,7 +16,8 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [step, setStep] = useState("email");   // "email" | "code"
+  const [password, setPassword] = useState("");
+  const [step, setStep] = useState("email");   // "email" | "code" | "password"
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -63,6 +64,17 @@ export default function AuthPage() {
     finally { setBusy(false); }
   }
 
+  async function loginPassword(e) {
+    e.preventDefault();
+    setErr("");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("אנא הזן כתובת מייל תקינה"); return; }
+    if (!password) { setErr("הזינו סיסמה"); return; }
+    setBusy(true);
+    try { await signInWithPassword(email, password); navigate("/"); }
+    catch (e) { setErr(e.message || "מייל או סיסמה שגויים"); }
+    finally { setBusy(false); }
+  }
+
   return (
     <div style={{ direction: "rtl", maxWidth: 460, margin: "0 auto", padding: "64px 24px 120px" }}>
       <div style={{ textAlign: "center", marginBottom: 26 }}>
@@ -97,6 +109,28 @@ export default function AuthPage() {
               <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); }} style={linkBtn}>← שינוי מייל / שליחה מחדש</button>
             </div>
           </form>
+        ) : step === "password" ? (
+          <form onSubmit={loginPassword}>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 30, marginBottom: 8 }}>🔑</div>
+              <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 17, fontWeight: 700 }}>כניסה עם סיסמה</div>
+            </div>
+            <label style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, display: "block", marginBottom: 6 }}>מייל</label>
+            <input type="email" value={email} dir="ltr" placeholder="you@example.com" autoComplete="username"
+              onChange={e => { setEmail(e.target.value); setErr(""); }}
+              style={{ width: "100%", padding: "12px 14px", background: C.bg, color: C.goldLight, border: `1px solid ${C.borderGold}`, borderRadius: 8, fontFamily: F.body, fontSize: 15, outline: "none", boxSizing: "border-box", marginBottom: 12 }} />
+            <label style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, display: "block", marginBottom: 6 }}>סיסמה</label>
+            <input type="password" value={password} dir="ltr" placeholder="••••••••" autoComplete="current-password"
+              onChange={e => { setPassword(e.target.value); setErr(""); }}
+              style={{ width: "100%", padding: "12px 14px", background: C.bg, color: C.goldLight, border: `1px solid ${err ? C.danger : C.borderGold}`, borderRadius: 8, fontFamily: F.body, fontSize: 15, outline: "none", boxSizing: "border-box" }} />
+            {err && <div style={{ color: C.danger, fontSize: 12, marginTop: 6, fontFamily: F.heading }}>{err}</div>}
+            <button type="submit" disabled={busy} style={{ ...googleBtn, marginTop: 14, justifyContent: "center", background: C.gold, color: "#1a0e00" }}>
+              {busy ? "מתחבר…" : "התחבר ←"}
+            </button>
+            <div style={{ textAlign: "center" }}>
+              <button type="button" onClick={() => { setStep("email"); setPassword(""); setErr(""); }} style={linkBtn}>← חזרה</button>
+            </div>
+          </form>
         ) : (
           <>
             <button onClick={() => signInWithGoogle()} style={googleBtn}>
@@ -121,6 +155,9 @@ export default function AuthPage() {
                 {busy ? "שולח…" : "שלחו לי קוד כניסה"}
               </button>
             </form>
+            <div style={{ textAlign: "center" }}>
+              <button type="button" onClick={() => { setStep("password"); setErr(""); }} style={linkBtn}>🔑 כניסה עם סיסמה</button>
+            </div>
           </>
         )}
       </div>
