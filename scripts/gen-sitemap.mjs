@@ -17,9 +17,19 @@ const supabase = createClient(
 );
 
 const STATIC = [
-  { loc: '/',     priority: '1.0', changefreq: 'daily'  },
-  { loc: '/post', priority: '0.9', changefreq: 'daily'  },
-  { loc: '/chat', priority: '0.5', changefreq: 'weekly' },
+  { loc: '/',             priority: '1.0', changefreq: 'daily'   },
+  { loc: '/start',        priority: '0.8', changefreq: 'monthly' },
+  { loc: '/map',          priority: '0.6', changefreq: 'monthly' },
+  { loc: '/timeline',     priority: '0.8', changefreq: 'weekly'  },
+  { loc: '/numbers',      priority: '0.6', changefreq: 'monthly' },
+  { loc: '/beit-midrash', priority: '0.8', changefreq: 'weekly'  },
+  { loc: '/code',         priority: '0.6', changefreq: 'monthly' },
+  { loc: '/post',         priority: '0.9', changefreq: 'daily'   },
+  { loc: '/archive',      priority: '0.8', changefreq: 'weekly'  },
+  { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },
+  { loc: '/sulamot',      priority: '0.5', changefreq: 'monthly' },
+  { loc: '/community',    priority: '0.5', changefreq: 'weekly'  },
+  { loc: '/contact',      priority: '0.4', changefreq: 'yearly'  },
 ];
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -56,6 +66,29 @@ async function main() {
     }
     if (data.length < PAGE) break;
     from += PAGE;
+  }
+
+  // דפי המספרים (/number/<מספר>) — כל מספר שיש לו תמונות בגלריה (primary_value)
+  const numbers = new Set();
+  from = 0;
+  for (;;) {
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .select('primary_value')
+      .not('primary_value', 'is', null)
+      .range(from, from + PAGE - 1);
+    if (error) { console.error('Supabase error (numbers):', error.message); break; }
+    if (!data?.length) break;
+    for (const r of data) {
+      const n = Number(r.primary_value);
+      // דף הישות דורש מינימום 2 ספרות (ספרה בודדת מפנה ל-/sulamot)
+      if (Number.isFinite(n) && n >= 10) numbers.add(n);
+    }
+    if (data.length < PAGE) break;
+    from += PAGE;
+  }
+  for (const n of [...numbers].sort((a, b) => a - b)) {
+    urls.push({ loc: '/number/' + n, changefreq: 'monthly', priority: '0.6' });
   }
 
   const xml = [

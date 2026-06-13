@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
-import { getInsights, supabase } from "../lib/supabase.js";
+import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
+import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
+import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -20,6 +23,7 @@ const SECTIONS = [
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
   { key: "numbers", icon: "🔢", label: "מספרי יסוד" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
+  { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "ai", icon: "🔵", label: "חידושי AI", ai: true },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "mine", icon: "✦", label: "חידושי המערכת" },
@@ -185,18 +189,23 @@ function Sod1820Tab() {
 function NumberResults({ value }) {
   const [eq, setEq] = useState(null);
   const [comm, setComm] = useState(null);
+  const [pulse, setPulse] = useState(null);
   useEffect(() => {
-    let live = true; setEq(null); setComm(null);
+    let live = true; setEq(null); setComm(null); setPulse(null);
     supabase.from("gematria_words").select("phrase").eq("ragil", value).limit(60)
       .then(({ data }) => { if (live) setEq([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
     supabase.from("community_words").select("phrase,author").eq("value", value).order("created_at", { ascending: false }).limit(40)
       .then(({ data }) => { if (live) setComm(data || []); });
+    getEntityBundle({ term: String(value), value, isNumber: true })
+      .then(b => { if (live && b) setPulse(pulseFromCounts({ posts: b.postsCount, galleries: b.galleriesCount, words: b.phrases?.length, events: b.eventsCount, ai: b.insightsCount, comm: b.commentsCount })); })
+      .catch(() => {});
     return () => { live = false; };
   }, [value]);
   const chip = { textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 13.5, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 12px" };
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "16px 18px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+        {pulse != null && <PulseRing value={pulse} size={62} core={!!KEY_NUMBERS[value]} label={false} />}
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 28, fontWeight: 800 }}>{value}</span>
         {KEY_NUMBERS[value] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[value]}</span>}
         <Link to={`/number/${value}`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הדף המלא →</Link>
@@ -278,6 +287,107 @@ function CalcTab() {
   );
 }
 
+// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מ-8 השיטות.
+const METHOD_INFO = {
+  "רגיל": { what: "השיטה הבסיסית של הגימטריה — היסוד של כולן.", how: "כל אות מקבלת את ערכה המספרי (א=1, ב=2 … י=10, כ=20 … ת=400), וסוכמים." },
+  "מילוי": { what: "ערך שֵם האות המלא — הרובד הפנימי, ה'נשמה' של האות.", how: "כותבים כל אות במילואה (א→אָלֶף, ה→הֵי) ומחשבים את גימטריית השם המלא. למשל א = אלף = 111." },
+  "מסתתר": { what: "השיטה הייחודית של סוד 1820 — מה שמסתתר בֵּין האותיות.", how: "סוכמים את ההפרש (בערך מוחלט) בין כל שתי אותיות סמוכות.", insight: "💎 חכמה → |8−20|+|20−40|+|40−5| = 12+20+35 = 67 = בִּינָה. החכמה יוצאת מן הבינה.", star: true },
+  "קדמי": { what: "ערך מצטבר ('משולש') — בנייה שכבה על שכבה.", how: "כל אות = סכום כל האותיות שלפניה ועד אליה (א=1, ב=1+2=3, ג=1+2+3=6 …), וסוכמים." },
+  "גדול": { what: "כמו רגיל — אך עם ערכי האותיות הסופיות.", how: "האותיות הסופיות מקבלות ערך גבוה: ך=500, ם=600, ן=700, ף=800, ץ=900. השאר כמו רגיל." },
+  "סידורי": { what: "ערך לפי הסדר באלף-בית — ה'מספר הפשוט'.", how: "כל אות לפי מיקומה: א=1, ב=2 … י=10, כ=11, ל=12 … ת=22." },
+  "אתבש": { what: "צופן הראי של האלף-בית — קדום ומופיע בתנ״ך.", how: "מחליפים כל אות בבת-זוגה מהקצה הנגדי: א↔ת, ב↔ש, ג↔ר … וסוכמים את ערכי האותיות המוחלפות.", insight: "בתנ״ך: «שֵׁשַׁךְ» באתבש = «בָּבֶל»." },
+  "אלבם": { what: "צופן חצי-אלפבית — מחילופי הצפנים הקדומים.", how: "מחלקים את הא״ב לשניים (11+11) ומחליפים אות מול אות: א↔ל, ב↔מ, ג↔נ … וסוכמים." },
+};
+const SAMPLE = "חכמה";
+function methodExample(m) {
+  const Lt = onlyHeb(SAMPLE);
+  if (m.key === "מסתתר") {
+    return Lt.slice(0, -1).map((c, i) => `|${c}−${Lt[i + 1]}|`).join(" + ") + " = " + Lt.slice(0, -1).map((c, i) => Math.abs(GEM[c] - GEM[Lt[i + 1]])).join(" + ") + " = " + m.fn(SAMPLE);
+  }
+  const map = m.map || GEM;
+  return Lt.map(c => `${c}(${map[c]})`).join(" + ") + " = " + m.fn(SAMPLE);
+}
+// מונה קטן לאנימציית הסכום
+function Odo({ to, run }) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    let raf, t0; setV(0);
+    const step = t => { t0 ??= t; const p = Math.min(1, (t - t0) / 900); setV(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf);
+  }, [to, run]);
+  return <>{v}</>;
+}
+// "סרטון" קל — האותיות נחשפות אחת-אחת עם ערכן, ואז הסכום מתגלגל. ריצה חוזרת בריחוף.
+function MethodAnim({ m }) {
+  const [run, setRun] = useState(0);
+  const Lt = onlyHeb(SAMPLE);
+  const items = m.key === "מסתתר"
+    ? Lt.slice(0, -1).map((c, i) => ({ top: `${c}–${Lt[i + 1]}`, val: Math.abs(GEM[c] - GEM[Lt[i + 1]]) }))
+    : Lt.map(c => ({ top: c, val: (m.map || GEM)[c] }));
+  const delay = i => `${i * 0.32}s`;
+  return (
+    <div onMouseEnter={() => setRun(r => r + 1)} title="ריחוף = הרצה חוזרת" style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", direction: "rtl", cursor: "default" }}>
+      {items.map((it, i) => (
+        <span key={`${run}-${i}`} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "3px 8px", opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(i) }}>
+          <b style={{ color: L.goldDeep, fontFamily: F.regal, fontSize: 15, lineHeight: 1.1 }}>{it.top}</b>
+          <small style={{ color: L.sub, fontFamily: F.mono, fontSize: 11 }}>{it.val}</small>
+        </span>
+      ))}
+      <span key={`eq-${run}`} style={{ color: L.sub, fontFamily: F.mono, fontSize: 16, opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(items.length) }}>=</span>
+      <b key={`tot-${run}`} style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800, opacity: 0, animation: "maIn .5s ease forwards", animationDelay: `${items.length * 0.32 + 0.1}s` }}><Odo to={m.fn(SAMPLE)} run={run} /></b>
+    </div>
+  );
+}
+function MethodsTab() {
+  return (
+    <div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
+        כל שיטה חושפת רובד אחר באותו ביטוי. הנה 8 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+        {METHODS.map(m => {
+          const info = METHOD_INFO[m.key] || {};
+          return (
+            <div key={m.key} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, margin: 0 }}>{m.key}</h3>
+                {info.star && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>★ שיטת הבית</span>}
+              </div>
+              <p style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, margin: "0 0 8px" }}>{info.what}</p>
+              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: "0 0 10px" }}><b style={{ color: L.goldDeep }}>איך מחשבים: </b>{info.how}</p>
+              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, margin: "2px 0 6px" }}>דוגמה חיה · {SAMPLE}</div>
+              <MethodAnim m={m} />
+              {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// שער: המחשבון פתוח לכולם; שאר המדורים בבנייה — מטושטשים, נפתחים בהרשמה.
+const GATED = new Set(["sod1820", "numbers", "ai", "verified", "mine"]);
+function Gated({ children }) {
+  const { subscribed } = useSubscribed();
+  if (subscribed) return children;
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 420, overflow: "hidden" }} aria-hidden>{children}</div>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, rgba(244,241,232,0.25), rgba(244,241,232,0.95))" }}>
+        <div style={{ textAlign: "center", maxWidth: 420, padding: 20 }}>
+          <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>בבנייה — לגישה מוקדמת</div>
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
+            <b style={{ color: L.goldDeep }}>המחשבון פתוח לכולם.</b> שאר המדורים בבנייה — הירשמו (חינם) כדי לקבל גישה מוקדמת כשייפתחו.
+          </p>
+          <SubscribeGate source="beit-midrash" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Soon({ title, note }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
@@ -297,6 +407,7 @@ export default function BeitMidrashPage() {
   const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "sod1820"));
   const [ai, setAi] = useState(null);
   const [mine, setMine] = useState(null);
+  const { subscribed } = useSubscribed();
 
   useEffect(() => {
     if (tab === "ai" && ai === null) getInsights({ origin: "ai", space: null, limit: 60 }).then(d => setAi(d || [])).catch(() => setAi([]));
@@ -315,6 +426,11 @@ export default function BeitMidrashPage() {
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
             ארכיון חי של גימטריה, חידושים ומחקר — חידושי המערכת, חידושי AI מאומתים, וכלים אינטראקטיביים, במקום אחד.
           </p>
+          {!subscribed && (
+            <p style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "10px 0 0" }}>
+              🔓 המחשבון פתוח לכולם · שאר המדורים בבנייה — הירשמו (חינם) לגישה מוקדמת
+            </p>
+          )}
         </div>
 
         {/* גוף: תפריט-צד + תוכן */}
@@ -335,6 +451,7 @@ export default function BeitMidrashPage() {
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
                     {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
+                    {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
                     {s.soon && <span style={{ fontSize: 10, color: L.sub, fontWeight: 700 }}>בקרוב</span>}
                   </button>
                 );
@@ -349,14 +466,15 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "sod1820" && <Sod1820Tab />}
-            {tab === "numbers" && <NumbersTab initial={nParam} />}
+            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
+            {tab === "numbers" && <Gated><NumbersTab initial={nParam} /></Gated>}
             {tab === "calc" && <CalcTab />}
-            {tab === "ai" && (ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>)}
-            {tab === "mine" && (mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>)}
-            {tab === "verified" && <VerifiedTab />}
+            {tab === "methods" && <MethodsTab />}
+            {tab === "ai" && <Gated>{ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
+              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>}</Gated>}
+            {tab === "mine" && <Gated>{mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
+              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>}</Gated>}
+            {tab === "verified" && <Gated><VerifiedTab /></Gated>}
             {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
@@ -377,6 +495,7 @@ export default function BeitMidrashPage() {
           .axis-line { display: none !important; }
           .axis-label { display: none !important; }
         }
+        @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
         @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>

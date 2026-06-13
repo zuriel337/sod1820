@@ -20,9 +20,21 @@ export default function GematriaCalculator({ seed }) {
   const res = useMemo(() => M8.map(m => ({ key: m.key, sub: m.sub, value: m.fn(word) })), [word]);
   const [active, setActive] = useState("רגיל");
   const [equal, setEqual] = useState(null);
+  const [counts, setCounts] = useState({});
   const [showLetters, setShowLetters] = useState(false);
   const activeVal = res.find(r => r.key === active)?.value || 0;
   const letters = onlyHeb(word);
+
+  // ספירת "נמצאו" לכל שיטה (כמה ביטויים שווים לערך שלה)
+  useEffect(() => {
+    let live = true; setCounts({});
+    if (!letters.length) return;
+    Promise.all(res.map(r =>
+      supabase.from("bidim").select("*", { count: "exact", head: true }).eq("method", r.key).eq("value", r.value)
+        .then(({ count }) => [r.key, count || 0]).catch(() => [r.key, 0])
+    )).then(pairs => { if (live) setCounts(Object.fromEntries(pairs)); });
+    return () => { live = false; };
+  }, [word]); // eslint-disable-line
 
   useEffect(() => {
     let live = true; setEqual(null);
@@ -57,9 +69,22 @@ export default function GematriaCalculator({ seed }) {
                 <div style={{ color: on ? L.goldDeep : L.sub, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{r.key}</div>
                 <div style={{ color: on ? L.goldDeep : L.ink, fontFamily: F.mono, fontSize: 26, fontWeight: 800, lineHeight: 1.1, margin: "2px 0" }}>{r.value}</div>
                 <div style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.4 }}>{r.sub}</div>
+                <div style={{ color: on ? L.gold : L.sub, fontFamily: F.heading, fontSize: 10, fontWeight: 700, marginTop: 3 }}>
+                  נמצאו {counts[r.key] ?? "…"}
+                </div>
               </button>
             );
           })}
+        </div>
+
+        {/* כפתור "גלה הכל" — מוביל לדף הישות של הערך הנבחר */}
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <Link to={`/number/${activeVal}`} style={{
+            display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+            background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
+            fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
+            boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
+          }}>✨ גלה הכל על {activeVal} ←</Link>
         </div>
       </div>
 

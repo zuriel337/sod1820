@@ -1,18 +1,15 @@
-name: Sync WP → Supabase (כל הפוסטים)
+name: עדכון אוטומטי של Sitemap
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 4 * * *'   # כל יום ב-04:00 UTC
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 permissions:
   contents: write
 
 jobs:
-  sync:
+  sitemap:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,10 +21,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Sync all posts
-        run: node scripts/sync-all.mjs
-
-      - name: Regenerate sitemap
+      - name: Regenerate sitemap (מ-Supabase)
         run: node scripts/gen-sitemap.mjs
 
       - name: Commit sitemap if changed

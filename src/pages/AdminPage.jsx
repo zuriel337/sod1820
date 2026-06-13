@@ -386,31 +386,60 @@ function StatsTab() {
 function SubscribersTab() {
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all"); // all | active | inactive
   useEffect(() => { adminGetSubscribers().then(setRows).catch(e => setErr(e.message || "שגיאה")); }, []);
+
+  const activeCount = useMemo(() => (rows || []).filter(r => r.active).length, [rows]);
+  const view = useMemo(() => {
+    let v = rows || [];
+    if (filter === "active") v = v.filter(r => r.active);
+    else if (filter === "inactive") v = v.filter(r => !r.active);
+    const s = q.trim().toLowerCase();
+    if (s) v = v.filter(r => (r.email || "").toLowerCase().includes(s) || (r.name || "").toLowerCase().includes(s));
+    return v;
+  }, [rows, filter, q]);
+
   if (err) return <div style={{ color: C.crimsonLight, textAlign: "center", padding: 30 }}>{err}</div>;
   if (!rows) return <Loading />;
+
+  const inactive = rows.length - activeCount;
+  const fbtn = on => ({ cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 12px", borderRadius: 999, border: `1px solid ${on ? C.borderGold : C.border}`, background: on ? "rgba(212,175,55,0.12)" : "transparent", color: on ? C.goldBright : C.muted });
+  const input = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 13.5, padding: "7px 12px", minWidth: 200, flex: 1 };
+
   return (
     <div style={card}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
         <H>{rows.length.toLocaleString()} נרשמים</H>
+        <span style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>✓ {activeCount.toLocaleString()} פעילים</span>
+        <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 13 }}>· {inactive.toLocaleString()} לא-פעילים</span>
         <span style={{ flex: 1 }} />
-        <BtnGold onClick={() => downloadCsv("subscribers.csv", [["email", "name", "source", "active", "created_at"], ...rows.map(r => [r.email, r.name, r.source, r.active, r.created_at])])}>⬇ ייצוא CSV</BtnGold>
+        <BtnGold onClick={() => downloadCsv("subscribers.csv", [["email", "name", "source", "active", "created_at"], ...view.map(r => [r.email, r.name, r.source, r.active, r.created_at])])}>⬇ ייצוא CSV{view.length !== rows.length ? ` (${view.length.toLocaleString()})` : ""}</BtnGold>
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
+        <button style={fbtn(filter === "all")} onClick={() => setFilter("all")}>הכל</button>
+        <button style={fbtn(filter === "active")} onClick={() => setFilter("active")}>✓ פעילים</button>
+        <button style={fbtn(filter === "inactive")} onClick={() => setFilter("inactive")}>לא-פעילים</button>
+        <input style={input} placeholder="חיפוש מייל או שם…" value={q} onChange={e => setQ(e.target.value)} />
       </div>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><th style={th}>מייל</th><th style={th}>שם</th><th style={th}>מקור</th><th style={th}>תאריך</th></tr></thead>
+          <thead><tr><th style={th}>מייל</th><th style={th}>שם</th><th style={th}>סטטוס</th><th style={th}>מקור</th><th style={th}>תאריך</th></tr></thead>
           <tbody>
-            {rows.map(r => (
+            {view.map(r => (
               <tr key={r.id}>
                 <td style={{ ...td, fontFamily: F.mono, direction: "ltr", textAlign: "right" }}>{r.email}</td>
                 <td style={td}>{r.name || "—"}</td>
+                <td style={td}>{r.active
+                  ? <span style={{ color: "#7bbf7b", fontWeight: 700 }}>✓ פעיל</span>
+                  : <span style={{ color: C.muted }}>—</span>}</td>
                 <td style={{ ...td, color: C.muted }}>{r.source || "—"}</td>
                 <td style={{ ...td, color: C.muted, whiteSpace: "nowrap" }}>{fmtDate(r.created_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <Empty>אין נרשמים עדיין.</Empty>}
+        {view.length === 0 && <Empty>אין תוצאות.</Empty>}
       </div>
     </div>
   );
