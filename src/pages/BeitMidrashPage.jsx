@@ -5,6 +5,7 @@ import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
+import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -335,6 +336,28 @@ function MethodsTab() {
   );
 }
 
+// שער: המחשבון פתוח לכולם; שאר המדורים בבנייה — מטושטשים, נפתחים בהרשמה.
+const GATED = new Set(["sod1820", "numbers", "ai", "verified", "mine"]);
+function Gated({ children }) {
+  const { subscribed } = useSubscribed();
+  if (subscribed) return children;
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 420, overflow: "hidden" }} aria-hidden>{children}</div>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, rgba(244,241,232,0.25), rgba(244,241,232,0.95))" }}>
+        <div style={{ textAlign: "center", maxWidth: 420, padding: 20 }}>
+          <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>בבנייה — לגישה מוקדמת</div>
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
+            <b style={{ color: L.goldDeep }}>המחשבון פתוח לכולם.</b> שאר המדורים בבנייה — הירשמו (חינם) כדי לקבל גישה מוקדמת כשייפתחו.
+          </p>
+          <SubscribeGate source="beit-midrash" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Soon({ title, note }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
@@ -354,6 +377,7 @@ export default function BeitMidrashPage() {
   const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "sod1820"));
   const [ai, setAi] = useState(null);
   const [mine, setMine] = useState(null);
+  const { subscribed } = useSubscribed();
 
   useEffect(() => {
     if (tab === "ai" && ai === null) getInsights({ origin: "ai", space: null, limit: 60 }).then(d => setAi(d || [])).catch(() => setAi([]));
@@ -372,6 +396,11 @@ export default function BeitMidrashPage() {
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
             ארכיון חי של גימטריה, חידושים ומחקר — חידושי המערכת, חידושי AI מאומתים, וכלים אינטראקטיביים, במקום אחד.
           </p>
+          {!subscribed && (
+            <p style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "10px 0 0" }}>
+              🔓 המחשבון פתוח לכולם · שאר המדורים בבנייה — הירשמו (חינם) לגישה מוקדמת
+            </p>
+          )}
         </div>
 
         {/* גוף: תפריט-צד + תוכן */}
@@ -392,6 +421,7 @@ export default function BeitMidrashPage() {
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
                     {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
+                    {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
                     {s.soon && <span style={{ fontSize: 10, color: L.sub, fontWeight: 700 }}>בקרוב</span>}
                   </button>
                 );
@@ -406,15 +436,15 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "sod1820" && <Sod1820Tab />}
-            {tab === "numbers" && <NumbersTab initial={nParam} />}
+            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
+            {tab === "numbers" && <Gated><NumbersTab initial={nParam} /></Gated>}
             {tab === "calc" && <CalcTab />}
             {tab === "methods" && <MethodsTab />}
-            {tab === "ai" && (ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>)}
-            {tab === "mine" && (mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>)}
-            {tab === "verified" && <VerifiedTab />}
+            {tab === "ai" && <Gated>{ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
+              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>}</Gated>}
+            {tab === "mine" && <Gated>{mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
+              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>}</Gated>}
+            {tab === "verified" && <Gated><VerifiedTab /></Gated>}
             {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
