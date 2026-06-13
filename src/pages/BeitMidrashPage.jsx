@@ -373,12 +373,12 @@ const ABC = [
 // המדריך הבסיסי — מה זה גימטריה ואיך מחשבים. פתוח לכולם.
 function HowToGuide() {
   return (
-    <div style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "20px 22px", marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+    <div className="bm-guide" style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "20px 22px", marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
       <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: "0 0 10px" }}>📖 איך עושים גימטריה? — המדריך</h3>
       <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 15.5, lineHeight: 1.95, margin: "0 0 14px", maxWidth: 700 }}>
         גימטריה היא שיטה עתיקה שבה <b style={{ color: L.goldDeep }}>לכל אות עברית יש ערך מספרי קבוע</b>. הגימטריה של מילה היא <b style={{ color: L.goldDeep }}>סכום הערכים</b> של אותיותיה. כששתי מילים שונות מגיעות לאותו ערך — נחשף קשר נסתר ביניהן.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, margin: "0 0 16px", maxWidth: 560 }}>
+      <div className="bm-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, margin: "0 0 16px", maxWidth: 560 }}>
         {[["1", "מפרקים את המילה לאותיות"], ["2", "כותבים לכל אות את ערכה"], ["3", "מחברים את הכל יחד"]].map(([n, t]) => (
           <div key={n} style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
             <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{n}</div>
@@ -484,7 +484,7 @@ export default function BeitMidrashPage() {
 
   return (
     <div style={{ background: L.bg, minHeight: "100vh", direction: "rtl", position: "relative", zIndex: 1 }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
+      <div className="bm-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
         {/* כותרת */}
         <div style={{ borderBottom: `2px solid ${L.line}`, paddingBottom: 18, marginBottom: 22 }}>
           <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>בית המדרש · סוד 1820</div>
@@ -547,17 +547,29 @@ export default function BeitMidrashPage() {
 
       <style>{`
         @media (max-width: 860px) {
-          .bm-grid { flex-direction: column; }
-          .bm-side { width: 100% !important; position: static !important; }
-          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 6px !important; padding-bottom: 6px; }
-          .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap; border: 1px solid ${L.line} !important; }
+          .bm-grid { flex-direction: column; gap: 14px !important; }
+          .bm-side { width: 100% !important; position: sticky !important; top: 0 !important; z-index: 5;
+            background: ${L.bg}; margin: 0 -13px; padding: 8px 13px; }
+          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
+          .bm-side > div::-webkit-scrollbar { display: none; }
+          .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap;
+            border: 1px solid ${L.line} !important; padding: 9px 14px !important; flex: 0 0 auto; scroll-snap-align: start; }
+          .bm-side button > span:nth-child(2) { flex: 0 0 auto !important; }
         }
         @media (max-width: 700px) {
-          .bm-calc { flex-direction: column; }
+          .bm-wrap { padding: 22px 13px 70px !important; }
+          .bm-guide { padding: 16px 15px !important; }
+          .bm-steps { gap: 7px !important; }
+          .bm-calc { flex-direction: column; gap: 14px !important; }
           .bm-numlist { width: 100% !important; position: static !important; }
-          .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important; }
+          .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important;
+            -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
           .axis-line { display: none !important; }
           .axis-label { display: none !important; }
+        }
+        @media (max-width: 420px) {
+          .bm-steps div div:last-child { font-size: 11.5px !important; }
         }
         @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
