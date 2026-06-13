@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
+import { supabase } from "../lib/supabase.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
 
 /**
@@ -35,25 +36,49 @@ export function AiVerifiedDisclaimer() {
         </p>
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-        <Link to="/beit-midrash" style={linkChip("#3ea6ff")}>🔵 חידושי AI בבית המדרש ←</Link>
+        <Link to="/beit-midrash?tab=ai" style={linkChip("#3ea6ff")}>🔵 חידושי AI בבית המדרש ←</Link>
         <Link to="/verified" style={linkChip(C.gold)}>✓ פוסטים מאומתים באתר ←</Link>
       </div>
     </div>
   );
 }
 
-// תיבת אימות ה-AI — קטנה, בחלק הראשון של הפוסט. מציגה את ai_addition (אימות בלבד) + קישור לבית המדרש.
-export function AiAdditionBox({ html }) {
+// תיבת אימות ה-AI — קטנה, ממורכזת, בחלק הראשון של הפוסט.
+// מציגה את ai_addition (אימות בלבד) + 3 גימטריות של המספר + קישור לבית המדרש על אותו מספר.
+export function AiAdditionBox({ html, number }) {
+  const [eq, setEq] = useState([]);
+  useEffect(() => {
+    if (!number) { setEq([]); return; }
+    let live = true;
+    supabase.from("gematria_words").select("phrase").eq("ragil", number).limit(24)
+      .then(({ data }) => {
+        if (!live) return;
+        const words = (data || []).map(r => r.phrase).filter(p => p && !/\s/.test(p) && !/\d/.test(p));
+        words.sort((a, b) => a.length - b.length);
+        setEq(words.slice(0, 3));
+      });
+    return () => { live = false; };
+  }, [number]);
   if (!html) return null;
   return (
-    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto 28px" }}>
-      <div style={{ display: "inline-block" }} dangerouslySetInnerHTML={{ __html: html }} />
-      <div style={{ marginTop: 10 }}>
-        <Link to="/beit-midrash" style={{
+    <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto 28px", textAlign: "center" }}>
+      <div style={{ display: "inline-block", textAlign: "right" }} dangerouslySetInnerHTML={{ __html: html }} />
+      {number && eq.length > 0 && (
+        <div style={{
+          maxWidth: 520, margin: "10px auto 0", padding: "8px 14px", borderRadius: 10,
+          background: "rgba(212,175,55,0.08)", border: `1px solid ${C.border}`,
+          color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7,
+        }}>
+          <b style={{ color: C.goldDim, fontFamily: F.heading }}>✦ עוד גימטריות ב-{number}: </b>
+          {eq.join(" · ")}
+        </div>
+      )}
+      <div style={{ marginTop: 12 }}>
+        <Link to={number ? `/beit-midrash?n=${number}` : "/beit-midrash"} style={{
           display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
           background: "rgba(62,166,255,0.1)", border: `1px solid #3ea6ff55`, borderRadius: 999,
           color: "#9fd0ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 15px",
-        }}>📚 ללמוד עוד על המספרים — בבית המדרש ←</Link>
+        }}>📚 ראה עוד על {number || "המספרים"} בבית המדרש ←</Link>
       </div>
     </div>
   );

@@ -131,6 +131,18 @@ export default function ArchivePage() {
   const q = qRaw.toLowerCase();
   const setNums = activeSet ? new Set(activeSet.numbers) : null;
 
+  // מטא לכל גלריה: אילו מספרים/שנים מופיעים בה
+  const galMeta = useMemo(() => {
+    const m = {};
+    for (const im of imgs) {
+      const g = im.gallery_id;
+      if (!m[g]) m[g] = { nums: new Set(), years: new Set() };
+      for (const v of imgNums(im)) m[g].nums.add(v);
+      const y = eventYear(im); if (y) m[g].years.add(y);
+    }
+    return m;
+  }, [imgs]);
+
   // גלריות החברות בסט (לתצוגת "גלריות" — שורות רחבות, החדשה למעלה לפי seq)
   const memberGals = useMemo(() => {
     let list = gals || [];

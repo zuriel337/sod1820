@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { C, F, KEY_NUMBERS } from "../theme.js";
 import { SectionHeader } from "../components/ui.jsx";
 import { NAV } from "../routes.jsx";
@@ -101,9 +101,11 @@ const numCell = { ...tdS, fontFamily: F.mono, fontWeight: 700, color: C.goldBrig
 // 🧮 טבלת גימטריה רב-שיטתית — בוחרים מספר ורואים ביטויים ששווים לו בכל השיטות (bidim).
 const ANCHORS = [1820, 1237, 776, 358, 541, 318, 1202, 86, 45, 26];
 const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
-function GematriaTable() {
-  const [val, setVal] = useState(1820);
+function GematriaTable({ initial }) {
+  const [val, setVal] = useState(initial || 1820);
   const [rows, setRows] = useState(null);
+  useEffect(() => { if (initial) setVal(initial); }, [initial]);
+  const anchors = ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS];
   useEffect(() => {
     let live = true; setRows(null);
     (async () => {
@@ -127,7 +129,7 @@ function GematriaTable() {
         </p>
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
-        {ANCHORS.map(n => (
+        {anchors.map(n => (
           <button key={n} onClick={() => setVal(n)} style={{
             cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 16px", borderRadius: 999,
             border: `1px solid ${n === val ? C.gold : C.border}`, background: n === val ? "rgba(212,175,55,0.18)" : C.surface2,
@@ -204,98 +206,112 @@ function InsightTable({ items, accent = C.gold }) {
   );
 }
 
-// 🔒 בית המדרש סגור לחלוטין כרגע — מסך "בבנייה + הרשמה לגישה מוקדמת" בלבד.
-export default function BeitMidrashPage() {
-  const [insights, setInsights] = useState([]);
-  const [aiInsights, setAiInsights] = useState([]);
+// פוסטים מאומתים (verified) — טאב בבית המדרש.
+function VerifiedTab() {
+  const [posts, setPosts] = useState(null);
   useEffect(() => {
-    getInsights({ origin: "צוריאל", space: "core", limit: 40 }).then(d => setInsights(d || [])).catch(() => {});
-    getInsights({ origin: "ai", space: null, limit: 30 }).then(d => setAiInsights(d || [])).catch(() => {});
+    let live = true;
+    supabase.from("posts").select("wp_id,title,slug,image_url,modified,ai_number")
+      .eq("verified", true).order("modified", { ascending: false, nullsFirst: false }).limit(60)
+      .then(({ data }) => { if (live) setPosts(data || []); });
+    return () => { live = false; };
   }, []);
+  if (posts === null) return <div style={{ color: C.muted, fontFamily: F.body, padding: 30, textAlign: "center" }}>טוען…</div>;
+  if (!posts.length) return <div style={{ color: C.muted, fontFamily: F.body, padding: 30, textAlign: "center" }}>עדיין אין פוסטים מאומתים.</div>;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16, textAlign: "right" }}>
+      {posts.map(p => (
+        <Link key={p.wp_id} to={`/${p.slug}`} style={{ display: "flex", flexDirection: "column", textDecoration: "none", overflow: "hidden", border: `1px solid ${C.borderGold}`, borderRadius: 14, background: "linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45))" }}>
+          <div style={{ position: "relative", aspectRatio: "16/10", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : `linear-gradient(135deg, ${C.goldDeep}, ${C.faint})` }}>
+            <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><VerifiedBadge variant="ai" size={14} label="מאומת" /></span>
+          </div>
+          <div style={{ padding: "12px 14px" }}>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
+            {p.ai_number && <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+const TABS = [
+  { key: "calc", label: "🧮 מחשבון גימטריה" },
+  { key: "numbers", label: "🔢 מספרי יסוד" },
+  { key: "ai", label: "🔵 חידושי AI" },
+  { key: "verified", label: "✓ פוסטים מאומתים" },
+];
+
+export default function BeitMidrashPage() {
+  const loc = useLocation();
+  const params = new URLSearchParams(loc.search);
+  const nParam = Number(params.get("n")) || null;
+  const tabParam = params.get("tab");
+  const [tab, setTab] = useState(nParam ? "numbers" : (TABS.some(t => t.key === tabParam) ? tabParam : "calc"));
+  const [aiInsights, setAiInsights] = useState([]);
+
+  useEffect(() => {
+    if (tab !== "ai") return;
+    getInsights({ origin: "ai", space: null, limit: 40 }).then(d => setAiInsights(d || [])).catch(() => {});
+  }, [tab]);
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "72px 24px 110px", position: "relative", zIndex: 1, textAlign: "center" }}>
-      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14 }}>
-        🕯️ נפתח לאט — תוכן ראשון
+    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "60px 20px 100px", position: "relative", zIndex: 1 }}>
+      {/* כותרת רזה */}
+      <div style={{ textAlign: "center", marginBottom: 22 }}>
+        <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 10 }}>בית המדרש · סוד 1820</div>
+        <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>📚 בית המדרש</h1>
       </div>
-      <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(28px,5vw,44px)", fontWeight: 700, margin: "0 0 18px", lineHeight: 1.25 }}>
-        📚 בית המדרש
-      </h1>
-      <div style={{ display: "inline-block", margin: "0 auto 24px", padding: "8px 18px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-        ✦ מתחילים למלא בתוכן — חידושים, חידושי AI ורשימות גימטריה
-      </div>
-      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 28px" }}>
-        אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
-      </p>
 
-      {/* 🧮 מחשבון הגימטריה התלת-מימדי — 8 שיטות, כרטיסים לחיצים */}
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>
-          🧮 מחשבון הגימטריה התלת-מימדי
-        </div>
+      {/* טאבים */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
+        {TABS.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)} style={{
+            cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 20px", borderRadius: 999,
+            border: `1px solid ${tab === t.key ? C.gold : C.border}`,
+            background: tab === t.key ? "rgba(212,175,55,0.16)" : C.surface2,
+            color: tab === t.key ? C.goldBright : C.goldDim, transition: "all .2s",
+          }}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* תוכן הטאב */}
+      {tab === "calc" && (
         <React.Suspense fallback={<div style={{ height: "min(78vh,660px)", maxWidth: 980, margin: "0 auto", borderRadius: 18, border: `1px solid ${C.border}`, background: "#030108" }} />}>
           <GematriaCalculator3D />
         </React.Suspense>
-      </div>
+      )}
 
-      {/* גרסה רגילה (טבלאית) — פירוט אות-אות מלא */}
-      <details style={{ maxWidth: 900, margin: "0 auto 8px", textAlign: "right" }}>
-        <summary style={{ cursor: "pointer", color: C.goldDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
-          ▾ מחשבון בתצוגה רגילה (עם פירוט אות-אות בטבלה)
-        </summary>
-        <GematriaCalculator />
-      </details>
-
-      {/* 🎬 טעימה — קליפ תלת-מימדי של מנוע הגימטריה (סגור, רק הצצה) */}
-      <div style={{ margin: "30px auto 8px", maxWidth: 640 }}>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-          ✦ טעימה ממה שמחכה לכם
-        </div>
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto 14px", maxWidth: 520 }}>
-          המנוע שמחשב כל מילה בכל שיטות הגימטריה — <b style={{ color: C.goldLight }}>רגיל · מילוי · מסתתר</b> ועוד — חי ובתלת-מימד. זו רק הצצה; הכלי המלא נפתח כאן בקרוב.
-        </p>
-        <React.Suspense fallback={<div style={{ height: "min(74vh,640px)", borderRadius: 18, border: `1px solid ${C.border}`, background: "#070414" }} />}>
-          <GematriaTeaser />
-        </React.Suspense>
-      </div>
-
-      {/* ✦ טבלת חידושי הגימטריה — חידושים מאומתים (צוריאל) */}
-      {insights.length > 0 && (
-        <div style={{ margin: "40px auto 8px", maxWidth: 1080, textAlign: "right" }}>
-          <div style={{ textAlign: "center", marginBottom: 16 }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-              ✦ חידושי הגימטריה ({insights.length})
+      {tab === "numbers" && (
+        <>
+          {nParam && (
+            <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, fontSize: 14, marginBottom: 6 }}>
+              הגעת מאימות פוסט — הנה כל מה שמתכנס סביב <b style={{ color: C.goldBright, fontFamily: F.mono }}>{nParam}</b>.
             </div>
-            <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
-              חידושים מאומתים מתוך עבודת השנים. לחיצה על שורה פותחת את החידוש המלא.
-            </p>
-          </div>
-          <InsightTable items={insights} accent={C.gold} />
+          )}
+          <GematriaTable initial={nParam} />
+        </>
+      )}
+
+      {tab === "ai" && (
+        <div style={{ maxWidth: 1080, margin: "0 auto", textAlign: "right" }}>
+          <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, textAlign: "center", margin: "0 auto 18px", maxWidth: 520 }}>
+            חידושים שהופקו בעזרת בינה מלאכותית. לחיצה על שורה פותחת את החידוש.
+          </p>
+          {aiInsights.length > 0
+            ? <InsightTable items={aiInsights} accent="#3ea6ff" />
+            : <div style={{ color: C.muted, fontFamily: F.body, padding: 30, textAlign: "center" }}>טוען חידושים…</div>}
         </div>
       )}
 
-      {/* 🔵 טבלת חידושי AI */}
-      {aiInsights.length > 0 && (
-        <div style={{ margin: "44px auto 8px", maxWidth: 1080, textAlign: "right" }}>
-          <div style={{ textAlign: "center", marginBottom: 16 }}>
-            <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>
-              🔵 חידושי AI ({aiInsights.length})
-            </div>
-            <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, margin: "0 auto", maxWidth: 520 }}>
-              חידושים שהופקו בעזרת בינה מלאכותית. לחיצה על שורה פותחת את החידוש.
-            </p>
-          </div>
-          <InsightTable items={aiInsights} accent="#3ea6ff" />
+      {tab === "verified" && (
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, textAlign: "center", margin: "0 auto 18px", maxWidth: 520 }}>
+            פוסטים שהנתונים בהם (תאריכים ומספרים) נסרקו ואומתו על ידי AI.
+          </p>
+          <VerifiedTab />
         </div>
       )}
-
-      {/* 🧮 טבלאות גימטריה */}
-      <GematriaTable />
-
-      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "40px auto 30px" }}>
-        הכניסה למעגל ההיכל מתחילה כאן: הפיקו את <b style={{ color: C.goldLight }}>דו״ח הכניסה האישי</b> שלכם — ותהיו הראשונים שייכנסו לבית המדרש כשייפתח.
-      </p>
-      <PersonalGematriaGift source="beit-midrash-gate" />
     </div>
   );
 }
