@@ -9,6 +9,7 @@ import InsightCard from "../components/InsightCard.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
+import GematriaCalculator from "../components/GematriaCalculator.jsx";
 
 // טעימת מנוע הגימטריה (תלת-מימד) — נטענת עצמאית כך ש-three.js לא מנפח את שאר האתר.
 const GematriaTeaser = React.lazy(() => import("../components/GematriaTeaser.jsx"));
@@ -222,9 +223,17 @@ export default function BeitMidrashPage() {
       <div style={{ display: "inline-block", margin: "0 auto 24px", padding: "8px 18px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
         ✦ מתחילים למלא בתוכן — חידושים, חידושי AI ורשימות גימטריה
       </div>
-      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 8px" }}>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 540, margin: "0 auto 28px" }}>
         אנחנו בונים כאן <b style={{ color: C.goldLight }}>מערכת חיפוש גימטריה מתקדמת ביותר בשילוב AI</b> — שיטות הלימוד, חידושי הבינה והכלים החדשים.
       </p>
+
+      {/* 🧮 מחשבון הגימטריה המלא — 8 שיטות, מילים שוות, פירוט אות-אות */}
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>
+          🧮 מחשבון הגימטריה
+        </div>
+        <GematriaCalculator />
+      </div>
 
       {/* 🎬 טעימה — קליפ תלת-מימדי של מנוע הגימטריה (סגור, רק הצצה) */}
       <div style={{ margin: "30px auto 8px", maxWidth: 640 }}>
