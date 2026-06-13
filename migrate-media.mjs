@@ -29,7 +29,10 @@ import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://linswmnnkjxvweumprav.supabase.co";
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+// המפתח מגיע מ-ENV, ואם אין — מקובץ .service_key בתיקיית הריפו (חסין-הדבקה: בלי גרשיים/עברית).
+// trim() מנקה רווחים/שורות חדשות שנגררו בהדבקה.
+let SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+if (!SERVICE_KEY) { try { SERVICE_KEY = fs.readFileSync(".service_key", "utf8").trim(); } catch { /* אין קובץ */ } }
 const BUCKET = process.env.BUCKET || "media";
 const WP_ORIGIN = (process.env.WP_ORIGIN || "https://wp.sod1820.co.il").replace(/\/$/, "");
 const CONCURRENCY = Number(process.env.CONCURRENCY || 8);

@@ -9,3 +9,5 @@ dist/
 .env
 .vercel
 migration-log.json
+.service_key
+key.txt
