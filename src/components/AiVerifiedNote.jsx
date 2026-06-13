@@ -36,7 +36,7 @@ export function AiVerifiedDisclaimer() {
         </p>
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-        <Link to="/beit-midrash" style={linkChip("#3ea6ff")}>🔵 חידושי AI בבית המדרש ←</Link>
+        <Link to="/beit-midrash?tab=ai" style={linkChip("#3ea6ff")}>🔵 חידושי AI בבית המדרש ←</Link>
         <Link to="/verified" style={linkChip(C.gold)}>✓ פוסטים מאומתים באתר ←</Link>
       </div>
     </div>
@@ -74,7 +74,7 @@ export function AiAdditionBox({ html, number }) {
         </div>
       )}
       <div style={{ marginTop: 12 }}>
-        <Link to="/beit-midrash" style={{
+        <Link to={number ? `/beit-midrash?n=${number}` : "/beit-midrash"} style={{
           display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
           background: "rgba(62,166,255,0.1)", border: `1px solid #3ea6ff55`, borderRadius: 999,
           color: "#9fd0ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 15px",
