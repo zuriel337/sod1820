@@ -131,7 +131,7 @@ export default function GematriaCalculator3D() {
   }, [active, activeVal, word, letters.length]);
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto" }}>
+    <div style={{ maxWidth: 980, margin: "0 auto" }}>
       <div style={{ position: "relative", height: "min(78vh, 660px)", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.borderGold}`, background: "#030108", boxShadow: "0 20px 60px rgba(0,0,0,0.6)", direction: "rtl" }}>
         <Canvas camera={{ position: [0, 0.3, 9.6], fov: 50 }} dpr={[1, 2]} gl={{ antialias: true }}>
           <Scene word={word} results={results} active={active} setActive={setActive} />
