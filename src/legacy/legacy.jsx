@@ -2536,6 +2536,53 @@ const POST_CONTENT_CSS = `
     border: 1px solid ${C.border};
     filter: brightness(0.85) sepia(0.15);
   }
+
+  /* ── Jetpack "tiled gallery" + WordPress classic gallery ──
+     מקור הבעיה: גלריות אלו מגיעות עם רוחב/גובה קבועים בפיקסלים (inline)
+     ותלויות ב-CSS של ג'טפק שלא נטען — בלעדיו התמונות נערמות אחת על השנייה.
+     כאן מאפסים את המידות הקבועות והופכים לרשת רספונסיבית נקייה. */
+  .sod-post-content .tiled-gallery,
+  .sod-post-content .gallery {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 1.8em 0 !important;
+  }
+  /* שיטוח עוטפי-הביניים בעלי הרוחב הקבוע כך שהפריטים יושבים ישירות ברשת */
+  .sod-post-content .gallery-row,
+  .sod-post-content .gallery-group {
+    display: contents !important;
+  }
+  .sod-post-content .tiled-gallery-item,
+  .sod-post-content .gallery-item,
+  .sod-post-content figure.gallery-item {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+  }
+  .sod-post-content .tiled-gallery-item a,
+  .sod-post-content .tiled-gallery-item img,
+  .sod-post-content .gallery-item img,
+  .sod-post-content .gallery img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 8px;
+  }
+  .sod-post-content .gallery-caption,
+  .sod-post-content .tiled-gallery-caption {
+    grid-column: 1 / -1;
+    color: ${C.goldDim}; font-family: 'Heebo', sans-serif; font-size: 12px;
+    text-align: center; margin-top: -4px;
+  }
+
   .sod-post-content ul, .sod-post-content ol {
     padding-right: 1.6em;
     margin: 0 0 1.4em;
@@ -2707,6 +2754,41 @@ const POST_CONTENT_CSS = `
     font-family: 'Heebo', sans-serif; font-size: 14px;
   }
   .sod-post-content tr:nth-child(even) td { background: ${C.surface}; }
+
+  /* ── רכיבי Elementor (ללא ה-CSS/JS המקורי של אלמנטור) ──
+     התוכן עצמו גלוי; כאן רק מנקים ומעצבים כדי שלא ייראה שבור. */
+  .sod-post-content .elementor-element,
+  .sod-post-content .elementor-widget-container,
+  .sod-post-content .elementor-widget-wrap,
+  .sod-post-content .elementor-column,
+  .sod-post-content .elementor-row { max-width: 100% !important; width: auto !important; }
+  /* אקורדיון: התוכן ממילא פתוח — מסתירים אייקון "פתוח" כפול ומעצבים כותרת */
+  .sod-post-content .elementor-accordion-item {
+    border: 1px solid ${C.border}; border-radius: 8px; margin: 12px 0; overflow: hidden;
+  }
+  .sod-post-content .elementor-tab-title {
+    background: ${C.surface}; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    color: ${C.goldLight}; font-family: 'Heebo', sans-serif; font-weight: 700;
+    border-bottom: 1px solid ${C.border};
+  }
+  .sod-post-content .elementor-tab-title a,
+  .sod-post-content .elementor-accordion-title { color: ${C.goldLight} !important; text-decoration: none; }
+  .sod-post-content .elementor-accordion-icon-opened { display: none !important; }
+  .sod-post-content .elementor-accordion-icon svg { width: 14px; height: 14px; fill: ${C.gold}; }
+  .sod-post-content .elementor-tab-content { padding: 12px 16px 4px; }
+  /* קו מפריד — נדרש border כדי שייראה */
+  .sod-post-content .elementor-divider { padding: 14px 0; text-align: center; }
+  .sod-post-content .elementor-divider-separator {
+    display: block; height: 0; width: 60%; margin: 0 auto;
+    border-top: 1px solid ${C.borderGold};
+  }
+  /* כפתורי אלמנטור */
+  .sod-post-content .elementor-button {
+    display: inline-block; background: ${C.goldDark}; color: ${C.goldBright} !important;
+    text-decoration: none; padding: 10px 22px; border-radius: 999px;
+    border: 1px solid ${C.borderGold}; font-family: 'Heebo', sans-serif; font-weight: 700; margin: 4px 0;
+  }
 `;
 
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
