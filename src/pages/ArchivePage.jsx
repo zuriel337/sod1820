@@ -166,14 +166,22 @@ export default function ArchivePage() {
   const firstGalId = memberGals[0]?.id ?? null;
   useEffect(() => { setOpenGal(firstGalId); }, [firstGalId]);
 
-  const pool = useMemo(() => sortedImgs.filter(im => {
-    if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
-    if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
-    if (yearFilter != null && eventYear(im) !== yearFilter) return false;
-    if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
-    else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q))) return false;
-    return true;
-  }), [sortedImgs, setNums, numFilter, yearFilter, q, qNum]);
+  const pool = useMemo(() => {
+    let arr = sortedImgs.filter(im => {
+      if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
+      if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
+      if (yearFilter != null && eventYear(im) !== yearFilter) return false;
+      if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
+      else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q))) return false;
+      return true;
+    });
+    if (sortMode === "cross") {
+      // הכי הרבה הצטלבויות: קודם תמונות שנושאות הכי הרבה ממספרי הסט, ואז הכי הרבה מספרים בכלל
+      const score = im => (setNums ? imgNums(im).filter(v => setNums.has(v)).length : 0) * 1000 + imgNums(im).length;
+      arr = [...arr].sort((a, b) => score(b) - score(a));
+    }
+    return arr;
+  }, [sortedImgs, setNums, numFilter, yearFilter, q, qNum, sortMode]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilter != null ? [numFilter] : null);
@@ -296,7 +304,7 @@ export default function ArchivePage() {
               </span>
             ))}
             {isAdmin && <button className="ar-set ar-new" onClick={() => setBuilder({ name: "", numbers: new Set() })}>➕ סט חדש</button>}
-            <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>הכול</button>
+            <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>כל הגלריות</button>
           </div>
 
           {/* בונה-סטים (מנהלים) */}
@@ -351,6 +359,7 @@ export default function ArchivePage() {
                 <div className="ar-seg" role="group" aria-label="מיון">
                   <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
                   <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                  <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
                 </div>
               )}
             </div>
@@ -658,9 +667,9 @@ export default function ArchivePage() {
         @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
 
         /* פריסת מאגר: אזור ראשי (ימין) + סרגל צד (שמאל) */
-        .ar-layout { display: grid; grid-template-columns: 330px 1fr; gap: 22px; align-items: start; }
-        .ar-feed { grid-column: 2; min-width: 0; }
-        .ar-side { grid-column: 1; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
+        .ar-layout { display: grid; grid-template-columns: 1fr 330px; gap: 22px; align-items: start; }
+        .ar-feed { grid-column: 1; min-width: 0; }
+        .ar-side { grid-column: 2; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
           display: flex; flex-direction: column; gap: 12px; padding: 4px; }
         .ar-side .ar-row { justify-content: flex-start; }
         @media (max-width: 900px) {
