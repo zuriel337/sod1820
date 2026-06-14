@@ -2,6 +2,10 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { GA_ENABLED } from "../lib/analytics.js";
+
+// כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
+const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
@@ -268,14 +272,32 @@ function StatsTab() {
         <Stat label="חיפושים" value={(s.searches || []).length.toLocaleString()} />
       </div>
 
-      {/* Realtime placeholder */}
-      <div style={{ ...card, borderColor: C.borderGold, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 30 }}>🟢</span>
-        <div style={{ flex: 1, minWidth: 180 }}>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>משתמשים כעת באתר</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>יתחבר ל-Google Analytics Realtime (תשתית מוכנה)</div>
+      {/* Google Analytics — סטטוס איסוף + דוח Looker חי */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: LOOKER_URL ? 12 : 0 }}>
+          <span style={{ fontSize: 26 }}>📈</span>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics (חי)</div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>
+              איסוף נתונים: {GA_ENABLED
+                ? <b style={{ color: "#5fbf6a" }}>✅ פעיל (gtag מותקן)</b>
+                : <b style={{ color: C.goldDim }}>⚠️ לא פעיל — הגדירו VITE_GA_ID</b>}
+            </div>
+          </div>
+          {GA_ENABLED && <span style={{ color: "#5fbf6a", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>LIVE</span>}
         </div>
-        <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>בקרוב</span>
+        {LOOKER_URL ? (
+          <iframe title="Google Analytics — Looker Studio" src={LOOKER_URL}
+            style={{ width: "100%", height: 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
+            allowFullScreen />
+        ) : (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
+            <div style={{ color: C.goldLight, fontWeight: 700, marginBottom: 4 }}>להצגת דוח חי כאן (מאיפה נכנסו, Realtime, מכשירים, ערים, דפים):</div>
+            1. ב-<a href="https://lookerstudio.google.com" target="_blank" rel="noopener noreferrer" style={linkA}>Looker Studio</a> צרו דוח מחובר ל-GA4.<br />
+            2. שיתוף → "כל מי שיש לו את הקישור" → העתיקו את כתובת ה-Embed.<br />
+            3. הגדירו אותה כמשתנה סביבה <b style={{ color: C.goldLight }}>VITE_LOOKER_URL</b> ב-Vercel — והדוח יופיע כאן.
+          </div>
+        )}
       </div>
 
       {/* צפיות — יום / חודש / שנה, עם ציר-Y, לחיץ */}

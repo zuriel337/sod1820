@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
+import { initGA, trackPageview } from "./lib/analytics.js";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -38,10 +39,12 @@ import AdminPage from "./pages/AdminPage.jsx";
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname } = useLocation();
+  useEffect(() => { initGA(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
+    trackPageview(pathname);
   }, [pathname]);
   return null;
 }
