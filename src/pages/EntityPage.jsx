@@ -224,6 +224,16 @@ export default function EntityPage() {
         </div>
       )}
 
+      {/* ✨ קחו אותי למסע — הילוך אקראי בגרף הקשרים */}
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <Link to={`/journey?from=${encodeURIComponent(term)}`} style={{
+          display: "inline-block", textDecoration: "none",
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+          fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", borderRadius: 999,
+          boxShadow: `0 0 30px ${C.goldDeep}`,
+        }}>🎲 קחו אותי למסע מ־{value}</Link>
+      </div>
+
       {/* קישור-לימוד: הסבר על שיטות הגימטריה (רגיל/מילוי/מסתתר...) */}
       <div style={{ textAlign: "center", marginBottom: 34 }}>
         <Link to="/beit-midrash?tab=methods" style={{

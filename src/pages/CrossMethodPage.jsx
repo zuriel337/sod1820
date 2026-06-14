@@ -263,7 +263,8 @@ export default function CrossMethodPage() {
         </section>
       )}
 
-      <div style={{ textAlign: "center", marginTop: 26 }}>
+      <div style={{ textAlign: "center", marginTop: 26, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        <Link to="/journey" style={{ textDecoration: "none", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
         <Link to="/beit-midrash" style={{ ...chip, textDecoration: "none" }}>← לבית המדרש</Link>
       </div>
     </div>
