@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { C, F, calcGem } from "../theme.js";
-import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
-import { stripHtml, formatDateHe, timeAgoHe, fromSlug } from "../lib/format.js";
+import { getPostsFromSupabase, adaptPost, getDistinctCategoriesAndTags } from "../lib/supabase.js";
+import { stripHtml, formatDateHe, timeAgoHe, fromSlug, toSlug } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 
@@ -41,6 +41,7 @@ function PostCard({ p, i }) {
 
 function TaxonomyView({ kind }) {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const name = fromSlug(slug);
   const isTag = kind === "tag";
   const gem = calcGem(name);
@@ -66,13 +67,29 @@ function TaxonomyView({ kind }) {
     const args = { limit: PER, page: p, orderBy: "date" };
     if (isTag) args.tag = name; else args.category = name;
     getPostsFromSupabase(args)
-      .then(({ posts: rows, total }) => {
+      .then(async ({ posts: rows, total }) => {
+        // כתובת ישנה מוורדפרס שגוגל אינדקס — השם כבר לא קיים כקטגוריה/תגית.
+        // ננסה להפנות (301-לוגי) לקטגוריה/תגית הקיימת ששמה כלול בשם המבוקש (הארוכה ביותר),
+        // למשל /category/שיעורי-שמע-סוד-החשמל → /category/סוד-החשמל.
+        if (total === 0 && p === 1) {
+          try {
+            const { categories, tags } = await getDistinctCategoriesAndTags();
+            const pool = isTag ? tags : categories;
+            const hit = (pool || [])
+              .filter(c => c && c.length >= 5 && c !== name && name.includes(c))
+              .sort((a, b) => b.length - a.length)[0];
+            if (hit && toSlug(hit) !== slug) {
+              navigate(`/${kind}/${toSlug(hit)}`, { replace: true });
+              return; // נשארים במצב טעינה עד שהניווט מתחלף — ללא הבהוב "ריק"
+            }
+          } catch { /* אם הפתרון נכשל — ממשיכים למצב ריק רגיל */ }
+        }
         setPosts(prev => p === 1 ? rows.map(adaptPost) : [...prev, ...rows.map(adaptPost)]);
         setTotal(total);
         setLoading(false);
       })
       .catch(err => { setError(err.message || "שגיאה בטעינה"); setLoading(false); });
-  }, [isTag, name]);
+  }, [isTag, name, kind, slug, navigate]);
 
   useEffect(() => { load(page); }, [load, page]);
 
