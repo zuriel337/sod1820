@@ -1,0 +1,19 @@
+{
+  "name": "כי לה' המלוכה · SOD1820",
+  "short_name": "SOD1820",
+  "description": "גימטריה, דילוגי אותיות (ELS) ותיעוד אירועים בשפת המספרים.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080500",
+  "theme_color": "#07050E",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
