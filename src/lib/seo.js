@@ -5,7 +5,7 @@
 export const SITE_URL = "https://sod1820.co.il";
 export const SITE_NAME = "SOD1820";
 export const DEFAULT_DESC =
-  "SOD1820 — צוריאל פולייס. גימטריה, דילוגי אותיות (ELS) ותיעוד אירועים בשפת המספרים.";
+  "כי לה' המלוכה · SOD1820 — גימטריה, דילוגי אותיות (ELS) ותיעוד אירועים בשפת המספרים.";
 export const DEFAULT_IMAGE = SITE_URL + "/favicon.svg";
 
 function upsertMeta(attr, key, content) {
