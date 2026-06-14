@@ -464,6 +464,21 @@ export async function adminGetSubscribers() {
   return data || [];
 }
 
+// עדכון ידני של פוסט בידי מנהל (כותרת / תוכן / תקציר). מסמן modified=עכשיו.
+export async function adminUpdatePost(id, fields = {}) {
+  if (!supabase) throw new Error('no supabase');
+  if (id == null) throw new Error('no post id');
+  const allowed = {};
+  for (const k of ['title', 'content', 'excerpt']) {
+    if (k in fields) allowed[k] = fields[k];
+  }
+  allowed.modified = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('posts').update(allowed).eq('id', id).select('*').maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──
 export async function getOcrCounts() {
   if (!supabase) return { total: 0, done: 0, pending: 0, error: 0, other: 0 };
