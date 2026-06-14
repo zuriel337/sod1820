@@ -264,6 +264,30 @@ function NumberResults({ value }) {
 // טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
 const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה — פנינים גדולות יותר
+// ✨ כלים עתידיים — "בקרוב" (תצוגה בלבד)
+const SOON_TOOLS = [
+  { icon: "🤖", title: "חישוב כל השיטות עם AI", desc: "ניתוח חכם שמחבר את כל השיטות יחד למסר אחד — חדשני בעולם." },
+  { icon: "📷", title: "חילוץ מספרים מתמונה", desc: "מעלים תמונה — והמערכת מזהה ומחשבת את המספרים שבה." },
+  { icon: "🔍", title: "חיפוש במאגר", desc: "חיפוש חופשי בכל הביטויים, המספרים והישויות." },
+];
+function ComingSoonTools() {
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 8 }}>✨ כלים חדשים · בקרוב</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 10 }}>
+        {SOON_TOOLS.map(t => (
+          <div key={t.title} style={{ position: "relative", background: L.soft, border: `1px dashed ${L.line}`, borderRadius: 12, padding: "13px 14px" }}>
+            <span style={{ position: "absolute", top: 10, insetInlineStart: 10, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "1px 8px", fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>בקרוב</span>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icon}</div>
+            <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, marginBottom: 4 }}>{t.title}</div>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{t.desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function CalcTab({ initial }) {
   const [num, setNum] = useState(initial || 1820);
   return (
@@ -273,6 +297,7 @@ function CalcTab({ initial }) {
           מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
         </p>
         <GematriaCalculator />
+        <ComingSoonTools />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
       <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
