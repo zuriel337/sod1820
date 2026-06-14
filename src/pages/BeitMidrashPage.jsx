@@ -23,12 +23,7 @@ const SECTIONS = [
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
-  { key: "numbers", icon: "🔢", label: "מספרי יסוד", soon: true },
-  { key: "ai", icon: "🔵", label: "חידושי AI", ai: true, soon: true },
-  { key: "mine", icon: "✦", label: "חידושי המערכת", soon: true },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
-  { key: "community", icon: "💬", label: "חידושי גולשים", soon: true },
-  { key: "submit", icon: "✍️", label: "הגשת חידוש משלך", soon: true },
 ];
 
 // תג AI כחול (בהיר)
