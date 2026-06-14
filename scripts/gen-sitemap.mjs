@@ -29,6 +29,8 @@ const STATIC = [
   { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },
   { loc: '/sulamot',      priority: '0.5', changefreq: 'monthly' },
   { loc: '/community',    priority: '0.5', changefreq: 'weekly'  },
+  { loc: '/community/calculator', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/cross',        priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact',      priority: '0.4', changefreq: 'yearly'  },
 ];
 
