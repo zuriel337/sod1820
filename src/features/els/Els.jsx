@@ -100,6 +100,57 @@ function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches) {
   return { clusters: clusters.slice(0, 12), terms: allTerms, anchorTerm: anchor.term };
 }
 
+// ייצוא המטריצה הנוכחית כתמונת PNG — ללא תלות חיצונית (ציור על canvas)
+function downloadMatrixPNG(letters, hit, title) {
+  try {
+    const S = Math.abs(hit.skip);
+    const set = new Set(hit.positions);
+    const cell = 30, pad = 18, headH = 40, footH = 24;
+    let cols, rows;
+    if (S > 60) {
+      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+      const from = Math.max(0, min - 3), to = Math.min(letters.length, max + 4);
+      const row = [];
+      for (let i = from; i < to; i++) row.push({ ch: letters[i], hl: set.has(i) });
+      cols = row.length; rows = [row];
+    } else {
+      cols = S;
+      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+      const startRow = Math.max(0, Math.floor(min / cols) - 1);
+      const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
+      rows = [];
+      for (let r = startRow; r < endRow; r++) {
+        const row = [];
+        for (let c = 0; c < cols; c++) { const idx = r * cols + c; row.push({ ch: idx < letters.length ? letters[idx] : "", hl: set.has(idx) }); }
+        rows.push(row);
+      }
+    }
+    const W = pad * 2 + cols * cell, H = pad * 2 + headH + rows.length * cell + footH;
+    const cv = document.createElement("canvas");
+    const scale = 2; cv.width = W * scale; cv.height = H * scale;
+    const g = cv.getContext("2d"); g.scale(scale, scale);
+    g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
+    g.fillText(title, W / 2, pad + headH / 2);
+    g.font = "bold 17px 'Frank Ruhl Libre', serif";
+    rows.forEach((row, r) => row.forEach((cl, c) => {
+      const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
+      if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
+      else g.fillStyle = "#6f6347";
+      if (cl.ch) g.fillText(cl.ch, x + cell / 2, y + cell / 2);
+    }));
+    g.fillStyle = "#9a7818"; g.font = "12px 'Heebo', sans-serif";
+    g.fillText("סוד 1820 · הצופן התנ\"כי · sod1820.co.il", W / 2, H - footH / 2);
+    cv.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `els-${(title || "matrix").replace(/[^\w֐-׿]+/g, "-")}.png`; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    });
+  } catch { alert("שמירת התמונה נכשלה — נסו שוב."); }
+}
+
 function ELSMatrix({ letters, hit }) {
   const cols = Math.abs(hit.skip);
   // מטריצה רחבה מדי לא ניתנת להצגה — מציגים את הרצף בשורה אחת עם הקשר
@@ -588,6 +639,10 @@ export function ELSSection() {
                           borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                         }}>{lbl}</button>
                       ))}
+                      <button onClick={() => downloadMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`)} title="שמור את הטבלה כתמונה" style={{
+                        cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
+                        borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                      }}>📷 שמור כתמונה</button>
                     </div>
                     {tableMode === "grid"
                       ? <ELSMatrix letters={letters} hit={sel} />
