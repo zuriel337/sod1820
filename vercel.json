@@ -1,9 +1,18 @@
 {
   "redirects": [
+    { "source": "/פוסטים-אחרונים-2", "destination": "/post", "permanent": true },
+    { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
+    { "source": "/דף-ראשי-2", "destination": "/", "permanent": true },
+    { "source": "/דף-ראשי", "destination": "/", "permanent": true },
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
   "rewrites": [
     { "source": "/wp-content/(.*)", "destination": "https://wp.sod1820.co.il/wp-content/$1" },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|redditbot|Applebot|SkypeUriPreview|vkShare|Embedly|Iframely|W3C_Validator).*" }],
+      "destination": "/api/og?path=/$1"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
