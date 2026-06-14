@@ -1,0 +1,42 @@
+name: OCR גלריות (סיווג עשיר)
+
+# הרצה ידנית מ-GitHub → Actions → "OCR גלריות" → Run workflow.
+# דורש 2 secrets ב-Settings → Secrets and variables → Actions:
+#   ANTHROPIC_API_KEY      (sk-ant-...)
+#   SUPABASE_SERVICE_KEY   (service_role של הפרויקט)
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "כמה תמונות (ריק = הכל)"
+        required: false
+        default: ""
+      retry:
+        description: "סריקה חוזרת מלאה גם של מה שכבר תויג? (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: הרצת OCR עשיר
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          CONCURRENCY: "5"
+        run: |
+          if [ "${{ github.event.inputs.retry }}" = "true" ]; then
+            node scripts/ocr-gallery.mjs --retry
+          else
+            node scripts/ocr-gallery.mjs
+          fi
