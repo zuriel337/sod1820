@@ -205,6 +205,7 @@ function LatestPostsRail({ posts, onPost }) {
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
                   <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
+                  {(p.verified || p.ai_touched) && <span className="sod-pf-ai" title="פוסט בליווי בינה מלאכותית">✓ AI</span>}
                   {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
                 </div>
               </div>
@@ -330,7 +331,7 @@ export default function HomePage() {
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 6, orderBy: "modified" })
-      .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
+      .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date, verified: r.verified, ai_touched: r.ai_touched }))))
       .catch(() => {});
   }, []);
 
@@ -617,6 +618,11 @@ export default function HomePage() {
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 10px; letter-spacing: 0.5px; }
+        .sod-pf-ai {
+          font-family: ${F.heading}; font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+          color: #3ea6ff; background: rgba(62,166,255,0.14); border: 1px solid rgba(62,166,255,0.45);
+          border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+        }
         .sod-pf-gem {
           font-family: ${F.mono}; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
           color: ${C.goldBright};

@@ -2,6 +2,7 @@
 // כדי להוסיף כתב חדש: להוסיף ערך כאן (תמונה תחת public/authors/).
 export const AUTHORS = {
   "המערכת": { avatar: "/logo.png", role: "מערכת סוד 1820" },
+  "מזכה הרבים": { avatar: "/logo.png", role: "מדור התחזקות וזיכוי הרבים" },
   // דוגמה לכתב נוסף:
   // "ישראל ישראלי": { avatar: "/authors/israel.jpg", role: "כתב" },
 };
