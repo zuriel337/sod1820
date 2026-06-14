@@ -44,7 +44,7 @@ const F = {
 // ===== DATA =====
 const TESTIMONIALS = [
   { name: "מיכל ר׳", text: "אחרי השיעור הראשון ראיתי את המספר שלי בכל מקום. זה שינה לי את החיים.", stars: 5 },
-  { name: "דוד כ׳", text: "צוריאל מסביר דברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
+  { name: "דוד כ׳", text: "ההסברים נוגעים בדברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
   { name: "שרה מ׳", text: "הקורס על המסתתר פתח לי ממד שלם שלא ידעתי שקיים.", stars: 5 },
   { name: "יוסף ב׳", text: "השקעתי בקורס ארבעת העולמות ושינה את האופן שבו אני רואה את המציאות.", stars: 5 },
   { name: "רחל א׳", text: "הסברים ברורים, עמוקים ומרגשים. ממליצה לכל אחד.", stars: 5 },
@@ -78,8 +78,8 @@ const PAGE_CONTENT_DEFAULTS = {
     tag: "home",
   },
   about: {
-    title: "צוריאל פולייס",
-    description: "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
+    title: "אודות",
+    description: "צוריאל הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
     bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p>",
     category: "אודות",
     tag: "about",
@@ -388,7 +388,7 @@ function HeroSection({ onNav }) {
         <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse", zIndex: 2 }}>✦</span>
       </div>
 
-      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · צוריאל פולייס</div>
+      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · כי לה' המלוכה</div>
 
       <h1 style={{
         color: C.goldBright,
@@ -418,7 +418,7 @@ function HeroSection({ onNav }) {
 
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
         <GoldButton onClick={() => onNav("blog")}>לפוסטים האחרונים</GoldButton>
-        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות צוריאל</GoldButton>
+        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות</GoldButton>
       </div>
 
       <div style={{ marginTop: 52 }}>
@@ -1547,7 +1547,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
   return (
     <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "64px 24px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-        <SectionHeader eyebrow={category || "אודות"} title={title || "צוריאל פולייס"} />
+        <SectionHeader eyebrow={category || "אודות"} title={title || "אודות"} />
         {adminMode && (
           <button onClick={() => onNav("admin", "about")} style={{
             background: C.bgGlow, border: `1px solid ${C.gold}`,
@@ -1581,7 +1581,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
         }}>✦</div>
 
         <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.2, marginBottom: 20, fontFamily: F.body, textAlign: "center" }}>
-          {description || "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום אחר — ביניהן שיטת ההפרשים (\"המסתתר\") ומסגרת \"ארבעת העולמות\"."}
+          {description || "צוריאל הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום אחר — ביניהן שיטת ההפרשים (\"המסתתר\") ומסגרת \"ארבעת העולמות\"."}
         </p>
 
         <PageBody bodyHtml={bodyHtml} />
@@ -1660,7 +1660,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <GoldButton onClick={() => onNav("blog")}>לפוסטים של צוריאל</GoldButton>
+        <GoldButton onClick={() => onNav("blog")}>לפוסטים</GoldButton>
       </div>
     </div>
   );
@@ -4295,7 +4295,7 @@ function ContactPage() {
             { icon: "👥", label: "קבוצת גימטריה בוואטסאפ", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
             { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
             { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
-            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל פולייס", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
+            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
             { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
           ].map(({ icon, label, value, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
@@ -4668,7 +4668,7 @@ function Footer({ onNav, navItems }) {
             </div>
           </div>
           <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 260 }}>
-            צוריאל פולייס · sod1820.co.il<br />
+            כי לה' המלוכה · sod1820.co.il<br />
             נחזור בקרוב עם שיעורים חיים, כלים מיוחדים וגישה אישית.
           </div>
         </div>

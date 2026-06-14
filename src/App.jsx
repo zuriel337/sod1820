@@ -94,6 +94,8 @@ export default function App() {
           <Route path="/sulamot" element={<LaddersDemo />} />
 
           {/* הפניות מכתובות ישנות (שמירת קישורים) */}
+          <Route path="/פוסטים-אחרונים-2" element={<Navigate to="/post" replace />} />
+          <Route path="/פוסטים-אחרונים" element={<Navigate to="/post" replace />} />
           <Route path="/צור-קשר" element={<Navigate to="/contact" replace />} />
           <Route path="/דף-צאט-ראשי" element={<Navigate to="/community/chat" replace />} />
           <Route path="/chat" element={<Navigate to="/community/chat" replace />} />
