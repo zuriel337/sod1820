@@ -62,7 +62,10 @@ async function main() {
     for (const p of data) {
       if (!p.slug) continue;
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
-      urls.push({ loc: '/' + encodeURI(p.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
+      // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-% ל-%25
+      // וגורם לקידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק סלאגים בעברית "נקייה".
+      const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
+      urls.push({ loc: '/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
     }
     if (data.length < PAGE) break;
     from += PAGE;
