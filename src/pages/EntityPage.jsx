@@ -64,6 +64,8 @@ export default function EntityPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
+  const [q, setQ] = useState("");
+  const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
 
   useEffect(() => {
     let alive = true;
@@ -103,7 +105,13 @@ export default function EntityPage() {
 
   return (
     <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "44px 20px 100px", position: "relative", zIndex: 1 }}>
-      <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 26 }}>← חזרה</button>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
+        <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>← חזרה</button>
+        <form onSubmit={goSearch} style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 200 }} />
+          <button type="submit" style={{ cursor: "pointer", background: C.goldDeep, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
+        </form>
+      </div>
 
       {/* ── ראש: הערך ── */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
