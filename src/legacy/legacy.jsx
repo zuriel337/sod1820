@@ -7,6 +7,11 @@ import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
+
+// פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
+// 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
+const PRAYER_SHARE_WP_IDS = [29289, 36173];
 
 // ===== GEMATRIA =====
 const GEM = {'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
@@ -4922,6 +4927,12 @@ function PostPageBySlug({ onNav }) {
 
   return (
     <div style={{ direction: "rtl" }}>
+      {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
+        <PrayerSharePopup
+          url={`${SITE_URL}/${post.slug || slug}`}
+          title={title}
+        />
+      )}
       {image && !loading && (
         <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: C.goldDeep }}>
           <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.5) sepia(0.3)", display: "block" }} />
