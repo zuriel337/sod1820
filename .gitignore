@@ -10,4 +10,5 @@ dist/
 .vercel
 migration-log.json
 .service_key
+.anthropic_key
 key.txt
