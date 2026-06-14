@@ -111,11 +111,12 @@ export function CommunityCalculatorPage() {
   const [name2, setName2] = useState("");
   const [compare, setCompare] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [aiPing, setAiPing] = useState(false);
 
   useEffect(() => {
     applySeo({
-      title: "מחשבון גימטריה",
-      description: "מחשבון גימטריה חינמי ומדויק — חשבו את ערך השם או המילה ב-8 שיטות (רגיל, מילוי, מסתתר, קדמי, אתב\"ש, אלב\"ם, סידורי, גדול), השוו בין שני שמות וגלו את הסוד שמאחורי המספרים. שתפו בוואטסאפ.",
+      title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם",
+      description: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות (רגיל, מילוי, מסתתר, קדמי, אתב\"ש ועוד), השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים. נסו עכשיו ושתפו בוואטסאפ ✨",
       path: "/community/calculator",
     });
   }, []);
@@ -160,6 +161,29 @@ export function CommunityCalculatorPage() {
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, textAlign: "center", margin: "-8px auto 26px", maxWidth: 580 }}>
         מחשבון הגימטריה של <b style={{ color: C.goldLight }}>סוד 1820</b> — הזינו שם או מילה בעברית וגלו את ערכם ב-8 שיטות. אפשר גם להשוות בין שני שמות ולמצוא התאמות נסתרות. ✨
       </p>
+
+      {/* 🔵 חיפוש חכם ב-AI — תיבה בולטת (בטא · בקרוב) */}
+      <div style={{ background: "linear-gradient(135deg, rgba(62,166,255,0.10), rgba(132,88,255,0.08), rgba(8,5,2,0.4))", border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 18 }}>🔵</span>
+          <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>חיפוש חכם בבינה מלאכותית</span>
+          <span style={{ background: "rgba(122,19,32,0.25)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>בטא · בקרוב</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input readOnly onFocus={() => setAiPing(true)} onClick={() => setAiPing(true)}
+            placeholder="שאלו בשפה חופשית: ״אילו מילים שוות לשם שלי?״ · ״מה מסתתר במספר 1820?״"
+            style={{ ...inp, fontSize: 14.5, fontWeight: 500, textAlign: "right", flex: 1, minWidth: 200, cursor: "pointer" }} />
+          <button onClick={() => setAiPing(true)}
+            style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 10, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "0 22px", whiteSpace: "nowrap" }}>
+            ✨ חפש ב-AI
+          </button>
+        </div>
+        {aiPing && (
+          <div style={{ marginTop: 10, color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+            🔵 חיפוש ה-AI ייפתח בקרוב! בינתיים — נסו את מחשבון הגימטריה המלא למטה 👇
+          </div>
+        )}
+      </div>
 
       <div style={{ display: "grid", gap: 12, marginBottom: 8 }}>
         <input style={inp} value={name1} onChange={e => setName1(e.target.value)} placeholder="הקלידו שם / מילה בעברית…" autoFocus />

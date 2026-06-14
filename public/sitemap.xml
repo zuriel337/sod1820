@@ -61,9 +61,25 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sod1820.co.il/community/calculator</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/cross</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://sod1820.co.il/contact</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/%D7%A4%D7%A8%D7%94-%D7%90%D7%93%D7%95%D7%9E%D7%94-%D7%AA%D7%9E%D7%99%D7%9E%D7%94-%D7%A0%D7%95%D7%9C%D7%93%D7%94-%D7%91%D7%92%D7%9C%D7%99%D7%9C</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://sod1820.co.il/%25d7%25aa%25d7%2597%25d7%2599%25d7%259c%25d7%25aa-%25d7%259e%25d7%25aa%25d7%25a7%25d7%25a4%25d7%25aa-%25d7%2590%25d7%2599%25d7%25a8%25d7%259f-%25d7%2594%25d7%2597%25d7%2593%25d7%25a9%25d7%2594-%25d7%2591%25d7%25aa%25d7%2590%25d7%25a8%25d7%2599%25d7%259a-7-6-%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%2597</loc>
