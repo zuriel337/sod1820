@@ -4756,6 +4756,38 @@ function Footer({ onNav, navItems }) {
 
 // ===== SLUG-BASED POST PAGE =====
 
+// ===== SPOTIM COMMENTS (per-article) =====
+function SpotimComments({ postId, postUrl }) {
+  useEffect(() => {
+    if (!postId) return;
+    if (!document.getElementById("spotim-script")) {
+      const s = document.createElement("script");
+      s.id = "spotim-script";
+      s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
+      s.async = true;
+      s.setAttribute("data-spotim-module", "spotim-launcher");
+      document.body.appendChild(s);
+    }
+  }, [postId]);
+  if (!postId) return null;
+  return (
+    <div style={{ marginTop: 64 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+        <RoyalDivider width={48} />
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>הצטרפו לדיון</span>
+        <RoyalDivider width={48} />
+      </div>
+      <div
+        key={String(postId)}
+        data-spotim-module="conversation"
+        data-post-id={String(postId)}
+        data-post-url={postUrl}
+        style={{ minHeight: 300 }}
+      />
+    </div>
+  );
+}
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -4950,6 +4982,7 @@ function PostPageBySlug({ onNav }) {
               );
             })()}
 
+            <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
             {/* ── COMMENTS ── */}
             {comments.length > 0 && (
               <div style={{ marginTop: 64 }}>
