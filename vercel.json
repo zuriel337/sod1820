@@ -1,5 +1,7 @@
 {
   "redirects": [
+    { "source": "/פוסטים-אחרונים-2", "destination": "/post", "permanent": true },
+    { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
   "rewrites": [
