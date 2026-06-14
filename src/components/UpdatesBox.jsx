@@ -3,6 +3,9 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { subscribeEmail } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
 
+// קישור הוואטסאפ — ניתן להחלפה לערוץ ייעודי דרך VITE_WHATSAPP_CHANNEL
+const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
+
 /**
  * תיבת עדכונים כללית — רכיב קבוע וניתן-להצבה בכל מקום באתר.
  * מטרה: הרשמה חינם לעדכוני סוד 1820 (טבלת subscribers). טון: לא מטריד, אבל FOMO עדין.
@@ -70,9 +73,18 @@ export default function UpdatesBox({
       חינם · אימות חד-פעמי במייל · אפשר לבטל בכל רגע
     </div>
   );
+  const waButton = (
+    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
+      style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 999, textDecoration: "none", background: "#1f8a4c", color: "#fff", fontFamily: F.heading, fontSize: 14, fontWeight: 700, boxShadow: "0 2px 10px rgba(31,138,76,0.35)" }}>
+      📢 הצטרפו לעדכונים בוואטסאפ
+    </a>
+  );
   const success = (
-    <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>
-      ✦ אתם בפנים! 🙏❤️ תודה שאתם איתנו. נתראה בעדכון הבא.
+    <div>
+      <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>
+        ✦ אתם בפנים! 🙏❤️ תודה שאתם איתנו. נתראה בעדכון הבא.
+      </div>
+      <div style={{ marginTop: 12 }}>{waButton}</div>
     </div>
   );
 
@@ -123,6 +135,10 @@ export default function UpdatesBox({
           </form>
           {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
           {micro}
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 8 }}>או הצטרפו ישירות לעדכונים בוואטסאפ:</div>
+            {waButton}
+          </div>
         </>
       )}
     </div>
