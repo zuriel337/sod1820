@@ -160,7 +160,7 @@ function LatestPostsRail({ posts, onPost }) {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+      <div style={{ fontSize: 12.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
         📜 עדכונים אחרונים
       </div>
       {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
@@ -240,7 +240,7 @@ function AiInsightsBox() {
           <span className="sod-soon">🚧 בבנייה</span>
         </div>
         <div style={{ textAlign: "center", padding: "10px 8px 4px" }}>
-          <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 22px" }}>
+          <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 22px" }}>
             החידושים החדשים שמופקים בעזרת בינה מלאכותית בדרך אליכם. נפתח בעוד שבוע:
           </p>
           <Countdown target={AI_LAUNCH} />
@@ -348,7 +348,7 @@ export default function HomePage() {
           <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
 
           <div style={{ direction: "rtl" }}>
-            <div style={{ fontSize: 11, color: C.goldDim, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+            <div style={{ fontSize: 12.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
               👑 היכל השערים
             </div>
             <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
@@ -439,7 +439,7 @@ export default function HomePage() {
         /* ===== שערי המערכת ===== */
         .sod-gates-wrap { max-width: 1360px; margin: 0 auto; padding: 8px 18px 6px; direction: rtl; }
         .sod-gates-eyebrow {
-          text-align: center; font-size: 11px; color: ${C.goldDim}; letter-spacing: 4px;
+          text-align: center; font-size: 13px; color: ${C.goldLight}; letter-spacing: 4px;
           font-family: ${F.heading}; text-transform: uppercase; margin-bottom: 16px;
         }
         .sod-gates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -466,10 +466,10 @@ export default function HomePage() {
         .sod-gate-corner { position: absolute; width: 12px; height: 12px; border-color: ${C.goldBright}; opacity: 0.55; }
         .sod-gate-corner.tl { top: 8px; right: 8px; border-top: 1.5px solid; border-right: 1.5px solid; }
         .sod-gate-corner.br { bottom: 8px; left: 8px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
-        .sod-gate-icon { font-size: 30px; line-height: 1; filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); }
-        .sod-gate-title { color: ${C.goldLight}; font-family: ${F.royal}; font-size: 16px; font-weight: 700; transition: color 0.28s; }
+        .sod-gate-icon { font-size: 34px; line-height: 1; filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); }
+        .sod-gate-title { color: ${C.goldLight}; font-family: ${F.royal}; font-size: 18.5px; font-weight: 700; transition: color 0.28s; }
         .sod-gate:hover .sod-gate-title { color: ${C.goldBright}; }
-        .sod-gate-sub { color: ${C.muted}; font-family: ${F.heading}; font-size: 11px; letter-spacing: 0.5px; }
+        .sod-gate-sub { color: ${C.muted}; font-family: ${F.heading}; font-size: 12.5px; letter-spacing: 0.5px; }
         .sod-gate-go {
           margin-top: 6px; color: ${C.goldBright}; font-family: ${F.heading};
           font-size: 11px; font-weight: 700; letter-spacing: 1px;

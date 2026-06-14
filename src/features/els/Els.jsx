@@ -20,7 +20,7 @@ export function elsNormalize(s) {
     .map(ch => ELS_FINALS[ch] || ch).join('');
 }
 const ELS_SAMPLE = elsNormalize(ELS_SOURCE); // fallback אם טעינת התורה נכשלת
-const ELS_HIT_CAP = 300; // הגבלת מספר המופעים שנאספים
+const ELS_HIT_CAP = 5000; // אוסף עד 5000 מופעים — מעשית ללא הגבלה
 
 // צבעים לכל מונח בחיפוש מונחים מרובים (האחראי=זהב)
 const ELS_TERM_COLORS = ["#E8C84A", "#a01f2e", "#6b3fa0", "#3a9b6e", "#c77d2e"];
@@ -98,6 +98,57 @@ function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches) {
   }
   clusters.sort((a, b) => a.span - b.span);
   return { clusters: clusters.slice(0, 12), terms: allTerms, anchorTerm: anchor.term };
+}
+
+// ייצוא המטריצה הנוכחית כתמונת PNG — ללא תלות חיצונית (ציור על canvas)
+function downloadMatrixPNG(letters, hit, title) {
+  try {
+    const S = Math.abs(hit.skip);
+    const set = new Set(hit.positions);
+    const cell = 30, pad = 18, headH = 40, footH = 24;
+    let cols, rows;
+    if (S > 60) {
+      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+      const from = Math.max(0, min - 3), to = Math.min(letters.length, max + 4);
+      const row = [];
+      for (let i = from; i < to; i++) row.push({ ch: letters[i], hl: set.has(i) });
+      cols = row.length; rows = [row];
+    } else {
+      cols = S;
+      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+      const startRow = Math.max(0, Math.floor(min / cols) - 1);
+      const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
+      rows = [];
+      for (let r = startRow; r < endRow; r++) {
+        const row = [];
+        for (let c = 0; c < cols; c++) { const idx = r * cols + c; row.push({ ch: idx < letters.length ? letters[idx] : "", hl: set.has(idx) }); }
+        rows.push(row);
+      }
+    }
+    const W = pad * 2 + cols * cell, H = pad * 2 + headH + rows.length * cell + footH;
+    const cv = document.createElement("canvas");
+    const scale = 2; cv.width = W * scale; cv.height = H * scale;
+    const g = cv.getContext("2d"); g.scale(scale, scale);
+    g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
+    g.fillText(title, W / 2, pad + headH / 2);
+    g.font = "bold 17px 'Frank Ruhl Libre', serif";
+    rows.forEach((row, r) => row.forEach((cl, c) => {
+      const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
+      if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
+      else g.fillStyle = "#6f6347";
+      if (cl.ch) g.fillText(cl.ch, x + cell / 2, y + cell / 2);
+    }));
+    g.fillStyle = "#9a7818"; g.font = "12px 'Heebo', sans-serif";
+    g.fillText("סוד 1820 · הצופן התנ\"כי · sod1820.co.il", W / 2, H - footH / 2);
+    cv.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `els-${(title || "matrix").replace(/[^\w֐-׿]+/g, "-")}.png`; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    });
+  } catch { alert("שמירת התמונה נכשלה — נסו שוב."); }
 }
 
 function ELSMatrix({ letters, hit }) {
@@ -343,6 +394,8 @@ export function ELSSection() {
   const [searching, setSearching] = useState(false);
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
+  const [selectedIdx, setSelectedIdx] = useState(0);   // המופע המוצג בטבלה האחת
+  const [tableMode, setTableMode] = useState("grid");  // grid | axis — החלפת ציר באותה טבלה
   const [copied, setCopied] = useState(false);
   const [cfg, setCfg] = useState({ contextRows: 12, innerMaxSkip: 12, freeQuota: 5 });
 
@@ -400,6 +453,9 @@ export function ELSSection() {
     const t = setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 500);
     return () => clearTimeout(t);
   }, []);
+
+  // תוצאה חדשה → מאפסים את הבחירה בטבלה
+  useEffect(() => { setSelectedIdx(0); setTableMode("grid"); }, [result]);
 
   function run() {
     const lo = Math.max(1, parseInt(skipMin) || 1);
@@ -539,44 +595,62 @@ export function ELSSection() {
                 <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
                   לא נמצאו מופעים. נסה להרחיב את טווח הדילוג, להעלות סבילות לשגיאות, או מילה קצרה יותר.
                 </div>
-              ) : (
-                <>
-                  {result.capped && (
-                    <div style={{ color: C.goldDim, fontSize: 12, marginBottom: 10, fontFamily: F.royal }}>
-                      נמצאו מופעים רבים — מוצגים החזקים ביותר (דילוג קצר). צמצם את הטווח למיקוד.
+              ) : (() => {
+                const sel = result.hits[Math.min(selectedIdx, result.hits.length - 1)] || result.hits[0];
+                return (
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
+                  {/* רשימת התוצאות — לפי מובהקות (דילוג קצר קודם) */}
+                  <div style={{ flex: "1 1 210px", minWidth: 180, maxWidth: 300, maxHeight: 540, overflowY: "auto", border: `1px solid ${C.border}`, borderRadius: 8, background: "#0a0700" }}>
+                    <div style={{ position: "sticky", top: 0, background: "#0a0700", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, padding: "8px 12px", borderBottom: `1px solid ${C.border}` }}>
+                      {result.hits.length.toLocaleString("he")}{result.capped ? "+" : ""} מופעים · בחרו לצפייה
                     </div>
-                  )}
-                  {result.hits.slice(0, 6).map((h, i) => (
-                    <div key={i} style={{ borderTop: `1px solid ${C.border}`, padding: "14px 0" }}>
-                      <div style={{ fontSize: 12, color: C.muted, marginBottom: 10, fontFamily: F.royal, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                        <span>
-                          מופע {i + 1} · דילוג <b style={{ color: C.goldBright }}>{h.skip}</b> ·
-                          כיוון <b style={{ color: C.goldBright }}>{h.dir === 1 ? "קדימה" : "אחורה"}</b> ·
-                          מיקום <b style={{ color: C.goldBright }}>{(h.start + 1).toLocaleString("he")}</b>
-                          {h.mismatches > 0 && <> · <b style={{ color: C.crimsonLight }}>{h.mismatches} שגיאות</b></>}
-                        </span>
-                        <button onClick={() => setAxisHit(axisHit === h ? null : h)} style={{
-                          background: axisHit === h ? C.gold : "transparent",
-                          color: axisHit === h ? "#0a0700" : C.goldBright,
-                          border: `1px solid ${C.borderGold}`, borderRadius: 5,
-                          padding: "3px 10px", cursor: "pointer", fontFamily: F.heading,
-                          fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-                        }}>{axisHit === h ? "סגור ציר ▲" : "ציר אנכי ▼"}</button>
+                    {result.hits.slice(0, 600).map((h, i) => {
+                      const on = h === sel;
+                      return (
+                        <button key={i} onClick={() => setSelectedIdx(i)} style={{
+                          display: "block", width: "100%", textAlign: "right", cursor: "pointer",
+                          background: on ? "rgba(212,175,55,0.14)" : "transparent", border: "none",
+                          borderBottom: `1px solid ${C.border}`, borderInlineStart: `3px solid ${on ? C.gold : "transparent"}`,
+                          color: on ? C.goldBright : C.muted, fontFamily: F.royal, fontSize: 12.5, padding: "9px 12px",
+                        }}>
+                          <b style={{ color: on ? C.goldBright : C.goldLight }}>#{i + 1}</b> · דילוג {h.skip} · {h.dir === 1 ? "→" : "←"} · מיקום {(h.start + 1).toLocaleString("he")}
+                          {h.mismatches > 0 && <span style={{ color: C.crimsonLight }}> · {h.mismatches} שג׳</span>}
+                        </button>
+                      );
+                    })}
+                    {result.hits.length > 600 && (
+                      <div style={{ color: C.goldDim, fontSize: 11, padding: "8px 12px", textAlign: "center" }}>
+                        ...ועוד {(result.hits.length - 600).toLocaleString("he")} — צמצמו את הטווח למיקוד
                       </div>
-                      <ELSMatrix letters={letters} hit={h} />
-                      {axisHit === h && (
-                        <ELSAxisView letters={letters} hit={h}
-                          contextRows={cfg.contextRows} innerMaxSkip={cfg.innerMaxSkip} />
-                      )}
+                    )}
+                  </div>
+
+                  {/* טבלה אחת — המופע הנבחר; כפתור להחלפת ציר */}
+                  <div style={{ flex: "3 1 320px", minWidth: 0 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+                      <span style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14 }}>
+                        מופע #{Math.min(selectedIdx, result.hits.length - 1) + 1} · דילוג <b>{sel.skip}</b> · {sel.dir === 1 ? "קדימה" : "אחורה"} · מיקום {(sel.start + 1).toLocaleString("he")}
+                      </span>
+                      <span style={{ flex: 1 }} />
+                      {[["grid", "טבלה ▦"], ["axis", "ציר אנכי ▼"]].map(([mode, lbl]) => (
+                        <button key={mode} onClick={() => setTableMode(mode)} style={{
+                          cursor: "pointer", background: tableMode === mode ? C.gold : "transparent",
+                          color: tableMode === mode ? "#0a0700" : C.goldBright, border: `1px solid ${C.borderGold}`,
+                          borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                        }}>{lbl}</button>
+                      ))}
+                      <button onClick={() => downloadMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`)} title="שמור את הטבלה כתמונה" style={{
+                        cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
+                        borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                      }}>📷 שמור כתמונה</button>
                     </div>
-                  ))}
-                  {result.hits.length > 6 && (
-                    <div style={{ color: C.muted, textAlign: "center", padding: 16, fontSize: 13 }}>
-                      ...ועוד {(result.hits.length - 6).toLocaleString("he")}{result.capped ? "+" : ""} מופעים
-                    </div>
-                  )}
-                </>
-              )}
+                    {tableMode === "grid"
+                      ? <ELSMatrix letters={letters} hit={sel} />
+                      : <ELSAxisView letters={letters} hit={sel} contextRows={cfg.contextRows} innerMaxSkip={cfg.innerMaxSkip} />}
+                  </div>
+                </div>
+                );
+              })()}
             </>
           )}
 
@@ -634,7 +708,7 @@ export function ELSSection() {
               )
               : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
           <br />
-          חינם: עד {cfg.freeQuota} חיפושים · גישה מלאה לבני ההיכל (מנוי)
+          חיפוש חופשי · ללא הגבלה ✦
         </div>
       </div>
     </div>
