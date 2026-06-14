@@ -4186,17 +4186,25 @@ function ContactPage() {
     finally { setSending(false); }
   }
 
+  const focusOn = e => { e.currentTarget.style.borderColor = C.gold; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(212,175,55,0.14)`; e.currentTarget.style.background = C.surface; };
+  const focusOff = e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = C.surface2; };
+  const fieldBase = {
+    width: "100%", boxSizing: "border-box", background: C.surface2,
+    border: `1px solid ${C.border}`, borderRadius: 13, color: "#f3ecdd",
+    fontFamily: F.body, padding: "15px 18px", outline: "none", direction: "rtl",
+    transition: "border-color .2s, box-shadow .2s, background .2s",
+  };
   const field = (label, key, type = "text", rows) => (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
+    <div style={{ marginBottom: 22 }}>
+      <label style={{ display: "block", color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, letterSpacing: 1.5, marginBottom: 9 }}>
         {label}
       </label>
       {rows ? (
-        <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
+        <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)} onFocus={focusOn} onBlur={focusOff}
+          style={{ ...fieldBase, fontSize: 17, resize: "vertical", lineHeight: 1.75 }} />
       ) : (
-        <input type={type} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
+        <input type={type} value={form[key]} onChange={e => set(key, e.target.value)} onFocus={focusOn} onBlur={focusOff}
+          style={{ ...fieldBase, fontSize: 17 }} />
       )}
     </div>
   );
@@ -4204,26 +4212,26 @@ function ContactPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 1000, margin: "0 auto", padding: "64px 16px 96px" }}>
       {/* hero */}
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
+      <div style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ fontSize: 13, color: C.gold, fontFamily: F.heading, letterSpacing: 5, textTransform: "uppercase", marginBottom: 14 }}>✦ יצירת קשר ✦</div>
+        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(38px,7vw,68px)", fontWeight: 700, margin: "0 0 18px", letterSpacing: 1, lineHeight: 1.1, textShadow: `0 0 60px ${C.goldDeep}` }}>
           נשמח לשמוע ממך
         </h1>
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
-          שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
+        <p style={{ color: "#d8cdb8", fontFamily: F.body, fontSize: 20, lineHeight: 1.7, maxWidth: 560, margin: "0 auto" }}>
+          שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה ובשמחה.
         </p>
-        <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
+        <RoyalDivider width={160} style={{ margin: "26px auto 0" }} />
       </div>
 
       {/* אודות — החזון מאחורי המיזם */}
       <div style={{
-        maxWidth: 820, margin: "0 auto 56px",
-        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-        border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`,
-        borderRadius: 2, padding: "36px 34px",
+        maxWidth: 860, margin: "0 auto 60px",
+        background: `linear-gradient(160deg, rgba(28,21,14,0.85) 0%, ${C.bg} 100%)`,
+        border: `1px solid ${C.borderGold}`, borderRadius: 20,
+        padding: "44px 42px", boxShadow: "0 18px 50px rgba(0,0,0,0.4)",
       }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
-          אודות המיזם
+        <div style={{ fontSize: 13, color: C.gold, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 22, textAlign: "center" }}>
+          ✦ אודות המיזם
         </div>
         {[
           "מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.",
@@ -4231,8 +4239,8 @@ function ContactPage() {
           "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
         ].map((para, i) => (
           <p key={i} style={{
-            color: i === 2 ? C.goldLight : "#d8cdb8", fontFamily: F.body,
-            fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
+            color: i === 2 ? C.goldLight : "#e2d8c4", fontFamily: F.body,
+            fontSize: 18.5, lineHeight: 2.1, margin: i === 0 ? 0 : "18px 0 0", textAlign: "center",
           }}>{para}</p>
         ))}
       </div>
@@ -4240,25 +4248,26 @@ function ContactPage() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
 
         {/* left — form */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "36px 32px" }}>
+        <div style={{ background: `linear-gradient(165deg, ${C.surface}, ${C.bg})`, border: `1px solid ${C.borderGold}`, borderRadius: 20, padding: "40px 36px", boxShadow: "0 18px 50px rgba(0,0,0,0.4)" }}>
           {sent ? (
-            <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <div style={{ fontSize: 52, marginBottom: 20 }}>✦</div>
-              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
+            <div style={{ textAlign: "center", padding: "56px 0" }}>
+              <div style={{ fontSize: 64, marginBottom: 22 }}>✦</div>
+              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 30, marginBottom: 14 }}>ההודעה נשלחה!</h2>
+              <p style={{ color: "#d8cdb8", fontFamily: F.body, fontSize: 18 }}>נחזור אליך בהקדם האפשרי</p>
               <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                style={{ marginTop: 24, background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
+                style={{ marginTop: 28, background: "none", border: `1px solid ${C.borderGold}`, color: C.goldLight, fontFamily: F.heading, fontSize: 14, letterSpacing: 2, padding: "12px 28px", cursor: "pointer", borderRadius: 999 }}>
                 שלח הודעה נוספת
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
+              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 24, fontWeight: 700, margin: "0 0 24px" }}>שליחת הודעה</h2>
               {field("שם מלא *", "name")}
               {field("אימייל *", "email", "email")}
               {field("נושא", "subject")}
               {field("הודעה *", "message", "text", 6)}
-              {err && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, marginBottom: 16 }}>{err}</p>}
-              <GoldButton type="submit" disabled={sending} style={{ width: "100%", padding: "14px", fontSize: 13, letterSpacing: 3 }}>
+              {err && <p style={{ color: "#e07a7a", fontFamily: F.heading, fontSize: 14, marginBottom: 18 }}>{err}</p>}
+              <GoldButton type="submit" disabled={sending} style={{ width: "100%", padding: "17px", fontSize: 17, letterSpacing: 3, borderRadius: 13 }}>
                 {sending ? "שולח..." : "שלח הודעה ✦"}
               </GoldButton>
             </form>
@@ -4269,24 +4278,24 @@ function ContactPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* author card */}
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
-            <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 18 }}>
+          <div style={{ background: `linear-gradient(165deg, ${C.surface}, ${C.bg})`, border: `1px solid ${C.borderGold}`, borderRadius: 20, padding: "32px 30px 28px", boxShadow: "0 18px 50px rgba(0,0,0,0.4)" }}>
+            <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 20 }}>
               <div style={{
-                width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
+                width: 74, height: 74, borderRadius: "50%", flexShrink: 0,
                 background: `linear-gradient(135deg, ${C.goldDark}, ${C.crimson})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 26, border: `2px solid ${C.borderGold}`,
+                fontSize: 32, border: `2px solid ${C.borderGold}`, boxShadow: "0 0 24px rgba(212,175,55,0.25)",
               }}>✦</div>
               <div>
-                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
+                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 22, fontWeight: 700, marginBottom: 5 }}>
                   צוריאל
                 </div>
-                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 1.5 }}>
                   מייסד ועורך — סוד 1820
                 </div>
               </div>
             </div>
-            <p style={{ color: "#c8bfb0", fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
+            <p style={{ color: "#d3c9b6", fontFamily: F.body, fontSize: 16.5, lineHeight: 1.9, margin: 0 }}>
               חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
             </p>
           </div>
@@ -4302,15 +4311,16 @@ function ContactPage() {
             { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
           ].map(({ icon, label, value, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
-              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2, textDecoration: "none",
-              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s",
+              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 15, textDecoration: "none",
+              padding: "20px 24px", display: "flex", gap: 17, alignItems: "center",
+              transition: "border-color .2s, transform .2s, box-shadow .2s",
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.4)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+              <span style={{ fontSize: 26, flexShrink: 0 }}>{icon}</span>
               <div>
-                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 14 }}>{value}</div>
+                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1.5, marginBottom: 4 }}>{label}</div>
+                <div style={{ color: "#f3ecdd", fontFamily: F.body, fontSize: 16.5 }}>{value}</div>
               </div>
             </a>
           ))}
