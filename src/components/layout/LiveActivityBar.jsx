@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { C, F } from "../../theme.js";
 
-// שורת ברכה עליונה — מתחלפת שורה אחת בכל פעם.
-// מיועדת למי שלא נחת בדף הבית; בדף הבית מוסתרת (שם מופיע פרומו הברכה המלא).
+// שורת ברכה עליונה — מתחלפת שורה אחת בכל פעם. מוצגת בכל הדפים (כולל דף הבית).
 const LINES = [
+  "🛠️ האתר בהקמה — ייתכנו עדיין תקלות",
   "ברוכים הבאים לעולם החדש",
   "המסע כבר החל — ובכל יום מתווספים עולמות, כלים ותגליות",
   "בינה מלאכותית בשירות הגאולה",
@@ -12,16 +11,12 @@ const LINES = [
 ];
 
 export default function LiveActivityBar() {
-  const { pathname } = useLocation();
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % LINES.length), 5000);
     return () => clearInterval(t);
   }, []);
-
-  // בדף הבית — לא מציגים את השורה (הברכה נמצאת בפרומו שבתוכן).
-  if (pathname === "/") return null;
 
   return (
     <div style={{
