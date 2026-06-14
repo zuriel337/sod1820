@@ -57,6 +57,7 @@ const PROMPT = [
   "source: שם מקור החדשות/הפרסום אם מזוהה (ערוץ/אתר/רשת חברתית), אחרת null.",
   "topic: נושא קצר בעברית (2-5 מילים).",
   "people: מערך שמות אנשים שמופיעים או מוזכרים.",
+  "gematria_word: אם זו תמונה ממחשבון/תוכנת גימטריה — המילה או הביטוי העברי המרכזי שמחושב; אחרת null.",
   "language: שפת הטקסט הראשית (עברית/אנגלית/אחר).",
   "summary: תיאור קצר במשפט אחד מה רואים בתמונה.",
 ].join("\n");
@@ -103,6 +104,7 @@ async function analyze(imageUrl) {
     category: o.category ?? null, is_news: o.is_news ?? null, country: o.country ?? null,
     source: o.source ?? null, topic: o.topic ?? null,
     people: Array.isArray(o.people) ? o.people.slice(0, 20) : [],
+    gematria_word: o.gematria_word ?? null,
     language: o.language ?? null, summary: o.summary ?? null,
   };
   return { text: typeof o.text === "string" ? o.text : "", numbers, meta };
@@ -118,8 +120,10 @@ async function patch(id, body) {
 }
 
 async function nextPage() {
-  const statusFilter = RETRY ? "in.(pending,error)" : "eq.pending";
-  const url = `${SUPABASE_URL}/rest/v1/gallery_images?ocr_status=${statusFilter}&image_url=not.is.null&select=id,image_url&limit=${PAGE}`;
+  // בוחר כל תמונה שעדיין חסר לה הסיווג העשיר (ocr_meta) — כולל כאלה שכבר נסרקו לטקסט בלבד.
+  // עם --retry: גם כאלה שכבר יש להן meta (סריקה חוזרת מלאה).
+  const filter = RETRY ? "" : "&ocr_meta=is.null";
+  const url = `${SUPABASE_URL}/rest/v1/gallery_images?image_url=not.is.null${filter}&select=id,image_url&limit=${PAGE}`;
   const r = await fetch(url, { headers: sbHeaders });
   if (!r.ok) throw new Error(`select ${r.status}: ${(await r.text()).slice(0, 200)}`);
   return await r.json();

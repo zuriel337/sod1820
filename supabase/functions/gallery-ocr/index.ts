@@ -39,6 +39,7 @@ const PROMPT = [
   "source: שם מקור החדשות/הפרסום אם מזוהה (ערוץ/אתר/רשת חברתית), אחרת null.",
   "topic: נושא קצר בעברית (2-5 מילים).",
   "people: מערך שמות אנשים שמופיעים או מוזכרים.",
+  "gematria_word: אם זו תמונה ממחשבון/תוכנת גימטריה — המילה או הביטוי העברי המרכזי שמחושב; אחרת null.",
   "language: שפת הטקסט הראשית (עברית/אנגלית/אחר).",
   "summary: תיאור קצר במשפט אחד מה רואים בתמונה.",
 ].join("\n");
@@ -69,6 +70,7 @@ async function analyze(imageUrl: string) {
     category: o.category ?? null, is_news: o.is_news ?? null, country: o.country ?? null,
     source: o.source ?? null, topic: o.topic ?? null,
     people: Array.isArray(o.people) ? o.people.slice(0, 20) : [],
+    gematria_word: o.gematria_word ?? null,
     language: o.language ?? null, summary: o.summary ?? null,
   };
   return { text: typeof o.text === "string" ? o.text : "", numbers, meta };
@@ -76,10 +78,10 @@ async function analyze(imageUrl: string) {
 Deno.serve(async (req: Request) => {
   try {
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY" }, 500);
-    let limit = 3, retry = false;
-    try { const b = await req.json(); if (b?.limit) limit = Math.min(+b.limit, 20); if (b?.retry_errors) retry = true; } catch { /* */ }
-    const statusFilter = retry ? "in.(pending,error)" : "eq.pending";
-    const sel = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?ocr_status=${statusFilter}&image_url=not.is.null&select=id,image_url&limit=${limit}`,
+    let limit = 3;
+    try { const b = await req.json(); if (b?.limit) limit = Math.min(+b.limit, 20); } catch { /* */ }
+    // בוחר כל תמונה שעדיין חסר לה הסיווג העשיר (ocr_meta) — כולל כאלה שכבר נסרקו לטקסט בלבד
+    const sel = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?ocr_meta=is.null&image_url=not.is.null&select=id,image_url&limit=${limit}`,
       { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
     const rows = await sel.json();
     if (!Array.isArray(rows)) return json({ stage: "select", body: rows }, 500);
