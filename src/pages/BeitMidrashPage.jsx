@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { F, KEY_NUMBERS } from "../theme.js";
+import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -421,7 +421,7 @@ function HowToGuide() {
       <div style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "12px 16px" }}>
         <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 6 }}>דוגמה</div>
         <div style={{ color: L.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 700, lineHeight: 1.8 }}>
-          אמת = א(1) + מ(40) + ת(400) = <span style={{ color: L.goldDeep, fontSize: 20 }}>{GEM("אמת")}</span>
+          אמת = א(1) + מ(40) + ת(400) = <span style={{ color: L.goldDeep, fontSize: 20 }}>{calcGem("אמת")}</span>
         </div>
       </div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
