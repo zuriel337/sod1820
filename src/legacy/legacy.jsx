@@ -4911,10 +4911,30 @@ function PostPageBySlug({ onNav }) {
                   ))}
                 </div>
               )}
-              <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-                {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
-              </div>
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              {(() => {
+                const by = resolveAuthor(author);
+                // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
+                if (by.name === "המערכת") return null;
+                const isVerified = !!(post.verified || post.ai_touched);
+                return (
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                      <img src={by.avatar} alt={by.name} width={38} height={38}
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${C.borderGold}`, flex: "0 0 auto", background: C.bg }} />
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
+                          {isVerified && <VerifiedBadge variant="ai" size={13} />}
+                        </div>
+                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, marginTop: 2 }}>
+                          {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
@@ -4923,7 +4943,15 @@ function PostPageBySlug({ onNav }) {
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {gematriaItems.map(({ phrase, ragil }) => (
+                  {(() => {
+                    // הסרת כפילויות לפי ערך המספר (ragil) — כל מספר מוצג פעם אחת בלבד.
+                    const seen = new Set();
+                    return gematriaItems.filter(({ ragil }) => {
+                      if (seen.has(ragil)) return false;
+                      seen.add(ragil);
+                      return true;
+                    });
+                  })().map(({ phrase, ragil }) => (
                     <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
                       background: "#1a0a2e", border: "1px solid #7c3aed",
                       color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
