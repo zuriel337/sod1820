@@ -10,16 +10,17 @@ import { supabase } from "../lib/supabase.js";
 
 // סדר התצוגה + השמות התואמים לעמודות המסד.
 const METHOD_COLS = [
-  { col: "ragil",    name: "רגיל",   sub: "חיבור ערכי האותיות" },
-  { col: "miluy",    name: "מילוי",  sub: "ערך שֵם האות המלא" },
-  { col: "misratar", name: "מסתתר",  sub: "הפרשים בין אותיות" },
-  { col: "kadmi",    name: "קדמי",   sub: "סכום מצטבר עד האות" },
-  { col: "gadol",    name: "גדול",   sub: "סופיות 500–900" },
-  { col: "siduri",   name: "סידורי", sub: "מיקום האות 1–22" },
-  { col: "atbash",   name: "אתבש",   sub: "היפוך הא״ב" },
-  { col: "albam",    name: "אלבם",   sub: "חצי מול חצי" },
-  { col: "ribua",    name: "ריבוע",  sub: "ערך בריבוע" },
+  { col: "ragil",    name: "רגיל",   sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", icon: "✦" },
+  { col: "miluy",    name: "מילוי",  sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", icon: "🫧" },
+  { col: "misratar", name: "מסתתר",  sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", icon: "🔍" },
+  { col: "kadmi",    name: "קדמי",   sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", icon: "🌱" },
+  { col: "gadol",    name: "גדול",   sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", icon: "🔥" },
+  { col: "siduri",   name: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", icon: "🔢" },
+  { col: "atbash",   name: "אתבש",   sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", icon: "🪞" },
+  { col: "albam",    name: "אלבם",   sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", icon: "💍" },
+  { col: "ribua",    name: "ריבוע",  sub: "ערך בריבוע", soul: "העָצמה — הערך בריבוע", icon: "💠" },
 ];
+const METHOD_BY_COL = Object.fromEntries(METHOD_COLS.map(m => [m.col, m]));
 const SELECT = "phrase,category," + METHOD_COLS.map(m => m.col).join(",");
 const TOTAL_METHODS = METHOD_COLS.length;
 
@@ -87,6 +88,28 @@ export default function CrossMethodPage() {
   const methodsHit = groups.length;
   const meaning = KEY_NUMBERS[num];
 
+  // לכל ביטוי — דרך אילו שיטות הוא נפל על המספר (נשמת השיטה).
+  const phraseMethods = useMemo(() => {
+    const map = {};
+    for (const r of rows) {
+      const hits = METHOD_COLS.filter(m => r[m.col] === num).map(m => m.col);
+      if (hits.length) map[r.phrase] = [...new Set([...(map[r.phrase] || []), ...hits])];
+    }
+    return map;
+  }, [rows, num]);
+
+  // מסר נרטיבי — נבנה מהעולמות והקשרים של הישויות.
+  const narrative = useMemo(() => {
+    if (!entities.length) return null;
+    const worlds = [...new Set(entities.map(e => e.world).filter(Boolean))].slice(0, 3);
+    const tops = entities.slice(0, 3).map(e => e.label);
+    const rel = related.slice(0, 4).map(r => r.label);
+    let s = `המספר ${num} נע סביב ` + (worlds.length ? `עולמות של ${worlds.join(" · ")}` : "ציר משמעות אחד");
+    if (tops.length) s += `, ומתכנס אל ${tops.join(" · ")}`;
+    s += rel.length ? `. קשריו מובילים גם אל ${rel.join(" · ")}.` : ".";
+    return s;
+  }, [entities, related, num]);
+
   function go(v) {
     const n = parseInt(String(v).replace(/[^\d]/g, ""), 10);
     if (n > 0) { setNum(n); setInput(String(n)); }
@@ -139,8 +162,15 @@ export default function CrossMethodPage() {
       {!loading && entities.length > 0 && (
         <section style={{ marginBottom: 18, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "16px 20px" }}>
           <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 460, margin: "0 auto" }}>
-            {entities.map(e => (
+          {narrative && (
+            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, textAlign: "center", maxWidth: 600, margin: "0 auto 14px" }}>
+              {narrative}
+            </p>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 480, margin: "0 auto" }}>
+            {entities.map(e => {
+              const vias = (phraseMethods[e.label] || []).map(c => METHOD_BY_COL[c]).filter(Boolean);
+              return (
               <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none", padding: "9px 13px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, minWidth: 96 }}>{e.label}</span>
@@ -148,8 +178,17 @@ export default function CrossMethodPage() {
                   {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
                 </div>
                 {e.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>{e.desc}</div>}
+                {vias.length > 0 && (
+                  <div style={{ marginTop: 5, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {vias.map(m => (
+                      <span key={m.col} title={m.soul} style={{ color: (m.col === "atbash" || m.col === "albam") ? C.goldBright : C.goldDim, fontFamily: F.body, fontSize: 11, border: `1px solid ${C.border}`, borderRadius: 999, padding: "1px 8px" }}>
+                        {m.icon} {m.name}{(m.col === "atbash" || m.col === "albam") ? ` · ${m.soul}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </Link>
-            ))}
+            );})}
           </div>
           {related.length > 0 && (
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
@@ -179,11 +218,14 @@ export default function CrossMethodPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 14 }}>
           {groups.map(g => (
             <section key={g.col} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8, borderBottom: `1px solid ${C.border}`, paddingBottom: 8, marginBottom: 10 }}>
-                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{g.name}</span>
-                <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{g.sub}</span>
-                <span style={{ flex: 1 }} />
-                <span style={{ color: C.gold, fontFamily: F.mono, fontSize: 13 }}>{g.phrases.length}</span>
+              <div style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 8, marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{g.icon} {g.name}</span>
+                  <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{g.sub}</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{ color: C.gold, fontFamily: F.mono, fontSize: 13 }}>{g.phrases.length}</span>
+                </div>
+                <div style={{ color: C.gold, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>{g.soul}</div>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {g.phrases.map(p => (
