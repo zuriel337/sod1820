@@ -53,9 +53,9 @@ export default function CrossMethodPage() {
     if (!phrases.length) { setEntities([]); setRelated([]); return; }
     (async () => {
       const { data: ents } = await supabase.from("nodes")
-        .select("id,label,weight,metadata").eq("type", "entity").eq("is_active", true).in("label", phrases);
+        .select("id,label,weight,description,metadata").eq("type", "entity").eq("is_active", true).in("label", phrases);
       if (!live) return;
-      const E = (ents || []).map(n => ({ id: n.id, label: n.label, weight: n.weight || 3, world: n.metadata?.world }))
+      const E = (ents || []).map(n => ({ id: n.id, label: n.label, weight: n.weight || 3, world: n.metadata?.world, desc: n.description }))
         .sort((a, b) => b.weight - a.weight);
       setEntities(E);
       if (!E.length) { setRelated([]); return; }
@@ -141,10 +141,13 @@ export default function CrossMethodPage() {
           <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 460, margin: "0 auto" }}>
             {entities.map(e => (
-              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "8px 12px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}` }}>
-                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, minWidth: 96 }}>{e.label}</span>
-                <Stars n={e.weight} />
-                {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
+              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none", padding: "9px 13px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, minWidth: 96 }}>{e.label}</span>
+                  <Stars n={e.weight} />
+                  {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
+                </div>
+                {e.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>{e.desc}</div>}
               </Link>
             ))}
           </div>
