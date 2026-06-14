@@ -7,22 +7,7 @@ export const NAV = [
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
   { label: "עץ המספרים · בקרוב", emoji: "🔒", to: "/numbers" },
-  {
-    label: "בית המדרש", emoji: "📚", to: "/beit-midrash", children: [
-      { label: "מבוא", to: "/beit-midrash/intro" },
-      { label: "גימטריה רגילה", to: "/beit-midrash/gematria" },
-      { label: "מילוי", to: "/beit-midrash/milui" },
-      { label: "קדמי", to: "/beit-midrash/kidmi" },
-      { label: "מסתתר", to: "/beit-midrash/nistar" },
-      { label: 'אלב"ם', to: "/beit-midrash/albam" },
-      { label: 'אתב"ש', to: "/beit-midrash/atbash" },
-      { label: "מספרי אם", to: "/beit-midrash/em" },
-      { label: "הצלבת שיטות", to: "/cross" },
-      { label: "דילוגי אותיות", to: "/code" },
-      { label: "שיעורים", to: "/beit-midrash/lessons" },
-      { label: "קורסים", to: "/beit-midrash/courses" },
-    ],
-  },
+  { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive" },
   { label: 'הצופן התנ"כי · בקרוב', emoji: "🔒", to: "/code" },
@@ -45,7 +30,7 @@ export const PRIMARY_KEYS = [
 
 // SEO לכל route. דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם.
 export const ROUTE_META = {
-  "/":              { title: "כי לה' המלוכה", description: "כי לה' המלוכה · SOD1820 — גימטריה, ציר ההתגלות, עץ המספרים והצופן התנ\"כי — מפה חיה של שפת המספרים." },
+  "/":              { fullTitle: "כי לה' המלוכה – SOD1820 | רמזי הגאולה, דילוגי אותיות ומחשבון גימטריה", title: "כי לה' המלוכה", description: "אתר כי לה' המלוכה – רמזי הגאולה הגדול בעולם. 13 שנות מחקר, תוכנת דילוגי אותיות, מחשבון גימטריה, עץ המספרים, מאגר חי של צפנים, חידושי AI וכלים לקריאת המציאות בשפת המספרים." },
   "/start":         { title: "כאן מתחילים", description: "מה זה SOD1820 ואיך מתחילים — גימטריה, ציר ההתגלות, עץ המספרים והצופן התנ\"כי בשתי דקות." },
   "/map":           { title: "מרכז הניווט", description: "מפת האתר החיה — כל מערכות SOD1820 במקום אחד." },
   "/timeline":      { title: "ציר ההתגלות", description: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים." },

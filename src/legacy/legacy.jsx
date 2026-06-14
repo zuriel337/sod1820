@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import { applySeo, SITE_URL } from "../lib/seo.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ===== GEMATRIA =====
 const GEM = {'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
@@ -4788,6 +4789,16 @@ function SpotimComments({ postId, postUrl }) {
   );
 }
 
+const editLabelStyle = {
+  display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 10,
+  letterSpacing: 2, textTransform: "uppercase", margin: "0 0 6px",
+};
+const editInputStyle = {
+  width: "100%", boxSizing: "border-box", background: C.bg,
+  border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3",
+  fontFamily: F.body, fontSize: 14, padding: "10px 12px", marginBottom: 16,
+};
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -4796,6 +4807,32 @@ function PostPageBySlug({ onNav }) {
   const [error, setError] = useState("");
   const contentRef = useRef(null);
   const loc = useLocation();
+
+  // ── עריכת פוסט ידנית (מנהל מחובר בלבד) ──
+  const { isAdmin } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ title: "", excerpt: "", content: "" });
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState("");
+
+  function startEdit() {
+    setDraft({ title: post?.title ?? "", excerpt: post?.excerpt ?? "", content: post?.content ?? "" });
+    setSaveErr("");
+    setEditing(true);
+  }
+  async function saveEdit() {
+    if (!post?.id) { setSaveErr("לא ניתן לשמור — אין מזהה פוסט"); return; }
+    setSaving(true); setSaveErr("");
+    try {
+      const updated = await adminUpdatePost(post.id, draft);
+      setPost(prev => ({ ...prev, ...draft, ...(updated || {}) }));
+      setEditing(false);
+    } catch (e) {
+      setSaveErr(e?.message || "השמירה נכשלה");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -4894,6 +4931,63 @@ function PostPageBySlug({ onNav }) {
           style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
         </button>
+
+        {/* ── סרגל ניהול: עריכת פוסט ידנית (מנהל בלבד) ── */}
+        {isAdmin && post && !loading && (
+          <div style={{ marginBottom: 28 }}>
+            {!editing ? (
+              <button onClick={startEdit} style={{
+                background: C.bgGlow, border: `1px solid ${C.gold}`, color: C.goldLight,
+                padding: "9px 18px", borderRadius: 4, cursor: "pointer",
+                fontFamily: F.heading, fontSize: 12, letterSpacing: 2,
+              }}>
+                ✏️ עריכת פוסט
+              </button>
+            ) : (
+              <div style={{
+                background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
+                border: `1px solid ${C.borderGold}`, borderTop: `3px solid ${C.gold}`,
+                borderRadius: 4, padding: "22px 22px 18px",
+              }}>
+                <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>
+                  עריכת פוסט (מצב מנהל)
+                </div>
+
+                <label style={editLabelStyle}>כותרת</label>
+                <input value={draft.title} onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
+                  style={editInputStyle} />
+
+                <label style={editLabelStyle}>תקציר</label>
+                <textarea value={draft.excerpt} onChange={e => setDraft(d => ({ ...d, excerpt: e.target.value }))}
+                  rows={3} style={{ ...editInputStyle, resize: "vertical" }} />
+
+                <label style={editLabelStyle}>תוכן (HTML)</label>
+                <textarea value={draft.content} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}
+                  rows={14} style={{ ...editInputStyle, resize: "vertical", fontFamily: F.mono, lineHeight: 1.6, direction: "ltr", textAlign: "right" }} />
+
+                {saveErr && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, margin: "4px 0 12px" }}>{saveErr}</p>}
+
+                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                  <button onClick={saveEdit} disabled={saving} style={{
+                    background: C.gold, border: "none", color: C.bg, padding: "10px 22px",
+                    borderRadius: 4, cursor: saving ? "default" : "pointer", opacity: saving ? 0.6 : 1,
+                    fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 2,
+                  }}>
+                    {saving ? "שומר..." : "💾 שמירה"}
+                  </button>
+                  <button onClick={() => setEditing(false)} disabled={saving} style={{
+                    background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim,
+                    padding: "10px 22px", borderRadius: 4, cursor: "pointer",
+                    fontFamily: F.heading, fontSize: 13, letterSpacing: 2,
+                  }}>
+                    ביטול
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (

@@ -56,6 +56,50 @@ function GatesDeck() {
   );
 }
 
+// 🎧 שיעורי סוד החשמל — כרטיס מוביל לארכיון כל השיעורים (1,220 שיעורי שמע)
+function ShiurimCard() {
+  return (
+    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "14px 18px 4px", direction: "rtl" }}>
+      <Link to="/שיעורי-שמע-סוד-החשמל" className="sod-shiur-card">
+        <span className="sod-shiur-holo" aria-hidden />
+        <span className="sod-shiur-corner tl" /><span className="sod-shiur-corner br" />
+        <span className="sod-shiur-ic">🎧</span>
+        <span className="sod-shiur-txt">
+          <span className="sod-shiur-title">שיעורי סוד החשמל</span>
+          <span className="sod-shiur-sub">ארכיון כל השיעורים — גאולה ורמז, במקום אחד</span>
+        </span>
+        <span className="sod-shiur-count"><b>1,220</b> שיעורים</span>
+        <span className="sod-shiur-go">לכל השיעורים →</span>
+      </Link>
+      <style>{`
+        .sod-shiur-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+          text-decoration:none;border-radius:16px;padding:20px 24px;border:1px solid ${C.borderGold};
+          background:linear-gradient(135deg,rgba(184,134,11,0.14),rgba(122,19,32,0.10),rgba(8,5,2,0.5));
+          box-shadow:0 16px 50px rgba(0,0,0,0.45);
+          transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s;}
+        .sod-shiur-card:hover{transform:translateY(-3px);border-color:${C.gold};
+          box-shadow:0 20px 60px rgba(0,0,0,0.55),0 0 30px rgba(212,175,55,0.18);}
+        .sod-shiur-holo{position:absolute;inset:0;pointer-events:none;opacity:0;
+          background:linear-gradient(125deg,transparent 40%,rgba(246,226,122,0.10) 50%,transparent 60%);background-size:220% 220%;}
+        .sod-shiur-card:hover .sod-shiur-holo{opacity:1;animation:sod-pf-holo 1.5s ease-in-out infinite;}
+        .sod-shiur-corner{position:absolute;width:12px;height:12px;border-color:${C.goldBright};opacity:.55;}
+        .sod-shiur-corner.tl{top:8px;right:8px;border-top:1.5px solid;border-right:1.5px solid;}
+        .sod-shiur-corner.br{bottom:8px;left:8px;border-bottom:1.5px solid;border-left:1.5px solid;}
+        .sod-shiur-ic{font-size:40px;line-height:1;filter:drop-shadow(0 0 12px rgba(212,175,55,.45));}
+        .sod-shiur-txt{display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px;}
+        .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:clamp(20px,3vw,26px);font-weight:700;}
+        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:14px;line-height:1.5;}
+        .sod-shiur-count{font-family:${F.heading};font-size:13px;color:${C.goldLight};border:1px solid ${C.borderGold};
+          border-radius:999px;padding:6px 14px;white-space:nowrap;background:rgba(212,175,55,0.08);}
+        .sod-shiur-count b{font-family:${F.mono};font-size:16px;color:${C.goldBright};}
+        .sod-shiur-go{color:${C.goldBright};font-family:${F.heading};font-size:13px;font-weight:700;letter-spacing:1px;white-space:nowrap;}
+        .sod-shiur-card:hover .sod-shiur-go{text-shadow:0 0 14px rgba(212,175,55,.5);}
+        @media(max-width:560px){.sod-shiur-card{padding:18px;gap:14px}.sod-shiur-count{order:3}}
+      `}</style>
+    </section>
+  );
+}
+
 // ❤️ שולחן העבודה — דופק מספרי המפתח. קליל (ערכי דופק קבועים, בלי שאילתות) → לחיצה לדף המספר.
 const DASH = [
   { n: 1820, pulse: 99, core: true },
@@ -294,6 +338,7 @@ export default function HomePage() {
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
       <GatesDeck />
+      <ShiurimCard />
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
