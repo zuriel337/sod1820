@@ -1,0 +1,8415 @@
+{
+ "ents": [
+  {
+   "label": "מלך",
+   "world": "מלכות ושלטון",
+   "importance": 5,
+   "tags": [
+    "מלכות",
+    "הנהגה"
+   ],
+   "related": [
+    "מלכות",
+    "כתר",
+    "דוד",
+    "משיח",
+    "כסא"
+   ],
+   "desc": "השליט שכל כולו ביטוי לרצון העליון.",
+   "ragil": 90,
+   "miluy": 254,
+   "misratar": 20,
+   "kadmi": 325,
+   "gadol": 570,
+   "siduri": 36,
+   "atbash": 60,
+   "albam": 403
+  },
+  {
+   "label": "מלכות",
+   "world": "מלכות ושלטון",
+   "importance": 5,
+   "tags": [
+    "מלכות",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "מלך",
+    "כתר",
+    "דוד",
+    "שכינה",
+    "ירושלים"
+   ],
+   "desc": "הספירה התחתונה — קבלת השפע והופעתו בעולם.",
+   "ragil": 496,
+   "miluy": 692,
+   "misratar": 428,
+   "kadmi": 1841,
+   "gadol": 496,
+   "siduri": 64,
+   "atbash": 141,
+   "albam": 503
+  },
+  {
+   "label": "כתר",
+   "world": "מלכות ושלטון",
+   "importance": 5,
+   "tags": [
+    "מלכות",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "מלכות",
+    "מלך",
+    "אין סוף"
+   ],
+   "desc": "הראשית שמעל ההבנה, שורש הרצון.",
+   "ragil": 620,
+   "miluy": 1026,
+   "misratar": 580,
+   "kadmi": 2365,
+   "gadol": 620,
+   "siduri": 53,
+   "atbash": 34,
+   "albam": 429
+  },
+  {
+   "label": "כסא",
+   "world": "מלכות ושלטון",
+   "importance": 4,
+   "tags": [
+    "מלכות",
+    "מקדש"
+   ],
+   "related": [
+    "מלך",
+    "מלכות",
+    "ירושלים"
+   ],
+   "desc": "מקום מושב הכבוד והמלוכה.",
+   "ragil": 81,
+   "miluy": 331,
+   "misratar": 99,
+   "kadmi": 331,
+   "gadol": 81,
+   "siduri": 27,
+   "atbash": 438,
+   "albam": 434
+  },
+  {
+   "label": "ממלכה",
+   "world": "מלכות ושלטון",
+   "importance": 3,
+   "tags": [
+    "מלכות",
+    "הנהגה"
+   ],
+   "related": [
+    "מלך",
+    "ישראל"
+   ],
+   "desc": null,
+   "ragil": 135,
+   "miluy": 349,
+   "misratar": 35,
+   "kadmi": 485,
+   "gadol": 135,
+   "siduri": 54,
+   "atbash": 160,
+   "albam": 475
+  },
+  {
+   "label": "שרביט",
+   "world": "מלכות ושלטון",
+   "importance": 3,
+   "tags": [
+    "מלכות",
+    "סמל"
+   ],
+   "related": [
+    "מלך",
+    "משיח"
+   ],
+   "desc": null,
+   "ragil": 521,
+   "miluy": 1721,
+   "misratar": 307,
+   "kadmi": 1993,
+   "gadol": 521,
+   "siduri": 62,
+   "atbash": 395,
+   "albam": 559
+  },
+  {
+   "label": "תורה",
+   "world": "תורה וקודש",
+   "importance": 5,
+   "tags": [
+    "קודש",
+    "תורה"
+   ],
+   "related": [
+    "שבת",
+    "קדושה",
+    "משה",
+    "היכל"
+   ],
+   "desc": "תכנית הבריאה ואור הדרך לעם ישראל.",
+   "ragil": 611,
+   "miluy": 963,
+   "misratar": 783,
+   "kadmi": 2326,
+   "gadol": 611,
+   "siduri": 53,
+   "atbash": 174,
+   "albam": 179
+  },
+  {
+   "label": "שבת",
+   "world": "תורה וקודש",
+   "importance": 5,
+   "tags": [
+    "קודש",
+    "זמן"
+   ],
+   "related": [
+    "תורה",
+    "קדושה",
+    "מנוחה"
+   ],
+   "desc": "מעין עולם הבא — מנוחה וקדושה בזמן.",
+   "ragil": 702,
+   "miluy": 1188,
+   "misratar": 696,
+   "kadmi": 2593,
+   "gadol": 702,
+   "siduri": 45,
+   "atbash": 303,
+   "albam": 70
+  },
+  {
+   "label": "קדושה",
+   "world": "תורה וקודש",
+   "importance": 4,
+   "tags": [
+    "קודש"
+   ],
+   "related": [
+    "תורה",
+    "שכינה",
+    "מקדש"
+   ],
+   "desc": null,
+   "ragil": 415,
+   "miluy": 1017,
+   "misratar": 687,
+   "kadmi": 1736,
+   "gadol": 415,
+   "siduri": 55,
+   "atbash": 276,
+   "albam": 228
+  },
+  {
+   "label": "שכינה",
+   "world": "תורה וקודש",
+   "importance": 5,
+   "tags": [
+    "קבלה",
+    "קודש",
+    "מלכות"
+   ],
+   "related": [
+    "מלכות",
+    "מקדש",
+    "קדושה"
+   ],
+   "desc": "נוכחות ה' השורה בעולם, פני המלכות.",
+   "ragil": 385,
+   "miluy": 601,
+   "misratar": 375,
+   "kadmi": 1435,
+   "gadol": 385,
+   "siduri": 61,
+   "atbash": 171,
+   "albam": 783
+  },
+  {
+   "label": "היכל",
+   "world": "תורה וקודש",
+   "importance": 4,
+   "tags": [
+    "מקדש",
+    "קודש"
+   ],
+   "related": [
+    "מקדש",
+    "ירושלים",
+    "כהן"
+   ],
+   "desc": null,
+   "ragil": 65,
+   "miluy": 209,
+   "misratar": 25,
+   "kadmi": 250,
+   "gadol": 65,
+   "siduri": 38,
+   "atbash": 180,
+   "albam": 771
+  },
+  {
+   "label": "כהן",
+   "world": "תורה וקודש",
+   "importance": 4,
+   "tags": [
+    "מקדש",
+    "הנהגה"
+   ],
+   "related": [
+    "היכל",
+    "אהרן",
+    "מקדש"
+   ],
+   "desc": null,
+   "ragil": 75,
+   "miluy": 221,
+   "misratar": 60,
+   "kadmi": 285,
+   "gadol": 725,
+   "siduri": 30,
+   "atbash": 129,
+   "albam": 473
+  },
+  {
+   "label": "מקדש",
+   "world": "תורה וקודש",
+   "importance": 5,
+   "tags": [
+    "מקדש",
+    "קודש",
+    "גאולה"
+   ],
+   "related": [
+    "היכל",
+    "ירושלים",
+    "כהן",
+    "קדושה"
+   ],
+   "desc": "נקודת החיבור בין שמים וארץ.",
+   "ragil": 444,
+   "miluy": 1060,
+   "misratar": 452,
+   "kadmi": 1845,
+   "gadol": 444,
+   "siduri": 57,
+   "atbash": 116,
+   "albam": 80
+  },
+  {
+   "label": "תפילה",
+   "world": "תורה וקודש",
+   "importance": 4,
+   "tags": [
+    "קודש",
+    "רוח"
+   ],
+   "related": [
+    "קדושה",
+    "שכינה"
+   ],
+   "desc": null,
+   "ragil": 525,
+   "miluy": 606,
+   "misratar": 435,
+   "kadmi": 2075,
+   "gadol": 525,
+   "siduri": 66,
+   "atbash": 157,
+   "albam": 397
+  },
+  {
+   "label": "אחד",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "יסוד",
+    "קבלה"
+   ],
+   "related": [
+    "אמת",
+    "אהבה",
+    "אין סוף"
+   ],
+   "desc": "שורש הכל — אין עוד מלבדו.",
+   "ragil": 13,
+   "miluy": 963,
+   "misratar": 11,
+   "kadmi": 47,
+   "gadol": 13,
+   "siduri": 13,
+   "atbash": 560,
+   "albam": 190
+  },
+  {
+   "label": "אמת",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "יסוד",
+    "מידה"
+   ],
+   "related": [
+    "אחד",
+    "חסד",
+    "אמונה"
+   ],
+   "desc": "חותם ה' ויסוד הקיום.",
+   "ragil": 441,
+   "miluy": 607,
+   "misratar": 399,
+   "kadmi": 1641,
+   "gadol": 441,
+   "siduri": 36,
+   "atbash": 411,
+   "albam": 52
+  },
+  {
+   "label": "אהבה",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "מידה",
+    "רגש"
+   ],
+   "related": [
+    "חסד",
+    "אחד",
+    "תפארת"
+   ],
+   "desc": "כוח המשיכה שמאחד את הנפרד.",
+   "ragil": 13,
+   "miluy": 553,
+   "misratar": 10,
+   "kadmi": 34,
+   "gadol": 13,
+   "siduri": 13,
+   "atbash": 880,
+   "albam": 210
+  },
+  {
+   "label": "חסד",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "מידה",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "אהבה",
+    "גבורה",
+    "אברהם"
+   ],
+   "desc": "ההשפעה הפתוחה ללא גבול.",
+   "ragil": 72,
+   "miluy": 972,
+   "misratar": 108,
+   "kadmi": 301,
+   "gadol": 72,
+   "siduri": 27,
+   "atbash": 168,
+   "albam": 164
+  },
+  {
+   "label": "דין",
+   "world": "עץ המספרים",
+   "importance": 4,
+   "tags": [
+    "ספירה",
+    "קבלה",
+    "מידה"
+   ],
+   "related": [
+    "גבורה",
+    "רחמים"
+   ],
+   "desc": null,
+   "ragil": 64,
+   "miluy": 560,
+   "misratar": 46,
+   "kadmi": 260,
+   "gadol": 714,
+   "siduri": 28,
+   "atbash": 149,
+   "albam": 363
+  },
+  {
+   "label": "גבורה",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "ספירה",
+    "קבלה",
+    "מידה"
+   ],
+   "related": [
+    "חסד",
+    "דין",
+    "יצחק"
+   ],
+   "desc": "כוח הצמצום, הדין והגבול.",
+   "ragil": 216,
+   "miluy": 1042,
+   "misratar": 394,
+   "kadmi": 840,
+   "gadol": 216,
+   "siduri": 36,
+   "atbash": 673,
+   "albam": 249
+  },
+  {
+   "label": "תפארת",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "חסד",
+    "גבורה",
+    "אמת",
+    "יעקב"
+   ],
+   "desc": "האיזון בין חסד לגבורה — קו האמת.",
+   "ragil": 1081,
+   "miluy": 1534,
+   "misratar": 798,
+   "kadmi": 4191,
+   "gadol": 1081,
+   "siduri": 82,
+   "atbash": 411,
+   "albam": 85
+  },
+  {
+   "label": "יסוד",
+   "world": "עץ המספרים",
+   "importance": 5,
+   "tags": [
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "מלכות",
+    "יוסף",
+    "צדיק"
+   ],
+   "desc": "הצינור המעביר את השפע אל המלכות.",
+   "ragil": 80,
+   "miluy": 596,
+   "misratar": 106,
+   "kadmi": 341,
+   "gadol": 80,
+   "siduri": 35,
+   "atbash": 228,
+   "albam": 444
+  },
+  {
+   "label": "משה",
+   "world": "אנשים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "הנהגה"
+   ],
+   "related": [
+    "תורה",
+    "אהרן",
+    "סיני"
+   ],
+   "desc": "רעיא מהימנא — מקבל התורה ומנהיג הגאולה.",
+   "ragil": 345,
+   "miluy": 455,
+   "misratar": 555,
+   "kadmi": 1255,
+   "gadol": 345,
+   "siduri": 39,
+   "atbash": 102,
+   "albam": 82
+  },
+  {
+   "label": "אהרן",
+   "world": "אנשים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "מקדש"
+   ],
+   "related": [
+    "משה",
+    "כהן"
+   ],
+   "desc": null,
+   "ragil": 256,
+   "miluy": 742,
+   "misratar": 349,
+   "kadmi": 1006,
+   "gadol": 906,
+   "siduri": 40,
+   "atbash": 502,
+   "albam": 112
+  },
+  {
+   "label": "יוסף",
+   "world": "אנשים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "יסוד",
+    "צדיק",
+    "יעקב"
+   ],
+   "desc": null,
+   "ragil": 156,
+   "miluy": 243,
+   "misratar": 78,
+   "kadmi": 736,
+   "gadol": 876,
+   "siduri": 48,
+   "atbash": 134,
+   "albam": 390
+  },
+  {
+   "label": "דוד",
+   "world": "אנשים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "מלכות",
+    "משיח"
+   ],
+   "related": [
+    "מלך",
+    "מלכות",
+    "משיח",
+    "ירושלים",
+    "תהילים"
+   ],
+   "desc": "סמל המלכות והלב הפתוח לפני ה'.",
+   "ragil": 14,
+   "miluy": 890,
+   "misratar": 4,
+   "kadmi": 41,
+   "gadol": 14,
+   "siduri": 14,
+   "atbash": 280,
+   "albam": 200
+  },
+  {
+   "label": "שלמה",
+   "world": "אנשים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "מלכות"
+   ],
+   "related": [
+    "דוד",
+    "מקדש",
+    "חכמה"
+   ],
+   "desc": null,
+   "ragil": 375,
+   "miluy": 529,
+   "misratar": 315,
+   "kadmi": 1360,
+   "gadol": 375,
+   "siduri": 51,
+   "atbash": 122,
+   "albam": 83
+  },
+  {
+   "label": "אליהו",
+   "world": "אנשים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "גאולה"
+   ],
+   "related": [
+    "משיח",
+    "גאולה",
+    "גילוי"
+   ],
+   "desc": "מבשר הגאולה שמופיע בכל דור.",
+   "ragil": 52,
+   "miluy": 242,
+   "misratar": 55,
+   "kadmi": 197,
+   "gadol": 52,
+   "siduri": 34,
+   "atbash": 630,
+   "albam": 481
+  },
+  {
+   "label": "אסתר",
+   "world": "אנשים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "מרדכי",
+    "מלכות",
+    "הסתר"
+   ],
+   "desc": null,
+   "ragil": 661,
+   "miluy": 1157,
+   "misratar": 599,
+   "kadmi": 2546,
+   "gadol": 661,
+   "siduri": 58,
+   "atbash": 412,
+   "albam": 63
+  },
+  {
+   "label": "מרדכי",
+   "world": "אנשים",
+   "importance": 3,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "אסתר"
+   ],
+   "desc": null,
+   "ragil": 274,
+   "miluy": 1144,
+   "misratar": 382,
+   "kadmi": 1080,
+   "gadol": 274,
+   "siduri": 58,
+   "atbash": 183,
+   "albam": 771
+  },
+  {
+   "label": "ירושלים",
+   "world": "מקומות",
+   "importance": 5,
+   "tags": [
+    "מקום",
+    "קודש",
+    "מלכות"
+   ],
+   "related": [
+    "ציון",
+    "מקדש",
+    "דוד",
+    "מלכות"
+   ],
+   "desc": "נקודת המפגש בין שמים וארץ.",
+   "ragil": 596,
+   "miluy": 1086,
+   "misratar": 998,
+   "kadmi": 2271,
+   "gadol": 1156,
+   "siduri": 92,
+   "atbash": 195,
+   "albam": 702
+  },
+  {
+   "label": "ציון",
+   "world": "מקומות",
+   "importance": 5,
+   "tags": [
+    "מקום",
+    "קודש",
+    "גאולה"
+   ],
+   "related": [
+    "ירושלים",
+    "גאולה"
+   ],
+   "desc": "לב הקדושה והגעגוע לגאולה.",
+   "ragil": 156,
+   "miluy": 252,
+   "misratar": 128,
+   "kadmi": 766,
+   "gadol": 806,
+   "siduri": 48,
+   "atbash": 134,
+   "albam": 390
+  },
+  {
+   "label": "סיני",
+   "world": "מקומות",
+   "importance": 4,
+   "tags": [
+    "מקום",
+    "תורה"
+   ],
+   "related": [
+    "משה",
+    "תורה"
+   ],
+   "desc": null,
+   "ragil": 130,
+   "miluy": 266,
+   "misratar": 130,
+   "kadmi": 560,
+   "gadol": 130,
+   "siduri": 49,
+   "atbash": 97,
+   "albam": 607
+  },
+  {
+   "label": "חברון",
+   "world": "מקומות",
+   "importance": 3,
+   "tags": [
+    "מקום",
+    "תנך"
+   ],
+   "related": [
+    "אברהם",
+    "מערה"
+   ],
+   "desc": null,
+   "ragil": 266,
+   "miluy": 1468,
+   "misratar": 442,
+   "kadmi": 1050,
+   "gadol": 916,
+   "siduri": 50,
+   "atbash": 452,
+   "albam": 232
+  },
+  {
+   "label": "בית לחם",
+   "world": "מקומות",
+   "importance": 3,
+   "tags": [
+    "מקום",
+    "מלכות"
+   ],
+   "related": [
+    "דוד",
+    "משיח"
+   ],
+   "desc": null,
+   "ragil": 490,
+   "miluy": 1420,
+   "misratar": 822,
+   "kadmi": 1839,
+   "gadol": 1050,
+   "siduri": 67,
+   "atbash": 431,
+   "albam": 463
+  },
+  {
+   "label": "מצרים",
+   "world": "מקומות",
+   "importance": 3,
+   "tags": [
+    "מקום",
+    "תנך"
+   ],
+   "related": [
+    "משה",
+    "גאולה",
+    "שעבוד"
+   ],
+   "desc": null,
+   "ragil": 380,
+   "miluy": 794,
+   "misratar": 380,
+   "kadmi": 1635,
+   "gadol": 940,
+   "siduri": 74,
+   "atbash": 68,
+   "albam": 320
+  },
+  {
+   "label": "גאולה",
+   "world": "גאולה",
+   "importance": 5,
+   "tags": [
+    "גאולה",
+    "זמן"
+   ],
+   "related": [
+    "משיח",
+    "ציון",
+    "ישועה",
+    "בן דוד"
+   ],
+   "desc": "שחרור העולם אל תכליתו.",
+   "ragil": 45,
+   "miluy": 305,
+   "misratar": 56,
+   "kadmi": 148,
+   "gadol": 45,
+   "siduri": 27,
+   "atbash": 790,
+   "albam": 231
+  },
+  {
+   "label": "משיח",
+   "world": "גאולה",
+   "importance": 5,
+   "tags": [
+    "גאולה",
+    "מלכות"
+   ],
+   "related": [
+    "דוד",
+    "בן דוד",
+    "גאולה",
+    "מלכות",
+    "ירושלים"
+   ],
+   "desc": "מלך הגואל שמגלה את מלכות ה'.",
+   "ragil": 358,
+   "miluy": 878,
+   "misratar": 552,
+   "kadmi": 1331,
+   "gadol": 358,
+   "siduri": 52,
+   "atbash": 112,
+   "albam": 412
+  },
+  {
+   "label": "בן דוד",
+   "world": "גאולה",
+   "importance": 5,
+   "tags": [
+    "גאולה",
+    "מלכות",
+    "דמות"
+   ],
+   "related": [
+    "דוד",
+    "משיח",
+    "גאולה"
+   ],
+   "desc": "המשיח משורש מלכות בית דוד.",
+   "ragil": 66,
+   "miluy": 1408,
+   "misratar": 98,
+   "kadmi": 239,
+   "gadol": 716,
+   "siduri": 30,
+   "atbash": 589,
+   "albam": 243
+  },
+  {
+   "label": "גואל",
+   "world": "גאולה",
+   "importance": 4,
+   "tags": [
+    "גאולה"
+   ],
+   "related": [
+    "גאולה",
+    "משיח",
+    "ישועה"
+   ],
+   "desc": null,
+   "ragil": 40,
+   "miluy": 290,
+   "misratar": 37,
+   "kadmi": 133,
+   "gadol": 40,
+   "siduri": 22,
+   "atbash": 700,
+   "albam": 161
+  },
+  {
+   "label": "ישועה",
+   "world": "גאולה",
+   "importance": 4,
+   "tags": [
+    "גאולה",
+    "רגש"
+   ],
+   "related": [
+    "גאולה",
+    "תקווה"
+   ],
+   "desc": null,
+   "ragil": 391,
+   "miluy": 547,
+   "misratar": 713,
+   "kadmi": 1511,
+   "gadol": 391,
+   "siduri": 58,
+   "atbash": 219,
+   "albam": 465
+  },
+  {
+   "label": "קץ",
+   "world": "גאולה",
+   "importance": 4,
+   "tags": [
+    "גאולה",
+    "זמן"
+   ],
+   "related": [
+    "גאולה",
+    "אחרית הימים"
+   ],
+   "desc": null,
+   "ragil": 190,
+   "miluy": 290,
+   "misratar": 10,
+   "kadmi": 1090,
+   "gadol": 1000,
+   "siduri": 37,
+   "atbash": 9,
+   "albam": 15
+  },
+  {
+   "label": "אחרית הימים",
+   "world": "גאולה",
+   "importance": 5,
+   "tags": [
+    "גאולה",
+    "זמן"
+   ],
+   "related": [
+    "קץ",
+    "משיח",
+    "גאולה"
+   ],
+   "desc": "העת שבה הסוד נחשף והגאולה מבשילה.",
+   "ragil": 724,
+   "miluy": 1690,
+   "misratar": 1269,
+   "kadmi": 2797,
+   "gadol": 1284,
+   "siduri": 112,
+   "atbash": 694,
+   "albam": 1133
+  },
+  {
+   "label": "בינה מלאכותית",
+   "world": "טכנולוגיה",
+   "importance": 4,
+   "tags": [
+    "טכנולוגיה",
+    "עתיד",
+    "מדע"
+   ],
+   "related": [
+    "מחשב",
+    "קוד",
+    "אלגוריתם",
+    "מידע"
+   ],
+   "desc": null,
+   "ragil": 974,
+   "miluy": 1792,
+   "misratar": 1374,
+   "kadmi": 3660,
+   "gadol": 974,
+   "siduri": 128,
+   "atbash": 1021,
+   "albam": 1266
+  },
+  {
+   "label": "מחשב",
+   "world": "טכנולוגיה",
+   "importance": 3,
+   "tags": [
+    "טכנולוגיה"
+   ],
+   "related": [
+    "קוד",
+    "מידע",
+    "רשת"
+   ],
+   "desc": null,
+   "ragil": 350,
+   "miluy": 1270,
+   "misratar": 622,
+   "kadmi": 1279,
+   "gadol": 350,
+   "siduri": 44,
+   "atbash": 372,
+   "albam": 152
+  },
+  {
+   "label": "קוד",
+   "world": "טכנולוגיה",
+   "importance": 3,
+   "tags": [
+    "טכנולוגיה",
+    "סוד"
+   ],
+   "related": [
+    "מחשב",
+    "אלגוריתם"
+   ],
+   "desc": null,
+   "ragil": 110,
+   "miluy": 642,
+   "misratar": 96,
+   "kadmi": 626,
+   "gadol": 110,
+   "siduri": 29,
+   "atbash": 184,
+   "albam": 148
+  },
+  {
+   "label": "אלגוריתם",
+   "world": "טכנולוגיה",
+   "importance": 3,
+   "tags": [
+    "טכנולוגיה",
+    "מדע"
+   ],
+   "related": [
+    "קוד",
+    "בינה מלאכותית"
+   ],
+   "desc": null,
+   "ragil": 690,
+   "miluy": 1316,
+   "misratar": 1193,
+   "kadmi": 2623,
+   "gadol": 1250,
+   "siduri": 87,
+   "atbash": 754,
+   "albam": 492
+  },
+  {
+   "label": "מידע",
+   "world": "טכנולוגיה",
+   "importance": 3,
+   "tags": [
+    "טכנולוגיה"
+   ],
+   "related": [
+    "מחשב",
+    "רשת"
+   ],
+   "desc": null,
+   "ragil": 124,
+   "miluy": 664,
+   "misratar": 102,
+   "kadmi": 535,
+   "gadol": 124,
+   "siduri": 43,
+   "atbash": 157,
+   "albam": 367
+  },
+  {
+   "label": "רשת",
+   "world": "טכנולוגיה",
+   "importance": 3,
+   "tags": [
+    "טכנולוגיה",
+    "סמל"
+   ],
+   "related": [
+    "מחשב",
+    "מידע"
+   ],
+   "desc": null,
+   "ragil": 900,
+   "miluy": 1286,
+   "misratar": 200,
+   "kadmi": 3385,
+   "gadol": 900,
+   "siduri": 63,
+   "atbash": 6,
+   "albam": 39
+  },
+  {
+   "label": "יום",
+   "world": "זמן",
+   "importance": 3,
+   "tags": [
+    "זמן"
+   ],
+   "related": [
+    "לילה",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 56,
+   "miluy": 122,
+   "misratar": 38,
+   "kadmi": 221,
+   "gadol": 616,
+   "siduri": 29,
+   "atbash": 130,
+   "albam": 382
+  },
+  {
+   "label": "לילה",
+   "world": "זמן",
+   "importance": 3,
+   "tags": [
+    "זמן"
+   ],
+   "related": [
+    "יום",
+    "חושך"
+   ],
+   "desc": null,
+   "ragil": 75,
+   "miluy": 183,
+   "misratar": 65,
+   "kadmi": 280,
+   "gadol": 75,
+   "siduri": 39,
+   "atbash": 170,
+   "albam": 372
+  },
+  {
+   "label": "חודש",
+   "world": "זמן",
+   "importance": 3,
+   "tags": [
+    "זמן"
+   ],
+   "related": [
+    "שנה",
+    "ירח"
+   ],
+   "desc": null,
+   "ragil": 318,
+   "miluy": 1234,
+   "misratar": 300,
+   "kadmi": 1162,
+   "gadol": 318,
+   "siduri": 39,
+   "atbash": 242,
+   "albam": 250
+  },
+  {
+   "label": "שנה",
+   "world": "זמן",
+   "importance": 3,
+   "tags": [
+    "זמן"
+   ],
+   "related": [
+    "חודש"
+   ],
+   "desc": null,
+   "ragil": 355,
+   "miluy": 481,
+   "misratar": 295,
+   "kadmi": 1305,
+   "gadol": 355,
+   "siduri": 40,
+   "atbash": 101,
+   "albam": 83
+  },
+  {
+   "label": "אלף",
+   "world": "זמן",
+   "importance": 4,
+   "tags": [
+    "זמן",
+    "מספר",
+    "גאולה"
+   ],
+   "related": [
+    "אחרית הימים",
+    "עולם הבא"
+   ],
+   "desc": null,
+   "ragil": 111,
+   "miluy": 266,
+   "misratar": 79,
+   "kadmi": 511,
+   "gadol": 831,
+   "siduri": 30,
+   "atbash": 426,
+   "albam": 37
+  },
+  {
+   "label": "כסף",
+   "world": "כסף ושפע",
+   "importance": 3,
+   "tags": [
+    "שפע",
+    "מציאות"
+   ],
+   "related": [
+    "זהב",
+    "ברכה",
+    "פרנסה"
+   ],
+   "desc": "החומר והשפע הדורשים בירור והעלאה.",
+   "ragil": 160,
+   "miluy": 301,
+   "misratar": 60,
+   "kadmi": 735,
+   "gadol": 880,
+   "siduri": 43,
+   "atbash": 44,
+   "albam": 410
+  },
+  {
+   "label": "זהב",
+   "world": "כסף ושפע",
+   "importance": 4,
+   "tags": [
+    "שפע",
+    "סמל",
+    "מקדש"
+   ],
+   "related": [
+    "כסף",
+    "מקדש"
+   ],
+   "desc": "השפע המזוקק וכלי המקדש.",
+   "ragil": 14,
+   "miluy": 494,
+   "misratar": 5,
+   "kadmi": 46,
+   "gadol": 14,
+   "siduri": 14,
+   "atbash": 460,
+   "albam": 200
+  },
+  {
+   "label": "ברכה",
+   "world": "כסף ושפע",
+   "importance": 4,
+   "tags": [
+    "שפע",
+    "רוח"
+   ],
+   "related": [
+    "שפע",
+    "פרנסה"
+   ],
+   "desc": null,
+   "ragil": 227,
+   "miluy": 1037,
+   "misratar": 393,
+   "kadmi": 888,
+   "gadol": 227,
+   "siduri": 38,
+   "atbash": 423,
+   "albam": 519
+  },
+  {
+   "label": "פרנסה",
+   "world": "כסף ושפע",
+   "importance": 3,
+   "tags": [
+    "שפע",
+    "מציאות"
+   ],
+   "related": [
+    "כסף",
+    "ברכה"
+   ],
+   "desc": null,
+   "ragil": 395,
+   "miluy": 832,
+   "misratar": 335,
+   "kadmi": 1665,
+   "gadol": 395,
+   "siduri": 71,
+   "atbash": 116,
+   "albam": 92
+  },
+  {
+   "label": "שפע",
+   "world": "כסף ושפע",
+   "importance": 4,
+   "tags": [
+    "שפע",
+    "קבלה"
+   ],
+   "related": [
+    "ברכה",
+    "כסף"
+   ],
+   "desc": null,
+   "ragil": 450,
+   "miluy": 571,
+   "misratar": 230,
+   "kadmi": 1825,
+   "gadol": 450,
+   "siduri": 54,
+   "atbash": 15,
+   "albam": 21
+  },
+  {
+   "label": "אמונה",
+   "world": "רגש",
+   "importance": 5,
+   "tags": [
+    "רגש",
+    "יסוד",
+    "קבלה"
+   ],
+   "related": [
+    "אמת",
+    "תקווה",
+    "אחד"
+   ],
+   "desc": "הדבקות הפשוטה שמעל ההיגיון.",
+   "ragil": 102,
+   "miluy": 334,
+   "misratar": 162,
+   "kadmi": 377,
+   "gadol": 102,
+   "siduri": 39,
+   "atbash": 589,
+   "albam": 185
+  },
+  {
+   "label": "שמחה",
+   "world": "רגש",
+   "importance": 4,
+   "tags": [
+    "רגש"
+   ],
+   "related": [
+    "אהבה",
+    "תקווה"
+   ],
+   "desc": null,
+   "ragil": 353,
+   "miluy": 873,
+   "misratar": 295,
+   "kadmi": 1291,
+   "gadol": 353,
+   "siduri": 47,
+   "atbash": 162,
+   "albam": 182
+  },
+  {
+   "label": "פחד",
+   "world": "רגש",
+   "importance": 3,
+   "tags": [
+    "רגש"
+   ],
+   "related": [
+    "אמונה",
+    "חושך"
+   ],
+   "desc": null,
+   "ragil": 92,
+   "miluy": 933,
+   "misratar": 76,
+   "kadmi": 451,
+   "gadol": 92,
+   "siduri": 29,
+   "atbash": 166,
+   "albam": 166
+  },
+  {
+   "label": "תקווה",
+   "world": "רגש",
+   "importance": 5,
+   "tags": [
+    "רגש",
+    "גאולה"
+   ],
+   "related": [
+    "אמונה",
+    "גאולה",
+    "ישועה"
+   ],
+   "desc": "הציפייה הפעילה לישועה.",
+   "ragil": 517,
+   "miluy": 661,
+   "misratar": 395,
+   "kadmi": 2147,
+   "gadol": 517,
+   "siduri": 58,
+   "atbash": 255,
+   "albam": 258
+  },
+  {
+   "label": "שלום",
+   "world": "רגש",
+   "importance": 5,
+   "tags": [
+    "רגש",
+    "גאולה"
+   ],
+   "related": [
+    "תיקון",
+    "גאולה",
+    "אהבה"
+   ],
+   "desc": "השלמות שבה כל הניגודים מתאחדים.",
+   "ragil": 376,
+   "miluy": 536,
+   "misratar": 328,
+   "kadmi": 1366,
+   "gadol": 936,
+   "siduri": 52,
+   "atbash": 112,
+   "albam": 93
+  },
+  {
+   "label": "געגוע",
+   "world": "רגש",
+   "importance": 3,
+   "tags": [
+    "רגש"
+   ],
+   "related": [
+    "אהבה",
+    "תקווה"
+   ],
+   "desc": null,
+   "ragil": 152,
+   "miluy": 448,
+   "misratar": 201,
+   "kadmi": 683,
+   "gadol": 152,
+   "siduri": 44,
+   "atbash": 494,
+   "albam": 190
+  },
+  {
+   "label": "מלחמה",
+   "world": "מלחמה ותיקון",
+   "importance": 3,
+   "tags": [
+    "מציאות",
+    "אקטואליה"
+   ],
+   "related": [
+    "ניצחון",
+    "חושך"
+   ],
+   "desc": null,
+   "ragil": 123,
+   "miluy": 667,
+   "misratar": 99,
+   "kadmi": 446,
+   "gadol": 123,
+   "siduri": 51,
+   "atbash": 190,
+   "albam": 175
+  },
+  {
+   "label": "ניצחון",
+   "world": "מלחמה ותיקון",
+   "importance": 4,
+   "tags": [
+    "רגש",
+    "ספירה"
+   ],
+   "related": [
+    "מלחמה",
+    "גאולה"
+   ],
+   "desc": null,
+   "ragil": 214,
+   "miluy": 776,
+   "misratar": 248,
+   "kadmi": 997,
+   "gadol": 864,
+   "siduri": 70,
+   "atbash": 203,
+   "albam": 493
+  },
+  {
+   "label": "אור",
+   "world": "מלחמה ותיקון",
+   "importance": 5,
+   "tags": [
+    "סמל",
+    "יסוד",
+    "קבלה"
+   ],
+   "related": [
+    "חושך",
+    "תיקון",
+    "גילוי"
+   ],
+   "desc": "גילוי הטוב והבהירות האלוהית.",
+   "ragil": 207,
+   "miluy": 643,
+   "misratar": 199,
+   "kadmi": 817,
+   "gadol": 207,
+   "siduri": 27,
+   "atbash": 483,
+   "albam": 119
+  },
+  {
+   "label": "חושך",
+   "world": "מלחמה ותיקון",
+   "importance": 4,
+   "tags": [
+    "סמל",
+    "יסוד"
+   ],
+   "related": [
+    "אור",
+    "לילה"
+   ],
+   "desc": "ההעלם שמתוכו נולד האור.",
+   "ragil": 334,
+   "miluy": 900,
+   "misratar": 576,
+   "kadmi": 1227,
+   "gadol": 814,
+   "siduri": 46,
+   "atbash": 172,
+   "albam": 590
+  },
+  {
+   "label": "תיקון",
+   "world": "מלחמה ותיקון",
+   "importance": 5,
+   "tags": [
+    "קבלה",
+    "גאולה"
+   ],
+   "related": [
+    "אור",
+    "שלום",
+    "שבירת הכלים"
+   ],
+   "desc": "השבת הניצוצות אל שורשם.",
+   "ragil": 566,
+   "miluy": 750,
+   "misratar": 618,
+   "kadmi": 2361,
+   "gadol": 1216,
+   "siduri": 71,
+   "atbash": 134,
+   "albam": 411
+  },
+  {
+   "label": "שבירת הכלים",
+   "world": "מלחמה ותיקון",
+   "importance": 4,
+   "tags": [
+    "קבלה"
+   ],
+   "related": [
+    "תיקון",
+    "אור אין סוף"
+   ],
+   "desc": null,
+   "ragil": 1017,
+   "miluy": 2007,
+   "misratar": 1166,
+   "kadmi": 3838,
+   "gadol": 1577,
+   "siduri": 126,
+   "atbash": 536,
+   "albam": 1152
+  },
+  {
+   "label": "אריה",
+   "world": "סמלים",
+   "importance": 4,
+   "tags": [
+    "סמל",
+    "חיה",
+    "מלכות"
+   ],
+   "related": [
+    "מלך",
+    "דוד",
+    "יהודה"
+   ],
+   "desc": null,
+   "ragil": 216,
+   "miluy": 656,
+   "misratar": 394,
+   "kadmi": 866,
+   "gadol": 216,
+   "siduri": 36,
+   "atbash": 533,
+   "albam": 409
+  },
+  {
+   "label": "נשר",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "חיה"
+   ],
+   "related": [
+    "שמים"
+   ],
+   "desc": null,
+   "ragil": 550,
+   "miluy": 976,
+   "misratar": 350,
+   "kadmi": 2085,
+   "gadol": 550,
+   "siduri": 55,
+   "atbash": 14,
+   "albam": 22
+  },
+  {
+   "label": "יונה",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "חיה"
+   ],
+   "related": [
+    "שלום",
+    "רוח"
+   ],
+   "desc": null,
+   "ragil": 71,
+   "miluy": 163,
+   "misratar": 93,
+   "kadmi": 286,
+   "gadol": 71,
+   "siduri": 35,
+   "atbash": 219,
+   "albam": 453
+  },
+  {
+   "label": "מגן דוד",
+   "world": "סמלים",
+   "importance": 4,
+   "tags": [
+    "סמל",
+    "מלכות"
+   ],
+   "related": [
+    "דוד",
+    "ישראל"
+   ],
+   "desc": null,
+   "ragil": 107,
+   "miluy": 1159,
+   "misratar": 134,
+   "kadmi": 387,
+   "gadol": 757,
+   "siduri": 44,
+   "atbash": 499,
+   "albam": 255
+  },
+  {
+   "label": "חרב",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "מלחמה"
+   ],
+   "related": [
+    "מלחמה",
+    "גבורה"
+   ],
+   "desc": null,
+   "ragil": 210,
+   "miluy": 1340,
+   "misratar": 390,
+   "kadmi": 834,
+   "gadol": 210,
+   "siduri": 30,
+   "atbash": 363,
+   "albam": 149
+  },
+  {
+   "label": "מנורה",
+   "world": "סמלים",
+   "importance": 4,
+   "tags": [
+    "סמל",
+    "מקדש"
+   ],
+   "related": [
+    "מקדש",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 301,
+   "miluy": 733,
+   "misratar": 443,
+   "kadmi": 1171,
+   "gadol": 301,
+   "siduri": 58,
+   "atbash": 192,
+   "albam": 164
+  },
+  {
+   "label": "עין",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "גוף"
+   ],
+   "related": [
+    "ראייה",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 130,
+   "miluy": 256,
+   "misratar": 100,
+   "kadmi": 575,
+   "gadol": 780,
+   "siduri": 40,
+   "atbash": 56,
+   "albam": 308
+  },
+  {
+   "label": "מפתח",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "סוד"
+   ],
+   "related": [
+    "שער",
+    "גאולה"
+   ],
+   "desc": "מה שפותח את הנעול אל הסוד.",
+   "ragil": 528,
+   "miluy": 995,
+   "misratar": 752,
+   "kadmi": 2081,
+   "gadol": 528,
+   "siduri": 60,
+   "atbash": 77,
+   "albam": 128
+  },
+  {
+   "label": "שער",
+   "world": "סמלים",
+   "importance": 4,
+   "tags": [
+    "סמל",
+    "מקדש"
+   ],
+   "related": [
+    "מפתח",
+    "ירושלים"
+   ],
+   "desc": "מקום המעבר בין הידוע לנסתר.",
+   "ragil": 570,
+   "miluy": 1000,
+   "misratar": 360,
+   "kadmi": 2215,
+   "gadol": 570,
+   "siduri": 57,
+   "atbash": 12,
+   "albam": 24
+  },
+  {
+   "label": "כוכב",
+   "world": "סמלים",
+   "importance": 3,
+   "tags": [
+    "סמל",
+    "טבע"
+   ],
+   "related": [
+    "שמש",
+    "ירח"
+   ],
+   "desc": null,
+   "ragil": 48,
+   "miluy": 634,
+   "misratar": 46,
+   "kadmi": 174,
+   "gadol": 48,
+   "siduri": 30,
+   "atbash": 440,
+   "albam": 920
+  },
+  {
+   "label": "אברהם",
+   "world": "אבות ואמהות",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אבות"
+   ],
+   "related": [
+    "יצחק",
+    "יעקב",
+    "חסד",
+    "חברון"
+   ],
+   "desc": "עמוד החסד ואבי האמונה.",
+   "ragil": 248,
+   "miluy": 1128,
+   "misratar": 429,
+   "kadmi": 959,
+   "gadol": 808,
+   "siduri": 41,
+   "atbash": 803,
+   "albam": 151
+  },
+  {
+   "label": "יצחק",
+   "world": "אבות ואמהות",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אבות"
+   ],
+   "related": [
+    "אברהם",
+    "יעקב",
+    "גבורה"
+   ],
+   "desc": "עמוד הגבורה והמסירות.",
+   "ragil": 208,
+   "miluy": 728,
+   "misratar": 254,
+   "kadmi": 1181,
+   "gadol": 208,
+   "siduri": 55,
+   "atbash": 109,
+   "albam": 415
+  },
+  {
+   "label": "יעקב",
+   "world": "אבות ואמהות",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אבות"
+   ],
+   "related": [
+    "יצחק",
+    "אברהם",
+    "תפארת",
+    "ישראל"
+   ],
+   "desc": "עמוד התפארת ואב שבטי ישראל.",
+   "ragil": 182,
+   "miluy": 748,
+   "misratar": 188,
+   "kadmi": 978,
+   "gadol": 182,
+   "siduri": 47,
+   "atbash": 351,
+   "albam": 353
+  },
+  {
+   "label": "שרה",
+   "world": "אבות ואמהות",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אמהות"
+   ],
+   "related": [
+    "אברהם",
+    "יצחק"
+   ],
+   "desc": null,
+   "ragil": 505,
+   "miluy": 885,
+   "misratar": 295,
+   "kadmi": 1905,
+   "gadol": 505,
+   "siduri": 46,
+   "atbash": 95,
+   "albam": 89
+  },
+  {
+   "label": "רבקה",
+   "world": "אבות ואמהות",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אמהות"
+   ],
+   "related": [
+    "יצחק",
+    "יעקב"
+   ],
+   "desc": null,
+   "ragil": 307,
+   "miluy": 1123,
+   "misratar": 391,
+   "kadmi": 1408,
+   "gadol": 307,
+   "siduri": 46,
+   "atbash": 397,
+   "albam": 127
+  },
+  {
+   "label": "רחל",
+   "world": "אבות ואמהות",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אמהות"
+   ],
+   "related": [
+    "יעקב",
+    "יוסף",
+    "לאה"
+   ],
+   "desc": null,
+   "ragil": 238,
+   "miluy": 1002,
+   "misratar": 214,
+   "kadmi": 936,
+   "gadol": 238,
+   "siduri": 40,
+   "atbash": 83,
+   "albam": 110
+  },
+  {
+   "label": "לאה",
+   "world": "אבות ואמהות",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "אמהות"
+   ],
+   "related": [
+    "יעקב",
+    "רחל"
+   ],
+   "desc": null,
+   "ragil": 36,
+   "miluy": 200,
+   "misratar": 33,
+   "kadmi": 121,
+   "gadol": 36,
+   "siduri": 18,
+   "atbash": 510,
+   "albam": 101
+  },
+  {
+   "label": "יהודה",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "מלכות"
+   ],
+   "related": [
+    "דוד",
+    "יעקב",
+    "אריה",
+    "מלכות"
+   ],
+   "desc": null,
+   "ragil": 30,
+   "miluy": 506,
+   "misratar": 9,
+   "kadmi": 116,
+   "gadol": 30,
+   "siduri": 30,
+   "atbash": 400,
+   "albam": 580
+  },
+  {
+   "label": "יוסף הצדיק",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "יוסף",
+    "יסוד",
+    "צדיק"
+   ],
+   "desc": null,
+   "ragil": 365,
+   "miluy": 1002,
+   "misratar": 420,
+   "kadmi": 1906,
+   "gadol": 1085,
+   "siduri": 104,
+   "atbash": 373,
+   "albam": 835
+  },
+  {
+   "label": "בנימין",
+   "world": "שבטים ונביאים",
+   "importance": 3,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "יעקב",
+    "רחל"
+   ],
+   "desc": null,
+   "ragil": 162,
+   "miluy": 744,
+   "misratar": 188,
+   "kadmi": 648,
+   "gadol": 812,
+   "siduri": 63,
+   "atbash": 408,
+   "albam": 648
+  },
+  {
+   "label": "לוי",
+   "world": "שבטים ונביאים",
+   "importance": 3,
+   "tags": [
+    "דמות",
+    "תנך",
+    "מקדש"
+   ],
+   "related": [
+    "כהן",
+    "יעקב"
+   ],
+   "desc": null,
+   "ragil": 46,
+   "miluy": 116,
+   "misratar": 28,
+   "kadmi": 181,
+   "gadol": 46,
+   "siduri": 28,
+   "atbash": 140,
+   "albam": 381
+  },
+  {
+   "label": "יהושע",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "הנהגה"
+   ],
+   "related": [
+    "משה",
+    "ארץ ישראל"
+   ],
+   "desc": null,
+   "ragil": 391,
+   "miluy": 547,
+   "misratar": 530,
+   "kadmi": 1511,
+   "gadol": 391,
+   "siduri": 58,
+   "atbash": 219,
+   "albam": 465
+  },
+  {
+   "label": "שמואל",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "נביא"
+   ],
+   "related": [
+    "דוד",
+    "נביא"
+   ],
+   "desc": null,
+   "ragil": 377,
+   "miluy": 647,
+   "misratar": 328,
+   "kadmi": 1367,
+   "gadol": 377,
+   "siduri": 53,
+   "atbash": 512,
+   "albam": 123
+  },
+  {
+   "label": "ישעיהו",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "תנך",
+    "נביא"
+   ],
+   "related": [
+    "נביא",
+    "גאולה"
+   ],
+   "desc": null,
+   "ragil": 401,
+   "miluy": 567,
+   "misratar": 586,
+   "kadmi": 1566,
+   "gadol": 401,
+   "siduri": 68,
+   "atbash": 259,
+   "albam": 765
+  },
+  {
+   "label": "נביא",
+   "world": "שבטים ונביאים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "תנך",
+    "הנהגה"
+   ],
+   "related": [
+    "אליהו",
+    "שמואל",
+    "התגלות"
+   ],
+   "desc": null,
+   "ragil": 63,
+   "miluy": 649,
+   "misratar": 65,
+   "kadmi": 254,
+   "gadol": 63,
+   "siduri": 27,
+   "atbash": 749,
+   "albam": 373
+  },
+  {
+   "label": "צדיק",
+   "world": "שבטים ונביאים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "קבלה"
+   ],
+   "related": [
+    "יסוד",
+    "יוסף הצדיק",
+    "חסיד"
+   ],
+   "desc": "יסוד עולם שמחבר שמים וארץ.",
+   "ragil": 204,
+   "miluy": 744,
+   "misratar": 182,
+   "kadmi": 1155,
+   "gadol": 204,
+   "siduri": 51,
+   "atbash": 149,
+   "albam": 375
+  },
+  {
+   "label": "רבי עקיבא",
+   "world": "רבנים וחכמים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "היסטוריה"
+   ],
+   "related": [
+    "תורה",
+    "אהבה"
+   ],
+   "desc": null,
+   "ragil": 395,
+   "miluy": 1801,
+   "misratar": 395,
+   "kadmi": 1832,
+   "gadol": 395,
+   "siduri": 80,
+   "atbash": 1094,
+   "albam": 732
+  },
+  {
+   "label": "רבי שמעון בר יוחאי",
+   "world": "רבנים וחכמים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "קבלה"
+   ],
+   "related": [
+    "זוהר",
+    "קבלה",
+    "סוד"
+   ],
+   "desc": "בעל הזוהר ומגלה סודות התורה.",
+   "ragil": 915,
+   "miluy": 3153,
+   "misratar": 1352,
+   "kadmi": 3600,
+   "gadol": 1565,
+   "siduri": 159,
+   "atbash": 1374,
+   "albam": 1308
+  },
+  {
+   "label": "האר״י הקדוש",
+   "world": "רבנים וחכמים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "קבלה"
+   ],
+   "related": [
+    "קבלה",
+    "צמצום",
+    "שבירת הכלים",
+    "תיקון"
+   ],
+   "desc": "אבי הקבלה המודרנית ומגלה תורת התיקון.",
+   "ragil": 631,
+   "miluy": 1673,
+   "misratar": 885,
+   "kadmi": 2602,
+   "gadol": 631,
+   "siduri": 91,
+   "atbash": 809,
+   "albam": 637
+  },
+  {
+   "label": "הבעל שם טוב",
+   "world": "רבנים וחכמים",
+   "importance": 5,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "חסידות"
+   ],
+   "related": [
+    "חסידות",
+    "דבקות"
+   ],
+   "desc": null,
+   "ragil": 464,
+   "miluy": 1924,
+   "misratar": 679,
+   "kadmi": 1757,
+   "gadol": 1024,
+   "siduri": 86,
+   "atbash": 859,
+   "albam": 448
+  },
+  {
+   "label": "רבי נחמן",
+   "world": "רבנים וחכמים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "חסידות"
+   ],
+   "related": [
+    "אמונה",
+    "שמחה",
+    "התבודדות"
+   ],
+   "desc": null,
+   "ragil": 360,
+   "miluy": 1652,
+   "misratar": 330,
+   "kadmi": 1424,
+   "gadol": 1010,
+   "siduri": 81,
+   "atbash": 431,
+   "albam": 457
+  },
+  {
+   "label": "הרמב״ם",
+   "world": "רבנים וחכמים",
+   "importance": 4,
+   "tags": [
+    "דמות",
+    "חכמים",
+    "הלכה"
+   ],
+   "related": [
+    "תורה",
+    "חכמה"
+   ],
+   "desc": null,
+   "ragil": 287,
+   "miluy": 1097,
+   "misratar": 431,
+   "kadmi": 1103,
+   "gadol": 847,
+   "siduri": 53,
+   "atbash": 413,
+   "albam": 123
+  },
+  {
+   "label": "ישראל",
+   "world": "ארץ ועם",
+   "importance": 5,
+   "tags": [
+    "עם",
+    "מקום",
+    "קודש"
+   ],
+   "related": [
+    "יעקב",
+    "ארץ ישראל",
+    "עם ישראל",
+    "ירושלים"
+   ],
+   "desc": "העם והשם שנושאים את ייעוד האחדות.",
+   "ragil": 541,
+   "miluy": 1075,
+   "misratar": 618,
+   "kadmi": 2051,
+   "gadol": 541,
+   "siduri": 64,
+   "atbash": 465,
+   "albam": 350
+  },
+  {
+   "label": "ארץ ישראל",
+   "world": "ארץ ועם",
+   "importance": 5,
+   "tags": [
+    "מקום",
+    "קודש",
+    "גאולה"
+   ],
+   "related": [
+    "ישראל",
+    "ירושלים",
+    "יהושע"
+   ],
+   "desc": "הארץ שבה הרוח פוגשת את החומר.",
+   "ragil": 832,
+   "miluy": 1800,
+   "misratar": 1007,
+   "kadmi": 3342,
+   "gadol": 1642,
+   "siduri": 103,
+   "atbash": 873,
+   "albam": 396
+  },
+  {
+   "label": "עם ישראל",
+   "world": "ארץ ועם",
+   "importance": 5,
+   "tags": [
+    "עם",
+    "קודש"
+   ],
+   "related": [
+    "ישראל",
+    "תורה",
+    "גאולה"
+   ],
+   "desc": "נושאי הברית והאור לגויים.",
+   "ragil": 651,
+   "miluy": 1285,
+   "misratar": 678,
+   "kadmi": 2521,
+   "gadol": 1211,
+   "siduri": 93,
+   "atbash": 482,
+   "albam": 357
+  },
+  {
+   "label": "יהודה ושומרון",
+   "world": "ארץ ועם",
+   "importance": 3,
+   "tags": [
+    "מקום",
+    "אקטואליה"
+   ],
+   "related": [
+    "חברון",
+    "ארץ ישראל"
+   ],
+   "desc": null,
+   "ragil": 638,
+   "miluy": 1628,
+   "misratar": 1030,
+   "kadmi": 2409,
+   "gadol": 1288,
+   "siduri": 116,
+   "atbash": 664,
+   "albam": 844
+  },
+  {
+   "label": "תל אביב",
+   "world": "ארץ ועם",
+   "importance": 2,
+   "tags": [
+    "מקום",
+    "אקטואליה"
+   ],
+   "related": [
+    "ישראל"
+   ],
+   "desc": null,
+   "ragil": 445,
+   "miluy": 1445,
+   "misratar": 416,
+   "kadmi": 1662,
+   "gadol": 445,
+   "siduri": 49,
+   "atbash": 1061,
+   "albam": 431
+  },
+  {
+   "label": "חיפה",
+   "world": "ארץ ועם",
+   "importance": 2,
+   "tags": [
+    "מקום",
+    "אקטואליה"
+   ],
+   "related": [
+    "ישראל"
+   ],
+   "desc": null,
+   "ragil": 103,
+   "miluy": 534,
+   "misratar": 147,
+   "kadmi": 511,
+   "gadol": 103,
+   "siduri": 40,
+   "atbash": 196,
+   "albam": 476
+  },
+  {
+   "label": "צפת",
+   "world": "ארץ ועם",
+   "importance": 3,
+   "tags": [
+    "מקום",
+    "קבלה"
+   ],
+   "related": [
+    "קבלה",
+    "האר״י הקדוש"
+   ],
+   "desc": null,
+   "ragil": 570,
+   "miluy": 601,
+   "misratar": 330,
+   "kadmi": 2395,
+   "gadol": 570,
+   "siduri": 57,
+   "atbash": 12,
+   "albam": 33
+  },
+  {
+   "label": "טבריה",
+   "world": "ארץ ועם",
+   "importance": 2,
+   "tags": [
+    "מקום",
+    "אקטואליה"
+   ],
+   "related": [
+    "ישראל"
+   ],
+   "desc": null,
+   "ragil": 226,
+   "miluy": 1376,
+   "misratar": 400,
+   "kadmi": 913,
+   "gadol": 226,
+   "siduri": 46,
+   "atbash": 483,
+   "albam": 619
+  },
+  {
+   "label": "איראן",
+   "world": "אקטואליה ואומות",
+   "importance": 3,
+   "tags": [
+    "אקטואליה",
+    "אומה",
+    "מלחמה"
+   ],
+   "related": [
+    "מלחמה",
+    "פרס",
+    "גוג"
+   ],
+   "desc": null,
+   "ragil": 262,
+   "miluy": 858,
+   "misratar": 447,
+   "kadmi": 1047,
+   "gadol": 912,
+   "siduri": 46,
+   "atbash": 852,
+   "albam": 372
+  },
+  {
+   "label": "פרס",
+   "world": "אקטואליה ואומות",
+   "importance": 3,
+   "tags": [
+    "אומה",
+    "תנך"
+   ],
+   "related": [
+    "איראן",
+    "אסתר",
+    "בבל"
+   ],
+   "desc": null,
+   "ragil": 340,
+   "miluy": 711,
+   "misratar": 260,
+   "kadmi": 1455,
+   "gadol": 340,
+   "siduri": 52,
+   "atbash": 17,
+   "albam": 19
+  },
+  {
+   "label": "בבל",
+   "world": "אקטואליה ואומות",
+   "importance": 3,
+   "tags": [
+    "אומה",
+    "תנך"
+   ],
+   "related": [
+    "פרס",
+    "גלות"
+   ],
+   "desc": null,
+   "ragil": 34,
+   "miluy": 898,
+   "misratar": 28,
+   "kadmi": 111,
+   "gadol": 34,
+   "siduri": 16,
+   "atbash": 620,
+   "albam": 81
+  },
+  {
+   "label": "אדום",
+   "world": "אקטואליה ואומות",
+   "importance": 4,
+   "tags": [
+    "אומה",
+    "תנך",
+    "קבלה"
+   ],
+   "related": [
+    "רומי",
+    "עשו",
+    "גלות"
+   ],
+   "desc": "הגלות האחרונה שצריכה בירור.",
+   "ragil": 51,
+   "miluy": 647,
+   "misratar": 39,
+   "kadmi": 177,
+   "gadol": 611,
+   "siduri": 24,
+   "atbash": 590,
+   "albam": 172
+  },
+  {
+   "label": "עשו",
+   "world": "אקטואליה ואומות",
+   "importance": 3,
+   "tags": [
+    "דמות",
+    "תנך"
+   ],
+   "related": [
+    "יעקב",
+    "אדום"
+   ],
+   "desc": null,
+   "ragil": 376,
+   "miluy": 512,
+   "misratar": 524,
+   "kadmi": 1441,
+   "gadol": 376,
+   "siduri": 43,
+   "atbash": 89,
+   "albam": 95
+  },
+  {
+   "label": "גוג",
+   "world": "אקטואליה ואומות",
+   "importance": 4,
+   "tags": [
+    "אקטואליה",
+    "גאולה",
+    "מלחמה"
+   ],
+   "related": [
+    "מלחמה",
+    "אחרית הימים",
+    "איראן"
+   ],
+   "desc": "כוח הערב-רב והמלחמה שלפני הגאולה.",
+   "ragil": 12,
+   "miluy": 188,
+   "misratar": 6,
+   "kadmi": 33,
+   "gadol": 12,
+   "siduri": 12,
+   "atbash": 480,
+   "albam": 180
+  },
+  {
+   "label": "אמריקה",
+   "world": "אקטואליה ואומות",
+   "importance": 2,
+   "tags": [
+    "אקטואליה",
+    "אומה"
+   ],
+   "related": [
+    "אדום"
+   ],
+   "desc": null,
+   "ragil": 356,
+   "miluy": 922,
+   "misratar": 574,
+   "kadmi": 1606,
+   "gadol": 356,
+   "siduri": 68,
+   "atbash": 547,
+   "albam": 419
+  },
+  {
+   "label": "רוסיה",
+   "world": "אקטואליה ואומות",
+   "importance": 2,
+   "tags": [
+    "אקטואליה",
+    "אומה"
+   ],
+   "related": [
+    "גוג"
+   ],
+   "desc": null,
+   "ragil": 281,
+   "miluy": 687,
+   "misratar": 303,
+   "kadmi": 1141,
+   "gadol": 281,
+   "siduri": 56,
+   "atbash": 221,
+   "albam": 463
+  },
+  {
+   "label": "גלות",
+   "world": "אקטואליה ואומות",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "גאולה"
+   ],
+   "related": [
+    "גאולה",
+    "אדום",
+    "בבל"
+   ],
+   "desc": null,
+   "ragil": 439,
+   "miluy": 595,
+   "misratar": 445,
+   "kadmi": 1627,
+   "gadol": 439,
+   "siduri": 43,
+   "atbash": 301,
+   "albam": 151
+  },
+  {
+   "label": "בית המקדש",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "מקדש",
+    "גאולה"
+   ],
+   "related": [
+    "מקדש",
+    "ירושלים",
+    "היכל",
+    "גאולה"
+   ],
+   "desc": "משכן השכינה ולב העולם.",
+   "ragil": 861,
+   "miluy": 1923,
+   "misratar": 1280,
+   "kadmi": 3413,
+   "gadol": 861,
+   "siduri": 96,
+   "atbash": 547,
+   "albam": 510
+  },
+  {
+   "label": "מלך המשיח",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "גאולה",
+    "מלכות"
+   ],
+   "related": [
+    "משיח",
+    "דוד",
+    "מלכות",
+    "גאולה"
+   ],
+   "desc": "המנהיג שמופיע ומגלה מלכות שמים.",
+   "ragil": 453,
+   "miluy": 1147,
+   "misratar": 622,
+   "kadmi": 1671,
+   "gadol": 933,
+   "siduri": 93,
+   "atbash": 262,
+   "albam": 885
+  },
+  {
+   "label": "עץ החיים",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "קבלה"
+   ],
+   "related": [
+    "קבלה",
+    "ספירות",
+    "אור"
+   ],
+   "desc": "מפת הספירות וזרימת השפע.",
+   "ragil": 233,
+   "miluy": 787,
+   "misratar": 140,
+   "kadmi": 1126,
+   "gadol": 1603,
+   "siduri": 80,
+   "atbash": 252,
+   "albam": 784
+  },
+  {
+   "label": "רוח הקודש",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "קודש",
+    "רוח"
+   ],
+   "related": [
+    "נבואה",
+    "שכינה",
+    "קדושה"
+   ],
+   "desc": "השראה אלוהית המדברת מתוך האדם.",
+   "ragil": 629,
+   "miluy": 1967,
+   "misratar": 686,
+   "kadmi": 2588,
+   "gadol": 629,
+   "siduri": 89,
+   "atbash": 419,
+   "albam": 417
+  },
+  {
+   "label": "גן עדן",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "קודש"
+   ],
+   "related": [
+    "עולם הבא",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 177,
+   "miluy": 859,
+   "misratar": 179,
+   "kadmi": 731,
+   "gadol": 1477,
+   "siduri": 51,
+   "atbash": 325,
+   "albam": 121
+  },
+  {
+   "label": "עולם הבא",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "גאולה",
+    "זמן"
+   ],
+   "related": [
+    "גן עדן",
+    "גאולה",
+    "אלף"
+   ],
+   "desc": null,
+   "ragil": 154,
+   "miluy": 844,
+   "misratar": 137,
+   "kadmi": 615,
+   "gadol": 714,
+   "siduri": 55,
+   "atbash": 907,
+   "albam": 228
+  },
+  {
+   "label": "כסא הכבוד",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "מלכות",
+    "קבלה"
+   ],
+   "related": [
+    "כסא",
+    "מלכות",
+    "שכינה"
+   ],
+   "desc": null,
+   "ragil": 118,
+   "miluy": 1314,
+   "misratar": 142,
+   "kadmi": 455,
+   "gadol": 118,
+   "siduri": 55,
+   "atbash": 1038,
+   "albam": 1084
+  },
+  {
+   "label": "אור הגנוז",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "קבלה",
+    "גאולה"
+   ],
+   "related": [
+    "אור",
+    "גאולה",
+    "צדיק"
+   ],
+   "desc": null,
+   "ragil": 278,
+   "miluy": 936,
+   "misratar": 488,
+   "kadmi": 1082,
+   "gadol": 278,
+   "siduri": 62,
+   "atbash": 932,
+   "albam": 412
+  },
+  {
+   "label": "זמן הגאולה",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "גאולה",
+    "זמן"
+   ],
+   "related": [
+    "גאולה",
+    "משיח",
+    "קץ"
+   ],
+   "desc": null,
+   "ragil": 147,
+   "miluy": 573,
+   "misratar": 146,
+   "kadmi": 531,
+   "gadol": 797,
+   "siduri": 66,
+   "atbash": 969,
+   "albam": 396
+  },
+  {
+   "label": "מלכות שמים",
+   "world": "צירופים קדושים",
+   "importance": 5,
+   "tags": [
+    "צירוף",
+    "מלכות",
+    "קודש"
+   ],
+   "related": [
+    "מלכות",
+    "אחד",
+    "אמונה"
+   ],
+   "desc": null,
+   "ragil": 886,
+   "miluy": 1232,
+   "misratar": 848,
+   "kadmi": 3281,
+   "gadol": 1446,
+   "siduri": 121,
+   "atbash": 203,
+   "albam": 817
+  },
+  {
+   "label": "סוד הסודות",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "קבלה",
+    "סוד"
+   ],
+   "related": [
+    "קבלה",
+    "סוד",
+    "אור הגנוז"
+   ],
+   "desc": null,
+   "ragil": 551,
+   "miluy": 1605,
+   "misratar": 564,
+   "kadmi": 2103,
+   "gadol": 551,
+   "siduri": 83,
+   "atbash": 547,
+   "albam": 458
+  },
+  {
+   "label": "ארון הברית",
+   "world": "צירופים קדושים",
+   "importance": 4,
+   "tags": [
+    "צירוף",
+    "מקדש"
+   ],
+   "related": [
+    "מקדש",
+    "היכל",
+    "תורה"
+   ],
+   "desc": null,
+   "ragil": 874,
+   "miluy": 2122,
+   "misratar": 1263,
+   "kadmi": 3375,
+   "gadol": 1524,
+   "siduri": 100,
+   "atbash": 926,
+   "albam": 561
+  },
+  {
+   "label": "רחמים",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מידה",
+    "ספירה"
+   ],
+   "related": [
+    "חסד",
+    "דין",
+    "תפארת"
+   ],
+   "desc": "החסד שמרכך את הדין.",
+   "ragil": 298,
+   "miluy": 1108,
+   "misratar": 284,
+   "kadmi": 1176,
+   "gadol": 858,
+   "siduri": 64,
+   "atbash": 123,
+   "albam": 413
+  },
+  {
+   "label": "צדק",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מידה",
+    "ספירה"
+   ],
+   "related": [
+    "מלכות",
+    "יושר",
+    "משפט"
+   ],
+   "desc": null,
+   "ragil": 194,
+   "miluy": 724,
+   "misratar": 182,
+   "kadmi": 1100,
+   "gadol": 194,
+   "siduri": 41,
+   "atbash": 109,
+   "albam": 75
+  },
+  {
+   "label": "יושר",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מידה"
+   ],
+   "related": [
+    "צדק",
+    "אמת"
+   ],
+   "desc": null,
+   "ragil": 516,
+   "miluy": 912,
+   "misratar": 398,
+   "kadmi": 1966,
+   "gadol": 516,
+   "siduri": 57,
+   "atbash": 125,
+   "albam": 399
+  },
+  {
+   "label": "ענווה",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מידה",
+    "קבלה"
+   ],
+   "related": [
+    "משה",
+    "בינה"
+   ],
+   "desc": "הביטול שדרכו עובר אור גדול.",
+   "ragil": 137,
+   "miluy": 295,
+   "misratar": 65,
+   "kadmi": 577,
+   "gadol": 137,
+   "siduri": 47,
+   "atbash": 266,
+   "albam": 238
+  },
+  {
+   "label": "סבלנות",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מידה"
+   ],
+   "related": [
+    "אמונה",
+    "ענווה"
+   ],
+   "desc": null,
+   "ragil": 548,
+   "miluy": 1150,
+   "misratar": 544,
+   "kadmi": 2074,
+   "gadol": 548,
+   "siduri": 71,
+   "atbash": 418,
+   "albam": 148
+  },
+  {
+   "label": "חמלה",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מידה",
+    "רגש"
+   ],
+   "related": [
+    "רחמים",
+    "אהבה"
+   ],
+   "desc": null,
+   "ragil": 83,
+   "miluy": 587,
+   "misratar": 67,
+   "kadmi": 301,
+   "gadol": 83,
+   "siduri": 38,
+   "atbash": 180,
+   "albam": 173
+  },
+  {
+   "label": "דבקות",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מידה",
+    "קבלה",
+    "חסידות"
+   ],
+   "related": [
+    "אהבה",
+    "הבעל שם טוב"
+   ],
+   "desc": null,
+   "ragil": 512,
+   "miluy": 1470,
+   "misratar": 588,
+   "kadmi": 2124,
+   "gadol": 512,
+   "siduri": 53,
+   "atbash": 485,
+   "albam": 208
+  },
+  {
+   "label": "סוד",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "קבלה"
+   ],
+   "related": [
+    "קבלה",
+    "סוד הסודות"
+   ],
+   "desc": null,
+   "ragil": 70,
+   "miluy": 576,
+   "misratar": 56,
+   "kadmi": 286,
+   "gadol": 70,
+   "siduri": 25,
+   "atbash": 188,
+   "albam": 144
+  },
+  {
+   "label": "קבלה",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "קבלה"
+   ],
+   "related": [
+    "סוד",
+    "עץ החיים",
+    "האר״י הקדוש"
+   ],
+   "desc": "חכמת הנסתר של פנימיות התורה.",
+   "ragil": 137,
+   "miluy": 687,
+   "misratar": 151,
+   "kadmi": 718,
+   "gadol": 137,
+   "siduri": 38,
+   "atbash": 414,
+   "albam": 119
+  },
+  {
+   "label": "נשמה",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "קבלה",
+    "גוף ונפש"
+   ],
+   "related": [
+    "רוח",
+    "נפש",
+    "אור"
+   ],
+   "desc": "החלק האלוהי שבאדם.",
+   "ragil": 395,
+   "miluy": 561,
+   "misratar": 545,
+   "kadmi": 1450,
+   "gadol": 395,
+   "siduri": 53,
+   "atbash": 111,
+   "albam": 85
+  },
+  {
+   "label": "נפש",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "קבלה"
+   ],
+   "related": [
+    "נשמה",
+    "רוח"
+   ],
+   "desc": null,
+   "ragil": 430,
+   "miluy": 547,
+   "misratar": 250,
+   "kadmi": 1695,
+   "gadol": 430,
+   "siduri": 52,
+   "atbash": 17,
+   "albam": 19
+  },
+  {
+   "label": "רוח",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "קבלה"
+   ],
+   "related": [
+    "נשמה",
+    "נפש",
+    "רוח הקודש"
+   ],
+   "desc": null,
+   "ragil": 214,
+   "miluy": 950,
+   "misratar": 196,
+   "kadmi": 852,
+   "gadol": 214,
+   "siduri": 34,
+   "atbash": 143,
+   "albam": 189
+  },
+  {
+   "label": "דעת",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "חכמה",
+    "בינה"
+   ],
+   "desc": "החיבור שמאחד חכמה ובינה.",
+   "ragil": 474,
+   "miluy": 980,
+   "misratar": 396,
+   "kadmi": 1830,
+   "gadol": 474,
+   "siduri": 42,
+   "atbash": 108,
+   "albam": 85
+  },
+  {
+   "label": "חכמה",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "בינה",
+    "דעת",
+    "שלמה"
+   ],
+   "desc": "ניצוץ הרעיון בטרם התפשט.",
+   "ragil": 73,
+   "miluy": 613,
+   "misratar": 67,
+   "kadmi": 271,
+   "gadol": 73,
+   "siduri": 37,
+   "atbash": 190,
+   "albam": 572
+  },
+  {
+   "label": "בינה",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "חכמה",
+    "דעת",
+    "ענווה"
+   ],
+   "desc": "ההבנה שמרחיבה את הנקודה לבניין.",
+   "ragil": 67,
+   "miluy": 553,
+   "misratar": 93,
+   "kadmi": 268,
+   "gadol": 67,
+   "siduri": 31,
+   "atbash": 439,
+   "albam": 413
+  },
+  {
+   "label": "התגלות",
+   "world": "מידות ומושגים",
+   "importance": 5,
+   "tags": [
+    "מושג",
+    "גאולה"
+   ],
+   "related": [
+    "גילוי",
+    "אור",
+    "נביא"
+   ],
+   "desc": "רגע שבו הנסתר נעשה גלוי.",
+   "ragil": 844,
+   "miluy": 1026,
+   "misratar": 1237,
+   "kadmi": 3137,
+   "gadol": 844,
+   "siduri": 70,
+   "atbash": 392,
+   "albam": 241
+  },
+  {
+   "label": "גילוי",
+   "world": "מידות ומושגים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "גאולה"
+   ],
+   "related": [
+    "התגלות",
+    "אליהו",
+    "סוד"
+   ],
+   "desc": null,
+   "ragil": 59,
+   "miluy": 219,
+   "misratar": 55,
+   "kadmi": 242,
+   "gadol": 59,
+   "siduri": 41,
+   "atbash": 380,
+   "albam": 731
+  },
+  {
+   "label": "ביטקוין",
+   "world": "מודרני ומדע",
+   "importance": 2,
+   "tags": [
+    "מודרני",
+    "טכנולוגיה",
+    "כסף"
+   ],
+   "related": [
+    "כסף",
+    "קוד"
+   ],
+   "desc": null,
+   "ragil": 187,
+   "miluy": 1185,
+   "misratar": 238,
+   "kadmi": 969,
+   "gadol": 837,
+   "siduri": 70,
+   "atbash": 523,
+   "albam": 931
+  },
+  {
+   "label": "חלל",
+   "world": "מודרני ומדע",
+   "importance": 3,
+   "tags": [
+    "מודרני",
+    "מדע",
+    "טבע"
+   ],
+   "related": [
+    "שמים",
+    "כוכב"
+   ],
+   "desc": null,
+   "ragil": 68,
+   "miluy": 566,
+   "misratar": 22,
+   "kadmi": 246,
+   "gadol": 68,
+   "siduri": 32,
+   "atbash": 100,
+   "albam": 102
+  },
+  {
+   "label": "לוויין",
+   "world": "מודרני ומדע",
+   "importance": 2,
+   "tags": [
+    "מודרני",
+    "טכנולוגיה"
+   ],
+   "related": [
+    "חלל",
+    "רשת"
+   ],
+   "desc": null,
+   "ragil": 112,
+   "miluy": 264,
+   "misratar": 68,
+   "kadmi": 452,
+   "gadol": 762,
+   "siduri": 58,
+   "atbash": 269,
+   "albam": 764
+  },
+  {
+   "label": "קוונטום",
+   "world": "מודרני ומדע",
+   "importance": 3,
+   "tags": [
+    "מודרני",
+    "מדע"
+   ],
+   "related": [
+    "סוד",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 217,
+   "miluy": 857,
+   "misratar": 216,
+   "kadmi": 1043,
+   "gadol": 777,
+   "siduri": 73,
+   "atbash": 313,
+   "albam": 453
+  },
+  {
+   "label": "מציאות מדומה",
+   "world": "מודרני ומדע",
+   "importance": 3,
+   "tags": [
+    "מודרני",
+    "טכנולוגיה",
+    "עתיד"
+   ],
+   "related": [
+    "בינה מלאכותית",
+    "דמיון"
+   ],
+   "desc": null,
+   "ragil": 642,
+   "miluy": 1384,
+   "misratar": 1005,
+   "kadmi": 2548,
+   "gadol": 642,
+   "siduri": 111,
+   "atbash": 826,
+   "albam": 653
+  },
+  {
+   "label": "אנרגיה",
+   "world": "מודרני ומדע",
+   "importance": 3,
+   "tags": [
+    "מודרני",
+    "מדע"
+   ],
+   "related": [
+    "אור",
+    "כח"
+   ],
+   "desc": null,
+   "ragil": 269,
+   "miluy": 845,
+   "misratar": 408,
+   "kadmi": 1067,
+   "gadol": 269,
+   "siduri": 53,
+   "atbash": 742,
+   "albam": 462
+  },
+  {
+   "label": "דנא",
+   "world": "מודרני ומדע",
+   "importance": 4,
+   "tags": [
+    "מודרני",
+    "מדע",
+    "סוד"
+   ],
+   "related": [
+    "סוד",
+    "קוד",
+    "חיים"
+   ],
+   "desc": null,
+   "ragil": 55,
+   "miluy": 651,
+   "misratar": 95,
+   "kadmi": 206,
+   "gadol": 55,
+   "siduri": 19,
+   "atbash": 509,
+   "albam": 93
+  },
+  {
+   "label": "חיים",
+   "world": "רפואה והחיים",
+   "importance": 5,
+   "tags": [
+    "רפואה",
+    "יסוד"
+   ],
+   "related": [
+    "רפואה",
+    "נשמה",
+    "אור"
+   ],
+   "desc": "כוח הקיום וההתחדשות המתמיד.",
+   "ragil": 68,
+   "miluy": 538,
+   "misratar": 32,
+   "kadmi": 291,
+   "gadol": 628,
+   "siduri": 41,
+   "atbash": 150,
+   "albam": 702
+  },
+  {
+   "label": "רפואה",
+   "world": "רפואה והחיים",
+   "importance": 5,
+   "tags": [
+    "רפואה",
+    "גאולה"
+   ],
+   "related": [
+    "חיים",
+    "רפאל",
+    "רפואה שלמה",
+    "ריפוי"
+   ],
+   "desc": "השבת השלמות אל הגוף והנפש.",
+   "ragil": 292,
+   "miluy": 739,
+   "misratar": 203,
+   "kadmi": 1237,
+   "gadol": 292,
+   "siduri": 49,
+   "atbash": 579,
+   "albam": 195
+  },
+  {
+   "label": "רפואה שלמה",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה",
+    "גאולה"
+   ],
+   "related": [
+    "רפואה",
+    "חיים",
+    "גאולה"
+   ],
+   "desc": "החלמה מלאה בגוף ובנפש כאחד.",
+   "ragil": 667,
+   "miluy": 1268,
+   "misratar": 813,
+   "kadmi": 2597,
+   "gadol": 667,
+   "siduri": 100,
+   "atbash": 701,
+   "albam": 278
+  },
+  {
+   "label": "בריאות",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה"
+   ],
+   "related": [
+    "חיים",
+    "גוף",
+    "חוסן"
+   ],
+   "desc": "שיווי המשקל של הגוף והנפש.",
+   "ragil": 619,
+   "miluy": 1491,
+   "misratar": 796,
+   "kadmi": 2370,
+   "gadol": 619,
+   "siduri": 61,
+   "atbash": 824,
+   "albam": 479
+  },
+  {
+   "label": "ריפוי",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה"
+   ],
+   "related": [
+    "רפואה",
+    "רפאל",
+    "חיים"
+   ],
+   "desc": "תהליך השיבה אל השלמות.",
+   "ragil": 306,
+   "miluy": 653,
+   "misratar": 338,
+   "kadmi": 1331,
+   "gadol": 306,
+   "siduri": 63,
+   "atbash": 169,
+   "albam": 695
+  },
+  {
+   "label": "רפאל",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה",
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "רפואה",
+    "ריפוי",
+    "חיים"
+   ],
+   "desc": "המלאך הממונה על הרפואה.",
+   "ragil": 311,
+   "miluy": 776,
+   "misratar": 228,
+   "kadmi": 1306,
+   "gadol": 311,
+   "siduri": 50,
+   "atbash": 429,
+   "albam": 46
+  },
+  {
+   "label": "מרפא",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה"
+   ],
+   "related": [
+    "רפואה",
+    "ריפוי"
+   ],
+   "desc": "מה שמשיב את הבריאות.",
+   "ragil": 321,
+   "miluy": 782,
+   "misratar": 359,
+   "kadmi": 1346,
+   "gadol": 321,
+   "siduri": 51,
+   "atbash": 419,
+   "albam": 47
+  },
+  {
+   "label": "גוף",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה",
+    "גוף ונפש"
+   ],
+   "related": [
+    "נשמה",
+    "נפש",
+    "בריאות"
+   ],
+   "desc": "הכלי החומרי לנשמה.",
+   "ragil": 89,
+   "miluy": 186,
+   "misratar": 77,
+   "kadmi": 432,
+   "gadol": 809,
+   "siduri": 26,
+   "atbash": 286,
+   "albam": 136
+  },
+  {
+   "label": "לב",
+   "world": "רפואה והחיים",
+   "importance": 5,
+   "tags": [
+    "רפואה",
+    "גוף ונפש"
+   ],
+   "related": [
+    "נשמה",
+    "אהבה",
+    "דם"
+   ],
+   "desc": "מרכז הרגש והחיים.",
+   "ragil": 32,
+   "miluy": 486,
+   "misratar": 28,
+   "kadmi": 108,
+   "gadol": 32,
+   "siduri": 14,
+   "atbash": 320,
+   "albam": 41
+  },
+  {
+   "label": "דם",
+   "world": "רפואה והחיים",
+   "importance": 4,
+   "tags": [
+    "רפואה",
+    "גוף"
+   ],
+   "related": [
+    "לב",
+    "חיים",
+    "נפש"
+   ],
+   "desc": "נושא החיים בגוף.",
+   "ragil": 44,
+   "miluy": 514,
+   "misratar": 36,
+   "kadmi": 155,
+   "gadol": 604,
+   "siduri": 17,
+   "atbash": 110,
+   "albam": 62
+  },
+  {
+   "label": "נשימה",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה",
+    "גוף",
+    "קבלה"
+   ],
+   "related": [
+    "רוח",
+    "חיים"
+   ],
+   "desc": "הרוח שנכנסת ויוצאת — חיות.",
+   "ragil": 405,
+   "miluy": 581,
+   "misratar": 605,
+   "kadmi": 1505,
+   "gadol": 405,
+   "siduri": 63,
+   "atbash": 151,
+   "albam": 385
+  },
+  {
+   "label": "מחלה",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה",
+    "צל"
+   ],
+   "related": [
+    "רפואה",
+    "כאב",
+    "חולי"
+   ],
+   "desc": "חוסר איזון הקורא לתיקון.",
+   "ragil": 83,
+   "miluy": 587,
+   "misratar": 79,
+   "kadmi": 301,
+   "gadol": 83,
+   "siduri": 38,
+   "atbash": 180,
+   "albam": 173
+  },
+  {
+   "label": "כאב",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה",
+    "צל",
+    "רגש"
+   ],
+   "related": [
+    "סבל",
+    "מחלה"
+   ],
+   "desc": "האות שמשהו דורש ריפוי.",
+   "ragil": 23,
+   "miluy": 623,
+   "misratar": 20,
+   "kadmi": 79,
+   "gadol": 23,
+   "siduri": 14,
+   "atbash": 730,
+   "albam": 470
+  },
+  {
+   "label": "חולי",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה",
+    "צל"
+   ],
+   "related": [
+    "מחלה",
+    "רפואה"
+   ],
+   "desc": "מצב החיסרון בגוף.",
+   "ragil": 54,
+   "miluy": 534,
+   "misratar": 46,
+   "kadmi": 217,
+   "gadol": 54,
+   "siduri": 36,
+   "atbash": 200,
+   "albam": 481
+  },
+  {
+   "label": "חוסן",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה"
+   ],
+   "related": [
+    "בריאות",
+    "גבורה"
+   ],
+   "desc": "הכוח לעמוד ולהתאושש.",
+   "ragil": 124,
+   "miluy": 666,
+   "misratar": 66,
+   "kadmi": 507,
+   "gadol": 774,
+   "siduri": 43,
+   "atbash": 157,
+   "albam": 187
+  },
+  {
+   "label": "סם",
+   "world": "רפואה והחיים",
+   "importance": 2,
+   "tags": [
+    "רפואה",
+    "צל"
+   ],
+   "related": [
+    "מרפא",
+    "רפואה"
+   ],
+   "desc": "כפול פנים — תרופה או רעל.",
+   "ragil": 100,
+   "miluy": 200,
+   "misratar": 20,
+   "kadmi": 400,
+   "gadol": 660,
+   "siduri": 28,
+   "atbash": 18,
+   "albam": 6
+  },
+  {
+   "label": "חיסון",
+   "world": "רפואה והחיים",
+   "importance": 2,
+   "tags": [
+    "רפואה",
+    "מודרני"
+   ],
+   "related": [
+    "בריאות",
+    "רפואה"
+   ],
+   "desc": "הגנה מוקדמת מפני מחלה.",
+   "ragil": 134,
+   "miluy": 686,
+   "misratar": 150,
+   "kadmi": 562,
+   "gadol": 784,
+   "siduri": 53,
+   "atbash": 197,
+   "albam": 487
+  },
+  {
+   "label": "נפש הבהמית",
+   "world": "רפואה והחיים",
+   "importance": 3,
+   "tags": [
+    "רפואה",
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "נפש",
+    "יצר הרע",
+    "גוף"
+   ],
+   "desc": "הכוח החייתי שצריך הכוונה.",
+   "ragil": 892,
+   "miluy": 1505,
+   "misratar": 1006,
+   "kadmi": 3423,
+   "gadol": 892,
+   "siduri": 109,
+   "atbash": 548,
+   "albam": 521
+  },
+  {
+   "label": "מוות",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל"
+   ],
+   "related": [
+    "חיים",
+    "גלות",
+    "תיקון"
+   ],
+   "desc": "ההעדר שממנו נולדת התחייה.",
+   "ragil": 452,
+   "miluy": 540,
+   "misratar": 428,
+   "kadmi": 1682,
+   "gadol": 452,
+   "siduri": 47,
+   "atbash": 171,
+   "albam": 182
+  },
+  {
+   "label": "חטא",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "תיקון",
+    "יצר הרע"
+   ],
+   "desc": "הנפילה שדורשת תיקון.",
+   "ragil": 18,
+   "miluy": 948,
+   "misratar": 9,
+   "kadmi": 82,
+   "gadol": 18,
+   "siduri": 18,
+   "atbash": 510,
+   "albam": 330
+  },
+  {
+   "label": "יצר הרע",
+   "world": "צל וסטרא אחרא",
+   "importance": 5,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "נחש",
+    "חטא",
+    "נפש הבהמית"
+   ],
+   "desc": "כוח הפיתוי שתכליתו להעלות.",
+   "ragil": 575,
+   "miluy": 1289,
+   "misratar": 710,
+   "kadmi": 2480,
+   "gadol": 575,
+   "siduri": 89,
+   "atbash": 148,
+   "albam": 400
+  },
+  {
+   "label": "נחש",
+   "world": "צל וסטרא אחרא",
+   "importance": 5,
+   "tags": [
+    "צל",
+    "סמל",
+    "קבלה"
+   ],
+   "related": [
+    "משיח",
+    "יצר הרע",
+    "עמלק"
+   ],
+   "desc": "הפיתוי הקדמון — נחש שווה משיח.",
+   "ragil": 358,
+   "miluy": 884,
+   "misratar": 334,
+   "kadmi": 1326,
+   "gadol": 358,
+   "siduri": 43,
+   "atbash": 71,
+   "albam": 113
+  },
+  {
+   "label": "עמלק",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "אומה"
+   ],
+   "related": [
+    "נחש",
+    "גוג",
+    "ספק"
+   ],
+   "desc": "שורש הספק והעמלק שבכל דור.",
+   "ragil": 240,
+   "miluy": 470,
+   "misratar": 110,
+   "kadmi": 1170,
+   "gadol": 240,
+   "siduri": 60,
+   "atbash": 41,
+   "albam": 16
+  },
+  {
+   "label": "קליפה",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "טומאה",
+    "תיקון"
+   ],
+   "desc": "המעטה שמסתיר את הניצוץ.",
+   "ragil": 225,
+   "miluy": 376,
+   "misratar": 235,
+   "kadmi": 1175,
+   "gadol": 225,
+   "siduri": 63,
+   "atbash": 160,
+   "albam": 385
+  },
+  {
+   "label": "טומאה",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "קליפה",
+    "קדושה"
+   ],
+   "desc": "ההיפוך של הקדושה.",
+   "ragil": 61,
+   "miluy": 647,
+   "misratar": 80,
+   "kadmi": 227,
+   "gadol": 61,
+   "siduri": 34,
+   "atbash": 630,
+   "albam": 382
+  },
+  {
+   "label": "שקר",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "מידה"
+   ],
+   "related": [
+    "אמת",
+    "יצר הרע"
+   ],
+   "desc": "ההיפוך של האמת.",
+   "ragil": 600,
+   "miluy": 1056,
+   "misratar": 300,
+   "kadmi": 2485,
+   "gadol": 600,
+   "siduri": 60,
+   "atbash": 9,
+   "albam": 27
+  },
+  {
+   "label": "רע",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "חטא",
+    "חושך"
+   ],
+   "desc": "ההסתר שבו מתחבא הטוב.",
+   "ragil": 270,
+   "miluy": 640,
+   "misratar": 130,
+   "kadmi": 1120,
+   "gadol": 270,
+   "siduri": 36,
+   "atbash": 10,
+   "albam": 14
+  },
+  {
+   "label": "סבל",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "רגש"
+   ],
+   "related": [
+    "כאב",
+    "יסורים"
+   ],
+   "desc": "המשא שמברר את הנפש.",
+   "ragil": 92,
+   "miluy": 606,
+   "misratar": 86,
+   "kadmi": 363,
+   "gadol": 92,
+   "siduri": 29,
+   "atbash": 328,
+   "albam": 45
+  },
+  {
+   "label": "יסורים",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל"
+   ],
+   "related": [
+    "סבל",
+    "תיקון"
+   ],
+   "desc": "ייסורים הממרקים ומתקנים.",
+   "ragil": 326,
+   "miluy": 772,
+   "misratar": 518,
+   "kadmi": 1326,
+   "gadol": 886,
+   "siduri": 74,
+   "atbash": 181,
+   "albam": 695
+  },
+  {
+   "label": "קנאה",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "רגש",
+    "מידה"
+   ],
+   "related": [
+    "גאווה",
+    "יצר הרע"
+   ],
+   "desc": "האש שאוכלת מבפנים.",
+   "ragil": 156,
+   "miluy": 418,
+   "misratar": 103,
+   "kadmi": 806,
+   "gadol": 156,
+   "siduri": 39,
+   "atbash": 503,
+   "albam": 111
+  },
+  {
+   "label": "גאווה",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "מידה"
+   ],
+   "related": [
+    "ענווה",
+    "קנאה"
+   ],
+   "desc": "ההיפוך של הענווה.",
+   "ragil": 21,
+   "miluy": 253,
+   "misratar": 8,
+   "kadmi": 64,
+   "gadol": 21,
+   "siduri": 21,
+   "atbash": 850,
+   "albam": 310
+  },
+  {
+   "label": "שטן",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "יצר הרע",
+    "מוות"
+   ],
+   "desc": "המקטרג שתפקידו לבחון.",
+   "ragil": 359,
+   "miluy": 885,
+   "misratar": 332,
+   "kadmi": 1335,
+   "gadol": 1009,
+   "siduri": 44,
+   "atbash": 61,
+   "albam": 213
+  },
+  {
+   "label": "גיהנום",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל"
+   ],
+   "related": [
+    "מוות",
+    "טומאה"
+   ],
+   "desc": "מקום המירוק והבירור.",
+   "ragil": 114,
+   "miluy": 326,
+   "misratar": 135,
+   "kadmi": 437,
+   "gadol": 674,
+   "siduri": 51,
+   "atbash": 429,
+   "albam": 505
+  },
+  {
+   "label": "לילית",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "קבלה"
+   ],
+   "related": [
+    "קליפה",
+    "נחש"
+   ],
+   "desc": "הקליפה הנקבית בסטרא אחרא.",
+   "ragil": 480,
+   "miluy": 604,
+   "misratar": 450,
+   "kadmi": 1815,
+   "gadol": 480,
+   "siduri": 66,
+   "atbash": 121,
+   "albam": 622
+  },
+  {
+   "label": "ערב רב",
+   "world": "צל וסטרא אחרא",
+   "importance": 4,
+   "tags": [
+    "צל",
+    "גאולה"
+   ],
+   "related": [
+    "גוג",
+    "גלות",
+    "עמלק"
+   ],
+   "desc": "הערבוב שצריך בירור לפני הגאולה.",
+   "ragil": 474,
+   "miluy": 1974,
+   "misratar": 724,
+   "kadmi": 1921,
+   "gadol": 474,
+   "siduri": 60,
+   "atbash": 613,
+   "albam": 103
+  },
+  {
+   "label": "רשע",
+   "world": "צל וסטרא אחרא",
+   "importance": 3,
+   "tags": [
+    "צל",
+    "מידה"
+   ],
+   "related": [
+    "צדיק",
+    "שקר"
+   ],
+   "desc": "ההיפוך של הצדיק.",
+   "ragil": 570,
+   "miluy": 1000,
+   "misratar": 330,
+   "kadmi": 2215,
+   "gadol": 570,
+   "siduri": 57,
+   "atbash": 12,
+   "albam": 24
+  },
+  {
+   "label": "אלהים",
+   "world": "שמות הקודש",
+   "importance": 5,
+   "tags": [
+    "שם",
+    "קבלה"
+   ],
+   "related": [
+    "אחד",
+    "גבורה",
+    "דין"
+   ],
+   "desc": "שם הדין והטבע — אלהים בגימטריה הטבע.",
+   "ragil": 86,
+   "miluy": 300,
+   "misratar": 89,
+   "kadmi": 321,
+   "gadol": 646,
+   "siduri": 41,
+   "atbash": 560,
+   "albam": 403
+  },
+  {
+   "label": "אדני",
+   "world": "שמות הקודש",
+   "importance": 5,
+   "tags": [
+    "שם",
+    "קבלה",
+    "מלכות"
+   ],
+   "related": [
+    "מלכות",
+    "שכינה"
+   ],
+   "desc": "שם המלכות — אדנות ה' בעולם.",
+   "ragil": 65,
+   "miluy": 671,
+   "misratar": 89,
+   "kadmi": 261,
+   "gadol": 65,
+   "siduri": 29,
+   "atbash": 549,
+   "albam": 393
+  },
+  {
+   "label": "שדי",
+   "world": "שמות הקודש",
+   "importance": 5,
+   "tags": [
+    "שם",
+    "קבלה"
+   ],
+   "related": [
+    "גבורה",
+    "ברכה"
+   ],
+   "desc": "שדי — שאמר לעולמו די.",
+   "ragil": 314,
+   "miluy": 814,
+   "misratar": 302,
+   "kadmi": 1160,
+   "gadol": 314,
+   "siduri": 35,
+   "atbash": 142,
+   "albam": 370
+  },
+  {
+   "label": "אהיה",
+   "world": "שמות הקודש",
+   "importance": 5,
+   "tags": [
+    "שם",
+    "קבלה"
+   ],
+   "related": [
+    "כתר",
+    "אין סוף"
+   ],
+   "desc": "שם ההוויה — אהיה אשר אהיה.",
+   "ragil": 21,
+   "miluy": 161,
+   "misratar": 14,
+   "kadmi": 86,
+   "gadol": 21,
+   "siduri": 21,
+   "atbash": 620,
+   "albam": 470
+  },
+  {
+   "label": "צבאות",
+   "world": "שמות הקודש",
+   "importance": 4,
+   "tags": [
+    "שם"
+   ],
+   "related": [
+    "גאולה",
+    "מלחמה"
+   ],
+   "desc": "ה' צבאות — אדון המערכות.",
+   "ragil": 499,
+   "miluy": 1065,
+   "misratar": 488,
+   "kadmi": 2015,
+   "gadol": 499,
+   "siduri": 49,
+   "atbash": 786,
+   "albam": 177
+  },
+  {
+   "label": "אל",
+   "world": "שמות הקודש",
+   "importance": 4,
+   "tags": [
+    "שם",
+    "קבלה"
+   ],
+   "related": [
+    "חסד",
+    "אהבה"
+   ],
+   "desc": "אל — מידת החסד.",
+   "ragil": 31,
+   "miluy": 185,
+   "misratar": 29,
+   "kadmi": 106,
+   "gadol": 31,
+   "siduri": 13,
+   "atbash": 420,
+   "albam": 31
+  },
+  {
+   "label": "יה",
+   "world": "שמות הקודש",
+   "importance": 4,
+   "tags": [
+    "שם",
+    "קבלה"
+   ],
+   "related": [
+    "חכמה",
+    "בינה"
+   ],
+   "desc": "יה — חכמה ובינה.",
+   "ragil": 15,
+   "miluy": 35,
+   "misratar": 5,
+   "kadmi": 70,
+   "gadol": 15,
+   "siduri": 15,
+   "atbash": 130,
+   "albam": 370
+  },
+  {
+   "label": "אל עליון",
+   "world": "שמות הקודש",
+   "importance": 4,
+   "tags": [
+    "שם"
+   ],
+   "related": [
+    "כתר",
+    "אלהים"
+   ],
+   "desc": "שם העליון שמעל הכל.",
+   "ragil": 197,
+   "miluy": 537,
+   "misratar": 177,
+   "kadmi": 807,
+   "gadol": 847,
+   "siduri": 71,
+   "atbash": 576,
+   "albam": 420
+  },
+  {
+   "label": "אלוה",
+   "world": "שמות הקודש",
+   "importance": 3,
+   "tags": [
+    "שם"
+   ],
+   "related": [
+    "אלהים"
+   ],
+   "desc": null,
+   "ragil": 42,
+   "miluy": 222,
+   "misratar": 54,
+   "kadmi": 142,
+   "gadol": 42,
+   "siduri": 24,
+   "atbash": 590,
+   "albam": 181
+  },
+  {
+   "label": "מיכאל",
+   "world": "מלאכים",
+   "importance": 4,
+   "tags": [
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "חסד",
+    "ישראל"
+   ],
+   "desc": "שר החסד והמליץ על ישראל.",
+   "ragil": 101,
+   "miluy": 385,
+   "misratar": 88,
+   "kadmi": 381,
+   "gadol": 101,
+   "siduri": 47,
+   "atbash": 500,
+   "albam": 733
+  },
+  {
+   "label": "גבריאל",
+   "world": "מלאכים",
+   "importance": 4,
+   "tags": [
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "גבורה",
+    "דין"
+   ],
+   "desc": "שר הגבורה והדין.",
+   "ragil": 246,
+   "miluy": 1210,
+   "misratar": 427,
+   "kadmi": 965,
+   "gadol": 246,
+   "siduri": 48,
+   "atbash": 963,
+   "albam": 430
+  },
+  {
+   "label": "אוריאל",
+   "world": "מלאכים",
+   "importance": 4,
+   "tags": [
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "אור",
+    "רפאל"
+   ],
+   "desc": "שר האור.",
+   "ragil": 248,
+   "miluy": 848,
+   "misratar": 427,
+   "kadmi": 978,
+   "gadol": 248,
+   "siduri": 50,
+   "atbash": 943,
+   "albam": 450
+  },
+  {
+   "label": "מטטרון",
+   "world": "מלאכים",
+   "importance": 4,
+   "tags": [
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "כתר",
+    "חנוך"
+   ],
+   "desc": "שר הפנים.",
+   "ragil": 314,
+   "miluy": 1556,
+   "misratar": 460,
+   "kadmi": 1246,
+   "gadol": 964,
+   "siduri": 71,
+   "atbash": 202,
+   "albam": 494
+  },
+  {
+   "label": "סנדלפון",
+   "world": "מלאכים",
+   "importance": 3,
+   "tags": [
+    "מלאך",
+    "קבלה"
+   ],
+   "related": [
+    "מלכות",
+    "תפילה"
+   ],
+   "desc": "קושר כתרים לקונו.",
+   "ragil": 280,
+   "miluy": 943,
+   "misratar": 250,
+   "kadmi": 1186,
+   "gadol": 930,
+   "siduri": 82,
+   "atbash": 232,
+   "albam": 157
+  },
+  {
+   "label": "נצח",
+   "world": "ספירות",
+   "importance": 5,
+   "tags": [
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "הוד",
+    "ניצחון",
+    "גבורה"
+   ],
+   "desc": "ספירת הנצח — נצחיות וביטחון.",
+   "ragil": 148,
+   "miluy": 628,
+   "misratar": 122,
+   "kadmi": 726,
+   "gadol": 148,
+   "siduri": 40,
+   "atbash": 74,
+   "albam": 110
+  },
+  {
+   "label": "הוד",
+   "world": "ספירות",
+   "importance": 5,
+   "tags": [
+    "ספירה",
+    "קבלה"
+   ],
+   "related": [
+    "נצח",
+    "תפילה"
+   ],
+   "desc": "ספירת ההוד — הכנעה והודיה.",
+   "ragil": 15,
+   "miluy": 471,
+   "misratar": 3,
+   "kadmi": 46,
+   "gadol": 15,
+   "siduri": 15,
+   "atbash": 270,
+   "albam": 210
+  },
+  {
+   "label": "פסח",
+   "world": "חגים ומועדים",
+   "importance": 5,
+   "tags": [
+    "חג",
+    "גאולה"
+   ],
+   "related": [
+    "גאולה",
+    "מצרים",
+    "חירות"
+   ],
+   "desc": "חג החירות ויציאת מצרים.",
+   "ragil": 148,
+   "miluy": 619,
+   "misratar": 72,
+   "kadmi": 696,
+   "gadol": 148,
+   "siduri": 40,
+   "atbash": 74,
+   "albam": 110
+  },
+  {
+   "label": "שבועות",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "חג",
+    "תורה"
+   ],
+   "related": [
+    "תורה",
+    "סיני"
+   ],
+   "desc": "חג מתן תורה.",
+   "ragil": 784,
+   "miluy": 1362,
+   "misratar": 824,
+   "kadmi": 2960,
+   "gadol": 784,
+   "siduri": 73,
+   "atbash": 470,
+   "albam": 235
+  },
+  {
+   "label": "סוכות",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "חג"
+   ],
+   "related": [
+    "שמחה",
+    "ענן"
+   ],
+   "desc": "חג האסיף והסוכה.",
+   "ragil": 492,
+   "miluy": 680,
+   "misratar": 476,
+   "kadmi": 1867,
+   "gadol": 492,
+   "siduri": 60,
+   "atbash": 199,
+   "albam": 584
+  },
+  {
+   "label": "ראש השנה",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "חג",
+    "זמן"
+   ],
+   "related": [
+    "דין",
+    "מלכות"
+   ],
+   "desc": "יום הדין וההמלכה.",
+   "ragil": 861,
+   "miluy": 1477,
+   "misratar": 1383,
+   "kadmi": 3211,
+   "gadol": 861,
+   "siduri": 87,
+   "atbash": 596,
+   "albam": 202
+  },
+  {
+   "label": "יום כיפור",
+   "world": "חגים ומועדים",
+   "importance": 5,
+   "tags": [
+    "חג",
+    "קבלה"
+   ],
+   "related": [
+    "תשובה",
+    "קדושה"
+   ],
+   "desc": "יום הכפרה והטהרה.",
+   "ragil": 372,
+   "miluy": 855,
+   "misratar": 406,
+   "kadmi": 1572,
+   "gadol": 932,
+   "siduri": 93,
+   "atbash": 289,
+   "albam": 1177
+  },
+  {
+   "label": "חנוכה",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "חג"
+   ],
+   "related": [
+    "אור",
+    "ניצחון"
+   ],
+   "desc": "חג האור והנס.",
+   "ragil": 89,
+   "miluy": 661,
+   "misratar": 115,
+   "kadmi": 342,
+   "gadol": 89,
+   "siduri": 44,
+   "atbash": 269,
+   "albam": 653
+  },
+  {
+   "label": "פורים",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "חג",
+    "גאולה"
+   ],
+   "related": [
+    "אסתר",
+    "מרדכי"
+   ],
+   "desc": "חג ההצלה הנסתרת.",
+   "ragil": 336,
+   "miluy": 713,
+   "misratar": 488,
+   "kadmi": 1421,
+   "gadol": 896,
+   "siduri": 66,
+   "atbash": 139,
+   "albam": 397
+  },
+  {
+   "label": "שמחת תורה",
+   "world": "חגים ומועדים",
+   "importance": 3,
+   "tags": [
+    "חג",
+    "תורה"
+   ],
+   "related": [
+    "תורה",
+    "שמחה"
+   ],
+   "desc": null,
+   "ragil": 1359,
+   "miluy": 2237,
+   "misratar": 1467,
+   "kadmi": 5097,
+   "gadol": 1359,
+   "siduri": 117,
+   "atbash": 247,
+   "albam": 311
+  },
+  {
+   "label": "חירות",
+   "world": "חגים ומועדים",
+   "importance": 4,
+   "tags": [
+    "מושג",
+    "גאולה"
+   ],
+   "related": [
+    "פסח",
+    "גאולה"
+   ],
+   "desc": "החופש האמיתי — שחרור הנפש.",
+   "ragil": 624,
+   "miluy": 1386,
+   "misratar": 780,
+   "kadmi": 2402,
+   "gadol": 624,
+   "siduri": 66,
+   "atbash": 184,
+   "albam": 509
+  },
+  {
+   "label": "ניסן",
+   "world": "חודשי השנה",
+   "importance": 4,
+   "tags": [
+    "זמן",
+    "חודש",
+    "גאולה"
+   ],
+   "related": [
+    "פסח",
+    "גאולה"
+   ],
+   "desc": "חודש הגאולה.",
+   "ragil": 170,
+   "miluy": 352,
+   "misratar": 100,
+   "kadmi": 700,
+   "gadol": 820,
+   "siduri": 53,
+   "atbash": 66,
+   "albam": 310
+  },
+  {
+   "label": "אייר",
+   "world": "חודשי השנה",
+   "importance": 2,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "ניסן"
+   ],
+   "desc": null,
+   "ragil": 221,
+   "miluy": 661,
+   "misratar": 199,
+   "kadmi": 906,
+   "gadol": 221,
+   "siduri": 41,
+   "atbash": 483,
+   "albam": 639
+  },
+  {
+   "label": "סיון",
+   "world": "חודשי השנה",
+   "importance": 3,
+   "tags": [
+    "זמן",
+    "חודש",
+    "תורה"
+   ],
+   "related": [
+    "שבועות",
+    "תורה"
+   ],
+   "desc": null,
+   "ragil": 126,
+   "miluy": 268,
+   "misratar": 98,
+   "kadmi": 526,
+   "gadol": 776,
+   "siduri": 45,
+   "atbash": 137,
+   "albam": 387
+  },
+  {
+   "label": "תמוז",
+   "world": "חודשי השנה",
+   "importance": 2,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "אב"
+   ],
+   "desc": null,
+   "ragil": 453,
+   "miluy": 585,
+   "misratar": 395,
+   "kadmi": 1689,
+   "gadol": 453,
+   "siduri": 48,
+   "atbash": 161,
+   "albam": 192
+  },
+  {
+   "label": "אב",
+   "world": "חודשי השנה",
+   "importance": 3,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "גלות",
+    "מקדש"
+   ],
+   "desc": null,
+   "ragil": 3,
+   "miluy": 523,
+   "misratar": 1,
+   "kadmi": 4,
+   "gadol": 3,
+   "siduri": 3,
+   "atbash": 700,
+   "albam": 70
+  },
+  {
+   "label": "אלול",
+   "world": "חודשי השנה",
+   "importance": 4,
+   "tags": [
+    "זמן",
+    "חודש",
+    "קבלה"
+   ],
+   "related": [
+    "תשובה",
+    "רחמים"
+   ],
+   "desc": "חודש הרחמים והסליחות.",
+   "ragil": 67,
+   "miluy": 281,
+   "misratar": 77,
+   "kadmi": 232,
+   "gadol": 67,
+   "siduri": 31,
+   "atbash": 520,
+   "albam": 112
+  },
+  {
+   "label": "תשרי",
+   "world": "חודשי השנה",
+   "importance": 3,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "ראש השנה"
+   ],
+   "desc": null,
+   "ragil": 910,
+   "miluy": 1306,
+   "misratar": 390,
+   "kadmi": 3440,
+   "gadol": 910,
+   "siduri": 73,
+   "atbash": 46,
+   "albam": 339
+  },
+  {
+   "label": "כסלו",
+   "world": "חודשי השנה",
+   "importance": 3,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "חנוכה",
+    "אור"
+   ],
+   "desc": null,
+   "ragil": 116,
+   "miluy": 316,
+   "misratar": 94,
+   "kadmi": 456,
+   "gadol": 116,
+   "siduri": 44,
+   "atbash": 138,
+   "albam": 485
+  },
+  {
+   "label": "אדר",
+   "world": "חודשי השנה",
+   "importance": 3,
+   "tags": [
+    "זמן",
+    "חודש"
+   ],
+   "related": [
+    "פורים",
+    "שמחה"
+   ],
+   "desc": null,
+   "ragil": 205,
+   "miluy": 1055,
+   "misratar": 199,
+   "kadmi": 806,
+   "gadol": 205,
+   "siduri": 25,
+   "atbash": 503,
+   "albam": 99
+  },
+  {
+   "label": "מצווה",
+   "world": "עבודת ה'",
+   "importance": 5,
+   "tags": [
+    "עבודה",
+    "הלכה"
+   ],
+   "related": [
+    "תורה",
+    "מעשה"
+   ],
+   "desc": "חיבור — קיום רצון ה'.",
+   "ragil": 147,
+   "miluy": 243,
+   "misratar": 135,
+   "kadmi": 697,
+   "gadol": 147,
+   "siduri": 48,
+   "atbash": 265,
+   "albam": 239
+  },
+  {
+   "label": "תשובה",
+   "world": "עבודת ה'",
+   "importance": 5,
+   "tags": [
+    "עבודה",
+    "גאולה",
+    "קבלה"
+   ],
+   "related": [
+    "תיקון",
+    "אלול",
+    "גאולה"
+   ],
+   "desc": "השיבה אל ה' ואל השורש.",
+   "ragil": 713,
+   "miluy": 1225,
+   "misratar": 401,
+   "kadmi": 2629,
+   "gadol": 713,
+   "siduri": 56,
+   "atbash": 473,
+   "albam": 220
+  },
+  {
+   "label": "צדקה",
+   "world": "עבודת ה'",
+   "importance": 4,
+   "tags": [
+    "עבודה",
+    "מידה"
+   ],
+   "related": [
+    "חסד",
+    "צדק"
+   ],
+   "desc": "נתינה שמקיימת עולם.",
+   "ragil": 199,
+   "miluy": 739,
+   "misratar": 277,
+   "kadmi": 1115,
+   "gadol": 199,
+   "siduri": 46,
+   "atbash": 199,
+   "albam": 145
+  },
+  {
+   "label": "ברית",
+   "world": "עבודת ה'",
+   "importance": 4,
+   "tags": [
+    "עבודה",
+    "קבלה"
+   ],
+   "related": [
+    "מילה",
+    "יסוד"
+   ],
+   "desc": "האות הנצחי בין ה' לעמו.",
+   "ragil": 612,
+   "miluy": 1358,
+   "misratar": 778,
+   "kadmi": 2348,
+   "gadol": 612,
+   "siduri": 54,
+   "atbash": 344,
+   "albam": 369
+  },
+  {
+   "label": "מילה",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה"
+   ],
+   "related": [
+    "ברית",
+    "יסוד"
+   ],
+   "desc": null,
+   "ragil": 85,
+   "miluy": 189,
+   "misratar": 75,
+   "kadmi": 320,
+   "gadol": 85,
+   "siduri": 40,
+   "atbash": 160,
+   "albam": 373
+  },
+  {
+   "label": "טהרה",
+   "world": "עבודת ה'",
+   "importance": 4,
+   "tags": [
+    "עבודה",
+    "קבלה"
+   ],
+   "related": [
+    "קדושה",
+    "טומאה"
+   ],
+   "desc": "היטהרות והשבת הזוך.",
+   "ragil": 219,
+   "miluy": 959,
+   "misratar": 394,
+   "kadmi": 870,
+   "gadol": 219,
+   "siduri": 39,
+   "atbash": 233,
+   "albam": 349
+  },
+  {
+   "label": "תהילים",
+   "world": "עבודת ה'",
+   "importance": 4,
+   "tags": [
+    "עבודה",
+    "קודש"
+   ],
+   "related": [
+    "דוד",
+    "תפילה"
+   ],
+   "desc": "שירת דוד — תפילת הדורות.",
+   "ragil": 495,
+   "miluy": 625,
+   "misratar": 470,
+   "kadmi": 1870,
+   "gadol": 1055,
+   "siduri": 72,
+   "atbash": 201,
+   "albam": 693
+  },
+  {
+   "label": "אמן",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה"
+   ],
+   "related": [
+    "אמונה",
+    "תפילה"
+   ],
+   "desc": null,
+   "ragil": 91,
+   "miluy": 297,
+   "misratar": 49,
+   "kadmi": 341,
+   "gadol": 741,
+   "siduri": 28,
+   "atbash": 419,
+   "albam": 35
+  },
+  {
+   "label": "מזוזה",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה"
+   ],
+   "related": [
+    "שמע ישראל"
+   ],
+   "desc": null,
+   "ragil": 65,
+   "miluy": 251,
+   "misratar": 37,
+   "kadmi": 237,
+   "gadol": 65,
+   "siduri": 38,
+   "atbash": 320,
+   "albam": 332
+  },
+  {
+   "label": "תפילין",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה",
+    "קבלה"
+   ],
+   "related": [
+    "ראש",
+    "יד"
+   ],
+   "desc": null,
+   "ragil": 580,
+   "miluy": 717,
+   "misratar": 470,
+   "kadmi": 2310,
+   "gadol": 1230,
+   "siduri": 85,
+   "atbash": 116,
+   "albam": 630
+  },
+  {
+   "label": "קרבן",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה",
+    "מקדש"
+   ],
+   "related": [
+    "מקדש",
+    "כהן"
+   ],
+   "desc": null,
+   "ragil": 352,
+   "miluy": 1214,
+   "misratar": 346,
+   "kadmi": 1588,
+   "gadol": 1002,
+   "siduri": 55,
+   "atbash": 316,
+   "albam": 60
+  },
+  {
+   "label": "כפרה",
+   "world": "עבודת ה'",
+   "importance": 3,
+   "tags": [
+    "עבודה"
+   ],
+   "related": [
+    "יום כיפור",
+    "תשובה"
+   ],
+   "desc": null,
+   "ragil": 305,
+   "miluy": 706,
+   "misratar": 375,
+   "kadmi": 1290,
+   "gadol": 305,
+   "siduri": 53,
+   "atbash": 129,
+   "albam": 485
+  },
+  {
+   "label": "משנה",
+   "world": "ספרי קודש",
+   "importance": 4,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "תורה",
+    "גמרא"
+   ],
+   "desc": null,
+   "ragil": 395,
+   "miluy": 561,
+   "misratar": 555,
+   "kadmi": 1450,
+   "gadol": 395,
+   "siduri": 53,
+   "atbash": 111,
+   "albam": 85
+  },
+  {
+   "label": "גמרא",
+   "world": "ספרי קודש",
+   "importance": 4,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "משנה",
+    "תלמוד"
+   ],
+   "desc": null,
+   "ragil": 244,
+   "miluy": 784,
+   "misratar": 396,
+   "kadmi": 947,
+   "gadol": 244,
+   "siduri": 37,
+   "atbash": 613,
+   "albam": 91
+  },
+  {
+   "label": "תלמוד",
+   "world": "ספרי קודש",
+   "importance": 4,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "גמרא",
+    "משנה"
+   ],
+   "desc": null,
+   "ragil": 480,
+   "miluy": 1026,
+   "misratar": 416,
+   "kadmi": 1776,
+   "gadol": 480,
+   "siduri": 57,
+   "atbash": 211,
+   "albam": 163
+  },
+  {
+   "label": "זוהר",
+   "world": "ספרי קודש",
+   "importance": 5,
+   "tags": [
+    "ספר",
+    "קבלה"
+   ],
+   "related": [
+    "קבלה",
+    "רבי שמעון בר יוחאי",
+    "סוד"
+   ],
+   "desc": "ספר הקבלה — אורו של רשב\"י.",
+   "ragil": 218,
+   "miluy": 614,
+   "misratar": 197,
+   "kadmi": 859,
+   "gadol": 218,
+   "siduri": 38,
+   "atbash": 243,
+   "albam": 249
+  },
+  {
+   "label": "תניא",
+   "world": "ספרי קודש",
+   "importance": 4,
+   "tags": [
+    "ספר",
+    "חסידות",
+    "קבלה"
+   ],
+   "related": [
+    "חסידות",
+    "נפש"
+   ],
+   "desc": "ספר היסוד של חב\"ד.",
+   "ragil": 461,
+   "miluy": 653,
+   "misratar": 399,
+   "kadmi": 1746,
+   "gadol": 461,
+   "siduri": 47,
+   "atbash": 450,
+   "albam": 353
+  },
+  {
+   "label": "בראשית",
+   "world": "ספרי קודש",
+   "importance": 4,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "בריאה",
+    "תורה"
+   ],
+   "desc": null,
+   "ragil": 913,
+   "miluy": 1829,
+   "misratar": 1376,
+   "kadmi": 3444,
+   "gadol": 913,
+   "siduri": 76,
+   "atbash": 746,
+   "albam": 409
+  },
+  {
+   "label": "שמות",
+   "world": "ספרי קודש",
+   "importance": 3,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "גאולה",
+    "מצרים"
+   ],
+   "desc": null,
+   "ragil": 746,
+   "miluy": 878,
+   "misratar": 688,
+   "kadmi": 2756,
+   "gadol": 746,
+   "siduri": 62,
+   "atbash": 93,
+   "albam": 112
+  },
+  {
+   "label": "ויקרא",
+   "world": "ספרי קודש",
+   "importance": 3,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "מקדש",
+    "כהן"
+   ],
+   "desc": null,
+   "ragil": 317,
+   "miluy": 849,
+   "misratar": 393,
+   "kadmi": 1467,
+   "gadol": 317,
+   "siduri": 56,
+   "atbash": 527,
+   "albam": 427
+  },
+  {
+   "label": "דברים",
+   "world": "ספרי קודש",
+   "importance": 3,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "משה",
+    "תורה"
+   ],
+   "desc": null,
+   "ragil": 256,
+   "miluy": 1456,
+   "misratar": 420,
+   "kadmi": 1008,
+   "gadol": 816,
+   "siduri": 49,
+   "atbash": 453,
+   "albam": 411
+  },
+  {
+   "label": "משלי",
+   "world": "ספרי קודש",
+   "importance": 3,
+   "tags": [
+    "ספר",
+    "תורה"
+   ],
+   "related": [
+    "שלמה",
+    "חכמה"
+   ],
+   "desc": null,
+   "ragil": 380,
+   "miluy": 534,
+   "misratar": 550,
+   "kadmi": 1400,
+   "gadol": 380,
+   "siduri": 56,
+   "atbash": 72,
+   "albam": 313
+  },
+  {
+   "label": "שמש",
+   "world": "טבע ויסודות",
+   "importance": 4,
+   "tags": [
+    "טבע",
+    "סמל"
+   ],
+   "related": [
+    "אור",
+    "ירח"
+   ],
+   "desc": "המאור הגדול.",
+   "ragil": 640,
+   "miluy": 800,
+   "misratar": 520,
+   "kadmi": 2335,
+   "gadol": 640,
+   "siduri": 55,
+   "atbash": 14,
+   "albam": 22
+  },
+  {
+   "label": "אש",
+   "world": "טבע ויסודות",
+   "importance": 4,
+   "tags": [
+    "טבע",
+    "יסוד",
+    "קבלה"
+   ],
+   "related": [
+    "אור",
+    "גבורה"
+   ],
+   "desc": "יסוד האש — להט וזיכוך.",
+   "ragil": 301,
+   "miluy": 471,
+   "misratar": 299,
+   "kadmi": 1096,
+   "gadol": 301,
+   "siduri": 22,
+   "atbash": 402,
+   "albam": 40
+  },
+  {
+   "label": "מים",
+   "world": "טבע ויסודות",
+   "importance": 4,
+   "tags": [
+    "טבע",
+    "יסוד",
+    "קבלה"
+   ],
+   "related": [
+    "חסד",
+    "חיים"
+   ],
+   "desc": "יסוד המים — חסד וזרימה.",
+   "ragil": 90,
+   "miluy": 180,
+   "misratar": 60,
+   "kadmi": 345,
+   "gadol": 650,
+   "siduri": 36,
+   "atbash": 60,
+   "albam": 304
+  },
+  {
+   "label": "עפר",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע",
+    "יסוד"
+   ],
+   "related": [
+    "אדמה",
+    "גוף"
+   ],
+   "desc": "יסוד העפר — ענווה וגשמיות.",
+   "ragil": 350,
+   "miluy": 721,
+   "misratar": 130,
+   "kadmi": 1525,
+   "gadol": 350,
+   "siduri": 53,
+   "atbash": 16,
+   "albam": 20
+  },
+  {
+   "label": "ארץ",
+   "world": "טבע ויסודות",
+   "importance": 4,
+   "tags": [
+    "טבע"
+   ],
+   "related": [
+    "שמים",
+    "ארץ ישראל"
+   ],
+   "desc": "העולם הגשמי שבו מתגלה הרוח.",
+   "ragil": 291,
+   "miluy": 725,
+   "misratar": 309,
+   "kadmi": 1291,
+   "gadol": 1101,
+   "siduri": 39,
+   "atbash": 408,
+   "albam": 46
+  },
+  {
+   "label": "שמים",
+   "world": "טבע ויסודות",
+   "importance": 4,
+   "tags": [
+    "טבע"
+   ],
+   "related": [
+    "ארץ",
+    "רוח"
+   ],
+   "desc": "העולמות העליונים.",
+   "ragil": 390,
+   "miluy": 540,
+   "misratar": 320,
+   "kadmi": 1440,
+   "gadol": 950,
+   "siduri": 57,
+   "atbash": 62,
+   "albam": 314
+  },
+  {
+   "label": "ים",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע",
+    "סמל"
+   ],
+   "related": [
+    "מים"
+   ],
+   "desc": null,
+   "ragil": 50,
+   "miluy": 100,
+   "misratar": 30,
+   "kadmi": 200,
+   "gadol": 610,
+   "siduri": 23,
+   "atbash": 50,
+   "albam": 302
+  },
+  {
+   "label": "הר",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע"
+   ],
+   "related": [
+    "סיני",
+    "ירושלים"
+   ],
+   "desc": null,
+   "ragil": 205,
+   "miluy": 525,
+   "misratar": 195,
+   "kadmi": 810,
+   "gadol": 205,
+   "siduri": 25,
+   "atbash": 93,
+   "albam": 79
+  },
+  {
+   "label": "נהר",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע"
+   ],
+   "related": [
+    "מים"
+   ],
+   "desc": null,
+   "ragil": 255,
+   "miluy": 631,
+   "misratar": 240,
+   "kadmi": 1005,
+   "gadol": 255,
+   "siduri": 39,
+   "atbash": 102,
+   "albam": 82
+  },
+  {
+   "label": "עץ",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע",
+    "סמל"
+   ],
+   "related": [
+    "עץ החיים",
+    "שורש"
+   ],
+   "desc": null,
+   "ragil": 160,
+   "miluy": 234,
+   "misratar": 20,
+   "kadmi": 820,
+   "gadol": 970,
+   "siduri": 34,
+   "atbash": 12,
+   "albam": 12
+  },
+  {
+   "label": "אבן",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע",
+    "סמל"
+   ],
+   "related": [
+    "מקדש"
+   ],
+   "desc": null,
+   "ragil": 53,
+   "miluy": 629,
+   "misratar": 49,
+   "kadmi": 199,
+   "gadol": 703,
+   "siduri": 17,
+   "atbash": 709,
+   "albam": 73
+  },
+  {
+   "label": "אדמה",
+   "world": "טבע ויסודות",
+   "importance": 3,
+   "tags": [
+    "טבע"
+   ],
+   "related": [
+    "עפר",
+    "ארץ"
+   ],
+   "desc": null,
+   "ragil": 50,
+   "miluy": 640,
+   "misratar": 74,
+   "kadmi": 171,
+   "gadol": 50,
+   "siduri": 23,
+   "atbash": 600,
+   "albam": 162
+  },
+  {
+   "label": "ראש",
+   "world": "גוף האדם",
+   "importance": 3,
+   "tags": [
+    "גוף"
+   ],
+   "related": [
+    "כתר",
+    "מוח"
+   ],
+   "desc": null,
+   "ragil": 501,
+   "miluy": 981,
+   "misratar": 498,
+   "kadmi": 1891,
+   "gadol": 501,
+   "siduri": 42,
+   "atbash": 405,
+   "albam": 49
+  },
+  {
+   "label": "יד",
+   "world": "גוף האדם",
+   "importance": 3,
+   "tags": [
+    "גוף"
+   ],
+   "related": [
+    "כח",
+    "מעשה"
+   ],
+   "desc": null,
+   "ragil": 14,
+   "miluy": 454,
+   "misratar": 6,
+   "kadmi": 65,
+   "gadol": 14,
+   "siduri": 14,
+   "atbash": 140,
+   "albam": 360
+  },
+  {
+   "label": "אוזן",
+   "world": "גוף האדם",
+   "importance": 2,
+   "tags": [
+    "גוף"
+   ],
+   "related": [
+    "שמע ישראל"
+   ],
+   "desc": null,
+   "ragil": 64,
+   "miluy": 306,
+   "misratar": 49,
+   "kadmi": 245,
+   "gadol": 714,
+   "siduri": 28,
+   "atbash": 559,
+   "albam": 203
+  },
+  {
+   "label": "פה",
+   "world": "גוף האדם",
+   "importance": 3,
+   "tags": [
+    "גוף",
+    "קבלה"
+   ],
+   "related": [
+    "דיבור",
+    "מלכות"
+   ],
+   "desc": null,
+   "ragil": 85,
+   "miluy": 96,
+   "misratar": 75,
+   "kadmi": 420,
+   "gadol": 85,
+   "siduri": 22,
+   "atbash": 96,
+   "albam": 76
+  },
+  {
+   "label": "מוח",
+   "world": "גוף האדם",
+   "importance": 3,
+   "tags": [
+    "גוף",
+    "קבלה"
+   ],
+   "related": [
+    "חכמה",
+    "ראש"
+   ],
+   "desc": null,
+   "ragil": 54,
+   "miluy": 520,
+   "misratar": 36,
+   "kadmi": 202,
+   "gadol": 54,
+   "siduri": 27,
+   "atbash": 150,
+   "albam": 182
+  },
+  {
+   "label": "פנים",
+   "world": "גוף האדם",
+   "importance": 3,
+   "tags": [
+    "גוף",
+    "קבלה"
+   ],
+   "related": [
+    "שכינה"
+   ],
+   "desc": null,
+   "ragil": 180,
+   "miluy": 287,
+   "misratar": 100,
+   "kadmi": 800,
+   "gadol": 740,
+   "siduri": 54,
+   "atbash": 65,
+   "albam": 311
+  }
+ ],
+ "edges": [
+  [
+   "מלך",
+   "מלכות"
+  ],
+  [
+   "מלך",
+   "כתר"
+  ],
+  [
+   "מלך",
+   "דוד"
+  ],
+  [
+   "מלך",
+   "משיח"
+  ],
+  [
+   "מלך",
+   "כסא"
+  ],
+  [
+   "מלכות",
+   "מלך"
+  ],
+  [
+   "מלכות",
+   "כתר"
+  ],
+  [
+   "מלכות",
+   "דוד"
+  ],
+  [
+   "מלכות",
+   "שכינה"
+  ],
+  [
+   "מלכות",
+   "ירושלים"
+  ],
+  [
+   "כתר",
+   "מלכות"
+  ],
+  [
+   "כתר",
+   "מלך"
+  ],
+  [
+   "כסא",
+   "מלך"
+  ],
+  [
+   "כסא",
+   "מלכות"
+  ],
+  [
+   "כסא",
+   "ירושלים"
+  ],
+  [
+   "ממלכה",
+   "מלך"
+  ],
+  [
+   "ממלכה",
+   "ישראל"
+  ],
+  [
+   "שרביט",
+   "מלך"
+  ],
+  [
+   "שרביט",
+   "משיח"
+  ],
+  [
+   "תורה",
+   "שבת"
+  ],
+  [
+   "תורה",
+   "קדושה"
+  ],
+  [
+   "תורה",
+   "משה"
+  ],
+  [
+   "תורה",
+   "היכל"
+  ],
+  [
+   "שבת",
+   "תורה"
+  ],
+  [
+   "שבת",
+   "קדושה"
+  ],
+  [
+   "קדושה",
+   "תורה"
+  ],
+  [
+   "קדושה",
+   "שכינה"
+  ],
+  [
+   "קדושה",
+   "מקדש"
+  ],
+  [
+   "שכינה",
+   "מלכות"
+  ],
+  [
+   "שכינה",
+   "מקדש"
+  ],
+  [
+   "שכינה",
+   "קדושה"
+  ],
+  [
+   "היכל",
+   "מקדש"
+  ],
+  [
+   "היכל",
+   "ירושלים"
+  ],
+  [
+   "היכל",
+   "כהן"
+  ],
+  [
+   "כהן",
+   "היכל"
+  ],
+  [
+   "כהן",
+   "אהרן"
+  ],
+  [
+   "כהן",
+   "מקדש"
+  ],
+  [
+   "מקדש",
+   "היכל"
+  ],
+  [
+   "מקדש",
+   "ירושלים"
+  ],
+  [
+   "מקדש",
+   "כהן"
+  ],
+  [
+   "מקדש",
+   "קדושה"
+  ],
+  [
+   "תפילה",
+   "קדושה"
+  ],
+  [
+   "תפילה",
+   "שכינה"
+  ],
+  [
+   "אחד",
+   "אמת"
+  ],
+  [
+   "אחד",
+   "אהבה"
+  ],
+  [
+   "אמת",
+   "אחד"
+  ],
+  [
+   "אמת",
+   "חסד"
+  ],
+  [
+   "אמת",
+   "אמונה"
+  ],
+  [
+   "אהבה",
+   "חסד"
+  ],
+  [
+   "אהבה",
+   "אחד"
+  ],
+  [
+   "אהבה",
+   "תפארת"
+  ],
+  [
+   "חסד",
+   "אהבה"
+  ],
+  [
+   "חסד",
+   "גבורה"
+  ],
+  [
+   "חסד",
+   "אברהם"
+  ],
+  [
+   "דין",
+   "גבורה"
+  ],
+  [
+   "דין",
+   "רחמים"
+  ],
+  [
+   "גבורה",
+   "חסד"
+  ],
+  [
+   "גבורה",
+   "דין"
+  ],
+  [
+   "גבורה",
+   "יצחק"
+  ],
+  [
+   "תפארת",
+   "חסד"
+  ],
+  [
+   "תפארת",
+   "גבורה"
+  ],
+  [
+   "תפארת",
+   "אמת"
+  ],
+  [
+   "תפארת",
+   "יעקב"
+  ],
+  [
+   "יסוד",
+   "מלכות"
+  ],
+  [
+   "יסוד",
+   "יוסף"
+  ],
+  [
+   "יסוד",
+   "צדיק"
+  ],
+  [
+   "משה",
+   "תורה"
+  ],
+  [
+   "משה",
+   "אהרן"
+  ],
+  [
+   "משה",
+   "סיני"
+  ],
+  [
+   "אהרן",
+   "משה"
+  ],
+  [
+   "אהרן",
+   "כהן"
+  ],
+  [
+   "יוסף",
+   "יסוד"
+  ],
+  [
+   "יוסף",
+   "צדיק"
+  ],
+  [
+   "יוסף",
+   "יעקב"
+  ],
+  [
+   "דוד",
+   "מלך"
+  ],
+  [
+   "דוד",
+   "מלכות"
+  ],
+  [
+   "דוד",
+   "משיח"
+  ],
+  [
+   "דוד",
+   "ירושלים"
+  ],
+  [
+   "דוד",
+   "תהילים"
+  ],
+  [
+   "שלמה",
+   "דוד"
+  ],
+  [
+   "שלמה",
+   "מקדש"
+  ],
+  [
+   "שלמה",
+   "חכמה"
+  ],
+  [
+   "אליהו",
+   "משיח"
+  ],
+  [
+   "אליהו",
+   "גאולה"
+  ],
+  [
+   "אליהו",
+   "גילוי"
+  ],
+  [
+   "אסתר",
+   "מרדכי"
+  ],
+  [
+   "אסתר",
+   "מלכות"
+  ],
+  [
+   "מרדכי",
+   "אסתר"
+  ],
+  [
+   "ירושלים",
+   "ציון"
+  ],
+  [
+   "ירושלים",
+   "מקדש"
+  ],
+  [
+   "ירושלים",
+   "דוד"
+  ],
+  [
+   "ירושלים",
+   "מלכות"
+  ],
+  [
+   "ציון",
+   "ירושלים"
+  ],
+  [
+   "ציון",
+   "גאולה"
+  ],
+  [
+   "סיני",
+   "משה"
+  ],
+  [
+   "סיני",
+   "תורה"
+  ],
+  [
+   "חברון",
+   "אברהם"
+  ],
+  [
+   "בית לחם",
+   "דוד"
+  ],
+  [
+   "בית לחם",
+   "משיח"
+  ],
+  [
+   "מצרים",
+   "משה"
+  ],
+  [
+   "מצרים",
+   "גאולה"
+  ],
+  [
+   "גאולה",
+   "משיח"
+  ],
+  [
+   "גאולה",
+   "ציון"
+  ],
+  [
+   "גאולה",
+   "ישועה"
+  ],
+  [
+   "גאולה",
+   "בן דוד"
+  ],
+  [
+   "משיח",
+   "דוד"
+  ],
+  [
+   "משיח",
+   "בן דוד"
+  ],
+  [
+   "משיח",
+   "גאולה"
+  ],
+  [
+   "משיח",
+   "מלכות"
+  ],
+  [
+   "משיח",
+   "ירושלים"
+  ],
+  [
+   "בן דוד",
+   "דוד"
+  ],
+  [
+   "בן דוד",
+   "משיח"
+  ],
+  [
+   "בן דוד",
+   "גאולה"
+  ],
+  [
+   "גואל",
+   "גאולה"
+  ],
+  [
+   "גואל",
+   "משיח"
+  ],
+  [
+   "גואל",
+   "ישועה"
+  ],
+  [
+   "ישועה",
+   "גאולה"
+  ],
+  [
+   "ישועה",
+   "תקווה"
+  ],
+  [
+   "קץ",
+   "גאולה"
+  ],
+  [
+   "קץ",
+   "אחרית הימים"
+  ],
+  [
+   "אחרית הימים",
+   "קץ"
+  ],
+  [
+   "אחרית הימים",
+   "משיח"
+  ],
+  [
+   "אחרית הימים",
+   "גאולה"
+  ],
+  [
+   "בינה מלאכותית",
+   "מחשב"
+  ],
+  [
+   "בינה מלאכותית",
+   "קוד"
+  ],
+  [
+   "בינה מלאכותית",
+   "אלגוריתם"
+  ],
+  [
+   "בינה מלאכותית",
+   "מידע"
+  ],
+  [
+   "מחשב",
+   "קוד"
+  ],
+  [
+   "מחשב",
+   "מידע"
+  ],
+  [
+   "מחשב",
+   "רשת"
+  ],
+  [
+   "קוד",
+   "מחשב"
+  ],
+  [
+   "קוד",
+   "אלגוריתם"
+  ],
+  [
+   "אלגוריתם",
+   "קוד"
+  ],
+  [
+   "אלגוריתם",
+   "בינה מלאכותית"
+  ],
+  [
+   "מידע",
+   "מחשב"
+  ],
+  [
+   "מידע",
+   "רשת"
+  ],
+  [
+   "רשת",
+   "מחשב"
+  ],
+  [
+   "רשת",
+   "מידע"
+  ],
+  [
+   "יום",
+   "לילה"
+  ],
+  [
+   "יום",
+   "אור"
+  ],
+  [
+   "לילה",
+   "יום"
+  ],
+  [
+   "לילה",
+   "חושך"
+  ],
+  [
+   "חודש",
+   "שנה"
+  ],
+  [
+   "שנה",
+   "חודש"
+  ],
+  [
+   "אלף",
+   "אחרית הימים"
+  ],
+  [
+   "אלף",
+   "עולם הבא"
+  ],
+  [
+   "כסף",
+   "זהב"
+  ],
+  [
+   "כסף",
+   "ברכה"
+  ],
+  [
+   "כסף",
+   "פרנסה"
+  ],
+  [
+   "זהב",
+   "כסף"
+  ],
+  [
+   "זהב",
+   "מקדש"
+  ],
+  [
+   "ברכה",
+   "שפע"
+  ],
+  [
+   "ברכה",
+   "פרנסה"
+  ],
+  [
+   "פרנסה",
+   "כסף"
+  ],
+  [
+   "פרנסה",
+   "ברכה"
+  ],
+  [
+   "שפע",
+   "ברכה"
+  ],
+  [
+   "שפע",
+   "כסף"
+  ],
+  [
+   "אמונה",
+   "אמת"
+  ],
+  [
+   "אמונה",
+   "תקווה"
+  ],
+  [
+   "אמונה",
+   "אחד"
+  ],
+  [
+   "שמחה",
+   "אהבה"
+  ],
+  [
+   "שמחה",
+   "תקווה"
+  ],
+  [
+   "פחד",
+   "אמונה"
+  ],
+  [
+   "פחד",
+   "חושך"
+  ],
+  [
+   "תקווה",
+   "אמונה"
+  ],
+  [
+   "תקווה",
+   "גאולה"
+  ],
+  [
+   "תקווה",
+   "ישועה"
+  ],
+  [
+   "שלום",
+   "תיקון"
+  ],
+  [
+   "שלום",
+   "גאולה"
+  ],
+  [
+   "שלום",
+   "אהבה"
+  ],
+  [
+   "געגוע",
+   "אהבה"
+  ],
+  [
+   "געגוע",
+   "תקווה"
+  ],
+  [
+   "מלחמה",
+   "ניצחון"
+  ],
+  [
+   "מלחמה",
+   "חושך"
+  ],
+  [
+   "ניצחון",
+   "מלחמה"
+  ],
+  [
+   "ניצחון",
+   "גאולה"
+  ],
+  [
+   "אור",
+   "חושך"
+  ],
+  [
+   "אור",
+   "תיקון"
+  ],
+  [
+   "אור",
+   "גילוי"
+  ],
+  [
+   "חושך",
+   "אור"
+  ],
+  [
+   "חושך",
+   "לילה"
+  ],
+  [
+   "תיקון",
+   "אור"
+  ],
+  [
+   "תיקון",
+   "שלום"
+  ],
+  [
+   "תיקון",
+   "שבירת הכלים"
+  ],
+  [
+   "שבירת הכלים",
+   "תיקון"
+  ],
+  [
+   "אריה",
+   "מלך"
+  ],
+  [
+   "אריה",
+   "דוד"
+  ],
+  [
+   "אריה",
+   "יהודה"
+  ],
+  [
+   "נשר",
+   "שמים"
+  ],
+  [
+   "יונה",
+   "שלום"
+  ],
+  [
+   "יונה",
+   "רוח"
+  ],
+  [
+   "מגן דוד",
+   "דוד"
+  ],
+  [
+   "מגן דוד",
+   "ישראל"
+  ],
+  [
+   "חרב",
+   "מלחמה"
+  ],
+  [
+   "חרב",
+   "גבורה"
+  ],
+  [
+   "מנורה",
+   "מקדש"
+  ],
+  [
+   "מנורה",
+   "אור"
+  ],
+  [
+   "עין",
+   "אור"
+  ],
+  [
+   "מפתח",
+   "שער"
+  ],
+  [
+   "מפתח",
+   "גאולה"
+  ],
+  [
+   "שער",
+   "מפתח"
+  ],
+  [
+   "שער",
+   "ירושלים"
+  ],
+  [
+   "כוכב",
+   "שמש"
+  ],
+  [
+   "אברהם",
+   "יצחק"
+  ],
+  [
+   "אברהם",
+   "יעקב"
+  ],
+  [
+   "אברהם",
+   "חסד"
+  ],
+  [
+   "אברהם",
+   "חברון"
+  ],
+  [
+   "יצחק",
+   "אברהם"
+  ],
+  [
+   "יצחק",
+   "יעקב"
+  ],
+  [
+   "יצחק",
+   "גבורה"
+  ],
+  [
+   "יעקב",
+   "יצחק"
+  ],
+  [
+   "יעקב",
+   "אברהם"
+  ],
+  [
+   "יעקב",
+   "תפארת"
+  ],
+  [
+   "יעקב",
+   "ישראל"
+  ],
+  [
+   "שרה",
+   "אברהם"
+  ],
+  [
+   "שרה",
+   "יצחק"
+  ],
+  [
+   "רבקה",
+   "יצחק"
+  ],
+  [
+   "רבקה",
+   "יעקב"
+  ],
+  [
+   "רחל",
+   "יעקב"
+  ],
+  [
+   "רחל",
+   "יוסף"
+  ],
+  [
+   "רחל",
+   "לאה"
+  ],
+  [
+   "לאה",
+   "יעקב"
+  ],
+  [
+   "לאה",
+   "רחל"
+  ],
+  [
+   "יהודה",
+   "דוד"
+  ],
+  [
+   "יהודה",
+   "יעקב"
+  ],
+  [
+   "יהודה",
+   "אריה"
+  ],
+  [
+   "יהודה",
+   "מלכות"
+  ],
+  [
+   "יוסף הצדיק",
+   "יוסף"
+  ],
+  [
+   "יוסף הצדיק",
+   "יסוד"
+  ],
+  [
+   "יוסף הצדיק",
+   "צדיק"
+  ],
+  [
+   "בנימין",
+   "יעקב"
+  ],
+  [
+   "בנימין",
+   "רחל"
+  ],
+  [
+   "לוי",
+   "כהן"
+  ],
+  [
+   "לוי",
+   "יעקב"
+  ],
+  [
+   "יהושע",
+   "משה"
+  ],
+  [
+   "יהושע",
+   "ארץ ישראל"
+  ],
+  [
+   "שמואל",
+   "דוד"
+  ],
+  [
+   "שמואל",
+   "נביא"
+  ],
+  [
+   "ישעיהו",
+   "נביא"
+  ],
+  [
+   "ישעיהו",
+   "גאולה"
+  ],
+  [
+   "נביא",
+   "אליהו"
+  ],
+  [
+   "נביא",
+   "שמואל"
+  ],
+  [
+   "נביא",
+   "התגלות"
+  ],
+  [
+   "צדיק",
+   "יסוד"
+  ],
+  [
+   "צדיק",
+   "יוסף הצדיק"
+  ],
+  [
+   "רבי עקיבא",
+   "תורה"
+  ],
+  [
+   "רבי עקיבא",
+   "אהבה"
+  ],
+  [
+   "רבי שמעון בר יוחאי",
+   "זוהר"
+  ],
+  [
+   "רבי שמעון בר יוחאי",
+   "קבלה"
+  ],
+  [
+   "רבי שמעון בר יוחאי",
+   "סוד"
+  ],
+  [
+   "האר״י הקדוש",
+   "קבלה"
+  ],
+  [
+   "האר״י הקדוש",
+   "שבירת הכלים"
+  ],
+  [
+   "האר״י הקדוש",
+   "תיקון"
+  ],
+  [
+   "הבעל שם טוב",
+   "דבקות"
+  ],
+  [
+   "רבי נחמן",
+   "אמונה"
+  ],
+  [
+   "רבי נחמן",
+   "שמחה"
+  ],
+  [
+   "הרמב״ם",
+   "תורה"
+  ],
+  [
+   "הרמב״ם",
+   "חכמה"
+  ],
+  [
+   "ישראל",
+   "יעקב"
+  ],
+  [
+   "ישראל",
+   "ארץ ישראל"
+  ],
+  [
+   "ישראל",
+   "עם ישראל"
+  ],
+  [
+   "ישראל",
+   "ירושלים"
+  ],
+  [
+   "ארץ ישראל",
+   "ישראל"
+  ],
+  [
+   "ארץ ישראל",
+   "ירושלים"
+  ],
+  [
+   "ארץ ישראל",
+   "יהושע"
+  ],
+  [
+   "עם ישראל",
+   "ישראל"
+  ],
+  [
+   "עם ישראל",
+   "תורה"
+  ],
+  [
+   "עם ישראל",
+   "גאולה"
+  ],
+  [
+   "יהודה ושומרון",
+   "חברון"
+  ],
+  [
+   "יהודה ושומרון",
+   "ארץ ישראל"
+  ],
+  [
+   "תל אביב",
+   "ישראל"
+  ],
+  [
+   "חיפה",
+   "ישראל"
+  ],
+  [
+   "צפת",
+   "קבלה"
+  ],
+  [
+   "צפת",
+   "האר״י הקדוש"
+  ],
+  [
+   "טבריה",
+   "ישראל"
+  ],
+  [
+   "איראן",
+   "מלחמה"
+  ],
+  [
+   "איראן",
+   "פרס"
+  ],
+  [
+   "איראן",
+   "גוג"
+  ],
+  [
+   "פרס",
+   "איראן"
+  ],
+  [
+   "פרס",
+   "אסתר"
+  ],
+  [
+   "פרס",
+   "בבל"
+  ],
+  [
+   "בבל",
+   "פרס"
+  ],
+  [
+   "בבל",
+   "גלות"
+  ],
+  [
+   "אדום",
+   "עשו"
+  ],
+  [
+   "אדום",
+   "גלות"
+  ],
+  [
+   "עשו",
+   "יעקב"
+  ],
+  [
+   "עשו",
+   "אדום"
+  ],
+  [
+   "גוג",
+   "מלחמה"
+  ],
+  [
+   "גוג",
+   "אחרית הימים"
+  ],
+  [
+   "גוג",
+   "איראן"
+  ],
+  [
+   "אמריקה",
+   "אדום"
+  ],
+  [
+   "רוסיה",
+   "גוג"
+  ],
+  [
+   "גלות",
+   "גאולה"
+  ],
+  [
+   "גלות",
+   "אדום"
+  ],
+  [
+   "גלות",
+   "בבל"
+  ],
+  [
+   "בית המקדש",
+   "מקדש"
+  ],
+  [
+   "בית המקדש",
+   "ירושלים"
+  ],
+  [
+   "בית המקדש",
+   "היכל"
+  ],
+  [
+   "בית המקדש",
+   "גאולה"
+  ],
+  [
+   "מלך המשיח",
+   "משיח"
+  ],
+  [
+   "מלך המשיח",
+   "דוד"
+  ],
+  [
+   "מלך המשיח",
+   "מלכות"
+  ],
+  [
+   "מלך המשיח",
+   "גאולה"
+  ],
+  [
+   "עץ החיים",
+   "קבלה"
+  ],
+  [
+   "עץ החיים",
+   "אור"
+  ],
+  [
+   "רוח הקודש",
+   "שכינה"
+  ],
+  [
+   "רוח הקודש",
+   "קדושה"
+  ],
+  [
+   "גן עדן",
+   "עולם הבא"
+  ],
+  [
+   "גן עדן",
+   "אור"
+  ],
+  [
+   "עולם הבא",
+   "גן עדן"
+  ],
+  [
+   "עולם הבא",
+   "גאולה"
+  ],
+  [
+   "עולם הבא",
+   "אלף"
+  ],
+  [
+   "כסא הכבוד",
+   "כסא"
+  ],
+  [
+   "כסא הכבוד",
+   "מלכות"
+  ],
+  [
+   "כסא הכבוד",
+   "שכינה"
+  ],
+  [
+   "אור הגנוז",
+   "אור"
+  ],
+  [
+   "אור הגנוז",
+   "גאולה"
+  ],
+  [
+   "אור הגנוז",
+   "צדיק"
+  ],
+  [
+   "זמן הגאולה",
+   "גאולה"
+  ],
+  [
+   "זמן הגאולה",
+   "משיח"
+  ],
+  [
+   "זמן הגאולה",
+   "קץ"
+  ],
+  [
+   "מלכות שמים",
+   "מלכות"
+  ],
+  [
+   "מלכות שמים",
+   "אחד"
+  ],
+  [
+   "מלכות שמים",
+   "אמונה"
+  ],
+  [
+   "סוד הסודות",
+   "קבלה"
+  ],
+  [
+   "סוד הסודות",
+   "סוד"
+  ],
+  [
+   "סוד הסודות",
+   "אור הגנוז"
+  ],
+  [
+   "ארון הברית",
+   "מקדש"
+  ],
+  [
+   "ארון הברית",
+   "היכל"
+  ],
+  [
+   "ארון הברית",
+   "תורה"
+  ],
+  [
+   "רחמים",
+   "חסד"
+  ],
+  [
+   "רחמים",
+   "דין"
+  ],
+  [
+   "רחמים",
+   "תפארת"
+  ],
+  [
+   "צדק",
+   "מלכות"
+  ],
+  [
+   "צדק",
+   "יושר"
+  ],
+  [
+   "יושר",
+   "צדק"
+  ],
+  [
+   "יושר",
+   "אמת"
+  ],
+  [
+   "ענווה",
+   "משה"
+  ],
+  [
+   "ענווה",
+   "בינה"
+  ],
+  [
+   "סבלנות",
+   "אמונה"
+  ],
+  [
+   "סבלנות",
+   "ענווה"
+  ],
+  [
+   "חמלה",
+   "רחמים"
+  ],
+  [
+   "חמלה",
+   "אהבה"
+  ],
+  [
+   "דבקות",
+   "אהבה"
+  ],
+  [
+   "דבקות",
+   "הבעל שם טוב"
+  ],
+  [
+   "סוד",
+   "קבלה"
+  ],
+  [
+   "סוד",
+   "סוד הסודות"
+  ],
+  [
+   "קבלה",
+   "סוד"
+  ],
+  [
+   "קבלה",
+   "עץ החיים"
+  ],
+  [
+   "קבלה",
+   "האר״י הקדוש"
+  ],
+  [
+   "נשמה",
+   "רוח"
+  ],
+  [
+   "נשמה",
+   "נפש"
+  ],
+  [
+   "נשמה",
+   "אור"
+  ],
+  [
+   "נפש",
+   "נשמה"
+  ],
+  [
+   "נפש",
+   "רוח"
+  ],
+  [
+   "רוח",
+   "נשמה"
+  ],
+  [
+   "רוח",
+   "נפש"
+  ],
+  [
+   "רוח",
+   "רוח הקודש"
+  ],
+  [
+   "דעת",
+   "חכמה"
+  ],
+  [
+   "דעת",
+   "בינה"
+  ],
+  [
+   "חכמה",
+   "בינה"
+  ],
+  [
+   "חכמה",
+   "דעת"
+  ],
+  [
+   "חכמה",
+   "שלמה"
+  ],
+  [
+   "בינה",
+   "חכמה"
+  ],
+  [
+   "בינה",
+   "דעת"
+  ],
+  [
+   "בינה",
+   "ענווה"
+  ],
+  [
+   "התגלות",
+   "גילוי"
+  ],
+  [
+   "התגלות",
+   "אור"
+  ],
+  [
+   "התגלות",
+   "נביא"
+  ],
+  [
+   "גילוי",
+   "התגלות"
+  ],
+  [
+   "גילוי",
+   "אליהו"
+  ],
+  [
+   "גילוי",
+   "סוד"
+  ],
+  [
+   "ביטקוין",
+   "כסף"
+  ],
+  [
+   "ביטקוין",
+   "קוד"
+  ],
+  [
+   "חלל",
+   "שמים"
+  ],
+  [
+   "חלל",
+   "כוכב"
+  ],
+  [
+   "לוויין",
+   "חלל"
+  ],
+  [
+   "לוויין",
+   "רשת"
+  ],
+  [
+   "קוונטום",
+   "סוד"
+  ],
+  [
+   "קוונטום",
+   "אור"
+  ],
+  [
+   "מציאות מדומה",
+   "בינה מלאכותית"
+  ],
+  [
+   "אנרגיה",
+   "אור"
+  ],
+  [
+   "דנא",
+   "סוד"
+  ],
+  [
+   "דנא",
+   "קוד"
+  ],
+  [
+   "דנא",
+   "חיים"
+  ],
+  [
+   "חיים",
+   "רפואה"
+  ],
+  [
+   "חיים",
+   "נשמה"
+  ],
+  [
+   "חיים",
+   "אור"
+  ],
+  [
+   "רפואה",
+   "חיים"
+  ],
+  [
+   "רפואה",
+   "רפאל"
+  ],
+  [
+   "רפואה",
+   "רפואה שלמה"
+  ],
+  [
+   "רפואה",
+   "ריפוי"
+  ],
+  [
+   "רפואה שלמה",
+   "רפואה"
+  ],
+  [
+   "רפואה שלמה",
+   "חיים"
+  ],
+  [
+   "רפואה שלמה",
+   "גאולה"
+  ],
+  [
+   "בריאות",
+   "חיים"
+  ],
+  [
+   "בריאות",
+   "גוף"
+  ],
+  [
+   "בריאות",
+   "חוסן"
+  ],
+  [
+   "ריפוי",
+   "רפואה"
+  ],
+  [
+   "ריפוי",
+   "רפאל"
+  ],
+  [
+   "ריפוי",
+   "חיים"
+  ],
+  [
+   "רפאל",
+   "רפואה"
+  ],
+  [
+   "רפאל",
+   "ריפוי"
+  ],
+  [
+   "רפאל",
+   "חיים"
+  ],
+  [
+   "מרפא",
+   "רפואה"
+  ],
+  [
+   "מרפא",
+   "ריפוי"
+  ],
+  [
+   "גוף",
+   "נשמה"
+  ],
+  [
+   "גוף",
+   "נפש"
+  ],
+  [
+   "גוף",
+   "בריאות"
+  ],
+  [
+   "לב",
+   "נשמה"
+  ],
+  [
+   "לב",
+   "אהבה"
+  ],
+  [
+   "לב",
+   "דם"
+  ],
+  [
+   "דם",
+   "לב"
+  ],
+  [
+   "דם",
+   "חיים"
+  ],
+  [
+   "דם",
+   "נפש"
+  ],
+  [
+   "נשימה",
+   "רוח"
+  ],
+  [
+   "נשימה",
+   "חיים"
+  ],
+  [
+   "מחלה",
+   "רפואה"
+  ],
+  [
+   "מחלה",
+   "כאב"
+  ],
+  [
+   "מחלה",
+   "חולי"
+  ],
+  [
+   "כאב",
+   "סבל"
+  ],
+  [
+   "כאב",
+   "מחלה"
+  ],
+  [
+   "חולי",
+   "מחלה"
+  ],
+  [
+   "חולי",
+   "רפואה"
+  ],
+  [
+   "חוסן",
+   "בריאות"
+  ],
+  [
+   "חוסן",
+   "גבורה"
+  ],
+  [
+   "סם",
+   "מרפא"
+  ],
+  [
+   "סם",
+   "רפואה"
+  ],
+  [
+   "חיסון",
+   "בריאות"
+  ],
+  [
+   "חיסון",
+   "רפואה"
+  ],
+  [
+   "נפש הבהמית",
+   "נפש"
+  ],
+  [
+   "נפש הבהמית",
+   "יצר הרע"
+  ],
+  [
+   "נפש הבהמית",
+   "גוף"
+  ],
+  [
+   "מוות",
+   "חיים"
+  ],
+  [
+   "מוות",
+   "גלות"
+  ],
+  [
+   "מוות",
+   "תיקון"
+  ],
+  [
+   "חטא",
+   "תיקון"
+  ],
+  [
+   "חטא",
+   "יצר הרע"
+  ],
+  [
+   "יצר הרע",
+   "נחש"
+  ],
+  [
+   "יצר הרע",
+   "חטא"
+  ],
+  [
+   "יצר הרע",
+   "נפש הבהמית"
+  ],
+  [
+   "נחש",
+   "משיח"
+  ],
+  [
+   "נחש",
+   "יצר הרע"
+  ],
+  [
+   "נחש",
+   "עמלק"
+  ],
+  [
+   "עמלק",
+   "נחש"
+  ],
+  [
+   "עמלק",
+   "גוג"
+  ],
+  [
+   "קליפה",
+   "טומאה"
+  ],
+  [
+   "קליפה",
+   "תיקון"
+  ],
+  [
+   "טומאה",
+   "קליפה"
+  ],
+  [
+   "טומאה",
+   "קדושה"
+  ],
+  [
+   "שקר",
+   "אמת"
+  ],
+  [
+   "שקר",
+   "יצר הרע"
+  ],
+  [
+   "רע",
+   "חטא"
+  ],
+  [
+   "רע",
+   "חושך"
+  ],
+  [
+   "סבל",
+   "כאב"
+  ],
+  [
+   "סבל",
+   "יסורים"
+  ],
+  [
+   "יסורים",
+   "סבל"
+  ],
+  [
+   "יסורים",
+   "תיקון"
+  ],
+  [
+   "קנאה",
+   "גאווה"
+  ],
+  [
+   "קנאה",
+   "יצר הרע"
+  ],
+  [
+   "גאווה",
+   "ענווה"
+  ],
+  [
+   "גאווה",
+   "קנאה"
+  ],
+  [
+   "שטן",
+   "יצר הרע"
+  ],
+  [
+   "שטן",
+   "מוות"
+  ],
+  [
+   "גיהנום",
+   "מוות"
+  ],
+  [
+   "גיהנום",
+   "טומאה"
+  ],
+  [
+   "לילית",
+   "קליפה"
+  ],
+  [
+   "לילית",
+   "נחש"
+  ],
+  [
+   "ערב רב",
+   "גוג"
+  ],
+  [
+   "ערב רב",
+   "גלות"
+  ],
+  [
+   "ערב רב",
+   "עמלק"
+  ],
+  [
+   "רשע",
+   "צדיק"
+  ],
+  [
+   "רשע",
+   "שקר"
+  ],
+  [
+   "אלהים",
+   "אחד"
+  ],
+  [
+   "אלהים",
+   "גבורה"
+  ],
+  [
+   "אלהים",
+   "דין"
+  ],
+  [
+   "אדני",
+   "מלכות"
+  ],
+  [
+   "אדני",
+   "שכינה"
+  ],
+  [
+   "שדי",
+   "גבורה"
+  ],
+  [
+   "שדי",
+   "ברכה"
+  ],
+  [
+   "אהיה",
+   "כתר"
+  ],
+  [
+   "צבאות",
+   "גאולה"
+  ],
+  [
+   "צבאות",
+   "מלחמה"
+  ],
+  [
+   "אל",
+   "חסד"
+  ],
+  [
+   "אל",
+   "אהבה"
+  ],
+  [
+   "יה",
+   "חכמה"
+  ],
+  [
+   "יה",
+   "בינה"
+  ],
+  [
+   "אל עליון",
+   "כתר"
+  ],
+  [
+   "אל עליון",
+   "אלהים"
+  ],
+  [
+   "אלוה",
+   "אלהים"
+  ],
+  [
+   "מיכאל",
+   "חסד"
+  ],
+  [
+   "מיכאל",
+   "ישראל"
+  ],
+  [
+   "גבריאל",
+   "גבורה"
+  ],
+  [
+   "גבריאל",
+   "דין"
+  ],
+  [
+   "אוריאל",
+   "אור"
+  ],
+  [
+   "אוריאל",
+   "רפאל"
+  ],
+  [
+   "מטטרון",
+   "כתר"
+  ],
+  [
+   "סנדלפון",
+   "מלכות"
+  ],
+  [
+   "סנדלפון",
+   "תפילה"
+  ],
+  [
+   "נצח",
+   "הוד"
+  ],
+  [
+   "נצח",
+   "ניצחון"
+  ],
+  [
+   "נצח",
+   "גבורה"
+  ],
+  [
+   "הוד",
+   "נצח"
+  ],
+  [
+   "הוד",
+   "תפילה"
+  ],
+  [
+   "פסח",
+   "גאולה"
+  ],
+  [
+   "פסח",
+   "מצרים"
+  ],
+  [
+   "פסח",
+   "חירות"
+  ],
+  [
+   "שבועות",
+   "תורה"
+  ],
+  [
+   "שבועות",
+   "סיני"
+  ],
+  [
+   "סוכות",
+   "שמחה"
+  ],
+  [
+   "ראש השנה",
+   "דין"
+  ],
+  [
+   "ראש השנה",
+   "מלכות"
+  ],
+  [
+   "יום כיפור",
+   "תשובה"
+  ],
+  [
+   "יום כיפור",
+   "קדושה"
+  ],
+  [
+   "חנוכה",
+   "אור"
+  ],
+  [
+   "חנוכה",
+   "ניצחון"
+  ],
+  [
+   "פורים",
+   "אסתר"
+  ],
+  [
+   "פורים",
+   "מרדכי"
+  ],
+  [
+   "שמחת תורה",
+   "תורה"
+  ],
+  [
+   "שמחת תורה",
+   "שמחה"
+  ],
+  [
+   "חירות",
+   "פסח"
+  ],
+  [
+   "חירות",
+   "גאולה"
+  ],
+  [
+   "ניסן",
+   "פסח"
+  ],
+  [
+   "ניסן",
+   "גאולה"
+  ],
+  [
+   "אייר",
+   "ניסן"
+  ],
+  [
+   "סיון",
+   "שבועות"
+  ],
+  [
+   "סיון",
+   "תורה"
+  ],
+  [
+   "תמוז",
+   "אב"
+  ],
+  [
+   "אב",
+   "גלות"
+  ],
+  [
+   "אב",
+   "מקדש"
+  ],
+  [
+   "אלול",
+   "תשובה"
+  ],
+  [
+   "אלול",
+   "רחמים"
+  ],
+  [
+   "תשרי",
+   "ראש השנה"
+  ],
+  [
+   "כסלו",
+   "חנוכה"
+  ],
+  [
+   "כסלו",
+   "אור"
+  ],
+  [
+   "אדר",
+   "פורים"
+  ],
+  [
+   "אדר",
+   "שמחה"
+  ],
+  [
+   "מצווה",
+   "תורה"
+  ],
+  [
+   "תשובה",
+   "תיקון"
+  ],
+  [
+   "תשובה",
+   "אלול"
+  ],
+  [
+   "תשובה",
+   "גאולה"
+  ],
+  [
+   "צדקה",
+   "חסד"
+  ],
+  [
+   "צדקה",
+   "צדק"
+  ],
+  [
+   "ברית",
+   "מילה"
+  ],
+  [
+   "ברית",
+   "יסוד"
+  ],
+  [
+   "מילה",
+   "ברית"
+  ],
+  [
+   "מילה",
+   "יסוד"
+  ],
+  [
+   "טהרה",
+   "קדושה"
+  ],
+  [
+   "טהרה",
+   "טומאה"
+  ],
+  [
+   "תהילים",
+   "דוד"
+  ],
+  [
+   "תהילים",
+   "תפילה"
+  ],
+  [
+   "אמן",
+   "אמונה"
+  ],
+  [
+   "אמן",
+   "תפילה"
+  ],
+  [
+   "תפילין",
+   "ראש"
+  ],
+  [
+   "תפילין",
+   "יד"
+  ],
+  [
+   "קרבן",
+   "מקדש"
+  ],
+  [
+   "קרבן",
+   "כהן"
+  ],
+  [
+   "כפרה",
+   "יום כיפור"
+  ],
+  [
+   "כפרה",
+   "תשובה"
+  ],
+  [
+   "משנה",
+   "תורה"
+  ],
+  [
+   "משנה",
+   "גמרא"
+  ],
+  [
+   "גמרא",
+   "משנה"
+  ],
+  [
+   "גמרא",
+   "תלמוד"
+  ],
+  [
+   "תלמוד",
+   "גמרא"
+  ],
+  [
+   "תלמוד",
+   "משנה"
+  ],
+  [
+   "זוהר",
+   "קבלה"
+  ],
+  [
+   "זוהר",
+   "רבי שמעון בר יוחאי"
+  ],
+  [
+   "זוהר",
+   "סוד"
+  ],
+  [
+   "תניא",
+   "נפש"
+  ],
+  [
+   "בראשית",
+   "תורה"
+  ],
+  [
+   "שמות",
+   "גאולה"
+  ],
+  [
+   "שמות",
+   "מצרים"
+  ],
+  [
+   "ויקרא",
+   "מקדש"
+  ],
+  [
+   "ויקרא",
+   "כהן"
+  ],
+  [
+   "דברים",
+   "משה"
+  ],
+  [
+   "דברים",
+   "תורה"
+  ],
+  [
+   "משלי",
+   "שלמה"
+  ],
+  [
+   "משלי",
+   "חכמה"
+  ],
+  [
+   "שמש",
+   "אור"
+  ],
+  [
+   "אש",
+   "אור"
+  ],
+  [
+   "אש",
+   "גבורה"
+  ],
+  [
+   "מים",
+   "חסד"
+  ],
+  [
+   "מים",
+   "חיים"
+  ],
+  [
+   "עפר",
+   "אדמה"
+  ],
+  [
+   "עפר",
+   "גוף"
+  ],
+  [
+   "ארץ",
+   "שמים"
+  ],
+  [
+   "ארץ",
+   "ארץ ישראל"
+  ],
+  [
+   "שמים",
+   "ארץ"
+  ],
+  [
+   "שמים",
+   "רוח"
+  ],
+  [
+   "ים",
+   "מים"
+  ],
+  [
+   "הר",
+   "סיני"
+  ],
+  [
+   "הר",
+   "ירושלים"
+  ],
+  [
+   "נהר",
+   "מים"
+  ],
+  [
+   "עץ",
+   "עץ החיים"
+  ],
+  [
+   "אבן",
+   "מקדש"
+  ],
+  [
+   "אדמה",
+   "עפר"
+  ],
+  [
+   "אדמה",
+   "ארץ"
+  ],
+  [
+   "ראש",
+   "כתר"
+  ],
+  [
+   "ראש",
+   "מוח"
+  ],
+  [
+   "פה",
+   "מלכות"
+  ],
+  [
+   "מוח",
+   "חכמה"
+  ],
+  [
+   "מוח",
+   "ראש"
+  ],
+  [
+   "פנים",
+   "שכינה"
+  ]
+ ]
+}
