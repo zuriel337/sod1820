@@ -19,8 +19,7 @@ const gwRows=ents.map(e=>{
 
 const edgeRows=edges.map(([a,b])=>`(${Q(a)},${Q(b)})`).join(",\n");
 
-const sql=`begin;
--- 1) ישויות → nodes
+const sql=`-- 1) ישויות → nodes
 insert into nodes (type,label,weight,is_active,metadata)
 select 'entity', v.label, v.importance, true, v.meta::jsonb
 from (values
@@ -51,7 +50,6 @@ ${edgeRows}
 join nodes a on a.label=p.f and a.metadata->>'source'='${SRC}'
 join nodes b on b.label=p.t and b.metadata->>'source'='${SRC}'
 where not exists (select 1 from edges e where e.from_node=a.id and e.to_node=b.id and e.relation_type='related');
-commit;
 `;
 fs.writeFileSync(new URL('./entities-import.sql',import.meta.url), sql);
 console.log("SQL bytes:", sql.length, "| nodes:", ents.length, "| edges:", edges.length);

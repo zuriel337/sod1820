@@ -1,4 +1,3 @@
-begin;
 -- 1) ישויות → nodes
 insert into nodes (type,label,weight,is_active,metadata)
 select 'entity', v.label, v.importance, true, v.meta::jsonb
@@ -373,4 +372,3 @@ from (values
 join nodes a on a.label=p.f and a.metadata->>'source'='entity_seed_v1'
 join nodes b on b.label=p.t and b.metadata->>'source'='entity_seed_v1'
 where not exists (select 1 from edges e where e.from_node=a.id and e.to_node=b.id and e.relation_type='related');
-commit;

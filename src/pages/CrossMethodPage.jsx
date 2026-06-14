@@ -30,6 +30,8 @@ export default function CrossMethodPage() {
   const [num, setNum] = useState(1820);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [entities, setEntities] = useState([]);   // ישויות מאומתות שנופלות על המספר (מדורגות לפי משמעות)
+  const [related, setRelated] = useState([]);     // ישויות קרובות דרך הגרף (edges)
 
   useEffect(() => { document.title = `הצלבת שיטות · ${num} · סוד 1820`; }, [num]);
 
@@ -43,6 +45,35 @@ export default function CrossMethodPage() {
       .then(({ data }) => { if (live) { setRows(data || []); setLoading(false); } });
     return () => { live = false; };
   }, [num]);
+
+  // שכבת הישויות: מאילו מהביטויים שנפלו על המספר הם ישויות-זהב (node), ומה הקשרים שלהן.
+  useEffect(() => {
+    let live = true;
+    const phrases = [...new Set(rows.map(r => r.phrase))];
+    if (!phrases.length) { setEntities([]); setRelated([]); return; }
+    (async () => {
+      const { data: ents } = await supabase.from("nodes")
+        .select("id,label,weight,metadata").eq("type", "entity").eq("is_active", true).in("label", phrases);
+      if (!live) return;
+      const E = (ents || []).map(n => ({ id: n.id, label: n.label, weight: n.weight || 3, world: n.metadata?.world }))
+        .sort((a, b) => b.weight - a.weight);
+      setEntities(E);
+      if (!E.length) { setRelated([]); return; }
+      const { data: eg } = await supabase.from("edges")
+        .select("to_node").eq("relation_type", "related").in("from_node", E.map(e => e.id));
+      const toIds = [...new Set((eg || []).map(x => x.to_node))];
+      if (!toIds.length) { setRelated([]); return; }
+      const { data: rn } = await supabase.from("nodes")
+        .select("label,weight,metadata").eq("is_active", true).in("id", toIds);
+      if (!live) return;
+      const have = new Set(E.map(e => e.label));
+      setRelated((rn || [])
+        .filter(n => !have.has(n.label))
+        .map(n => ({ label: n.label, weight: n.weight || 3, world: n.metadata?.world }))
+        .sort((a, b) => b.weight - a.weight));
+    })();
+    return () => { live = false; };
+  }, [rows]);
 
   // קיבוץ לפי שיטה — לכל שיטה רשימת הביטויים שנופלים על המספר בה.
   const groups = useMemo(() => {
@@ -104,6 +135,34 @@ export default function CrossMethodPage() {
         </div>
       </div>
 
+      {/* ✨ המסר המרכזי — ישויות-זהב מדורגות לפי משמעות */}
+      {!loading && entities.length > 0 && (
+        <section style={{ marginBottom: 18, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "16px 20px" }}>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 460, margin: "0 auto" }}>
+            {entities.map(e => (
+              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "8px 12px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}` }}>
+                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, minWidth: 96 }}>{e.label}</span>
+                <Stars n={e.weight} />
+                {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
+              </Link>
+            ))}
+          </div>
+          {related.length > 0 && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ color: C.gold, fontFamily: F.heading, fontSize: 12.5, marginBottom: 8 }}>🌳 ישויות קרובות</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                {related.slice(0, 12).map(r => (
+                  <Link key={r.label} to={`/number/${encodeURIComponent(r.label)}`} style={{ ...phraseChip, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    {r.label} <span style={{ color: C.goldDim, fontSize: 10 }}>{"★".repeat(r.weight)}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* מצב */}
       {loading && <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, padding: 30 }}>טוען…</div>}
       {!loading && allPhrases.length === 0 && (
@@ -154,6 +213,14 @@ export default function CrossMethodPage() {
         <Link to="/beit-midrash" style={{ ...chip, textDecoration: "none" }}>← לבית המדרש</Link>
       </div>
     </div>
+  );
+}
+
+function Stars({ n = 3 }) {
+  return (
+    <span style={{ color: C.gold, fontSize: 13, letterSpacing: 1, whiteSpace: "nowrap" }} title={`משמעות ${n}/5`}>
+      {"★".repeat(n)}<span style={{ color: C.border }}>{"★".repeat(Math.max(0, 5 - n))}</span>
+    </span>
   );
 }
 
