@@ -4574,7 +4574,7 @@ function SpotimChatPage() {
       {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
       <div
         data-spotim-module="conversation"
-        data-post-id="daf-tzaat-rashi"
+        data-post-id="POST_ID_GOES_HERE"
         data-post-url="https://sod1820.co.il/community/chat"
         style={{ minHeight: 400 }}
       />
