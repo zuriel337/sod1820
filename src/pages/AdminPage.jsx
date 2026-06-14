@@ -26,6 +26,19 @@ const card = { background: C.surface2, border: `1px solid ${C.border}`, borderRa
 const th = { color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textAlign: "right", padding: "9px 12px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" };
 const td = { color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 12px", borderBottom: `1px solid ${C.border}`, verticalAlign: "top" };
 
+// זיהוי מסך נייד — להתאמת פריסה (ה-inline-styles לא נתמכים ע"י media queries)
+function useIsMobile(bp = 640) {
+  const [m, setM] = useState(() => typeof window !== "undefined" && window.matchMedia(`(max-width:${bp}px)`).matches);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia(`(max-width:${bp}px)`);
+    const fn = e => setM(e.matches);
+    mq.addEventListener?.("change", fn);
+    return () => mq.removeEventListener?.("change", fn);
+  }, [bp]);
+  return m;
+}
+
 function downloadCsv(filename, rows) {
   const csv = rows.map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
   const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -35,22 +48,24 @@ function downloadCsv(filename, rows) {
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const [tab, setTab] = useState("stats");
+  const mobile = useIsMobile();
 
   if (loading) return <Center>טוען…</Center>;
   if (!user) return <Center>נדרשת התחברות. <Link to="/login" style={{ color: C.goldBright }}>כניסה →</Link></Center>;
   if (!isAdmin) return <Center>אין לך הרשאת ניהול.</Center>;
 
   return (
-    <div style={{ direction: "rtl", width: "100%", margin: 0, padding: "36px clamp(14px, 3vw, 56px) 90px", boxSizing: "border-box" }}>
+    <div style={{ direction: "rtl", width: "100%", maxWidth: "100%", margin: 0, padding: mobile ? "22px 12px 80px" : "36px clamp(14px, 3vw, 56px) 90px", boxSizing: "border-box", overflowX: "hidden" }}>
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>לוח בקרה</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>⚙️ ניהול סוד 1820</h1>
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 26 }}>
+      {/* טאבים — במובייל גלילה אופקית במקום שבירת שורות צפופה */}
+      <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 8, marginBottom: 26, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{
-            cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 18px", borderRadius: 999,
+            cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 13 : 14, fontWeight: 700, padding: mobile ? "8px 14px" : "9px 18px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
             border: `1px solid ${tab === t.key ? C.gold : C.border}`,
             background: tab === t.key ? "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(8,5,2,0.4))" : "transparent",
             color: tab === t.key ? C.goldBright : C.muted,
@@ -112,7 +127,7 @@ function OcrTab() {
   const pct = counts && counts.total ? Math.round((counts.done) / counts.total * 100) : 0;
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
         <Stat label="הושלמו (done)" value={counts ? counts.done.toLocaleString() : "…"} />
         <Stat label="ממתינים (pending)" value={counts ? counts.pending.toLocaleString() : "…"} />
         <Stat label="שגיאות" value={counts ? counts.error.toLocaleString() : "…"} />
@@ -169,8 +184,8 @@ function Center({ children }) {
 function Loading() { return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען…</div>; }
 function Stat({ label, value }) {
   return (
-    <div style={{ ...card, textAlign: "center", minWidth: 130, flex: 1 }}>
-      <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 30, fontWeight: 800 }}>{value}</div>
+    <div style={{ ...card, textAlign: "center", padding: "14px 12px" }}>
+      <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{value}</div>
       <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 4 }}>{label}</div>
     </div>
   );
@@ -178,11 +193,13 @@ function Stat({ label, value }) {
 
 // ===== 📊 סטטיסטיקות =====
 const LINK = C.goldBright;  // צבע קישור אחיד בכל הפאנל
-const FUTURE_SOURCES = [
-  { icon: "📈", name: "Google Analytics 4", desc: "תנועה חיה, קהל, התנהגות, המרות" },
-  { icon: "🔎", name: "Google Search Console", desc: "מילות חיפוש, חשיפות, מיקום ממוצע" },
-  { icon: "🟢", name: "משתמשים כעת (Realtime)", desc: "כמה גולשים מחוברים ברגע זה" },
-  { icon: "📱", name: "מקורות חברתיים", desc: "פייסבוק / טיקטוק / וואטסאפ — הפניות ושיתופים" },
+// מקורות נתונים — live=true מסומן כמחובר (ירוק), אחרת "בקרוב".
+const DATA_SOURCES = [
+  { icon: "📈", name: "Google Analytics 4", desc: "תנועה חיה, קהל, התנהגות, המרות", live: GA_ENABLED },
+  { icon: "🟢", name: "משתמשים כעת (Realtime)", desc: "כמה גולשים מחוברים ברגע זה — דרך GA4", live: GA_ENABLED },
+  { icon: "📊", name: "Vercel Web Analytics", desc: "מבקרים, צפיות ומקורות תנועה — בלוח הבקרה של Vercel", live: true },
+  { icon: "🔎", name: "Google Search Console", desc: "מילות חיפוש, חשיפות, מיקום ממוצע", live: false },
+  { icon: "📱", name: "מקורות חברתיים", desc: "פייסבוק / טיקטוק / וואטסאפ — הפניות ושיתופים", live: false },
 ];
 const linkA = { color: LINK, textDecoration: "none", borderBottom: `1px solid ${C.borderGold}` };
 
@@ -228,6 +245,7 @@ function buildScale(maxV, scale) {
 }
 
 function StatsTab() {
+  const mobile = useIsMobile();
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
   const [gran, setGran] = useState("day");   // day | month | year
@@ -265,7 +283,7 @@ function StatsTab() {
   return (
     <div style={{ display: "grid", gap: 20 }}>
       {/* KPIs */}
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
         <Stat label="סך צפיות (Jetpack)" value={totalViews.toLocaleString()} />
         <Stat label="פוסטים נמדדים" value={(s.posts || []).length.toLocaleString()} />
         <Stat label="מקורות הפניה" value={(s.referrers || []).length.toLocaleString()} />
@@ -288,7 +306,7 @@ function StatsTab() {
         </div>
         {LOOKER_URL ? (
           <iframe title="Google Analytics — Looker Studio" src={LOOKER_URL}
-            style={{ width: "100%", height: 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
+            style={{ width: "100%", height: mobile ? 460 : 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
             allowFullScreen />
         ) : (
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
@@ -389,17 +407,20 @@ function StatsTab() {
         </div>
       </div>
 
-      {/* תשתית עתידית */}
+      {/* מקורות נתונים — סטטוס חיבור חי */}
       <div style={card}>
-        <H>מקורות נתונים — בקרוב</H>
-        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "4px 0 14px" }}>תשתית מוכנה לחיבור עתידי. כשתחבר חשבון — הנתונים יוצגו כאן.</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
-          {FUTURE_SOURCES.map(f => (
-            <div key={f.name} style={{ border: `1px dashed ${C.borderGold}`, borderRadius: 12, padding: "14px 16px", opacity: 0.85 }}>
+        <H>מקורות נתונים</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "4px 0 14px" }}>הירוקים מחוברים ואוספים נתונים. האפורים יתחברו בהמשך.</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+          {DATA_SOURCES.map(f => (
+            <div key={f.name} style={{ border: `1px ${f.live ? "solid" : "dashed"} ${f.live ? "rgba(95,191,106,0.5)" : C.borderGold}`, borderRadius: 12, padding: "14px 16px", opacity: f.live ? 1 : 0.85, background: f.live ? "rgba(95,191,106,0.06)" : "transparent" }}>
               <div style={{ fontSize: 22, marginBottom: 6 }}>{f.icon}</div>
               <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{f.name}</div>
               <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 4, lineHeight: 1.6 }}>{f.desc}</div>
-              <div style={{ marginTop: 8, display: "inline-block", color: C.goldDim, fontFamily: F.heading, fontSize: 11, border: `1px solid ${C.border}`, borderRadius: 999, padding: "2px 10px" }}>🔌 לא מחובר</div>
+              <div style={{ marginTop: 8, display: "inline-block", fontFamily: F.heading, fontSize: 11, borderRadius: 999, padding: "2px 10px",
+                color: f.live ? "#5fbf6a" : C.goldDim, border: `1px solid ${f.live ? "rgba(95,191,106,0.5)" : C.border}`, fontWeight: 700 }}>
+                {f.live ? "✅ מחובר" : "🔌 בקרוב"}
+              </div>
             </div>
           ))}
         </div>
