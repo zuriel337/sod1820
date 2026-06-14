@@ -547,7 +547,8 @@ export default function BeitMidrashPage() {
 
       <style>{`
         @media (max-width: 860px) {
-          .bm-grid { flex-direction: column; gap: 14px !important; }
+          .bm-grid { flex-direction: column; gap: 14px !important; align-items: stretch !important; }
+          .bm-grid > main { width: 100% !important; min-width: 0 !important; }
           .bm-side { width: 100% !important; position: sticky !important; top: 0 !important; z-index: 5;
             background: ${L.bg}; margin: 0 -13px; padding: 8px 13px; }
           .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
