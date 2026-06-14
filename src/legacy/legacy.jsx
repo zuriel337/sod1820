@@ -4931,6 +4931,7 @@ function PostPageBySlug({ onNav }) {
         <PrayerSharePopup
           url={`${SITE_URL}/${post.slug || slug}`}
           title={title}
+          wpId={post.wp_id}
         />
       )}
       {image && !loading && (

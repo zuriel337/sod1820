@@ -409,6 +409,24 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
   return { ok: true, duplicate: !!error };
 }
 
+// ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
+export async function getShareCount(wpId) {
+  if (!supabase || !wpId) return 0;
+  const { data } = await supabase
+    .from('post_share_counts')
+    .select('count')
+    .eq('wp_id', wpId)
+    .maybeSingle();
+  return data?.count ?? 0;
+}
+
+export async function incrementShareCount(wpId) {
+  if (!supabase || !wpId) return null;
+  const { data, error } = await supabase.rpc('increment_post_share', { p_wp_id: wpId });
+  if (error) return null;
+  return data;  // הערך החדש של המונה
+}
+
 // ── Insights / חידושים (בית המדרש) ─────────────────────────
 // origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
 // space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)
