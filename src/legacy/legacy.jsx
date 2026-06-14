@@ -5010,6 +5010,8 @@ function PostPageBySlug({ onNav }) {
               <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
               {(() => {
                 const by = resolveAuthor(author);
+                // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
+                if (by.name === "המערכת") return null;
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
@@ -5037,7 +5039,15 @@ function PostPageBySlug({ onNav }) {
               <div style={{ marginBottom: 40 }}>
                 <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {gematriaItems.map(({ phrase, ragil }) => (
+                  {(() => {
+                    // הסרת כפילויות לפי ערך המספר (ragil) — כל מספר מוצג פעם אחת בלבד.
+                    const seen = new Set();
+                    return gematriaItems.filter(({ ragil }) => {
+                      if (seen.has(ragil)) return false;
+                      seen.add(ragil);
+                      return true;
+                    });
+                  })().map(({ phrase, ragil }) => (
                     <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
                       background: "#1a0a2e", border: "1px solid #7c3aed",
                       color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
