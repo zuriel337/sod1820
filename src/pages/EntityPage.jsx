@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle, supabase } from "../lib/supabase.js";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { SITE_URL } from "../lib/seo.js";
@@ -101,6 +102,7 @@ export default function EntityPage() {
     return () => { alive = false; };
   }, [value, isNumber]);
   const hasGate = isNumber && sigs.length > 0;
+  const gold = useGold();
 
   const d = data || {};
   const chips = [
@@ -273,13 +275,16 @@ export default function EntityPage() {
         <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrases?.length || null} />
         {d.phrases?.length ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-            {d.phrases.map((p, i) => (
+            {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
+              const isG = gold.labels.has(p.phrase);
+              return (
               <Link key={i} to={`/number/${encodeURIComponent(p.phrase)}`} style={{
-                textDecoration: "none", color: C.goldLight, fontFamily: F.body, fontSize: 14,
-                border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 13px",
-                background: "rgba(20,15,12,0.5)",
-              }}>{p.phrase}</Link>
-            ))}
+                textDecoration: "none", color: isG ? C.goldBright : C.goldLight, fontFamily: F.body, fontSize: 14,
+                border: `1px solid ${isG ? C.gold : C.border}`, borderRadius: 999, padding: "5px 13px",
+                background: isG ? "rgba(212,175,55,0.16)" : "rgba(20,15,12,0.5)",
+                boxShadow: isG ? `0 0 14px ${C.goldDeep}` : "none", fontWeight: isG ? 700 : 400,
+              }}>{isG ? "✦ " : ""}{p.phrase}</Link>
+            );})}
           </div>
         ) : (
           <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, marginBottom: 14 }}>אין מילים נוספות בערך זה במאגר.</p>

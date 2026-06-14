@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -85,8 +86,9 @@ const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
 function NumbersTab({ initial }) {
   const [val, setVal] = useState(initial || 1820);
   const [rows, setRows] = useState(null);
+  const gold = useGold();
   useEffect(() => { if (initial) setVal(initial); }, [initial]);
-  const anchors = ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS];
+  const anchors = sortGoldFirst(ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS], n => gold.values.has(n));
   useEffect(() => {
     let live = true; setRows(null);
     (async () => {
@@ -105,14 +107,16 @@ function NumbersTab({ initial }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-        {anchors.map(n => (
-          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `1px solid ${n === val ? L.gold : L.line}`, background: n === val ? "#fbf3da" : L.panel, color: n === val ? L.goldDeep : L.sub }}>{n}</button>
-        ))}
+        {anchors.map(n => {
+          const isG = gold.values.has(n);
+          return (
+          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `1px solid ${n === val || isG ? L.gold : L.line}`, background: n === val ? "#fbf3da" : isG ? "#fdf8e8" : L.panel, color: n === val || isG ? L.goldDeep : L.sub }}>{isG ? "★ " : ""}{n}</button>
+        );})}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{val}</span>
         {KEY_NUMBERS[val] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[val]}</span>}
-        {val === 1820 && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>★ קוד האתר</span>}
+        {gold.values.has(val) && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{val === 1820 ? "★ קוד האתר" : "★ מספר זהב"}</span>}
       </div>
       {rows === null ? <div style={{ color: L.sub, padding: 16 }}>טוען…</div> : rows.length === 0 ? <div style={{ color: L.sub, padding: 16 }}>אין ביטויים למספר זה.</div> : (
         <div style={{ overflowX: "auto", border: `1px solid ${L.line}`, borderRadius: 12, background: L.panel }}>
