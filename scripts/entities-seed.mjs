@@ -461,7 +461,8 @@ const MILUI={"א":111,"ב":412,"ג":83,"ד":434,"ה":15,"ו":22,"ז":67,"ח":418
 const oh=s=>[...s].filter(c=>GEM[c]!=null);
 const sb=(w,m)=>oh(w).reduce((s,c)=>s+(m[c]||0),0);
 const gadol=w=>oh(w).reduce((s,c)=>s+(FINAL[c]||GEM[c]||0),0);
-const mis=w=>{const L=oh(w);let s=0;for(let i=0;i<L.length-1;i++)s+=Math.abs(GEM[L[i]]-GEM[L[i+1]]);return s;};
+// מסתתר (חוק misratar_multi — נעול): כל מילה בנפרד; הרווח שובר את הרצף (משיח בן דוד=604).
+const mis=w=>String(w||"").split(/\s+/).reduce((t,word)=>{const L=oh(word);let s=0;for(let i=0;i<L.length-1;i++)s+=Math.abs(GEM[L[i]]-GEM[L[i+1]]);return t+s;},0);
 export const gem=w=>({ragil:sb(w,GEM),miluy:sb(w,MILUI),misratar:mis(w),kadmi:sb(w,KID),gadol:gadol(w),siduri:sb(w,ORD),atbash:sb(w,ATB),albam:sb(w,ALB)});
 
 // ---- בניית הזרע ----

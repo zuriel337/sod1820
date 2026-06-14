@@ -14,7 +14,13 @@ const MILUI = { "א": 111, "ב": 412, "ג": 83, "ד": 434, "ה": 15, "ו": 22, "
 
 const sumBy = (w, map) => onlyHeb(w).reduce((s, c) => s + (map[c] || 0), 0);
 const gadol = w => onlyHeb(w).reduce((s, c) => s + (FINAL[c] || GEM[c] || 0), 0);
-export const mistater = w => { const L = onlyHeb(w); let s = 0; for (let i = 0; i < L.length - 1; i++) s += Math.abs(GEM[L[i]] - GEM[L[i + 1]]); return s; };
+// מסתתר (חוק misratar_multi — נעול): כל מילה מחושבת בנפרד; הרווח שובר את הרצף.
+// לעולם לא מחברים אות אחרונה של מילה לאות ראשונה של הבאה. (משיח בן דוד = 552+48+4 = 604)
+export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => {
+  const L = onlyHeb(word); let s = 0;
+  for (let i = 0; i < L.length - 1; i++) s += Math.abs(GEM[L[i]] - GEM[L[i + 1]]);
+  return tot + s;
+}, 0);
 
 export const METHODS = [
   { key: "רגיל", sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", fn: w => sumBy(w, GEM), map: GEM },
