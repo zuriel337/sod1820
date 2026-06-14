@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import { resolveAuthor } from "../lib/authors.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
@@ -5005,10 +5007,28 @@ function PostPageBySlug({ onNav }) {
                   ))}
                 </div>
               )}
-              <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-                {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
-              </div>
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              {(() => {
+                const by = resolveAuthor(author);
+                const isVerified = !!(post.verified || post.ai_touched);
+                return (
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                      <img src={by.avatar} alt={by.name} width={38} height={38}
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${C.borderGold}`, flex: "0 0 auto", background: C.bg }} />
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
+                          {isVerified && <VerifiedBadge variant="ai" size={13} />}
+                        </div>
+                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, marginTop: 2 }}>
+                          {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
