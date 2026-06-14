@@ -565,6 +565,7 @@ export default function BeitMidrashPage() {
           .bm-numlist { width: 100% !important; position: static !important; }
           .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important;
             -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+          .bm-numlist > div:last-child > div { width: auto !important; flex: 0 0 auto; }
           .axis-line { display: none !important; }
           .axis-label { display: none !important; }
         }
