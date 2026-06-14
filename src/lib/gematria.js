@@ -17,14 +17,15 @@ const gadol = w => onlyHeb(w).reduce((s, c) => s + (FINAL[c] || GEM[c] || 0), 0)
 export const mistater = w => { const L = onlyHeb(w); let s = 0; for (let i = 0; i < L.length - 1; i++) s += Math.abs(GEM[L[i]] - GEM[L[i + 1]]); return s; };
 
 export const METHODS = [
-  { key: "רגיל", sub: "חיבור ערכי האותיות", fn: w => sumBy(w, GEM), map: GEM },
-  { key: "מילוי", sub: "ערך שֵם האות המלא", fn: w => sumBy(w, MILUI), map: MILUI },
-  { key: "מסתתר", sub: "הפרשים בין אותיות", fn: mistater, map: null },
-  { key: "קדמי", sub: "סכום מצטבר עד האות", fn: w => sumBy(w, KID), map: KID },
-  { key: "גדול", sub: "סופיות 500–900", fn: gadol, map: null },
-  { key: "סידורי", sub: "מיקום האות 1–22", fn: w => sumBy(w, ORD), map: ORD },
-  { key: "אתבש", sub: "היפוך הא״ב", fn: w => sumBy(w, ATB), map: ATB },
-  { key: "אלבם", sub: "חצי מול חצי", fn: w => sumBy(w, ALB), map: ALB },
+  { key: "רגיל", sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", fn: w => sumBy(w, GEM), map: GEM },
+  { key: "מילוי", sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", fn: w => sumBy(w, MILUI), map: MILUI },
+  { key: "מסתתר", sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", fn: mistater, map: null },
+  { key: "קדמי", sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", fn: w => sumBy(w, KID), map: KID },
+  { key: "גדול", sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", fn: gadol, map: null },
+  { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
+  { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
+  { key: "אלבם", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
+  { key: "מילוי הנעלם", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 export { GEM };

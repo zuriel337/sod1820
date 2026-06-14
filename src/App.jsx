@@ -19,6 +19,7 @@ import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
 import VerifiedPostsPage from "./pages/VerifiedPostsPage.jsx";
+import CrossMethodPage from "./pages/CrossMethodPage.jsx";
 import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
@@ -88,6 +89,8 @@ export default function App() {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/cross" element={<CrossMethodPage />} />
+          <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
 
           {/* הפניות מכתובות ישנות (שמירת קישורים) */}
