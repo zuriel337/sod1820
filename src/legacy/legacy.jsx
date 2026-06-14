@@ -4,6 +4,7 @@ import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaBy
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import { applySeo, SITE_URL } from "../lib/seo.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ===== GEMATRIA =====
 const GEM = {'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
@@ -4547,7 +4548,9 @@ function ChatPage() {
 
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
+  const { verified } = useAuth();
   useEffect(() => {
+    if (!verified) return;
     // טוענים את ה-launcher של Spot.IM פעם אחת ומשאירים אותו טעון —
     // כך כשחוזרים לדף ה-SDK מזהה מחדש את אלמנט ה-conversation ולא "בורח".
     if (!document.getElementById("spotim-script")) {
@@ -4558,7 +4561,7 @@ function SpotimChatPage() {
       s.setAttribute("data-spotim-module", "spotim-launcher");
       document.body.appendChild(s);
     }
-  }, []);
+  }, [verified]);
 
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
@@ -4571,13 +4574,25 @@ function SpotimChatPage() {
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
-      {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
-      <div
-        data-spotim-module="conversation"
-        data-post-id="POST_ID_GOES_HERE"
-        data-post-url="https://sod1820.co.il/community/chat"
-        style={{ minHeight: 400 }}
-      />
+      {verified ? (
+        <div
+          data-spotim-module="conversation"
+          data-post-id="POST_ID_GOES_HERE"
+          data-post-url="https://sod1820.co.il/community/chat"
+          style={{ minHeight: 400 }}
+        />
+      ) : (
+        <div style={{ textAlign: "center", padding: "48px 24px", border: `1px solid ${C.border}`, borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
+          <div style={{ fontSize: 38, marginBottom: 16 }}>🔒</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 22, margin: "0 0 12px" }}>הצ'אט פתוח לחברי האתר בלבד</h2>
+          <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 1.7, margin: "0 0 24px" }}>
+            כדי להצטרף לשיחה — יש להתחבר או להירשם לאתר (חינם, דרך גוגל או אימות מייל מהיר).
+          </p>
+          <a href="/login" style={{ display: "inline-block", background: C.gold, color: "#1a1206", fontFamily: F.royal, fontSize: 16, fontWeight: 700, padding: "12px 32px", borderRadius: 4, textDecoration: "none" }}>
+            התחברות / הרשמה
+          </a>
+        </div>
+      )}
     </div>
   );
 }
