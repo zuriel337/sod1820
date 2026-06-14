@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { C, F, LOGO_URL } from "../theme.js";
 import { SectionHeader } from "../components/ui.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import { NAV } from "../routes.jsx";
 import { supabase } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
@@ -15,10 +16,53 @@ export function ArchivePage() {
     links={[{ to: "/numbers", label: "עץ המספרים" }, { to: "/code", label: "הצופן התנ\"כי" }]} />;
 }
 
+const MEMBER_PERKS = [
+  { icon: "📜", t: "שיעורים מלאים", d: "סדרות לימוד מובנות, צעד אחר צעד" },
+  { icon: "🎓", t: "קורסים מעמיקים", d: "ממבוא ועד מתקדם בשפת המספרים" },
+  { icon: "🌳", t: "העץ המתקדם", d: "הרבדים הנסתרים של עץ המספרים" },
+  { icon: "🔐", t: "צפנים בלעדיים", d: "דילוגים וגילויים שמורים לחברים" },
+  { icon: "🔎", t: "חיפושים מורחבים", d: "כלי חקירה עמוקים בכל המאגר" },
+  { icon: "⚡", t: "גישה מוקדמת", d: "כל חידוש מגיע אליכם ראשונים" },
+];
+
 export function MembersPage() {
-  return <UnderConstruction emoji="👑" title="בני ההיכל"
-    description="אזור המנויים: שיעורים מלאים, קורסים, מפות רמזים, העץ המתקדם, צפנים בלעדיים, חיפושים מורחבים וגישה מוקדמת לתכנים."
-    links={[{ to: "/beit-midrash", label: "בית המדרש" }, { to: "/start", label: "כאן מתחילים" }]} />;
+  return (
+    <div style={{ direction: "rtl", position: "relative", zIndex: 1, maxWidth: 940, margin: "0 auto", padding: "70px 22px 110px", textAlign: "center" }}>
+      {/* כתר + לוגו זוהר */}
+      <div style={{ position: "relative", display: "inline-block", marginBottom: 22 }}>
+        <span style={{ position: "absolute", top: -22, insetInline: 0, fontSize: 30, filter: "drop-shadow(0 0 10px rgba(232,200,74,0.6))" }}>👑</span>
+        <img src={LOGO_URL} alt="בני ההיכל" className="logo-animated" style={{ width: 104, height: 104, borderRadius: "50%", objectFit: "cover", border: `2px solid ${C.borderGold}`, boxShadow: "0 0 60px rgba(212,175,55,0.45)" }} />
+      </div>
+      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 5, textTransform: "uppercase", marginBottom: 10 }}>אזור המנויים</div>
+      <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(32px,6.5vw,56px)", fontWeight: 800, margin: "0 0 14px", textShadow: "0 0 55px rgba(212,175,55,0.4)" }}>בני ההיכל</h1>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "7px 18px", color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 22 }}>
+        🔒 השער ייפתח בקרוב
+      </div>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 17, lineHeight: 2, maxWidth: 580, margin: "0 auto 40px" }}>
+        מאחורי השער נפתח עולם שלם — לימוד עמוק, צפנים בלעדיים וכלי חקירה השמורים לבני ההיכל. אנחנו בונים אותו בקפידה, אבן אחר אבן.
+      </p>
+
+      {/* רשת ההטבות — נעולה */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 14, textAlign: "right", marginBottom: 44 }}>
+        {MEMBER_PERKS.map(p => (
+          <div key={p.t} style={{ position: "relative", overflow: "hidden", background: "linear-gradient(160deg, rgba(20,15,12,0.65), rgba(8,5,2,0.5))", border: `1px solid ${C.border}`, borderRadius: 16, padding: "20px 20px" }}>
+            <span style={{ position: "absolute", top: 14, insetInlineStart: 14, fontSize: 12, opacity: 0.55 }}>🔒</span>
+            <div style={{ fontSize: 27, marginBottom: 9 }}>{p.icon}</div>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18.5, fontWeight: 700, marginBottom: 5 }}>{p.t}</div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{p.d}</div>
+            <span aria-hidden style={{ position: "absolute", inset: 0, background: `radial-gradient(120% 80% at 50% -10%, rgba(212,175,55,0.10), transparent 60%)`, pointerEvents: "none" }} />
+          </div>
+        ))}
+      </div>
+
+      {/* גישה מוקדמת — נשאר "סגור" אבל מזמין הרשמה */}
+      <UpdatesBox source="members" title="רוצים להיכנס ראשונים?" body="הירשמו עכשיו ותקבלו גישה מוקדמת לבני ההיכל ברגע שהשער ייפתח." cta="שריינו לי מקום →" />
+
+      <div style={{ marginTop: 26 }}>
+        <Link to="/beit-midrash" style={{ color: C.goldLight, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>← בינתיים, בקרו בבית המדרש</Link>
+      </div>
+    </div>
+  );
 }
 
 const COMMUNITY = [
