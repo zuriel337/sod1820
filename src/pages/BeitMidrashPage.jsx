@@ -110,7 +110,7 @@ function NumbersTab({ initial }) {
         {anchors.map(n => {
           const isG = gold.values.has(n);
           return (
-          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `1px solid ${n === val || isG ? L.gold : L.line}`, background: n === val ? "#fbf3da" : isG ? "#fdf8e8" : L.panel, color: n === val || isG ? L.goldDeep : L.sub }}>{isG ? "★ " : ""}{n}</button>
+          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `${isG ? 2 : 1}px solid ${n === val || isG ? L.gold : L.line}`, background: n === val ? "#fbf3da" : isG ? "#fdf8e8" : L.panel, color: n === val || isG ? L.goldDeep : L.sub, boxShadow: isG ? `0 0 8px ${L.gold}55` : "none" }}>{isG ? "👑 " : ""}{n}</button>
         );})}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>

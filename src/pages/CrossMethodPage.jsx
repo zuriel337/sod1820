@@ -162,11 +162,10 @@ export default function CrossMethodPage() {
       {!loading && entities.length > 0 && (
         <section style={{ marginBottom: 18, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "16px 20px" }}>
           <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
-          {narrative && (
-            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, textAlign: "center", maxWidth: 600, margin: "0 auto 14px" }}>
-              {narrative}
-            </p>
-          )}
+          {/* מסר מהמספרים (AI) — סגור עד שהמנוע יושלם */}
+          <div style={{ textAlign: "center", margin: "0 auto 14px", maxWidth: 600, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1, border: `1px dashed ${C.borderGold}`, borderRadius: 10, padding: "11px 14px" }}>
+            🔒 מסר מהמספרים (AI) — המנוע עדיין בפיתוח
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 480, margin: "0 auto" }}>
             {entities.map(e => {
               const vias = (phraseMethods[e.label] || []).map(c => METHOD_BY_COL[c]).filter(Boolean);
@@ -177,10 +176,10 @@ export default function CrossMethodPage() {
                 background: isGold ? "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(212,175,55,0.04))" : C.surface,
                 border: isGold ? `1.5px solid ${C.gold}` : `1px solid ${C.border}`,
                 boxShadow: isGold ? `0 0 28px ${C.goldDeep}` : "none" }}>
-                {isGold && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11, letterSpacing: 2.5, marginBottom: 5 }}>✦ ישות זהב</div>}
+                {isGold && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11, letterSpacing: 2.5, marginBottom: 5 }}>👑 ישות זהב</div>}
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: isGold ? 22 : 19, fontWeight: 700, minWidth: 96 }}>{e.display || e.label}</span>
-                  {isGold ? <span style={{ color: C.gold, fontSize: 16 }} title="ישות זהב">✦</span> : <Stars n={e.weight} />}
+                  {isGold ? <span style={{ fontSize: 18 }} title="ישות זהב">👑</span> : <Stars n={e.weight} />}
                   {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
                 </div>
                 {isGold && e.display && e.display !== e.label && (

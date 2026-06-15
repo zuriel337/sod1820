@@ -110,8 +110,9 @@ export default function GematriaCalculator({ seed }) {
               <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
                 textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
                 background: isG ? L.active : L.soft, fontWeight: isG ? 700 : 400,
-                border: `1px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>{isG ? "✦ " : ""}{p}</Link>
+                border: `${isG ? 2 : 1}px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                boxShadow: isG ? `0 0 10px ${L.gold}55` : "none",
+              }}>{isG ? "👑 " : ""}{p}</Link>
             );})}
           </div>
         )}
