@@ -52,6 +52,9 @@ export const KEY_NUMBERS = {
   1820: "סוד השם יהוה × עמים",
 };
 
+// מספר "חם"/משמעותי = אחד ממספרי הליבה (KEY_NUMBERS). אחרת — "קר", ולא מציגים אותו על פוסטים.
+export const isWarmNumber = n => KEY_NUMBERS[n] != null;
+
 // ===== GLOBAL CSS =====
 export const GLOBAL_CSS = `
   .sod-inflate {

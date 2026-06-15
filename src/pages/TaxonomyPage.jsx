@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { C, F, calcGem } from "../theme.js";
+import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { getPostsFromSupabase, adaptPost, getDistinctCategoriesAndTags } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe, fromSlug, toSlug } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
@@ -26,7 +26,7 @@ function PostCard({ p, i }) {
       }}>
         {!image && <span className="tax-thumb-mark">✦</span>}
         <span className="tax-thumb-holo" />
-        {gem > 0 && <span className="tax-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
+        {isWarmNumber(gem) && <span className="tax-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
       </div>
       <div className="tax-body">
         <div className="tax-name">{title}</div>

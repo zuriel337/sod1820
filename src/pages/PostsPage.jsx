@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { C, F, calcGem } from "../theme.js";
+import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
   getDistinctCategoriesAndTags, getGematriaByValue, getPopularByViews,
@@ -40,7 +40,7 @@ function PostCard({ p, i, view }) {
       }}>
         {!image && <span className="pp-thumb-mark">✦</span>}
         <span className="pp-thumb-holo" />
-        {gem > 0 && <span className="pp-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
+        {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
       </div>
       <div className="pp-body">
         <div className="pp-name">{title}</div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getRandomShiurim } from "../lib/supabase.js";
-import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
+import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
 import PulseRing from "../components/PulseRing.jsx";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
@@ -247,7 +247,7 @@ function LatestPostsRail({ posts, onPost }) {
                 <div className="sod-pf-meta">
                   <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
                   {(p.verified || p.ai_touched) && <span className="sod-pf-ai" title="פוסט בליווי בינה מלאכותית">✓ AI</span>}
-                  {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
+                  {isWarmNumber(gem) && <span className="sod-pf-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
                 </div>
               </div>
             </button>

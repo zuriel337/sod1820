@@ -5042,28 +5042,30 @@ function PostPageBySlug({ onNav }) {
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
-            {gematriaItems.length > 0 && (
-              <div style={{ marginBottom: 40 }}>
-                <div style={{ fontSize: 12, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {(() => {
-                    // הסרת כפילויות לפי ערך המספר (ragil) — כל מספר מוצג פעם אחת בלבד.
-                    const seen = new Set();
-                    return gematriaItems.filter(({ ragil }) => {
-                      if (seen.has(ragil)) return false;
-                      seen.add(ragil);
-                      return true;
-                    });
-                  })().map(({ phrase, ragil }) => (
-                    <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
-                      background: "#1a0a2e", border: "1px solid #7c3aed",
-                      color: "#c4b5fd", fontSize: 12, padding: "4px 13px",
-                      fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
-                    }}>{phrase} | {ragil}</span>
-                  ))}
+            {(() => {
+              // רק מספרים "חמים" (מספרי ליבה) ובלי כפילויות — מספר קר/אקראי לא מוצג.
+              const seen = new Set();
+              const warm = (gematriaItems || []).filter(({ ragil }) => {
+                if (!KEY_NUMBERS[ragil] || seen.has(ragil)) return false;
+                seen.add(ragil);
+                return true;
+              });
+              if (!warm.length) return null;
+              return (
+                <div style={{ marginBottom: 40 }}>
+                  <div style={{ fontSize: 12, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {warm.map(({ phrase, ragil }) => (
+                      <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
+                        background: "#1a0a2e", border: "1px solid #7c3aed",
+                        color: "#c4b5fd", fontSize: 12, padding: "4px 13px",
+                        fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
+                      }}>{phrase} | {ragil}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
             {tags.length > 0 && (
