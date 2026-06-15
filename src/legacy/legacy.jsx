@@ -4631,6 +4631,32 @@ function SpotimChatPage() {
           .chat-prayers::-webkit-scrollbar { width: 6px; }
           .chat-prayers::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
         }
+
+        /* ===== Spot.IM brand override (חיצוני, ככל שנגיש מחוץ ל-shadow-DOM) =====
+           הערה: רוב ה-UI של Spot.IM רץ בתוך shadow-DOM/iframe ש-CSS חיצוני לא חודר אליו.
+           הצביעה המלאה של כפתורי "הוסף תגובה"/"שלח" נעשית בלוח admin.spot.im (Theme/Appearance).
+           ראו: docs/spotim-chat-moderation-setup.md. הסלקטורים כאן מכסים מה שכן נגיש מבחוץ. */
+        [data-spotim-module] .spcv_button,
+        [data-spotim-module] button.spcv_send-button,
+        [data-spotim-module] .spcv_login-button,
+        [data-spotim-module] [class*="send-button"],
+        [data-spotim-module] [class*="primary-button"],
+        [data-spotim-module] [class*="cta-button"] {
+          background: linear-gradient(135deg, ${C.gold}, ${C.goldDim}) !important;
+          color: ${C.bg} !important;
+          border-color: ${C.borderGold} !important;
+        }
+        [data-spotim-module] [class*="send-button"]:hover,
+        [data-spotim-module] [class*="primary-button"]:hover,
+        [data-spotim-module] .spcv_button:hover {
+          background: linear-gradient(135deg, ${C.goldBright}, ${C.gold}) !important;
+        }
+        /* קישורים/אלמנטים משניים בטון הזהב/סגול של האתר */
+        [data-spotim-module] a,
+        [data-spotim-module] [class*="reply-button"],
+        [data-spotim-module] [class*="link"] {
+          color: ${C.gold} !important;
+        }
       `}</style>
     </div>
   );
