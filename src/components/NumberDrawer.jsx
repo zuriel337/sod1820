@@ -4,6 +4,9 @@ import { C, F, calcGem } from "../theme.js";
 import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
+import { METHODS } from "../lib/gematria.js";
+
+const M3 = METHODS.filter(m => ["רגיל", "מסתתר", "גדול"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
@@ -26,6 +29,7 @@ export default function NumberDrawer() {
 
   const isNumber = term && /^\d+$/.test(term);
   const value = term ? (isNumber ? Number(term) : calcGem(term)) : null;
+  const threeVals = (term && !isNumber) ? M3.map(m => ({ key: m.key, v: m.fn(term) })) : null;
 
   useEffect(() => {
     if (!open || !term) { if (!term) setBundle(null); return; }
@@ -149,6 +153,25 @@ export default function NumberDrawer() {
             </div>
           )}
         </form>
+
+        {/* מיני-מחשבון: 3 שיטות + מעבר למחשבון המלא בבית המדרש */}
+        {threeVals && (
+          <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", gap: 8 }}>
+              {threeVals.map(t => (
+                <div key={t.key} style={{ flex: 1, textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "7px 4px" }}>
+                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>{t.key}</div>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.1 }}>{t.v}</div>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(term)}`)} style={{
+              width: "100%", marginTop: 9, cursor: "pointer", background: "none",
+              border: `1px solid ${C.borderGold}`, borderRadius: 9, color: C.goldBright,
+              fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, padding: "8px 6px",
+            }}>✨ המחשבון המלא — כל 8 השיטות בבית המדרש ←</button>
+          </div>
+        )}
 
         {/* חוטים פנימיים — מהמספר אל כל פריט מחובר (רשת הקשרים) */}
         {open && webs.length > 0 && (
