@@ -173,7 +173,12 @@ export default function Footer() {
             13 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
           </div>
 
-          <div className="foot-social" style={{ display: "flex", gap: 10, marginTop: 16 }}>
+          {/* קריאה לעקוב בטיקטוק */}
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 14 }}>
+            🎬 המסע לא מסתיים כאן — הוא ממשיך בטיקטוק 🚀
+          </div>
+
+          <div className="foot-social" style={{ display: "flex", gap: 10, marginTop: 14 }}>
             {SOCIAL.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
                 {s.svg}
