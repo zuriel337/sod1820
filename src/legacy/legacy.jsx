@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4837,7 +4837,7 @@ function PostPageBySlug({ onNav }) {
   const loc = useLocation();
 
   // ── עריכת פוסט ידנית (מנהל מחובר בלבד) ──
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({ title: "", excerpt: "", content: "" });
   const [saving, setSaving] = useState(false);
@@ -4951,6 +4951,11 @@ function PostPageBySlug({ onNav }) {
       section: (post.categories || [])[0] || undefined,
     });
   }, [post, title, image, slug]);
+
+  // תיעוד צפייה בפוסט — רק למשתמש מחובר (פילוח עתידי)
+  useEffect(() => {
+    if (user && post?.slug) logActivity("post", post.slug, title);
+  }, [user, post?.slug]);  // eslint-disable-line
 
   return (
     <div style={{ direction: "rtl" }}>

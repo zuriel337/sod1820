@@ -439,6 +439,28 @@ export function subscribeShareCount(wpId, cb) {
   return () => { try { supabase.removeChannel(ch); } catch { /* noop */ } };
 }
 
+// ── תיעוד פעילות משתמשים מחוברים (פילוח עתידי + מבקר חוזר) ──
+// שקט ולא חוסם: רושם רק למשתמש מחובר (RLS), נכשל בשתיקה אם אין session.
+export async function logActivity(kind, ref = null, title = null) {
+  if (!supabase || !kind) return;
+  try { await supabase.from('user_activity').insert({ kind, ref, title: title ? String(title).slice(0, 200) : null }); }
+  catch { /* silent */ }
+}
+// מצב המשתמש הנוכחי — first/last seen, ימים פעילים, האם חזר אחרי הפסקה
+export async function getMyEngagement() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('my_engagement');
+  if (error) return null;
+  return Array.isArray(data) ? data[0] : data;
+}
+// סקירת מעורבות לאדמין (כולל מבקרים חוזרים)
+export async function getEngagementOverview() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('engagement_overview');
+  if (error) return null;
+  return Array.isArray(data) ? data[0] : data;
+}
+
 // ── שיעורי שמע "סוד החשמל" — מבחר אקראי (RPC קל) ───────────
 export async function getRandomShiurim(limit = 12) {
   if (!supabase) return [];

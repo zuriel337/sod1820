@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase } from './supabase.js';
+import { supabase, logActivity } from './supabase.js';
 import { fetchProfile, signOut as doSignOut } from './auth.js';
 
 const AuthContext = createContext({
@@ -35,6 +35,17 @@ export function AuthProvider({ children }) {
     });
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, [loadProfile]);
+
+  // תיעוד "ביקור" יומי למשתמש מחובר (פעם ביום לכל דפדפן) — לזיהוי מבקר חוזר
+  useEffect(() => {
+    if (!user) return;
+    const key = `ua_visit_${user.id}_${new Date().toISOString().slice(0, 10)}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+    } catch { /* ignore storage errors */ }
+    logActivity('visit', typeof window !== 'undefined' ? window.location.pathname : null);
+  }, [user]);
 
   const value = {
     user, profile, loading,
