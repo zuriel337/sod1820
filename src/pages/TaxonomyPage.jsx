@@ -5,6 +5,7 @@ import { getPostsFromSupabase, adaptPost, getDistinctCategoriesAndTags } from ".
 import { stripHtml, formatDateHe, timeAgoHe, fromSlug, toSlug } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+import PopularPrayersBox, { isPrayerTag } from "../components/PopularPrayersBox.jsx";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
 // כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
@@ -122,6 +123,9 @@ function TaxonomyView({ kind }) {
           )}
         </div>
       </div>
+
+      {/* תפילות פופולריות — הפניה למי שמחפש תגית של תפילה/רפואה/ישועה */}
+      {isTag && isPrayerTag(name) && <PopularPrayersBox />}
 
       {error && <div style={{ textAlign: "center", color: C.crimsonLight, fontFamily: F.body, padding: 20 }}>{error}</div>}
 
