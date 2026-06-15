@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { F, KEY_NUMBERS } from "../theme.js";
-import { getInsights, getEntityBundle, supabase } from "../lib/supabase.js";
+import { F, KEY_NUMBERS, calcGem } from "../theme.js";
+import { getEntityBundle, supabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -20,15 +21,10 @@ const L = {
 };
 
 const SECTIONS = [
-  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
-  { key: "numbers", icon: "🔢", label: "מספרי יסוד" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
-  { key: "ai", icon: "🔵", label: "חידושי AI", ai: true },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
-  { key: "mine", icon: "✦", label: "חידושי המערכת" },
-  { key: "community", icon: "💬", label: "חידושי גולשים", soon: true },
-  { key: "submit", icon: "✍️", label: "הגשת חידוש משלך", soon: true },
+  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
 ];
 
 // תג AI כחול (בהיר)
@@ -85,8 +81,9 @@ const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
 function NumbersTab({ initial }) {
   const [val, setVal] = useState(initial || 1820);
   const [rows, setRows] = useState(null);
+  const gold = useGold();
   useEffect(() => { if (initial) setVal(initial); }, [initial]);
-  const anchors = ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS];
+  const anchors = sortGoldFirst(ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS], n => gold.values.has(n));
   useEffect(() => {
     let live = true; setRows(null);
     (async () => {
@@ -105,14 +102,16 @@ function NumbersTab({ initial }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-        {anchors.map(n => (
-          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `1px solid ${n === val ? L.gold : L.line}`, background: n === val ? "#fbf3da" : L.panel, color: n === val ? L.goldDeep : L.sub }}>{n}</button>
-        ))}
+        {anchors.map(n => {
+          const isG = gold.values.has(n);
+          return (
+          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `${isG ? 2 : 1}px solid ${n === val || isG ? L.gold : L.line}`, background: n === val ? "#fbf3da" : isG ? "#fdf8e8" : L.panel, color: n === val || isG ? L.goldDeep : L.sub, boxShadow: isG ? `0 0 8px ${L.gold}55` : "none" }}>{isG ? "👑 " : ""}{n}</button>
+        );})}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{val}</span>
         {KEY_NUMBERS[val] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[val]}</span>}
-        {val === 1820 && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>★ קוד האתר</span>}
+        {gold.values.has(val) && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{val === 1820 ? "★ קוד האתר" : "★ מספר זהב"}</span>}
       </div>
       {rows === null ? <div style={{ color: L.sub, padding: 16 }}>טוען…</div> : rows.length === 0 ? <div style={{ color: L.sub, padding: 16 }}>אין ביטויים למספר זה.</div> : (
         <div style={{ overflowX: "auto", border: `1px solid ${L.line}`, borderRadius: 12, background: L.panel }}>
@@ -133,8 +132,26 @@ function NumbersTab({ initial }) {
   );
 }
 
+const VGRID = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 };
+function VerifiedCard({ p }) {
+  return (
+    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <Link to={`/${p.slug}`} style={{ textDecoration: "none" }}>
+        <div style={{ position: "relative", aspectRatio: "16/10", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : "#ece4d2" }}>
+          <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><AiTag small /></span>
+        </div>
+        <div style={{ padding: "12px 14px" }}>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
+          {p.ai_number && <div style={{ color: L.sub, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
+        </div>
+      </Link>
+      <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.co.il/${p.slug}`} /></div>
+    </div>
+  );
+}
 function VerifiedTab() {
   const [posts, setPosts] = useState(null);
+  const { subscribed } = useSubscribed();
   useEffect(() => {
     let live = true;
     supabase.from("posts").select("wp_id,title,slug,image_url,ai_number").eq("verified", true).order("modified", { ascending: false, nullsFirst: false }).limit(60)
@@ -143,22 +160,30 @@ function VerifiedTab() {
   }, []);
   if (posts === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!posts.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין פוסטים מאומתים.</div>;
+
+  // משתמש לא רשום רואה פוסט מאומת אחד; השאר מטושטשים מאחורי שער הרשמה (חינם).
+  if (subscribed) return <div style={VGRID}>{posts.map(p => <VerifiedCard key={p.wp_id} p={p} />)}</div>;
+  const locked = posts.slice(1);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
-      {posts.map(p => (
-        <div key={p.wp_id} style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-          <Link to={`/${p.slug}`} style={{ textDecoration: "none" }}>
-            <div style={{ position: "relative", aspectRatio: "16/10", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : "#ece4d2" }}>
-              <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><AiTag small /></span>
+    <div>
+      <div style={VGRID}><VerifiedCard p={posts[0]} /></div>
+      {locked.length > 0 && (
+        <div style={{ position: "relative", marginTop: 16 }}>
+          <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 360, overflow: "hidden", ...VGRID }} aria-hidden>
+            {locked.slice(0, 6).map(p => <VerifiedCard key={p.wp_id} p={p} />)}
+          </div>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, rgba(244,241,232,0.25), rgba(244,241,232,0.96))" }}>
+            <div style={{ textAlign: "center", maxWidth: 420, padding: 20 }}>
+              <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
+              <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>עוד {locked.length} פוסטים מאומתים</div>
+              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
+                צפיתם בפוסט מאומת אחד 🎁 · להמשך צפייה בכל הפוסטים המאומתים — <b style={{ color: L.goldDeep }}>הרשמה חינם</b>.
+              </p>
+              <SubscribeGate source="verified-posts" />
             </div>
-            <div style={{ padding: "12px 14px" }}>
-              <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-              {p.ai_number && <div style={{ color: L.sub, fontFamily: F.mono, fontSize: 12, marginTop: 6 }}>מספר מאומת: {p.ai_number}</div>}
-            </div>
-          </Link>
-          <div style={{ padding: "0 14px 12px" }}><ShareRow text={stripHtml(p.title || "")} url={`https://sod1820.co.il/${p.slug}`} /></div>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }
@@ -238,15 +263,40 @@ function NumberResults({ value }) {
 // טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
 const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה — פנינים גדולות יותר
-function CalcTab() {
-  const [num, setNum] = useState(1820);
+// ✨ כלים עתידיים — "בקרוב" (תצוגה בלבד)
+const SOON_TOOLS = [
+  { icon: "🤖", title: "חישוב כל השיטות עם AI", desc: "ניתוח חכם שמחבר את כל השיטות יחד למסר אחד — חדשני בעולם." },
+  { icon: "📷", title: "חילוץ מספרים מתמונה", desc: "מעלים תמונה — והמערכת מזהה ומחשבת את המספרים שבה." },
+  { icon: "🔍", title: "חיפוש במאגר", desc: "חיפוש חופשי בכל הביטויים, המספרים והישויות." },
+];
+function ComingSoonTools() {
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 8 }}>✨ כלים חדשים · בקרוב</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 10 }}>
+        {SOON_TOOLS.map(t => (
+          <div key={t.title} style={{ position: "relative", background: L.soft, border: `1px dashed ${L.line}`, borderRadius: 12, padding: "13px 14px" }}>
+            <span style={{ position: "absolute", top: 10, insetInlineStart: 10, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "1px 8px", fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>בקרוב</span>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icon}</div>
+            <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, marginBottom: 4 }}>{t.title}</div>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{t.desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CalcTab({ initial, seed }) {
+  const [num, setNum] = useState(initial || 1820);
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
           מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
         </p>
-        <GematriaCalculator />
+        <GematriaCalculator seed={seed} />
+        <ComingSoonTools />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
       <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
@@ -338,9 +388,56 @@ function MethodAnim({ m }) {
     </div>
   );
 }
+// טבלת ערכי האותיות — הבסיס לכל חישוב גימטריה (שיטת "רגיל")
+const ABC = [
+  ["א", 1], ["ב", 2], ["ג", 3], ["ד", 4], ["ה", 5], ["ו", 6], ["ז", 7], ["ח", 8], ["ט", 9],
+  ["י", 10], ["כ", 20], ["ל", 30], ["מ", 40], ["נ", 50], ["ס", 60], ["ע", 70], ["פ", 80], ["צ", 90],
+  ["ק", 100], ["ר", 200], ["ש", 300], ["ת", 400],
+];
+// המדריך הבסיסי — מה זה גימטריה ואיך מחשבים. פתוח לכולם.
+function HowToGuide() {
+  return (
+    <div className="bm-guide" style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "20px 22px", marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: "0 0 10px" }}>📖 איך עושים גימטריה? — המדריך</h3>
+      <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 15.5, lineHeight: 1.95, margin: "0 0 14px", maxWidth: 700 }}>
+        גימטריה היא שיטה עתיקה שבה <b style={{ color: L.goldDeep }}>לכל אות עברית יש ערך מספרי קבוע</b>. הגימטריה של מילה היא <b style={{ color: L.goldDeep }}>סכום הערכים</b> של אותיותיה. כששתי מילים שונות מגיעות לאותו ערך — נחשף קשר נסתר ביניהן.
+      </p>
+      <div className="bm-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, margin: "0 0 16px", maxWidth: 560 }}>
+        {[["1", "מפרקים את המילה לאותיות"], ["2", "כותבים לכל אות את ערכה"], ["3", "מחברים את הכל יחד"]].map(([n, t]) => (
+          <div key={n} style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+            <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{n}</div>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>{t}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, margin: "0 0 8px" }}>ערכי האותיות</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(46px, 1fr))", gap: 6, marginBottom: 12 }}>
+        {ABC.map(([l, v]) => (
+          <div key={l} style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 8, padding: "6px 2px", textAlign: "center" }}>
+            <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{l}</div>
+            <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 12, marginTop: 2 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, margin: "0 0 12px" }}>
+        <b style={{ color: L.goldDeep }}>אותיות סופיות</b> (ך ם ן ף ץ): ברגיל שוות לערך הרגיל (20, 40, 50, 80, 90); בשיטת "גדול" הן מקבלות 500–900.
+      </p>
+      <div style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "12px 16px" }}>
+        <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 6 }}>דוגמה</div>
+        <div style={{ color: L.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 700, lineHeight: 1.8 }}>
+          אמת = א(1) + מ(40) + ת(400) = <span style={{ color: L.goldDeep, fontSize: 20 }}>{calcGem("אמת")}</span>
+        </div>
+      </div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד 7 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+      </p>
+    </div>
+  );
+}
 function MethodsTab() {
   return (
     <div>
+      <HowToGuide />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
         כל שיטה חושפת רובד אחר באותו ביטוי. הנה 8 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
       </p>
@@ -366,8 +463,8 @@ function MethodsTab() {
   );
 }
 
-// שער: המחשבון פתוח לכולם; שאר המדורים בבנייה — מטושטשים, נפתחים בהרשמה.
-const GATED = new Set(["sod1820", "numbers", "ai", "verified", "mine"]);
+// שער: המחשבון, השיטות והפוסטים המאומתים פתוחים לכולם; 1820 מטושטש עד הרשמה.
+const GATED = new Set(["sod1820"]);
 function Gated({ children }) {
   const { subscribed } = useSubscribed();
   if (subscribed) return children;
@@ -403,28 +500,22 @@ export default function BeitMidrashPage() {
   const loc = useLocation();
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
+  const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט)
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState(nParam ? "numbers" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "sod1820"));
-  const [ai, setAi] = useState(null);
-  const [mine, setMine] = useState(null);
+  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
   const { subscribed } = useSubscribed();
-
-  useEffect(() => {
-    if (tab === "ai" && ai === null) getInsights({ origin: "ai", space: null, limit: 60 }).then(d => setAi(d || [])).catch(() => setAi([]));
-    if (tab === "mine" && mine === null) getInsights({ origin: "צוריאל", space: "core", limit: 60 }).then(d => setMine(d || [])).catch(() => setMine([]));
-  }, [tab, ai, mine]);
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
   return (
     <div style={{ background: L.bg, minHeight: "100vh", direction: "rtl", position: "relative", zIndex: 1 }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
+      <div className="bm-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
         {/* כותרת */}
         <div style={{ borderBottom: `2px solid ${L.line}`, paddingBottom: 18, marginBottom: 22 }}>
           <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>בית המדרש · סוד 1820</div>
           <h1 style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", fontWeight: 700, margin: 0 }}>📖 לימוד הסודות</h1>
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
-            ארכיון חי של גימטריה, חידושים ומחקר — חידושי המערכת, חידושי AI מאומתים, וכלים אינטראקטיביים, במקום אחד.
+            מחשבון גימטריה מלא, שיטות החישוב ופוסטים מאומתים — במקום אחד. מדורי החידושים בבנייה וייפתחו בקרוב.
           </p>
           {!subscribed && (
             <p style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "10px 0 0" }}>
@@ -466,15 +557,13 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
-            {tab === "numbers" && <Gated><NumbersTab initial={nParam} /></Gated>}
-            {tab === "calc" && <CalcTab />}
+            {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "methods" && <MethodsTab />}
-            {tab === "ai" && <Gated>{ai === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{ai.map(it => <StudyCard key={it.id} item={it} ai />)}</div>}</Gated>}
-            {tab === "mine" && <Gated>{mine === null ? <div style={{ color: L.sub, padding: 20 }}>טוען…</div> :
-              <div style={{ display: "grid", gap: 12 }}>{mine.map(it => <StudyCard key={it.id} item={it} />)}</div>}</Gated>}
-            {tab === "verified" && <Gated><VerifiedTab /></Gated>}
+            {tab === "verified" && <VerifiedTab />}
+            {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}
+            {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
+            {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
+            {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
@@ -483,17 +572,31 @@ export default function BeitMidrashPage() {
 
       <style>{`
         @media (max-width: 860px) {
-          .bm-grid { flex-direction: column; }
-          .bm-side { width: 100% !important; position: static !important; }
-          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 6px !important; padding-bottom: 6px; }
-          .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap; border: 1px solid ${L.line} !important; }
+          .bm-grid { flex-direction: column; gap: 14px !important; align-items: stretch !important; }
+          .bm-grid > main { width: 100% !important; min-width: 0 !important; }
+          .bm-side { width: 100% !important; position: sticky !important; top: 0 !important; z-index: 5;
+            background: ${L.bg}; margin: 0 -13px; padding: 8px 13px; }
+          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
+          .bm-side > div::-webkit-scrollbar { display: none; }
+          .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap;
+            border: 1px solid ${L.line} !important; padding: 9px 14px !important; flex: 0 0 auto; scroll-snap-align: start; }
+          .bm-side button > span:nth-child(2) { flex: 0 0 auto !important; }
         }
         @media (max-width: 700px) {
-          .bm-calc { flex-direction: column; }
+          .bm-wrap { padding: 22px 13px 70px !important; }
+          .bm-guide { padding: 16px 15px !important; }
+          .bm-steps { gap: 7px !important; }
+          .bm-calc { flex-direction: column; gap: 14px !important; }
           .bm-numlist { width: 100% !important; position: static !important; }
-          .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important; }
+          .bm-numlist > div:last-child { flex-direction: row !important; overflow-x: auto; max-height: none !important;
+            -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+          .bm-numlist > div:last-child > div { width: auto !important; flex: 0 0 auto; }
           .axis-line { display: none !important; }
           .axis-label { display: none !important; }
+        }
+        @media (max-width: 420px) {
+          .bm-steps div div:last-child { font-size: 11.5px !important; }
         }
         @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }

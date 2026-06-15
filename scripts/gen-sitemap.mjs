@@ -29,6 +29,8 @@ const STATIC = [
   { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },
   { loc: '/sulamot',      priority: '0.5', changefreq: 'monthly' },
   { loc: '/community',    priority: '0.5', changefreq: 'weekly'  },
+  { loc: '/community/calculator', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/cross',        priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact',      priority: '0.4', changefreq: 'yearly'  },
 ];
 
@@ -62,7 +64,10 @@ async function main() {
     for (const p of data) {
       if (!p.slug) continue;
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
-      urls.push({ loc: '/' + encodeURI(p.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
+      // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-% ל-%25
+      // וגורם לקידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק סלאגים בעברית "נקייה".
+      const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
+      urls.push({ loc: '/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
     }
     if (data.length < PAGE) break;
     from += PAGE;

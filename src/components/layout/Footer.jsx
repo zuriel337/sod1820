@@ -3,24 +3,35 @@ import { Link } from "react-router-dom";
 import { C, F, LOGO_URL } from "../../theme.js";
 import UpdatesBox from "../UpdatesBox.jsx";
 
-// עמודות נושאיות — ההיכל (כלים) · הגנזך (תוכן) · השער (קשר והצטרפות)
+// עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
 const COLUMNS = [
   {
     title: "ההיכל",
     links: [
+      { label: "בית המדרש", to: "/beit-midrash" },
+      { label: "מחשבון הגימטריה", to: "/beit-midrash?tab=calc" },
+      { label: "הצלבת שיטות", to: "/cross" },
       { label: "עץ המספרים", to: "/numbers" },
-      { label: "ציר ההתגלות", to: "/timeline" },
-      { label: 'הצופן התנ"כי', to: "/code" },
-      { label: "מספרי אם", to: "/beit-midrash/em" },
+      { label: "דף המספר 1820", to: "/number/1820" },
     ],
   },
   {
     title: "הגנזך",
     links: [
       { label: "פוסטים", to: "/post" },
-      { label: "בית המדרש", to: "/beit-midrash" },
+      { label: "פוסטים מאומתים", to: "/verified" },
+      { label: "תפילות לרפואה", to: "/tag/תפילה" },
+      { label: "ארכיון ההתגלות", to: "/archive" },
+      { label: "ציר ההתגלות", to: "/timeline" },
+    ],
+  },
+  {
+    title: "הקהילה",
+    links: [
+      { label: "צ'אט האתר", to: "/community/chat" },
+      { label: "מחשבון קהילתי", to: "/community/calculator" },
+      { label: "תגובות", to: "/community/comments" },
       { label: "בני ההיכל", to: "/members" },
-      { label: "קהילה", to: "/community" },
     ],
   },
   {
@@ -28,6 +39,7 @@ const COLUMNS = [
     links: [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
+      { label: 'הצופן התנ"כי', to: "/code" },
       { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
@@ -83,9 +95,11 @@ const FOOTER_CSS = `
     padding: 32px 28px 18px; direction: rtl; position: relative; z-index: 1; }
   .foot-main { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between;
     align-items: flex-start; flex-wrap: wrap; gap: 28px; padding-bottom: 22px; }
-  .foot-brand { min-width: 240px; flex: 1.4; max-width: 340px; }
-  .foot-cols { display: flex; gap: 40px; flex-wrap: wrap; }
-  .foot-col { min-width: 130px; }
+  .foot-brand { min-width: 230px; flex: 1.1; max-width: 300px; }
+  /* ארבע עמודות בגובה אחיד ובחלוקה שווה, מיושרות לראש */
+  .foot-cols { display: grid; grid-template-columns: repeat(4, minmax(108px, 1fr));
+    gap: 22px 26px; align-items: start; flex: 2.4; }
+  .foot-col { min-width: 0; }
   .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 16px; border-top: 1px solid ${C.faint};
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px;
     font-size: 11px; color: ${C.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
@@ -113,11 +127,14 @@ const FOOTER_CSS = `
     padding: 6px 0; display: block; transition: color 0.18s; }
   .foot-link:hover { color: ${C.goldBright}; }
 
+  @media (max-width: 980px) {
+    .foot-cols { grid-template-columns: repeat(2, 1fr); }
+  }
   @media (max-width: 760px) {
     .foot { padding: 40px 20px 24px; text-align: center; }
     .foot-main { flex-direction: column; align-items: center; gap: 30px; }
     .foot-brand { max-width: 100%; }
-    .foot-cols { justify-content: center; gap: 30px; width: 100%; }
+    .foot-cols { justify-content: center; gap: 26px; width: 100%; }
     .foot-col { min-width: 0; flex: 1; text-align: center; }
     .foot-brand-head, .foot-social { justify-content: center !important; }
     .foot-bottom { justify-content: center; text-align: center; }
@@ -149,19 +166,19 @@ export default function Footer() {
               <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
             </div>
           </div>
-          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
             אתר רמזי הגאולה הגדול בעולם
           </div>
-          <div style={{ fontSize: 13, color: C.muted, fontFamily: F.heading, lineHeight: 1.9 }}>
-            13 שנות מחקר • מאגר חי • כלים לקריאת המציאות בשפת המספרים
+          <div style={{ fontSize: 12.5, color: C.muted, fontFamily: F.heading, lineHeight: 1.8 }}>
+            13 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
           </div>
 
           {/* קריאה לעקוב בטיקטוק */}
-          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 16 }}>
-            🎬 אל תשכחו לעקוב אחרינו בטיקטוק – המקום שבו הרמזים הופכים למציאות, וההתגלויות נחשפות בזמן אמת. 🚀
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 14 }}>
+            🎬 המסע לא מסתיים כאן — הוא ממשיך בטיקטוק 🚀
           </div>
 
-          <div className="foot-social" style={{ display: "flex", gap: 12, marginTop: 14 }}>
+          <div className="foot-social" style={{ display: "flex", gap: 10, marginTop: 14 }}>
             {SOCIAL.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
                 {s.svg}
@@ -169,13 +186,13 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* וואטסאפ — קבוצה (שורה אחת) */}
-          <div style={{ marginTop: 16 }}>
+          {/* וואטסאפ — קבוצה (צ'יפ קומפקטי ואחיד) */}
+          <div style={{ marginTop: 12 }}>
             <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)",
-                color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800,
-                padding: "10px 18px", borderRadius: 999, boxShadow: "0 0 16px rgba(31,170,85,0.35)" }}>
-              💬 קבוצת הגימטריה בוואטסאפ
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "linear-gradient(135deg,#1faa55,#128c43)",
+                color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700,
+                padding: "5px 11px", borderRadius: 999, boxShadow: "0 0 8px rgba(31,170,85,0.25)" }}>
+              💬 קבוצת הוואטסאפ
             </a>
           </div>
         </div>

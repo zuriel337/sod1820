@@ -409,6 +409,96 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
   return { ok: true, duplicate: !!error };
 }
 
+// ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
+export async function getShareCount(wpId) {
+  if (!supabase || !wpId) return 0;
+  const { data } = await supabase
+    .from('post_share_counts')
+    .select('count')
+    .eq('wp_id', wpId)
+    .maybeSingle();
+  return data?.count ?? 0;
+}
+
+export async function incrementShareCount(wpId) {
+  if (!supabase || !wpId) return null;
+  const { data, error } = await supabase.rpc('increment_post_share', { p_wp_id: wpId });
+  if (error) return null;
+  return data;  // הערך החדש של המונה
+}
+
+// מנוי Realtime למונה השיתופים של פוסט — מתעדכן חי כשמישהו משתף
+export function subscribeShareCount(wpId, cb) {
+  if (!supabase || !wpId) return () => {};
+  const ch = supabase
+    .channel(`share_count_${wpId}`)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'post_share_counts', filter: `wp_id=eq.${wpId}` },
+      payload => { const n = payload?.new?.count; if (typeof n === 'number') cb(n); })
+    .subscribe();
+  return () => { try { supabase.removeChannel(ch); } catch { /* noop */ } };
+}
+
+// ── תיעוד פעילות משתמשים מחוברים (פילוח עתידי + מבקר חוזר) ──
+// שקט ולא חוסם: רושם רק למשתמש מחובר (RLS), נכשל בשתיקה אם אין session.
+export async function logActivity(kind, ref = null, title = null) {
+  if (!supabase || !kind) return;
+  try { await supabase.from('user_activity').insert({ kind, ref, title: title ? String(title).slice(0, 200) : null }); }
+  catch { /* silent */ }
+}
+// מצב המשתמש הנוכחי — first/last seen, ימים פעילים, האם חזר אחרי הפסקה
+export async function getMyEngagement() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('my_engagement');
+  if (error) return null;
+  return Array.isArray(data) ? data[0] : data;
+}
+// סקירת מעורבות לאדמין (כולל מבקרים חוזרים)
+export async function getEngagementOverview() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('engagement_overview');
+  if (error) return null;
+  return Array.isArray(data) ? data[0] : data;
+}
+
+// ── שיעורי שמע "סוד החשמל" — מבחר אקראי (RPC קל) ───────────
+export async function getRandomShiurim(limit = 12) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('random_shiurim', { lim: limit });
+  if (error) return [];
+  return data || [];
+}
+
+// ── הודעות/באנרים מונחי-נתונים לפי מיקום (ניתן לעריכה בלי דפלוי) ──
+export async function getAnnouncement(location) {
+  if (!supabase || !location) return null;
+  const { data } = await supabase
+    .from('announcements')
+    .select('title, body, updated_at')
+    .eq('location', location)
+    .eq('is_active', true)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data || null;
+}
+
+// מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
+export async function getPostsMetaByWpIds(wpIds = []) {
+  if (!supabase || !wpIds.length) return [];
+  const { data } = await supabase.from('posts').select('wp_id, slug, title, image_url').in('wp_id', wpIds);
+  return data || [];
+}
+
+// מוני שיתופים למספר פוסטים בבת אחת → מפה { wp_id: count }
+export async function getShareCounts(wpIds = []) {
+  if (!supabase || !wpIds.length) return {};
+  const { data } = await supabase.from('post_share_counts').select('wp_id, count').in('wp_id', wpIds);
+  const map = {};
+  (data || []).forEach(r => { map[r.wp_id] = r.count; });
+  return map;
+}
+
 // ── Insights / חידושים (בית המדרש) ─────────────────────────
 // origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
 // space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)
@@ -462,6 +552,21 @@ export async function adminGetSubscribers() {
     .select('id,email,name,source,active,created_at').order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
+}
+
+// עדכון ידני של פוסט בידי מנהל (כותרת / תוכן / תקציר). מסמן modified=עכשיו.
+export async function adminUpdatePost(id, fields = {}) {
+  if (!supabase) throw new Error('no supabase');
+  if (id == null) throw new Error('no post id');
+  const allowed = {};
+  for (const k of ['title', 'content', 'excerpt']) {
+    if (k in fields) allowed[k] = fields[k];
+  }
+  allowed.modified = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('posts').update(allowed).eq('id', id).select('*').maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──

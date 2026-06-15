@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase } from "../lib/supabase.js";
 import { METHODS as M8, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, 8 שיטות, מאומת מול bidim =====
 // "התגלות": רגיל 844 · מילוי 1026 · מסתתר 1237 · קדמי 3137 · סידורי 70 · אתבש 392 · אלבם 241.
@@ -17,6 +18,7 @@ export default function GematriaCalculator({ seed }) {
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
+  const gold = useGold();
   const res = useMemo(() => M8.map(m => ({ key: m.key, sub: m.sub, value: m.fn(word) })), [word]);
   const [active, setActive] = useState("רגיל");
   const [equal, setEqual] = useState(null);
@@ -102,12 +104,16 @@ export default function GematriaCalculator({ seed }) {
           <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, padding: 6 }}>לא נמצאו ביטויים נוספים בערך זה במאגר המאומת.</div>
         ) : (
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-            {equal.map((p, i) => (
+            {sortGoldFirst(equal, p => gold.labels.has(p)).map((p, i) => {
+              const isG = gold.labels.has(p);
+              return (
               <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
-                textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 13.5, background: L.soft,
-                border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>{p}</Link>
-            ))}
+                textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
+                background: isG ? L.active : L.soft, fontWeight: isG ? 700 : 400,
+                border: `${isG ? 2 : 1}px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                boxShadow: isG ? `0 0 10px ${L.gold}55` : "none",
+              }}>{isG ? "👑 " : ""}{p}</Link>
+            );})}
           </div>
         )}
       </div>

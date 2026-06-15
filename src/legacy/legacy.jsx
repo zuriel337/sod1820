@@ -1,9 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
-import { applySeo, SITE_URL } from "../lib/seo.js";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import { resolveAuthor } from "../lib/authors.js";
+import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
+import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
+import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
+
+// פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
+// 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
+const PRAYER_SHARE_WP_IDS = [29289, 36173];
 
 // ===== GEMATRIA =====
 const GEM = {'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
@@ -44,7 +55,7 @@ const F = {
 // ===== DATA =====
 const TESTIMONIALS = [
   { name: "מיכל ר׳", text: "אחרי השיעור הראשון ראיתי את המספר שלי בכל מקום. זה שינה לי את החיים.", stars: 5 },
-  { name: "דוד כ׳", text: "צוריאל מסביר דברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
+  { name: "דוד כ׳", text: "ההסברים נוגעים בדברים שאין להם הסבר — ועדיין מבינים הכל.", stars: 5 },
   { name: "שרה מ׳", text: "הקורס על המסתתר פתח לי ממד שלם שלא ידעתי שקיים.", stars: 5 },
   { name: "יוסף ב׳", text: "השקעתי בקורס ארבעת העולמות ושינה את האופן שבו אני רואה את המציאות.", stars: 5 },
   { name: "רחל א׳", text: "הסברים ברורים, עמוקים ומרגשים. ממליצה לכל אחד.", stars: 5 },
@@ -78,8 +89,8 @@ const PAGE_CONTENT_DEFAULTS = {
     tag: "home",
   },
   about: {
-    title: "צוריאל פולייס",
-    description: "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
+    title: "אודות",
+    description: "צוריאל הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר, שמפתח שיטות מקוריות לחשיפה של הסודות בשפה.",
     bodyHtml: "<p>העמוד הזה מכיל את הסיפור מאחורי השיטות, החזון והדרך שבה צוריאל פיתח את הגישה הייחודית שלו.</p>",
     category: "אודות",
     tag: "about",
@@ -388,7 +399,7 @@ function HeroSection({ onNav }) {
         <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse", zIndex: 2 }}>✦</span>
       </div>
 
-      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · צוריאל פולייס</div>
+      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · כי לה' המלוכה</div>
 
       <h1 style={{
         color: C.goldBright,
@@ -418,7 +429,7 @@ function HeroSection({ onNav }) {
 
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
         <GoldButton onClick={() => onNav("blog")}>לפוסטים האחרונים</GoldButton>
-        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות צוריאל</GoldButton>
+        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות</GoldButton>
       </div>
 
       <div style={{ marginTop: 52 }}>
@@ -1547,7 +1558,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
   return (
     <div style={{ direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "64px 24px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-        <SectionHeader eyebrow={category || "אודות"} title={title || "צוריאל פולייס"} />
+        <SectionHeader eyebrow={category || "אודות"} title={title || "אודות"} />
         {adminMode && (
           <button onClick={() => onNav("admin", "about")} style={{
             background: C.bgGlow, border: `1px solid ${C.gold}`,
@@ -1581,7 +1592,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
         }}>✦</div>
 
         <p style={{ color: C.goldLight, fontSize: 15, lineHeight: 2.2, marginBottom: 20, fontFamily: F.body, textAlign: "center" }}>
-          {description || "צוריאל פולייס הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום אחר — ביניהן שיטת ההפרשים (\"המסתתר\") ומסגרת \"ארבעת העולמות\"."}
+          {description || "צוריאל הוא חוקר גימטריה עצמאי עם למעלה מ-10 שנות מחקר מעמיק בקודים הנסתרים של השפה העברית. הוא פיתח מספר שיטות ייחודיות שאינן מלמדות בשום מקום אחר — ביניהן שיטת ההפרשים (\"המסתתר\") ומסגרת \"ארבעת העולמות\"."}
         </p>
 
         <PageBody bodyHtml={bodyHtml} />
@@ -1660,7 +1671,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <GoldButton onClick={() => onNav("blog")}>לפוסטים של צוריאל</GoldButton>
+        <GoldButton onClick={() => onNav("blog")}>לפוסטים</GoldButton>
       </div>
     </div>
   );
@@ -2978,7 +2989,7 @@ function PostPage({ post, onBack }) {
                     </div>
                   ) : (
                     <div style={{ marginTop: 24 }}>
-                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
                         שתפו את הפוסט
                       </div>
                       <ShareBar url={shareUrl} title={title} text={title} />
@@ -4295,7 +4306,7 @@ function ContactPage() {
             { icon: "👥", label: "קבוצת גימטריה בוואטסאפ", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
             { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
             { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
-            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל פולייס", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
+            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
             { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
           ].map(({ icon, label, value, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
@@ -4563,21 +4574,40 @@ function SpotimChatPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
-          קהילת סוד 1820
-        </div>
         <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
-          צאט האתר
+          דף צ'אט
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
+
+      {/* פאנל תפילות לרפואה — צף בצד ימין בדסקטופ רחב, אינליין מעל הצ'אט במסכים צרים */}
+      <aside className="chat-prayers" aria-label="תפילות לרפואה שלמה">
+        <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
+      </aside>
+
       {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
       <div
         data-spotim-module="conversation"
-        data-post-id="daf-tzaat-rashi"
+        data-post-id="POST_ID_GOES_HERE"
         data-post-url="https://sod1820.co.il/community/chat"
         style={{ minHeight: 400 }}
       />
+
+      <style>{`
+        /* פאנל התפילות מוצג רק כפאנל צף בדסקטופ רחב; מוסתר במובייל/טאבלט (היה מופיע למעלה, לא יפה) */
+        .chat-prayers { display: none; direction: rtl; }
+        @media (min-width: 1360px) {
+          .chat-prayers {
+            display: block;
+            position: fixed; top: 86px; right: 18px; width: 264px; margin: 0; z-index: 60;
+            max-height: calc(100vh - 110px); overflow-y: auto; -webkit-overflow-scrolling: touch;
+          }
+          .chat-prayers .ppb { margin: 0; }
+          .chat-prayers .ppb-grid { grid-template-columns: 1fr; }
+          .chat-prayers::-webkit-scrollbar { width: 6px; }
+          .chat-prayers::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -4668,7 +4698,7 @@ function Footer({ onNav, navItems }) {
             </div>
           </div>
           <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 260 }}>
-            צוריאל פולייס · sod1820.co.il<br />
+            כי לה' המלוכה · sod1820.co.il<br />
             נחזור בקרוב עם שיעורים חיים, כלים מיוחדים וגישה אישית.
           </div>
         </div>
@@ -4756,6 +4786,48 @@ function Footer({ onNav, navItems }) {
 
 // ===== SLUG-BASED POST PAGE =====
 
+// ===== SPOTIM COMMENTS (per-article) =====
+function SpotimComments({ postId, postUrl }) {
+  useEffect(() => {
+    if (!postId) return;
+    if (!document.getElementById("spotim-script")) {
+      const s = document.createElement("script");
+      s.id = "spotim-script";
+      s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
+      s.async = true;
+      s.setAttribute("data-spotim-module", "spotim-launcher");
+      document.body.appendChild(s);
+    }
+  }, [postId]);
+  if (!postId) return null;
+  return (
+    <div style={{ marginTop: 64 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+        <RoyalDivider width={48} />
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>הצטרפו לדיון</span>
+        <RoyalDivider width={48} />
+      </div>
+      <div
+        key={String(postId)}
+        data-spotim-module="conversation"
+        data-post-id={String(postId)}
+        data-post-url={postUrl}
+        style={{ minHeight: 300 }}
+      />
+    </div>
+  );
+}
+
+const editLabelStyle = {
+  display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 10,
+  letterSpacing: 2, textTransform: "uppercase", margin: "0 0 6px",
+};
+const editInputStyle = {
+  width: "100%", boxSizing: "border-box", background: C.bg,
+  border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3",
+  fontFamily: F.body, fontSize: 14, padding: "10px 12px", marginBottom: 16,
+};
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -4764,6 +4836,32 @@ function PostPageBySlug({ onNav }) {
   const [error, setError] = useState("");
   const contentRef = useRef(null);
   const loc = useLocation();
+
+  // ── עריכת פוסט ידנית (מנהל מחובר בלבד) ──
+  const { isAdmin, user } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ title: "", excerpt: "", content: "" });
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState("");
+
+  function startEdit() {
+    setDraft({ title: post?.title ?? "", excerpt: post?.excerpt ?? "", content: post?.content ?? "" });
+    setSaveErr("");
+    setEditing(true);
+  }
+  async function saveEdit() {
+    if (!post?.id) { setSaveErr("לא ניתן לשמור — אין מזהה פוסט"); return; }
+    setSaving(true); setSaveErr("");
+    try {
+      const updated = await adminUpdatePost(post.id, draft);
+      setPost(prev => ({ ...prev, ...draft, ...(updated || {}) }));
+      setEditing(false);
+    } catch (e) {
+      setSaveErr(e?.message || "השמירה נכשלה");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -4801,6 +4899,21 @@ function PostPageBySlug({ onNav }) {
     return () => clearTimeout(id);
   }, [post, loc.search]);
 
+  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה בפוסט (data-gem) פותחת את מגירת המספר — לא ניווט
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onClick = e => {
+      const t = e.target.closest("[data-gem]");
+      if (!t || !el.contains(t)) return;
+      e.preventDefault();
+      const term = (t.getAttribute("data-gem") || "").trim();
+      if (term) openNumberDrawer(term);
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post]);
+
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";
   const title    = stripHtml(post?.title ?? "");
@@ -4836,21 +4949,39 @@ function PostPageBySlug({ onNav }) {
     getCommentsByPostId(post.wp_id).then(setComments).catch(() => {});
   }, [post?.wp_id]);
 
-  // SEO ספציפי לפוסט — מתעדכן כשהפוסט נטען
+  // SEO ספציפי לפוסט — מתעדכן כשהפוסט נטען (תיאור נקי, מטא מאמר ו-JSON-LD)
   useEffect(() => {
     if (!post) return;
-    const desc = stripHtml(post.excerpt || post.content || "").slice(0, 160).trim();
+    const desc = cleanDescription(post.excerpt || post.content || "");
+    const by = resolveAuthor(post.author);
     applySeo({
       title,
       description: desc || undefined,
       path: "/" + slug,
       image: image || undefined,
       type: "article",
+      publishedTime: post.date || undefined,
+      modifiedTime: post.modified || post.date || undefined,
+      author: by?.name && by.name !== "המערכת" ? by.name : undefined,
+      tags: post.tags || [],
+      section: (post.categories || [])[0] || undefined,
     });
   }, [post, title, image, slug]);
 
+  // תיעוד צפייה בפוסט — רק למשתמש מחובר (פילוח עתידי)
+  useEffect(() => {
+    if (user && post?.slug) logActivity("post", post.slug, title);
+  }, [user, post?.slug]);  // eslint-disable-line
+
   return (
     <div style={{ direction: "rtl" }}>
+      {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
+        <PrayerSharePopup
+          url={`${SITE_URL}/${post.slug || slug}`}
+          title={title}
+          wpId={post.wp_id}
+        />
+      )}
       {image && !loading && (
         <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: C.goldDeep }}>
           <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.5) sepia(0.3)", display: "block" }} />
@@ -4859,9 +4990,34 @@ function PostPageBySlug({ onNav }) {
       )}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
-          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
+          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
         </button>
+
+        {/* ── סרגל ניהול: עריכת פוסט ידנית (מנהל בלבד) ── */}
+        {isAdmin && post && !loading && (
+          <div style={{ marginBottom: 28 }}>
+            {!editing ? (
+              <button onClick={startEdit} style={{
+                background: C.bgGlow, border: `1px solid ${C.gold}`, color: C.goldLight,
+                padding: "9px 18px", borderRadius: 4, cursor: "pointer",
+                fontFamily: F.heading, fontSize: 12, letterSpacing: 2,
+              }}>
+                ✏️ עריכת פוסט
+              </button>
+            ) : (
+              <AdvancedPostEditor
+                draft={draft}
+                setDraft={setDraft}
+                onSave={saveEdit}
+                onCancel={() => setEditing(false)}
+                saving={saving}
+                saveErr={saveErr}
+              />
+            )}
+          </div>
+        )}
+
         {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
@@ -4872,35 +5028,70 @@ function PostPageBySlug({ onNav }) {
                   {cats.map(name => (
                     <span key={name} className="sod-inflate" onClick={() => navigate('/category/' + toSlug(name))} style={{
                       background: C.goldDark, border: `1px solid ${C.borderGold}`,
-                      color: C.goldBright, fontSize: 10, padding: "3px 10px",
+                      color: C.goldBright, fontSize: 12, padding: "4px 11px",
                       fontFamily: F.heading, letterSpacing: 1,
                       textTransform: "uppercase", borderRadius: 1,
                     }}>{name}</span>
                   ))}
                 </div>
               )}
-              <div style={{ fontSize: 9, color: C.muted, letterSpacing: 4, marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase" }}>
-                {date}{author && ` · ${author}`}{modified && ` · עודכן: ${modified}`}
+              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              {(() => {
+                const by = resolveAuthor(author);
+                // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
+                if (by.name === "המערכת") return null;
+                const isVerified = !!(post.verified || post.ai_touched);
+                return (
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                      <img src={by.avatar} alt={by.name} width={38} height={38}
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${C.borderGold}`, flex: "0 0 auto", background: C.bg }} />
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
+                          {isVerified && <VerifiedBadge variant="ai" size={13} />}
+                        </div>
+                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
+                          {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+              {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה + תאריך עדכון */}
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+                <span title="תאריך יצירת הפוסט">📅 נוצר: {date}</span>
+                {modified && <span style={{ color: C.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
               </div>
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 28px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
-            {gematriaItems.length > 0 && (
-              <div style={{ marginBottom: 40 }}>
-                <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {gematriaItems.map(({ phrase, ragil }) => (
-                    <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
-                      background: "#1a0a2e", border: "1px solid #7c3aed",
-                      color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
-                      fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
-                    }}>{phrase} | {ragil}</span>
-                  ))}
+            {(() => {
+              // רק מספרים "חמים" (מספרי ליבה) ובלי כפילויות — מספר קר/אקראי לא מוצג.
+              const seen = new Set();
+              const warm = (gematriaItems || []).filter(({ ragil }) => {
+                if (!KEY_NUMBERS[ragil] || seen.has(ragil)) return false;
+                seen.add(ragil);
+                return true;
+              });
+              if (!warm.length) return null;
+              return (
+                <div style={{ marginBottom: 40 }}>
+                  <div style={{ fontSize: 12, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {warm.map(({ phrase, ragil }) => (
+                      <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
+                        background: "#1a0a2e", border: "1px solid #7c3aed",
+                        color: "#c4b5fd", fontSize: 12, padding: "4px 13px",
+                        fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
+                      }}>{phrase} | {ragil}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
             <style>{POST_CONTENT_CSS}</style>
             <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
             {tags.length > 0 && (
@@ -4908,7 +5099,7 @@ function PostPageBySlug({ onNav }) {
                 {tags.map(name => (
                   <span key={name} className="sod-inflate" onClick={() => navigate('/tag/' + toSlug(name))} style={{
                     background: C.faint, border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 10, padding: "3px 10px",
+                    color: C.muted, fontSize: 12, padding: "4px 11px",
                     fontFamily: F.heading, letterSpacing: 1,
                     textTransform: "uppercase", borderRadius: 1,
                   }}>{name}</span>
@@ -4916,8 +5107,8 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
 
-            {/* שיתוף — קריאה מיוחדת בפוסטי הינוקא */}
-            {(() => {
+            {/* שיתוף תחתון — מוסתר בפוסטי התפילה (שם יש כפתור שיתוף צף יחיד עם מונה) */}
+            {!PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (() => {
               const shareUrl = `${SITE_URL}/${post.slug || slug}`;
               const isYenuka = (tags || []).some(t => YENUKA_TAGS.includes(t));
               return (
@@ -4940,7 +5131,7 @@ function PostPageBySlug({ onNav }) {
                     </div>
                   ) : (
                     <div style={{ marginTop: 24 }}>
-                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
                         שתפו את הפוסט
                       </div>
                       <ShareBar url={shareUrl} title={title} text={title} />
@@ -4950,6 +5141,14 @@ function PostPageBySlug({ onNav }) {
               );
             })()}
 
+            {/* תפילות פופולריות נוספות — רק בפוסטי התפילה */}
+            {PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
+              <div style={{ marginTop: 52 }}>
+                <PopularPrayersBox excludeWpId={post.wp_id} title="🙏 תפילות פופולריות נוספות" />
+              </div>
+            )}
+
+            <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
             {/* ── COMMENTS ── */}
             {comments.length > 0 && (
               <div style={{ marginTop: 64 }}>

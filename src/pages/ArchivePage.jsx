@@ -25,7 +25,7 @@ function descDate(desc) {
   const dt = new Date(+y, +mo - 1, +d);
   return isNaN(dt) ? null : dt;
 }
-const eventDate = im => im.occurred_at ? new Date(im.occurred_at) : descDate(im.description);
+const eventDate = im => im.occurred_at ? new Date(im.occurred_at) : (descDate(im.description) || new Date(0));
 const eventYear = im => { const d = eventDate(im); return d ? d.getFullYear() : null; };
 function eventLabel(im) {
   if (im.occurred_at) { const d = new Date(im.occurred_at); return `${HE_MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
@@ -53,7 +53,7 @@ export default function ArchivePage() {
   const [numFilter, setNumFilter] = useState(null);
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
-  const [sortMode, setSortMode] = useState("gallery");   // gallery (סדר התוסף) | date
+  const [sortMode, setSortMode] = useState("date");   // date (חדש→ישן, ברירת מחדל) | gallery | cross
   const [viewMode, setViewMode] = useState("galleries"); // galleries (אקורדיון) | images (רשת תמונות)
   const [openGal, setOpenGal] = useState(null);          // גלריה פתוחה בפיד (האחרונה כברירת מחדל)
   const [showAllNums, setShowAllNums] = useState(false);

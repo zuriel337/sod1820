@@ -52,6 +52,9 @@ export const KEY_NUMBERS = {
   1820: "סוד השם יהוה × עמים",
 };
 
+// מספר "חם"/משמעותי = אחד ממספרי הליבה (KEY_NUMBERS). אחרת — "קר", ולא מציגים אותו על פוסטים.
+export const isWarmNumber = n => KEY_NUMBERS[n] != null;
+
 // ===== GLOBAL CSS =====
 export const GLOBAL_CSS = `
   .sod-inflate {
@@ -108,12 +111,12 @@ export const POST_CONTENT_CSS = `
   }
   .sod-post-content h3 {
     color: ${C.gold};
-    font-size: clamp(12px, 1.7vw, 17px);
+    font-size: clamp(14px, 1.8vw, 19px);
   }
   .sod-post-content p {
     color: #ede4d3;
     font-family: 'Heebo', sans-serif;
-    font-size: 15.5px;
+    font-size: 16.5px;
     line-height: 2.1;
     margin: 0 0 1.4em;
   }
@@ -153,7 +156,7 @@ export const POST_CONTENT_CSS = `
   .sod-post-content li {
     color: #ede4d3;
     font-family: 'Heebo', sans-serif;
-    font-size: 15px;
+    font-size: 16.5px;
     line-height: 2;
     margin-bottom: 0.4em;
   }
@@ -196,7 +199,7 @@ export const POST_CONTENT_CSS = `
   .sod-post-content figure { margin: 2em 0; }
   .sod-post-content figcaption {
     text-align: center;
-    font-size: 11px;
+    font-size: 13px;
     color: ${C.muted};
     font-family: 'Heebo', sans-serif;
     margin-top: 8px;

@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
+import { initGA, trackPageview } from "./lib/analytics.js";
+import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -18,6 +20,8 @@ import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
 import VerifiedPostsPage from "./pages/VerifiedPostsPage.jsx";
+import CrossMethodPage from "./pages/CrossMethodPage.jsx";
+import JourneyPage from "./pages/JourneyPage.jsx";
 import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
@@ -39,10 +43,15 @@ import TopicPage from "./pages/TopicPage.jsx";
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname } = useLocation();
+  useEffect(() => { initGA(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
+    // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
+    // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
+    const t = setTimeout(() => trackPageview(pathname), 350);
+    return () => clearTimeout(t);
   }, [pathname]);
   return null;
 }
@@ -52,6 +61,7 @@ export default function App() {
     <AuthProvider>
     <BrowserRouter>
         <RouteEffects />
+        <Analytics />
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           <Route path="/ניסיון" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
@@ -87,9 +97,15 @@ export default function App() {
           <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
+          <Route path="/cross" element={<CrossMethodPage />} />
+          <Route path="/הצלבה" element={<CrossMethodPage />} />
+          <Route path="/journey" element={<JourneyPage />} />
+          <Route path="/מסע" element={<JourneyPage />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
 
           {/* הפניות מכתובות ישנות (שמירת קישורים) */}
+          <Route path="/פוסטים-אחרונים-2" element={<Navigate to="/post" replace />} />
+          <Route path="/פוסטים-אחרונים" element={<Navigate to="/post" replace />} />
           <Route path="/צור-קשר" element={<Navigate to="/contact" replace />} />
           <Route path="/דף-צאט-ראשי" element={<Navigate to="/community/chat" replace />} />
           <Route path="/chat" element={<Navigate to="/community/chat" replace />} />
