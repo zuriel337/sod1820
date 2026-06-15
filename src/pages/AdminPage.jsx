@@ -138,6 +138,14 @@ function TopicsTab() {
               </ul>
             )}
 
+            {/* רמז משלים (רובד פרשני — מובחן מהגימטריה) */}
+            {f.hint && (
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "rgba(99,102,241,0.08)", border: `1px solid rgba(99,102,241,0.35)`, borderRadius: 10, padding: "10px 12px", marginBottom: 12 }}>
+                <span style={{ fontSize: 15 }}>🔮</span>
+                <div style={{ color: "#b9bcff", fontFamily: F.body, fontSize: 13, lineHeight: 1.75 }}><b style={{ color: "#cfd1ff" }}>רמז משלים: </b>{f.hint}</div>
+              </div>
+            )}
+
             {/* חיבורים */}
             {Array.isArray(f.connections) && f.connections.length > 0 && (
               <div style={{ display: "grid", gap: 6, marginBottom: 12 }}>
