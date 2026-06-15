@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { getEntityBundle } from "../lib/supabase.js";
+import { getEntityBundle, supabase } from "../lib/supabase.js";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { SITE_URL } from "../lib/seo.js";
@@ -77,6 +78,32 @@ export default function EntityPage() {
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
+  // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
+  const [sigs, setSigs] = useState([]);
+  const [sigsLoaded, setSigsLoaded] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    setSigs([]); setSigsLoaded(false); setGateOpen(false);
+    if (!isNumber) { setSigsLoaded(true); return; }
+    supabase.from("nodes")
+      .select("label,description,metadata")
+      .eq("type", "entity").eq("is_active", true)
+      .eq("metadata->>role", "signature").eq("metadata->>value", String(value))
+      .then(({ data: rows }) => {
+        if (!alive) return;
+        setSigs((rows || []).map(r => ({
+          label: r.label, desc: r.description,
+          title: r.metadata?.signature_title || "✦ חתימה",
+          kind: r.metadata?.signature_kind,
+        })));
+        setSigsLoaded(true);
+      });
+    return () => { alive = false; };
+  }, [value, isNumber]);
+  const hasGate = isNumber && sigs.length > 0;
+  const gold = useGold();
+
   const d = data || {};
   const chips = [
     d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
@@ -101,6 +128,19 @@ export default function EntityPage() {
         </Link>
       </div>
     );
+  }
+
+  // בזמן בדיקת חתימות (מספרים) — placeholder קצר למניעת הבהוב לפני השער
+  if (isNumber && value >= 10 && !sigsLoaded) {
+    return (
+      <div style={{ direction: "rtl", minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 1 }}>
+        <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, opacity: 0.45 }}>{value}</div>
+      </div>
+    );
+  }
+  // ── שער מלכותי — נפתח בלחיצה (number_page_law, שכבה 2) ──
+  if (hasGate && !gateOpen) {
+    return <RoyalGate value={value} signatures={sigs} onOpen={() => setGateOpen(true)} onBack={() => nav(-1)} />;
   }
 
   return (
@@ -131,6 +171,9 @@ export default function EntityPage() {
           ? `המספר ${value} — גלו מה מסתתר בו 🔢✨\n${SITE_URL}/number/${value}`
           : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
       </div>
+
+      {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
+      {hasGate && <SignaturesRing signatures={sigs} />}
 
       {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
       {!loading && chips.length > 0 && (() => {
@@ -183,6 +226,16 @@ export default function EntityPage() {
         </div>
       )}
 
+      {/* ✨ קחו אותי למסע — הילוך אקראי בגרף הקשרים */}
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <Link to={`/journey?from=${encodeURIComponent(term)}`} style={{
+          display: "inline-block", textDecoration: "none",
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+          fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", borderRadius: 999,
+          boxShadow: `0 0 30px ${C.goldDeep}`,
+        }}>🎲 קחו אותי למסע מ־{value}</Link>
+      </div>
+
       {/* קישור-לימוד: הסבר על שיטות הגימטריה (רגיל/מילוי/מסתתר...) */}
       <div style={{ textAlign: "center", marginBottom: 34 }}>
         <Link to="/beit-midrash?tab=methods" style={{
@@ -222,13 +275,16 @@ export default function EntityPage() {
         <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrases?.length || null} />
         {d.phrases?.length ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-            {d.phrases.map((p, i) => (
+            {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
+              const isG = gold.labels.has(p.phrase);
+              return (
               <Link key={i} to={`/number/${encodeURIComponent(p.phrase)}`} style={{
-                textDecoration: "none", color: C.goldLight, fontFamily: F.body, fontSize: 14,
-                border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 13px",
-                background: "rgba(20,15,12,0.5)",
-              }}>{p.phrase}</Link>
-            ))}
+                textDecoration: "none", color: isG ? C.goldBright : C.goldLight, fontFamily: F.body, fontSize: 14,
+                border: `1px solid ${isG ? C.gold : C.border}`, borderRadius: 999, padding: "5px 13px",
+                background: isG ? "rgba(212,175,55,0.16)" : "rgba(20,15,12,0.5)",
+                boxShadow: isG ? `0 0 14px ${C.goldDeep}` : "none", fontWeight: isG ? 700 : 400,
+              }}>{isG ? "✦ " : ""}{p.phrase}</Link>
+            );})}
           </div>
         ) : (
           <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, marginBottom: 14 }}>אין מילים נוספות בערך זה במאגר.</p>
@@ -358,5 +414,49 @@ export default function EntityPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// ── שער מלכותי: המסך הראשון של מספר־יסוד עם חתימות (number_page_law) ──
+function RoyalGate({ value, signatures, onOpen, onBack }) {
+  return (
+    <div style={{ direction: "rtl", minHeight: "82vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "50px 20px", position: "relative", zIndex: 1 }}>
+      <style>{`
+        @keyframes gateRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+        @keyframes gateGlow{0%,100%{text-shadow:0 0 40px rgba(212,175,55,.35)}50%{text-shadow:0 0 75px rgba(212,175,55,.65)}}
+      `}</style>
+      <button onClick={onBack} style={{ position: "absolute", top: 18, right: 18, background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>← חזרה</button>
+      <div style={{ fontSize: 42, marginBottom: 4, animation: "gateRise .6s ease both" }}>👑</div>
+      <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(64px,15vw,140px)", fontWeight: 800, lineHeight: 1, animation: "gateRise .7s ease both, gateGlow 4.5s ease-in-out infinite 1.2s" }}>{value}</div>
+      <p style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(16px,2.5vw,23px)", lineHeight: 1.85, margin: "24px 0 4px", maxWidth: 470, animation: "gateRise .95s ease both" }}>
+        יש מספרים שמספרים סיפור.<br />ויש מספרים שהם הסיפור עצמו.
+      </p>
+      <button onClick={onOpen} style={{ marginTop: 28, cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 17, fontWeight: 800, padding: "15px 36px", boxShadow: `0 0 44px ${C.goldDeep}`, animation: "gateRise 1.15s ease both" }}>
+        ✨ גלו את כל עולמו של {value} ✨
+      </button>
+      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1.5, marginTop: 20, animation: "gateRise 1.35s ease both" }}>
+        {signatures.length} חתימות נסתרות · מאחורי המספר מסתתר עולם שלם
+      </div>
+    </div>
+  );
+}
+
+// ── טבעת החתימות: ישויות-העל שמתכנסות למספר (נחשפות בפתיחת השער) ──
+function SignaturesRing({ signatures }) {
+  if (!signatures?.length) return null;
+  return (
+    <section style={{ marginBottom: 36 }}>
+      <style>{`@keyframes sigIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}`}</style>
+      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>✦ טבעת החתימות ✦</div>
+      <div style={{ display: "grid", gap: 13 }}>
+        {signatures.map((s, i) => (
+          <div key={s.label} style={{ animation: `sigIn .6s ease both ${0.1 + i * 0.18}s`, background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(212,175,55,0.04))", border: `1.5px solid ${C.gold}`, borderRadius: 16, padding: "17px 22px", textAlign: "center", boxShadow: `0 0 28px ${C.goldDeep}` }}>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, marginBottom: 7 }}>{s.title}</div>
+            <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(17px,2.7vw,23px)", fontWeight: 700, lineHeight: 1.5 }}>{s.label}</div>
+            {s.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 8, maxWidth: 520, marginInline: "auto" }}>{s.desc}</div>}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

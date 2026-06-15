@@ -56,8 +56,8 @@ export default function CrossMethodPage() {
       const { data: ents } = await supabase.from("nodes")
         .select("id,label,weight,description,metadata").eq("type", "entity").eq("is_active", true).in("label", phrases);
       if (!live) return;
-      const E = (ents || []).map(n => ({ id: n.id, label: n.label, weight: n.weight || 3, world: n.metadata?.world, desc: n.description }))
-        .sort((a, b) => b.weight - a.weight);
+      const E = (ents || []).map(n => ({ id: n.id, label: n.label, weight: n.weight || 3, world: n.metadata?.world, desc: n.description, tier: n.metadata?.tier || null, display: n.metadata?.display || null }))
+        .sort((a, b) => (b.tier === "gold" ? 1 : 0) - (a.tier === "gold" ? 1 : 0) || b.weight - a.weight);
       setEntities(E);
       if (!E.length) { setRelated([]); return; }
       const { data: eg } = await supabase.from("edges")
@@ -162,21 +162,29 @@ export default function CrossMethodPage() {
       {!loading && entities.length > 0 && (
         <section style={{ marginBottom: 18, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "16px 20px" }}>
           <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
-          {narrative && (
-            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, textAlign: "center", maxWidth: 600, margin: "0 auto 14px" }}>
-              {narrative}
-            </p>
-          )}
+          {/* מסר מהמספרים (AI) — סגור עד שהמנוע יושלם */}
+          <div style={{ textAlign: "center", margin: "0 auto 14px", maxWidth: 600, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1, border: `1px dashed ${C.borderGold}`, borderRadius: 10, padding: "11px 14px" }}>
+            🔒 מסר מהמספרים (AI) — המנוע עדיין בפיתוח
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 480, margin: "0 auto" }}>
             {entities.map(e => {
               const vias = (phraseMethods[e.label] || []).map(c => METHOD_BY_COL[c]).filter(Boolean);
+              const isGold = e.tier === "gold";
               return (
-              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none", padding: "9px 13px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}` }}>
+              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none",
+                padding: isGold ? "13px 15px" : "9px 13px", borderRadius: isGold ? 13 : 10,
+                background: isGold ? "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(212,175,55,0.04))" : C.surface,
+                border: isGold ? `1.5px solid ${C.gold}` : `1px solid ${C.border}`,
+                boxShadow: isGold ? `0 0 28px ${C.goldDeep}` : "none" }}>
+                {isGold && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11, letterSpacing: 2.5, marginBottom: 5 }}>👑 ישות זהב</div>}
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, minWidth: 96 }}>{e.label}</span>
-                  <Stars n={e.weight} />
+                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: isGold ? 22 : 19, fontWeight: 700, minWidth: 96 }}>{e.display || e.label}</span>
+                  {isGold ? <span style={{ fontSize: 18 }} title="ישות זהב">👑</span> : <Stars n={e.weight} />}
                   {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
                 </div>
+                {isGold && e.display && e.display !== e.label && (
+                  <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, marginTop: 5, opacity: 0.9 }}>{e.label} = {num}</div>
+                )}
                 {e.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>{e.desc}</div>}
                 {vias.length > 0 && (
                   <div style={{ marginTop: 5, display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -254,7 +262,8 @@ export default function CrossMethodPage() {
         </section>
       )}
 
-      <div style={{ textAlign: "center", marginTop: 26 }}>
+      <div style={{ textAlign: "center", marginTop: 26, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        <Link to="/journey" style={{ textDecoration: "none", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
         <Link to="/beit-midrash" style={{ ...chip, textDecoration: "none" }}>← לבית המדרש</Link>
       </div>
     </div>

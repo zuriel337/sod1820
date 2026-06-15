@@ -10,6 +10,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4897,6 +4898,21 @@ function PostPageBySlug({ onNav }) {
     }, 140);
     return () => clearTimeout(id);
   }, [post, loc.search]);
+
+  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה בפוסט (data-gem) פותחת את מגירת המספר — לא ניווט
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onClick = e => {
+      const t = e.target.closest("[data-gem]");
+      if (!t || !el.contains(t)) return;
+      e.preventDefault();
+      const term = (t.getAttribute("data-gem") || "").trim();
+      if (term) openNumberDrawer(term);
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post]);
 
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";

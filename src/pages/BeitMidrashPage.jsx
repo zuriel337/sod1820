@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
+import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -80,8 +81,9 @@ const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
 function NumbersTab({ initial }) {
   const [val, setVal] = useState(initial || 1820);
   const [rows, setRows] = useState(null);
+  const gold = useGold();
   useEffect(() => { if (initial) setVal(initial); }, [initial]);
-  const anchors = ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS];
+  const anchors = sortGoldFirst(ANCHORS.includes(val) ? ANCHORS : [val, ...ANCHORS], n => gold.values.has(n));
   useEffect(() => {
     let live = true; setRows(null);
     (async () => {
@@ -100,14 +102,16 @@ function NumbersTab({ initial }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-        {anchors.map(n => (
-          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `1px solid ${n === val ? L.gold : L.line}`, background: n === val ? "#fbf3da" : L.panel, color: n === val ? L.goldDeep : L.sub }}>{n}</button>
-        ))}
+        {anchors.map(n => {
+          const isG = gold.values.has(n);
+          return (
+          <button key={n} onClick={() => setVal(n)} style={{ cursor: "pointer", fontFamily: F.mono, fontSize: 15, fontWeight: 800, padding: "7px 15px", borderRadius: 999, border: `${isG ? 2 : 1}px solid ${n === val || isG ? L.gold : L.line}`, background: n === val ? "#fbf3da" : isG ? "#fdf8e8" : L.panel, color: n === val || isG ? L.goldDeep : L.sub, boxShadow: isG ? `0 0 8px ${L.gold}55` : "none" }}>{isG ? "👑 " : ""}{n}</button>
+        );})}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{val}</span>
         {KEY_NUMBERS[val] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[val]}</span>}
-        {val === 1820 && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>★ קוד האתר</span>}
+        {gold.values.has(val) && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{val === 1820 ? "★ קוד האתר" : "★ מספר זהב"}</span>}
       </div>
       {rows === null ? <div style={{ color: L.sub, padding: 16 }}>טוען…</div> : rows.length === 0 ? <div style={{ color: L.sub, padding: 16 }}>אין ביטויים למספר זה.</div> : (
         <div style={{ overflowX: "auto", border: `1px solid ${L.line}`, borderRadius: 12, background: L.panel }}>
@@ -283,7 +287,7 @@ function ComingSoonTools() {
   );
 }
 
-function CalcTab({ initial }) {
+function CalcTab({ initial, seed }) {
   const [num, setNum] = useState(initial || 1820);
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
@@ -291,7 +295,7 @@ function CalcTab({ initial }) {
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
           מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
         </p>
-        <GematriaCalculator />
+        <GematriaCalculator seed={seed} />
         <ComingSoonTools />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
@@ -496,8 +500,9 @@ export default function BeitMidrashPage() {
   const loc = useLocation();
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
+  const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט)
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState(nParam ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
+  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
   const { subscribed } = useSubscribed();
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
@@ -552,7 +557,7 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "calc" && <CalcTab initial={nParam} />}
+            {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "methods" && <MethodsTab />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}
