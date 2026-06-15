@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getPostByWpId, getShareCount } from "../lib/supabase.js";
+import { getPostsMetaByWpIds, getShareCounts } from "../lib/supabase.js";
 
 // ── "תפילות פופולריות" — הפניה לתפילות החזקות באתר ──
 // מוצג בראש דפי תגית שקשורים לתפילה/רפואה/ישועה (מי שמחפש תפילה — מגיע לכאן).
@@ -24,18 +24,22 @@ export default function PopularPrayersBox({ excludeWpId = null, title = "🙏 ת
 
   useEffect(() => {
     let alive = true;
-    Promise.all(
-      FEATURED
-        .filter(f => f.wpId !== excludeWpId)
-        .map(async f => {
-          const [post, count] = await Promise.all([
-            getPostByWpId(f.wpId).catch(() => null),
-            getShareCount(f.wpId).catch(() => 0),
-          ]);
-          if (!post?.slug) return null;
-          return { ...f, slug: post.slug, image: post.image_url || null, count: count || 0 };
-        })
-    ).then(rows => { if (alive) setItems(rows.filter(Boolean)); });
+    const feat = FEATURED.filter(f => f.wpId !== excludeWpId);
+    const wpIds = feat.map(f => f.wpId);
+    // 2 שאילתות קלות בלבד (מטא ללא content + מוני שיתופים) במקום 4 כבדות
+    Promise.all([getPostsMetaByWpIds(wpIds), getShareCounts(wpIds)])
+      .then(([posts, counts]) => {
+        if (!alive) return;
+        const byId = {};
+        posts.forEach(p => { byId[p.wp_id] = p; });
+        const rows = feat.map(f => {
+          const p = byId[f.wpId];
+          if (!p?.slug) return null;
+          return { ...f, slug: p.slug, image: p.image_url || null, count: counts[f.wpId] || 0 };
+        }).filter(Boolean);
+        setItems(rows);
+      })
+      .catch(() => {});
     return () => { alive = false; };
   }, [excludeWpId]);
 

@@ -435,6 +435,22 @@ export async function getRandomShiurim(limit = 12) {
   return data || [];
 }
 
+// מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
+export async function getPostsMetaByWpIds(wpIds = []) {
+  if (!supabase || !wpIds.length) return [];
+  const { data } = await supabase.from('posts').select('wp_id, slug, title, image_url').in('wp_id', wpIds);
+  return data || [];
+}
+
+// מוני שיתופים למספר פוסטים בבת אחת → מפה { wp_id: count }
+export async function getShareCounts(wpIds = []) {
+  if (!supabase || !wpIds.length) return {};
+  const { data } = await supabase.from('post_share_counts').select('wp_id, count').in('wp_id', wpIds);
+  const map = {};
+  (data || []).forEach(r => { map[r.wp_id] = r.count; });
+  return map;
+}
+
 // ── Insights / חידושים (בית המדרש) ─────────────────────────
 // origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
 // space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)

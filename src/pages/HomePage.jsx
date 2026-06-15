@@ -71,14 +71,18 @@ function ShiurimCard() {
     return () => { alive = false; };
   }, []);
 
-  // רוטציה כל ~5 שניות; בסוף האצווה — מושכים אצווה אקראית חדשה (תמיד מתחלף)
+  // רוטציה כל ~5 שניות; בסוף האצווה — מערבבים מקומית (בלי רשת חוזרת)
   useEffect(() => {
     if (lessons.length < 2) return;
     const t = setInterval(() => {
       setIdx(i => {
         const next = i + 2;
         if (next >= lessons.length) {
-          getRandomShiurim(14).then(rows => { if (rows?.length) setLessons(rows); }).catch(() => {});
+          setLessons(prev => {
+            const a = [...prev];
+            for (let j = a.length - 1; j > 0; j--) { const r = Math.floor(Math.random() * (j + 1)); [a[j], a[r]] = [a[r], a[j]]; }
+            return a;
+          });
           return 0;
         }
         return next;
