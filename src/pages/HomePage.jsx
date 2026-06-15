@@ -57,140 +57,85 @@ function GatesDeck() {
   );
 }
 
-// 🎧 שיעורי סוד החשמל — כרטיס עם רוטציה אקראית של שיעורים מתוך הארכיון (לחיצים)
+// 🎧 שיעורי סוד החשמל — כרטיס קטן וסטטי עם 3 שיעורים אקראיים (מתחדשים בכל טעינה), לחיצים
 const stripLessonNo = t => (t || "").replace(/^שיעור\s*\d+\s*[—–\-:.]*\s*/, "").trim();
 
 function ShiurimCard() {
   const [lessons, setLessons] = useState([]);
-  const [idx, setIdx] = useState(0);
-
-  // משיכת אצווה אקראית ראשונית
   useEffect(() => {
     let alive = true;
-    getRandomShiurim(14).then(rows => { if (alive) { setLessons(rows || []); setIdx(0); } }).catch(() => {});
+    getRandomShiurim(3).then(rows => { if (alive) setLessons(rows || []); }).catch(() => {});
     return () => { alive = false; };
   }, []);
-
-  // רוטציה כל ~5 שניות; בסוף האצווה — מערבבים מקומית (בלי רשת חוזרת)
-  useEffect(() => {
-    if (lessons.length < 2) return;
-    const t = setInterval(() => {
-      setIdx(i => {
-        const next = i + 2;
-        if (next >= lessons.length) {
-          setLessons(prev => {
-            const a = [...prev];
-            for (let j = a.length - 1; j > 0; j--) { const r = Math.floor(Math.random() * (j + 1)); [a[j], a[r]] = [a[r], a[j]]; }
-            return a;
-          });
-          return 0;
-        }
-        return next;
-      });
-    }, 5000);
-    return () => clearInterval(t);
-  }, [lessons.length]);
-
-  const shown = lessons.slice(idx, idx + 2);
 
   return (
     <div className="sod-shiur-wrap" style={{ direction: "rtl" }}>
       <div className="sod-shiur-card">
-        <span className="sod-shiur-holo" aria-hidden />
-        <span className="sod-shiur-corner tl" /><span className="sod-shiur-corner br" />
-
         <div className="sod-shiur-head">
           <span className="sod-shiur-ic">🎧</span>
           <span className="sod-shiur-txt">
             <span className="sod-shiur-title">שיעורי סוד החשמל</span>
-            <span className="sod-shiur-sub">גאולה ורמז · מבחר מתחלף מתוך 1,200+ שיעורים</span>
+            <span className="sod-shiur-sub">מבחר מתוך 1,200+ שיעורים</span>
           </span>
         </div>
-
         <div className="sod-shiur-list">
-          {shown.length === 0 ? (
-            <div className="sod-shiur-load">טוען שיעורים…</div>
-          ) : shown.map((s, k) => (
-            <a key={`${idx}-${k}-${s.lesson_no}`} href={s.href} target="_blank" rel="noopener noreferrer" className="sod-shiur-item">
-              <span className="sod-shiur-no">▶ {s.lesson_no ?? "♪"}</span>
+          {lessons.length === 0 ? (
+            <div className="sod-shiur-load">טוען…</div>
+          ) : lessons.map((s, k) => (
+            <a key={k} href={s.href} target="_blank" rel="noopener noreferrer" className="sod-shiur-item">
+              <span className="sod-shiur-no">{s.lesson_no ?? "♪"}</span>
               <span className="sod-shiur-itxt">{stripLessonNo(s.title) || s.title}</span>
             </a>
           ))}
         </div>
-
         <Link to="/שיעורי-שמע-סוד-החשמל" className="sod-shiur-go">לכל השיעורים →</Link>
       </div>
       <style>{`
-        .sod-shiur-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;height:100%;box-sizing:border-box;
-          border-radius:16px;padding:20px 22px;border:1px solid ${C.borderGold};
-          background:linear-gradient(135deg,rgba(184,134,11,0.14),rgba(122,19,32,0.10),rgba(8,5,2,0.5));
-          box-shadow:0 16px 50px rgba(0,0,0,0.45);transition:border-color .28s,box-shadow .28s;}
-        .sod-shiur-card:hover{border-color:${C.gold};box-shadow:0 20px 60px rgba(0,0,0,0.55),0 0 30px rgba(212,175,55,0.18);}
-        .sod-shiur-holo{position:absolute;inset:0;pointer-events:none;opacity:0;
-          background:linear-gradient(125deg,transparent 40%,rgba(246,226,122,0.10) 50%,transparent 60%);background-size:220% 220%;}
-        .sod-shiur-card:hover .sod-shiur-holo{opacity:1;animation:sod-pf-holo 1.5s ease-in-out infinite;}
-        .sod-shiur-corner{position:absolute;width:12px;height:12px;border-color:${C.goldBright};opacity:.55;}
-        .sod-shiur-corner.tl{top:8px;right:8px;border-top:1.5px solid;border-right:1.5px solid;}
-        .sod-shiur-corner.br{bottom:8px;left:8px;border-bottom:1.5px solid;border-left:1.5px solid;}
-        .sod-shiur-head{display:flex;align-items:center;gap:14px;}
-        .sod-shiur-ic{font-size:38px;line-height:1;filter:drop-shadow(0 0 12px rgba(212,175,55,.45));}
-        .sod-shiur-txt{display:flex;flex-direction:column;gap:3px;min-width:0;}
-        .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:clamp(19px,2.4vw,24px);font-weight:700;}
-        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:13.5px;line-height:1.5;}
-        .sod-shiur-list{display:flex;flex-direction:column;gap:9px;flex:1;justify-content:center;}
-        .sod-shiur-load{color:${C.muted};font-family:${F.body};font-size:14px;text-align:center;padding:18px 0;}
-        .sod-shiur-item{display:flex;align-items:flex-start;gap:9px;text-decoration:none;border-radius:11px;
-          padding:11px 13px;border:1px solid ${C.border};background:rgba(8,5,2,0.42);
-          transition:border-color .18s,background .18s,transform .18s;animation:sod-shiur-fade .5s ease both;}
-        .sod-shiur-item:hover{border-color:${C.gold};background:${C.surface};transform:translateX(-3px);}
-        .sod-shiur-no{flex:0 0 auto;font-family:${F.mono};font-size:13px;font-weight:800;color:#1a0e00;
-          background:linear-gradient(135deg,${C.gold},${C.goldLight});border-radius:999px;padding:3px 10px;white-space:nowrap;}
-        .sod-shiur-itxt{color:${C.goldLight};font-family:${F.body};font-size:14px;line-height:1.55;
-          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-        .sod-shiur-item:hover .sod-shiur-itxt{color:${C.goldBright};}
-        .sod-shiur-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:13.5px;font-weight:700;
-          letter-spacing:1px;text-decoration:none;padding-top:2px;}
-        .sod-shiur-go:hover{text-shadow:0 0 14px rgba(212,175,55,.5);}
-        @keyframes sod-shiur-fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-        @media(prefers-reduced-motion:reduce){.sod-shiur-item{animation:none;}}
+        .sod-shiur-card{display:flex;flex-direction:column;gap:9px;height:100%;box-sizing:border-box;border-radius:12px;padding:13px 14px;
+          border:1px solid ${C.borderGold};background:linear-gradient(135deg,rgba(184,134,11,0.10),rgba(8,5,2,0.5));}
+        .sod-shiur-card:hover{border-color:${C.gold};}
+        .sod-shiur-head{display:flex;align-items:center;gap:9px;}
+        .sod-shiur-ic{font-size:23px;line-height:1;}
+        .sod-shiur-txt{display:flex;flex-direction:column;gap:1px;min-width:0;}
+        .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:16px;font-weight:700;}
+        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:11.5px;}
+        .sod-shiur-list{display:flex;flex-direction:column;gap:6px;flex:1;}
+        .sod-shiur-load{color:${C.muted};font-family:${F.body};font-size:12px;text-align:center;padding:8px 0;}
+        .sod-shiur-item{display:flex;align-items:center;gap:8px;text-decoration:none;border-radius:8px;
+          padding:7px 9px;border:1px solid ${C.border};background:rgba(8,5,2,0.4);}
+        .sod-shiur-item:hover{border-color:${C.gold};background:${C.surface};}
+        .sod-shiur-no{flex:0 0 auto;font-family:${F.mono};font-size:11px;font-weight:800;color:#1a0e00;
+          background:${C.gold};border-radius:6px;padding:2px 7px;white-space:nowrap;}
+        .sod-shiur-itxt{color:${C.goldLight};font-family:${F.body};font-size:12px;line-height:1.4;
+          display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+        .sod-shiur-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12px;font-weight:700;text-decoration:none;}
       `}</style>
     </div>
   );
 }
 
-// 🔥 הצלבת שיטות — ריבוע תצוגה (HOT) לעמוד /cross
+// 🔥 הצלבת שיטות — ריבוע קטן וסטטי (תג HOT) לעמוד /cross
 function CrossTeaserCard() {
   return (
     <Link to="/cross" className="sod-cross-card">
-      <span className="sod-cross-holo" aria-hidden />
       <span className="sod-cross-hot">🔥 HOT</span>
-      <span className="sod-cross-ic">✦⟡✦</span>
+      <span className="sod-cross-ic">⟡</span>
       <span className="sod-cross-title">הצלבת שיטות</span>
       <span className="sod-cross-sub">
-        הזינו מספר — והמערכת תשלוף את כל הביטויים המאומתים שמתכנסים אליו ב-8 שיטות הגימטריה,
-        ותבנה «מסר מצטרף» מנשמת כל שיטה.
+        הזינו מספר — וגלו את כל הביטויים שמתכנסים אליו ב-8 שיטות הגימטריה, ומסר מצטרף.
       </span>
-      <span className="sod-cross-go">היכנסו להצלבה →</span>
+      <span className="sod-cross-go">היכנסו →</span>
       <style>{`
-        .sod-cross-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;height:100%;box-sizing:border-box;
-          text-decoration:none;border-radius:16px;padding:22px 22px;border:1px solid ${C.borderGold};
-          background:linear-gradient(150deg,rgba(132,88,255,0.12),rgba(62,166,255,0.08),rgba(8,5,2,0.5));
-          box-shadow:0 16px 50px rgba(0,0,0,0.45);transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s;}
-        .sod-cross-card:hover{transform:translateY(-3px);border-color:${C.gold};
-          box-shadow:0 20px 60px rgba(0,0,0,0.55),0 0 30px rgba(212,175,55,0.2);}
-        .sod-cross-holo{position:absolute;inset:0;pointer-events:none;opacity:0;
-          background:linear-gradient(125deg,transparent 40%,rgba(246,226,122,0.12) 50%,transparent 60%);background-size:220% 220%;}
-        .sod-cross-card:hover .sod-cross-holo{opacity:1;animation:sod-pf-holo 1.5s ease-in-out infinite;}
-        .sod-cross-hot{position:absolute;top:12px;left:14px;font-family:${F.heading};font-size:12px;font-weight:800;letter-spacing:1px;
-          color:#1a0e00;background:linear-gradient(135deg,#ffb347,#ff5e3a);border-radius:999px;padding:3px 11px;
-          box-shadow:0 0 14px rgba(255,94,58,0.55);animation:sod-hot-pulse 1.8s ease-in-out infinite;}
-        .sod-cross-ic{font-size:26px;color:${C.goldBright};letter-spacing:6px;filter:drop-shadow(0 0 12px rgba(212,175,55,.45));}
-        .sod-cross-title{color:${C.goldBright};font-family:${F.regal};font-size:clamp(20px,2.6vw,26px);font-weight:700;}
-        .sod-cross-sub{color:${C.goldLight};font-family:${F.body};font-size:14px;line-height:1.8;flex:1;}
-        .sod-cross-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:13.5px;font-weight:700;letter-spacing:1px;}
-        .sod-cross-card:hover .sod-cross-go{text-shadow:0 0 14px rgba(212,175,55,.5);}
-        @keyframes sod-hot-pulse{0%,100%{transform:scale(1);box-shadow:0 0 14px rgba(255,94,58,0.5);}50%{transform:scale(1.06);box-shadow:0 0 22px rgba(255,94,58,0.8);}}
-        @media(prefers-reduced-motion:reduce){.sod-cross-hot{animation:none;}}
+        .sod-cross-card{position:relative;display:flex;flex-direction:column;gap:7px;height:100%;box-sizing:border-box;
+          text-decoration:none;border-radius:12px;padding:14px;border:1px solid ${C.borderGold};
+          background:linear-gradient(150deg,rgba(132,88,255,0.10),rgba(8,5,2,0.5));}
+        .sod-cross-card:hover{border-color:${C.gold};}
+        .sod-cross-hot{position:absolute;top:10px;left:12px;font-family:${F.heading};font-size:10.5px;font-weight:800;letter-spacing:1px;
+          color:#1a0e00;background:linear-gradient(135deg,#ffb347,#ff5e3a);border-radius:999px;padding:2px 9px;}
+        .sod-cross-ic{font-size:20px;color:${C.goldBright};}
+        .sod-cross-title{color:${C.goldBright};font-family:${F.regal};font-size:18px;font-weight:700;}
+        .sod-cross-sub{color:${C.goldLight};font-family:${F.body};font-size:12px;line-height:1.6;flex:1;}
+        .sod-cross-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12px;font-weight:700;}
       `}</style>
     </Link>
   );
@@ -468,11 +413,25 @@ export default function HomePage() {
           <CrossTeaserCard />
         </div>
         <style>{`
-          .sod-home-squares { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: stretch; }
-          .sod-home-squares > .ppb { max-width: none; margin: 0; }
-          .sod-home-squares .ppb-grid { grid-template-columns: 1fr; }
+          .sod-home-squares { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+            gap: 16px; align-items: start; justify-content: center; }
           .sod-home-squares > .sod-shiur-wrap { display: flex; }
           .sod-home-squares .sod-shiur-card { width: 100%; }
+          /* ריבוע התפילות — קומפקטי וסטטי */
+          .sod-home-squares > .ppb { max-width: none; margin: 0; padding: 13px 14px; box-shadow: none; }
+          .sod-home-squares .ppb-head { margin-bottom: 9px; }
+          .sod-home-squares .ppb-title { font-size: 16px; }
+          .sod-home-squares .ppb-sub { display: none; }
+          .sod-home-squares .ppb-grid { grid-template-columns: 1fr; gap: 8px; }
+          .sod-home-squares .ppb-card { flex-direction: row; align-items: center; border-radius: 9px; }
+          .sod-home-squares .ppb-card:hover { transform: none !important; box-shadow: none !important; border-color: ${C.gold}; }
+          .sod-home-squares .ppb-thumb { width: 52px; height: 52px; aspect-ratio: auto; flex: 0 0 auto; }
+          .sod-home-squares .ppb-holo, .sod-home-squares .ppb-count, .sod-home-squares .ppb-note { display: none; }
+          .sod-home-squares .ppb-body { padding: 6px 10px; gap: 3px; }
+          .sod-home-squares .ppb-name { font-size: 12.5px; -webkit-line-clamp: 2; }
+          .sod-home-squares .ppb-cta { font-size: 11px; padding-top: 0; }
+          /* ביטול תלת-מימד ותנועה בכל הריבועים */
+          .sod-home-squares *, .sod-home-squares *::before, .sod-home-squares *::after { animation: none !important; }
         `}</style>
       </section>
 
