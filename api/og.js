@@ -23,6 +23,16 @@ const STATIC = {
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const stripHtml = (s = '') => String(s).replace(/<[^>]*>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim();
 
+// תיאור מטא נקי, קצוץ לגבול מילה (~160 תווים) — ללא חיתוך באמצע מילה.
+function cleanDesc(raw = '', max = 160) {
+  let s = stripHtml(raw).replace(/^\s*מאת[:\s].{0,40}?(?=\s)/, ' ').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  s = s.slice(0, max);
+  const cut = s.lastIndexOf(' ');
+  if (cut > max * 0.6) s = s.slice(0, cut);
+  return s.replace(/[\s,.;:–-]+$/, '') + '…';
+}
+
 export default async function handler(req, res) {
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
@@ -31,6 +41,7 @@ export default async function handler(req, res) {
   let desc = DEFAULT_DESC;
   let image = DEFAULT_IMAGE;
   let type = 'website';
+  let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   const canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
@@ -42,17 +53,48 @@ export default async function handler(req, res) {
     let slug = key.replace(/^\//, '');
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
     try {
-      const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(slug)}&select=title,excerpt,content,image_url&limit=1`;
+      const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(slug)}&select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1`;
       const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
       const rows = await r.json();
       if (Array.isArray(rows) && rows[0]) {
-        const p = rows[0];
-        title = stripHtml(p.title) + ' · ' + SITE_NAME;
-        desc = (stripHtml(p.excerpt) || stripHtml(p.content)).slice(0, 200) || DEFAULT_DESC;
-        if (p.image_url) image = p.image_url;
+        post = rows[0];
+        title = stripHtml(post.title) + ' · ' + SITE_NAME;
+        desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
+        if (post.image_url) image = post.image_url;
         type = 'article';
       }
     } catch { /* fall back to defaults */ }
+  }
+
+  // ── מטא ייעודי למאמרים + JSON-LD ──
+  let articleMeta = '';
+  let jsonLd = '';
+  if (type === 'article' && post) {
+    const author = stripHtml(post.author || '') || SITE_NAME;
+    const section = Array.isArray(post.categories) && post.categories[0] ? esc(post.categories[0]) : '';
+    const tagMeta = (Array.isArray(post.tags) ? post.tags : []).slice(0, 8)
+      .map(t => `<meta property="article:tag" content="${esc(t)}"/>`).join('');
+    articleMeta =
+      (post.date ? `<meta property="article:published_time" content="${esc(post.date)}"/>` : '') +
+      (post.modified || post.date ? `<meta property="article:modified_time" content="${esc(post.modified || post.date)}"/>` : '') +
+      `<meta property="article:author" content="${esc(author)}"/>` +
+      (section ? `<meta property="article:section" content="${section}"/>` : '') +
+      tagMeta +
+      `<meta property="og:image:alt" content="${esc(stripHtml(post.title))}"/>`;
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: stripHtml(post.title).slice(0, 110),
+      description: desc,
+      image: [image],
+      author: { '@type': author === SITE_NAME ? 'Organization' : 'Person', name: author },
+      publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      inLanguage: 'he-IL',
+    };
+    if (post.date) ld.datePublished = post.date;
+    ld.dateModified = post.modified || post.date || undefined;
+    jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
   }
 
   const html = `<!doctype html>
@@ -60,6 +102,7 @@ export default async function handler(req, res) {
 <meta charset="utf-8"/>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}"/>
+<meta name="robots" content="index, follow"/>
 <link rel="canonical" href="${esc(canonical)}"/>
 <meta property="og:site_name" content="${SITE_NAME}"/>
 <meta property="og:locale" content="he_IL"/>
@@ -68,10 +111,12 @@ export default async function handler(req, res) {
 <meta property="og:description" content="${esc(desc)}"/>
 <meta property="og:url" content="${esc(canonical)}"/>
 <meta property="og:image" content="${esc(image)}"/>
+${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>
 <meta name="twitter:description" content="${esc(desc)}"/>
 <meta name="twitter:image" content="${esc(image)}"/>
+${jsonLd}
 <meta http-equiv="refresh" content="0; url=${esc(canonical)}"/>
 </head><body>
 <h1>${esc(title)}</h1>

@@ -5,7 +5,7 @@ import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
-import { applySeo, SITE_URL } from "../lib/seo.js";
+import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
@@ -4913,16 +4913,22 @@ function PostPageBySlug({ onNav }) {
     getCommentsByPostId(post.wp_id).then(setComments).catch(() => {});
   }, [post?.wp_id]);
 
-  // SEO ספציפי לפוסט — מתעדכן כשהפוסט נטען
+  // SEO ספציפי לפוסט — מתעדכן כשהפוסט נטען (תיאור נקי, מטא מאמר ו-JSON-LD)
   useEffect(() => {
     if (!post) return;
-    const desc = stripHtml(post.excerpt || post.content || "").slice(0, 160).trim();
+    const desc = cleanDescription(post.excerpt || post.content || "");
+    const by = resolveAuthor(post.author);
     applySeo({
       title,
       description: desc || undefined,
       path: "/" + slug,
       image: image || undefined,
       type: "article",
+      publishedTime: post.date || undefined,
+      modifiedTime: post.modified || post.date || undefined,
+      author: by?.name && by.name !== "המערכת" ? by.name : undefined,
+      tags: post.tags || [],
+      section: (post.categories || [])[0] || undefined,
     });
   }, [post, title, image, slug]);
 
