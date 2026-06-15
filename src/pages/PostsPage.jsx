@@ -19,8 +19,8 @@ const TOP_CATS = 10;       // כמה גלולות קטגוריה להציג לפ
 const TOP_TAGS = 14;       // כמה תגיות פופולריות להציג לפני "עוד"
 const MAX_TAGS = 80;       // כמה תגיות בסך הכל לאחר הרחבה
 const SORTS = [
-  { key: "date_desc", label: "חדש", orderBy: "date", ascending: false },
-  { key: "date_asc",  label: "ישן", orderBy: "date", ascending: true },
+  { key: "date_desc", label: "חדש", orderBy: "modified", ascending: false },
+  { key: "date_asc",  label: "ישן", orderBy: "modified", ascending: true },
   { key: "popular",   label: "הכי מדובר 🔥" },  // לפי צפיות Jetpack (legacy_traffic)
 ];
 
