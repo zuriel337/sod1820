@@ -486,6 +486,31 @@ export async function runOcrBatch({ limit = 50, retry = false, runKey = '' } = {
   return data; // { picked, done, errors, sample }
 }
 
+// ===== כרטיסי נושא (topic_cards) — חיבורים/הצטלבויות שה-AI מכין והאדמין מאשר =====
+export async function getTopicCards({ approvedOnly = false } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('topic_cards').select('*')
+    .order('quality', { ascending: false }).order('created_at', { ascending: false });
+  if (approvedOnly) q = q.eq('status', 'approved');
+  const { data } = await q;
+  return data || [];
+}
+export async function setTopicCardStatus(id, status) {
+  if (!supabase) throw new Error('no supabase');
+  const patch = { status };
+  if (status === 'approved') patch.approved_at = new Date().toISOString();
+  const { data, error } = await supabase.from('topic_cards')
+    .update(patch).eq('id', id).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
+export async function getGalleryImagesByIds(ids = []) {
+  if (!supabase || !ids.length) return [];
+  const { data } = await supabase.from('gallery_images')
+    .select('id,image_url,name,ocr_numbers,occurred_at').in('id', ids);
+  return data || [];
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,
