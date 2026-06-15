@@ -6,7 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 
-const M3 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי"].includes(m.key));
+const M6 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
@@ -19,7 +19,7 @@ export default function NumberDrawer() {
   const nav = useNavigate();
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [calc, setCalc] = useState("");
+  const [q, setQ] = useState("");           // שדה עריכה חי — מקלידים מילה/מספר ורואים בזמן אמת
   const [zoom, setZoom] = useState(null);
   const [thread, setThread] = useState(null);
   const [webs, setWebs] = useState([]);     // חוטים פנימיים: מהמספר אל כל גלריה במגירה
@@ -27,19 +27,26 @@ export default function NumberDrawer() {
   const headRef = useRef(null);
   const scrollRef = useRef(null);
 
-  const isNumber = term && /^\d+$/.test(term);
-  const value = term ? (isNumber ? Number(term) : calcGem(term)) : null;
-  const threeVals = (term && !isNumber) ? M3.map(m => ({ key: m.key, v: m.fn(term) })) : null;
+  // סנכרון: כשנפתחת המגירה עם ביטוי חדש — טוענים אותו לשדה העריכה
+  useEffect(() => { setQ(term || ""); }, [term]);
 
+  const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
+  const isNumber = eff !== "" && /^\d+$/.test(eff);
+  const value = eff ? (isNumber ? Number(eff) : calcGem(eff)) : null;
+  const methodVals = (eff && !isNumber) ? M6.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
+
+  // טעינת הקשרים — מתעדכנת חי לפי השדה (עם השהיה קצרה כדי לא להעמיס)
   useEffect(() => {
-    if (!open || !term) { if (!term) setBundle(null); return; }
+    if (!open || !eff) { if (!eff) setBundle(null); return; }
     if (isNumber && value < 10) { setBundle({ tooSmall: true }); return; }
-    let alive = true; setLoading(true); setBundle(null);
-    getEntityBundle({ term, value, isNumber })
-      .then(b => { if (alive) { setBundle(b); setLoading(false); } })
-      .catch(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
-  }, [open, term, value, isNumber]);
+    let alive = true; setLoading(true);
+    const id = setTimeout(() => {
+      getEntityBundle({ term: eff, value, isNumber })
+        .then(b => { if (alive) { setBundle(b); setLoading(false); } })
+        .catch(() => { if (alive) setLoading(false); });
+    }, 300);
+    return () => { alive = false; clearTimeout(id); };
+  }, [open, eff, value, isNumber]);
 
   useEffect(() => {
     const onKey = e => { if (e.key === "Escape") { if (zoom) setZoom(null); else closeNumberDrawer(); } };
@@ -70,7 +77,7 @@ export default function NumberDrawer() {
 
   // חוטים פנימיים במגירה — מהמספר (בכותרת) אל כל פריט מחובר (גלריה/מילה/פוסט). כך החוטים תמיד נראים.
   useEffect(() => {
-    if (!open || !term) { setWebs([]); return; }
+    if (!open || !eff) { setWebs([]); return; }
     const tick = () => {
       const aside = asideRef.current, head = headRef.current, scroll = scrollRef.current;
       if (!aside || !head || !scroll) { setWebs([]); return; }
@@ -94,9 +101,8 @@ export default function NumberDrawer() {
     sc && sc.addEventListener("scroll", tick);
     window.addEventListener("resize", tick);
     return () => { clearInterval(iv); sc && sc.removeEventListener("scroll", tick); window.removeEventListener("resize", tick); };
-  }, [open, term, bundle]);
+  }, [open, eff, bundle]);
 
-  function goCalc(e) { e.preventDefault(); const v = calc.trim(); if (v) { setCalc(""); openNumberDrawer(v); } }
   function goTo(to) { nav(to); }   // לא סוגר — הפאנל צף ונשאר
 
   const b = bundle || {};
@@ -129,43 +135,30 @@ export default function NumberDrawer() {
         transform: open ? "translateX(0)" : "translateX(calc(100% + 26px))",
         opacity: open ? 1 : 0, transition: "transform .34s cubic-bezier(.2,.8,.2,1), opacity .3s",
       }}>
-        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 3, textTransform: "uppercase" }}>מגירת המספר</div>
-            {term && <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              {!isNumber && <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{term}</span>}
-              <span ref={headRef} style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</span>
-            </div>}
+        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧮 מגירת המספר · מחשבון חי</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <input value={q} onChange={e => setQ(e.target.value)} placeholder="הקלידו מילה או מספר…" dir="rtl"
+                style={{ flex: 1, minWidth: 0, background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 8, color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, padding: "8px 12px", outline: "none" }} />
+              {value != null && <span ref={headRef} style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 26, fontWeight: 800, lineHeight: 1, flexShrink: 0 }}>{value}</span>}
+            </div>
           </div>
           <button onClick={() => closeNumberDrawer()} aria-label="סגור" style={{ background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 19, cursor: "pointer", borderRadius: 8, width: 36, height: 36, lineHeight: 1, flexShrink: 0 }}>×</button>
         </div>
 
-        <form onSubmit={goCalc} style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>🧮 מחשבון גימטריה</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <input value={calc} onChange={e => setCalc(e.target.value)} placeholder="הקלידו מילה או מספר…"
-              style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "9px 12px", outline: "none" }} />
-            <button type="submit" style={{ background: C.gold, color: "#1a0e00", border: "none", borderRadius: 8, fontWeight: 800, fontSize: 14, padding: "0 14px", cursor: "pointer" }}>←</button>
-          </div>
-          {calc.trim() && !/^\d+$/.test(calc.trim()) && (
-            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, marginTop: 6 }}>
-              {calc.trim()} = <b>{calcGem(calc.trim())}</b>
-            </div>
-          )}
-        </form>
-
-        {/* מיני-מחשבון: 3 שיטות + מעבר למחשבון המלא בבית המדרש */}
-        {threeVals && (
+        {/* מיני-מחשבון: 6 שיטות (מתעדכן חי) + מעבר למחשבון המלא בבית המדרש */}
+        {methodVals && (
           <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              {threeVals.map(t => (
-                <div key={t.key} style={{ flex: 1, textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "7px 4px" }}>
-                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>{t.key}</div>
-                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.1 }}>{t.v}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
+              {methodVals.map(t => (
+                <div key={t.key} style={{ textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 4px" }}>
+                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{t.key}</div>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 800, lineHeight: 1.15 }}>{t.v}</div>
                 </div>
               ))}
             </div>
-            <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(term)}`)} style={{
+            <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(eff)}`)} style={{
               width: "100%", marginTop: 9, cursor: "pointer", background: "none",
               border: `1px solid ${C.borderGold}`, borderRadius: 9, color: C.goldBright,
               fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, padding: "8px 6px",
@@ -193,7 +186,7 @@ export default function NumberDrawer() {
         )}
 
         <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "14px 15px 36px", position: "relative" }}>
-          {!term ? (
+          {!eff ? (
             <div style={{ display: "grid", gap: 10 }}>
               <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginTop: 4 }}>הקלידו מספר או מילה למעלה, או היכנסו לאחד מהמרחבים:</p>
               <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🌳 כל המספרים (העץ) · 🔒 בקרוב</div>
@@ -238,14 +231,14 @@ export default function NumberDrawer() {
                 <Section title={`📖 פוסטים (${b.postsCount})`}>
                   <div style={{ display: "grid", gap: 6 }}>
                     {b.posts.map(p => (
-                      <button key={p.wp_id || p.slug} className="nd-node" onClick={() => goTo(`/${p.slug}?n=${isNumber ? value : encodeURIComponent(term)}`)} style={row}>
+                      <button key={p.wp_id || p.slug} className="nd-node" onClick={() => goTo(`/${p.slug}?n=${isNumber ? value : encodeURIComponent(eff)}`)} style={row}>
                         {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                       </button>
                     ))}
                   </div>
                 </Section>
               )}
-              <button onClick={() => goTo(`/number/${encodeURIComponent(term)}`)} style={{ ...bigLink, marginTop: 6 }}>הדף המלא של {value} →</button>
+              <button onClick={() => goTo(`/number/${encodeURIComponent(eff)}`)} style={{ ...bigLink, marginTop: 6 }}>הדף המלא של {value} →</button>
             </>
           )}
         </div>
