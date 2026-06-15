@@ -495,8 +495,12 @@ export async function getTopicCards({ approvedOnly = false } = {}) {
   const { data } = await q;
   return data || [];
 }
-export async function setTopicCardStatus(id, status) {
-  if (!supabase) throw new Error('no supabase');
+export async function getTopicCardBySlug(slug) {
+  if (!supabase || !slug) return null;
+  const { data } = await supabase.from('topic_cards').select('*').eq('slug', slug).maybeSingle();
+  return data || null;
+}
+export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();
   const { data, error } = await supabase.from('topic_cards')
