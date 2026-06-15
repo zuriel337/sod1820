@@ -10,6 +10,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4898,6 +4899,21 @@ function PostPageBySlug({ onNav }) {
     return () => clearTimeout(id);
   }, [post, loc.search]);
 
+  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה בפוסט (data-gem) פותחת את מגירת המספר — לא ניווט
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onClick = e => {
+      const t = e.target.closest("[data-gem]");
+      if (!t || !el.contains(t)) return;
+      e.preventDefault();
+      const term = (t.getAttribute("data-gem") || "").trim();
+      if (term) openNumberDrawer(term);
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post]);
+
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";
   const title    = stripHtml(post?.title ?? "");
@@ -5043,6 +5059,11 @@ function PostPageBySlug({ onNav }) {
                   </div>
                 );
               })()}
+              {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה + תאריך עדכון */}
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+                <span title="תאריך יצירת הפוסט">📅 נוצר: {date}</span>
+                {modified && <span style={{ color: C.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
+              </div>
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}

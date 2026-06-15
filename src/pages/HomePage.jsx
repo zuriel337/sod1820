@@ -198,7 +198,8 @@ function LatestPostsRail({ posts, onPost }) {
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
-          const date = timeAgoHe(p.modified || p.date);
+          const created = formatDateHe(p.date);
+          const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
           const gem = calcGem(title);
           return (
             <button
@@ -221,7 +222,7 @@ function LatestPostsRail({ posts, onPost }) {
               <div className="sod-pf-body">
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
-                  <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
+                  <span className="sod-pf-date" title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
                   {(p.verified || p.ai_touched) && <span className="sod-pf-ai" title="פוסט בליווי בינה מלאכותית">✓ AI</span>}
                   {isWarmNumber(gem) && <span className="sod-pf-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
                 </div>
@@ -342,8 +343,22 @@ function ArchiveBox() {
   );
 }
 
+// זיהוי מסך צר (≤1080) — נקודת השבירה של גריד הבית. במובייל מסדרים: כותרת → עדכונים → שערים → היכל.
+function useIsNarrow(bp = 1080) {
+  const [m, setM] = useState(() => typeof window !== "undefined" && window.matchMedia(`(max-width:${bp}px)`).matches);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia(`(max-width:${bp}px)`);
+    const fn = e => setM(e.matches);
+    mq.addEventListener?.("change", fn);
+    return () => mq.removeEventListener?.("change", fn);
+  }, [bp]);
+  return m;
+}
+
 export default function HomePage() {
   const nav = useLegacyNav();
+  const narrow = useIsNarrow();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -352,34 +367,49 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
+  const latestBlock = <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />;
+  const heichalBlock = (
+    <div style={{ direction: "rtl" }}>
+      <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+        👑 היכל השערים
+      </div>
+      <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
+        <iframe
+          src="/heichal.html"
+          title="היכל השערים"
+          loading="lazy"
+          allow="autoplay"
+          style={{ width: "100%", height: "min(82vh, 720px)", border: "none", display: "block" }}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
-      <GatesDeck />
 
-      {/* פריסת 2 טורים: פוסטים אחרונים (ימין · ראשון במובייל) · היכל השערים (מרכז) */}
-      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
-        <div className="sod-home-grid" style={{
-          display: "grid", gridTemplateColumns: "380px 1fr", gap: 24, alignItems: "start",
-        }}>
-          <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
-
-          <div style={{ direction: "rtl" }}>
-            <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
-              👑 היכל השערים
-            </div>
-            <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
-              <iframe
-                src="/heichal.html"
-                title="היכל השערים"
-                loading="lazy"
-                allow="autoplay"
-                style={{ width: "100%", height: "min(82vh, 720px)", border: "none", display: "block" }}
-              />
+      {narrow ? (
+        /* מובייל: כותרת → עדכונים אחרונים → שערי המערכת → היכל השערים */
+        <>
+          <div style={{ maxWidth: 1360, margin: "0 auto", padding: "18px 16px 6px" }}>{latestBlock}</div>
+          <GatesDeck />
+          <div style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 16px 40px" }}>{heichalBlock}</div>
+        </>
+      ) : (
+        /* דסקטופ: כותרת → שערי המערכת → [עדכונים | היכל] */
+        <>
+          <GatesDeck />
+          <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
+            <div className="sod-home-grid" style={{
+              display: "grid", gridTemplateColumns: "380px 1fr", gap: 24, alignItems: "start",
+            }}>
+              {latestBlock}
+              {heichalBlock}
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* שלושה ריבועים — תפילות · שיעורים (מתחלפים) · הצלבת שיטות (HOT) */}
       <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 24px", direction: "rtl" }}>

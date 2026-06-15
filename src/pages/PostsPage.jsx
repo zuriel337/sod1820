@@ -19,8 +19,8 @@ const TOP_CATS = 10;       // כמה גלולות קטגוריה להציג לפ
 const TOP_TAGS = 14;       // כמה תגיות פופולריות להציג לפני "עוד"
 const MAX_TAGS = 80;       // כמה תגיות בסך הכל לאחר הרחבה
 const SORTS = [
-  { key: "date_desc", label: "חדש", orderBy: "date", ascending: false },
-  { key: "date_asc",  label: "ישן", orderBy: "date", ascending: true },
+  { key: "date_desc", label: "חדש", orderBy: "modified", ascending: false },
+  { key: "date_asc",  label: "ישן", orderBy: "modified", ascending: true },
   { key: "popular",   label: "הכי מדובר 🔥" },  // לפי צפיות Jetpack (legacy_traffic)
 ];
 
@@ -31,7 +31,8 @@ function PostCard({ p, i, view }) {
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
   const excerpt = stripHtml(p.excerpt?.rendered ?? "").slice(0, view === "list" ? 200 : 120);
-  const date = timeAgoHe(p.modified || p.date);
+  const created = formatDateHe(p.date);
+  const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
   const gem = calcGem(title);
   return (
     <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
@@ -46,7 +47,7 @@ function PostCard({ p, i, view }) {
         <div className="pp-name">{title}</div>
         {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
         <div className="pp-meta">
-          <span title={formatDateHe(p.modified || p.date)}>{date}</span>
+          <span title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
           <span aria-hidden>←</span>
         </div>
       </div>

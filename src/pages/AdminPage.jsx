@@ -9,6 +9,7 @@ const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
+  supabase,
 } from "../lib/supabase.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
@@ -18,6 +19,7 @@ const TABS = [
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
   { key: "sets",     label: "🖼 סטים ותמונות" },
+  { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
 ];
 
@@ -78,6 +80,7 @@ export default function AdminPage() {
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
       {tab === "sets" && <SetsTab />}
+      {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
     </div>
   );
@@ -603,6 +606,94 @@ function SetsTab() {
         </div>
       ))}
       {sets.length === 0 && <Empty>אין סטים עדיין — צור את הראשון.</Empty>}
+    </div>
+  );
+}
+
+// ===== 📷 העלאת תמונה — מעלה ל-bucket gallery ומחזיר קישור + HTML מוכן לפוסט =====
+function ImageUploadTab() {
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [url, setUrl] = useState("");
+  const [alt, setAlt] = useState("");
+  const [status, setStatus] = useState("");   // "", uploading, error
+  const [err, setErr] = useState("");
+  const [copied, setCopied] = useState("");
+
+  function pick(e) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f); setPreview(URL.createObjectURL(f)); setUrl(""); setStatus(""); setErr("");
+  }
+  async function upload() {
+    if (!file) return;
+    setStatus("uploading"); setErr("");
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `posts/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      setUrl(supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl);
+      setStatus("");
+    } catch (e) { setErr(e.message || String(e)); setStatus("error"); }
+  }
+  function copy(text, which) { navigator.clipboard?.writeText(text); setCopied(which); setTimeout(() => setCopied(""), 1500); }
+
+  const figureHtml = url
+    ? `<figure class="wp-block-image aligncenter size-large"><img src="${url}" alt="${alt}"/></figure>`
+    : "";
+  const fieldBox = { background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.mono, fontSize: 12.5, padding: "10px 12px", direction: "ltr", textAlign: "left", width: "100%", boxSizing: "border-box" };
+
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 660, margin: "0 auto" }}>
+      <div style={card}>
+        <H>📷 העלאת תמונה לפוסט</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "6px 0 14px" }}>
+          בחרו תמונה → היא תעלה לאחסון → תקבלו <b style={{ color: C.goldLight }}>קישור ציבורי</b> וגם <b style={{ color: C.goldLight }}>קטע HTML מוכן</b> להדבקה בתוך פוסט.
+        </div>
+
+        <label style={{ display: "inline-block", cursor: "pointer", background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(8,5,2,0.4))", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "9px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+          🖼 בחר תמונה…
+          <input type="file" accept="image/*" onChange={pick} style={{ display: "none" }} />
+        </label>
+
+        {preview && <img src={preview} alt="תצוגה מקדימה" style={{ display: "block", maxWidth: "100%", maxHeight: 320, borderRadius: 12, marginTop: 14, border: `1px solid ${C.border}` }} />}
+
+        {file && (
+          <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <BtnGold onClick={upload}>{status === "uploading" ? "⏳ מעלה…" : "⬆ העלה תמונה"}</BtnGold>
+            <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12 }}>{file.name} · {(file.size / 1024).toFixed(0)}KB</span>
+          </div>
+        )}
+        {err && <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, marginTop: 10 }}>⚠ {err}</div>}
+
+        {url && (
+          <div style={{ display: "grid", gap: 12, marginTop: 16, borderTop: `1px solid ${C.borderGold}`, paddingTop: 14 }}>
+            <div style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✅ הועלה בהצלחה</div>
+
+            <div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 5 }}>תיאור התמונה (alt) — לא חובה:</div>
+              <input value={alt} onChange={e => setAlt(e.target.value)} placeholder="למשל: כתבת ynet" style={{ ...fieldBox, fontFamily: F.body, direction: "rtl", textAlign: "right" }} />
+            </div>
+
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>🔗 קישור ציבורי</span>
+                <BtnGold onClick={() => copy(url, "url")}>{copied === "url" ? "✓ הועתק" : "📋 העתק"}</BtnGold>
+              </div>
+              <input readOnly value={url} onFocus={e => e.target.select()} style={fieldBox} />
+            </div>
+
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>&lt;/&gt; קטע HTML לפוסט</span>
+                <BtnGold onClick={() => copy(figureHtml, "html")}>{copied === "html" ? "✓ הועתק" : "📋 העתק"}</BtnGold>
+              </div>
+              <textarea readOnly value={figureHtml} style={{ ...fieldBox, minHeight: 70, resize: "vertical" }} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
