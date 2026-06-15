@@ -8,6 +8,7 @@ import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
+import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
 function BrandStrip() {
@@ -339,7 +340,11 @@ export default function HomePage() {
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
       <GatesDeck />
-      <ShiurimCard />
+
+      {/* ריבוע התפילות — 2 התפילות לרפואה (במקום שורת השיעורים) */}
+      <section style={{ maxWidth: 1360, margin: "0 auto", padding: "14px 18px 4px", direction: "rtl" }}>
+        <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
+      </section>
 
       {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
