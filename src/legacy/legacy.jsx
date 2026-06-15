@@ -8,6 +8,7 @@ import { resolveAuthor } from "../lib/authors.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
+import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -5117,6 +5118,13 @@ function PostPageBySlug({ onNav }) {
                 </div>
               );
             })()}
+
+            {/* תפילות פופולריות נוספות — רק בפוסטי התפילה */}
+            {PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
+              <div style={{ marginTop: 52 }}>
+                <PopularPrayersBox excludeWpId={post.wp_id} title="🙏 תפילות פופולריות נוספות" />
+              </div>
+            )}
 
             <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
             {/* ── COMMENTS ── */}
