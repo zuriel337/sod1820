@@ -292,7 +292,7 @@ function ComingSoonTools() {
   );
 }
 
-function CalcTab({ initial }) {
+function CalcTab({ initial, seed }) {
   const [num, setNum] = useState(initial || 1820);
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
@@ -300,7 +300,7 @@ function CalcTab({ initial }) {
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
           מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
         </p>
-        <GematriaCalculator />
+        <GematriaCalculator seed={seed} />
         <ComingSoonTools />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
@@ -505,8 +505,9 @@ export default function BeitMidrashPage() {
   const loc = useLocation();
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
+  const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט)
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState(nParam ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
+  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
   const { subscribed } = useSubscribed();
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
@@ -561,7 +562,7 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "calc" && <CalcTab initial={nParam} />}
+            {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "methods" && <MethodsTab />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}

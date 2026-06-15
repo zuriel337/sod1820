@@ -30,6 +30,7 @@
   רכיבים: `SubscribeGate.jsx`, `EmailVerify.jsx`, `lib/auth.js`, `AuthProvider.jsx` (`useAuth`).
   הגדרת דאשבורד: Email provider פעיל; בתבנית Magic Link להוסיף `{{ .Token }}` לקוד 6 ספרות; SMTP מותאם לפרודקשן.
 - **תיבת עדכונים כללית** — `src/components/UpdatesBox.jsx` (רשימת תפוצה, `variant` panel/inline). ניתנת להצבה בכל מקום.
+- **`ai_post_update_law`** — עדכון גימטריה מבוסס-AI בפוסט בפורמט קבוע (קונספט נסראללה 34200 + איראן 36935): סמל "מאומת על ידי AI" (כחול #3ea6ff, סגנון `VerifiedBadge` variant=ai) בראש · פורמט קומפקטי · כל שם/ביטוי = לינק `/beit-midrash?w=<ביטוי>` שפותח את המחשבון עם הביטוי טעון (`GematriaCalculator` seed דרך פרמטר `w`/`calc` ב-`BeitMidrashPage`) · ציטוט מילות צוריאל · `modified=now()` → הבהוב כחול אוטומטי בציר ההתגלות (`RevelationAxis` מזהה content המכיל "מאומת על ידי AI"). נשמר גם כחוק DB `ai_post_update_law`.
 
 ## בית המדרש (`/beit-midrash`)
 עמוד: `src/pages/BeitMidrashPage.jsx`. שלושה מדורי חידושים + שיטות הלימוד:
