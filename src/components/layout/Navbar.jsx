@@ -242,14 +242,14 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
         <Brand />
 
-        <Link to="/start" style={{
+        <span title="בבנייה — דברים טובים בדרך" aria-disabled="true" style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
-          color: C.goldBright, textDecoration: "none",
-          fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 1,
+          color: C.goldBright, cursor: "default", userSelect: "none", opacity: 0.92,
+          fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.5,
           padding: "8px 14px", borderRadius: 6, whiteSpace: "nowrap",
           border: `1px solid ${C.goldDim}`, boxShadow: "0 0 14px rgba(122,19,32,0.5)",
-        }}>🚀 כאן מתחילים</Link>
+        }}>🚧 בבנייה של דברים טובים</span>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -301,11 +301,18 @@ export default function Navbar() {
           </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
-              <Link to={item.to} onClick={() => setDrawer(false)} style={{
-                display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,
-                textDecoration: "none", fontFamily: F.royal, fontSize: 15, fontWeight: 700,
-                padding: "10px 14px", borderRadius: 6,
-              }}>{item.emoji} {item.label}</Link>
+              {item.to === "/start" ? (
+                <span aria-disabled="true" style={{
+                  display: "block", color: C.goldDim, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
+                  padding: "10px 14px", borderRadius: 6, cursor: "default", opacity: 0.75,
+                }}>🚧 כאן מתחילים — בבנייה של דברים טובים</span>
+              ) : (
+                <Link to={item.to} onClick={() => setDrawer(false)} style={{
+                  display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,
+                  textDecoration: "none", fontFamily: F.royal, fontSize: 15, fontWeight: 700,
+                  padding: "10px 14px", borderRadius: 6,
+                }}>{item.emoji} {item.label}</Link>
+              )}
               {item.children && (
                 <div style={{ paddingInlineStart: 22 }}>
                   {item.children.map(c => (
