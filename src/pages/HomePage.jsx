@@ -60,7 +60,7 @@ function GatesDeck() {
 // 🎧 שיעורי סוד החשמל — כרטיס מוביל לארכיון כל השיעורים (1,220 שיעורי שמע)
 function ShiurimCard() {
   return (
-    <section style={{ maxWidth: 1360, margin: "0 auto", padding: "14px 18px 4px", direction: "rtl" }}>
+    <div className="sod-shiur-wrap" style={{ direction: "rtl" }}>
       <Link to="/שיעורי-שמע-סוד-החשמל" className="sod-shiur-card">
         <span className="sod-shiur-holo" aria-hidden />
         <span className="sod-shiur-corner tl" /><span className="sod-shiur-corner br" />
@@ -97,7 +97,7 @@ function ShiurimCard() {
         .sod-shiur-card:hover .sod-shiur-go{text-shadow:0 0 14px rgba(212,175,55,.5);}
         @media(max-width:560px){.sod-shiur-card{padding:18px;gap:14px}.sod-shiur-count{order:3}}
       `}</style>
-    </section>
+    </div>
   );
 }
 
@@ -341,12 +341,7 @@ export default function HomePage() {
       <BrandStrip />
       <GatesDeck />
 
-      {/* ריבוע התפילות — 2 התפילות לרפואה (במקום שורת השיעורים) */}
-      <section style={{ maxWidth: 1360, margin: "0 auto", padding: "14px 18px 4px", direction: "rtl" }}>
-        <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
-      </section>
-
-      {/* פריסת 2 טורים: פוסטים אחרונים (ימין) · היכל השערים (מרכז) */}
+      {/* פריסת 2 טורים: פוסטים אחרונים (ימין · ראשון במובייל) · היכל השערים (מרכז) */}
       <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
         <div className="sod-home-grid" style={{
           display: "grid", gridTemplateColumns: "380px 1fr", gap: 24, alignItems: "start",
@@ -369,6 +364,21 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* שני ריבועים שווים — תפילות לרפואה · שיעורי סוד החשמל */}
+      <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 24px", direction: "rtl" }}>
+        <div className="sod-home-duo">
+          <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
+          <ShiurimCard />
+        </div>
+        <style>{`
+          .sod-home-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; }
+          .sod-home-duo > .ppb { max-width: none; margin: 0; }
+          .sod-home-duo > .sod-shiur-wrap { display: flex; }
+          .sod-home-duo .sod-shiur-card { width: 100%; height: 100%; }
+          @media (max-width: 860px) { .sod-home-duo { grid-template-columns: 1fr; } }
+        `}</style>
+      </section>
 
       {/* פרומו ברוכים הבאים — מתחת לשני הטורים */}
       <WelcomePromo />
