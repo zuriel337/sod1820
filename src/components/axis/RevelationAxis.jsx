@@ -25,7 +25,15 @@ const AXIS_CSS = `
   }
   .rev-axis-dot { animation: rev-breathe 4.6s ease-in-out infinite; }
   .rev-axis-dot:hover { animation-play-state: paused; }
+  @keyframes rev-ai-blink {
+    0%, 100% { opacity: .5;  box-shadow: 0 0 5px #3ea6ff, 0 0 11px #3ea6ff55; }
+    50%      { opacity: 1;   box-shadow: 0 0 14px #3ea6ff, 0 0 32px #3ea6ffaa, 0 0 52px #3ea6ff55; }
+  }
+  .rev-ai-dot { animation: rev-ai-blink 1.5s ease-in-out infinite; }
+  .rev-ai-dot:hover { animation-play-state: paused; }
 `;
+
+const AI_BLUE = "#3ea6ff";
 
 function dotStyle(ev, active) {
   const w = ev.weight || 1;
@@ -46,7 +54,9 @@ function dotStyle(ev, active) {
 
 export default function RevelationAxis() {
   const [events, setEvents] = useState([]);
+  const [aiPosts, setAiPosts] = useState([]);
   const [hovered, setHovered] = useState(null);
+  const [hoveredAi, setHoveredAi] = useState(null);
   const nav = useNavigate();
   const { pathname, hash } = useLocation();
 
@@ -58,11 +68,19 @@ export default function RevelationAxis() {
       .order("created_at", { ascending: false })
       .limit(12)
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
+
+    // עדכוני AI — פוסטים שקיבלו בלוק "מאומת על ידי AI" (הבהוב כחול בראש הציר)
+    supabase.from("posts")
+      .select("wp_id,title,slug,modified")
+      .ilike("content", "%מאומת על ידי AI%")
+      .order("modified", { ascending: false, nullsFirst: false })
+      .limit(4)
+      .then(({ data }) => setAiPosts(data || []));
   }, []);
 
   // לא מציגים בעמודי עיצוב/ניהול — ובעמוד הציר המלא הציר הוא התוכן עצמו
   if (pathname.startsWith("/theme-preview") || pathname.startsWith("/admin")) return null;
-  if (!events.length) return null;
+  if (!events.length && !aiPosts.length) return null;
 
   return (
     <div className="rev-axis" style={{
@@ -99,6 +117,37 @@ export default function RevelationAxis() {
         display: "flex", flexDirection: "column", alignItems: "center", gap: 26,
         perspective: 600, pointerEvents: "auto",
       }}>
+        {/* עדכוני AI — הבהובים כחולים בראש הציר */}
+        {aiPosts.map(p => (
+          <div key={`ai-${p.wp_id}`} style={{ position: "relative", display: "flex", alignItems: "center" }}
+            onMouseEnter={() => setHoveredAi(p)} onMouseLeave={() => setHoveredAi(null)}>
+            <button className="rev-ai-dot" onClick={() => nav(`/${p.slug}`)}
+              aria-label={`עדכון AI: ${stripHtml(p.title || "")}`}
+              style={{
+                width: 15, height: 15, borderRadius: "50%", cursor: "pointer", border: "none",
+                background: `radial-gradient(circle at 35% 30%, #eaf5ff, ${AI_BLUE} 58%, ${AI_BLUE}66)`,
+              }} />
+            {hoveredAi?.wp_id === p.wp_id && (
+              <div style={{
+                position: "absolute", right: -14, transform: "translateX(100%)", width: 250,
+                background: "rgba(10,7,16,0.96)", border: `1px solid ${AI_BLUE}66`,
+                borderRadius: 12, padding: "13px 15px", direction: "rtl", zIndex: 5,
+                boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 26px ${AI_BLUE}44`,
+              }}>
+                <div style={{ display: "inline-block", marginBottom: 7, padding: "2px 9px", borderRadius: 999,
+                  border: `1px solid ${AI_BLUE}66`, color: AI_BLUE, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, fontWeight: 700 }}>
+                  🔵 עדכון AI
+                </div>
+                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 13, fontWeight: 700, lineHeight: 1.55 }}>
+                  {stripHtml(p.title || "").slice(0, 95)}
+                </div>
+                <div style={{ marginTop: 9, color: AI_BLUE, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>
+                  לחץ כדי לפתוח את הפוסט ←
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
         {events.map(ev => {
           const active = hash === `#ev-${ev.id}` && pathname === "/timeline";
           return (
