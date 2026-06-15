@@ -6,6 +6,7 @@ import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
   getTopicCards, setTopicCardStatus, getGalleryImagesByIds,
+  getImageConnections, findGalleryImages, createTopicCardDraft,
 } from "../lib/supabase.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
@@ -101,6 +102,7 @@ function TopicsTab() {
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      <HuntBox onCreated={load} />
       <H>{cards.length} כרטיסי נושא · {draftCount} ממתינים לאישור</H>
       {cards.map(c => {
         const f = c.findings || {};
@@ -174,6 +176,112 @@ function TopicsTab() {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// כלי "צוד חיבורים" — בוחרים תמונה, המנוע מחשב את כל החיבורים, ויוצרים טיוטת כרטיס
+function HuntBox({ onCreated }) {
+  const [term, setTerm] = useState("");
+  const [hits, setHits] = useState(null);
+  const [picked, setPicked] = useState(null);   // {image, conn}
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [saved, setSaved] = useState("");
+
+  async function search() {
+    setHits(null); setPicked(null); setSaved("");
+    if (!term.trim()) return;
+    try { setHits(await findGalleryImages(term.trim())); } catch (e) { alert(e.message); }
+  }
+  async function pick(img) {
+    setLoading(true); setSaved("");
+    try {
+      const conn = await getImageConnections(img.id);
+      setPicked({ image: img, conn });
+      const fname = (img.image_url || "").split("/").pop().split(".")[0];
+      setTitle(img.name || fname || "כרטיס חדש");
+    } catch (e) { alert(e.message); }
+    finally { setLoading(false); }
+  }
+  async function createDraft() {
+    if (!picked) return;
+    const conns = picked.conn?.connections || [];
+    const hot = conns.filter(c => (c.sets || []).length > 0).map(c => c.number);
+    const nums = conns.map(c => c.number);
+    const slug = "img-" + picked.image.id.slice(0, 8);
+    try {
+      await createTopicCardDraft({
+        slug, title: title.trim() || "כרטיס חדש",
+        subtitle: "צידה אוטומטית מתמונה — חיבורים לרשימות הגימטריה",
+        search_terms: [term.trim()].filter(Boolean),
+        image_ids: [picked.image.id],
+        numbers: nums, highlight_numbers: hot, quality: 5,
+        findings: {
+          headline: "חיבורים שזוהו אוטומטית",
+          bullets: conns.slice(0, 8).map(c =>
+            `${c.number} — חוזר ב-${c.images} תמונות${(c.sets || []).length ? ` · בסטים: ${c.sets.join(", ")}` : ""}`),
+          connections: conns.filter(c => (c.sets || []).length).slice(0, 6).map(c =>
+            ({ number: c.number, links: c.sets, note: `חוזר ב-${c.images} תמונות` })),
+          caveat: "צידה אוטומטית — דורשת בדיקה ועריכה לפני אישור. מספרים קטנים עשויים להיות תאריכים."
+        }
+      });
+      setSaved("✓ נוצרה טיוטה — גלול למטה לאישור/עריכה");
+      onCreated && onCreated();
+    } catch (e) { alert("יצירה נכשלה: " + (e.message || e)); }
+  }
+
+  const conns = picked?.conn?.connections || [];
+  return (
+    <div style={{ ...card, borderColor: C.borderGold }}>
+      <H>🎯 צוד חיבורים לתמונה</H>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "4px 0 12px", lineHeight: 1.7 }}>
+        בחר תמונה (חיפוש לפי שם קובץ או טקסט) — המנוע יחשב אילו מהמספרים שלה חוזרים בתמונות אחרות ובאילו סטים, ותוכל ליצור טיוטת כרטיס לאישור.
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input value={term} onChange={e => setTerm(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
+          placeholder="חיפוש תמונה — למשל מירון / תרנגול / שם קובץ"
+          style={{ flex: 1, minWidth: 220, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "9px 12px", fontFamily: F.body, fontSize: 14 }} />
+        <BtnGold onClick={search}>חפש</BtnGold>
+      </div>
+
+      {hits && hits.length > 0 && !picked && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          {hits.map(im => (
+            <button key={im.id} onClick={() => pick(im)} title={(im.image_url || "").split("/").pop()}
+              style={{ cursor: "pointer", padding: 0, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden", width: 72, height: 72, background: `center/cover no-repeat url(${im.image_url})` }} />
+          ))}
+        </div>
+      )}
+      {hits && hits.length === 0 && <Empty>אין תמונות תואמות.</Empty>}
+      {loading && <div style={{ color: C.goldDim, fontFamily: F.heading, marginTop: 12 }}>מחשב חיבורים…</div>}
+
+      {picked && (
+        <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <a href={picked.image.image_url} target="_blank" rel="noopener noreferrer" style={{ width: 90, height: 90, flexShrink: 0, borderRadius: 8, border: `1px solid ${C.border}`, background: `center/cover no-repeat url(${picked.image.image_url})` }} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="שם הכרטיס"
+                style={{ width: "100%", boxSizing: "border-box", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldBright, padding: "8px 12px", fontFamily: F.regal, fontSize: 16, marginBottom: 8 }} />
+              <div style={{ display: "grid", gap: 4, maxHeight: 200, overflowY: "auto" }}>
+                {conns.map(c => (
+                  <div key={c.number} style={{ display: "flex", gap: 8, alignItems: "center", fontFamily: F.body, fontSize: 13 }}>
+                    <span style={{ fontFamily: F.mono, fontWeight: 800, color: (c.sets || []).length ? C.goldBright : C.goldDim, minWidth: 48 }}>{c.number}</span>
+                    <span style={{ color: C.muted }}>{c.images} תמונות</span>
+                    {(c.sets || []).length > 0 && <span style={{ color: C.goldLight }}>· {c.sets.join(", ")}</span>}
+                  </div>
+                ))}
+                {conns.length === 0 && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>אין חיבורים משמעותיים.</span>}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <BtnGold onClick={createDraft}>➕ צור טיוטת כרטיס</BtnGold>
+            <button onClick={() => { setPicked(null); setSaved(""); }} style={iconBtn}>← תמונה אחרת</button>
+            {saved && <span style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 13 }}>{saved}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -510,6 +510,28 @@ export async function getGalleryImagesByIds(ids = []) {
     .select('id,image_url,name,ocr_numbers,occurred_at').in('id', ids);
   return data || [];
 }
+// מנוע "צידה": לכל תמונה — אילו מספרים שלה חוזרים במקומות אחרים ובאילו סטים
+export async function getImageConnections(imageId) {
+  if (!supabase || !imageId) return null;
+  const { data, error } = await supabase.rpc('image_connections', { p_image_id: imageId });
+  if (error) throw error;
+  return data; // { image_id, image_url, numbers, connections:[{number, images, sets}] }
+}
+export async function findGalleryImages(term, limit = 10) {
+  if (!supabase || !term) return [];
+  const { data } = await supabase.from('gallery_images')
+    .select('id,image_url,name,ocr_numbers')
+    .or(`image_url.ilike.%${term}%,ocr_text.ilike.%${term}%`)
+    .not('image_url', 'is', null).limit(limit);
+  return data || [];
+}
+export async function createTopicCardDraft(card) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('topic_cards')
+    .insert({ ...card, status: 'draft', created_by: 'admin-hunt' }).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
 
 export function adaptPost(row) {
   return {
