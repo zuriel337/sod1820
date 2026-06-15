@@ -69,10 +69,10 @@ export default function RevelationAxis() {
       .limit(12)
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
 
-    // עדכוני AI — פוסטים שקיבלו בלוק "מאומת על ידי AI" (הבהוב כחול בראש הציר)
+    // עדכוני AI — פוסטים מסומנים ai_touched (הבהוב כחול בראש הציר)
     supabase.from("posts")
       .select("wp_id,title,slug,modified")
-      .ilike("content", "%מאומת על ידי AI%")
+      .eq("ai_touched", true)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(4)
       .then(({ data }) => setAiPosts(data || []));
