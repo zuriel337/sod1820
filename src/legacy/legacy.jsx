@@ -5059,6 +5059,11 @@ function PostPageBySlug({ onNav }) {
                   </div>
                 );
               })()}
+              {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה + תאריך עדכון */}
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+                <span title="תאריך יצירת הפוסט">📅 נוצר: {date}</span>
+                {modified && <span style={{ color: C.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
+              </div>
               <RoyalDivider width={160} />
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}

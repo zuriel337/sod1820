@@ -222,7 +222,8 @@ function LatestPostsRail({ posts, onPost }) {
         {posts.map((p, i) => {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
-          const date = timeAgoHe(p.modified || p.date);
+          const created = formatDateHe(p.date);
+          const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
           const gem = calcGem(title);
           return (
             <button
@@ -245,7 +246,7 @@ function LatestPostsRail({ posts, onPost }) {
               <div className="sod-pf-body">
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
-                  <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
+                  <span className="sod-pf-date" title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
                   {(p.verified || p.ai_touched) && <span className="sod-pf-ai" title="פוסט בליווי בינה מלאכותית">✓ AI</span>}
                   {isWarmNumber(gem) && <span className="sod-pf-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
                 </div>

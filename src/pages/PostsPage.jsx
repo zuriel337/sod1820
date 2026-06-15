@@ -31,7 +31,8 @@ function PostCard({ p, i, view }) {
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
   const excerpt = stripHtml(p.excerpt?.rendered ?? "").slice(0, view === "list" ? 200 : 120);
-  const date = timeAgoHe(p.modified || p.date);
+  const created = formatDateHe(p.date);
+  const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
   const gem = calcGem(title);
   return (
     <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
@@ -46,7 +47,7 @@ function PostCard({ p, i, view }) {
         <div className="pp-name">{title}</div>
         {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
         <div className="pp-meta">
-          <span title={formatDateHe(p.modified || p.date)}>{date}</span>
+          <span title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
           <span aria-hidden>←</span>
         </div>
       </div>
