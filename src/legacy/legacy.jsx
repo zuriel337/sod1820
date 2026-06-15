@@ -4580,6 +4580,11 @@ function SpotimChatPage() {
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
+      {/* פאנל תפילות לרפואה — צף בצד ימין בדסקטופ רחב, אינליין מעל הצ'אט במסכים צרים */}
+      <aside className="chat-prayers" aria-label="תפילות לרפואה שלמה">
+        <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
+      </aside>
+
       {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
       <div
         data-spotim-module="conversation"
@@ -4587,6 +4592,20 @@ function SpotimChatPage() {
         data-post-url="https://sod1820.co.il/community/chat"
         style={{ minHeight: 400 }}
       />
+
+      <style>{`
+        .chat-prayers { direction: rtl; margin: 0 auto 28px; }
+        @media (min-width: 1360px) {
+          .chat-prayers {
+            position: fixed; top: 86px; right: 18px; width: 264px; margin: 0; z-index: 60;
+            max-height: calc(100vh - 110px); overflow-y: auto; -webkit-overflow-scrolling: touch;
+          }
+          .chat-prayers .ppb { margin: 0; }
+          .chat-prayers .ppb-grid { grid-template-columns: 1fr; }
+          .chat-prayers::-webkit-scrollbar { width: 6px; }
+          .chat-prayers::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
+        }
+      `}</style>
     </div>
   );
 }
