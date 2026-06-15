@@ -5,6 +5,7 @@ import { getEntityBundle } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
+import ConvergenceMeter from "./ConvergenceMeter.jsx";
 
 const M6 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי"].includes(m.key));
 
@@ -165,6 +166,9 @@ export default function NumberDrawer() {
             }}>✨ למחשבון המלא ולרשימת הגימטריות המלאה בבית המדרש ←</button>
           </div>
         )}
+
+        {/* 🧬 מד ההתכנסות — כמה שכבות מסכימות על הערך */}
+        {value != null && value >= 10 && <ConvergenceMeter value={value} />}
 
         {/* חוטים פנימיים — מהמספר אל כל פריט מחובר (רשת הקשרים) */}
         {open && webs.length > 0 && (
