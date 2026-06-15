@@ -427,6 +427,18 @@ export async function incrementShareCount(wpId) {
   return data;  // הערך החדש של המונה
 }
 
+// מנוי Realtime למונה השיתופים של פוסט — מתעדכן חי כשמישהו משתף
+export function subscribeShareCount(wpId, cb) {
+  if (!supabase || !wpId) return () => {};
+  const ch = supabase
+    .channel(`share_count_${wpId}`)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'post_share_counts', filter: `wp_id=eq.${wpId}` },
+      payload => { const n = payload?.new?.count; if (typeof n === 'number') cb(n); })
+    .subscribe();
+  return () => { try { supabase.removeChannel(ch); } catch { /* noop */ } };
+}
+
 // ── שיעורי שמע "סוד החשמל" — מבחר אקראי (RPC קל) ───────────
 export async function getRandomShiurim(limit = 12) {
   if (!supabase) return [];

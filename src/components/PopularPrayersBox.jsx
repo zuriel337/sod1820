@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getPostsMetaByWpIds, getShareCounts } from "../lib/supabase.js";
+import { getPostsMetaByWpIds, getShareCounts, subscribeShareCount } from "../lib/supabase.js";
 
 // ── "תפילות פופולריות" — הפניה לתפילות החזקות באתר ──
 // מוצג בראש דפי תגית שקשורים לתפילה/רפואה/ישועה (מי שמחפש תפילה — מגיע לכאן).
@@ -43,6 +43,14 @@ export default function PopularPrayersBox({ excludeWpId = null, title = "🙏 ת
     return () => { alive = false; };
   }, [excludeWpId]);
 
+  // מנוי Realtime — מוני השיתופים מתעדכנים חי בכרטיסים
+  useEffect(() => {
+    const feat = FEATURED.filter(f => f.wpId !== excludeWpId);
+    const unsubs = feat.map(f => subscribeShareCount(f.wpId, n =>
+      setItems(prev => prev.map(it => (it.wpId === f.wpId ? { ...it, count: n } : it)))));
+    return () => unsubs.forEach(u => u && u());
+  }, [excludeWpId]);
+
   if (items.length === 0) return null;
 
   return (
@@ -59,7 +67,7 @@ export default function PopularPrayersBox({ excludeWpId = null, title = "🙏 ת
             }}>
               {!it.image && <span className="ppb-mark">🙏</span>}
               <span className="ppb-holo" />
-              {it.count >= 15 && <span className="ppb-count">✨ {it.count.toLocaleString("he-IL")} שיתופים</span>}
+              {it.count >= 1 && <span className="ppb-count">✨ {it.count.toLocaleString("he-IL")} שיתופים</span>}
             </div>
             <div className="ppb-body">
               <div className="ppb-name">{it.label}</div>

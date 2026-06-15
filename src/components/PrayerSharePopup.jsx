@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { C, F } from "../theme.js";
-import { getShareCount, incrementShareCount } from "../lib/supabase.js";
+import { getShareCount, incrementShareCount, subscribeShareCount } from "../lib/supabase.js";
 
 // ── "העבירו את האור הלאה" — מערך שיתוף משולב לדפי תפילה/רפואה ──
 // שני אלמנטים שחולקים מונה אחד ופעולת שיתוף אחת:
@@ -11,7 +11,7 @@ import { getShareCount, incrementShareCount } from "../lib/supabase.js";
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 const DELAY_MS = 20000;       // 20 שניות
 const SCROLL_RATIO = 0.7;     // 70% מהעמוד
-const COUNT_MIN = 15;         // מציגים מונה רק כשהוא משמעותי (הוכחה חברתית אמיתית)
+const COUNT_MIN = 1;          // מונה פתוח — מוצג תמיד כשיש ולו שיתוף אחד
 const POPUP_KEY = "prayer_share_popup";
 
 const SHARE_TEXT =
@@ -24,11 +24,12 @@ export default function PrayerSharePopup({ url, title, wpId }) {
   const [count, setCount] = useState(0);
   const shownRef = useRef(false);
 
-  // טעינת מונה השיתופים
+  // טעינת מונה השיתופים + מנוי Realtime (מתעדכן חי כשמישהו משתף)
   useEffect(() => {
     let alive = true;
     getShareCount(wpId).then(n => { if (alive) setCount(n || 0); }).catch(() => {});
-    return () => { alive = false; };
+    const unsub = subscribeShareCount(wpId, n => { if (alive) setCount(n); });
+    return () => { alive = false; unsub(); };
   }, [wpId]);
 
   function seenRecently() {
