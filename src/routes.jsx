@@ -44,6 +44,11 @@ export const ROUTE_META = {
   "/members":       { title: "בני ההיכל", description: "אזור המנויים — שיעורים, קורסים, עץ מתקדם וצפנים בלעדיים.", noindex: true },
   "/about":         { title: "אודות", description: "אודות SOD1820 — גימטריה, צפנים בתורה ושפת המספרים." },
   "/contact":       { title: "צור קשר", description: "יצירת קשר עם SOD1820." },
+  "/community/chat":       { title: "צ'אט הקהילה", description: "צ'אט הקהילה של SOD1820 — שיחה חיה בין חברי הקהילה." },
+  "/community/calculator": { title: "מחשבון קהילתי", description: "מחשבון הגימטריה הקהילתי של SOD1820." },
+  "/community/comments":   { title: "תגובות הקהילה", description: "כל התגובות האחרונות בקהילת SOD1820." },
+  "/verified":      { title: "פוסטים מאומתים", description: "פוסטים מאומתים באתר SOD1820." },
+  "/sulamot":       { title: "סולמות", description: "סולמות הגימטריה — מבט מדורג על המספרים." },
   "/theme-preview": { title: "תצוגת צבעים", description: "עמוד תצוגה זמני לבחירת פלטת הצבעים.", noindex: true },
 };
 

@@ -46,7 +46,10 @@ function RouteEffects() {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
-    trackPageview(pathname);
+    // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
+    // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
+    const t = setTimeout(() => trackPageview(pathname), 350);
+    return () => clearTimeout(t);
   }, [pathname]);
   return null;
 }
