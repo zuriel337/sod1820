@@ -4,7 +4,6 @@ import { getPostsFromSupabase, adaptPost, getRandomShiurim } from "../lib/supaba
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
 import PulseRing from "../components/PulseRing.jsx";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
-import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -170,11 +169,11 @@ function HomeDashboard() {
   );
 }
 
-// פרומו "ברוכים הבאים" — מתחת לשני הטורים. לוגו + ברכה + כפתור הרשמה (הפעולה הראשית כל עוד הכל נעול).
+// פרומו "ברוכים הבאים" — ברכה קצרה בלבד (ללא טופס/דו״ח כניסה).
 function WelcomePromo() {
   return (
     <section className="sod-welcome">
-      <div style={{ textAlign: "center", maxWidth: 560, margin: "0 auto 18px" }}>
+      <div style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,3.4vw,30px)", fontWeight: 700, margin: "0 0 8px" }}>
           ברוכים הבאים לעולם החדש
         </h2>
@@ -182,7 +181,6 @@ function WelcomePromo() {
           המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות. תודה שאתם צועדים איתנו מההתחלה 🙏❤️
         </p>
       </div>
-      <PersonalGematriaGift source="home-welcome" />
     </section>
   );
 }
@@ -413,8 +411,11 @@ export default function HomePage() {
           <CrossTeaserCard />
         </div>
         <style>{`
-          .sod-home-squares { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
-            gap: 16px; align-items: start; justify-content: center; }
+          /* שורה סימטרית: 3 ריבועים שווים בגובה אחיד, או טור יחיד במובייל (לעולם לא 2+1) */
+          .sod-home-squares { display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; align-items: stretch; max-width: 940px; margin: 0 auto; }
+          .sod-home-squares > .ppb { height: 100%; }
+          @media (max-width: 820px) { .sod-home-squares { grid-template-columns: 1fr; max-width: 460px; } }
           .sod-home-squares > .sod-shiur-wrap { display: flex; }
           .sod-home-squares .sod-shiur-card { width: 100%; }
           /* ריבוע התפילות — קומפקטי וסטטי */
