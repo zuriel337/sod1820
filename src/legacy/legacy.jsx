@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, getAnnouncement } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4557,10 +4557,6 @@ function ChatPage() {
 
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
-  // הודעת מערכת לדף הצ'אט — נטענת מ-Supabase (ניתנת לעריכה בלי דפלוי)
-  const [announce, setAnnounce] = useState(null);
-  useEffect(() => { getAnnouncement("chat").then(setAnnounce).catch(() => {}); }, []);
-
   useEffect(() => {
     // טוענים את ה-launcher של Spot.IM פעם אחת ומשאירים אותו טעון —
     // כך כשחוזרים לדף ה-SDK מזהה מחדש את אלמנט ה-conversation ולא "בורח".
@@ -4577,34 +4573,11 @@ function SpotimChatPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>
-          קהילת סוד 1820
-        </div>
         <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
-          צאט האתר
+          דף צ'אט
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
       </div>
-
-      {/* הודעת מערכת — נטענת מ-Supabase (טבלת announcements, location='chat') */}
-      {announce && (
-        <div style={{
-          margin: "0 auto 30px", maxWidth: 640, textAlign: "center",
-          background: "linear-gradient(150deg, rgba(212,175,55,0.12), rgba(61,31,92,0.14))",
-          border: `1px solid ${C.borderGold}`, borderRadius: 14, padding: "20px 22px",
-          boxShadow: "0 14px 40px rgba(0,0,0,0.4)",
-        }}>
-          <div style={{ fontSize: 22, marginBottom: 6 }}>🛡️</div>
-          {announce.title && (
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(17px,3vw,21px)", fontWeight: 700, lineHeight: 1.4, marginBottom: 8 }}>
-              {announce.title}
-            </div>
-          )}
-          <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, whiteSpace: "pre-line" }}>
-            {announce.body}
-          </div>
-        </div>
-      )}
 
       {/* פאנל תפילות לרפואה — צף בצד ימין בדסקטופ רחב, אינליין מעל הצ'אט במסכים צרים */}
       <aside className="chat-prayers" aria-label="תפילות לרפואה שלמה">
