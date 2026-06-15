@@ -2987,7 +2987,7 @@ function PostPage({ post, onBack }) {
                     </div>
                   ) : (
                     <div style={{ marginTop: 24 }}>
-                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
                         שתפו את הפוסט
                       </div>
                       <ShareBar url={shareUrl} title={title} text={title} />
@@ -4949,7 +4949,7 @@ function PostPageBySlug({ onNav }) {
       )}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
-          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 10, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
+          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
         </button>
 
@@ -5019,7 +5019,7 @@ function PostPageBySlug({ onNav }) {
                   {cats.map(name => (
                     <span key={name} className="sod-inflate" onClick={() => navigate('/category/' + toSlug(name))} style={{
                       background: C.goldDark, border: `1px solid ${C.borderGold}`,
-                      color: C.goldBright, fontSize: 10, padding: "3px 10px",
+                      color: C.goldBright, fontSize: 12, padding: "4px 11px",
                       fontFamily: F.heading, letterSpacing: 1,
                       textTransform: "uppercase", borderRadius: 1,
                     }}>{name}</span>
@@ -5042,7 +5042,7 @@ function PostPageBySlug({ onNav }) {
                           <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
                           {isVerified && <VerifiedBadge variant="ai" size={13} />}
                         </div>
-                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, marginTop: 2 }}>
+                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
                           {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
                         </div>
                       </div>
@@ -5056,7 +5056,7 @@ function PostPageBySlug({ onNav }) {
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {gematriaItems.length > 0 && (
               <div style={{ marginBottom: 40 }}>
-                <div style={{ fontSize: 9, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
+                <div style={{ fontSize: 12, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {(() => {
                     // הסרת כפילויות לפי ערך המספר (ragil) — כל מספר מוצג פעם אחת בלבד.
@@ -5069,7 +5069,7 @@ function PostPageBySlug({ onNav }) {
                   })().map(({ phrase, ragil }) => (
                     <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
                       background: "#1a0a2e", border: "1px solid #7c3aed",
-                      color: "#c4b5fd", fontSize: 10, padding: "3px 12px",
+                      color: "#c4b5fd", fontSize: 12, padding: "4px 13px",
                       fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
                     }}>{phrase} | {ragil}</span>
                   ))}
@@ -5083,7 +5083,7 @@ function PostPageBySlug({ onNav }) {
                 {tags.map(name => (
                   <span key={name} className="sod-inflate" onClick={() => navigate('/tag/' + toSlug(name))} style={{
                     background: C.faint, border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 10, padding: "3px 10px",
+                    color: C.muted, fontSize: 12, padding: "4px 11px",
                     fontFamily: F.heading, letterSpacing: 1,
                     textTransform: "uppercase", borderRadius: 1,
                   }}>{name}</span>
@@ -5115,7 +5115,7 @@ function PostPageBySlug({ onNav }) {
                     </div>
                   ) : (
                     <div style={{ marginTop: 24 }}>
-                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
                         שתפו את הפוסט
                       </div>
                       <ShareBar url={shareUrl} title={title} text={title} />
