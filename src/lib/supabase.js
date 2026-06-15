@@ -427,6 +427,14 @@ export async function incrementShareCount(wpId) {
   return data;  // הערך החדש של המונה
 }
 
+// ── שיעורי שמע "סוד החשמל" — מבחר אקראי (RPC קל) ───────────
+export async function getRandomShiurim(limit = 12) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('random_shiurim', { lim: limit });
+  if (error) return [];
+  return data || [];
+}
+
 // ── Insights / חידושים (בית המדרש) ─────────────────────────
 // origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
 // space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)
