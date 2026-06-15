@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 
 // ===== GEMATRIA =====
@@ -4832,6 +4833,21 @@ function PostPageBySlug({ onNav }) {
     }, 140);
     return () => clearTimeout(id);
   }, [post, loc.search]);
+
+  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה בפוסט (data-gem) פותחת את מגירת המספר — לא ניווט
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onClick = e => {
+      const t = e.target.closest("[data-gem]");
+      if (!t || !el.contains(t)) return;
+      e.preventDefault();
+      const term = (t.getAttribute("data-gem") || "").trim();
+      if (term) openNumberDrawer(term);
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post]);
 
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";

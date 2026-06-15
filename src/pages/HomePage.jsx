@@ -162,6 +162,7 @@ function LatestPostsRail({ posts, onPost }) {
                 <div className="sod-pf-meta">
                   <span className="sod-pf-date" title={formatDateHe(p.modified || p.date)}>עודכן · {date}</span>
                   {gem > 0 && <span className="sod-pf-gem" title={`גימטריה: ${gem}`}>ג׳ {gem}</span>}
+                  {p.ai_touched && <span title="עודכן על ידי AI" style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#3ea6ff", fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff55", borderRadius: 999, padding: "1px 7px" }}>🔵 AI</span>}
                 </div>
               </div>
             </button>
@@ -286,7 +287,7 @@ export default function HomePage() {
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 6, orderBy: "modified" })
-      .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date }))))
+      .then(({ posts: rows }) => setPosts((rows || []).map(r => ({ ...adaptPost(r), modified: r.modified, date: r.date, ai_touched: r.ai_touched }))))
       .catch(() => {});
   }, []);
 

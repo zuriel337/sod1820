@@ -6,7 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 
-const M3 = METHODS.filter(m => ["רגיל", "מסתתר", "גדול"].includes(m.key));
+const M3 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
@@ -169,7 +169,7 @@ export default function NumberDrawer() {
               width: "100%", marginTop: 9, cursor: "pointer", background: "none",
               border: `1px solid ${C.borderGold}`, borderRadius: 9, color: C.goldBright,
               fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, padding: "8px 6px",
-            }}>✨ המחשבון המלא — כל 8 השיטות בבית המדרש ←</button>
+            }}>✨ למחשבון המלא ולרשימת הגימטריות המלאה בבית המדרש ←</button>
           </div>
         )}
 
