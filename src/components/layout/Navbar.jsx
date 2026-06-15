@@ -242,14 +242,19 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
         <Brand />
 
-        <span title="בהקמה" aria-disabled="true" style={{
+        <span title="בהקמה — בקרוב" aria-disabled="true" style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
-          color: C.goldBright, cursor: "default", userSelect: "none", opacity: 0.92,
+          color: C.goldBright, cursor: "default", userSelect: "none", opacity: 0.66,
           fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
-          padding: "8px 14px", borderRadius: 6, whiteSpace: "nowrap",
-          border: `1px solid ${C.goldDim}`, boxShadow: "0 0 14px rgba(122,19,32,0.5)",
-        }}>👑 בהקמה</span>
+          padding: "8px 13px", borderRadius: 6, whiteSpace: "nowrap",
+          border: `1px solid ${C.goldDim}`, boxShadow: "0 0 12px rgba(122,19,32,0.4)",
+        }}>🚀 כאן מתחילים
+          <span style={{
+            fontSize: 9.5, fontWeight: 700, letterSpacing: 1, padding: "1px 6px", borderRadius: 999,
+            background: "rgba(0,0,0,0.32)", color: C.goldLight, marginInlineStart: 1,
+          }}>בהקמה</span>
+        </span>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -305,7 +310,7 @@ export default function Navbar() {
                 <span aria-disabled="true" style={{
                   display: "block", color: C.goldDim, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
                   padding: "10px 14px", borderRadius: 6, cursor: "default", opacity: 0.75,
-                }}>👑 כאן מתחילים — בהקמה</span>
+                }}>🚀 כאן מתחילים · בהקמה</span>
               ) : (
                 <Link to={item.to} onClick={() => setDrawer(false)} style={{
                   display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,

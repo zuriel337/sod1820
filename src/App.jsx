@@ -37,6 +37,7 @@ import {
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import TopicPage from "./pages/TopicPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -47,7 +48,10 @@ function RouteEffects() {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
-    trackPageview(pathname);
+    // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
+    // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
+    const t = setTimeout(() => trackPageview(pathname), 350);
+    return () => clearTimeout(t);
   }, [pathname]);
   return null;
 }
@@ -92,6 +96,7 @@ export default function App() {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/topic/:slug" element={<TopicPage />} />
           <Route path="/cross" element={<CrossMethodPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />

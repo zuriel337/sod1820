@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost, getRandomShiurim } from "../lib/supabase.js";
+import { getPostsFromSupabase, adaptPost } from "../lib/supabase.js";
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
 import PulseRing from "../components/PulseRing.jsx";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
-import PersonalGematriaGift from "../components/PersonalGematriaGift.jsx";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -57,60 +56,38 @@ function GatesDeck() {
   );
 }
 
-// 🎧 שיעורי סוד החשמל — כרטיס קטן וסטטי עם 3 שיעורים אקראיים (מתחדשים בכל טעינה), לחיצים
-const stripLessonNo = t => (t || "").replace(/^שיעור\s*\d+\s*[—–\-:.]*\s*/, "").trim();
-
+// 🎧 שיעורי סוד החשמל — כרטיס סטטי, קישור לכל השיעורים (בלי טעינת שיעורים)
 function ShiurimCard() {
-  const [lessons, setLessons] = useState([]);
-  useEffect(() => {
-    let alive = true;
-    getRandomShiurim(3).then(rows => { if (alive) setLessons(rows || []); }).catch(() => {});
-    return () => { alive = false; };
-  }, []);
-
   return (
-    <div className="sod-shiur-wrap" style={{ direction: "rtl" }}>
-      <div className="sod-shiur-card">
-        <div className="sod-shiur-head">
-          <span className="sod-shiur-ic">🎧</span>
-          <span className="sod-shiur-txt">
-            <span className="sod-shiur-title">שיעורי סוד החשמל</span>
-            <span className="sod-shiur-sub">מבחר מתוך 1,200+ שיעורים</span>
-          </span>
-        </div>
-        <div className="sod-shiur-list">
-          {lessons.length === 0 ? (
-            <div className="sod-shiur-load">טוען…</div>
-          ) : lessons.map((s, k) => (
-            <a key={k} href={s.href} target="_blank" rel="noopener noreferrer" className="sod-shiur-item">
-              <span className="sod-shiur-no">{s.lesson_no ?? "♪"}</span>
-              <span className="sod-shiur-itxt">{stripLessonNo(s.title) || s.title}</span>
-            </a>
-          ))}
-        </div>
-        <Link to="/שיעורי-שמע-סוד-החשמל" className="sod-shiur-go">לכל השיעורים →</Link>
+    <Link to="/שיעורי-שמע-סוד-החשמל" className="sod-shiur-card">
+      <div className="sod-shiur-head">
+        <span className="sod-shiur-ic">🎧</span>
+        <span className="sod-shiur-txt">
+          <span className="sod-shiur-title">שיעורי סוד החשמל</span>
+          <span className="sod-shiur-sub">ארכיון כל השיעורים — גאולה ורמז</span>
+        </span>
       </div>
+      <div className="sod-shiur-mid">
+        <span className="sod-shiur-count"><b>1,220</b> שיעורים</span>
+      </div>
+      <span className="sod-shiur-go">לכל השיעורים →</span>
       <style>{`
-        .sod-shiur-card{display:flex;flex-direction:column;gap:9px;height:100%;box-sizing:border-box;border-radius:12px;padding:13px 14px;
-          border:1px solid ${C.borderGold};background:linear-gradient(135deg,rgba(184,134,11,0.10),rgba(8,5,2,0.5));}
+        .sod-shiur-card{display:flex;flex-direction:column;gap:11px;height:100%;box-sizing:border-box;text-decoration:none;
+          border-radius:12px;padding:14px;border:1px solid ${C.borderGold};
+          background:linear-gradient(135deg,rgba(184,134,11,0.10),rgba(8,5,2,0.5));}
         .sod-shiur-card:hover{border-color:${C.gold};}
-        .sod-shiur-head{display:flex;align-items:center;gap:9px;}
-        .sod-shiur-ic{font-size:23px;line-height:1;}
-        .sod-shiur-txt{display:flex;flex-direction:column;gap:1px;min-width:0;}
-        .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:16px;font-weight:700;}
-        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:11.5px;}
-        .sod-shiur-list{display:flex;flex-direction:column;gap:6px;flex:1;}
-        .sod-shiur-load{color:${C.muted};font-family:${F.body};font-size:12px;text-align:center;padding:8px 0;}
-        .sod-shiur-item{display:flex;align-items:center;gap:8px;text-decoration:none;border-radius:8px;
-          padding:7px 9px;border:1px solid ${C.border};background:rgba(8,5,2,0.4);}
-        .sod-shiur-item:hover{border-color:${C.gold};background:${C.surface};}
-        .sod-shiur-no{flex:0 0 auto;font-family:${F.mono};font-size:11px;font-weight:800;color:#1a0e00;
-          background:${C.gold};border-radius:6px;padding:2px 7px;white-space:nowrap;}
-        .sod-shiur-itxt{color:${C.goldLight};font-family:${F.body};font-size:12px;line-height:1.4;
-          display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
-        .sod-shiur-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12px;font-weight:700;text-decoration:none;}
+        .sod-shiur-head{display:flex;align-items:center;gap:10px;}
+        .sod-shiur-ic{font-size:26px;line-height:1;}
+        .sod-shiur-txt{display:flex;flex-direction:column;gap:2px;min-width:0;}
+        .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:17px;font-weight:700;}
+        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:12.5px;line-height:1.5;}
+        .sod-shiur-mid{flex:1;display:flex;align-items:center;}
+        .sod-shiur-count{font-family:${F.heading};font-size:13px;color:${C.goldLight};
+          border:1px solid ${C.borderGold};border-radius:999px;padding:6px 14px;background:rgba(212,175,55,0.08);}
+        .sod-shiur-count b{font-family:${F.mono};font-size:16px;color:${C.goldBright};}
+        .sod-shiur-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12.5px;font-weight:700;}
       `}</style>
-    </div>
+    </Link>
   );
 }
 
@@ -170,11 +147,11 @@ function HomeDashboard() {
   );
 }
 
-// פרומו "ברוכים הבאים" — מתחת לשני הטורים. לוגו + ברכה + כפתור הרשמה (הפעולה הראשית כל עוד הכל נעול).
+// פרומו "ברוכים הבאים" — ברכה קצרה בלבד (ללא טופס/דו״ח כניסה).
 function WelcomePromo() {
   return (
     <section className="sod-welcome">
-      <div style={{ textAlign: "center", maxWidth: 560, margin: "0 auto 18px" }}>
+      <div style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,3.4vw,30px)", fontWeight: 700, margin: "0 0 8px" }}>
           ברוכים הבאים לעולם החדש
         </h2>
@@ -182,7 +159,6 @@ function WelcomePromo() {
           המסע כבר החל, ובכל יום מתווספים אליו עולמות, כלים ותגליות. תודה שאתם צועדים איתנו מההתחלה 🙏❤️
         </p>
       </div>
-      <PersonalGematriaGift source="home-welcome" />
     </section>
   );
 }
@@ -443,10 +419,11 @@ export default function HomePage() {
           <CrossTeaserCard />
         </div>
         <style>{`
-          .sod-home-squares { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
-            gap: 16px; align-items: start; justify-content: center; }
-          .sod-home-squares > .sod-shiur-wrap { display: flex; }
-          .sod-home-squares .sod-shiur-card { width: 100%; }
+          /* שורה סימטרית: 3 ריבועים שווים בגובה אחיד, או טור יחיד במובייל (לעולם לא 2+1) */
+          .sod-home-squares { display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; align-items: stretch; max-width: 940px; margin: 0 auto; }
+          .sod-home-squares > .ppb { height: 100%; }
+          @media (max-width: 820px) { .sod-home-squares { grid-template-columns: 1fr; max-width: 460px; } }
           /* ריבוע התפילות — קומפקטי וסטטי */
           .sod-home-squares > .ppb { max-width: none; margin: 0; padding: 13px 14px; box-shadow: none; }
           .sod-home-squares .ppb-head { margin-bottom: 9px; }

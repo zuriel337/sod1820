@@ -9,6 +9,8 @@ const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
+  getTopicCards, setTopicCardStatus, getGalleryImagesByIds,
+  getImageConnections, findGalleryImages, createTopicCardDraft,
   supabase,
 } from "../lib/supabase.js";
 
@@ -19,6 +21,7 @@ const TABS = [
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
   { key: "sets",     label: "🖼 סטים ותמונות" },
+  { key: "topics",   label: "🎴 כרטיסי נושא" },
   { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
 ];
@@ -80,8 +83,235 @@ export default function AdminPage() {
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
       {tab === "sets" && <SetsTab />}
+      {tab === "topics" && <TopicsTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
+    </div>
+  );
+}
+
+// ===== 🎴 כרטיסי נושא — חיבורים שה-AI הכין, האדמין מאשר =====
+function TopicsTab() {
+  const [cards, setCards] = useState(null);
+  const [imgMap, setImgMap] = useState({});
+  const [busy, setBusy] = useState(null);
+  const load = useCallback(() => {
+    getTopicCards().then(async cs => {
+      setCards(cs);
+      const ids = [...new Set(cs.flatMap(c => c.image_ids || []))];
+      if (ids.length) {
+        try { const imgs = await getGalleryImagesByIds(ids); const m = {}; imgs.forEach(i => { m[i.id] = i; }); setImgMap(m); } catch { /* ignore */ }
+      }
+    }).catch(() => setCards([]));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function setStatus(id, status) {
+    setBusy(id);
+    try { await setTopicCardStatus(id, status); await load(); }
+    catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  }
+
+  if (!cards) return <Loading />;
+  if (!cards.length) return <Empty>אין כרטיסי נושא עדיין. ה-AI יכין חיבורים ותראה אותם כאן לאישור.</Empty>;
+
+  const draftCount = cards.filter(c => c.status === "draft").length;
+  const numChip = (n, hot) => (
+    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: hot ? 15 : 12.5, padding: hot ? "4px 12px" : "2px 9px", borderRadius: 999,
+      border: `1px solid ${hot ? C.gold : C.border}`, background: hot ? "rgba(212,175,55,0.18)" : "transparent", color: hot ? C.goldBright : C.goldDim }}>{n}</span>
+  );
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <HuntBox onCreated={load} />
+      <H>{cards.length} כרטיסי נושא · {draftCount} ממתינים לאישור</H>
+      {cards.map(c => {
+        const f = c.findings || {};
+        const imgs = (c.image_ids || []).map(id => imgMap[id]).filter(Boolean);
+        const hot = new Set(c.highlight_numbers || []);
+        const others = (c.numbers || []).filter(n => !hot.has(n));
+        const sLabel = c.status === "approved" ? "✓ מאושר" : c.status === "rejected" ? "✗ נדחה" : "⏳ טיוטה";
+        const sColor = c.status === "approved" ? "#7bbf7b" : c.status === "rejected" ? "#d98a92" : C.goldDim;
+        return (
+          <div key={c.id} style={{ ...card, borderColor: c.status === "draft" ? C.borderGold : C.border }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+              <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 21, fontWeight: 700 }}>{c.title}</span>
+              <span style={{ color: sColor, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{sLabel}</span>
+              <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>★ {c.quality}/10</span>
+              <span style={{ flex: 1 }} />
+              {(c.search_terms || []).slice(0, 4).map(t => (
+                <span key={t} style={{ color: C.muted, fontFamily: F.body, fontSize: 12, border: `1px solid ${C.border}`, borderRadius: 999, padding: "2px 9px" }}>{t}</span>
+              ))}
+            </div>
+            {c.subtitle && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14, marginBottom: 12 }}>{c.subtitle}</div>}
+
+            {/* מספרים */}
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
+              {[...hot].map(n => numChip(n, true))}
+              {others.map(n => numChip(n, false))}
+            </div>
+
+            {/* ממצאים */}
+            {f.headline && <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{f.headline}</div>}
+            {Array.isArray(f.bullets) && (
+              <ul style={{ margin: "0 0 12px", paddingInlineStart: 20, color: "#d4ccbf", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.85 }}>
+                {f.bullets.map((b, i) => <li key={i}>{b}</li>)}
+              </ul>
+            )}
+
+            {/* רמז משלים (רובד פרשני — מובחן מהגימטריה) */}
+            {f.hint && (
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "rgba(99,102,241,0.08)", border: `1px solid rgba(99,102,241,0.35)`, borderRadius: 10, padding: "10px 12px", marginBottom: 12 }}>
+                <span style={{ fontSize: 15 }}>🔮</span>
+                <div style={{ color: "#b9bcff", fontFamily: F.body, fontSize: 13, lineHeight: 1.75 }}><b style={{ color: "#cfd1ff" }}>רמז משלים: </b>{f.hint}</div>
+              </div>
+            )}
+
+            {/* חיבורים */}
+            {Array.isArray(f.connections) && f.connections.length > 0 && (
+              <div style={{ display: "grid", gap: 6, marginBottom: 12 }}>
+                {f.connections.map((cn, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", background: "rgba(212,175,55,0.06)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 10px" }}>
+                    <span style={{ fontFamily: F.mono, fontWeight: 800, color: C.goldBright, fontSize: 14 }}>{cn.number}</span>
+                    <span style={{ color: C.goldDim }}>↔</span>
+                    {(cn.links || []).map(l => <span key={l} style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5 }}>{l}</span>)}
+                    {cn.note && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>· {cn.note}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {f.caveat && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginBottom: 12, paddingInlineStart: 10, borderInlineStart: `2px solid ${C.border}` }}>⚠️ {f.caveat}</div>}
+
+            {/* תמונות */}
+            {imgs.length > 0 && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                {imgs.map(im => (
+                  <a key={im.id} href={im.image_url} target="_blank" rel="noopener noreferrer" title={(im.ocr_numbers || []).join(" · ")} style={{ display: "block", width: 84, height: 84, borderRadius: 8, overflow: "hidden", border: `1px solid ${C.border}`, background: `center/cover no-repeat url(${im.image_url})` }} />
+                ))}
+              </div>
+            )}
+
+            {/* פעולות אישור */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+              {busy === c.id ? <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13 }}>שומר…</span> : (
+                <>
+                  {c.status !== "approved" && <BtnGold onClick={() => setStatus(c.id, "approved")}>✓ אשר לפרסום</BtnGold>}
+                  {c.status !== "rejected" && <button onClick={() => setStatus(c.id, "rejected")} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.crimsonLight}`, color: "#d98a92", borderRadius: 999, padding: "8px 16px", fontFamily: F.heading, fontSize: 13 }}>✗ דחה</button>}
+                  {c.status !== "draft" && <button onClick={() => setStatus(c.id, "draft")} style={iconBtn}>↩ החזר לטיוטה</button>}
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// כלי "צוד חיבורים" — בוחרים תמונה, המנוע מחשב את כל החיבורים, ויוצרים טיוטת כרטיס
+function HuntBox({ onCreated }) {
+  const [term, setTerm] = useState("");
+  const [hits, setHits] = useState(null);
+  const [picked, setPicked] = useState(null);   // {image, conn}
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [saved, setSaved] = useState("");
+
+  async function search() {
+    setHits(null); setPicked(null); setSaved("");
+    if (!term.trim()) return;
+    try { setHits(await findGalleryImages(term.trim())); } catch (e) { alert(e.message); }
+  }
+  async function pick(img) {
+    setLoading(true); setSaved("");
+    try {
+      const conn = await getImageConnections(img.id);
+      setPicked({ image: img, conn });
+      const fname = (img.image_url || "").split("/").pop().split(".")[0];
+      setTitle(img.name || fname || "כרטיס חדש");
+    } catch (e) { alert(e.message); }
+    finally { setLoading(false); }
+  }
+  async function createDraft() {
+    if (!picked) return;
+    const conns = picked.conn?.connections || [];
+    const hot = conns.filter(c => (c.sets || []).length > 0).map(c => c.number);
+    const nums = conns.map(c => c.number);
+    const slug = "img-" + picked.image.id.slice(0, 8);
+    try {
+      await createTopicCardDraft({
+        slug, title: title.trim() || "כרטיס חדש",
+        subtitle: "צידה אוטומטית מתמונה — חיבורים לרשימות הגימטריה",
+        search_terms: [term.trim()].filter(Boolean),
+        image_ids: [picked.image.id],
+        numbers: nums, highlight_numbers: hot, quality: 5,
+        findings: {
+          headline: "חיבורים שזוהו אוטומטית",
+          bullets: conns.slice(0, 8).map(c =>
+            `${c.number} — חוזר ב-${c.images} תמונות${(c.sets || []).length ? ` · בסטים: ${c.sets.join(", ")}` : ""}`),
+          connections: conns.filter(c => (c.sets || []).length).slice(0, 6).map(c =>
+            ({ number: c.number, links: c.sets, note: `חוזר ב-${c.images} תמונות` })),
+          caveat: "צידה אוטומטית — דורשת בדיקה ועריכה לפני אישור. מספרים קטנים עשויים להיות תאריכים."
+        }
+      });
+      setSaved("✓ נוצרה טיוטה — גלול למטה לאישור/עריכה");
+      onCreated && onCreated();
+    } catch (e) { alert("יצירה נכשלה: " + (e.message || e)); }
+  }
+
+  const conns = picked?.conn?.connections || [];
+  return (
+    <div style={{ ...card, borderColor: C.borderGold }}>
+      <H>🎯 צוד חיבורים לתמונה</H>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "4px 0 12px", lineHeight: 1.7 }}>
+        בחר תמונה (חיפוש לפי שם קובץ או טקסט) — המנוע יחשב אילו מהמספרים שלה חוזרים בתמונות אחרות ובאילו סטים, ותוכל ליצור טיוטת כרטיס לאישור.
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input value={term} onChange={e => setTerm(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
+          placeholder="חיפוש תמונה — למשל מירון / תרנגול / שם קובץ"
+          style={{ flex: 1, minWidth: 220, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "9px 12px", fontFamily: F.body, fontSize: 14 }} />
+        <BtnGold onClick={search}>חפש</BtnGold>
+      </div>
+
+      {hits && hits.length > 0 && !picked && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          {hits.map(im => (
+            <button key={im.id} onClick={() => pick(im)} title={(im.image_url || "").split("/").pop()}
+              style={{ cursor: "pointer", padding: 0, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden", width: 72, height: 72, background: `center/cover no-repeat url(${im.image_url})` }} />
+          ))}
+        </div>
+      )}
+      {hits && hits.length === 0 && <Empty>אין תמונות תואמות.</Empty>}
+      {loading && <div style={{ color: C.goldDim, fontFamily: F.heading, marginTop: 12 }}>מחשב חיבורים…</div>}
+
+      {picked && (
+        <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <a href={picked.image.image_url} target="_blank" rel="noopener noreferrer" style={{ width: 90, height: 90, flexShrink: 0, borderRadius: 8, border: `1px solid ${C.border}`, background: `center/cover no-repeat url(${picked.image.image_url})` }} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="שם הכרטיס"
+                style={{ width: "100%", boxSizing: "border-box", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldBright, padding: "8px 12px", fontFamily: F.regal, fontSize: 16, marginBottom: 8 }} />
+              <div style={{ display: "grid", gap: 4, maxHeight: 200, overflowY: "auto" }}>
+                {conns.map(c => (
+                  <div key={c.number} style={{ display: "flex", gap: 8, alignItems: "center", fontFamily: F.body, fontSize: 13 }}>
+                    <span style={{ fontFamily: F.mono, fontWeight: 800, color: (c.sets || []).length ? C.goldBright : C.goldDim, minWidth: 48 }}>{c.number}</span>
+                    <span style={{ color: C.muted }}>{c.images} תמונות</span>
+                    {(c.sets || []).length > 0 && <span style={{ color: C.goldLight }}>· {c.sets.join(", ")}</span>}
+                  </div>
+                ))}
+                {conns.length === 0 && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>אין חיבורים משמעותיים.</span>}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <BtnGold onClick={createDraft}>➕ צור טיוטת כרטיס</BtnGold>
+            <button onClick={() => { setPicked(null); setSaved(""); }} style={iconBtn}>← תמונה אחרת</button>
+            {saved && <span style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 13 }}>{saved}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
