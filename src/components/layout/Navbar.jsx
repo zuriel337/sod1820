@@ -242,14 +242,14 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
         <Brand />
 
-        <span title="בהקמה" aria-disabled="true" style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
+        <span title="בקרוב — כאן מתחילים" aria-disabled="true" className="nav-soon" style={{
+          display: "inline-flex", alignItems: "center", gap: 7,
           background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
-          color: C.goldBright, cursor: "default", userSelect: "none", opacity: 0.92,
+          color: C.goldBright, cursor: "default", userSelect: "none",
           fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
           padding: "8px 14px", borderRadius: 6, whiteSpace: "nowrap",
           border: `1px solid ${C.goldDim}`, boxShadow: "0 0 14px rgba(122,19,32,0.5)",
-        }}>👑 בהקמה</span>
+        }}><span className="nav-soon-dot" aria-hidden />🚀 בקרוב מתחילים</span>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -305,7 +305,7 @@ export default function Navbar() {
                 <span aria-disabled="true" style={{
                   display: "block", color: C.goldDim, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
                   padding: "10px 14px", borderRadius: 6, cursor: "default", opacity: 0.75,
-                }}>👑 כאן מתחילים — בהקמה</span>
+                }}>🚀 כאן מתחילים — בקרוב</span>
               ) : (
                 <Link to={item.to} onClick={() => setDrawer(false)} style={{
                   display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,
@@ -335,6 +335,17 @@ export default function Navbar() {
           background: linear-gradient(180deg, transparent, rgba(246,226,122,0.6), transparent); animation: nav-logo-scan 2.6s ease-in-out infinite; }
 
         .nav-link:hover { color: #f6e27a !important; background: rgba(212,175,55,0.08) !important; }
+
+        /* "בקרוב מתחילים" — נקודה מהבהבת + הילה עדינה */
+        .nav-soon { position: relative; animation: nav-soon-glow 2.2s ease-in-out infinite; }
+        .nav-soon-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto;
+          background: #f6e27a; box-shadow: 0 0 8px #f6e27a, 0 0 3px #fff; animation: nav-soon-blink 1.1s ease-in-out infinite; }
+        @keyframes nav-soon-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.65); } }
+        @keyframes nav-soon-glow {
+          0%, 100% { box-shadow: 0 0 14px rgba(122,19,32,0.5); }
+          50% { box-shadow: 0 0 22px rgba(246,226,122,0.45), 0 0 14px rgba(122,19,32,0.6); }
+        }
+        @media (prefers-reduced-motion: reduce) { .nav-soon, .nav-soon-dot { animation: none; } }
 
         .nav-gem { display: inline-flex; align-items: center; gap: 4px; background: rgba(8,5,2,0.6);
           border: 1px solid ${C.border}; border-radius: 999px; padding: 3px 6px 3px 4px; transition: border-color 0.2s, box-shadow 0.2s; }
