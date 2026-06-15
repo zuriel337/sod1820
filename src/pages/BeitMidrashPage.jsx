@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, supabase } from "../lib/supabase.js";
+import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
@@ -522,14 +523,16 @@ function ConvergenceSection() {
   return (
     <div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: "0 0 18px", maxWidth: 620 }}>
-        כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה לאותה התכנסות. לחיצה פותחת את מרכז ההתכנסות.
+        🌿 החקירה ממשיכה — כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
         {cards.map(c => {
           const hot = (c.highlight_numbers || []);
+          const tag = topicTag(c);
           return (
             <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
               <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 12, padding: "15px 16px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                {tag && <div style={{ display: "inline-block", color: L.goldDeep, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${L.gold}`, background: "#fbf3da", borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                   <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</span>
                   <ConvergenceStars q={c.quality} />

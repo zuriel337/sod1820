@@ -24,7 +24,7 @@ export default function LiveActivityBar() {
         new Date(b.approved_at || b.created_at) - new Date(a.approved_at || a.created_at));
       const its = sorted.map(c => ({
         to: `/topic/${encodeURIComponent(c.slug)}`,
-        text: `✦ ציר התכנסות: ${c.title}${(c.highlight_numbers || []).length ? " · " + c.highlight_numbers.join(" · ") : ""}`,
+        text: `${c.title}${(c.highlight_numbers || []).length ? " · " + c.highlight_numbers.join(" · ") : ""}`,
       }));
       setItems(its);
     }).catch(() => setItems([]));
@@ -50,7 +50,7 @@ export default function LiveActivityBar() {
           fontSize: 11, fontWeight: 800, letterSpacing: 1, color: C.goldBright,
           fontFamily: F.heading, border: `1px solid ${C.borderGold}`, borderRadius: 5,
           padding: "2px 8px", whiteSpace: "nowrap", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4))",
-        }}>📚 חדשות בית המדרש</Link>
+        }}>✦ התגלות חדשה</Link>
         {cur.to ? (
           <Link key={idx} to={cur.to} style={{
             color: C.goldLight, fontFamily: F.royal, fontSize: 15, fontWeight: 500, textDecoration: "none",

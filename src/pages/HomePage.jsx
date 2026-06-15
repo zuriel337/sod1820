@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getTopicCards } from "../lib/supabase.js";
+import { topicTag } from "../lib/topicCards.js";
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
 import PulseRing from "../components/PulseRing.jsx";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
@@ -365,31 +366,33 @@ function ConvergenceRail() {
     return () => { live = false; };
   }, []);
   if (!cards || !cards.length) return null; // לא מציגים רצועה ריקה
-  const starN = q => Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
   return (
     <section style={{ maxWidth: 1280, margin: "0 auto", padding: "10px 18px 6px", direction: "rtl" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
-        <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: 0 }}>✦ צירי התכנסות</h2>
-        <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>גשרים בין מספר, אירוע וגלריה</span>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
+        <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: 0 }}>✨ התגלויות חדשות</h2>
         <span style={{ flex: 1 }} />
         <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>עוד בבית המדרש →</Link>
       </div>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "0 0 14px", lineHeight: 1.7 }}>
+        🌿 החקירה ממשיכה — וכל התכנסות חדשה מוסיפה ענף נוסף לעץ הידע.
+      </p>
       <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "thin" }}>
-        {cards.map(c => (
-          <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", flex: "0 0 auto", width: 230 }}>
-            <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px", height: "100%" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
-                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{c.title}</span>
+        {cards.map(c => {
+          const tag = topicTag(c);
+          return (
+            <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", flex: "0 0 auto", width: 230 }}>
+              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px", height: "100%" }}>
+                {tag && <div style={{ display: "inline-block", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
+                <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{c.title}</div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {(c.highlight_numbers || []).map(n => (
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
+                  ))}
+                </div>
               </div>
-              <div style={{ color: C.gold, fontSize: 11, letterSpacing: 1, marginBottom: 8 }}>{"★".repeat(starN(c.quality))}{"☆".repeat(5 - starN(c.quality))}</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {(c.highlight_numbers || []).map(n => (
-                  <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
-                ))}
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
