@@ -83,18 +83,20 @@ export default function PrayerSharePopup({ url, title, wpId }) {
 
   return (
     <>
-      {/* ── כפתור שיתוף צף ── */}
-      <button
-        onClick={doShare}
-        aria-label="שתפו את התפילה"
-        className="psp-fab"
-        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
-      >
-        <span aria-hidden style={{ fontSize: 18 }}>🙏</span>
-        <span>{copied ? "הועתק ✓" : "שתפו"}</span>
-        {showCount && <span className="psp-fab-count">{count.toLocaleString("he-IL")}</span>}
-      </button>
+      {/* ── כפתור שיתוף צף (ממורכז בתחתית בדסקטופ, פינה במובייל) ── */}
+      <div className="psp-fab-wrap">
+        <button
+          onClick={doShare}
+          aria-label="שתפו את התפילה"
+          className="psp-fab"
+          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+        >
+          <span aria-hidden style={{ fontSize: 18 }}>🙏</span>
+          <span>{copied ? "הועתק ✓" : "שתפו"}</span>
+          {showCount && <span className="psp-fab-count">✨ כבר {count.toLocaleString("he-IL")} שיתפו</span>}
+        </button>
+      </div>
 
       {/* ── חלון קופץ ── */}
       {open && (
@@ -170,15 +172,24 @@ export default function PrayerSharePopup({ url, title, wpId }) {
       )}
 
       <style>{`
+        /* עוטף ממקם: פינה שמאלית-תחתונה במובייל, ממורכז בתחתית בדסקטופ (לא נוגע בפינה) */
+        .psp-fab-wrap {
+          position: fixed; bottom: 18px; left: 18px; right: auto; z-index: 900;
+          padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+        }
+        @media (min-width: 900px) {
+          .psp-fab-wrap { left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
+          .psp-fab-wrap .psp-fab { pointer-events: auto; }
+        }
         .psp-fab {
-          position: fixed; bottom: 18px; left: 18px; z-index: 900; direction: rtl;
+          direction: rtl;
           display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
           padding: 10px 16px; border-radius: 999px; border: 1px solid ${C.borderGold};
           background: linear-gradient(135deg, rgba(20,13,6,0.96), rgba(8,5,2,0.96));
           color: ${C.goldBright}; font-family: ${F.heading}; font-weight: 800; font-size: 14px;
           box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 18px rgba(212,175,55,0.14);
           transition: transform .14s, box-shadow .18s; animation: psp-fab-in .5s ease both;
-          padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+          white-space: nowrap;
         }
         .psp-fab:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.55), 0 0 24px rgba(212,175,55,0.28); }
         .psp-fab-count {

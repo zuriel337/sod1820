@@ -4620,9 +4620,11 @@ function SpotimChatPage() {
       />
 
       <style>{`
-        .chat-prayers { direction: rtl; margin: 0 auto 28px; }
+        /* פאנל התפילות מוצג רק כפאנל צף בדסקטופ רחב; מוסתר במובייל/טאבלט (היה מופיע למעלה, לא יפה) */
+        .chat-prayers { display: none; direction: rtl; }
         @media (min-width: 1360px) {
           .chat-prayers {
+            display: block;
             position: fixed; top: 86px; right: 18px; width: 264px; margin: 0; z-index: 60;
             max-height: calc(100vh - 110px); overflow-y: auto; -webkit-overflow-scrolling: touch;
           }
@@ -5104,8 +5106,8 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
 
-            {/* שיתוף — קריאה מיוחדת בפוסטי הינוקא */}
-            {(() => {
+            {/* שיתוף תחתון — מוסתר בפוסטי התפילה (שם יש כפתור שיתוף צף יחיד עם מונה) */}
+            {!PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (() => {
               const shareUrl = `${SITE_URL}/${post.slug || slug}`;
               const isYenuka = (tags || []).some(t => YENUKA_TAGS.includes(t));
               return (
