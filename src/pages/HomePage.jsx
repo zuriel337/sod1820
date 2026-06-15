@@ -88,7 +88,7 @@ function ShiurimCard() {
         .sod-shiur-ic{font-size:40px;line-height:1;filter:drop-shadow(0 0 12px rgba(212,175,55,.45));}
         .sod-shiur-txt{display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px;}
         .sod-shiur-title{color:${C.goldBright};font-family:${F.regal};font-size:clamp(20px,3vw,26px);font-weight:700;}
-        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:14px;line-height:1.5;}
+        .sod-shiur-sub{color:${C.goldDim};font-family:${F.body};font-size:15.5px;line-height:1.5;}
         .sod-shiur-count{font-family:${F.heading};font-size:13px;color:${C.goldLight};border:1px solid ${C.borderGold};
           border-radius:999px;padding:6px 14px;white-space:nowrap;background:rgba(212,175,55,0.08);}
         .sod-shiur-count b{font-family:${F.mono};font-size:16px;color:${C.goldBright};}
@@ -113,7 +113,7 @@ function HomeDashboard() {
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 18px 10px", direction: "rtl" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>🔢 מספרי המפתח</span>
+        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase" }}>🔢 מספרי המפתח</span>
         <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>בהקמה</span>
       </div>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
@@ -160,7 +160,7 @@ function LatestPostsRail({ posts, onPost }) {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <div style={{ fontSize: 12.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+      <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
         📜 עדכונים אחרונים
       </div>
       {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
@@ -349,7 +349,7 @@ export default function HomePage() {
           <LatestPostsRail posts={posts} onPost={(p) => nav("post", p)} />
 
           <div style={{ direction: "rtl" }}>
-            <div style={{ fontSize: 12.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+            <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
               👑 היכל השערים
             </div>
             <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
@@ -396,7 +396,7 @@ export default function HomePage() {
         }
         .sod-brand-tag {
           display: block; margin-top: 8px; font-family: ${F.heading};
-          font-size: 12px; letter-spacing: 3px; color: ${C.goldDim};
+          font-size: 15px; letter-spacing: 3px; color: ${C.goldDim};
         }
 
         /* ===== פרומו ברוכים הבאים ===== */
@@ -440,7 +440,7 @@ export default function HomePage() {
         /* ===== שערי המערכת ===== */
         .sod-gates-wrap { max-width: 1360px; margin: 0 auto; padding: 8px 18px 6px; direction: rtl; }
         .sod-gates-eyebrow {
-          text-align: center; font-size: 13px; color: ${C.goldLight}; letter-spacing: 4px;
+          text-align: center; font-size: 15px; color: ${C.goldLight}; letter-spacing: 4px;
           font-family: ${F.heading}; text-transform: uppercase; margin-bottom: 16px;
         }
         .sod-gates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -470,7 +470,7 @@ export default function HomePage() {
         .sod-gate-icon { font-size: 34px; line-height: 1; filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); }
         .sod-gate-title { color: ${C.goldLight}; font-family: ${F.royal}; font-size: 18.5px; font-weight: 700; transition: color 0.28s; }
         .sod-gate:hover .sod-gate-title { color: ${C.goldBright}; }
-        .sod-gate-sub { color: ${C.muted}; font-family: ${F.heading}; font-size: 12.5px; letter-spacing: 0.5px; }
+        .sod-gate-sub { color: ${C.muted}; font-family: ${F.heading}; font-size: 14px; letter-spacing: 0.5px; }
         .sod-gate-go {
           margin-top: 6px; color: ${C.goldBright}; font-family: ${F.heading};
           font-size: 11px; font-weight: 700; letter-spacing: 1px;
@@ -611,13 +611,13 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 12px; font-weight: 700; line-height: 1.6;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 13.5px; font-weight: 700; line-height: 1.6;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           padding-bottom: 2px; transition: color 0.28s;
         }
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 10px; letter-spacing: 0.5px; }
+        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 11.5px; letter-spacing: 0.5px; }
         .sod-pf-ai {
           font-family: ${F.heading}; font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
           color: #3ea6ff; background: rgba(62,166,255,0.14); border: 1px solid rgba(62,166,255,0.45);

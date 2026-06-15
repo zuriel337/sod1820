@@ -133,7 +133,7 @@ function NavLinkItem({ item, pathname, onNavigate }) {
     background: active ? "rgba(212,175,55,0.12)" : "transparent",
     border: active ? `1px solid ${C.borderGold}` : "1px solid transparent",
     cursor: "pointer", color: active ? C.goldBright : C.muted,
-    fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, letterSpacing: 0.3,
+    fontFamily: F.royal, fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
     padding: "7px 12px", borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap",
     display: "inline-flex", alignItems: "center", gap: 5,
     boxShadow: active ? "0 0 14px rgba(212,175,55,0.15)" : "none",
@@ -160,7 +160,7 @@ function MoreMenu({ items, pathname, onNavigate }) {
         background: anyActive ? "rgba(212,175,55,0.12)" : "transparent",
         border: anyActive ? `1px solid ${C.borderGold}` : "1px solid transparent",
         cursor: "pointer", color: anyActive ? C.goldBright : C.muted,
-        fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, letterSpacing: 0.3,
+        fontFamily: F.royal, fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
         padding: "7px 12px", borderRadius: 8, display: "inline-flex", alignItems: "center", gap: 5,
         transition: "color 0.2s, background 0.2s",
       }}>⋯ עוד <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></button>
@@ -180,7 +180,7 @@ function Dropdown({ items, onNavigate }) {
       {items.map(c => (
         <Link key={c.to} to={c.to} onClick={onNavigate} style={{
           display: "block", color: C.goldDim, textDecoration: "none",
-          fontFamily: F.royal, fontSize: 13, padding: "9px 12px", borderRadius: 5,
+          fontFamily: F.royal, fontSize: 15, padding: "10px 13px", borderRadius: 5,
           whiteSpace: "nowrap", transition: "background 0.18s, color 0.18s",
         }}
           onMouseEnter={e => { e.currentTarget.style.background = C.surface; e.currentTarget.style.color = C.goldBright; }}
@@ -207,10 +207,10 @@ function Brand() {
         }}>AI</span>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>
+        <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800, lineHeight: 1.25 }}>
           כי לה' המלוכה
         </div>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 7, letterSpacing: 3, textTransform: "uppercase" }}>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 8.5, letterSpacing: 3, textTransform: "uppercase" }}>
           SOD1820
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function Navbar() {
           display: "inline-flex", alignItems: "center", gap: 6,
           background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
           color: C.goldBright, textDecoration: "none",
-          fontFamily: F.heading, fontSize: 12, fontWeight: 800, letterSpacing: 1,
+          fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 1,
           padding: "8px 14px", borderRadius: 6, whiteSpace: "nowrap",
           border: `1px solid ${C.goldDim}`, boxShadow: "0 0 14px rgba(122,19,32,0.5)",
         }}>🚀 כאן מתחילים</Link>
@@ -311,7 +311,7 @@ export default function Navbar() {
                   {item.children.map(c => (
                     <Link key={c.to} to={c.to} onClick={() => setDrawer(false)} style={{
                       display: "block", color: C.muted, textDecoration: "none",
-                      fontFamily: F.royal, fontSize: 13.5, padding: "7px 14px",
+                      fontFamily: F.royal, fontSize: 15, padding: "8px 14px",
                     }}>– {c.label}</Link>
                   ))}
                 </div>
@@ -348,7 +348,7 @@ export default function Navbar() {
           background: rgba(8,5,2,0.99); backdrop-filter: blur(14px); border: 1px solid ${C.borderGold};
           border-radius: 12px; padding: 8px; z-index: 250; box-shadow: 0 14px 44px rgba(0,0,0,0.7); }
         .nav-drop-row { display: flex; align-items: center; gap: 9px; width: 100%; text-align: right; cursor: pointer;
-          background: none; border: none; color: ${C.goldDim}; font-family: ${F.body}; font-size: 13px;
+          background: none; border: none; color: ${C.goldDim}; font-family: ${F.body}; font-size: 14.5px;
           padding: 9px 10px; border-radius: 8px; transition: background 0.15s, color 0.15s; }
         .nav-drop-row:hover { background: ${C.surface}; color: ${C.goldBright}; }
         .nav-drop-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -356,7 +356,7 @@ export default function Navbar() {
         .nav-drop-div { height: 1px; background: ${C.border}; margin: 6px 4px; }
         .nav-drop-cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px; }
         .nav-drop-cat { cursor: pointer; background: rgba(20,15,12,0.6); border: 1px solid ${C.border};
-          color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12px; font-weight: 700;
+          color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13.5px; font-weight: 700;
           padding: 6px 11px; border-radius: 999px; transition: border-color 0.15s, background 0.15s; }
         .nav-drop-cat:hover { border-color: ${C.gold}; background: ${C.surface}; }
 
