@@ -435,6 +435,20 @@ export async function getRandomShiurim(limit = 12) {
   return data || [];
 }
 
+// ── הודעות/באנרים מונחי-נתונים לפי מיקום (ניתן לעריכה בלי דפלוי) ──
+export async function getAnnouncement(location) {
+  if (!supabase || !location) return null;
+  const { data } = await supabase
+    .from('announcements')
+    .select('title, body, updated_at')
+    .eq('location', location)
+    .eq('is_active', true)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data || null;
+}
+
 // מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
 export async function getPostsMetaByWpIds(wpIds = []) {
   if (!supabase || !wpIds.length) return [];
