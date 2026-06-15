@@ -613,6 +613,13 @@ export async function setTopicCardStatus(id, status) {  if (!supabase) throw new
   if (error) throw error;
   return data;
 }
+export async function updateTopicCard(id, patch) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('topic_cards')
+    .update(patch).eq('id', id).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
 export async function getGalleryImagesByIds(ids = []) {
   if (!supabase || !ids.length) return [];
   const { data } = await supabase.from('gallery_images')
