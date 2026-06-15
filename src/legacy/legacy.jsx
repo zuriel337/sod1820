@@ -9,6 +9,7 @@ import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
+import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4984,46 +4985,14 @@ function PostPageBySlug({ onNav }) {
                 ✏️ עריכת פוסט
               </button>
             ) : (
-              <div style={{
-                background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-                border: `1px solid ${C.borderGold}`, borderTop: `3px solid ${C.gold}`,
-                borderRadius: 4, padding: "22px 22px 18px",
-              }}>
-                <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>
-                  עריכת פוסט (מצב מנהל)
-                </div>
-
-                <label style={editLabelStyle}>כותרת</label>
-                <input value={draft.title} onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
-                  style={editInputStyle} />
-
-                <label style={editLabelStyle}>תקציר</label>
-                <textarea value={draft.excerpt} onChange={e => setDraft(d => ({ ...d, excerpt: e.target.value }))}
-                  rows={3} style={{ ...editInputStyle, resize: "vertical" }} />
-
-                <label style={editLabelStyle}>תוכן (HTML)</label>
-                <textarea value={draft.content} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}
-                  rows={14} style={{ ...editInputStyle, resize: "vertical", fontFamily: F.mono, lineHeight: 1.6, direction: "ltr", textAlign: "right" }} />
-
-                {saveErr && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, margin: "4px 0 12px" }}>{saveErr}</p>}
-
-                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                  <button onClick={saveEdit} disabled={saving} style={{
-                    background: C.gold, border: "none", color: C.bg, padding: "10px 22px",
-                    borderRadius: 4, cursor: saving ? "default" : "pointer", opacity: saving ? 0.6 : 1,
-                    fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 2,
-                  }}>
-                    {saving ? "שומר..." : "💾 שמירה"}
-                  </button>
-                  <button onClick={() => setEditing(false)} disabled={saving} style={{
-                    background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim,
-                    padding: "10px 22px", borderRadius: 4, cursor: "pointer",
-                    fontFamily: F.heading, fontSize: 13, letterSpacing: 2,
-                  }}>
-                    ביטול
-                  </button>
-                </div>
-              </div>
+              <AdvancedPostEditor
+                draft={draft}
+                setDraft={setDraft}
+                onSave={saveEdit}
+                onCancel={() => setEditing(false)}
+                saving={saving}
+                saveErr={saveErr}
+              />
             )}
           </div>
         )}
