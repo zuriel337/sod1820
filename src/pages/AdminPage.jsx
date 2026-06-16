@@ -11,6 +11,7 @@ import {
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
   getTopicCards, setTopicCardStatus, updateTopicCard, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
+  searchGalleryForCuration, setImageCuration,
   supabase,
 } from "../lib/supabase.js";
 
@@ -22,6 +23,7 @@ const TABS = [
   { key: "emails",   label: "📧 מיילים" },
   { key: "sets",     label: "🖼 סטים ותמונות" },
   { key: "topics",   label: "🎴 כרטיסי נושא" },
+  { key: "curation", label: "⭐ אצירת תמונות" },
   { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
 ];
@@ -84,6 +86,7 @@ export default function AdminPage() {
       {tab === "emails" && <EmailsTab />}
       {tab === "sets" && <SetsTab />}
       {tab === "topics" && <TopicsTab />}
+      {tab === "curation" && <CurationTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
     </div>
@@ -402,6 +405,77 @@ function HuntBox({ onCreated }) {
     </div>
   );
 }
+
+// ===== ⭐ אצירת תמונות — דירוג (importance) + הסתרה. מיון: חזק קודם, ואז תאריך =====
+function CurationTab() {
+  const [term, setTerm] = useState("");
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+
+  const load = useCallback((t = "") => {
+    setRows(null);
+    searchGalleryForCuration(t).then(setRows).catch(() => setRows([]));
+  }, []);
+  useEffect(() => { load(""); }, [load]);
+
+  async function bump(im, delta) {
+    setBusy(im.id);
+    const next = Math.max(0, Math.min(100, (im.importance || 0) + delta));
+    try {
+      await setImageCuration(im.id, { importance: next });
+      setRows(rs => rs.map(r => r.id === im.id ? { ...r, importance: next } : r)
+        .sort((a, b) => (b.importance || 0) - (a.importance || 0) || new Date(b.occurred_at || 0) - new Date(a.occurred_at || 0)));
+    } catch (e) { alert(e.message || e); }
+    finally { setBusy(null); }
+  }
+  async function toggleHide(im) {
+    setBusy(im.id);
+    try {
+      await setImageCuration(im.id, { curator_hidden: !im.curator_hidden });
+      setRows(rs => rs.map(r => r.id === im.id ? { ...r, curator_hidden: !im.curator_hidden } : r));
+    } catch (e) { alert(e.message || e); }
+    finally { setBusy(null); }
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={card}>
+        <H>⭐ אצירת תמונות</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "6px 0 12px", lineHeight: 1.8 }}>
+          ⭐ מעלה/מוריד עוצמה (חזק עולה למעלה) · 👁 מסתיר מבלי למחוק. המיון: החזקים קודם, ואז מהחדש לישן. עובדים לאט — שום דבר לא נמחק.
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input value={term} onChange={e => setTerm(e.target.value)} onKeyDown={e => e.key === "Enter" && load(term)}
+            placeholder="חיפוש לפי מספר / טקסט / שם קובץ…"
+            style={{ flex: 1, minWidth: 220, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "9px 12px", fontFamily: F.body, fontSize: 14 }} />
+          <BtnGold onClick={() => load(term)}>חפש</BtnGold>
+        </div>
+      </div>
+
+      {rows === null ? <Loading /> : rows.length === 0 ? <Empty>אין תוצאות.</Empty> : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px,1fr))", gap: 14 }}>
+          {rows.map(im => (
+            <div key={im.id} style={{ ...card, padding: 0, overflow: "hidden", opacity: im.curator_hidden ? 0.45 : 1 }}>
+              <div style={{ position: "relative", aspectRatio: "4/3", background: `center/cover no-repeat url(${im.image_url})` }}>
+                <span style={{ position: "absolute", top: 6, insetInlineStart: 6, background: "rgba(8,5,2,0.8)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>⭐ {im.importance ?? 0}</span>
+                {im.curator_hidden && <span style={{ position: "absolute", top: 6, insetInlineEnd: 6, background: "rgba(8,5,2,0.8)", color: "#d98a92", fontFamily: F.heading, fontSize: 11, borderRadius: 999, padding: "2px 8px" }}>מוסתר</span>}
+              </div>
+              <div style={{ padding: "10px 12px" }}>
+                {(im.ocr_numbers || []).length > 0 && <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5, marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} dir="ltr">{(im.ocr_numbers || []).slice(0, 8).join(" · ")}</div>}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <button disabled={busy === im.id} onClick={() => bump(im, 10)} style={curBtn}>⭐ +</button>
+                  <button disabled={busy === im.id} onClick={() => bump(im, -10)} style={curBtn}>−</button>
+                  <button disabled={busy === im.id} onClick={() => toggleHide(im)} style={{ ...curBtn, borderColor: im.curator_hidden ? C.borderGold : C.border }}>{im.curator_hidden ? "👁 הצג" : "👁 הסתר"}</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+const curBtn = { cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.goldLight, borderRadius: 8, padding: "5px 11px", fontFamily: F.heading, fontSize: 12 };
 
 // ===== 🔤 OCR (Edge Function gallery-ocr) =====
 function OcrTab() {

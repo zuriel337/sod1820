@@ -614,6 +614,31 @@ export async function getConvergenceEntities(nodeId) {
   const { data } = await supabase.from('nodes').select('label,description,metadata').eq('type', 'entity').in('id', ids);
   return (data || []).sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
 }
+
+// ===== אצירת תמונות — דירוג (importance) + הסתרה (curator_hidden). מיון: חזק קודם, ואז תאריך =====
+export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('gallery_images')
+    .select('id,image_url,name,ocr_numbers,occurred_at,importance,curator_hidden')
+    .not('image_url', 'is', null);
+  const t = (term || '').trim();
+  if (t) {
+    if (/^\d+$/.test(t)) q = q.contains('ocr_numbers', [parseInt(t, 10)]);
+    else q = q.or(`ocr_text.ilike.%${t}%,name.ilike.%${t}%`);
+  }
+  q = q.order('importance', { ascending: false })
+       .order('occurred_at', { ascending: false, nullsFirst: false })
+       .limit(limit);
+  const { data } = await q;
+  return data || [];
+}
+export async function setImageCuration(id, patch) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('gallery_images')
+    .update(patch).eq('id', id).select('id,importance,curator_hidden').maybeSingle();
+  if (error) throw error;
+  return data;
+}
 export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();
