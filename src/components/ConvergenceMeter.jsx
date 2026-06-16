@@ -15,7 +15,14 @@ export default function ConvergenceMeter({ value }) {
     if (!value || value < 10) { setData(null); return; }
     let live = true; setOpen(null);
     supabase.rpc("convergence_meter", { p_n: value })
-      .then(({ data }) => { if (live) setData(data); })
+      .then(({ data }) => {
+        if (!live) return;
+        setData(data);
+        // ברירת מחדל: פתוח על שכבת "התכנסות מילים" (ההצטלבויות) — שייראו מיד עם הכניסה
+        const layers = data?.layers || [];
+        const idx = layers.findIndex(l => l.name === "התכנסות מילים" && Array.isArray(l.evidence) && l.evidence.length);
+        setOpen(idx >= 0 ? idx : null);
+      })
       .catch(() => { if (live) setData(null); });
     return () => { live = false; };
   }, [value]);
