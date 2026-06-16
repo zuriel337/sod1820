@@ -149,7 +149,7 @@ export default function EntityPage() {
   const d = data || {};
   const chips = [
     d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
-    d.phrases?.length && { id: "tree", e: "🌳", n: d.phrases.length, l: "מילים שוות" },
+    d.phrases?.length && { id: "tree", e: "🌳", n: d.phrasesCount || d.phrases.length, l: "מילים שוות" },
     d.postsCount && { id: "posts", e: "📖", n: d.postsCount, l: "פוסטים" },
     d.eventsCount && { id: "events", e: "🕰", n: d.eventsCount, l: "אירועים" },
     d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "חידושי AI" },
@@ -215,7 +215,7 @@ export default function EntityPage() {
       </div>
 
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
-      {hasGate && <SignaturesRing signatures={sigs} />}
+      {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
       {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
       {!loading && chips.length > 0 && (() => {
@@ -317,7 +317,7 @@ export default function EntityPage() {
 
       {/* ── 🌳 עץ המספרים + מילים שוות ── */}
       <section id="tree" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-        <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrases?.length || null} />
+        <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrasesCount || d.phrases?.length || null} />
         {d.phrases?.length ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
             {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
@@ -487,7 +487,7 @@ function RoyalGate({ value, signatures, onOpen, onBack }) {
 }
 
 // ── טבעת החתימות: ישויות-העל שמתכנסות למספר (נחשפות בפתיחת השער) ──
-function SignaturesRing({ signatures }) {
+function SignaturesRing({ signatures, value }) {
   if (!signatures?.length) return null;
   return (
     <section style={{ marginBottom: 36 }}>
@@ -499,6 +499,13 @@ function SignaturesRing({ signatures }) {
             <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, marginBottom: 7 }}>{s.title}</div>
             <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(17px,2.7vw,23px)", fontWeight: 700, lineHeight: 1.5 }}>{s.label}</div>
             {s.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 8, maxWidth: 520, marginInline: "auto" }}>{s.desc}</div>}
+            {value != null && (
+              <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap", justifyContent: "center", background: "rgba(212,175,55,0.16)", border: `1px solid ${C.gold}`, borderRadius: 999, padding: "6px 18px", boxShadow: `0 0 18px ${C.goldDeep}` }}>
+                <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{s.label}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 18, fontWeight: 800 }}>=</span>
+                <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{value}</span>
+              </div>
+            )}
           </div>
         ))}
       </div>

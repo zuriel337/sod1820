@@ -4,7 +4,10 @@ import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
 import SubscribeGate from "../../components/SubscribeGate.jsx";
 
-const ELS_FREE_KEY = "els_free_used";   // מונה חיפושים חינם (אנונימי), נשמר מקומית
+const ELS_FREE_KEY = "els_free_used";    // מונה חיפושים חינם (אנונימי), נשמר מקומית
+const ELS_BONUS_KEY = "els_share_bonus"; // בונוס חיפושים על שיתוף
+const ELS_BONUS_PER = 2;                 // חיפושים נוספים לכל שיתוף
+const ELS_BONUS_CAP = 8;                 // תקרת בונוס שיתוף מצטבר
 
 // חיפושים מוצעים — לחיצה אחת (מילות מפתח מהאתר)
 const ELS_SUGGESTIONS = ["משיח", "גאולה", "ישראל", "דוד", "אליהו", "תורה", "ירושלים", "נחש"];
@@ -187,9 +190,11 @@ async function shareMatrixPNG(letters, hit, title) {
       a.href = url; a.download = matrixFileName(title); a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     }
+    return true;   // שיתוף/הורדה הצליחו
   } catch (e) {
-    if (e && e.name === "AbortError") return;   // המשתמש ביטל את חלון השיתוף
+    if (e && e.name === "AbortError") return false;   // המשתמש ביטל את חלון השיתוף
     alert("שיתוף התמונה נכשל — נסו 'שמור כתמונה'.");
+    return false;
   }
 }
 
@@ -348,6 +353,16 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
   const from = Math.max(0, tMin - contextRows);
   const to = Math.min(axis.colLetters.length, tMax + contextRows + 1);
 
+  // ממקמים את הרצף במרכז חלון הציר (גלילה אוטומטית) — כך המילה תמיד באמצע המסך
+  const scrollRef = useRef(null);
+  const ROW_PITCH = 32; // גובה תא (30) + רווח (2)
+  useEffect(() => {
+    const c = scrollRef.current;
+    if (!c) return;
+    const mid = ((tMin + tMax) / 2 - from) * ROW_PITCH;   // מרכז הרצף
+    c.scrollTop = Math.max(0, mid - c.clientHeight / 2 + ROW_PITCH / 2);
+  }, [hit, from, tMin, tMax]);
+
   const inputStyle = {
     flex: 1, background: "#050400", border: `1px solid ${C.border}`,
     color: C.goldBright, padding: "8px 10px", borderRadius: 6,
@@ -364,7 +379,7 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
       </div>
 
       {/* הציר עצמו — אנכי */}
-      <div style={{
+      <div ref={scrollRef} style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
         direction: "rtl", fontFamily: F.regal, fontSize: 16,
         maxHeight: 420, overflowY: "auto", padding: "4px 0",
@@ -438,7 +453,7 @@ export function ELSSection({ gated = false } = {}) {
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
   const [selectedIdx, setSelectedIdx] = useState(0);   // המופע המוצג בטבלה האחת
-  const [tableMode, setTableMode] = useState("grid");  // grid | axis — החלפת ציר באותה טבלה
+  const [tableMode, setTableMode] = useState("axis");  // axis | grid — ברירת מחדל: ציר אנכי מרכזי
   const [copied, setCopied] = useState(false);
   const [myName, setMyName] = useState("");   // חיפוש שם אישי
   const [showHelp, setShowHelp] = useState(false);  // פאנל "כל הפעולות"
@@ -446,9 +461,37 @@ export function ELSSection({ gated = false } = {}) {
   const [usedSearches, setUsedSearches] = useState(() => {
     try { return parseInt(localStorage.getItem(ELS_FREE_KEY)) || 0; } catch { return 0; }
   });
-  const freeLimit = cfg.freeQuota ?? 5;
+  const [shareBonus, setShareBonus] = useState(() => {
+    try { return parseInt(localStorage.getItem(ELS_BONUS_KEY)) || 0; } catch { return 0; }
+  });
+  const [bonusToast, setBonusToast] = useState("");
+  const freeLimit = (cfg.freeQuota ?? 5) + shareBonus;   // מכסה + בונוס שיתוף
   const freeLeft = Math.max(0, freeLimit - usedSearches);
   const gateLocked = gated && freeLeft <= 0;   // נגמרה המכסה החינמית
+
+  // בונוס שיתוף — מי שמשתף מקבל חיפושים חינם נוספים ("העבירו את האור הלאה")
+  function grantShareBonus() {
+    if (!gated) return;   // משתמש רשום/אדמין — ללא הגבלה ממילא
+    setShareBonus(b => {
+      if (b >= ELS_BONUS_CAP) { setBonusToast("תודה ששיתפת! 🙏 (כבר קיבלת את בונוס השיתוף המלא)"); return b; }
+      const nb = Math.min(ELS_BONUS_CAP, b + ELS_BONUS_PER);
+      try { localStorage.setItem(ELS_BONUS_KEY, String(nb)); } catch { /* ignore */ }
+      setBonusToast(`✨ תודה ששיתפת! קיבלת +${nb - b} חיפושים חינם`);
+      return nb;
+    });
+    setTimeout(() => setBonusToast(""), 3600);
+  }
+
+  // שיתוף הכלי עצמו (קישור/דף) → מזכה בבונוס. זמין תמיד, גם כששער ההרשמה נעול.
+  async function shareTool() {
+    const url = "https://sod1820.co.il/code";
+    const text = "מצאתי דברים מדהימים בצופן התנ״כי של סוד 1820 — חפשו גם אתם את השם שלכם בתורה:";
+    try {
+      if (navigator.share) { await navigator.share({ title: "הצופן התנ״כי · סוד 1820", text, url }); grantShareBonus(); }
+      else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(`${text} ${url}`); grantShareBonus(); }
+      else { window.prompt("העתיקו ושתפו:", url); grantShareBonus(); }
+    } catch (e) { if (e && e.name === "AbortError") return; /* ביטול — בלי בונוס */ }
+  }
 
   // טעינת הגדרות הכלי מ-Supabase (טבלת els_settings)
   useEffect(() => {
@@ -505,8 +548,8 @@ export function ELSSection({ gated = false } = {}) {
     return () => clearTimeout(t);
   }, []);
 
-  // תוצאה חדשה → מאפסים את הבחירה בטבלה
-  useEffect(() => { setSelectedIdx(0); setTableMode("grid"); }, [result]);
+  // תוצאה חדשה → מאפסים את הבחירה; ברירת המחדל היא הציר האנכי (המילה במרכז המסך)
+  useEffect(() => { setSelectedIdx(0); setTableMode("axis"); }, [result]);
 
   function run(override) {
     const src = typeof override === "string" ? override : target;
@@ -713,17 +756,38 @@ export function ELSSection({ gated = false } = {}) {
         {/* מכסת חיפושים חינם — באנר לאנונימי */}
         {gated && !gateLocked && (
           <div style={{
-            textAlign: "center", margin: "0 0 16px", padding: "9px 14px", borderRadius: 8,
+            margin: "0 0 16px", padding: "10px 14px", borderRadius: 8,
             background: "rgba(212,175,55,0.06)", border: `1px solid ${C.border}`,
             color: C.goldLight, fontFamily: F.royal, fontSize: 13,
+            display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", justifyContent: "center",
           }}>
-            🔓 נותרו לכם <b style={{ color: C.goldBright }}>{freeLeft.toLocaleString("he")}</b> חיפושים חינם · הרשמה חינמית פותחת חיפוש <b>בלי הגבלה</b>
+            <span>🔓 נותרו לכם <b style={{ color: C.goldBright }}>{freeLeft.toLocaleString("he")}</b> חיפושים חינם{shareBonus > 0 ? <span style={{ color: C.goldDim }}> (כולל +{shareBonus} בונוס שיתוף)</span> : null} · הרשמה = <b>בלי הגבלה</b></span>
+            {shareBonus < ELS_BONUS_CAP && (
+              <button onClick={shareTool} style={{
+                cursor: "pointer", background: "rgba(212,175,55,0.14)", color: C.goldBright,
+                border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "5px 14px",
+                fontFamily: F.heading, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap",
+              }}>📲 שתפו וקבלו +{ELS_BONUS_PER}</button>
+            )}
           </div>
         )}
 
-        {/* שער הרשמה — בסיום המכסה החינמית */}
+        {/* שער הרשמה — בסיום המכסה החינמית. עדיין אפשר לשתף ולהרוויח חיפושים */}
         {gateLocked && (
           <div ref={gateRef}>
+            {shareBonus < ELS_BONUS_CAP && (
+              <div style={{
+                textAlign: "center", margin: "0 0 14px", padding: "12px 16px", borderRadius: 10,
+                background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`,
+                color: C.goldLight, fontFamily: F.royal, fontSize: 13.5, lineHeight: 1.7,
+              }}>
+                רוצים עוד חיפושים בלי הרשמה? <b style={{ color: C.goldBright }}>העבירו את האור הלאה</b> —{" "}
+                <button onClick={shareTool} style={{
+                  cursor: "pointer", background: C.gold, color: "#0a0700", border: "none",
+                  borderRadius: 999, padding: "5px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, margin: "0 2px",
+                }}>📲 שתפו וקבלו +{ELS_BONUS_PER} חיפושים</button>
+              </div>
+            )}
             <SubscribeGate source="code" />
           </div>
         )}
@@ -795,7 +859,7 @@ export function ELSSection({ gated = false } = {}) {
                         }}>{selNote.mark} {selNote.text}</span>
                       )}
                       <span style={{ flex: 1 }} />
-                      {[["grid", "טבלה ▦"], ["axis", "ציר אנכי ▼"]].map(([mode, lbl]) => (
+                      {[["axis", "ציר אנכי ▼"], ["grid", "טבלה ▦"]].map(([mode, lbl]) => (
                         <button key={mode} onClick={() => setTableMode(mode)} style={{
                           cursor: "pointer", background: tableMode === mode ? C.gold : "transparent",
                           color: tableMode === mode ? "#0a0700" : C.goldBright, border: `1px solid ${C.borderGold}`,
@@ -806,10 +870,10 @@ export function ELSSection({ gated = false } = {}) {
                         cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                       }}>📷 שמור כתמונה</button>
-                      <button onClick={() => shareMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`)} title="שתף את הטבלה כתמונה" style={{
+                      <button onClick={async () => { const ok = await shareMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`); if (ok) grantShareBonus(); }} title="שתף את הטבלה כתמונה" style={{
                         cursor: "pointer", background: C.gold, color: "#0a0700", border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
-                      }}>📲 שתף</button>
+                      }}>📲 שתף{gated ? ` (+${ELS_BONUS_PER})` : ""}</button>
                     </div>
                     {tableMode === "grid"
                       ? <ELSMatrix letters={letters} hit={sel} />
@@ -875,9 +939,22 @@ export function ELSSection({ gated = false } = {}) {
               )
               : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
           <br />
-          חיפוש חופשי · ללא הגבלה ✦
+          {gated
+            ? <>חיפוש חינם · הרשמה פותחת ללא הגבלה · שיתוף מזכה בחיפושים נוספים ✦</>
+            : <>חיפוש חופשי · ללא הגבלה ✦</>}
         </div>
       </div>
+
+      {/* טוסט בונוס שיתוף */}
+      {bonusToast && (
+        <div style={{
+          position: "fixed", bottom: 22, left: "50%", transform: "translateX(-50%)", zIndex: 300,
+          background: "linear-gradient(160deg, rgba(30,22,6,0.98), rgba(10,7,0,0.98))",
+          border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "11px 22px",
+          color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700,
+          boxShadow: `0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(212,175,55,0.3)`, direction: "rtl",
+        }}>{bonusToast}</div>
+      )}
     </div>
   );
 }

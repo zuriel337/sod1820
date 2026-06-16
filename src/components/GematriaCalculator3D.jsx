@@ -125,7 +125,7 @@ export default function GematriaCalculator3D() {
   useEffect(() => {
     let live = true; setEqual(null);
     if (!letters.length || !activeVal) return;
-    supabase.from("bidim").select("phrase").eq("method", active).eq("value", activeVal).neq("phrase", word).limit(40)
+    supabase.from("bidim").select("phrase").eq("method", active).eq("value", activeVal).neq("phrase", word).limit(400)
       .then(({ data }) => { if (live) setEqual([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
     return () => { live = false; };
   }, [active, activeVal, word, letters.length]);
