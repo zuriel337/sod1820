@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { C, F } from "../theme.js";
 import { requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { subscribeEmail } from "../lib/supabase.js";
+import { broadcastJoin } from "../lib/joinEvents.js";
 
 /**
  * אימות מייל בשני שלבים (Supabase Auth OTP) — רכיב קבוע וניתן-להצבה.
@@ -56,6 +57,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
     setBusy(true);
     try {
       await verifyEmailOtp(email, code);
+      broadcastJoin();   // חגיגת הצטרפות חיה לכל המבקרים
       onVerified?.();
     } catch {
       setErr("הקוד שגוי או שפג תוקפו — אפשר לשלוח קוד חדש");
