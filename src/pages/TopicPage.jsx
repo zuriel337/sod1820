@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getTopicCardBySlug, getGalleryImagesByIds } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, supabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
@@ -16,6 +16,23 @@ export default function TopicPage() {
   const { slug } = useParams();
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
+  const [goldEnts, setGoldEnts] = useState([]); // ישויות זהב שערכן נופל על מספרי הכרטיס (גשר ל-/cross)
+
+  // ישויות הזהב של מספרי הכרטיס — הגשר אל הגרף ואל /cross
+  useEffect(() => {
+    let live = true; setGoldEnts([]);
+    const nums = card?.numbers || [];
+    if (!nums.length) return;
+    supabase.from("nodes").select("label,metadata")
+      .eq("type", "entity").eq("is_active", true).eq("metadata->>tier", "gold")
+      .then(({ data }) => {
+        if (!live) return;
+        const set = new Set(nums);
+        setGoldEnts((data || []).filter(n => set.has(Number(n.metadata?.value)))
+          .map(n => ({ label: n.label, value: Number(n.metadata?.value), display: n.metadata?.display || n.label })));
+      });
+    return () => { live = false; };
+  }, [card]);
 
   useEffect(() => {
     let live = true;
@@ -59,7 +76,32 @@ export default function TopicPage() {
               color: hot.has(n) ? C.goldBright : C.goldDim }}>{n}</Link>
           ))}
         </div>
+        {/* גשר ל-/cross — הצלבת השיטות של המספרים המודגשים */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          {(card.highlight_numbers || nums.slice(0, 3)).map(n => (
+            <Link key={`x${n}`} to={`/cross?n=${n}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
+              border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 12px",
+              color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>⟡ הצלבת {n} →</Link>
+          ))}
+        </div>
       </div>
+
+      {/* 👑 ישויות הזהב — הגשר אל הגרף */}
+      {goldEnts.length > 0 && (
+        <div style={{ ...box, marginBottom: 20 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>👑 ישויות זהב</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {goldEnts.map((e, i) => (
+              <Link key={i} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
+                display: "inline-flex", alignItems: "center", gap: 7, background: "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.04))",
+                border: `1px solid ${C.gold}`, borderRadius: 999, padding: "6px 13px" }}>
+                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 14, fontWeight: 700 }}>{e.display}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{e.value}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* רמז משלים */}
       {f.hint && (

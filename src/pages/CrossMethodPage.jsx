@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { C, F, KEY_NUMBERS } from "../theme.js";
 import { supabase } from "../lib/supabase.js";
 
@@ -27,12 +27,26 @@ const TOTAL_METHODS = METHOD_COLS.length;
 const SAMPLES = [1820, 313, 326, 322, 1234, 776, 86];
 
 export default function CrossMethodPage() {
-  const [input, setInput] = useState("1820");
-  const [num, setNum] = useState(1820);
+  const [params] = useSearchParams();
+  const initN = Number(params.get("n")) || 1820;   // עומק-לינק: /cross?n=1820 (מ-/topic)
+  const [input, setInput] = useState(String(initN));
+  const [num, setNum] = useState(initN);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [entities, setEntities] = useState([]);   // ישויות מאומתות שנופלות על המספר (מדורגות לפי משמעות)
   const [related, setRelated] = useState([]);     // ישויות קרובות דרך הגרף (edges)
+  const [cards, setCards] = useState([]);         // כרטיסי התכנסות שמכילים את המספר (גשר ל-/topic)
+
+  // כרטיסי התכנסות שמכילים את המספר — הגשר לציר ההתכנסות
+  useEffect(() => {
+    let live = true; setCards([]);
+    if (!num || num <= 0) return;
+    import("../lib/supabase.js").then(({ getTopicCards }) =>
+      getTopicCards({ approvedOnly: true }).then(all => {
+        if (live) setCards((all || []).filter(c => (c.numbers || []).includes(num)));
+      })).catch(() => {});
+    return () => { live = false; };
+  }, [num]);
 
   useEffect(() => { document.title = `הצלבת שיטות · ${num} · סוד 1820`; }, [num]);
 
@@ -143,6 +157,20 @@ export default function CrossMethodPage() {
           <button key={s} onClick={() => go(s)} style={{ ...chip, ...(s === num ? chipOn : {}) }}>{s}</button>
         ))}
       </div>
+
+      {/* 🧩 גשר לציר ההתכנסות — אם יש כרטיס על המספר */}
+      {cards.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 20 }}>
+          {cards.map(c => (
+            <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{
+              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7,
+              background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(8,5,2,0.4))",
+              border: `1px solid ${C.gold}`, borderRadius: 999, padding: "7px 16px",
+              color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
+            }}>🧩 ציר התכנסות: {c.title} →</Link>
+          ))}
+        </div>
+      )}
 
       {/* המספר + סיכום */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
