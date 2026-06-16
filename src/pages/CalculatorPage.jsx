@@ -127,10 +127,10 @@ function Wall({ onPick }) {
     <div style={{ marginTop: 34 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
         <h2 style={{ margin: 0, color: L.ink, fontFamily: F.regal, fontSize: 24, fontWeight: 800 }}>
-          קיר הגימטריה החי
+          🔎 מה גולשים חיפשו
         </h2>
         <span style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5 }}>
-          {count.toLocaleString("he-IL")} מילים ושמות חושבו עד כה — הוסיפו את שלכם ☝️
+          {count.toLocaleString("he-IL")} שמות, מילים וביטויים שאנשים בדקו — רשימה נפרדת, הוסיפו את שלכם ☝️
         </span>
         <div style={{ display: "flex", gap: 8, marginInlineStart: "auto" }}>
           {tabBtn("hot", "🔥 הכי מחושבים")}

@@ -4,6 +4,7 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { SectionHeader } from "../components/ui.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
+import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 import { NAV } from "../routes.jsx";
 import { supabase, addWallWord } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
@@ -205,6 +206,11 @@ export function CommunityCalculatorPage() {
         <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: C.goldDim, fontFamily: F.heading, fontSize: 13, textDecoration: "underline" }}>
           {compare ? "− הסר השוואה" : "+ השוואת שני שמות"}
         </button>
+      </div>
+
+      {/* 🔎 מה גולשים חיפשו — רשימה נפרדת מהמאגר המאומת (gematria_wall) */}
+      <div style={{ marginBottom: 26 }}>
+        <VisitorSearchesBox onPick={(p) => { setName1(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
       </div>
 
       {r1 && (
