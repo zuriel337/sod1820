@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase.js";
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
 import SubscribeGate from "../../components/SubscribeGate.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
 
 const ELS_FREE_KEY = "els_free_used";    // מונה חיפושים חינם (אנונימי), נשמר מקומית
 const ELS_BONUS_KEY = "els_share_bonus"; // בונוס חיפושים על שיתוף
@@ -469,6 +470,45 @@ export function ELSSection({ gated = false } = {}) {
   const freeLeft = Math.max(0, freeLimit - usedSearches);
   const gateLocked = gated && freeLeft <= 0;   // נגמרה המכסה החינמית
 
+  // ── לוח תגליות הגולשים ──
+  const { user, verified } = useAuth();
+  const [finds, setFinds] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const loadFinds = () => {
+    supabase.from("els_finds").select("id,term,value,skip,dir,start_pos,created_at")
+      .eq("approved", true).order("created_at", { ascending: false }).limit(40)
+      .then(({ data }) => setFinds(data || []));
+  };
+  useEffect(() => { loadFinds(); }, []);
+
+  // שמירת ממצא ללוח הגולשים (דורש התחברות — תמריץ הרשמה נוסף)
+  async function saveFind(hit) {
+    if (!verified || !user) {
+      setBonusToast("התחברו (חינם) כדי לשמור ולשתף ממצא עם הקהילה");
+      setTimeout(() => setBonusToast(""), 3600);
+      gateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("els_finds").insert({
+      term: result?.target || target, value: calcGem(result?.target || target),
+      skip: hit.skip, dir: hit.dir, start_pos: hit.start, user_id: user.id,
+    });
+    setSaving(false);
+    setBonusToast(error ? "השמירה נכשלה — נסו שוב" : "✓ הממצא נשמר ללוח תגליות הגולשים");
+    setTimeout(() => setBonusToast(""), 3600);
+    if (!error) loadFinds();
+  }
+
+  // טעינת ממצא מהלוח → חיפוש חוזר מדויק (לא תלוי בעדכון ה-state האסינכרוני)
+  function loadFind(f) {
+    const d = f.dir === 1 ? "fwd" : "back";
+    setTarget(f.term);
+    setSkipMin(f.skip); setSkipMax(f.skip); setDir(d); setMaxMismatches(0);
+    run(f.term, { lo: f.skip, hi: f.skip, dir: d, mm: 0 });
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   // בונוס שיתוף — מי שמשתף מקבל חיפושים חינם נוספים ("העבירו את האור הלאה")
   function grantShareBonus() {
     if (!gated) return;   // משתמש רשום/אדמין — ללא הגבלה ממילא
@@ -551,7 +591,7 @@ export function ELSSection({ gated = false } = {}) {
   // תוצאה חדשה → מאפסים את הבחירה; ברירת המחדל היא הציר האנכי (המילה במרכז המסך)
   useEffect(() => { setSelectedIdx(0); setTableMode("axis"); }, [result]);
 
-  function run(override) {
+  function run(override, opts) {
     const src = typeof override === "string" ? override : target;
     // מכסת חיפושים חינם (אנונימי) — בסיום המכסה מציגים שער הרשמה ולא מחפשים
     if (gated && freeLeft <= 0) {
@@ -563,9 +603,10 @@ export function ELSSection({ gated = false } = {}) {
       setUsedSearches(n);
       try { localStorage.setItem(ELS_FREE_KEY, String(n)); } catch { /* ignore */ }
     }
-    const lo = Math.max(1, parseInt(skipMin) || 1);
-    const hi = Math.max(lo, parseInt(skipMax) || lo);
-    const mm = Math.max(0, parseInt(maxMismatches) || 0);
+    const lo = opts?.lo ?? Math.max(1, parseInt(skipMin) || 1);
+    const hi = opts?.hi ?? Math.max(lo, parseInt(skipMax) || lo);
+    const mm = opts?.mm ?? Math.max(0, parseInt(maxMismatches) || 0);
+    const dirUse = opts?.dir ?? dir;
     // מספר מונחים מופרדים בפסיק → חיפוש אשכול
     const terms = src.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
     setAxisHit(null);
@@ -573,9 +614,9 @@ export function ELSSection({ gated = false } = {}) {
     // נותנים ל-UI להתעדכן לפני חישוב כבד
     setTimeout(() => {
       if (terms.length >= 2) {
-        setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
+        setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dirUse, mm) });
       } else {
-        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dir, mm) });
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dirUse, mm) });
       }
       setSearching(false);
     }, 10);
@@ -874,6 +915,10 @@ export function ELSSection({ gated = false } = {}) {
                         cursor: "pointer", background: C.gold, color: "#0a0700", border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                       }}>📲 שתף{gated ? ` (+${ELS_BONUS_PER})` : ""}</button>
+                      <button onClick={() => saveFind(sel)} disabled={saving} title="שמרו את הממצא ללוח תגליות הגולשים" style={{
+                        cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
+                        borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                      }}>💾 שמרו ממצא</button>
                     </div>
                     {tableMode === "grid"
                       ? <ELSMatrix letters={letters} hit={sel} />
@@ -921,6 +966,34 @@ export function ELSSection({ gated = false } = {}) {
                 ))}
               </>
             )
+          )}
+        </div>
+
+        {/* 🏆 לוח תגליות הגולשים — ממצאים שמורים, לחיצה טוענת את החיפוש המדויק */}
+        <div style={{ marginTop: 30 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 800, margin: 0 }}>🏆 תגליות הגולשים</h3>
+            <span style={{ color: C.goldDim, fontFamily: F.royal, fontSize: 12.5 }}>ממצאים ששמרו הגולשים · לחצו לטעינת החיפוש</span>
+          </div>
+          {finds.length === 0 ? (
+            <div style={{ color: C.muted, fontFamily: F.royal, fontSize: 13.5, padding: "14px 4px", lineHeight: 1.8 }}>
+              עדיין אין ממצאים שמורים. מצאו דילוג מעניין ולחצו <b style={{ color: C.goldLight }}>💾 שמרו ממצא</b> — וזה יופיע כאן לכולם.
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 10 }}>
+              {finds.map(f => (
+                <button key={f.id} onClick={() => loadFind(f)} title="טען חיפוש זה" style={{
+                  cursor: "pointer", textAlign: "right", background: "rgba(20,15,12,0.5)",
+                  border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px",
+                  display: "flex", flexDirection: "column", gap: 5,
+                }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{f.term}</span>
+                  <span style={{ color: C.muted, fontFamily: F.royal, fontSize: 12 }}>
+                    גימטריה {(f.value ?? 0).toLocaleString("he")} · דילוג {f.skip} · {f.dir === 1 ? "→" : "←"}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
