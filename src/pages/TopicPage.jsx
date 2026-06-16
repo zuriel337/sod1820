@@ -16,7 +16,7 @@ export default function TopicPage() {
   const { slug } = useParams();
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
-  const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף
+  const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
 
   useEffect(() => {
@@ -73,6 +73,14 @@ export default function TopicPage() {
               fontSize: hot.has(n) ? 16 : 13, padding: hot.has(n) ? "5px 14px" : "3px 10px", borderRadius: 999,
               border: `1px solid ${hot.has(n) ? C.gold : C.border}`, background: hot.has(n) ? "rgba(212,175,55,0.18)" : "transparent",
               color: hot.has(n) ? C.goldBright : C.goldDim }}>{n}</Link>
+          ))}
+        </div>
+        {/* גשר ל-/cross — הצלבת השיטות של המספרים המודגשים */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          {(card.highlight_numbers || nums.slice(0, 3)).map(n => (
+            <Link key={`x${n}`} to={`/cross?n=${n}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
+              border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 12px",
+              color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>⟡ הצלבת {n} →</Link>
           ))}
         </div>
       </div>

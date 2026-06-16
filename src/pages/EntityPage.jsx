@@ -5,7 +5,49 @@ import { getEntityBundle, supabase } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
+import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
+import NumberDNA from "../components/NumberDNA.jsx";
+import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
+
+const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
+const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
+
+// 🧬 פאנל ההתכנסות לדף הישות — לביטוי: שורת ערכי-שיטות (העוגן מודגש ונבחר אוטומטית); למספר: ישר המד.
+function EntityConvergence({ term, isNumber, ragil }) {
+  const vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  const anchorHit = vals && vals.find(x => ANCHOR_SET.has(x.v));
+  const [sel, setSel] = useState(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil));
+  useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
+
+  return (
+    <div style={{ marginBottom: 22, borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
+      {vals && (
+        <div style={{ padding: "12px 14px 4px" }}>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 9 }}>בחרו שיטה — העוגן הקדוש נבחר אוטומטית</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {vals.map(x => {
+              const on = x.v === sel; const anc = ANCHOR_SET.has(x.v);
+              return (
+                <button key={x.key} onClick={() => setSel(x.v)} title={anc ? "עוגן קדוש" : ""} style={{
+                  cursor: "pointer", borderRadius: 10, padding: "5px 10px", textAlign: "center",
+                  border: `1px solid ${on ? C.gold : anc ? C.borderGold : C.border}`,
+                  background: on ? "rgba(212,175,55,0.18)" : anc ? "rgba(212,175,55,0.07)" : "rgba(20,15,12,0.6)",
+                }}>
+                  <div style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
+                  <div style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <ConvergenceMeter value={sel} />
+      <NumberDNA value={sel} />
+    </div>
+  );
+}
+
 
 // כפתורי שיתוף (וואטסאפ + העתקה) — לולאת ויראליות "שתפו עם חבר"
 function ShareButtons({ text }) {
@@ -199,6 +241,9 @@ export default function EntityPage() {
           </div>
         );
       })()}
+
+      {/* ── 🧬 מד ההתכנסות + ערכי השיטות ── */}
+      <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
 
       {/* ── מפת קשרים מהירה ── */}
       {loading ? (
