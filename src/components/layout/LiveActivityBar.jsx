@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
 import { getTopicCards } from "../../lib/supabase.js";
+import { topicTag } from "../../lib/topicCards.js";
 
 // שורת "חדשות בית המדרש" העליונה — מזרימה את ציר ההתכנסות החדש (כרטיסים מאושרים),
 // מתעדכן אוטומטית בכל פעם שמאשרים/מעדכנים כרטיס. נופל לברכות אם אין עדיין כרטיסים.
@@ -14,6 +15,7 @@ const FALLBACK = [
 
 export default function LiveActivityBar() {
   const [items, setItems] = useState(null); // [{text, to}] | null
+  const [count, setCount] = useState(0);
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
@@ -22,10 +24,13 @@ export default function LiveActivityBar() {
       if (!live) return;
       const sorted = (cards || []).slice().sort((a, b) =>
         new Date(b.approved_at || b.created_at) - new Date(a.approved_at || a.created_at));
-      const its = sorted.map(c => ({
-        to: `/topic/${encodeURIComponent(c.slug)}`,
-        text: `${c.title}${(c.highlight_numbers || []).length ? " · " + c.highlight_numbers.join(" · ") : ""}`,
-      }));
+      setCount(sorted.length);
+      const its = sorted.map(c => {
+        const tag = topicTag(c);
+        const prefix = tag ? `${tag.icon} ${tag.label}` : "✨ התגלות חדשה";
+        const nums = (c.highlight_numbers || []).length ? " · " + c.highlight_numbers.join(" · ") : "";
+        return { to: `/topic/${encodeURIComponent(c.slug)}`, text: `${prefix}: ${c.title}${nums}` };
+      });
       setItems(its);
     }).catch(() => setItems([]));
     return () => { live = false; };
@@ -50,7 +55,7 @@ export default function LiveActivityBar() {
           fontSize: 11, fontWeight: 800, letterSpacing: 1, color: C.goldBright,
           fontFamily: F.heading, border: `1px solid ${C.borderGold}`, borderRadius: 5,
           padding: "2px 8px", whiteSpace: "nowrap", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4))",
-        }}>✦ התגלות חדשה</Link>
+        }}>📚 חדשות בית המדרש{count ? ` · ${count} גילויים` : ""}</Link>
         {cur.to ? (
           <Link key={idx} to={cur.to} style={{
             color: C.goldLight, fontFamily: F.royal, fontSize: 15, fontWeight: 500, textDecoration: "none",
