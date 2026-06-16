@@ -15,7 +15,13 @@ const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קד
 
 // 🧬 פאנל ההתכנסות לדף הישות — לביטוי: שורת ערכי-שיטות (העוגן מודגש ונבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
-  const vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  // חוק method_hierarchy_ragil_foundation: "גדול הוא שיטה נפרדת לסופיות".
+  // אין אותיות סופיות → גדול ≡ רגיל; לא מציגים אותו פעמיים (כפילות).
+  if (vals) {
+    const ragilV = vals.find(x => x.key === "רגיל")?.v;
+    vals = vals.filter(x => !(x.key === "גדול" && x.v === ragilV));
+  }
   const anchorHit = vals && vals.find(x => ANCHOR_SET.has(x.v));
   const [sel, setSel] = useState(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil));
   useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
