@@ -9,7 +9,7 @@ const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
-  getTopicCards, setTopicCardStatus, getGalleryImagesByIds,
+  getTopicCards, setTopicCardStatus, updateTopicCard, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   supabase,
 } from "../lib/supabase.js";
@@ -95,6 +95,7 @@ function TopicsTab() {
   const [cards, setCards] = useState(null);
   const [imgMap, setImgMap] = useState({});
   const [busy, setBusy] = useState(null);
+  const [editing, setEditing] = useState(null);
   const load = useCallback(() => {
     getTopicCards().then(async cs => {
       setCards(cs);
@@ -133,6 +134,9 @@ function TopicsTab() {
         const others = (c.numbers || []).filter(n => !hot.has(n));
         const sLabel = c.status === "approved" ? "✓ מאושר" : c.status === "rejected" ? "✗ נדחה" : "⏳ טיוטה";
         const sColor = c.status === "approved" ? "#7bbf7b" : c.status === "rejected" ? "#d98a92" : C.goldDim;
+        if (editing === c.id) {
+          return <CardEditor key={c.id} card={c} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />;
+        }
         return (
           <div key={c.id} style={{ ...card, borderColor: c.status === "draft" ? C.borderGold : C.border }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
@@ -200,12 +204,86 @@ function TopicsTab() {
                   {c.status !== "approved" && <BtnGold onClick={() => setStatus(c.id, "approved")}>✓ אשר לפרסום</BtnGold>}
                   {c.status !== "rejected" && <button onClick={() => setStatus(c.id, "rejected")} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.crimsonLight}`, color: "#d98a92", borderRadius: 999, padding: "8px 16px", fontFamily: F.heading, fontSize: 13 }}>✗ דחה</button>}
                   {c.status !== "draft" && <button onClick={() => setStatus(c.id, "draft")} style={iconBtn}>↩ החזר לטיוטה</button>}
+                  <button onClick={() => setEditing(c.id)} style={iconBtn}>✎ ערוך</button>
                 </>
               )}
             </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// עורך כרטיס — הוספה/הסרה/הבלטה של תוכן הכרטיס
+function CardEditor({ card, onCancel, onSaved }) {
+  const f = card.findings || {};
+  const [title, setTitle] = useState(card.title || "");
+  const [subtitle, setSubtitle] = useState(card.subtitle || "");
+  const [quality, setQuality] = useState(card.quality ?? 5);
+  const [nums, setNums] = useState((card.numbers || []).join(", "));
+  const [hot, setHot] = useState((card.highlight_numbers || []).join(", "));
+  const [headline, setHeadline] = useState(f.headline || "");
+  const [bullets, setBullets] = useState((f.bullets || []).join("\n"));
+  const [hint, setHint] = useState(f.hint || "");
+  const [caveat, setCaveat] = useState(f.caveat || "");
+  const [saving, setSaving] = useState(false);
+
+  const parseNums = s => s.split(/[,\s]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+  const lbl = { color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, margin: "10px 0 4px" };
+  const inp = { width: "100%", boxSizing: "border-box", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.body, fontSize: 14 };
+  const mono = { ...inp, fontFamily: F.mono, direction: "ltr", textAlign: "right" };
+
+  async function save() {
+    setSaving(true);
+    try {
+      await updateTopicCard(card.id, {
+        title: title.trim(), subtitle: subtitle.trim(), quality: Number(quality) || 0,
+        numbers: parseNums(nums), highlight_numbers: parseNums(hot),
+        findings: { ...f, headline: headline.trim(), hint: hint.trim(), caveat: caveat.trim(),
+          bullets: bullets.split("\n").map(b => b.trim()).filter(Boolean) },
+      });
+      onSaved();
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); setSaving(false); }
+  }
+
+  return (
+    <div style={{ ...card, borderColor: C.gold }}>
+      <H>✎ עריכת כרטיס</H>
+      <div style={lbl}>כותרת</div>
+      <input value={title} onChange={e => setTitle(e.target.value)} style={inp} />
+      <div style={lbl}>כותרת משנה</div>
+      <input value={subtitle} onChange={e => setSubtitle(e.target.value)} style={inp} />
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 120 }}>
+          <div style={lbl}>עוצמה (0-10)</div>
+          <input type="number" min="0" max="10" value={quality} onChange={e => setQuality(e.target.value)} style={mono} />
+        </div>
+        <div style={{ flex: 2, minWidth: 160 }}>
+          <div style={lbl}>מספרים (פסיקים)</div>
+          <input value={nums} onChange={e => setNums(e.target.value)} style={mono} />
+        </div>
+        <div style={{ flex: 2, minWidth: 160 }}>
+          <div style={lbl}>מספרים מובלטים (פסיקים)</div>
+          <input value={hot} onChange={e => setHot(e.target.value)} style={mono} />
+        </div>
+      </div>
+      <div style={lbl}>כותרת הממצאים</div>
+      <input value={headline} onChange={e => setHeadline(e.target.value)} style={inp} />
+      <div style={lbl}>נקודות (שורה לכל נקודה — הוסף/הסר חופשי)</div>
+      <textarea value={bullets} onChange={e => setBullets(e.target.value)} rows={6} style={{ ...inp, resize: "vertical", lineHeight: 1.7 }} />
+      <div style={lbl}>רמז משלים (רובד פרשני)</div>
+      <textarea value={hint} onChange={e => setHint(e.target.value)} rows={3} style={{ ...inp, resize: "vertical", lineHeight: 1.7 }} />
+      <div style={lbl}>הסתייגות מחקרית</div>
+      <textarea value={caveat} onChange={e => setCaveat(e.target.value)} rows={2} style={{ ...inp, resize: "vertical", lineHeight: 1.7 }} />
+      <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+        {saving ? <span style={{ color: C.goldDim, fontFamily: F.heading }}>שומר…</span> : (
+          <>
+            <BtnGold onClick={save}>💾 שמור</BtnGold>
+            <button onClick={onCancel} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "8px 16px", cursor: "pointer", fontFamily: F.heading }}>ביטול</button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

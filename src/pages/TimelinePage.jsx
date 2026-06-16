@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabase.js";
 import { C, F } from "../theme.js";
 import { stripHtml } from "../lib/format.js";
 import { SectionHeader } from "../components/ui.jsx";
-import ConvergenceAxis from "../components/ConvergenceAxis.jsx";
 
 // ===== ציר ההתגלות — העמוד המלא =====
 // כל אירועי הציר מקובצים לפי שנה, וכל תחנה מחוברת לתוכן שלה:
@@ -17,7 +16,6 @@ const PAGE_CSS = `
   .rev-station:hover { transform: perspective(900px) rotateX(1.6deg) translateY(-5px); border-color: ${C.borderGold} !important; box-shadow: 0 14px 44px rgba(0,0,0,.55), 0 0 34px ${VIOLET}2e; }
   .rev-station.rev-target { border-color: ${VIOLET} !important; box-shadow: 0 0 0 1px ${VIOLET}, 0 0 44px ${VIOLET}55; }
   @keyframes rev-spine-glow { 0%,100% { opacity:.55; } 50% { opacity:1; } }
-  @media (max-width: 980px) { .rev-wrap { flex-direction: column; } .rev-aside { width: 100% !important; position: static !important; } }
 `;
 
 function useAxisData() {
@@ -173,12 +171,8 @@ export default function TimelinePage() {
   }, [loading, hash]);
 
   return (
-    <div className="rev-wrap" style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "64px 24px 96px", display: "flex", gap: 28, alignItems: "flex-start", position: "relative", zIndex: 1 }}>
+    <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <style>{PAGE_CSS}</style>
-      <aside className="rev-aside" style={{ width: 248, flex: "0 0 auto", position: "sticky", top: 80 }}>
-        <ConvergenceAxis title="✦ ציר ההתכנסות" />
-      </aside>
-      <main style={{ flex: 1, minWidth: 0, maxWidth: 860 }}>
       <SectionHeader eyebrow="המסע בזמן" title="🌅 ציר ההתגלות" />
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 52px" }}>
         אירועי הגאולה כפי שנגלו, שנה אחר שנה. כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים —
@@ -217,7 +211,6 @@ export default function TimelinePage() {
       {!loading && !events.length && (
         <div style={{ color: C.muted, textAlign: "center", fontFamily: F.body }}>אין עדיין אירועים בציר.</div>
       )}
-      </main>
     </div>
   );
 }
