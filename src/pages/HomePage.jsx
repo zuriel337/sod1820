@@ -178,7 +178,7 @@ function LatestPostsRail({ posts, onPost }) {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+      <div style={{ fontSize: 15.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
         📜 עדכונים אחרונים
       </div>
       {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
@@ -734,20 +734,20 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14.5px; font-weight: 700; line-height: 1.55;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 16.5px; font-weight: 700; line-height: 1.5;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           padding-bottom: 2px; transition: color 0.28s;
         }
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 11.5px; letter-spacing: 0.5px; }
+        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 13px; letter-spacing: 0.5px; }
         .sod-pf-ai {
-          font-family: ${F.heading}; font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+          font-family: ${F.heading}; font-size: 10.5px; font-weight: 800; letter-spacing: 0.5px;
           color: #3ea6ff; background: rgba(62,166,255,0.14); border: 1px solid rgba(62,166,255,0.45);
           border-radius: 999px; padding: 1px 7px; white-space: nowrap;
         }
         .sod-pf-gem {
-          font-family: ${F.mono}; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+          font-family: ${F.mono}; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
           color: ${C.goldBright};
           background: linear-gradient(135deg, rgba(122,19,32,0.55), rgba(160,31,46,0.35));
           border: 1px solid ${C.borderGold}; border-radius: 20px; padding: 2px 8px;
@@ -758,7 +758,7 @@ export default function HomePage() {
         .sod-pf-all {
           display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
           color: ${C.goldBright}; text-decoration: none; font-family: ${F.heading};
-          font-size: 12px; font-weight: 700; letter-spacing: 1px;
+          font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
           padding: 9px 16px; border-radius: 8px; border: 1px solid ${C.borderGold};
           background: rgba(20,15,12,0.5); transition: background 0.2s, gap 0.2s, box-shadow 0.2s;
         }

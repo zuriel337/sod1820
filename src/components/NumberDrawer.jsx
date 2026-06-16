@@ -113,9 +113,17 @@ export default function NumberDrawer() {
 
   const b = bundle || {};
 
-  // הסרגל הצף נפתח רק בהקשר (לחיצה על מספר בפוסט/גלריה) — אין בועה גלובלית קבועה.
+  // הסרגל הצף נפתח בהקשר (לחיצה על מספר) או דרך הבועה הצפה הגלובלית שזמינה בכל דף.
   return (
     <>
+
+      {/* בועה צפה גלובלית — פותחת את מגירת המספר מכל מקום באתר (כולל דף הצ'אט) */}
+      {!open && (
+        <button onClick={() => openNumberDrawer()} aria-label="פתח את מגירת המספר — מחשבון גימטריה"
+          title="מחשבון הגימטריה — פתחו מכל מקום" className="nd-launcher">
+          🧮
+        </button>
+      )}
 
       {/* חוטים אל המספר בעמוד (פוסט / גלריה) */}
       {open && thread?.length > 0 && (
@@ -314,6 +322,27 @@ export default function NumberDrawer() {
           </div>
         </div>
       )}
+
+      <style>{`
+        .nd-launcher {
+          position: fixed; right: 18px; bottom: 18px; z-index: 140;
+          width: 52px; height: 52px; border-radius: 999px; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1;
+          background: linear-gradient(160deg, rgba(20,15,5,0.96), rgba(8,5,2,0.96));
+          border: 1px solid ${C.borderGold}; color: ${C.goldBright};
+          box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px rgba(212,175,55,0.22);
+          transition: transform .16s, box-shadow .16s, border-color .16s;
+        }
+        .nd-launcher:hover {
+          transform: translateY(-2px) scale(1.04); border-color: ${C.gold};
+          box-shadow: 0 14px 36px rgba(0,0,0,0.6), 0 0 26px rgba(212,175,55,0.38);
+        }
+        .nd-launcher::after {
+          content: "מחשבון"; position: absolute; bottom: -16px; right: 50%; transform: translateX(50%);
+          font-family: ${F.heading}; font-size: 9.5px; letter-spacing: 1px; color: ${C.goldDim}; white-space: nowrap;
+        }
+        @media (max-width: 560px) { .nd-launcher { width: 46px; height: 46px; font-size: 21px; right: 12px; bottom: 12px; } }
+      `}</style>
     </>
   );
 }
