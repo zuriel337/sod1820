@@ -385,7 +385,7 @@ export default function PostsPage() {
           background: rgba(212,175,55,0.1); color: ${C.goldLight}; transition: all .18s; }
         .pp-gem-toggle:hover, .pp-gem-drawer:hover { background: ${C.gold}; color: #1a0e00; }
         .pp-gem-toggle.on { background: ${C.gold}; color: #1a0e00; }
-        .pp-gem-words { color: ${C.muted}; font-size: 12px; }
+        .pp-gem-words { color: ${C.muted}; font-size: 13px; }
 
         .pp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
         .pp-controls { justify-content: space-between; }
@@ -453,14 +453,14 @@ export default function PostsPage() {
         .pp-thumb-mark { color: ${C.goldDim}; font-size: 30px; opacity: .5; }
         .pp-thumb-holo { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(5,4,0,0.85)); }
         .pp-gem { position: absolute; top: 8px; right: 8px; background: rgba(212,175,55,0.92); color: #1a0e00;
-          font-family: ${F.mono}; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 999px; z-index: 2; }
+          font-family: ${F.mono}; font-size: 13px; font-weight: 800; padding: 2px 9px; border-radius: 999px; z-index: 2; }
         .pp-body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-        .pp-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 16px; font-weight: 700; line-height: 1.4;
+        .pp-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 17.5px; font-weight: 700; line-height: 1.4;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .pp-excerpt { color: ${C.muted}; font-family: ${F.body}; font-size: 13px; line-height: 1.7;
+        .pp-excerpt { color: ${C.muted}; font-family: ${F.body}; font-size: 14.5px; line-height: 1.75;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .pp-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px;
-          color: ${C.goldDim}; font-family: ${F.heading}; font-size: 11.5px; }
+          color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
 
         /* תצוגת רשימה — תמונה לצד טקסט */
         .pp-card-list { flex-direction: row; align-items: stretch; }

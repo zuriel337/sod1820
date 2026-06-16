@@ -113,9 +113,17 @@ export default function NumberDrawer() {
 
   const b = bundle || {};
 
-  // הסרגל הצף נפתח רק בהקשר (לחיצה על מספר בפוסט/גלריה) — אין בועה גלובלית קבועה.
+  // הסרגל הצף נפתח בהקשר (לחיצה על מספר) או דרך הבועה הצפה הגלובלית שזמינה בכל דף.
   return (
     <>
+
+      {/* בועה צפה גלובלית — פותחת את מגירת המספר מכל מקום באתר (כולל דף הצ'אט) */}
+      {!open && (
+        <button onClick={() => openNumberDrawer()} aria-label="פתח את מגירת המספר — מחשבון גימטריה"
+          title="מחשבון הגימטריה — פתחו מכל מקום" className="nd-launcher">
+          🧮
+        </button>
+      )}
 
       {/* חוטים אל המספר בעמוד (פוסט / גלריה) */}
       {open && thread?.length > 0 && (
@@ -143,7 +151,7 @@ export default function NumberDrawer() {
       }}>
         <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "flex-start", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧮 מגירת המספר · מחשבון חי</div>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧮 מגירת המספר · מחשבון חי</div>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
               <input value={q} onChange={e => setQ(e.target.value)} placeholder="הקלידו מילה או מספר…" dir="rtl"
                 style={{ flex: 1, minWidth: 0, background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 8, color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, padding: "8px 12px", outline: "none" }} />
@@ -159,15 +167,15 @@ export default function NumberDrawer() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
               {methodVals.map(t => (
                 <div key={t.key} style={{ textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 4px" }}>
-                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{t.key}</div>
-                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 800, lineHeight: 1.15 }}>{t.v}</div>
+                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.key}</div>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}>{t.v}</div>
                 </div>
               ))}
             </div>
             <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(eff)}`)} style={{
               width: "100%", marginTop: 9, cursor: "pointer", background: "none",
               border: `1px solid ${C.borderGold}`, borderRadius: 9, color: C.goldBright,
-              fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, padding: "8px 6px",
+              fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, padding: "9px 6px",
             }}>✨ למחשבון המלא ולרשימת הגימטריות המלאה בבית המדרש ←</button>
           </div>
         )}
@@ -175,12 +183,12 @@ export default function NumberDrawer() {
         {/* 🔬 מנועי עומק — 4 שיטות מתקדמות (לביטוי הנוכחי) */}
         {depthVals && (
           <div style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>🔬 מנועי עומק</div>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>🔬 מנועי עומק</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
               {depthVals.map(t => (
                 <div key={t.key} style={{ display: "flex", alignItems: "baseline", gap: 6, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 9px" }}>
-                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={t.key}>{t.key}</span>
-                  <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800, flexShrink: 0 }}>{t.v}</span>
+                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={t.key}>{t.key}</span>
+                  <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 15.5, fontWeight: 800, flexShrink: 0 }}>{t.v}</span>
                 </div>
               ))}
             </div>
@@ -196,11 +204,11 @@ export default function NumberDrawer() {
           if (!mt.length) return null;
           return (
             <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>🧠 התכנסויות שמכילות את {value}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>🧠 התכנסויות שמכילות את {value}</div>
               <div style={{ display: "grid", gap: 6 }}>
                 {mt.map(t => (
                   <button key={t.id} onClick={() => goTo(`/topic/${encodeURIComponent(t.slug)}`)} style={{ cursor: "pointer", textAlign: "right", background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 9, padding: "8px 11px", display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ flex: 1, minWidth: 0, color: C.goldLight, fontFamily: F.regal, fontSize: 14, fontWeight: 700 }}>{t.title}</span>
+                    <span style={{ flex: 1, minWidth: 0, color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{t.title}</span>
                     <span style={{ color: C.gold, fontSize: 9.5, letterSpacing: 1, flexShrink: 0 }}>{"★".repeat(Math.max(0, Math.min(5, Math.round((t.quality || 0) / 2))))}</span>
                   </button>
                 ))}
@@ -231,14 +239,14 @@ export default function NumberDrawer() {
         <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "14px 15px 36px", position: "relative" }}>
           {!eff ? (
             <div style={{ display: "grid", gap: 10 }}>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginTop: 4 }}>הקלידו מספר או מילה למעלה, או היכנסו לאחד מהמרחבים:</p>
+              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.8, marginTop: 4 }}>הקלידו מספר או מילה למעלה, או היכנסו לאחד מהמרחבים:</p>
               <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🌳 כל המספרים (העץ) · 🔒 בקרוב</div>
               <button onClick={() => goTo("/archive")} style={bigLink}>🖼 גלריית רמזי הגאולה</button>
               <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
             </div>
           ) : b.tooSmall ? (
             <div style={{ textAlign: "center", padding: "26px 8px" }}>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.9 }}>מספר יסוד (ספרה בודדת) — סולמות ההתגלות בקרוב.</p>
+              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 1.9 }}>מספר יסוד (ספרה בודדת) — סולמות ההתגלות בקרוב.</p>
               <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
             </div>
           ) : loading ? (
@@ -254,7 +262,7 @@ export default function NumberDrawer() {
                           <img src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                         </button>
                         {(g.name || g.description) && (
-                          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 5, maxHeight: 84, overflow: "hidden" }}>
+                          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, marginTop: 5, maxHeight: 92, overflow: "hidden" }}>
                             {g.name ? <b style={{ color: C.goldLight }}>{g.name}. </b> : null}{stripHtml(g.description || "").slice(0, 180)}
                           </div>
                         )}
@@ -286,8 +294,8 @@ export default function NumberDrawer() {
                   <div style={{ display: "grid", gap: 8 }}>
                     {b.insights.map(it => (
                       <div key={it.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", background: "rgba(20,15,12,0.5)" }}>
-                        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 4 }}>{stripHtml(it.title || "חידוש")}</div>
-                        {it.body && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75 }}>{stripHtml(it.body).slice(0, 260)}</div>}
+                        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{stripHtml(it.title || "חידוש")}</div>
+                        {it.body && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>{stripHtml(it.body).slice(0, 260)}</div>}
                       </div>
                     ))}
                   </div>
@@ -307,25 +315,46 @@ export default function NumberDrawer() {
             </div>
             <img src={zoom.image_url} alt="" style={{ width: "100%", borderRadius: 12, border: `1px solid ${C.borderGold}` }} />
             {(zoom.name || zoom.description) && (
-              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 10, whiteSpace: "pre-wrap" }}>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.95, marginTop: 10, whiteSpace: "pre-wrap" }}>
                 {zoom.name ? <b style={{ color: C.goldLight }}>{zoom.name}{"\n"}</b> : null}{stripHtml(zoom.description || "")}
               </div>
             )}
           </div>
         </div>
       )}
+
+      <style>{`
+        .nd-launcher {
+          position: fixed; right: 18px; bottom: 18px; z-index: 140;
+          width: 52px; height: 52px; border-radius: 999px; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1;
+          background: linear-gradient(160deg, rgba(20,15,5,0.96), rgba(8,5,2,0.96));
+          border: 1px solid ${C.borderGold}; color: ${C.goldBright};
+          box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px rgba(212,175,55,0.22);
+          transition: transform .16s, box-shadow .16s, border-color .16s;
+        }
+        .nd-launcher:hover {
+          transform: translateY(-2px) scale(1.04); border-color: ${C.gold};
+          box-shadow: 0 14px 36px rgba(0,0,0,0.6), 0 0 26px rgba(212,175,55,0.38);
+        }
+        .nd-launcher::after {
+          content: "מחשבון"; position: absolute; bottom: -16px; right: 50%; transform: translateX(50%);
+          font-family: ${F.heading}; font-size: 9.5px; letter-spacing: 1px; color: ${C.goldDim}; white-space: nowrap;
+        }
+        @media (max-width: 560px) { .nd-launcher { width: 46px; height: 46px; font-size: 21px; right: 12px; bottom: 12px; } }
+      `}</style>
     </>
   );
 }
 
-const chip = { cursor: "pointer", color: C.goldLight, fontFamily: F.body, fontSize: 13, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px", background: "rgba(20,15,12,0.5)" };
-const row = { cursor: "pointer", textAlign: "right", color: C.goldLight, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, lineHeight: 1.5, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" };
-const bigLink = { width: "100%", cursor: "pointer", textAlign: "center", background: "rgba(20,15,12,0.6)", color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 10, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "12px" };
+const chip = { cursor: "pointer", color: C.goldLight, fontFamily: F.body, fontSize: 14.5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 13px", background: "rgba(20,15,12,0.5)" };
+const row = { cursor: "pointer", textAlign: "right", color: C.goldLight, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, lineHeight: 1.5, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 12px" };
+const bigLink = { width: "100%", cursor: "pointer", textAlign: "center", background: "rgba(20,15,12,0.6)", color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 10, fontFamily: F.heading, fontSize: 15, fontWeight: 700, padding: "13px" };
 
 function Section({ title, children }) {
   return (
     <div style={{ marginBottom: 22 }}>
-      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700, marginBottom: 9 }}>{title}</div>
+      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, marginBottom: 9 }}>{title}</div>
       {children}
     </div>
   );

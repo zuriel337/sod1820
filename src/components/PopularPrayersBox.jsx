@@ -98,11 +98,11 @@ export default function PopularPrayersBox({ excludeWpId = null, title = "🙏 ת
         .ppb-mark { font-size: 32px; opacity: 0.7; }
         .ppb-holo { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(5,4,0,0.85)); }
         .ppb-count { position: absolute; top: 8px; right: 8px; z-index: 2; background: rgba(212,175,55,0.94); color: #1a0e00;
-          font-family: ${F.heading}; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
+          font-family: ${F.heading}; font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
         .ppb-body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-        .ppb-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 15.5px; font-weight: 700; line-height: 1.4; }
-        .ppb-note { color: ${C.muted}; font-family: ${F.body}; font-size: 12.5px; line-height: 1.6; }
-        .ppb-cta { margin-top: auto; padding-top: 6px; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; }
+        .ppb-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 16.5px; font-weight: 700; line-height: 1.4; }
+        .ppb-note { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; line-height: 1.65; }
+        .ppb-cta { margin-top: auto; padding-top: 6px; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13.5px; font-weight: 700; }
       `}</style>
     </div>
   );

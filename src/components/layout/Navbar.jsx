@@ -277,7 +277,7 @@ export default function Navbar() {
               <Avatar profile={profile} user={user} size={28} />
             </Link>
           ) : (
-            <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 11, letterSpacing: 1, whiteSpace: "nowrap" }}>
+            <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 12.5, letterSpacing: 1, whiteSpace: "nowrap" }}>
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
@@ -362,7 +362,7 @@ export default function Navbar() {
           padding: 9px 10px; border-radius: 8px; transition: background 0.15s, color 0.15s; }
         .nav-drop-row:hover { background: ${C.surface}; color: ${C.goldBright}; }
         .nav-drop-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .nav-drop-empty { color: ${C.muted}; font-family: ${F.body}; font-size: 12px; padding: 8px 10px; }
+        .nav-drop-empty { color: ${C.muted}; font-family: ${F.body}; font-size: 13px; padding: 8px 10px; }
         .nav-drop-div { height: 1px; background: ${C.border}; margin: 6px 4px; }
         .nav-drop-cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px; }
         .nav-drop-cat { cursor: pointer; background: rgba(20,15,12,0.6); border: 1px solid ${C.border};
