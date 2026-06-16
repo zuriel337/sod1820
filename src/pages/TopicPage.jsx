@@ -33,7 +33,12 @@ export default function TopicPage() {
           tags: c.search_terms || [],
         });
         if ((c.image_ids || []).length) {
-          try { setImgs(await getGalleryImagesByIds(c.image_ids)); } catch { /* ignore */ }
+          try {
+            const fetched = await getGalleryImagesByIds(c.image_ids);
+            const byId = Object.fromEntries(fetched.map(i => [i.id, i]));
+            // שמירה על הסדר שנקבע בכרטיס (image_ids) — לא סדר אקראי
+            setImgs((c.image_ids || []).map(id => byId[id]).filter(Boolean));
+          } catch { /* ignore */ }
         }
         if (c.node_id) {
           try { setEnts(await getConvergenceEntities(c.node_id)); } catch { /* ignore */ }
@@ -134,17 +139,33 @@ export default function TopicPage() {
         </div>
       )}
 
-      {/* תמונות → ארכיון */}
+      {/* ממצאים בגלריות — תמונות גדולות, מוסברות, בסדר שנקבע, מקשרות לגלריה */}
       {imgs.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>🖼 ממצאים בגלריות ({imgs.length})</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px,1fr))", gap: 10 }}>
-            {imgs.map(im => (
-              <a key={im.id} href={im.image_url} target="_blank" rel="noopener noreferrer" title={(im.ocr_numbers || []).join(" · ")}
-                style={{ display: "block", aspectRatio: "1", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}`, background: `center/cover no-repeat url(${im.image_url})` }} />
-            ))}
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>🖼 ממצאים בגלריות ({imgs.length})</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>כל תמונה היא ממצא בציר — בסדר שמספר את הסיפור.</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px,1fr))", gap: 16 }}>
+            {imgs.map((im, i) => {
+              const caption = (im.description || im.name || "").trim();
+              const nums = (im.ocr_numbers || []).filter(n => n >= 10).slice(0, 5);
+              return (
+                <Link key={im.id} to="/archive" style={{ textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                  <div style={{ position: "relative", aspectRatio: "4/3", background: `center/cover no-repeat url(${im.image_url})` }}>
+                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(8,5,2,0.78)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{i + 1}</span>
+                  </div>
+                  <div style={{ padding: "11px 13px", flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
+                    {caption && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{caption}</div>}
+                    {nums.length > 0 && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {nums.map(n => <span key={n} style={{ fontFamily: F.mono, fontSize: 11.5, fontWeight: 700, color: C.goldDim, border: `1px solid ${C.border}`, borderRadius: 999, padding: "1px 8px" }}>{n}</span>)}
+                      </div>
+                    )}
+                    <span style={{ marginTop: "auto", color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>🖼 בגלריה →</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-          <Link to="/archive" style={{ display: "inline-block", marginTop: 12, color: C.goldBright, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>לכל הארכיון →</Link>
         </div>
       )}
 

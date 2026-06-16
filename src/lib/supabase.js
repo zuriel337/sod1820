@@ -632,7 +632,7 @@ export async function updateTopicCard(id, patch) {
 export async function getGalleryImagesByIds(ids = []) {
   if (!supabase || !ids.length) return [];
   const { data } = await supabase.from('gallery_images')
-    .select('id,image_url,name,ocr_numbers,occurred_at').in('id', ids);
+    .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id').in('id', ids);
   return data || [];
 }
 // מנוע "צידה": לכל תמונה — אילו מספרים שלה חוזרים במקומות אחרים ובאילו סטים
