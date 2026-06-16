@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getTopicCardBySlug, getGalleryImagesByIds } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
@@ -16,17 +16,27 @@ export default function TopicPage() {
   const { slug } = useParams();
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
+  const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף
 
   useEffect(() => {
     let live = true;
-    setCard(undefined); setImgs([]);
+    setCard(undefined); setImgs([]); setEnts([]);
     getTopicCardBySlug(slug).then(async c => {
       if (!live) return;
       setCard(c);
       if (c) {
-        applySeo({ title: `${c.title} — מרכז ההתכנסות`, description: c.subtitle || "מפת הקשרים של SOD1820", path: `/topic/${slug}` });
+        applySeo({
+          title: `${c.title} — מרכז ההתכנסות`,
+          description: c.subtitle || "מפת הקשרים של SOD1820",
+          path: `/topic/${slug}`, type: "article",
+          publishedTime: c.created_at, modifiedTime: c.approved_at || c.created_at,
+          tags: c.search_terms || [],
+        });
         if ((c.image_ids || []).length) {
           try { setImgs(await getGalleryImagesByIds(c.image_ids)); } catch { /* ignore */ }
+        }
+        if (c.node_id) {
+          try { setEnts(await getConvergenceEntities(c.node_id)); } catch { /* ignore */ }
         }
       }
     }).catch(() => live && setCard(null));
@@ -60,6 +70,32 @@ export default function TopicPage() {
           ))}
         </div>
       </div>
+
+      {/* 👑 ישויות מחוברות בגרף (חתימות זהב) */}
+      {ents.length > 0 && (
+        <div style={{ ...box, borderColor: C.borderGold, marginBottom: 20 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>👑 חתימות וישויות מחוברות</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {ents.map(e => {
+              const gold = e.metadata?.tier === "gold";
+              const val = e.metadata?.value;
+              return (
+                <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
+                  display: "block", padding: "10px 13px", borderRadius: 10,
+                  background: gold ? "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.03))" : C.surface2,
+                  border: `1px solid ${gold ? C.gold : C.border}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {gold && <span title="חתימת זהב">👑</span>}
+                    <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{e.metadata?.display || e.label}</span>
+                    {val != null && <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>= {val}</span>}
+                  </div>
+                  {e.metadata?.claim_note && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginTop: 4 }}>⚖️ {e.metadata.claim_note}</div>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* רמז משלים */}
       {f.hint && (

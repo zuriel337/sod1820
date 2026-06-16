@@ -96,6 +96,20 @@ async function main() {
     urls.push({ loc: '/number/' + n, changefreq: 'monthly', priority: '0.6' });
   }
 
+  // צירי התכנסות (/topic/<slug>) — רק כרטיסים מאושרים
+  try {
+    const { data, error } = await supabase
+      .from('topic_cards')
+      .select('slug, approved_at, created_at')
+      .eq('status', 'approved');
+    if (error) { console.error('Supabase error (topics):', error.message); }
+    else for (const t of data || []) {
+      if (!t.slug) continue;
+      const lastmod = (t.approved_at || t.created_at || '').slice(0, 10) || undefined;
+      urls.push({ loc: '/topic/' + encodeURIComponent(t.slug), lastmod, changefreq: 'weekly', priority: '0.7' });
+    }
+  } catch (e) { console.error('topics sitemap skipped:', e.message); }
+
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
