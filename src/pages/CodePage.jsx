@@ -26,11 +26,12 @@ function CodeClosed() {
   );
 }
 
-// הצופן התנ"כי — מנוע ה-ELS המלא פתוח לאדמין בלבד; לכל השאר דף "ייפתח בקרוב".
+// הצופן התנ"כי — פתוח לכולם עם מכסת חיפושים חינם; הרשמה (אימות מייל) פותחת חיפוש בלי הגבלה.
+// אדמין ומשתמש מאומת = ללא מכסה; אנונימי = מכסה חינם (els_settings.free_quota_searches).
 export default function CodePage() {
-  const { isAdmin, loading } = useAuth();
+  const { verified, loading } = useAuth();
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: C.goldDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  return isAdmin ? <ELSSection /> : <CodeClosed />;
+  return <ELSSection gated={!verified} />;
 }
