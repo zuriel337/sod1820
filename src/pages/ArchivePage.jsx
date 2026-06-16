@@ -4,6 +4,7 @@ import { C, F } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
+  searchArchiveOcrIds,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -53,10 +54,12 @@ export default function ArchivePage() {
   const [numFilter, setNumFilter] = useState(null);
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
+  const [ocrMatch, setOcrMatch] = useState(null); // {imgs:Set, gals:Set} מחיפוש OCR בשרת
   const [sortMode, setSortMode] = useState("date");   // date (חדש→ישן, ברירת מחדל) | gallery | cross
   const [viewMode, setViewMode] = useState("galleries"); // galleries (אקורדיון) | images (רשת תמונות)
   const [openGal, setOpenGal] = useState(null);          // גלריה פתוחה בפיד (האחרונה כברירת מחדל)
   const [showAllNums, setShowAllNums] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);   // פאנל סינון מתקפל (סגור כברירת מחדל)
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
@@ -133,6 +136,19 @@ export default function ArchivePage() {
   const q = qRaw.toLowerCase();
   const setNums = activeSet ? new Set(activeSet.numbers) : null;
 
+  // חיפוש OCR בצד-שרת (במקום לטעון את כל ה-ocr_text מראש)
+  useEffect(() => {
+    if (qNum != null || !qRaw || qRaw.length < 2) { setOcrMatch(null); return; }
+    let live = true;
+    const t = setTimeout(() => {
+      searchArchiveOcrIds(qRaw).then(rows => {
+        if (!live) return;
+        setOcrMatch({ imgs: new Set(rows.map(r => r.id)), gals: new Set(rows.map(r => r.gallery_id)) });
+      }).catch(() => live && setOcrMatch({ imgs: new Set(), gals: new Set() }));
+    }, 250);
+    return () => { live = false; clearTimeout(t); };
+  }, [qRaw, qNum]);
+
   // מטא לכל גלריה: אילו מספרים/שנים מופיעים בה
   const galMeta = useMemo(() => {
     const m = {};
@@ -154,14 +170,11 @@ export default function ArchivePage() {
     if (qNum != null) list = list.filter(g => g.anchor === qNum || (galMeta[g.id] && galMeta[g.id].nums.has(qNum)));
     else if (q) {
       // התאמת טקסט/OCR: גלריה תואמת אם שמה מכיל, או שיש בה תמונה שהשם/תיאור/OCR שלה מכיל
-      const gidMatch = new Set();
-      for (const im of imgs) {
-        if ((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q)) gidMatch.add(im.gallery_id);
-      }
+      const gidMatch = ocrMatch?.gals || new Set();
       list = list.filter(g => (g.name || "").toLowerCase().includes(q) || gidMatch.has(g.id));
     }
     return list;
-  }, [gals, setNums, galMeta, numFilter, q, qNum, imgs]);
+  }, [gals, setNums, galMeta, numFilter, q, qNum, ocrMatch]);
 
   // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
   const firstGalId = memberGals[0]?.id ?? null;
@@ -173,7 +186,7 @@ export default function ArchivePage() {
       if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
       if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
-      else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (im.ocr_text || "").toLowerCase().includes(q))) return false;
+      else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
       return true;
     });
     if (sortMode === "cross") {
@@ -182,7 +195,7 @@ export default function ArchivePage() {
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, setNums, numFilter, yearFilter, q, qNum, sortMode]);
+  }, [sortedImgs, setNums, numFilter, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilter != null ? [numFilter] : null);
@@ -352,36 +365,46 @@ export default function ArchivePage() {
                 <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש לפי מספר (למשל 1237) או טקסט בתיאור…" aria-label="חיפוש" />
                 {query && <button className="ar-x" onClick={() => setQuery("")}>×</button>}
               </div>
-              <div className="ar-seg" role="group" aria-label="תצוגה">
-                <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
-                <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
-              </div>
-              {viewMode === "images" && (
-                <div className="ar-seg" role="group" aria-label="מיון">
-                  <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
-                  <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
-                  <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
-                </div>
-              )}
+              <button className={`ar-pill${filtersOpen ? " active" : ""}`} onClick={() => setFiltersOpen(o => !o)} title="סינון מתקדם">
+                🎚️ סינון {filtersOpen ? "▲" : "▾"}
+              </button>
             </div>
-            {numOptions.length > 0 && (
-              <div className="ar-row">
-                <span className="ar-label">🔢 מספר</span>
-                {shownNums.map(({ n, k }) => (
-                  <button key={n} className={`ar-pill ar-sm${numFilter === n ? " active" : ""}`} onClick={() => setNumFilter(p => p === n ? null : n)}>
-                    {n}<span className="ar-count">{k}</span>
-                  </button>
-                ))}
-                {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
-              </div>
-            )}
-            {yearOptions.length > 0 && (
-              <div className="ar-row">
-                <span className="ar-label">🗓️ שנה</span>
-                {yearOptions.map(y => (
-                  <button key={y} className={`ar-pill ar-sm${yearFilter === y ? " active" : ""}`} onClick={() => setYearFilter(p => p === y ? null : y)}>{y}</button>
-                ))}
-              </div>
+
+            {filtersOpen && (
+              <>
+                <div className="ar-row">
+                  <div className="ar-seg" role="group" aria-label="תצוגה">
+                    <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
+                    <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
+                  </div>
+                  {viewMode === "images" && (
+                    <div className="ar-seg" role="group" aria-label="מיון">
+                      <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
+                      <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                      <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
+                    </div>
+                  )}
+                </div>
+                {numOptions.length > 0 && (
+                  <div className="ar-row">
+                    <span className="ar-label">🔢 מספר</span>
+                    {shownNums.map(({ n, k }) => (
+                      <button key={n} className={`ar-pill ar-sm${numFilter === n ? " active" : ""}`} onClick={() => setNumFilter(p => p === n ? null : n)}>
+                        {n}<span className="ar-count">{k}</span>
+                      </button>
+                    ))}
+                    {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
+                  </div>
+                )}
+                {yearOptions.length > 0 && (
+                  <div className="ar-row">
+                    <span className="ar-label">🗓️ שנה</span>
+                    {yearOptions.map(y => (
+                      <button key={y} className={`ar-pill ar-sm${yearFilter === y ? " active" : ""}`} onClick={() => setYearFilter(p => p === y ? null : y)}>{y}</button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             {hasFilter && (
               <div className="ar-row" style={{ paddingTop: 4, borderTop: `1px solid ${C.faint}` }}>

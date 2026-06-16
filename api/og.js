@@ -49,21 +49,31 @@ export default async function handler(req, res) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
   } else {
-    // לטפל כ-slug של פוסט
+    // לטפל כ-slug של פוסט.
+    // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
+    // בסגנון וורדפרס (%d7%aa…). הרובוט מגיע עם הנתיב המפוענח, לכן מנסים את שתי הצורות:
+    // (1) ה-slug המפוענח, (2) קידוד-אחוזים באותיות קטנות (כמו שוורדפרס שמר).
     let slug = key.replace(/^\//, '');
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
-    try {
-      const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(slug)}&select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1`;
-      const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
-      const rows = await r.json();
-      if (Array.isArray(rows) && rows[0]) {
-        post = rows[0];
-        title = stripHtml(post.title) + ' · ' + SITE_NAME;
-        desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
-        if (post.image_url) image = post.image_url;
-        type = 'article';
-      }
-    } catch { /* fall back to defaults */ }
+    const variants = [slug];
+    const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
+    if (encLower !== slug) variants.push(encLower);
+    const SEL = 'select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
+    for (const v of variants) {
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(v)}&${SEL}`;
+        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+        const rows = await r.json();
+        if (Array.isArray(rows) && rows[0]) {
+          post = rows[0];
+          title = stripHtml(post.title) + ' · ' + SITE_NAME;
+          desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
+          if (post.image_url) image = post.image_url;
+          type = 'article';
+          break;
+        }
+      } catch { /* try next variant */ }
+    }
   }
 
   // ── מטא ייעודי למאמרים + JSON-LD ──

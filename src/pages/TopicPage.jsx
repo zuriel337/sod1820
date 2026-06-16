@@ -179,8 +179,9 @@ export default function TopicPage() {
               const nums = (im.ocr_numbers || []).filter(n => n >= 10).slice(0, 5);
               return (
                 <Link key={im.id} to="/archive" style={{ textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                  <div style={{ position: "relative", aspectRatio: "4/3", background: `center/cover no-repeat url(${im.image_url})` }}>
-                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(8,5,2,0.78)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{i + 1}</span>
+                  <div style={{ position: "relative", height: 200, background: "#0a0702", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                    <img src={im.image_url} alt={caption || ""} loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }} />
+                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(8,5,2,0.85)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{i + 1}</span>
                   </div>
                   <div style={{ padding: "11px 13px", flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
                     {caption && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{caption}</div>}
