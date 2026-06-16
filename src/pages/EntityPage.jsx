@@ -4,7 +4,6 @@ import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { getEntityBundle, supabase } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
-import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
@@ -218,7 +217,7 @@ export default function EntityPage() {
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
       {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
-      {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
+      {/* ── 🧬 DNA המספר — משפט פותח חי (קומפקטי, ללא טבעת דופק) ── */}
       {!loading && chips.length > 0 && (() => {
         const cnt = { posts: d.postsCount || 0, galleries: d.galleriesCount || 0, words: d.phrases?.length || 0, events: d.eventsCount || 0, ai: d.insightsCount || 0, comm: d.commentsCount || 0 };
         const parts = [];
@@ -228,17 +227,13 @@ export default function EntityPage() {
         if (cnt.events) parts.push(`${cnt.events} אירועים בציר`);
         if (cnt.ai) parts.push(`${cnt.ai} חידושי AI`);
         if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
-        const pulse = pulseFromCounts(cnt);
         return (
-          <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))", display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
-            <PulseRing value={pulse} size={104} core={isNumber && !!KEY_NUMBERS[value]} />
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
-              <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
-                <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
-                {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
-              </p>
-            </div>
+          <div style={{ marginBottom: 16, padding: "13px 18px", borderRadius: 14, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))" }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧬 DNA המספר</div>
+            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
+              <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+              {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
+            </p>
           </div>
         );
       })()}
