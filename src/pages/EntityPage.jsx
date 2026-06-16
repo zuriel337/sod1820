@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { getEntityBundle, supabase } from "../lib/supabase.js";
+import { getEntityBundle, supabase, logSearch } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -117,6 +117,8 @@ export default function EntityPage() {
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
+    // 🔍 תיעוד החיפוש האמיתי → מזין את הפס העליון הרץ (ללא PII, דדופ לכל גלישה)
+    if (term) logSearch(term, value);
     return () => { alive = false; };
   }, [term, value, isNumber]);
 

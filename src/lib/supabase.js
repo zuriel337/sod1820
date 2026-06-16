@@ -736,3 +736,56 @@ export function adaptPost(row) {
     },
   };
 }
+
+// ===== פס פעילות חי (LiveActivityBar) — עדכונים אמיתיים בלבד =====
+// ניקוי כותרת (תגיות HTML + ישויות נפוצות) לתצוגה בפס.
+function cleanTitle(s) {
+  return String(s || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&#8211;/g, '–').replace(/&#8217;/g, '’').replace(/&#8220;|&#8221;/g, '"')
+    .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
+    .trim();
+}
+
+const SEARCH_TERM_OK = /^[ 0-9א-ת׳״'"\-]{1,40}$/;
+// תיעוד חיפוש אמיתי (מהמחשבון / דף הביטוי). ללא PII; נכשל בשקט. דדופ לכל גלישה.
+export async function logSearch(term, value) {
+  const t = (term || '').trim();
+  if (!SEARCH_TERM_OK.test(t)) return;
+  try {
+    const key = 'sl:' + t;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+  } catch { /* ignore */ }
+  try { await supabase.from('search_log').insert({ term: t, value: Number.isFinite(value) ? value : null }); } catch { /* ignore */ }
+}
+
+// סטטיסטיקות חיות בטוחות (ספירות בלבד) לפס הויראלי.
+export async function getLiveStats() {
+  try { const { data } = await supabase.rpc('live_stats'); return data || null; } catch { return null; }
+}
+
+// מאחד עדכונים אמיתיים אחרונים מכל המקורות → פריטים לפס הרץ.
+export async function getLiveFeed() {
+  const [searches, cards, posts, ins] = await Promise.all([
+    supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false }).limit(16),
+    supabase.from('topic_cards').select('slug,title,created_at,approved_at').not('approved_at', 'is', null).order('approved_at', { ascending: false }).limit(6),
+    supabase.from('posts').select('title,slug,date').order('date', { ascending: false }).limit(6),
+    supabase.from('insights').select('title,source_ref,origin,created_at').eq('origin', 'ai').order('created_at', { ascending: false }).limit(6),
+  ].map(p => p.then(r => r.data || []).catch(() => [])));
+
+  const items = [];
+  for (const s of searches) {
+    const isNum = /^\d+$/.test(s.term);
+    items.push({ k: 'search', ts: s.created_at,
+      icon: isNum ? '🔢' : '🔍',
+      text: isNum ? `נפתח דף המספר ${s.term}` : `חיפשו: ${s.term}`,
+      to: `/number/${encodeURIComponent(s.term)}` });
+  }
+  for (const c of cards) items.push({ k: 'conv', ts: c.approved_at || c.created_at, icon: '🌳', text: `התכנסות חדשה: ${cleanTitle(c.title)}`, to: `/topic/${encodeURIComponent(c.slug)}` });
+  for (const p of posts) items.push({ k: 'post', ts: p.date, icon: '📚', text: `פוסט חדש: ${cleanTitle(p.title)}`, to: `/${p.slug}` });
+  for (const i of ins) items.push({ k: 'ai', ts: i.created_at, icon: '🧠', text: `גילוי AI: ${cleanTitle(i.title)}`, to: '/beit-midrash' });
+
+  items.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+  return items;
+}
