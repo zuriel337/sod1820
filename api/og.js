@@ -61,12 +61,10 @@ export default async function handler(req, res) {
         title = stripHtml(c.title) + ' · ' + SITE_NAME;
         desc = cleanDesc(c.subtitle || `מרכז ההתכנסות של ${stripHtml(c.title)}${(c.highlight_numbers || []).length ? ' — ' + c.highlight_numbers.join(' · ') : ''}`) || DEFAULT_DESC;
         type = 'article';
-        const firstImg = Array.isArray(c.image_ids) && c.image_ids[0];
-        if (firstImg) {
-          const ir = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?id=eq.${firstImg}&select=image_url&limit=1`, { headers: ogHeaders });
-          const irows = await ir.json();
-          if (Array.isArray(irows) && irows[0] && irows[0].image_url) image = irows[0].image_url;
-        }
+        // תמונת שיתוף דינמית: כותרת ההתכנסות גדולה + המספרים. נופלת חזרה לתמונת גלריה.
+        const nums = Array.isArray(c.highlight_numbers) ? c.highlight_numbers.filter(x => x != null) : [];
+        const ct = stripHtml(c.title);
+        image = `${SITE}/api/card?w=${encodeURIComponent(ct)}&sub=${encodeURIComponent(nums.length ? nums.join('  ·  ') : 'מרכז ההתכנסות')}`;
       }
     } catch { /* fallback to defaults */ }
   } else if (key.startsWith('/number/')) {
@@ -78,11 +76,8 @@ export default async function handler(req, res) {
       title = `${n} — מרכז ההתכנסות · ${SITE_NAME}`;
       desc = `כל מה שמתכנס למספר ${n} בסוד 1820 — גימטריה, גלריות, פוסטים וצירי התכנסות במקום אחד.`;
       type = 'article';
-      try {
-        const ir = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?primary_value=eq.${n}&image_url=not.is.null&select=image_url&order=importance.desc&limit=1`, { headers: ogHeaders });
-        const irows = await ir.json();
-        if (Array.isArray(irows) && irows[0] && irows[0].image_url) image = irows[0].image_url;
-      } catch { /* keep default image */ }
+      // תמונת שיתוף דינמית: המספר ענק + הביטויים השווים לו + כיתוב ויראלי.
+      image = `${SITE}/api/card?n=${n}`;
     }
   } else {
     // לטפל כ-slug של פוסט.
