@@ -605,6 +605,15 @@ export async function getTopicCardBySlug(slug) {
   const { data } = await supabase.from('topic_cards').select('*').eq('slug', slug).maybeSingle();
   return data || null;
 }
+// ישויות (זהב/חתימות) המחוברות לציר ההתכנסות בגרף — דרך edges related מה-node של הכרטיס
+export async function getConvergenceEntities(nodeId) {
+  if (!supabase || !nodeId) return [];
+  const { data: eg } = await supabase.from('edges').select('to_node').eq('from_node', nodeId).eq('relation_type', 'related');
+  const ids = [...new Set((eg || []).map(x => x.to_node))];
+  if (!ids.length) return [];
+  const { data } = await supabase.from('nodes').select('label,description,metadata').eq('type', 'entity').in('id', ids);
+  return (data || []).sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
+}
 export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();
@@ -623,7 +632,7 @@ export async function updateTopicCard(id, patch) {
 export async function getGalleryImagesByIds(ids = []) {
   if (!supabase || !ids.length) return [];
   const { data } = await supabase.from('gallery_images')
-    .select('id,image_url,name,ocr_numbers,occurred_at').in('id', ids);
+    .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id').in('id', ids);
   return data || [];
 }
 // מנוע "צידה": לכל תמונה — אילו מספרים שלה חוזרים במקומות אחרים ובאילו סטים

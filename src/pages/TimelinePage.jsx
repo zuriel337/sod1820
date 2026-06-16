@@ -19,15 +19,21 @@ const PAGE_CSS = `
 `;
 
 function useAxisData() {
-  const [data, setData] = useState({ events: [], postByEvent: {}, imagesByGallery: {}, loading: true });
+  const [data, setData] = useState({ events: [], convergences: [], postByEvent: {}, imagesByGallery: {}, loading: true });
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      // צירי התכנסות מאושרים עם תאריך — נשזרים בציר לפי כרונולוגיה
+      const { data: convs } = await supabase.from("topic_cards")
+        .select("slug,title,subtitle,occurred_at,highlight_numbers,quality")
+        .eq("status", "approved").not("occurred_at", "is", null);
+      const convergences = (convs || []).map(c => ({ ...c, __conv: true }));
+
       const { data: events } = await supabase.from("nodes")
         .select("id,label,weight,hebrew_date,axis_theme,metadata,gallery_id,created_at")
         .eq("type", "event").eq("is_active", true);
-      if (!alive || !events?.length) { alive && setData(d => ({ ...d, loading: false })); return; }
+      if (!alive || !events?.length) { alive && setData(d => ({ ...d, convergences, loading: false })); return; }
 
       const ids = events.map(e => e.id);
 
@@ -62,7 +68,7 @@ function useAxisData() {
         (imagesByGallery[im.gallery_id] ||= []).length < 4 && imagesByGallery[im.gallery_id].push(im);
       }
 
-      alive && setData({ events, postByEvent, imagesByGallery, loading: false });
+      alive && setData({ events, convergences, postByEvent, imagesByGallery, loading: false });
     })();
     return () => { alive = false; };
   }, []);
@@ -146,8 +152,29 @@ function Station({ ev, post, images, isTarget }) {
   );
 }
 
+// תחנת ציר התכנסות — נשזרת בציר ההתגלות לפי שנה, מקשרת ל-/topic
+function ConvergenceStation({ c }) {
+  return (
+    <Link to={`/topic/${encodeURIComponent(c.slug)}`} style={{ display: "block", textDecoration: "none", position: "relative", marginBottom: 18 }}>
+      <div style={{ position: "absolute", top: 24, insetInlineStart: -31, width: 13, height: 13, borderRadius: "50%",
+        background: `radial-gradient(circle at 35% 30%, #fff8e1, ${C.goldBright} 60%)`, boxShadow: `0 0 12px ${C.goldBright}` }} />
+      <div style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4))", border: `1px solid ${C.gold}`, borderRadius: 14, padding: "16px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+          <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, fontWeight: 700 }}>🌐 ציר התכנסות</span>
+          {(c.highlight_numbers || []).map(n => (
+            <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "1px 9px" }}>{n}</span>
+          ))}
+        </div>
+        <h3 style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 18.5, fontWeight: 700, margin: 0, lineHeight: 1.5 }}>{c.title}</h3>
+        {c.subtitle && <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, marginTop: 5, lineHeight: 1.6 }}>{c.subtitle}</div>}
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 8 }}>פתח את מרכז ההתכנסות →</div>
+      </div>
+    </Link>
+  );
+}
+
 export default function TimelinePage() {
-  const { events, postByEvent, imagesByGallery, loading } = useAxisData();
+  const { events, convergences, postByEvent, imagesByGallery, loading } = useAxisData();
   const { hash } = useLocation();
 
   const byYear = useMemo(() => {
@@ -157,11 +184,16 @@ export default function TimelinePage() {
       if (!groups.has(y)) groups.set(y, []);
       groups.get(y).push(ev);
     }
+    for (const c of convergences || []) {
+      const y = new Date(c.occurred_at).getFullYear();
+      if (!groups.has(y)) groups.set(y, []);
+      groups.get(y).push(c);
+    }
     for (const list of groups.values()) {
-      list.sort((a, b) => (b.weight || 0) - (a.weight || 0) || new Date(b.created_at) - new Date(a.created_at));
+      list.sort((a, b) => (b.__conv ? 1 : 0) - (a.__conv ? 1 : 0) || (b.weight || 0) - (a.weight || 0));
     }
     return [...groups.entries()].sort((a, b) => b[0] - a[0]);
-  }, [events]);
+  }, [events, convergences]);
 
   // גלילה אל תחנה שהגיעו אליה מהפס הקבוע
   useEffect(() => {
@@ -198,11 +230,13 @@ export default function TimelinePage() {
             <div style={{ position: "absolute", top: 0, bottom: 0, insetInlineStart: -2, width: 2,
               background: `linear-gradient(180deg, ${C.gold}88, ${VIOLET}88, transparent)`,
               animation: "rev-spine-glow 5s ease-in-out infinite" }} />
-            {list.map(ev => (
-              <Station key={ev.id} ev={ev}
-                post={postByEvent[ev.id]}
-                images={ev.gallery_id ? imagesByGallery[ev.gallery_id] : null}
-                isTarget={hash === `#ev-${ev.id}`} />
+            {list.map(item => item.__conv ? (
+              <ConvergenceStation key={`c-${item.slug}`} c={item} />
+            ) : (
+              <Station key={item.id} ev={item}
+                post={postByEvent[item.id]}
+                images={item.gallery_id ? imagesByGallery[item.gallery_id] : null}
+                isTarget={hash === `#ev-${item.id}`} />
             ))}
           </div>
         </section>
