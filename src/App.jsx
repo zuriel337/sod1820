@@ -26,6 +26,7 @@ import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
 const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
+const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 import {
   MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/sulamot8" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={8} /></React.Suspense>} />
           <Route path="/sulamot9" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={9} /></React.Suspense>} />
           <Route path="/sulamot10" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={10} /></React.Suspense>} />
+          <Route path="/sulamot11" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomEnter /></React.Suspense>} />
           <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
