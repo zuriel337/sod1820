@@ -505,6 +505,7 @@ function ConvergenceStars({ q }) {
 }
 function ConvergenceSection() {
   const [cards, setCards] = useState(null);
+  const { subscribed } = useSubscribed();
   useEffect(() => {
     let live = true;
     getTopicCards({ approvedOnly: true }).then(c => { if (live) setCards(c || []); }).catch(() => setCards([]));
@@ -526,7 +527,7 @@ function ConvergenceSection() {
         🌿 החקירה ממשיכה — כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
-        {cards.map(c => {
+        {(subscribed ? cards : cards.slice(0, 1)).map(c => {
           const hot = (c.highlight_numbers || []);
           const tag = topicTag(c);
           return (
@@ -548,6 +549,16 @@ function ConvergenceSection() {
           );
         })}
       </div>
+      {!subscribed && cards.length > 1 && (
+        <div style={{ marginTop: 18, textAlign: "center", border: `1px solid ${L.gold}`, borderRadius: 14, padding: "22px 20px", background: "linear-gradient(180deg, #fffdf6, #fbf3da)" }}>
+          <div style={{ fontSize: 26, marginBottom: 6 }}>🔒</div>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>עוד {cards.length - 1} צירי התכנסות ממתינים</div>
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 14px" }}>
+            הצטרפו (חינם) כדי לראות את כל צירי ההתכנסות — אסון מירון, 1820, משיח בן דוד, הציר ההודי ועוד.
+          </p>
+          <SubscribeGate source="beit-midrash-convergence" />
+        </div>
+      )}
     </div>
   );
 }
