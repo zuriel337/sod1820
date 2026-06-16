@@ -235,6 +235,27 @@ export default function EntityPage() {
           : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
       </div>
 
+      {/* ── זיקת האפסים — אותו שורש בסדר גודל אחר (×10 / ÷10) ── */}
+      {value >= 10 && (() => {
+        const down = (value % 10 === 0 && value >= 20) ? value / 10 : null;
+        const up = value * 10;
+        const zchip = (n, label) => (
+          <Link key={label} to={`/number/${n}`} title={`אותו שורש — ${label}`} style={{
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, borderRadius: 999,
+            padding: "6px 14px", color: C.goldBright, fontFamily: F.mono, fontWeight: 800, fontSize: 15.5,
+          }}>{n}<span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{label}</span></Link>
+        );
+        return (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 9, flexWrap: "wrap", marginBottom: 26 }}>
+            <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>🔗 אותו שורש · סדר גודל אחר:</span>
+            {down && zchip(down, "÷10")}
+            <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 15.5, fontWeight: 800, opacity: 0.55 }}>{value}</span>
+            {zchip(up, "×10")}
+          </div>
+        );
+      })()}
+
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
       {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
