@@ -25,6 +25,7 @@ import JourneyPage from "./pages/JourneyPage.jsx";
 import LaddersDemo from "./pages/LaddersDemo.jsx";
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
+const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
 import {
   MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -68,6 +69,12 @@ export default function App() {
           <Route path="/ניסיון" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
           <Route path="/experience" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
           <Route path="/חישוב" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
+          <Route path="/sulamot5" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={5} /></React.Suspense>} />
+          <Route path="/sulamot6" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={6} /></React.Suspense>} />
+          <Route path="/sulamot7" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={7} /></React.Suspense>} />
+          <Route path="/sulamot8" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={8} /></React.Suspense>} />
+          <Route path="/sulamot9" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={9} /></React.Suspense>} />
+          <Route path="/sulamot10" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={10} /></React.Suspense>} />
           <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />

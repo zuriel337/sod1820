@@ -7,6 +7,7 @@ import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 
@@ -215,7 +216,7 @@ export default function EntityPage() {
       </div>
 
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
-      {hasGate && <SignaturesRing signatures={sigs} />}
+      {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
       {/* ── 🧬 DNA המספר — משפט פותח חי + דופק ── */}
       {!loading && chips.length > 0 && (() => {
@@ -487,7 +488,7 @@ function RoyalGate({ value, signatures, onOpen, onBack }) {
 }
 
 // ── טבעת החתימות: ישויות-העל שמתכנסות למספר (נחשפות בפתיחת השער) ──
-function SignaturesRing({ signatures }) {
+function SignaturesRing({ signatures, value }) {
   if (!signatures?.length) return null;
   return (
     <section style={{ marginBottom: 36 }}>
@@ -499,6 +500,14 @@ function SignaturesRing({ signatures }) {
             <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, marginBottom: 7 }}>{s.title}</div>
             <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(17px,2.7vw,23px)", fontWeight: 700, lineHeight: 1.5 }}>{s.label}</div>
             {s.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 8, maxWidth: 520, marginInline: "auto" }}>{s.desc}</div>}
+            {value != null && (
+              <button onClick={() => openNumberDrawer(value)} title={`פתח את מגירת המספר ${value}`}
+                style={{ marginTop: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap", justifyContent: "center", background: "rgba(212,175,55,0.16)", border: `1px solid ${C.gold}`, borderRadius: 999, padding: "6px 18px", boxShadow: `0 0 18px ${C.goldDeep}` }}>
+                <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{s.label}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 18, fontWeight: 800 }}>=</span>
+                <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{value}</span>
+              </button>
+            )}
           </div>
         ))}
       </div>
