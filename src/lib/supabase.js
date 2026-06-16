@@ -129,7 +129,7 @@ export async function getGalleriesOverview() {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('id,gallery_id,image_url,name,description,ocr_text,ordering,primary_value,all_values,occurred_at,created_at')
+      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,curator_hidden')
       .not('image_url', 'is', null)
       .order('occurred_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
@@ -630,6 +630,16 @@ export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
        .order('occurred_at', { ascending: false, nullsFirst: false })
        .limit(limit);
   const { data } = await q;
+  return data || [];
+}
+// חיפוש OCR בצד-שרת — מחזיר ids תואמים (במקום לטעון את כל ה-ocr_text מראש)
+export async function searchArchiveOcrIds(q, { limit = 800 } = {}) {
+  if (!supabase || !q || q.trim().length < 2) return [];
+  const t = q.trim();
+  const { data } = await supabase.from('gallery_images')
+    .select('id,gallery_id')
+    .or(`ocr_text.ilike.%${t}%,name.ilike.%${t}%,description.ilike.%${t}%`)
+    .limit(limit);
   return data || [];
 }
 export async function setImageCuration(id, patch) {
