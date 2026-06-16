@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, supabase } from "../lib/supabase.js";
@@ -585,6 +585,27 @@ export default function BeitMidrashPage() {
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
+  // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
+  const sideRef = useRef(null);
+  useEffect(() => {
+    const el = sideRef.current;
+    if (!el) return;
+    const isMobile = window.matchMedia("(max-width: 860px)").matches;
+    if (!isMobile) return;
+    const nav = el.parentElement;
+    // אם אין באמת תוכן נוסף לגלילה — לא להציג רמז
+    if (el.scrollWidth <= el.clientWidth + 8) { nav && nav.classList.add("bm-scrolled"); return; }
+    const hideHint = () => nav && nav.classList.add("bm-scrolled");
+    let attached = false;
+    // נדנוד עדין: לחשוף שיש עוד, ולחזור (RTL → התוכן הנוסף משמאל)
+    const start = el.scrollLeft;
+    const t1 = setTimeout(() => el.scrollTo({ left: start - 90, behavior: "smooth" }), 700);
+    const t2 = setTimeout(() => el.scrollTo({ left: start, behavior: "smooth" }), 1300);
+    // רק אחרי שהנדנוד נגמר — מקשיבים לגלילה אמיתית של המשתמש כדי להסתיר את הרמז
+    const t3 = setTimeout(() => { el.addEventListener("scroll", hideHint, { once: true, passive: true }); attached = true; }, 2100);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); if (attached) el.removeEventListener("scroll", hideHint); };
+  }, []);
+
   return (
     <div style={{ background: L.bg, minHeight: "100vh", direction: "rtl", position: "relative", zIndex: 1 }}>
       <div className="bm-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
@@ -606,7 +627,11 @@ export default function BeitMidrashPage() {
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
           {/* תפריט צד (ימין ב-RTL) */}
           <nav className="bm-side" style={{ width: 230, flex: "0 0 auto", position: "sticky", top: 20 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* רמז גלילה — מוצג רק בנייד, נעלם אחרי גלילה ראשונה */}
+            <div className="bm-swipe-hint" aria-hidden="true">
+              <span>👈 החליקו לכל המדורים 👉</span>
+            </div>
+            <div ref={sideRef} className="bm-side-scroll" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {SECTIONS.map(s => {
                 const on = s.key === tab;
                 return (
@@ -656,14 +681,28 @@ export default function BeitMidrashPage() {
       </div>
 
       <style>{`
+        .bm-swipe-hint { display: none; }
         @media (max-width: 860px) {
           .bm-grid { flex-direction: column; gap: 14px !important; align-items: stretch !important; }
           .bm-grid > main { width: 100% !important; min-width: 0 !important; }
           .bm-side { width: 100% !important; position: sticky !important; top: 0 !important; z-index: 5;
             background: ${L.bg}; margin: 0 -13px; padding: 8px 13px; }
-          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
+          /* רמז "החליקו לעוד מדורים" — נייד בלבד, נעלם אחרי גלילה */
+          .bm-swipe-hint { display: block; text-align: center; color: ${L.goldDeep};
+            font-family: ${F.heading}; font-size: 11.5px; font-weight: 700; letter-spacing: .3px;
+            padding: 1px 0 7px; opacity: .92; animation: bm-hint-pulse 1.7s ease-in-out infinite;
+            transition: opacity .4s, max-height .4s, padding .4s; max-height: 24px; overflow: hidden; }
+          .bm-side.bm-scrolled .bm-swipe-hint { opacity: 0; max-height: 0; padding: 0; animation: none; }
+          /* קצוות מעומעמים — מסמנים שיש עוד תוכן מעבר לקצה */
+          .bm-side-scroll { position: relative; }
+          .bm-side::before, .bm-side::after { content: ""; position: absolute; bottom: 8px; width: 30px; height: 42px;
+            pointer-events: none; z-index: 6; }
+          .bm-side::before { right: 13px; background: linear-gradient(to left, ${L.bg}, transparent); }
+          .bm-side::after  { left: 13px;  background: linear-gradient(to right, ${L.bg}, transparent); }
+          .bm-side.bm-scrolled::before, .bm-side.bm-scrolled::after { display: none; }
+          .bm-side-scroll { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
             -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
-          .bm-side > div::-webkit-scrollbar { display: none; }
+          .bm-side-scroll::-webkit-scrollbar { display: none; }
           .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap;
             border: 1px solid ${L.line} !important; padding: 9px 14px !important; flex: 0 0 auto; scroll-snap-align: start; }
           .bm-side button > span:nth-child(2) { flex: 0 0 auto !important; }
@@ -685,6 +724,7 @@ export default function BeitMidrashPage() {
         }
         @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes bm-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+        @keyframes bm-hint-pulse { 0%,100% { opacity: .55; } 50% { opacity: .95; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
         @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>
