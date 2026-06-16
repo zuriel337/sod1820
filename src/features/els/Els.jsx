@@ -436,6 +436,8 @@ export function ELSSection() {
   const [selectedIdx, setSelectedIdx] = useState(0);   // המופע המוצג בטבלה האחת
   const [tableMode, setTableMode] = useState("grid");  // grid | axis — החלפת ציר באותה טבלה
   const [copied, setCopied] = useState(false);
+  const [myName, setMyName] = useState("");   // חיפוש שם אישי
+  const [showHelp, setShowHelp] = useState(false);  // פאנל "כל הפעולות"
   const [cfg, setCfg] = useState({ contextRows: 12, innerMaxSkip: 12, freeQuota: 5 });
 
   // טעינת הגדרות הכלי מ-Supabase (טבלת els_settings)
@@ -563,6 +565,64 @@ export function ELSSection() {
           <b style={{ color: C.goldBright, letterSpacing: 1 }}>עדות — ולא ניבוי.</b>{" "}
           הדילוגים מתעדים התאמות בטקסט הקדום; הם אינם חיזוי עתידות ואינם הוכחה.
           כלי לימוד והתבוננות, לא נבואה.
+        </div>
+
+        {/* 🪪 חפשו את שמכם בתורה — שער כניסה אישי ומזמין */}
+        <div style={{
+          background: "linear-gradient(160deg, rgba(212,175,55,0.10), rgba(20,15,12,0.5))",
+          border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "18px 20px", marginBottom: 18, textAlign: "center",
+        }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🪪 חפשו את שִמכם בתורה</div>
+          <div style={{ color: C.muted, fontFamily: F.royal, fontSize: 13.5, lineHeight: 1.7, marginBottom: 12 }}>
+            הקלידו שם פרטי — והמנוע יחפש אותו כדילוג אותיות בכל חמשת חומשי התורה, ממוין לפי מובהקות (הדילוג הקצר ביותר ראשון).
+          </div>
+          <form onSubmit={e => { e.preventDefault(); const n = myName.trim(); if (elsNormalize(n).length >= 2) { setTarget(n); run(n); } }}
+            style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            <input value={myName} maxLength={40} onChange={e => setMyName(e.target.value)} placeholder="השם שלכם…" dir="rtl"
+              style={{ ...inputStyle, width: "auto", flex: "1 1 220px", maxWidth: 320, textAlign: "center" }} />
+            <GoldButton type="submit" disabled={searching || elsNormalize(myName).length < 2}>חפשו אותי בתורה ✦</GoldButton>
+          </form>
+          {elsNormalize(myName).length >= 2 && (
+            <div style={{ color: C.goldDim, fontFamily: F.royal, fontSize: 12.5, marginTop: 9 }}>
+              גימטריית «{myName.trim()}» = <b style={{ color: C.goldLight }}>{calcGem(myName).toLocaleString("he")}</b>
+            </div>
+          )}
+        </div>
+
+        {/* ❓ כל הפעולות האפשריות — מדריך מתקפל */}
+        <div style={{ marginBottom: 18 }}>
+          <button onClick={() => setShowHelp(v => !v)} style={{
+            cursor: "pointer", width: "100%", background: "transparent", color: C.goldLight,
+            border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 14px",
+            fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 1, textAlign: "right",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <span>❓ כל הפעולות האפשריות בכלי</span><span>{showHelp ? "▲" : "▼"}</span>
+          </button>
+          {showHelp && (
+            <div style={{ border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", padding: "6px 16px 14px", background: "rgba(10,7,0,0.5)" }}>
+              {[
+                ["🔍", "חיפוש מילה יחידה", "מאתר כל המופעים של מילה כדילוג אותיות בכל התורה."],
+                ["🧩", "חיפוש אשכול", "כמה מונחים מופרדים בפסיק — מוצא היכן הם נפגשים קרוב זה לזה במטריצה."],
+                ["🪪", "חיפוש שם אישי", "הקלידו שם פרטי ומצאו אותו בתורה (השער למעלה)."],
+                ["↔️", "כיוון חיפוש", "קדימה בלבד · אחורה בלבד · שני הכיוונים."],
+                ["📏", "טווח דילוג", "דילוג מינימלי עד מקסימלי — קצר = מובהק יותר."],
+                ["🎯", "סבילות לשגיאות", "התאמה מדויקת, או עד 1–2 אותיות שונות."],
+                ["🔢", "גימטריה", "ערך המילה מוצג; באדג' ✦ כשהדילוג שווה לגימטריה, ⭐ כשהוא מספר-מפתח."],
+                ["▦", "מטריצה / ציר אנכי", "שתי תצוגות למופע, כולל חיפוש פנימי בתוך הציר."],
+                ["📲", "שמירה ושיתוף", "ייצוא המטריצה כתמונה ממותגת — שמירה או שיתוף ישיר לוואטסאפ."],
+                ["🔗", "קישור עמוק", "העתקת קישור שמשחזר בדיוק את החיפוש הנוכחי."],
+              ].map(([ic, t, d]) => (
+                <div key={t} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ fontSize: 17, flexShrink: 0, width: 24, textAlign: "center" }}>{ic}</span>
+                  <div>
+                    <b style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 13.5 }}>{t}</b>
+                    <span style={{ color: C.muted, fontFamily: F.royal, fontSize: 13, lineHeight: 1.6 }}> — {d}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div style={{
