@@ -22,9 +22,9 @@ const L = {
 };
 
 const SECTIONS = [
+  { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
-  { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
 ];
@@ -558,8 +558,19 @@ export default function BeitMidrashPage() {
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט)
   const tabParam = params.get("tab");
-  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
+  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "convergence"));
   const { subscribed } = useSubscribed();
+  // מנורת עדכונים — נדלקת אם יש ציר התכנסות שאושר/עודכן לאחרונה (7 ימים)
+  const [hasUpdates, setHasUpdates] = useState(false);
+  useEffect(() => {
+    let live = true;
+    getTopicCards({ approvedOnly: true }).then(cs => {
+      if (!live) return;
+      const recent = (cs || []).some(c => (Date.now() - new Date(c.approved_at || c.created_at).getTime()) / 86400000 <= 7);
+      setHasUpdates(recent);
+    }).catch(() => {});
+    return () => { live = false; };
+  }, []);
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
@@ -597,6 +608,12 @@ export default function BeitMidrashPage() {
                   }}>
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
+                    {s.key === "convergence" && hasUpdates && (
+                      <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                        <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
+                      </span>
+                    )}
                     {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
                     {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
                     {s.soon && <span style={{ fontSize: 10, color: L.sub, fontWeight: 700 }}>בקרוב</span>}
@@ -656,6 +673,7 @@ export default function BeitMidrashPage() {
           .bm-steps div div:last-child { font-size: 11.5px !important; }
         }
         @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
+        @keyframes bm-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
         @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>
