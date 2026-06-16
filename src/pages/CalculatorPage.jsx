@@ -102,6 +102,18 @@ function Wall({ onPick }) {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { getWallCount().then(setCount).catch(() => {}); }, []);
 
+  // רענון חי — כל 12 שניות נמשכים מילים חדשות שגולשים אחרים הוסיפו
+  // (מושהה כשהלשונית מוסתרת, כדי לא לבזבז). גם מרענן את "לפני X דקות".
+  useEffect(() => {
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      load();
+      getWallCount().then(setCount).catch(() => {});
+    };
+    const id = setInterval(tick, 12000);
+    return () => clearInterval(id);
+  }, [load]);
+
   const tabBtn = (key, label) => (
     <button onClick={() => setTab(key)} style={{
       cursor: "pointer", border: `1px solid ${tab === key ? L.gold : L.line}`,
