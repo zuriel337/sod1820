@@ -26,7 +26,7 @@ function useAxisData() {
     (async () => {
       // צירי התכנסות מאושרים עם תאריך — נשזרים בציר לפי כרונולוגיה
       const { data: convs } = await supabase.from("topic_cards")
-        .select("slug,title,subtitle,occurred_at,highlight_numbers,quality")
+        .select("slug,title,subtitle,occurred_at,highlight_numbers,quality,meter_score")
         .eq("status", "approved").not("occurred_at", "is", null);
       const convergences = (convs || []).map(c => ({ ...c, __conv: true }));
 
@@ -152,6 +152,17 @@ function Station({ ev, post, images, isTarget }) {
   );
 }
 
+// פריט מקרא — נקודת צבע + הסבר
+function Legend({ dot, text, pulse }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 10, height: 10, borderRadius: "50%", background: dot, boxShadow: `0 0 6px ${dot}`,
+        animation: pulse ? "rev-spine-glow 1.6s ease-in-out infinite" : "none", flex: "0 0 auto" }} />
+      {text}
+    </span>
+  );
+}
+
 // תחנת ציר התכנסות — נשזרת בציר ההתגלות לפי שנה, מקשרת ל-/topic
 function ConvergenceStation({ c }) {
   return (
@@ -178,19 +189,13 @@ export default function TimelinePage() {
   const { hash } = useLocation();
 
   const byYear = useMemo(() => {
-    const groups = new Map();
-    for (const ev of events) {
-      const y = eventYear(ev);
-      if (!groups.has(y)) groups.set(y, []);
-      groups.get(y).push(ev);
-    }
-    for (const c of convergences || []) {
-      const y = new Date(c.occurred_at).getFullYear();
-      if (!groups.has(y)) groups.set(y, []);
-      groups.get(y).push(c);
-    }
-    for (const list of groups.values()) {
-      list.sort((a, b) => (b.__conv ? 1 : 0) - (a.__conv ? 1 : 0) || (b.weight || 0) - (a.weight || 0));
+    const groups = new Map(); // year -> {events, convs}
+    const bucket = y => { if (!groups.has(y)) groups.set(y, { events: [], convs: [] }); return groups.get(y); };
+    for (const ev of events) bucket(eventYear(ev)).events.push(ev);
+    for (const c of convergences || []) bucket(new Date(c.occurred_at).getFullYear()).convs.push(c);
+    for (const g of groups.values()) {
+      g.events.sort((a, b) => (b.weight || 0) - (a.weight || 0) || new Date(b.created_at) - new Date(a.created_at));
+      g.convs.sort((a, b) => (b.meter_score || 0) - (a.meter_score || 0) || (b.quality || 0) - (a.quality || 0));
     }
     return [...groups.entries()].sort((a, b) => b[0] - a[0]);
   }, [events, convergences]);
@@ -206,14 +211,21 @@ export default function TimelinePage() {
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <style>{PAGE_CSS}</style>
       <SectionHeader eyebrow="המסע בזמן" title="🌅 ציר ההתגלות" />
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 52px" }}>
-        אירועי הגאולה כפי שנגלו, שנה אחר שנה. כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים —
-        והכוכבים בפס הצדדי ילוו אתכם בכל האתר.
+      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 28px" }}>
+        אירועי הגאולה כפי שנגלו, שנה אחר שנה — ולצידם <b style={{ color: C.goldLight }}>צירי ההתכנסות</b> שהתגלו באותן שנים.
       </p>
+
+      {/* מקרא */}
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 44, fontFamily: F.body, fontSize: 12.5, color: C.muted }}>
+        <Legend dot={C.goldBright} text="אירוע מרכזי" />
+        <Legend dot={VIOLET} text="אירוע רגיל" />
+        <Legend dot={C.gold} text="🌐 ציר התכנסות (חידוש)" />
+        <Legend dot="#3ea6ff" text="✨ עודכן ב-AI (מהבהב)" pulse />
+      </div>
 
       {loading && <div style={{ color: C.muted, textAlign: "center", fontFamily: F.heading, letterSpacing: 2 }}>טוען את הציר…</div>}
 
-      {byYear.map(([year, list]) => (
+      {byYear.map(([year, { events: evs, convs }]) => (
         <section key={year} style={{ position: "relative", marginBottom: 40 }}>
           <div style={{
             position: "sticky", top: 70, zIndex: 2, display: "inline-block",
@@ -224,25 +236,35 @@ export default function TimelinePage() {
             {year || "—"}
           </div>
 
-          {/* חוט השנה */}
-          <div style={{ position: "relative", marginInlineStart: 24, paddingInlineStart: 24,
-            borderInlineStart: `2px solid ${VIOLET}44` }}>
-            <div style={{ position: "absolute", top: 0, bottom: 0, insetInlineStart: -2, width: 2,
-              background: `linear-gradient(180deg, ${C.gold}88, ${VIOLET}88, transparent)`,
-              animation: "rev-spine-glow 5s ease-in-out infinite" }} />
-            {list.map(item => item.__conv ? (
-              <ConvergenceStation key={`c-${item.slug}`} c={item} />
-            ) : (
-              <Station key={item.id} ev={item}
-                post={postByEvent[item.id]}
-                images={item.gallery_id ? imagesByGallery[item.gallery_id] : null}
-                isTarget={hash === `#ev-${item.id}`} />
-            ))}
-          </div>
+          {/* מסלול האירועים */}
+          {evs.length > 0 && (
+            <div style={{ position: "relative", marginInlineStart: 24, paddingInlineStart: 24,
+              borderInlineStart: `2px solid ${VIOLET}44` }}>
+              <div style={{ position: "absolute", top: 0, bottom: 0, insetInlineStart: -2, width: 2,
+                background: `linear-gradient(180deg, ${C.gold}88, ${VIOLET}88, transparent)`,
+                animation: "rev-spine-glow 5s ease-in-out infinite" }} />
+              {evs.map(ev => (
+                <Station key={ev.id} ev={ev}
+                  post={postByEvent[ev.id]}
+                  images={ev.gallery_id ? imagesByGallery[ev.gallery_id] : null}
+                  isTarget={hash === `#ev-${ev.id}`} />
+              ))}
+            </div>
+          )}
+
+          {/* מסלול ההתכנסויות — נתיב זהב נפרד */}
+          {convs.length > 0 && (
+            <div style={{ marginTop: evs.length ? 18 : 0, marginInlineStart: 24, paddingInlineStart: 24, borderInlineStart: `2px solid ${C.gold}` }}>
+              <div style={{ color: C.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 1.5, fontWeight: 700, marginBottom: 12 }}>
+                ✦ התכנסויות שהתגלו ב-{year}
+              </div>
+              {convs.map(c => <ConvergenceStation key={`c-${c.slug}`} c={c} />)}
+            </div>
+          )}
         </section>
       ))}
 
-      {!loading && !events.length && (
+      {!loading && !events.length && !(convergences || []).length && (
         <div style={{ color: C.muted, textAlign: "center", fontFamily: F.body }}>אין עדיין אירועים בציר.</div>
       )}
     </div>
