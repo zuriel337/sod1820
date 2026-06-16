@@ -238,6 +238,18 @@ export default function NumberDrawer() {
                   </div>
                 </Section>
               )}
+              {b.insights?.length > 0 && (
+                <Section title={`🤖 חידושים (${b.insightsCount ?? b.insights.length})`}>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {b.insights.map(it => (
+                      <div key={it.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", background: "rgba(20,15,12,0.5)" }}>
+                        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 4 }}>{stripHtml(it.title || "חידוש")}</div>
+                        {it.body && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75 }}>{stripHtml(it.body).slice(0, 260)}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </Section>
+              )}
               <button onClick={() => goTo(`/number/${encodeURIComponent(eff)}`)} style={{ ...bigLink, marginTop: 6 }}>הדף המלא של {value} →</button>
             </>
           )}
