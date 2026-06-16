@@ -45,9 +45,45 @@ export default async function handler(req, res) {
   const canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
   if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
+  } else if (key.startsWith('/topic/')) {
+    // ציר התכנסות — כותרת/תת + תמונה ראשונה מהגלריה
+    let slug = key.slice('/topic/'.length);
+    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/topic_cards?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,image_ids,highlight_numbers&limit=1`, { headers: ogHeaders });
+      const rows = await r.json();
+      const c = Array.isArray(rows) && rows[0];
+      if (c) {
+        title = stripHtml(c.title) + ' · ' + SITE_NAME;
+        desc = cleanDesc(c.subtitle || `מרכז ההתכנסות של ${stripHtml(c.title)}${(c.highlight_numbers || []).length ? ' — ' + c.highlight_numbers.join(' · ') : ''}`) || DEFAULT_DESC;
+        type = 'article';
+        const firstImg = Array.isArray(c.image_ids) && c.image_ids[0];
+        if (firstImg) {
+          const ir = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?id=eq.${firstImg}&select=image_url&limit=1`, { headers: ogHeaders });
+          const irows = await ir.json();
+          if (Array.isArray(irows) && irows[0] && irows[0].image_url) image = irows[0].image_url;
+        }
+      }
+    } catch { /* fallback to defaults */ }
+  } else if (key.startsWith('/number/')) {
+    // עמוד מספר — תמונה מייצגת (primary_value)
+    let raw = key.slice('/number/'.length);
+    try { raw = decodeURIComponent(raw); } catch { /* keep */ }
+    const n = parseInt(raw, 10);
+    if (Number.isFinite(n)) {
+      title = `${n} — מרכז ההתכנסות · ${SITE_NAME}`;
+      desc = `כל מה שמתכנס למספר ${n} בסוד 1820 — גימטריה, גלריות, פוסטים וצירי התכנסות במקום אחד.`;
+      type = 'article';
+      try {
+        const ir = await fetch(`${SUPABASE_URL}/rest/v1/gallery_images?primary_value=eq.${n}&image_url=not.is.null&select=image_url&order=importance.desc&limit=1`, { headers: ogHeaders });
+        const irows = await ir.json();
+        if (Array.isArray(irows) && irows[0] && irows[0].image_url) image = irows[0].image_url;
+      } catch { /* keep default image */ }
+    }
   } else {
     // לטפל כ-slug של פוסט.
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
