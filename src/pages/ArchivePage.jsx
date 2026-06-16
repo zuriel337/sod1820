@@ -59,6 +59,7 @@ export default function ArchivePage() {
   const [viewMode, setViewMode] = useState("galleries"); // galleries (אקורדיון) | images (רשת תמונות)
   const [openGal, setOpenGal] = useState(null);          // גלריה פתוחה בפיד (האחרונה כברירת מחדל)
   const [showAllNums, setShowAllNums] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);   // פאנל סינון מתקפל (סגור כברירת מחדל)
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
@@ -364,36 +365,46 @@ export default function ArchivePage() {
                 <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש לפי מספר (למשל 1237) או טקסט בתיאור…" aria-label="חיפוש" />
                 {query && <button className="ar-x" onClick={() => setQuery("")}>×</button>}
               </div>
-              <div className="ar-seg" role="group" aria-label="תצוגה">
-                <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
-                <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
-              </div>
-              {viewMode === "images" && (
-                <div className="ar-seg" role="group" aria-label="מיון">
-                  <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
-                  <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
-                  <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
-                </div>
-              )}
+              <button className={`ar-pill${filtersOpen ? " active" : ""}`} onClick={() => setFiltersOpen(o => !o)} title="סינון מתקדם">
+                🎚️ סינון {filtersOpen ? "▲" : "▾"}
+              </button>
             </div>
-            {numOptions.length > 0 && (
-              <div className="ar-row">
-                <span className="ar-label">🔢 מספר</span>
-                {shownNums.map(({ n, k }) => (
-                  <button key={n} className={`ar-pill ar-sm${numFilter === n ? " active" : ""}`} onClick={() => setNumFilter(p => p === n ? null : n)}>
-                    {n}<span className="ar-count">{k}</span>
-                  </button>
-                ))}
-                {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
-              </div>
-            )}
-            {yearOptions.length > 0 && (
-              <div className="ar-row">
-                <span className="ar-label">🗓️ שנה</span>
-                {yearOptions.map(y => (
-                  <button key={y} className={`ar-pill ar-sm${yearFilter === y ? " active" : ""}`} onClick={() => setYearFilter(p => p === y ? null : y)}>{y}</button>
-                ))}
-              </div>
+
+            {filtersOpen && (
+              <>
+                <div className="ar-row">
+                  <div className="ar-seg" role="group" aria-label="תצוגה">
+                    <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
+                    <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
+                  </div>
+                  {viewMode === "images" && (
+                    <div className="ar-seg" role="group" aria-label="מיון">
+                      <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
+                      <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                      <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
+                    </div>
+                  )}
+                </div>
+                {numOptions.length > 0 && (
+                  <div className="ar-row">
+                    <span className="ar-label">🔢 מספר</span>
+                    {shownNums.map(({ n, k }) => (
+                      <button key={n} className={`ar-pill ar-sm${numFilter === n ? " active" : ""}`} onClick={() => setNumFilter(p => p === n ? null : n)}>
+                        {n}<span className="ar-count">{k}</span>
+                      </button>
+                    ))}
+                    {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
+                  </div>
+                )}
+                {yearOptions.length > 0 && (
+                  <div className="ar-row">
+                    <span className="ar-label">🗓️ שנה</span>
+                    {yearOptions.map(y => (
+                      <button key={y} className={`ar-pill ar-sm${yearFilter === y ? " active" : ""}`} onClick={() => setYearFilter(p => p === y ? null : y)}>{y}</button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             {hasFilter && (
               <div className="ar-row" style={{ paddingTop: 4, borderTop: `1px solid ${C.faint}` }}>
