@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getTopicCardBySlug, getGalleryImagesByIds, supabase } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
@@ -16,34 +16,33 @@ export default function TopicPage() {
   const { slug } = useParams();
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
-  const [goldEnts, setGoldEnts] = useState([]); // ישויות זהב שערכן נופל על מספרי הכרטיס (גשר ל-/cross)
-
-  // ישויות הזהב של מספרי הכרטיס — הגשר אל הגרף ואל /cross
-  useEffect(() => {
-    let live = true; setGoldEnts([]);
-    const nums = card?.numbers || [];
-    if (!nums.length) return;
-    supabase.from("nodes").select("label,metadata")
-      .eq("type", "entity").eq("is_active", true).eq("metadata->>tier", "gold")
-      .then(({ data }) => {
-        if (!live) return;
-        const set = new Set(nums);
-        setGoldEnts((data || []).filter(n => set.has(Number(n.metadata?.value)))
-          .map(n => ({ label: n.label, value: Number(n.metadata?.value), display: n.metadata?.display || n.label })));
-      });
-    return () => { live = false; };
-  }, [card]);
+  const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
+  const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
 
   useEffect(() => {
     let live = true;
-    setCard(undefined); setImgs([]);
+    setCard(undefined); setImgs([]); setEnts([]);
     getTopicCardBySlug(slug).then(async c => {
       if (!live) return;
       setCard(c);
       if (c) {
-        applySeo({ title: `${c.title} — מרכז ההתכנסות`, description: c.subtitle || "מפת הקשרים של SOD1820", path: `/topic/${slug}` });
+        applySeo({
+          title: `${c.title} — מרכז ההתכנסות`,
+          description: c.subtitle || "מפת הקשרים של SOD1820",
+          path: `/topic/${slug}`, type: "article",
+          publishedTime: c.created_at, modifiedTime: c.approved_at || c.created_at,
+          tags: c.search_terms || [],
+        });
         if ((c.image_ids || []).length) {
-          try { setImgs(await getGalleryImagesByIds(c.image_ids)); } catch { /* ignore */ }
+          try {
+            const fetched = await getGalleryImagesByIds(c.image_ids);
+            const byId = Object.fromEntries(fetched.map(i => [i.id, i]));
+            // שמירה על הסדר שנקבע בכרטיס (image_ids) — לא סדר אקראי
+            setImgs((c.image_ids || []).map(id => byId[id]).filter(Boolean));
+          } catch { /* ignore */ }
+        }
+        if (c.node_id) {
+          try { setEnts(await getConvergenceEntities(c.node_id)); } catch { /* ignore */ }
         }
       }
     }).catch(() => live && setCard(null));
@@ -86,19 +85,28 @@ export default function TopicPage() {
         </div>
       </div>
 
-      {/* 👑 ישויות הזהב — הגשר אל הגרף */}
-      {goldEnts.length > 0 && (
-        <div style={{ ...box, marginBottom: 20 }}>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>👑 ישויות זהב</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {goldEnts.map((e, i) => (
-              <Link key={i} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
-                display: "inline-flex", alignItems: "center", gap: 7, background: "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.04))",
-                border: `1px solid ${C.gold}`, borderRadius: 999, padding: "6px 13px" }}>
-                <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 14, fontWeight: 700 }}>{e.display}</span>
-                <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{e.value}</span>
-              </Link>
-            ))}
+      {/* 👑 ישויות מחוברות בגרף (חתימות זהב) */}
+      {ents.length > 0 && (
+        <div style={{ ...box, borderColor: C.borderGold, marginBottom: 20 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>👑 חתימות וישויות מחוברות</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {ents.map(e => {
+              const gold = e.metadata?.tier === "gold";
+              const val = e.metadata?.value;
+              return (
+                <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
+                  display: "block", padding: "10px 13px", borderRadius: 10,
+                  background: gold ? "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.03))" : C.surface2,
+                  border: `1px solid ${gold ? C.gold : C.border}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {gold && <span title="חתימת זהב">👑</span>}
+                    <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{e.metadata?.display || e.label}</span>
+                    {val != null && <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>= {val}</span>}
+                  </div>
+                  {e.metadata?.claim_note && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginTop: 4 }}>⚖️ {e.metadata.claim_note}</div>}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
@@ -116,8 +124,28 @@ export default function TopicPage() {
         <div style={{ ...box, marginBottom: 20 }}>
           {f.headline && <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 10 }}>{f.headline}</div>}
           {Array.isArray(f.bullets) && (
-            <ul style={{ margin: 0, paddingInlineStart: 22, color: "#d4ccbf", fontFamily: F.body, fontSize: 15, lineHeight: 2 }}>
-              {f.bullets.map((b, i) => <li key={i}>{b}</li>)}
+            <ul style={{ margin: 0, paddingInlineStart: 22, color: "#d4ccbf", fontFamily: F.body, fontSize: 15, lineHeight: 1.95 }}>
+              {f.bullets.map((b, i) => {
+                const text = typeof b === "string" ? b : (b?.t || "");
+                const imgId = (typeof b === "object" && b) ? b.img : null;
+                const img = imgId ? imgs.find(x => x.id === imgId) : null;
+                const open = openBullet === i;
+                return (
+                  <li key={i} style={{ marginBottom: img ? 4 : 0 }}>
+                    <span onClick={img ? () => setOpenBullet(open ? null : i) : undefined}
+                      style={{ cursor: img ? "pointer" : "default", borderBottom: img ? `1px dashed ${C.borderGold}` : "none", color: img && open ? C.goldBright : "inherit" }}>
+                      {text}{img && <span style={{ color: C.goldDim, fontSize: 12, marginInlineStart: 6 }}>{open ? "▾" : "🖼"}</span>}
+                    </span>
+                    {img && open && (
+                      <div style={{ margin: "8px 0 4px", maxWidth: 420 }}>
+                        <img src={img.image_url} alt={img.name || text} loading="lazy"
+                          style={{ width: "100%", borderRadius: 10, border: `1px solid ${C.borderGold}`, display: "block" }} />
+                        {(img.description || img.name) && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 5 }}>{img.description || img.name}</div>}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -140,17 +168,33 @@ export default function TopicPage() {
         </div>
       )}
 
-      {/* תמונות → ארכיון */}
+      {/* ממצאים בגלריות — תמונות גדולות, מוסברות, בסדר שנקבע, מקשרות לגלריה */}
       {imgs.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>🖼 ממצאים בגלריות ({imgs.length})</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px,1fr))", gap: 10 }}>
-            {imgs.map(im => (
-              <a key={im.id} href={im.image_url} target="_blank" rel="noopener noreferrer" title={(im.ocr_numbers || []).join(" · ")}
-                style={{ display: "block", aspectRatio: "1", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}`, background: `center/cover no-repeat url(${im.image_url})` }} />
-            ))}
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>🖼 ממצאים בגלריות ({imgs.length})</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>כל תמונה היא ממצא בציר — בסדר שמספר את הסיפור.</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px,1fr))", gap: 16 }}>
+            {imgs.map((im, i) => {
+              const caption = (im.description || im.name || "").trim();
+              const nums = (im.ocr_numbers || []).filter(n => n >= 10).slice(0, 5);
+              return (
+                <Link key={im.id} to="/archive" style={{ textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                  <div style={{ position: "relative", aspectRatio: "4/3", background: `center/cover no-repeat url(${im.image_url})` }}>
+                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(8,5,2,0.78)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{i + 1}</span>
+                  </div>
+                  <div style={{ padding: "11px 13px", flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
+                    {caption && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{caption}</div>}
+                    {nums.length > 0 && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {nums.map(n => <span key={n} style={{ fontFamily: F.mono, fontSize: 11.5, fontWeight: 700, color: C.goldDim, border: `1px solid ${C.border}`, borderRadius: 999, padding: "1px 8px" }}>{n}</span>)}
+                      </div>
+                    )}
+                    <span style={{ marginTop: "auto", color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>🖼 בגלריה →</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-          <Link to="/archive" style={{ display: "inline-block", marginTop: 12, color: C.goldBright, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>לכל הארכיון →</Link>
         </div>
       )}
 
