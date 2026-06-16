@@ -203,13 +203,28 @@ export async function getEntityBundle({ term, value, isNumber }) {
     } catch { return Promise.resolve({ items: [], count: 0 }); }
   };
 
-  // פוסטים: למספר — לפי תגית-מספר מדויקת (RPC), כדי שלא ייתפסו "2016"/"163"; לטקסט — חיפוש בכותרת/תוכן.
+  // פוסטים — סינון מחמיר: עד 3 פוסטים, הכי רלוונטיים בלבד (לא הצפה).
+  // למספר: RPC מדורג (כותרת > תגית-מספר). לטקסט: קודם הביטוי בכותרת, ורק להשלמה — מהתוכן.
   const postsP = isNumber
-    ? supabase.rpc('posts_by_number_tag', { num: value, lim: 40 })
+    ? supabase.rpc('posts_by_number_strict', { num: value, lim: 3 })
         .then(({ data }) => ({ items: data || [], count: (data || []).length }))
         .catch(() => ({ items: [], count: 0 }))
-    : sec('posts', 'wp_id,slug,title,date',
-        q => q.or(`title.ilike.${like},content.ilike.${like}`).order('date', { ascending: false }).limit(12));
+    : (async () => {
+        try {
+          const byTitle = await supabase.from('posts').select('wp_id,slug,title,date')
+            .ilike('title', like).order('date', { ascending: false }).limit(3);
+          const items = byTitle.data || [];
+          if (items.length < 3) {
+            const seen = new Set(items.map(p => p.wp_id));
+            const byContent = await supabase.from('posts').select('wp_id,slug,title,date')
+              .ilike('content', like).order('date', { ascending: false }).limit(6);
+            for (const p of (byContent.data || [])) {
+              if (!seen.has(p.wp_id)) { items.push(p); if (items.length >= 3) break; }
+            }
+          }
+          return { items, count: items.length };
+        } catch { return { items: [], count: 0 }; }
+      })();
 
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
