@@ -49,22 +49,34 @@ export default function LiveActivityBar() {
 
   return (
     <div style={{ direction: "rtl", background: "rgba(10,7,2,0.9)", borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>
-      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "7px 18px", display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+      <style>{`
+        @keyframes lab-pulse { 0%,100% { opacity:.4; transform:scale(.85); } 50% { opacity:1; transform:scale(1.15); } }
+        .lab-row { display:flex; align-items:center; gap:10px; justify-content:center; flex-wrap:nowrap; }
+        @media (max-width: 640px) {
+          .lab-row { flex-direction:column; gap:3px; }
+          .lab-item { max-width:92vw; font-size:13.5px !important; }
+        }
+      `}</style>
+      <div className="lab-row" style={{ maxWidth: 1360, margin: "0 auto", padding: "6px 14px" }}>
         <Link to="/beit-midrash" style={{
-          display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
+          display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
           fontSize: 11, fontWeight: 800, letterSpacing: 1, color: C.goldBright,
-          fontFamily: F.heading, border: `1px solid ${C.borderGold}`, borderRadius: 5,
-          padding: "2px 8px", whiteSpace: "nowrap", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4))",
-        }}>📚 חדשות בית המדרש{count ? ` · ${count} גילויים` : ""}</Link>
+          fontFamily: F.heading, border: `1px solid ${C.borderGold}`, borderRadius: 999,
+          padding: "3px 11px", whiteSpace: "nowrap", flex: "0 0 auto",
+          background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(8,5,2,0.4))",
+        }}>
+          <span aria-hidden style={{ width: 7, height: 7, borderRadius: "50%", background: C.goldBright, boxShadow: `0 0 6px ${C.goldBright}`, animation: "lab-pulse 1.8s ease-in-out infinite", flex: "0 0 auto" }} />
+          📚 חדשות בית המדרש{count ? ` · ${count} גילויים` : ""}
+        </Link>
         {cur.to ? (
-          <Link key={idx} to={cur.to} style={{
+          <Link key={idx} to={cur.to} className="lab-item" style={{
             color: C.goldLight, fontFamily: F.royal, fontSize: 15, fontWeight: 500, textDecoration: "none",
-            animation: "activity-fade 5s ease-in-out", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            animation: "activity-fade 5s ease-in-out", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60vw",
           }}>{cur.text}</Link>
         ) : (
-          <span key={idx} style={{
+          <span key={idx} className="lab-item" style={{
             color: C.goldLight, fontFamily: F.royal, fontSize: 15, fontWeight: 500,
-            animation: "activity-fade 5s ease-in-out", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            animation: "activity-fade 5s ease-in-out", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60vw",
           }}>{cur.text}</span>
         )}
       </div>
