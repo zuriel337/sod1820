@@ -41,6 +41,7 @@ import PostsPage from "./pages/PostsPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import TopicPage from "./pages/TopicPage.jsx";
 import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
+import LabIndex from "./pages/LabIndex.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -111,6 +112,7 @@ export default function App() {
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
           <Route path="/מסע" element={<JourneyPage />} />
+          <Route path="/lab" element={<LabIndex />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
           <Route path="/sulamot3" element={<ConvergenceGalaxy level={3} />} />
