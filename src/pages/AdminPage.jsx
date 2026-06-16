@@ -224,7 +224,12 @@ function CardEditor({ card, onCancel, onSaved }) {
   const [nums, setNums] = useState((card.numbers || []).join(", "));
   const [hot, setHot] = useState((card.highlight_numbers || []).join(", "));
   const [headline, setHeadline] = useState(f.headline || "");
-  const [bullets, setBullets] = useState((f.bullets || []).join("\n"));
+  const imgIdx = id => (card.image_ids || []).indexOf(id);
+  const [bullets, setBullets] = useState((f.bullets || []).map(b => {
+    if (typeof b === "string") return b;
+    const n = imgIdx(b?.img);
+    return n >= 0 ? `${b?.t || ""} | ${n + 1}` : (b?.t || "");
+  }).join("\n"));
   const [hint, setHint] = useState(f.hint || "");
   const [caveat, setCaveat] = useState(f.caveat || "");
   const [saving, setSaving] = useState(false);
@@ -241,7 +246,11 @@ function CardEditor({ card, onCancel, onSaved }) {
         title: title.trim(), subtitle: subtitle.trim(), quality: Number(quality) || 0,
         numbers: parseNums(nums), highlight_numbers: parseNums(hot),
         findings: { ...f, headline: headline.trim(), hint: hint.trim(), caveat: caveat.trim(),
-          bullets: bullets.split("\n").map(b => b.trim()).filter(Boolean) },
+          bullets: bullets.split("\n").map(s => s.trim()).filter(Boolean).map(line => {
+            const m = line.match(/^(.*?)\s*\|\s*(\d+)\s*$/);
+            if (m) { const id = (card.image_ids || [])[parseInt(m[2], 10) - 1]; if (id) return { t: m[1].trim(), img: id }; }
+            return line;
+          }) },
       });
       onSaved();
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); setSaving(false); }
@@ -270,7 +279,7 @@ function CardEditor({ card, onCancel, onSaved }) {
       </div>
       <div style={lbl}>כותרת הממצאים</div>
       <input value={headline} onChange={e => setHeadline(e.target.value)} style={inp} />
-      <div style={lbl}>נקודות (שורה לכל נקודה — הוסף/הסר חופשי)</div>
+      <div style={lbl}>נקודות (שורה לכל נקודה · להצמיד תמונה: "טקסט | 2" כשהמספר = מיקום התמונה בכרטיס)</div>
       <textarea value={bullets} onChange={e => setBullets(e.target.value)} rows={6} style={{ ...inp, resize: "vertical", lineHeight: 1.7 }} />
       <div style={lbl}>רמז משלים (רובד פרשני)</div>
       <textarea value={hint} onChange={e => setHint(e.target.value)} rows={3} style={{ ...inp, resize: "vertical", lineHeight: 1.7 }} />

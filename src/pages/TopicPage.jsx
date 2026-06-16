@@ -17,6 +17,7 @@ export default function TopicPage() {
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף
+  const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
 
   useEffect(() => {
     let live = true;
@@ -115,8 +116,28 @@ export default function TopicPage() {
         <div style={{ ...box, marginBottom: 20 }}>
           {f.headline && <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 10 }}>{f.headline}</div>}
           {Array.isArray(f.bullets) && (
-            <ul style={{ margin: 0, paddingInlineStart: 22, color: "#d4ccbf", fontFamily: F.body, fontSize: 15, lineHeight: 2 }}>
-              {f.bullets.map((b, i) => <li key={i}>{b}</li>)}
+            <ul style={{ margin: 0, paddingInlineStart: 22, color: "#d4ccbf", fontFamily: F.body, fontSize: 15, lineHeight: 1.95 }}>
+              {f.bullets.map((b, i) => {
+                const text = typeof b === "string" ? b : (b?.t || "");
+                const imgId = (typeof b === "object" && b) ? b.img : null;
+                const img = imgId ? imgs.find(x => x.id === imgId) : null;
+                const open = openBullet === i;
+                return (
+                  <li key={i} style={{ marginBottom: img ? 4 : 0 }}>
+                    <span onClick={img ? () => setOpenBullet(open ? null : i) : undefined}
+                      style={{ cursor: img ? "pointer" : "default", borderBottom: img ? `1px dashed ${C.borderGold}` : "none", color: img && open ? C.goldBright : "inherit" }}>
+                      {text}{img && <span style={{ color: C.goldDim, fontSize: 12, marginInlineStart: 6 }}>{open ? "▾" : "🖼"}</span>}
+                    </span>
+                    {img && open && (
+                      <div style={{ margin: "8px 0 4px", maxWidth: 420 }}>
+                        <img src={img.image_url} alt={img.name || text} loading="lazy"
+                          style={{ width: "100%", borderRadius: 10, border: `1px solid ${C.borderGold}`, display: "block" }} />
+                        {(img.description || img.name) && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 5 }}>{img.description || img.name}</div>}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
