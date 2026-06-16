@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
+import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { getWallRecent, getWallPopular, getWallCount } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
@@ -220,6 +221,12 @@ export default function CalculatorPage() {
         </p>
 
         <GematriaCalculator seed={seed} onResult={onResult} />
+
+        {current && current.ragil >= 10 && (
+          <div style={{ marginTop: 16, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "12px 14px" }}>
+            <ZeroScaleLinks value={current.ragil} light />
+          </div>
+        )}
 
         {current && <ShareBox word={current.word} ragil={current.ragil} />}
 
