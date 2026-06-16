@@ -4,24 +4,27 @@ import { C, F } from "../theme.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 
-// המדורים החיים באתר — מה שאפשר לפתוח ולחקור עכשיו.
+// "כאן מתחילים" — מסע התחלה קצר לפי מודל העץ האחד: שורש → לב → עדשות → הצטרפות.
+// כל צעד מסומן בשכבה שלו, כך שמההתחלה מבינים את המבנה של האתר.
 const STEPS = [
-  { emoji: "🔢", title: "מהו סוד 1820", body: "מערכת הבינה המלאכותית הראשונה שמחברת תורה, גימטריה, רמזי גאולה וטכנולוגיה — 13 שנות מחקר במקום אחד. שפה שלמה של משמעות מאחורי המספרים.", to: "/" },
-  { emoji: "🔎", title: "חיפוש חכם", body: "הקלידו כל מילה, שם, פסוק או מספר — וקבלו מיד דף שלם של ערך, ביטויים שווים, קשרים וגילויים. נסו אפילו את השם שלכם.", to: "/number/אהבה" },
-  { emoji: "🧮", title: "מנוע הגימטריה — פתוח לכולם, חינם", badge: "חדש", body: "8 שיטות במחשבון אחד (רגיל · מילוי · מסתתר · קדמי · גדול · סידורי · אתב\"ש · אלב\"ם) ועוד מנועי עומק — משולש גדול, מילוי דמילוי ועוד. כותבים מילה, מגלים את כל הביטויים השווים לה.", to: "/beit-midrash?tab=calc" },
-  { emoji: "🧬", title: "דף המספר + מד ההתכנסות", badge: "חדש", body: "לכל מספר וביטוי דף-DNA משלו: כמה שכבות בלתי-תלויות מתכנסות אליו (ציון 0-100 · 🥉🥈🥇), ישויות הזהב, וכרטיסי ההתכנסות עם התמונות המדויקות.", to: "/number/1820" },
-  { emoji: "⟡", title: "הצלבת שיטות וצירי התכנסות", badge: "חדש", body: "הזינו מספר — וראו את כל הביטויים המאומתים שנופלים עליו בכל השיטות, וצירי ההתכנסות שמספרים מה מתחבר למה.", to: "/cross" },
-  { emoji: "📖", title: "מאגר הפוסטים", body: "מאות פוסטים ותיעודים, מחוברים זה לזה ברשת קישורים חכמה — חיפוש, סינון וגימטריה לכל פוסט.", to: "/post" },
-  { emoji: "🕰", title: "ציר ההתגלות", body: "ציר הזמן של אירועי הגאולה — כל תחנה מחברת אירוע לפוסט, לתמונות ולמספרי האם שלו.", to: "/timeline" },
-  { emoji: "📚", title: "בית המדרש — כמו אוניברסיטה", body: "כל שיטות הגימטריה עם הסבר, אנימציה ודוגמאות — וגם צירי ההתכנסות וחידושי ה-AI. ללמוד בעיון, לא רק לחשב.", to: "/beit-midrash" },
-  { emoji: "✅", title: "פוסטים מאומתים", body: "פוסטים שהמערכת אימתה — חישובי הגימטריה והתאריכים שנבדקו, מרוכזים במקום אחד.", to: "/verified" },
-  { emoji: "👑", title: "הצטרפו לבני ההיכל", body: "גישה לתכנים מתקדמים, כלים בלעדיים וצפנים — וההתגלויות החדשות שמתווספות כל הזמן.", to: "/members" },
-];
-
-// מדורים בבנייה — יוצגו כ"בקרוב" ולא כקישור פעיל.
-const SOON = [
-  { emoji: "🌳", title: "עץ המספרים", body: "מפה תלת-מימדית של קשרים בין מספרים, מושגים ואירועים." },
-  { emoji: "🔍", title: "הצופן התנ\"כי (ELS)", body: "דילוגי אותיות בטקסט התורה המלא — עדות, לא ניבוי." },
+  { tier: "🌱 השורש", emoji: "🔢", title: "מהו סוד 1820",
+    body: "13 שנות מחקר שמחברות תורה, גימטריה ורמזי גאולה לשפה אחת. כל האתר הוא גרף ידע אחד — לא אוסף עמודים נפרדים.",
+    to: "/" },
+  { tier: "🫀 הלב", emoji: "🧮", title: "מנוע הגימטריה — חינם לכולם", badge: "חינם",
+    body: "8 שיטות במחשבון אחד (רגיל · מילוי · מסתתר · קדמי · גדול · סידורי · אתב\"ש · אלב\"ם) + מנועי עומק. כותבים מילה — ומגלים את כל הביטויים השווים לה.",
+    to: "/beit-midrash?tab=calc" },
+  { tier: "🫀 הלב", emoji: "🧬", title: "דף המספר + מד ההתכנסות", badge: "חדש",
+    body: "לכל מספר וביטוי דף-DNA: כמה שכבות בלתי-תלויות מתכנסות אליו (ציון 0-100 · 🥉🥈🥇), ישויות הזהב, וכרטיסי ההתכנסות. נסו את 1820.",
+    to: "/number/1820" },
+  { tier: "🫀 הלב", emoji: "⟡", title: "הצלבת שיטות וצירי התכנסות", badge: "חדש",
+    body: "הזינו מספר — וראו את כל הביטויים המאומתים שנופלים עליו בכל השיטות, ומה מתחבר למה.",
+    to: "/cross" },
+  { tier: "🔭 העדשות", emoji: "📖", title: "פוסטים, ציר ההתגלות והצופן",
+    body: "מאות תיעודים מקושרים ברשת אחת, ציר זמן של אירועי הגאולה, ודילוגי האותיות בתורה — כולם עדשות על אותו גרף.",
+    to: "/post" },
+  { tier: "👑 ההצטרפות", emoji: "👑", title: "הצטרפו לבני ההיכל",
+    body: "גישה לתכנים מתקדמים, כלים בלעדיים וצפנים — וההתגלויות החדשות שמתווספות כל הזמן.",
+    to: "/members" },
 ];
 
 const badgeStyle = {
@@ -35,9 +38,9 @@ export default function StartHerePage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="ברוכים הבאים" title="כאן מתחילים" />
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 48px" }}>
-        בשתי דקות — כל מה שצריך כדי להבין מה זה SOD1820 ואיך מנווטים בו.
-        כל מערכת מחוברת לשנייה, כך שכל לחיצה פותחת מסלול חקירה חדש.
+      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
+        בשתי דקות — המסע מהשורש אל הלב. כל האתר הוא <span style={{ color: C.goldBright }}>גרף ידע אחד</span>,
+        וכל לחיצה פותחת מסלול חקירה חדש.
         <br />
         <span style={{ color: C.goldBright }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
       </p>
@@ -53,7 +56,8 @@ export default function StartHerePage() {
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.borderInlineStartColor = C.gold; e.currentTarget.style.transform = "none"; }}
           >
             <div style={{ fontSize: 30, lineHeight: 1 }}>{s.emoji}</div>
-            <div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: C.goldDeep, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
               <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
                 {i + 1}. {s.title}
                 {s.badge && <span style={badgeStyle}>{s.badge}</span>}
@@ -64,33 +68,15 @@ export default function StartHerePage() {
         ))}
       </div>
 
-      {/* בקרוב — מדורים בבנייה */}
-      <div style={{ marginTop: 40 }}>
-        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, textAlign: "center", marginBottom: 16 }}>
-          🛠 בקרוב לאתר
-        </div>
-        <div style={{ display: "grid", gap: 12 }}>
-          {SOON.map(s => (
-            <div key={s.title} style={{
-              display: "flex", gap: 16, alignItems: "flex-start",
-              background: C.surface, border: `1px dashed ${C.border}`,
-              borderRadius: 10, padding: "16px 20px", opacity: 0.72,
-            }}>
-              <div style={{ fontSize: 24, lineHeight: 1 }}>{s.emoji}</div>
-              <div>
-                <div style={{ color: C.goldDim, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, marginBottom: 4 }}>
-                  {s.title}
-                  <span style={{ ...badgeStyle, background: "transparent", color: C.muted, borderColor: C.border }}>בקרוב</span>
-                </div>
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8 }}>{s.body}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* כל המערכות במבט-על */}
+      <div style={{ textAlign: "center", marginTop: 28 }}>
+        <Link to="/map" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: 0.5 }}>
+          🏛 לכל המערכות — מרכז הניווט →
+        </Link>
       </div>
 
       {/* 📨 לכידת איש קשר — שלא ילך לאיבוד, ויצטרף לאנשים שלנו */}
-      <div style={{ marginTop: 52 }}>
+      <div style={{ marginTop: 48 }}>
         <UpdatesBox
           variant="panel"
           source="start-here"

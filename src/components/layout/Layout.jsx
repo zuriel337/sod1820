@@ -8,6 +8,8 @@ import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
+import JoinCelebration from "../JoinCelebration.jsx";
+import AdminJoinMonitor from "../AdminJoinMonitor.jsx";
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -25,6 +27,8 @@ export default function Layout() {
         <Footer />
       </div>
       <NumberDrawer />
+      <JoinCelebration />
+      <AdminJoinMonitor />
     </div>
   );
 }

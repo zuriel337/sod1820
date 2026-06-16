@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, getTopicCards, supabase } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase } from "../lib/supabase.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -192,23 +192,194 @@ function VerifiedTab() {
 }
 
 // ✦ 1820 — המקום הקבוע: סוד השם / סוד הסודות + לימוד
-function Sod1820Tab() {
+// 🎬 עטיפת חשיפה-בגלילה — fade-up כשהאלמנט נכנס למסך (לתחושת "סיפור נגלל")
+function Reveal({ children, style, delay = 0 }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setShown(true); io.disconnect(); } }, { threshold: 0.12 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
-    <div>
-      <div style={{ background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "22px 24px", marginBottom: 22, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-          <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: "clamp(42px,8vw,64px)", fontWeight: 800, lineHeight: 1 }}>1820</span>
-          <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד השם · קוד האתר</span>
-        </div>
-        <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 16, lineHeight: 2, margin: "14px 0 0", maxWidth: 700 }}>
-          <b style={{ color: L.goldDeep }}>1820 = מספר הפעמים ששם הוי״ה (יהוה) מופיע בתורה.</b> זהו סוד הסודות של האתר — הציר שסביבו נסובים כל החידושים, האירועים והמספרים. {KEY_NUMBERS[1820]}.
+    <div ref={ref} style={{ ...style, opacity: shown ? 1 : 0, transform: shown ? "none" : "translateY(26px)", transition: `opacity .8s ease ${delay}ms, transform .8s cubic-bezier(.2,.8,.2,1) ${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
+const actLabel = { color: L.gold, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 };
+const actTitle = { color: L.ink, fontFamily: F.regal, fontSize: "clamp(22px,4vw,30px)", fontWeight: 700, lineHeight: 1.4, margin: "0 0 14px" };
+const actBody = { color: "#3a342a", fontFamily: F.body, fontSize: 16.5, lineHeight: 2, margin: 0, maxWidth: 640 };
+
+// 📜 מסע 1820 — סיפור נגלל חי. כל המידע נקרא מהגרף (חתימות · מד התכנסות · כרטיסים · תמונות).
+function Sod1820Tab() {
+  const [sigs, setSigs] = useState([]);
+  const [meter, setMeter] = useState(null);
+  const [cards, setCards] = useState([]);
+  const [imgs, setImgs] = useState([]);
+  const [phrases, setPhrases] = useState([]);
+  const gold = useGold();
+
+  useEffect(() => {
+    let live = true;
+    // שתי חתימות הזהב — שתי הדרכים ששם ה' = 1820
+    supabase.from("nodes").select("label,description,metadata")
+      .eq("type", "entity").eq("is_active", true)
+      .eq("metadata->>role", "signature").eq("metadata->>value", "1820")
+      .then(({ data }) => { if (live) setSigs((data || []).map(r => ({ label: r.label, desc: r.description, title: r.metadata?.signature_title || "✦ חתימה" }))); });
+    // מד ההתכנסות החי
+    supabase.rpc("convergence_meter", { p_n: 1820 }).then(({ data }) => { if (live) setMeter(data); }).catch(() => {});
+    // כרטיסי ההתכנסות + התמונות המאוצרות שלהם
+    getTopicCards({ approvedOnly: true }).then(async all => {
+      if (!live) return;
+      const mine = (all || []).filter(c => (c.numbers || []).includes(1820));
+      setCards(mine);
+      const ids = [...new Set(mine.flatMap(c => c.image_ids || []))].slice(0, 10);
+      if (ids.length) { try { const im = await getGalleryImagesByIds(ids); if (live) setImgs(im || []); } catch { /* ignore */ } }
+    }).catch(() => {});
+    // ביטויים ששווים 1820 (רגיל)
+    supabase.from("gematria_words").select("phrase").eq("ragil", 1820).limit(80)
+      .then(({ data }) => { if (live) setPhrases([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
+    return () => { live = false; };
+  }, []);
+
+  const score = meter?.score ?? null;
+  const okLayers = (meter?.layers || []).filter(l => l.ok).map(l => l.name);
+
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      {/* ─── מערכה 1 · המספר ─── */}
+      <Reveal style={{ textAlign: "center", padding: "10px 0 8px" }}>
+        <div style={actLabel}>סוד הסודות</div>
+        <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: "clamp(72px,17vw,140px)", fontWeight: 800, lineHeight: 1, letterSpacing: -2 }}>1820</div>
+        <p style={{ ...actBody, margin: "16px auto 0", fontSize: 18, fontStyle: "italic", color: L.sub }}>
+          יש מספרים שמספרים סיפור.<br />ויש מספר אחד — שהוא הסיפור עצמו.
         </p>
-        <div style={{ marginTop: 14 }}>
-          <Link to="/שם-ה-בתורה-1820-פעם" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: "#fbf3da", border: `1px solid ${L.gold}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "8px 16px" }}>★ פוסט היסוד — שם ה' בתורה 1820 פעם ←</Link>
-        </div>
-      </div>
-      <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, margin: "0 0 14px" }}>הביטויים ששווים ל-1820</h3>
-      <NumbersTab initial={1820} />
+      </Reveal>
+
+      <Reveal style={{ textAlign: "center", margin: "30px auto 48px", maxWidth: 600 }} delay={120}>
+        <p style={{ ...actBody, margin: "0 auto", textAlign: "center", fontSize: 19 }}>
+          <b style={{ color: L.goldDeep }}>שם הוי״ה (יהוה) מופיע בתורה כולה — בדיוק 1820 פעם.</b>
+        </p>
+      </Reveal>
+
+      {/* ─── מערכה 2 · שתי החתימות ─── */}
+      {sigs.length > 0 && (
+        <section style={{ marginBottom: 52 }}>
+          <Reveal>
+            <div style={actLabel}>מערכה ראשונה · החתימות</div>
+            <h3 style={actTitle}>ולא במקרה אחד — אלא בשתי חתימות</h3>
+            <p style={{ ...actBody, marginBottom: 20 }}>
+              שני ביטויים בלתי-תלויים, כל אחד מהם עולה בדיוק 1820. כאילו השם חתם את עצמו פעמיים.
+            </p>
+          </Reveal>
+          <div style={{ display: "grid", gap: 14 }}>
+            {sigs.map((s, i) => (
+              <Reveal key={s.label} delay={i * 120}>
+                <div style={{ background: "linear-gradient(135deg, #fffdf5, #fbf3da)", border: `1.5px solid ${L.gold}`, borderRadius: 16, padding: "18px 22px", textAlign: "center", boxShadow: "0 2px 10px rgba(154,120,24,0.12)" }}>
+                  <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginBottom: 8 }}>{s.title}</div>
+                  <div style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, lineHeight: 1.5 }}>{s.label}</div>
+                  {s.desc && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 8 }}>{stripHtml(s.desc)}</div>}
+                  <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 8, background: "#fff", border: `1px solid ${L.gold}`, borderRadius: 999, padding: "5px 16px" }}>
+                    <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700 }}>{s.label}</span>
+                    <span style={{ color: L.sub, fontFamily: F.mono, fontSize: 16 }}>=</span>
+                    <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 18, fontWeight: 800 }}>1820</span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ─── מערכה 3 · ההתכנסות הגדולה ─── */}
+      {score != null && (
+        <section style={{ marginBottom: 52 }}>
+          <Reveal style={{ textAlign: "center", background: L.ink, borderRadius: 20, padding: "34px 24px" }}>
+            <div style={{ ...actLabel, color: "#d9b94f" }}>מערכה שנייה · ההתכנסות</div>
+            <div style={{ color: "#f3e6bd", fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 18 }}>מספר אחד — שכל העולמות מצביעים עליו</div>
+            <div style={{ color: "#f6e27a", fontFamily: F.mono, fontSize: "clamp(56px,12vw,96px)", fontWeight: 800, lineHeight: 1 }}>
+              {score}<span style={{ fontSize: "0.4em", color: "#c9b98a" }}>/100</span>
+            </div>
+            <div style={{ color: "#c9b98a", fontFamily: F.heading, fontSize: 12, letterSpacing: 2, marginTop: 6 }}>מד ההתכנסות החי</div>
+            {okLayers.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 20 }}>
+                {okLayers.map(n => (
+                  <span key={n} style={{ color: "#f3e6bd", fontFamily: F.body, fontSize: 12.5, background: "rgba(246,226,122,0.12)", border: "1px solid rgba(246,226,122,0.3)", borderRadius: 999, padding: "4px 12px" }}>✓ {n}</span>
+                ))}
+              </div>
+            )}
+            <p style={{ color: "#cfc6b0", fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "20px auto 0", maxWidth: 520 }}>
+              שכבות בלתי-תלויות — תורה, קבלה, גאולה, גלריות, אירועים — מתכנסות כולן על אותו מספר. זו לא יד המקרה.
+            </p>
+          </Reveal>
+        </section>
+      )}
+
+      {/* ─── מערכה 4 · מהספר אל המציאות (כרטיסים + תמונות) ─── */}
+      {cards.length > 0 && (
+        <section style={{ marginBottom: 52 }}>
+          <Reveal>
+            <div style={actLabel}>מערכה שלישית · מהספר אל המציאות</div>
+            <h3 style={actTitle}>וזה לא נשאר בין דפי הספר</h3>
+            <p style={{ ...actBody, marginBottom: 18 }}>
+              1820 פרץ אל ההיסטוריה — באירועים, באסונות ובציר הגאולה. כל כרטיס הוא התכנסות שלמה בפני עצמה.
+            </p>
+          </Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12 }}>
+            {cards.map((c, i) => (
+              <Reveal key={c.id} delay={i * 90}>
+                <Link to={`/topic/${encodeURIComponent(c.slug)}`} style={{ display: "block", textDecoration: "none", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 14, padding: "16px 18px", height: "100%" }}>
+                  <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>{c.title}</div>
+                  {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginTop: 6 }}>{stripHtml(c.subtitle).slice(0, 110)}</div>}
+                  <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 10 }}>פתחו את ההתכנסות ←</div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+          {imgs.length > 0 && (
+            <Reveal style={{ marginTop: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(78px,1fr))", gap: 7 }}>
+                {imgs.map(im => (
+                  <a key={im.id} href={im.image_url} target="_blank" rel="noopener noreferrer" title={(im.ocr_numbers || []).join(" · ")}
+                    style={{ display: "block", aspectRatio: "1", borderRadius: 9, overflow: "hidden", border: `1px solid ${L.line}`, background: `center/cover no-repeat url(${im.image_url})` }} />
+                ))}
+              </div>
+            </Reveal>
+          )}
+        </section>
+      )}
+
+      {/* ─── מערכה 5 · הביטויים השווים + שערים ─── */}
+      <section style={{ marginBottom: 24 }}>
+        <Reveal>
+          <div style={actLabel}>מערכה אחרונה · המשפחה</div>
+          <h3 style={actTitle}>וכל הביטויים שחולקים את אותו ערך</h3>
+        </Reveal>
+        {phrases.length > 0 && (
+          <Reveal style={{ marginTop: 4 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+              {sortGoldFirst(phrases.map(p => ({ phrase: p })), p => gold.labels.has(p.phrase)).slice(0, 50).map((p, i) => {
+                const isG = gold.labels.has(p.phrase);
+                return (
+                  <Link key={i} to={`/number/${encodeURIComponent(p.phrase)}`} style={{
+                    textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
+                    background: isG ? "#fbf3da" : L.soft, border: `1px solid ${isG ? L.gold : L.line}`, borderRadius: 999,
+                    padding: "5px 12px", fontWeight: isG ? 700 : 400,
+                  }}>{isG ? "✦ " : ""}{p.phrase}</Link>
+                );
+              })}
+            </div>
+          </Reveal>
+        )}
+        <Reveal style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginTop: 30 }}>
+          <Link to="/number/1820" style={{ textDecoration: "none", background: `linear-gradient(135deg, ${L.gold}, #c79a2a)`, color: "#fff", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "12px 24px", borderRadius: 999 }}>🧬 לדף המלא של 1820 →</Link>
+          <Link to="/topic/1820" style={{ textDecoration: "none", background: L.panel, color: L.goldDeep, border: `1px solid ${L.gold}`, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, padding: "12px 22px", borderRadius: 999 }}>⟡ עמוד ההתכנסות →</Link>
+          <Link to="/שם-ה-בתורה-1820-פעם" style={{ textDecoration: "none", background: L.panel, color: L.goldDeep, border: `1px solid ${L.gold}`, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, padding: "12px 22px", borderRadius: 999 }}>★ פוסט היסוד →</Link>
+        </Reveal>
+      </section>
     </div>
   );
 }
@@ -587,6 +758,27 @@ export default function BeitMidrashPage() {
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
+  // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
+  const sideRef = useRef(null);
+  useEffect(() => {
+    const el = sideRef.current;
+    if (!el) return;
+    const isMobile = window.matchMedia("(max-width: 860px)").matches;
+    if (!isMobile) return;
+    const nav = el.parentElement;
+    // אם אין באמת תוכן נוסף לגלילה — לא להציג רמז
+    if (el.scrollWidth <= el.clientWidth + 8) { nav && nav.classList.add("bm-scrolled"); return; }
+    const hideHint = () => nav && nav.classList.add("bm-scrolled");
+    let attached = false;
+    // נדנוד עדין: לחשוף שיש עוד, ולחזור (RTL → התוכן הנוסף משמאל)
+    const start = el.scrollLeft;
+    const t1 = setTimeout(() => el.scrollTo({ left: start - 90, behavior: "smooth" }), 700);
+    const t2 = setTimeout(() => el.scrollTo({ left: start, behavior: "smooth" }), 1300);
+    // רק אחרי שהנדנוד נגמר — מקשיבים לגלילה אמיתית של המשתמש כדי להסתיר את הרמז
+    const t3 = setTimeout(() => { el.addEventListener("scroll", hideHint, { once: true, passive: true }); attached = true; }, 2100);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); if (attached) el.removeEventListener("scroll", hideHint); };
+  }, []);
+
   return (
     <div style={{ background: L.bg, minHeight: "100vh", direction: "rtl", position: "relative", zIndex: 1 }}>
       <div className="bm-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
@@ -608,7 +800,11 @@ export default function BeitMidrashPage() {
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
           {/* תפריט צד (ימין ב-RTL) */}
           <nav className="bm-side" style={{ width: 230, flex: "0 0 auto", position: "sticky", top: 20 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* רמז גלילה — מוצג רק בנייד, נעלם אחרי גלילה ראשונה */}
+            <div className="bm-swipe-hint" aria-hidden="true">
+              <span>👈 החליקו לכל המדורים 👉</span>
+            </div>
+            <div ref={sideRef} className="bm-side-scroll" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {SECTIONS.map(s => {
                 const on = s.key === tab;
                 return (
@@ -658,14 +854,28 @@ export default function BeitMidrashPage() {
       </div>
 
       <style>{`
+        .bm-swipe-hint { display: none; }
         @media (max-width: 860px) {
           .bm-grid { flex-direction: column; gap: 14px !important; align-items: stretch !important; }
           .bm-grid > main { width: 100% !important; min-width: 0 !important; }
           .bm-side { width: 100% !important; position: sticky !important; top: 0 !important; z-index: 5;
             background: ${L.bg}; margin: 0 -13px; padding: 8px 13px; }
-          .bm-side > div { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
+          /* רמז "החליקו לעוד מדורים" — נייד בלבד, נעלם אחרי גלילה */
+          .bm-swipe-hint { display: block; text-align: center; color: ${L.goldDeep};
+            font-family: ${F.heading}; font-size: 11.5px; font-weight: 700; letter-spacing: .3px;
+            padding: 1px 0 7px; opacity: .92; animation: bm-hint-pulse 1.7s ease-in-out infinite;
+            transition: opacity .4s, max-height .4s, padding .4s; max-height: 24px; overflow: hidden; }
+          .bm-side.bm-scrolled .bm-swipe-hint { opacity: 0; max-height: 0; padding: 0; animation: none; }
+          /* קצוות מעומעמים — מסמנים שיש עוד תוכן מעבר לקצה */
+          .bm-side-scroll { position: relative; }
+          .bm-side::before, .bm-side::after { content: ""; position: absolute; bottom: 8px; width: 30px; height: 42px;
+            pointer-events: none; z-index: 6; }
+          .bm-side::before { right: 13px; background: linear-gradient(to left, ${L.bg}, transparent); }
+          .bm-side::after  { left: 13px;  background: linear-gradient(to right, ${L.bg}, transparent); }
+          .bm-side.bm-scrolled::before, .bm-side.bm-scrolled::after { display: none; }
+          .bm-side-scroll { flex-direction: row !important; overflow-x: auto; gap: 7px !important; padding-bottom: 6px;
             -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
-          .bm-side > div::-webkit-scrollbar { display: none; }
+          .bm-side-scroll::-webkit-scrollbar { display: none; }
           .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap;
             border: 1px solid ${L.line} !important; padding: 9px 14px !important; flex: 0 0 auto; scroll-snap-align: start; }
           .bm-side button > span:nth-child(2) { flex: 0 0 auto !important; }
@@ -687,6 +897,7 @@ export default function BeitMidrashPage() {
         }
         @keyframes maIn { from { opacity: 0; transform: translateY(6px) scale(.8); } to { opacity: 1; transform: none; } }
         @keyframes bm-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+        @keyframes bm-hint-pulse { 0%,100% { opacity: .55; } 50% { opacity: .95; } }
         @keyframes axisBeadIn { from { opacity: 0; transform: translateY(8px) scale(.6); } to { opacity: 1; transform: none; } }
         @keyframes axisPulse { 0%, 100% { box-shadow: 0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4); } 50% { box-shadow: 0 0 0 8px #f4e6bd, 0 2px 12px rgba(154,120,24,0.55); } }
       `}</style>

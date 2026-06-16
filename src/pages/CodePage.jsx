@@ -18,7 +18,7 @@ function CodeClosed() {
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16.5, lineHeight: 2, maxWidth: 560, margin: "0 auto 36px" }}>
         מנוע דילוגי האותיות (ELS) על טקסט התורה המלא — חיפוש מילים ושמות בדילוגים קבועים, אשכולות מצטלבים ומטריצות. בהרצות אחרונות לפני הפתיחה.
       </p>
-      <UpdatesBox source="code" title="רוצים להיות שם כשהצופן נפתח?" body="הירשמו ותהיו מהראשונים לחפש דילוגים ולגלות רמזים בטקסט התורה." cta="עדכנו אותי →" />
+      <UpdatesBox source="code" title="רוצים לדעת מתי הצופן נפתח?" body="הירשמו לעדכונים — ונודיע לכם ברגע שמנוע הדילוגים נפתח לציבור. תהיו מהראשונים לחפש דילוגים ולגלות רמזים בטקסט התורה." cta="הירשמו לעדכונים →" />
       <div style={{ marginTop: 26 }}>
         <Link to="/beit-midrash" style={{ color: C.goldLight, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>← בינתיים, חקרו גימטריה בבית המדרש</Link>
       </div>
@@ -26,12 +26,11 @@ function CodeClosed() {
   );
 }
 
-// הצופן התנ"כי — פתוח לכולם עם מכסת חיפושים חינם; הרשמה (אימות מייל) פותחת חיפוש בלי הגבלה.
-// אדמין ומשתמש מאומת = ללא מכסה; אנונימי = מכסה חינם (els_settings.free_quota_searches).
+// הצופן התנ"כי — סגור. המנוע המלא פתוח לאדמין בלבד; לכל השאר דף "ייפתח בקרוב" + הרשמה לעדכונים.
 export default function CodePage() {
-  const { verified, loading } = useAuth();
+  const { isAdmin, loading } = useAuth();
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: C.goldDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  return <ELSSection gated={!verified} />;
+  return isAdmin ? <ELSSection /> : <CodeClosed />;
 }
