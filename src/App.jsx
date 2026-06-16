@@ -37,6 +37,7 @@ import {
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import TopicPage from "./pages/TopicPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/topic/:slug" element={<TopicPage />} />
           <Route path="/cross" element={<CrossMethodPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />

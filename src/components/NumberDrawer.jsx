@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { C, F, calcGem } from "../theme.js";
-import { getEntityBundle } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
-import { METHODS } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
+import ConvergenceMeter from "./ConvergenceMeter.jsx";
 
 const M6 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי"].includes(m.key));
 
@@ -20,6 +21,7 @@ export default function NumberDrawer() {
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");           // שדה עריכה חי — מקלידים מילה/מספר ורואים בזמן אמת
+  const [topics, setTopics] = useState([]); // כרטיסי התכנסות (גשר לציר ההתכנסות)
   const [zoom, setZoom] = useState(null);
   const [thread, setThread] = useState(null);
   const [webs, setWebs] = useState([]);     // חוטים פנימיים: מהמספר אל כל גלריה במגירה
@@ -30,10 +32,14 @@ export default function NumberDrawer() {
   // סנכרון: כשנפתחת המגירה עם ביטוי חדש — טוענים אותו לשדה העריכה
   useEffect(() => { setQ(term || ""); }, [term]);
 
+  // כרטיסי התכנסות — נטענים פעם אחת (גשר לציר ההתכנסות של מרכז הנושאים)
+  useEffect(() => { if (open && !topics.length) getTopicCards({ approvedOnly: true }).then(setTopics).catch(() => {}); }, [open]); // eslint-disable-line
+
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
   const value = eff ? (isNumber ? Number(eff) : calcGem(eff)) : null;
   const methodVals = (eff && !isNumber) ? M6.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
+  const depthVals = (eff && !isNumber) ? DEPTH_METHODS.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
 
   // טעינת הקשרים — מתעדכנת חי לפי השדה (עם השהיה קצרה כדי לא להעמיס)
   useEffect(() => {
@@ -165,6 +171,43 @@ export default function NumberDrawer() {
             }}>✨ למחשבון המלא ולרשימת הגימטריות המלאה בבית המדרש ←</button>
           </div>
         )}
+
+        {/* 🔬 מנועי עומק — 4 שיטות מתקדמות (לביטוי הנוכחי) */}
+        {depthVals && (
+          <div style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>🔬 מנועי עומק</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+              {depthVals.map(t => (
+                <div key={t.key} style={{ display: "flex", alignItems: "baseline", gap: 6, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 9px" }}>
+                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9.5, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={t.key}>{t.key}</span>
+                  <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800, flexShrink: 0 }}>{t.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 🧬 מד ההתכנסות — כמה שכבות מסכימות על הערך */}
+        {value != null && value >= 10 && <ConvergenceMeter value={value} />}
+
+        {/* 🧠 גשר לציר ההתכנסות — כרטיסי הנושא שמכילים את המספר */}
+        {(() => {
+          const mt = value != null ? topics.filter(t => (t.numbers || []).includes(value)) : [];
+          if (!mt.length) return null;
+          return (
+            <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>🧠 התכנסויות שמכילות את {value}</div>
+              <div style={{ display: "grid", gap: 6 }}>
+                {mt.map(t => (
+                  <button key={t.id} onClick={() => goTo(`/topic/${encodeURIComponent(t.slug)}`)} style={{ cursor: "pointer", textAlign: "right", background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 9, padding: "8px 11px", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ flex: 1, minWidth: 0, color: C.goldLight, fontFamily: F.regal, fontSize: 14, fontWeight: 700 }}>{t.title}</span>
+                    <span style={{ color: C.gold, fontSize: 9.5, letterSpacing: 1, flexShrink: 0 }}>{"★".repeat(Math.max(0, Math.min(5, Math.round((t.quality || 0) / 2))))}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* חוטים פנימיים — מהמספר אל כל פריט מחובר (רשת הקשרים) */}
         {open && webs.length > 0 && (
