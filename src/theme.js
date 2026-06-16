@@ -18,7 +18,7 @@ export const C = {
   surface2:     "#140f0c",
   border:       "rgba(212,175,55,0.18)",
   borderGold:   "rgba(212,175,55,0.38)",
-  muted:        "#bdb6c4",
+  muted:        "#cfc9d6",
   faint:        "#1a0f0a",
   danger:       "#8B2020",
 };
