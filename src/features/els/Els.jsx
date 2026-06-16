@@ -353,6 +353,16 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
   const from = Math.max(0, tMin - contextRows);
   const to = Math.min(axis.colLetters.length, tMax + contextRows + 1);
 
+  // ממקמים את הרצף במרכז חלון הציר (גלילה אוטומטית) — כך המילה תמיד באמצע המסך
+  const scrollRef = useRef(null);
+  const ROW_PITCH = 32; // גובה תא (30) + רווח (2)
+  useEffect(() => {
+    const c = scrollRef.current;
+    if (!c) return;
+    const mid = ((tMin + tMax) / 2 - from) * ROW_PITCH;   // מרכז הרצף
+    c.scrollTop = Math.max(0, mid - c.clientHeight / 2 + ROW_PITCH / 2);
+  }, [hit, from, tMin, tMax]);
+
   const inputStyle = {
     flex: 1, background: "#050400", border: `1px solid ${C.border}`,
     color: C.goldBright, padding: "8px 10px", borderRadius: 6,
@@ -369,7 +379,7 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
       </div>
 
       {/* הציר עצמו — אנכי */}
-      <div style={{
+      <div ref={scrollRef} style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
         direction: "rtl", fontFamily: F.regal, fontSize: 16,
         maxHeight: 420, overflowY: "auto", padding: "4px 0",
@@ -443,7 +453,7 @@ export function ELSSection({ gated = false } = {}) {
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
   const [selectedIdx, setSelectedIdx] = useState(0);   // המופע המוצג בטבלה האחת
-  const [tableMode, setTableMode] = useState("grid");  // grid | axis — החלפת ציר באותה טבלה
+  const [tableMode, setTableMode] = useState("axis");  // axis | grid — ברירת מחדל: ציר אנכי מרכזי
   const [copied, setCopied] = useState(false);
   const [myName, setMyName] = useState("");   // חיפוש שם אישי
   const [showHelp, setShowHelp] = useState(false);  // פאנל "כל הפעולות"
@@ -538,8 +548,8 @@ export function ELSSection({ gated = false } = {}) {
     return () => clearTimeout(t);
   }, []);
 
-  // תוצאה חדשה → מאפסים את הבחירה בטבלה
-  useEffect(() => { setSelectedIdx(0); setTableMode("grid"); }, [result]);
+  // תוצאה חדשה → מאפסים את הבחירה; ברירת המחדל היא הציר האנכי (המילה במרכז המסך)
+  useEffect(() => { setSelectedIdx(0); setTableMode("axis"); }, [result]);
 
   function run(override) {
     const src = typeof override === "string" ? override : target;
@@ -849,7 +859,7 @@ export function ELSSection({ gated = false } = {}) {
                         }}>{selNote.mark} {selNote.text}</span>
                       )}
                       <span style={{ flex: 1 }} />
-                      {[["grid", "טבלה ▦"], ["axis", "ציר אנכי ▼"]].map(([mode, lbl]) => (
+                      {[["axis", "ציר אנכי ▼"], ["grid", "טבלה ▦"]].map(([mode, lbl]) => (
                         <button key={mode} onClick={() => setTableMode(mode)} style={{
                           cursor: "pointer", background: tableMode === mode ? C.gold : "transparent",
                           color: tableMode === mode ? "#0a0700" : C.goldBright, border: `1px solid ${C.borderGold}`,
