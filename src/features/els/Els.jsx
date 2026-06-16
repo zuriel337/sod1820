@@ -163,10 +163,50 @@ function buildMatrixCanvas(letters, hit, title) {
 
 const matrixFileName = title => `els-${(title || "matrix").replace(/[^\w֐-׿]+/g, "-")}.png`;
 
-// ייצוא המטריצה הנוכחית כתמונת PNG (הורדה)
-function downloadMatrixPNG(letters, hit, title) {
+// בניית קנבס הציר האנכי — המילה יורדת בעמודה אחת, ממורכזת, עם הקשר
+function buildAxisCanvas(letters, hit, title, contextRows = 14) {
+  const S = Math.abs(hit.skip);
+  const col = ((hit.start % S) + S) % S;
+  const colIdx = [];
+  for (let p = col; p < letters.length; p += S) colIdx.push(p);
+  const posSet = new Set(hit.positions);
+  const termRows = [];
+  colIdx.forEach((p, i) => { if (posSet.has(p)) termRows.push(i); });
+  const tMin = Math.min(...termRows), tMax = Math.max(...termRows);
+  const from = Math.max(0, tMin - contextRows), to = Math.min(colIdx.length, tMax + contextRows + 1);
+  const rows = to - from;
+  const cellH = 30, cellW = 46, pad = 18, headH = 40, footH = 24;
+  const W = Math.max(pad * 2 + cellW, 260);
+  const H = pad * 2 + headH + rows * cellH + footH;
+  const cv = document.createElement("canvas");
+  const scale = 2; cv.width = W * scale; cv.height = H * scale;
+  const g = cv.getContext("2d"); g.scale(scale, scale);
+  g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillStyle = "#E8C84A"; g.font = "bold 16px 'Frank Ruhl Libre', serif";
+  g.fillText(title, W / 2, pad + headH / 2);
+  g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  for (let i = from; i < to; i++) {
+    const y = pad + headH + (i - from) * cellH;
+    if (posSet.has(colIdx[i])) {
+      g.fillStyle = "#7a1320"; g.fillRect(W / 2 - cellW / 2 + 3, y + 1, cellW - 6, cellH - 2);
+      g.fillStyle = "#E8C84A";
+    } else g.fillStyle = "#6f6347";
+    g.fillText(letters[colIdx[i]], W / 2, y + cellH / 2);
+  }
+  g.fillStyle = "#9a7818"; g.font = "12px 'Heebo', sans-serif";
+  g.fillText("סוד 1820 · הצופן התנ\"כי · sod1820.co.il", W / 2, H - footH / 2);
+  return cv;
+}
+
+// בוחר את הקנבס לפי התצוגה הנוכחית (ציר/טבלה)
+const pickCanvas = (mode, letters, hit, title) =>
+  mode === "axis" ? buildAxisCanvas(letters, hit, title) : buildMatrixCanvas(letters, hit, title);
+
+// ייצוא התצוגה הנוכחית כתמונת PNG (הורדה)
+function downloadMatrixPNG(letters, hit, title, mode) {
   try {
-    buildMatrixCanvas(letters, hit, title).toBlob(blob => {
+    pickCanvas(mode, letters, hit, title).toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = matrixFileName(title); a.click();
@@ -175,10 +215,10 @@ function downloadMatrixPNG(letters, hit, title) {
   } catch { alert("שמירת התמונה נכשלה — נסו שוב."); }
 }
 
-// שיתוף המטריצה כתמונה — שיתוף מקורי (וואטסאפ וכו') במובייל, ובמחשב נופל להורדה
-async function shareMatrixPNG(letters, hit, title) {
+// שיתוף התצוגה כתמונה — שיתוף מקורי (וואטסאפ וכו') במובייל, ובמחשב נופל להורדה
+async function shareMatrixPNG(letters, hit, title, mode) {
   try {
-    const cv = buildMatrixCanvas(letters, hit, title);
+    const cv = pickCanvas(mode, letters, hit, title);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], matrixFileName(title), { type: "image/png" });
     const shareText = `${title} — הצופן התנ״כי · סוד 1820\nגלו עוד דילוגים: https://sod1820.co.il/code`;
@@ -471,15 +511,24 @@ export function ELSSection({ gated = false } = {}) {
   const gateLocked = gated && freeLeft <= 0;   // נגמרה המכסה החינמית
 
   // ── לוח תגליות הגולשים ──
-  const { user, verified } = useAuth();
+  const { user, verified, isAdmin } = useAuth();
   const [finds, setFinds] = useState([]);
   const [saving, setSaving] = useState(false);
   const loadFinds = () => {
-    supabase.from("els_finds").select("id,term,value,skip,dir,start_pos,created_at")
+    supabase.from("els_finds").select("id,term,value,skip,dir,start_pos,user_id,created_at")
       .eq("approved", true).order("created_at", { ascending: false }).limit(40)
       .then(({ data }) => setFinds(data || []));
   };
   useEffect(() => { loadFinds(); }, []);
+
+  // מחיקת ממצא — לאדמין (כל ממצא) או לבעלים (הממצא שלו)
+  async function deleteFind(id, e) {
+    e.stopPropagation();
+    if (!window.confirm("למחוק את הממצא מהלוח?")) return;
+    const { error } = await supabase.from("els_finds").delete().eq("id", id);
+    if (!error) setFinds(fs => fs.filter(f => f.id !== id));
+    else { setBonusToast("המחיקה נכשלה"); setTimeout(() => setBonusToast(""), 3000); }
+  }
 
   // שמירת ממצא ללוח הגולשים (דורש התחברות — תמריץ הרשמה נוסף)
   async function saveFind(hit) {
@@ -907,11 +956,11 @@ export function ELSSection({ gated = false } = {}) {
                           borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                         }}>{lbl}</button>
                       ))}
-                      <button onClick={() => downloadMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`)} title="שמור את הטבלה כתמונה" style={{
+                      <button onClick={() => downloadMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`, tableMode)} title="שמור את התצוגה כתמונה" style={{
                         cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                       }}>📷 שמור כתמונה</button>
-                      <button onClick={async () => { const ok = await shareMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`); if (ok) grantShareBonus(); }} title="שתף את הטבלה כתמונה" style={{
+                      <button onClick={async () => { const ok = await shareMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`, tableMode); if (ok) grantShareBonus(); }} title="שתף את התצוגה כתמונה" style={{
                         cursor: "pointer", background: C.gold, color: "#0a0700", border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                       }}>📲 שתף{gated ? ` (+${ELS_BONUS_PER})` : ""}</button>
@@ -982,16 +1031,22 @@ export function ELSSection({ gated = false } = {}) {
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 10 }}>
               {finds.map(f => (
-                <button key={f.id} onClick={() => loadFind(f)} title="טען חיפוש זה" style={{
-                  cursor: "pointer", textAlign: "right", background: "rgba(20,15,12,0.5)",
+                <div key={f.id} onClick={() => loadFind(f)} role="button" tabIndex={0} title="טען חיפוש זה" style={{
+                  position: "relative", cursor: "pointer", textAlign: "right", background: "rgba(20,15,12,0.5)",
                   border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px",
                   display: "flex", flexDirection: "column", gap: 5,
                 }}>
-                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{f.term}</span>
+                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700, paddingInlineEnd: (isAdmin || (user && f.user_id === user.id)) ? 22 : 0 }}>{f.term}</span>
                   <span style={{ color: C.muted, fontFamily: F.royal, fontSize: 12 }}>
                     גימטריה {(f.value ?? 0).toLocaleString("he")} · דילוג {f.skip} · {f.dir === 1 ? "→" : "←"}
                   </span>
-                </button>
+                  {(isAdmin || (user && f.user_id === user.id)) && (
+                    <button onClick={e => deleteFind(f.id, e)} title="מחק ממצא" style={{
+                      position: "absolute", top: 6, insetInlineEnd: 6, cursor: "pointer",
+                      background: "transparent", border: "none", color: C.crimsonLight, fontSize: 14, lineHeight: 1, padding: 2,
+                    }}>🗑</button>
+                  )}
+                </div>
               ))}
             </div>
           )}
