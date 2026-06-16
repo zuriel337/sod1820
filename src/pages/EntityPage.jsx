@@ -22,10 +22,10 @@ function EntityConvergence({ term, isNumber, ragil }) {
   useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
 
   return (
-    <div style={{ marginBottom: 22, borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
+    <div className="em-panel" style={{ marginBottom: 22, borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
       {vals && (
         <div style={{ padding: "12px 14px 4px" }}>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 9 }}>בחרו שיטה — העוגן הקדוש נבחר אוטומטית</div>
+          <div className="em-eyebrow" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 9 }}>בחרו שיטה — העוגן הקדוש נבחר אוטומטית</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {vals.map(x => {
               const on = x.v === sel; const anc = ANCHOR_SET.has(x.v);
@@ -35,8 +35,8 @@ function EntityConvergence({ term, isNumber, ragil }) {
                   border: `1px solid ${on ? C.gold : anc ? C.borderGold : C.border}`,
                   background: on ? "rgba(212,175,55,0.18)" : anc ? "rgba(212,175,55,0.07)" : "rgba(20,15,12,0.6)",
                 }}>
-                  <div style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
-                  <div style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
+                  <div className="em-key" style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
+                  <div className="em-val" style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
                 </button>
               );
             })}
@@ -45,6 +45,25 @@ function EntityConvergence({ term, isNumber, ragil }) {
       )}
       <ConvergenceMeter value={sel} />
       <NumberDNA value={sel} />
+      {/* הגדלה במחשב בלבד, וממוקד לדף המספר (.em-panel) — בנייד וב-drawer נשאר כפי שהוא */}
+      <style>{`
+        @media (min-width: 900px) {
+          .em-panel .em-eyebrow { font-size: 12px !important; }
+          .em-panel .em-key { font-size: 12px !important; }
+          .em-panel .em-val { font-size: 20px !important; }
+          .em-panel .cm { padding: 14px 18px !important; }
+          .em-panel .cm-title { font-size: 13px !important; }
+          .em-panel .cm-score { font-size: 20px !important; }
+          .em-panel .cm-row { font-size: 16px !important; gap: 10px !important; padding: 2px 0 !important; }
+          .em-panel .cm-icon { width: 22px !important; font-size: 16px !important; }
+          .em-panel .cm-detail { font-size: 13.5px !important; }
+          .em-panel .cm-chip { font-size: 13.5px !important; padding: 5px 13px !important; }
+          .em-panel .nd { padding: 16px 18px !important; }
+          .em-panel .nd-title { font-size: 12.5px !important; }
+          .em-panel .nd-card-title { font-size: 18px !important; }
+          .em-panel .nd-card-sub { font-size: 13.5px !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -233,11 +252,12 @@ export default function EntityPage() {
           <div style={{ marginBottom: 22, padding: "18px 20px", borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))", display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
             <PulseRing value={pulse} size={104} core={isNumber && !!KEY_NUMBERS[value]} />
             <div style={{ flex: 1, minWidth: 220 }}>
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
-              <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
+              <div className="dna-label" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>🧬 DNA המספר</div>
+              <p className="dna-text" style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.95, margin: 0 }}>
                 <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
                 {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
               </p>
+              <style>{`@media (min-width: 900px){ .dna-label{ font-size: 13px !important; } .dna-text{ font-size: 21px !important; line-height: 1.8 !important; } }`}</style>
             </div>
           </div>
         );
