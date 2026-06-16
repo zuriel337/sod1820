@@ -6,6 +6,7 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
+import NumberDNA from "../components/NumberDNA.jsx";
 import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 
@@ -42,6 +43,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
         </div>
       )}
       <ConvergenceMeter value={sel} />
+      <NumberDNA value={sel} />
     </div>
   );
 }
