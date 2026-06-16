@@ -88,13 +88,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%95%D7%A1%D7%92%D7%95%D7%9C%D7%94-%D7%9C%D7%96%D7%99%D7%95%D7%95%D7%92-%D7%9C%D7%92%D7%91%D7%A8-%D7%9E%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90</loc>
+    <loc>https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%95%D7%A1%D7%92%D7%95%D7%9C%D7%94-%D7%9C%D7%96%D7%99%D7%95%D7%95%D7%92-%D7%9C%D7%90%D7%99%D7%A9%D7%94-%D7%9E%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%95%D7%A1%D7%92%D7%95%D7%9C%D7%94-%D7%9C%D7%96%D7%99%D7%95%D7%95%D7%92-%D7%9C%D7%90%D7%99%D7%A9%D7%94-%D7%9E%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90</loc>
+    <loc>https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%95%D7%A1%D7%92%D7%95%D7%9C%D7%94-%D7%9C%D7%96%D7%99%D7%95%D7%95%D7%92-%D7%9C%D7%92%D7%91%D7%A8-%D7%9E%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -107,7 +107,7 @@
   </url>
   <url>
     <loc>https://sod1820.co.il/%d7%aa%d7%97%d7%99%d7%9c%d7%aa-%d7%9e%d7%aa%d7%a7%d7%a4%d7%aa-%d7%90%d7%99%d7%a8%d7%9f-%d7%94%d7%97%d7%93%d7%a9%d7%94-%d7%91%d7%aa%d7%90%d7%a8%d7%99%d7%9a-7-6-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%97</loc>
-    <lastmod>2026-06-08</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -143,7 +143,7 @@
   </url>
   <url>
     <loc>https://sod1820.co.il/%d7%a4%d7%99%d7%a0%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a0%d7%95%d7%9c%d7%93-%f0%9f%8c%9f-%d7%95%d7%94%d7%a4%d7%a2%d7%9d-%d7%94%d7%a8%d7%91-%d7%90%d7%99%d7%99%d7%9c-%d7%a6%d7%99%d7%95%d7%a0%d7%95%d7%91</loc>
-    <lastmod>2026-04-26</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -8149,5 +8149,53 @@
     <loc>https://sod1820.co.il/number/78100</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/india-axis</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/1820</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/541-israel</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/424-mashiach-ben-david</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/358-mashiach</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/meron</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/cat-clocks</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sod1820.co.il/topic/cat-car-plates</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

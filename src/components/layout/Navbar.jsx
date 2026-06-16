@@ -120,6 +120,11 @@ function SurpriseButton({ onDone }) {
       onDone?.();
     }, 520);
   }
+  // 🎲 גלגול אוטומטי מדי פעם — שהמבקר ישים לב לקובייה (בלי ניווט)
+  useEffect(() => {
+    const id = setInterval(() => { setSpin(true); setTimeout(() => setSpin(false), 800); }, 8000);
+    return () => clearInterval(id);
+  }, []);
   return (
     <button onClick={surprise} className={`nav-dice${spin ? " spin" : ""}`} title="הפתיעו אותי" aria-label="הפתיעו אותי">🎲</button>
   );
@@ -242,19 +247,14 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
         <Brand />
 
-        <span title="בהקמה — בקרוב" aria-disabled="true" style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
+        <Link to="/start" title="כאן מתחילים — המסע בשתי דקות" style={{
+          display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
           background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
-          color: C.goldBright, cursor: "default", userSelect: "none", opacity: 0.66,
+          color: C.goldBright,
           fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
           padding: "8px 13px", borderRadius: 6, whiteSpace: "nowrap",
           border: `1px solid ${C.goldDim}`, boxShadow: "0 0 12px rgba(122,19,32,0.4)",
-        }}>🚀 כאן מתחילים
-          <span style={{
-            fontSize: 9.5, fontWeight: 700, letterSpacing: 1, padding: "1px 6px", borderRadius: 999,
-            background: "rgba(0,0,0,0.32)", color: C.goldLight, marginInlineStart: 1,
-          }}>בהקמה</span>
-        </span>
+        }}>🚀 כאן מתחילים</Link>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -283,10 +283,13 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
+        <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
+
         <button className="sod-nav-burger" aria-label="תפריט" onClick={() => setDrawer(d => !d)} style={{
           display: "none", background: "none", border: `1px solid ${C.borderGold}`,
           color: C.goldBright, fontSize: 20, cursor: "pointer", borderRadius: 6,
-          width: 40, height: 40, marginInlineStart: "auto",
+          width: 40, height: 40, marginInlineStart: 8,
         }}>{drawer ? "✕" : "☰"}</button>
       </div>
 
@@ -306,12 +309,7 @@ export default function Navbar() {
           </Link>
           {NAV.map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
-              {item.to === "/start" ? (
-                <span aria-disabled="true" style={{
-                  display: "block", color: C.goldDim, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
-                  padding: "10px 14px", borderRadius: 6, cursor: "default", opacity: 0.75,
-                }}>🚀 כאן מתחילים · בהקמה</span>
-              ) : (
+              {false ? null : (
                 <Link to={item.to} onClick={() => setDrawer(false)} style={{
                   display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,
                   textDecoration: "none", fontFamily: F.royal, fontSize: 15, fontWeight: 700,
@@ -382,9 +380,11 @@ export default function Navbar() {
         .sod-nav-drawer { animation: nav-drawer-in 0.25s ease; }
         @keyframes nav-drawer-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
+        .sod-nav-mobile-only { display: none; }
         @media (max-width: 1040px) {
           .sod-nav-desktop { display: none !important; }
           .sod-nav-burger { display: inline-flex !important; align-items: center; justify-content: center; }
+          .sod-nav-mobile-only { display: inline-flex !important; align-items: center; }
         }
         @media (min-width: 1041px) { .sod-nav-drawer { display: none !important; } }
         @media (prefers-reduced-motion: reduce) {

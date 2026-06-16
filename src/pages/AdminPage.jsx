@@ -160,7 +160,7 @@ function TopicsTab() {
             {f.headline && <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{f.headline}</div>}
             {Array.isArray(f.bullets) && (
               <ul style={{ margin: "0 0 12px", paddingInlineStart: 20, color: "#d4ccbf", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.85 }}>
-                {f.bullets.map((b, i) => <li key={i}>{b}</li>)}
+                {f.bullets.map((b, i) => <li key={i}>{typeof b === "string" ? b : (b?.t || "")}</li>)}
               </ul>
             )}
 
