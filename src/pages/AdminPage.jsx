@@ -9,7 +9,7 @@ const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
-  getTopicCards, setTopicCardStatus, updateTopicCard, getGalleryImagesByIds,
+  getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration,
   supabase,
@@ -99,6 +99,8 @@ function TopicsTab() {
   const [imgMap, setImgMap] = useState({});
   const [busy, setBusy] = useState(null);
   const [editing, setEditing] = useState(null);
+  const [filter, setFilter] = useState("all"); // all | draft | approved | strong
+  const [sel, setSel] = useState([]);          // ids נבחרים למיזוג
   const load = useCallback(() => {
     getTopicCards().then(async cs => {
       setCards(cs);
@@ -116,11 +118,30 @@ function TopicsTab() {
     catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
     finally { setBusy(null); }
   }
+  function toggleSel(id) { setSel(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
+  async function doMerge() {
+    if (sel.length < 2) return;
+    // היעד = בעל ה-quality הגבוה ביותר מהנבחרים
+    const chosen = cards.filter(c => sel.includes(c.id)).sort((a, b) => (b.quality || 0) - (a.quality || 0));
+    const keep = chosen[0]; const rest = chosen.slice(1).map(c => c.id);
+    if (!window.confirm(`למזג ${sel.length} טופיקים לתוך "${keep.title}"? האחרים יסומנו כממוזגים.`)) return;
+    setBusy("merge");
+    try { await mergeTopicCards(keep.id, rest); setSel([]); await load(); }
+    catch (e) { alert("מיזוג נכשל: " + (e.message || e)); }
+    finally { setBusy(null); }
+  }
 
   if (!cards) return <Loading />;
   if (!cards.length) return <Empty>אין כרטיסי נושא עדיין. ה-AI יכין חיבורים ותראה אותם כאן לאישור.</Empty>;
 
   const draftCount = cards.filter(c => c.status === "draft").length;
+  const strong = c => (c.quality || 0) >= 8 || (c.meter_score || 0) >= 50;
+  const view = cards
+    .filter(c => filter === "all" ? c.status !== "merged"
+      : filter === "strong" ? strong(c) && c.status !== "merged"
+      : c.status === filter)
+    .sort((a, b) => (b.meter_score || 0) - (a.meter_score || 0) || (b.quality || 0) - (a.quality || 0));
+  const fbtn = on => ({ cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, border: `1px solid ${on ? C.borderGold : C.border}`, background: on ? "rgba(212,175,55,0.12)" : "transparent", color: on ? C.goldBright : C.muted });
   const numChip = (n, hot) => (
     <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: hot ? 15 : 12.5, padding: hot ? "4px 12px" : "2px 9px", borderRadius: 999,
       border: `1px solid ${hot ? C.gold : C.border}`, background: hot ? "rgba(212,175,55,0.18)" : "transparent", color: hot ? C.goldBright : C.goldDim }}>{n}</span>
@@ -129,8 +150,24 @@ function TopicsTab() {
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <HuntBox onCreated={load} />
-      <H>{cards.length} כרטיסי נושא · {draftCount} ממתינים לאישור</H>
-      {cards.map(c => {
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <H>{cards.length} כרטיסים · {draftCount} ממתינים</H>
+        <span style={{ flex: 1 }} />
+        {[["all", "הכל"], ["draft", "ממתינים"], ["strong", "⭐ חזקים"], ["approved", "מאושרים"]].map(([k, l]) => (
+          <button key={k} style={fbtn(filter === k)} onClick={() => setFilter(k)}>{l}</button>
+        ))}
+      </div>
+      {sel.length >= 2 && (
+        <div style={{ ...card, borderColor: C.borderGold, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{sel.length} נבחרו למיזוג</span>
+          <span style={{ flex: 1 }} />
+          {busy === "merge" ? <span style={{ color: C.goldDim }}>ממזג…</span> : <>
+            <BtnGold onClick={doMerge}>🔗 מזג לתוך החזק ביותר</BtnGold>
+            <button onClick={() => setSel([])} style={iconBtn}>נקה</button>
+          </>}
+        </div>
+      )}
+      {view.map(c => {
         const f = c.findings || {};
         const imgs = (c.image_ids || []).map(id => imgMap[id]).filter(Boolean);
         const hot = new Set(c.highlight_numbers || []);
@@ -143,9 +180,13 @@ function TopicsTab() {
         return (
           <div key={c.id} style={{ ...card, borderColor: c.status === "draft" ? C.borderGold : C.border }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+              <label style={{ cursor: "pointer", alignSelf: "center", display: "inline-flex" }} title="בחר למיזוג">
+                <input type="checkbox" checked={sel.includes(c.id)} onChange={() => toggleSel(c.id)} />
+              </label>
               <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 21, fontWeight: 700 }}>{c.title}</span>
               <span style={{ color: sColor, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{sLabel}</span>
               <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>★ {c.quality}/10</span>
+              {c.meter_score != null && <span style={{ color: C.gold, fontFamily: F.mono, fontSize: 12 }}>מד {c.meter_score}</span>}
               <span style={{ flex: 1 }} />
               {(c.search_terms || []).slice(0, 4).map(t => (
                 <span key={t} style={{ color: C.muted, fontFamily: F.body, fontSize: 12, border: `1px solid ${C.border}`, borderRadius: 999, padding: "2px 9px" }}>{t}</span>

@@ -654,6 +654,29 @@ export async function updateTopicCard(id, patch) {
   if (error) throw error;
   return data;
 }
+// מיזוג טופיקים: מאחד image_ids/numbers/highlight/bullets לתוך כרטיס-היעד, ומסמן את האחרים status='merged'
+export async function mergeTopicCards(keepId, mergeIds = []) {
+  if (!supabase || !keepId || !mergeIds.length) throw new Error('bad args');
+  const ids = [keepId, ...mergeIds];
+  const { data: cards } = await supabase.from('topic_cards').select('*').in('id', ids);
+  const keep = (cards || []).find(c => c.id === keepId);
+  const others = (cards || []).filter(c => c.id !== keepId);
+  if (!keep) throw new Error('keep not found');
+  const uniq = arr => [...new Set(arr.filter(x => x != null))];
+  const merged = {
+    image_ids: uniq([...(keep.image_ids || []), ...others.flatMap(c => c.image_ids || [])]),
+    numbers: uniq([...(keep.numbers || []), ...others.flatMap(c => c.numbers || [])]),
+    highlight_numbers: uniq([...(keep.highlight_numbers || []), ...others.flatMap(c => c.highlight_numbers || [])]),
+    search_terms: uniq([...(keep.search_terms || []), ...others.flatMap(c => c.search_terms || [])]),
+    findings: { ...(keep.findings || {}),
+      bullets: [...((keep.findings || {}).bullets || []), ...others.flatMap(c => (c.findings || {}).bullets || [])] },
+  };
+  const { error: e1 } = await supabase.from('topic_cards').update(merged).eq('id', keepId);
+  if (e1) throw e1;
+  const { error: e2 } = await supabase.from('topic_cards').update({ status: 'merged' }).in('id', mergeIds);
+  if (e2) throw e2;
+  return merged;
+}
 export async function getGalleryImagesByIds(ids = []) {
   if (!supabase || !ids.length) return [];
   const { data } = await supabase.from('gallery_images')
