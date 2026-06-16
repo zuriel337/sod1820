@@ -133,7 +133,7 @@ function HomeDashboard() {
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 18px 10px", direction: "rtl" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase" }}>🔢 מספרי המפתח</span>
-        <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>בהקמה</span>
+        <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>בהקמה</span>
       </div>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
         {DASH.map(d => (
@@ -178,7 +178,7 @@ function LatestPostsRail({ posts, onPost }) {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <div style={{ fontSize: 14, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
+      <div style={{ fontSize: 15.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
         📜 עדכונים אחרונים
       </div>
       {/* מסגרת תואמת להיכל השערים — צבע borderGold, גובה min(82vh,720px) */}
@@ -372,9 +372,9 @@ function ConvergenceRail() {
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: 0 }}>✨ התגלויות חדשות</h2>
         <span style={{ flex: 1 }} />
-        <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>עוד בבית המדרש →</Link>
+        <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, textDecoration: "none" }}>עוד בבית המדרש →</Link>
       </div>
-      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "0 0 14px", lineHeight: 1.7 }}>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, margin: "0 0 14px", lineHeight: 1.75 }}>
         🌿 החקירה ממשיכה — וכל התכנסות חדשה מוסיפה ענף נוסף לעץ הידע.
       </p>
       <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "thin" }}>
@@ -383,11 +383,11 @@ function ConvergenceRail() {
           return (
             <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", flex: "0 0 auto", width: 230 }}>
               <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px", height: "100%" }}>
-                {tag && <div style={{ display: "inline-block", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
+                {tag && <div style={{ display: "inline-block", color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
                 <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{c.title}</div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {(c.highlight_numbers || []).map(n => (
-                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 13.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
                   ))}
                 </div>
               </div>
@@ -734,20 +734,20 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14.5px; font-weight: 700; line-height: 1.55;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 16.5px; font-weight: 700; line-height: 1.5;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           padding-bottom: 2px; transition: color 0.28s;
         }
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 11.5px; letter-spacing: 0.5px; }
+        .sod-pf-date { color: ${C.muted}; font-family: ${F.heading}; font-size: 13px; letter-spacing: 0.5px; }
         .sod-pf-ai {
-          font-family: ${F.heading}; font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+          font-family: ${F.heading}; font-size: 10.5px; font-weight: 800; letter-spacing: 0.5px;
           color: #3ea6ff; background: rgba(62,166,255,0.14); border: 1px solid rgba(62,166,255,0.45);
           border-radius: 999px; padding: 1px 7px; white-space: nowrap;
         }
         .sod-pf-gem {
-          font-family: ${F.mono}; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+          font-family: ${F.mono}; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
           color: ${C.goldBright};
           background: linear-gradient(135deg, rgba(122,19,32,0.55), rgba(160,31,46,0.35));
           border: 1px solid ${C.borderGold}; border-radius: 20px; padding: 2px 8px;
@@ -758,7 +758,7 @@ export default function HomePage() {
         .sod-pf-all {
           display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
           color: ${C.goldBright}; text-decoration: none; font-family: ${F.heading};
-          font-size: 12px; font-weight: 700; letter-spacing: 1px;
+          font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
           padding: 9px 16px; border-radius: 8px; border: 1px solid ${C.borderGold};
           background: rgba(20,15,12,0.5); transition: background 0.2s, gap 0.2s, box-shadow 0.2s;
         }
