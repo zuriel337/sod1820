@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
+import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { C, F } from "../theme.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
@@ -68,7 +69,8 @@ export default function ConvergenceMeter({ value }) {
                   })}
                   {/* עוגן */}
                   {l.name === "עוגן קדוש" && data.anchor && (
-                    <span style={{ ...chip(true), cursor: "default" }}>✨ {data.anchor}</span>
+                    <button onClick={() => openNumberDrawer(value)} title={`פתח את מגירת המספר ${value}`}
+                      style={{ ...chip(true), cursor: "pointer" }}>✨ {data.anchor} → {value}</button>
                   )}
                 </div>
               )}

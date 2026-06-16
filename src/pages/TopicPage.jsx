@@ -128,7 +128,8 @@ export default function TopicPage() {
               {f.bullets.map((b, i) => {
                 const text = typeof b === "string" ? b : (b?.t || "");
                 const imgId = (typeof b === "object" && b) ? b.img : null;
-                const img = imgId ? imgs.find(x => x.id === imgId) : null;
+                // תמונה מקושרת מפורשת, ואחרת — אוטומטית לפי מיקום השורה (כל שורה לחיצה)
+                const img = (imgId ? imgs.find(x => x.id === imgId) : null) || imgs[i] || null;
                 const open = openBullet === i;
                 return (
                   <li key={i} style={{ marginBottom: img ? 4 : 0 }}>
