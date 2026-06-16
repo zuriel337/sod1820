@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase.js";
-import { C, F } from "../../theme.js";
+import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
+
+// חיפושים מוצעים — לחיצה אחת (מילות מפתח מהאתר)
+const ELS_SUGGESTIONS = ["משיח", "גאולה", "ישראל", "דוד", "אליהו", "תורה", "ירושלים", "נחש"];
+
+// משמעות הדילוג: כשהדילוג שווה לגימטריית המילה — ממצא מובהק; או דילוג שהוא מספר-מפתח.
+function skipNote(skip, targetGem) {
+  if (targetGem && skip === targetGem) return { mark: "✦", text: `הדילוג שווה לגימטריה (${skip})`, key: true };
+  if (isWarmNumber(skip)) return { mark: "⭐", text: `דילוג ${skip} · ${KEY_NUMBERS[skip]}`, key: false };
+  return null;
+}
 
 // ===== ELS — דילוגי אותיות =====
 const ELS_SOURCE = `
@@ -457,12 +467,13 @@ export function ELSSection() {
   // תוצאה חדשה → מאפסים את הבחירה בטבלה
   useEffect(() => { setSelectedIdx(0); setTableMode("grid"); }, [result]);
 
-  function run() {
+  function run(override) {
+    const src = typeof override === "string" ? override : target;
     const lo = Math.max(1, parseInt(skipMin) || 1);
     const hi = Math.max(lo, parseInt(skipMax) || lo);
     const mm = Math.max(0, parseInt(maxMismatches) || 0);
     // מספר מונחים מופרדים בפסיק → חיפוש אשכול
-    const terms = target.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
+    const terms = src.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
     setAxisHit(null);
     setSearching(true);
     // נותנים ל-UI להתעדכן לפני חישוב כבד
@@ -470,7 +481,7 @@ export function ELSSection() {
       if (terms.length >= 2) {
         setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
       } else {
-        setResult({ mode: "single", ...elsSearch(letters, terms[0] || target, lo, hi, dir, mm) });
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dir, mm) });
       }
       setSearching(false);
     }, 10);
@@ -576,6 +587,18 @@ export function ELSSection() {
               fontSize: 12, fontWeight: 700, letterSpacing: 1,
             }}>{copied ? "✓ הקישור הועתק" : "🔗 העתק קישור לחיפוש"}</button>
           </div>
+
+          {/* חיפושים מוצעים — לחיצה אחת */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 14 }}>
+            <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, alignSelf: "center" }}>נסו:</span>
+            {ELS_SUGGESTIONS.map(w => (
+              <button key={w} onClick={() => { setTarget(w); run(w); }} disabled={searching} style={{
+                cursor: "pointer", background: "rgba(212,175,55,0.07)", color: C.goldLight,
+                border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 13px",
+                fontFamily: F.royal, fontSize: 13, fontWeight: 700,
+              }}>{w} <span style={{ color: C.goldDim, fontSize: 11 }}>({calcGem(w)})</span></button>
+            ))}
+          </div>
         </div>
 
         <div style={{
@@ -587,7 +610,8 @@ export function ELSSection() {
             <>
               <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
                 טקסט: <b style={{ color: C.goldBright }}>{(result?.N ?? letters.length).toLocaleString("he")}</b> אותיות ·
-                יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b> ·
+                יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b>
+                {result?.target && <span> · גימטריה <b style={{ color: C.goldLight }}>{calcGem(result.target).toLocaleString("he")}</b></span>} ·
                 נמצאו <b style={{ color: C.goldBright }}>{(result?.hits.length ?? 0).toLocaleString("he")}{result?.capped ? "+" : ""}</b> מופעים
                 {(result?.hits.length ?? 0) > 0 && <span> · ממוין לפי מובהקות</span>}
               </div>
@@ -597,6 +621,8 @@ export function ELSSection() {
                 </div>
               ) : (() => {
                 const sel = result.hits[Math.min(selectedIdx, result.hits.length - 1)] || result.hits[0];
+                const targetGem = calcGem(result.target);
+                const selNote = skipNote(sel.skip, targetGem);
                 return (
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
                   {/* רשימת התוצאות — לפי מובהקות (דילוג קצר קודם) */}
@@ -615,6 +641,7 @@ export function ELSSection() {
                         }}>
                           <b style={{ color: on ? C.goldBright : C.goldLight }}>#{i + 1}</b> · דילוג {h.skip} · {h.dir === 1 ? "→" : "←"} · מיקום {(h.start + 1).toLocaleString("he")}
                           {h.mismatches > 0 && <span style={{ color: C.crimsonLight }}> · {h.mismatches} שג׳</span>}
+                          {(() => { const n = skipNote(h.skip, targetGem); return n ? <span title={n.text} style={{ color: n.key ? C.goldBright : C.gold }}> {n.mark}</span> : null; })()}
                         </button>
                       );
                     })}
@@ -631,6 +658,14 @@ export function ELSSection() {
                       <span style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14 }}>
                         מופע #{Math.min(selectedIdx, result.hits.length - 1) + 1} · דילוג <b>{sel.skip}</b> · {sel.dir === 1 ? "קדימה" : "אחורה"} · מיקום {(sel.start + 1).toLocaleString("he")}
                       </span>
+                      {selNote && (
+                        <span title={selNote.text} style={{
+                          display: "inline-flex", alignItems: "center", gap: 4,
+                          background: selNote.key ? "rgba(212,175,55,0.16)" : "rgba(212,175,55,0.08)",
+                          border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px",
+                          color: selNote.key ? C.goldBright : C.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                        }}>{selNote.mark} {selNote.text}</span>
+                      )}
                       <span style={{ flex: 1 }} />
                       {[["grid", "טבלה ▦"], ["axis", "ציר אנכי ▼"]].map(([mode, lbl]) => (
                         <button key={mode} onClick={() => setTableMode(mode)} style={{
