@@ -169,6 +169,18 @@ export default function TopicPage() {
         </div>
       )}
 
+      {/* הפוסט המלא — חיבור הכרטיס לפוסט המקור */}
+      {f.post && f.post.slug && (
+        <Link to={`/${f.post.slug}`} style={{ ...box, marginBottom: 20, display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
+          <span style={{ fontSize: 24 }}>📖</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 1 }}>הפוסט המלא</span>
+            <span style={{ display: "block", color: C.goldBright, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, lineHeight: 1.4 }}>{f.post.title || "קראו את הפוסט המלא"}</span>
+          </span>
+          <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, flexShrink: 0 }}>←</span>
+        </Link>
+      )}
+
       {/* ממצאים בגלריות — תמונות גדולות, מוסברות, בסדר שנקבע, מקשרות לגלריה */}
       {imgs.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>
