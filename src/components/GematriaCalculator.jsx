@@ -14,12 +14,20 @@ const L = {
   gold: "#9a7818", goldDeep: "#7a5e12", line: "#e7dfcc", active: "#fbf3da",
 };
 
-export default function GematriaCalculator({ seed }) {
+export default function GematriaCalculator({ seed, onResult }) {
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
   const gold = useGold();
   const res = useMemo(() => M8.map(m => ({ key: m.key, sub: m.sub, value: m.fn(word) })), [word]);
+  const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
+
+  // דיווח חוצה (לקיר החי וכו') — מושהה, רק על מילה תקינה
+  useEffect(() => {
+    if (!onResult || !word || onlyHeb(word).length < 2 || !ragilVal) return;
+    const t = setTimeout(() => onResult({ word, ragil: ragilVal }), 900);
+    return () => clearTimeout(t);
+  }, [word, ragilVal, onResult]);
   const [active, setActive] = useState("רגיל");
   const [equal, setEqual] = useState(null);
   const [counts, setCounts] = useState({});
