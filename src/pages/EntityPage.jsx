@@ -45,23 +45,24 @@ function EntityConvergence({ term, isNumber, ragil }) {
       )}
       <ConvergenceMeter value={sel} />
       <NumberDNA value={sel} />
-      {/* הגדלה במחשב בלבד, וממוקד לדף המספר (.em-panel) — בנייד וב-drawer נשאר כפי שהוא */}
+      {/* הגדלה + עיצוב נקי במחשב בלבד, וממוקד לדף המספר (.em-panel) — בנייד וב-drawer נשאר כפי שהוא */}
       <style>{`
         @media (min-width: 900px) {
-          .em-panel .em-eyebrow { font-size: 12px !important; }
+          .em-panel .em-eyebrow { font-size: 12.5px !important; }
           .em-panel .em-key { font-size: 12px !important; }
-          .em-panel .em-val { font-size: 20px !important; }
-          .em-panel .cm { padding: 14px 18px !important; }
-          .em-panel .cm-title { font-size: 13px !important; }
-          .em-panel .cm-score { font-size: 20px !important; }
-          .em-panel .cm-row { font-size: 16px !important; gap: 10px !important; padding: 2px 0 !important; }
-          .em-panel .cm-icon { width: 22px !important; font-size: 16px !important; }
-          .em-panel .cm-detail { font-size: 13.5px !important; }
-          .em-panel .cm-chip { font-size: 13.5px !important; padding: 5px 13px !important; }
-          .em-panel .nd { padding: 16px 18px !important; }
-          .em-panel .nd-title { font-size: 12.5px !important; }
-          .em-panel .nd-card-title { font-size: 18px !important; }
-          .em-panel .nd-card-sub { font-size: 13.5px !important; }
+          .em-panel .em-val { font-size: 21px !important; }
+          .em-panel .cm { padding: 16px 20px !important; }
+          .em-panel .cm-title { font-size: 13px !important; letter-spacing: 2px !important; }
+          .em-panel .cm-score { font-size: 23px !important; font-weight: 900 !important; }
+          .em-panel .cm-row { font-size: 16.5px !important; font-weight: 600 !important; gap: 12px !important;
+            padding: 8px 4px !important; border-bottom: 1px solid rgba(212,175,55,0.10) !important; }
+          .em-panel .cm-icon { width: 26px !important; font-size: 18px !important; }
+          .em-panel .cm-detail { font-size: 14.5px !important; font-weight: 800 !important; }
+          .em-panel .cm-chip { font-size: 14px !important; padding: 6px 14px !important; font-weight: 700 !important; }
+          .em-panel .nd { padding: 18px 20px !important; }
+          .em-panel .nd-title { font-size: 13px !important; }
+          .em-panel .nd-card-title { font-size: 19px !important; }
+          .em-panel .nd-card-sub { font-size: 14px !important; }
         }
       `}</style>
     </div>
@@ -257,7 +258,7 @@ export default function EntityPage() {
                 <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
                 {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
               </p>
-              <style>{`@media (min-width: 900px){ .dna-label{ font-size: 13px !important; } .dna-text{ font-size: 21px !important; line-height: 1.8 !important; } }`}</style>
+              <style>{`@media (min-width: 900px){ .dna-label{ font-size: 13px !important; letter-spacing: 3px !important; } .dna-text{ font-size: 21px !important; line-height: 1.75 !important; font-weight: 500 !important; } }`}</style>
             </div>
           </div>
         );
