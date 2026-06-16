@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, supabase } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, supabase } from "../lib/supabase.js";
+import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
@@ -23,6 +24,7 @@ const L = {
 const SECTIONS = [
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
+  { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
 ];
@@ -496,6 +498,60 @@ function Soon({ title, note }) {
   );
 }
 
+// 🌐 צירי התכנסות — כרטיסי הנושא המאושרים (גשרים בין מספר, אירוע וגלריה). בית הביניים עד שייבנה העץ המרכזי.
+function ConvergenceStars({ q }) {
+  const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
+  return <span style={{ color: L.gold, fontSize: 12, letterSpacing: 1 }}>{"★".repeat(n)}{"☆".repeat(5 - n)}</span>;
+}
+function ConvergenceSection() {
+  const [cards, setCards] = useState(null);
+  useEffect(() => {
+    let live = true;
+    getTopicCards({ approvedOnly: true }).then(c => { if (live) setCards(c || []); }).catch(() => setCards([]));
+    return () => { live = false; };
+  }, []);
+  if (cards === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  if (!cards.length) return (
+    <div style={{ textAlign: "center", padding: "50px 20px", color: L.sub }}>
+      <div style={{ fontSize: 34, marginBottom: 10 }}>🌐</div>
+      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 6 }}>צירי התכנסות</div>
+      <p style={{ fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, maxWidth: 460, margin: "0 auto" }}>
+        כאן נאספים החיבורים: כל ציר הוא גשר בין מספר, אירוע וגלריה. הציר הראשון ייפתח בקרוב.
+      </p>
+    </div>
+  );
+  return (
+    <div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: "0 0 18px", maxWidth: 620 }}>
+        🌿 החקירה ממשיכה — כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
+        {cards.map(c => {
+          const hot = (c.highlight_numbers || []);
+          const tag = topicTag(c);
+          return (
+            <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
+              <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 12, padding: "15px 16px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                {tag && <div style={{ display: "inline-block", color: L.goldDeep, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${L.gold}`, background: "#fbf3da", borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                  <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</span>
+                  <ConvergenceStars q={c.quality} />
+                </div>
+                {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>{c.subtitle}</div>}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {hot.map(n => (
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</span>
+                  ))}
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function BeitMidrashPage() {
   const loc = useLocation();
   const params = new URLSearchParams(loc.search);
@@ -559,6 +615,7 @@ export default function BeitMidrashPage() {
 
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "methods" && <MethodsTab />}
+            {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}
             {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
