@@ -487,10 +487,12 @@ export default function ArchivePage() {
                             const xs = setNums ? imgNums(im).filter(v => setNums.has(v)) : [];
                             return (
                             <figure key={im.id} className="ar-feed-img">
-                              <div className="ar-feed-date">
-                                {eventLabel(im) && <span>🗓️ {eventLabel(im)}</span>}
-                                {xs.length >= 2 && <span className="ar-cross" title={`הצטלבות חזקה: ${xs.join(" ∩ ")}`}>⚡ הצטלבות חזקה · {xs.join("∩")}</span>}
-                              </div>
+                              {(eventLabel(im) || xs.length >= 2) && (
+                                <div className="ar-feed-date">
+                                  {eventLabel(im) && <span>🗓️ {eventLabel(im)}</span>}
+                                  {xs.length >= 2 && <span className="ar-cross" title={`הצטלבות חזקה: ${xs.join(" ∩ ")}`}>⚡ הצטלבות חזקה · {xs.join("∩")}</span>}
+                                </div>
+                              )}
                               <a href={im.image_url} target="_blank" rel="noopener noreferrer">
                                 <img src={im.image_url} alt={im.name || ""} loading="lazy" />
                               </a>
@@ -698,8 +700,8 @@ export default function ArchivePage() {
         .ar-side .ar-row { justify-content: flex-start; }
         @media (max-width: 900px) {
           .ar-layout { grid-template-columns: 1fr; }
-          .ar-side { grid-column: 1; grid-row: 1; position: static; max-height: none; }
-          .ar-feed { grid-column: 1; }
+          .ar-feed { grid-column: 1; grid-row: 1; }
+          .ar-side { grid-column: 1; grid-row: 2; position: static; max-height: none; }
         }
         /* אקורדיון גלריות */
         .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }
@@ -713,7 +715,7 @@ export default function ArchivePage() {
         .ar-acc-body { display: grid; gap: 24px; padding: 10px 16px 20px; border-top: 1px solid ${C.faint}; }
         .ar-feed-img { margin: 0; }
         .ar-feed-date { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-        .ar-feed-img img { width: 100%; display: block; border-radius: 12px; border: 1px solid ${C.border}; }
+        .ar-feed-img img { display: block; max-width: 100%; max-height: 72vh; width: auto; margin: 0 auto; border-radius: 12px; border: 1px solid ${C.border}; }
         .ar-feed-cap { padding-top: 10px; }
         .ar-feed-name { color: ${C.goldLight}; font-family: ${F.regal}; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .ar-feed-desc { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; line-height: 1.85; white-space: pre-wrap; }

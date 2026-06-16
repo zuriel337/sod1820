@@ -213,9 +213,11 @@ export async function getEntityBundle({ term, value, isNumber }) {
 
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
-      ? supabase.from('gematria_words').select('phrase,ragil').eq('ragil', value).limit(40)
-          .then(({ data }) => data || []).catch(() => [])
-      : Promise.resolve([]),
+      ? supabase.from('gematria_words').select('phrase,ragil', { count: 'exact' })
+          .eq('ragil', value).order('is_verified', { ascending: false }).limit(500)
+          .then(({ data, count }) => ({ items: data || [], count: count ?? (data?.length || 0) }))
+          .catch(() => ({ items: [], count: 0 }))
+      : Promise.resolve({ items: [], count: 0 }),
     postsP,
     // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
     sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
@@ -239,7 +241,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
   ]);
 
   return {
-    term: t, value, isNumber, phrases,
+    term: t, value, isNumber, phrases: phrases.items, phrasesCount: phrases.count,
     posts: posts.items, postsCount: posts.count,
     galleries: galleries.items, galleriesCount: galleries.count,
     events: events.items, eventsCount: events.count,
