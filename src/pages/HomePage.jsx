@@ -199,6 +199,7 @@ function LatestPostsRail({ posts, onPost }) {
           const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
           const title = stripHtml(p.title?.rendered ?? "");
           const created = formatDateHe(p.date);
+          const createdShort = p.date ? new Date(p.date).toLocaleDateString("he-IL") : created;
           const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
           const gem = calcGem(title);
           return (
@@ -222,7 +223,7 @@ function LatestPostsRail({ posts, onPost }) {
               <div className="sod-pf-body">
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
-                  <span className="sod-pf-date" title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
+                  <span className="sod-pf-date" title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {createdShort}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
                   {(p.verified || p.ai_touched) && <span className="sod-pf-ai" title="פוסט בליווי בינה מלאכותית">✓ AI</span>}
                   {isWarmNumber(gem) && <span className="sod-pf-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
                 </div>
@@ -402,7 +403,7 @@ export default function HomePage() {
           <GatesDeck />
           <div style={{ maxWidth: 1360, margin: "0 auto", padding: "32px 18px 48px" }}>
             <div className="sod-home-grid" style={{
-              display: "grid", gridTemplateColumns: "380px 1fr", gap: 24, alignItems: "start",
+              display: "grid", gridTemplateColumns: "430px 1fr", gap: 24, alignItems: "start",
             }}>
               {latestBlock}
               {heichalBlock}
@@ -688,7 +689,7 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 13.5px; font-weight: 700; line-height: 1.6;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 14.5px; font-weight: 700; line-height: 1.55;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           padding-bottom: 2px; transition: color 0.28s;
         }
