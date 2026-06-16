@@ -163,12 +163,13 @@ function VerifiedTab() {
   if (posts === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!posts.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין פוסטים מאומתים.</div>;
 
-  // משתמש לא רשום רואה פוסט מאומת אחד; השאר מטושטשים מאחורי שער הרשמה (חינם).
+  // פתיחה: לא-רשום רואה 4 פוסטים מאומתים; השאר מטושטשים מאחורי שער הרשמה (חינם).
+  const FREE = 4;
   if (subscribed) return <div style={VGRID}>{posts.map(p => <VerifiedCard key={p.wp_id} p={p} />)}</div>;
-  const locked = posts.slice(1);
+  const locked = posts.slice(FREE);
   return (
     <div>
-      <div style={VGRID}><VerifiedCard p={posts[0]} /></div>
+      <div style={VGRID}>{posts.slice(0, FREE).map(p => <VerifiedCard key={p.wp_id} p={p} />)}</div>
       {locked.length > 0 && (
         <div style={{ position: "relative", marginTop: 16 }}>
           <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 360, overflow: "hidden", ...VGRID }} aria-hidden>
@@ -179,7 +180,7 @@ function VerifiedTab() {
               <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
               <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>עוד {locked.length} פוסטים מאומתים</div>
               <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
-                צפיתם בפוסט מאומת אחד 🎁 · להמשך צפייה בכל הפוסטים המאומתים — <b style={{ color: L.goldDeep }}>הרשמה חינם</b>.
+                צפיתם ב-{FREE} פוסטים מאומתים 🎁 · להמשך צפייה בכל הפוסטים המאומתים — <b style={{ color: L.goldDeep }}>הרשמה חינם</b>.
               </p>
               <SubscribeGate source="verified-posts" />
             </div>
