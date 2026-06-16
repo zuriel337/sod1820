@@ -46,7 +46,20 @@ export default async function handler(req, res) {
 
   const key = path.replace(/\/$/, '') || '/';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
-  if (STATIC[key]) {
+  if (key === '/gematria' || key === '/גימטריה') {
+    // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
+    const w = String((req.query && req.query.w) || '').trim();
+    const nq = parseInt(String((req.query && req.query.n) || ''), 10);
+    if (w && Number.isFinite(nq)) {
+      title = `${w} = ${nq} · ${SITE_NAME}`;
+      desc = `"${w}" שווה ${nq} בגימטריה. מה המספר אומר עליכם? בדקו גם את השם שלכם במחשבון הגימטריה של סוד 1820.`;
+      image = `${SITE}/api/card?w=${encodeURIComponent(w)}&n=${nq}`;
+    } else {
+      title = "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · " + SITE_NAME;
+      desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
+      image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}`;
+    }
+  } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
   } else if (key.startsWith('/topic/')) {

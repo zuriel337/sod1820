@@ -68,8 +68,11 @@ export default async function handler(req) {
     }
   }
 
-  // כיתוב ויראלי בתחתית
-  const teaser = heroIsNumber
+  // כיתוב ויראלי בתחתית (ניתן לעקיפה דרך cap=)
+  const cap = (searchParams.get('cap') || '').trim();
+  const teaser = cap
+    ? cap
+    : heroIsNumber
     ? `מה המספר ${n} אומר עליך?`
     : w
     ? `מה מסתתר ב"${w}"?`

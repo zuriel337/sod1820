@@ -14,6 +14,68 @@ const L = {
   gold: "#9a7818", goldDeep: "#7a5e12", line: "#e7dfcc", soft: "#faf8f2", active: "#fbf3da",
 };
 
+function ShareBox({ word, ragil }) {
+  const [copied, setCopied] = useState(false);
+  const [imgOk, setImgOk] = useState(true);
+  useEffect(() => { setImgOk(true); }, [word, ragil]);
+  if (!word || !ragil) return null;
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
+  const url = `${origin}/gematria?w=${encodeURIComponent(word)}&n=${ragil}`;
+  const cardSrc = `/api/card?w=${encodeURIComponent(word)}&n=${ragil}`;
+  const text = `"${word}" = ${ragil} בגימטריה 🔯  מה המספר אומר עליכם? בדקו גם את השם שלכם 👇`;
+
+  const doShare = async () => {
+    if (navigator.share) {
+      try { await navigator.share({ title: "סוד 1820 — מחשבון גימטריה", text, url }); return; } catch { /* בוטל */ }
+    }
+    try { await navigator.clipboard.writeText(`${text}\n${url}`); setCopied(true); setTimeout(() => setCopied(false), 2200); } catch { /* */ }
+  };
+  const waHref = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+
+  const btn = (bg, color, border) => ({
+    cursor: "pointer", textDecoration: "none", border: border || "none", background: bg, color,
+    fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 20px", borderRadius: 999,
+    display: "inline-flex", alignItems: "center", gap: 8,
+  });
+
+  return (
+    <div style={{
+      marginTop: 18, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16,
+      padding: 16, boxShadow: "0 1px 4px rgba(0,0,0,0.05)", textAlign: "center",
+    }}>
+      <div style={{ color: L.goldDeep, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 4 }}>
+        📲 שתפו את התוצאה — ואתגרו חברים
+      </div>
+      <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, marginBottom: 12 }}>
+        "{word}" = <b style={{ color: L.goldDeep }}>{ragil}</b> · "בדקו גם את השם שלכם"
+      </div>
+
+      {/* תצוגה מקדימה של התמונה שתישלח */}
+      {imgOk && (
+        <img
+          src={cardSrc}
+          alt={`${word} = ${ragil}`}
+          onError={() => setImgOk(false)}
+          style={{ width: "100%", maxWidth: 460, aspectRatio: "1200/630", borderRadius: 12, border: `1px solid ${L.line}`, marginBottom: 14, display: "block", marginInline: "auto" }}
+        />
+      )}
+
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+        <button onClick={doShare} style={btn("linear-gradient(135deg,#e9c84a,#9a7818)", "#1a0e00")}>
+          {copied ? "✓ הקישור הועתק!" : "שתפו את התוצאה"}
+        </button>
+        <a href={waHref} target="_blank" rel="noopener noreferrer" style={btn("#25D366", "#04210f")}>
+          וואטסאפ
+        </a>
+        <Link to={`/number/${ragil}`} style={btn(L.soft, L.goldDeep, `1px solid ${L.line}`)}>
+          ✨ גלה הכל על {ragil}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function Wall({ onPick }) {
   const [tab, setTab] = useState("hot"); // hot | new
   const [rows, setRows] = useState(null);
@@ -77,6 +139,7 @@ function Wall({ onPick }) {
 
 export default function CalculatorPage() {
   const [seed, setSeed] = useState("");
+  const [current, setCurrent] = useState(null); // {word, ragil} לשיתוף
   const [wallKey, setWallKey] = useState(0); // לרענון הקיר אחרי הוספה
 
   useEffect(() => {
@@ -89,6 +152,7 @@ export default function CalculatorPage() {
   }, []);
 
   const onResult = useCallback(({ word, ragil }) => {
+    setCurrent({ word, ragil });
     addWallWord(word, ragil).then(() => setWallKey((k) => k + 1));
   }, []);
 
@@ -109,6 +173,8 @@ export default function CalculatorPage() {
         </p>
 
         <GematriaCalculator seed={seed} onResult={onResult} />
+
+        {current && <ShareBox word={current.word} ragil={current.ragil} />}
 
         <div key={wallKey}>
           <Wall onPick={onPick} />
