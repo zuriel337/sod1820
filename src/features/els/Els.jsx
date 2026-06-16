@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase.js";
-import { C, F } from "../../theme.js";
+import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
+import SubscribeGate from "../../components/SubscribeGate.jsx";
+
+const ELS_FREE_KEY = "els_free_used";   // מונה חיפושים חינם (אנונימי), נשמר מקומית
+
+// חיפושים מוצעים — לחיצה אחת (מילות מפתח מהאתר)
+const ELS_SUGGESTIONS = ["משיח", "גאולה", "ישראל", "דוד", "אליהו", "תורה", "ירושלים", "נחש"];
+
+// משמעות הדילוג: כשהדילוג שווה לגימטריית המילה — ממצא מובהק; או דילוג שהוא מספר-מפתח.
+function skipNote(skip, targetGem) {
+  if (targetGem && skip === targetGem) return { mark: "✦", text: `הדילוג שווה לגימטריה (${skip})`, key: true };
+  if (isWarmNumber(skip)) return { mark: "⭐", text: `דילוג ${skip} · ${KEY_NUMBERS[skip]}`, key: false };
+  return null;
+}
 
 // ===== ELS — דילוגי אותיות =====
 const ELS_SOURCE = `
@@ -100,55 +113,84 @@ function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches) {
   return { clusters: clusters.slice(0, 12), terms: allTerms, anchorTerm: anchor.term };
 }
 
-// ייצוא המטריצה הנוכחית כתמונת PNG — ללא תלות חיצונית (ציור על canvas)
+// בניית קנבס המטריצה (משותף להורדה ולשיתוף) — ללא תלות חיצונית
+function buildMatrixCanvas(letters, hit, title) {
+  const S = Math.abs(hit.skip);
+  const set = new Set(hit.positions);
+  const cell = 30, pad = 18, headH = 40, footH = 24;
+  let cols, rows;
+  if (S > 60) {
+    const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+    const from = Math.max(0, min - 3), to = Math.min(letters.length, max + 4);
+    const row = [];
+    for (let i = from; i < to; i++) row.push({ ch: letters[i], hl: set.has(i) });
+    cols = row.length; rows = [row];
+  } else {
+    cols = S;
+    const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
+    const startRow = Math.max(0, Math.floor(min / cols) - 1);
+    const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
+    rows = [];
+    for (let r = startRow; r < endRow; r++) {
+      const row = [];
+      for (let c = 0; c < cols; c++) { const idx = r * cols + c; row.push({ ch: idx < letters.length ? letters[idx] : "", hl: set.has(idx) }); }
+      rows.push(row);
+    }
+  }
+  const W = pad * 2 + cols * cell, H = pad * 2 + headH + rows.length * cell + footH;
+  const cv = document.createElement("canvas");
+  const scale = 2; cv.width = W * scale; cv.height = H * scale;
+  const g = cv.getContext("2d"); g.scale(scale, scale);
+  g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  g.fillText(title, W / 2, pad + headH / 2);
+  g.font = "bold 17px 'Frank Ruhl Libre', serif";
+  rows.forEach((row, r) => row.forEach((cl, c) => {
+    const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
+    if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
+    else g.fillStyle = "#6f6347";
+    if (cl.ch) g.fillText(cl.ch, x + cell / 2, y + cell / 2);
+  }));
+  g.fillStyle = "#9a7818"; g.font = "12px 'Heebo', sans-serif";
+  g.fillText("סוד 1820 · הצופן התנ\"כי · sod1820.co.il", W / 2, H - footH / 2);
+  return cv;
+}
+
+const matrixFileName = title => `els-${(title || "matrix").replace(/[^\w֐-׿]+/g, "-")}.png`;
+
+// ייצוא המטריצה הנוכחית כתמונת PNG (הורדה)
 function downloadMatrixPNG(letters, hit, title) {
   try {
-    const S = Math.abs(hit.skip);
-    const set = new Set(hit.positions);
-    const cell = 30, pad = 18, headH = 40, footH = 24;
-    let cols, rows;
-    if (S > 60) {
-      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
-      const from = Math.max(0, min - 3), to = Math.min(letters.length, max + 4);
-      const row = [];
-      for (let i = from; i < to; i++) row.push({ ch: letters[i], hl: set.has(i) });
-      cols = row.length; rows = [row];
-    } else {
-      cols = S;
-      const min = Math.min(...hit.positions), max = Math.max(...hit.positions);
-      const startRow = Math.max(0, Math.floor(min / cols) - 1);
-      const endRow = Math.min(Math.ceil(letters.length / cols), Math.floor(max / cols) + 2);
-      rows = [];
-      for (let r = startRow; r < endRow; r++) {
-        const row = [];
-        for (let c = 0; c < cols; c++) { const idx = r * cols + c; row.push({ ch: idx < letters.length ? letters[idx] : "", hl: set.has(idx) }); }
-        rows.push(row);
-      }
-    }
-    const W = pad * 2 + cols * cell, H = pad * 2 + headH + rows.length * cell + footH;
-    const cv = document.createElement("canvas");
-    const scale = 2; cv.width = W * scale; cv.height = H * scale;
-    const g = cv.getContext("2d"); g.scale(scale, scale);
-    g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
-    g.textAlign = "center"; g.textBaseline = "middle";
-    g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
-    g.fillText(title, W / 2, pad + headH / 2);
-    g.font = "bold 17px 'Frank Ruhl Libre', serif";
-    rows.forEach((row, r) => row.forEach((cl, c) => {
-      const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
-      if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
-      else g.fillStyle = "#6f6347";
-      if (cl.ch) g.fillText(cl.ch, x + cell / 2, y + cell / 2);
-    }));
-    g.fillStyle = "#9a7818"; g.font = "12px 'Heebo', sans-serif";
-    g.fillText("סוד 1820 · הצופן התנ\"כי · sod1820.co.il", W / 2, H - footH / 2);
-    cv.toBlob(blob => {
+    buildMatrixCanvas(letters, hit, title).toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `els-${(title || "matrix").replace(/[^\w֐-׿]+/g, "-")}.png`; a.click();
+      a.href = url; a.download = matrixFileName(title); a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     });
   } catch { alert("שמירת התמונה נכשלה — נסו שוב."); }
+}
+
+// שיתוף המטריצה כתמונה — שיתוף מקורי (וואטסאפ וכו') במובייל, ובמחשב נופל להורדה
+async function shareMatrixPNG(letters, hit, title) {
+  try {
+    const cv = buildMatrixCanvas(letters, hit, title);
+    const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+    const file = new File([blob], matrixFileName(title), { type: "image/png" });
+    const shareText = `${title} — הצופן התנ״כי · סוד 1820\nגלו עוד דילוגים: https://sod1820.co.il/code`;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "הצופן התנ״כי · סוד 1820", text: shareText });
+    } else {
+      // אין שיתוף קבצים (רוב הדפדפנים בדסקטופ) → מורידים את התמונה
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = matrixFileName(title); a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return;   // המשתמש ביטל את חלון השיתוף
+    alert("שיתוף התמונה נכשל — נסו 'שמור כתמונה'.");
+  }
 }
 
 function ELSMatrix({ letters, hit }) {
@@ -371,7 +413,7 @@ function ELSAxisView({ letters, hit, contextRows = 12, innerMaxSkip = 12 }) {
   );
 }
 
-export function ELSSection() {
+export function ELSSection({ gated = false } = {}) {
   // קישור עמוק — קריאת פרמטרי החיפוש מה-URL
   const deepLink = React.useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -383,6 +425,7 @@ export function ELSSection() {
   }, []);
 
   const sectionRef = useRef(null);
+  const gateRef = useRef(null);
   const [target, setTarget] = useState(deepLink?.terms ?? "אור");
   const [skipMin, setSkipMin] = useState(deepLink?.skipMin ?? 1);
   const [skipMax, setSkipMax] = useState(deepLink?.skipMax ?? 100);
@@ -397,7 +440,15 @@ export function ELSSection() {
   const [selectedIdx, setSelectedIdx] = useState(0);   // המופע המוצג בטבלה האחת
   const [tableMode, setTableMode] = useState("grid");  // grid | axis — החלפת ציר באותה טבלה
   const [copied, setCopied] = useState(false);
+  const [myName, setMyName] = useState("");   // חיפוש שם אישי
+  const [showHelp, setShowHelp] = useState(false);  // פאנל "כל הפעולות"
   const [cfg, setCfg] = useState({ contextRows: 12, innerMaxSkip: 12, freeQuota: 5 });
+  const [usedSearches, setUsedSearches] = useState(() => {
+    try { return parseInt(localStorage.getItem(ELS_FREE_KEY)) || 0; } catch { return 0; }
+  });
+  const freeLimit = cfg.freeQuota ?? 5;
+  const freeLeft = Math.max(0, freeLimit - usedSearches);
+  const gateLocked = gated && freeLeft <= 0;   // נגמרה המכסה החינמית
 
   // טעינת הגדרות הכלי מ-Supabase (טבלת els_settings)
   useEffect(() => {
@@ -457,12 +508,23 @@ export function ELSSection() {
   // תוצאה חדשה → מאפסים את הבחירה בטבלה
   useEffect(() => { setSelectedIdx(0); setTableMode("grid"); }, [result]);
 
-  function run() {
+  function run(override) {
+    const src = typeof override === "string" ? override : target;
+    // מכסת חיפושים חינם (אנונימי) — בסיום המכסה מציגים שער הרשמה ולא מחפשים
+    if (gated && freeLeft <= 0) {
+      gateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (gated) {
+      const n = usedSearches + 1;
+      setUsedSearches(n);
+      try { localStorage.setItem(ELS_FREE_KEY, String(n)); } catch { /* ignore */ }
+    }
     const lo = Math.max(1, parseInt(skipMin) || 1);
     const hi = Math.max(lo, parseInt(skipMax) || lo);
     const mm = Math.max(0, parseInt(maxMismatches) || 0);
     // מספר מונחים מופרדים בפסיק → חיפוש אשכול
-    const terms = target.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
+    const terms = src.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
     setAxisHit(null);
     setSearching(true);
     // נותנים ל-UI להתעדכן לפני חישוב כבד
@@ -470,7 +532,7 @@ export function ELSSection() {
       if (terms.length >= 2) {
         setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
       } else {
-        setResult({ mode: "single", ...elsSearch(letters, terms[0] || target, lo, hi, dir, mm) });
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dir, mm) });
       }
       setSearching(false);
     }, 10);
@@ -525,6 +587,64 @@ export function ELSSection() {
           כלי לימוד והתבוננות, לא נבואה.
         </div>
 
+        {/* 🪪 חפשו את שמכם בתורה — שער כניסה אישי ומזמין */}
+        <div style={{
+          background: "linear-gradient(160deg, rgba(212,175,55,0.10), rgba(20,15,12,0.5))",
+          border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "18px 20px", marginBottom: 18, textAlign: "center",
+        }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🪪 חפשו את שִמכם בתורה</div>
+          <div style={{ color: C.muted, fontFamily: F.royal, fontSize: 13.5, lineHeight: 1.7, marginBottom: 12 }}>
+            הקלידו שם פרטי — והמנוע יחפש אותו כדילוג אותיות בכל חמשת חומשי התורה, ממוין לפי מובהקות (הדילוג הקצר ביותר ראשון).
+          </div>
+          <form onSubmit={e => { e.preventDefault(); const n = myName.trim(); if (elsNormalize(n).length >= 2) { setTarget(n); run(n); } }}
+            style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            <input value={myName} maxLength={40} onChange={e => setMyName(e.target.value)} placeholder="השם שלכם…" dir="rtl"
+              style={{ ...inputStyle, width: "auto", flex: "1 1 220px", maxWidth: 320, textAlign: "center" }} />
+            <GoldButton type="submit" disabled={searching || gateLocked || elsNormalize(myName).length < 2}>חפשו אותי בתורה ✦</GoldButton>
+          </form>
+          {elsNormalize(myName).length >= 2 && (
+            <div style={{ color: C.goldDim, fontFamily: F.royal, fontSize: 12.5, marginTop: 9 }}>
+              גימטריית «{myName.trim()}» = <b style={{ color: C.goldLight }}>{calcGem(myName).toLocaleString("he")}</b>
+            </div>
+          )}
+        </div>
+
+        {/* ❓ כל הפעולות האפשריות — מדריך מתקפל */}
+        <div style={{ marginBottom: 18 }}>
+          <button onClick={() => setShowHelp(v => !v)} style={{
+            cursor: "pointer", width: "100%", background: "transparent", color: C.goldLight,
+            border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 14px",
+            fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 1, textAlign: "right",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <span>❓ כל הפעולות האפשריות בכלי</span><span>{showHelp ? "▲" : "▼"}</span>
+          </button>
+          {showHelp && (
+            <div style={{ border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", padding: "6px 16px 14px", background: "rgba(10,7,0,0.5)" }}>
+              {[
+                ["🔍", "חיפוש מילה יחידה", "מאתר כל המופעים של מילה כדילוג אותיות בכל התורה."],
+                ["🧩", "חיפוש אשכול", "כמה מונחים מופרדים בפסיק — מוצא היכן הם נפגשים קרוב זה לזה במטריצה."],
+                ["🪪", "חיפוש שם אישי", "הקלידו שם פרטי ומצאו אותו בתורה (השער למעלה)."],
+                ["↔️", "כיוון חיפוש", "קדימה בלבד · אחורה בלבד · שני הכיוונים."],
+                ["📏", "טווח דילוג", "דילוג מינימלי עד מקסימלי — קצר = מובהק יותר."],
+                ["🎯", "סבילות לשגיאות", "התאמה מדויקת, או עד 1–2 אותיות שונות."],
+                ["🔢", "גימטריה", "ערך המילה מוצג; באדג' ✦ כשהדילוג שווה לגימטריה, ⭐ כשהוא מספר-מפתח."],
+                ["▦", "מטריצה / ציר אנכי", "שתי תצוגות למופע, כולל חיפוש פנימי בתוך הציר."],
+                ["📲", "שמירה ושיתוף", "ייצוא המטריצה כתמונה ממותגת — שמירה או שיתוף ישיר לוואטסאפ."],
+                ["🔗", "קישור עמוק", "העתקת קישור שמשחזר בדיוק את החיפוש הנוכחי."],
+              ].map(([ic, t, d]) => (
+                <div key={t} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ fontSize: 17, flexShrink: 0, width: 24, textAlign: "center" }}>{ic}</span>
+                  <div>
+                    <b style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 13.5 }}>{t}</b>
+                    <span style={{ color: C.muted, fontFamily: F.royal, fontSize: 13, lineHeight: 1.6 }}> — {d}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div style={{
           background: C.surface2, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: 20, marginBottom: 20,
@@ -566,7 +686,7 @@ export function ELSSection() {
             </div>
           </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-            <GoldButton onClick={run} disabled={searching}>
+            <GoldButton onClick={run} disabled={searching || gateLocked}>
               {searching ? "מחפש…" : "חפש דילוגים ◆"}
             </GoldButton>
             <button onClick={copyLink} style={{
@@ -576,18 +696,50 @@ export function ELSSection() {
               fontSize: 12, fontWeight: 700, letterSpacing: 1,
             }}>{copied ? "✓ הקישור הועתק" : "🔗 העתק קישור לחיפוש"}</button>
           </div>
+
+          {/* חיפושים מוצעים — לחיצה אחת */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 14 }}>
+            <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, alignSelf: "center" }}>נסו:</span>
+            {ELS_SUGGESTIONS.map(w => (
+              <button key={w} onClick={() => { setTarget(w); run(w); }} disabled={searching || gateLocked} style={{
+                cursor: "pointer", background: "rgba(212,175,55,0.07)", color: C.goldLight,
+                border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 13px",
+                fontFamily: F.royal, fontSize: 13, fontWeight: 700,
+              }}>{w} <span style={{ color: C.goldDim, fontSize: 11 }}>({calcGem(w)})</span></button>
+            ))}
+          </div>
         </div>
+
+        {/* מכסת חיפושים חינם — באנר לאנונימי */}
+        {gated && !gateLocked && (
+          <div style={{
+            textAlign: "center", margin: "0 0 16px", padding: "9px 14px", borderRadius: 8,
+            background: "rgba(212,175,55,0.06)", border: `1px solid ${C.border}`,
+            color: C.goldLight, fontFamily: F.royal, fontSize: 13,
+          }}>
+            🔓 נותרו לכם <b style={{ color: C.goldBright }}>{freeLeft.toLocaleString("he")}</b> חיפושים חינם · הרשמה חינמית פותחת חיפוש <b>בלי הגבלה</b>
+          </div>
+        )}
+
+        {/* שער הרשמה — בסיום המכסה החינמית */}
+        {gateLocked && (
+          <div ref={gateRef}>
+            <SubscribeGate source="code" />
+          </div>
+        )}
 
         <div style={{
           background: C.surface2, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: 20,
+          ...(gateLocked ? { opacity: 0.5, pointerEvents: "none", filter: "blur(1px)" } : null),
         }}>
           {/* ── מצב יחיד ── */}
           {(!result || result.mode === "single") && (
             <>
               <div style={{ color: C.muted, fontSize: 13, marginBottom: 14, fontFamily: F.royal }}>
                 טקסט: <b style={{ color: C.goldBright }}>{(result?.N ?? letters.length).toLocaleString("he")}</b> אותיות ·
-                יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b> ·
+                יעד: <b style={{ color: C.goldBright }}>{result?.target || "—"}</b>
+                {result?.target && <span> · גימטריה <b style={{ color: C.goldLight }}>{calcGem(result.target).toLocaleString("he")}</b></span>} ·
                 נמצאו <b style={{ color: C.goldBright }}>{(result?.hits.length ?? 0).toLocaleString("he")}{result?.capped ? "+" : ""}</b> מופעים
                 {(result?.hits.length ?? 0) > 0 && <span> · ממוין לפי מובהקות</span>}
               </div>
@@ -597,6 +749,8 @@ export function ELSSection() {
                 </div>
               ) : (() => {
                 const sel = result.hits[Math.min(selectedIdx, result.hits.length - 1)] || result.hits[0];
+                const targetGem = calcGem(result.target);
+                const selNote = skipNote(sel.skip, targetGem);
                 return (
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
                   {/* רשימת התוצאות — לפי מובהקות (דילוג קצר קודם) */}
@@ -615,6 +769,7 @@ export function ELSSection() {
                         }}>
                           <b style={{ color: on ? C.goldBright : C.goldLight }}>#{i + 1}</b> · דילוג {h.skip} · {h.dir === 1 ? "→" : "←"} · מיקום {(h.start + 1).toLocaleString("he")}
                           {h.mismatches > 0 && <span style={{ color: C.crimsonLight }}> · {h.mismatches} שג׳</span>}
+                          {(() => { const n = skipNote(h.skip, targetGem); return n ? <span title={n.text} style={{ color: n.key ? C.goldBright : C.gold }}> {n.mark}</span> : null; })()}
                         </button>
                       );
                     })}
@@ -631,6 +786,14 @@ export function ELSSection() {
                       <span style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14 }}>
                         מופע #{Math.min(selectedIdx, result.hits.length - 1) + 1} · דילוג <b>{sel.skip}</b> · {sel.dir === 1 ? "קדימה" : "אחורה"} · מיקום {(sel.start + 1).toLocaleString("he")}
                       </span>
+                      {selNote && (
+                        <span title={selNote.text} style={{
+                          display: "inline-flex", alignItems: "center", gap: 4,
+                          background: selNote.key ? "rgba(212,175,55,0.16)" : "rgba(212,175,55,0.08)",
+                          border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px",
+                          color: selNote.key ? C.goldBright : C.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                        }}>{selNote.mark} {selNote.text}</span>
+                      )}
                       <span style={{ flex: 1 }} />
                       {[["grid", "טבלה ▦"], ["axis", "ציר אנכי ▼"]].map(([mode, lbl]) => (
                         <button key={mode} onClick={() => setTableMode(mode)} style={{
@@ -643,6 +806,10 @@ export function ELSSection() {
                         cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
                         borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
                       }}>📷 שמור כתמונה</button>
+                      <button onClick={() => shareMatrixPNG(letters, sel, `${result.target} · דילוג ${sel.skip}`)} title="שתף את הטבלה כתמונה" style={{
+                        cursor: "pointer", background: C.gold, color: "#0a0700", border: `1px solid ${C.borderGold}`,
+                        borderRadius: 6, padding: "4px 13px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700,
+                      }}>📲 שתף</button>
                     </div>
                     {tableMode === "grid"
                       ? <ELSMatrix letters={letters} hit={sel} />
