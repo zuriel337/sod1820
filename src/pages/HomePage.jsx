@@ -133,7 +133,7 @@ function HomeDashboard() {
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 18px 10px", direction: "rtl" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase" }}>🔢 מספרי המפתח</span>
-        <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>בהקמה</span>
+        <span style={{ marginInlineStart: 8, display: "inline-block", padding: "2px 10px", borderRadius: 999, border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.08)", color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>בהקמה</span>
       </div>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
         {DASH.map(d => (
@@ -372,9 +372,9 @@ function ConvergenceRail() {
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: 0 }}>✨ התגלויות חדשות</h2>
         <span style={{ flex: 1 }} />
-        <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>עוד בבית המדרש →</Link>
+        <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, textDecoration: "none" }}>עוד בבית המדרש →</Link>
       </div>
-      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "0 0 14px", lineHeight: 1.7 }}>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, margin: "0 0 14px", lineHeight: 1.75 }}>
         🌿 החקירה ממשיכה — וכל התכנסות חדשה מוסיפה ענף נוסף לעץ הידע.
       </p>
       <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "thin" }}>
@@ -383,11 +383,11 @@ function ConvergenceRail() {
           return (
             <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", flex: "0 0 auto", width: 230 }}>
               <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px", height: "100%" }}>
-                {tag && <div style={{ display: "inline-block", color: C.goldBright, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
+                {tag && <div style={{ display: "inline-block", color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
                 <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{c.title}</div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {(c.highlight_numbers || []).map(n => (
-                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 13.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${C.gold}`, background: "rgba(212,175,55,0.18)", color: C.goldBright }}>{n}</span>
                   ))}
                 </div>
               </div>

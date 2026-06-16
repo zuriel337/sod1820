@@ -199,7 +199,7 @@ export const POST_CONTENT_CSS = `
   .sod-post-content figure { margin: 2em 0; }
   .sod-post-content figcaption {
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     color: ${C.muted};
     font-family: 'Heebo', sans-serif;
     margin-top: 8px;
@@ -263,7 +263,7 @@ export const POST_CONTENT_CSS = `
     color: #c9a535;
     font-style: italic;
     font-family: 'Heebo', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 1px;
     margin: 6px 0;
     opacity: 0.92;
@@ -299,7 +299,7 @@ export const POST_CONTENT_CSS = `
   }
   .sod-post-content th {
     background: ${C.goldDark}; color: ${C.goldBright};
-    font-family: 'Heebo', sans-serif; font-size: 12px;
+    font-family: 'Heebo', sans-serif; font-size: 13.5px;
     padding: 10px 14px; text-align: right;
     border: 1px solid ${C.borderGold};
   }

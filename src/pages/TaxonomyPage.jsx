@@ -170,14 +170,14 @@ function TaxonomyView({ kind }) {
         .tax-thumb-mark { color:${C.goldDim}; font-size:30px; opacity:.5; }
         .tax-thumb-holo { position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, rgba(5,4,0,0.85)); }
         .tax-gem { position:absolute; top:8px; right:8px; background:rgba(212,175,55,0.92); color:#1a0e00;
-          font-family:${F.mono}; font-size:12px; font-weight:800; padding:2px 9px; border-radius:999px; z-index:2; }
+          font-family:${F.mono}; font-size:13px; font-weight:800; padding:2px 9px; border-radius:999px; z-index:2; }
         .tax-body { padding:13px 15px 15px; display:flex; flex-direction:column; gap:7px; flex:1; }
-        .tax-name { color:${C.goldBright}; font-family:${F.regal}; font-size:16px; font-weight:700; line-height:1.4;
+        .tax-name { color:${C.goldBright}; font-family:${F.regal}; font-size:17.5px; font-weight:700; line-height:1.4;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .tax-excerpt { color:${C.muted}; font-family:${F.body}; font-size:13px; line-height:1.7;
+        .tax-excerpt { color:${C.muted}; font-family:${F.body}; font-size:14.5px; line-height:1.75;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .tax-meta { display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6px;
-          color:${C.goldDim}; font-family:${F.heading}; font-size:11.5px; }
+          color:${C.goldDim}; font-family:${F.heading}; font-size:12.5px; }
         @keyframes tax-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
     </div>
