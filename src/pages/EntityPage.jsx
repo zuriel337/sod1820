@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { getEntityBundle, supabase, logSearch } from "../lib/supabase.js";
+import { getEntityBundle, supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -113,6 +113,7 @@ export default function EntityPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
+  const [harvest, setHarvest] = useState([]);
   const [q, setQ] = useState("");
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
 
@@ -127,6 +128,14 @@ export default function EntityPage() {
     if (term) logSearch(term, value);
     return () => { alive = false; };
   }, [term, value, isNumber]);
+
+  // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה
+  useEffect(() => {
+    let alive = true;
+    setHarvest([]);
+    if (value) getHarvestedPosts(value, 6).then(h => { if (alive) setHarvest(h || []); });
+    return () => { alive = false; };
+  }, [value]);
 
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
   const [sigs, setSigs] = useState([]);
@@ -355,6 +364,29 @@ export default function EntityPage() {
                 <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
                   {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                 </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 💎 פוסטים שמזכירים ביטוי בערך הזה (קציר הצלבות) ── */}
+      {harvest.length > 0 && (
+        <section id="harvest" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
+          <SectionHead icon="💎" title="פוסטים שמזכירים ביטוי בערך הזה" count={harvest.length} />
+          <div style={{ display: "grid", gap: 10 }}>
+            {harvest.map(p => (
+              <Link key={`h-${p.wp_id || p.slug}`} to={`/${p.slug}`} style={card}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+                <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
+                  {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
+                </div>
+                {p.via && (
+                  <div style={{ marginTop: 6, fontSize: 12.5, color: C.gold, opacity: 0.85 }}>
+                    דרך «{p.via}»
+                  </div>
+                )}
               </Link>
             ))}
           </div>

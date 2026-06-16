@@ -804,3 +804,12 @@ export async function getLiveFeed() {
   items.sort((a, b) => new Date(b.ts) - new Date(a.ts));
   return items;
 }
+
+// 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה (mentions שנקצרו מהפוסטים).
+export async function getHarvestedPosts(value, lim = 6) {
+  if (!supabase || !value) return [];
+  try {
+    const { data } = await supabase.rpc('posts_harvested_for_number', { num: value, lim });
+    return data || [];
+  } catch { return []; }
+}
