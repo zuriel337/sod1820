@@ -149,7 +149,7 @@ export default function EntityPage() {
   const d = data || {};
   const chips = [
     d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
-    d.phrases?.length && { id: "tree", e: "🌳", n: d.phrases.length, l: "מילים שוות" },
+    d.phrases?.length && { id: "tree", e: "🌳", n: d.phrasesCount || d.phrases.length, l: "מילים שוות" },
     d.postsCount && { id: "posts", e: "📖", n: d.postsCount, l: "פוסטים" },
     d.eventsCount && { id: "events", e: "🕰", n: d.eventsCount, l: "אירועים" },
     d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "חידושי AI" },
@@ -317,7 +317,7 @@ export default function EntityPage() {
 
       {/* ── 🌳 עץ המספרים + מילים שוות ── */}
       <section id="tree" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-        <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrases?.length || null} />
+        <SectionHead icon="🌳" title="עץ המספרים ומילים שוות" count={d.phrasesCount || d.phrases?.length || null} />
         {d.phrases?.length ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
             {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
