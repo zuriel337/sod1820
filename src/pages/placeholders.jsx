@@ -5,7 +5,7 @@ import { SectionHeader } from "../components/ui.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import { NAV } from "../routes.jsx";
-import { supabase } from "../lib/supabase.js";
+import { supabase, addWallWord } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { METHODS as GEM_METHODS, onlyHeb } from "../lib/gematria.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
@@ -124,6 +124,18 @@ export function CommunityCalculatorPage() {
   const r1 = onlyHeb(name1).length ? gemAll(name1) : null;
   const r2 = (compare && onlyHeb(name2).length) ? gemAll(name2) : null;
   const matches = (r1 && r2) ? r1.all.filter((a, i) => a.value === r2.all[i].value) : [];
+
+  // כל חיפוש נשמר לקיר החי (gematria_wall) — מושהה, רק על שם תקין.
+  useEffect(() => {
+    if (!r1) return;
+    const t = setTimeout(() => addWallWord(name1.trim(), r1.regular), 900);
+    return () => clearTimeout(t);
+  }, [name1, r1?.regular]); // eslint-disable-line
+  useEffect(() => {
+    if (!r2) return;
+    const t = setTimeout(() => addWallWord(name2.trim(), r2.regular), 900);
+    return () => clearTimeout(t);
+  }, [name2, r2?.regular]); // eslint-disable-line
 
   const shareText = !r1 ? "" : (
     r2

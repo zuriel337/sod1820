@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
-import { addWallWord, getWallRecent, getWallPopular, getWallCount } from "../lib/supabase.js";
+import { getWallRecent, getWallPopular, getWallCount } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
 // ===== מחשבון הגימטריה (ניסוי ויראלי) — דף לבן עצמאי =====
@@ -13,6 +13,19 @@ const L = {
   bg: "#f7f4ec", panel: "#ffffff", ink: "#23201a", sub: "#6f685a",
   gold: "#9a7818", goldDeep: "#7a5e12", line: "#e7dfcc", soft: "#faf8f2", active: "#fbf3da",
 };
+
+function timeAgo(iso) {
+  if (!iso) return "";
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 45) return "ממש עכשיו";
+  const m = Math.floor(s / 60);
+  if (m < 1) return "לפני פחות מדקה";
+  if (m < 60) return `נוסף לפני ${m} ${m === 1 ? "דקה" : "דקות"}`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `נוסף לפני ${h} ${h === 1 ? "שעה" : "שעות"}`;
+  const d = Math.floor(h / 24);
+  return `נוסף לפני ${d} ${d === 1 ? "יום" : "ימים"}`;
+}
 
 function ShareBox({ word, ragil }) {
   const [copied, setCopied] = useState(false);
@@ -77,7 +90,7 @@ function ShareBox({ word, ragil }) {
 }
 
 function Wall({ onPick }) {
-  const [tab, setTab] = useState("hot"); // hot | new
+  const [tab, setTab] = useState("new"); // new | hot
   const [rows, setRows] = useState(null);
   const [count, setCount] = useState(0);
 
@@ -116,10 +129,30 @@ function Wall({ onPick }) {
         <div style={{ color: L.sub, fontFamily: F.body, padding: 8 }}>טוען…</div>
       ) : rows.length === 0 ? (
         <div style={{ color: L.sub, fontFamily: F.body, padding: 8 }}>הקיר עוד ריק — היו הראשונים!</div>
+      ) : tab === "new" ? (
+        // אחרונים — רשימה חיה עם "נוסף לפני X דקות"
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {rows.map((r, i) => (
+            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${r.phrase} = ${r.ragil}`} style={{
+              cursor: "pointer", display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "right",
+              background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, padding: "10px 14px",
+            }}>
+              <span style={{
+                background: L.active, color: L.goldDeep, fontFamily: F.mono, fontSize: 14, fontWeight: 800,
+                borderRadius: 999, padding: "4px 12px", minWidth: 34, textAlign: "center",
+              }}>{r.ragil}</span>
+              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 15.5, fontWeight: 600, flex: 1 }}>{r.phrase}</span>
+              <span style={{ color: i === 0 ? "#1a8f3c" : L.sub, fontFamily: F.body, fontSize: 12, whiteSpace: "nowrap" }}>
+                {i === 0 ? "🟢 " : ""}{timeAgo(r.last_at)}
+              </span>
+            </button>
+          ))}
+        </div>
       ) : (
+        // הכי מחושבים — ענן שבבים
         <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
           {rows.map((r) => (
-            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${r.phrase} = ${r.ragil}`} style={{
+            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${r.phrase} = ${r.ragil} · חושב ${r.hits} פעמים`} style={{
               cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8,
               background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999,
               padding: "6px 6px 6px 14px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
@@ -151,9 +184,11 @@ export default function CalculatorPage() {
     });
   }, []);
 
+  // השמירה לקיר נעשית בתוך GematriaCalculator עצמו (בכל האתר). כאן רק
+  // מעדכנים את בלוק השיתוף ומרעננים את הקיר כדי שהמילה תופיע מיד.
   const onResult = useCallback(({ word, ragil }) => {
     setCurrent({ word, ragil });
-    addWallWord(word, ragil).then(() => setWallKey((k) => k + 1));
+    setWallKey((k) => k + 1);
   }, []);
 
   const onPick = useCallback((phrase) => {

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { supabase } from "../lib/supabase.js";
+import { supabase, addWallWord } from "../lib/supabase.js";
 import { METHODS as M8, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
@@ -22,10 +22,14 @@ export default function GematriaCalculator({ seed, onResult }) {
   const res = useMemo(() => M8.map(m => ({ key: m.key, sub: m.sub, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
 
-  // דיווח חוצה (לקיר החי וכו') — מושהה, רק על מילה תקינה
+  // כל חיפוש במחשבון נשמר אוטומטית לקיר החי (gematria_wall) — בכל מקום באתר.
+  // מושהה, רק על מילה תקינה. אחרי השמירה מדווח החוצה (onResult) לרענון/שיתוף.
   useEffect(() => {
-    if (!onResult || !word || onlyHeb(word).length < 2 || !ragilVal) return;
-    const t = setTimeout(() => onResult({ word, ragil: ragilVal }), 900);
+    if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
+    const t = setTimeout(async () => {
+      await addWallWord(word, ragilVal);
+      if (onResult) onResult({ word, ragil: ragilVal });
+    }, 900);
     return () => clearTimeout(t);
   }, [word, ragilVal, onResult]);
   const [active, setActive] = useState("רגיל");
