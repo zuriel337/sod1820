@@ -734,9 +734,13 @@ export default function HomePage() {
           .sod-pf-body { padding-left: 26px; }
         }
         .sod-pf-name {
-          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 16.5px; font-weight: 700; line-height: 1.5;
+          color: ${C.goldLight}; font-family: ${F.royal}; font-size: 13.5px; font-weight: 500; line-height: 1.45;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           padding-bottom: 2px; transition: color 0.28s;
+        }
+        /* הגדלה רק בדסקטופ — בנייד נשאר קטן ודק */
+        @media (min-width: 820px) {
+          .sod-pf-name { font-size: 16.5px; font-weight: 600; }
         }
         .sod-pf-card:hover .sod-pf-name { color: ${C.goldBright}; }
         .sod-pf-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

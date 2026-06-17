@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { getEntityBundle, supabase } from "../lib/supabase.js";
+import { getEntityBundle, supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -17,7 +17,13 @@ const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קד
 
 // 🧬 פאנל ההתכנסות לדף הישות — לביטוי: שורת ערכי-שיטות (העוגן מודגש ונבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
-  const vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  // חוק method_hierarchy_ragil_foundation: "גדול הוא שיטה נפרדת לסופיות".
+  // אין אותיות סופיות → גדול ≡ רגיל; לא מציגים אותו פעמיים (כפילות).
+  if (vals) {
+    const ragilV = vals.find(x => x.key === "רגיל")?.v;
+    vals = vals.filter(x => !(x.key === "גדול" && x.v === ragilV));
+  }
   const anchorHit = vals && vals.find(x => ANCHOR_SET.has(x.v));
   const [sel, setSel] = useState(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil));
   useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
@@ -139,6 +145,7 @@ export default function EntityPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
+  const [harvest, setHarvest] = useState([]);
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
@@ -155,8 +162,18 @@ export default function EntityPage() {
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
+    // 🔍 תיעוד החיפוש האמיתי → מזין את הפס העליון הרץ (ללא PII, דדופ לכל גלישה)
+    if (term) logSearch(term, value);
     return () => { alive = false; };
   }, [term, value, isNumber]);
+
+  // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה
+  useEffect(() => {
+    let alive = true;
+    setHarvest([]);
+    if (value) getHarvestedPosts(value, 6).then(h => { if (alive) setHarvest(h || []); });
+    return () => { alive = false; };
+  }, [value]);
 
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
   const [sigs, setSigs] = useState([]);
@@ -397,6 +414,29 @@ export default function EntityPage() {
                 <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
                   {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                 </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 💎 פוסטים שמזכירים ביטוי בערך הזה (קציר הצלבות) ── */}
+      {harvest.length > 0 && (
+        <section id="harvest" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
+          <SectionHead icon="💎" title="פוסטים שמזכירים ביטוי בערך הזה" count={harvest.length} />
+          <div style={{ display: "grid", gap: 10 }}>
+            {harvest.map(p => (
+              <Link key={`h-${p.wp_id || p.slug}`} to={`/${p.slug}`} style={card}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+                <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
+                  {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
+                </div>
+                {p.via && (
+                  <div style={{ marginTop: 6, fontSize: 12.5, color: C.gold, opacity: 0.85 }}>
+                    דרך «{p.via}»
+                  </div>
+                )}
               </Link>
             ))}
           </div>

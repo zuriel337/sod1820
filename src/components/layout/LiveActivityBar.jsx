@@ -1,53 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getTopicCards } from "../../lib/supabase.js";
+import { getLiveFeed, getLiveStats, getGateOfDay } from "../../lib/supabase.js";
+import { subscribeJoins } from "../../lib/joinEvents.js";
 
-// שורה עליונה: כשיש עדכונים בבית המדרש — מהבהב "עדכונים חדשים בבית המדרש" (קישור).
-// אם אין עדיין — ברכות מתחלפות.
+// 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
+// 🔍 חיפושים · 👥 משתמשים חדשים · 📚 פוסטים · 🌳 התכנסויות · 🧠 גילויי AI · 📊 סטטיסטיקה.
+// כל המקורות נקראים מהגרף; אם אין נתונים — ברכות מתחלפות (fallback).
 const FALLBACK = [
-  "🛠️ האתר בהקמה — ייתכנו עדיין תקלות",
-  "ברוכים הבאים לעולם החדש",
-  "המסע כבר החל — ובכל יום מתווספים עולמות, כלים ותגליות",
+  { icon: "✦", text: "ברוכים הבאים לעולם החדש — בכל יום מתווספים עולמות, כלים ותגליות", to: "/start" },
+  { icon: "🧮", text: "המחשבון ובית המדרש פתוחים לכולם, חינם", to: "/beit-midrash?tab=calc" },
+  { icon: "🌳", text: "כל האתר הוא גרף ידע אחד — כל חיפוש חושף קשר חדש", to: "/map" },
 ];
 
-export default function LiveActivityBar() {
-  const [hasUpdates, setHasUpdates] = useState(false);
-  const [idx, setIdx] = useState(0);
+// בונה פריטי סטטיסטיקה אמיתיים מתוך live_stats()
+function statItems(s) {
+  if (!s) return [];
+  const out = [];
+  if (s.searches_today > 0) out.push({ icon: "🔥", text: `${s.searches_today.toLocaleString()} חיפושי גימטריה היום`, to: "/beit-midrash?tab=calc" });
+  if (s.members_today > 0) out.push({ icon: "👥", text: `${s.members_today} חוקרים הצטרפו היום · סה״כ ${s.members_total.toLocaleString()}`, to: "/start" });
+  if (s.convergences_week > 0) out.push({ icon: "🌳", text: `${s.convergences_week} התכנסויות נוספו השבוע`, to: "/map" });
+  if (s.posts_total > 0) out.push({ icon: "📚", text: `${s.posts_total.toLocaleString()} פוסטים במאגר — אלפי קשרים ממתינים לחשיפה`, to: "/post" });
+  if (s.insights_total > 0) out.push({ icon: "🧠", text: `${s.insights_total} גילויי AI בבית המדרש`, to: "/beit-midrash" });
+  return out;
+}
 
+// משלב את פריטי הסטטיסטיקה בתוך זרם העדכונים (אחד לכל ~5 פריטים)
+function interleave(feed, stats) {
+  if (!stats.length) return feed;
+  const out = []; let si = 0;
+  feed.forEach((item, i) => {
+    out.push(item);
+    if (i > 0 && (i + 1) % 5 === 0 && si < stats.length) out.push({ ...stats[si++], _stat: true });
+  });
+  while (si < stats.length) out.push({ ...stats[si++], _stat: true });
+  return out;
+}
+
+export default function LiveActivityBar() {
+  const [feed, setFeed] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [gate, setGate] = useState(null);
+
+  // טעינה + רענון אוטומטי כל 45 שנ' → עדכונים חדשים נכנסים מעצמם
   useEffect(() => {
     let live = true;
-    getTopicCards({ approvedOnly: true })
-      .then(cards => { if (live) setHasUpdates((cards || []).length > 0); })
-      .catch(() => {});
-    return () => { live = false; };
+    const load = () => {
+      getLiveFeed().then(f => { if (live) setFeed(f); }).catch(() => {});
+      getLiveStats().then(s => { if (live) setStats(s); }).catch(() => {});
+      getGateOfDay().then(g => { if (live) setGate(g); }).catch(() => {});
+    };
+    load();
+    const t = setInterval(load, 45000);
+    return () => { live = false; clearInterval(t); };
   }, []);
 
-  useEffect(() => {
-    if (hasUpdates) return;
-    const t = setInterval(() => setIdx(i => (i + 1) % FALLBACK.length), 5000);
-    return () => clearInterval(t);
-  }, [hasUpdates]);
+  // הצטרפות חיה (realtime) → מקפיץ פריט לראש הרצועה מיד
+  useEffect(() => subscribeJoins(() => {
+    setFeed(prev => [{ k: "join", ts: new Date().toISOString(), icon: "👋", text: "חוקר חדש הצטרף לבית המדרש", to: "/start" }, ...prev].slice(0, 60));
+  }), []);
+
+  const items = useMemo(() => {
+    const merged = interleave(feed, statItems(stats));
+    const base = merged.length ? merged : FALLBACK;
+    if (gate) return [{ k: "gate", icon: "🚪", text: `שער היום · ${gate.title}`, to: "/beit-midrash?tab=crosses", _gate: true }, ...base];
+    return base;
+  }, [feed, stats, gate]);
+
+  // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה
+  const duration = Math.max(28, items.length * 5);
+  // משכפלים את הרשימה לגלילה אינסופית חלקה
+  const loop = [...items, ...items];
 
   return (
-    <div style={{ direction: "rtl", background: "rgba(10,7,2,0.9)", borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>
-      <style>{`@keyframes lab-blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
-        @keyframes lab-dot { 0%,100% { opacity:.4; transform:scale(.8); } 50% { opacity:1; transform:scale(1.2); } }`}</style>
-      <div style={{ maxWidth: 1360, margin: "0 auto", padding: "7px 14px", display: "flex", alignItems: "center", gap: 9, justifyContent: "center" }}>
-        {hasUpdates ? (
-          <Link to="/beit-midrash" style={{
-            display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
-            color: C.goldBright, fontFamily: F.royal, fontSize: 15.5, fontWeight: 700,
-            animation: "lab-blink 1.6s ease-in-out infinite", whiteSpace: "nowrap",
-          }}>
-            <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", background: "#ffcf4d", boxShadow: "0 0 8px #ffcf4d", animation: "lab-dot 1.4s ease-in-out infinite" }} />
-            ✦ עדכונים חדשים בבית המדרש →
-          </Link>
-        ) : (
-          <span key={idx} style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 15, fontWeight: 500, animation: "activity-fade 5s ease-in-out", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "90vw" }}>
-            {FALLBACK[idx]}
-          </span>
-        )}
+    <div className="lab-wrap" style={{ direction: "rtl", background: "rgba(10,7,2,0.92)", borderBottom: `1px solid ${C.border}`, overflow: "hidden", position: "relative" }}>
+      <style>{`
+        @keyframes lab-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes lab-dot { 0%,100% { opacity:.4; transform:scale(.8); } 50% { opacity:1; transform:scale(1.25); } }
+        .lab-track { display: inline-flex; align-items: center; white-space: nowrap; will-change: transform; animation: lab-scroll linear infinite; }
+        .lab-wrap:hover .lab-track { animation-play-state: paused; }
+        .lab-item { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; padding: 0 4px; }
+        .lab-item:hover .lab-text { color: ${C.goldBright}; }
+        .lab-sep { color: ${C.borderGold}; opacity: .5; padding: 0 14px; font-size: 11px; }
+        @media (max-width: 640px) { .lab-badge-text { display:none; } }
+      `}</style>
+
+      {/* תווית "חי" קבועה (לא נגללת) */}
+      <div className="lab-badge" style={{ position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 6, padding: "0 12px", background: "linear-gradient(90deg, rgba(10,7,2,0) 0%, rgba(10,7,2,0.95) 28%)" }}>
+        <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff5a5a", boxShadow: "0 0 8px #ff5a5a", animation: "lab-dot 1.4s ease-in-out infinite" }} />
+        <span className="lab-badge-text" style={{ color: "#ff7a7a", fontFamily: F.heading, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>חי</span>
+      </div>
+
+      <div style={{ padding: "7px 0" }}>
+        <div className="lab-track" style={{ animationDuration: `${duration}s` }}>
+          {loop.map((it, i) => (
+            <React.Fragment key={i}>
+              <Link to={it.to || "/"} className="lab-item">
+                <span style={{ fontSize: 14 }}>{it.icon}</span>
+                <span className="lab-text" style={{ color: (it._stat || it._gate) ? "#ffcf4d" : C.goldLight, fontFamily: F.royal, fontSize: 14.5, fontWeight: (it._stat || it._gate) ? 700 : 500, transition: "color .2s" }}>{it.text}</span>
+              </Link>
+              <span className="lab-sep" aria-hidden>✦</span>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );
