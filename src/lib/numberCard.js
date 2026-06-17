@@ -5,13 +5,13 @@ import { KEY_NUMBERS } from "../theme.js";
 // צד-לקוח בלבד (canvas), ללא תלות חיצונית. מתאים לשיתוף בוואטסאפ/אינסטגרם (1080×1080).
 
 const POETIC = [
-  "מה שנראה מקרי — נכתב מראש.",
-  "כל מספר הוא אות, כל אות היא רמז, וכל רמז — דלת.",
-  "המספרים מדברים. מי שמקשיב — שומע.",
-  "המספר שרודף אחריך? אולי הוא לוחש לך משהו.",
+  "מה שנראה כמקרה — נכתב מראש.",
+  "כל מספר הוא אות, כל אות רמז, וכל רמז — דלת.",
+  "המספרים מדברים. רק צריך להקשיב.",
+  "המספר שחוזר אליך — אינו מקרי.",
   "מאחורי כל מספר מסתתר עולם שלם.",
-  "צירוף מקרים זה שם של אדם שלא מאמין.",
-  "השם יתברך חתם את עולמו במספרים.",
+  "צירוף מקרים הוא כינוי לנס.",
+  "ה' חתם את עולמו בשפת המספרים.",
 ];
 
 // טקסט משמעותי למספר: משמעות-מפתח אם יש, אחרת המילים השוות מהגרף
@@ -68,8 +68,8 @@ export function buildNumberCard(value, phrases = []) {
   try { g.letterSpacing = "0px"; } catch { /* ignore */ }
 
   g.fillStyle = "#e8c840";
-  g.font = "700 40px 'Heebo', sans-serif";
-  g.fillText("המספר שמסתתר סביבך", S / 2, 205);
+  g.font = "700 42px 'Heebo', sans-serif";
+  g.fillText("מה המספר הזה אומר עליך?", S / 2, 205);
 
   // המספר הענק (זהב), מותאם לרוחב
   let numSize = 300;
@@ -136,6 +136,8 @@ export async function downloadNumberCard(value, phrases) {
   });
 }
 
+const shareText = value => `המספר ${value} — מה הוא אומר עליך? ✨\nגלו בסוד 1820:\nhttps://sod1820.co.il/number/${value}`;
+
 // שיתוף תמונת המספר — שיתוף מקורי במובייל, הורדה בדסקטופ. מחזיר true בהצלחה.
 export async function shareNumberCard(value, phrases) {
   await ensureFonts();
@@ -143,9 +145,8 @@ export async function shareNumberCard(value, phrases) {
     const cv = buildNumberCard(value, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
-    const text = `מה מסתתר במספר ${value}? ✨ גלו בסוד 1820:\nhttps://sod1820.co.il/number/${value}`;
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text });
+      await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return true;
     }
     const url = URL.createObjectURL(blob);
@@ -158,4 +159,24 @@ export async function shareNumberCard(value, phrases) {
     alert("יצירת התמונה נכשלה — נסו שוב.");
     return false;
   }
+}
+
+// שיתוף "חכם" — מייצר תמונה אוטומטית ומשתף אותה (מובייל). בדסקטופ (אין שיתוף קבצים) →
+// נופל לשיתוף וואטסאפ של הקישור, שם תצוגת ה-OG ממילא מציגה את תמונת המספר שנוצרת בשרת.
+export async function shareNumberSmart(value, phrases) {
+  await ensureFonts();
+  try {
+    const cv = buildNumberCard(value, phrases);
+    const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+    const file = new File([blob], cardFileName(value), { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
+      return "image";
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return "cancel";
+  }
+  // דסקטופ / אין שיתוף קבצים → וואטסאפ עם הקישור (תצוגת ה-OG מציגה תמונה)
+  window.open(`https://wa.me/?text=${encodeURIComponent(shareText(value))}`, "_blank", "noopener,noreferrer");
+  return "link";
 }

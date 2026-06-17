@@ -10,7 +10,7 @@ import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
-import { buildNumberCard, shareNumberCard, downloadNumberCard } from "../lib/numberCard.js";
+import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 
 const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
 const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
@@ -71,17 +71,27 @@ function EntityConvergence({ term, isNumber, ragil }) {
 }
 
 
-// כפתורי שיתוף (וואטסאפ + העתקה) — לולאת ויראליות "שתפו עם חבר"
-function ShareButtons({ text }) {
+// כפתורי שיתוף — השיתוף הראשי מייצר תמונה אוטומטית ומשתף אותה (לולאת ויראליות)
+function ShareButtons({ value, phrases, copyText, onPreview }) {
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  async function share() {
+    if (busy) return;
+    setBusy(true);
+    try { await shareNumberSmart(value, phrases); } finally { setBusy(false); }
+  }
   return (
     <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
-      <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer"
-        style={{ background: "#25D366", color: "#06310f", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "10px 22px", borderRadius: 999, textDecoration: "none" }}>
-        🟢 שתפו עם חבר
-      </a>
-      <button onClick={() => { navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-        style={{ cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 999 }}>
+      <button onClick={share} disabled={busy}
+        style={{ cursor: busy ? "wait" : "pointer", background: "#25D366", color: "#06310f", border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px", borderRadius: 999 }}>
+        {busy ? "מכין תמונה…" : "📲 שתפו (עם תמונה)"}
+      </button>
+      <button onClick={onPreview}
+        style={{ cursor: "pointer", background: "rgba(212,175,55,0.12)", color: C.goldBright, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px", borderRadius: 999 }}>
+        🖼 תצוגה מקדימה
+      </button>
+      <button onClick={() => { navigator.clipboard?.writeText(copyText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+        style={{ cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.borderGold}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px", borderRadius: 999 }}>
         {copied ? "✓ הועתק" : "🔗 העתק קישור"}
       </button>
     </div>
@@ -237,16 +247,13 @@ export default function EntityPage() {
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 1, marginTop: 6 }}>
           {isNumber ? "הערך המספרי" : "גימטריית הביטוי"}
         </div>
-        <ShareButtons text={isNumber
-          ? `המספר ${value} — גלו מה מסתתר בו 🔢✨\n${SITE_URL}/number/${value}`
-          : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
-        <div style={{ marginTop: 12 }}>
-          <button onClick={openCard} style={{
-            cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
-            border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
-            padding: "11px 24px", boxShadow: `0 0 26px ${C.goldDeep}`,
-          }}>🖼 צרו תמונת מספר לשיתוף</button>
-        </div>
+        <ShareButtons
+          value={value}
+          phrases={data?.phrases || []}
+          onPreview={openCard}
+          copyText={isNumber
+            ? `המספר ${value} — מה הוא אומר עליך? 🔢✨\n${SITE_URL}/number/${value}`
+            : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
       </div>
 
       {/* ── זיקת האפסים (חוק zero_scale_law) — אותו שורש בסדר גודל אחר ── */}

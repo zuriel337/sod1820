@@ -178,7 +178,7 @@ export default async function handler(req) {
             {teaser}
           </div>
           <div style={{ display: 'flex', fontSize: '30px', color: '#b9b3d6' }}>
-            היכנסו לגלות · sod1820.co.il
+            גלו את הסוד · sod1820.co.il
           </div>
         </div>
       </div>
