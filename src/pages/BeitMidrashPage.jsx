@@ -925,6 +925,8 @@ export default function BeitMidrashPage() {
     return () => { live = false; };
   }, []);
 
+  const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
+
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
   const sideRef = useRef(null);
   useEffect(() => {
