@@ -73,10 +73,10 @@ export default async function handler(req) {
   const teaser = cap
     ? cap
     : heroIsNumber
-    ? `מה המספר ${n} אומר עליך?`
+    ? `מה המספר ${n} יודע עליך?`
     : w
     ? `מה מסתתר ב"${w}"?`
-    : 'מה המספרים אומרים עליך?';
+    : 'מה המספרים יודעים עליך?';
 
   const font = await fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) =>
     r.arrayBuffer()
@@ -178,7 +178,7 @@ export default async function handler(req) {
             {teaser}
           </div>
           <div style={{ display: 'flex', fontSize: '30px', color: '#b9b3d6' }}>
-            גלו את הסוד · sod1820.co.il
+            תתחילו לגלות · sod1820.co.il
           </div>
         </div>
       </div>
