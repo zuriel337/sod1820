@@ -10,6 +10,7 @@ import NumberDrawer from "../NumberDrawer.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
 import AdminJoinMonitor from "../AdminJoinMonitor.jsx";
+import JoinInvite from "../JoinInvite.jsx";
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -29,6 +30,7 @@ export default function Layout() {
       <NumberDrawer />
       <JoinCelebration />
       <AdminJoinMonitor />
+      <JoinInvite />
     </div>
   );
 }
