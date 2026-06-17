@@ -40,7 +40,7 @@ export default function NumberDrawer() {
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
   const value = eff ? (isNumber ? Number(eff) : calcGem(eff)) : null;
-  const methodVals = (eff && !isNumber) ? MINI.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
+  const methodVals = (eff && !isNumber) ? MINI.map(m => ({ key: m.key, v: m.fn(eff), sub: m.sub })) : null;
   const depthVals = (eff && !isNumber) ? DEPTH_METHODS.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
 
   // טעינת הקשרים — מתעדכנת חי לפי השדה (עם השהיה קצרה כדי לא להעמיס)
@@ -172,7 +172,8 @@ export default function NumberDrawer() {
                   onMouseEnter={e => (e.currentTarget.style.borderColor = C.borderGold)} onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
                   style={{ cursor: "pointer", textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 4px", transition: "border-color .15s" }}>
                   <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.key}</div>
-                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}>{t.v}</div>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}><span style={{ color: C.goldDim, fontWeight: 700 }}>= </span>{t.v}</div>
+                  {t.sub && <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.3, marginTop: 2, opacity: 0.85 }}>{t.sub}</div>}
                 </button>
               ))}
             </div>

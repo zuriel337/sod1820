@@ -17,7 +17,7 @@ const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קד
 
 // 🧬 פאנל ההתכנסות לדף הישות — לביטוי: שורת ערכי-שיטות (העוגן מודגש ונבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
-  let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term) }));
+  let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term), sub: m.sub }));
   // חוק method_hierarchy_ragil_foundation: "גדול הוא שיטה נפרדת לסופיות".
   // אין אותיות סופיות → גדול ≡ רגיל; לא מציגים אותו פעמיים (כפילות).
   if (vals) {
@@ -43,7 +43,8 @@ function EntityConvergence({ term, isNumber, ragil }) {
                   background: on ? "rgba(212,175,55,0.18)" : anc ? "rgba(212,175,55,0.07)" : "rgba(20,15,12,0.6)",
                 }}>
                   <div className="em-key" style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
-                  <div className="em-val" style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
+                  <div className="em-val" style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}><span style={{ color: C.goldDim, fontWeight: 700 }}>= </span>{x.v}</div>
+                  {x.sub && <div className="em-sub" style={{ color: C.goldDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.25, marginTop: 2, maxWidth: 96, opacity: 0.85 }}>{x.sub}</div>}
                 </button>
               );
             })}
