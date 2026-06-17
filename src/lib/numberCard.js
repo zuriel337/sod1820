@@ -64,7 +64,7 @@ export function buildNumberCard(value, phrases = []) {
   g.fillStyle = "#9a7818";
   g.font = "700 30px 'Heebo', sans-serif";
   try { g.letterSpacing = "10px"; } catch { /* ignore */ }
-  g.fillText("✦  ס ו ד   1 8 2 0  ✦", S / 2, 132);
+  g.fillText("✦  סוד  1820  ✦", S / 2, 132);
   try { g.letterSpacing = "0px"; } catch { /* ignore */ }
 
   g.fillStyle = "#e8c840";
