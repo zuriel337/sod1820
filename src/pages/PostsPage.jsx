@@ -32,7 +32,8 @@ function PostCard({ p, i, view }) {
   const title = stripHtml(p.title?.rendered ?? "");
   const excerpt = stripHtml(p.excerpt?.rendered ?? "").slice(0, view === "list" ? 200 : 120);
   const created = formatDateHe(p.date);
-  const updatedAgo = (p.modified && p.modified !== p.date) ? timeAgoHe(p.modified) : null;
+  const updated = formatDateHe(p.modified || p.date);
+  const wasUpdated = p.modified && p.modified !== p.date;
   const gem = calcGem(title);
   return (
     <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
@@ -47,7 +48,10 @@ function PostCard({ p, i, view }) {
         <div className="pp-name">{title}</div>
         {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
         <div className="pp-meta">
-          <span title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {created}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
+          <span className="pp-dates">
+            <span>📅 נוצר {created}</span>
+            <span style={{ color: wasUpdated ? C.goldLight : C.goldDim }}>✎ עודכן {updated}</span>
+          </span>
           <span aria-hidden>←</span>
         </div>
       </div>
@@ -69,6 +73,7 @@ export default function PostsPage() {
   const [filterYear, setFilterYear] = useState(null);
   const [sort, setSort] = useState("date_desc");
   const [view, setView] = useState("grid");
+  const [showFilters, setShowFilters] = useState(false); // כל המסננים סגורים כברירת מחדל
   const [showAllCats, setShowAllCats] = useState(false);
   const [showTags, setShowTags] = useState(false);
   const [showNums, setShowNums] = useState(false);
@@ -248,6 +253,17 @@ export default function PostsPage() {
           </div>
         </div>
 
+        {/* כפתור פתיחת מסננים — סגור כברירת מחדל; כל אחד פותח אם רוצה */}
+        <div className="pp-row">
+          <button className="pp-pill pp-filters-toggle" onClick={() => setShowFilters(v => !v)} aria-expanded={showFilters}>
+            🎛 סינון — קטגוריה · שנה · תגית · מספר {showFilters ? "▲" : "▾"}
+          </button>
+          {!showFilters && (filterCat || filterTag || filterYear) && (
+            <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>· פילטר פעיל</span>
+          )}
+        </div>
+
+        {showFilters && (<>
         {/* גלולות קטגוריה */}
         {cats.length > 0 && (
           <div className="pp-row pp-pills">
@@ -300,6 +316,7 @@ export default function PostsPage() {
             )}
           </div>
         )}
+        </>)}
 
         {/* צ'יפים פעילים */}
         {hasFilter && (
@@ -459,8 +476,10 @@ export default function PostsPage() {
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .pp-excerpt { color: ${C.muted}; font-family: ${F.body}; font-size: 14.5px; line-height: 1.75;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .pp-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px;
+        .pp-meta { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 6px;
           color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
+        .pp-dates { display: flex; flex-direction: column; gap: 2px; line-height: 1.45; }
+        .pp-filters-toggle { border-style: dashed; }
 
         /* תצוגת רשימה — תמונה לצד טקסט */
         .pp-card-list { flex-direction: row; align-items: stretch; }
