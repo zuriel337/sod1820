@@ -14,10 +14,12 @@ import {
   searchGalleryForCuration, setImageCuration,
   supabase,
 } from "../lib/supabase.js";
+import { METHODS } from "../lib/gematria.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -81,6 +83,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "chiddushim" && <ChiddushReviewTab />}
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
@@ -89,6 +92,111 @@ export default function AdminPage() {
       {tab === "curation" && <CurationTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
+    </div>
+  );
+}
+
+// ===== ✍️ אישור חידושי גולשים + היסטוריה (אנליטיקס) =====
+function StatusBadge({ s }) {
+  const map = { pending: ["⏳ ממתין", "#9a7818", "rgba(154,120,24,0.15)"], approved: ["✅ אושר", "#3fae5a", "rgba(63,174,90,0.14)"], rejected: ["✖ נדחה", "#d98a92", "rgba(160,31,46,0.16)"] };
+  const [t, c, bg] = map[s] || ["", C.muted, "transparent"];
+  return <span style={{ color: c, background: bg, border: `1px solid ${c}55`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, whiteSpace: "nowrap" }}>{t}</span>;
+}
+function SubRow({ r, onApprove, onReject, busy }) {
+  const m = METHODS.find(x => x.key === r.method) || METHODS[0];
+  const va = m.fn(r.phrase_a || ""), vb = m.fn(r.phrase_b || "");
+  const ok = va > 0 && va === vb;
+  return (
+    <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 16px", background: "rgba(8,5,2,0.4)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ flex: 1, minWidth: 0, color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{r.title}</span>
+        <StatusBadge s={r.status} />
+      </div>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: ok ? "rgba(63,174,90,0.12)" : "rgba(160,31,46,0.14)", border: `1px solid ${ok ? "#3fae5a55" : "#a01f2e55"}`, borderRadius: 10, padding: "7px 12px", marginBottom: 8 }}>
+        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_a}»</span>
+        <b style={{ color: C.goldBright, fontFamily: F.mono }}>{va}</b>
+        <span style={{ color: C.goldDim }}>=</span>
+        <b style={{ color: C.goldBright, fontFamily: F.mono }}>{vb}</b>
+        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_b}»</span>
+        <span style={{ color: C.goldDim, fontSize: 12 }}>· {r.method}</span>
+        <span style={{ color: ok ? "#5fd07a" : "#ff9a8a", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>{ok ? "✓ מאומת מנוע" : "✗ לא שווה!"}</span>
+      </div>
+      {r.body && <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, margin: "0 0 8px" }}>{r.body}</p>}
+      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginBottom: r.status === "pending" ? 12 : 0 }}>
+        ✍️ {r.author_name || "—"} · <span dir="ltr">{r.author_email || ""}</span> · {fmtDate(r.created_at)}
+      </div>
+      {r.status === "pending" && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button disabled={busy || !ok} onClick={() => onApprove(r.id)} title={ok ? "" : "הגימטריה לא שווה — לא ניתן לאשר"} style={{
+            cursor: busy || !ok ? "not-allowed" : "pointer", opacity: ok ? 1 : 0.5, border: "none", borderRadius: 999, padding: "9px 20px",
+            background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 13.5 }}>
+            {busy ? "…" : "✅ אשר ופרסם"}
+          </button>
+          <button disabled={busy} onClick={() => onReject(r.id)} style={{
+            cursor: "pointer", border: `1px solid ${C.border}`, borderRadius: 999, padding: "9px 18px",
+            background: "transparent", color: "#d98a92", fontFamily: F.heading, fontWeight: 700, fontSize: 13.5 }}>
+            ✖ דחה
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+function ChiddushReviewTab() {
+  const [rows, setRows] = useState(null);
+  const [filter, setFilter] = useState("pending");
+  const [toast, setToast] = useState(null);
+  const [busy, setBusy] = useState(null);
+
+  const load = useCallback(() => {
+    supabase.from("chiddush_submissions").select("*").order("created_at", { ascending: false }).limit(300)
+      .then(({ data }) => setRows(data || [])).catch(() => setRows([]));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const ch = supabase.channel("admin-chiddush")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chiddush_submissions" }, ({ new: r }) => {
+        setRows(prev => (prev ? [r, ...prev] : [r]));
+        setToast(r.author_name || "גולש"); setTimeout(() => setToast(null), 9000);
+      }).subscribe();
+    return () => { try { supabase.removeChannel(ch); } catch { /* noop */ } };
+  }, []);
+
+  async function approve(id) {
+    setBusy(id);
+    try { await supabase.rpc("approve_chiddush", { p_id: id }); setRows(prev => prev.map(r => r.id === id ? { ...r, status: "approved" } : r)); }
+    catch (e) { alert("שגיאה באישור: " + (e.message || e)); }
+    finally { setBusy(null); }
+  }
+  async function reject(id) {
+    setBusy(id);
+    try { await supabase.rpc("reject_chiddush", { p_id: id }); setRows(prev => prev.map(r => r.id === id ? { ...r, status: "rejected" } : r)); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  }
+
+  if (rows === null) return <Center>טוען…</Center>;
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  rows.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  const view = rows.filter(r => filter === "all" || r.status === filter);
+  const pill = on => ({ cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 999, whiteSpace: "nowrap", border: `1px solid ${on ? C.gold : C.border}`, background: on ? "rgba(212,175,55,0.18)" : "transparent", color: on ? C.goldBright : C.muted });
+
+  return (
+    <div style={card}>
+      {toast && (
+        <div style={{ background: "linear-gradient(160deg, rgba(30,22,6,0.98), rgba(10,7,0,0.98))", border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "10px 16px", marginBottom: 14, color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
+          ✍️ הגשת חידוש חדשה מאת <span style={{ color: C.goldLight }}>{toast}</span> — ממתינה לאישורך
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+        <button onClick={() => setFilter("pending")} style={pill(filter === "pending")}>⏳ ממתינים ({counts.pending})</button>
+        <button onClick={() => setFilter("approved")} style={pill(filter === "approved")}>✅ אושרו ({counts.approved})</button>
+        <button onClick={() => setFilter("rejected")} style={pill(filter === "rejected")}>✖ נדחו ({counts.rejected})</button>
+        <button onClick={() => setFilter("all")} style={pill(filter === "all")}>📜 כל ההיסטוריה ({rows.length})</button>
+      </div>
+      {!view.length
+        ? <div style={{ color: C.muted, fontFamily: F.body, padding: 24, textAlign: "center" }}>אין הגשות{filter === "pending" ? " ממתינות" : ""}.</div>
+        : <div style={{ display: "grid", gap: 12 }}>{view.map(r => <SubRow key={r.id} r={r} onApprove={approve} onReject={reject} busy={busy === r.id} />)}</div>}
     </div>
   );
 }

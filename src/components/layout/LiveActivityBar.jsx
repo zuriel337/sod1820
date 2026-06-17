@@ -94,10 +94,12 @@ export default function LiveActivityBar() {
     return dedupe([...cx, ...base]);
   }, [feed, stats, crosses]);
 
-  // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה
-  const duration = Math.max(28, items.length * 5);
-  // משכפלים את הרשימה לגלילה אינסופית חלקה
-  const loop = [...items, ...items];
+  // חזרה עצמית: אם יש מעט פריטים — משכפלים מספיק כדי שהפס תמיד מלא וחוזר על עצמו ברצף
+  const oneSet = items.length >= 8 ? items : Array(Math.ceil(8 / Math.max(1, items.length))).fill(items).flat();
+  // משך האנימציה פרופורציונלי לרוחב התוכן → מהירות אחידה. גבוה יותר = איטי יותר (קריא).
+  const duration = Math.max(55, oneSet.length * 9);
+  // משכפלים פעמיים לגלילה אינסופית חלקה (translateX(-50%) = סט אחד)
+  const loop = [...oneSet, ...oneSet];
 
   return (
     <div className="lab-wrap" style={{ direction: "rtl", background: "rgba(10,7,2,0.92)", borderBottom: `1px solid ${C.border}`, overflow: "hidden", position: "relative" }}>

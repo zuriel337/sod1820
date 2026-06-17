@@ -26,13 +26,14 @@ const SORTS = [
 
 const isHebrew = s => /[א-ת]/.test(s);
 const isNumeric = s => /^\d+$/.test(s.trim());
+const shortDate = d => { try { return new Date(d).toLocaleDateString("he-IL"); } catch { return ""; } };
 
 function PostCard({ p, i, view }) {
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
   const excerpt = stripHtml(p.excerpt?.rendered ?? "").slice(0, view === "list" ? 200 : 120);
-  const created = formatDateHe(p.date);
-  const updated = formatDateHe(p.modified || p.date);
+  const created = shortDate(p.date);
+  const updated = shortDate(p.modified || p.date);
   const wasUpdated = p.modified && p.modified !== p.date;
   const gem = calcGem(title);
   return (
@@ -48,9 +49,9 @@ function PostCard({ p, i, view }) {
         <div className="pp-name">{title}</div>
         {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
         <div className="pp-meta">
-          <span className="pp-dates">
-            <span>📅 נוצר {created}</span>
-            <span style={{ color: wasUpdated ? C.goldLight : C.goldDim }}>✎ עודכן {updated}</span>
+          <span className="pp-dates" title={`נוצר ${formatDateHe(p.date)} · עודכן ${formatDateHe(p.modified || p.date)}`}>
+            <span>📅 {created}</span>
+            <span style={{ color: wasUpdated ? C.goldLight : C.goldDim }}>· ✏️ {updated}</span>
           </span>
           <span aria-hidden>←</span>
         </div>
@@ -478,7 +479,7 @@ export default function PostsPage() {
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .pp-meta { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 6px;
           color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
-        .pp-dates { display: flex; flex-direction: column; gap: 2px; line-height: 1.45; }
+        .pp-dates { display: inline-flex; flex-direction: row; flex-wrap: wrap; gap: 5px; align-items: baseline; line-height: 1.4; }
         .pp-filters-toggle { border-style: dashed; }
 
         /* תצוגת רשימה — תמונה לצד טקסט */
