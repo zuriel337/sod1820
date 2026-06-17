@@ -9,6 +9,7 @@ import NumberDNA from "../components/NumberDNA.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
+import { buildNumberCard, shareNumberCard, downloadNumberCard } from "../lib/numberCard.js";
 
 const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
 const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
@@ -107,8 +108,14 @@ export default function EntityPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
+  const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
+
+  async function openCard() {
+    try { if (document.fonts?.ready) await document.fonts.ready; } catch { /* ignore */ }
+    setCardUrl(buildNumberCard(value, data?.phrases || []).toDataURL("image/png"));
+  }
 
   useEffect(() => {
     let alive = true;
@@ -212,6 +219,13 @@ export default function EntityPage() {
         <ShareButtons text={isNumber
           ? `המספר ${value} — גלו מה מסתתר בו 🔢✨\n${SITE_URL}/number/${value}`
           : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
+        <div style={{ marginTop: 12 }}>
+          <button onClick={openCard} style={{
+            cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+            border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
+            padding: "11px 24px", boxShadow: `0 0 26px ${C.goldDeep}`,
+          }}>🖼 צרו תמונת מספר לשיתוף</button>
+        </div>
       </div>
 
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
@@ -421,6 +435,32 @@ export default function EntityPage() {
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל התוכן באתר</div>
         </Link>
       </section>
+
+      {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה ── */}
+      {cardUrl && (
+        <div onClick={() => setCardUrl(null)} style={{
+          position: "fixed", inset: 0, zIndex: 320, background: "rgba(3,2,8,0.95)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 18, direction: "rtl",
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: "min(440px, 94vw)", textAlign: "center" }}>
+            <img src={cardUrl} alt={`תמונת המספר ${value}`} style={{ width: "100%", borderRadius: 16, border: `1px solid ${C.borderGold}`, boxShadow: "0 18px 60px rgba(0,0,0,0.7)", display: "block" }} />
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
+              <button onClick={() => shareNumberCard(value, data?.phrases || [])} style={{
+                cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+                border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px",
+              }}>📲 שתפו</button>
+              <button onClick={() => downloadNumberCard(value, data?.phrases || [])} style={{
+                cursor: "pointer", background: "transparent", color: C.goldBright, border: `1px solid ${C.borderGold}`,
+                borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 20px",
+              }}>📷 שמרו</button>
+              <button onClick={() => setCardUrl(null)} style={{
+                cursor: "pointer", background: "transparent", color: C.muted, border: `1px solid ${C.border}`,
+                borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px",
+              }}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Lightbox (סגירה ב-× או לחיצה על הרקע) ── */}
       {lightbox && (
