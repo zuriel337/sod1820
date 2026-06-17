@@ -74,11 +74,11 @@ export function buildNumberCard(value, phrases = []) {
   g.fillStyle = "#d4af37"; g.font = "28px 'Heebo', sans-serif";
   [[60, 78], [S - 60, 78], [60, S - 58], [S - 60, S - 58]].forEach(([x, y]) => g.fillText("✦", x, y));
 
-  // כתר + מותג
+  // כתר + מותג (עיצוב חדש) + תיקון 1820: בלי רווחי ספרות (אחרת bidi הופך ל-0281)
   g.font = "46px 'Heebo', sans-serif"; g.fillText("👑", S / 2, 128);
   g.fillStyle = "#c9a227"; g.font = "700 30px 'Heebo', sans-serif";
   try { g.letterSpacing = "12px"; } catch { /* ignore */ }
-  g.fillText("ס ו ד   1 8 2 0", S / 2, 182);
+  g.fillText("סוד  1820", S / 2, 182);
   try { g.letterSpacing = "0px"; } catch { /* ignore */ }
 
   // כותרת
