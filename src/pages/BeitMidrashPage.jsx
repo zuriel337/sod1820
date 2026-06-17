@@ -24,6 +24,7 @@ const L = {
 const SECTIONS = [
   { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
+  { key: "community", icon: "👥", label: "חידושי גולשים" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
@@ -245,12 +246,16 @@ function CrossCard({ item }) {
   const gp = item.gematria_pairs || {};
   const star = item.panel_data?.star;
   const starSize = star === "big" ? 27 : star === "mid" ? 21 : 16;
+  const author = item.panel_data?.author;
   const nums = item.related_numbers || [];
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 9 }}>
         <span aria-hidden style={{ fontSize: starSize, lineHeight: 1, filter: "drop-shadow(0 0 6px rgba(233,200,74,0.55))" }}>⭐</span>
         <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</span>
+        {author && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
+        )}
         {item.verified && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: L.blueBg, border: `1px solid ${L.blueLine}`, color: L.blue, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ מאומת מנוע</span>
         )}
@@ -292,6 +297,34 @@ function CrossesTab() {
         הצלבות בין שיטות חישוב — כל ערך אומת במנוע הרשמי. לחיצה על ביטוי פותחת אותו במחשבון; לחיצה על מספר פותחת את דף המספר.
       </p>
       {items.map(it => <CrossCard key={it.id} item={it} />)}
+    </div>
+  );
+}
+
+// 👥 חידושי גולשים — חידושים מהקהילה (תג "חידושי גולשים"), מוצגים עם שם הכותב
+function CommunityTab() {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("insights")
+      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified")
+      .contains("tags", ["חידושי גולשים"]).eq("is_active", true)
+      .order("convergence_score", { ascending: false }).order("created_at", { ascending: false }).limit(60)
+      .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
+    return () => { live = false; };
+  }, []);
+  if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={{ background: "linear-gradient(135deg, #fffdf6, #fbf3da)", border: `1px solid ${L.gold}`, borderRadius: 12, padding: "13px 16px" }}>
+        <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 3 }}>👥 חידושי גולשים</div>
+        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>
+          חידושים ששלחו חוקרים מהקהילה — נבדקו ואומתו במנוע הרשמי. רוצים לשתף חידוש משלכם? <Link to="/start" style={{ color: L.goldDeep, fontWeight: 700 }}>הצטרפו ושלחו →</Link>
+        </p>
+      </div>
+      {!items.length
+        ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי גולשים — היו הראשונים לשתף.</div>
+        : items.map(it => <CrossCard key={it.id} item={it} />)}
     </div>
   );
 }
@@ -952,7 +985,7 @@ export default function BeitMidrashPage() {
             {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
             {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
-            {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
+            {tab === "community" && <CommunityTab />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
         </div>
