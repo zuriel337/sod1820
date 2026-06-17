@@ -26,6 +26,7 @@ export default function NumberDrawer() {
   const [zoom, setZoom] = useState(null);
   const [thread, setThread] = useState(null);
   const [webs, setWebs] = useState([]);     // חוטים פנימיים: מהמספר אל כל גלריה במגירה
+  const [depthOpen, setDepthOpen] = useState(false); // 🔬 מנועי עומק — מתקפל (סגור כברירת מחדל)
   const asideRef = useRef(null);
   const headRef = useRef(null);
   const scrollRef = useRef(null);
@@ -186,7 +187,14 @@ export default function NumberDrawer() {
         {/* 🔬 מנועי עומק — 4 שיטות מתקדמות (לביטוי הנוכחי) */}
         {depthVals && (
           <div style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>🔬 מנועי עומק</div>
+            <button onClick={() => setDepthOpen(o => !o)} aria-expanded={depthOpen}
+              style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 6, color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: depthOpen ? 7 : 0 }}>
+              <span>🔬 מנועי עומק</span>
+              <span style={{ color: C.border, fontWeight: 700 }}>({depthVals.length})</span>
+              <span style={{ flex: 1 }} />
+              <span style={{ fontSize: 12, color: C.goldDim }}>{depthOpen ? "▴" : "▾"}</span>
+            </button>
+            {depthOpen && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
               {depthVals.map(t => (
                 <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
@@ -197,6 +205,7 @@ export default function NumberDrawer() {
                 </button>
               ))}
             </div>
+            )}
           </div>
         )}
 
