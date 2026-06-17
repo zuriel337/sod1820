@@ -764,6 +764,7 @@ export function adaptPost(row) {
     title: { rendered: row.title },
     excerpt: { rendered: row.excerpt ?? '' },
     date: row.date,
+    modified: row.modified ?? row.date,
     link: row.link,
     slug: row.slug,
     author: row.author ?? '',
