@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getLiveFeed, getLiveStats } from "../../lib/supabase.js";
+import { getLiveFeed, getLiveStats, getGateOfDay } from "../../lib/supabase.js";
 import { subscribeJoins } from "../../lib/joinEvents.js";
 
 // 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
@@ -40,6 +40,7 @@ function interleave(feed, stats) {
 export default function LiveActivityBar() {
   const [feed, setFeed] = useState([]);
   const [stats, setStats] = useState(null);
+  const [gate, setGate] = useState(null);
 
   // טעינה + רענון אוטומטי כל 45 שנ' → עדכונים חדשים נכנסים מעצמם
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function LiveActivityBar() {
     const load = () => {
       getLiveFeed().then(f => { if (live) setFeed(f); }).catch(() => {});
       getLiveStats().then(s => { if (live) setStats(s); }).catch(() => {});
+      getGateOfDay().then(g => { if (live) setGate(g); }).catch(() => {});
     };
     load();
     const t = setInterval(load, 45000);
@@ -60,8 +62,10 @@ export default function LiveActivityBar() {
 
   const items = useMemo(() => {
     const merged = interleave(feed, statItems(stats));
-    return merged.length ? merged : FALLBACK;
-  }, [feed, stats]);
+    const base = merged.length ? merged : FALLBACK;
+    if (gate) return [{ k: "gate", icon: "🚪", text: `שער היום · ${gate.title}`, to: "/beit-midrash?tab=crosses", _gate: true }, ...base];
+    return base;
+  }, [feed, stats, gate]);
 
   // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה
   const duration = Math.max(28, items.length * 5);
@@ -93,7 +97,7 @@ export default function LiveActivityBar() {
             <React.Fragment key={i}>
               <Link to={it.to || "/"} className="lab-item">
                 <span style={{ fontSize: 14 }}>{it.icon}</span>
-                <span className="lab-text" style={{ color: it._stat ? "#ffcf4d" : C.goldLight, fontFamily: F.royal, fontSize: 14.5, fontWeight: it._stat ? 700 : 500, transition: "color .2s" }}>{it.text}</span>
+                <span className="lab-text" style={{ color: (it._stat || it._gate) ? "#ffcf4d" : C.goldLight, fontFamily: F.royal, fontSize: 14.5, fontWeight: (it._stat || it._gate) ? 700 : 500, transition: "color .2s" }}>{it.text}</span>
               </Link>
               <span className="lab-sep" aria-hidden>✦</span>
             </React.Fragment>

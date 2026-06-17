@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, dayOfYear } from "../lib/supabase.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -291,12 +291,23 @@ function CrossesTab() {
   }, []);
   if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!items.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי הצלבות.</div>;
+  const gi = dayOfYear() % items.length;
+  const gate = items[gi];
+  const rest = items.filter((_, i) => i !== gi);
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 2px", maxWidth: 660 }}>
         הצלבות בין שיטות חישוב — כל ערך אומת במנוע הרשמי. לחיצה על ביטוי פותחת אותו במחשבון; לחיצה על מספר פותחת את דף המספר.
       </p>
-      {items.map(it => <CrossCard key={it.id} item={it} />)}
+      {gate && (
+        <div style={{ border: `1px solid ${L.gold}`, borderRadius: 16, padding: 3, background: "linear-gradient(135deg, #fbf3da, #ffffff)", boxShadow: `0 0 18px ${L.gold}33` }}>
+          <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 1, padding: "7px 12px 3px", display: "flex", alignItems: "center", gap: 6 }}>
+            🚪 שער היום <span style={{ color: L.sub, fontWeight: 600, fontSize: 11 }}>· מתחלף מדי יום</span>
+          </div>
+          <CrossCard item={gate} />
+        </div>
+      )}
+      {rest.map(it => <CrossCard key={it.id} item={it} />)}
     </div>
   );
 }

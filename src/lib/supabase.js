@@ -780,6 +780,23 @@ export async function getLiveStats() {
   try { const { data } = await supabase.rpc('live_stats'); return data || null; } catch { return null; }
 }
 
+// 🚪 שער היום — נבחר דטרמיניסטית לפי היום בשנה מתוך חידושי ההצלבות המככבים (כולם רואים אותו שער).
+export function dayOfYear() {
+  const now = new Date();
+  return Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
+}
+export async function getGateOfDay() {
+  try {
+    const { data } = await supabase.from('insights')
+      .select('id,title,related_numbers,panel_data')
+      .eq('category', 'הצלבות').eq('is_active', true)
+      .order('convergence_score', { ascending: false }).limit(40);
+    const list = (data || []).filter(d => d.panel_data?.featured);
+    if (!list.length) return null;
+    return list[dayOfYear() % list.length];
+  } catch { return null; }
+}
+
 // מאחד עדכונים אמיתיים אחרונים מכל המקורות → פריטים לפס הרץ.
 export async function getLiveFeed() {
   const [searches, cards, posts, ins] = await Promise.all([
