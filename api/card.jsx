@@ -84,6 +84,8 @@ export default async function handler(req) {
 
   // התאמת גודל הגופן לאורך הגיבור
   const heroSize = hero.length <= 4 ? 320 : hero.length <= 8 ? 200 : hero.length <= 14 ? 120 : 84;
+  // גודל שורת הגימטריה — שורה אחת תמיד (מתכווץ לפי אורך)
+  const subSize = sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.length <= 38 ? 34 : sub.length <= 52 ? 27 : 22;
 
   return new ImageResponse(
     (
@@ -116,16 +118,17 @@ export default async function handler(req) {
           }}
         />
 
-        {/* מותג עליון */}
+        {/* כתר + מותג עליון */}
+        <div style={{ display: 'flex', fontSize: '56px', marginBottom: '2px' }}>👑</div>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '14px',
             color: '#d4af37',
             fontSize: '34px',
-            letterSpacing: '2px',
-            marginBottom: '10px',
+            letterSpacing: '6px',
+            marginBottom: '8px',
           }}
         >
           <span>✦</span>
@@ -153,10 +156,10 @@ export default async function handler(req) {
           <div
             style={{
               display: 'flex',
-              fontSize: '52px',
-              color: '#ffffff',
-              marginTop: '26px',
-              maxWidth: '1000px',
+              fontSize: `${subSize}px`,
+              color: '#f3ead0',
+              marginTop: '24px',
+              whiteSpace: 'nowrap',
               textAlign: 'center',
             }}
           >

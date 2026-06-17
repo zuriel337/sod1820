@@ -37,88 +37,98 @@ function wrapLines(g, text, maxWidth) {
   return lines;
 }
 
-// בונה את הקנבס של תמונת המספר
+// מקטין גופן עד שהטקסט נכנס לרוחב נתון — לשורה אחת תמיד
+function fitFont(g, text, maxW, startPx, fontTpl, minPx = 20) {
+  let px = startPx; g.font = fontTpl(px);
+  while (g.measureText(text).width > maxW && px > minPx) { px -= 2; g.font = fontTpl(px); }
+  return px;
+}
+
+// בונה את הקנבס של תמונת המספר — עיצוב מלכותי (סגול-זהב), שורה אחת לגימטריה
 export function buildNumberCard(value, phrases = []) {
   const { meaning, words, poetic } = numberMeaning(value, phrases);
+  const gemLine = words.length ? words.join("   ·   ") : (meaning || "מרכז ההתכנסות");
   const S = 1080;
   const cv = document.createElement("canvas");
   cv.width = S; cv.height = S;
   const g = cv.getContext("2d");
-  g.direction = "rtl";
+  g.direction = "rtl"; g.textAlign = "center";
 
-  // רקע מלכותי כהה
-  const bg = g.createRadialGradient(S / 2, S * 0.42, 80, S / 2, S / 2, S * 0.8);
-  bg.addColorStop(0, "#1a1206");
-  bg.addColorStop(1, "#070500");
+  // רקע מלכותי — סגול-נייבי עמוק אל שחור
+  const bg = g.createRadialGradient(S / 2, S * 0.40, 60, S / 2, S / 2, S * 0.85);
+  bg.addColorStop(0, "#241845");
+  bg.addColorStop(0.5, "#120a28");
+  bg.addColorStop(1, "#05030d");
   g.fillStyle = bg; g.fillRect(0, 0, S, S);
+  // הילה זהובה עדינה מאחורי המספר
+  const halo = g.createRadialGradient(S / 2, 540, 20, S / 2, 540, 360);
+  halo.addColorStop(0, "rgba(212,175,55,0.18)");
+  halo.addColorStop(1, "rgba(212,175,55,0)");
+  g.fillStyle = halo; g.fillRect(0, 180, S, 720);
 
-  // מסגרת זהב
-  g.strokeStyle = "rgba(212,175,55,0.55)"; g.lineWidth = 3;
-  g.strokeRect(34, 34, S - 68, S - 68);
-  g.strokeStyle = "rgba(212,175,55,0.22)"; g.lineWidth = 1.5;
-  g.strokeRect(50, 50, S - 100, S - 100);
+  // מסגרת זהב כפולה + עיטורי פינה
+  g.strokeStyle = "rgba(212,175,55,0.65)"; g.lineWidth = 3;
+  g.strokeRect(36, 36, S - 72, S - 72);
+  g.strokeStyle = "rgba(212,175,55,0.28)"; g.lineWidth = 1.5;
+  g.strokeRect(52, 52, S - 104, S - 104);
+  g.fillStyle = "#d4af37"; g.font = "28px 'Heebo', sans-serif";
+  [[60, 78], [S - 60, 78], [60, S - 58], [S - 60, S - 58]].forEach(([x, y]) => g.fillText("✦", x, y));
 
-  g.textAlign = "center";
-
-  // כותרת עליונה
-  g.fillStyle = "#9a7818";
-  g.font = "700 30px 'Heebo', sans-serif";
-  try { g.letterSpacing = "10px"; } catch { /* ignore */ }
-  g.fillText("✦  ס ו ד   1 8 2 0  ✦", S / 2, 132);
+  // כתר + מותג
+  g.font = "46px 'Heebo', sans-serif"; g.fillText("👑", S / 2, 128);
+  g.fillStyle = "#c9a227"; g.font = "700 30px 'Heebo', sans-serif";
+  try { g.letterSpacing = "12px"; } catch { /* ignore */ }
+  g.fillText("ס ו ד   1 8 2 0", S / 2, 182);
   try { g.letterSpacing = "0px"; } catch { /* ignore */ }
 
-  g.fillStyle = "#e8c840";
-  g.font = "700 42px 'Heebo', sans-serif";
-  g.fillText("מה המספר הזה יודע עליך?", S / 2, 205);
+  // כותרת
+  g.fillStyle = "#e8c840"; g.font = "700 44px 'Heebo', sans-serif";
+  g.fillText("מה המספר הזה יודע עליך?", S / 2, 252);
 
-  // המספר הענק (זהב), מותאם לרוחב
-  let numSize = 300;
-  g.font = `800 ${numSize}px 'Courier New', monospace`;
-  const maxNumW = S - 220;
-  while (g.measureText(String(value)).width > maxNumW && numSize > 90) {
-    numSize -= 12; g.font = `800 ${numSize}px 'Courier New', monospace`;
-  }
-  const grad = g.createLinearGradient(0, 300, 0, 300 + numSize);
-  grad.addColorStop(0, "#f6e27a"); grad.addColorStop(1, "#d4af37");
-  g.fillStyle = grad;
-  g.shadowColor = "rgba(212,175,55,0.5)"; g.shadowBlur = 50;
-  g.fillText(String(value), S / 2, 300 + numSize * 0.72);
-  g.shadowBlur = 0;
+  // מפריד מעוטר
+  drawDivider(g, S / 2, 292, 300);
 
-  let y = 300 + numSize + 70;
+  // המספר הענק — זהב בהיר וברור (צל רך, לא מטשטש)
+  const fontNum = px => `800 ${px}px 'Cinzel', 'Frank Ruhl Libre', serif`;
+  const numPx = fitFont(g, String(value), S - 240, 330, fontNum, 110);
+  g.save();
+  g.shadowColor = "rgba(212,175,55,0.55)"; g.shadowBlur = 26; g.shadowOffsetY = 2;
+  g.fillStyle = "#ffe9a8";
+  g.fillText(String(value), S / 2, 560 + numPx * 0.06);
+  g.restore();
 
-  // משמעות / מילים שוות
-  g.fillStyle = "#f6e27a";
-  g.font = "700 50px 'Frank Ruhl Libre', 'Heebo', serif";
-  if (meaning) {
-    for (const ln of wrapLines(g, meaning, S - 180)) { g.fillText(ln, S / 2, y); y += 62; }
-  } else if (words.length) {
-    g.fillText(`${value} = ${words.join(" · ")}`, S / 2, y); y += 62;
-  } else {
-    g.fillText("מספר נסתר", S / 2, y); y += 62;
-  }
+  // קו גימטריה — תמיד שורה אחת (מתכווץ אוטומטית), קרם בהיר וברור
+  const fontGem = px => `700 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  fitFont(g, gemLine, S - 150, 58, fontGem, 22);
+  g.fillStyle = "#f3ead0";
+  g.fillText(gemLine, S / 2, 730);
 
-  // אם יש גם משמעות וגם מילים — נוסיף את המילים בשורה משנית
-  if (meaning && words.length) {
-    g.fillStyle = "#cfc9d6";
-    g.font = "400 34px 'Heebo', sans-serif";
-    const wline = wrapLines(g, words.join("  ·  "), S - 200);
-    for (const ln of wline.slice(0, 2)) { g.fillText(ln, S / 2, y); y += 46; }
-  }
+  // מפריד
+  drawDivider(g, S / 2, 800, 220);
 
-  // שורה ויראלית פואטית
-  y = Math.max(y + 26, 880);
-  g.fillStyle = "#bdb6c4";
-  g.font = "italic 400 40px 'Frank Ruhl Libre', 'Heebo', serif";
-  for (const ln of wrapLines(g, poetic, S - 200)) { g.fillText(ln, S / 2, y); y += 54; }
+  // שורה ויראלית — שורה אחת
+  const fontPo = px => `italic 600 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  fitFont(g, poetic, S - 170, 44, fontPo, 22);
+  g.fillStyle = "#cdb7e8";
+  g.fillText(poetic, S / 2, 880);
 
-  // פוטר — קישור
-  g.fillStyle = "#9a7818";
-  g.font = "700 30px 'Heebo', sans-serif";
-  g.direction = "ltr";
-  g.fillText(`sod1820.co.il/number/${value}`, S / 2, S - 70);
+  // פוטר
+  g.fillStyle = "#c9a227"; g.font = "700 30px 'Heebo', sans-serif"; g.direction = "ltr";
+  g.fillText(`sod1820.co.il/number/${value}`, S / 2, S - 72);
 
   return cv;
+}
+
+// קו מפריד מלכותי — זהב דועך עם ✦ במרכז
+function drawDivider(g, cx, y, half) {
+  const grad = g.createLinearGradient(cx - half, 0, cx + half, 0);
+  grad.addColorStop(0, "rgba(212,175,55,0)");
+  grad.addColorStop(0.5, "rgba(212,175,55,0.7)");
+  grad.addColorStop(1, "rgba(212,175,55,0)");
+  g.strokeStyle = grad; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(cx - half, y); g.lineTo(cx - 22, y); g.moveTo(cx + 22, y); g.lineTo(cx + half, y); g.stroke();
+  g.fillStyle = "#d4af37"; g.font = "22px 'Heebo', sans-serif"; g.textAlign = "center";
+  g.fillText("✦", cx, y + 7);
 }
 
 async function ensureFonts() {
