@@ -822,7 +822,17 @@ export async function getGateOfDay() {
   } catch { return null; }
 }
 
-// מאחד עדכונים אמיתיים אחרונים מכל המקורות → פריטים לפס הרץ.
+// כל חידושי ההצלבה המככבים (עם פירוט הגימטריה) — לשורה הרצה למעלה.
+export async function getCrossTickerItems() {
+  try {
+    const { data } = await supabase.from('insights')
+      .select('id,title,related_numbers,gematria_pairs,panel_data')
+      .eq('category', 'הצלבות').eq('is_active', true)
+      .order('convergence_score', { ascending: false }).limit(20);
+    return (data || []).filter(d => d.panel_data?.featured);
+  } catch { return []; }
+}
+
 export async function getLiveFeed() {
   const [searches, cards, posts, ins] = await Promise.all([
     supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false }).limit(16),

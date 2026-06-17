@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -8,6 +8,7 @@ import { resolveAuthor } from "../lib/authors.js";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
+import PostShareFab from "../components/PostShareFab.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
@@ -4957,6 +4958,13 @@ function PostPageBySlug({ onNav }) {
     <div style={{ direction: "rtl" }}>
       {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
         <PrayerSharePopup
+          url={`${SITE_URL}/${post.slug || slug}`}
+          title={title}
+          wpId={post.wp_id}
+        />
+      )}
+      {post && !loading && !PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
+        <PostShareFab
           url={`${SITE_URL}/${post.slug || slug}`}
           title={title}
           wpId={post.wp_id}
