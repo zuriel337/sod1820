@@ -32,7 +32,7 @@ function pairsText(gp) {
   const add = p => { if (!p) return; const ph = p.phrase || p.word; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (ph && v != null) out.push(`${ph} = ${v}`); };
   if (Array.isArray(gp)) gp.forEach(add);
   else { (gp.revealed || []).forEach(add); (gp.hidden || []).forEach(add); (gp.members || []).forEach(add); (gp.pairs || []).forEach(add); }
-  return out.slice(0, 6).join(" · ");
+  return out.join(" · ");
 }
 const cleanT = s => String(s || "").replace(/<[^>]*>/g, "").trim();
 
@@ -71,10 +71,14 @@ export default function LiveActivityBar() {
     setFeed(prev => [{ k: "join", ts: new Date().toISOString(), icon: "👋", text: "חוקר חדש הצטרף לבית המדרש", to: "/start" }, ...prev].slice(0, 60));
   }), []);
 
+  const dedupe = arr => {
+    const seen = new Set();
+    return arr.filter(it => { const t = it && it.text; if (!t || seen.has(t)) return false; seen.add(t); return true; });
+  };
   const items = useMemo(() => {
     const merged = interleave(feed, statItems(stats));
     const base = merged.length ? merged : FALLBACK;
-    if (!crosses.length) return base;
+    if (!crosses.length) return dedupe(base);
     const di = dayOfYear() % crosses.length;
     const cx = crosses.map((c, i) => {
       const detail = pairsText(c.gematria_pairs);
@@ -87,7 +91,7 @@ export default function LiveActivityBar() {
         to: num ? `/number/${num}` : "/beit-midrash?tab=crosses",
       };
     });
-    return [...cx, ...base];
+    return dedupe([...cx, ...base]);
   }, [feed, stats, crosses]);
 
   // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה
