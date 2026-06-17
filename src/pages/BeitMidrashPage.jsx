@@ -8,6 +8,7 @@ import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -342,8 +343,10 @@ function CommunityTab() {
   );
 }
 
-// ✍️ הגשת חידוש — טופס לגולשים, עם אימות גימטריה חי במנוע (calcGem/METHODS). נשמר כ-pending לאישור צוריאל.
+// ✍️ הגשת חידוש — טופס לגולשים רשומים, עם אימות גימטריה חי במנוע + מצא ביטוי שווה + תצוגה מקדימה. נשמר כ-pending.
+const METHOD_COL = { "רגיל": "ragil", "מסתתר": "misratar", "מילוי": "miluy", "קדמי": "kadmi", "גדול": "gadol", "סידורי": "siduri", "אתבש": "atbash", "אלבם": "albam" };
 function SubmitTab() {
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [method, setMethod] = useState("רגיל");
   const [a, setA] = useState("");
@@ -353,6 +356,10 @@ function SubmitTab() {
   const [email, setEmail] = useState("");
   const [st, setSt] = useState("idle");
   const [err, setErr] = useState("");
+  const [sugg, setSugg] = useState(null);   // הצעות ביטוי שווה
+  const [showPrev, setShowPrev] = useState(false);
+
+  useEffect(() => { if (user?.email && !email) setEmail(user.email); }, [user]); // eslint-disable-line
 
   const m = METHODS.find(x => x.key === method) || METHODS[0];
   const vA = a.trim() ? m.fn(a) : 0;
@@ -361,6 +368,15 @@ function SubmitTab() {
 
   const inp = { background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, color: L.ink, fontFamily: F.body, fontSize: 15, padding: "10px 12px", outline: "none", width: "100%", boxSizing: "border-box" };
   const lbl = { color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 5 };
+
+  async function findEqual() {
+    const col = METHOD_COL[method];
+    if (!col || !vA) { setSugg([]); return; }
+    try {
+      const { data } = await supabase.from("gematria_words").select("phrase").eq(col, vA).neq("phrase", a.trim()).limit(10);
+      setSugg([...new Set((data || []).map(d => d.phrase).filter(Boolean))]);
+    } catch { setSugg([]); }
+  }
 
   async function submit(e) {
     if (e && e.preventDefault) e.preventDefault();
@@ -379,6 +395,18 @@ function SubmitTab() {
       setSt("done");
     } catch { setSt("error"); setErr("אירעה שגיאה — נסו שוב בעוד רגע"); }
   }
+
+  // 🔒 הרשמה לפני שליחה
+  if (!user) return (
+    <div style={{ textAlign: "center", padding: "36px 22px", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 16, maxWidth: 540 }}>
+      <div style={{ fontSize: 42, marginBottom: 8 }}>✍️</div>
+      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 8 }}>כדי לשלוח חידוש — הצטרפו תחילה</div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 400, margin: "0 auto 16px" }}>
+        השליחה פתוחה לחוקרים רשומים (אימות מייל פשוט) — כך נשמור על שמכם לצד החידוש ונמנע ספאם.
+      </p>
+      <Link to="/login" style={{ display: "inline-block", background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 26px", borderRadius: 999, textDecoration: "none" }}>הירשמו / התחברו ←</Link>
+    </div>
+  );
 
   if (st === "done") return (
     <div style={{ textAlign: "center", padding: "40px 20px", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 16, maxWidth: 560 }}>
@@ -421,6 +449,18 @@ function SubmitTab() {
             {equal ? `✓ מאומת! «${a.trim()}» = «${b.trim()}» = ${vA} (${method})` : `✗ לא שווה — ${vA} מול ${vB}`}
           </div>
         )}
+        {vA > 0 && METHOD_COL[method] && (
+          <div>
+            <button type="button" onClick={findEqual} style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 12.5, padding: "6px 14px" }}>🔍 מצא ביטוי שווה ל-{vA}</button>
+            {sugg && (sugg.length ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                {sugg.map((p, i) => (
+                  <button key={i} type="button" onClick={() => { setB(p); setSugg(null); }} style={{ cursor: "pointer", background: "#fbf3da", border: `1px solid ${L.line}`, color: L.ink, borderRadius: 999, fontFamily: F.body, fontSize: 13, padding: "5px 11px" }}>{p}</button>
+                ))}
+              </div>
+            ) : <div style={{ color: L.sub, fontSize: 12.5, marginTop: 6 }}>לא נמצאו ביטויים שווים במאגר לערך {vA} ({method}).</div>)}
+          </div>
+        )}
       </div>
 
       <div><div style={lbl}>📜 ההסבר (אופציונלי)</div>
@@ -433,6 +473,22 @@ function SubmitTab() {
           <input style={inp} dir="ltr" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" /></div>
       </div>
 
+      {equal && (
+        <div>
+          <button type="button" onClick={() => setShowPrev(v => !v)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontWeight: 700, fontSize: 13, padding: 0 }}>
+            {showPrev ? "▴ הסתר תצוגה מקדימה" : "👁 תצוגה מקדימה — איך החידוש ייראה"}
+          </button>
+          {showPrev && (
+            <div style={{ marginTop: 10 }}>
+              <CrossCard item={{
+                id: "preview", title: title || "(כותרת החידוש)", body, related_numbers: [vA], method_tags: [method], verified: true,
+                panel_data: { author: name || "…", star: "big", type: "shared_value" },
+                gematria_pairs: { number: vA, type: "shared_value", members: [{ phrase: a.trim(), method, value: vA }, { phrase: b.trim(), method, value: vB }] },
+              }} />
+            </div>
+          )}
+        </div>
+      )}
       {err && <div style={{ color: "#b03030", fontFamily: F.body, fontSize: 13.5 }}>{err}</div>}
       <button type="submit" disabled={st === "sending"} style={{ cursor: st === "sending" ? "wait" : "pointer", justifySelf: "start",
         background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", border: "none", borderRadius: 999,
