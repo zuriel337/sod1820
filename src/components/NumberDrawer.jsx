@@ -8,7 +8,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
 import ZeroScaleLinks from "./ZeroScaleLinks.jsx";
 
-const M6 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי"].includes(m.key));
+const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "הנעלם"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
@@ -39,7 +39,7 @@ export default function NumberDrawer() {
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
   const value = eff ? (isNumber ? Number(eff) : calcGem(eff)) : null;
-  const methodVals = (eff && !isNumber) ? M6.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
+  const methodVals = (eff && !isNumber) ? MINI.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
   const depthVals = (eff && !isNumber) ? DEPTH_METHODS.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
 
   // טעינת הקשרים — מתעדכנת חי לפי השדה (עם השהיה קצרה כדי לא להעמיס)
@@ -167,10 +167,12 @@ export default function NumberDrawer() {
           <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
               {methodVals.map(t => (
-                <div key={t.key} style={{ textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 4px" }}>
+                <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = C.borderGold)} onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
+                  style={{ cursor: "pointer", textAlign: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 4px", transition: "border-color .15s" }}>
                   <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.key}</div>
                   <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}>{t.v}</div>
-                </div>
+                </button>
               ))}
             </div>
             <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(eff)}`)} style={{
@@ -187,10 +189,12 @@ export default function NumberDrawer() {
             <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>🔬 מנועי עומק</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
               {depthVals.map(t => (
-                <div key={t.key} style={{ display: "flex", alignItems: "baseline", gap: 6, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 9px" }}>
+                <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = C.borderGold)} onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
+                  style={{ cursor: "pointer", display: "flex", alignItems: "baseline", gap: 6, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 9px", transition: "border-color .15s", textAlign: "right" }}>
                   <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={t.key}>{t.key}</span>
                   <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 15.5, fontWeight: 800, flexShrink: 0 }}>{t.v}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

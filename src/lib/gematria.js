@@ -35,7 +35,7 @@ export const METHODS = [
   { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
   { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
   { key: "אלבם", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
-  { key: "מילוי הנעלם", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
+  { key: "הנעלם", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 

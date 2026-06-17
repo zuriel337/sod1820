@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, dayOfYear } from "../lib/supabase.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -23,6 +23,8 @@ const L = {
 
 const SECTIONS = [
   { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
+  { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
+  { key: "community", icon: "👥", label: "חידושי גולשים" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
@@ -187,6 +189,154 @@ function VerifiedTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ✨ חידושי הצלבות — חידושים בין-שיטתיים מאומתים, מסומנים בכוכב (featured_cross_insight_law)
+function methodLines(p) {
+  const out = [];
+  if (p.value != null && p.method) out.push([p.method, p.value]);
+  if (p.ragil != null) out.push(["רגיל", p.ragil]);
+  if (p.mistater != null) out.push(["מסתתר", p.mistater]);
+  if (p.miluy != null) out.push(["מילוי", p.miluy]);
+  if (!out.length && p.value != null) out.push(["", p.value]);
+  return out;
+}
+function CrossChip({ p }) {
+  const lines = methodLines(p);
+  const extra = p.ref || p.note || "";
+  return (
+    <Link to={`/beit-midrash?w=${encodeURIComponent(p.phrase)}`} title={`פתח את «${p.phrase}» במחשבון`}
+      style={{ display: "flex", alignItems: "baseline", gap: 9, textDecoration: "none", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 9, padding: "6px 11px" }}>
+      <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14 }}>
+        {p.phrase}{extra && <span style={{ color: L.sub, fontSize: 11.5 }}> · {extra}</span>}
+      </span>
+      <span style={{ display: "flex", gap: 9, flexShrink: 0 }}>
+        {lines.map(([m, v], i) => (
+          <span key={i} style={{ color: L.goldDeep, fontFamily: F.mono, fontWeight: 800, fontSize: 13.5 }}>
+            {m && <em style={{ fontFamily: F.heading, fontStyle: "normal", fontSize: 9.5, color: L.sub, marginInlineEnd: 3 }}>{m}</em>}{v}
+          </span>
+        ))}
+      </span>
+    </Link>
+  );
+}
+function MirrorPanel({ gp }) {
+  if (!gp) return null;
+  if (gp.revealed || gp.hidden) {
+    const col = (title, arr) => (
+      <div style={{ background: "#fbfaf5", border: `1px solid ${L.line}`, borderRadius: 11, padding: "10px 11px" }}>
+        <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginBottom: 7 }}>{title}</div>
+        <div style={{ display: "grid", gap: 6 }}>{(arr || []).map((p, i) => <CrossChip key={i} p={p} />)}</div>
+      </div>
+    );
+    return (
+      <div className="bm-mirror" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {col(`🔺 הנגלה · ${gp.revealed_method || "רגיל"}`, gp.revealed)}
+        {col(`🔻 הנסתר · ${gp.hidden_method || "מסתתר"}`, gp.hidden)}
+      </div>
+    );
+  }
+  const list = gp.pairs || gp.members || [];
+  if (list.length) return <div style={{ display: "grid", gap: 6 }}>{list.map((p, i) => <CrossChip key={i} p={p} />)}</div>;
+  return null;
+}
+function CrossCard({ item }) {
+  const [open, setOpen] = useState(false);
+  const gp = item.gematria_pairs || {};
+  const star = item.panel_data?.star;
+  const starSize = star === "big" ? 27 : star === "mid" ? 21 : 16;
+  const author = item.panel_data?.author;
+  const nums = item.related_numbers || [];
+  return (
+    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 9 }}>
+        <span aria-hidden style={{ fontSize: starSize, lineHeight: 1, filter: "drop-shadow(0 0 6px rgba(233,200,74,0.55))" }}>⭐</span>
+        <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</span>
+        {author && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
+        )}
+        {item.verified && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: L.blueBg, border: `1px solid ${L.blueLine}`, color: L.blue, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ מאומת מנוע</span>
+        )}
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
+        {nums.slice(0, 5).map(n => (
+          <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</Link>
+        ))}
+        {(item.method_tags || []).map(m => (
+          <span key={m} style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 999, border: `1px solid ${L.line}`, color: L.sub }}>{m}</span>
+        ))}
+      </div>
+      <MirrorPanel gp={gp} />
+      {open && item.body && (
+        <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.95, margin: "13px 0 0", whiteSpace: "pre-wrap" }}>{item.body}</p>
+      )}
+      <button onClick={() => setOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "10px 0 0" }}>
+        {open ? "▴ הסתר את ההסבר" : "▾ קרא את ההסבר המלא"}
+      </button>
+    </div>
+  );
+}
+function CrossesTab() {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("insights")
+      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified")
+      .eq("category", "הצלבות").eq("is_active", true)
+      .order("convergence_score", { ascending: false }).limit(60)
+      .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
+    return () => { live = false; };
+  }, []);
+  if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  if (!items.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי הצלבות.</div>;
+  const gi = dayOfYear() % items.length;
+  const gate = items[gi];
+  const rest = items.filter((_, i) => i !== gi);
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 2px", maxWidth: 660 }}>
+        הצלבות בין שיטות חישוב — כל ערך אומת במנוע הרשמי. לחיצה על ביטוי פותחת אותו במחשבון; לחיצה על מספר פותחת את דף המספר.
+      </p>
+      {gate && (
+        <div style={{ border: `1px solid ${L.gold}`, borderRadius: 16, padding: 3, background: "linear-gradient(135deg, #fbf3da, #ffffff)", boxShadow: `0 0 18px ${L.gold}33` }}>
+          <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 1, padding: "7px 12px 3px", display: "flex", alignItems: "center", gap: 6 }}>
+            🚪 שער היום <span style={{ color: L.sub, fontWeight: 600, fontSize: 11 }}>· מתחלף מדי יום</span>
+          </div>
+          <CrossCard item={gate} />
+        </div>
+      )}
+      {rest.map(it => <CrossCard key={it.id} item={it} />)}
+    </div>
+  );
+}
+
+// 👥 חידושי גולשים — חידושים מהקהילה (תג "חידושי גולשים"), מוצגים עם שם הכותב
+function CommunityTab() {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("insights")
+      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified")
+      .contains("tags", ["חידושי גולשים"]).eq("is_active", true)
+      .order("convergence_score", { ascending: false }).order("created_at", { ascending: false }).limit(60)
+      .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
+    return () => { live = false; };
+  }, []);
+  if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={{ background: "linear-gradient(135deg, #fffdf6, #fbf3da)", border: `1px solid ${L.gold}`, borderRadius: 12, padding: "13px 16px" }}>
+        <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 3 }}>👥 חידושי גולשים</div>
+        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>
+          חידושים ששלחו חוקרים מהקהילה — נבדקו ואומתו במנוע הרשמי. רוצים לשתף חידוש משלכם? <Link to="/start" style={{ color: L.goldDeep, fontWeight: 700 }}>הצטרפו ושלחו →</Link>
+        </p>
+      </div>
+      {!items.length
+        ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי גולשים — היו הראשונים לשתף.</div>
+        : items.map(it => <CrossCard key={it.id} item={it} />)}
     </div>
   );
 }
@@ -756,7 +906,24 @@ export default function BeitMidrashPage() {
     return () => { live = false; };
   }, []);
 
-  const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
+  // מחוון "עדכון חדש" למדורי החידושים — נדלק אם נוסף/עודכן חידוש ב-7 הימים האחרונים
+  const [insightUpdates, setInsightUpdates] = useState(() => new Set());
+  useEffect(() => {
+    let live = true;
+    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    supabase.from("insights").select("category,tags,updated_at,created_at")
+      .or(`updated_at.gte.${since},created_at.gte.${since}`).limit(80)
+      .then(({ data }) => {
+        if (!live || !data) return;
+        const s = new Set();
+        data.forEach(it => {
+          if (it.category === "הצלבות") s.add("crosses");
+          if ((it.tags || []).includes("חידושי גולשים")) s.add("community");
+        });
+        setInsightUpdates(s);
+      }).catch(() => {});
+    return () => { live = false; };
+  }, []);
 
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
   const sideRef = useRef(null);
@@ -817,7 +984,7 @@ export default function BeitMidrashPage() {
                   }}>
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
-                    {s.key === "convergence" && hasUpdates && (
+                    {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
                       <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
                         <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
@@ -840,6 +1007,7 @@ export default function BeitMidrashPage() {
             </div>
 
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
+            {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}
             {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}
@@ -847,7 +1015,7 @@ export default function BeitMidrashPage() {
             {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
             {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
-            {tab === "community" && <Soon title="חידושי גולשים" note="הקהילה תוכל לשתף כאן חידושים משלה — בבדיקה ואימות. נפתח בקרוב." />}
+            {tab === "community" && <CommunityTab />}
             {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
           </main>
         </div>
@@ -855,6 +1023,8 @@ export default function BeitMidrashPage() {
 
       <style>{`
         .bm-swipe-hint { display: none; }
+        .bm-mirror { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 560px) { .bm-mirror { grid-template-columns: 1fr !important; } }
         @media (max-width: 860px) {
           .bm-grid { flex-direction: column; gap: 14px !important; align-items: stretch !important; }
           .bm-grid > main { width: 100% !important; min-width: 0 !important; }
