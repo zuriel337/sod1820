@@ -212,7 +212,7 @@ function Brand() {
         }}>AI</span>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800, lineHeight: 1.25 }}>
+        <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 400, lineHeight: 1.25 }}>
           כי לה' המלוכה
         </div>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 8.5, letterSpacing: 3, textTransform: "uppercase" }}>

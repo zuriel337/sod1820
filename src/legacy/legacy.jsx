@@ -4880,20 +4880,33 @@ function PostPageBySlug({ onNav }) {
     return () => clearTimeout(id);
   }, [post, loc.search]);
 
-  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה בפוסט (data-gem) פותחת את מגירת המספר — לא ניווט
+  // חוק ai_post_update_law: לחיצה על ביטוי-גימטריה (data-gem) פותחת מגירת מספר;
+  // קישורים פנימיים בתוכן → ניווט SPA אמין (לא reload מלא — תיקון לנייד).
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
     const onClick = e => {
-      const t = e.target.closest("[data-gem]");
-      if (!t || !el.contains(t)) return;
-      e.preventDefault();
-      const term = (t.getAttribute("data-gem") || "").trim();
-      if (term) openNumberDrawer(term);
+      const gemEl = e.target.closest("[data-gem]");
+      if (gemEl && el.contains(gemEl)) {
+        e.preventDefault();
+        const term = (gemEl.getAttribute("data-gem") || "").trim();
+        if (term) openNumberDrawer(term);
+        return;
+      }
+      const a = e.target.closest("a");
+      if (a && el.contains(a)) {
+        const href = a.getAttribute("href") || "";
+        const target = (a.getAttribute("target") || "").toLowerCase();
+        // רק קישורים פנימיים (לא חיצוניים / לא target=_blank / לא עוגן)
+        if (href.startsWith("/") && !href.startsWith("//") && target !== "_blank") {
+          e.preventDefault();
+          navigate(href);
+        }
+      }
     };
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);
-  }, [post]);
+  }, [post, navigate]);
 
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";
