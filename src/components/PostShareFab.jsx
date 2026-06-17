@@ -66,10 +66,6 @@ export default function PostShareFab({ url, title, wpId }) {
       <style>{`
         .psf-wrap { position: fixed; bottom: 18px; left: 18px; right: auto; z-index: 900;
           padding-bottom: max(0px, env(safe-area-inset-bottom, 0px)); }
-        @media (min-width: 900px) {
-          .psf-wrap { left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
-          .psf-wrap .psf { pointer-events: auto; }
-        }
         .psf { direction: rtl; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
           padding: 11px 18px; border-radius: 999px; border: 1px solid ${C.borderGold};
           background: linear-gradient(135deg, #ffe9a8, #caa030 55%, #9a7818); color: #1a0e00;

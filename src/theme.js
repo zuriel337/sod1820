@@ -140,6 +140,20 @@ export const POST_CONTENT_CSS = `
     opacity: 0.85;
   }
   .sod-post-content a:visited { color: ${C.goldLight} !important; }
+  /* canonical_colors_law — כפתורי זהב בפוסט: טקסט כהה, לעולם לא זהב-על-זהב */
+  .sod-post-content a[style*="gradient"],
+  .sod-post-content a[style*="#e9c84a"],
+  .sod-post-content a[style*="#d4af37"],
+  .sod-post-content a[style*="#caa030"],
+  .sod-post-content a[style*="#ffe9a8"],
+  .sod-post-content a[style*="#e8c840"] {
+    color: #1a0e00 !important;
+    text-shadow: none !important;
+  }
+  .sod-post-content a[style*="gradient"]:hover,
+  .sod-post-content a[style*="#e9c84a"]:hover {
+    color: #1a0e00 !important; text-shadow: none !important;
+  }
   .sod-post-content img {
     max-width: 100%;
     height: auto;

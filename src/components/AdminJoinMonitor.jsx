@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { C, F } from "../theme.js";
 import { supabase } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import SubscribeInviteModal from "./SubscribeInviteModal.jsx";
 
 // מוניטור אדמין חי — מונה מנויים (סה״כ + היום) שמתעדכן בזמן אמת ומקפיץ פרטים
 // בכל הצטרפות חדשה. גלוי לאדמין בלבד; RLS מבטיח שרק אדמין מקבל את האירועים.
@@ -11,6 +12,7 @@ export default function AdminJoinMonitor() {
   const [today, setToday] = useState(0);
   const [toast, setToast] = useState(null);   // הצטרפות חדשה: { email, name }
   const [pulse, setPulse] = useState(false);
+  const [modal, setModal] = useState(false);  // חלון הזמנה/הרשמה (גם לבדיקה)
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -55,7 +57,8 @@ export default function AdminJoinMonitor() {
           </span>
         </div>
       )}
-      <div title="מנויים — מתעדכן בזמן אמת" style={{
+      <div title="לחצו לפתיחת חלון ההרשמה" onClick={() => setModal(true)} style={{
+        cursor: "pointer",
         display: "inline-flex", alignItems: "center", gap: 8,
         background: "rgba(10,7,0,0.92)", border: `1px solid ${pulse ? C.gold : C.border}`,
         borderRadius: 999, padding: "7px 14px", backdropFilter: "blur(6px)",
@@ -68,6 +71,7 @@ export default function AdminJoinMonitor() {
           <span style={{ color: C.goldDim }}> · היום {today.toLocaleString("he")}</span>
         </span>
       </div>
+      <SubscribeInviteModal open={modal} onClose={() => setModal(false)} count={total} />
       <style>{`@keyframes ajm-in { from { opacity:0; transform: translateX(-12px) } to { opacity:1; transform:none } }`}</style>
     </div>
   );

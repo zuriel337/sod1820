@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear } from "../../lib/supabase.js";
+import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear, displayJoinedToday } from "../../lib/supabase.js";
 import { subscribeJoins } from "../../lib/joinEvents.js";
 
 // 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
@@ -18,22 +18,20 @@ function statItems(s) {
   if (!s) return [];
   const out = [];
   if (s.searches_today > 0) out.push({ icon: "🔥", text: `${s.searches_today.toLocaleString()} חיפושי גימטריה היום`, to: "/beit-midrash?tab=calc" });
-  if (s.members_today > 0) out.push({ icon: "👥", text: `${s.members_today} חוקרים הצטרפו היום · סה״כ ${s.members_total.toLocaleString()}`, to: "/start" });
+  out.push({ icon: "👥", text: `${displayJoinedToday(s.members_today)} חוקרים הצטרפו היום · סה״כ ${(s.members_total || 0).toLocaleString()}`, to: "/start" });
   if (s.convergences_week > 0) out.push({ icon: "🌳", text: `${s.convergences_week} התכנסויות נוספו השבוע`, to: "/map" });
   if (s.posts_total > 0) out.push({ icon: "📚", text: `${s.posts_total.toLocaleString()} פוסטים במאגר — אלפי קשרים ממתינים לחשיפה`, to: "/post" });
   if (s.insights_total > 0) out.push({ icon: "🧠", text: `${s.insights_total} גילויי AI בבית המדרש`, to: "/beit-midrash" });
   return out;
 }
 
-// פירוט גימטריה לחידוש הצלבה → "ביטוי = ערך · ביטוי = ערך" (מתוך gematria_pairs)
+// פירוט גימטריה לפנינה → "ביטוי = ערך · ..." (תומך במבנה חדש וישן)
 function pairsText(gp) {
   if (!gp) return "";
   const out = [];
-  const add = p => { if (!p || !p.phrase) return; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (v != null) out.push(`${p.phrase} = ${v}`); };
-  (gp.revealed || []).forEach(add);
-  (gp.hidden || []).forEach(add);
-  (gp.members || []).forEach(add);
-  (gp.pairs || []).forEach(add);
+  const add = p => { if (!p) return; const ph = p.phrase || p.word; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (ph && v != null) out.push(`${ph} = ${v}`); };
+  if (Array.isArray(gp)) gp.forEach(add);
+  else { (gp.revealed || []).forEach(add); (gp.hidden || []).forEach(add); (gp.members || []).forEach(add); (gp.pairs || []).forEach(add); }
   return out.join(" · ");
 }
 const cleanT = s => String(s || "").replace(/<[^>]*>/g, "").trim();
@@ -73,21 +71,27 @@ export default function LiveActivityBar() {
     setFeed(prev => [{ k: "join", ts: new Date().toISOString(), icon: "👋", text: "חוקר חדש הצטרף לבית המדרש", to: "/start" }, ...prev].slice(0, 60));
   }), []);
 
+  const dedupe = arr => {
+    const seen = new Set();
+    return arr.filter(it => { const t = it && it.text; if (!t || seen.has(t)) return false; seen.add(t); return true; });
+  };
   const items = useMemo(() => {
     const merged = interleave(feed, statItems(stats));
     const base = merged.length ? merged : FALLBACK;
-    if (!crosses.length) return base;
+    if (!crosses.length) return dedupe(base);
     const di = dayOfYear() % crosses.length;
     const cx = crosses.map((c, i) => {
       const detail = pairsText(c.gematria_pairs);
       const isGate = i === di;
+      const gp = c.gematria_pairs;
+      const num = (gp && !Array.isArray(gp)) ? gp.number : null;
       return {
-        k: `cx${c.id}`, _gate: true, icon: isGate ? "🚪" : "✨",
-        text: `${isGate ? "שער היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
-        to: "/beit-midrash?tab=crosses",
+        k: `cx${c.id}`, _gate: true, icon: "💎",
+        text: `${isGate ? "פנינת היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
+        to: num ? `/number/${num}` : "/beit-midrash?tab=crosses",
       };
     });
-    return [...cx, ...base];
+    return dedupe([...cx, ...base]);
   }, [feed, stats, crosses]);
 
   // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה

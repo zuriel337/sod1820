@@ -810,6 +810,11 @@ export function dayOfYear() {
   const now = new Date();
   return Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
 }
+// מינימום הצטרפות יומי לתצוגה (הוכחה חברתית): מינימום 2, יציב ליום, ומעליו עולה עם הרשמות אמת.
+export function displayJoinedToday(real) {
+  const base = 2 + (dayOfYear() % 5); // 2..6, קבוע לאורך היום
+  return Math.max(base, real || 0);
+}
 export async function getGateOfDay() {
   try {
     const { data } = await supabase.from('insights')
@@ -822,14 +827,14 @@ export async function getGateOfDay() {
   } catch { return null; }
 }
 
-// כל חידושי ההצלבה המככבים (עם פירוט הגימטריה) — לשורה הרצה למעלה.
+// כל הפנינות (insights עם gematria_pairs) — לשורה הרצה למעלה. המככבות קודם.
 export async function getCrossTickerItems() {
   try {
     const { data } = await supabase.from('insights')
-      .select('id,title,related_numbers,gematria_pairs,panel_data')
-      .eq('category', 'הצלבות').eq('is_active', true)
-      .order('convergence_score', { ascending: false }).limit(20);
-    return (data || []).filter(d => d.panel_data?.featured);
+      .select('id,title,gematria_pairs,panel_data,convergence_score')
+      .not('gematria_pairs', 'is', null).eq('is_active', true)
+      .order('convergence_score', { ascending: false, nullsFirst: false }).limit(24);
+    return (data || []).sort((a, b) => (b.panel_data?.featured ? 1 : 0) - (a.panel_data?.featured ? 1 : 0));
   } catch { return []; }
 }
 
