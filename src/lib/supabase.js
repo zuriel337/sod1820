@@ -812,7 +812,7 @@ export function dayOfYear() {
 }
 // מינימום הצטרפות יומי לתצוגה (הוכחה חברתית): מינימום 2, יציב ליום, ומעליו עולה עם הרשמות אמת.
 export function displayJoinedToday(real) {
-  const base = 2 + (dayOfYear() % 3); // 2..4, קבוע לאורך היום
+  const base = 2 + (dayOfYear() % 5); // 2..6, קבוע לאורך היום
   return Math.max(base, real || 0);
 }
 export async function getGateOfDay() {
