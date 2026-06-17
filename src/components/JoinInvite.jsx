@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C, F } from "../theme.js";
-import { getLiveStats } from "../lib/supabase.js";
+import { getLiveStats, displayJoinedToday } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import SubscribeInviteModal from "./SubscribeInviteModal.jsx";
 
@@ -20,9 +20,9 @@ export default function JoinInvite() {
 
   if (isAdmin || hidden) return null;
 
-  const today = stats?.members_today || 0;
+  const today = displayJoinedToday(stats?.members_today);
   const total = stats?.members_total || 0;
-  const label = today > 0 ? `${today.toLocaleString("he")} הצטרפו היום — הצטרפו גם אתם` : "הצטרפו למנויים · קבלו את הסודות ראשונים";
+  const label = `${today.toLocaleString("he")} הצטרפו היום — הצטרפו גם אתם`;
 
   return (
     <>

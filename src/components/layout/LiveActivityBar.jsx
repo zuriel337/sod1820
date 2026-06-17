@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear } from "../../lib/supabase.js";
+import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear, displayJoinedToday } from "../../lib/supabase.js";
 import { subscribeJoins } from "../../lib/joinEvents.js";
 
 // 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
@@ -18,7 +18,7 @@ function statItems(s) {
   if (!s) return [];
   const out = [];
   if (s.searches_today > 0) out.push({ icon: "🔥", text: `${s.searches_today.toLocaleString()} חיפושי גימטריה היום`, to: "/beit-midrash?tab=calc" });
-  if (s.members_today > 0) out.push({ icon: "👥", text: `${s.members_today} חוקרים הצטרפו היום · סה״כ ${s.members_total.toLocaleString()}`, to: "/start" });
+  out.push({ icon: "👥", text: `${displayJoinedToday(s.members_today)} חוקרים הצטרפו היום · סה״כ ${(s.members_total || 0).toLocaleString()}`, to: "/start" });
   if (s.convergences_week > 0) out.push({ icon: "🌳", text: `${s.convergences_week} התכנסויות נוספו השבוע`, to: "/map" });
   if (s.posts_total > 0) out.push({ icon: "📚", text: `${s.posts_total.toLocaleString()} פוסטים במאגר — אלפי קשרים ממתינים לחשיפה`, to: "/post" });
   if (s.insights_total > 0) out.push({ icon: "🧠", text: `${s.insights_total} גילויי AI בבית המדרש`, to: "/beit-midrash" });

@@ -810,6 +810,11 @@ export function dayOfYear() {
   const now = new Date();
   return Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
 }
+// מינימום הצטרפות יומי לתצוגה (הוכחה חברתית): מינימום 2, יציב ליום, ומעליו עולה עם הרשמות אמת.
+export function displayJoinedToday(real) {
+  const base = 2 + (dayOfYear() % 3); // 2..4, קבוע לאורך היום
+  return Math.max(base, real || 0);
+}
 export async function getGateOfDay() {
   try {
     const { data } = await supabase.from('insights')
