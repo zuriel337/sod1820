@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getLiveFeed, getLiveStats, getGateOfDay } from "../../lib/supabase.js";
+import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear } from "../../lib/supabase.js";
 import { subscribeJoins } from "../../lib/joinEvents.js";
 
 // 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
@@ -25,6 +25,19 @@ function statItems(s) {
   return out;
 }
 
+// פירוט גימטריה לחידוש הצלבה → "ביטוי = ערך · ביטוי = ערך" (מתוך gematria_pairs)
+function pairsText(gp) {
+  if (!gp) return "";
+  const out = [];
+  const add = p => { if (!p || !p.phrase) return; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (v != null) out.push(`${p.phrase} = ${v}`); };
+  (gp.revealed || []).forEach(add);
+  (gp.hidden || []).forEach(add);
+  (gp.members || []).forEach(add);
+  (gp.pairs || []).forEach(add);
+  return out.join(" · ");
+}
+const cleanT = s => String(s || "").replace(/<[^>]*>/g, "").trim();
+
 // משלב את פריטי הסטטיסטיקה בתוך זרם העדכונים (אחד לכל ~5 פריטים)
 function interleave(feed, stats) {
   if (!stats.length) return feed;
@@ -40,7 +53,7 @@ function interleave(feed, stats) {
 export default function LiveActivityBar() {
   const [feed, setFeed] = useState([]);
   const [stats, setStats] = useState(null);
-  const [gate, setGate] = useState(null);
+  const [crosses, setCrosses] = useState([]);
 
   // טעינה + רענון אוטומטי כל 45 שנ' → עדכונים חדשים נכנסים מעצמם
   useEffect(() => {
@@ -48,7 +61,7 @@ export default function LiveActivityBar() {
     const load = () => {
       getLiveFeed().then(f => { if (live) setFeed(f); }).catch(() => {});
       getLiveStats().then(s => { if (live) setStats(s); }).catch(() => {});
-      getGateOfDay().then(g => { if (live) setGate(g); }).catch(() => {});
+      getCrossTickerItems().then(c => { if (live) setCrosses(c); }).catch(() => {});
     };
     load();
     const t = setInterval(load, 45000);
@@ -63,9 +76,19 @@ export default function LiveActivityBar() {
   const items = useMemo(() => {
     const merged = interleave(feed, statItems(stats));
     const base = merged.length ? merged : FALLBACK;
-    if (gate) return [{ k: "gate", icon: "🚪", text: `שער היום · ${gate.title}`, to: "/beit-midrash?tab=crosses", _gate: true }, ...base];
-    return base;
-  }, [feed, stats, gate]);
+    if (!crosses.length) return base;
+    const di = dayOfYear() % crosses.length;
+    const cx = crosses.map((c, i) => {
+      const detail = pairsText(c.gematria_pairs);
+      const isGate = i === di;
+      return {
+        k: `cx${c.id}`, _gate: true, icon: isGate ? "🚪" : "✨",
+        text: `${isGate ? "שער היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
+        to: "/beit-midrash?tab=crosses",
+      };
+    });
+    return [...cx, ...base];
+  }, [feed, stats, crosses]);
 
   // משך האנימציה פרופורציונלי למספר הפריטים → מהירות גלילה אחידה
   const duration = Math.max(28, items.length * 5);
