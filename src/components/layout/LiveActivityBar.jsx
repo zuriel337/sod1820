@@ -25,16 +25,14 @@ function statItems(s) {
   return out;
 }
 
-// פירוט גימטריה לחידוש הצלבה → "ביטוי = ערך · ביטוי = ערך" (מתוך gematria_pairs)
+// פירוט גימטריה לפנינה → "ביטוי = ערך · ..." (תומך במבנה חדש וישן)
 function pairsText(gp) {
   if (!gp) return "";
   const out = [];
-  const add = p => { if (!p || !p.phrase) return; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (v != null) out.push(`${p.phrase} = ${v}`); };
-  (gp.revealed || []).forEach(add);
-  (gp.hidden || []).forEach(add);
-  (gp.members || []).forEach(add);
-  (gp.pairs || []).forEach(add);
-  return out.join(" · ");
+  const add = p => { if (!p) return; const ph = p.phrase || p.word; const v = p.value ?? p.ragil ?? p.mistater ?? p.miluy; if (ph && v != null) out.push(`${ph} = ${v}`); };
+  if (Array.isArray(gp)) gp.forEach(add);
+  else { (gp.revealed || []).forEach(add); (gp.hidden || []).forEach(add); (gp.members || []).forEach(add); (gp.pairs || []).forEach(add); }
+  return out.slice(0, 6).join(" · ");
 }
 const cleanT = s => String(s || "").replace(/<[^>]*>/g, "").trim();
 
@@ -81,10 +79,12 @@ export default function LiveActivityBar() {
     const cx = crosses.map((c, i) => {
       const detail = pairsText(c.gematria_pairs);
       const isGate = i === di;
+      const gp = c.gematria_pairs;
+      const num = (gp && !Array.isArray(gp)) ? gp.number : null;
       return {
-        k: `cx${c.id}`, _gate: true, icon: isGate ? "🚪" : "✨",
-        text: `${isGate ? "שער היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
-        to: "/beit-midrash?tab=crosses",
+        k: `cx${c.id}`, _gate: true, icon: "💎",
+        text: `${isGate ? "פנינת היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
+        to: num ? `/number/${num}` : "/beit-midrash?tab=crosses",
       };
     });
     return [...cx, ...base];
