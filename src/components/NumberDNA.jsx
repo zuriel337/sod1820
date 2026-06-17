@@ -32,8 +32,8 @@ export default function NumberDNA({ value }) {
   if (!cards.length) return null;
 
   return (
-    <div style={{ padding: "13px 15px", borderTop: `1px solid ${C.border}` }}>
-      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>
+    <div className="nd" style={{ padding: "13px 15px", borderTop: `1px solid ${C.border}` }}>
+      <div className="nd-title" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>
         🧬 המהות המזוקקת · {value} <span style={{ color: C.muted, letterSpacing: 0, textTransform: "none" }}>— רק תוכן מאוצר</span>
       </div>
 
@@ -43,8 +43,8 @@ export default function NumberDNA({ value }) {
           <button key={c.id} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
             style={{ cursor: "pointer", textAlign: "right", background: "linear-gradient(135deg, rgba(212,175,55,0.14), rgba(8,5,2,0.4))", border: `1px solid ${C.borderGold}`, borderRadius: 11, padding: "10px 13px", display: "flex", alignItems: "center", gap: 9 }}>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{c.title}</span>
-              {c.subtitle && <span style={{ display: "block", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.subtitle}</span>}
+              <span className="nd-card-title" style={{ display: "block", color: C.goldBright, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{c.title}</span>
+              {c.subtitle && <span className="nd-card-sub" style={{ display: "block", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.subtitle}</span>}
             </span>
             <span style={{ color: C.gold, fontSize: 10, letterSpacing: 1, flexShrink: 0 }}>{stars(c.quality)}</span>
             <span style={{ color: C.goldBright, flexShrink: 0 }}>→</span>

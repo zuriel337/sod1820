@@ -700,8 +700,9 @@ export default function ArchivePage() {
         .ar-side .ar-row { justify-content: flex-start; }
         @media (max-width: 900px) {
           .ar-layout { grid-template-columns: 1fr; }
-          .ar-feed { grid-column: 1; grid-row: 1; }
-          .ar-side { grid-column: 1; grid-row: 2; position: static; max-height: none; }
+          /* בנייד: הסטים/חיפוש/סינון למעלה — לא נדחקים מתחת לכל התמונות */
+          .ar-side { grid-column: 1; grid-row: 1; position: static; max-height: none; }
+          .ar-feed { grid-column: 1; grid-row: 2; }
         }
         /* אקורדיון גלריות */
         .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }

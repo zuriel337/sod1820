@@ -184,6 +184,44 @@ function ConvergenceStation({ c }) {
   );
 }
 
+// פאנל אינדקס צירי ההתכנסות — צד ימין במחשב בלבד (כשפותחים את ציר הזמן)
+function ConvergenceIndexPanel({ items }) {
+  if (!items || !items.length) return null;
+  const stars = q => { const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2))); return "★".repeat(n) + "☆".repeat(5 - n); };
+  const sorted = [...items].sort((a, b) => (b.meter_score || 0) - (a.meter_score || 0) || (b.quality || 0) - (a.quality || 0));
+  return (
+    <>
+      <style>{`
+        .tl-conv-panel { position: fixed; right: 20px; top: 88px; width: 240px; max-height: calc(100vh - 120px);
+          overflow-y: auto; display: none; z-index: 5; direction: rtl; }
+        @media (min-width: 1220px) { .tl-conv-panel { display: block; } }
+      `}</style>
+      <aside className="tl-conv-panel">
+        <div style={{ background: "rgba(10,7,16,0.92)", border: `1px solid ${C.borderGold}`, borderRadius: 14, padding: "13px 14px" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, fontWeight: 700, marginBottom: 10 }}>
+            🌐 צירי ההתכנסות ({sorted.length})
+          </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {sorted.map(c => (
+              <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none",
+                background: "linear-gradient(135deg, rgba(212,175,55,0.12), rgba(8,5,2,0.4))", border: `1px solid ${C.border}`,
+                borderRadius: 10, padding: "8px 10px", display: "block" }}>
+                <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{c.title}</div>
+                <div style={{ color: C.gold, fontSize: 10, letterSpacing: 1, marginTop: 2 }}>{stars(c.quality)}</div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
+                  {(c.highlight_numbers || []).slice(0, 4).map(n => (
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 10.5, color: C.goldDim, border: `1px solid ${C.border}`, borderRadius: 999, padding: "0 7px" }}>{n}</span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
 export default function TimelinePage() {
   const { events, convergences, postByEvent, imagesByGallery, loading } = useAxisData();
   const { hash } = useLocation();
@@ -210,6 +248,7 @@ export default function TimelinePage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <style>{PAGE_CSS}</style>
+      <ConvergenceIndexPanel items={convergences} />
       <SectionHeader eyebrow="המסע בזמן" title="🌅 ציר ההתגלות" />
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 28px" }}>
         אירועי הגאולה כפי שנגלו, שנה אחר שנה — ולצידם <b style={{ color: C.goldLight }}>צירי ההתכנסות</b> שהתגלו באותן שנים.

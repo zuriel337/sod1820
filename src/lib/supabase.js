@@ -718,6 +718,31 @@ export async function createTopicCardDraft(card) {
   return data;
 }
 
+// ===== קיר הגימטריה החי (ניסוי ויראלי) — gematria_wall =====
+// כל מילה/שם שגולש מחשב נרשם כאן דרך RPC מאובטח (sanitize + dedup + מונה).
+export async function addWallWord(phrase, ragil) {
+  if (!supabase || !phrase || !ragil) return;
+  try { await supabase.rpc('add_wall_word', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
+  catch { /* שקט — לוג בלבד, לא לשבור את החישוב */ }
+}
+export async function getWallRecent(limit = 60) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('gematria_wall')
+    .select('phrase,ragil,hits,last_at').order('last_at', { ascending: false }).limit(limit);
+  return data || [];
+}
+export async function getWallPopular(limit = 60) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('gematria_wall')
+    .select('phrase,ragil,hits').order('hits', { ascending: false }).limit(limit);
+  return data || [];
+}
+export async function getWallCount() {
+  if (!supabase) return 0;
+  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true });
+  return count || 0;
+}
+
 export function adaptPost(row) {
   return {
     id: row.wp_id,

@@ -4,8 +4,9 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { SectionHeader } from "../components/ui.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
+import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 import { NAV } from "../routes.jsx";
-import { supabase } from "../lib/supabase.js";
+import { supabase, addWallWord } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { METHODS as GEM_METHODS, onlyHeb } from "../lib/gematria.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
@@ -125,6 +126,18 @@ export function CommunityCalculatorPage() {
   const r2 = (compare && onlyHeb(name2).length) ? gemAll(name2) : null;
   const matches = (r1 && r2) ? r1.all.filter((a, i) => a.value === r2.all[i].value) : [];
 
+  // כל חיפוש נשמר לקיר החי (gematria_wall) — מושהה, רק על שם תקין.
+  useEffect(() => {
+    if (!r1) return;
+    const t = setTimeout(() => addWallWord(name1.trim(), r1.regular), 900);
+    return () => clearTimeout(t);
+  }, [name1, r1?.regular]); // eslint-disable-line
+  useEffect(() => {
+    if (!r2) return;
+    const t = setTimeout(() => addWallWord(name2.trim(), r2.regular), 900);
+    return () => clearTimeout(t);
+  }, [name2, r2?.regular]); // eslint-disable-line
+
   const shareText = !r1 ? "" : (
     r2
       ? `גימטריה: "${name1.trim()}" = ${r1.regular} · "${name2.trim()}" = ${r2.regular}${matches.length ? " ✨ יש ביניהם התאמה!" : ""}\nבדקו את שלכם במחשבון הגימטריה של סוד 1820:\n${SITE_URL}/community/calculator`
@@ -193,6 +206,11 @@ export function CommunityCalculatorPage() {
         <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: C.goldDim, fontFamily: F.heading, fontSize: 13, textDecoration: "underline" }}>
           {compare ? "− הסר השוואה" : "+ השוואת שני שמות"}
         </button>
+      </div>
+
+      {/* 🔎 מה גולשים חיפשו — רשימה נפרדת מהמאגר המאומת (gematria_wall) */}
+      <div style={{ marginBottom: 26 }}>
+        <VisitorSearchesBox onPick={(p) => { setName1(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
       </div>
 
       {r1 && (

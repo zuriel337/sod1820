@@ -6,6 +6,7 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
+import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
@@ -22,10 +23,10 @@ function EntityConvergence({ term, isNumber, ragil }) {
   useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
 
   return (
-    <div style={{ marginBottom: 22, borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
+    <div className="em-panel" style={{ marginBottom: 22, borderRadius: 16, border: `1px solid ${C.borderGold}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
       {vals && (
         <div style={{ padding: "12px 14px 4px" }}>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 9 }}>בחרו שיטה — העוגן הקדוש נבחר אוטומטית</div>
+          <div className="em-eyebrow" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 9 }}>בחרו שיטה — העוגן הקדוש נבחר אוטומטית</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {vals.map(x => {
               const on = x.v === sel; const anc = ANCHOR_SET.has(x.v);
@@ -35,8 +36,8 @@ function EntityConvergence({ term, isNumber, ragil }) {
                   border: `1px solid ${on ? C.gold : anc ? C.borderGold : C.border}`,
                   background: on ? "rgba(212,175,55,0.18)" : anc ? "rgba(212,175,55,0.07)" : "rgba(20,15,12,0.6)",
                 }}>
-                  <div style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
-                  <div style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
+                  <div className="em-key" style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
+                  <div className="em-val" style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{x.v}</div>
                 </button>
               );
             })}
@@ -45,6 +46,26 @@ function EntityConvergence({ term, isNumber, ragil }) {
       )}
       <ConvergenceMeter value={sel} />
       <NumberDNA value={sel} />
+      {/* הגדלה + עיצוב נקי במחשב בלבד, וממוקד לדף המספר (.em-panel) — בנייד וב-drawer נשאר כפי שהוא */}
+      <style>{`
+        @media (min-width: 900px) {
+          .em-panel .em-eyebrow { font-size: 12.5px !important; }
+          .em-panel .em-key { font-size: 12px !important; }
+          .em-panel .em-val { font-size: 21px !important; }
+          .em-panel .cm { padding: 16px 20px !important; }
+          .em-panel .cm-title { font-size: 13px !important; letter-spacing: 2px !important; }
+          .em-panel .cm-score { font-size: 23px !important; font-weight: 900 !important; }
+          .em-panel .cm-row { font-size: 16.5px !important; font-weight: 600 !important; gap: 12px !important;
+            padding: 8px 4px !important; border-bottom: 1px solid rgba(212,175,55,0.10) !important; }
+          .em-panel .cm-icon { width: 26px !important; font-size: 18px !important; }
+          .em-panel .cm-detail { font-size: 14.5px !important; font-weight: 800 !important; }
+          .em-panel .cm-chip { font-size: 14px !important; padding: 6px 14px !important; font-weight: 700 !important; }
+          .em-panel .nd { padding: 18px 20px !important; }
+          .em-panel .nd-title { font-size: 13px !important; }
+          .em-panel .nd-card-title { font-size: 19px !important; }
+          .em-panel .nd-card-sub { font-size: 14px !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -228,6 +249,13 @@ export default function EntityPage() {
         </div>
       </div>
 
+      {/* ── זיקת האפסים (חוק zero_scale_law) — אותו שורש בסדר גודל אחר ── */}
+      {value >= 10 && (
+        <div style={{ marginBottom: 26 }}>
+          <ZeroScaleLinks value={value} />
+        </div>
+      )}
+
       {/* ── ✦ טבעת החתימות (מתגלה אחרי פתיחת השער) ── */}
       {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
@@ -243,11 +271,12 @@ export default function EntityPage() {
         if (cnt.comm) parts.push(`${cnt.comm} תובנות קהילה`);
         return (
           <div style={{ marginBottom: 16, padding: "13px 18px", borderRadius: 14, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))" }}>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧬 DNA המספר</div>
-            <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
+            <div className="dna-label" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 7 }}>🧬 DNA המספר</div>
+            <p className="dna-text" style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
               <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
               {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
             </p>
+            <style>{`@media (min-width: 900px){ .dna-label{ font-size: 13px !important; letter-spacing: 3px !important; } .dna-text{ font-size: 21px !important; line-height: 1.75 !important; font-weight: 500 !important; } }`}</style>
           </div>
         );
       })()}
