@@ -35,10 +35,10 @@ export default function ConvergenceMeter({ value }) {
              :               { e: "·",  c: C.muted };
 
   return (
-    <div style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
+    <div className="cm" style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
-        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase" }}>🧬 מד ההתכנסות</span>
-        <span style={{ marginInlineStart: "auto", color: tier.c, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{tier.e} {score}/100</span>
+        <span className="cm-title" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase" }}>🧬 מד ההתכנסות</span>
+        <span className="cm-score" style={{ marginInlineStart: "auto", color: tier.c, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{tier.e} {score}/100</span>
       </div>
 
       <div style={{ display: "grid", gap: 4 }}>
@@ -49,12 +49,13 @@ export default function ConvergenceMeter({ value }) {
           return (
             <div key={i}>
               <div onClick={() => clickable && setOpen(isOpen ? null : i)}
+                className="cm-row"
                 style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: F.body, fontSize: 11.5,
                   color: l.ok ? C.goldLight : C.muted, opacity: l.ok ? 1 : 0.45,
                   cursor: clickable ? "pointer" : "default" }}>
-                <span style={{ width: 16, textAlign: "center" }}>{l.icon}</span>
+                <span className="cm-icon" style={{ width: 16, textAlign: "center" }}>{l.icon}</span>
                 <span style={{ flex: 1 }}>{l.name}</span>
-                <span style={{ color: C.goldDim, fontSize: 10 }}>{l.detail}</span>
+                <span className="cm-detail" style={{ color: C.goldDim, fontSize: 10 }}>{l.detail}</span>
                 <span>{l.ok ? "✅" : "—"}</span>
                 {clickable && <span style={{ color: C.goldDim, fontSize: 9 }}>{isOpen ? "▴" : "▾"}</span>}
               </div>
@@ -63,13 +64,13 @@ export default function ConvergenceMeter({ value }) {
                   {/* כרטיסי נושא — לחיצים */}
                   {l.name === "כרטיס התכנסות" && ev?.map(c => (
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
-                      style={chip(true)}>🧩 {c.title} →</button>
+                      className="cm-chip" style={chip(true)}>🧩 {c.title} →</button>
                   ))}
                   {/* ישויות — לחיצות לדף המספר */}
                   {(l.name === "התכנסות מילים" || l.name === "אקטואליה (חדשות)") && ev?.map((e, k) => {
                     const lbl = typeof e === "string" ? e : e.label;
                     return (
-                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} style={chip(false)}>
+                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false)}>
                         {lbl}{e.method ? ` · ${e.method}` : ""}{e.world ? ` · ${e.world}` : ""}
                       </button>
                     );
@@ -77,7 +78,7 @@ export default function ConvergenceMeter({ value }) {
                   {/* עוגן */}
                   {l.name === "עוגן קדוש" && data.anchor && (
                     <button onClick={() => openNumberDrawer(value)} title={`פתח את מגירת המספר ${value}`}
-                      style={{ ...chip(true), cursor: "pointer" }}>✨ {data.anchor} → {value}</button>
+                      className="cm-chip" style={{ ...chip(true), cursor: "pointer" }}>✨ {data.anchor} → {value}</button>
                   )}
                 </div>
               )}

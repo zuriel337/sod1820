@@ -169,6 +169,24 @@ export default function TopicPage() {
         </div>
       )}
 
+      {/* הפוסט/ים המלאים — חיבור הכרטיס לפוסט/ים המקור */}
+      {(() => {
+        const posts = Array.isArray(f.posts) ? f.posts.filter(p => p && p.slug) : (f.post && f.post.slug ? [f.post] : []);
+        if (!posts.length) return null;
+        return (
+          <div style={{ ...box, marginBottom: 20, display: "grid", gap: 8 }}>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 1 }}>📖 הפוסטים המלאים</div>
+            {posts.map((p, i) => (
+              <Link key={i} to={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 13px" }}>
+                <span style={{ fontSize: 20 }}>📖</span>
+                <span style={{ flex: 1, minWidth: 0, color: C.goldBright, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, lineHeight: 1.4 }}>{p.title || "קראו את הפוסט המלא"}</span>
+                <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, flexShrink: 0 }}>←</span>
+              </Link>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* ממצאים בגלריות — תמונות גדולות, מוסברות, בסדר שנקבע, מקשרות לגלריה */}
       {imgs.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>

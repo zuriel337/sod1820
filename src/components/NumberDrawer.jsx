@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
+import ZeroScaleLinks from "./ZeroScaleLinks.jsx";
 
 const M6 = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי"].includes(m.key));
 
@@ -192,6 +193,13 @@ export default function NumberDrawer() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* 🔗 זיקת האפסים (חוק zero_scale_law) — אותו שורש בסדר גודל אחר */}
+        {value != null && value >= 10 && (
+          <div style={{ padding: "10px 13px", borderBottom: `1px solid ${C.border}` }}>
+            <ZeroScaleLinks value={value} compact />
           </div>
         )}
 
