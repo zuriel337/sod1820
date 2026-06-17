@@ -25,6 +25,7 @@ const SECTIONS = [
   { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
   { key: "community", icon: "👥", label: "חידושי גולשים" },
+  { key: "submit", icon: "✍️", label: "הגשת חידוש" },
   { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
@@ -331,13 +332,114 @@ function CommunityTab() {
       <div style={{ background: "linear-gradient(135deg, #fffdf6, #fbf3da)", border: `1px solid ${L.gold}`, borderRadius: 12, padding: "13px 16px" }}>
         <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 3 }}>👥 חידושי גולשים</div>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>
-          חידושים ששלחו חוקרים מהקהילה — נבדקו ואומתו במנוע הרשמי. רוצים לשתף חידוש משלכם? <Link to="/start" style={{ color: L.goldDeep, fontWeight: 700 }}>הצטרפו ושלחו →</Link>
+          חידושים ששלחו חוקרים מהקהילה — נבדקו ואומתו במנוע הרשמי. רוצים לשתף חידוש משלכם? <Link to="/beit-midrash?tab=submit" style={{ color: L.goldDeep, fontWeight: 700 }}>שלחו חידוש →</Link>
         </p>
       </div>
       {!items.length
         ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי גולשים — היו הראשונים לשתף.</div>
         : items.map(it => <CrossCard key={it.id} item={it} />)}
     </div>
+  );
+}
+
+// ✍️ הגשת חידוש — טופס לגולשים, עם אימות גימטריה חי במנוע (calcGem/METHODS). נשמר כ-pending לאישור צוריאל.
+function SubmitTab() {
+  const [title, setTitle] = useState("");
+  const [method, setMethod] = useState("רגיל");
+  const [a, setA] = useState("");
+  const [b, setB] = useState("");
+  const [body, setBody] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [st, setSt] = useState("idle");
+  const [err, setErr] = useState("");
+
+  const m = METHODS.find(x => x.key === method) || METHODS[0];
+  const vA = a.trim() ? m.fn(a) : 0;
+  const vB = b.trim() ? m.fn(b) : 0;
+  const equal = vA > 0 && vA === vB;
+
+  const inp = { background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, color: L.ink, fontFamily: F.body, fontSize: 15, padding: "10px 12px", outline: "none", width: "100%", boxSizing: "border-box" };
+  const lbl = { color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 5 };
+
+  async function submit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!title.trim() || !a.trim() || !b.trim()) { setErr("מלאו רעיון ושני ביטויים"); return; }
+    if (!equal) { setErr("הגימטריות לא שוות — בדקו שהביטויים נופלים על אותו מספר בשיטה שבחרתם"); return; }
+    if (!name.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("מלאו שם ומייל תקין"); return; }
+    setSt("sending"); setErr("");
+    try {
+      const { error } = await supabase.from("chiddush_submissions").insert({
+        title: title.trim(), body: body.trim() || null, method,
+        phrase_a: a.trim(), value_a: vA, phrase_b: b.trim(), value_b: vB,
+        gematria_pairs: [{ phrase: a.trim(), value: vA }, { phrase: b.trim(), value: vB }],
+        author_name: name.trim(), author_email: email.trim(),
+      });
+      if (error) throw error;
+      setSt("done");
+    } catch { setSt("error"); setErr("אירעה שגיאה — נסו שוב בעוד רגע"); }
+  }
+
+  if (st === "done") return (
+    <div style={{ textAlign: "center", padding: "40px 20px", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 16, maxWidth: 560 }}>
+      <div style={{ fontSize: 46, marginBottom: 8 }}>✨</div>
+      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 8 }}>תודה! החידוש נשלח לבדיקה</div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>
+        הגימטריה תיבדק שוב במנוע הרשמי, ואם תאושר — החידוש יתפרסם במדור «חידושי גולשים» <b style={{ color: L.goldDeep }}>עם שמכם</b>.
+      </p>
+    </div>
+  );
+
+  return (
+    <form onSubmit={submit} style={{ display: "grid", gap: 16, maxWidth: 620 }}>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: 0, maxWidth: 580 }}>
+        מצאתם הצלבת גימטריה? שתפו אותה. הזינו שני ביטויים שנופלים על אותו מספר — המנוע יאמת בזמן אמת. לאחר אישור צוריאל, החידוש יתפרסם עם שמכם.
+      </p>
+
+      <div><div style={lbl}>💡 הרעיון / הכותרת</div>
+        <input style={inp} value={title} onChange={e => setTitle(e.target.value)} placeholder="למשל: היד של הבורא" /></div>
+
+      <div><div style={lbl}>📐 שיטת חישוב</div>
+        <select style={{ ...inp, cursor: "pointer" }} value={method} onChange={e => setMethod(e.target.value)}>
+          {METHODS.map(x => <option key={x.key} value={x.key}>{x.key} — {x.sub}</option>)}
+        </select></div>
+
+      <div style={{ display: "grid", gap: 10 }}>
+        <div style={lbl}>✡ הגימטריה — שני ביטויים שווים</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <input style={{ ...inp, flex: 1, minWidth: 140 }} value={a} onChange={e => setA(e.target.value)} placeholder="ביטוי ראשון" dir="rtl" />
+          <span style={{ fontFamily: F.mono, fontWeight: 800, color: L.goldDeep, fontSize: 18, minWidth: 56, textAlign: "center" }}>{vA || "—"}</span>
+        </div>
+        <div style={{ textAlign: "center", color: L.goldDeep, fontFamily: F.mono, fontWeight: 800 }}>=</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <input style={{ ...inp, flex: 1, minWidth: 140 }} value={b} onChange={e => setB(e.target.value)} placeholder="ביטוי שני (שווה ערך)" dir="rtl" />
+          <span style={{ fontFamily: F.mono, fontWeight: 800, color: L.goldDeep, fontSize: 18, minWidth: 56, textAlign: "center" }}>{vB || "—"}</span>
+        </div>
+        {(vA > 0 && vB > 0) && (
+          <div style={{ textAlign: "center", borderRadius: 10, padding: "8px 12px", fontFamily: F.heading, fontWeight: 800, fontSize: 14,
+            background: equal ? "#e7f7e9" : "#fdecec", color: equal ? "#1f7a35" : "#b03030", border: `1px solid ${equal ? "#9bd6a6" : "#e3a0a0"}` }}>
+            {equal ? `✓ מאומת! «${a.trim()}» = «${b.trim()}» = ${vA} (${method})` : `✗ לא שווה — ${vA} מול ${vB}`}
+          </div>
+        )}
+      </div>
+
+      <div><div style={lbl}>📜 ההסבר (אופציונלי)</div>
+        <textarea style={{ ...inp, minHeight: 90, resize: "vertical", fontFamily: F.body, lineHeight: 1.7 }} value={body} onChange={e => setBody(e.target.value)} placeholder="מה הרמז? מה זה מלמד?" /></div>
+
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 160 }}><div style={lbl}>✍️ השם שלכם</div>
+          <input style={inp} value={name} onChange={e => setName(e.target.value)} placeholder="ייכתב כ«מאת …»" /></div>
+        <div style={{ flex: 1, minWidth: 160 }}><div style={lbl}>📧 מייל</div>
+          <input style={inp} dir="ltr" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" /></div>
+      </div>
+
+      {err && <div style={{ color: "#b03030", fontFamily: F.body, fontSize: 13.5 }}>{err}</div>}
+      <button type="submit" disabled={st === "sending"} style={{ cursor: st === "sending" ? "wait" : "pointer", justifySelf: "start",
+        background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", border: "none", borderRadius: 999,
+        fontFamily: F.heading, fontWeight: 800, fontSize: 15.5, padding: "12px 30px", boxShadow: "0 4px 16px rgba(154,120,24,0.3)" }}>
+        {st === "sending" ? "שולח…" : "✦ שלחו את החידוש לבדיקה"}
+      </button>
+    </form>
   );
 }
 
@@ -925,6 +1027,12 @@ export default function BeitMidrashPage() {
     return () => { live = false; };
   }, []);
 
+  // סנכרון טאב↔URL — קישורי ?tab= עובדים גם בתוך הדף (לא רק בטעינה ראשונה)
+  useEffect(() => {
+    const tp = new URLSearchParams(loc.search).get("tab");
+    if (tp && SECTIONS.some(s => s.key === tp)) setTab(tp);
+  }, [loc.search]);
+
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
@@ -1018,7 +1126,7 @@ export default function BeitMidrashPage() {
             {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <CommunityTab />}
-            {tab === "submit" && <Soon title="הגשת חידוש משלך" note="טופס להגשת חידוש גימטריה לבדיקה ופרסום בהיכל הלימוד. נפתח בקרוב." />}
+            {tab === "submit" && <SubmitTab />}
           </main>
         </div>
       </div>
