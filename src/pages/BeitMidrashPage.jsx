@@ -893,7 +893,24 @@ export default function BeitMidrashPage() {
     return () => { live = false; };
   }, []);
 
-  const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
+  // מחוון "עדכון חדש" למדורי החידושים — נדלק אם נוסף/עודכן חידוש ב-7 הימים האחרונים
+  const [insightUpdates, setInsightUpdates] = useState(() => new Set());
+  useEffect(() => {
+    let live = true;
+    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    supabase.from("insights").select("category,tags,updated_at,created_at")
+      .or(`updated_at.gte.${since},created_at.gte.${since}`).limit(80)
+      .then(({ data }) => {
+        if (!live || !data) return;
+        const s = new Set();
+        data.forEach(it => {
+          if (it.category === "הצלבות") s.add("crosses");
+          if ((it.tags || []).includes("חידושי גולשים")) s.add("community");
+        });
+        setInsightUpdates(s);
+      }).catch(() => {});
+    return () => { live = false; };
+  }, []);
 
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
   const sideRef = useRef(null);
@@ -954,7 +971,7 @@ export default function BeitMidrashPage() {
                   }}>
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
-                    {s.key === "convergence" && hasUpdates && (
+                    {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
                       <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
                         <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
