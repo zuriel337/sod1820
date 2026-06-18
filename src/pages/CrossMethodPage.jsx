@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { C, F, KEY_NUMBERS } from "../theme.js";
+import { F, KEY_NUMBERS } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 
 // ===== הצלבת שיטות — "מסר מצטרף לפי מספר" =====
@@ -27,6 +28,11 @@ const TOTAL_METHODS = METHOD_COLS.length;
 const SAMPLES = [1820, 313, 326, 322, 1234, 776, 86];
 
 export default function CrossMethodPage() {
+  const P = usePalette();
+  const btn = { cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 20px" };
+  const chip = { cursor: "pointer", background: P.card, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.mono, fontSize: 14, padding: "7px 16px" };
+  const chipOn = { borderColor: P.accent, color: P.accentText, background: P.cardSoft };
+  const phraseChip = { background: P.cardSoft, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.body, fontSize: 13.5, padding: "5px 12px", textDecoration: "none" };
   const [params] = useSearchParams();
   const initN = Number(params.get("n")) || 1820;   // עומק-לינק: /cross?n=1820 (מ-/topic)
   const [input, setInput] = useState(String(initN));
@@ -131,16 +137,16 @@ export default function CrossMethodPage() {
   function submit(e) { e.preventDefault(); go(input); }
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: C.muted }}>
+    <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: P.inkSoft, background: P.pageBg }}>
 
       {/* כותרת */}
       <header style={{ textAlign: "center", marginBottom: 18 }}>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>הצלבת שיטות</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "6px 0 8px", textShadow: `0 0 40px ${C.goldDeep}` }}>
+        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>הצלבת שיטות</div>
+        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "6px 0 8px", textShadow: `0 0 40px ${P.glow}` }}>
           המסר המצטרף שמאחורי המספר
         </h1>
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, maxWidth: 640, margin: "0 auto" }}>
-          כל הביטויים <b style={{ color: C.goldLight }}>המאומתים</b> שנופלים על אותו מספר — בכל שיטה ושיטה.
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, maxWidth: 640, margin: "0 auto" }}>
+          כל הביטויים <b style={{ color: P.ink }}>המאומתים</b> שנופלים על אותו מספר — בכל שיטה ושיטה.
           כשמספר אחד הוא נקודת מפגש של שיטות רבות, הביטויים סביבו נקראים יחד כמסר.
         </p>
       </header>
@@ -149,7 +155,7 @@ export default function CrossMethodPage() {
       <form onSubmit={submit} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 10 }}>
         <input value={input} onChange={e => setInput(e.target.value)} inputMode="numeric"
           placeholder="הקלידו מספר…"
-          style={{ background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldBright, fontFamily: F.mono, fontSize: 18, padding: "10px 22px", outline: "none", textAlign: "center", width: 160, letterSpacing: 1 }} />
+          style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.mono, fontSize: 18, padding: "10px 22px", outline: "none", textAlign: "center", width: 160, letterSpacing: 1 }} />
         <button type="submit" style={btn}>הצלב ✦</button>
       </form>
       <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginBottom: 22 }}>
@@ -164,9 +170,9 @@ export default function CrossMethodPage() {
           {cards.map(c => (
             <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{
               textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7,
-              background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(8,5,2,0.4))",
-              border: `1px solid ${C.gold}`, borderRadius: 999, padding: "7px 16px",
-              color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
+              background: P.cardGrad,
+              border: `1px solid ${P.accent}`, borderRadius: 999, padding: "7px 16px",
+              color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
             }}>🧩 ציר התכנסות: {c.title} →</Link>
           ))}
         </div>
@@ -174,24 +180,24 @@ export default function CrossMethodPage() {
 
       {/* המספר + סיכום */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
-        <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(44px,11vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 50px ${C.goldDeep}` }}>{num}</div>
-        {meaning && <div style={{ color: C.gold, fontFamily: F.regal, fontSize: 16, marginTop: 6 }}>{meaning}</div>}
-        <div style={{ marginTop: 12, display: "inline-flex", gap: 18, flexWrap: "wrap", justifyContent: "center", color: C.muted, fontFamily: F.body, fontSize: 13.5 }}>
-          <span>מתכנס ב־<b style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 16 }}>{methodsHit}</b> מתוך {TOTAL_METHODS} שיטות</span>
+        <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(44px,11vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 50px ${P.glow}` }}>{num}</div>
+        {meaning && <div style={{ color: P.accent, fontFamily: F.regal, fontSize: 16, marginTop: 6 }}>{meaning}</div>}
+        <div style={{ marginTop: 12, display: "inline-flex", gap: 18, flexWrap: "wrap", justifyContent: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
+          <span>מתכנס ב־<b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{methodsHit}</b> מתוך {TOTAL_METHODS} שיטות</span>
           <span>·</span>
-          <span><b style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 16 }}>{allPhrases.length}</b> ביטויים מאומתים</span>
+          <span><b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{allPhrases.length}</b> ביטויים מאומתים</span>
           {methodsHit === TOTAL_METHODS && (
-            <span style={{ color: C.goldBright, fontWeight: 700 }}>✦ התכנסות מלאה</span>
+            <span style={{ color: P.accentText, fontWeight: 700 }}>✦ התכנסות מלאה</span>
           )}
         </div>
       </div>
 
       {/* ✨ המסר המרכזי — ישויות-זהב מדורגות לפי משמעות */}
       {!loading && entities.length > 0 && (
-        <section style={{ marginBottom: 18, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "16px 20px" }}>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
+        <section style={{ marginBottom: 18, background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 20px" }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>✨ המסר המרכזי</div>
           {/* מסר מהמספרים (AI) — סגור עד שהמנוע יושלם */}
-          <div style={{ textAlign: "center", margin: "0 auto 14px", maxWidth: 600, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1, border: `1px dashed ${C.borderGold}`, borderRadius: 10, padding: "11px 14px" }}>
+          <div style={{ textAlign: "center", margin: "0 auto 14px", maxWidth: 600, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1, border: `1px dashed ${P.borderStrong}`, borderRadius: 10, padding: "11px 14px" }}>
             🔒 מסר מהמספרים (AI) — המנוע עדיין בפיתוח
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, maxWidth: 480, margin: "0 auto" }}>
@@ -201,23 +207,23 @@ export default function CrossMethodPage() {
               return (
               <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none",
                 padding: isGold ? "13px 15px" : "9px 13px", borderRadius: isGold ? 13 : 10,
-                background: isGold ? "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(212,175,55,0.04))" : C.surface,
-                border: isGold ? `1.5px solid ${C.gold}` : `1px solid ${C.border}`,
-                boxShadow: isGold ? `0 0 28px ${C.goldDeep}` : "none" }}>
-                {isGold && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11, letterSpacing: 2.5, marginBottom: 5 }}>👑 ישות זהב</div>}
+                background: isGold ? P.cardGrad : P.card,
+                border: isGold ? `1.5px solid ${P.accent}` : `1px solid ${P.border}`,
+                boxShadow: isGold ? `0 0 28px ${P.glow}` : "none" }}>
+                {isGold && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11, letterSpacing: 2.5, marginBottom: 5 }}>👑 ישות זהב</div>}
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: isGold ? 22 : 19, fontWeight: 700, minWidth: 96 }}>{e.display || e.label}</span>
-                  {isGold ? <span style={{ fontSize: 18 }} title="ישות זהב">👑</span> : <Stars n={e.weight} />}
-                  {e.world && <span style={{ marginInlineStart: "auto", color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
+                  <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: isGold ? 22 : 19, fontWeight: 700, minWidth: 96 }}>{e.display || e.label}</span>
+                  {isGold ? <span style={{ fontSize: 18 }} title="ישות זהב">👑</span> : <Stars n={e.weight} P={P} />}
+                  {e.world && <span style={{ marginInlineStart: "auto", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{e.world}</span>}
                 </div>
                 {isGold && e.display && e.display !== e.label && (
-                  <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, marginTop: 5, opacity: 0.9 }}>{e.label} = {num}</div>
+                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5, marginTop: 5, opacity: 0.9 }}>{e.label} = {num}</div>
                 )}
-                {e.desc && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>{e.desc}</div>}
+                {e.desc && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>{e.desc}</div>}
                 {vias.length > 0 && (
                   <div style={{ marginTop: 5, display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {vias.map(m => (
-                      <span key={m.col} title={m.soul} style={{ color: (m.col === "atbash" || m.col === "albam") ? C.goldBright : C.goldDim, fontFamily: F.body, fontSize: 11, border: `1px solid ${C.border}`, borderRadius: 999, padding: "1px 8px" }}>
+                      <span key={m.col} title={m.soul} style={{ color: (m.col === "atbash" || m.col === "albam") ? P.accentText : P.accentDim, fontFamily: F.body, fontSize: 11, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 8px" }}>
                         {m.icon} {m.name}{(m.col === "atbash" || m.col === "albam") ? ` · ${m.soul}` : ""}
                       </span>
                     ))}
@@ -227,12 +233,12 @@ export default function CrossMethodPage() {
             );})}
           </div>
           {related.length > 0 && (
-            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ color: C.gold, fontFamily: F.heading, fontSize: 12.5, marginBottom: 8 }}>🌳 ישויות קרובות</div>
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${P.border}` }}>
+              <div style={{ color: P.accent, fontFamily: F.heading, fontSize: 12.5, marginBottom: 8 }}>🌳 ישויות קרובות</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {related.slice(0, 12).map(r => (
                   <Link key={r.label} to={`/number/${encodeURIComponent(r.label)}`} style={{ ...phraseChip, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                    {r.label} <span style={{ color: C.goldDim, fontSize: 10 }}>{"★".repeat(r.weight)}</span>
+                    {r.label} <span style={{ color: P.accentDim, fontSize: 10 }}>{"★".repeat(r.weight)}</span>
                   </Link>
                 ))}
               </div>
@@ -242,9 +248,9 @@ export default function CrossMethodPage() {
       )}
 
       {/* מצב */}
-      {loading && <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, padding: 30 }}>טוען…</div>}
+      {loading && <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: 30 }}>טוען…</div>}
       {!loading && allPhrases.length === 0 && (
-        <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, padding: 30 }}>
+        <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: 30 }}>
           אין ביטוי מאומת שנופל על {num} באף שיטה. נסו מספר אחר.
         </div>
       )}
@@ -253,15 +259,15 @@ export default function CrossMethodPage() {
       {!loading && groups.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 14 }}>
           {groups.map(g => (
-            <section key={g.col} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" }}>
-              <div style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 8, marginBottom: 10 }}>
+            <section key={g.col} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ borderBottom: `1px solid ${P.border}`, paddingBottom: 8, marginBottom: 10 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                  <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{g.icon} {g.name}</span>
-                  <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>{g.sub}</span>
+                  <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{g.icon} {g.name}</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{g.sub}</span>
                   <span style={{ flex: 1 }} />
-                  <span style={{ color: C.gold, fontFamily: F.mono, fontSize: 13 }}>{g.phrases.length}</span>
+                  <span style={{ color: P.accent, fontFamily: F.mono, fontSize: 13 }}>{g.phrases.length}</span>
                 </div>
-                <div style={{ color: C.gold, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>{g.soul}</div>
+                <div style={{ color: P.accent, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>{g.soul}</div>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {g.phrases.map(p => (
@@ -275,15 +281,15 @@ export default function CrossMethodPage() {
 
       {/* רצועת המסר — כל הביטויים יחד */}
       {!loading && allPhrases.length > 1 && (
-        <section style={{ marginTop: 26, background: `linear-gradient(180deg, ${C.surface2}, ${C.surface})`, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "18px 20px" }}>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>
+        <section style={{ marginTop: 26, background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "18px 20px" }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>
             המסר המצטרף · {num}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, justifyContent: "center", lineHeight: 2 }}>
             {allPhrases.map((p, i) => (
               <React.Fragment key={p}>
-                <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, textDecoration: "none" }}>{p}</Link>
-                {i < allPhrases.length - 1 && <span style={{ color: C.goldDim }}>·</span>}
+                <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: P.ink, fontFamily: F.regal, fontSize: 17, textDecoration: "none" }}>{p}</Link>
+                {i < allPhrases.length - 1 && <span style={{ color: P.accentDim }}>·</span>}
               </React.Fragment>
             ))}
           </div>
@@ -291,22 +297,17 @@ export default function CrossMethodPage() {
       )}
 
       <div style={{ textAlign: "center", marginTop: 26, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link to="/journey" style={{ textDecoration: "none", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
+        <Link to="/journey" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
         <Link to="/beit-midrash" style={{ ...chip, textDecoration: "none" }}>← לבית המדרש</Link>
       </div>
     </div>
   );
 }
 
-function Stars({ n = 3 }) {
+function Stars({ n = 3, P }) {
   return (
-    <span style={{ color: C.gold, fontSize: 13, letterSpacing: 1, whiteSpace: "nowrap" }} title={`משמעות ${n}/5`}>
-      {"★".repeat(n)}<span style={{ color: C.border }}>{"★".repeat(Math.max(0, 5 - n))}</span>
+    <span style={{ color: P.accent, fontSize: 13, letterSpacing: 1, whiteSpace: "nowrap" }} title={`משמעות ${n}/5`}>
+      {"★".repeat(n)}<span style={{ color: P.border }}>{"★".repeat(Math.max(0, 5 - n))}</span>
     </span>
   );
 }
-
-const btn = { cursor: "pointer", background: C.goldDeep, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 20px" };
-const chip = { cursor: "pointer", background: C.surface, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 999, fontFamily: F.mono, fontSize: 14, padding: "7px 16px" };
-const chipOn = { borderColor: C.gold, color: C.goldBright, background: C.surface2 };
-const phraseChip = { background: C.surface2, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 999, fontFamily: F.body, fontSize: 13.5, padding: "5px 12px", textDecoration: "none" };
