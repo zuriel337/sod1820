@@ -258,21 +258,25 @@ function CrossCard({ item }) {
   const nums = item.related_numbers || [];
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 9 }}>
-        <span aria-hidden style={{ fontSize: starSize, lineHeight: 1, filter: "drop-shadow(0 0 6px rgba(233,200,74,0.55))" }}>⭐</span>
-        <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</span>
-        {item._isNew && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, animation: "bm-blink 1.3s ease-in-out infinite" }}>🆕 חדש</span>
-        )}
-        {item.created_at && (
-          <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>📅 {crossDate(item.created_at)}</span>
-        )}
-        {author && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
-        )}
-        {item.verified && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: L.blueBg, border: `1px solid ${L.blueLine}`, color: L.blue, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ מאומת מנוע</span>
-        )}
+      <div style={{ marginBottom: 9 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+          <span aria-hidden style={{ fontSize: starSize, lineHeight: 1.2, flexShrink: 0, filter: "drop-shadow(0 0 6px rgba(233,200,74,0.55))" }}>⭐</span>
+          <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+          {item._isNew && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, animation: "bm-blink 1.3s ease-in-out infinite" }}>🆕 חדש</span>
+          )}
+          {item.created_at && (
+            <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>📅 {crossDate(item.created_at)}</span>
+          )}
+          {author && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
+          )}
+          {item.verified && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: L.blueBg, border: `1px solid ${L.blueLine}`, color: L.blue, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ מאומת מנוע</span>
+          )}
+        </div>
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
         {nums.slice(0, 5).map(n => (
