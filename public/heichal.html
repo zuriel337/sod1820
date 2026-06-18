@@ -232,6 +232,11 @@ function applyDemoOverrides(gates){
     const g = gates.find(x=>x.url==='/numbers') || gates.find(x=>x.key==='engine');
     if(g){ g.title='עץ המספרים'; g.url='/galaxy/numbers'; g.openAt=Date.now()-1000;
       g.world='גלקסיית עץ המספרים — כל כוכב הוא מספר מפתח. (מעבר חדר-לחדר)'; }
+    // שער נוסף — חדר הגלקסיות (בבנייה)
+    if(!gates.some(x=>x.key==='galaxies')){
+      gates.push({ key:'galaxies', title:'גלקסיות', world:'חדר הגלקסיות — מעבר בין עולמות. (בבנייה)',
+        color:0x8458ff, emoji:'🌌', url:'/galaxy', openAt:Date.now()-1000 });
+    }
   }catch(e){}
 }
 
