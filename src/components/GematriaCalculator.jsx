@@ -23,6 +23,17 @@ export default function GematriaCalculator({ seed, onResult }) {
   const [showLetters, setShowLetters] = useState(false);
   const letters = onlyHeb(word);
 
+  // חיפוש מורכב — שתי שורות, שיטה לכל שורה, אחד/פצל (עץ אחד → דף המספר)
+  const [m1, setM1] = useState("רגיל");
+  const [row2Open, setRow2Open] = useState(false);
+  const [q2, setQ2] = useState("");
+  const [m2, setM2] = useState("אלבם");
+  const [action, setAction] = useState("none");
+  const valOf = (key, w) => { const m = ALL.find(x => x.key === key); return m ? m.fn(String(w || "").trim()) : 0; };
+  const v1 = valOf(m1, q);
+  const v2 = valOf(m2, q2);
+  const isCross = v1 > 0 && v1 === v2;
+
   // כמה ביטויים יש במערכת לכל שיטה (לפי הערך שלה) — מהמאגר המאומת
   useEffect(() => {
     let live = true; setCounts({});
@@ -49,6 +60,22 @@ export default function GematriaCalculator({ seed, onResult }) {
   const tdS = { color: L.ink, fontFamily: F.body, fontSize: 13.5, padding: "7px 10px", borderBottom: `1px solid ${L.line}` };
   const numCell = { ...tdS, fontFamily: F.mono, fontWeight: 700, textAlign: "center", color: L.goldDeep };
 
+  const cs = {
+    open: { cursor: "pointer", background: "none", border: `1px dashed ${L.gold}`, color: L.goldDeep, borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 16px" },
+    row: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" },
+    lbl: { color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 800, minWidth: 44 },
+    term: { flex: "1 1 110px", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 12px", color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, textAlign: "center" },
+    inp: { flex: "1 1 110px", boxSizing: "border-box", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 8, padding: "7px 12px", color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, textAlign: "center", outline: "none" },
+    sel: { background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 8px", color: L.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, cursor: "pointer" },
+    eq: { color: L.goldDeep, fontFamily: F.mono, fontSize: 17, fontWeight: 800, minWidth: 52, textAlign: "center" },
+    x: { cursor: "pointer", background: "none", border: "none", color: L.sub, fontSize: 16, fontWeight: 700, lineHeight: 1 },
+    res: { textDecoration: "none", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 14px" },
+    go: { display: "inline-block", textDecoration: "none", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 20px", marginTop: 8 },
+    cross: { color: L.goldDeep, fontFamily: F.heading, fontSize: 14, fontWeight: 800, background: "#fff3d6", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "8px 12px" },
+    sum: { color: L.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 700 },
+  };
+  const actBtn = on => ({ cursor: "pointer", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "6px 16px", border: `1px solid ${on ? L.gold : L.line}`, background: on ? L.active : L.panel, color: on ? L.goldDeep : L.sub });
+
   return (
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
@@ -57,6 +84,64 @@ export default function GematriaCalculator({ seed, onResult }) {
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
+
+        {/* 🔍 חיפוש מורכב — שתי שורות, שיטה לכל שורה (אחד/פצל → דף המספר) */}
+        {!row2Open ? (
+          <div style={{ textAlign: "center", marginTop: 10 }}>
+            <button onClick={() => { setRow2Open(true); if (!q2) setQ2(word); }} style={cs.open}>➕ חיפוש מורכב — שתי שיטות</button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 12, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 13px" }}>
+            {/* שורה 1 — מה שחיפשת */}
+            <div style={cs.row}>
+              <span style={cs.lbl}>שורה 1</span>
+              <span style={cs.term}>{word || "—"}</span>
+              <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
+              <span style={cs.eq}>= {v1}</span>
+            </div>
+            {/* שורה 2 — נפתחת/נסגרת */}
+            <div style={{ ...cs.row, marginTop: 8 }}>
+              <span style={cs.lbl}>שורה 2</span>
+              <input value={q2} onChange={e => setQ2(e.target.value)} placeholder="ביטוי…" dir="rtl" style={cs.inp} />
+              <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
+              <span style={cs.eq}>= {v2}</span>
+              <button onClick={() => setRow2Open(false)} style={cs.x} title="סגור שורה">✕</button>
+            </div>
+            {/* בורר פעולה */}
+            <div style={{ display: "flex", gap: 6, marginTop: 11, flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginInlineEnd: 2 }}>פעולה:</span>
+              {[["none", "— הצג"], ["one", "🔗 אחד"], ["split", "✂️ פצל"]].map(([k, lbl]) => (
+                <button key={k} onClick={() => setAction(k)} style={actBtn(action === k)}>{lbl}</button>
+              ))}
+            </div>
+            {/* תוצאה → דף המספר */}
+            <div style={{ marginTop: 11 }}>
+              {action === "none" && (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {v1 > 0 && <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.res}>→ {v1} ({m1})</Link>}
+                  {v2 > 0 && <Link to={`/number/${v2}?from=calc&focus=dna`} style={cs.res}>→ {v2} ({m2})</Link>}
+                </div>
+              )}
+              {action === "one" && (isCross ? (
+                <div>
+                  <div style={cs.cross}>✦ הצלבה! «{word}» ({m1}) = «{q2.trim()}» ({m2}) = {v1}</div>
+                  <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.go}>פתח את ההצלבה {v1} ←</Link>
+                </div>
+              ) : (
+                <div>
+                  <div style={cs.sum}>{v1} + {v2} = <b style={{ color: L.goldDeep }}>{v1 + v2}</b></div>
+                  <Link to={`/number/${v1 + v2}?from=calc`} style={cs.go}>פתח את {v1 + v2} בדף המספר ←</Link>
+                </div>
+              ))}
+              {action === "split" && (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {v1 > 0 && <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.go}>→ {v1} ({m1})</Link>}
+                  {v2 > 0 && <Link to={`/number/${v2}?from=calc&focus=dna`} style={cs.go}>→ {v2} ({m2})</Link>}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* כל 17 השיטות — מלבנים קומפקטיים, לחיצה → דף המספר */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 13 }}>
