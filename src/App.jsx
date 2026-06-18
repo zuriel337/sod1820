@@ -91,7 +91,8 @@ export default function App() {
           {/* גלקסיות — namespace מערכתי קבוע למסך-מלא (מדור לכל סלאג) */}
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomeNewPage />} />
+          <Route path="/home-classic" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />

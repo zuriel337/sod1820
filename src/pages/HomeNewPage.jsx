@@ -29,7 +29,6 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 
 export default function HomeNewPage() {
   const P = usePalette();
-  const dark = P.mode === "dark";
   const nav = useNavigate();
   const [posts, setPosts] = useState([]);
   const [cards, setCards] = useState([]);
@@ -47,10 +46,9 @@ export default function HomeNewPage() {
     }).catch(() => {});
   }, []);
 
-  // רקע: לילה = שער הקוסמוס; יום = קלף קרם
-  const rootBg = dark
-    ? "linear-gradient(rgba(7,5,14,.86), rgba(7,5,14,.93)), url(/gate-bg.jpg) center top / cover fixed, #07050E"
-    : P.pageBg;
+  // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
+  // יום = קלף קרם (אטום, מכסה). מקור אחד: SpaceBackground.jsx → משנה את כל הדפים הכהים.
+  const rootBg = P.pageBg;
 
   return (
     <div style={{ direction: "rtl", minHeight: "100vh", background: rootBg, color: P.ink }}>
