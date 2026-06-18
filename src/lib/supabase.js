@@ -863,6 +863,41 @@ export async function getLiveFeed() {
   return items;
 }
 
+// אירועי ציר ההתגלות (לדף הבית) — nodes type=event, לפי משקל.
+export async function getAxisEvents(limit = 24) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('nodes')
+    .select('id,label,weight,hebrew_date,metadata')
+    .eq('type', 'event').eq('is_active', true)
+    .order('weight', { ascending: false }).limit(limit);
+  return data || [];
+}
+
+// 🕒 פיד חיפושים מאוחד — מקור אחד (search_log) עם דרגות לפי משתמש.
+// אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
+const SEARCH_TIERS = {
+  anon:  { days: 2,    limit: 3 },
+  user:  { days: 3,    limit: 50 },
+  sub:   { days: 30,   limit: 200 },
+  admin: { days: 3650, limit: 600 },
+};
+export async function getSearchFeed(tier = 'anon') {
+  try {
+    const t = SEARCH_TIERS[tier] || SEARCH_TIERS.anon;
+    let q = supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false });
+    if (t.days) q = q.gte('created_at', new Date(Date.now() - t.days * 86400000).toISOString());
+    const { data } = await q.limit(Math.min(800, t.limit * 4));
+    const seen = new Set(); const out = [];
+    for (const r of (data || [])) {
+      const term = (r.term || '').trim();
+      if (!term || seen.has(term)) continue;
+      seen.add(term); out.push({ term, value: r.value, at: r.created_at });
+      if (out.length >= t.limit) break;
+    }
+    return out;
+  } catch { return []; }
+}
+
 // 🕒 חיפושים אחרונים — מה *כל* הגולשים חוקרים עכשיו (terms ייחודיים אחרונים).
 export async function getRecentSearches(limit = 6) {
   try {

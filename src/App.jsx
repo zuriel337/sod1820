@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import HomeNewPage from "./pages/HomeNewPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -83,7 +84,8 @@ export default function App() {
           <Route path="/sulamot11" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomEnter /></React.Suspense>} />
           <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
           <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomeNewPage />} />
+          <Route path="/home-classic" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
