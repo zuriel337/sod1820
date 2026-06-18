@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { applySeo } from "../lib/seo.js";
 import { getTopicCardBySlug, getGalleryImagesByIds, getTopicCards } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ===== חדר הגלקסיות (/galaxy) — ניסיון: חדר 2D עשיר עם תמונות וטקסט קריא =====
 // מעבר ימינה/שמאלה בין "תחנות" (פתיח + תמונה לכל אחת), מספרים לחיצים → /number,
@@ -27,6 +28,7 @@ function NumChip({ n, onPick }) {
 
 export default function GalaxyRoom() {
   const nav = useNavigate();
+  const { isAdmin, loading: authLoading } = useAuth();
   const [topic, setTopic] = useState(null);
   const [images, setImages] = useState([]);
   const [doors, setDoors] = useState([]);
@@ -71,6 +73,21 @@ export default function GalaxyRoom() {
   const onTS = (e) => { touch.current = e.touches[0].clientX; };
   const onTE = (e) => { const dx = e.changedTouches[0].clientX - touch.current; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); };
 
+  // ── חדר אדמין בלבד · בבנייה מתקדמת ──
+  const Full = ({ children }) => (
+    <div style={{ position: "fixed", inset: 0, zIndex: 50, background: ROOM_BG, backgroundImage: "url(/cosmos-bg.svg)", backgroundSize: "cover", backgroundPosition: "center center", direction: "rtl", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16, textAlign: "center", padding: 24 }}>{children}</div>
+  );
+  if (authLoading) return <Full><div style={{ color: SUB, fontFamily: "'Heebo',sans-serif" }}>טוען…</div></Full>;
+  if (!isAdmin) return (
+    <Full>
+      <div style={{ fontSize: 50 }}>🔒</div>
+      <div style={{ color: GOLD, fontFamily: "'Cinzel','Heebo',sans-serif", fontSize: "clamp(22px,5vw,38px)", fontWeight: 800, textShadow: "0 0 26px #000" }}>חדר הגלקסיות</div>
+      <div style={{ color: INK, fontFamily: "'Heebo',sans-serif", fontSize: 17, fontWeight: 700 }}>🚧 בבנייה מתקדמת</div>
+      <div style={{ color: SUB, fontFamily: "'Heebo',sans-serif", fontSize: 14, maxWidth: 430, lineHeight: 1.75 }}>החדר פתוח כרגע לניהול בלבד. בקרוב ייפתח לכולם.</div>
+      <button onClick={() => nav("/היכל")} style={{ marginTop: 8, cursor: "pointer", background: "rgba(8,5,2,.72)", color: GOLD, border: "1px solid rgba(212,175,55,.42)", borderRadius: 999, padding: "10px 24px", fontFamily: "'Heebo',sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(4px)" }}>← חזרה להיכל השערים</button>
+    </Full>
+  );
+
   return (
     <div onTouchStart={onTS} onTouchEnd={onTE} style={{
       position: "fixed", inset: 0, zIndex: 50, background: ROOM_BG,
@@ -91,7 +108,7 @@ export default function GalaxyRoom() {
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", flexShrink: 0 }}>
         <button onClick={() => nav("/היכל")} className="gr-arrow" style={{ width: "auto", height: "auto", borderRadius: 999, padding: "8px 16px", fontSize: 14, fontFamily: "'Heebo',sans-serif", fontWeight: 700 }}>← היכל</button>
         <div style={{ flex: 1, textAlign: "center" }}>
-          <div style={{ color: GOLD_DIM, fontFamily: "'Heebo',sans-serif", fontSize: 11, letterSpacing: 3 }}>🌌 חדר הגלקסיות · ניסיון</div>
+          <div style={{ color: GOLD_DIM, fontFamily: "'Heebo',sans-serif", fontSize: 11, letterSpacing: 3 }}>🌌 חדר הגלקסיות · 🚧 בבנייה מתקדמת · אדמין</div>
           <div style={{ color: GOLD, fontFamily: "'Cinzel','Heebo',sans-serif", fontSize: "clamp(18px,3.4vw,28px)", fontWeight: 800, textShadow: "0 0 24px #000" }}>
             {topic ? txt(topic.title) : "טוען…"}
           </div>
