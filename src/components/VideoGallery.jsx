@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 
 // ===== גלריית הסרטים — דף הבית =====
-// מסגרת זהה לחידושי AI (אותו רוחב + מסגרת). 7 ריבועים סך הכל:
-// 2 ריבועי "בקרוב" ריקים בהתחלה + 5 סרטונים אמיתיים. לחיצה פותחת נגן.
-// בהמשך תיטען אוטומטית מכל הפוסטים עם וידאו.
+// מסגרת זהה לחידושי AI. שורה אחת: סרטון מובלט ראשון + השאר (גלילה אופקית).
+// מגיב למתג התמה (usePalette) — בהיר/כהה.
 
 const VIOLET = "#8458ff";
 
@@ -22,12 +22,13 @@ const VIDEOS = [
 ];
 
 function VideoCard({ v, onPlay, featured }) {
+  const P = usePalette();
   return (
     <div className={`vg-item${featured ? " vg-feat" : ""}`}>
       <button onClick={() => onPlay(v)} style={{
         position: "relative", display: "block", width: "100%", aspectRatio: "16/9",
         borderRadius: 12, overflow: "hidden", cursor: "pointer", padding: 0,
-        border: `1px solid ${featured ? VIOLET : C.border}`, background: "#000",
+        border: `1px solid ${featured ? VIOLET : P.border}`, background: "#000",
         boxShadow: featured ? `0 0 24px ${VIOLET}66` : "none",
       }} className="vg-card">
         <img src={`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
@@ -42,7 +43,7 @@ function VideoCard({ v, onPlay, featured }) {
           <span style={{ color: "#fff", fontSize: 20, marginInlineStart: 3 }}>▶</span>
         </div>
       </button>
-      <div style={{ marginTop: 9, color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, lineHeight: 1.55, direction: "rtl" }}>
+      <div style={{ marginTop: 9, color: P.accentText, fontFamily: F.royal, fontSize: 14, fontWeight: 700, lineHeight: 1.55, direction: "rtl" }}>
         {stripHtml(v.title)}
       </div>
     </div>
@@ -51,15 +52,16 @@ function VideoCard({ v, onPlay, featured }) {
 
 // ריבוע "בקרוב" ריק
 function ComingCard() {
+  const P = usePalette();
   return (
     <div>
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
         width: "100%", aspectRatio: "16/9", borderRadius: 12,
-        border: `1px dashed ${C.borderGold}`, background: "rgba(8,5,2,0.4)",
+        border: `1px dashed ${P.borderStrong}`, background: P.cardSoft,
       }}>
         <span style={{ fontSize: 26 }}>🚧</span>
-        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 2 }}>בקרוב</span>
+        <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 2 }}>בקרוב</span>
       </div>
       <div style={{ marginTop: 9, height: 1 }} aria-hidden />
     </div>
@@ -67,6 +69,7 @@ function ComingCard() {
 }
 
 export default function VideoGallery() {
+  const P = usePalette();
   const [playing, setPlaying] = useState(null);
 
   return (
@@ -75,24 +78,24 @@ export default function VideoGallery() {
         .vg-card:hover .vg-play { transform: translate(-50%,-50%) scale(1.12); }
         .vg-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
         .vg-row::-webkit-scrollbar { height: 8px; }
-        .vg-row::-webkit-scrollbar-thumb { background: ${C.borderGold}; border-radius: 999px; }
+        .vg-row::-webkit-scrollbar-thumb { background: ${P.borderStrong}; border-radius: 999px; }
         .vg-row > .vg-item { flex: 0 0 240px; scroll-snap-align: start; }
         .vg-row > .vg-item.vg-feat { flex: 0 0 330px; }
         @media (max-width: 520px) { .vg-row > .vg-item { flex: 0 0 80%; } .vg-row > .vg-item.vg-feat { flex: 0 0 88%; } }
       `}</style>
 
       <div style={{
-        background: "linear-gradient(135deg, rgba(132,88,255,0.06), rgba(8,5,2,0.4))",
-        border: `1px solid ${C.borderGold}`, borderRadius: 18, padding: "26px 22px",
+        background: P.cardGrad,
+        border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "26px 22px",
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
-          <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
+          <h2 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
             🎬 גלריית הסרטים
           </h2>
           <span className="sod-soon">🚧 בבנייה</span>
           <span style={{ flex: 1 }} />
-          <Link to="/post" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+          <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
             לכל הסרטים והפוסטים →
           </Link>
         </div>
@@ -112,16 +115,16 @@ export default function VideoGallery() {
         }}>
           <div onClick={e => e.stopPropagation()} style={{ width: "min(960px, 96vw)", direction: "rtl" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, gap: 12 }}>
-              <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(playing.title)}</div>
-              <button onClick={() => setPlaying(null)} style={{ background: "none", border: "none", color: C.goldDim, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+              <div style={{ color: "#f6e27a", fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(playing.title)}</div>
+              <button onClick={() => setPlaying(null)} style={{ background: "none", border: "none", color: "#cfc9d6", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
             </div>
-            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.borderGold}`, boxShadow: `0 0 50px ${VIOLET}44` }}>
+            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44` }}>
               <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
             </div>
             <div style={{ textAlign: "center", marginTop: 12 }}>
-              <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+              <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
                 לפוסט המלא של הסרטון →
               </Link>
             </div>

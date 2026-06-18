@@ -19,6 +19,7 @@ import AdminJoinMonitor from "../AdminJoinMonitor.jsx";
 const LIGHT_ROUTES = [
   /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
+  /^\/post$/,
 ];
 
 export default function Layout() {
