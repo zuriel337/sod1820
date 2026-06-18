@@ -2804,6 +2804,44 @@ const POST_CONTENT_CSS = `
   }
 `;
 
+// תוספת-תמה לפוסטים נקיים (theme='auto'): דורסת רק את הצבעים מעל ה-CSS הבסיסי,
+// כך שהמבנה (תמונות/גלריות/מרווחים) נשמר. הסלקטור הכפול (.themed) מנצח בלי !important,
+// ובמקומות שהבסיס משתמש ב-!important — גם כאן. עובד יום (טקסט כהה על קרם) ולילה (זהב על כהה).
+const themedPostContentCSS = (P) => `
+  .sod-post-content.themed { color: ${P.ink}; }
+  .sod-post-content.themed h1, .sod-post-content.themed h2, .sod-post-content.themed h3,
+  .sod-post-content.themed h4, .sod-post-content.themed h5 { color: ${P.accentText}; text-shadow: none; }
+  .sod-post-content.themed h1 { color: ${P.heroNum}; }
+  .sod-post-content.themed p, .sod-post-content.themed li,
+  .sod-post-content.themed td { color: ${P.ink}; }
+  .sod-post-content.themed a, .sod-post-content.themed a:visited { color: ${P.accentText} !important; }
+  .sod-post-content.themed a:hover, .sod-post-content.themed a:focus { color: ${P.accent} !important; }
+  .sod-post-content.themed strong { color: ${P.accentText}; }
+  .sod-post-content.themed em { color: ${P.accent}; }
+  .sod-post-content.themed blockquote { background: ${P.cardSoft}; }
+  .sod-post-content.themed blockquote p { color: ${P.inkSoft}; }
+  .sod-post-content.themed .wp-block-quote { border-right-color: ${P.accent}; }
+  .sod-post-content.themed code { background: ${P.cardSoft}; color: ${P.accentText}; }
+  .sod-post-content.themed pre { background: ${P.cardSoft}; }
+  .sod-post-content.themed hr { border-color: ${P.border}; }
+  .sod-post-content.themed th { background: ${P.cardSoft}; color: ${P.accentText}; }
+  .sod-post-content.themed tr:nth-child(even) td { background: ${P.cardSoft}; }
+  .sod-post-content.themed figcaption,
+  .sod-post-content.themed .gallery-caption,
+  .sod-post-content.themed .tiled-gallery-caption { color: ${P.inkSoft}; }
+  .sod-post-content.themed .elementor-tab-title a,
+  .sod-post-content.themed .elementor-accordion-title { color: ${P.accentText} !important; }
+  .sod-post-content.themed .elementor-button { background: ${P.accentBtn}; color: ${P.onAccent} !important; }
+  /* טקסט שחור/כהה צרוב בתוכן — במצב בהיר נשאר קריא (דיו), לא הופך לזהב כמו בבסיס */
+  .sod-post-content.themed [style*="color:#000"],
+  .sod-post-content.themed [style*="color: #000"],
+  .sod-post-content.themed [style*="color:black"],
+  .sod-post-content.themed [style*="color: black"],
+  .sod-post-content.themed [style*="color:#111"],
+  .sod-post-content.themed [style*="color:#222"],
+  .sod-post-content.themed [style*="color:#333"] { color: ${P.ink} !important; }
+`;
+
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
 // משתף את הקישור הקנוני (SITE_URL + slug) כדי שגם לפני העברת הדומיין הקישור יהיה תקין.
 function ShareBar({ url, title, text }) {
@@ -4819,6 +4857,13 @@ function PostPageBySlug({ onNav }) {
   const [error, setError] = useState("");
   const contentRef = useRef(null);
   const loc = useLocation();
+  const P = usePalette();
+  // פוסט נקי (theme='auto', לא וורדפרס) = תמה-מודע, מתחלף יום/לילה עם המתג.
+  // פוסט ישן (legacy-dark / source=wordpress) = נעול כהה — מכבד צבעים צרובים מ-WP.
+  const themed = post?.theme === "auto" && post?.source !== "wordpress";
+  const pc = themed
+    ? { bg: P.mode === "light" ? P.pageBg : C.bg, bgGlow: P.cardSoft, border: P.border, borderGold: P.borderStrong, faint: P.cardSoft, gold: P.accent, goldBright: P.accentText, goldDark: P.accentDim, goldDeep: P.onAccent, goldDim: P.accentDim, goldLight: P.ink, muted: P.inkSoft, royalLight: C.royalLight, surface: P.card, ink: P.ink, sub: P.inkSoft }
+    : { bg: C.bg, bgGlow: C.bgGlow, border: C.border, borderGold: C.borderGold, faint: C.faint, gold: C.gold, goldBright: C.goldBright, goldDark: C.goldDark, goldDeep: C.goldDeep, goldDim: C.goldDim, goldLight: C.goldLight, muted: C.muted, royalLight: C.royalLight, surface: C.surface, ink: "#ede4d3", sub: "#d4ccbf" };
 
   // ── עריכת פוסט ידנית (מנהל מחובר בלבד) ──
   const { isAdmin, user } = useAuth();
@@ -4970,9 +5015,8 @@ function PostPageBySlug({ onNav }) {
   }, [user, post?.slug]);  // eslint-disable-line
 
   return (
-    // פוסט ישן = נעול כהה תמיד (legacy-dark) — מכבד את הצבעים הצרובים בתוכן ה-WP,
-    // אי עצמאי שלא מושפע ממתג יום/לילה הגלובלי.
-    <div data-theme="dark" style={{ direction: "rtl", background: C.bg, minHeight: "100vh", color: "#ede4d3" }}>
+    // legacy-dark = נעול כהה (מכבד צבעים צרובים מ-WP). themed = מתחלף עם המתג.
+    <div data-theme={themed ? P.mode : "dark"} style={{ direction: "rtl", background: pc.bg, minHeight: "100vh", color: pc.ink }}>
       {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
         <PrayerSharePopup
           url={`${SITE_URL}/${post.slug || slug}`}
@@ -4988,14 +5032,14 @@ function PostPageBySlug({ onNav }) {
         />
       )}
       {image && !loading && (
-        <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: C.goldDeep }}>
+        <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
           <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.5) sepia(0.3)", display: "block" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${C.bg} 100%)` }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />
         </div>
       )}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
-          style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
+          style={{ background: "none", border: "none", color: pc.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
           ← חזרה לפוסטים
         </button>
 
@@ -5004,7 +5048,7 @@ function PostPageBySlug({ onNav }) {
           <div style={{ marginBottom: 28 }}>
             {!editing ? (
               <button onClick={startEdit} style={{
-                background: C.bgGlow, border: `1px solid ${C.gold}`, color: C.goldLight,
+                background: pc.bgGlow, border: `1px solid ${pc.gold}`, color: pc.goldLight,
                 padding: "9px 18px", borderRadius: 4, cursor: "pointer",
                 fontFamily: F.heading, fontSize: 12, letterSpacing: 2,
               }}>
@@ -5023,7 +5067,7 @@ function PostPageBySlug({ onNav }) {
           </div>
         )}
 
-        {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: C.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
+        {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: pc.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: pc.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
         {post && !loading && (
           <>
@@ -5032,15 +5076,15 @@ function PostPageBySlug({ onNav }) {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14, justifyContent: "center" }}>
                   {cats.map(name => (
                     <span key={name} className="sod-inflate" onClick={() => navigate('/category/' + toSlug(name))} style={{
-                      background: C.goldDark, border: `1px solid ${C.borderGold}`,
-                      color: C.goldBright, fontSize: 12, padding: "4px 11px",
+                      background: pc.goldDark, border: `1px solid ${pc.borderGold}`,
+                      color: pc.goldBright, fontSize: 12, padding: "4px 11px",
                       fontFamily: F.heading, letterSpacing: 1,
                       textTransform: "uppercase", borderRadius: 1,
                     }}>{name}</span>
                   ))}
                 </div>
               )}
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${C.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
               {(() => {
                 const by = resolveAuthor(author);
                 // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
@@ -5048,15 +5092,15 @@ function PostPageBySlug({ onNav }) {
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${pc.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
                       <img src={by.avatar} alt={by.name} width={38} height={38}
-                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${C.borderGold}`, flex: "0 0 auto", background: C.bg }} />
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }} />
                       <div style={{ textAlign: "right" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
+                          <span style={{ color: pc.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
                           {isVerified && <VerifiedBadge variant="ai" size={13} />}
                         </div>
-                        <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
+                        <div style={{ color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
                           {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
                         </div>
                       </div>
@@ -5065,9 +5109,9 @@ function PostPageBySlug({ onNav }) {
                 );
               })()}
               {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה + תאריך עדכון */}
-              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: C.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
                 <span title="תאריך יצירת הפוסט">📅 נוצר: {date}</span>
-                {modified && <span style={{ color: C.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
+                {modified && <span style={{ color: pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
               </div>
               <RoyalDivider width={160} />
             </div>
@@ -5098,13 +5142,14 @@ function PostPageBySlug({ onNav }) {
               );
             })()}
             <style>{POST_CONTENT_CSS}</style>
-            <div className="sod-post-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
+            {themed && <style>{themedPostContentCSS(P)}</style>}
+            <div className={themed ? "sod-post-content themed" : "sod-post-content"} ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
                   <span key={name} className="sod-inflate" onClick={() => navigate('/tag/' + toSlug(name))} style={{
-                    background: C.faint, border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 12, padding: "4px 11px",
+                    background: pc.faint, border: `1px solid ${pc.border}`,
+                    color: pc.muted, fontSize: 12, padding: "4px 11px",
                     fontFamily: F.heading, letterSpacing: 1,
                     textTransform: "uppercase", borderRadius: 1,
                   }}>{name}</span>
@@ -5122,12 +5167,12 @@ function PostPageBySlug({ onNav }) {
                   {isYenuka ? (
                     <div style={{
                       marginTop: 28, background: "linear-gradient(150deg, rgba(212,175,55,0.14), rgba(122,19,32,0.16))",
-                      border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
+                      border: `1px solid ${pc.borderGold}`, borderRadius: 16, padding: "26px 26px 22px", textAlign: "center",
                     }}>
-                      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
+                      <div style={{ color: pc.goldBright, fontFamily: F.regal, fontSize: "clamp(18px,3vw,23px)", fontWeight: 700, lineHeight: 1.5, marginBottom: 8 }}>
                         🌟 שתפו את תפילות הינוקא עם שני אנשים עוד היום.
                       </div>
-                      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
+                      <div style={{ color: pc.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 540, margin: "0 auto 20px" }}>
                         אולי דווקא ההודעה שלכם תהיה הניצוץ שיביא להם תקווה, חיזוק וישועה. 🙏
                       </div>
                       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -5136,7 +5181,7 @@ function PostPageBySlug({ onNav }) {
                     </div>
                   ) : (
                     <div style={{ marginTop: 24 }}>
-                      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+                      <div style={{ color: pc.goldDim, fontFamily: F.heading, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
                         שתפו את הפוסט
                       </div>
                       <ShareBar url={shareUrl} title={title} text={title} />
@@ -5159,7 +5204,7 @@ function PostPageBySlug({ onNav }) {
               <div style={{ marginTop: 64 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
                   <RoyalDivider width={48} />
-                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>
+                  <span style={{ color: pc.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>
                     תגובות ({comments.length})
                   </span>
                   <RoyalDivider width={48} />
@@ -5173,20 +5218,20 @@ function PostPageBySlug({ onNav }) {
                     return (
                       <div key={c.wp_id} style={{
                         marginRight: isReply ? 32 : 0,
-                        background: isReply ? "rgba(61,31,92,0.12)" : C.surface,
-                        border: `1px solid ${isReply ? "rgba(107,63,160,0.25)" : C.border}`,
-                        borderRight: `3px solid ${isReply ? C.royalLight : C.borderGold}`,
+                        background: isReply ? "rgba(61,31,92,0.12)" : pc.surface,
+                        border: `1px solid ${isReply ? "rgba(107,63,160,0.25)" : pc.border}`,
+                        borderRight: `3px solid ${isReply ? pc.royalLight : pc.borderGold}`,
                         borderRadius: 2, padding: "14px 18px 16px",
                       }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
-                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-                            {isReply && <span style={{ color: C.royalLight, marginLeft: 6 }}>↩</span>}
+                          <span style={{ color: pc.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                            {isReply && <span style={{ color: pc.royalLight, marginLeft: 6 }}>↩</span>}
                             {c.author_name}
                           </span>
-                          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>{cDate}</span>
+                          <span style={{ color: pc.muted, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>{cDate}</span>
                         </div>
                         <div
-                          style={{ color: "#d4ccbf", fontSize: 14, lineHeight: 1.85, fontFamily: F.body }}
+                          style={{ color: pc.sub, fontSize: 14, lineHeight: 1.85, fontFamily: F.body }}
                           dangerouslySetInnerHTML={{ __html: c.content }}
                         />
                       </div>
