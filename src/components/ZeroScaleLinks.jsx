@@ -1,20 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 
 // 🔗 זיקת האפסים — חוק DB `zero_scale_law` (צוריאל פולייס).
 // אותו שורש בסדר גודל אחר: ×10 (הוספת אפס) ו-÷10 (הסרת אפס, כשנגמר ב-0).
 // הגרעין נשמר, רק הדרגה משתנה. 216↔2160 (יראה) · 358→3580 (משיח).
-// רכיב אחד שמשרת את החוק בכל מקום שמוצג בו ערך מספרי. תמה-מודע (usePalette).
-export default function ZeroScaleLinks({ value, compact = false, showEssence = true }) {
-  const pal = usePalette();
+// רכיב אחד שמשרת את החוק בכל מקום. ברירת מחדל = פלטה גלובלית; prop `light` = override.
+export default function ZeroScaleLinks({ value, compact = false, showEssence = true, light }) {
+  const globalP = usePalette();
+  const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const n = Number(value);
   if (!Number.isFinite(n) || n < 10) return null;
   const down = (n % 10 === 0 && n >= 20) ? n / 10 : null;
   const up = n * 10;
 
-  // פלטה גלובלית — מתחלפת יום/לילה עם המתג
   const P = { gold: pal.accentText, goldDeep: pal.accentText, dim: pal.accentDim, muted: pal.inkSoft, border: pal.borderStrong, chipBg: pal.glow };
 
   const size = compact ? 13 : 15.5;

@@ -2,20 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTopicCards, getGalleryImagesByIds } from "../lib/supabase.js";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 
 // 🧬 ה-DNA המזוקק של המספר — רק התוכן המאוצר (כרטיסי התכנסות + התמונות שלהם).
-// תמה-מודע: קורא את הפלטה הגלובלית (usePalette) — מתחלף יום/לילה עם המתג.
+// תמה-מודע: ברירת מחדל = הפלטה הגלובלית (מתחלף עם המתג); prop `light` = override
+// לכפיית בהיר/כהה בהקשר שתמיד-בהיר (המחשבון הלבן) או תמיד-כהה.
 function stars(q) {
   const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
   return "★".repeat(n) + "☆".repeat(5 - n);
 }
 
-export default function NumberDNA({ value }) {
+export default function NumberDNA({ value, light }) {
   const [cards, setCards] = useState([]);
   const [imgs, setImgs] = useState([]);
   const nav = useNavigate();
-  const P = usePalette();
+  const globalP = usePalette();
+  const P = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const T = { goldDim: P.accentDim, goldBright: P.accentText, gold: P.accent, muted: P.inkSoft, border: P.border, borderGold: P.borderStrong };
   const cardBg = P.cardGrad;
 

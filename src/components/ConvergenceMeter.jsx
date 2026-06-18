@@ -3,15 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
-// תמה-מודע: קורא את הפלטה הגלובלית (usePalette) — מתחלף יום/לילה עם המתג.
-export default function ConvergenceMeter({ value }) {
+// תמה-מודע: ברירת מחדל = הפלטה הגלובלית (מתחלף עם המתג); prop `light` = override.
+export default function ConvergenceMeter({ value, light: lightOverride }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(null); // אינדקס שכבה פתוחה
   const nav = useNavigate();
-  const P = usePalette();
+  const globalP = usePalette();
+  const P = lightOverride == null ? globalP : PALETTES[lightOverride ? "light" : "dark"];
   const light = P.mode === "light";
 
   const T = { gold: P.accent, goldLight: P.ink, goldBright: P.accentText, goldDim: P.accentDim, muted: P.inkSoft, border: P.border, borderGold: P.borderStrong, surface: P.card, barBg: P.cardSoft };

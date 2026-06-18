@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getSearchFeed } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -9,9 +9,10 @@ import { useSubscribed } from "./SubscribeGate.jsx";
 
 // 🕒 חיפושים אחרונים — מקור אחד (search_log) לכל האתר, דרגות לפי משתמש.
 // אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
-// props: max (תקרת תצוגה, למצב קומפקטי) · seeAllTo (קישור ל"כל החיפושים"). תמה-מודע (usePalette).
-export default function RecentSearches({ max = 0, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
-  const pal = usePalette();
+// props: max · seeAllTo · light (override; ברירת מחדל = פלטה גלובלית, מתחלף עם המתג).
+export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
+  const globalP = usePalette();
+  const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const { user, profile } = useAuth();
   const subscribed = useSubscribed();
   const [rows, setRows] = useState([]);
