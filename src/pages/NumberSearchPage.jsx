@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getRecentSearches, getHotNumber } from "../lib/supabase.js";
 import SearchTabs from "../components/SearchTabs.jsx";
+import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 
 // ===== "הגוגל של המספרים" — דף נחיתה /number =====
 // שורה אחת ממורכזת (רגע הגוגל) → הקלדת מספר/שם → /number/:value (3 העומקים).
@@ -41,11 +42,10 @@ export default function NumberSearchPage() {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 18px 70px" }}>
       <SearchTabs />
 
-      {/* לוגו + תת-כותרת — מינימלי, רוח גוגל */}
+      {/* לוגו מונפש בסגנון גוגל בעברית + תת-כותרת */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ fontSize: "clamp(38px,8.5vw,68px)", fontWeight: 900, fontFamily: F.regal, color: P.heroNum,
-          textShadow: `0 0 36px ${P.glow}`, lineHeight: 1 }}>🔢 מנוע המספרים</div>
-        <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
+        <NumberEngineLogo size={60} />
+        <div style={{ marginTop: 14, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
           גלו קשרים נסתרים בין מספרים, שמות, פסוקים ורמזים
         </div>
       </div>
