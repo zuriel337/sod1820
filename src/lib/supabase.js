@@ -924,6 +924,17 @@ export async function getRecentSearches(limit = 6) {
   } catch { return []; }
 }
 
+// ✦ חידושי הצלבות — מהמנוע (origin=ai), החדשים ראשונים. למהבהב "כמה נוספו" ולקופסת הבית.
+export async function getRecentCrosses(limit = 12) {
+  try {
+    const { data } = await supabase.from('insights')
+      .select('id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified,created_at')
+      .eq('category', 'הצלבות').eq('is_active', true)
+      .order('created_at', { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // 🔥 מספר חם עכשיו — ה-term שנחקר הכי הרבה היום (הוכחה חברתית).
 export async function getHotNumber() {
   try {

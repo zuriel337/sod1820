@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, dayOfYear } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
+import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate } from "../lib/crossesNew.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -259,6 +260,12 @@ function CrossCard({ item }) {
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 9 }}>
         <span aria-hidden style={{ fontSize: starSize, lineHeight: 1, filter: "drop-shadow(0 0 6px rgba(233,200,74,0.55))" }}>⭐</span>
         <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</span>
+        {item._isNew && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, animation: "bm-blink 1.3s ease-in-out infinite" }}>🆕 חדש</span>
+        )}
+        {item.created_at && (
+          <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>📅 {crossDate(item.created_at)}</span>
+        )}
         {author && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
         )}
@@ -288,32 +295,29 @@ function CrossesTab() {
   const [items, setItems] = useState(null);
   useEffect(() => {
     let live = true;
-    supabase.from("insights")
-      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified")
-      .eq("category", "הצלבות").eq("is_active", true)
-      .order("convergence_score", { ascending: false }).limit(60)
-      .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
+    const cutoff = crossesCutoff();          // הסף נקבע לפני שמסמנים נראה
+    getRecentCrosses(60).then(data => {
+      if (!live) return;
+      setItems((data || []).map(it => ({ ...it, _isNew: isNewCross(it, cutoff) })));
+      markCrossesSeen();                      // נכנסו לטאב → נראה → המהבהב יתאפס
+      window.dispatchEvent(new Event("crosses-seen"));
+    }).catch(() => { if (live) setItems([]); });
     return () => { live = false; };
   }, []);
   if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!items.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי הצלבות.</div>;
-  const gi = dayOfYear() % items.length;
-  const gate = items[gi];
-  const rest = items.filter((_, i) => i !== gi);
+  const newCount = items.filter(it => it._isNew).length;
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 2px", maxWidth: 660 }}>
-        הצלבות בין שיטות חישוב — כל ערך אומת במנוע הרשמי. לחיצה על ביטוי פותחת אותו במחשבון; לחיצה על מספר פותחת את דף המספר.
-      </p>
-      {gate && (
-        <div style={{ border: `1px solid ${L.gold}`, borderRadius: 16, padding: 3, background: "linear-gradient(135deg, #fbf3da, #ffffff)", boxShadow: `0 0 18px ${L.gold}33` }}>
-          <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 1, padding: "7px 12px 3px", display: "flex", alignItems: "center", gap: 6 }}>
-            🚪 שער היום <span style={{ color: L.sub, fontWeight: 600, fontSize: 11 }}>· מתחלף מדי יום</span>
-          </div>
-          <CrossCard item={gate} />
-        </div>
-      )}
-      {rest.map(it => <CrossCard key={it.id} item={it} />)}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: 0, flex: 1, minWidth: 220 }}>
+          הצלבות בין שיטות חישוב — מהמנוע, החדשות למעלה. לחיצה על מספר פותחת את דף המספר.
+        </p>
+        {newCount > 0 && (
+          <span style={{ background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "4px 12px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🆕 {newCount} נוספו</span>
+        )}
+      </div>
+      {items.map(it => <CrossCard key={it.id} item={it} />)}
     </div>
   );
 }
@@ -1052,13 +1056,24 @@ export default function BeitMidrashPage() {
         if (!live || !data) return;
         const s = new Set();
         data.forEach(it => {
-          if (it.category === "הצלבות") s.add("crosses");
           if ((it.tags || []).includes("חידושי גולשים")) s.add("community");
         });
         setInsightUpdates(s);
       }).catch(() => {});
     return () => { live = false; };
   }, []);
+
+  // 🆕 חידושי הצלבות חדשים (פר-משתמש) — מונה מהבהב שמתאפס כשנכנסים לטאב
+  const [newCrosses, setNewCrosses] = useState(0);
+  useEffect(() => {
+    let live = true;
+    getRecentCrosses(60).then(d => { if (live) setNewCrosses(countNewCrosses(d)); }).catch(() => {});
+    const onSeen = () => setNewCrosses(0);
+    window.addEventListener("crosses-seen", onSeen);
+    return () => { live = false; window.removeEventListener("crosses-seen", onSeen); };
+  }, []);
+  // כשנכנסים לטאב ההצלבות — לאפס מיד (CrossesTab גם מסמן נראה)
+  useEffect(() => { if (tab === "crosses") setNewCrosses(0); }, [tab]);
 
   // סנכרון טאב↔URL — קישורי ?tab= עובדים גם בתוך הדף (לא רק בטעינה ראשונה)
   useEffect(() => {
@@ -1124,6 +1139,9 @@ export default function BeitMidrashPage() {
                   }}>
                     <span>{s.icon}</span>
                     <span style={{ flex: 1 }}>{s.label}</span>
+                    {s.key === "crosses" && newCrosses > 0 && (
+                      <span title={`${newCrosses} הצלבות חדשות`} style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, minWidth: 18, textAlign: "center", padding: "0 6px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }}>{newCrosses}</span>
+                    )}
                     {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
                       <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
                         <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>

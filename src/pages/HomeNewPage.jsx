@@ -7,6 +7,7 @@ import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
+import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -142,6 +143,13 @@ export default function HomeNewPage() {
         <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
         <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון — ומתי</p>
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+      </section>
+
+      {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+        <h2 className="hn-h2">🔮 הצלבות המנוע</h2>
+        <p className="hn-sub">חיבורים נדירים בין ביטויים — נמצאו ואומתו אוטומטית במנוע הגימטריה</p>
+        <CrossInsightsBox light={P.mode === "light"} max={3} />
       </section>
 
       {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}
