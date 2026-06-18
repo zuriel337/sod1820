@@ -129,6 +129,11 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// עוטף תמה ברמת מודול (יציב — מונע remount ואיבוד פוקוס בהקלדה)
+function Shell({ P, children }) {
+  return <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>{children}</div>;
+}
+
 function SectionHead({ icon, title, count }) {
   const P = usePalette();
   return (
@@ -239,15 +244,11 @@ export default function EntityPage() {
   // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
 
-  // עוטף תמה: רקע בהיר מלא (או שקוף בכהה כדי לשמור על הקוסמוס)
-  const Shell = ({ children }) => (
-    <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>{children}</div>
-  );
 
   // מספר ספרה-בודדת (1–9) → מספר יסוד; מפנים לסולמות במקום להציף תוצאות.
   if (isNumber && value < 10) {
     return (
-      <Shell>
+      <Shell P={P}>
         <div style={{ direction: "rtl", maxWidth: 620, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
           <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: P.inkSoft, cursor: "pointer", fontFamily: F.heading, fontSize: 12, marginBottom: 30 }}>← חזרה</button>
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(60px,12vw,110px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>{value}</div>
@@ -265,7 +266,7 @@ export default function EntityPage() {
   // בזמן בדיקת חתימות (מספרים) — placeholder קצר למניעת הבהוב לפני השער
   if (isNumber && value >= 10 && !sigsLoaded) {
     return (
-      <Shell>
+      <Shell P={P}>
         <div style={{ direction: "rtl", minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, opacity: 0.4 }}>{value}</div>
         </div>
@@ -278,7 +279,7 @@ export default function EntityPage() {
   }
 
   return (
-    <Shell>
+    <Shell P={P}>
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
