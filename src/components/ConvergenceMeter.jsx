@@ -5,11 +5,15 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { C, F } from "../theme.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
-// שכבות לחיצות: נפתחות לראות את הראיות (ישויות / כרטיסי נושא / עוגן).
-export default function ConvergenceMeter({ value }) {
+// תמה-מודע: prop `light` → פלטה בהירה (דף המספר); ברירת מחדל כהה (מגירה).
+export default function ConvergenceMeter({ value, light = false }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(null); // אינדקס שכבה פתוחה
   const nav = useNavigate();
+
+  const T = light
+    ? { gold: "#9a7818", goldLight: "#5e4a12", goldBright: "#7a5e12", goldDim: "#9a8a5a", muted: "#8a8270", border: "rgba(120,90,20,0.16)", borderGold: "rgba(120,90,20,0.30)", surface: "#faf6ec", barBg: "#ece4cf" }
+    : { gold: C.gold, goldLight: C.goldLight, goldBright: C.goldBright, goldDim: C.goldDim, muted: C.muted, border: C.border, borderGold: C.borderGold, surface: C.surface, barBg: "rgba(8,5,2,0.5)" };
 
   useEffect(() => {
     if (!value || value < 10) { setData(null); return; }
@@ -18,7 +22,6 @@ export default function ConvergenceMeter({ value }) {
       .then(({ data }) => {
         if (!live) return;
         setData(data);
-        // ברירת מחדל: פתוח על שכבת "התכנסות מילים" (ההצטלבויות) — שייראו מיד עם הכניסה
         const layers = data?.layers || [];
         const idx = layers.findIndex(l => l.name === "התכנסות מילים" && Array.isArray(l.evidence) && l.evidence.length);
         setOpen(idx >= 0 ? idx : null);
@@ -29,15 +32,15 @@ export default function ConvergenceMeter({ value }) {
 
   if (!data || !data.layers) return null;
   const score = data.score || 0;
-  const tier = score >= 90 ? { e: "👑", c: C.goldBright }
-             : score >= 50 ? { e: "🥈", c: "#cfd8e3" }
-             : score >= 20 ? { e: "🥉", c: "#d49a6a" }
-             :               { e: "·",  c: C.muted };
+  const tier = score >= 90 ? { e: "👑", c: T.goldBright }
+             : score >= 50 ? { e: "🥈", c: light ? "#5b7a99" : "#cfd8e3" }
+             : score >= 20 ? { e: "🥉", c: light ? "#a06a2e" : "#d49a6a" }
+             :               { e: "·",  c: T.muted };
 
   return (
-    <div className="cm" style={{ padding: "11px 13px", borderBottom: `1px solid ${C.border}` }}>
+    <div className="cm" style={{ padding: "11px 13px", borderBottom: `1px solid ${T.border}` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
-        <span className="cm-title" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase" }}>🧬 מד ההתכנסות</span>
+        <span className="cm-title" style={{ color: T.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase" }}>🧬 מד ההתכנסות</span>
         <span className="cm-score" style={{ marginInlineStart: "auto", color: tier.c, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{tier.e} {score}/100</span>
       </div>
 
@@ -51,34 +54,31 @@ export default function ConvergenceMeter({ value }) {
               <div onClick={() => clickable && setOpen(isOpen ? null : i)}
                 className="cm-row"
                 style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: F.body, fontSize: 11.5,
-                  color: l.ok ? C.goldLight : C.muted, opacity: l.ok ? 1 : 0.45,
+                  color: l.ok ? T.goldLight : T.muted, opacity: l.ok ? 1 : 0.5,
                   cursor: clickable ? "pointer" : "default" }}>
                 <span className="cm-icon" style={{ width: 16, textAlign: "center" }}>{l.icon}</span>
                 <span style={{ flex: 1 }}>{l.name}</span>
-                <span className="cm-detail" style={{ color: C.goldDim, fontSize: 10 }}>{l.detail}</span>
+                <span className="cm-detail" style={{ color: T.goldDim, fontSize: 10 }}>{l.detail}</span>
                 <span>{l.ok ? "✅" : "—"}</span>
-                {clickable && <span style={{ color: C.goldDim, fontSize: 9 }}>{isOpen ? "▴" : "▾"}</span>}
+                {clickable && <span style={{ color: T.goldDim, fontSize: 9 }}>{isOpen ? "▴" : "▾"}</span>}
               </div>
               {isOpen && (
                 <div style={{ margin: "4px 0 6px 23px", display: "flex", flexWrap: "wrap", gap: 5 }}>
-                  {/* כרטיסי נושא — לחיצים */}
                   {l.name === "כרטיס התכנסות" && ev?.map(c => (
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
-                      className="cm-chip" style={chip(true)}>🧩 {c.title} →</button>
+                      className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>
                   ))}
-                  {/* ישויות — לחיצות לדף המספר */}
                   {(l.name === "התכנסות מילים" || l.name === "אקטואליה (חדשות)") && ev?.map((e, k) => {
                     const lbl = typeof e === "string" ? e : e.label;
                     return (
-                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false)}>
+                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false, T)}>
                         {lbl}{e.method ? ` · ${e.method}` : ""}{e.world ? ` · ${e.world}` : ""}
                       </button>
                     );
                   })}
-                  {/* עוגן */}
                   {l.name === "עוגן קדוש" && data.anchor && (
                     <button onClick={() => openNumberDrawer(value)} title={`פתח את מגירת המספר ${value}`}
-                      className="cm-chip" style={{ ...chip(true), cursor: "pointer" }}>✨ {data.anchor} → {value}</button>
+                      className="cm-chip" style={{ ...chip(true, T), cursor: "pointer" }}>✨ {data.anchor} → {value}</button>
                   )}
                 </div>
               )}
@@ -87,18 +87,18 @@ export default function ConvergenceMeter({ value }) {
         })}
       </div>
 
-      <div style={{ height: 7, background: "rgba(8,5,2,0.5)", borderRadius: 999, overflow: "hidden", marginTop: 10 }}>
-        <div style={{ width: `${score}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${C.gold}, ${tier.c})`, transition: "width .4s ease" }} />
+      <div style={{ height: 7, background: T.barBg, borderRadius: 999, overflow: "hidden", marginTop: 10 }}>
+        <div style={{ width: `${score}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${T.gold}, ${tier.c})`, transition: "width .4s ease" }} />
       </div>
     </div>
   );
 }
 
-const chip = gold => ({
+const chip = (gold, T) => ({
   cursor: "pointer", textAlign: "right",
-  background: gold ? "rgba(212,175,55,0.12)" : C.surface,
-  border: `1px solid ${gold ? C.borderGold : C.border}`,
-  borderRadius: 999, padding: "3px 10px", color: gold ? C.goldBright : C.goldLight,
+  background: gold ? "rgba(201,162,39,0.14)" : T.surface,
+  border: `1px solid ${gold ? T.borderGold : T.border}`,
+  borderRadius: 999, padding: "3px 10px", color: gold ? T.goldBright : T.goldLight,
   fontFamily: F.body, fontSize: 11, fontWeight: gold ? 700 : 400, maxWidth: "100%",
   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
 });
