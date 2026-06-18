@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { getWallRecent } from "../lib/supabase.js";
+import { timeAgoHe } from "../lib/format.js";
 
 // 🔎 תיבת "מה גולשים חיפשו" — מציגה מתוך קיר הגימטריה (gematria_wall) את
 // השמות/המילים/הביטויים שאנשים בדקו במחשבון. רשימה נפרדת מהמאגר המאומת.
@@ -24,6 +25,7 @@ export default function VisitorSearchesBox({ light = false, limit = 24, onPick, 
     <>
       <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{r.phrase}</span>
       <span style={{ background: P.badge, color: P.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px", minWidth: 26, textAlign: "center" }}>{r.ragil}</span>
+      {r.last_at && <span style={{ color: P.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.last_at)}</span>}
     </>
   );
   const chipStyle = { display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",

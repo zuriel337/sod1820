@@ -6,6 +6,7 @@ import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds } from "../l
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VideoGallery from "../components/VideoGallery.jsx";
+import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -57,8 +58,10 @@ export default function HomeNewPage() {
         .hn-cta { display:inline-block; text-decoration:none; background:${P.accentBtn}; color:${P.onAccent};
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px ${P.glow}; }
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
-        .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px; border:1px solid ${P.borderStrong};
-          box-shadow:0 24px 70px rgba(0,0,0,.45), 0 0 60px ${P.glow}; }
+        .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px;
+          -webkit-mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
+          mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
+          filter: drop-shadow(0 16px 46px rgba(0,0,0,.40)); }
         .hn-cta-big { font-size:21px; padding:16px 52px; }
         .hn-enter { position:absolute; left:50%; bottom:-26px; transform:translateX(-50%); white-space:nowrap;
           box-shadow:0 10px 34px ${P.glow}; animation:hn-pulse 2.4s ease-in-out infinite; }
@@ -108,6 +111,13 @@ export default function HomeNewPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* ===== שולחן עבודה — מה גולשים מחפשים עכשיו ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+        <h2 className="hn-h2">🔎 על שולחן העבודה</h2>
+        <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון — ומתי</p>
+        <VisitorSearchesBox light={P.mode === "light"} limit={20} />
       </section>
 
       {/* ===== עדכונים אחרונים (בחזית) ===== */}
