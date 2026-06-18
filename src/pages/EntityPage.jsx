@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { getEntityBundle, supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
+import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -12,7 +12,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages } from "../lib/numberMessage.js";
-import { resolve, getScore } from "../lib/engine.js";
+import { resolve, getScore, getBundle } from "../lib/engine.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 
@@ -215,7 +215,7 @@ export default function EntityPage() {
   useEffect(() => {
     let alive = true;
     setLoading(true); setData(null); setRoots(false);
-    getEntityBundle({ term, value, isNumber })
+    getBundle({ term, value, isNumber })
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;

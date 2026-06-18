@@ -1,21 +1,33 @@
-// ===== 🌳 הליבה הקנונית של מנוע המספרים — אבן הראש =====
-// כל שער (כללי / שם / תמונה / השוואה / אנגלית עתידי) עובר דרך כאן בלבד.
-// resolve(קלט) → ערך · getTree(קלט) → כל העץ. אין מקור אמת מקביל.
+// ===== 🌳 CORE — אבן הראש היחידה של מנוע המספרים =====
+// חוק: זהו ה-ENTRY POINT היחיד. כל שער/עדשה קורא מכאן בלבד — לא מהפונקציות הפנימיות.
+//
+//   CORE (כאן):   resolve · getScore · getBundle · coreEngine/getTree
+//   PLUGINS (פנימיים, לא entry points): calcGem · getEntityBundle · convergence_meter · buildMessages
+//
+// הוספת שפה/מקור חדש (אנגלית / חילוץ-מתמונה / השוואה) = registerResolver(adapter).
+// הליבה לא משתנה אף פעם. value-as-trunk: הערך הוא הגזע, הכל מתחבר דרכו.
 
 import { calcGem } from "../theme.js";
 import { supabase, getEntityBundle } from "./supabase.js";
 import { buildMessages } from "./numberMessage.js";
 
-// 🔑 resolve — דלת אחת: כל קלט → { term, value, isNumber }.
-// כאן יתווספו בעתיד מתאמי שפה (אנגלית) / חילוץ-מתמונה — בלי לגעת בשום עדשה.
+// — מתאמי קלט (plugins): שפה/מקור. הליבה לא משתנה כשמוסיפים מתאם —
+// adapter(term) → { value, term?, isNumber?, lang? } | null   (null = "לא שלי, נסה הבא")
+const RESOLVERS = [];
+export function registerResolver(fn) { if (typeof fn === "function") RESOLVERS.push(fn); }
+
+// 🔑 resolve — דלת אחת: כל קלט → { term, value, isNumber, lang }
 export function resolve(input) {
   const term = String(input ?? "").trim();
+  for (const a of RESOLVERS) {
+    try { const r = a(term); if (r && r.value != null) return { lang: "he", isNumber: false, term, ...r }; }
+    catch { /* מתאם נכשל → נסה הבא */ }
+  }
   const isNumber = /^\d+$/.test(term);
-  const value = isNumber ? Number(term) : calcGem(term);
-  return { term, value, isNumber };
+  return { term, value: isNumber ? Number(term) : calcGem(term), isNumber, lang: "he" };
 }
 
-// ⭐ getScore — עוצמת ההתכנסות (0-100) של ערך. מקור יחיד למד/כוכבים/דופק.
+// ⭐ getScore — עוצמת התכנסות 0-100 (plugin: convergence_meter). מקור יחיד למד/כוכבים/דופק.
 export async function getScore(value) {
   if (!value || value < 10) return null;
   try {
@@ -24,16 +36,20 @@ export async function getScore(value) {
   } catch { return null; }
 }
 
-// 🌳 getTree — מקור אמת אחד לכל עדשה: ערך → כל העץ (חיבורים + מסרים + עוצמה).
+// 📦 getBundle — כל הישויות המחוברות לערך (plugin: getEntityBundle). מקבל קלט גולמי או resolved.
+export function getBundle(input) {
+  const r = (input && typeof input === "object" && "value" in input) ? input : resolve(input);
+  return getEntityBundle(r);
+}
+
+// 🌳 coreEngine / getTree — האורקסטרטור היחיד: קלט אחד → כל העץ (חיבורים + מסרים + עוצמה).
 export async function getTree(input) {
   const r = resolve(input);
-  const [bundle, score] = await Promise.all([
-    getEntityBundle(r).catch(() => null),
-    getScore(r.value),
-  ]);
+  const [bundle, score] = await Promise.all([ getBundle(r).catch(() => null), getScore(r.value) ]);
   const messages = buildMessages({ ...r, phrases: bundle?.phrases || [] });
   return { ...r, bundle, score, messages };
 }
+export const coreEngine = getTree; // שם נרדף קנוני
 
-// משטח-יבוא אחד ל"מנוע": כל שער מייבא מכאן.
-export { getEntityBundle, buildMessages, calcGem };
+// משטח-יבוא אחד: כל שער מייבא מכאן בלבד.
+export { buildMessages, calcGem };
