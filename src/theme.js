@@ -32,6 +32,15 @@ export const F = {
   mono:    "'Courier New', monospace",
 };
 
+// ===== טוקני טיפוגרפיה — "רצפת קריאוּת" מערכתית (העץ הראשון) =====
+// מינימום גודל+משקל לכל תפקיד טקסט, שלא יהיה דק/קטן מדי. להחיל בכל האתר בהדרגה.
+export const T = {
+  eyebrow: { fontSize: 13, fontWeight: 700, letterSpacing: 2 },   // תוויות-על (היה 10-12 דק)
+  micro:   { fontSize: 13.5, fontWeight: 600 },                    // טקסט משני קטן
+  body:    { fontSize: 15.5, fontWeight: 500, lineHeight: 1.7 },   // גוף רגיל
+  lead:    { fontSize: 18, fontWeight: 500, lineHeight: 1.65 },    // משפט מוביל
+};
+
 export const LOGO_URL = "/logo.png";
 
 // ===== GEMATRIA =====

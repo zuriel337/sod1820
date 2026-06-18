@@ -157,8 +157,8 @@ function NumberPulse({ value, onExplore }) {
         filter: `drop-shadow(0 0 ${5 + score / 6}px ${P.glow})`, animation: "np-pulse 2.6s ease-in-out infinite" }}>
         {[0, 1, 2, 3, 4].map(i => <span key={i} style={{ opacity: i < stars ? 1 : 0.22 }}>★</span>)}
       </div>
-      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.3 }}>
-        עוצמה: {label} · {score}/100 ↓
+      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.3 }}>
+        {label} · {score}/100 ↓
       </span>
     </button>
   );
@@ -323,7 +323,7 @@ export default function EntityPage() {
 
         {/* ── הירו: מספר + משפט חם + שיתוף ── */}
         <div style={{ textAlign: "center", marginBottom: 26 }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, marginBottom: 6 }}>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>
             {isNumber ? "דף המספר" : "דף הביטוי"}
           </div>
           {!isNumber && (
@@ -334,17 +334,17 @@ export default function EntityPage() {
           </div>
           <NumberPulse value={value} onExplore={() => { if (!deep) toggleDna(); setTimeout(() => scrollTo("dna-layer"), 80); }} />
           {msgs[0] && (
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
+            <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
             </p>
           )}
           {msgs[1] && msgs[1].layer !== "F" && (
-            <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
+            <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
               ✦ הידעת? {msgs[1].text}
             </p>
           )}
           {!loading && (d.postsCount || d.galleriesCount || d.eventsCount) > 0 && (
-            <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, margin: "8px auto 0", lineHeight: 1.6 }}>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, fontWeight: 500, margin: "8px auto 0", lineHeight: 1.6 }}>
               🌳 מחובר ל־{[d.postsCount && `${d.postsCount} פוסטים`, d.galleriesCount && `${d.galleriesCount} גלריות`, d.eventsCount && `${d.eventsCount} צירי התכנסות`].filter(Boolean).join(" · ")}
             </p>
           )}
