@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
+import SearchTabs from "../components/SearchTabs.jsx";
 
 // ===== 🔥 השער הויראלי — /name "מה השם שלך מסתיר?" =====
 // שיתוף-קודם, רגשי, פשוט. מוביל לאותו עץ (/number/:value) — מנוע אחד, שני שערים.
@@ -30,6 +31,8 @@ export default function NamePage() {
         border: `1px solid ${P.borderStrong}`, background: P.cardSoft, color: P.accentText, fontSize: 17 }}>
         {mode === "light" ? "🌙" : "☀️"}
       </button>
+
+      <SearchTabs />
 
       {!revealed ? (
         <div style={{ textAlign: "center" }}>
