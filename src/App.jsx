@@ -45,7 +45,6 @@ import AdminPage from "./pages/AdminPage.jsx";
 import TopicPage from "./pages/TopicPage.jsx";
 import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
 import LabIndex from "./pages/LabIndex.jsx";
-import CalculatorPage from "./pages/CalculatorPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -62,6 +61,15 @@ function RouteEffects() {
     return () => clearTimeout(t);
   }, [pathname]);
   return null;
+}
+
+// מחשבון יחיד — /גימטריה ו-/gematria מובילים למחשבון הקנוני בבית המדרש (עץ אחד, בלי כפילות).
+// משמרים seed: /gematria?w=דוד → /beit-midrash?tab=calc&w=דוד
+function GematriaToBeitMidrash() {
+  const { search } = useLocation();
+  const p = new URLSearchParams(search);
+  const w = p.get("w") || p.get("calc");
+  return <Navigate to={`/beit-midrash?tab=calc${w ? `&w=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
 export default function App() {
@@ -117,8 +125,8 @@ export default function App() {
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
-          <Route path="/gematria" element={<CalculatorPage />} />
-          <Route path="/גימטריה" element={<CalculatorPage />} />
+          <Route path="/gematria" element={<GematriaToBeitMidrash />} />
+          <Route path="/גימטריה" element={<GematriaToBeitMidrash />} />
           <Route path="/cross" element={<CrossMethodPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />

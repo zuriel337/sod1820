@@ -1,9 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { resolve, buildMessages } from "../lib/engine.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
+import { findNameCross } from "../lib/nameCross.js";
+import { shareCross } from "../lib/crossCard.js";
 import SearchTabs from "../components/SearchTabs.jsx";
 
 // ===== 🔥 השער הויראלי — /name "מה השם שלך מסתיר?" =====
@@ -16,10 +18,33 @@ export default function NamePage() {
   const [busy, setBusy] = useState(false);
   const inputRef = useRef(null);
 
+  const [cross, setCross] = useState(null);   // ההצלבה האישית (מילה שהשם מתכנס איתה)
+  const [crossBusy, setCrossBusy] = useState(false);
   const reveal = e => { e.preventDefault(); const n = name.trim(); if (n) setRevealed(n); };
   const { value } = revealed ? resolve(revealed) : { value: 0 };
   const msgs = revealed ? buildMessages({ term: revealed, value, isNumber: false, phrases: [] }) : [];
   const share = async () => { if (busy) return; setBusy(true); try { await shareNumberSmart(value, []); } finally { setBusy(false); } };
+
+  // מציאת ההצלבה האישית כשמתגלה שם חדש
+  useEffect(() => {
+    if (!revealed) { setCross(null); return; }
+    let live = true; setCross(null);
+    findNameCross(revealed).then(c => { if (live) setCross(c); }).catch(() => {});
+    return () => { live = false; };
+  }, [revealed]);
+
+  // כרטיס הצלבה אישי לשיתוף (תמונה ויראלית)
+  const crossItem = cross && revealed ? {
+    id: "name-" + revealed,
+    title: `${revealed} = ${cross.partner}`,
+    method_tags: cross.methods.map(m => m.label),
+    related_numbers: [cross.value],
+    gematria_pairs: { members: [
+      { phrase: revealed, ragil: cross.value, mistater: cross.mistater },
+      { phrase: cross.partner, ragil: cross.value, mistater: cross.mistater },
+    ] },
+  } : null;
+  const shareTheCross = async () => { if (crossBusy || !crossItem) return; setCrossBusy(true); try { await shareCross(crossItem); } finally { setCrossBusy(false); } };
 
   return (
     <div style={{ background: P.pageBg, minHeight: "92vh", direction: "rtl", position: "relative", zIndex: 1,
@@ -53,6 +78,27 @@ export default function NamePage() {
           </div>
           {msgs[0] && <p style={{ animation: "name-rise .8s ease both", color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.6vw,20px)", fontWeight: 600, lineHeight: 1.65, margin: "14px auto 0" }}>{msgs[0].text}</p>}
           {msgs[1] && msgs[1].layer !== "F" && <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, margin: "6px auto 0" }}>✦ {msgs[1].text}</p>}
+
+          {/* ✦ ההצלבה הנסתרת של השם */}
+          {crossItem && (
+            <div style={{ animation: "name-rise .9s ease both", marginTop: 22, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px", boxShadow: `0 4px 22px ${P.glow}` }}>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 1, marginBottom: 8 }}>✦ ההצלבה הנסתרת של השם שלך</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(20px,4vw,28px)", fontWeight: 800 }}>{revealed}</span>
+                <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>=</span>
+                <span style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(20px,4vw,28px)", fontWeight: 800 }}>{cross.partner}</span>
+              </div>
+              <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 10 }}>
+                {cross.methods.slice(0, 6).map(m => (
+                  <span key={m.col} style={{ fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 10px" }}>{m.label} = {m.value}</span>
+                ))}
+              </div>
+              <button onClick={shareTheCross} disabled={crossBusy} style={{ marginTop: 14, cursor: crossBusy ? "wait" : "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px" }}>
+                {crossBusy ? "מכין…" : "✦ שתפו את ההצלבה שלכם"}
+              </button>
+            </div>
+          )}
+
           <div style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={share} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "#25D366", color: "#06310f",
               border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "14px 30px" }}>
