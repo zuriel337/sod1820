@@ -8,7 +8,7 @@ import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
-import { METHODS } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { usePalette } from "../lib/palette.js";
@@ -16,6 +16,7 @@ import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 
 const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
 const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
+const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
 
 // מתג תמה — שמש/ירח (נשמר ב-localStorage, משפיע על דפי התוכן המעוצבים)
 function ThemeToggle() {
@@ -158,7 +159,11 @@ export default function EntityPage() {
   const [harvest, setHarvest] = useState([]);
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
-  const [deep, setDeep] = useState(false);         // פאנל "העמקה" — סגור כברירת מחדל
+  // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
+  const [deep, setDeep] = useState(() => { try { return localStorage.getItem("np-dna") === "1"; } catch { return false; } });
+  const [roots, setRoots] = useState(false);
+  const toggleDna = () => setDeep(v => { const n = !v; try { localStorage.setItem("np-dna", n ? "1" : "0"); } catch { /* ignore */ } return n; });
+  const goChip = id => { if (["events", "insights", "comments"].includes(id)) setRoots(true); setTimeout(() => scrollTo(id), 70); };
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
 
   // כרטיס מעוצב לפי התמה
@@ -176,7 +181,7 @@ export default function EntityPage() {
 
   useEffect(() => {
     let alive = true;
-    setLoading(true); setData(null); setDeep(false);
+    setLoading(true); setData(null); setRoots(false);
     getEntityBundle({ term, value, isNumber })
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
@@ -230,9 +235,12 @@ export default function EntityPage() {
     d.commentsCount && { id: "comments", e: "💬", n: d.commentsCount, l: "דיונים" },
   ].filter(Boolean);
 
+  // שכבה 1 — הזהות: משמעות-מפתח, ואם אין → נפילה רכה למילה השווה הכי חזקה (שלא יישאר ריק).
   const meaning = isNumber ? (KEY_NUMBERS[value] || null) : null;
+  const topWord = d.phrases?.find(p => gold.labels.has(p.phrase))?.phrase || d.phrases?.[0]?.phrase || null;
   const warmLine = meaning
-    || (isNumber ? "מה המספר הזה לוחש עליך? כל מה שמתחבר אליו — ממש כאן למטה." : "הגימטריה של הביטוי — וכל מה שמתחבר אליו במאגר.");
+    || (topWord ? `נושא בתוכו את «${topWord}»${d.phrases.length > 1 ? ` — ועוד ${d.phrases.length - 1} מילים שוות` : ""}.`
+      : (isNumber ? "מה המספר הזה לוחש עליך? כל מה שמתחבר אליו — ממש כאן למטה." : "הגימטריה של הביטוי — וכל מה שמתחבר אליו במאגר."));
 
   // עוטף תמה: רקע בהיר מלא (או שקוף בכהה כדי לשמור על הקוסמוס)
   const Shell = ({ children }) => (
@@ -359,14 +367,27 @@ export default function EntityPage() {
           </Link>
         </section>
 
-        {/* ── 🔬 העמקה — ניתוח בחשיפה הדרגתית (סגור כברירת מחדל, פאנל "מעבדה" כהה) ── */}
+        {/* ── מספרים קרובים (אותו שורש בסדר גודל אחר — zero_scale_law) ── */}
+        {value >= 10 && (() => {
+          const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
+          return near.length ? (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 30 }}>
+              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>מספרים קרובים ✦</span>
+              {near.map(n => (
+                <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{n}</Link>
+              ))}
+            </div>
+          ) : null;
+        })()}
+
+        {/* ── 🧬 שכבה 3 — DNA: איך המספר בנוי (סגור כברירת מחדל, פאנל "מעבדה" כהה) ── */}
         <div style={{ marginBottom: 30 }}>
-          <button onClick={() => setDeep(v => !v)} style={{
+          <button onClick={toggleDna} style={{
             width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
             background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "13px 18px",
             color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
           }}>
-            🔬 {deep ? "הסתירו את ההעמקה" : "רוצים להעמיק? שיטות, מד התכנסות ו-DNA"}
+            🧬 {deep ? "הסתירו את שכבת ה-DNA" : "ראו איך המספר בנוי — שיטות, מד התכנסות ו-DNA"}
             <span style={{ fontSize: 11 }}>{deep ? "▲" : "▼"}</span>
           </button>
           {deep && (
@@ -416,7 +437,7 @@ export default function EntityPage() {
             border: `1px solid ${P.border}`, background: P.cardSoft,
           }}>
             {chips.map(c => (
-              <button key={c.id} onClick={() => scrollTo(c.id)} style={{
+              <button key={c.id} onClick={() => goChip(c.id)} style={{
                 cursor: "pointer", background: P.card, border: `1px solid ${P.border}`,
                 color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700,
                 padding: "8px 14px", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 7,
@@ -473,6 +494,38 @@ export default function EntityPage() {
             </div>
           </section>
         )}
+
+        {/* ── 🌱 שכבה 4 — שורשי המספר (כל השאר, בכפתור אחד) ── */}
+        <div style={{ marginBottom: 8 }}>
+          <button onClick={() => setRoots(v => !v)} style={{
+            width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+            background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, padding: "13px 18px",
+            color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
+          }}>
+            🌱 {roots ? "סגרו את שורשי המספר" : "פתחו את שורשי המספר — כל השיטות, האירועים, הקהילה והצפנים"}
+            <span style={{ fontSize: 11 }}>{roots ? "▲" : "▼"}</span>
+          </button>
+        </div>
+
+        {roots && (
+          <div style={{ marginTop: 18 }}>
+            {/* כל השיטות (לביטוי בלבד — למספר אין אותיות) */}
+            {!isNumber && (
+              <section style={{ marginBottom: 40 }}>
+                <SectionHead icon="🧮" title="כל השיטות" count={ALL14.length} />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 8 }}>
+                  {ALL14.map(m => (
+                    <div key={m.key} style={{ ...card, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.key}</span>
+                        <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{m.fn(term)}</span>
+                      </div>
+                      {m.soul && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.4 }}>{m.soul}</div>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
         {/* ── 🌅 ציר ההתגלות ── */}
         {d.events?.length > 0 && (
@@ -536,6 +589,22 @@ export default function EntityPage() {
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל התוכן באתר</div>
           </Link>
         </section>
+
+            {/* גרף ועץ — הקשרים המלאים */}
+            <section style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+              <Link to="/numbers" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+                <div style={{ fontSize: 26, marginBottom: 6 }}>🌳</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>עץ המספרים התלת-מימדי</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>{value} בגרף הקשרים</div>
+              </Link>
+              <Link to="/map" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+                <div style={{ fontSize: 26, marginBottom: 6 }}>🕸</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>מפת הידע</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל הישויות והקשרים</div>
+              </Link>
+            </section>
+          </div>
+        )}
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
         {cardUrl && (
