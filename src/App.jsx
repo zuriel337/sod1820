@@ -45,6 +45,7 @@ import LabIndex from "./pages/LabIndex.jsx";
 import CalculatorPage from "./pages/CalculatorPage.jsx";
 import HomeNewPage from "./pages/HomeNewPage.jsx";
 import HeichalPage from "./pages/HeichalPage.jsx";
+import GalaxyPage from "./pages/GalaxyPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -85,6 +86,8 @@ export default function App() {
           {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
           <Route path="/היכל" element={<HeichalPage />} />
           <Route path="/heichal" element={<HeichalPage />} />
+          {/* גלקסיות — namespace מערכתי קבוע למסך-מלא (מדור לכל סלאג) */}
+          <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />

@@ -230,8 +230,8 @@ function applyDemoOverrides(gates){
   try{
     if(new URLSearchParams(location.search).get('demo')!=='1') return;
     const g = gates.find(x=>x.url==='/numbers') || gates.find(x=>x.key==='engine');
-    if(g){ g.title='עץ המספרים'; g.url='/sulamot'; g.openAt=Date.now()-1000;
-      g.world='מסע הסולמות — כל מספר עולה בדרגותיו. (דמו: מעבר חדר-לחדר)'; }
+    if(g){ g.title='עץ המספרים'; g.url='/galaxy/numbers'; g.openAt=Date.now()-1000;
+      g.world='גלקסיית עץ המספרים — כל כוכב הוא מספר מפתח. (מעבר חדר-לחדר)'; }
   }catch(e){}
 }
 
