@@ -1090,6 +1090,15 @@ export default function BeitMidrashPage() {
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
 
+  // חוק calc_skip_overview_law: הגעה ישירה למחשבון (tab=calc ב-URL / מדף המספר) →
+  // נוחתים על המחשבון ומדלגים על העדכונים שבראש (רובריקת "מה מתרחש").
+  const gridRef = useRef(null);
+  useEffect(() => {
+    if (!(tabParam === "calc" || nParam || wParam)) return;
+    const t = setTimeout(() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 280);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line
+
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
   const sideRef = useRef(null);
   useEffect(() => {
@@ -1126,7 +1135,7 @@ export default function BeitMidrashPage() {
         <BeitMidrashOverview />
 
         {/* גוף: תפריט-צד + תוכן */}
-        <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
+        <div ref={gridRef} style={{ display: "flex", gap: 26, alignItems: "flex-start", scrollMarginTop: 12 }} className="bm-grid">
           {/* תפריט צד (ימין ב-RTL) */}
           <nav className="bm-side" style={{ width: 230, flex: "0 0 auto", position: "sticky", top: 20 }}>
             {/* רמז גלילה — מוצג רק בנייד, נעלם אחרי גלילה ראשונה */}
