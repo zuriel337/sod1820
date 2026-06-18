@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 import { getRecentSearches, getHotNumber } from "../lib/supabase.js";
 import SearchTabs from "../components/SearchTabs.jsx";
+import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 
 // ===== "הגוגל של המספרים" — דף נחיתה /number =====
 // שורה אחת ממורכזת (רגע הגוגל) → הקלדת מספר/שם → /number/:value (3 העומקים).
@@ -15,7 +15,6 @@ const SURPRISE = [1820, 1237, 358, 424, 86, 26, 541, 137, 314, 776, "משיח", 
 export default function NumberSearchPage() {
   const nav = useNavigate();
   const P = usePalette();
-  const mode = useThemeMode();
   const [q, setQ] = useState("");
   const [adv, setAdv] = useState(false);
   const [a1, setA1] = useState("");
@@ -41,19 +40,12 @@ export default function NumberSearchPage() {
   return (
     <div style={{ background: P.pageBg, minHeight: "92vh", position: "relative", zIndex: 1, direction: "rtl",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 18px 70px" }}>
-      <button onClick={toggleTheme} title="החלפת תמה" aria-label="החלפת תמה" style={{
-        position: "absolute", top: 16, insetInlineStart: 16, cursor: "pointer", width: 38, height: 38, borderRadius: 999,
-        border: `1px solid ${P.borderStrong}`, background: P.cardSoft, color: P.accentText, fontSize: 17 }}>
-        {mode === "light" ? "🌙" : "☀️"}
-      </button>
-
       <SearchTabs />
 
-      {/* לוגו + תת-כותרת — מינימלי, רוח גוגל */}
+      {/* לוגו מונפש בסגנון גוגל בעברית + תת-כותרת */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ fontSize: "clamp(38px,8.5vw,68px)", fontWeight: 900, fontFamily: F.regal, color: P.heroNum,
-          textShadow: `0 0 36px ${P.glow}`, lineHeight: 1 }}>🔢 מנוע המספרים</div>
-        <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
+        <NumberEngineLogo size={60} to={null} />
+        <div style={{ marginTop: 14, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
           גלו קשרים נסתרים בין מספרים, שמות, פסוקים ורמזים
         </div>
       </div>
@@ -128,6 +120,10 @@ export default function NumberSearchPage() {
           </div>
         </div>
       )}
+
+      <div style={{ marginTop: 34, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
+        ✦ הגוגל של המספרים
+      </div>
     </div>
   );
 }

@@ -66,6 +66,12 @@ export const isWarmNumber = n => KEY_NUMBERS[n] != null;
 
 // ===== GLOBAL CSS =====
 export const GLOBAL_CSS = `
+  /* 🔤 רצפת קריאוּת גלובלית — כל טקסט בלי גודל/משקל מפורש יורש בסיס נוח (עמודים חדשים מסתדרים לבד) */
+  html { font-size: 16.5px; -webkit-text-size-adjust: 100%; }
+  body { font-weight: 500; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  p { line-height: 1.7; }
+  small { font-size: 0.85em; }
+
   .sod-inflate {
     display: inline-block;
     transition: transform 0.16s ease, text-shadow 0.18s ease;
