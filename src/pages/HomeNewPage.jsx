@@ -41,7 +41,8 @@ export default function HomeNewPage() {
   }, []);
 
   return (
-    <div style={{ direction: "rtl", background: "#05030d", minHeight: "100vh" }}>
+    <div style={{ direction: "rtl", minHeight: "100vh",
+      background: "linear-gradient(rgba(7,5,14,.86), rgba(7,5,14,.93)), url(/gate-bg.jpg) center top / cover fixed, #07050E" }}>
       <style>{`
         .hn-wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
         .hn-cta { display:inline-block; text-decoration:none; background:linear-gradient(135deg,#e9c84a,#9a7818); color:#1a0e00;
