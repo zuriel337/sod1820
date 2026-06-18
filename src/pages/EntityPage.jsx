@@ -103,20 +103,16 @@ function ShareButtons({ value, phrases, copyText, onPreview }) {
     setBusy(true);
     try { await shareNumberSmart(value, phrases); } finally { setBusy(false); }
   }
+  const icoBtn = { cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, width: 40, height: 40, fontSize: 16, display: "inline-flex", alignItems: "center", justifyContent: "center" };
   return (
-    <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
+    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", marginTop: 16 }}>
       <button onClick={share} disabled={busy}
-        style={{ cursor: busy ? "wait" : "pointer", background: "#25D366", color: "#06310f", border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px", borderRadius: 999 }}>
-        {busy ? "מכין תמונה…" : "📲 שתפו (עם תמונה)"}
+        style={{ cursor: busy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 26px", borderRadius: 999 }}>
+        {busy ? "מכין…" : "✦ שתפו"}
       </button>
-      <button onClick={onPreview}
-        style={{ cursor: "pointer", background: "rgba(201,162,39,0.12)", color: P.accentText, border: `1px solid ${P.borderStrong}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px", borderRadius: 999 }}>
-        🖼 תצוגה מקדימה
-      </button>
+      <button onClick={onPreview} title="תצוגה מקדימה" aria-label="תצוגה מקדימה" style={icoBtn}>🖼</button>
       <button onClick={() => { navigator.clipboard?.writeText(copyText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-        style={{ cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px", borderRadius: 999 }}>
-        {copied ? "✓ הועתק" : "🔗 העתק קישור"}
-      </button>
+        title="העתק קישור" aria-label="העתק קישור" style={icoBtn}>{copied ? "✓" : "🔗"}</button>
     </div>
   );
 }

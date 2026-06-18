@@ -1,13 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 // 🔢 לוגו "מנוע המספרים" בסגנון גוגל — אותיות עבריות צבעוניות + אנימציית כניסה ונשימה.
-// צבעים מותאמים למותג (זהב מלכותי) עם רמיזה לגוגל (רב-צבע משחקי).
+// צבעים מותאמים למותג (זהב מלכותי) עם רמיזה לגוגל (רב-צבע משחקי). קליק → מנוע החיפוש.
 const COLORS = ["#c9a227", "#7a1320", "#3b6fb0", "#2f8f5b", "#9a7818", "#6b3fa0"];
 
-export default function NumberEngineLogo({ text = "מנוע המספרים", size = 52, prefix = "🔢" }) {
+export default function NumberEngineLogo({ text = "מנוע המספרים", size = 52, prefix = "🔢", to = "/number" }) {
   const chars = [...text];
   let ci = 0;
-  return (
+  const body = (
     <div style={{ display: "inline-flex", alignItems: "center", gap: size * 0.18, direction: "rtl", whiteSpace: "nowrap" }} aria-label={text}>
       <style>{`
         @keyframes nel-rise{0%{opacity:0;transform:translateY(18px) scale(.6)}100%{opacity:1;transform:none}}
@@ -28,4 +29,5 @@ export default function NumberEngineLogo({ text = "מנוע המספרים", siz
       </h1>
     </div>
   );
+  return to ? <Link to={to} style={{ textDecoration: "none" }}>{body}</Link> : body;
 }

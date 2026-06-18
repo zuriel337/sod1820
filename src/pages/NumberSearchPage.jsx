@@ -44,7 +44,7 @@ export default function NumberSearchPage() {
 
       {/* לוגו מונפש בסגנון גוגל בעברית + תת-כותרת */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <NumberEngineLogo size={60} />
+        <NumberEngineLogo size={60} to={null} />
         <div style={{ marginTop: 14, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
           גלו קשרים נסתרים בין מספרים, שמות, פסוקים ורמזים
         </div>
