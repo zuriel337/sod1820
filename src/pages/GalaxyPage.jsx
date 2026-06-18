@@ -4,7 +4,9 @@ import { Stars, Sparkles, Html, OrbitControls } from "@react-three/drei";
 import { useParams, useNavigate } from "react-router-dom";
 import { C, F, KEY_NUMBERS } from "../theme.js";
 import { applySeo } from "../lib/seo.js";
-import { getTopicCardBySlug } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds } from "../lib/supabase.js";
+
+const decodeHtml = (s) => { try { const t = document.createElement("textarea"); t.innerHTML = s || ""; return t.value; } catch { return s || ""; } };
 
 // ===== גלקסיות — namespace מערכתי קבוע למסך-מלא (/galaxy/:slug) =====
 // כל גלקסיה = מדור אינטראקטיבי במסך מלא, נכנסים אליו מהיכל השערים.
@@ -55,8 +57,35 @@ function StarNode({ node, pos, accent, onPick }) {
   );
 }
 
-function GalaxyScene({ g, onPick }) {
-  const pts = useMemo(() => fibSphere(g.nodes.length, 6.5), [g.nodes.length]);
+// כרטיס-תמונה מרחף (drei Html) — לחיצה פותחת את ההסבר המלא
+function ImageCard({ img, pos, onPick }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <group position={pos}>
+      <Html center distanceFactor={12} style={{ pointerEvents: "auto" }} zIndexRange={[20, 0]}>
+        <button onClick={() => onPick(img)}
+          onMouseEnter={() => { setHover(true); document.body.style.cursor = "pointer"; }}
+          onMouseLeave={() => { setHover(false); document.body.style.cursor = "default"; }}
+          title={img.name ? decodeHtml(img.name) : "תמונה מהגלריה"}
+          style={{
+            width: hover ? 128 : 112, height: hover ? 128 : 112, padding: 0, cursor: "pointer",
+            border: `2px solid ${hover ? "#f6e27a" : "rgba(212,175,55,.5)"}`, borderRadius: 12, overflow: "hidden",
+            background: "#000", boxShadow: hover ? "0 0 30px rgba(212,175,55,.6)" : "0 0 16px rgba(0,0,0,.6)",
+            transition: "all .2s ease",
+          }}>
+          <img src={img.image_url} alt={img.name || ""} loading="lazy"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </button>
+      </Html>
+    </group>
+  );
+}
+
+function GalaxyScene({ g, onPick, onPickImage }) {
+  const nums = g.nodes || [];
+  const imgs = g.images || [];
+  const numPts = useMemo(() => fibSphere(nums.length, 6), [nums.length]);
+  const imgPts = useMemo(() => fibSphere(imgs.length, 10.5), [imgs.length]);
   const grp = useRef();
   useFrame(({ clock }) => { if (grp.current) grp.current.rotation.y = clock.elapsedTime * 0.05; });
   return (
@@ -71,12 +100,40 @@ function GalaxyScene({ g, onPick }) {
         <meshStandardMaterial color={g.accent} emissive={g.accent} emissiveIntensity={1.6} toneMapped={false} />
       </mesh>
       <group ref={grp}>
-        {g.nodes.map((node, i) => (
-          <StarNode key={node.n} node={node} pos={pts[i]} accent={g.accent} onPick={onPick} />
+        {nums.map((node, i) => (
+          <StarNode key={node.n} node={node} pos={numPts[i]} accent={g.accent} onPick={onPick} />
+        ))}
+        {imgs.map((im, i) => (
+          <ImageCard key={im.id || i} img={im} pos={imgPts[i]} onPick={onPickImage} />
         ))}
       </group>
-      <OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.35} minDistance={7} maxDistance={22} />
+      <OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.3} minDistance={7} maxDistance={30} />
     </>
+  );
+}
+
+// חלונית הסבר לתמונה — תמונה גדולה + תיאור + מספרי OCR לחיצים
+function ImageOverlay({ img, onClose, nav }) {
+  const nums = [...new Set((img.ocr_numbers || []).map(Number).filter(n => n > 0))].slice(0, 14);
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 70, background: "rgba(3,2,8,.9)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, direction: "rtl" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "min(880px,96vw)", maxHeight: "92vh", overflow: "auto", display: "flex", flexDirection: "column", gap: 14, background: "rgba(12,9,18,.97)", border: "1px solid rgba(212,175,55,.4)", borderRadius: 16, padding: 18, boxShadow: "0 20px 70px rgba(0,0,0,.7)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+          <div style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>{img.name ? decodeHtml(img.name) : "תמונה מהגלריה"}</div>
+          <button onClick={onClose} aria-label="סגור" style={{ background: "none", border: "none", color: "#cfc9d6", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+        </div>
+        <img src={img.image_url} alt={img.name || ""} style={{ width: "100%", maxHeight: "52vh", objectFit: "contain", borderRadius: 10, background: "#000" }} />
+        {img.description && <div style={{ color: "#e8e2d2", fontFamily: F.body, fontSize: 15, lineHeight: 1.75 }}>{decodeHtml(img.description)}</div>}
+        {nums.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+            <span style={{ color: "#cfc9d6", fontFamily: F.heading, fontSize: 12 }}>מספרים בתמונה:</span>
+            {nums.map(n => (
+              <button key={n} onClick={() => nav(`/number/${n}`)} style={{ cursor: "pointer", fontFamily: F.mono, fontWeight: 800, fontSize: 13, color: "#1a0e00", background: "linear-gradient(135deg,#e9c84a,#9a7818)", border: "none", borderRadius: 999, padding: "4px 12px" }}>{n}</button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -92,21 +149,27 @@ export default function GalaxyPage() {
   const nav = useNavigate();
   const [g, setG] = useState(() => GALAXIES[slug] || null);
   const [loading, setLoading] = useState(!GALAXIES[slug]);
+  const [sel, setSel] = useState(null); // תמונה נבחרת לחלונית הסבר
 
   // גלקסיה סטטית (רישום) → מיידי; אחרת — נשאב טופיק לפי slug (כל טופיק = גלקסיה,
   // המספרים המובלטים שלו = כוכבים → לחיצה פותחת /number/:n).
   useEffect(() => {
     if (GALAXIES[slug]) { setG(GALAXIES[slug]); setLoading(false); return; }
     let alive = true; setLoading(true);
-    getTopicCardBySlug(slug).then(t => {
+    getTopicCardBySlug(slug).then(async t => {
       if (!alive) return;
       const nums = [...new Set((((t && t.highlight_numbers) || []).map(Number)).filter(Boolean))];
-      if (t && nums.length) {
+      const imgIds = (t && t.image_ids) || [];
+      if (t && (nums.length || imgIds.length)) {
+        let images = [];
+        if (imgIds.length) { try { images = await getGalleryImagesByIds(imgIds); } catch { /* ignore */ } }
+        if (!alive) return;
         setG({
           title: t.title || "גלקסיה",
-          subtitle: t.subtitle || "כל כוכב — מספר מפתח. געו בו והיכנסו אל הדף שלו.",
+          subtitle: t.subtitle || "כל כוכב — מספר; כל תמונה — רמז. געו וחקרו.",
           accent: "#f6e27a",
           nodes: nums.map(n => ({ n, label: "" })),
+          images,
         });
       } else setG(null);
       setLoading(false);
@@ -143,9 +206,11 @@ export default function GalaxyPage() {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "radial-gradient(circle at 50% 45%, #0b0a1e, #04030a)", direction: "rtl" }}>
-      <Canvas camera={{ position: [0, 0, 14], fov: 60 }}>
-        <GalaxyScene g={g} onPick={(node) => nav(`/number/${node.n}`)} />
+      <Canvas camera={{ position: [0, 0, 16], fov: 60 }}>
+        <GalaxyScene g={g} onPick={(node) => nav(`/number/${node.n}`)} onPickImage={setSel} />
       </Canvas>
+
+      {sel && <ImageOverlay img={sel} onClose={() => setSel(null)} nav={nav} />}
 
       {/* כותרת הגלקסיה */}
       <div style={{ position: "absolute", top: 16, insetInline: 0, textAlign: "center", pointerEvents: "none", zIndex: 4 }}>
