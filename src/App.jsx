@@ -43,6 +43,7 @@ import TopicPage from "./pages/TopicPage.jsx";
 import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
 import LabIndex from "./pages/LabIndex.jsx";
 import CalculatorPage from "./pages/CalculatorPage.jsx";
+import HomeNewPage from "./pages/HomeNewPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -112,6 +113,9 @@ export default function App() {
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
           <Route path="/gematria" element={<CalculatorPage />} />
           <Route path="/גימטריה" element={<CalculatorPage />} />
+          {/* תצוגה מקדימה — דף בית חדש (לא מחליף את הקיים) */}
+          <Route path="/home-new" element={<HomeNewPage />} />
+          <Route path="/בית-חדש" element={<HomeNewPage />} />
           <Route path="/cross" element={<CrossMethodPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
