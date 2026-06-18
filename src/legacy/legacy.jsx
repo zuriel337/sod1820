@@ -4968,7 +4968,9 @@ function PostPageBySlug({ onNav }) {
   }, [user, post?.slug]);  // eslint-disable-line
 
   return (
-    <div style={{ direction: "rtl" }}>
+    // פוסט ישן = נעול כהה תמיד (legacy-dark) — מכבד את הצבעים הצרובים בתוכן ה-WP,
+    // אי עצמאי שלא מושפע ממתג יום/לילה הגלובלי.
+    <div data-theme="dark" style={{ direction: "rtl", background: C.bg, minHeight: "100vh", color: "#ede4d3" }}>
       {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
         <PrayerSharePopup
           url={`${SITE_URL}/${post.slug || slug}`}
