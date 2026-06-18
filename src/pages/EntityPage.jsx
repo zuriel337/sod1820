@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, getHarvestedPosts, getRecentSearches } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
@@ -118,15 +118,6 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// "לפני כמה זמן" — בלי תאריך, רק תחושת חיים (לפני דקה/שעה/יום)
-function timeAgo(iso) {
-  if (!iso) return "";
-  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return "עכשיו";
-  const m = Math.floor(s / 60); if (m < 60) return `לפני ${m} ד׳`;
-  const h = Math.floor(m / 60); if (h < 24) return `לפני ${h} ש׳`;
-  return `לפני ${Math.floor(h / 24)} י׳`;
-}
 
 // עוטף תמה ברמת מודול (יציב — מונע remount ואיבוד פוקוס בהקלדה)
 function Shell({ P, children }) {
@@ -145,7 +136,7 @@ function Acc({ id, icon, title, count, open, onToggle, P, children }) {
         <span style={{ fontSize: 18 }}>{icon}</span>
         <span style={{ flex: 1, color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{title}</span>
         {count != null && <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 12.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px" }}>{count}</span>}
-        <span style={{ color: P.accent, fontSize: 12 }}>{isOpen ? "▲" : "▼"}</span>
+        <span style={{ color: P.accent, fontSize: 12, animation: isOpen ? "none" : "acc-blink 1.6s ease-in-out infinite" }}>{isOpen ? "▲" : "▼"}</span>
       </button>
       {isOpen && <div style={{ marginTop: 12 }}>{children}</div>}
     </div>
@@ -648,7 +639,7 @@ export default function EntityPage() {
             {recent.map((r, i) => (
               <Link key={i} to={`/number/${encodeURIComponent(r.term)}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 4 }}>
                 <span style={{ color: P.accentText, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{r.term}</span>
-                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>· {timeAgo(r.at)}</span>
+                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>· {timeAgoHe(r.at)}</span>
               </Link>
             ))}
             <Link to="/beit-midrash" style={{ marginInlineStart: "auto", textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>כל החיפושים →</Link>
