@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { getPostsFromSupabase, getTopicCards } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 
@@ -23,13 +23,21 @@ const TILES = [
 function stars(q) { const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2))); return "★".repeat(n) + "☆".repeat(5 - n); }
 
 export default function HomeNewPage() {
+  const nav = useNavigate();
   const [posts, setPosts] = useState([]);
   const [cards, setCards] = useState([]);
+  const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
+  const [q, setQ] = useState("");
+  const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => setPosts(r || [])).catch(() => {});
-    getTopicCards({ approvedOnly: true }).then(c => setCards(c || [])).catch(() => {});
+    getTopicCards({ approvedOnly: true }).then(async c => {
+      setCards(c || []);
+      const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
+      if (ids.length) { try { const im = await getGalleryImagesByIds(ids); setImgMap(Object.fromEntries((im || []).map(x => [x.id, x.image_url]))); } catch { /* ignore */ } }
+    }).catch(() => {});
   }, []);
 
   return (
@@ -66,7 +74,15 @@ export default function HomeNewPage() {
           <p style={{ color: "#d8cfe0", fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.8, maxWidth: 520, margin: "14px auto 22px" }}>
             לגלות את הסוד · לגעת בעצם הקשר · לחיות את הגאולה
           </p>
-          <Link to="/start" className="hn-cta">✨ כאן מתחילים</Link>
+          <form onSubmit={go} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 440, margin: "0 auto 18px" }}>
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="חשבו שם · מילה · מספר…" dir="rtl"
+              style={{ flex: 1, minWidth: 180, background: "rgba(8,5,2,.6)", border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "11px 18px", outline: "none", textAlign: "center" }} />
+            <button type="submit" style={{ cursor: "pointer", background: C.goldDeep, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
+          </form>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link to="/start" className="hn-cta">✨ כאן מתחילים</Link>
+            <Link to="/gematria" className="hn-cta" style={{ background: "transparent", color: C.goldBright, border: `1px solid ${C.gold}`, boxShadow: "none" }}>🧮 בדקו את השם שלכם</Link>
+          </div>
         </div>
       </section>
 
@@ -124,17 +140,24 @@ export default function HomeNewPage() {
         <h2 className="hn-h2"><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</h2>
         <p className="hn-sub">צירי ההתכנסות החיים — כל ציר מחבר מספר, אירוע וגלריה</p>
         <div className="hn-postgrid">
-          {cards.slice(0, 8).map(c => (
-            <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} className="hn-card" style={{ padding: "14px 15px", background: "linear-gradient(135deg,rgba(212,175,55,.14),rgba(8,5,2,.45))" }}>
-              <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>
-              <div style={{ color: C.gold, fontSize: 11, letterSpacing: 1, margin: "4px 0 8px" }}>{stars(c.quality)}</div>
-              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                {(c.highlight_numbers || []).slice(0, 4).map(n => (
-                  <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "1px 9px" }}>{n}</span>
-                ))}
+          {cards.slice(0, 8).map(c => {
+            const img = imgMap[(c.image_ids || [])[0]];
+            return (
+            <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} className="hn-card">
+              <div style={{ height: 110, background: img ? `center/cover no-repeat url(${img})` : "linear-gradient(135deg,rgba(212,175,55,.22),rgba(8,5,2,.5))", display: "flex", alignItems: "flex-end" }}>
+                <span style={{ color: C.gold, fontSize: 11, letterSpacing: 1, background: "rgba(5,4,0,.6)", borderRadius: 999, padding: "2px 9px", margin: 8 }}>{stars(c.quality)}</span>
+              </div>
+              <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+                <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>
+                <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: "auto" }}>
+                  {(c.highlight_numbers || []).slice(0, 4).map(n => (
+                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "1px 9px" }}>{n}</span>
+                  ))}
+                </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
           {!cards.length && <div style={{ color: C.muted, fontFamily: F.body, padding: 12 }}>טוען צירי התכנסות…</div>}
         </div>
       </section>
