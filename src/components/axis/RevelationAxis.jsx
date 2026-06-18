@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabase.js";
 import { C, F } from "../../theme.js";
+import { usePalette } from "../../lib/palette.js";
 import { stripHtml } from "../../lib/format.js";
 
 // ===== ציר ההתגלות — הפס הקבוע =====
@@ -35,11 +36,11 @@ const AXIS_CSS = `
 
 const AI_BLUE = "#3ea6ff";
 
-function dotStyle(ev, active) {
+function dotStyle(ev, active, P) {
   const w = ev.weight || 1;
   const size = 11 + w * 3.2;
   const strong = w >= 5;
-  const color = strong ? C.goldBright : w >= 4 ? VIOLET : C.goldDim;
+  const color = strong ? P.accent : w >= 4 ? VIOLET : P.accentDim;
   return {
     width: size, height: size, borderRadius: "50%", cursor: "pointer", border: "none",
     "--z": `${(w - 3) * 26}px`,
@@ -53,6 +54,7 @@ function dotStyle(ev, active) {
 }
 
 export default function RevelationAxis() {
+  const P = usePalette();
   const [events, setEvents] = useState([]);
   const [aiPosts, setAiPosts] = useState([]);
   const [hovered, setHovered] = useState(null);
@@ -93,20 +95,20 @@ export default function RevelationAxis() {
       {/* חוט האור */}
       <div style={{
         position: "absolute", top: "6%", bottom: "6%", left: 42, width: 2,
-        background: `linear-gradient(180deg, transparent, ${C.gold}66 12%, ${VIOLET}88 50%, ${C.gold}66 88%, transparent)`,
+        background: `linear-gradient(180deg, transparent, ${P.accent}66 12%, ${VIOLET}88 50%, ${P.accent}66 88%, transparent)`,
         boxShadow: `0 0 14px ${VIOLET}66`,
       }}>
         <div style={{
           position: "absolute", left: -2, width: 6, height: 26, borderRadius: 3,
           background: `linear-gradient(180deg, transparent, #fff8e1, transparent)`,
-          boxShadow: `0 0 12px ${C.goldBright}`, animation: "rev-pulse-travel 7s linear infinite",
+          boxShadow: `0 0 12px ${P.accent}`, animation: "rev-pulse-travel 7s linear infinite",
         }} />
       </div>
 
       {/* כותרת אנכית */}
       <div style={{
         position: "absolute", top: "1.5%", left: 0, width: 86, textAlign: "center",
-        color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 3,
+        color: P.accentText, fontFamily: F.heading, fontSize: 10, letterSpacing: 3,
         writingMode: "vertical-rl", margin: "0 auto", height: 110, lineHeight: "86px",
       }}>
         ציר ההתגלות
@@ -154,7 +156,7 @@ export default function RevelationAxis() {
             <div key={ev.id} style={{ position: "relative", display: "flex", alignItems: "center" }}
               onMouseEnter={() => setHovered(ev)} onMouseLeave={() => setHovered(null)}>
               <button className="rev-axis-dot" onClick={() => nav(`/timeline#ev-${ev.id}`)}
-                aria-label={stripHtml(ev.label || "")} style={dotStyle(ev, active || hovered?.id === ev.id)} />
+                aria-label={stripHtml(ev.label || "")} style={dotStyle(ev, active || hovered?.id === ev.id, P)} />
 
               {/* תצוגה מקדימה בריחוף */}
               {hovered?.id === ev.id && (
@@ -191,7 +193,7 @@ export default function RevelationAxis() {
       {/* קישור לעמוד המלא */}
       <button onClick={() => nav("/timeline")} style={{
         position: "absolute", bottom: "1.8%", left: 0, width: 86, background: "none", border: "none",
-        color: C.goldDim, fontFamily: F.heading, fontSize: 16, cursor: "pointer", pointerEvents: "auto",
+        color: P.inkSoft, fontFamily: F.heading, fontSize: 16, cursor: "pointer", pointerEvents: "auto",
       }} aria-label="אל ציר ההתגלות המלא">🌅</button>
     </div>
   );

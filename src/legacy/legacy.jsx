@@ -12,6 +12,7 @@ import PostShareFab from "../components/PostShareFab.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+import { usePalette } from "../lib/palette.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4559,6 +4560,7 @@ function ChatPage() {
 
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
+  const P = usePalette();
   useEffect(() => {
     // טוענים את ה-launcher של Spot.IM פעם אחת ומשאירים אותו טעון —
     // כך כשחוזרים לדף ה-SDK מזהה מחדש את אלמנט ה-conversation ולא "בורח".
@@ -4575,7 +4577,7 @@ function SpotimChatPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
+        <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט
         </h1>
         <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
