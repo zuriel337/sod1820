@@ -15,13 +15,16 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
   { icon: "🌳", label: "עץ המספרים", to: "/numbers" },
-  { icon: "🌐", label: "צירי התכנסות", to: "/beit-midrash" },
+  { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
   { icon: "🖼️", label: "גלריות", to: "/archive" },
   { icon: "🌅", label: "ציר הזמן", to: "/timeline" },
-  { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
+  { icon: "📰", label: "כל הפוסטים", to: "/post" },
 ];
 
 function stars(q) { const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2))); return "★".repeat(n) + "☆".repeat(5 - n); }
+
+// כרטיסי שלד מהבהבים בזמן טעינה (במקום טקסט "טוען…")
+const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div key={i} className="hn-skel" aria-hidden />);
 
 export default function HomeNewPage() {
   const nav = useNavigate();
@@ -64,6 +67,10 @@ export default function HomeNewPage() {
         .hn-tile:hover { transform:translateY(-3px); border-color:${C.gold}; }
         .hn-card { background:rgba(20,15,12,.55); border:1px solid ${C.border}; border-radius:14px; overflow:hidden; text-decoration:none; display:flex; flex-direction:column; transition:transform .15s, border-color .15s; }
         .hn-card:hover { transform:translateY(-3px); border-color:${C.gold}; }
+        .hn-skel { background:rgba(20,15,12,.55); border:1px solid ${C.border}; border-radius:14px; height:190px; position:relative; overflow:hidden; }
+        .hn-skel::after { content:""; position:absolute; inset:0; transform:translateX(-100%);
+          background:linear-gradient(90deg,transparent,rgba(212,175,55,.10),transparent); animation:hn-shimmer 1.3s ease-in-out infinite; }
+        @keyframes hn-shimmer { 100%{ transform:translateX(100%); } }
         .hn-h2 { color:${C.goldBright}; font-family:${F.regal}; font-size:clamp(20px,3vw,27px); font-weight:800; text-align:center; margin:0 0 4px; }
         .hn-sub { color:${C.muted}; font-family:${F.body}; font-size:14px; text-align:center; margin:0 0 20px; }
         .hn-grid6 { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; }
@@ -76,7 +83,8 @@ export default function HomeNewPage() {
       {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
         <div className="hn-gate">
-          <img src={HERO_IMG} alt="כי לה' המלוכה · סוד 1820 — שער המספר הגדול" className="hn-gate-img" />
+          <img src={HERO_IMG} alt="כי לה' המלוכה · סוד 1820 — שער המספר הגדול" className="hn-gate-img"
+            fetchpriority="high" decoding="async" />
           {/* כפתור הכניסה — יושב על תחתית השער */}
           <Link to="/start" className="hn-cta hn-cta-big hn-enter">✨ כאן מתחילים</Link>
         </div>
@@ -116,7 +124,7 @@ export default function HomeNewPage() {
               </div>
             </Link>
           ))}
-          {!posts.length && <div style={{ color: C.muted, fontFamily: F.body, padding: 12 }}>טוען עדכונים…</div>}
+          {!posts.length && <Skeletons n={4} />}
         </div>
         <div style={{ textAlign: "center", marginTop: 16 }}>
           <Link to="/post" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
@@ -151,12 +159,18 @@ export default function HomeNewPage() {
             </Link>
             );
           })}
-          {!cards.length && <div style={{ color: C.muted, fontFamily: F.body, padding: 12 }}>טוען צירי התכנסות…</div>}
+          {!cards.length && <Skeletons n={4} />}
         </div>
       </section>
 
-      <div style={{ textAlign: "center", padding: "0 18px 50px", color: C.goldLight, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>
-        🤍 ברוכים הבאים לבית החדש שלנו
+      <div style={{ textAlign: "center", padding: "0 18px 56px" }}>
+        <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 16 }}>
+          🤍 ברוכים הבאים לבית החדש שלנו
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link to="/start" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>✨ כאן מתחילים</Link>
+          <Link to="/gematria" style={{ display: "inline-block", textDecoration: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontFamily: F.heading, fontWeight: 700, fontSize: 15, padding: "11px 26px", borderRadius: 999 }}>🧮 למחשבון הגימטריה</Link>
+        </div>
       </div>
     </div>
   );
