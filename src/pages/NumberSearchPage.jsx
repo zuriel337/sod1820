@@ -46,44 +46,39 @@ export default function NumberSearchPage() {
         {mode === "light" ? "🌙" : "☀️"}
       </button>
 
-      {/* לוגו + טאגליין (סיבה להקליד) */}
-      <div style={{ textAlign: "center", marginBottom: 22 }}>
+      {/* לוגו + תת-כותרת — מינימלי, רוח גוגל */}
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
         <div style={{ fontSize: "clamp(38px,8.5vw,68px)", fontWeight: 900, fontFamily: F.regal, color: P.heroNum,
           textShadow: `0 0 36px ${P.glow}`, lineHeight: 1 }}>🔢 מנוע המספרים</div>
-        <div style={{ marginTop: 9, color: P.accentText, fontFamily: F.heading, fontSize: "clamp(14px,2.6vw,18px)", fontWeight: 800 }}>
-          הגוגל של המספרים
-        </div>
-        <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(13.5px,2.4vw,16px)", fontWeight: 500, maxWidth: 460 }}>
-          🌳 הקלידו שם, מספר או פסוק — וגלו את עץ הקשרים הנסתר שלו.
+        <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(14px,2.6vw,17px)", fontWeight: 500, maxWidth: 500 }}>
+          גלו קשרים נסתרים בין מספרים, שמות, פסוקים ורמזים
         </div>
       </div>
 
-      {/* תיבת חיפוש + גלו + הפתיעו אותי */}
+      {/* תיבה אחת — המנוע מזהה לבד */}
       <form onSubmit={go} style={{ width: "min(620px, 94vw)", display: "flex", gap: 8 }}>
         <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)} dir="rtl"
-          placeholder="הקלידו מספר (1820) או שם (דוד)…"
+          placeholder="הקלידו מספר, שם, פסוק או רמז…"
           style={{ flex: 1, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999,
             color: P.ink, fontFamily: F.body, fontSize: 17, fontWeight: 500, padding: "15px 24px", outline: "none", textAlign: "center",
             boxShadow: `0 4px 22px ${P.glow}` }} />
         <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none",
           borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 16, padding: "0 24px" }}>גלו ✦</button>
-        <button type="button" onClick={surprise} title="הפתיעו אותי" aria-label="הפתיעו אותי" style={{
-          cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`,
-          borderRadius: 999, fontSize: 20, width: 52, flexShrink: 0 }}>🎲</button>
       </form>
 
-      {/* דוגמאות מעוררות-השראה — המנוע מזהה לבד שם/מספר/פסוק (לא "בחר קטגוריה") */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginTop: 16, maxWidth: 580 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>נסו:</span>
-        {["דוד", "1820", "שמע ישראל", "משיח בן דוד", "אהבה"].map(ex => (
-          <button key={ex} onClick={() => { setQ(ex); inputRef.current?.focus(); }}
-            style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 999,
-              color: P.accentText, fontFamily: F.body, fontSize: 14, fontWeight: 600, padding: "6px 13px" }}>{ex}</button>
+      {/* נסו · המנוע מזהה לבד · גלו לי משהו */}
+      <div style={{ marginTop: 16, color: P.accentDim, fontFamily: F.body, fontSize: 14.5, fontWeight: 500, textAlign: "center" }}>
+        נסו:{" "}
+        {["1820", "דוד", "שמע ישראל", "1237"].map((ex, i) => (
+          <React.Fragment key={ex}>
+            {i > 0 && <span style={{ opacity: 0.4 }}> · </span>}
+            <button onClick={() => { setQ(ex); inputRef.current?.focus(); }} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 700, padding: 0 }}>{ex}</button>
+          </React.Fragment>
         ))}
       </div>
-      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, fontWeight: 500, marginTop: 9, textAlign: "center" }}>
-        שם · מספר · פסוק · ביטוי — המנוע מזהה לבד ✦ (אנגלית בקרוב 🌍)
-      </div>
+      <div style={{ marginTop: 9, color: P.accentDim, fontFamily: F.body, fontSize: 12.5, fontWeight: 600 }}>המנוע מזהה לבד ✦</div>
+      <button onClick={surprise} style={{ marginTop: 16, cursor: "pointer", background: P.card, border: `1px solid ${P.borderStrong}`,
+        borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, padding: "9px 22px" }}>🎲 גלו לי משהו</button>
 
       {/* חיפוש מתקדם (מוסתר) */}
       <button onClick={() => setAdv(v => !v)} style={{ marginTop: 14, cursor: "pointer", background: "none", border: "none",
