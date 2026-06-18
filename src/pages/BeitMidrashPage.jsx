@@ -9,6 +9,7 @@ import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import LiveDiscoveries from "../components/LiveDiscoveries.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -1128,6 +1129,8 @@ export default function BeitMidrashPage() {
             </p>
           )}
         </div>
+
+        <LiveDiscoveries />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">

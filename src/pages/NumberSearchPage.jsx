@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 import { getRecentSearches, getHotNumber } from "../lib/supabase.js";
+import SearchTabs from "../components/SearchTabs.jsx";
 
 // ===== "הגוגל של המספרים" — דף נחיתה /number =====
 // שורה אחת ממורכזת (רגע הגוגל) → הקלדת מספר/שם → /number/:value (3 העומקים).
@@ -45,6 +46,8 @@ export default function NumberSearchPage() {
         border: `1px solid ${P.borderStrong}`, background: P.cardSoft, color: P.accentText, fontSize: 17 }}>
         {mode === "light" ? "🌙" : "☀️"}
       </button>
+
+      <SearchTabs />
 
       {/* לוגו + תת-כותרת — מינימלי, רוח גוגל */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
