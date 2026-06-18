@@ -863,6 +863,40 @@ export async function getLiveFeed() {
   return items;
 }
 
+// 🕒 חיפושים אחרונים — מה *כל* הגולשים חוקרים עכשיו (terms ייחודיים אחרונים).
+export async function getRecentSearches(limit = 6) {
+  try {
+    const { data } = await supabase.from('search_log')
+      .select('term,value,created_at')
+      .order('created_at', { ascending: false }).limit(60);
+    const seen = new Set(); const out = [];
+    for (const r of (data || [])) {
+      const t = (r.term || '').trim();
+      if (!t || seen.has(t)) continue;
+      seen.add(t); out.push({ term: t, value: r.value });
+      if (out.length >= limit) break;
+    }
+    return out;
+  } catch { return []; }
+}
+
+// 🔥 מספר חם עכשיו — ה-term שנחקר הכי הרבה היום (הוכחה חברתית).
+export async function getHotNumber() {
+  try {
+    const since = new Date(); since.setHours(0, 0, 0, 0);
+    const { data } = await supabase.from('search_log')
+      .select('term,value').gte('created_at', since.toISOString()).limit(800);
+    const counts = {};
+    for (const r of (data || [])) {
+      const t = (r.term || '').trim(); if (!t) continue;
+      (counts[t] = counts[t] || { n: 0, value: r.value }).n++;
+    }
+    let best = null;
+    for (const [term, o] of Object.entries(counts)) if (!best || o.n > best.n) best = { term, value: o.value, n: o.n };
+    return best && best.n >= 2 ? best : null;
+  } catch { return null; }
+}
+
 // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה (mentions שנקצרו מהפוסטים).
 export async function getHarvestedPosts(value, lim = 6) {
   if (!supabase || !value) return [];

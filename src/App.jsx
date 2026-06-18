@@ -18,6 +18,7 @@ import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
 import TimelinePage from "./pages/TimelinePage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
+import NumberSearchPage from "./pages/NumberSearchPage.jsx";
 import ArchivePage from "./pages/ArchivePage.jsx";
 import VerifiedPostsPage from "./pages/VerifiedPostsPage.jsx";
 import CrossMethodPage from "./pages/CrossMethodPage.jsx";
@@ -115,6 +116,7 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
+          <Route path="/number" element={<NumberSearchPage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}

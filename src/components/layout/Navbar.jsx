@@ -8,6 +8,7 @@ import { Avatar } from "../../pages/AuthPage.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
+import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
 const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
@@ -223,6 +224,25 @@ function Brand() {
   );
 }
 
+// 🌗 מתג תמה גלובלי (יום/לילה) — בנאבבר, גלוי בכל מסך
+function NavThemeToggle() {
+  const mode = useThemeMode();
+  return (
+    <button onClick={toggleTheme} className="nav-theme" title="מצב יום / לילה" aria-label="החלפת מצב יום/לילה">
+      {mode === "light" ? "🌙" : "☀️"}
+    </button>
+  );
+}
+
+// ⊞ אייקון תפריט מתקדם — רשת 3×3 (משיק לסגנון "מנוע"/אפליקציה), מחליף את ההמבורגר
+function GridIcon() {
+  return (
+    <span className="nav-grid" aria-hidden>
+      {Array.from({ length: 9 }).map((_, i) => <i key={i} />)}
+    </span>
+  );
+}
+
 export default function Navbar() {
   const { pathname } = useLocation();
   const { user, profile } = useAuth();
@@ -247,14 +267,7 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
         <Brand />
 
-        <Link to="/start" title="כאן מתחילים — המסע בשתי דקות" style={{
-          display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
-          background: `linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight})`,
-          color: C.goldBright,
-          fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
-          padding: "8px 13px", borderRadius: 6, whiteSpace: "nowrap",
-          border: `1px solid ${C.goldDim}`, boxShadow: "0 0 12px rgba(122,19,32,0.4)",
-        }}>🚀 כאן מתחילים</Link>
+        {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -286,11 +299,14 @@ export default function Navbar() {
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
 
+        {/* מתג תמה גלובלי — גלוי בכל מסך */}
+        <NavThemeToggle />
+
         <button className="sod-nav-burger" aria-label="תפריט" onClick={() => setDrawer(d => !d)} style={{
           display: "none", background: "none", border: `1px solid ${C.borderGold}`,
-          color: C.goldBright, fontSize: 20, cursor: "pointer", borderRadius: 6,
-          width: 40, height: 40, marginInlineStart: 8,
-        }}>{drawer ? "✕" : "☰"}</button>
+          color: C.goldBright, cursor: "pointer", borderRadius: 8,
+          width: 40, height: 40, marginInlineStart: 8, alignItems: "center", justifyContent: "center",
+        }}>{drawer ? <span style={{ fontSize: 18 }}>✕</span> : <GridIcon />}</button>
       </div>
 
       {drawer && (
@@ -307,7 +323,7 @@ export default function Navbar() {
             {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
             {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
-          {NAV.map(item => (
+          {NAV.filter(item => item.to !== "/start").map(item => (
             <div key={item.to} style={{ marginBottom: 4 }}>
               {false ? null : (
                 <Link to={item.to} onClick={() => setDrawer(false)} style={{
@@ -379,6 +395,17 @@ export default function Navbar() {
 
         .sod-nav-drawer { animation: nav-drawer-in 0.25s ease; }
         @keyframes nav-drawer-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-theme { width: 38px; height: 38px; flex-shrink: 0; cursor: pointer; font-size: 17px; line-height: 1;
+          background: rgba(8,5,2,0.6); border: 1px solid ${C.borderGold}; border-radius: 10px; color: ${C.goldBright};
+          display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 8px;
+          transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
+        .nav-theme:hover { transform: scale(1.08) rotate(-8deg); box-shadow: 0 0 16px rgba(212,175,55,0.3); background: ${C.surface}; }
+
+        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 18px; height: 18px; }
+        .nav-grid i { width: 4px; height: 4px; border-radius: 50%; background: ${C.goldBright}; display: block;
+          transition: transform 0.2s ease, opacity 0.2s ease; }
+        .sod-nav-burger:hover .nav-grid i { transform: scale(1.25); opacity: 0.92; }
 
         .sod-nav-mobile-only { display: none; }
         @media (max-width: 1040px) {
