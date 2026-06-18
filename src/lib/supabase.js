@@ -872,16 +872,6 @@ export async function getLiveFeed() {
   return items;
 }
 
-// אירועי ציר ההתגלות (לדף הבית) — nodes type=event, לפי משקל.
-export async function getAxisEvents(limit = 24) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('nodes')
-    .select('id,label,weight,hebrew_date,metadata')
-    .eq('type', 'event').eq('is_active', true)
-    .order('weight', { ascending: false }).limit(limit);
-  return data || [];
-}
-
 // 🕒 פיד חיפושים מאוחד — מקור אחד (search_log) עם דרגות לפי משתמש.
 // אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
 const SEARCH_TIERS = {
