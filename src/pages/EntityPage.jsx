@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
+import { supabase, logSearch, getHarvestedPosts, getRecentSearches } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -14,24 +14,12 @@ import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart 
 import { buildMessages } from "../lib/numberMessage.js";
 import { resolve, getScore, getBundle } from "../lib/engine.js";
 import { usePalette } from "../lib/palette.js";
-import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 
 const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
 const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
 const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
 
-// מתג תמה — שמש/ירח (נשמר ב-localStorage, משפיע על דפי התוכן המעוצבים)
-function ThemeToggle() {
-  const mode = useThemeMode();
-  const P = usePalette();
-  return (
-    <button onClick={toggleTheme} title="החלפת תמה — בהיר/כהה" aria-label="החלפת תמה"
-      style={{ cursor: "pointer", width: 38, height: 38, borderRadius: 999, border: `1px solid ${P.borderStrong}`,
-        background: P.cardSoft, color: P.accentText, fontSize: 17, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      {mode === "light" ? "🌙" : "☀️"}
-    </button>
-  );
-}
+// מתג התמה גלובלי בנאבבר (הוסר מדף המספר — כפילות)
 
 // 🧬 פאנל ההתכנסות (יושב בתוך "מעבדה" כהה) — לביטוי: ערכי-שיטות (העוגן נבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
@@ -130,6 +118,16 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// "לפני כמה זמן" — בלי תאריך, רק תחושת חיים (לפני דקה/שעה/יום)
+function timeAgo(iso) {
+  if (!iso) return "";
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "עכשיו";
+  const m = Math.floor(s / 60); if (m < 60) return `לפני ${m} ד׳`;
+  const h = Math.floor(m / 60); if (h < 24) return `לפני ${h} ש׳`;
+  return `לפני ${Math.floor(h / 24)} י׳`;
+}
+
 // עוטף תמה ברמת מודול (יציב — מונע remount ואיבוד פוקוס בהקלדה)
 function Shell({ P, children }) {
   return <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>{children}</div>;
@@ -210,6 +208,7 @@ export default function EntityPage() {
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
   const [harvest, setHarvest] = useState([]);
+  const [recent, setRecent] = useState([]);       // 🕒 נחקר עכשיו (3 אחרונים, חי)
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
@@ -261,6 +260,13 @@ export default function EntityPage() {
     if (value) getHarvestedPosts(value, 6).then(h => { if (alive) setHarvest(h || []); });
     return () => { alive = false; };
   }, [value]);
+
+  // 🕒 נחקר עכשיו — 3 חיפושים אחרונים של כל הגולשים (תחושת חיים, מפנה לבית המדרש)
+  useEffect(() => {
+    let alive = true;
+    getRecentSearches(4).then(r => { if (alive) setRecent((r || []).filter(x => x.term !== term).slice(0, 3)); }).catch(() => {});
+    return () => { alive = false; };
+  }, [term]);
 
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
   const [sigs, setSigs] = useState([]);
@@ -346,7 +352,6 @@ export default function EntityPage() {
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 180 }} />
             <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
           </form>
-          <ThemeToggle />
         </div>
 
         {/* ── הירו: מספר + משפט חם + שיתוף ── */}
@@ -539,15 +544,18 @@ export default function EntityPage() {
               <section style={{ marginBottom: 40 }}>
                 <SectionHead icon="🧮" title="כל השיטות" count={ALL14.length} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 8 }}>
-                  {ALL14.map(m => (
-                    <div key={m.key} style={{ ...card, padding: "10px 12px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.key}</span>
-                        <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{m.fn(term)}</span>
-                      </div>
-                      {m.soul && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.4 }}>{m.soul}</div>}
-                    </div>
-                  ))}
+                  {ALL14.map(m => {
+                    const mv = m.fn(term);
+                    return (
+                      <Link key={m.key} to={`/number/${mv}`} title={`פתח את ${mv}`} style={{ ...card, padding: "10px 12px" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.key}</span>
+                          <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{mv} <span style={{ color: P.accentDim, fontSize: 11 }}>→</span></span>
+                        </div>
+                        {m.soul && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.4 }}>{m.soul}</div>}
+                      </Link>
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -630,6 +638,22 @@ export default function EntityPage() {
             </section>
           </div>
         </Acc>
+
+        {/* ── 🕒 נחקר עכשיו — חי, 3 אחרונים, מפנה לבית המדרש ── */}
+        {recent.length > 0 && (
+          <div style={{ marginTop: 24, padding: "11px 15px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.cardSoft, display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e0533a", boxShadow: "0 0 7px #e0533a", animation: "ep-live 1.4s ease-in-out infinite" }} />
+            <style>{`@keyframes ep-live{0%,100%{opacity:.45}50%{opacity:1}}`}</style>
+            <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>נחקר עכשיו</span>
+            {recent.map((r, i) => (
+              <Link key={i} to={`/number/${encodeURIComponent(r.term)}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 4 }}>
+                <span style={{ color: P.accentText, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{r.term}</span>
+                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>· {timeAgo(r.at)}</span>
+              </Link>
+            ))}
+            <Link to="/beit-midrash" style={{ marginInlineStart: "auto", textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>כל החיפושים →</Link>
+          </div>
+        )}
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
         {cardUrl && (

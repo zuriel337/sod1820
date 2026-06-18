@@ -873,7 +873,7 @@ export async function getRecentSearches(limit = 6) {
     for (const r of (data || [])) {
       const t = (r.term || '').trim();
       if (!t || seen.has(t)) continue;
-      seen.add(t); out.push({ term: t, value: r.value });
+      seen.add(t); out.push({ term: t, value: r.value, at: r.created_at });
       if (out.length >= limit) break;
     }
     return out;
