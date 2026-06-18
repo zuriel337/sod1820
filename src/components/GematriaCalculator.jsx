@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
-import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -74,7 +74,25 @@ export default function GematriaCalculator({ seed, onResult }) {
     cross: { color: L.goldDeep, fontFamily: F.heading, fontSize: 14, fontWeight: 800, background: "#fff3d6", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "8px 12px" },
     sum: { color: L.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 700 },
   };
-  const actBtn = on => ({ cursor: "pointer", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "6px 16px", border: `1px solid ${on ? L.gold : L.line}`, background: on ? L.active : L.panel, color: on ? L.goldDeep : L.sub });
+  const actBtn = on => ({ cursor: "pointer", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "6px 16px", border: `1px solid ${L.line}`, ...(on ? { borderColor: L.gold, background: L.active, color: L.goldDeep } : { background: L.panel, color: L.sub }) });
+
+  // שורת אותיות לשיטה שנבחרה (אתבש=אות→אות · מסתתר=הפרשים · אחר=אות=ערך)
+  const LetterStrip = ({ mkey, w }) => {
+    const bd = methodLetters(mkey, w);
+    if (!bd) return null;
+    const seg = { fontFamily: F.mono, fontSize: 12, fontWeight: 700, color: L.goldDeep, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 8px" };
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 6, alignItems: "center" }}>
+        <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>{mkey}:</span>
+        {bd.type === "cipher" && bd.word && <span style={{ ...seg, color: L.ink, background: L.active }}>{bd.word}</span>}
+        {bd.segs.map((s, i) => (
+          <span key={i} style={seg}>
+            {bd.type === "cipher" ? <>{s.from}<span style={{ color: L.gold }}>→</span>{s.to}</> : bd.type === "diff" ? `${s.label}=${s.val}` : <>{s.ch}<span style={{ color: L.sub }}>=</span>{s.val}</>}
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div style={{ textAlign: "right" }}>
@@ -99,6 +117,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
             </div>
+            <LetterStrip mkey={m1} w={word} />
             {/* שורה 2 — נפתחת/נסגרת */}
             <div style={{ ...cs.row, marginTop: 8 }}>
               <span style={cs.lbl}>שורה 2</span>
@@ -107,6 +126,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               <span style={cs.eq}>= {v2}</span>
               <button onClick={() => setRow2Open(false)} style={cs.x} title="סגור שורה">✕</button>
             </div>
+            <LetterStrip mkey={m2} w={q2} />
             {/* בורר פעולה */}
             <div style={{ display: "flex", gap: 6, marginTop: 11, flexWrap: "wrap", alignItems: "center" }}>
               <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginInlineEnd: 2 }}>פעולה:</span>

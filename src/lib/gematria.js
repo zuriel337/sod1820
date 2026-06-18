@@ -69,3 +69,33 @@ export const DEPTH_METHODS = [
 ];
 
 export { GEM };
+
+// ===== פירוט אות-אות לשיטה נבחרת (לתצוגת "ראה את האותיות" במחשבון) =====
+// צפני החלפה — האות שאליה כל אות הופכת (אתב"ש / אלב"ם), כדי להראות אותיות על המסך.
+const ATBASH_L = { "א":"ת","ב":"ש","ג":"ר","ד":"ק","ה":"צ","ו":"פ","ז":"ע","ח":"ס","ט":"נ","י":"מ","כ":"ל","ל":"כ","מ":"י","נ":"ט","ס":"ח","ע":"ז","פ":"ו","צ":"ה","ק":"ד","ר":"ג","ש":"ב","ת":"א","ך":"ל","ם":"י","ן":"ט","ף":"ו","ץ":"ה" };
+const ALBAM_L  = { "א":"ל","ב":"מ","ג":"נ","ד":"ס","ה":"ע","ו":"פ","ז":"צ","ח":"ק","ט":"ר","י":"ש","כ":"ת","ל":"א","מ":"ב","נ":"ג","ס":"ד","ע":"ה","פ":"ו","צ":"ז","ק":"ח","ר":"ט","ש":"י","ת":"כ","ך":"ת","ם":"ב","ן":"ג","ף":"ו","ץ":"ז" };
+const LMAP = { "רגיל": GEM, "מילוי": MILUI, "קדמי": KID, "סידורי": ORD, "אתבש": ATB, "אלבם": ALB, "הכפלה": SQR, "הכפלה גדולה": SQR_GADOL, "משולש גדול": KID_GADOL, "מילוי דמילוי": MDM, "מילוי דמילוי גדול": MDM_GADOL };
+
+// מחזיר תיאור אות-אות לשיטה: cipher (אות→אות), diff (מסתתר), value (אות=ערך). null אם אין.
+export function methodLetters(key, word) {
+  const Ls = onlyHeb(word);
+  if (!Ls.length) return null;
+  if (key === "אתבש") return { type: "cipher", word: Ls.map(c => ATBASH_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ATBASH_L[c] || "?", val: ATB[c] || 0 })) };
+  if (key === "אלבם") return { type: "cipher", word: Ls.map(c => ALBAM_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ALBAM_L[c] || "?", val: ALB[c] || 0 })) };
+  if (key === "מסתתר" || key === "מסתתר גדול") {
+    const vf = key === "מסתתר גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
+    const segs = [];
+    for (let i = 0; i < Ls.length - 1; i++) segs.push({ label: `|${Ls[i]}−${Ls[i + 1]}|`, val: Math.abs(vf(Ls[i]) - vf(Ls[i + 1])) });
+    return { type: "diff", segs };
+  }
+  if (key === "גדול") return { type: "value", segs: Ls.map(c => ({ ch: c, val: FINAL[c] || GEM[c] || 0 })) };
+  if (key === "הנעלם") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (MILUI[c] || 0) - (GEM[c] || 0) })) };
+  if (key === "ריבוע" || key === "ריבוע גדול") {
+    const vf = key === "ריבוע גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
+    let run = 0;
+    return { type: "value", segs: Ls.map(c => { run += vf(c); return { ch: c, val: run }; }) };
+  }
+  const map = LMAP[key];
+  if (map) return { type: "value", segs: Ls.map(c => ({ ch: c, val: map[c] ?? 0 })) };
+  return null;
+}
