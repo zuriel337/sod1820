@@ -5,6 +5,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { getSearchFeed } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
+import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
 
 // 🕒 חיפושים אחרונים — מקור אחד (search_log) לכל האתר, דרגות לפי משתמש.
 // אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
@@ -39,9 +40,9 @@ export default function RecentSearches({ max = 0, light = true, seeAllTo = "/bei
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {shown.map((r, i) => (
-          <Link key={i} to={`/number/${encodeURIComponent(r.term)}`} title={`${r.term}${r.value ? ` = ${r.value}` : ""}`}
+          <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={isAdmin ? `${r.term}${r.value ? ` = ${r.value}` : ""}` : "חיפוש"}
             style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
-            <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{r.term}</span>
+            <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
             {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
             {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
           </Link>

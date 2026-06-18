@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
 import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate } from "../lib/crossesNew.js";
+import { shareCross, downloadCrossCard } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -10,7 +11,7 @@ import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import RecentSearches from "../components/RecentSearches.jsx";
+import BeitMidrashOverview from "../components/BeitMidrashOverview.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
@@ -285,9 +286,15 @@ function CrossCard({ item }) {
       {open && item.body && (
         <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.95, margin: "13px 0 0", whiteSpace: "pre-wrap" }}>{item.body}</p>
       )}
-      <button onClick={() => setOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "10px 0 0" }}>
-        {open ? "▴ הסתר את ההסבר" : "▾ קרא את ההסבר המלא"}
-      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+        <button onClick={() => setOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>
+          {open ? "▴ הסתר את ההסבר" : "▾ קרא את ההסבר המלא"}
+        </button>
+        <div style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
+          <button onClick={() => shareCross(item)} title="שתפו כתמונה" style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 16px" }}>✦ שתפו</button>
+          <button onClick={() => downloadCrossCard(item)} title="הורידו תמונה" aria-label="הורידו תמונה" style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, width: 34, height: 34, fontSize: 14 }}>🖼</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1116,7 +1123,7 @@ export default function BeitMidrashPage() {
           </p>
         </div>
 
-        <RecentSearches max={6} light seeAllTo="/beit-midrash?tab=searches" />
+        <BeitMidrashOverview />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">

@@ -79,7 +79,8 @@ export default function HomeNewPage() {
         .hn-enter { position:absolute; left:50%; bottom:-26px; transform:translateX(-50%); white-space:nowrap;
           box-shadow:0 10px 34px ${P.glow}; animation:hn-pulse 2.4s ease-in-out infinite; }
         @keyframes hn-pulse { 0%,100%{ box-shadow:0 10px 30px ${P.glow}; } 50%{ box-shadow:0 12px 44px ${P.accent}; } }
-        @media (max-width:520px){ .hn-cta-big{ font-size:18px; padding:13px 36px; } .hn-enter{ bottom:-22px; } }
+        @media (max-width:520px){ .hn-cta-big{ font-size:14.5px; padding:9px 22px; } .hn-enter{ bottom:-18px; } }
+        @media (max-width:360px){ .hn-cta-big{ font-size:13px; padding:8px 18px; } .hn-enter{ bottom:-16px; } }
         .hn-tile { background:${P.card}; border:1px solid ${P.border}; border-radius:14px; padding:16px 8px; text-decoration:none;
           text-align:center; transition:transform .15s, border-color .15s; }
         .hn-tile:hover { transform:translateY(-3px); border-color:${P.accent}; }
@@ -155,7 +156,7 @@ export default function HomeNewPage() {
       {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}
       {archEv && (
         <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-          <Link to="/timeline" className="hn-card" style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: "16px 18px", textDecoration: "none" }}>
+          <Link to={archEv.metadata?.slug ? `/${archEv.metadata.slug}` : "/timeline"} className="hn-card" style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: "16px 18px", textDecoration: "none" }}>
             <div style={{ fontSize: 30, flexShrink: 0 }}>📅</div>
             <div style={{ flex: 1 }}>
               <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, marginBottom: 4 }}>מהארכיון · {archAgo} ({archEv.metadata.year})</div>
