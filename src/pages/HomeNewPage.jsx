@@ -46,6 +46,14 @@ export default function HomeNewPage() {
         .hn-wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
         .hn-cta { display:inline-block; text-decoration:none; background:linear-gradient(135deg,#e9c84a,#9a7818); color:#1a0e00;
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px rgba(212,175,55,.4); }
+        .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
+        .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px; border:1px solid ${C.borderGold};
+          box-shadow:0 24px 70px rgba(0,0,0,.65), 0 0 60px rgba(212,175,55,.22); }
+        .hn-cta-big { font-size:21px; padding:16px 52px; }
+        .hn-enter { position:absolute; left:50%; bottom:-26px; transform:translateX(-50%); white-space:nowrap;
+          box-shadow:0 10px 34px rgba(212,175,55,.55); animation:hn-pulse 2.4s ease-in-out infinite; }
+        @keyframes hn-pulse { 0%,100%{ box-shadow:0 10px 30px rgba(212,175,55,.45); } 50%{ box-shadow:0 12px 44px rgba(212,175,55,.8); } }
+        @media (max-width:520px){ .hn-cta-big{ font-size:18px; padding:13px 36px; } .hn-enter{ bottom:-22px; } }
         .hn-pillar { background:linear-gradient(160deg,rgba(20,15,12,.7),rgba(8,5,2,.55)); border:1px solid ${C.borderGold}; border-radius:16px;
           padding:20px 18px; text-decoration:none; display:block; transition:transform .15s, border-color .15s; }
         .hn-pillar:hover { transform:translateY(-3px); border-color:${C.gold}; }
@@ -63,43 +71,21 @@ export default function HomeNewPage() {
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-grid2{grid-template-columns:1fr} .hn-postgrid{grid-template-columns:1fr 1fr} }
       `}</style>
 
-      {/* ===== HERO ===== */}
-      <section style={{ position: "relative", textAlign: "center", padding: "0 0 30px" }}>
-        <div style={{ position: "absolute", inset: 0, background: `center/cover no-repeat url(${HERO_IMG})`, opacity: 0.45 }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 35%, rgba(5,3,13,.2), rgba(5,3,13,.92) 75%)" }} />
-        <div className="hn-wrap" style={{ position: "relative", padding: "64px 18px 10px" }}>
-          <div style={{ color: C.goldLight, fontFamily: F.heading, letterSpacing: 6, fontSize: 14, textTransform: "uppercase" }}>כי לה' המלוכה</div>
-          <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(96px,22vw,210px)", fontWeight: 800, lineHeight: 1, textShadow: "0 0 60px rgba(212,175,55,.55)" }}>1820</div>
-          <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(18px,3vw,26px)", fontWeight: 700, marginTop: 4 }}>סוד 1820</div>
-          <p style={{ color: "#d8cfe0", fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.8, maxWidth: 520, margin: "14px auto 22px" }}>
-            לגלות את הסוד · לגעת בעצם הקשר · לחיות את הגאולה
-          </p>
-          <form onSubmit={go} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 440, margin: "0 auto 18px" }}>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="חשבו שם · מילה · מספר…" dir="rtl"
-              style={{ flex: 1, minWidth: 180, background: "rgba(8,5,2,.6)", border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "11px 18px", outline: "none", textAlign: "center" }} />
-            <button type="submit" style={{ cursor: "pointer", background: C.goldDeep, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
-          </form>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link to="/start" className="hn-cta">✨ כאן מתחילים</Link>
-            <Link to="/gematria" className="hn-cta" style={{ background: "transparent", color: C.goldBright, border: `1px solid ${C.gold}`, boxShadow: "none" }}>🧮 בדקו את השם שלכם</Link>
-          </div>
+      {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
+      <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
+        <div className="hn-gate">
+          <img src={HERO_IMG} alt="כי לה' המלוכה · סוד 1820 — שער המספר הגדול" className="hn-gate-img" />
+          {/* כפתור הכניסה — יושב על תחתית השער */}
+          <Link to="/start" className="hn-cta hn-cta-big hn-enter">✨ כאן מתחילים</Link>
         </div>
-      </section>
 
-      {/* ===== שתי העמודות ===== */}
-      <section className="hn-wrap" style={{ padding: "10px 18px 34px" }}>
-        <div className="hn-grid2">
-          <Link to="/beit-midrash" className="hn-pillar">
-            <div style={{ fontSize: 30, marginBottom: 8 }}>🔯</div>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>גימטריה קבלית</div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 6 }}>שמונה שיטות, מאגר מאומת, וחישוב כל שם ומילה — העובדה שמאחורי המספר.</div>
-          </Link>
-          <Link to="/map" className="hn-pillar">
-            <div style={{ fontSize: 30, marginBottom: 8 }}>✦</div>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>חכמת הקשרים</div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 6 }}>עץ ידע אחד — מספרים, אירועים וגלריות שמתכנסים יחד לרמזי הגאולה.</div>
-          </Link>
-        </div>
+        {/* חיפוש גימטריה + כניסה משנית */}
+        <form onSubmit={go} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 460, margin: "44px auto 12px" }}>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="חשבו שם · מילה · מספר…" dir="rtl"
+            style={{ flex: 1, minWidth: 180, background: "rgba(8,5,2,.6)", border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "11px 18px", outline: "none", textAlign: "center" }} />
+          <button type="submit" style={{ cursor: "pointer", background: C.goldDeep, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
+        </form>
+        <Link to="/gematria" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>🧮 בדקו את השם שלכם →</Link>
       </section>
 
       {/* ===== אריחי עדשות ===== */}
