@@ -898,6 +898,15 @@ export async function getSearchFeed(tier = 'anon') {
   } catch { return []; }
 }
 
+// ➕ אדמין: הוספת מילה מהחיפושים למאגר הראשי (ערכים מהמנוע המאומת).
+export async function adminAddWord(phrase, vals) {
+  try {
+    const { data, error } = await supabase.rpc('admin_add_word', { p_phrase: phrase, p_vals: vals });
+    if (error) return 'error';
+    return data || 'error';
+  } catch { return 'error'; }
+}
+
 // 🕒 חיפושים אחרונים — מה *כל* הגולשים חוקרים עכשיו (terms ייחודיים אחרונים).
 export async function getRecentSearches(limit = 6) {
   try {

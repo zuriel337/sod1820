@@ -9,7 +9,8 @@ import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import LiveDiscoveries from "../components/LiveDiscoveries.jsx";
+import RecentSearches from "../components/RecentSearches.jsx";
+import SearchesTab from "../components/SearchesTab.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -24,6 +25,7 @@ const L = {
 };
 
 const SECTIONS = [
+  { key: "searches", icon: "🔎", label: "מה נחקר" },
   { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
   { key: "community", icon: "👥", label: "חידושי גולשים" },
@@ -1130,7 +1132,7 @@ export default function BeitMidrashPage() {
           )}
         </div>
 
-        <LiveDiscoveries />
+        <RecentSearches max={4} light seeAllTo="/beit-midrash?tab=searches" />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
@@ -1175,6 +1177,7 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
+            {tab === "searches" && <SearchesTab />}
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}
