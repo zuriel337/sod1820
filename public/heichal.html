@@ -224,12 +224,13 @@ async function loadGates(){
 }
 
 // דמו מעבר חדר-לחדר (עמוד /היכל). פעיל רק עם ?demo=1 — לא נוגע ב-DB ולא בדף הבית הישן.
-// ממפה את דלת המספרים ל"עץ המספרים → דף הסולמות", ופותח אותה (openAt=null).
+// ממפה את דלת המספרים ל"עץ המספרים → דף הסולמות", ופותח אותה.
+// שים לב: gateUnlocked דורש openAt בעבר (null = שער חתום), לכן openAt = עכשיו-פחות-שנייה.
 function applyDemoOverrides(gates){
   try{
     if(new URLSearchParams(location.search).get('demo')!=='1') return;
     const g = gates.find(x=>x.url==='/numbers') || gates.find(x=>x.key==='engine');
-    if(g){ g.title='עץ המספרים'; g.url='/sulamot'; g.openAt=null;
+    if(g){ g.title='עץ המספרים'; g.url='/sulamot'; g.openAt=Date.now()-1000;
       g.world='מסע הסולמות — כל מספר עולה בדרגותיו. (דמו: מעבר חדר-לחדר)'; }
   }catch(e){}
 }
