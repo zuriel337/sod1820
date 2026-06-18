@@ -208,18 +208,18 @@ export default function EntityPage() {
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
-  const [deep, setDeep] = useState(() => { try { return localStorage.getItem("np-dna") === "1"; } catch { return false; } });
-  const [roots, setRoots] = useState(false);
-  const toggleDna = () => setDeep(v => { const n = !v; try { localStorage.setItem("np-dna", n ? "1" : "0"); } catch { /* ignore */ } return n; });
+  const [open, setOpen] = useState(() => {
+    let dna = false; try { dna = localStorage.getItem("np-dna") === "1"; } catch { /* ignore */ }
+    return { words: false, galleries: false, posts: false, dna, roots: false };
+  });
+  const toggleAcc = id => setOpen(o => { const n = { ...o, [id]: !o[id] }; if (id === "dna") { try { localStorage.setItem("np-dna", n.dna ? "1" : "0"); } catch { /* ignore */ } } return n; });
+  const allOpen = Object.values(open).every(Boolean);
+  const setAll = v => { setOpen({ words: v, galleries: v, posts: v, dna: v, roots: v }); try { localStorage.setItem("np-dna", v ? "1" : "0"); } catch { /* ignore */ } };
   const goChip = id => {
-    if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
-    if (["events", "insights", "comments"].includes(id)) setRoots(true);
+    if (["events", "insights", "comments"].includes(id)) setOpen(o => ({ ...o, roots: true }));
+    else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
     setTimeout(() => scrollTo(id), 70);
   };
-  const [open, setOpen] = useState({ words: false, galleries: false, posts: false });
-  const toggleAcc = id => setOpen(o => ({ ...o, [id]: !o[id] }));
-  const allOpen = open.words && open.galleries && open.posts && deep && roots;
-  const setAll = v => { setOpen({ words: v, galleries: v, posts: v }); setDeep(v); setRoots(v); try { localStorage.setItem("np-dna", v ? "1" : "0"); } catch { /* ignore */ } };
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
 
   // כרטיס מעוצב לפי התמה
@@ -237,7 +237,7 @@ export default function EntityPage() {
 
   useEffect(() => {
     let alive = true;
-    setLoading(true); setData(null); setRoots(false);
+    setLoading(true); setData(null); setOpen(o => ({ words: false, galleries: false, posts: false, dna: o.dna, roots: false }));
     getBundle({ term, value, isNumber })
       .then(d => { if (alive) { setData(d); setLoading(false); } })
       .catch(() => { if (alive) setLoading(false); });
@@ -363,7 +363,7 @@ export default function EntityPage() {
                   {hasGate && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 📜 {sigs.length} חתימות</span>}
                   {totalConn > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 🌳 מחובר ל-{totalConn}</span>}
                 </div>
-                <NumberPulse value={value} onExplore={() => { if (!deep) toggleDna(); setTimeout(() => scrollTo("dna-layer"), 80); }} />
+                <NumberPulse value={value} onExplore={() => { setOpen(o => ({ ...o, dna: true })); setTimeout(() => scrollTo("dna"), 80); }} />
               </div>
             );
           })()}
@@ -455,18 +455,9 @@ export default function EntityPage() {
           ) : null;
         })()}
 
-        {/* ── 🧬 שכבה 3 — DNA: איך המספר בנוי (סגור כברירת מחדל, פאנל "מעבדה" כהה) ── */}
-        <div id="dna-layer" style={{ marginBottom: 30, scrollMarginTop: 70 }}>
-          <button onClick={toggleDna} style={{
-            width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
-            background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "13px 18px",
-            color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
-          }}>
-            🧬 {deep ? "הסתירו את שכבת ה-DNA" : "ראו איך המספר בנוי — שיטות, מד התכנסות ו-DNA"}
-            <span style={{ fontSize: 11 }}>{deep ? "▲" : "▼"}</span>
-          </button>
-          {deep && (
-            <div style={{ marginTop: 14, background: P.labBg, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "14px 13px" }}>
+        {/* ── 🧬 DNA — איך המספר בנוי (אקורדיון, פאנל "מעבדה" כהה בפנים) ── */}
+        <Acc id="dna" icon="🧬" title="DNA — איך המספר בנוי" open={open} onToggle={toggleAcc} P={P}>
+            <div style={{ background: P.labBg, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "14px 13px" }}>
               {/* DNA המספר — משפט פותח */}
               {!loading && chips.length > 0 && (() => {
                 const parts = [];
@@ -499,34 +490,16 @@ export default function EntityPage() {
                 }}>📖 ללמוד את שיטות הגימטריה (מסתתר · מילוי · קדמי) בבית המדרש ←</Link>
               </div>
             </div>
-          )}
-        </div>
+        </Acc>
 
-        {/* ── מפת קשרים מהירה ── */}
+        {/* טעינה / אין קשרים (הוסרה שורת הכפילות שחזרה על כותרות האקורדיונים) */}
         {loading ? (
-          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 30 }}>טוען את כל הקשרים…</div>
-        ) : chips.length > 0 ? (
-          <div style={{
-            display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center",
-            padding: "16px 14px", marginBottom: 36, borderRadius: 16,
-            border: `1px solid ${P.border}`, background: P.cardSoft,
-          }}>
-            {chips.map(c => (
-              <button key={c.id} onClick={() => goChip(c.id)} style={{
-                cursor: "pointer", background: P.card, border: `1px solid ${P.border}`,
-                color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700,
-                padding: "8px 14px", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 7,
-              }}>
-                <span style={{ fontSize: 16 }}>{c.e}</span>
-                <b style={{ color: P.ink }}>{c.n}</b> {c.l}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 20, marginBottom: 30 }}>
+          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 24 }}>טוען…</div>
+        ) : chips.length === 0 ? (
+          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 18, marginBottom: 16 }}>
             עדיין לא נמצאו קשרים ל«{term}» — נסו מספר או ביטוי אחר.
           </div>
-        )}
+        ) : null}
 
         {/* ✨ קחו אותי למסע */}
         <div style={{ textAlign: "center", marginBottom: 34 }}>
@@ -560,20 +533,9 @@ export default function EntityPage() {
           </Acc>
         )}
 
-        {/* ── 🌱 שכבה 4 — שורשי המספר (כל השאר, בכפתור אחד) ── */}
-        <div style={{ marginBottom: 8 }}>
-          <button onClick={() => setRoots(v => !v)} style={{
-            width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
-            background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, padding: "13px 18px",
-            color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800,
-          }}>
-            🌱 {roots ? "סגרו את שורשי המספר" : "פתחו את שורשי המספר — כל השיטות, האירועים, הקהילה והצפנים"}
-            <span style={{ fontSize: 11 }}>{roots ? "▲" : "▼"}</span>
-          </button>
-        </div>
-
-        {roots && (
-          <div style={{ marginTop: 18 }}>
+        {/* ── 🌱 שורשי המספר (אקורדיון — כל השיטות, אירועים, קהילה, צפנים) ── */}
+        <Acc id="roots" icon="🌱" title="שורשי המספר" open={open} onToggle={toggleAcc} P={P}>
+          <div>
             {/* כל השיטות (לביטוי בלבד — למספר אין אותיות) */}
             {!isNumber && (
               <section style={{ marginBottom: 40 }}>
@@ -669,7 +631,7 @@ export default function EntityPage() {
               </Link>
             </section>
           </div>
-        )}
+        </Acc>
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
         {cardUrl && (
