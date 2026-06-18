@@ -44,6 +44,7 @@ import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
 import LabIndex from "./pages/LabIndex.jsx";
 import CalculatorPage from "./pages/CalculatorPage.jsx";
 import HomeNewPage from "./pages/HomeNewPage.jsx";
+import HeichalPage from "./pages/HeichalPage.jsx";
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -81,6 +82,9 @@ export default function App() {
           <Route path="/sulamot10" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={10} /></React.Suspense>} />
           <Route path="/sulamot11" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomEnter /></React.Suspense>} />
           <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
+          {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
+          <Route path="/היכל" element={<HeichalPage />} />
+          <Route path="/heichal" element={<HeichalPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
