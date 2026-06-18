@@ -4,7 +4,7 @@ import { Stars, Sparkles, Html, OrbitControls } from "@react-three/drei";
 import { useParams, useNavigate } from "react-router-dom";
 import { C, F, KEY_NUMBERS } from "../theme.js";
 import { applySeo } from "../lib/seo.js";
-import { getTopicCardBySlug, getGalleryImagesByIds } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, getTopicCards } from "../lib/supabase.js";
 
 const decodeHtml = (s) => { try { const t = document.createElement("textarea"); t.innerHTML = s || ""; return t.value; } catch { return s || ""; } };
 
@@ -63,19 +63,24 @@ function ImageCard({ img, pos, onPick }) {
   return (
     <group position={pos}>
       <Html center distanceFactor={12} style={{ pointerEvents: "auto" }} zIndexRange={[20, 0]}>
-        <button onClick={() => onPick(img)}
-          onMouseEnter={() => { setHover(true); document.body.style.cursor = "pointer"; }}
-          onMouseLeave={() => { setHover(false); document.body.style.cursor = "default"; }}
-          title={img.name ? decodeHtml(img.name) : "תמונה מהגלריה"}
-          style={{
-            width: hover ? 128 : 112, height: hover ? 128 : 112, padding: 0, cursor: "pointer",
-            border: `2px solid ${hover ? "#f6e27a" : "rgba(212,175,55,.5)"}`, borderRadius: 12, overflow: "hidden",
-            background: "#000", boxShadow: hover ? "0 0 30px rgba(212,175,55,.6)" : "0 0 16px rgba(0,0,0,.6)",
-            transition: "all .2s ease",
-          }}>
-          <img src={img.image_url} alt={img.name || ""} loading="lazy"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: hover ? 132 : 116 }}>
+          <button onClick={() => onPick(img)}
+            onMouseEnter={() => { setHover(true); document.body.style.cursor = "pointer"; }}
+            onMouseLeave={() => { setHover(false); document.body.style.cursor = "default"; }}
+            title={img.name ? decodeHtml(img.name) : "תמונה מהגלריה"}
+            style={{
+              width: hover ? 128 : 112, height: hover ? 128 : 112, padding: 0, cursor: "pointer",
+              border: `2px solid ${hover ? "#f6e27a" : "rgba(212,175,55,.5)"}`, borderRadius: 12, overflow: "hidden",
+              background: "#000", boxShadow: hover ? "0 0 30px rgba(212,175,55,.6)" : "0 0 16px rgba(0,0,0,.6)",
+              transition: "all .2s ease",
+            }}>
+            <img src={img.image_url} alt={img.name || ""} loading="lazy"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          </button>
+          <div style={{ marginTop: 5, color: "#e8dcc0", fontFamily: "Heebo, sans-serif", fontSize: 10, textAlign: "center", textShadow: "0 1px 5px #000", lineHeight: 1.3, maxHeight: 26, overflow: "hidden", pointerEvents: "none", direction: "rtl" }}>
+            {decodeHtml(img.name || "תמונה")}
+          </div>
+        </div>
       </Html>
     </group>
   );
@@ -163,13 +168,24 @@ export default function GalaxyPage() {
       if (t && (nums.length || imgIds.length)) {
         let images = [];
         if (imgIds.length) { try { images = await getGalleryImagesByIds(imgIds); } catch { /* ignore */ } }
+        // דלתות — טופיקים אחרים שחולקים מספר מובלט (מעבר חדר-לחדר)
+        let doors = [];
+        try {
+          const all = await getTopicCards({ approvedOnly: true });
+          const mine = new Set(nums);
+          doors = (all || [])
+            .filter(o => o.slug !== slug && (o.highlight_numbers || []).some(n => mine.has(Number(n))))
+            .slice(0, 5)
+            .map(o => ({ slug: o.slug, title: o.title, shared: (o.highlight_numbers || []).find(n => mine.has(Number(n))) }));
+        } catch { /* ignore */ }
         if (!alive) return;
+        const findings = (t.findings && typeof t.findings === "object" && !Array.isArray(t.findings)) ? t.findings : null;
         setG({
           title: t.title || "גלקסיה",
           subtitle: t.subtitle || "כל כוכב — מספר; כל תמונה — רמז. געו וחקרו.",
           accent: "#f6e27a",
           nodes: nums.map(n => ({ n, label: "" })),
-          images,
+          images, doors, findings,
         });
       } else setG(null);
       setLoading(false);
@@ -218,6 +234,39 @@ export default function GalaxyPage() {
         <div style={{ color: g.accent, fontFamily: F.regal, fontSize: "clamp(20px,4vw,32px)", fontWeight: 800, textShadow: "0 0 30px #000" }}>{g.title}</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>{g.subtitle}</div>
       </div>
+
+      {/* פאנל הרמזים — caveat + bullets (bullet עם img → פתיחת התמונה) */}
+      {g.findings && ((g.findings.bullets || []).length > 0 || g.findings.caveat) && (
+        <div style={{ position: "absolute", top: 64, insetInlineEnd: 14, width: "min(320px,82vw)", maxHeight: "62vh", overflowY: "auto", zIndex: 5, background: "rgba(8,5,2,.72)", border: "1px solid rgba(212,175,55,.32)", borderRadius: 14, padding: "14px 16px", backdropFilter: "blur(5px)", direction: "rtl", pointerEvents: "auto" }}>
+          <div style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: 14, fontWeight: 800, marginBottom: 10 }}>✦ הרמזים</div>
+          {(g.findings.bullets || []).map((b, i) => {
+            const im = b.img && (g.images || []).find(x => x.id === b.img);
+            return (
+              <div key={i} onClick={() => im && setSel(im)} style={{ display: "flex", gap: 8, marginBottom: 10, cursor: im ? "pointer" : "default", color: "#e8dcc0", fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>
+                <span style={{ color: "#d4af37" }}>•</span>
+                <span>{decodeHtml(b.t)}{im && <span style={{ color: "#9a7818" }}> 🖼</span>}</span>
+              </div>
+            );
+          })}
+          {g.findings.caveat && (
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(212,175,55,.2)", color: "#cfc9d6", fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6, fontStyle: "italic" }}>
+              {decodeHtml(g.findings.caveat)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* דלתות — מעבר לגלקסיות שחולקות מספר */}
+      {g.doors && g.doors.length > 0 && (
+        <div style={{ position: "absolute", bottom: 16, insetInline: 0, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", padding: "0 16px", zIndex: 5 }}>
+          {g.doors.map(d => (
+            <button key={d.slug} onClick={() => { setSel(null); nav(`/galaxy/${encodeURIComponent(d.slug)}`); }}
+              style={{ cursor: "pointer", background: "rgba(8,5,2,.74)", color: "#f6e27a", border: "1px solid rgba(212,175,55,.42)", borderRadius: 999, padding: "9px 16px", fontFamily: F.heading, fontWeight: 700, fontSize: 13, backdropFilter: "blur(4px)" }}>
+              🚪 {d.title}{d.shared ? ` · ${d.shared}` : ""}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* חזרה להיכל */}
       <button onClick={() => nav("/היכל")} style={backBtn}>← היכל השערים</button>
