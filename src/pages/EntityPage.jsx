@@ -134,6 +134,36 @@ function Shell({ P, children }) {
   return <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>{children}</div>;
 }
 
+// ❤️‍🔥 דופק המספר — עוצמה רגשית (כוכבים + הילה פועמת) מציון ההתכנסות (0-100). מזמין לחקור.
+function NumberPulse({ value, onExplore }) {
+  const P = usePalette();
+  const [score, setScore] = useState(null);
+  useEffect(() => {
+    if (!value || value < 10) { setScore(null); return; }
+    let live = true;
+    supabase.rpc("convergence_meter", { p_n: value })
+      .then(({ data }) => { if (live) setScore(typeof data?.score === "number" ? data.score : 0); })
+      .catch(() => { if (live) setScore(null); });
+    return () => { live = false; };
+  }, [value]);
+  if (score == null) return null;
+  const stars = Math.max(1, Math.min(5, Math.round(score / 20)));
+  const label = score >= 85 ? "נדיר · יסודי" : score >= 55 ? "עוצמה גבוהה" : score >= 25 ? "מתעורר" : "נוכחות שקטה";
+  return (
+    <button onClick={onExplore} title="גלו למה המספר הזה חזק"
+      style={{ cursor: "pointer", background: "none", border: "none", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4, margin: "12px auto 0" }}>
+      <style>{`@keyframes np-pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.1);opacity:1}}`}</style>
+      <div style={{ display: "inline-flex", gap: 3, fontSize: 21, color: P.accent,
+        filter: `drop-shadow(0 0 ${5 + score / 6}px ${P.glow})`, animation: "np-pulse 2.6s ease-in-out infinite" }}>
+        {[0, 1, 2, 3, 4].map(i => <span key={i} style={{ opacity: i < stars ? 1 : 0.22 }}>★</span>)}
+      </div>
+      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.3 }}>
+        עוצמה: {label} · {score}/100 ↓
+      </span>
+    </button>
+  );
+}
+
 function SectionHead({ icon, title, count }) {
   const P = usePalette();
   return (
@@ -302,6 +332,7 @@ export default function EntityPage() {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
+          <NumberPulse value={value} onExplore={() => { if (!deep) toggleDna(); setTimeout(() => scrollTo("dna-layer"), 80); }} />
           {msgs[0] && (
             <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
@@ -310,6 +341,11 @@ export default function EntityPage() {
           {msgs[1] && msgs[1].layer !== "F" && (
             <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
               ✦ הידעת? {msgs[1].text}
+            </p>
+          )}
+          {!loading && (d.postsCount || d.galleriesCount || d.eventsCount) > 0 && (
+            <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, margin: "8px auto 0", lineHeight: 1.6 }}>
+              🌳 מחובר ל־{[d.postsCount && `${d.postsCount} פוסטים`, d.galleriesCount && `${d.galleriesCount} גלריות`, d.eventsCount && `${d.eventsCount} צירי התכנסות`].filter(Boolean).join(" · ")}
             </p>
           )}
           <ShareButtons
@@ -386,7 +422,7 @@ export default function EntityPage() {
         })()}
 
         {/* ── 🧬 שכבה 3 — DNA: איך המספר בנוי (סגור כברירת מחדל, פאנל "מעבדה" כהה) ── */}
-        <div style={{ marginBottom: 30 }}>
+        <div id="dna-layer" style={{ marginBottom: 30, scrollMarginTop: 70 }}>
           <button onClick={toggleDna} style={{
             width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
             background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "13px 18px",
