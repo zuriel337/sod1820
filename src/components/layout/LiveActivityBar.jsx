@@ -1,29 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../../theme.js";
-import { getLiveFeed, getLiveStats, getCrossTickerItems, dayOfYear, displayJoinedToday } from "../../lib/supabase.js";
-import { subscribeJoins } from "../../lib/joinEvents.js";
+import { getCrossTickerItems, dayOfYear } from "../../lib/supabase.js";
 
-// 🔴 פס פעילות חי — רצועה רצה (marquee) עם עדכונים אמיתיים בלבד:
-// 🔍 חיפושים · 👥 משתמשים חדשים · 📚 פוסטים · 🌳 התכנסויות · 🧠 גילויי AI · 📊 סטטיסטיקה.
-// כל המקורות נקראים מהגרף; אם אין נתונים — ברכות מתחלפות (fallback).
-const FALLBACK = [
-  { icon: "✦", text: "ברוכים הבאים לעולם החדש — בכל יום מתווספים עולמות, כלים ותגליות", to: "/start" },
-  { icon: "🧮", text: "המחשבון ובית המדרש פתוחים לכולם, חינם", to: "/beit-midrash?tab=calc" },
-  { icon: "🌳", text: "כל האתר הוא גרף ידע אחד — כל חיפוש חושף קשר חדש", to: "/map" },
-];
-
-// בונה פריטי סטטיסטיקה אמיתיים מתוך live_stats()
-function statItems(s) {
-  if (!s) return [];
-  const out = [];
-  if (s.searches_today > 0) out.push({ icon: "🔥", text: `${s.searches_today.toLocaleString()} חיפושי גימטריה היום`, to: "/beit-midrash?tab=calc" });
-  out.push({ icon: "👥", text: `${displayJoinedToday(s.members_today)} חוקרים הצטרפו היום · סה״כ ${(s.members_total || 0).toLocaleString()}`, to: "/start" });
-  if (s.convergences_week > 0) out.push({ icon: "🌳", text: `${s.convergences_week} התכנסויות נוספו השבוע`, to: "/map" });
-  if (s.posts_total > 0) out.push({ icon: "📚", text: `${s.posts_total.toLocaleString()} פוסטים במאגר — אלפי קשרים ממתינים לחשיפה`, to: "/post" });
-  if (s.insights_total > 0) out.push({ icon: "🧠", text: `${s.insights_total} גילויי AI בבית המדרש`, to: "/beit-midrash" });
-  return out;
-}
+// 🚧 רצועה עליונה — שתי שכבות:
+// 1) באנר קבוע ובולט: האתר בבנייה + התנצלות על הניווט (מודגש כל הזמן, לא נגלל).
+// 2) פנינה אחת (פנינת היום) שרצה הלוך-ושוב (ping-pong) — נקראת תוך כדי תנועה, עוצרת במעבר עכבר.
 
 // פירוט גימטריה לפנינה → "ביטוי = ערך · ..." (תומך במבנה חדש וישן)
 function pairsText(gp) {
@@ -36,101 +18,101 @@ function pairsText(gp) {
 }
 const cleanT = s => String(s || "").replace(/<[^>]*>/g, "").trim();
 
-// משלב את פריטי הסטטיסטיקה בתוך זרם העדכונים (אחד לכל ~5 פריטים)
-function interleave(feed, stats) {
-  if (!stats.length) return feed;
-  const out = []; let si = 0;
-  feed.forEach((item, i) => {
-    out.push(item);
-    if (i > 0 && (i + 1) % 5 === 0 && si < stats.length) out.push({ ...stats[si++], _stat: true });
-  });
-  while (si < stats.length) out.push({ ...stats[si++], _stat: true });
-  return out;
+// פנינת ברירת־מחדל (בזמן טעינה / אם אין נתונים) — פנינת היסוד 1820
+const FALLBACK_PEARL = {
+  text: "💎 פנינת היום · 1820 — פסוק הגבול: «אם עד תכלית שדי תמצא» — אם עד תכלית שדי תמצא = 1820 · שם ה׳ בתורה = 1820 פעם",
+  to: "/number/1820",
+};
+
+// בונה את טקסט הפנינה + יעד קישור מתוך רשומת insight
+function buildPearl(c) {
+  if (!c) return FALLBACK_PEARL;
+  const detail = pairsText(c.gematria_pairs);
+  const gp = c.gematria_pairs;
+  const num = (gp && !Array.isArray(gp)) ? gp.number : null;
+  return {
+    text: `💎 פנינת היום · ${cleanT(c.title)}${detail ? " — " + detail : ""}`,
+    to: num ? `/number/${num}` : "/beit-midrash?tab=crosses",
+  };
 }
 
 export default function LiveActivityBar() {
-  const [feed, setFeed] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [crosses, setCrosses] = useState([]);
+  const [pearl, setPearl] = useState(FALLBACK_PEARL);
+  const [shift, setShift] = useState(0);
+  const outer = useRef(null);
+  const inner = useRef(null);
 
-  // טעינה + רענון אוטומטי כל 45 שנ' → עדכונים חדשים נכנסים מעצמם
+  // טעינת פנינת היום — נבחרת דטרמיניסטית מתוך הפנינים המככבים (יציבה ליום, מתחלפת מעצמה כל יום)
   useEffect(() => {
     let live = true;
-    const load = () => {
-      getLiveFeed().then(f => { if (live) setFeed(f); }).catch(() => {});
-      getLiveStats().then(s => { if (live) setStats(s); }).catch(() => {});
-      getCrossTickerItems().then(c => { if (live) setCrosses(c); }).catch(() => {});
-    };
-    load();
-    const t = setInterval(load, 45000);
-    return () => { live = false; clearInterval(t); };
+    getCrossTickerItems().then(list => {
+      if (!live || !list || !list.length) return;
+      const featured = list.filter(c => c.panel_data?.featured);
+      const pool = featured.length ? featured : list;
+      const chosen = pool[dayOfYear() % pool.length];
+      setPearl(buildPearl(chosen));
+    }).catch(() => {});
+    return () => { live = false; };
   }, []);
 
-  // הצטרפות חיה (realtime) → מקפיץ פריט לראש הרצועה מיד
-  useEffect(() => subscribeJoins(() => {
-    setFeed(prev => [{ k: "join", ts: new Date().toISOString(), icon: "👋", text: "חוקר חדש הצטרף לבית המדרש", to: "/start" }, ...prev].slice(0, 60));
-  }), []);
+  // מדידת רוחב → מרחק ה-ping-pong (כמה התוכן חורג מהמסגרת). מתעדכן בשינוי גודל.
+  useEffect(() => {
+    const measure = () => {
+      if (!outer.current || !inner.current) return;
+      const W = outer.current.clientWidth;
+      const Cw = inner.current.scrollWidth;
+      setShift(Math.max(0, Cw - W + 18));
+    };
+    measure();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (ro && outer.current) ro.observe(outer.current);
+    window.addEventListener("resize", measure);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [pearl]);
 
-  const dedupe = arr => {
-    const seen = new Set();
-    return arr.filter(it => { const t = it && it.text; if (!t || seen.has(t)) return false; seen.add(t); return true; });
-  };
-  const items = useMemo(() => {
-    const merged = interleave(feed, statItems(stats));
-    const base = merged.length ? merged : FALLBACK;
-    if (!crosses.length) return dedupe(base);
-    const di = dayOfYear() % crosses.length;
-    const cx = crosses.map((c, i) => {
-      const detail = pairsText(c.gematria_pairs);
-      const isGate = i === di;
-      const gp = c.gematria_pairs;
-      const num = (gp && !Array.isArray(gp)) ? gp.number : null;
-      return {
-        k: `cx${c.id}`, _gate: true, icon: "💎",
-        text: `${isGate ? "פנינת היום · " : ""}${cleanT(c.title)}${detail ? " — " + detail : ""}`,
-        to: num ? `/number/${num}` : "/beit-midrash?tab=crosses",
-      };
-    });
-    return dedupe([...cx, ...base]);
-  }, [feed, stats, crosses]);
-
-  // חזרה עצמית: אם יש מעט פריטים — משכפלים מספיק כדי שהפס תמיד מלא וחוזר על עצמו ברצף
-  const oneSet = items.length >= 8 ? items : Array(Math.ceil(8 / Math.max(1, items.length))).fill(items).flat();
-  // משך האנימציה פרופורציונלי לרוחב התוכן → מהירות אחידה. גבוה יותר = איטי יותר (קריא).
-  const duration = Math.max(55, oneSet.length * 9);
-  // משכפלים פעמיים לגלילה אינסופית חלקה (translateX(-50%) = סט אחד)
-  const loop = [...oneSet, ...oneSet];
+  // משך התנועה פרופורציונלי למרחק → מהירות אחידה ונעימה (≈26px/שנ'). מינימום למניעת ריצוד.
+  const dur = Math.max(10, Math.round(shift / 26));
+  const moving = shift > 0;
 
   return (
-    <div className="lab-wrap" style={{ direction: "rtl", background: "rgba(10,7,2,0.92)", borderBottom: `1px solid ${C.border}`, overflow: "hidden", position: "relative" }}>
+    <div style={{ direction: "rtl", borderBottom: `1px solid ${C.border}`, position: "relative" }}>
       <style>{`
-        @keyframes lab-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @keyframes lab-dot { 0%,100% { opacity:.4; transform:scale(.8); } 50% { opacity:1; transform:scale(1.25); } }
-        .lab-track { display: inline-flex; align-items: center; white-space: nowrap; will-change: transform; animation: lab-scroll linear infinite; }
-        .lab-wrap:hover .lab-track { animation-play-state: paused; }
-        .lab-item { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; padding: 0 4px; }
-        .lab-item:hover .lab-text { color: ${C.goldBright}; }
-        .lab-sep { color: ${C.borderGold}; opacity: .5; padding: 0 14px; font-size: 11px; }
-        @media (max-width: 640px) { .lab-badge-text { display:none; } }
+        @keyframes lab-pong { from { transform: translateX(0); } to { transform: translateX(var(--lab-shift, 0px)); } }
+        @keyframes lab-build-pulse { 0%,100% { opacity:.78; } 50% { opacity:1; } }
+        @keyframes lab-cone { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+        .lab-build { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+          background: linear-gradient(90deg, rgba(60,40,5,0.55), rgba(80,55,8,0.7), rgba(60,40,5,0.55));
+          border-bottom: 1px solid rgba(212,175,55,0.25); padding: 5px 12px; text-align:center; }
+        .lab-build-txt { color:#ffd36b; font-family:${F.heading}; font-size:12.5px; font-weight:800; letter-spacing:.2px;
+          animation: lab-build-pulse 2.4s ease-in-out infinite; }
+        .lab-build-cone { display:inline-block; animation: lab-cone 2.2s ease-in-out infinite; }
+        .lab-pearl-wrap { background: rgba(10,7,2,0.92); overflow: hidden; position: relative; padding: 7px 0; }
+        .lab-pearl-row { display:flex; align-items:center; }
+        .lab-pearl { white-space: nowrap; flex: 0 0 auto; text-decoration:none;
+          color:#ffcf4d; font-family:${F.royal}; font-size:14.5px; font-weight:700; padding:0 14px; }
+        .lab-pearl:hover { color:${C.goldBright}; }
+        .lab-pearl.moving { animation: lab-pong var(--lab-dur,30s) ease-in-out infinite alternate; }
+        .lab-pearl-wrap:hover .lab-pearl.moving { animation-play-state: paused; }
+        @media (max-width: 640px) { .lab-build-txt { font-size:11px; } .lab-pearl { font-size:13.5px; } }
       `}</style>
 
-      {/* תווית "חי" קבועה (לא נגללת) */}
-      <div className="lab-badge" style={{ position: "absolute", insetInlineStart: 0, top: 0, bottom: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 6, padding: "0 12px", background: "linear-gradient(90deg, rgba(10,7,2,0) 0%, rgba(10,7,2,0.95) 28%)" }}>
-        <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff5a5a", boxShadow: "0 0 8px #ff5a5a", animation: "lab-dot 1.4s ease-in-out infinite" }} />
-        <span className="lab-badge-text" style={{ color: "#ff7a7a", fontFamily: F.heading, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>חי</span>
+      {/* באנר בנייה קבוע — מודגש כל הזמן, לא נגלל */}
+      <div className="lab-build">
+        <span className="lab-build-cone" aria-hidden>🚧</span>
+        <span className="lab-build-txt">האתר בבנייה — מתנצלים על חוסר הנוחות בניווט · בקרוב יטופל 🙏</span>
       </div>
 
-      <div style={{ padding: "7px 0" }}>
-        <div className="lab-track" style={{ animationDuration: `${duration}s` }}>
-          {loop.map((it, i) => (
-            <React.Fragment key={i}>
-              <Link to={it.to || "/"} className="lab-item">
-                <span style={{ fontSize: 14 }}>{it.icon}</span>
-                <span className="lab-text" style={{ color: (it._stat || it._gate) ? "#ffcf4d" : C.goldLight, fontFamily: F.royal, fontSize: 14.5, fontWeight: (it._stat || it._gate) ? 700 : 500, transition: "color .2s" }}>{it.text}</span>
-              </Link>
-              <span className="lab-sep" aria-hidden>✦</span>
-            </React.Fragment>
-          ))}
+      {/* פנינה אחת — הלוך ושוב */}
+      <div className="lab-pearl-wrap" ref={outer}>
+        <div className="lab-pearl-row" style={{ justifyContent: moving ? "flex-start" : "center" }}>
+          <Link
+            to={pearl.to || "/"}
+            ref={inner}
+            className={`lab-pearl${moving ? " moving" : ""}`}
+            style={{ "--lab-shift": `${shift}px`, "--lab-dur": `${dur}s` }}
+          >
+            {pearl.text}
+          </Link>
         </div>
       </div>
     </div>
