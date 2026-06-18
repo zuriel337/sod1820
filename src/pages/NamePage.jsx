@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 import { resolve, buildMessages } from "../lib/engine.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import SearchTabs from "../components/SearchTabs.jsx";
@@ -12,7 +11,6 @@ import SearchTabs from "../components/SearchTabs.jsx";
 
 export default function NamePage() {
   const P = usePalette();
-  const mode = useThemeMode();
   const [name, setName] = useState("");
   const [revealed, setRevealed] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -26,11 +24,6 @@ export default function NamePage() {
   return (
     <div style={{ background: P.pageBg, minHeight: "92vh", direction: "rtl", position: "relative", zIndex: 1,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 18px 70px" }}>
-      <button onClick={toggleTheme} title="החלפת תמה" aria-label="החלפת תמה" style={{
-        position: "absolute", top: 16, insetInlineStart: 16, cursor: "pointer", width: 38, height: 38, borderRadius: 999,
-        border: `1px solid ${P.borderStrong}`, background: P.cardSoft, color: P.accentText, fontSize: 17 }}>
-        {mode === "light" ? "🌙" : "☀️"}
-      </button>
 
       <SearchTabs />
 

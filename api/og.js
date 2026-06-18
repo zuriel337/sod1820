@@ -59,6 +59,16 @@ export default async function handler(req, res) {
       desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
       image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}`;
     }
+  } else if (key === '/number') {
+    // "הגוגל של המספרים" — דף הנחיתה
+    title = "מנוע המספרים — הגוגל של המספרים · " + SITE_NAME;
+    desc = "הקלידו מספר, שם או פסוק — וגלו את עץ הקשרים הנסתר שלו. המנוע מזהה לבד.";
+    image = `${SITE}/api/card?w=${encodeURIComponent('מנוע המספרים')}&sub=${encodeURIComponent('הגוגל של המספרים')}&cap=${encodeURIComponent('הקלידו מספר או שם — וגלו את עץ הקשרים')}`;
+  } else if (key === '/name' || key === '/שם') {
+    // השער הויראלי — "מה השם שלך מסתיר?"
+    title = "מה השם שלך מסתיר? · " + SITE_NAME;
+    desc = "הקלידו את שמכם וגלו את הסוד הגימטרי שמאחוריו — מה השם שלכם אומר עליכם.";
+    image = `${SITE}/api/card?w=${encodeURIComponent('מה השם שלך מסתיר?')}&sub=${encodeURIComponent('הקלידו שם · גלו את הסוד')}&cap=${encodeURIComponent('בדקו את השם שלכם · סוד 1820')}`;
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
