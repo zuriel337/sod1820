@@ -96,7 +96,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
 }
 
 // כפתורי שיתוף — השיתוף הראשי מייצר תמונה אוטומטית ומשתף אותה (לולאת ויראליות)
-function ShareButtons({ value, phrases, copyText, onPreview }) {
+function ShareButtons({ value, term, phrases, copyText, onPreview }) {
   const P = usePalette();
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -107,11 +107,13 @@ function ShareButtons({ value, phrases, copyText, onPreview }) {
   }
   const icoBtn = { cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, width: 40, height: 40, fontSize: 16, display: "inline-flex", alignItems: "center", justifyContent: "center" };
   return (
-    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", marginTop: 16 }}>
+    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginTop: 16 }}>
       <button onClick={share} disabled={busy}
         style={{ cursor: busy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 26px", borderRadius: 999 }}>
         {busy ? "מכין…" : "✦ שתפו"}
       </button>
+      <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף"
+        style={{ textDecoration: "none", cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px" }}>🎲 מסע</Link>
       <button onClick={onPreview} title="תצוגה מקדימה" aria-label="תצוגה מקדימה" style={icoBtn}>🖼</button>
       <button onClick={() => { navigator.clipboard?.writeText(copyText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
         title="העתק קישור" aria-label="העתק קישור" style={icoBtn}>{copied ? "✓" : "🔗"}</button>
@@ -385,6 +387,7 @@ export default function EntityPage() {
           )}
           <ShareButtons
             value={value}
+            term={term}
             phrases={data?.phrases || []}
             onPreview={openCard}
             copyText={isNumber
@@ -395,11 +398,22 @@ export default function EntityPage() {
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
-        {/* ── 📂 פתח/סגור הכל ── */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+        {/* ── 📂 פתח/סגור הכל + מספרים קרובים (אותו שורש, סדר גודל אחר — zero_scale_law) ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
           <button onClick={() => setAll(!allOpen)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
             {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
           </button>
+          {value >= 10 && (() => {
+            const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
+            return near.length ? (
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", marginInlineStart: "auto" }}>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>קרובים ✦</span>
+                {near.map(n => (
+                  <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{n}</Link>
+                ))}
+              </div>
+            ) : null;
+          })()}
         </div>
 
         {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
@@ -448,19 +462,6 @@ export default function EntityPage() {
           </Acc>
         )}
 
-        {/* ── מספרים קרובים (אותו שורש בסדר גודל אחר — zero_scale_law) ── */}
-        {value >= 10 && (() => {
-          const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
-          return near.length ? (
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 30 }}>
-              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>מספרים קרובים ✦</span>
-              {near.map(n => (
-                <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{n}</Link>
-              ))}
-            </div>
-          ) : null;
-        })()}
-
         {/* ── 🧬 DNA — איך המספר בנוי (אקורדיון, פאנל "מעבדה" כהה בפנים) ── */}
         <Acc id="dna" icon="🧬" title="DNA — איך המספר בנוי" open={open} onToggle={toggleAcc} P={P}>
             <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 16, padding: "14px 13px" }}>
@@ -506,15 +507,6 @@ export default function EntityPage() {
             עדיין לא נמצאו קשרים ל«{term}» — נסו מספר או ביטוי אחר.
           </div>
         ) : null}
-
-        {/* ✨ קחו אותי למסע */}
-        <div style={{ textAlign: "center", marginBottom: 34 }}>
-          <Link to={`/journey?from=${encodeURIComponent(term)}`} style={{
-            display: "inline-block", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
-            fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", borderRadius: 999,
-            boxShadow: `0 6px 22px ${P.glow}`,
-          }}>🎲 קחו אותי למסע מ־{value}</Link>
-        </div>
 
         {/* ── 📖 פוסטים (כלי עזר — מקס 4 + הצלבות 3) ── */}
         {(d.posts?.length > 0 || harvest.length > 0) && (
