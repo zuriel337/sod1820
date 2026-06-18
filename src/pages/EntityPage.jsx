@@ -638,7 +638,7 @@ export default function EntityPage() {
 
         {/* ── 🕒 נחקר לאחרונה — מקור מאוחד, דרגות לפי משתמש ── */}
         <div style={{ marginTop: 24 }}>
-          <RecentSearches max={3} light={isLight} />
+          <RecentSearches max={6} light={isLight} seeAllTo="/beit-midrash?tab=searches" />
         </div>
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}

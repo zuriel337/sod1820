@@ -1101,7 +1101,7 @@ export default function BeitMidrashPage() {
           </p>
         </div>
 
-        <RecentSearches max={4} light seeAllTo="/beit-midrash?tab=searches" />
+        <RecentSearches max={6} light seeAllTo="/beit-midrash?tab=searches" />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">

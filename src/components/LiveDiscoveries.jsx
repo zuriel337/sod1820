@@ -32,7 +32,7 @@ export default function LiveDiscoveries() {
         </div>
       )}
       {/* חיפושים אחרונים — מקור אחד, דרגות לפי משתמש (אנונימי 3 · רשום 3 ימים · מנוי 30 · אדמין הכל) */}
-      <RecentSearches light seeAllTo="/beit-midrash" />
+      <RecentSearches max={6} light seeAllTo="/beit-midrash?tab=searches" />
     </div>
   );
 }

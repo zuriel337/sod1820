@@ -9,7 +9,7 @@ import { useSubscribed } from "./SubscribeGate.jsx";
 // 🕒 חיפושים אחרונים — מקור אחד (search_log) לכל האתר, דרגות לפי משתמש.
 // אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
 // props: max (תקרת תצוגה, למצב קומפקטי) · light · seeAllTo (קישור ל"כל החיפושים").
-export default function RecentSearches({ max = 0, light = true, seeAllTo = "/beit-midrash", title = "🕒 נחקר לאחרונה" }) {
+export default function RecentSearches({ max = 0, light = true, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
   const { user, profile } = useAuth();
   const subscribed = useSubscribed();
   const [rows, setRows] = useState([]);
