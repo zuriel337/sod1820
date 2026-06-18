@@ -617,6 +617,15 @@ export async function getTopicCards({ approvedOnly = false } = {}) {
   const { data } = await q;
   return data || [];
 }
+// אירועי ציר ההתגלות (nodes type=event) — לשימוש ב"מהארכיון" בדף הבית
+export async function getAxisEvents(limit = 24) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('nodes')
+    .select('id,label,weight,hebrew_date,metadata')
+    .eq('type', 'event').eq('is_active', true)
+    .order('weight', { ascending: false }).limit(limit);
+  return data || [];
+}
 export async function getTopicCardBySlug(slug) {
   if (!supabase || !slug) return null;
   const { data } = await supabase.from('topic_cards').select('*').eq('slug', slug).maybeSingle();

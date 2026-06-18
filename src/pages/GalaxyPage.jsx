@@ -4,6 +4,7 @@ import { Stars, Sparkles, Html, OrbitControls } from "@react-three/drei";
 import { useParams, useNavigate } from "react-router-dom";
 import { C, F, KEY_NUMBERS } from "../theme.js";
 import { applySeo } from "../lib/seo.js";
+import { getTopicCardBySlug } from "../lib/supabase.js";
 
 // ===== גלקסיות — namespace מערכתי קבוע למסך-מלא (/galaxy/:slug) =====
 // כל גלקסיה = מדור אינטראקטיבי במסך מלא, נכנסים אליו מהיכל השערים.
@@ -89,7 +90,29 @@ const backBtn = {
 export default function GalaxyPage() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const g = GALAXIES[slug];
+  const [g, setG] = useState(() => GALAXIES[slug] || null);
+  const [loading, setLoading] = useState(!GALAXIES[slug]);
+
+  // גלקסיה סטטית (רישום) → מיידי; אחרת — נשאב טופיק לפי slug (כל טופיק = גלקסיה,
+  // המספרים המובלטים שלו = כוכבים → לחיצה פותחת /number/:n).
+  useEffect(() => {
+    if (GALAXIES[slug]) { setG(GALAXIES[slug]); setLoading(false); return; }
+    let alive = true; setLoading(true);
+    getTopicCardBySlug(slug).then(t => {
+      if (!alive) return;
+      const nums = [...new Set((((t && t.highlight_numbers) || []).map(Number)).filter(Boolean))];
+      if (t && nums.length) {
+        setG({
+          title: t.title || "גלקסיה",
+          subtitle: t.subtitle || "כל כוכב — מספר מפתח. געו בו והיכנסו אל הדף שלו.",
+          accent: "#f6e27a",
+          nodes: nums.map(n => ({ n, label: "" })),
+        });
+      } else setG(null);
+      setLoading(false);
+    }).catch(() => { if (alive) { setG(null); setLoading(false); } });
+    return () => { alive = false; };
+  }, [slug]);
 
   useEffect(() => {
     applySeo({
@@ -98,6 +121,14 @@ export default function GalaxyPage() {
       path: `/galaxy/${slug || ""}`,
     });
   }, [slug, g]);
+
+  if (loading) {
+    return (
+      <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "radial-gradient(circle at 50% 45%, #0b0a1e, #04030a)", direction: "rtl", display: "flex", alignItems: "center", justifyContent: "center", color: C.goldDim, fontFamily: F.heading, letterSpacing: 2 }}>
+        טוען גלקסיה…
+      </div>
+    );
+  }
 
   if (!g) {
     return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -34,6 +34,7 @@ export default function HomeNewPage() {
   const [posts, setPosts] = useState([]);
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
+  const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
@@ -45,11 +46,22 @@ export default function HomeNewPage() {
       const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
       if (ids.length) { try { const im = await getGalleryImagesByIds(ids); setImgMap(Object.fromEntries((im || []).map(x => [x.id, x.image_url]))); } catch { /* ignore */ } }
     }).catch(() => {});
+    getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
   // יום = קלף קרם (אטום, מכסה). מקור אחד: SpaceBackground.jsx → משנה את כל הדפים הכהים.
   const rootBg = P.pageBg;
+
+  // שער הגלקסיות — טופיקים שעוברים סף מחמיר (meter≥63) = גלקסיות פתוחות
+  const galaxies = cards.filter(c => (c.meter_score || 0) >= 63).slice(0, 6);
+
+  // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
+  const decodeHtml = s => { try { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; } catch { return s; } };
+  const yearEvents = events.filter(e => +(e.metadata?.year) > 1900);
+  const archEv = yearEvents.length ? yearEvents[Math.floor(Date.now() / 864e5) % yearEvents.length] : null;
+  const archN = archEv ? new Date().getFullYear() - +archEv.metadata.year : 0;
+  const archAgo = archN <= 0 ? "השנה" : archN === 1 ? "לפני שנה" : `לפני ${archN} שנים`;
 
   return (
     <div style={{ direction: "rtl", minHeight: "100vh", background: rootBg, color: P.ink }}>
@@ -113,12 +125,61 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== שולחן עבודה — מה גולשים מחפשים עכשיו ===== */}
+      {/* ===== שער הגלקסיות — התכנסויות גדולות → חוויית מסך מלא ===== */}
+      {galaxies.length > 0 && (
+        <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+          <h2 className="hn-h2">🌌 שער הגלקסיות</h2>
+          <p className="hn-sub">היכנסו אל ההתכנסויות הגדולות — חוויית מסך מלא, כוכב לכל מספר</p>
+          <div className="hn-postgrid">
+            {galaxies.map(c => {
+              const img = imgMap[(c.image_ids || [])[0]];
+              return (
+                <Link key={c.slug} to={`/galaxy/${encodeURIComponent(c.slug)}`} className="hn-card">
+                  <div style={{ height: 130, background: img ? `center/cover no-repeat url(${img})` : P.cardGrad, display: "flex", alignItems: "flex-end" }}>
+                    <span style={{ color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, background: "rgba(5,4,0,.55)", borderRadius: 999, padding: "3px 10px", margin: 8 }}>🌌 כניסה לגלקסיה</span>
+                  </div>
+                  <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+                    <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>
+                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: "auto" }}>
+                      {(c.highlight_numbers || []).slice(0, 4).map(n => (
+                        <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "1px 9px" }}>{n}</span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <Link to="/galaxy/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל גלקסיית עץ המספרים →</Link>
+          </div>
+        </section>
+      )}
+
+      {/* ===== מה גולשים מחפשים עכשיו ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🔎 על שולחן העבודה</h2>
+        <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
         <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון — ומתי</p>
         <VisitorSearchesBox light={P.mode === "light"} limit={20} />
       </section>
+
+      {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}
+      {archEv && (
+        <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+          <Link to="/timeline" className="hn-card" style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: "16px 18px", textDecoration: "none" }}>
+            <div style={{ fontSize: 30, flexShrink: 0 }}>📅</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, marginBottom: 4 }}>מהארכיון · {archAgo} ({archEv.metadata.year})</div>
+              <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                {decodeHtml(stripHtml(archEv.label || "")).slice(0, 110)}
+              </div>
+            </div>
+            <span aria-hidden style={{ color: P.accentText, fontSize: 18 }}>←</span>
+          </Link>
+        </section>
+      )}
+
+      {/* ===== עדכונים אחרונים (בחזית) ===== */}
 
       {/* ===== עדכונים אחרונים (בחזית) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
