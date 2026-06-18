@@ -332,7 +332,21 @@ export default function EntityPage() {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          <NumberPulse value={value} onExplore={() => { if (!deep) toggleDna(); setTimeout(() => scrollTo("dna-layer"), 80); }} />
+          {/* 💎 קופסת הזהות — למה המספר חשוב (וואו ב-3 שניות) */}
+          {(() => {
+            const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
+            const totalConn = (d.postsCount || 0) + (d.galleriesCount || 0) + (d.phrases?.length || 0) + (d.eventsCount || 0) + (d.insightsCount || 0) + (d.commentsCount || 0);
+            return (
+              <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 8, margin: "14px auto 0", padding: "11px 22px", borderRadius: 16, background: P.cardSoft, border: `1px solid ${P.border}` }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", justifyContent: "center", alignItems: "center" }}>
+                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>👑 {typeLabel}</span>
+                  {hasGate && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 📜 {sigs.length} חתימות</span>}
+                  {totalConn > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 🌳 מחובר ל-{totalConn}</span>}
+                </div>
+                <NumberPulse value={value} onExplore={() => { if (!deep) toggleDna(); setTimeout(() => scrollTo("dna-layer"), 80); }} />
+              </div>
+            );
+          })()}
           {msgs[0] && (
             <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
@@ -341,11 +355,6 @@ export default function EntityPage() {
           {msgs[1] && msgs[1].layer !== "F" && (
             <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
               ✦ הידעת? {msgs[1].text}
-            </p>
-          )}
-          {!loading && (d.postsCount || d.galleriesCount || d.eventsCount) > 0 && (
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, fontWeight: 500, margin: "8px auto 0", lineHeight: 1.6 }}>
-              🌳 מחובר ל־{[d.postsCount && `${d.postsCount} פוסטים`, d.galleriesCount && `${d.galleriesCount} גלריות`, d.eventsCount && `${d.eventsCount} צירי התכנסות`].filter(Boolean).join(" · ")}
             </p>
           )}
           <ShareButtons
@@ -360,31 +369,7 @@ export default function EntityPage() {
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
-        {/* ── 🖼 תמונות קודם — הפ-off האנושי מיד אחרי ההירו ── */}
-        {d.galleries?.length > 0 && (
-          <section id="galleries" style={{ marginBottom: 38, scrollMarginTop: 80 }}>
-            <SectionHead icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} />
-            <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
-            <div className="ent-gal">
-              {d.galleries.map(g => (
-                <button key={g.id} onClick={() => setLightbox(g)} style={{
-                  cursor: "pointer", padding: 0, borderRadius: 12, overflow: "hidden", textAlign: "right",
-                  border: `1px solid ${P.border}`, background: P.card,
-                }} className="ent-gal-card">
-                  <img src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", height: "auto", display: "block" }} />
-                  {(g.name || g.description) && (
-                    <div style={{ padding: "10px 13px" }}>
-                      {g.name && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 4, lineHeight: 1.4 }}>{g.name}</div>}
-                      {g.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, maxHeight: 66, overflow: "hidden" }}>{stripHtml(g.description).slice(0, 160)}</div>}
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── 🌳 מילים שוות — צ'יפים משחקיים ── */}
+        {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
         <section id="tree" style={{ marginBottom: 34, scrollMarginTop: 80 }}>
           <SectionHead icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} />
           {d.phrases?.length ? (
@@ -407,6 +392,30 @@ export default function EntityPage() {
             פתחו את {value} בעץ המספרים התלת-מימדי →
           </Link>
         </section>
+
+        {/* ── 🖼 גלריות — אחרי המילים ── */}
+        {d.galleries?.length > 0 && (
+          <section id="galleries" style={{ marginBottom: 38, scrollMarginTop: 80 }}>
+            <SectionHead icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} />
+            <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
+            <div className="ent-gal">
+              {d.galleries.map(g => (
+                <button key={g.id} onClick={() => setLightbox(g)} style={{
+                  cursor: "pointer", padding: 0, borderRadius: 12, overflow: "hidden", textAlign: "right",
+                  border: `1px solid ${P.border}`, background: P.card,
+                }} className="ent-gal-card">
+                  <img src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", height: "auto", display: "block" }} />
+                  {(g.name || g.description) && (
+                    <div style={{ padding: "10px 13px" }}>
+                      {g.name && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 4, lineHeight: 1.4 }}>{g.name}</div>}
+                      {g.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, maxHeight: 66, overflow: "hidden" }}>{stripHtml(g.description).slice(0, 160)}</div>}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── מספרים קרובים (אותו שורש בסדר גודל אחר — zero_scale_law) ── */}
         {value >= 10 && (() => {
@@ -508,7 +517,7 @@ export default function EntityPage() {
           <section id="posts" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
             <SectionHead icon="📖" title="פוסטים" count={d.postsCount} />
             <div style={{ display: "grid", gap: 10 }}>
-              {d.posts.map(p => (
+              {d.posts.slice(0, 4).map(p => (
                 <Link key={p.wp_id || p.slug} to={`/${p.slug}`} style={card} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                   <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
                     {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
@@ -524,7 +533,7 @@ export default function EntityPage() {
           <section id="harvest" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
             <SectionHead icon="💎" title="פוסטים שמזכירים ביטוי בערך הזה" count={harvest.length} />
             <div style={{ display: "grid", gap: 10 }}>
-              {harvest.map(p => (
+              {harvest.slice(0, 3).map(p => (
                 <Link key={`h-${p.wp_id || p.slug}`} to={`/${p.slug}`} style={card} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                   <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
                     {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
