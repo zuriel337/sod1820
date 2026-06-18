@@ -2,18 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
-// תמה-מודע: prop `light` → פלטה בהירה (דף המספר); ברירת מחדל כהה (מגירה).
-export default function ConvergenceMeter({ value, light = false }) {
+// תמה-מודע: קורא את הפלטה הגלובלית (usePalette) — מתחלף יום/לילה עם המתג.
+export default function ConvergenceMeter({ value }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(null); // אינדקס שכבה פתוחה
   const nav = useNavigate();
+  const P = usePalette();
+  const light = P.mode === "light";
 
-  const T = light
-    ? { gold: "#9a7818", goldLight: "#5e4a12", goldBright: "#7a5e12", goldDim: "#9a8a5a", muted: "#8a8270", border: "rgba(120,90,20,0.16)", borderGold: "rgba(120,90,20,0.30)", surface: "#faf6ec", barBg: "#ece4cf" }
-    : { gold: C.gold, goldLight: C.goldLight, goldBright: C.goldBright, goldDim: C.goldDim, muted: C.muted, border: C.border, borderGold: C.borderGold, surface: C.surface, barBg: "rgba(8,5,2,0.5)" };
+  const T = { gold: P.accent, goldLight: P.ink, goldBright: P.accentText, goldDim: P.accentDim, muted: P.inkSoft, border: P.border, borderGold: P.borderStrong, surface: P.card, barBg: P.cardSoft };
 
   useEffect(() => {
     if (!value || value < 10) { setData(null); return; }

@@ -1,21 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 
 // 🔗 זיקת האפסים — חוק DB `zero_scale_law` (צוריאל פולייס).
 // אותו שורש בסדר גודל אחר: ×10 (הוספת אפס) ו-÷10 (הסרת אפס, כשנגמר ב-0).
 // הגרעין נשמר, רק הדרגה משתנה. 216↔2160 (יראה) · 358→3580 (משיח).
-// רכיב אחד שמשרת את החוק בכל מקום שמוצג בו ערך מספרי.
-export default function ZeroScaleLinks({ value, compact = false, showEssence = true, light = false }) {
+// רכיב אחד שמשרת את החוק בכל מקום שמוצג בו ערך מספרי. תמה-מודע (usePalette).
+export default function ZeroScaleLinks({ value, compact = false, showEssence = true }) {
+  const pal = usePalette();
   const n = Number(value);
   if (!Number.isFinite(n) || n < 10) return null;
   const down = (n % 10 === 0 && n >= 20) ? n / 10 : null;
   const up = n * 10;
 
-  // פלטה: כהה (ברירת מחדל, לדפי האתר) או בהירה (למחשבון הלבן)
-  const P = light
-    ? { gold: "#7a5e12", goldDeep: "#7a5e12", dim: "#6f685a", muted: "#6f685a", border: "#e7dfcc", chipBg: "#fbf3da" }
-    : { gold: C.goldBright, goldDeep: C.goldBright, dim: C.goldDim, muted: C.muted, border: C.borderGold, chipBg: "rgba(212,175,55,0.08)" };
+  // פלטה גלובלית — מתחלפת יום/לילה עם המתג
+  const P = { gold: pal.accentText, goldDeep: pal.accentText, dim: pal.accentDim, muted: pal.inkSoft, border: pal.borderStrong, chipBg: pal.glow };
 
   const size = compact ? 13 : 15.5;
   const chip = (num, label) => (

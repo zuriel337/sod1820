@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getSearchFeed } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -8,8 +9,9 @@ import { useSubscribed } from "./SubscribeGate.jsx";
 
 // 🕒 חיפושים אחרונים — מקור אחד (search_log) לכל האתר, דרגות לפי משתמש.
 // אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
-// props: max (תקרת תצוגה, למצב קומפקטי) · light · seeAllTo (קישור ל"כל החיפושים").
-export default function RecentSearches({ max = 0, light = true, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
+// props: max (תקרת תצוגה, למצב קומפקטי) · seeAllTo (קישור ל"כל החיפושים"). תמה-מודע (usePalette).
+export default function RecentSearches({ max = 0, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
+  const pal = usePalette();
   const { user, profile } = useAuth();
   const subscribed = useSubscribed();
   const [rows, setRows] = useState([]);
@@ -26,9 +28,7 @@ export default function RecentSearches({ max = 0, light = true, seeAllTo = "/bei
   if (!rows.length) return null;
   const shown = max > 0 ? rows.slice(0, max) : rows;
 
-  const L = light
-    ? { panel: "#ffffff", ink: "#23201a", sub: "#6f685a", gold: "#7a5e12", line: "#e7dfcc", chip: "#faf8f2", badge: "#fbf3da" }
-    : { panel: "rgba(20,15,12,0.5)", ink: "#e8c840", sub: "#cfc9d6", gold: "#f6e27a", line: "rgba(212,175,55,0.18)", chip: "rgba(8,5,2,0.5)", badge: "rgba(212,175,55,0.14)" };
+  const L = { panel: pal.card, ink: pal.ink, sub: pal.inkSoft, gold: pal.accentText, line: pal.border, chip: pal.cardSoft, badge: pal.glow };
 
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>

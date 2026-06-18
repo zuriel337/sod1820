@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
-import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
+import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
 import RecentSearches from "../components/RecentSearches.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
@@ -25,7 +25,6 @@ const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכ�
 // 🧬 פאנל ההתכנסות (יושב בתוך "מעבדה" כהה) — לביטוי: ערכי-שיטות (העוגן נבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
   const P = usePalette();
-  const isLight = P.mode === "light";
   let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term), sub: m.sub }));
   // חוק method_hierarchy: גדול הוא שיטה נפרדת לסופיות. אין סופיות → גדול ≡ רגיל; לא מציגים פעמיים.
   if (vals) {
@@ -62,7 +61,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
       {/* המד + המספר עצמו גדול משמאלו (זהות מיידית בתוך ה-DNA) */}
       <div className="em-meterwrap" style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <ConvergenceMeter value={sel} light={isLight} />
+          <ConvergenceMeter value={sel} />
         </div>
         <div className="em-bignum" style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "12px 14px", borderInlineStart: `1px solid ${P.border}`, background: P.card }}>
           <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 9.5, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>המספר</div>
@@ -70,7 +69,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
           {isNumber && KEY_NUMBERS[sel] && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 7, textAlign: "center", maxWidth: 130, lineHeight: 1.45 }}>{KEY_NUMBERS[sel]}</div>}
         </div>
       </div>
-      <NumberDNA value={sel} light={isLight} />
+      <NumberDNA value={sel} />
       <style>{`
         .em-meterwrap .em-bignum { min-width: 96px; }
         @media (max-width: 460px) {
@@ -209,7 +208,6 @@ export default function EntityPage() {
   const { phrase } = useParams();
   const nav = useNavigate();
   const P = usePalette();
-  const isLight = P.mode === "light";
   const [sp] = useSearchParams();
   const fromCalc = sp.get("from") === "calc";
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
@@ -505,7 +503,7 @@ export default function EntityPage() {
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
 
-              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} light={isLight} /></div>}
+              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
 
               <div style={{ textAlign: "center", marginTop: 14 }}>
                 <Link to="/beit-midrash?tab=methods" style={{
@@ -654,7 +652,7 @@ export default function EntityPage() {
 
         {/* ── 🕒 נחקר לאחרונה — מקור מאוחד, דרגות לפי משתמש ── */}
         <div style={{ marginTop: 24 }}>
-          <RecentSearches max={6} light={isLight} seeAllTo="/beit-midrash?tab=searches" />
+          <RecentSearches max={6} seeAllTo="/beit-midrash?tab=searches" />
         </div>
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
@@ -664,18 +662,18 @@ export default function EntityPage() {
             display: "flex", alignItems: "center", justifyContent: "center", padding: 18, direction: "rtl",
           }}>
             <div onClick={e => e.stopPropagation()} style={{ width: "min(440px, 94vw)", textAlign: "center" }}>
-              <img src={cardUrl} alt={`תמונת המספר ${value}`} style={{ width: "100%", borderRadius: 16, border: `1px solid ${C.borderGold}`, boxShadow: "0 18px 60px rgba(0,0,0,0.7)", display: "block" }} />
+              <img src={cardUrl} alt={`תמונת המספר ${value}`} style={{ width: "100%", borderRadius: 16, border: "1px solid rgba(212,175,55,0.38)", boxShadow: "0 18px 60px rgba(0,0,0,0.7)", display: "block" }} />
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
                 <button onClick={() => shareNumberCard(value, data?.phrases || [])} style={{
                   cursor: "pointer", background: "linear-gradient(135deg, #d4af37, #e8c840)", color: "#1a0e00",
                   border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px",
                 }}>📲 שתפו</button>
                 <button onClick={() => downloadNumberCard(value, data?.phrases || [])} style={{
-                  cursor: "pointer", background: "transparent", color: "#f6e27a", border: `1px solid ${C.borderGold}`,
+                  cursor: "pointer", background: "transparent", color: "#f6e27a", border: "1px solid rgba(212,175,55,0.38)",
                   borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 20px",
                 }}>📷 שמרו</button>
                 <button onClick={() => setCardUrl(null)} style={{
-                  cursor: "pointer", background: "transparent", color: "#cfc9d6", border: `1px solid ${C.border}`,
+                  cursor: "pointer", background: "transparent", color: "#cfc9d6", border: "1px solid rgba(212,175,55,0.18)",
                   borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px",
                 }}>סגור</button>
               </div>
@@ -692,11 +690,11 @@ export default function EntityPage() {
             <div onClick={e => e.stopPropagation()} style={{ width: "min(820px,96vw)", maxHeight: "92vh", overflowY: "auto", direction: "rtl" }}>
               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
                 <button onClick={() => setLightbox(null)} aria-label="סגור" style={{
-                  background: "none", border: `1px solid ${C.borderGold}`, color: "#f6e27a",
+                  background: "none", border: "1px solid rgba(212,175,55,0.38)", color: "#f6e27a",
                   fontSize: 24, cursor: "pointer", borderRadius: 8, width: 44, height: 44, lineHeight: 1,
                 }}>×</button>
               </div>
-              <img src={lightbox.image_url} alt={lightbox.name || ""} style={{ width: "100%", borderRadius: 12, border: `1px solid ${C.borderGold}`, display: "block" }} />
+              <img src={lightbox.image_url} alt={lightbox.name || ""} style={{ width: "100%", borderRadius: 12, border: "1px solid rgba(212,175,55,0.38)", display: "block" }} />
               {lightbox.name && <div style={{ color: "#e8c840", fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginTop: 12 }}>{lightbox.name}</div>}
               {lightbox.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap" }}>{stripHtml(lightbox.description)}</div>}
               {(lightbox.all_values?.length > 0) && (
@@ -705,7 +703,7 @@ export default function EntityPage() {
                     <Link key={i} to={`/number/${v}`} onClick={() => setLightbox(null)} style={{
                       textDecoration: "none", color: v === lightbox.primary_value ? "#1a0e00" : "#e8c840",
                       background: v === lightbox.primary_value ? "#d4af37" : "rgba(8,5,2,0.5)",
-                      border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px",
+                      border: "1px solid rgba(212,175,55,0.38)", borderRadius: 999, padding: "3px 11px",
                       fontFamily: F.mono, fontSize: 12, fontWeight: 700,
                     }}>{v}</Link>
                   ))}
@@ -719,24 +717,25 @@ export default function EntityPage() {
   );
 }
 
-// ── שער מלכותי: המסך הראשון של מספר־יסוד עם חתימות (number_page_law). כהה-קולנועי בכוונה ──
+// ── שער מלכותי: המסך הראשון של מספר־יסוד עם חתימות (number_page_law). תמה-מודע (usePalette) ──
 function RoyalGate({ value, signatures, onOpen, onBack }) {
+  const P = usePalette();
   return (
-    <div style={{ direction: "rtl", background: C.bg, minHeight: "82vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "50px 20px", position: "relative", zIndex: 1 }}>
+    <div style={{ direction: "rtl", background: P.pageBg, minHeight: "82vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "50px 20px", position: "relative", zIndex: 1 }}>
       <style>{`
         @keyframes gateRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes gateGlow{0%,100%{text-shadow:0 0 40px rgba(212,175,55,.35)}50%{text-shadow:0 0 75px rgba(212,175,55,.65)}}
       `}</style>
-      <button onClick={onBack} style={{ position: "absolute", top: 18, right: 18, background: "none", border: "none", color: C.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>← חזרה</button>
+      <button onClick={onBack} style={{ position: "absolute", top: 18, right: 18, background: "none", border: "none", color: P.inkSoft, cursor: "pointer", fontFamily: F.heading, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>← חזרה</button>
       <div style={{ fontSize: 42, marginBottom: 4, animation: "gateRise .6s ease both" }}>👑</div>
-      <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: "clamp(64px,15vw,140px)", fontWeight: 800, lineHeight: 1, animation: "gateRise .7s ease both, gateGlow 4.5s ease-in-out infinite 1.2s" }}>{value}</div>
-      <p style={{ color: C.goldLight, fontFamily: F.regal, fontSize: "clamp(16px,2.5vw,23px)", lineHeight: 1.85, margin: "24px 0 4px", maxWidth: 470, animation: "gateRise .95s ease both" }}>
+      <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(64px,15vw,140px)", fontWeight: 800, lineHeight: 1, animation: "gateRise .7s ease both, gateGlow 4.5s ease-in-out infinite 1.2s" }}>{value}</div>
+      <p style={{ color: P.ink, fontFamily: F.regal, fontSize: "clamp(16px,2.5vw,23px)", lineHeight: 1.85, margin: "24px 0 4px", maxWidth: 470, animation: "gateRise .95s ease both" }}>
         יש מספרים שמספרים סיפור.<br />ויש מספרים שהם הסיפור עצמו.
       </p>
-      <button onClick={onOpen} style={{ marginTop: 28, cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 17, fontWeight: 800, padding: "15px 36px", boxShadow: `0 0 44px ${C.goldDeep}`, animation: "gateRise 1.15s ease both" }}>
+      <button onClick={onOpen} style={{ marginTop: 28, cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 17, fontWeight: 800, padding: "15px 36px", boxShadow: `0 0 44px ${P.glow}`, animation: "gateRise 1.15s ease both" }}>
         ✨ גלו את כל עולמו של {value} ✨
       </button>
-      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1.5, marginTop: 20, animation: "gateRise 1.35s ease both" }}>
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1.5, marginTop: 20, animation: "gateRise 1.35s ease both" }}>
         {signatures.length} חתימות נסתרות · מאחורי המספר מסתתר עולם שלם
       </div>
     </div>

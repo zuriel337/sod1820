@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTopicCards, getGalleryImagesByIds } from "../lib/supabase.js";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 
 // 🧬 ה-DNA המזוקק של המספר — רק התוכן המאוצר (כרטיסי התכנסות + התמונות שלהם).
-// תמה-מודע: prop `light` → פלטה בהירה (דף המספר); ברירת מחדל כהה (מגירה).
+// תמה-מודע: קורא את הפלטה הגלובלית (usePalette) — מתחלף יום/לילה עם המתג.
 function stars(q) {
   const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
   return "★".repeat(n) + "☆".repeat(5 - n);
 }
 
-export default function NumberDNA({ value, light = false }) {
+export default function NumberDNA({ value }) {
   const [cards, setCards] = useState([]);
   const [imgs, setImgs] = useState([]);
   const nav = useNavigate();
-  const T = light
-    ? { goldDim: "#9a8a5a", goldBright: "#5e4a12", gold: "#9a7818", muted: "#6b6354", border: "rgba(120,90,20,0.16)", borderGold: "rgba(120,90,20,0.30)" }
-    : { goldDim: C.goldDim, goldBright: C.goldBright, gold: C.gold, muted: C.muted, border: C.border, borderGold: C.borderGold };
-  const cardBg = light ? "#ffffff" : "linear-gradient(135deg, rgba(212,175,55,0.14), rgba(8,5,2,0.4))";
+  const P = usePalette();
+  const T = { goldDim: P.accentDim, goldBright: P.accentText, gold: P.accent, muted: P.inkSoft, border: P.border, borderGold: P.borderStrong };
+  const cardBg = P.cardGrad;
 
   useEffect(() => {
     if (!value || value < 10) { setCards([]); setImgs([]); return; }
