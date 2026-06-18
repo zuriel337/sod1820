@@ -35,6 +35,8 @@ function ThemeToggle() {
 
 // 🧬 פאנל ההתכנסות (יושב בתוך "מעבדה" כהה) — לביטוי: ערכי-שיטות (העוגן נבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
+  const P = usePalette();
+  const isLight = P.mode === "light";
   let vals = isNumber ? null : BASE8.map(m => ({ key: m.key, v: m.fn(term), sub: m.sub }));
   // חוק method_hierarchy: גדול הוא שיטה נפרדת לסופיות. אין סופיות → גדול ≡ רגיל; לא מציגים פעמיים.
   if (vals) {
@@ -46,30 +48,30 @@ function EntityConvergence({ term, isNumber, ragil }) {
   useEffect(() => { setSel(isNumber ? ragil : (anchorHit ? anchorHit.v : ragil)); }, [term, isNumber, ragil]); // eslint-disable-line
 
   return (
-    <div className="em-panel" style={{ marginBottom: 14, borderRadius: 14, border: `1px solid ${C.border}`, background: "rgba(8,5,2,0.4)", overflow: "hidden" }}>
+    <div className="em-panel" style={{ marginBottom: 14, borderRadius: 14, border: `1px solid ${P.border}`, background: P.cardSoft, overflow: "hidden" }}>
       {vals && (
         <div style={{ padding: "12px 14px 4px" }}>
-          <div className="em-eyebrow" style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 9 }}>כמה דרכים לקרוא את הביטוי — בחרו, והעוגן הקדוש מודגש</div>
+          <div className="em-eyebrow" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginBottom: 9 }}>כמה דרכים לקרוא את הביטוי — בחרו, והעוגן הקדוש מודגש</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {vals.map(x => {
               const on = x.v === sel; const anc = ANCHOR_SET.has(x.v);
               return (
                 <button key={x.key} onClick={() => setSel(x.v)} title={anc ? "עוגן קדוש" : ""} style={{
                   cursor: "pointer", borderRadius: 10, padding: "5px 10px", textAlign: "center",
-                  border: `1px solid ${on ? C.gold : anc ? C.borderGold : C.border}`,
-                  background: on ? "rgba(212,175,55,0.18)" : anc ? "rgba(212,175,55,0.07)" : "rgba(20,15,12,0.6)",
+                  border: `1px solid ${on ? P.accent : anc ? P.borderStrong : P.border}`,
+                  background: on ? "rgba(201,162,39,0.18)" : anc ? "rgba(201,162,39,0.08)" : P.card,
                 }}>
-                  <div className="em-key" style={{ color: anc ? C.goldBright : C.goldDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
-                  <div className="em-val" style={{ color: on ? C.goldBright : C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}><span style={{ color: C.goldDim, fontWeight: 700 }}>= </span>{x.v}</div>
-                  {x.sub && <div className="em-sub" style={{ color: C.goldDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.25, marginTop: 2, maxWidth: 96, opacity: 0.85 }}>{x.sub}</div>}
+                  <div className="em-key" style={{ color: anc ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
+                  <div className="em-val" style={{ color: on ? P.ink : P.accentText, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}><span style={{ color: P.accentDim, fontWeight: 700 }}>= </span>{x.v}</div>
+                  {x.sub && <div className="em-sub" style={{ color: P.accentDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.25, marginTop: 2, maxWidth: 96, opacity: 0.85 }}>{x.sub}</div>}
                 </button>
               );
             })}
           </div>
         </div>
       )}
-      <ConvergenceMeter value={sel} />
-      <NumberDNA value={sel} />
+      <ConvergenceMeter value={sel} light={isLight} />
+      <NumberDNA value={sel} light={isLight} />
       <style>{`
         @media (min-width: 900px) {
           .em-panel .em-eyebrow { font-size: 13px !important; }
@@ -199,6 +201,7 @@ export default function EntityPage() {
   const { phrase } = useParams();
   const nav = useNavigate();
   const P = usePalette();
+  const isLight = P.mode === "light";
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
 
   const [data, setData] = useState(null);
@@ -457,7 +460,7 @@ export default function EntityPage() {
 
         {/* ── 🧬 DNA — איך המספר בנוי (אקורדיון, פאנל "מעבדה" כהה בפנים) ── */}
         <Acc id="dna" icon="🧬" title="DNA — איך המספר בנוי" open={open} onToggle={toggleAcc} P={P}>
-            <div style={{ background: P.labBg, border: `1px solid ${C.borderGold}`, borderRadius: 16, padding: "14px 13px" }}>
+            <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 16, padding: "14px 13px" }}>
               {/* DNA המספר — משפט פותח */}
               {!loading && chips.length > 0 && (() => {
                 const parts = [];
@@ -468,11 +471,11 @@ export default function EntityPage() {
                 if (d.insightsCount) parts.push(`${d.insightsCount} חידושי AI`);
                 if (d.commentsCount) parts.push(`${d.commentsCount} תובנות קהילה`);
                 return (
-                  <div style={{ marginBottom: 14, padding: "13px 18px", borderRadius: 14, border: `1px solid ${C.borderGold}`, background: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))" }}>
-                    <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 7 }}>🧬 DNA המספר</div>
-                    <p style={{ color: C.goldLight, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
-                      <b style={{ color: C.goldBright, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
-                      {isNumber && KEY_NUMBERS[value] && <span style={{ color: C.goldDim }}> {KEY_NUMBERS[value]}.</span>}
+                  <div style={{ marginBottom: 14, padding: "13px 18px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.card }}>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 7 }}>🧬 DNA המספר</div>
+                    <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
+                      <b style={{ color: P.accentText, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+                      {isNumber && KEY_NUMBERS[value] && <span style={{ color: P.accentDim }}> {KEY_NUMBERS[value]}.</span>}
                     </p>
                   </div>
                 );
@@ -480,13 +483,13 @@ export default function EntityPage() {
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
 
-              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
+              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} light={isLight} /></div>}
 
               <div style={{ textAlign: "center", marginTop: 14 }}>
                 <Link to="/beit-midrash?tab=methods" style={{
                   display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
-                  background: "rgba(212,175,55,0.08)", border: `1px solid ${C.border}`, borderRadius: 999,
-                  color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 16px",
+                  background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
+                  color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 16px",
                 }}>📖 ללמוד את שיטות הגימטריה (מסתתר · מילוי · קדמי) בבית המדרש ←</Link>
               </div>
             </div>
