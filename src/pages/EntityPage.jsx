@@ -59,9 +59,25 @@ function EntityConvergence({ term, isNumber, ragil }) {
           </div>
         </div>
       )}
-      <ConvergenceMeter value={sel} light={isLight} />
+      {/* המד + המספר עצמו גדול משמאלו (זהות מיידית בתוך ה-DNA) */}
+      <div className="em-meterwrap" style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <ConvergenceMeter value={sel} light={isLight} />
+        </div>
+        <div className="em-bignum" style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "12px 14px", borderInlineStart: `1px solid ${P.border}`, background: P.card }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 9.5, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>המספר</div>
+          <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(38px,9vw,68px)", fontWeight: 900, lineHeight: 0.95, textShadow: `0 0 26px ${P.glow}` }}>{sel}</div>
+          {isNumber && KEY_NUMBERS[sel] && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 7, textAlign: "center", maxWidth: 130, lineHeight: 1.45 }}>{KEY_NUMBERS[sel]}</div>}
+        </div>
+      </div>
       <NumberDNA value={sel} light={isLight} />
       <style>{`
+        .em-meterwrap .em-bignum { min-width: 96px; }
+        @media (max-width: 460px) {
+          .em-meterwrap { flex-direction: column-reverse !important; }
+          .em-meterwrap .em-bignum { border-inline-start: none !important;
+            border-bottom: 1px solid ${P.border}; flex-direction: row !important; gap: 10px; padding: 10px 14px !important; }
+        }
         @media (min-width: 900px) {
           .em-panel .em-eyebrow { font-size: 13px !important; }
           .em-panel .em-key { font-size: 12px !important; }
