@@ -400,15 +400,12 @@ export default function EntityPage() {
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
-        {/* ── 📂 פתח/סגור הכל + מספרים קרובים (אותו שורש, סדר גודל אחר — zero_scale_law) ── */}
+        {/* ── 📂 מספרים קרובים (ימין) + פתח/סגור הכל (שמאל) — zero_scale_law ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-          <button onClick={() => setAll(!allOpen)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
-            {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
-          </button>
           {value >= 10 && (() => {
             const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
             return near.length ? (
-              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", marginInlineStart: "auto" }}>
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
                 <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>קרובים ✦</span>
                 {near.map(n => (
                   <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{n}</Link>
@@ -416,6 +413,9 @@ export default function EntityPage() {
               </div>
             ) : null;
           })()}
+          <button onClick={() => setAll(!allOpen)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
+            {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
+          </button>
         </div>
 
         {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
