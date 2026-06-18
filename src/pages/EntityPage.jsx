@@ -220,7 +220,7 @@ export default function EntityPage() {
     if (["events", "insights", "comments"].includes(id)) setRoots(true);
     setTimeout(() => scrollTo(id), 70);
   };
-  const [open, setOpen] = useState({ words: true, galleries: true, posts: true });
+  const [open, setOpen] = useState({ words: false, galleries: false, posts: false });
   const toggleAcc = id => setOpen(o => ({ ...o, [id]: !o[id] }));
   const allOpen = open.words && open.galleries && open.posts && deep && roots;
   const setAll = v => { setOpen({ words: v, galleries: v, posts: v }); setDeep(v); setRoots(v); try { localStorage.setItem("np-dna", v ? "1" : "0"); } catch { /* ignore */ } };
@@ -337,7 +337,7 @@ export default function EntityPage() {
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
-          <button onClick={() => nav(-1)} style={{ background: "none", border: "none", color: P.inkSoft, cursor: "pointer", fontFamily: F.heading, fontSize: 12, fontWeight: 600 }}>← חזרה</button>
+          <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
           <form onSubmit={goSearch} style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 180 }} />
             <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
