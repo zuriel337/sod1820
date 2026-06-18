@@ -11,6 +11,7 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
+import { buildMessages } from "../lib/numberMessage.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 
@@ -235,12 +236,8 @@ export default function EntityPage() {
     d.commentsCount && { id: "comments", e: "💬", n: d.commentsCount, l: "דיונים" },
   ].filter(Boolean);
 
-  // שכבה 1 — הזהות: משמעות-מפתח, ואם אין → נפילה רכה למילה השווה הכי חזקה (שלא יישאר ריק).
-  const meaning = isNumber ? (KEY_NUMBERS[value] || null) : null;
-  const topWord = d.phrases?.find(p => gold.labels.has(p.phrase))?.phrase || d.phrases?.[0]?.phrase || null;
-  const warmLine = meaning
-    || (topWord ? `נושא בתוכו את «${topWord}»${d.phrases.length > 1 ? ` — ועוד ${d.phrases.length - 1} מילים שוות` : ""}.`
-      : (isNumber ? "מה המספר הזה לוחש עליך? כל מה שמתחבר אליו — ממש כאן למטה." : "הגימטריה של הביטוי — וכל מה שמתחבר אליו במאגר."));
+  // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
+  const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
 
   // עוטף תמה: רקע בהיר מלא (או שקוף בכהה כדי לשמור על הקוסמוס)
   const Shell = ({ children }) => (
@@ -304,9 +301,16 @@ export default function EntityPage() {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
-            {warmLine}
-          </p>
+          {msgs[0] && (
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
+              {msgs[0].text}
+            </p>
+          )}
+          {msgs[1] && msgs[1].layer !== "F" && (
+            <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
+              ✦ הידעת? {msgs[1].text}
+            </p>
+          )}
           <ShareButtons
             value={value}
             phrases={data?.phrases || []}
