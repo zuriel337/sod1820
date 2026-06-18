@@ -135,6 +135,25 @@ function Shell({ P, children }) {
   return <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>{children}</div>;
 }
 
+// 📂 אקורדיון נקי ועקבי — כותרת לחיצה + גוף נפתח. יפה ופשוט וברור.
+function Acc({ id, icon, title, count, open, onToggle, P, children }) {
+  const isOpen = !!open[id];
+  return (
+    <div id={id} style={{ marginBottom: 12, scrollMarginTop: 70 }}>
+      <button onClick={() => onToggle(id)} style={{
+        width: "100%", cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
+        background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "13px 16px", textAlign: "right",
+      }}>
+        <span style={{ fontSize: 18 }}>{icon}</span>
+        <span style={{ flex: 1, color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{title}</span>
+        {count != null && <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 12.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px" }}>{count}</span>}
+        <span style={{ color: P.accent, fontSize: 12 }}>{isOpen ? "▲" : "▼"}</span>
+      </button>
+      {isOpen && <div style={{ marginTop: 12 }}>{children}</div>}
+    </div>
+  );
+}
+
 // ❤️‍🔥 דופק המספר — עוצמה רגשית (כוכבים + הילה פועמת) מציון ההתכנסות (0-100). מזמין לחקור.
 function NumberPulse({ value, onExplore }) {
   const P = usePalette();
@@ -196,7 +215,15 @@ export default function EntityPage() {
   const [deep, setDeep] = useState(() => { try { return localStorage.getItem("np-dna") === "1"; } catch { return false; } });
   const [roots, setRoots] = useState(false);
   const toggleDna = () => setDeep(v => { const n = !v; try { localStorage.setItem("np-dna", n ? "1" : "0"); } catch { /* ignore */ } return n; });
-  const goChip = id => { if (["events", "insights", "comments"].includes(id)) setRoots(true); setTimeout(() => scrollTo(id), 70); };
+  const goChip = id => {
+    if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
+    if (["events", "insights", "comments"].includes(id)) setRoots(true);
+    setTimeout(() => scrollTo(id), 70);
+  };
+  const [open, setOpen] = useState({ words: true, galleries: true, posts: true });
+  const toggleAcc = id => setOpen(o => ({ ...o, [id]: !o[id] }));
+  const allOpen = open.words && open.galleries && open.posts && deep && roots;
+  const setAll = v => { setOpen({ words: v, galleries: v, posts: v }); setDeep(v); setRoots(v); try { localStorage.setItem("np-dna", v ? "1" : "0"); } catch { /* ignore */ } };
   const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
 
   // כרטיס מעוצב לפי התמה
@@ -261,7 +288,7 @@ export default function EntityPage() {
   const d = data || {};
   const chips = [
     d.galleriesCount && { id: "galleries", e: "🖼", n: d.galleriesCount, l: "תמונות" },
-    d.phrases?.length && { id: "tree", e: "🌳", n: d.phrasesCount || d.phrases.length, l: "מילים שוות" },
+    d.phrases?.length && { id: "words", e: "🌳", n: d.phrasesCount || d.phrases.length, l: "מילים שוות" },
     d.postsCount && { id: "posts", e: "📖", n: d.postsCount, l: "פוסטים" },
     d.eventsCount && { id: "events", e: "🕰", n: d.eventsCount, l: "אירועים" },
     d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "חידושי AI" },
@@ -366,9 +393,15 @@ export default function EntityPage() {
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
+        {/* ── 📂 פתח/סגור הכל ── */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <button onClick={() => setAll(!allOpen)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
+            {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
+          </button>
+        </div>
+
         {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
-        <section id="tree" style={{ marginBottom: 34, scrollMarginTop: 80 }}>
-          <SectionHead icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} />
+        <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
           {d.phrases?.length ? (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
               {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
@@ -388,12 +421,11 @@ export default function EntityPage() {
           <Link to="/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
             פתחו את {value} בעץ המספרים התלת-מימדי →
           </Link>
-        </section>
+        </Acc>
 
         {/* ── 🖼 גלריות — אחרי המילים ── */}
         {d.galleries?.length > 0 && (
-          <section id="galleries" style={{ marginBottom: 38, scrollMarginTop: 80 }}>
-            <SectionHead icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} />
+          <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} open={open} onToggle={toggleAcc} P={P}>
             <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
             <div className="ent-gal">
               {d.galleries.map(g => (
@@ -411,7 +443,7 @@ export default function EntityPage() {
                 </button>
               ))}
             </div>
-          </section>
+          </Acc>
         )}
 
         {/* ── מספרים קרובים (אותו שורש בסדר גודל אחר — zero_scale_law) ── */}
@@ -509,27 +541,17 @@ export default function EntityPage() {
           }}>🎲 קחו אותי למסע מ־{value}</Link>
         </div>
 
-        {/* ── 📖 פוסטים ── */}
-        {d.posts?.length > 0 && (
-          <section id="posts" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-            <SectionHead icon="📖" title="פוסטים" count={d.postsCount} />
+        {/* ── 📖 פוסטים (כלי עזר — מקס 4 + הצלבות 3) ── */}
+        {(d.posts?.length > 0 || harvest.length > 0) && (
+          <Acc id="posts" icon="📖" title="פוסטים והצלבות" count={Math.min(d.posts?.length || 0, 4) + Math.min(harvest.length, 3)} open={open} onToggle={toggleAcc} P={P}>
             <div style={{ display: "grid", gap: 10 }}>
-              {d.posts.slice(0, 4).map(p => (
+              {(d.posts || []).slice(0, 4).map(p => (
                 <Link key={p.wp_id || p.slug} to={`/${p.slug}`} style={card} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                   <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
                     {stripHtml(typeof p.title === "string" ? p.title : p.title?.rendered || "")}
                   </div>
                 </Link>
               ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── 💎 פוסטים שמזכירים ביטוי בערך הזה ── */}
-        {harvest.length > 0 && (
-          <section id="harvest" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-            <SectionHead icon="💎" title="פוסטים שמזכירים ביטוי בערך הזה" count={harvest.length} />
-            <div style={{ display: "grid", gap: 10 }}>
               {harvest.slice(0, 3).map(p => (
                 <Link key={`h-${p.wp_id || p.slug}`} to={`/${p.slug}`} style={card} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                   <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
@@ -539,7 +561,7 @@ export default function EntityPage() {
                 </Link>
               ))}
             </div>
-          </section>
+          </Acc>
         )}
 
         {/* ── 🌱 שכבה 4 — שורשי המספר (כל השאר, בכפתור אחד) ── */}
