@@ -2,13 +2,13 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
-import { METHODS as M8, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
-// ===== מחשבון גימטריה מלא — בהיר/תלמודי, 8 שיטות, מאומת מול bidim =====
-// "התגלות": רגיל 844 · מילוי 1026 · מסתתר 1237 · קדמי 3137 · סידורי 70 · אתבש 392 · אלבם 241.
+// ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
+// לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
+const ALL = [...METHODS, ...DEPTH_METHODS];
 
-// פלטה בהירה (תלמודית)
 const L = {
   panel: "#ffffff", soft: "#faf8f2", ink: "#23201a", sub: "#6f685a",
   gold: "#9a7818", goldDeep: "#7a5e12", line: "#e7dfcc", active: "#fbf3da",
@@ -19,11 +19,13 @@ export default function GematriaCalculator({ seed, onResult }) {
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
   const gold = useGold();
-  const res = useMemo(() => M8.map(m => ({ key: m.key, sub: m.sub, value: m.fn(word) })), [word]);
+  const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
+  const [equal, setEqual] = useState(null);
+  const [showLetters, setShowLetters] = useState(false);
+  const letters = onlyHeb(word);
 
-  // כל חיפוש במחשבון נשמר אוטומטית לקיר החי (gematria_wall) + לרישום החיפושים המאוחד (search_log) — עץ אחד.
-  // מושהה, רק על מילה תקינה. אחרי השמירה מדווח החוצה (onResult) לרענון/שיתוף.
+  // שמירה לקיר + רישום חיפושים (עץ אחד)
   useEffect(() => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
     const t = setTimeout(async () => {
@@ -33,31 +35,15 @@ export default function GematriaCalculator({ seed, onResult }) {
     }, 900);
     return () => clearTimeout(t);
   }, [word, ragilVal, onResult]);
-  const [active, setActive] = useState("רגיל");
-  const [equal, setEqual] = useState(null);
-  const [counts, setCounts] = useState({});
-  const [showLetters, setShowLetters] = useState(false);
-  const activeVal = res.find(r => r.key === active)?.value || 0;
-  const letters = onlyHeb(word);
 
-  // ספירת "נמצאו" לכל שיטה (כמה ביטויים שווים לערך שלה)
-  useEffect(() => {
-    let live = true; setCounts({});
-    if (!letters.length) return;
-    Promise.all(res.map(r =>
-      supabase.from("bidim").select("*", { count: "exact", head: true }).eq("method", r.key).eq("value", r.value)
-        .then(({ count }) => [r.key, count || 0]).catch(() => [r.key, 0])
-    )).then(pairs => { if (live) setCounts(Object.fromEntries(pairs)); });
-    return () => { live = false; };
-  }, [word]); // eslint-disable-line
-
+  // מילים שוות לערך הרגיל (תצוגה מקדימה; כל השאר בדף המספר)
   useEffect(() => {
     let live = true; setEqual(null);
-    if (!letters.length || !activeVal) return;
-    supabase.from("bidim").select("phrase").eq("method", active).eq("value", activeVal).neq("phrase", word).limit(400)
+    if (!letters.length || !ragilVal) return;
+    supabase.from("bidim").select("phrase").eq("method", "רגיל").eq("value", ragilVal).neq("phrase", word).limit(300)
       .then(({ data }) => { if (live) setEqual([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
     return () => { live = false; };
-  }, [active, activeVal, word, letters.length]);
+  }, [ragilVal, word, letters.length]);
 
   const thS = { background: L.soft, color: L.goldDeep, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px", textAlign: "center", whiteSpace: "nowrap", borderBottom: `2px solid ${L.line}` };
   const tdS = { color: L.ink, fontFamily: F.body, fontSize: 13.5, padding: "7px 10px", borderBottom: `1px solid ${L.line}` };
@@ -66,50 +52,45 @@ export default function GematriaCalculator({ seed, onResult }) {
   return (
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
-      <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "18px 18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+      <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="הקלידו מילה או ביטוי…" dir="rtl" style={{
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
-          fontFamily: F.regal, fontSize: 24, fontWeight: 700, padding: "12px 16px", outline: "none", textAlign: "center",
+          fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
 
-        {/* 8 השיטות */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 9, marginTop: 14 }}>
-          {res.map(r => {
-            const on = r.key === active;
-            return (
-              <button key={r.key} onClick={() => setActive(r.key)} style={{
-                cursor: "pointer", textAlign: "center", borderRadius: 12, padding: "11px 8px",
-                border: `1px solid ${on ? L.gold : L.line}`, background: on ? L.active : L.soft, transition: "all .2s",
-              }}>
-                <div style={{ color: on ? L.goldDeep : L.sub, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{r.key}</div>
-                <div style={{ color: on ? L.goldDeep : L.ink, fontFamily: F.mono, fontSize: 26, fontWeight: 800, lineHeight: 1.1, margin: "2px 0" }}>{r.value}</div>
-                <div style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.4 }}>{r.sub}</div>
-                <div style={{ color: on ? L.gold : L.sub, fontFamily: F.heading, fontSize: 10, fontWeight: 700, marginTop: 3 }}>
-                  נמצאו {counts[r.key] ?? "…"}
-                </div>
-              </button>
-            );
-          })}
+        {/* כל 17 השיטות — מלבנים קומפקטיים, לחיצה → דף המספר */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 13 }}>
+          {res.map(r => (
+            <Link key={r.key} to={`/number/${r.value}?from=calc`} title={`${r.key} = ${r.value} · פתח את ${r.value}`} style={{
+              textDecoration: "none", textAlign: "center", borderRadius: 10, padding: "8px 6px",
+              border: `1px solid ${L.line}`, background: L.soft, transition: "border-color .15s, background .15s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
+              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.key}</div>
+              <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+            </Link>
+          ))}
         </div>
 
-        {/* כפתור "גלה הכל" — מוביל לדף הישות של הערך הנבחר */}
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <Link to={`/number/${activeVal}`} style={{
+        <div style={{ textAlign: "center", marginTop: 15 }}>
+          <Link to={`/number/${ragilVal}?from=calc`} style={{
             display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
             background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
             fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
             boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
-          }}>✨ גלה הכל על {activeVal} ←</Link>
+          }}>✨ גלה הכל על {ragilVal} ←</Link>
         </div>
+        <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה</div>
       </div>
 
-      {/* מילים שוות לשיטה הנבחרת */}
+      {/* מילים שוות (ערך רגיל) — תצוגה מקדימה */}
       <div style={{ marginTop: 16, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "14px 16px" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
           <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, letterSpacing: 1 }}>מילים שוות ל־</span>
-          <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{activeVal}</span>
-          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12 }}>בשיטת {active}</span>
-          <Link to={`/number/${activeVal}`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>דף המספר →</Link>
+          <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{ragilVal}</span>
+          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12 }}>(רגיל)</span>
+          <Link to={`/number/${ragilVal}?from=calc`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>דף המספר →</Link>
         </div>
         {equal === null ? (
           <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, padding: 6 }}>מחשב…</div>
@@ -117,16 +98,16 @@ export default function GematriaCalculator({ seed, onResult }) {
           <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, padding: 6 }}>לא נמצאו ביטויים נוספים בערך זה במאגר המאומת.</div>
         ) : (
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-            {sortGoldFirst(equal, p => gold.labels.has(p)).map((p, i) => {
+            {sortGoldFirst(equal, p => gold.labels.has(p)).slice(0, 60).map((p, i) => {
               const isG = gold.labels.has(p);
               return (
-              <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
-                textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
-                background: isG ? L.active : L.soft, fontWeight: isG ? 700 : 400,
-                border: `${isG ? 2 : 1}px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                boxShadow: isG ? `0 0 10px ${L.gold}55` : "none",
-              }}>{isG ? "👑 " : ""}{p}</Link>
-            );})}
+                <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
+                  textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
+                  background: isG ? L.active : L.soft, fontWeight: isG ? 700 : 400,
+                  border: `${isG ? 2 : 1}px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>{isG ? "👑 " : ""}{p}</Link>
+              );
+            })}
           </div>
         )}
       </div>
@@ -161,7 +142,6 @@ export default function GematriaCalculator({ seed, onResult }) {
               </table>
             </div>
           )}
-          {/* מסתתר — הפרשים */}
           {letters.length > 1 && (
             <div style={{ marginTop: 10, color: L.ink, fontFamily: F.mono, fontSize: 13.5, lineHeight: 1.9, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "9px 14px" }}>
               <b style={{ color: L.sub, fontFamily: F.heading }}>מסתתר: </b>

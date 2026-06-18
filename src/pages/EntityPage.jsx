@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { C, F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, getHarvestedPosts, getRecentSearches } from "../lib/supabase.js";
+import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
+import RecentSearches from "../components/RecentSearches.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
@@ -118,15 +119,6 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// "לפני כמה זמן" — בלי תאריך, רק תחושת חיים (לפני דקה/שעה/יום)
-function timeAgo(iso) {
-  if (!iso) return "";
-  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return "עכשיו";
-  const m = Math.floor(s / 60); if (m < 60) return `לפני ${m} ד׳`;
-  const h = Math.floor(m / 60); if (h < 24) return `לפני ${h} ש׳`;
-  return `לפני ${Math.floor(h / 24)} י׳`;
-}
 
 // עוטף תמה ברמת מודול (יציב — מונע remount ואיבוד פוקוס בהקלדה)
 function Shell({ P, children }) {
@@ -145,7 +137,7 @@ function Acc({ id, icon, title, count, open, onToggle, P, children }) {
         <span style={{ fontSize: 18 }}>{icon}</span>
         <span style={{ flex: 1, color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{title}</span>
         {count != null && <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 12.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px" }}>{count}</span>}
-        <span style={{ color: P.accent, fontSize: 12 }}>{isOpen ? "▲" : "▼"}</span>
+        <span style={{ color: P.accent, fontSize: 12, animation: isOpen ? "none" : "acc-blink 1.6s ease-in-out infinite" }}>{isOpen ? "▲" : "▼"}</span>
       </button>
       {isOpen && <div style={{ marginTop: 12 }}>{children}</div>}
     </div>
@@ -202,13 +194,14 @@ export default function EntityPage() {
   const nav = useNavigate();
   const P = usePalette();
   const isLight = P.mode === "light";
+  const [sp] = useSearchParams();
+  const fromCalc = sp.get("from") === "calc";
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
   const [harvest, setHarvest] = useState([]);
-  const [recent, setRecent] = useState([]);       // 🕒 נחקר עכשיו (3 אחרונים, חי)
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
@@ -261,12 +254,6 @@ export default function EntityPage() {
     return () => { alive = false; };
   }, [value]);
 
-  // 🕒 נחקר עכשיו — 3 חיפושים אחרונים של כל הגולשים (תחושת חיים, מפנה לבית המדרש)
-  useEffect(() => {
-    let alive = true;
-    getRecentSearches(4).then(r => { if (alive) setRecent((r || []).filter(x => x.term !== term).slice(0, 3)); }).catch(() => {});
-    return () => { alive = false; };
-  }, [term]);
 
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
   const [sigs, setSigs] = useState([]);
@@ -348,6 +335,7 @@ export default function EntityPage() {
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
+          {fromCalc && <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🧮 חזרה למחשבון</Link>}
           <form onSubmit={goSearch} style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 180 }} />
             <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
@@ -639,21 +627,10 @@ export default function EntityPage() {
           </div>
         </Acc>
 
-        {/* ── 🕒 נחקר עכשיו — חי, 3 אחרונים, מפנה לבית המדרש ── */}
-        {recent.length > 0 && (
-          <div style={{ marginTop: 24, padding: "11px 15px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.cardSoft, display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e0533a", boxShadow: "0 0 7px #e0533a", animation: "ep-live 1.4s ease-in-out infinite" }} />
-            <style>{`@keyframes ep-live{0%,100%{opacity:.45}50%{opacity:1}}`}</style>
-            <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>נחקר עכשיו</span>
-            {recent.map((r, i) => (
-              <Link key={i} to={`/number/${encodeURIComponent(r.term)}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 4 }}>
-                <span style={{ color: P.accentText, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{r.term}</span>
-                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>· {timeAgo(r.at)}</span>
-              </Link>
-            ))}
-            <Link to="/beit-midrash" style={{ marginInlineStart: "auto", textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>כל החיפושים →</Link>
-          </div>
-        )}
+        {/* ── 🕒 נחקר לאחרונה — מקור מאוחד, דרגות לפי משתמש ── */}
+        <div style={{ marginTop: 24 }}>
+          <RecentSearches max={3} light={isLight} />
+        </div>
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
         {cardUrl && (

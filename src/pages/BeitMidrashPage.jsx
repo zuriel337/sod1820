@@ -5,11 +5,12 @@ import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, dayOfY
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
-import { METHODS, onlyHeb, GEM } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import LiveDiscoveries from "../components/LiveDiscoveries.jsx";
+import RecentSearches from "../components/RecentSearches.jsx";
+import SearchesTab from "../components/SearchesTab.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -24,6 +25,7 @@ const L = {
 };
 
 const SECTIONS = [
+  { key: "searches", icon: "🔎", label: "מה נחקר" },
   { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
   { key: "community", icon: "👥", label: "חידושי גולשים" },
@@ -830,6 +832,15 @@ const METHOD_INFO = {
   "סידורי": { what: "ערך לפי הסדר באלף-בית — ה'מספר הפשוט'.", how: "כל אות לפי מיקומה: א=1, ב=2 … י=10, כ=11, ל=12 … ת=22." },
   "אתבש": { what: "צופן הראי של האלף-בית — קדום ומופיע בתנ״ך.", how: "מחליפים כל אות בבת-זוגה מהקצה הנגדי: א↔ת, ב↔ש, ג↔ר … וסוכמים את ערכי האותיות המוחלפות.", insight: "בתנ״ך: «שֵׁשַׁךְ» באתבש = «בָּבֶל»." },
   "אלבם": { what: "צופן חצי-אלפבית — מחילופי הצפנים הקדומים.", how: "מחלקים את הא״ב לשניים (11+11) ומחליפים אות מול אות: א↔ל, ב↔מ, ג↔נ … וסוכמים." },
+  "הנעלם": { what: "הפנימיות הטהורה — הנסתר שבאות.", how: "ערך המילוי פחות ערך האות עצמה (כמה ה'שם המלא' מוסיף מעבר לאות). למשל א: מילוי 111 − 1 = 110." },
+  "הכפלה": { what: "העוצמה הפנימית — כל אות מוכפלת בעצמה.", how: "כל אות בריבוע (ערך×עצמו), ואז סכום. למשל בינה = 2²+10²+50²+5² = 2629.", insight: "💎 חוק נעול: בינה בהכפלה = 2629." },
+  "ריבוע": { what: "ההתפשטות מהאות אל השלם — קידומות מצטברות.", how: "סכום הרגיל של כל הקידומות ההדרגתיות: דוד = ד(4)+דו(10)+דוד(14) = 28.", insight: "💎 חוק נעול: צוריאל = 1432." },
+  "משולש גדול": { what: "קדמי בסופיות גדולות — ההתפשטות המורחבת.", how: "כמו קדמי, אך עם ערכי הסופיות הגדולים (ך=500…)." },
+  "מסתתר גדול": { what: "ההפרשים בין האותיות — על ערכי סופיות גדולים.", how: "כמו מסתתר, אך הערכים בסופיות הם 500–900. למשל מלך=480." },
+  "מילוי דמילוי": { what: "מילוי המילוי — הפנימיות העמוקה.", how: "ממלאים כל אות במילואה, ואז ממלאים שוב את אותיות המילוי, וסוכמים. יהוה=610." },
+  "מילוי דמילוי גדול": { what: "מילוי דמילוי בסופיות גדול.", how: "כמו מילוי דמילוי, עם ערכי סופיות גדולים. ירושלים=6770." },
+  "הכפלה גדולה": { what: "הכפלה בסופיות גדול.", how: "כל אות בריבוע, כשהסופיות בערכן הגדול (ך=500²). למשל מלך=252500." },
+  "ריבוע גדול": { what: "ריבוע הקידומות בסופיות גדול.", how: "כמו ריבוע (קידומות מצטברות), עם ערכי סופיות גדולים." },
 };
 const SAMPLE = "חכמה";
 function methodExample(m) {
@@ -922,10 +933,10 @@ function MethodsTab() {
     <div>
       <HowToGuide />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
-        כל שיטה חושפת רובד אחר באותו ביטוי. הנה 8 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
+        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל 17 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-        {METHODS.map(m => {
+        {[...METHODS, ...DEPTH_METHODS].map(m => {
           const info = METHOD_INFO[m.key] || {};
           return (
             <div key={m.key} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
@@ -1130,7 +1141,7 @@ export default function BeitMidrashPage() {
           )}
         </div>
 
-        <LiveDiscoveries />
+        <RecentSearches max={4} light seeAllTo="/beit-midrash?tab=searches" />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
@@ -1175,6 +1186,7 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
+            {tab === "searches" && <SearchesTab />}
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}

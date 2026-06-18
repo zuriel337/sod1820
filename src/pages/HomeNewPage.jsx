@@ -6,7 +6,7 @@ import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEven
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VideoGallery from "../components/VideoGallery.jsx";
-import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
+import RecentSearches from "../components/RecentSearches.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -141,7 +141,7 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
         <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון — ומתי</p>
-        <VisitorSearchesBox light={P.mode === "light"} limit={20} />
+        <RecentSearches light={P.mode === "light"} seeAllTo="/beit-midrash" />
       </section>
 
       {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}

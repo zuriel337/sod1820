@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import HomeNewPage from "./pages/HomeNewPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -45,7 +46,6 @@ import TopicPage from "./pages/TopicPage.jsx";
 import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
 import LabIndex from "./pages/LabIndex.jsx";
 import CalculatorPage from "./pages/CalculatorPage.jsx";
-import HomeNewPage from "./pages/HomeNewPage.jsx";
 import HeichalPage from "./pages/HeichalPage.jsx";
 import GalaxyPage from "./pages/GalaxyPage.jsx";
 

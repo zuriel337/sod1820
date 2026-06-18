@@ -71,6 +71,7 @@ export const GLOBAL_CSS = `
   body { font-weight: 500; line-height: 1.65; -webkit-font-smoothing: antialiased; }
   p { line-height: 1.7; }
   small { font-size: 0.85em; }
+  @keyframes acc-blink { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
 
   .sod-inflate {
     display: inline-block;

@@ -38,7 +38,7 @@ export default function NumberDNA({ value, light = false }) {
   return (
     <div className="nd" style={{ padding: "13px 15px", borderTop: `1px solid ${T.border}` }}>
       <div className="nd-title" style={{ color: T.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>
-        🧬 המהות המזוקקת · {value} <span style={{ color: T.muted, letterSpacing: 0, textTransform: "none" }}>— רק תוכן מאוצר</span>
+        🧬 {cards.length} צירי התכנסות · {value} <span style={{ color: T.muted, letterSpacing: 0, textTransform: "none" }}>— המהות המזוקקת</span>
       </div>
 
       {/* כרטיסי ההתכנסות */}
