@@ -748,29 +748,6 @@ function NumberResults({ value }) {
 // טאב המחשבון — מחשבון בהיר + רשימת מספרים דקה משמאלו (לחיצה מציגה מילים שוות + קהילה).
 const NUM_LIST = [1820, 1237, 776, 1202, 541, 358, 474, 424, 318, 888, 666, 2701, 86, 72, 45, 26, 14];
 const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה — פנינים גדולות יותר
-// ✨ כלים עתידיים — "בקרוב" (תצוגה בלבד)
-const SOON_TOOLS = [
-  { icon: "🤖", title: "חישוב כל השיטות עם AI", desc: "ניתוח חכם שמחבר את כל השיטות יחד למסר אחד — חדשני בעולם." },
-  { icon: "📷", title: "חילוץ מספרים מתמונה", desc: "מעלים תמונה — והמערכת מזהה ומחשבת את המספרים שבה." },
-  { icon: "🔍", title: "חיפוש במאגר", desc: "חיפוש חופשי בכל הביטויים, המספרים והישויות." },
-];
-function ComingSoonTools() {
-  return (
-    <div style={{ marginTop: 18 }}>
-      <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, marginBottom: 8 }}>✨ כלים חדשים · בקרוב</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 10 }}>
-        {SOON_TOOLS.map(t => (
-          <div key={t.title} style={{ position: "relative", background: L.soft, border: `1px dashed ${L.line}`, borderRadius: 12, padding: "13px 14px" }}>
-            <span style={{ position: "absolute", top: 10, insetInlineStart: 10, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "1px 8px", fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>בקרוב</span>
-            <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icon}</div>
-            <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, marginBottom: 4 }}>{t.title}</div>
-            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{t.desc}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function CalcTab({ initial, seed }) {
   const [num, setNum] = useState(initial || 1820);
@@ -778,10 +755,9 @@ function CalcTab({ initial, seed }) {
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
-          מחשבון גימטריה מתקדם — כל 8 השיטות, מילים שוות, ופירוט אות-אות. חישוב טהור, ללא AI.
+          מחשבון גימטריה מלא — כל 17 השיטות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
         </p>
         <GematriaCalculator seed={seed} />
-        <ComingSoonTools />
         <div style={{ marginTop: 22 }}><NumberResults value={num} /></div>
       </div>
       <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
@@ -822,7 +798,7 @@ function CalcTab({ initial, seed }) {
   );
 }
 
-// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מ-8 השיטות.
+// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מ-17 השיטות.
 const METHOD_INFO = {
   "רגיל": { what: "השיטה הבסיסית של הגימטריה — היסוד של כולן.", how: "כל אות מקבלת את ערכה המספרי (א=1, ב=2 … י=10, כ=20 … ת=400), וסוכמים." },
   "מילוי": { what: "ערך שֵם האות המלא — הרובד הפנימי, ה'נשמה' של האות.", how: "כותבים כל אות במילואה (א→אָלֶף, ה→הֵי) ומחשבים את גימטריית השם המלא. למשל א = אלף = 111." },
@@ -923,7 +899,7 @@ function HowToGuide() {
         </div>
       </div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
-        זו השיטה הבסיסית ("רגיל"). למטה — עוד 7 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד 16 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
       </p>
     </div>
   );
@@ -967,25 +943,14 @@ function Gated({ children }) {
       <div style={{ filter: "blur(7px)", pointerEvents: "none", userSelect: "none", opacity: 0.5, maxHeight: 420, overflow: "hidden" }} aria-hidden>{children}</div>
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, rgba(244,241,232,0.25), rgba(244,241,232,0.95))" }}>
         <div style={{ textAlign: "center", maxWidth: 420, padding: 20 }}>
-          <div style={{ fontSize: 30, marginBottom: 8 }}>🔒</div>
-          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>בבנייה — לגישה מוקדמת</div>
+          <div style={{ fontSize: 30, marginBottom: 8 }}>✦</div>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 700, marginBottom: 6 }}>סוד הסודות — לחברי הבית</div>
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 auto 14px", maxWidth: 360 }}>
-            <b style={{ color: L.goldDeep }}>המחשבון פתוח לכולם.</b> שאר המדורים בבנייה — הירשמו (חינם) כדי לקבל גישה מוקדמת כשייפתחו.
+            מסע 1820 המלא — שתי החתימות, מד ההתכנסות וכל הצירים. <b style={{ color: L.goldDeep }}>הירשמו (חינם)</b> כדי להיכנס.
           </p>
           <SubscribeGate source="beit-midrash" />
         </div>
       </div>
-    </div>
-  );
-}
-
-function Soon({ title, note }) {
-  return (
-    <div style={{ textAlign: "center", padding: "60px 20px", color: L.sub }}>
-      <div style={{ fontSize: 38, marginBottom: 12 }}>🌱</div>
-      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{title}</div>
-      <div style={{ display: "inline-block", padding: "6px 16px", borderRadius: 999, border: `1px solid ${L.line}`, background: L.soft, color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>🔒 בקרוב</div>
-      <p style={{ fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 420, margin: "0 auto" }}>{note}</p>
     </div>
   );
 }
@@ -1132,16 +1097,11 @@ export default function BeitMidrashPage() {
           <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>בית המדרש · סוד 1820</div>
           <h1 style={{ color: L.ink, fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", fontWeight: 700, margin: 0 }}>📖 לימוד הסודות</h1>
           <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, margin: "8px 0 0", maxWidth: 640 }}>
-            מחשבון גימטריה מלא, שיטות החישוב ופוסטים מאומתים — במקום אחד. מדורי החידושים בבנייה וייפתחו בקרוב.
+            מחשבון גימטריה מלא, שיטות החישוב, חידושי הצלבות, צירי התכנסות ופוסטים מאומתים — במקום אחד.
           </p>
-          {!subscribed && (
-            <p style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "10px 0 0" }}>
-              🔓 המחשבון פתוח לכולם · שאר המדורים בבנייה — הירשמו (חינם) לגישה מוקדמת
-            </p>
-          )}
         </div>
 
-        <RecentSearches max={4} light seeAllTo="/beit-midrash?tab=searches" />
+        <RecentSearches max={6} light seeAllTo="/beit-midrash?tab=searches" />
 
         {/* גוף: תפריט-צד + תוכן */}
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }} className="bm-grid">
@@ -1172,7 +1132,6 @@ export default function BeitMidrashPage() {
                     )}
                     {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
                     {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
-                    {s.soon && <span style={{ fontSize: 10, color: L.sub, fontWeight: 700 }}>בקרוב</span>}
                   </button>
                 );
               })}
@@ -1192,9 +1151,6 @@ export default function BeitMidrashPage() {
             {tab === "methods" && <MethodsTab />}
             {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}
-            {tab === "numbers" && <Soon title="מספרי יסוד" note="טבלת מספרי היסוד וההצלבות שלהם בכל השיטות — בבנייה, תיפתח בקרוב." />}
-            {tab === "ai" && <Soon title="חידושי AI" note="חידושי הגימטריה שהמערכת מפיקה ומאמתת — בבנייה, ייפתחו בקרוב." />}
-            {tab === "mine" && <Soon title="חידושי המערכת" note="ארכיון החידושים והצלבות 1820 — בבנייה, ייפתח בקרוב." />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <CommunityTab />}
             {tab === "submit" && <SubmitTab />}

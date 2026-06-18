@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM } from "../lib/gematria.js";
-import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -18,10 +17,8 @@ export default function GematriaCalculator({ seed, onResult }) {
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
-  const gold = useGold();
   const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
-  const [equal, setEqual] = useState(null);
   const [counts, setCounts] = useState({});
   const [showLetters, setShowLetters] = useState(false);
   const letters = onlyHeb(word);
@@ -47,15 +44,6 @@ export default function GematriaCalculator({ seed, onResult }) {
     }, 900);
     return () => clearTimeout(t);
   }, [word, ragilVal, onResult]);
-
-  // מילים שוות לערך הרגיל (תצוגה מקדימה; כל השאר בדף המספר)
-  useEffect(() => {
-    let live = true; setEqual(null);
-    if (!letters.length || !ragilVal) return;
-    supabase.from("bidim").select("phrase").eq("method", "רגיל").eq("value", ragilVal).neq("phrase", word).limit(300)
-      .then(({ data }) => { if (live) setEqual([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
-    return () => { live = false; };
-  }, [ragilVal, word, letters.length]);
 
   const thS = { background: L.soft, color: L.goldDeep, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px", textAlign: "center", whiteSpace: "nowrap", borderBottom: `2px solid ${L.line}` };
   const tdS = { color: L.ink, fontFamily: F.body, fontSize: 13.5, padding: "7px 10px", borderBottom: `1px solid ${L.line}` };
@@ -95,34 +83,6 @@ export default function GematriaCalculator({ seed, onResult }) {
           }}>✨ גלה הכל על {ragilVal} ←</Link>
         </div>
         <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה</div>
-      </div>
-
-      {/* מילים שוות (ערך רגיל) — תצוגה מקדימה */}
-      <div style={{ marginTop: 16, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 14, padding: "14px 16px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, letterSpacing: 1 }}>מילים שוות ל־</span>
-          <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{ragilVal}</span>
-          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12 }}>(רגיל)</span>
-          <Link to={`/number/${ragilVal}?from=calc`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>דף המספר →</Link>
-        </div>
-        {equal === null ? (
-          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, padding: 6 }}>מחשב…</div>
-        ) : equal.length === 0 ? (
-          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, padding: 6 }}>לא נמצאו ביטויים נוספים בערך זה במאגר המאומת.</div>
-        ) : (
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-            {sortGoldFirst(equal, p => gold.labels.has(p)).slice(0, 60).map((p, i) => {
-              const isG = gold.labels.has(p);
-              return (
-                <Link key={i} to={`/number/${encodeURIComponent(p)}`} title={p} style={{
-                  textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
-                  background: isG ? L.active : L.soft, fontWeight: isG ? 700 : 400,
-                  border: `${isG ? 2 : 1}px solid ${isG ? L.gold : L.line}`, borderRadius: 999, padding: "5px 12px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>{isG ? "👑 " : ""}{p}</Link>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* פירוט אות-אות */}

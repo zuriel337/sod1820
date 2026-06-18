@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getRecentSearches, getHotNumber } from "../lib/supabase.js";
+import { getHotNumber } from "../lib/supabase.js";
 import SearchTabs from "../components/SearchTabs.jsx";
 import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
+import RecentSearches from "../components/RecentSearches.jsx";
 
 // ===== "הגוגל של המספרים" — דף נחיתה /number =====
 // שורה אחת ממורכזת (רגע הגוגל) → הקלדת מספר/שם → /number/:value (3 העומקים).
@@ -19,7 +20,6 @@ export default function NumberSearchPage() {
   const [adv, setAdv] = useState(false);
   const [a1, setA1] = useState("");
   const [a2, setA2] = useState("");
-  const [recent, setRecent] = useState([]);
   const [hot, setHot] = useState(null);
   const inputRef = useRef(null);
 
@@ -27,7 +27,6 @@ export default function NumberSearchPage() {
   useEffect(() => { const t = setTimeout(() => inputRef.current?.focus(), 200); return () => clearTimeout(t); }, []);
   useEffect(() => {
     let live = true;
-    getRecentSearches(6).then(r => { if (live) setRecent(r); }).catch(() => {});
     getHotNumber().then(h => { if (live) setHot(h); }).catch(() => {});
     return () => { live = false; };
   }, []);
@@ -106,20 +105,10 @@ export default function NumberSearchPage() {
         </button>
       )}
 
-      {/* 🕒 חיפושים אחרונים — מה אנשים חוקרים עכשיו */}
-      {recent.length > 0 && (
-        <div style={{ marginTop: 18, width: "min(620px,94vw)", background: P.card, border: `1px solid ${P.border}`,
-          borderRadius: 16, padding: "12px 16px" }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 9 }}>🕒 נחקר לאחרונה באתר</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {recent.map((r, i) => (
-              <button key={i} onClick={() => goVal(r.term)} style={{ cursor: "pointer", background: P.cardSoft,
-                border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.body,
-                fontSize: 14, fontWeight: 600, padding: "6px 13px" }}>{r.term}</button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 🕒 חיפושים אחרונים — מקור מאוחד, 6 אחרונים, "כל החיפושים" → טאב "מה נחקר" */}
+      <div style={{ marginTop: 18, width: "min(620px,94vw)" }}>
+        <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+      </div>
 
       <div style={{ marginTop: 34, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
         ✦ הגוגל של המספרים

@@ -70,13 +70,13 @@ export default function SearchesTab() {
         {rows.length === 0 ? (
           <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div>
         ) : (
-          <div style={{ display: "grid", gap: 7 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {rows.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <Link to={`/number/${encodeURIComponent(r.term)}`} style={{ textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600 }}>{r.term}</Link>
-                {r.value != null && <span style={{ background: "#fbf3da", color: L.gold, fontFamily: "'Courier New', monospace", fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
-                {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>· {timeAgoHe(r.at)}</span>}
-                {isAdmin && <button onClick={() => add(r.term)} style={{ ...adminBtn(added[r.term]), marginInlineStart: "auto" }}>{addLabel(added[r.term])}</button>}
+              <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: L.card, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
+                <Link to={`/number/${encodeURIComponent(r.term)}`} style={{ textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{r.term}</Link>
+                {r.value != null && <span style={{ background: "#fbf3da", color: L.gold, fontFamily: "'Courier New', monospace", fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
+                {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
+                {isAdmin && <button onClick={() => add(r.term)} style={adminBtn(added[r.term])}>{addLabel(added[r.term])}</button>}
               </div>
             ))}
           </div>
