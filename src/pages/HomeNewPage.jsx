@@ -4,6 +4,7 @@ import { C, F } from "../theme.js";
 import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
+import VideoGallery from "../components/VideoGallery.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מבנה לפי המוקאפ: ירו 1820 → שתי עמודות → אריחי עדשות → עדכונים אחרונים
@@ -120,6 +121,11 @@ export default function HomeNewPage() {
         <div style={{ textAlign: "center", marginTop: 16 }}>
           <Link to="/post" style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         </div>
+      </section>
+
+      {/* ===== גלריית הסרטים — שורה אחת (הוחזרה מ"שולחן העבודה") ===== */}
+      <section style={{ padding: "0 0 36px" }}>
+        <VideoGallery />
       </section>
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
