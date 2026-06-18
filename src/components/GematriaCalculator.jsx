@@ -69,6 +69,7 @@ export default function GematriaCalculator({ seed, onResult }) {
     sel: { background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 8px", color: L.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, cursor: "pointer" },
     eq: { color: L.goldDeep, fontFamily: F.mono, fontSize: 17, fontWeight: 800, minWidth: 52, textAlign: "center" },
     x: { cursor: "pointer", background: "none", border: "none", color: L.sub, fontSize: 16, fontWeight: 700, lineHeight: 1 },
+    send: { cursor: "pointer", background: L.active, border: `1px solid ${L.gold}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "4px 10px", whiteSpace: "nowrap" },
     res: { textDecoration: "none", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 14px" },
     go: { display: "inline-block", textDecoration: "none", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 20px", marginTop: 8 },
     cross: { color: L.goldDeep, fontFamily: F.heading, fontSize: 14, fontWeight: 800, background: "#fff3d6", border: `1px solid ${L.gold}`, borderRadius: 10, padding: "8px 12px" },
@@ -110,12 +111,18 @@ export default function GematriaCalculator({ seed, onResult }) {
           </div>
         ) : (
           <div style={{ marginTop: 12, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 13px" }}>
+            {/* כותרת + סגירת מצב מתקדם */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🔍 חיפוש מורכב — שתי שיטות</span>
+              <button onClick={() => setRow2Open(false)} title="סגור מצב מתקדם" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>✕ סגור מתקדם</button>
+            </div>
             {/* שורה 1 — מה שחיפשת */}
             <div style={cs.row}>
               <span style={cs.lbl}>שורה 1</span>
               <span style={cs.term}>{word || "—"}</span>
               <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
+              <button onClick={() => setQ(word)} title="חשב את כל 17 השיטות לביטוי זה" style={cs.send}>⤴ הכל</button>
             </div>
             <LetterStrip mkey={m1} w={word} />
             {/* שורה 2 — נפתחת/נסגרת */}
@@ -124,7 +131,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               <input value={q2} onChange={e => setQ2(e.target.value)} placeholder="ביטוי…" dir="rtl" style={cs.inp} />
               <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v2}</span>
-              <button onClick={() => setRow2Open(false)} style={cs.x} title="סגור שורה">✕</button>
+              <button onClick={() => { const t = q2.trim(); if (t) setQ(t); }} title="העבר למחשבון הראשי — חישוב כל 17 השיטות" style={cs.send}>⤴ הכל</button>
             </div>
             <LetterStrip mkey={m2} w={q2} />
             {/* בורר פעולה */}
