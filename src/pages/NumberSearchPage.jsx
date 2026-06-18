@@ -10,13 +10,6 @@ import { getRecentSearches, getHotNumber } from "../lib/supabase.js";
 // + חיפושים אחרונים חיים · מספר חם · הפתיעו אותי · חיפוש מתקדם · צ'יפים מנחים.
 
 const SURPRISE = [1820, 1237, 358, 424, 86, 26, 541, 137, 314, 776, "משיח", "גאולה", "אהבה", "אמת", "תורה", "בינה"];
-const HINTS = [
-  { e: "👤", l: "שם", ex: "דוד" },
-  { e: "🔢", l: "מספר", ex: "1820" },
-  { e: "📖", l: "פסוק", ex: "שמע ישראל" },
-  { e: "🧩", l: "ביטוי", ex: "משיח בן דוד" },
-  { e: "🌍", l: "באנגלית", ex: null }, // בקרוב
-];
 
 export default function NumberSearchPage() {
   const nav = useNavigate();
@@ -79,18 +72,17 @@ export default function NumberSearchPage() {
           borderRadius: 999, fontSize: 20, width: 52, flexShrink: 0 }}>🎲</button>
       </form>
 
-      {/* צ'יפים מנחים — מה לחקור */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 16, maxWidth: 580 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, alignSelf: "center" }}>מה תרצו לחקור?</span>
-        {HINTS.map(h => (
-          <button key={h.l} disabled={!h.ex} onClick={() => h.ex && (setQ(h.ex), inputRef.current?.focus())}
-            title={h.ex ? `דוגמה: ${h.ex}` : "בקרוב"}
-            style={{ cursor: h.ex ? "pointer" : "default", opacity: h.ex ? 1 : 0.5,
-              background: P.card, border: `1px solid ${P.border}`, borderRadius: 999,
-              color: P.accentText, fontFamily: F.body, fontSize: 14, fontWeight: 600, padding: "6px 13px" }}>
-            {h.e} {h.l}{!h.ex ? " · בקרוב" : ""}
-          </button>
+      {/* דוגמאות מעוררות-השראה — המנוע מזהה לבד שם/מספר/פסוק (לא "בחר קטגוריה") */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginTop: 16, maxWidth: 580 }}>
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>נסו:</span>
+        {["דוד", "1820", "שמע ישראל", "משיח בן דוד", "אהבה"].map(ex => (
+          <button key={ex} onClick={() => { setQ(ex); inputRef.current?.focus(); }}
+            style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 999,
+              color: P.accentText, fontFamily: F.body, fontSize: 14, fontWeight: 600, padding: "6px 13px" }}>{ex}</button>
         ))}
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, fontWeight: 500, marginTop: 9, textAlign: "center" }}>
+        שם · מספר · פסוק · ביטוי — המנוע מזהה לבד ✦ (אנגלית בקרוב 🌍)
       </div>
 
       {/* חיפוש מתקדם (מוסתר) */}
