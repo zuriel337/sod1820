@@ -22,6 +22,11 @@ const MDM_GADOL = { "א": 986, "ב": 848, "ג": 817, "ד": 924, "ה": 35, "ו": 
 
 const sumBy = (w, map) => onlyHeb(w).reduce((s, c) => s + (map[c] || 0), 0);
 const gadol = w => onlyHeb(w).reduce((s, c) => s + (FINAL[c] || GEM[c] || 0), 0);
+// ריבוע (ribua_definition — נעול): סכום הרגיל של כל הקידומות ההדרגתיות, מילה-מילה.
+// דוד = ד(4)+דו(10)+דוד(14) = 28. ריבוע גדול = אותו דבר בערכי סופיות. מאומת: גג=9, צוריאל=1432.
+const ribuaWord = (word, val) => { let s = 0, run = 0; for (const c of onlyHeb(word)) { run += val(c); s += run; } return s; };
+export const ribua = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => GEM[c] || 0), 0);
+export const ribuaGadol = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => FINAL[c] || GEM[c] || 0), 0);
 // מסתתר (חוק misratar_multi — נעול): כל מילה מחושבת בנפרד; הרווח שובר את הרצף.
 // לעולם לא מחברים אות אחרונה של מילה לאות ראשונה של הבאה. (משיח בן דוד = 552+48+4 = 604)
 export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => {
@@ -35,6 +40,7 @@ export const METHODS = [
   { key: "מילוי", sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", fn: w => sumBy(w, MILUI), map: MILUI },
   { key: "מסתתר", sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", fn: mistater, map: null },
   { key: "קדמי", sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", fn: w => sumBy(w, KID), map: KID },
+  { key: "ריבוע", sub: "סכום הקידומות המצטברות", soul: "ההתפשטות מהאות אל השלם", fn: ribua, map: null },
   { key: "גדול", sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", fn: gadol, map: null },
   { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
   { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
@@ -59,6 +65,7 @@ export const DEPTH_METHODS = [
   { key: "מילוי דמילוי", soul: "מילוי המילוי — הפנימיות העמוקה", fn: w => sumBy(w, MDM) },
   { key: "מילוי דמילוי גדול", soul: "מילוי דמילוי בסופיות גדול", fn: w => sumBy(w, MDM_GADOL) },
   { key: "הכפלה גדולה", soul: "הכפלה בסופיות גדול (ך=500²)", fn: w => sumBy(w, SQR_GADOL) },
+  { key: "ריבוע גדול", soul: "ריבוע הקידומות בסופיות גדול", fn: ribuaGadol },
 ];
 
 export { GEM };
