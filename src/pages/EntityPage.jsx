@@ -12,6 +12,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages } from "../lib/numberMessage.js";
+import { resolve, getScore } from "../lib/engine.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 
@@ -141,9 +142,7 @@ function NumberPulse({ value, onExplore }) {
   useEffect(() => {
     if (!value || value < 10) { setScore(null); return; }
     let live = true;
-    supabase.rpc("convergence_meter", { p_n: value })
-      .then(({ data }) => { if (live) setScore(typeof data?.score === "number" ? data.score : 0); })
-      .catch(() => { if (live) setScore(null); });
+    getScore(value).then(s => { if (live) setScore(s); }).catch(() => { if (live) setScore(null); });
     return () => { live = false; };
   }, [value]);
   if (score == null) return null;
@@ -185,9 +184,7 @@ export default function EntityPage() {
   const { phrase } = useParams();
   const nav = useNavigate();
   const P = usePalette();
-  const term = decodeURIComponent(phrase || "").trim();
-  const isNumber = /^\d+$/.test(term);
-  const value = isNumber ? Number(term) : calcGem(term);
+  const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

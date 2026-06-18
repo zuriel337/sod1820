@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { F, calcGem } from "../theme.js";
+import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
-import { buildMessages } from "../lib/numberMessage.js";
+import { resolve, buildMessages } from "../lib/engine.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import SearchTabs from "../components/SearchTabs.jsx";
 
@@ -19,7 +19,7 @@ export default function NamePage() {
   const inputRef = useRef(null);
 
   const reveal = e => { e.preventDefault(); const n = name.trim(); if (n) setRevealed(n); };
-  const value = revealed ? calcGem(revealed) : 0;
+  const { value } = revealed ? resolve(revealed) : { value: 0 };
   const msgs = revealed ? buildMessages({ term: revealed, value, isNumber: false, phrases: [] }) : [];
   const share = async () => { if (busy) return; setBusy(true); try { await shareNumberSmart(value, []); } finally { setBusy(false); } };
 
