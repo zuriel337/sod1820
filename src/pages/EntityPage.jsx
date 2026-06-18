@@ -246,6 +246,15 @@ export default function EntityPage() {
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
+  // הגעה ממחשבון/שיטה עם focus=dna → פותח את צירי ההתכנסות (DNA) וגולל אליהם
+  useEffect(() => {
+    if (sp.get("focus") === "dna") {
+      setOpen(o => ({ ...o, dna: true }));
+      const t = setTimeout(() => scrollTo("dna"), 300);
+      return () => clearTimeout(t);
+    }
+  }, [term]); // eslint-disable-line
+
   // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה
   useEffect(() => {
     let alive = true;

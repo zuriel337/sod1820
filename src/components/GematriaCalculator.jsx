@@ -22,8 +22,20 @@ export default function GematriaCalculator({ seed, onResult }) {
   const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
   const [equal, setEqual] = useState(null);
+  const [counts, setCounts] = useState({});
   const [showLetters, setShowLetters] = useState(false);
   const letters = onlyHeb(word);
+
+  // כמה ביטויים יש במערכת לכל שיטה (לפי הערך שלה) — מהמאגר המאומת
+  useEffect(() => {
+    let live = true; setCounts({});
+    if (!letters.length) return;
+    Promise.all(res.map(r =>
+      supabase.from("bidim").select("*", { count: "exact", head: true }).eq("method", r.key).eq("value", r.value)
+        .then(({ count }) => [r.key, count || 0]).catch(() => [r.key, 0])
+    )).then(pairs => { if (live) setCounts(Object.fromEntries(pairs)); });
+    return () => { live = false; };
+  }, [word]); // eslint-disable-line
 
   // שמירה לקיר + רישום חיפושים (עץ אחד)
   useEffect(() => {
@@ -61,7 +73,7 @@ export default function GematriaCalculator({ seed, onResult }) {
         {/* כל 17 השיטות — מלבנים קומפקטיים, לחיצה → דף המספר */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 13 }}>
           {res.map(r => (
-            <Link key={r.key} to={`/number/${r.value}?from=calc`} title={`${r.key} = ${r.value} · פתח את ${r.value}`} style={{
+            <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
               textDecoration: "none", textAlign: "center", borderRadius: 10, padding: "8px 6px",
               border: `1px solid ${L.line}`, background: L.soft, transition: "border-color .15s, background .15s",
             }}
@@ -69,6 +81,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
               <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.key}</div>
               <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+              <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>
             </Link>
           ))}
         </div>
