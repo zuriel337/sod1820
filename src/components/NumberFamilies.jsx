@@ -26,16 +26,19 @@ export default function NumberFamilies({ value, highlight }) {
 
   return (
     <div style={{ display: "grid", gap: 11 }}>
+      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 13px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+        💡 כל הקבוצות שוות <b style={{ color: P.accentText }}>{value}</b> — אבל <b>כל אחת בשיטה שלה</b>. רוב האנשים מכירים רק את ה<b>רגיל</b>; כאן, למשל, תחת «מסתתר» אלו מילים שה<b>מסתתר</b> שלהן = {value} (הרגיל שלהן אחר).
+      </div>
       {fams.map(g => {
         const on = highlight && g.method === highlight;
         return (
           <div key={g.method} style={{ borderInlineStart: `3px solid ${on ? P.accent : P.border}`, paddingInlineStart: 9, background: on ? P.cardSoft : "transparent", borderRadius: 8 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 5 }}>
               <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{on ? "✨ " : ""}{g.method}</span>
-              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>({g.count})</span>
+              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>({g.count} מילים)</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-              {g.phrases.map(({ phrase, world }, i) => {
+              {g.phrases.map(({ phrase, world, ragil }, i) => {
                 const isG = gold.labels.has(phrase);
                 return (
                   <Link key={i} to={`/number/${encodeURIComponent(phrase)}`} style={{
@@ -45,6 +48,7 @@ export default function NumberFamilies({ value, highlight }) {
                     fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : 500,
                   }}>
                     {isG ? "✦ " : ""}{phrase}
+                    {g.method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
                     {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
                   </Link>
                 );
@@ -54,6 +58,17 @@ export default function NumberFamilies({ value, highlight }) {
           </div>
         );
       })}
+
+      {/* 💡 הסבר קצר + הזמנה לחקור בבית המדרש */}
+      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
+        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>
+          💡 כל <b>שיטה</b> היא דרך אחרת לקרוא את אותו ערך — <b>רגיל</b> (הזהות) · <b>מסתתר</b> (הנסתר בין האותיות) · <b>קדמי/משולש</b> (המצטבר) · <b>מילוי</b> (הפנימיות) ועוד. כל המילים כאן נפגשות על אותו מספר. רוצים להבין לעומק ולחקור בעצמכם?
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link to="/beit-midrash?tab=methods" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 14px" }}>📐 כל השיטות מוסברות</Link>
+          <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "8px 16px" }}>🧮 חקרו במחשבון הגימטריה →</Link>
+        </div>
+      </div>
 
       {/* 🎨 מקרא צבעי העולמות — חוק גלובלי */}
       <div>
