@@ -9,6 +9,7 @@ import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
+import CrossFinder from "../components/CrossFinder.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
@@ -424,6 +425,13 @@ export default function EntityPage() {
 
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
+
+        {/* ── 🔮 מצא לי הצלבה — בדף הביטוי בלבד (השם/הביטוי מול מילה קדושה) ── */}
+        {!isNumber && (
+          <div style={{ marginBottom: 18 }}>
+            <CrossFinder term={term} value={value} />
+          </div>
+        )}
 
         {/* ── 📂 מספרים קרובים (ימין) + פתח/סגור הכל (שמאל) — zero_scale_law ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
