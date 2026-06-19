@@ -21,11 +21,18 @@ function nameValues(name) {
   return v;
 }
 
+// מפתח אנגרמה — אותן אותיות (סופיות מנורמלות) → אנגרמה/היפוך = "לא חוכמה" (חולק טריוויאלית את שיטות הסכום)
+const FINAL_NORM = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+const anagramKey = s => String(s || "").replace(/[^א-ת]/g, "").split("").map(c => FINAL_NORM[c] || c).sort().join("");
+
 // בוחר את המילה הטובה ביותר (הכי הרבה שיטות משותפות, ואז ביטוי קצר ומשמעותי)
 function pickBest(rows, name, v) {
+  const nameKey = anagramKey(name);
   let best = null, bestScore = -1;
   for (const r of rows || []) {
     if (!r.phrase || r.phrase === name) continue;
+    // דילוג על אנגרמה/היפוך-אותיות של הביטוי — אותן אותיות = לא חידוש
+    if (anagramKey(r.phrase) === nameKey) continue;
     const methods = [];
     for (const col of COLS) {
       if (r[col] != null && v[col] != null && r[col] === v[col]) methods.push({ col, label: LABEL[col], value: v[col] });

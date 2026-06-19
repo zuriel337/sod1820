@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -15,16 +15,24 @@ export default function CrossFinder({ term, value }) {
   const [status, setStatus] = useState("idle"); // idle · busy · done · none
   const [cross, setCross] = useState(null);
   const [shareBusy, setShareBusy] = useState(false);
+  const engaged = useRef(false); // האם המשתמש כבר הפעיל — אז נרענן אוטומטית בכל שם חדש
 
-  const find = async () => {
-    if (status === "busy") return;
+  const find = useCallback(async () => {
+    engaged.current = true;
     setStatus("busy"); setCross(null);
     try {
       const c = await findNameCross(term);
       if (c && c.matchCount >= 2) { setCross(c); setStatus("done"); }
       else setStatus("none");
     } catch { setStatus("none"); }
-  };
+  }, [term]);
+
+  // שם/ביטוי חדש → לנקות תוצאה ישנה; אם המשתמש כבר הפעיל פעם — לרענן לבד (בלי "עוד אחת")
+  useEffect(() => {
+    setCross(null);
+    if (engaged.current) find();
+    else setStatus("idle");
+  }, [term, find]);
 
   const crossItem = cross ? {
     id: "cross-" + term,
