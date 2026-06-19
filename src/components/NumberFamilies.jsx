@@ -26,6 +26,9 @@ export default function NumberFamilies({ value, highlight }) {
 
   return (
     <div style={{ display: "grid", gap: 11 }}>
+      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 13px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+        💡 כל הקבוצות שוות <b style={{ color: P.accentText }}>{value}</b> — אבל <b>כל אחת בשיטה שלה</b>. רוב האנשים מכירים רק את ה<b>רגיל</b>; כאן, למשל, תחת «מסתתר» אלו מילים שה<b>מסתתר</b> שלהן = {value} (הרגיל שלהן אחר).
+      </div>
       {fams.map(g => {
         const on = highlight && g.method === highlight;
         return (
