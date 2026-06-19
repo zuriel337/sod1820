@@ -40,7 +40,9 @@ export default function JourneyPage() {
       const add = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b); };
       (edges || []).forEach(e => { if (map.has(e.from_node) && map.has(e.to_node)) { add(e.from_node, e.to_node); add(e.to_node, e.from_node); } });
       const list = nodes || [];
-      setGraph({ map, adj, list });
+      // מאגר ה"קפיצות" — רק ישויות מחוברות (יש להן לפחות שכן אחד), כדי שהמסע לא ייתקע בצומת בודד
+      const connected = list.filter(n => (adj.get(n.id) || new Set()).size > 0);
+      setGraph({ map, adj, list, connected });
       let start = startFrom ? list.find(n => n.label === startFrom) : null;
       if (!start) start = pickStart(list);
       setPath(start ? [start] : []);
@@ -64,7 +66,7 @@ export default function JourneyPage() {
     if (!cand.length) cand = neigh;
     let next;
     if (cand.length) next = graph.map.get(cand[Math.floor(Math.random() * cand.length)]);
-    else next = graph.list[Math.floor(Math.random() * graph.list.length)]; // קפיצת דרך
+    else { const pool = graph.connected.length ? graph.connected : graph.list; next = pool[Math.floor(Math.random() * pool.length)]; } // קפיצת דרך — רק לצומת מחובר
     if (next) setPath(p => [...p, next]);
   }
 
