@@ -18,6 +18,22 @@ const moreItems = [
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
+// תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
+const MOBILE_TILES = [
+  { e: "🔢", l: "מחשבון", to: "/beit-midrash?tab=calc" },
+  { e: "✨", l: "מנוע המספרים", to: "/number" },
+  { e: "📚", l: "בית המדרש", to: "/beit-midrash" },
+  { e: "🖼", l: "גלריות", to: "/archive" },
+  { e: "🌅", l: "ציר הזמן", to: "/timeline" },
+  { e: "📖", l: "פוסטים", to: "/post" },
+  { e: "💬", l: "קהילה", to: "/community" },
+  { e: "🏛", l: "מרכז הניווט", to: "/map" },
+];
+const MOBILE_SOON = [
+  { e: "🌳", l: "עץ המספרים", to: "/numbers" },
+  { e: "🔍", l: 'הצופן התנ"כי', to: "/code" },
+];
+
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
 const SURPRISE_NUMS = [
   1820, 1237, 376, 358, 86, 26, 613, 541, 65, 72, 137, 314, 749, 631, 776,
@@ -323,27 +339,23 @@ export default function Navbar() {
             {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
             {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
-          {NAV.filter(item => item.to !== "/start").map(item => (
-            <div key={item.to} style={{ marginBottom: 4 }}>
-              {false ? null : (
-                <Link to={item.to} onClick={() => setDrawer(false)} style={{
-                  display: "block", color: isActive(pathname, item.to) ? C.goldBright : C.goldDim,
-                  textDecoration: "none", fontFamily: F.royal, fontSize: 15, fontWeight: 700,
-                  padding: "10px 14px", borderRadius: 6,
-                }}>{item.emoji} {item.label}</Link>
-              )}
-              {item.children && (
-                <div style={{ paddingInlineStart: 22 }}>
-                  {item.children.map(c => (
-                    <Link key={c.to} to={c.to} onClick={() => setDrawer(false)} style={{
-                      display: "block", color: C.muted, textDecoration: "none",
-                      fontFamily: F.royal, fontSize: 15, padding: "8px 14px",
-                    }}>– {c.label}</Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          {/* רשת אריחים — המדורים הראשיים */}
+          <div className="sod-tiles">
+            {MOBILE_TILES.map(t => (
+              <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
+                style={{ borderColor: isActive(pathname, t.to) ? C.borderGold : C.border }}>
+                <span className="sod-tile-e">{t.e}</span>
+                <span className="sod-tile-l">{t.l}</span>
+              </Link>
+            ))}
+          </div>
+          {/* בקרוב — מעומעם */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "12px 6px 4px" }}>
+            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>בקרוב:</span>
+            {MOBILE_SOON.map(s => (
+              <span key={s.to} style={{ color: C.muted, fontFamily: F.royal, fontSize: 13.5, opacity: 0.6 }}>🔒 {s.l}</span>
+            ))}
+          </div>
         </div>
       )}
 
@@ -392,6 +404,15 @@ export default function Navbar() {
         .nav-dice:hover { transform: rotate(18deg) scale(1.06); box-shadow: 0 0 16px rgba(212,175,55,0.3); background: ${C.surface}; }
         .nav-dice.spin { animation: nav-dice-spin 0.55s cubic-bezier(.2,.8,.2,1); box-shadow: 0 0 22px rgba(212,175,55,0.45); }
         @keyframes nav-dice-spin { 0% { transform: rotate(0) scale(1); } 60% { transform: rotate(540deg) scale(1.18); } 100% { transform: rotate(720deg) scale(1); } }
+
+        .sod-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; padding: 4px 6px 2px; }
+        @media (max-width: 380px) { .sod-tiles { grid-template-columns: repeat(2, 1fr); } }
+        .sod-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+          background: rgba(20,15,12,0.55); border: 1px solid ${C.border}; border-radius: 14px; padding: 16px 6px;
+          text-decoration: none; transition: transform 0.15s, border-color 0.15s, background 0.15s; }
+        .sod-tile:hover, .sod-tile:active { transform: translateY(-2px); border-color: ${C.gold} !important; background: ${C.surface}; }
+        .sod-tile-e { font-size: 26px; line-height: 1; }
+        .sod-tile-l { color: ${C.goldLight}; font-family: ${F.royal}; font-size: 13.5px; font-weight: 700; text-align: center; }
 
         .sod-nav-drawer { animation: nav-drawer-in 0.25s ease; }
         @keyframes nav-drawer-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
