@@ -72,42 +72,12 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
                       className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>
                   ))}
-                  {l.name === "התכנסות מילים" && (() => {
-                    const groups = {};
-                    (ev || []).forEach(e => { const w = (typeof e === "object" && e.world) || "כללי"; (groups[w] ||= []).push(e); });
-                    return (
-                      <div style={{ width: "100%", display: "grid", gap: 9 }}>
-                        {Object.keys(groups).map(w => {
-                          const col = worldColor(w);
-                          return (
-                            <div key={w}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                                <span style={{ width: 9, height: 9, borderRadius: "50%", background: col, boxShadow: `0 0 6px ${col}66`, flexShrink: 0 }} />
-                                <span style={{ color: col, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>{w}</span>
-                                <span style={{ color: T.goldDim, fontSize: 9.5 }}>({groups[w].length})</span>
-                              </div>
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                                {groups[w].map((e, k) => {
-                                  const lbl = typeof e === "string" ? e : e.label;
-                                  return (
-                                    <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip"
-                                      style={{ ...chip(false, T), borderColor: col, color: col }}>
-                                      {lbl}{e.method ? ` · ${e.method}` : ""}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
-                  {l.name === "אקטואליה (חדשות)" && ev?.map((e, k) => {
+                  {(l.name === "התכנסות מילים" || l.name === "אקטואליה (חדשות)") && ev?.map((e, k) => {
                     const lbl = typeof e === "string" ? e : e.label;
+                    const w = typeof e === "object" ? e.world : null;
                     return (
                       <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false, T)}>
-                        {lbl}{e.method ? ` · ${e.method}` : ""}{e.world ? ` · ${e.world}` : ""}
+                        {lbl}{e.method ? ` · ${e.method}` : ""}{w ? <> · <span style={{ color: worldColor(w), fontWeight: 700 }}>{w}</span></> : null}
                       </button>
                     );
                   })}
