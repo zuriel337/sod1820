@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 
@@ -27,42 +28,43 @@ const STEPS = [
     to: "/members" },
 ];
 
-const badgeStyle = {
+const badgeStyle = (P) => ({
   display: "inline-block", marginInlineStart: 8, verticalAlign: "middle",
-  background: C.goldDark, color: C.goldBright, border: `1px solid ${C.borderGold}`,
+  background: P.accentDim, color: P.accentText, border: `1px solid ${P.borderStrong}`,
   borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700,
   letterSpacing: 0.3, whiteSpace: "nowrap",
-};
+});
 
 export default function StartHerePage() {
+  const P = usePalette();
   return (
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="ברוכים הבאים" title="כאן מתחילים" />
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
-        בשתי דקות — המסע מהשורש אל הלב. כל האתר הוא <span style={{ color: C.goldBright }}>גרף ידע אחד</span>,
+      <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
+        בשתי דקות — המסע מהשורש אל הלב. כל האתר הוא <span style={{ color: P.accentText }}>גרף ידע אחד</span>,
         וכל לחיצה פותחת מסלול חקירה חדש.
         <br />
-        <span style={{ color: C.goldBright }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
+        <span style={{ color: P.accentText }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
       </p>
 
       <div style={{ display: "grid", gap: 16 }}>
         {STEPS.map((s, i) => (
           <Link key={s.title} to={s.to} style={{
             display: "flex", gap: 18, alignItems: "flex-start", textDecoration: "none",
-            background: C.surface2, border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${C.gold}`,
+            background: P.cardSoft, border: `1px solid ${P.border}`, borderInlineStart: `3px solid ${P.accent}`,
             borderRadius: 10, padding: "20px 22px", transition: "border-color 0.2s, transform 0.2s",
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; e.currentTarget.style.transform = "translateX(-3px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.borderInlineStartColor = C.gold; e.currentTarget.style.transform = "none"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = P.borderStrong; e.currentTarget.style.transform = "translateX(-3px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; e.currentTarget.style.borderInlineStartColor = P.accent; e.currentTarget.style.transform = "none"; }}
           >
             <div style={{ fontSize: 30, lineHeight: 1 }}>{s.emoji}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ color: C.goldDeep, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
-              <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
+              <div style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
                 {i + 1}. {s.title}
-                {s.badge && <span style={badgeStyle}>{s.badge}</span>}
+                {s.badge && <span style={badgeStyle(P)}>{s.badge}</span>}
               </div>
-              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85 }}>{s.body}</div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85 }}>{s.body}</div>
             </div>
           </Link>
         ))}
@@ -70,7 +72,7 @@ export default function StartHerePage() {
 
       {/* כל המערכות במבט-על */}
       <div style={{ textAlign: "center", marginTop: 28 }}>
-        <Link to="/map" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: 0.5 }}>
+        <Link to="/map" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: 0.5 }}>
           🏛 לכל המערכות — מרכז הניווט →
         </Link>
       </div>
@@ -88,7 +90,7 @@ export default function StartHerePage() {
       {/* 👑 סיום — היכנסו לעולם החדש */}
       <div style={{ textAlign: "center", marginTop: 48 }}>
         <GoldButton to="/">👑 היכנסו לעולם החדש</GoldButton>
-        <p style={{ color: C.goldDim, fontFamily: F.regal, fontSize: 15.5, lineHeight: 1.8, marginTop: 18, fontStyle: "italic" }}>
+        <p style={{ color: P.accentDim, fontFamily: F.regal, fontSize: 15.5, lineHeight: 1.8, marginTop: 18, fontStyle: "italic" }}>
           כאן התורה פוגשת את הבינה המלאכותית — והרמזים הופכים לידע חי.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>

@@ -21,6 +21,8 @@ const LIGHT_ROUTES = [
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
   /^\/cross$/, /^\/topic(\/|$)/,
   /^\/post$/, /^\/community\/chat$/,
+  /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
+  /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
 ];
 
 export default function Layout() {
