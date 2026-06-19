@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
-import RecentSearches from "../components/RecentSearches.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -647,10 +646,8 @@ export default function EntityPage() {
           </div>
         </Acc>
 
-        {/* ── 🕒 נחקר לאחרונה — מקור מאוחד, דרגות לפי משתמש ── */}
-        <div style={{ marginTop: 24 }}>
-          <RecentSearches max={6} seeAllTo="/beit-midrash?tab=searches" />
-        </div>
+        {/* פיד החיפושים הוסר מדף הביטוי — כאן רוצים עומק על המספר, לא פיד של אחרים.
+            נשאר בדף הבית · מנוע המספרים · בית המדרש ("מה נחקר"). */}
 
         {/* ── תמונת המספר — תצוגה מקדימה + שיתוף/הורדה (מודאל כהה) ── */}
         {cardUrl && (

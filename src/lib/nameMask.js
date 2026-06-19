@@ -33,25 +33,38 @@ const SAFE = new Set([
   "אליהו הנביא","שמואל הנביא","יונה הנביא","דניאל איש חמודות","מרדכי היהודי","אסתר המלכה",
 ]);
 
-// האם הביטוי נראה כשם פרטי (שם פרטי מוכר בתחילה, או «שם משפחה» בן שתי מילים)
+// זיהוי תבנית «פלוני בן/בת אלמוני» — שם אישי/תפילה (לרוב עם שם האם או האב).
+// מחזיר את האינדקס של המילה «בן»/«בת» אם היא באמצע (יש מילה לפניה ואחריה), אחרת -1.
+function benBatIdx(words) {
+  for (let i = 1; i < words.length - 1; i++) {
+    if (words[i] === "בן" || words[i] === "בת") return i;
+  }
+  return -1;
+}
+
+// האם הביטוי נראה כשם פרטי (שם פרטי מוכר בתחילה, «שם משפחה» בן שתי מילים, או «פלוני בן/בת אלמוני»)
 export function looksLikeName(term) {
   const t = String(term || "").trim();
   if (!t || SAFE.has(t)) return false;
   const words = t.split(/\s+/);
+  if (benBatIdx(words) >= 0) return true;                      // «X בן/בת Y» = שם אישי/תפילה — תמיד מסתירים
   if (words.length > 3) return false;                          // משפט ארוך = לא שם
   if (NAMES.has(words[0])) return true;                        // «שם פרטי ...» (כולל שם+משפחה)
   if (words.length === 2 && NAMES.has(words[1])) return true;  // «X משפחה-מוכרת» (שתי מילים בלבד)
   return false;
 }
 
-// מסכה: שם פרטי + משפחה → רק השם הפרטי + כוכביות. שם בודד → 2 אותיות + כוכביות. אדמין → ללא מסכה.
+const head2 = w => { const h = [...String(w || "")].filter(c => HEB.test(c)).slice(0, 2).join(""); return (h || "★") + "★★★"; };
+
+// מסכה: «פלוני בן/בת אלמוני» → מוחקים לגמרי את שם ההורה ומסתירים את הפרטי (2 אותיות).
+//        שם פרטי + משפחה → רק השם הפרטי + כוכביות. שם בודד → 2 אותיות. אדמין → ללא מסכה.
 export function maskTerm(term, isAdmin) {
   if (isAdmin) return term;
   if (!looksLikeName(term)) return term;
   const words = String(term).trim().split(/\s+/);
+  if (benBatIdx(words) >= 0) return head2(words[0]);   // פלוני בן/בת אלמוני → שם ההורה נמחק, הפרטי מוסתר
   if (words.length >= 2) return words[0] + " ★★★★★";   // שם + משפחה → רק השם הפרטי
-  const head = [...words[0]].filter(c => HEB.test(c)).slice(0, 2).join("");
-  return (head || "★") + "★★★";                          // שם בודד → 2 אותיות
+  return head2(words[0]);                               // שם בודד → 2 אותיות
 }
 
 // יעד לינק בטוח: לשם מוסתר (לא-אדמין) → לפי הערך המספרי (לא חושף את השם ב-URL).

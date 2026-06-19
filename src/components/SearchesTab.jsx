@@ -67,7 +67,10 @@ export default function SearchesTab() {
       )}
 
       <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 16, padding: "15px 18px" }}>
-        <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 11 }}>🕒 כל החיפושים האחרונים</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 11 }}>
+          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🕒 כל החיפושים האחרונים</span>
+          {!isAdmin && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>· 🔒 שמות אישיים מוסתרים</span>}
+        </div>
         {rows.length === 0 ? (
           <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div>
         ) : (

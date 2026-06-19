@@ -39,6 +39,7 @@ export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midra
         <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
         <Link to={seeAllTo} style={{ marginInlineStart: "auto", textDecoration: "none", color: L.gold, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>כל החיפושים →</Link>
       </div>
+      {!isAdmin && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11, marginBottom: 9 }}>🔒 שמות אישיים מוסתרים</div>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {shown.map((r, i) => (
           <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={isAdmin ? `${r.term}${r.value ? ` = ${r.value}` : ""}` : "חיפוש"}
