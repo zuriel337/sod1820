@@ -10,6 +10,7 @@ import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
+import NumberOfDay from "../components/NumberOfDay.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -145,6 +146,9 @@ export default function HomeNewPage() {
           ))}
         </div>
       </section>
+
+      {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
+      <NumberOfDay />
 
       {/* ===== שער הגלקסיות — בבנייה (כניסה להיכל בינתיים) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
