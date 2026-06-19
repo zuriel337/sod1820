@@ -113,7 +113,6 @@ export default function HomeNewPage() {
             style={{ flex: 1, minWidth: 180, background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 15, padding: "11px 18px", outline: "none", textAlign: "center" }} />
           <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
         </form>
-        <Link to="/gematria" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>🧮 בדקו את השם שלכם →</Link>
       </section>
 
       {/* ===== אריחי עדשות ===== */}
@@ -174,8 +173,6 @@ export default function HomeNewPage() {
       )}
 
       {/* ===== עדכונים אחרונים (בחזית) ===== */}
-
-      {/* ===== עדכונים אחרונים (בחזית) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
         <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
@@ -228,13 +225,10 @@ export default function HomeNewPage() {
         </div>
       </section>
 
+      {/* סיום חם — בלי לשכפל את «כאן מתחילים» (כבר בהירו) ואת המחשבון (כבר באריחים) */}
       <div style={{ textAlign: "center", padding: "0 18px 56px" }}>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 16 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>
           🤍 ברוכים הבאים לבית החדש שלנו
-        </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link to="/start" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>✨ כאן מתחילים</Link>
-          <Link to="/gematria" style={{ display: "inline-block", textDecoration: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, fontFamily: F.heading, fontWeight: 700, fontSize: 15, padding: "11px 26px", borderRadius: 999 }}>🧮 למחשבון הגימטריה</Link>
         </div>
       </div>
     </div>
