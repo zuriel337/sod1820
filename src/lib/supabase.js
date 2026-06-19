@@ -934,15 +934,24 @@ export async function getRecentCrosses(limit = 12) {
   } catch { return []; }
 }
 
-// 🧬 משפחות המילים — לכל ערך, קבוצות הביטויים השווים לו בכל שיטה (מ-bidim). מוסיף, לא מוריד.
-export async function getValueFamilies(value, perMethod = 14) {
+// 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim) + העולם של כל ביטוי (מ-nodes).
+// המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
+export async function getValueFamilies(value, perMethod = 20) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2000);
+    const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2500);
+    if (!data || !data.length) return [];
+    const phrases = [...new Set(data.map(r => r.phrase))];
+    const worldMap = {};
+    for (let i = 0; i < phrases.length; i += 300) {
+      const { data: ents } = await supabase.from('nodes').select('label,metadata')
+        .eq('type', 'entity').in('label', phrases.slice(i, i + 300)).limit(1000);
+      (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+    }
     const groups = {};
-    for (const r of data || []) {
-      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, phrases: [] });
-      if (!g.phrases.includes(r.phrase)) g.phrases.push(r.phrase);
+    for (const r of data) {
+      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, seen: new Set(), phrases: [] });
+      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null }); }
     }
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))

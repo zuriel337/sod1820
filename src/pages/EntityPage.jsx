@@ -435,26 +435,12 @@ export default function EntityPage() {
 
         {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
-          {d.phrases?.length ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-              {sortGoldFirst(d.phrases, p => gold.labels.has(p.phrase)).map((p, i) => {
-                const isG = gold.labels.has(p.phrase);
-                return (
-                  <Link key={i} to={`/number/${encodeURIComponent(p.phrase)}`} style={{
-                    textDecoration: "none", color: isG ? P.onAccent : P.accentText, fontFamily: F.body, fontSize: 14,
-                    border: `1px solid ${isG ? "transparent" : P.border}`, borderRadius: 999, padding: "5px 13px",
-                    background: isG ? P.accentBtn : P.card, fontWeight: isG ? 800 : 500,
-                  }}>{isG ? "✦ " : ""}{p.phrase}</Link>
-                );
-              })}
-            </div>
-          ) : (
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 14 }}>אין מילים שוות בערך זה ברגיל — בדקו בשיטות הנוספות למטה.</p>
-          )}
           <NumberFamilies value={value} highlight={sp.get("method")} />
-          <Link to="/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-            פתחו את {value} בעץ המספרים התלת-מימדי →
-          </Link>
+          <div style={{ marginTop: 14 }}>
+            <Link to="/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+              פתחו את {value} בעץ המספרים התלת-מימדי →
+            </Link>
+          </div>
         </Acc>
 
         {/* ── 🖼 גלריות — אחרי המילים ── */}
