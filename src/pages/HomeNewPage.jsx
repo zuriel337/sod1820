@@ -168,7 +168,7 @@ export default function HomeNewPage() {
       {/* ===== מה גולשים מחפשים עכשיו ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
-        <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון — ומתי</p>
+        <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון</p>
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
       </section>
 

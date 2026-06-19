@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
+import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 
 // "כאן מתחילים" — מסע התחלה קצר לפי מודל העץ האחד: שורש → לב → עדשות → הצטרפות.
 // כל צעד מסומן בשכבה שלו, כך שמההתחלה מבינים את המבנה של האתר.
@@ -46,6 +47,25 @@ export default function StartHerePage() {
         <br />
         <span style={{ color: P.accentText }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
       </p>
+
+      {/* 🔢 הגוגל של המספרים — מנוע החיפוש (הפניה ראשית עם הלוגו המתאים) */}
+      <Link to="/number" style={{
+        display: "block", textDecoration: "none", textAlign: "center",
+        background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 16,
+        padding: "26px 22px", marginBottom: 22, boxShadow: `0 6px 26px ${P.glow}`,
+        transition: "border-color 0.2s, transform 0.2s",
+      }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; e.currentTarget.style.transform = "translateY(-2px)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = P.borderStrong; e.currentTarget.style.transform = "none"; }}
+      >
+        <NumberEngineLogo text="הגוגל של המספרים" size={46} to={null} />
+        <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, fontWeight: 500, lineHeight: 1.7 }}>
+          מנוע החיפוש של סוד 1820 — הקלידו מספר, שם או פסוק וגלו את כל הקשרים הנסתרים בכל השיטות.
+        </div>
+        <div style={{ marginTop: 12, color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>
+          היכנסו למנוע ←
+        </div>
+      </Link>
 
       <div style={{ display: "grid", gap: 16 }}>
         {STEPS.map((s, i) => (
