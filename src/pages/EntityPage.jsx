@@ -357,12 +357,22 @@ export default function EntityPage() {
     <Shell P={P}>
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
+        {/* במובייל: החיפוש הופך לסרגל מלא בראש (order:-1) כדי שלא "יירד למטה" וייקבר */}
+        <style>{`
+          .ep-toprow { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:22px; }
+          .ep-topsearch { margin-inline-start:auto; display:flex; gap:7px; }
+          .ep-topsearch-inp { width:180px; }
+          @media (max-width:560px){
+            .ep-topsearch { order:-1; flex-basis:100%; margin-inline-start:0; margin-bottom:6px; }
+            .ep-topsearch-inp { flex:1; width:auto; min-width:0; }
+          }
+        `}</style>
+        <div className="ep-toprow">
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
           <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
-          <form onSubmit={goSearch} style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 180 }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
+          <form onSubmit={goSearch} className="ep-topsearch">
+            <input value={q} onChange={e => setQ(e.target.value)} className="ep-topsearch-inp" placeholder="חפשו שם · מילה · מספר…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center" }} />
+            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px", whiteSpace: "nowrap" }}>חפש ✦</button>
           </form>
         </div>
 
