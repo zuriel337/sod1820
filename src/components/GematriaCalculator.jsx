@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
-import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -29,6 +29,16 @@ export default function GematriaCalculator({ seed, onResult }) {
   const [q2, setQ2] = useState("");
   const [m2, setM2] = useState("אלבם");
   const [action, setAction] = useState("none");
+  const [advHelp, setAdvHelp] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 560px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 560px)");
+    const h = e => setIsMobile(e.matches);
+    mq.addEventListener ? mq.addEventListener("change", h) : mq.addListener(h);
+    setIsMobile(mq.matches);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", h) : mq.removeListener(h); };
+  }, []);
+  const heb = v => hebrewNumeral(v);
   const valOf = (key, w) => { const m = ALL.find(x => x.key === key); return m ? m.fn(String(w || "").trim()) : 0; };
   const v1 = valOf(m1, q);
   const v2 = valOf(m2, q2);
@@ -68,6 +78,7 @@ export default function GematriaCalculator({ seed, onResult }) {
     inp: { flex: "1 1 110px", boxSizing: "border-box", background: L.panel, border: `1px solid ${L.gold}`, borderRadius: 8, padding: "7px 12px", color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, textAlign: "center", outline: "none" },
     sel: { background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 8px", color: L.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, cursor: "pointer" },
     eq: { color: L.goldDeep, fontFamily: F.mono, fontSize: 17, fontWeight: 800, minWidth: 52, textAlign: "center" },
+    heb: { color: L.gold, fontFamily: F.regal, fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap" },
     x: { cursor: "pointer", background: "none", border: "none", color: L.sub, fontSize: 16, fontWeight: 700, lineHeight: 1 },
     send: { cursor: "pointer", background: L.active, border: `1px solid ${L.gold}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "4px 10px", whiteSpace: "nowrap" },
     res: { textDecoration: "none", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 14px" },
@@ -111,27 +122,36 @@ export default function GematriaCalculator({ seed, onResult }) {
           </div>
         ) : (
           <div style={{ marginTop: 12, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 13px" }}>
-            {/* כותרת + סגירת מצב מתקדם */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            {/* כותרת + הסבר + סגירת מצב מתקדם */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🔍 חיפוש מורכב — שתי שיטות</span>
-              <button onClick={() => setRow2Open(false)} title="סגור מצב מתקדם" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>✕ סגור מתקדם</button>
+              <button onClick={() => setAdvHelp(h => !h)} title="הסבר על המצב המורחב" style={{ cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px" }}>{advHelp ? "▴ הסבר" : "❔ הסבר"}</button>
+              <button onClick={() => setRow2Open(false)} title="סגור מצב מתקדם" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>✕ סגור</button>
             </div>
+            {advHelp && (
+              <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 13px", marginBottom: 11, color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85 }}>
+                כל שורה = ביטוי + <b>שיטת חישוב משלה</b> (למשל שורה 1 ברגיל, שורה 2 באלב״ם). מתחת לכל שורה מוצגות האותיות של אותה שיטה, והערך גם <b>באותיות עבריות</b> (למשל 231 = רל״א).<br />
+                <b>🔗 אחד</b> — מחבר את שני הערכים למספר אחד (ואם הם שווים → ✦ הצלבה). · <b>✂️ פצל</b> — פותח כל ערך בנפרד בדף המספר. · <b>⤴ הכל</b> — מעביר את הביטוי למחשבון הראשי לחישוב כל 17 השיטות.
+              </div>
+            )}
             {/* שורה 1 — מה שחיפשת */}
             <div style={cs.row}>
               <span style={cs.lbl}>שורה 1</span>
-              <span style={cs.term}>{word || "—"}</span>
+              <span style={{ ...cs.term, ...(isMobile ? { flexBasis: "100%" } : {}) }}>{word || "—"}</span>
               <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
-              <button onClick={() => setQ(word)} title="חשב את כל 17 השיטות לביטוי זה" style={cs.send}>⤴ הכל</button>
+              {heb(v1) && <span style={cs.heb}>{heb(v1)}</span>}
+              <button onClick={() => setQ(word)} title="חשב את כל 17 השיטות לביטוי זה" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ הכל</button>
             </div>
             <LetterStrip mkey={m1} w={word} />
             {/* שורה 2 — נפתחת/נסגרת */}
             <div style={{ ...cs.row, marginTop: 8 }}>
               <span style={cs.lbl}>שורה 2</span>
-              <input value={q2} onChange={e => setQ2(e.target.value)} placeholder="ביטוי…" dir="rtl" style={cs.inp} />
+              <input value={q2} onChange={e => setQ2(e.target.value)} placeholder="ביטוי…" dir="rtl" style={{ ...cs.inp, ...(isMobile ? { flexBasis: "100%" } : {}) }} />
               <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v2}</span>
-              <button onClick={() => { const t = q2.trim(); if (t) setQ(t); }} title="העבר למחשבון הראשי — חישוב כל 17 השיטות" style={cs.send}>⤴ הכל</button>
+              {heb(v2) && <span style={cs.heb}>{heb(v2)}</span>}
+              <button onClick={() => { const t = q2.trim(); if (t) setQ(t); }} title="העבר למחשבון הראשי — חישוב כל 17 השיטות" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ הכל</button>
             </div>
             <LetterStrip mkey={m2} w={q2} />
             {/* בורר פעולה */}
@@ -151,12 +171,12 @@ export default function GematriaCalculator({ seed, onResult }) {
               )}
               {action === "one" && (isCross ? (
                 <div>
-                  <div style={cs.cross}>✦ הצלבה! «{word}» ({m1}) = «{q2.trim()}» ({m2}) = {v1}</div>
+                  <div style={cs.cross}>✦ הצלבה! «{word}» ({m1}) = «{q2.trim()}» ({m2}) = {v1}{heb(v1) && ` · ${heb(v1)}`}</div>
                   <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.go}>פתח את ההצלבה {v1} ←</Link>
                 </div>
               ) : (
                 <div>
-                  <div style={cs.sum}>{v1} + {v2} = <b style={{ color: L.goldDeep }}>{v1 + v2}</b></div>
+                  <div style={cs.sum}>{v1} + {v2} = <b style={{ color: L.goldDeep }}>{v1 + v2}</b>{heb(v1 + v2) && <span style={{ ...cs.heb, marginInlineStart: 6 }}>{heb(v1 + v2)}</span>}</div>
                   <Link to={`/number/${v1 + v2}?from=calc`} style={cs.go}>פתח את {v1 + v2} בדף המספר ←</Link>
                 </div>
               ))}

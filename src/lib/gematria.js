@@ -99,3 +99,31 @@ export function methodLetters(key, word) {
   if (map) return { type: "value", segs: Ls.map(c => ({ ch: c, val: map[c] ?? 0 })) };
   return null;
 }
+
+// ===== המרת מספר לאותיות עבריות (גימטריה) עם גרשיים — 231 → רל״א =====
+const NUM_ONES = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+const NUM_TENS = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+const NUM_HUND = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+function hebUnder1000(n) {
+  let out = NUM_HUND[Math.floor(n / 100)] || "";
+  const r = n % 100;
+  if (r === 15) out += "טו";          // ט״ו — לא יה (שם ה')
+  else if (r === 16) out += "טז";     // ט״ז — לא יו
+  else out += (NUM_TENS[Math.floor(r / 10)] || "") + (NUM_ONES[r % 10] || "");
+  return out;
+}
+function gershayim(s) {
+  if (!s) return s;
+  if (s.length === 1) return s + "׳";
+  return s.slice(0, -1) + "״" + s.slice(-1);
+}
+// מספר → ראשי-תיבות עבריים. מעל מיליון מחזיר מחרוזת ריקה (לא מציגים אותיות).
+export function hebrewNumeral(num) {
+  const n = Number(num);
+  if (!n || n < 1 || n >= 1000000) return "";
+  const parts = [];
+  let rest = n;
+  if (rest >= 1000) { parts.push(gershayim(hebUnder1000(Math.floor(rest / 1000)))); rest %= 1000; }
+  if (rest > 0) parts.push(gershayim(hebUnder1000(rest)));
+  return parts.join(" ");
+}
