@@ -2840,6 +2840,13 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed [style*="color:#111"],
   .sod-post-content.themed [style*="color:#222"],
   .sod-post-content.themed [style*="color:#333"] { color: ${P.ink} !important; }
+  /* גימטריות-זהב צרובות בפוסטי AI (data-gem / זהב מוטבע) → זהב קריא לפי התמה
+     (בהיר=זהב כהה קריא על קלף · לילה=זהב בהיר). חוק ai_post_update_law. */
+  .sod-post-content.themed [data-gem],
+  .sod-post-content.themed [style*="color:#f6e27a"],
+  .sod-post-content.themed [style*="color: #f6e27a"],
+  .sod-post-content.themed [style*="color:#e8c840"],
+  .sod-post-content.themed [style*="color:#d4af37"] { color: ${P.accentText} !important; }
 `;
 
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
