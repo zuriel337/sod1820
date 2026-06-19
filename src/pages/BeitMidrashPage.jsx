@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
 import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate } from "../lib/crossesNew.js";
-import { shareCross, downloadCrossCard } from "../lib/crossCard.js";
+import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -251,6 +251,9 @@ function MirrorPanel({ gp }) {
 }
 function CrossCard({ item }) {
   const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState(null);   // dataURL לתצוגה מקדימה לפני שיתוף
+  const [pvBusy, setPvBusy] = useState(false);
+  const showPreview = async () => { if (pvBusy) return; setPvBusy(true); try { setPreview(await crossCardDataUrl(item)); } finally { setPvBusy(false); } };
   const gp = item.gematria_pairs || {};
   const star = item.panel_data?.star;
   const starSize = star === "big" ? 27 : star === "mid" ? 21 : 16;
@@ -295,10 +298,24 @@ function CrossCard({ item }) {
           {open ? "▴ הסתר את ההסבר" : "▾ קרא את ההסבר המלא"}
         </button>
         <div style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
+          <button onClick={showPreview} disabled={pvBusy} title="תצוגה מקדימה — איך התמונה תיראה" style={{ cursor: pvBusy ? "wait" : "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 13px" }}>👁 תצוגה מקדימה</button>
           <button onClick={() => shareCross(item)} title="שתפו כתמונה" style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 16px" }}>✦ שתפו</button>
           <button onClick={() => downloadCrossCard(item)} title="הורידו תמונה" aria-label="הורידו תמונה" style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, width: 34, height: 34, fontSize: 14 }}>🖼</button>
         </div>
       </div>
+      {preview && (
+        <div onClick={() => setPreview(null)} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(10,8,4,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: L.panel, borderRadius: 16, padding: 14, maxWidth: 420, width: "100%", textAlign: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
+            <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 9 }}>👁 כך התמונה תיראה בשיתוף</div>
+            <img src={preview} alt="תצוגה מקדימה" style={{ width: "100%", borderRadius: 12, border: `1px solid ${L.line}` }} />
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
+              <button onClick={() => { shareCross(item); setPreview(null); }} style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px" }}>✦ שתפו</button>
+              <button onClick={() => downloadCrossCard(item)} style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 16px" }}>🖼 הורד</button>
+              <button onClick={() => setPreview(null)} style={{ cursor: "pointer", background: "none", color: L.sub, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 16px" }}>✕ סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

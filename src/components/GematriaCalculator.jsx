@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
-import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -29,6 +29,7 @@ export default function GematriaCalculator({ seed, onResult }) {
   const [q1, setQ1] = useState("");
   const [q2, setQ2] = useState("");
   const [m2, setM2] = useState("אלבם");
+  const [miluiVar, setMiluiVar] = useState(() => ({ ...MILUI_VAR_DEFAULT }));   // וריאנט מילוי לשורה 1 בלבד
   const [advBlink, setAdvBlink] = useState(false);
   const advOpen = advLevel > 0;
   const twoRows = advLevel >= 2;
@@ -51,7 +52,13 @@ export default function GematriaCalculator({ seed, onResult }) {
   }, []);
   const heb = v => hebrewNumeral(v);
   const valOf = (key, w) => { const m = ALL.find(x => x.key === key); return m ? m.fn(String(w || "").trim()) : 0; };
-  const v1 = valOf(m1, q1);
+  const isMiluiM1 = m1 === "מילוי" || m1 === "מילוי דמילוי";
+  const v1 = m1 === "מילוי" ? miluiValueV(q1, miluiVar)
+    : m1 === "מילוי דמילוי" ? miluiDemiluyValueV(q1, miluiVar)
+    : valOf(m1, q1);
+  const fill1Text = () => m1 === "מילוי" ? miluiTextV(q1, miluiVar)
+    : m1 === "מילוי דמילוי" ? miluiDemiluyTextV(q1, miluiVar)
+    : methodResultText(m1, q1);
   const v2 = valOf(m2, q2);
   const isCross = v1 > 0 && v1 === v2;
 
@@ -117,6 +124,21 @@ export default function GematriaCalculator({ seed, onResult }) {
     );
   };
 
+  // שורת מילוי עם וריאנט (אות → שם = ערך)
+  const MiluiStrip = ({ word, variants, demiluy }) => {
+    const bd = miluiLettersV(word, variants, demiluy);
+    if (!bd) return null;
+    const seg = { fontFamily: F.mono, fontSize: 12, fontWeight: 700, color: L.goldDeep, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 8px" };
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 6, alignItems: "center" }}>
+        <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>{demiluy ? "מילוי דמילוי" : "מילוי"}:</span>
+        {bd.segs.map((s, i) => (
+          <span key={i} style={seg}>{s.from}<span style={{ color: L.gold }}>→</span>{s.name}<span style={{ color: L.sub }}>=</span>{s.val}</span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
@@ -157,9 +179,23 @@ export default function GematriaCalculator({ seed, onResult }) {
               <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
               {heb(v1) && <span style={cs.heb}>{heb(v1)}</span>}
-              <button onClick={() => { const t = methodResultText(m1, q1); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
+              <button onClick={() => { const t = fill1Text(); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
             </div>
-            <LetterStrip mkey={m1} w={q1} />
+            {/* וריאנט מילוי — שורה 1 בלבד */}
+            {isMiluiM1 && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 11px" }}>
+                <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>וריאנט מילוי:</span>
+                {["ה", "ו", "ת"].map(c => (
+                  <label key={c} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ color: L.goldDeep, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>{c}</span>
+                    <select value={miluiVar[c]} onChange={e => setMiluiVar(v => ({ ...v, [c]: e.target.value }))} style={cs.sel}>
+                      {MILUI_VAR_OPTS[c].map(o => <option key={o} value={o}>{o}{o === MILUI_VAR_DEFAULT[c] ? " ★" : ""}</option>)}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            )}
+            {isMiluiM1 ? <MiluiStrip word={q1} variants={miluiVar} demiluy={m1 === "מילוי דמילוי"} /> : <LetterStrip mkey={m1} w={q1} />}
 
             {advLevel === 1 && (
               <div style={{ textAlign: "center", marginTop: 11 }}>
@@ -232,6 +268,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
               <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.key}</div>
               <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+              <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>
               <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>
             </Link>
           ))}

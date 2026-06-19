@@ -49,7 +49,7 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
       <div style={{ display: "grid", gap: 4 }}>
         {data.layers.map((l, i) => {
           const ev = Array.isArray(l.evidence) ? l.evidence : null;
-          const clickable = (ev && ev.length) || (l.name === "עוגן קדוש" && l.ok);
+          const clickable = (ev && ev.length && l.name !== "התכנסות מילים") || (l.name === "עוגן קדוש" && l.ok);
           const isOpen = open === i;
           return (
             <div key={i}>
@@ -70,11 +70,11 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
                       className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>
                   ))}
-                  {(l.name === "התכנסות מילים" || l.name === "אקטואליה (חדשות)") && ev?.map((e, k) => {
+                  {l.name === "אקטואליה (חדשות)" && ev?.map((e, k) => {
                     const lbl = typeof e === "string" ? e : e.label;
                     return (
                       <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false, T)}>
-                        {lbl}{e.method ? ` · ${e.method}` : ""}{e.world ? ` · ${e.world}` : ""}
+                        {lbl}{e.method ? ` · ${e.method}` : ""}
                       </button>
                     );
                   })}

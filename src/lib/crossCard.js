@@ -136,6 +136,12 @@ export async function shareCross(item) {
   return "link";
 }
 
+// תצוגה מקדימה — מחזיר dataURL של התמונה (לראות לפני שיתוף)
+export async function crossCardDataUrl(item) {
+  await ensureFonts();
+  return buildCrossCard(item).toDataURL("image/png");
+}
+
 // הורדת התמונה (דסקטופ / גיבוי)
 export async function downloadCrossCard(item) {
   await ensureFonts();
