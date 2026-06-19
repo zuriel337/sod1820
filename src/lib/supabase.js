@@ -934,6 +934,22 @@ export async function getRecentCrosses(limit = 12) {
   } catch { return []; }
 }
 
+// 🧬 משפחות המילים — לכל ערך, קבוצות הביטויים השווים לו בכל שיטה (מ-bidim). מוסיף, לא מוריד.
+export async function getValueFamilies(value, perMethod = 14) {
+  if (!supabase || !value || value < 1) return [];
+  try {
+    const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2000);
+    const groups = {};
+    for (const r of data || []) {
+      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, phrases: [] });
+      if (!g.phrases.includes(r.phrase)) g.phrases.push(r.phrase);
+    }
+    return Object.values(groups)
+      .map(g => ({ method: g.method, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
+      .sort((a, b) => (a.priority - b.priority) || (b.count - a.count));
+  } catch { return []; }
+}
+
 // 🔥 מספר חם עכשיו — ה-term שנחקר הכי הרבה היום (הוכחה חברתית).
 export async function getHotNumber() {
   try {

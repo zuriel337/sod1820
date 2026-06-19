@@ -7,6 +7,7 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
+import NumberFamilies from "../components/NumberFamilies.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
@@ -502,6 +503,8 @@ export default function EntityPage() {
               })()}
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
+
+              <NumberFamilies value={value} highlight={sp.get("method")} />
 
               {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
 

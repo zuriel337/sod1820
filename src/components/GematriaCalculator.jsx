@@ -224,7 +224,7 @@ export default function GematriaCalculator({ seed, onResult }) {
         <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 13 }}>
           {res.map(r => (
-            <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
+            <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
               textDecoration: "none", textAlign: "center", borderRadius: 10, padding: "8px 6px",
               border: `1px solid ${L.line}`, background: L.soft, transition: "border-color .15s, background .15s",
             }}
