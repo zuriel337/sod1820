@@ -56,6 +56,17 @@ export default function NumberFamilies({ value, highlight }) {
         );
       })}
 
+      {/* 💡 הסבר קצר + הזמנה לחקור בבית המדרש */}
+      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
+        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>
+          💡 כל <b>שיטה</b> היא דרך אחרת לקרוא את אותו ערך — <b>רגיל</b> (הזהות) · <b>מסתתר</b> (הנסתר בין האותיות) · <b>קדמי/משולש</b> (המצטבר) · <b>מילוי</b> (הפנימיות) ועוד. כל המילים כאן נפגשות על אותו מספר. רוצים להבין לעומק ולחקור בעצמכם?
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link to="/beit-midrash?tab=methods" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 14px" }}>📐 כל השיטות מוסברות</Link>
+          <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "8px 16px" }}>🧮 חקרו במחשבון הגימטריה →</Link>
+        </div>
+      </div>
+
       {/* 🎨 מקרא צבעי העולמות — חוק גלובלי */}
       <div>
         <button onClick={() => setLegend(v => !v)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, padding: "2px 0", letterSpacing: 1 }}>
