@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { timeAgoHe } from "../lib/format.js";
 import { getSearchFeed, getRecentCrosses } from "../lib/supabase.js";
 import { countNewCrosses, crossDate } from "../lib/crossesNew.js";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
@@ -71,6 +72,7 @@ export default function BeitMidrashOverview() {
                   style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "4px 6px 4px 11px", whiteSpace: "nowrap", flex: "0 0 auto" }}>
                   <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
                   {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{r.value}</span>}
+                  {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
                 </Link>
               ))}
             </div>
