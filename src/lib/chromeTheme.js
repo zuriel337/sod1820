@@ -32,28 +32,29 @@ export function chromeColors(mode) {
         crimsonLight: "#a01f2e",
       }
     : {
-        // ── יום ("קלף עתיק" — כריכת ספר מיושנת) ──
-        bg: "#e7dcc0",            // קלף-תן מיושן (הדר)
-        bgScrolled: "#e2d4b4",
-        border: "#cdb98a",        // תפר הכריכה
-        borderGold: "#bfa86a",
-        gold: "#7a5e12",          // זהב-עתיק לאקסנטים/כפתורים
-        goldBright: "#5a4612",    // כותרות/אקטיב — זהב כהה קריא (~7:1)
-        goldLight: "#4a3c12",     // טקסט קלט (~8:1)
-        goldDim: "#6b5a2e",       // קישורים משניים (~5:1)
-        muted: "#5f5638",         // טקסט מעומעם (~5:1)
-        surface: "#dccba2",       // רקע hover
-        chipBg: "#ece0c4",        // רקע צ'יפ/כפתור
-        dropBg: "#efe6cf",        // רקע תפריט נפתח
-        catBg: "#e3d6b8",
-        activeBg: "rgba(122,90,20,0.14)",
-        hoverBg: "rgba(122,90,20,0.08)",
-        onGold: "#fffaf0",        // טקסט על כפתור זהב
-        footBg: "linear-gradient(180deg, #e2d4b0 0%, #d6c59c 100%)", // כריכה תחתונה
-        footBorder: "#c9b384",
-        faint: "#d8c9a4",
-        social: "#e3d6b8",
-        crimson: "#7a1320",       // תג AI אדום — קריא גם על קלף
+        // ── יום: chrome "עור/עץ מיושן" — חום-כהה חמים (לא שחור), טקסט זהב-קרם.
+        //    הגוף נשאר קרם בהיר; ה-chrome ממסגר אותו כמו כריכת ספר עתיקה כהה.
+        bg: "#322617",            // חום-קפה כהה (הדר) — כהה אך חמים, לא שחור
+        bgScrolled: "#291f12",
+        border: "rgba(212,175,55,0.22)",
+        borderGold: "rgba(212,175,55,0.42)",
+        gold: "#c9a84a",          // זהב לאקסנטים/כפתורים
+        goldBright: "#f0d68a",    // כותרות/אקטיב — זהב בהיר (~9:1)
+        goldLight: "#e6cf86",     // טקסט קלט/קישורים בהירים
+        goldDim: "#b89a55",       // משני
+        muted: "#cfc2a4",         // טקסט מעומעם — קרם חם (~8:1)
+        surface: "#3c3020",       // רקע hover
+        chipBg: "rgba(30,24,14,0.7)",
+        dropBg: "#2a2216",        // תפריט נפתח
+        catBg: "rgba(44,35,20,0.75)",
+        activeBg: "rgba(212,175,55,0.16)",
+        hoverBg: "rgba(212,175,55,0.10)",
+        onGold: "#2a1e00",        // טקסט כהה על כפתור זהב
+        footBg: "linear-gradient(180deg, #322617 0%, #241a0e 100%)", // כריכה תחתונה כהה
+        footBorder: "rgba(212,175,55,0.22)",
+        faint: "rgba(212,175,55,0.12)",
+        social: "#3c3020",
+        crimson: "#7a1320",
         crimsonLight: "#a01f2e",
       };
 }
