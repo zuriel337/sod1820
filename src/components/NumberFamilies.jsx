@@ -35,8 +35,7 @@ export default function NumberFamilies({ value, highlight }) {
           <div key={g.method} style={{ borderInlineStart: `3px solid ${on ? P.accent : P.border}`, paddingInlineStart: 9, background: on ? P.cardSoft : "transparent", borderRadius: 8 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 5 }}>
               <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{on ? "✨ " : ""}{g.method}</span>
-              <span style={{ color: P.accentText, fontFamily: "'Courier New', monospace", fontSize: 13, fontWeight: 800 }}>= {value}</span>
-              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>({g.count})</span>
+              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>({g.count} מילים)</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               {g.phrases.map(({ phrase, world, ragil }, i) => {
