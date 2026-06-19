@@ -69,3 +69,73 @@ export const DEPTH_METHODS = [
 ];
 
 export { GEM };
+
+// ===== פירוט אות-אות לשיטה נבחרת (לתצוגת "ראה את האותיות" במחשבון) =====
+// צפני החלפה — האות שאליה כל אות הופכת (אתב"ש / אלב"ם), כדי להראות אותיות על המסך.
+const ATBASH_L = { "א":"ת","ב":"ש","ג":"ר","ד":"ק","ה":"צ","ו":"פ","ז":"ע","ח":"ס","ט":"נ","י":"מ","כ":"ל","ל":"כ","מ":"י","נ":"ט","ס":"ח","ע":"ז","פ":"ו","צ":"ה","ק":"ד","ר":"ג","ש":"ב","ת":"א","ך":"ל","ם":"י","ן":"ט","ף":"ו","ץ":"ה" };
+const ALBAM_L  = { "א":"ל","ב":"מ","ג":"נ","ד":"ס","ה":"ע","ו":"פ","ז":"צ","ח":"ק","ט":"ר","י":"ש","כ":"ת","ל":"א","מ":"ב","נ":"ג","ס":"ד","ע":"ה","פ":"ו","צ":"ז","ק":"ח","ר":"ט","ש":"י","ת":"כ","ך":"ת","ם":"ב","ן":"ג","ף":"ו","ץ":"ז" };
+const LMAP = { "רגיל": GEM, "מילוי": MILUI, "קדמי": KID, "סידורי": ORD, "אתבש": ATB, "אלבם": ALB, "הכפלה": SQR, "הכפלה גדולה": SQR_GADOL, "משולש גדול": KID_GADOL, "מילוי דמילוי": MDM, "מילוי דמילוי גדול": MDM_GADOL };
+
+// מחזיר תיאור אות-אות לשיטה: cipher (אות→אות), diff (מסתתר), value (אות=ערך). null אם אין.
+export function methodLetters(key, word) {
+  const Ls = onlyHeb(word);
+  if (!Ls.length) return null;
+  if (key === "אתבש") return { type: "cipher", word: Ls.map(c => ATBASH_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ATBASH_L[c] || "?", val: ATB[c] || 0 })) };
+  if (key === "אלבם") return { type: "cipher", word: Ls.map(c => ALBAM_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ALBAM_L[c] || "?", val: ALB[c] || 0 })) };
+  if (key === "מסתתר" || key === "מסתתר גדול") {
+    const vf = key === "מסתתר גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
+    const segs = [];
+    for (let i = 0; i < Ls.length - 1; i++) segs.push({ label: `|${Ls[i]}−${Ls[i + 1]}|`, val: Math.abs(vf(Ls[i]) - vf(Ls[i + 1])) });
+    return { type: "diff", segs };
+  }
+  if (key === "גדול") return { type: "value", segs: Ls.map(c => ({ ch: c, val: FINAL[c] || GEM[c] || 0 })) };
+  if (key === "הנעלם") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (MILUI[c] || 0) - (GEM[c] || 0) })) };
+  if (key === "ריבוע" || key === "ריבוע גדול") {
+    const vf = key === "ריבוע גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
+    let run = 0;
+    return { type: "value", segs: Ls.map(c => { run += vf(c); return { ch: c, val: run }; }) };
+  }
+  const map = LMAP[key];
+  if (map) return { type: "value", segs: Ls.map(c => ({ ch: c, val: map[c] ?? 0 })) };
+  return null;
+}
+
+// ===== המרת מספר לאותיות עבריות (גימטריה) עם גרשיים — 231 → רל״א =====
+const NUM_ONES = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+const NUM_TENS = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+const NUM_HUND = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+function hebUnder1000(n) {
+  let out = NUM_HUND[Math.floor(n / 100)] || "";
+  const r = n % 100;
+  if (r === 15) out += "טו";          // ט״ו — לא יה (שם ה')
+  else if (r === 16) out += "טז";     // ט״ז — לא יו
+  else out += (NUM_TENS[Math.floor(r / 10)] || "") + (NUM_ONES[r % 10] || "");
+  return out;
+}
+function gershayim(s) {
+  if (!s) return s;
+  if (s.length === 1) return s + "׳";
+  return s.slice(0, -1) + "״" + s.slice(-1);
+}
+// מספר → ראשי-תיבות עבריים. מעל מיליון מחזיר מחרוזת ריקה (לא מציגים אותיות).
+export function hebrewNumeral(num) {
+  const n = Number(num);
+  if (!n || n < 1 || n >= 1000000) return "";
+  const parts = [];
+  let rest = n;
+  if (rest >= 1000) { parts.push(gershayim(hebUnder1000(Math.floor(rest / 1000)))); rest %= 1000; }
+  if (rest > 0) parts.push(gershayim(hebUnder1000(rest)));
+  return parts.join(" ");
+}
+
+// שמות האותיות במילוי (תואם למפת MILUI — רגיל של התוצאה = ערך המילוי)
+const MILUI_NAMES = { "א": "אלף", "ב": "בית", "ג": "גימל", "ד": "דלת", "ה": "הי", "ו": "ויו", "ז": "זין", "ח": "חית", "ט": "טית", "י": "יוד", "כ": "כף", "ך": "כף", "ל": "למד", "מ": "מם", "ם": "מם", "נ": "נון", "ן": "נון", "ס": "סמך", "ע": "עין", "פ": "פא", "ף": "פא", "צ": "צדי", "ץ": "צדי", "ק": "קוף", "ר": "ריש", "ש": "שין", "ת": "תיו" };
+// "תוצאת" השיטה כטקסט להזנה חוזרת למחשבון: אתבש/אלבם=אותיות מוצפנות · מילוי=שמות מלאים · אחר=הביטוי עצמו
+export function methodResultText(key, word) {
+  const Ls = onlyHeb(word);
+  if (!Ls.length) return "";
+  if (key === "אתבש") return Ls.map(c => ATBASH_L[c] || "").join("");
+  if (key === "אלבם") return Ls.map(c => ALBAM_L[c] || "").join("");
+  if (key === "מילוי") return Ls.map(c => MILUI_NAMES[c] || "").join(" ");
+  return Ls.join("");
+}

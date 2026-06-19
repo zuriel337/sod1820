@@ -7,6 +7,7 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
+import NumberFamilies from "../components/NumberFamilies.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
@@ -358,7 +359,7 @@ export default function EntityPage() {
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
-          {fromCalc && <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🧮 חזרה למחשבון</Link>}
+          <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון" : "🧮 מחשבון"}</Link>
           <form onSubmit={goSearch} style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="חפשו מספר או ביטוי…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center", width: 180 }} />
             <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px" }}>חפש ✦</button>
@@ -502,6 +503,8 @@ export default function EntityPage() {
               })()}
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
+
+              <NumberFamilies value={value} highlight={sp.get("method")} />
 
               {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
 
