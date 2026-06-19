@@ -100,17 +100,21 @@ export function methodLetters(key, word) {
   return null;
 }
 
-// ===== המרת מספר לאותיות עבריות (גימטריה) עם גרשיים — 231 → רל״א =====
+// ===== המרת מספר לאותיות עבריות (גימטריה) — עם אותיות סופיות (מנצפ״ך) ל-500–900 =====
+// 542 → מב״ך (ך=500) · 683 → פג״ם (ם=600) · 231 → רל״א. הסופית באה בסוף (כמו במילה).
 const NUM_ONES = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
 const NUM_TENS = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
-const NUM_HUND = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+const NUM_HUND_BASE = ["", "ק", "ר", "ש", "ת"];          // 100–400 (רגיל, בהתחלה)
+const NUM_HUND_FINAL = { 5: "ך", 6: "ם", 7: "ן", 8: "ף", 9: "ץ" }; // 500–900 (סופית, בסוף)
+function hebTensUnits(r) {
+  if (r === 15) return "טו";          // ט״ו — לא יה (שם ה')
+  if (r === 16) return "טז";          // ט״ז — לא יו
+  return (NUM_TENS[Math.floor(r / 10)] || "") + (NUM_ONES[r % 10] || "");
+}
 function hebUnder1000(n) {
-  let out = NUM_HUND[Math.floor(n / 100)] || "";
-  const r = n % 100;
-  if (r === 15) out += "טו";          // ט״ו — לא יה (שם ה')
-  else if (r === 16) out += "טז";     // ט״ז — לא יו
-  else out += (NUM_TENS[Math.floor(r / 10)] || "") + (NUM_ONES[r % 10] || "");
-  return out;
+  const h = Math.floor(n / 100), r = n % 100;
+  if (h >= 5) return hebTensUnits(r) + NUM_HUND_FINAL[h];   // 500–900: הסופית בסוף → מבך / פגם
+  return (NUM_HUND_BASE[h] || "") + hebTensUnits(r);        // 100–400: ההמאה בהתחלה → שנח / רלא
 }
 function gershayim(s) {
   if (!s) return s;
