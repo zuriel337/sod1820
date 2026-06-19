@@ -25,12 +25,13 @@ function nameValues(name) {
 const FINAL_NORM = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const anagramKey = s => String(s || "").replace(/[^א-ת]/g, "").split("").map(c => FINAL_NORM[c] || c).sort().join("");
 
-// בוחר את המילה הטובה ביותר (הכי הרבה שיטות משותפות, ואז ביטוי קצר ומשמעותי)
-function pickBest(rows, name, v) {
+// מדרג את כל ההצלבות (>=2 שיטות משותפות), מהחזקה לחלשה, בלי אנגרמות/כפילויות
+function rankAll(rows, name, v) {
   const nameKey = anagramKey(name);
-  let best = null, bestScore = -1;
+  const seen = new Set();
+  const out = [];
   for (const r of rows || []) {
-    if (!r.phrase || r.phrase === name) continue;
+    if (!r.phrase || r.phrase === name || seen.has(r.phrase)) continue;
     // דילוג על אנגרמה/היפוך-אותיות של הביטוי — אותן אותיות = לא חידוש
     if (anagramKey(r.phrase) === nameKey) continue;
     const methods = [];
@@ -39,11 +40,13 @@ function pickBest(rows, name, v) {
     }
     const n = methods.length;
     if (n < 2) continue;
+    seen.add(r.phrase);
     // מעדיפים: יותר שיטות; ואז ביטוי קצר (מילה ולא משפט); קנס קל על מילה בודדת קצרצרה
     const score = n * 1000 - r.phrase.length + (r.phrase.length >= 3 ? 5 : 0);
-    if (score > bestScore) { best = { partner: r.phrase, methods, matchCount: n }; bestScore = score; }
+    out.push({ partner: r.phrase, methods, matchCount: n, score });
   }
-  return best;
+  out.sort((a, b) => b.score - a.score);
+  return out;
 }
 
 export async function findNameCross(name) {
@@ -53,17 +56,14 @@ export async function findNameCross(name) {
   if (!v.ragil) return null;
   const cols = ["phrase", ...COLS].join(",");
   try {
-    // נעילה כפולה (רגיל+מסתתר) — החזקה ביותר
-    let { data } = await supabase.from("gematria_words").select(cols)
-      .eq("ragil", v.ragil).eq("misratar", v.misratar).eq("is_verified", true).limit(80);
-    let best = pickBest(data, t, v);
-    if (!best) {
-      // נפילה אחורה: שווי-ערך ברגיל, ובוחרים את מי שחולק הכי הרבה שיטות נוספות
-      ({ data } = await supabase.from("gematria_words").select(cols)
-        .eq("ragil", v.ragil).eq("is_verified", true).limit(150));
-      best = pickBest(data, t, v);
-    }
-    if (best) { best.value = v.ragil; best.mistater = v.misratar; }
-    return best;
+    // כל שווי-הערך ברגיל; מדרגים לפי כמה שיטות נוספות הם חולקים
+    const { data } = await supabase.from("gematria_words").select(cols)
+      .eq("ragil", v.ragil).eq("is_verified", true).limit(250);
+    const all = rankAll(data, t, v);
+    if (!all.length) return null;
+    const [primary, ...others] = all;
+    primary.value = v.ragil; primary.mistater = v.misratar;
+    primary.others = others.slice(0, 12).map(o => ({ ...o, value: v.ragil, mistater: v.misratar }));
+    return primary;
   } catch { return null; }
 }
