@@ -127,3 +127,15 @@ export function hebrewNumeral(num) {
   if (rest > 0) parts.push(gershayim(hebUnder1000(rest)));
   return parts.join(" ");
 }
+
+// שמות האותיות במילוי (תואם למפת MILUI — רגיל של התוצאה = ערך המילוי)
+const MILUI_NAMES = { "א": "אלף", "ב": "בית", "ג": "גימל", "ד": "דלת", "ה": "הי", "ו": "ויו", "ז": "זין", "ח": "חית", "ט": "טית", "י": "יוד", "כ": "כף", "ך": "כף", "ל": "למד", "מ": "מם", "ם": "מם", "נ": "נון", "ן": "נון", "ס": "סמך", "ע": "עין", "פ": "פא", "ף": "פא", "צ": "צדי", "ץ": "צדי", "ק": "קוף", "ר": "ריש", "ש": "שין", "ת": "תיו" };
+// "תוצאת" השיטה כטקסט להזנה חוזרת למחשבון: אתבש/אלבם=אותיות מוצפנות · מילוי=שמות מלאים · אחר=הביטוי עצמו
+export function methodResultText(key, word) {
+  const Ls = onlyHeb(word);
+  if (!Ls.length) return "";
+  if (key === "אתבש") return Ls.map(c => ATBASH_L[c] || "").join("");
+  if (key === "אלבם") return Ls.map(c => ALBAM_L[c] || "").join("");
+  if (key === "מילוי") return Ls.map(c => MILUI_NAMES[c] || "").join(" ");
+  return Ls.join("");
+}
