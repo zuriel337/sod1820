@@ -449,8 +449,9 @@ export default function EntityPage() {
               })}
             </div>
           ) : (
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 14 }}>אין מילים נוספות בערך זה במאגר.</p>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 14 }}>אין מילים שוות בערך זה ברגיל — בדקו בשיטות הנוספות למטה.</p>
           )}
+          <NumberFamilies value={value} highlight={sp.get("method")} />
           <Link to="/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
             פתחו את {value} בעץ המספרים התלת-מימדי →
           </Link>
@@ -503,8 +504,6 @@ export default function EntityPage() {
               })()}
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
-
-              <NumberFamilies value={value} highlight={sp.get("method")} />
 
               {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
 
