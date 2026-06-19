@@ -39,7 +39,7 @@ export default function NumberFamilies({ value, highlight }) {
               <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>({g.count})</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-              {g.phrases.map(({ phrase, world }, i) => {
+              {g.phrases.map(({ phrase, world, ragil }, i) => {
                 const isG = gold.labels.has(phrase);
                 return (
                   <Link key={i} to={`/number/${encodeURIComponent(phrase)}`} style={{
@@ -49,6 +49,7 @@ export default function NumberFamilies({ value, highlight }) {
                     fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : 500,
                   }}>
                     {isG ? "✦ " : ""}{phrase}
+                    {g.method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
                     {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
                   </Link>
                 );

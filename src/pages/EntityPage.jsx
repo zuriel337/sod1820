@@ -222,11 +222,11 @@ export default function EntityPage() {
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
   // מילים תמיד פתוחות; השאר דביק (זוכר מה הגולש פתח); ברירת מחדל ראשונה = מילים + שורשים.
   const [open, setOpen] = useState(() => {
-    let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open") || "null"); } catch { /* ignore */ }
-    const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: false, roots: true };
+    let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open2") || "null"); } catch { /* ignore */ }
+    const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: true };
     return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots };
   });
-  const persistOpen = m => { try { localStorage.setItem("np-open", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };
+  const persistOpen = m => { try { localStorage.setItem("np-open2", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };
   const toggleAcc = id => setOpen(o => { const n = { ...o, [id]: !o[id] }; persistOpen(n); return n; });
   const allOpen = Object.values(open).every(Boolean);
   const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v }; persistOpen(n); return n; });

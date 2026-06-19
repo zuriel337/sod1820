@@ -942,16 +942,19 @@ export async function getValueFamilies(value, perMethod = 20) {
     const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2500);
     if (!data || !data.length) return [];
     const phrases = [...new Set(data.map(r => r.phrase))];
-    const worldMap = {};
+    const worldMap = {}, ragilMap = {};
     for (let i = 0; i < phrases.length; i += 300) {
+      const chunk = phrases.slice(i, i + 300);
       const { data: ents } = await supabase.from('nodes').select('label,metadata')
-        .eq('type', 'entity').in('label', phrases.slice(i, i + 300)).limit(1000);
+        .eq('type', 'entity').in('label', chunk).limit(1000);
       (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+      const { data: gw } = await supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000);
+      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
     }
     const groups = {};
     for (const r of data) {
       const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, seen: new Set(), phrases: [] });
-      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null }); }
+      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null, ragil: ragilMap[r.phrase] ?? null }); }
     }
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
