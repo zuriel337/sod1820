@@ -433,7 +433,35 @@ export default function EntityPage() {
           </button>
         </div>
 
-        {/* ── 🌳 מילים שוות — קודם (לב הגימטריה: מה שווה למספר) ── */}
+        {/* ── 🧬 מד ההתכנסות — ראשון ובולט (ההתכנסות שחיפשת) ── */}
+        <Acc id="dna" icon="🧬" title="מד ההתכנסות — איך המספר מתכנס" open={open} onToggle={toggleAcc} P={P}>
+            <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 16, padding: "14px 13px" }}>
+              {!loading && chips.length > 0 && (() => {
+                const parts = [];
+                if (d.postsCount) parts.push(`${d.postsCount} פוסטים`);
+                if (d.galleriesCount) parts.push(`${d.galleriesCount} גלריות`);
+                if (d.phrases?.length) parts.push(`${d.phrases.length} מילים שוות`);
+                if (d.eventsCount) parts.push(`${d.eventsCount} אירועים בציר`);
+                if (d.insightsCount) parts.push(`${d.insightsCount} חידושי AI`);
+                if (d.commentsCount) parts.push(`${d.commentsCount} תובנות קהילה`);
+                return (
+                  <div style={{ marginBottom: 14, padding: "13px 18px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.card }}>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 7 }}>🧬 DNA המספר</div>
+                    <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
+                      <b style={{ color: P.accentText, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
+                      {isNumber && KEY_NUMBERS[value] && <span style={{ color: P.accentDim }}> {KEY_NUMBERS[value]}.</span>}
+                    </p>
+                  </div>
+                );
+              })()}
+
+              <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
+
+              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
+            </div>
+        </Acc>
+
+        {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
           <NumberFamilies value={value} highlight={sp.get("method")} />
           <div style={{ marginTop: 14 }}>
@@ -465,43 +493,6 @@ export default function EntityPage() {
             </div>
           </Acc>
         )}
-
-        {/* ── 🧬 DNA — איך המספר בנוי (אקורדיון, פאנל "מעבדה" כהה בפנים) ── */}
-        <Acc id="dna" icon="🧬" title="DNA — איך המספר בנוי" open={open} onToggle={toggleAcc} P={P}>
-            <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 16, padding: "14px 13px" }}>
-              {/* DNA המספר — משפט פותח */}
-              {!loading && chips.length > 0 && (() => {
-                const parts = [];
-                if (d.postsCount) parts.push(`${d.postsCount} פוסטים`);
-                if (d.galleriesCount) parts.push(`${d.galleriesCount} גלריות`);
-                if (d.phrases?.length) parts.push(`${d.phrases.length} מילים שוות`);
-                if (d.eventsCount) parts.push(`${d.eventsCount} אירועים בציר`);
-                if (d.insightsCount) parts.push(`${d.insightsCount} חידושי AI`);
-                if (d.commentsCount) parts.push(`${d.commentsCount} תובנות קהילה`);
-                return (
-                  <div style={{ marginBottom: 14, padding: "13px 18px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.card }}>
-                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 7 }}>🧬 DNA המספר</div>
-                    <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.85, margin: 0 }}>
-                      <b style={{ color: P.accentText, fontFamily: F.mono }}>{value}</b> הוא מספר חי במערכת{parts.length ? `, המחובר ל־${parts.join(" · ")}` : ""}.
-                      {isNumber && KEY_NUMBERS[value] && <span style={{ color: P.accentDim }}> {KEY_NUMBERS[value]}.</span>}
-                    </p>
-                  </div>
-                );
-              })()}
-
-              <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
-
-              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
-
-              <div style={{ textAlign: "center", marginTop: 14 }}>
-                <Link to="/beit-midrash?tab=methods" style={{
-                  display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
-                  background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
-                  color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 16px",
-                }}>📖 ללמוד את שיטות הגימטריה (מסתתר · מילוי · קדמי) בבית המדרש ←</Link>
-              </div>
-            </div>
-        </Acc>
 
         {/* טעינה / אין קשרים (הוסרה שורת הכפילות שחזרה על כותרות האקורדיונים) */}
         {loading ? (

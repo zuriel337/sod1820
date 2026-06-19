@@ -21,6 +21,7 @@ export default function GematriaCalculator({ seed, onResult }) {
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
   const [counts, setCounts] = useState({});
   const [showLetters, setShowLetters] = useState(false);
+  const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
 
   // חיפוש מורכב — רמות: 0=סגור · 1=שורה אחת · 2=שתי שורות. השורה העליונה (q) עצמאית = "צופה 17 השיטות".
@@ -258,7 +259,12 @@ export default function GematriaCalculator({ seed, onResult }) {
           </div>
         ) : (
         <>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 13 }}>
+        {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+          <input type="checkbox" checked={showHebNum} onChange={e => setShowHebNum(e.target.checked)} style={{ accentColor: L.gold, width: 15, height: 15, cursor: "pointer" }} />
+          הצג את הערך באותיות (מ״ה) · מתקדם
+        </label>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
           {res.map(r => (
             <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
               textDecoration: "none", textAlign: "center", borderRadius: 10, padding: "8px 6px",
@@ -268,7 +274,7 @@ export default function GematriaCalculator({ seed, onResult }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
               <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.key}</div>
               <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
-              <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>
+              {showHebNum && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
               <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>
             </Link>
           ))}
