@@ -8,6 +8,7 @@ import { applySeo } from "../lib/seo.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
+import StartHereCard from "../components/StartHereCard.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -138,6 +139,9 @@ export default function HomeNewPage() {
           <Link to="/היכל" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>👑 כניסה להיכל השערים</Link>
         </div>
       </section>
+
+      {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
+      <StartHereCard />
 
       {/* ===== מה גולשים מחפשים עכשיו ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
