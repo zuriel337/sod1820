@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { C, F, LOGO_URL } from "../../theme.js";
+import { F, LOGO_URL } from "../../theme.js";
+import { useThemeMode } from "../../lib/themeMode.js";
+import { chromeColors } from "../../lib/chromeTheme.js";
 import UpdatesBox from "../UpdatesBox.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
@@ -90,8 +92,8 @@ const SOCIAL = [
   },
 ];
 
-const FOOTER_CSS = `
-  .foot { border-top: 1px solid ${C.border}; background: linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%);
+const FOOTER_CSS = (cc) => `
+  .foot { border-top: 1px solid ${cc.footBorder}; background: ${cc.footBg};
     padding: 32px 28px 18px; direction: rtl; position: relative; z-index: 1; }
   .foot-main { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between;
     align-items: flex-start; flex-wrap: wrap; gap: 28px; padding-bottom: 22px; }
@@ -100,9 +102,9 @@ const FOOTER_CSS = `
   .foot-cols { display: grid; grid-template-columns: repeat(4, minmax(108px, 1fr));
     gap: 22px 26px; align-items: start; flex: 2.4; }
   .foot-col { min-width: 0; }
-  .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 16px; border-top: 1px solid ${C.faint};
+  .foot-bottom { max-width: 1040px; margin: 0 auto; padding-top: 16px; border-top: 1px solid ${cc.faint};
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px;
-    font-size: 11px; color: ${C.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
+    font-size: 11px; color: ${cc.muted}; font-family: ${F.heading}; letter-spacing: 0.5px; }
 
   /* לוגו עם סריקת-AI */
   .foot-logo { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
@@ -110,8 +112,8 @@ const FOOTER_CSS = `
   .foot-logo .ai-ring { position: absolute; inset: -7px; border: 1px dashed rgba(212,175,55,0.55);
     border-radius: 50%; animation: foot-ring 9s linear infinite; }
   .foot-logo .ai-ring::before { content: "AI"; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
-    font-family: ${F.mono}; font-size: 8px; font-weight: 800; color: ${C.goldBright};
-    background: ${C.surface}; padding: 0 3px; letter-spacing: 1px; }
+    font-family: ${F.mono}; font-size: 8px; font-weight: 800; color: ${cc.goldBright};
+    background: ${cc.surface}; padding: 0 3px; letter-spacing: 1px; }
   .foot-logo .ai-scan { position: absolute; inset: 0; overflow: hidden; border-radius: 8px; z-index: 3; pointer-events: none; }
   .foot-logo .ai-scan::after { content: ""; position: absolute; left: -10%; right: -10%; height: 34%;
     background: linear-gradient(180deg, transparent, rgba(246,226,122,0.55), transparent);
@@ -119,13 +121,13 @@ const FOOTER_CSS = `
   @keyframes foot-ring { to { transform: rotate(360deg); } }
   @keyframes foot-scan { 0% { transform: translateY(-130%); } 100% { transform: translateY(330%); } }
 
-  .foot-social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid ${C.borderGold};
-    background: ${C.surface2}; display: inline-flex; align-items: center; justify-content: center;
-    color: ${C.goldBright}; font-size: 18px; text-decoration: none; transition: all 0.2s; }
-  .foot-social a:hover { background: ${C.gold}; color: ${C.bg}; box-shadow: 0 0 16px ${C.goldDim}; }
-  .foot-link { color: ${C.goldDim}; text-decoration: none; font-size: 13.5px; font-family: ${F.heading};
+  .foot-social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid ${cc.borderGold};
+    background: ${cc.social}; display: inline-flex; align-items: center; justify-content: center;
+    color: ${cc.goldBright}; font-size: 18px; text-decoration: none; transition: all 0.2s; }
+  .foot-social a:hover { background: ${cc.gold}; color: ${cc.onGold}; box-shadow: 0 0 16px ${cc.goldDim}; }
+  .foot-link { color: ${cc.goldDim}; text-decoration: none; font-size: 13.5px; font-family: ${F.heading};
     padding: 6px 0; display: block; transition: color 0.18s; }
-  .foot-link:hover { color: ${C.goldBright}; }
+  .foot-link:hover { color: ${cc.goldBright}; }
 
   @media (max-width: 980px) {
     .foot-cols { grid-template-columns: repeat(2, 1fr); }
@@ -145,9 +147,10 @@ const FOOTER_CSS = `
 `;
 
 export default function Footer() {
+  const cc = chromeColors(useThemeMode());
   return (
     <footer className="foot">
-      <style>{FOOTER_CSS}</style>
+      <style>{FOOTER_CSS(cc)}</style>
 
       <UpdatesBox variant="inline" source="footer" />
 
@@ -162,19 +165,19 @@ export default function Footer() {
             </span>
             {/* שתי שורות מקבילות לגובה הלוגו */}
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.18 }}>
-              <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד 1820</span>
-              <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
+              <span style={{ color: cc.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד 1820</span>
+              <span style={{ color: cc.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
             </div>
           </div>
-          <div style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
+          <div style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
             אתר רמזי הגאולה הגדול בעולם
           </div>
-          <div style={{ fontSize: 12.5, color: C.muted, fontFamily: F.heading, lineHeight: 1.8 }}>
+          <div style={{ fontSize: 12.5, color: cc.muted, fontFamily: F.heading, lineHeight: 1.8 }}>
             13 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
           </div>
 
           {/* קריאה לעקוב בטיקטוק */}
-          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 14 }}>
+          <div style={{ color: cc.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85, marginTop: 14 }}>
             🎬 המסע לא מסתיים כאן — הוא ממשיך בטיקטוק 🚀
           </div>
 
@@ -201,7 +204,7 @@ export default function Footer() {
         <div className="foot-cols">
           {COLUMNS.map(col => (
             <div key={col.title} className="foot-col">
-              <div style={{ fontSize: 13, color: C.goldLight, fontFamily: F.regal, fontWeight: 700, marginBottom: 12 }}>
+              <div style={{ fontSize: 13, color: cc.goldLight, fontFamily: F.regal, fontWeight: 700, marginBottom: 12 }}>
                 {col.title}
               </div>
               {col.links.map(l => (
@@ -217,7 +220,7 @@ export default function Footer() {
         <span style={{ opacity: 0.85 }}>
           מוזיקה: "Strength of the Titans" — Kevin MacLeod (incompetech.com) · CC BY 4.0
         </span>
-        <span style={{ color: C.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
+        <span style={{ color: cc.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
       </div>
     </footer>
   );

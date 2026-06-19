@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { setTheme } from "../lib/themeMode.js";
 import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
@@ -39,6 +40,11 @@ export default function HomeNewPage() {
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
+
+  // בורר תמה לגולש חדש — מופיע פעם אחת (כשאין העדפה שמורה). ברירת המחדל כהה; כאן בוחרים.
+  const [showThemePick, setShowThemePick] = useState(false);
+  useEffect(() => { try { if (!localStorage.getItem("sod-theme")) setShowThemePick(true); } catch { /* ignore */ } }, []);
+  const pickTheme = m => { setTheme(m); setShowThemePick(false); };
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
@@ -98,6 +104,19 @@ export default function HomeNewPage() {
         @media (max-width:820px){ .hn-grid6{grid-template-columns:repeat(3,1fr)} .hn-postgrid{grid-template-columns:repeat(2,1fr)} }
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-postgrid{grid-template-columns:1fr 1fr} }
       `}</style>
+
+      {/* ===== בורר תמה לגולש חדש (פעם אחת) ===== */}
+      {showThemePick && (
+        <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap",
+          background: P.cardSoft, borderBottom: `1px solid ${P.border}`, padding: "9px 16px" }}>
+          <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14 }}>איך לראות את האתר?</span>
+          <button onClick={() => pickTheme("dark")} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent,
+            border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, padding: "7px 18px" }}>🌙 מצב לילה</button>
+          <button onClick={() => pickTheme("light")} style={{ cursor: "pointer", background: "transparent", color: P.accentText,
+            border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 13.5, padding: "7px 18px" }}>☀️ מצב יום</button>
+          <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>(תמיד אפשר לשנות עם 🌙/☀️ למעלה)</span>
+        </div>
+      )}
 
       {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>

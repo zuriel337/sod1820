@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { SectionHeader } from "../components/ui.jsx";
 
 // מרכז הניווט — מאורגן לפי מודל "העץ האחד": שורש → מנוע (הלב) → עדשות → תוכן וקהילה.
@@ -47,36 +48,38 @@ const TIERS = [
 ];
 
 function Card({ s }) {
+  const P = usePalette();
   return (
     <Link to={s.to} style={{
-      textDecoration: "none", background: `linear-gradient(160deg, ${C.surface2}, ${C.bg})`,
-      border: `1px solid ${C.border}`, borderTop: `2px solid ${C.borderGold}`,
+      textDecoration: "none", background: P.cardGrad,
+      border: `1px solid ${P.border}`, borderTop: `2px solid ${P.borderStrong}`,
       borderRadius: 12, padding: "20px 20px", transition: "transform 0.2s, border-color 0.2s",
       display: "block",
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = C.gold; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = C.border; }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = P.accent; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = P.border; }}
     >
       <div style={{ fontSize: 32, marginBottom: 10 }}>{s.emoji}</div>
-      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
+      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
         {s.title}
         {s.badge && <span style={{
           display: "inline-block", marginInlineStart: 8, verticalAlign: "middle",
-          background: C.goldDark, color: C.goldBright, border: `1px solid ${C.borderGold}`,
+          background: P.accentDim, color: P.accentText, border: `1px solid ${P.borderStrong}`,
           borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 10, fontWeight: 700,
         }}>{s.badge}</span>}
       </div>
-      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{s.desc}</div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{s.desc}</div>
     </Link>
   );
 }
 
 export default function NavigationCenterPage() {
+  const P = usePalette();
   return (
     <div style={{ direction: "rtl", maxWidth: 1080, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="מפת האתר החיה" title="🏛 מרכז הניווט" />
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
-        כל האתר הוא <span style={{ color: C.goldBright }}>גרף ידע אחד</span>. מהשורש אל הלב, מהלב אל העדשות, ומהן אל התוכן —
+      <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
+        כל האתר הוא <span style={{ color: P.accentText }}>גרף ידע אחד</span>. מהשורש אל הלב, מהלב אל העדשות, ומהן אל התוכן —
         כל שכבה מובילה לבאה אחריה.
       </p>
 
@@ -84,15 +87,15 @@ export default function NavigationCenterPage() {
         <section key={tier.key} style={{ marginBottom: 40 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16, paddingInlineStart: 2 }}>
             <span style={{ fontSize: 24 }}>{tier.icon}</span>
-            <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 23, fontWeight: 700, margin: 0 }}>{tier.title}</h2>
-            <span style={{ color: C.goldDeep, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, border: `1px solid ${C.border}`, borderRadius: 999, padding: "2px 10px" }}>{tier.tag}</span>
-            <span style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, marginInlineStart: "auto" }}>{tier.desc}</span>
+            <h2 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 23, fontWeight: 700, margin: 0 }}>{tier.title}</h2>
+            <span style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px" }}>{tier.tag}</span>
+            <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginInlineStart: "auto" }}>{tier.desc}</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
             {tier.items.map(s => <Card key={s.to + s.title} s={s} />)}
           </div>
           {ti < TIERS.length - 1 && (
-            <div style={{ textAlign: "center", color: C.border, fontSize: 18, marginTop: 26 }}>↓</div>
+            <div style={{ textAlign: "center", color: P.border, fontSize: 18, marginTop: 26 }}>↓</div>
           )}
         </section>
       ))}

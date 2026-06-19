@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from "react";
 
-// ===== מתג תמה גלובלי (בהיר/כהה) — נשמר ב-localStorage, ברירת מחדל: בהיר =====
-// משמש את דפי התוכן המעוצבים (פיילוט: דף המספר). useSyncExternalStore → כל הרכיבים מתעדכנים יחד.
+// ===== מתג תמה גלובלי (בהיר/כהה) — נשמר ב-localStorage, ברירת מחדל: כהה =====
+// משמש את דפי התוכן המעוצבים. useSyncExternalStore → כל הרכיבים מתעדכנים יחד.
+// גולש חדש (אין שמירה) → כהה. רק בחירה מפורשת ל"בהיר" נשמרת ומחזירה בהיר.
 
 const KEY = "sod-theme";
 const read = () => {
-  try { return localStorage.getItem(KEY) === "dark" ? "dark" : "light"; } catch { return "light"; }
+  try { return localStorage.getItem(KEY) === "light" ? "light" : "dark"; } catch { return "dark"; }
 };
 let mode = read();
 const subs = new Set();
@@ -26,5 +27,5 @@ export function toggleTheme() { setTheme(mode === "light" ? "dark" : "light"); }
 
 function subscribe(f) { subs.add(f); return () => subs.delete(f); }
 export function useThemeMode() {
-  return useSyncExternalStore(subscribe, () => mode, () => "light");
+  return useSyncExternalStore(subscribe, () => mode, () => "dark");
 }
