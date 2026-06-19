@@ -18,6 +18,62 @@ import { resolve, getScore, getBundle } from "../lib/engine.js";
 import { usePalette } from "../lib/palette.js";
 
 const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
+
+// ── 👑 דף-דגל: ישויות נבחרות שמקבלות באנר-תפארת בראש העמוד (חוק העץ האחד — על הדף הקנוני) ──
+const FLAGSHIP = {
+  1820: {
+    kicker: "אין עוד מלבדו · חותם הבריאה",
+    poster: "/seals/1820-poster.jpg",
+    posterAlt: "אין עוד מלבדו · סוד 1820 — חותם הבריאה · ה' אחד ושמו אחד",
+    seals: [
+      { src: "/seals/1820-five-seals.jpg", alt: "חמש החותמות של 1820 — תורה · גאולה · השם · בריאה" },
+      { src: "/seals/1820-birkat-kohanim.jpg", alt: "ברכת כהנים — חותם השם · סכום המילים שבמסגרת = 1820" },
+    ],
+    postSlug: "סוד-1820",
+    lead: 'חמש חותמות נפגשות במספר אחד — חותם הבריאה, חותם התורה, חותם הגאולה, חותם השם (ברכת כהנים) וחותם הסיכום. כולן מצביעות על אותו סוד: «הקדוש ברוך הוא תורה ישראל אחד» = 1820.',
+  },
+};
+
+// 👑 באנר-תפארת לדף-דגל — פוסטר ענק + חותמות + קישור לפוסט היסוד. ליבוקס בלחיצה.
+function FlagshipSeals({ cfg }) {
+  const P = usePalette();
+  const [zoom, setZoom] = useState(null);
+  return (
+    <div style={{ margin: "4px auto 30px", maxWidth: 760 }}>
+      <div style={{ textAlign: "center", color: P.accentText, fontFamily: F.regal, fontSize: "clamp(17px,3vw,24px)", fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>
+        ✦ {cfg.kicker} ✦
+      </div>
+      <button onClick={() => setZoom(cfg.poster)} title="הגדל" style={{ display: "block", width: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}>
+        <img src={cfg.poster} alt={cfg.posterAlt} loading="lazy"
+          style={{ display: "block", width: "100%", maxWidth: 400, margin: "0 auto", borderRadius: 18, border: `1.5px solid ${P.borderStrong}`, boxShadow: `0 0 50px ${P.glow}, 0 18px 50px rgba(0,0,0,.45)` }} />
+      </button>
+      <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(14.5px,2.2vw,16.5px)", lineHeight: 1.85, textAlign: "center", maxWidth: 560, margin: "18px auto 16px" }}>
+        {cfg.lead}
+      </p>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+        {cfg.seals.map(s => (
+          <button key={s.src} onClick={() => setZoom(s.src)} title="הגדל" style={{ flex: "1 1 240px", maxWidth: 340, padding: 0, border: "none", background: "none", cursor: "zoom-in" }}>
+            <img src={s.src} alt={s.alt} loading="lazy"
+              style={{ display: "block", width: "100%", borderRadius: 12, border: `1px solid ${P.border}`, boxShadow: `0 8px 24px rgba(0,0,0,.35)` }} />
+          </button>
+        ))}
+      </div>
+      {cfg.postSlug && (
+        <div style={{ textAlign: "center", marginTop: 18 }}>
+          <Link to={`/${cfg.postSlug}`} style={{ display: "inline-block", padding: "11px 24px", borderRadius: 999, textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+            📖 לפוסט היסוד המלא →
+          </Link>
+        </div>
+      )}
+      {zoom && (
+        <div onClick={() => setZoom(null)} style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, cursor: "zoom-out" }}>
+          <img src={zoom} alt="" style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 12, boxShadow: "0 0 60px rgba(0,0,0,.8)" }} />
+          <button onClick={() => setZoom(null)} aria-label="סגור" style={{ position: "fixed", top: 16, insetInlineEnd: 18, width: 42, height: 42, borderRadius: 999, border: "none", background: "rgba(255,255,255,.15)", color: "#fff", fontSize: 22, cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
 const BASE8 = METHODS.filter(m => ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם"].includes(m.key));
 const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
 
@@ -421,6 +477,9 @@ export default function EntityPage() {
               ? `המספר ${value} — מה הוא אומר עליך? 🔢✨\n${SITE_URL}/number/${value}`
               : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
         </div>
+
+        {/* ── 👑 באנר-תפארת לדף-דגל (1820 וכו') — על הדף הקנוני, לא מערכת מקבילה ── */}
+        {isNumber && FLAGSHIP[value] && <FlagshipSeals cfg={FLAGSHIP[value]} />}
 
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
