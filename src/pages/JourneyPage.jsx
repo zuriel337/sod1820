@@ -141,7 +141,7 @@ export default function JourneyPage() {
       )}
 
       <div style={{ textAlign: "center", marginTop: 34 }}>
-        <Link to="/cross" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>← להצלבת השיטות</Link>
+        <Link to={cur ? `/cross?n=${val(cur)}` : "/cross"} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>← הצליבו את {cur ? disp(cur) : "המספר"} בכל השיטות</Link>
       </div>
     </div>
   );
