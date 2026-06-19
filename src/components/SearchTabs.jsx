@@ -8,7 +8,7 @@ import { usePalette } from "../lib/palette.js";
 const TABS = [
   { to: "/number", e: "🔢", l: "כללי" },
   { to: "/name", e: "👤", l: "שם" },
-  { to: "/beit-midrash?tab=calc", e: "🧮", l: "מחשבון" },
+  { to: "/beit-midrash?tab=calc", e: "🧮", l: "מחשבון גימטריה" },
   { to: "/image", e: "📷", l: "תמונה", soon: true },
 ];
 

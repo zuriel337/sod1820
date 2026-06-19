@@ -955,7 +955,7 @@ export async function getValueFamilies(value, perMethod = 20) {
     }
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
-      .sort((a, b) => (a.priority - b.priority) || (b.count - a.count));
+      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
 
