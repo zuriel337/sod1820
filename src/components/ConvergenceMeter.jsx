@@ -4,12 +4,14 @@ import { supabase } from "../lib/supabase.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
+import { worldColor, WORLD_FAMILIES } from "../lib/worlds.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
 // תמה-מודע: ברירת מחדל = הפלטה הגלובלית (מתחלף עם המתג); prop `light` = override.
 export default function ConvergenceMeter({ value, light: lightOverride }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(null); // אינדקס שכבה פתוחה
+  const [legend, setLegend] = useState(false); // מקרא צבעי העולמות
   const nav = useNavigate();
   const globalP = usePalette();
   const P = lightOverride == null ? globalP : PALETTES[lightOverride ? "light" : "dark"];
@@ -70,7 +72,38 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
                       className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>
                   ))}
-                  {(l.name === "התכנסות מילים" || l.name === "אקטואליה (חדשות)") && ev?.map((e, k) => {
+                  {l.name === "התכנסות מילים" && (() => {
+                    const groups = {};
+                    (ev || []).forEach(e => { const w = (typeof e === "object" && e.world) || "כללי"; (groups[w] ||= []).push(e); });
+                    return (
+                      <div style={{ width: "100%", display: "grid", gap: 9 }}>
+                        {Object.keys(groups).map(w => {
+                          const col = worldColor(w);
+                          return (
+                            <div key={w}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                                <span style={{ width: 9, height: 9, borderRadius: "50%", background: col, boxShadow: `0 0 6px ${col}66`, flexShrink: 0 }} />
+                                <span style={{ color: col, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>{w}</span>
+                                <span style={{ color: T.goldDim, fontSize: 9.5 }}>({groups[w].length})</span>
+                              </div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                                {groups[w].map((e, k) => {
+                                  const lbl = typeof e === "string" ? e : e.label;
+                                  return (
+                                    <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip"
+                                      style={{ ...chip(false, T), borderColor: col, color: col }}>
+                                      {lbl}{e.method ? ` · ${e.method}` : ""}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                  {l.name === "אקטואליה (חדשות)" && ev?.map((e, k) => {
                     const lbl = typeof e === "string" ? e : e.label;
                     return (
                       <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)} className="cm-chip" style={chip(false, T)}>
@@ -92,6 +125,20 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
       <div style={{ height: 7, background: T.barBg, borderRadius: 999, overflow: "hidden", marginTop: 10 }}>
         <div style={{ width: `${score}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${T.gold}, ${tier.c})`, transition: "width .4s ease" }} />
       </div>
+
+      {/* 🎨 מקרא צבעי העולמות — חוק גלובלי אחיד */}
+      <button onClick={() => setLegend(v => !v)} style={{ cursor: "pointer", background: "none", border: "none", color: T.goldDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700, padding: "8px 0 0", letterSpacing: 1 }}>
+        🎨 מקרא צבעי העולמות {legend ? "▴" : "▾"}
+      </button>
+      {legend && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 11px", marginTop: 4 }}>
+          {Object.values(WORLD_FAMILIES).map(fam => (
+            <span key={fam.label} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: F.body, fontSize: 10.5, color: T.muted }}>
+              <span style={{ width: 9, height: 9, borderRadius: "50%", background: fam.color, flexShrink: 0 }} />{fam.label}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
