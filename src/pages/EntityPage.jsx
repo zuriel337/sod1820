@@ -463,7 +463,7 @@ export default function EntityPage() {
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
-          <NumberFamilies value={value} highlight={sp.get("method")} />
+          <NumberFamilies value={value} highlight={sp.get("method")} term={term} isNumber={isNumber} />
           <div style={{ marginTop: 14 }}>
             <Link to="/numbers" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
               פתחו את {value} בעץ המספרים התלת-מימדי →

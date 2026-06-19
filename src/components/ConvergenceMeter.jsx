@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
+import { worldColor } from "../lib/worlds.js";
 
 // 🧬 מד ההתכנסות — כמה שכבות בלתי-תלויות מסכימות על המספר. ציון 0-100 + 🥉🥈🥇.
 // תמה-מודע: ברירת מחדל = הפלטה הגלובלית (מתחלף עם המתג); prop `light` = override.
@@ -49,7 +50,7 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
       <div style={{ display: "grid", gap: 4 }}>
         {data.layers.map((l, i) => {
           const ev = Array.isArray(l.evidence) ? l.evidence : null;
-          const clickable = (ev && ev.length && l.name !== "התכנסות מילים") || (l.name === "עוגן קדוש" && l.ok);
+          const clickable = (ev && ev.length) || (l.name === "עוגן קדוש" && l.ok);
           const isOpen = open === i;
           return (
             <div key={i}>
@@ -66,6 +67,19 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
               </div>
               {isOpen && (
                 <div style={{ margin: "4px 0 6px 23px", display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {l.name === "התכנסות מילים" && ev?.map((e, k) => {
+                    const lbl = typeof e === "string" ? e : e.label;
+                    const mark = e.tier === "gold" ? "👑 " : e.tier === "silver" ? "🥈 " : "";
+                    return (
+                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)}
+                        className="cm-chip" style={chip(!!e.tier, T)}
+                        title={`${lbl} = ${value} ב${e.method || "רגיל"}`}>
+                        {mark}{lbl}
+                        {e.method && <span style={{ color: T.goldDim, fontSize: 9.5, marginInlineStart: 4 }}>· {e.method}</span>}
+                        {e.world && <span style={{ color: worldColor(e.world), fontWeight: 700, fontSize: 9.5, marginInlineStart: 4 }}>· {e.world}</span>}
+                      </button>
+                    );
+                  })}
                   {l.name === "כרטיס התכנסות" && ev?.map(c => (
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
                       className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>

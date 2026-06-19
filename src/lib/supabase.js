@@ -962,6 +962,43 @@ export async function getValueFamilies(value, perMethod = 20) {
   } catch { return []; }
 }
 
+// 🧬 משפחות לפי שיטה — לדף ביטוי: לכל שיטה הערך של הביטוי *באותה שיטה* + המילים השוות לו שם.
+// pairs: [{method, value}] (הערך של הביטוי בכל שיטה). מחזיר [{method, value, count, phrases}].
+export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) {
+  if (!supabase || !Array.isArray(pairs) || !pairs.length) return [];
+  try {
+    const valByMethod = {}; pairs.forEach(p => { if (p.value > 0) valByMethod[p.method] = p.value; });
+    const values = [...new Set(Object.values(valByMethod))];
+    if (!values.length) return [];
+    const { data } = await supabase.from('bidim').select('method,phrase,value,priority').in('value', values).limit(4000);
+    if (!data || !data.length) return [];
+    // משאירים רק שורות שבהן הערך של השורה = הערך של הביטוי באותה שיטה
+    const rows = data.filter(r => valByMethod[r.method] === r.value);
+    if (!rows.length) return [];
+    const phrases = [...new Set(rows.map(r => r.phrase))];
+    const worldMap = {}, ragilMap = {};
+    for (let i = 0; i < phrases.length; i += 300) {
+      const chunk = phrases.slice(i, i + 300);
+      const { data: ents } = await supabase.from('nodes').select('label,metadata')
+        .eq('type', 'entity').in('label', chunk).limit(1000);
+      (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+      const { data: gw } = await supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000);
+      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
+    }
+    const groups = {};
+    for (const r of rows) {
+      const g = (groups[r.method] ||= { method: r.method, value: r.value, priority: r.priority ?? 9, seen: new Set(), phrases: [] });
+      if (!g.seen.has(r.phrase)) {
+        g.seen.add(r.phrase);
+        if (r.phrase !== selfTerm) g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null, ragil: ragilMap[r.phrase] ?? null });
+      }
+    }
+    return Object.values(groups)
+      .map(g => ({ method: g.method, value: g.value, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
+      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
+  } catch { return []; }
+}
+
 // 🔥 מספר חם עכשיו — ה-term שנחקר הכי הרבה היום (הוכחה חברתית).
 export async function getHotNumber() {
   try {
