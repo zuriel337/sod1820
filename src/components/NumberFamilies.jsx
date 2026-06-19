@@ -139,9 +139,10 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
         <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>
           💡 כל שיטה היא דרך אחרת לקרוא את אותו ערך. רוצים להבין לעומק ולחקור בעצמכם?
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Link to="/beit-midrash?tab=methods" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 14px" }}>📐 כל השיטות מוסברות</Link>
-          <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "8px 16px" }}>🧮 חקרו במחשבון הגימטריה →</Link>
+        {/* שני הכפתורים בשורה אחת — גם בסמארטפון (לא נשברים) */}
+        <div style={{ display: "flex", gap: 7, flexWrap: "nowrap" }}>
+          <Link to="/beit-midrash?tab=methods" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px" }}>📐 השיטות מוסברות</Link>
+          <Link to="/beit-midrash?tab=calc" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "9px 10px" }}>🧮 חקרו במחשבון →</Link>
         </div>
       </div>
     </div>
