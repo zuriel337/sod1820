@@ -136,6 +136,33 @@ export function methodResultText(key, word) {
   if (!Ls.length) return "";
   if (key === "אתבש") return Ls.map(c => ATBASH_L[c] || "").join("");
   if (key === "אלבם") return Ls.map(c => ALBAM_L[c] || "").join("");
-  if (key === "מילוי") return Ls.map(c => MILUI_NAMES[c] || "").join(" ");
+  if (key === "מילוי") return miluiTextV(word, MILUI_VAR_DEFAULT);
+  if (key === "מילוי דמילוי") return miluiDemiluyTextV(word, MILUI_VAR_DEFAULT);
   return Ls.join("");
+}
+
+// ===== וריאנטים של מילוי — איות חלופי לאותיות ה/ו/ת (משפיע על הערך והטקסט) =====
+export const MILUI_VAR_OPTS = { "ה": ["הי", "הא", "הה"], "ו": ["ויו", "ואו", "וו"], "ת": ["תיו", "תאו", "תו"] };
+export const MILUI_VAR_DEFAULT = { "ה": "הי", "ו": "ויו", "ת": "תיו" };
+const RSUM = s => [...String(s || "")].reduce((t, ch) => t + (GEM[ch] || 0), 0);
+function miluiNameV(c, variants) {
+  if (variants && MILUI_VAR_OPTS[c]) return variants[c] || MILUI_NAMES[c] || "";
+  return MILUI_NAMES[c] || "";
+}
+export function miluiTextV(word, variants) { return onlyHeb(word).map(c => miluiNameV(c, variants)).join(" "); }
+export function miluiValueV(word, variants) { return onlyHeb(word).reduce((t, c) => t + RSUM(miluiNameV(c, variants)), 0); }
+export function miluiDemiluyTextV(word, variants) {
+  const lvl1 = onlyHeb(word).map(c => miluiNameV(c, variants)).join("");
+  return onlyHeb(lvl1).map(c => miluiNameV(c, variants)).join(" ");
+}
+export function miluiDemiluyValueV(word, variants) {
+  const lvl1 = onlyHeb(word).map(c => miluiNameV(c, variants)).join("");
+  return onlyHeb(lvl1).reduce((t, c) => t + RSUM(miluiNameV(c, variants)), 0);
+}
+// פירוט אות→שם(ערך) למילוי עם וריאנט (לשורת האותיות)
+export function miluiLettersV(word, variants, demiluy = false) {
+  const Ls = onlyHeb(word);
+  if (!Ls.length) return null;
+  if (!demiluy) return { type: "milui", segs: Ls.map(c => ({ from: c, name: miluiNameV(c, variants), val: RSUM(miluiNameV(c, variants)) })) };
+  return { type: "milui", segs: Ls.map(c => { const nm = miluiNameV(c, variants); const deep = onlyHeb(nm).map(x => miluiNameV(x, variants)).join(""); return { from: c, name: deep, val: RSUM(deep) }; }) };
 }
