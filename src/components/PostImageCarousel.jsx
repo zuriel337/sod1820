@@ -4,9 +4,12 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getImagesByPrimaryValue } from "../lib/supabase.js";
 
-// 🎞️ קרוסלת רמזים בתוך פוסט — תמונות לפי ערך-ראשי, רצות אחת-אחרי-השנייה (לא רשת).
+// 🎞️ קרוסלת רמזים — תמונות לפי ערך, רצות אחת-אחרי-השנייה (לא רשת).
 // כל שקופית: תמונה שנפתחת בלייטבוקס · צ'יפ מספר → /number/:n · תאריך העלאה.
-// עץ אחד: כל ערך מקושר לעדשה הקנונית שלו. מנוע נתונים: getImagesByPrimaryValue.
+// עץ אחד: רכיב גלריה קנוני יחיד — אותו מנוע בתוך פוסט וגם בעמוד המספר (חוק לכל מספר).
+//   • <PostImageCarousel value={n} /> — טוען לבד לפי primary_value (בתוך פוסט).
+//   • <PostImageCarousel value={n} images={[...]} /> — מקבל תמונות מוכנות (עמוד המספר:
+//     התאמת primary_value או all_values, בלי שאילתה נוספת — לא מאבדים הצלבות).
 
 const HE_MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 
@@ -31,18 +34,22 @@ function imgNumbers(img) {
   return out;
 }
 
-export default function PostImageCarousel({ value }) {
+export default function PostImageCarousel({ value, images }) {
   const P = usePalette();
-  const [imgs, setImgs] = useState(null); // null=טוען
+  const provided = Array.isArray(images);
+  const [imgs, setImgs] = useState(provided ? images : null); // null=טוען
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(null);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
+    // תמונות מוכנות (עמוד המספר) — לא טוענים שוב; אחרת טוענים לפי ערך (בתוך פוסט).
+    if (provided) { setImgs(images); setIdx(0); return; }
     let alive = true;
+    setImgs(null); setIdx(0);
     getImagesByPrimaryValue(value).then(d => { if (alive) setImgs(d); }).catch(() => alive && setImgs([]));
     return () => { alive = false; };
-  }, [value]);
+  }, [value, provided, images]);
 
   const total = imgs ? imgs.length : 0;
   const go = useCallback(d => setIdx(i => total ? (i + d + total) % total : 0), [total]);

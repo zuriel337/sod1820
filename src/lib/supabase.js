@@ -248,7 +248,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
       : Promise.resolve({ items: [], count: 0 }),
     postsP,
     // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
-    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
+    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at',
       q => (isNumber ? q.or(`primary_value.eq.${value},all_values.cs.{${value}}`) : q.ilike('name', like))
             .order('occurred_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false }).limit(18)),
