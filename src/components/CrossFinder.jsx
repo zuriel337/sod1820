@@ -55,9 +55,9 @@ function Cross({ term, c, P, primary }) {
         {c.methods.slice(0, 8).map(m => {
           const anc = ANCHOR_SET.has(m.value);
           return (
-            <span key={m.col} style={{ fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: anc ? P.accentText : P.accentDim, background: anc ? "rgba(201,162,39,0.16)" : P.card, border: `1px solid ${anc ? P.borderStrong : P.border}`, borderRadius: 999, padding: "3px 10px" }}>
+            <Link key={m.col} to={`/number/${encodeURIComponent(m.value)}`} title={`לדף המספר ${m.value}`} style={{ textDecoration: "none", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: anc ? P.accentText : P.accentDim, background: anc ? "rgba(201,162,39,0.16)" : P.card, border: `1px solid ${anc ? P.borderStrong : P.border}`, borderRadius: 999, padding: "3px 10px" }}>
               {anc ? "✨ " : ""}{m.label} = {m.value}
-            </span>
+            </Link>
           );
         })}
       </div>
