@@ -48,7 +48,11 @@ export default function Layout() {
         <Navbar />
         <LiveActivityBar />
         <main>
-          <ErrorBoundary routeKey={pathname}><Outlet /></ErrorBoundary>
+          <ErrorBoundary routeKey={pathname}>
+            <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>
+              <Outlet />
+            </React.Suspense>
+          </ErrorBoundary>
         </main>
         <Footer />
       </div>

@@ -7,30 +7,15 @@ import { trackVisit } from "./lib/visits.js";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
-import HomePage from "./pages/HomePage.jsx";
-import HomeNewPage from "./pages/HomeNewPage.jsx";
-import AuthPage from "./pages/AuthPage.jsx";
-import ProfilePage from "./pages/ProfilePage.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
-import StartHerePage from "./pages/StartHerePage.jsx";
-import NavigationCenterPage from "./pages/NavigationCenterPage.jsx";
-import NumbersPage from "./pages/NumbersPage.jsx";
-import CodePage from "./pages/CodePage.jsx";
-import ThemePreviewPage from "./pages/ThemePreviewPage.jsx";
-import TimelinePage from "./pages/TimelinePage.jsx";
+
+// ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
+import HomeNewPage from "./pages/HomeNewPage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 import EntityPage from "./pages/EntityPage.jsx";
-import NumberSearchPage from "./pages/NumberSearchPage.jsx";
-import NamePage from "./pages/NamePage.jsx";
-import ArchivePage from "./pages/ArchivePage.jsx";
-import VerifiedPostsPage from "./pages/VerifiedPostsPage.jsx";
-import CrossMethodPage from "./pages/CrossMethodPage.jsx";
-import JourneyPage from "./pages/JourneyPage.jsx";
-import LaddersDemo from "./pages/LaddersDemo.jsx";
-const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
-const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
-const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
-const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
+import TopicPage from "./pages/TopicPage.jsx";
+import PostsPage from "./pages/PostsPage.jsx";
+import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import {
   MembersPage, CommunityPage,
   CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
@@ -40,15 +25,36 @@ import {
   LoginRoute, ContactRoute, SpotimChatRoute,
   TrafficRoute, NumbersReportRoute,
 } from "./pages/legacyRoutes.jsx";
-import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
-import PostsPage from "./pages/PostsPage.jsx";
-import AdminPage from "./pages/AdminPage.jsx";
-import TopicPage from "./pages/TopicPage.jsx";
-import ConvergenceGalaxy from "./components/ConvergenceGalaxy.jsx";
-import LabIndex from "./pages/LabIndex.jsx";
-import HeichalPage from "./pages/HeichalPage.jsx";
-import GalaxyPage from "./pages/GalaxyPage.jsx";
-import GalaxyRoom from "./pages/GalaxyRoom.jsx";
+
+// ── טעינה עצלה (code-splitting) — מקטין דרמטית את החבילה הראשונית ──
+// כל דף נטען רק כשנכנסים אליו. שיפור ישיר ל-Core Web Vitals (מהירות בנייד).
+const HomePage = React.lazy(() => import("./pages/HomePage.jsx"));
+const AuthPage = React.lazy(() => import("./pages/AuthPage.jsx"));
+const ProfilePage = React.lazy(() => import("./pages/ProfilePage.jsx"));
+const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
+const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
+const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
+const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
+const ThemePreviewPage = React.lazy(() => import("./pages/ThemePreviewPage.jsx"));
+const TimelinePage = React.lazy(() => import("./pages/TimelinePage.jsx"));
+const NumberSearchPage = React.lazy(() => import("./pages/NumberSearchPage.jsx"));
+const NamePage = React.lazy(() => import("./pages/NamePage.jsx"));
+const ArchivePage = React.lazy(() => import("./pages/ArchivePage.jsx"));
+const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx"));
+const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
+const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
+const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
+const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
+const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
+const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
+// מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
+const HeichalPage = React.lazy(() => import("./pages/HeichalPage.jsx"));
+const GalaxyPage = React.lazy(() => import("./pages/GalaxyPage.jsx"));
+const GalaxyRoom = React.lazy(() => import("./pages/GalaxyRoom.jsx"));
+const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
+const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
+const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
+const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -83,19 +89,20 @@ export default function App() {
     <BrowserRouter>
         <RouteEffects />
         <Analytics />
+        <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
-          <Route path="/ניסיון" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
-          <Route path="/experience" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><ExperiencePage /></React.Suspense>} />
-          <Route path="/חישוב" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
-          <Route path="/sulamot5" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={5} /></React.Suspense>} />
-          <Route path="/sulamot6" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={6} /></React.Suspense>} />
-          <Route path="/sulamot7" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={7} /></React.Suspense>} />
-          <Route path="/sulamot8" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={8} /></React.Suspense>} />
-          <Route path="/sulamot9" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={9} /></React.Suspense>} />
-          <Route path="/sulamot10" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomsExperience mode={10} /></React.Suspense>} />
-          <Route path="/sulamot11" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><RoomEnter /></React.Suspense>} />
-          <Route path="/reveal" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}><GematriaRevealPage /></React.Suspense>} />
+          <Route path="/ניסיון" element={<ExperiencePage />} />
+          <Route path="/experience" element={<ExperiencePage />} />
+          <Route path="/חישוב" element={<GematriaRevealPage />} />
+          <Route path="/sulamot5" element={<RoomsExperience mode={5} />} />
+          <Route path="/sulamot6" element={<RoomsExperience mode={6} />} />
+          <Route path="/sulamot7" element={<RoomsExperience mode={7} />} />
+          <Route path="/sulamot8" element={<RoomsExperience mode={8} />} />
+          <Route path="/sulamot9" element={<RoomsExperience mode={9} />} />
+          <Route path="/sulamot10" element={<RoomsExperience mode={10} />} />
+          <Route path="/sulamot11" element={<RoomEnter />} />
+          <Route path="/reveal" element={<GematriaRevealPage />} />
           {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
           <Route path="/היכל" element={<HeichalPage />} />
           <Route path="/heichal" element={<HeichalPage />} />
@@ -163,6 +170,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         </Routes>
+        </React.Suspense>
     </BrowserRouter>
     </AuthProvider>
   );
