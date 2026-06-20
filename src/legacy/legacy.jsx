@@ -2708,6 +2708,31 @@ const POST_CONTENT_CSS = `
     display: block !important;
   }
 
+  /* ── טאבים לסרטונים (עברית / אנגלית) — CSS בלבד, בלי JS ── */
+  .sod-post-content .sod-vtabs { max-width: 680px; margin: 1.6em auto; direction: rtl; }
+  .sod-post-content .sod-vtab-r { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .sod-post-content .sod-vtab-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .sod-post-content .sod-vtab-bar label {
+    cursor: pointer; padding: 9px 24px; border-radius: 999px;
+    border: 1px solid ${C.borderGold}; color: ${C.goldDim};
+    font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 15px;
+    background: rgba(212,175,55,0.06); transition: all .2s ease; user-select: none;
+  }
+  .sod-post-content .sod-vtab-bar label:hover { border-color: ${C.gold}; color: ${C.goldBright}; }
+  .sod-post-content .sod-vtab-p { display: none; }
+  .sod-post-content .sod-vtab-soon {
+    padding: 40px 20px; border: 1px dashed ${C.borderGold}; border-radius: 14px;
+    color: ${C.goldDim}; font-family: 'Heebo', sans-serif; font-size: 15px; line-height: 1.8; text-align: center;
+    background: rgba(212,175,55,0.04);
+  }
+  #v1820-he:checked ~ .sod-vtab-p.he,
+  #v1820-en:checked ~ .sod-vtab-p.en { display: block; }
+  #v1820-he:checked ~ .sod-vtab-bar label[for="v1820-he"],
+  #v1820-en:checked ~ .sod-vtab-bar label[for="v1820-en"] {
+    background: ${C.gold}; color: ${C.goldDeep}; border-color: ${C.gold};
+    box-shadow: 0 4px 16px rgba(212,175,55,0.4);
+  }
+
   /* ── author attribution ── */
   .sod-post-content .post-author {
     display: block;
