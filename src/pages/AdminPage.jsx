@@ -989,7 +989,9 @@ function LiveStatsView() {
   const view = series.slice(gran === "day" ? -120 : -60);
   const max = Math.max(...view.map(x => x.views), 1);
   const { h: barH, ticks } = buildScale(max, scale);
-  const paths = (s?.paths || []).slice(0, 20);
+  // נתיבים בעברית נשמרים מקודדים (%D7%...) — מפענחים לתצוגה קריאה
+  const decodePath = p => { try { return decodeURIComponent(p); } catch { return p; } };
+  const paths = (s?.paths || []).slice(0, 20).map(p => ({ ...p, label: decodePath(p.path) }));
   const referrers = (s?.referrers || []).slice(0, 12);
   const devices = (s?.devices || []);
   const granLabel = gran === "month" ? "חודש" : "יום";
@@ -1073,7 +1075,7 @@ function LiveStatsView() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
             <div style={card}>
               <H>📄 הדפים הנצפים ביותר</H>
-              {paths.length ? <BarRow items={paths} labelKey="path" valueKey="views" hrefKey="path" /> : <Empty>אין עדיין נתונים.</Empty>}
+              {paths.length ? <BarRow items={paths} labelKey="label" valueKey="views" hrefKey="path" /> : <Empty>אין עדיין נתונים.</Empty>}
             </div>
             <div style={card}>
               <H>↘ מאיפה הגיעו</H>
