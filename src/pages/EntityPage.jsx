@@ -9,6 +9,7 @@ import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
+import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
@@ -271,7 +272,6 @@ export default function EntityPage() {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [lightbox, setLightbox] = useState(null);
   const [harvest, setHarvest] = useState([]);
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [q, setQ] = useState("");
@@ -550,23 +550,9 @@ export default function EntityPage() {
         {/* ── 🖼 גלריות — אחרי המילים ── */}
         {d.galleries?.length > 0 && (
           <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} open={open} onToggle={toggleAcc} P={P}>
-            <style>{`.ent-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:680px){.ent-gal{grid-template-columns:1fr}}`}</style>
-            <div className="ent-gal">
-              {d.galleries.map(g => (
-                <button key={g.id} onClick={() => setLightbox(g)} style={{
-                  cursor: "pointer", padding: 0, borderRadius: 12, overflow: "hidden", textAlign: "right",
-                  border: `1px solid ${P.border}`, background: P.card,
-                }} className="ent-gal-card">
-                  <img src={g.image_url} alt={g.name || ""} loading="lazy" style={{ width: "100%", height: "auto", display: "block" }} />
-                  {(g.name || g.description) && (
-                    <div style={{ padding: "10px 13px" }}>
-                      {g.name && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 4, lineHeight: 1.4 }}>{g.name}</div>}
-                      {g.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, maxHeight: 66, overflow: "hidden" }}>{stripHtml(g.description).slice(0, 160)}</div>}
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
+            {/* עץ אחד: אותה קרוסלה רצה כמו בתוך פוסט — חוק קנוני לכל מספר/ביטוי.
+                התמונות כבר נטענו במאגד (primary_value או all_values) — בלי שאילתה כפולה. */}
+            <PostImageCarousel value={value} images={d.galleries} />
           </Acc>
         )}
 
@@ -734,37 +720,6 @@ export default function EntityPage() {
           </div>
         )}
 
-        {/* ── Lightbox (מודאל כהה) ── */}
-        {lightbox && (
-          <div onClick={() => setLightbox(null)} style={{
-            position: "fixed", inset: 0, zIndex: 300, background: "rgba(3,2,8,0.94)",
-            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
-          }}>
-            <div onClick={e => e.stopPropagation()} style={{ width: "min(820px,96vw)", maxHeight: "92vh", overflowY: "auto", direction: "rtl" }}>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-                <button onClick={() => setLightbox(null)} aria-label="סגור" style={{
-                  background: "none", border: "1px solid rgba(212,175,55,0.38)", color: "#f6e27a",
-                  fontSize: 24, cursor: "pointer", borderRadius: 8, width: 44, height: 44, lineHeight: 1,
-                }}>×</button>
-              </div>
-              <img src={lightbox.image_url} alt={lightbox.name || ""} style={{ width: "100%", borderRadius: 12, border: "1px solid rgba(212,175,55,0.38)", display: "block" }} />
-              {lightbox.name && <div style={{ color: "#e8c840", fontFamily: F.regal, fontSize: 17, fontWeight: 700, marginTop: 12 }}>{lightbox.name}</div>}
-              {lightbox.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap" }}>{stripHtml(lightbox.description)}</div>}
-              {(lightbox.all_values?.length > 0) && (
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
-                  {lightbox.all_values.slice(0, 10).map((v, i) => (
-                    <Link key={i} to={`/number/${v}`} onClick={() => setLightbox(null)} style={{
-                      textDecoration: "none", color: v === lightbox.primary_value ? "#1a0e00" : "#e8c840",
-                      background: v === lightbox.primary_value ? "#d4af37" : "rgba(8,5,2,0.5)",
-                      border: "1px solid rgba(212,175,55,0.38)", borderRadius: 999, padding: "3px 11px",
-                      fontFamily: F.mono, fontSize: 12, fontWeight: 700,
-                    }}>{v}</Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </Shell>
   );
