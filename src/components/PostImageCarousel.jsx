@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getImagesByPrimaryValue } from "../lib/supabase.js";
+import { stripHtml } from "../lib/format.js";
 
 // 🎞️ קרוסלת רמזים — תמונות לפי ערך, רצות אחת-אחרי-השנייה (לא רשת).
 // כל שקופית: תמונה שנפתחת בלייטבוקס · צ'יפ מספר → /number/:n · תאריך העלאה.
@@ -94,7 +95,7 @@ export default function PostImageCarousel({ value, images }) {
             {imgs.map((img, i) => (
               <button
                 key={img.id || i}
-                onClick={() => setLightbox(img.image_url)}
+                onClick={() => setLightbox(img)}
                 title="הגדל תמונה"
                 style={{ flex: "0 0 100%", width: "100%", height: "100%", padding: 0, border: "none", background: "transparent", cursor: "zoom-in" }}
               >
@@ -120,14 +121,16 @@ export default function PostImageCarousel({ value, images }) {
         )}
       </div>
 
-      {/* כיתוב השקופית: שם · מספרים לחיצים · תאריך העלאה */}
+      {/* כיתוב השקופית: שם · תיאור (מה שנכתב מתחת לתמונה) · מספרים לחיצים · תאריך העלאה */}
       {(() => {
         const cur = imgs[idx];
         const nums = imgNumbers(cur);
         const dt = uploadDate(cur);
+        const desc = cur.description ? stripHtml(cur.description).trim() : "";
         return (
           <div style={{ textAlign: "center", marginTop: 12 }}>
             {cur.name && <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, marginBottom: 8, lineHeight: 1.5 }}>{cur.name}</div>}
+            {desc && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.8, marginBottom: 10, whiteSpace: "pre-wrap" }}>{desc}</div>}
             <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
               {nums.map(n => (
                 <Link key={n} to={`/number/${n}`} title={`לדף המספר ${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontSize: 13, fontWeight: 800, color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "4px 13px" }}>
@@ -150,10 +153,16 @@ export default function PostImageCarousel({ value, images }) {
         </div>
       )}
 
-      {/* לייטבוקס — תמונה מלאה */}
+      {/* לייטבוקס — תמונה מלאה + שם ותיאור (מה שנכתב מתחת לתמונה) */}
       {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, cursor: "zoom-out" }}>
-          <img src={lightbox} alt="" style={{ maxWidth: "96vw", maxHeight: "92vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)" }} />
+        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.92)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, cursor: "zoom-out", direction: "rtl" }}>
+          <img src={lightbox.image_url} alt={lightbox.name || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lightbox.name || lightbox.description ? "78vh" : "92vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
+          {(lightbox.name || lightbox.description) && (
+            <div onClick={e => e.stopPropagation()} style={{ maxWidth: 720, textAlign: "center", marginTop: 14, cursor: "default" }}>
+              {lightbox.name && <div style={{ color: "#e8c840", fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{lightbox.name}</div>}
+              {lightbox.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap" }}>{stripHtml(lightbox.description)}</div>}
+            </div>
+          )}
           <button onClick={() => setLightbox(null)} aria-label="סגור" style={{ position: "fixed", top: 16, left: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 22, cursor: "pointer" }}>×</button>
         </div>
       )}
