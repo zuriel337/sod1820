@@ -1153,6 +1153,7 @@ function scQueryLink(q) {
   return /^\d+$/.test(t) ? `/number/${t}` : `/beit-midrash?w=${encodeURIComponent(t)}`;
 }
 function SearchConsolePanel() {
+  const mob = useIsMobile();
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
@@ -1203,13 +1204,13 @@ function SearchConsolePanel() {
             <div style={{ overflowX: "auto" }}>
               <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>מילות חיפוש מובילות</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr><th style={th}>חיפוש</th><th style={th}>קליקים</th><th style={th}>הופעות</th><th style={th}>מיקום</th></tr></thead>
+                <thead><tr><th style={th}>חיפוש</th><th style={th}>קליקים</th>{!mob && <th style={th}>הופעות</th>}<th style={th}>מיקום</th></tr></thead>
                 <tbody>
                   {(d.queries || []).slice(0, 15).map((q, i) => (
                     <tr key={i}>
-                      <td style={td}><a href={scQueryLink(q.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{q.key}</a></td>
+                      <td style={{ ...td, wordBreak: "break-word" }}><a href={scQueryLink(q.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{q.key}</a></td>
                       <td style={{ ...td, fontFamily: F.mono, color: C.goldBright }}>{q.clicks.toLocaleString()}</td>
-                      <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{q.impressions.toLocaleString()}</td>
+                      {!mob && <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{q.impressions.toLocaleString()}</td>}
                       <td style={{ ...td, fontFamily: F.mono, color: C.goldDim }}>{q.position.toFixed(1)}</td>
                     </tr>
                   ))}
@@ -1220,13 +1221,13 @@ function SearchConsolePanel() {
             <div style={{ overflowX: "auto" }}>
               <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>הדפים שהביאו הכי הרבה קליקים מגוגל</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr><th style={th}>דף</th><th style={th}>קליקים</th><th style={th}>הופעות</th></tr></thead>
+                <thead><tr><th style={th}>דף</th><th style={th}>קליקים</th>{!mob && <th style={th}>הופעות</th>}</tr></thead>
                 <tbody>
                   {(d.pages || []).slice(0, 10).map((p, i) => (
                     <tr key={i}>
-                      <td style={td}><a href={decode(p.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{decode(p.key)}</a></td>
+                      <td style={{ ...td, wordBreak: "break-word" }}><a href={decode(p.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{decode(p.key)}</a></td>
                       <td style={{ ...td, fontFamily: F.mono, color: C.goldBright }}>{p.clicks.toLocaleString()}</td>
-                      <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{p.impressions.toLocaleString()}</td>
+                      {!mob && <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{p.impressions.toLocaleString()}</td>}
                     </tr>
                   ))}
                   {!(d.pages || []).length && <tr><td style={td} colSpan={3}>אין עדיין נתונים בטווח הזה.</td></tr>}
