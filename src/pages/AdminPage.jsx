@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
+import { getVisitStats } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -738,6 +739,7 @@ function Stat({ label, value }) {
 const LINK = C.goldBright;  // צבע קישור אחיד בכל הפאנל
 // מקורות נתונים — live=true מסומן כמחובר (ירוק), אחרת "בקרוב".
 const DATA_SOURCES = [
+  { icon: "🏛️", name: "מד-כניסות פנימי (SOD1820)", desc: "כניסות חיות נאספות ישירות לבסיס הנתונים שלנו — בלי תלות בגוגל", live: true },
   { icon: "📈", name: "Google Analytics 4", desc: "תנועה חיה, קהל, התנהגות, המרות", live: GA_ENABLED },
   { icon: "🟢", name: "משתמשים כעת (Realtime)", desc: "כמה גולשים מחוברים ברגע זה — דרך GA4", live: GA_ENABLED },
   { icon: "📊", name: "Vercel Web Analytics", desc: "מבקרים, צפיות ומקורות תנועה — בלוח הבקרה של Vercel", live: true },
@@ -787,8 +789,25 @@ function buildScale(maxV, scale) {
   return { h: v => Math.min(100, v / top * 100), ticks };
 }
 
+// ===== מעטפת: שני תת-טאבים — חי (האתר החדש) / היסטוריה (Jetpack) =====
 function StatsTab() {
-  const mobile = useIsMobile();
+  const [view, setView] = useState("live");  // live | legacy
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={segWrap}>
+          {[["live", "🟢 חי — האתר החדש"], ["legacy", "📜 היסטוריה (Jetpack)"]].map(([k, l]) => (
+            <button key={k} onClick={() => setView(k)} style={segBtn(view === k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+      {view === "live" ? <LiveStatsView /> : <LegacyStatsView />}
+    </div>
+  );
+}
+
+// ===== 📜 היסטוריה — נתוני Jetpack/וורדפרס שיובאו (האתר הישן) =====
+function LegacyStatsView() {
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
   const [gran, setGran] = useState("day");   // day | month | year
@@ -825,40 +844,19 @@ function StatsTab() {
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
+      <div style={{ ...card, borderColor: C.borderGold, background: "rgba(212,175,55,0.05)" }}>
+        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>📜 היסטוריית האתר הישן (Jetpack / וורדפרס)</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, marginTop: 4, lineHeight: 1.7 }}>
+          ארכיון שיובא מ-WordPress.com — צפיות שנאספו לאורך השנים עד המעבר לאתר החדש. נתון קבוע ולא משתנה.
+          הנתונים החיים של האתר החדש נמצאים בטאב <b style={{ color: C.goldLight }}>🟢 חי</b>.
+        </div>
+      </div>
       {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
         <Stat label="סך צפיות (Jetpack)" value={totalViews.toLocaleString()} />
         <Stat label="פוסטים נמדדים" value={(s.posts || []).length.toLocaleString()} />
         <Stat label="מקורות הפניה" value={(s.referrers || []).length.toLocaleString()} />
         <Stat label="חיפושים" value={(s.searches || []).length.toLocaleString()} />
-      </div>
-
-      {/* Google Analytics — סטטוס איסוף + דוח Looker חי */}
-      <div style={card}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: LOOKER_URL ? 12 : 0 }}>
-          <span style={{ fontSize: 26 }}>📈</span>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics (חי)</div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>
-              איסוף נתונים: {GA_ENABLED
-                ? <b style={{ color: "#5fbf6a" }}>✅ פעיל (gtag מותקן)</b>
-                : <b style={{ color: C.goldDim }}>⚠️ לא פעיל — הגדירו VITE_GA_ID</b>}
-            </div>
-          </div>
-          {GA_ENABLED && <span style={{ color: "#5fbf6a", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>LIVE</span>}
-        </div>
-        {LOOKER_URL ? (
-          <iframe title="Google Analytics — Looker Studio" src={LOOKER_URL}
-            style={{ width: "100%", height: mobile ? 460 : 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
-            allowFullScreen />
-        ) : (
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
-            <div style={{ color: C.goldLight, fontWeight: 700, marginBottom: 4 }}>להצגת דוח חי כאן (מאיפה נכנסו, Realtime, מכשירים, ערים, דפים):</div>
-            1. ב-<a href="https://lookerstudio.google.com" target="_blank" rel="noopener noreferrer" style={linkA}>Looker Studio</a> צרו דוח מחובר ל-GA4.<br />
-            2. שיתוף → "כל מי שיש לו את הקישור" → העתיקו את כתובת ה-Embed.<br />
-            3. הגדירו אותה כמשתנה סביבה <b style={{ color: C.goldLight }}>VITE_LOOKER_URL</b> ב-Vercel — והדוח יופיע כאן.
-          </div>
-        )}
       </div>
 
       {/* צפיות — יום / חודש / שנה, עם ציר-Y, לחיץ */}
@@ -948,6 +946,177 @@ function StatsTab() {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== 🟢 חי — מד-הכניסות הפנימי של האתר החדש (SOD1820) =====
+const RANGES = [["30", "30 יום"], ["90", "90 יום"], ["365", "שנה"], ["all", "הכל"]];
+function LiveStatsView() {
+  const mobile = useIsMobile();
+  const [s, setS] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState("90");
+  const [gran, setGran] = useState("day");      // day | month
+  const [scale, setScale] = useState("linear");  // linear | log
+  const [sel, setSel] = useState(null);
+
+  const load = useCallback(() => {
+    setLoading(true); setErr("");
+    const days = range === "all" ? 36500 : Number(range);
+    getVisitStats(days).then(d => { setS(d); setLoading(false); })
+      .catch(e => { setErr(e.message || "שגיאה"); setLoading(false); });
+  }, [range]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setSel(null); }, [gran, range]);
+
+  // אגרגציה לפי גרנולריות
+  const series = useMemo(() => {
+    const daily = (s?.daily || []);
+    if (gran === "month") {
+      const m = {};
+      daily.forEach(d => { const k = (d.date || "").slice(0, 7); if (k) { m[k] = m[k] || { views: 0, uniques: 0 }; m[k].views += d.views || 0; m[k].uniques += d.uniques || 0; } });
+      return Object.entries(m).map(([key, v]) => ({ key, views: v.views, uniques: v.uniques })).sort((a, b) => a.key.localeCompare(b.key));
+    }
+    return daily.map(d => ({ key: d.date, views: d.views || 0, uniques: d.uniques || 0 }));
+  }, [s, gran]);
+
+  if (err) return <div style={{ color: C.crimsonLight, textAlign: "center", padding: 30 }}>{err}</div>;
+  if (loading && !s) return <Loading />;
+
+  const view = series.slice(gran === "day" ? -120 : -60);
+  const max = Math.max(...view.map(x => x.views), 1);
+  const { h: barH, ticks } = buildScale(max, scale);
+  const paths = (s?.paths || []).slice(0, 20);
+  const referrers = (s?.referrers || []).slice(0, 12);
+  const devices = (s?.devices || []);
+  const granLabel = gran === "month" ? "חודש" : "יום";
+  const empty = (s?.total_views || 0) === 0;
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={{ ...card, borderColor: "rgba(95,191,106,0.45)", background: "rgba(95,191,106,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ color: "#7bd087", fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>🟢 מד-הכניסות החי של האתר החדש</div>
+          <span style={{ flex: 1 }} />
+          <div style={segWrap}>
+            {RANGES.map(([k, l]) => <button key={k} onClick={() => setRange(k)} style={segBtn(range === k)}>{l}</button>)}
+          </div>
+          <button onClick={load} title="רענן" style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 12px", fontFamily: F.heading, fontSize: 12 }}>↻ רענן</button>
+        </div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          נאסף ישירות לבסיס הנתונים שלנו — ללא תלות בגוגל. פרטיות מלאה: בלי IP, בלי פרטים אישיים (מזהה אקראי לספירת מבקרים ייחודיים בלבד).
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12 }}>
+        <Stat label="מבקרים ייחודיים (סה״כ)" value={(s?.total_uniques || 0).toLocaleString()} />
+        <Stat label="צפיות בדפים (סה״כ)" value={(s?.total_views || 0).toLocaleString()} />
+        <Stat label="צפיות היום" value={(s?.today_views || 0).toLocaleString()} />
+        <Stat label="🟢 פעילים עכשיו (5 דק׳)" value={(s?.active_now || 0).toLocaleString()} />
+      </div>
+
+      {empty && (
+        <div style={{ ...card, textAlign: "center" }}>
+          <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>אוספים נתונים…</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, marginTop: 6, lineHeight: 1.8 }}>
+            המד מתחיל למדוד מרגע העלאת הגרסה הזו לאוויר. כל גלישה באתר נספרת כאן אוטומטית.<br />
+            כשיתחילו להיכנס גולשים — הגרף, הדפים המובילים ומקורות התנועה יופיעו כאן בזמן אמת.
+          </div>
+        </div>
+      )}
+
+      {!empty && (
+        <>
+          {/* גרף צפיות — יום / חודש */}
+          <div style={card}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+              <H>צפיות לפי {granLabel}</H>
+              <span style={{ flex: 1 }} />
+              <div style={segWrap}>
+                {[["linear", "רגיל"], ["log", "לוג"]].map(([k, l]) => <button key={k} onClick={() => setScale(k)} style={segBtn(scale === k)}>{l}</button>)}
+              </div>
+              <div style={segWrap}>
+                {[["day", "יום"], ["month", "חודש"]].map(([k, l]) => <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>)}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <div style={{ flex: 1, minWidth: 0, position: "relative", height: 190, borderInlineStart: `1px solid ${C.border}` }}>
+                {ticks.map((t, i) => <div key={i} style={{ position: "absolute", insetInline: 0, bottom: `${t.pct}%`, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />)}
+                <div style={{ position: "absolute", inset: 0, overflowX: "auto", overflowY: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", minWidth: gran === "day" ? view.length * 8 : "100%", paddingInline: 2 }}>
+                    {view.map(r => (
+                      <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות · ${r.uniques.toLocaleString()} ייחודיים`}
+                        style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
+                        <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${barH(r.views)}%`, minHeight: r.views > 0 ? 2 : 0, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ width: 50, position: "relative", height: 190, flexShrink: 0 }}>
+                {ticks.map((t, i) => <div key={i} style={{ position: "absolute", right: 0, bottom: `${t.pct}%`, transform: "translateY(50%)", color: C.goldDim, fontFamily: F.mono, fontSize: 10, whiteSpace: "nowrap" }}>{t.label}</div>)}
+              </div>
+            </div>
+            {sel && (
+              <div style={{ marginTop: 12, padding: "12px 16px", border: `1px solid ${C.borderGold}`, borderRadius: 12, background: "rgba(212,175,55,0.06)" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>📅 {sel.key} · {sel.views.toLocaleString()} צפיות · {sel.uniques.toLocaleString()} מבקרים ייחודיים</div>
+              </div>
+            )}
+            <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 10, marginTop: 6, textAlign: "center" }}>לחצו על עמודה לפירוט · {view.length} {gran === "day" ? "ימים" : "חודשים"}</div>
+          </div>
+
+          {/* דפים מובילים + מאיפה הגיעו */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+            <div style={card}>
+              <H>📄 הדפים הנצפים ביותר</H>
+              {paths.length ? <BarRow items={paths} labelKey="path" valueKey="views" hrefKey="path" /> : <Empty>אין עדיין נתונים.</Empty>}
+            </div>
+            <div style={card}>
+              <H>↘ מאיפה הגיעו</H>
+              {referrers.length ? <BarRow items={referrers} labelKey="referrer" valueKey="views" /> : <Empty>אין עדיין נתונים.</Empty>}
+            </div>
+          </div>
+
+          {/* מכשירים */}
+          {devices.length > 0 && (
+            <div style={card}>
+              <H>📱 מכשירים</H>
+              <BarRow items={devices.map(d => ({ ...d, label: d.device === "mobile" ? "📱 נייד" : d.device === "desktop" ? "🖥️ מחשב" : d.device }))} labelKey="label" valueKey="views" />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Google Analytics — סטטוס איסוף + דוח Looker חי */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: LOOKER_URL ? 12 : 0 }}>
+          <span style={{ fontSize: 26 }}>📈</span>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics (חי)</div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>
+              איסוף נתונים: {GA_ENABLED
+                ? <b style={{ color: "#5fbf6a" }}>✅ פעיל (gtag מותקן)</b>
+                : <b style={{ color: C.goldDim }}>⚠️ לא פעיל — הגדירו VITE_GA_ID</b>}
+            </div>
+          </div>
+          {GA_ENABLED && <span style={{ color: "#5fbf6a", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>LIVE</span>}
+        </div>
+        {LOOKER_URL ? (
+          <iframe title="Google Analytics — Looker Studio" src={LOOKER_URL}
+            style={{ width: "100%", height: mobile ? 460 : 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
+            allowFullScreen />
+        ) : (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
+            <div style={{ color: C.goldLight, fontWeight: 700, marginBottom: 4 }}>להצגת דוח GA4 חי כאן (Realtime, מכשירים, ערים, דפים):</div>
+            1. ב-<a href="https://lookerstudio.google.com" target="_blank" rel="noopener noreferrer" style={linkA}>Looker Studio</a> צרו דוח מחובר ל-GA4.<br />
+            2. שיתוף → "כל מי שיש לו את הקישור" → העתיקו את כתובת ה-Embed.<br />
+            3. הגדירו אותה כמשתנה סביבה <b style={{ color: C.goldLight }}>VITE_LOOKER_URL</b> ב-Vercel — והדוח יופיע כאן.
+          </div>
+        )}
       </div>
 
       {/* מקורות נתונים — סטטוס חיבור חי */}

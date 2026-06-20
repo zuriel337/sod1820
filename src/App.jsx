@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
+import { trackVisit } from "./lib/visits.js";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -61,6 +62,7 @@ function RouteEffects() {
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
     // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
     const t = setTimeout(() => trackPageview(pathname), 350);
+    trackVisit(pathname);   // מד-כניסות פנימי (SOD1820) — נאסף ישירות אלינו
     return () => clearTimeout(t);
   }, [pathname]);
   return null;
