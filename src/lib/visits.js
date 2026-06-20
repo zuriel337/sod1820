@@ -56,3 +56,16 @@ export async function getVisitStats(days = 90) {
   if (error) throw error;
   return data;
 }
+
+// ── Google Search Console — שאילתות חיפוש כנתונים (דרך api/search-console) ──
+// שולח את ה-session token של המנהל; ה-endpoint מאמת role=admin ומושך מגוגל.
+export async function getSearchConsole(days = 90) {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) return null;
+  const r = await fetch(`/api/search-console?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  if (!r.ok) throw new Error("search-console " + r.status);
+  return r.json();
+}
+

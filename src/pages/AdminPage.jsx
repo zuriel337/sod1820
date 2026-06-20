@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1121,6 +1121,9 @@ function LiveStatsView() {
         )}
       </div>
 
+      {/* Google Search Console — שאילתות חיפוש כנתונים, מחוברות לגרף (עץ אחד) */}
+      <SearchConsolePanel />
+
       {/* מקורות נתונים — סטטוס חיבור חי */}
       <div style={card}>
         <H>מקורות נתונים</H>
@@ -1139,6 +1142,99 @@ function LiveStatsView() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ===== 🔎 Google Search Console — שאילתות חיפוש מחוברות לגרף (עץ אחד) =====
+// כל שאילתה → ישות בגרף: מספר → /number/:n, ביטוי → מחשבון בית-המדרש.
+function scQueryLink(q) {
+  const t = (q || "").trim();
+  return /^\d+$/.test(t) ? `/number/${t}` : `/beit-midrash?w=${encodeURIComponent(t)}`;
+}
+function SearchConsolePanel() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState("90");
+  useEffect(() => {
+    setLoading(true); setErr("");
+    getSearchConsole(Number(days)).then(r => { setD(r); setLoading(false); })
+      .catch(e => { setErr(e.message || "שגיאה"); setLoading(false); });
+  }, [days]);
+
+  const decode = p => { try { return decodeURIComponent(p.replace(/^https?:\/\/[^/]+/, "")) || "/"; } catch { return p; } };
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ fontSize: 24 }}>🔎</span>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>מה חיפשו בגוגל (Search Console)</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>כל חיפוש מקושר לישות בגרף — לחיצה פותחת אותו</div>
+        </div>
+        {d?.queries && (
+          <div style={segWrap}>
+            {[["30", "30 יום"], ["90", "90 יום"], ["480", "16 חודש"]].map(([k, l]) => (
+              <button key={k} onClick={() => setDays(k)} style={segBtn(days === k)}>{l}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {loading ? <Loading />
+        : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !d ? <Empty>צריך להיות מחובר כמנהל.</Empty>
+        : d.configured === false ? (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+            <div style={{ color: C.goldLight, fontWeight: 700, marginBottom: 4 }}>עוד לא מחובר — חיבור חד-פעמי (≈10 דק׳):</div>
+            1. ב-<a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" style={linkA}>Google Cloud</a> → צרו פרויקט → הפעילו <b style={{ color: C.goldLight }}>Search Console API</b>.<br />
+            2. צרו <b style={{ color: C.goldLight }}>Service Account</b> → מפתח חדש (JSON).<br />
+            3. ב-Search Console → הגדרות → משתמשים → הוסיפו את כתובת המייל של ה-Service Account (הרשאת קריאה).<br />
+            4. ב-Vercel → Settings → Environment Variables → הוסיפו <b style={{ color: C.goldLight }}>GSC_SERVICE_ACCOUNT</b> = תוכן ה-JSON המלא → Redeploy.
+          </div>
+        ) : d.error ? (
+          <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 12.5, padding: 12, lineHeight: 1.7 }}>
+            החיבור הוגדר אך גוגל החזיר שגיאה:<br /><span style={{ fontFamily: F.mono, fontSize: 11.5, color: C.goldDim }}>{d.error}</span>
+            <div style={{ marginTop: 6, color: C.muted }}>בדקו ש-ה-Service Account נוסף כמשתמש ב-Search Console, ושהנכס (GSC_SITE_URL) נכון.</div>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ overflowX: "auto" }}>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>מילות חיפוש מובילות</div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><th style={th}>חיפוש</th><th style={th}>קליקים</th><th style={th}>הופעות</th><th style={th}>מיקום</th></tr></thead>
+                <tbody>
+                  {(d.queries || []).slice(0, 15).map((q, i) => (
+                    <tr key={i}>
+                      <td style={td}><a href={scQueryLink(q.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{q.key}</a></td>
+                      <td style={{ ...td, fontFamily: F.mono, color: C.goldBright }}>{q.clicks.toLocaleString()}</td>
+                      <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{q.impressions.toLocaleString()}</td>
+                      <td style={{ ...td, fontFamily: F.mono, color: C.goldDim }}>{q.position.toFixed(1)}</td>
+                    </tr>
+                  ))}
+                  {!(d.queries || []).length && <tr><td style={td} colSpan={4}>אין עדיין נתונים בטווח הזה.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ overflowX: "auto" }}>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>הדפים שהביאו הכי הרבה קליקים מגוגל</div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><th style={th}>דף</th><th style={th}>קליקים</th><th style={th}>הופעות</th></tr></thead>
+                <tbody>
+                  {(d.pages || []).slice(0, 10).map((p, i) => (
+                    <tr key={i}>
+                      <td style={td}><a href={decode(p.key)} target="_blank" rel="noopener noreferrer" style={linkA}>{decode(p.key)}</a></td>
+                      <td style={{ ...td, fontFamily: F.mono, color: C.goldBright }}>{p.clicks.toLocaleString()}</td>
+                      <td style={{ ...td, fontFamily: F.mono, color: C.muted }}>{p.impressions.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {!(d.pages || []).length && <tr><td style={td} colSpan={3}>אין עדיין נתונים בטווח הזה.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
