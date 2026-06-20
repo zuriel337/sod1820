@@ -187,6 +187,19 @@ export async function getGalleryDetail(galleryId) {
   return data || [];
 }
 
+// תמונות לפי ערך-ראשי (primary_value) — לקרוסלת רמזים בתוך פוסט. כרונולוגי (חדש→ישן).
+export async function getImagesByPrimaryValue(value) {
+  if (!supabase || !value) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at')
+    .eq('primary_value', value)
+    .not('image_url', 'is', null)
+    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  return data || [];
+}
+
 // ===== דף הישות — איסוף כל המידע סביב מספר/ביטוי =====
 // מחזיר ספירות + פריטים לכל מדור (פוסטים, גלריות, אירועים, תגובות, חידושי AI, מילים שוות).
 export async function getEntityBundle({ term, value, isNumber }) {
@@ -235,7 +248,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
       : Promise.resolve({ items: [], count: 0 }),
     postsP,
     // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
-    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values',
+    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at',
       q => (isNumber ? q.or(`primary_value.eq.${value},all_values.cs.{${value}}`) : q.ilike('name', like))
             .order('occurred_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false }).limit(18)),

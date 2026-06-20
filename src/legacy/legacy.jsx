@@ -11,6 +11,7 @@ import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PostShareFab from "../components/PostShareFab.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
+import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { usePalette } from "../lib/palette.js";
 
@@ -5175,7 +5176,14 @@ function PostPageBySlug({ onNav }) {
             })()}
             <style>{POST_CONTENT_CSS}</style>
             {themed && <style>{themedPostContentCSS(P)}</style>}
-            <div className={themed ? "sod-post-content themed" : "sod-post-content"} ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
+            <div className={themed ? "sod-post-content themed" : "sod-post-content"} ref={contentRef}>
+              {/* מרקר גלריה: <div data-sod-gallery="N"></div> → קרוסלת רמזים (קומפוננטת React באותו עץ — קישורים/פלטה עובדים) */}
+              {String(content).split(/<div data-sod-gallery="(\d+)"><\/div>/).map((seg, i) =>
+                i % 2 === 1
+                  ? <PostImageCarousel key={"sodgal" + i} value={Number(seg)} />
+                  : (seg ? <div key={"html" + i} dangerouslySetInnerHTML={{ __html: seg }} /> : null)
+              )}
+            </div>
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
