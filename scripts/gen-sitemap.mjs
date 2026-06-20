@@ -1,3 +1,8 @@
+// ⚠️ הוחלף ב-api/sitemap.js — מפת אתר *חיה* (serverless) שמתעדכנת לבד בכל בקשה.
+// הקובץ הזה נשאר רק כגיבוי/הרצה ידנית offline. אל תריץ אותו לפרודקשן: הוא כותב
+// public/sitemap.xml, וקובץ סטטי כזה "מסתיר" את ה-rewrite של /sitemap.xml→/api/sitemap
+// (Vercel מגיש קבצים סטטיים לפני rewrites). אם הרצת בטעות — מחק את public/sitemap.xml.
+//
 // יצירת public/sitemap.xml מתוך פוסטים ב-Supabase + נתיבים סטטיים.
 // הרצה: node scripts/gen-sitemap.mjs
 // משתמש במפתח ה-anon הציבורי (קריאה בלבד), כך שאין צורך בסודות.
