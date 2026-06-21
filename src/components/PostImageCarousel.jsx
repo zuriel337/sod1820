@@ -26,6 +26,16 @@ function uploadDate(img) {
   return null;
 }
 
+// שמות "עדכון … נוספה/נוספו תמונה/מסר" הם הערות-לוג מוורדפרס (~43% מהתמונות),
+// לא כותרות אמיתיות — לא מציגים אותן ככותרת (מבלבל). מחזיר שם תקין או null.
+function cleanName(name) {
+  const s = (name || "").trim();
+  if (!s) return null;
+  if (/^עדכון\b/.test(s)) return null;            // "עדכון 24/5/2020 …"
+  if (/נוספ\w*\s+(תמונה|תמונות|מסר|מסרים)/.test(s)) return null;
+  return s;
+}
+
 // המספרים שבתמונה: primary קודם, ואז all_values (ללא כפילות), מסוננים למספרים תקפים.
 function imgNumbers(img) {
   const out = [];
@@ -90,6 +100,7 @@ export default function PostImageCarousel({ value, images }) {
   };
 
   const lb = lbIdx != null ? imgs[lbIdx] : null;
+  const lbNm = cleanName(lb?.name);
 
   return (
     <div
@@ -133,10 +144,11 @@ export default function PostImageCarousel({ value, images }) {
         const cur = imgs[idx];
         const nums = imgNumbers(cur);
         const dt = uploadDate(cur);
+        const nm = cleanName(cur.name);
         const desc = cur.description ? stripHtml(cur.description).trim() : "";
         return (
           <div style={{ textAlign: "center", marginTop: 12 }}>
-            {cur.name && <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, marginBottom: 8, lineHeight: 1.5 }}>{cur.name}</div>}
+            {nm && <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700, marginBottom: 8, lineHeight: 1.5 }}>{nm}</div>}
             {desc && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.8, marginBottom: 10, whiteSpace: "pre-wrap" }}>{desc}</div>}
             <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
               {nums.map(n => (
@@ -168,11 +180,11 @@ export default function PostImageCarousel({ value, images }) {
           onTouchEnd={e => { const dx = touchX.current == null ? 0 : e.changedTouches[0].clientX - touchX.current; touchX.current = null; if (Math.abs(dx) > 45) lbGo(dx > 0 ? -1 : 1); }}
           style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 12px", direction: "rtl" }}
         >
-          <img src={lb.image_url} alt={lb.name || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lb.name || lb.description ? "64vh" : "80vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
+          <img src={lb.image_url} alt={lbNm || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lbNm || lb.description ? "64vh" : "80vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
 
-          {(lb.name || lb.description) && (
+          {(lbNm || lb.description) && (
             <div onClick={e => e.stopPropagation()} style={{ maxWidth: 720, textAlign: "center", marginTop: 12, cursor: "default" }}>
-              {lb.name && <div style={{ color: "#e8c840", fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{lb.name}</div>}
+              {lbNm && <div style={{ color: "#e8c840", fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{lbNm}</div>}
               {lb.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap", maxHeight: "18vh", overflow: "auto" }}>{stripHtml(lb.description)}</div>}
             </div>
           )}
