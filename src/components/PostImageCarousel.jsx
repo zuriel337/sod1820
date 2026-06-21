@@ -73,9 +73,17 @@ export default function PostImageCarousel({ value, images }) {
     return () => { alive = false; };
   }, [value, provided, images]);
 
-  // סדר ברירת-המחדל ה"נורמלי": מאוצר (importance) קודם, ואז כרונולוגי (חדש→ישן).
-  const pics = useMemo(() => (imgs ? [...imgs].sort((a, b) =>
-    ((Number(b.importance) || 0) - (Number(a.importance) || 0)) || (dateVal(b) - dateVal(a))) : []), [imgs]);
+  // מיון: מאוצר (⭐ importance) קודם → דומיננטי ראשון (הערך הוא primary, ואז ממוקד=פחות ערכים) → כרונולוגי.
+  const pics = useMemo(() => {
+    if (!imgs) return [];
+    const prim = g => (Number(g.primary_value) === Number(value) ? 0 : 1);
+    const focus = g => (g.all_values || []).length || 99;
+    return [...imgs].sort((a, b) =>
+      ((Number(b.importance) || 0) - (Number(a.importance) || 0))   // אצירה קודם
+      || (prim(a) - prim(b))                                        // הערך = primary → דומיננטי
+      || (focus(a) - focus(b))                                      // פחות ערכים = ממוקד יותר
+      || (dateVal(b) - dateVal(a)));                                // ואז חדש→ישן
+  }, [imgs, value]);
   const total = pics.length;
   const go = useCallback(d => setIdx(i => total ? (i + d + total) % total : 0), [total]);
   const lbGo = useCallback(d => setLbIdx(i => i == null || !total ? i : (i + d + total) % total), [total]);
