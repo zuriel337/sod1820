@@ -13,39 +13,56 @@ const COL = {
   threadConv: "#7a5a12", threadSib: "#4c2d83", threadScale: "#1f6f6b",
 };
 
-// בונה צמתים+חוטים מההתכנסויות. מרכז במרכז, התכנסויות בטבעת פנימית,
-// מספרים-אחים בטבעת חיצונית (משותף בין התכנסויות → חוטים מצטלבים = רשת).
+// פיזור אחיד על פני כדור (Fibonacci sphere) — נותן עומק תלת-מימדי אמיתי.
+function spherePoints(n, radius) {
+  const pts = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < n; i++) {
+    const y = n === 1 ? 0 : 1 - (i / (n - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const t = golden * i;
+    pts.push([Math.cos(t) * r * radius, y * radius, Math.sin(t) * r * radius]);
+  }
+  return pts;
+}
+
+// בונה צמתים+חוטים מההתכנסויות. מרכז במרכז · התכנסויות מפוזרות על כדור פנימי ·
+// מספרים-אחים מתפזרים בתלת-ממד מעבר לכל התכנסות (משותף → חוטים מצטלבים = רשת).
 function buildWeb(value, convs) {
   const nodes = [{ id: "center", kind: "center", number: value, pos: [0, 0, 0] }];
   const links = [];
   const numPos = new Map();
+  const cpts = spherePoints(convs.length, 5.4);
 
   convs.forEach((cv, i) => {
-    const ang = (i / Math.max(1, convs.length)) * Math.PI * 2;
-    const cpos = [Math.cos(ang) * 4.6, (i % 2 ? 1.3 : -1.3), Math.sin(ang) * 4.6];
+    const cpos = cpts[i] || [0, 0, 0];
     const lead = cv.metadata?.highlight?.[0] ?? cv.metadata?.numbers?.[0] ?? "";
     nodes.push({ id: "cv" + i, kind: "conv", label: String(lead), title: cv.label, slug: cv.metadata?.slug, pos: cpos });
     links.push([[0, 0, 0], cpos, "conv"]);
 
     const sibs = (cv.metadata?.numbers || []).filter(x => Number(x) !== Number(value));
+    // כיוון "החוצה" מהמרכז דרך ההתכנסות, ופיזור כדורי קטן סביב נקודת-העוגן
+    const len = Math.hypot(cpos[0], cpos[1], cpos[2]) || 1;
+    const out = [cpos[0] / len, cpos[1] / len, cpos[2] / len];
+    const anchor = [cpos[0] + out[0] * 2.8, cpos[1] + out[1] * 2.8, cpos[2] + out[2] * 2.8];
+    const offs = spherePoints(sibs.length, 2.2);
     sibs.forEach((s, j) => {
       let sn = numPos.get(s);
       if (!sn) {
-        const sa = ang + (j - (sibs.length - 1) / 2) * 0.34;
-        sn = { id: "n" + s, kind: "num", number: s, pos: [Math.cos(sa) * 8.4, (j % 2 ? 1.8 : -1.8), Math.sin(sa) * 8.4] };
+        const o = offs[j] || [0, 0, 0];
+        sn = { id: "n" + s, kind: "num", number: s, pos: [anchor[0] + o[0], anchor[1] + o[1], anchor[2] + o[2]] };
         numPos.set(s, sn); nodes.push(sn);
       }
       links.push([cpos, sn.pos, "sib"]);
     });
   });
 
-  // קני-מידה (×10 / ÷10) — שכנים ישירים של המרכז
+  // קני-מידה (×10 / ÷10) — שכנים ישירים של המרכז, מעל ומתחת (ציר אנכי)
   const scales = [value * 10];
   if (value % 10 === 0 && value >= 20) scales.push(value / 10);
   scales.forEach((s, k) => {
     if (numPos.has(s)) { links.push([[0, 0, 0], numPos.get(s).pos, "scale"]); return; }
-    const sa = (k + 0.5) * Math.PI;
-    const sn = { id: "sc" + s, kind: "num", number: s, pos: [Math.cos(sa) * 3.0, k ? -2.6 : 2.6, Math.sin(sa) * 3.0] };
+    const sn = { id: "sc" + s, kind: "num", number: s, pos: [k ? 1.4 : -1.4, k ? -3.4 : 3.4, k ? -1.4 : 1.4] };
     numPos.set(s, sn); nodes.push(sn); links.push([[0, 0, 0], sn.pos, "scale"]);
   });
 
@@ -121,7 +138,7 @@ export default function NumberGraph({ value, onCenter, height = 460, autoRotate 
 
   return (
     <div style={{ position: "relative", width: "100%", height, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: "radial-gradient(ellipse at 50% 40%, #0d0a14 0%, #050307 100%)" }}>
-      <Canvas camera={{ position: [0, 1, 16], fov: 50 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [0, 2, 18], fov: 50 }} dpr={[1, 2]}>
         <ambientLight intensity={0.75} />
         <pointLight position={[8, 8, 8]} intensity={1.1} color="#f6e27a" />
         <pointLight position={[-8, -4, -6]} intensity={0.6} color="#8b5cf6" />
