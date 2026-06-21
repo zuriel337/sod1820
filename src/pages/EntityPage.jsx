@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getViewCount, getSearchCount, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
-import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -522,11 +521,6 @@ export default function EntityPage() {
               </div>
             );
           })()}
-          {value >= 10 && (
-            <div style={{ margin: "14px auto 0", maxWidth: 520 }}>
-              <ZeroScaleLinks value={value} />
-            </div>
-          )}
           {msgs[0] && (
             <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
