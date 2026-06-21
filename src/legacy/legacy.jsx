@@ -2495,6 +2495,9 @@ const POST_CONTENT_CSS = `
   /* קישור-מספרים אוטומטי: שומר על צבע המספר הצרוב, מוסיף רמז עדין שהוא לחיץ */
   .sod-post-content .sod-numlink { cursor: pointer; border-bottom: 1px dotted currentColor; }
   .sod-post-content .sod-numlink:hover { background: rgba(212,175,55,.28); border-radius: 3px; }
+  /* קישור-ביטוי גימטריה: שומר על העיצוב הצרוב, מסמן לחיצוּת בריחוף (כדי לא להציף) */
+  .sod-post-content .sod-gemlink { cursor: pointer; }
+  .sod-post-content .sod-gemlink:hover { background: rgba(212,175,55,.22); border-radius: 3px; text-decoration: underline dotted; text-underline-offset: 3px; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
     font-family: 'Heebo', sans-serif;
@@ -5040,6 +5043,16 @@ function PostPageBySlug({ onNav }) {
         const span = document.createElement("span");
         span.innerHTML = text.replace(re, '<span class="sod-numlink" data-gem="$1" title="פתח את חלונית המספר $1">$1</span>');
         node.parentNode && node.parentNode.replaceChild(span, node);
+      });
+      // גימטריות-ביטויים: ביטוי עברי קצר ומודגש (מודגש/צבוע) → data-gem (פותח חלונית עם הגימטריה והקשרים)
+      const HEB = /[֐-׿]/;
+      root.querySelectorAll('strong, b, [style*="color"]').forEach(el => {
+        if (el.hasAttribute("data-gem") || el.closest("a") || el.closest("[data-gem]")) return;
+        if (el.querySelector("[data-gem], img, .sod-numlink")) return; // יש ילד מקושר/תמונה — לא לעטוף את כולו
+        const t = (el.textContent || "").trim();
+        if (t.length < 2 || t.length > 18 || /\d/.test(t) || !HEB.test(t)) return; // ביטוי עברי קצר בלבד
+        el.setAttribute("data-gem", t);
+        el.classList.add("sod-gemlink");
       });
       if (contentRef.current) contentRef.current.dataset.numlinked = "1";
     }, 220);
