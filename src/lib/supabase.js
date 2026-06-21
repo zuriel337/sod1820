@@ -363,6 +363,26 @@ export async function getPopularByViews({ limit = 60 } = {}) {
   return data ?? [];
 }
 
+// 👁 מעקב צפיות חי — שורה לכל צפייה (פעם אחת לכל ref בכל session, כדי לא לנפח).
+export async function logView(kind, ref) {
+  if (!supabase || !kind || ref == null || ref === "") return;
+  const key = `pv-${kind}-${ref}`;
+  try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
+  try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
+}
+// 🔥 פוסטים נצפים עכשיו (חי, לפי חלון ימים — היום=1, השבוע=7)
+export async function getHotPostsLive({ days = 7, limit = 4 } = {}) {
+  if (!supabase) return [];
+  const { data } = await supabase.rpc("hot_posts_live", { days, lim: limit });
+  return data || [];
+}
+// 🔥 מספרים נצפים עכשיו (חי)
+export async function getHotNumbersLive({ days = 7, limit = 8 } = {}) {
+  if (!supabase) return [];
+  const { data } = await supabase.rpc("hot_numbers_live", { days, lim: limit });
+  return data || [];
+}
+
 // 🔥 חיפושים חמים — המספרים הכי מחופשים לאחרונה (אגרגציה מ-search_log). לרצועת "הכי חם".
 export async function getHotSearches({ limit = 8, lookback = 500 } = {}) {
   if (!supabase) return [];
