@@ -4336,6 +4336,14 @@ function ContactPage() {
     { text: "שמח להצטרף לקבוצה היקרה הזו. ראיתי כמה סרטונים כאן ואני כבר מאוהב בכם — עלו והצליחו בגילוי האמת. ✨", who: "מצטרף חדש" },
   ];
 
+  // צילומי ויראליות אמיתיים מתוך פוסט "צופן החותים" (טיקטוק/טלגרם — צפיות, שיתופים ותגובות)
+  const VIRAL_POST = "%d7%91%d7%a6%d7%95%d7%a4%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a2%d7%9c-%d7%94%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%a8%d7%95%d7%90%d7%99%d7%9d-%d7%90%d7%aa-%d7%9b%d7%95%d7%95%d7%a0%d7%aa-%d7%90%d7%99";
+  const VIRAL_SHOTS = [
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/b2b327e1fc6efddc.jpg",
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/05fef5a47e6e3d33.jpg",
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/060b460286b225ac.jpg",
+  ];
+
   const field = (label, key, type = "text", rows) => (
     <div className="ct-field">
       <label htmlFor={"ct-" + key}>{label}</label>
@@ -4398,9 +4406,14 @@ function ContactPage() {
         .ct-viral h3 { font-family:${FD}; font-weight:900; font-size:clamp(22px,4.2vw,33px); color:${P.accentText}; margin:0 0 7px; }
         .ct-viral p { font-family:${FU}; font-size:clamp(14px,2.2vw,16.5px); color:${P.inkSoft}; margin:0 0 17px; line-height:1.75; max-width:560px; margin-inline:auto; }
         .ct-viral p b { color:${P.accentText}; font-weight:800; }
-        .ct-viral a { display:inline-flex; align-items:center; gap:7px; font-family:${FU}; font-weight:800; font-size:14.5px; text-decoration:none;
+        .ct-viral-shots { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:2px 0 18px; }
+        .ct-viral-shots a { display:block; width:148px; aspect-ratio:9/16; border-radius:14px; overflow:hidden; border:1px solid ${P.borderStrong}; background:${P.cardSoft}; transition:transform .18s, box-shadow .18s; }
+        .ct-viral-shots a:hover { transform:translateY(-3px); box-shadow:0 12px 30px ${P.glow}; }
+        .ct-viral-shots img { width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+        .ct-viral-cta { display:inline-flex; align-items:center; gap:7px; font-family:${FU}; font-weight:800; font-size:14.5px; text-decoration:none;
           color:${P.onAccent}; background:${P.accentBtn}; padding:11px 26px; border-radius:999px; transition:transform .15s, box-shadow .15s; }
-        .ct-viral a:hover { transform:translateY(-2px); box-shadow:0 10px 28px ${P.glow}; }
+        .ct-viral-cta:hover { transform:translateY(-2px); box-shadow:0 10px 28px ${P.glow}; }
+        @media (max-width:480px){ .ct-viral-shots a{ width:108px; } }
 
         .ct-testi { max-width:1000px; margin:clamp(42px,6vw,66px) auto 0; }
         .ct-testi-h { text-align:center; font-family:${FD}; font-weight:700; font-size:clamp(24px,4.6vw,34px); color:${P.accentText}; margin:0 0 6px; }
@@ -4436,8 +4449,15 @@ function ContactPage() {
 
         <div className="ct-viral">
           <h3>🎬 יוצר סרטונים ויראליים</h3>
-          <p>סרטוני צופן וגימטריה שזכו ל<b>מאות אלפי צפיות</b> — חושפים את רמזי הגאולה לקהל רחב ברחבי הרשת.</p>
-          <a href="https://www.youtube.com/watch?v=Jp0pxGofPjQ" target="_blank" rel="noopener noreferrer">▶ צפו בסרטון הוויראלי</a>
+          <p>סרטוני צופן וגימטריה שזכו ל<b>מאות אלפי צפיות</b> והופצו בטיקטוק, בטלגרם וברשתות — עם אלפי תגובות, שיתופים ולייקים.</p>
+          <div className="ct-viral-shots">
+            {VIRAL_SHOTS.map((s, i) => (
+              <a key={i} href={"/" + VIRAL_POST} title="לפוסט המלא — צופן החותים">
+                <img src={s} alt="צילום מסך ויראלי — צופן החותים" loading="lazy" />
+              </a>
+            ))}
+          </div>
+          <a className="ct-viral-cta" href="https://www.youtube.com/watch?v=Jp0pxGofPjQ" target="_blank" rel="noopener noreferrer">▶ צפו בסרטון הוויראלי</a>
         </div>
 
         <div className="ct-main">
