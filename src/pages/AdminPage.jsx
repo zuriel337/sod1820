@@ -1130,7 +1130,7 @@ function LiveStatsView() {
 // ===== 📊 צמיחת התנועה לאורך הזמן (היסטוריית Jetpack + חי) =====
 function TrafficHistoryPanel() {
   const mob = useIsMobile();
-  const [gran, setGran] = useState("month"); // day | month | year
+  const [gran, setGran] = useState("week"); // day | week | month | year
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
   const [ga, setGa] = useState(null);      // סטטוס סנכרון GA
@@ -1157,14 +1157,14 @@ function TrafficHistoryPanel() {
   const gaRan = useRef(false);
   useEffect(() => { if (!gaRan.current) { gaRan.current = true; runGaSync(); } }, [runGaSync]);
 
-  // תצוגת "ימים" = חודשיים אחרונים בלבד (לא כל השנים).
-  // ממיינים בעצמנו לפי תאריך — Supabase/PostgREST לא מתחייב לשמור את סדר ה-RPC,
-  // ובלי זה slice(-62) עלול לחטוף דווקא את הימים הישנים (2015-2017).
+  // ממיינים בעצמנו לפי תאריך — Supabase/PostgREST לא מתחייב לשמור את סדר ה-RPC.
+  // ימים = חודשיים אחרונים, שבועות = שנתיים אחרונות (אחרת אלפי עמודות).
   const dayCap = 62;
   const shown = useMemo(() => {
     if (!rows) return [];
     const sorted = [...rows].sort((a, b) => String(a.period).localeCompare(String(b.period)));
-    return gran === "day" ? sorted.slice(-dayCap) : sorted;
+    const cap = gran === "day" ? dayCap : gran === "week" ? 104 : null;
+    return cap ? sorted.slice(-cap) : sorted;
   }, [rows, gran, dayCap]);
   const bw = mob ? 16 : 24;        // רוחב עמודה
   const gap = mob ? 4 : 6;
@@ -1232,7 +1232,7 @@ function TrafficHistoryPanel() {
         </div>
         <button onClick={runGaSync} disabled={gaBusy} title="משיכת נתונים מ-Google Analytics" style={{ ...segBtn(false), opacity: gaBusy ? 0.5 : 1, cursor: gaBusy ? "default" : "pointer" }}>{gaBusy ? "מסנכרן…" : "🔄 GA"}</button>
         <div style={segWrap}>
-          {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
+          {[["day", "ימים"], ["week", "שבועות"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
             <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
           ))}
         </div>
@@ -1269,12 +1269,12 @@ function TrafficHistoryPanel() {
                   <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 13 }}>{(selRow.views || 0).toLocaleString()} צפיות{selRow.live_views > 0 ? ` · חי: ${selRow.live_views.toLocaleString()}` : ""}</span>
                   <button onClick={() => setSel(null)} title="סגור" style={{ cursor: "pointer", background: "none", border: "none", color: C.muted, fontSize: 14, lineHeight: 1, padding: 0 }}>✕</button>
                 </div>
-              ) : <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>הקש על עמודה לראות את המספר המדויק{!mob ? (gran === "day" ? " · גלול הצידה אחורה בזמן" : " · גלול הצידה לכל השנים") : ""}</span>}
+              ) : <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>העדכני ביותר בקצה שמאל ← · הקש על עמודה לראות את המספר · גלול ימינה לחזור אחורה בזמן</span>}
             </div>
 
             {/* גרף: עמודות (נגלל) + ציר-מד אנכי בצד (כמות גלישה) */}
             <div style={{ display: "flex", gap: 6 }}>
-              <div ref={scrollRef} onScroll={onScroll} dir="rtl" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
+              <div ref={scrollRef} onScroll={onScroll} dir="ltr" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
                 <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap, height: BZ + LBL, minWidth: shown.length * pitch + 8, paddingInline: 2 }}>
                   {ticks.map((t, i) => (
                     <div key={"g" + i} style={{ position: "absolute", left: 0, right: 0, bottom: LBL + (t.pct / 100) * BZ, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
