@@ -134,6 +134,27 @@ export default function HomeNewPage() {
         </form>
       </section>
 
+      {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+        <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
+        <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
+        <div className="hn-postgrid">
+          {posts.slice(0, 8).map(p => (
+            <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card">
+              <div style={{ height: 120, background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }} />
+              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
+                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>{p.date ? new Date(p.date).toLocaleDateString("he-IL") : ""}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
+              </div>
+            </Link>
+          ))}
+          {!posts.length && <Skeletons n={4} />}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
+        </div>
+      </section>
+
       {/* ===== אריחי עדשות ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <div className="hn-grid6">
@@ -192,27 +213,6 @@ export default function HomeNewPage() {
           </Link>
         </section>
       )}
-
-      {/* ===== עדכונים אחרונים (בחזית) ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
-        <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
-        <div className="hn-postgrid">
-          {posts.slice(0, 8).map(p => (
-            <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card">
-              <div style={{ height: 120, background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }} />
-              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>{p.date ? new Date(p.date).toLocaleDateString("he-IL") : ""}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
-              </div>
-            </Link>
-          ))}
-          {!posts.length && <Skeletons n={4} />}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
-        </div>
-      </section>
 
       {/* ===== גלריית הסרטים — שורה אחת (הוחזרה מ"שולחן העבודה") ===== */}
       <section style={{ padding: "0 0 36px" }}>
