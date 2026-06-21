@@ -140,10 +140,11 @@ function SurpriseButton({ onDone }) {
       onDone?.();
     }, 520);
   }
-  // 🎲 גלגול אוטומטי מדי פעם — שהמבקר ישים לב לקובייה (בלי ניווט)
+  // 🎲 גלגול attention רק ב-5 השניות הראשונות (שהמבקר ישים לב), ואז עוצר. הלחיצה תמיד פעילה.
   useEffect(() => {
-    const id = setInterval(() => { setSpin(true); setTimeout(() => setSpin(false), 800); }, 8000);
-    return () => clearInterval(id);
+    const timers = [500, 2200, 3900].map(t =>
+      setTimeout(() => { setSpin(true); setTimeout(() => setSpin(false), 800); }, t));
+    return () => timers.forEach(clearTimeout);
   }, []);
   return (
     <button onClick={surprise} className={`nav-dice${spin ? " spin" : ""}`} title="הפתיעו אותי" aria-label="הפתיעו אותי">🎲</button>
@@ -371,7 +372,7 @@ export default function Navbar() {
         @keyframes nav-logo-scan { 0% { transform: translateY(-130%); } 100% { transform: translateY(330%); } }
         .nav-logo-wrap .nav-scan { position: absolute; inset: 0; overflow: hidden; border-radius: 6px; pointer-events: none; z-index: 1; }
         .nav-logo-wrap .nav-scan::after { content: ""; position: absolute; left: -10%; right: -10%; height: 38%;
-          background: linear-gradient(180deg, transparent, rgba(246,226,122,0.6), transparent); animation: nav-logo-scan 2.6s ease-in-out infinite; }
+          background: linear-gradient(180deg, transparent, rgba(246,226,122,0.6), transparent); animation: nav-logo-scan 2.6s ease-in-out 2 forwards; }
 
         .nav-link:hover { color: ${cc.goldBright} !important; background: ${cc.hoverBg} !important; }
 
