@@ -192,9 +192,11 @@ export async function getImagesByPrimaryValue(value) {
   if (!supabase || !value) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at')
+    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at,importance')
     .eq('primary_value', value)
     .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
+    .order('importance', { ascending: false, nullsFirst: false })   // אצירה: המובחר ראשון
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
   return data || [];
@@ -248,8 +250,10 @@ export async function getEntityBundle({ term, value, isNumber }) {
       : Promise.resolve({ items: [], count: 0 }),
     postsP,
     // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
-    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at',
+    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance',
       q => (isNumber ? q.or(`primary_value.eq.${value},all_values.cs.{${value}}`) : q.ilike('name', like))
+            .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
+            .order('importance', { ascending: false, nullsFirst: false })   // אצירה: המובחר ראשון
             .order('occurred_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false }).limit(18)),
     // אירועים: רק לטקסט (למספר אין שדה מספרי בנודים — נמנע מרעש כמו 2026 עבור 26).
@@ -662,7 +666,9 @@ export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
     .not('image_url', 'is', null);
   const t = (term || '').trim();
   if (t) {
-    if (/^\d+$/.test(t)) q = q.contains('ocr_numbers', [parseInt(t, 10)]);
+    // מספר → אותו סט בדיוק שמוצג בתצוגות (primary_value / all_values), כדי שמה
+    // שתאצור פה ישפיע ישירות על כל הגלריות של אותו מספר.
+    if (/^\d+$/.test(t)) { const num = parseInt(t, 10); q = q.or(`primary_value.eq.${num},all_values.cs.{${num}}`); }
     else q = q.or(`ocr_text.ilike.%${t}%,name.ilike.%${t}%`);
   }
   q = q.order('importance', { ascending: false })

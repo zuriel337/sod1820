@@ -591,13 +591,21 @@ function CurationTab() {
       <div style={card}>
         <H>⭐ אצירת תמונות</H>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "6px 0 12px", lineHeight: 1.8 }}>
-          ⭐ מעלה/מוריד עוצמה (חזק עולה למעלה) · 👁 מסתיר מבלי למחוק. המיון: החזקים קודם, ואז מהחדש לישן. עובדים לאט — שום דבר לא נמחק.
+          ⭐ מעלה/מוריד עוצמה (המובחר עולה למעלה) · 👁 מסתיר מבלי למחוק. הסדר הזה <b style={{ color: C.goldDim }}>משפיע על כל התצוגות של אותו מספר</b> (פוסט היסוד, דף המספר). חיפוש מספר = גלריית אותו מספר בדיוק כפי שמוצגת.
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input value={term} onChange={e => setTerm(e.target.value)} onKeyDown={e => e.key === "Enter" && load(term)}
             placeholder="חיפוש לפי מספר / טקסט / שם קובץ…"
             style={{ flex: 1, minWidth: 220, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "9px 12px", fontFamily: F.body, fontSize: 14 }} />
           <BtnGold onClick={() => load(term)}>חפש</BtnGold>
+        </div>
+        {/* גלריות לפי מספר — פתיחה מהירה */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 1 }}>גלריות לפי מספר:</span>
+          {["1820", "776", "878", "888", "358", "424", "1202", "26", "70"].map(nq => (
+            <button key={nq} onClick={() => { setTerm(nq); load(nq); }}
+              style={{ cursor: "pointer", background: term === nq ? "rgba(212,175,55,0.18)" : "none", border: `1px solid ${term === nq ? C.borderGold : C.border}`, color: C.goldLight, borderRadius: 999, padding: "4px 12px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{nq}</button>
+          ))}
         </div>
       </div>
 
