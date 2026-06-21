@@ -4318,139 +4318,191 @@ function ContactPage() {
     finally { setSending(false); }
   }
 
+  const FD = "'Frank Ruhl Libre', 'David Libre', serif";
+  const FU = "'Assistant', 'Heebo', sans-serif";
+
+  const CHANNELS = [
+    { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
+    { icon: "👥", label: "קבוצת הגימטריה", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
+    { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
+    { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
+    { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
+    { icon: "✉️", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
+  ];
+
+  const TESTIMONIALS = [
+    { text: "צוריאל, אני ממש מודה לך על מה שעשית כאן בשבילי — זו הפעם הראשונה שאני מרגיש ככה כבר תקופה. סוף סוף נפתר לי המידע על הספרה 51… זה גרם לי להוריד דמעות.", who: "חבר בקהילה" },
+    { text: "פתחתי את הקבוצה בעזרתך… תודה גדולה, תמיד אזכור. אתה לא מודע לכמה אתה עוזר — גם בלי להתכוון. 🙏", who: "חברה בקהילה" },
+    { text: "שמח להצטרף לקבוצה היקרה הזו. ראיתי כמה סרטונים כאן ואני כבר מאוהב בכם — עלו והצליחו בגילוי האמת. ✨", who: "מצטרף חדש" },
+  ];
+
   const field = (label, key, type = "text", rows) => (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
-        {label}
-      </label>
-      {rows ? (
-        <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 3, color: P.ink, fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
-      ) : (
-        <input type={type} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 3, color: P.ink, fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
-      )}
+    <div className="ct-field">
+      <label htmlFor={"ct-" + key}>{label}</label>
+      {rows
+        ? <textarea id={"ct-" + key} rows={rows} value={form[key]} onChange={e => set(key, e.target.value)} dir="rtl" />
+        : <input id={"ct-" + key} type={type} value={form[key]} onChange={e => set(key, e.target.value)} dir="rtl" />}
     </div>
   );
 
   return (
-    <div style={{ background: P.pageBg, minHeight: "100vh" }}>
-    <div style={{ direction: "rtl", maxWidth: 1000, margin: "0 auto", padding: "64px 16px 96px" }}>
-      {/* hero */}
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <div style={{ fontSize: 10, color: P.accentDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
-        <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
-          נשמח לשמוע ממך
-        </h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
-          שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
-        </p>
-        <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
-      </div>
+    <div style={{ background: P.pageBg, minHeight: "100vh", direction: "rtl" }}>
+      <style>{`
+        .ct-wrap { max-width: 1060px; margin: 0 auto; padding: clamp(40px,7vw,84px) 16px 110px; }
+        .ct-hero { text-align: center; position: relative; margin-bottom: clamp(34px,5vw,54px); }
+        .ct-hero::before { content:""; position:absolute; left:50%; top:-30%; width:min(560px,92%); height:280px;
+          transform:translateX(-50%); background:radial-gradient(closest-side, ${P.glow}, transparent 72%); opacity:.55; pointer-events:none; }
+        .ct-eyebrow { position:relative; display:inline-block; font-family:${FU}; font-size:12px; font-weight:700; letter-spacing:5px;
+          text-transform:uppercase; color:${P.accentDim}; padding:5px 16px; border:1px solid ${P.border}; border-radius:999px; background:${P.cardSoft}; }
+        .ct-title { position:relative; font-family:${FD}; font-weight:900; font-size:clamp(36px,7.5vw,70px); line-height:1.04; margin:18px 0 12px;
+          background:linear-gradient(120deg, ${P.accentText}, ${P.accent} 55%, ${P.heroNum}); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .ct-sub { position:relative; font-family:${FU}; font-size:clamp(15px,2.4vw,18px); color:${P.inkSoft}; max-width:520px; margin:0 auto; line-height:1.7; }
 
-      {/* אודות — החזון מאחורי המיזם */}
-      <div style={{
-        maxWidth: 820, margin: "0 auto 56px",
-        background: P.cardGrad,
-        border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`,
-        borderRadius: 2, padding: "36px 34px",
-      }}>
-        <div style={{ fontSize: 10, color: P.accentDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
-          אודות המיזם
-        </div>
-        {[
-          "מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.",
-          "במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות, שהפכו בהדרגה למערכת חיה ומתפתחת המחברת בין מסורת, מחקר וטכנולוגיה מתקדמת.",
-          "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
-        ].map((para, i) => (
-          <p key={i} style={{
-            color: i === 2 ? P.accentText : P.ink, fontFamily: F.body,
-            fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
-          }}>{para}</p>
-        ))}
-      </div>
+        .ct-channels { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:880px; margin:0 auto clamp(34px,5vw,52px); }
+        .ct-chan { display:flex; align-items:center; gap:13px; text-decoration:none; padding:14px 16px; border-radius:16px; min-width:0;
+          background:${P.card}; border:1px solid ${P.border}; transition:transform .18s, border-color .18s, box-shadow .18s; }
+        .ct-chan:hover { transform:translateY(-3px); border-color:${P.accent}; box-shadow:0 12px 30px ${P.glow}; }
+        .ct-chan-ic { flex:0 0 auto; width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:21px;
+          background:${P.cardSoft}; border:1px solid ${P.border}; }
+        .ct-chan-l { font-family:${FU}; font-size:11px; font-weight:700; letter-spacing:.5px; color:${P.accentDim}; }
+        .ct-chan-v { font-family:${FU}; font-size:14.5px; font-weight:600; color:${P.ink}; margin-top:1px; }
 
-      <div className="contact-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
-        <style>{`@media (max-width:760px){ .contact-cols{ grid-template-columns:1fr !important; } }`}</style>
+        .ct-main { display:grid; grid-template-columns:1.25fr .9fr; gap:22px; align-items:start; }
+        .ct-card { background:${P.cardGrad}; border:1px solid ${P.border}; border-radius:20px; padding:clamp(22px,3vw,34px); box-shadow:0 10px 40px rgba(0,0,0,.12); }
+        .ct-card-h { font-family:${FD}; font-weight:700; font-size:23px; color:${P.accentText}; margin:0 0 4px; }
+        .ct-card-s { font-family:${FU}; font-size:13.5px; color:${P.inkSoft}; margin:0 0 22px; }
 
-        {/* left — form */}
-        <div style={{ background: P.card, border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`, borderRadius: 2, padding: "36px 32px" }}>
-          {sent ? (
-            <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <div style={{ fontSize: 52, marginBottom: 20 }}>✦</div>
-              <h2 style={{ color: P.accentText, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
-              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
-              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                style={{ marginTop: 24, background: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
-                שלח הודעה נוספת
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              {field("שם מלא *", "name")}
-              {field("אימייל *", "email", "email")}
-              {field("נושא", "subject")}
-              {field("הודעה *", "message", "text", 6)}
-              {err && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, marginBottom: 16 }}>{err}</p>}
-              <GoldButton type="submit" disabled={sending} style={{ width: "100%", padding: "14px", fontSize: 13, letterSpacing: 3 }}>
-                {sending ? "שולח..." : "שלח הודעה ✦"}
-              </GoldButton>
-            </form>
-          )}
-        </div>
+        .ct-field { margin-bottom:16px; }
+        .ct-field label { display:block; font-family:${FU}; font-size:12.5px; font-weight:700; color:${P.accentDim}; margin-bottom:6px; }
+        .ct-field input, .ct-field textarea { width:100%; box-sizing:border-box; background:${P.cardSoft}; color:${P.ink};
+          border:1.5px solid ${P.border}; border-radius:12px; font-family:${FU}; font-size:15px; padding:12px 15px; outline:none;
+          transition:border-color .16s, box-shadow .16s; }
+        .ct-field textarea { resize:vertical; line-height:1.7; min-height:130px; }
+        .ct-field input:focus, .ct-field textarea:focus { border-color:${P.accent}; box-shadow:0 0 0 3px ${P.glow}; }
 
-        {/* right — author card + info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        .ct-btn { width:100%; cursor:pointer; border:none; border-radius:12px; padding:15px; font-family:${FU}; font-size:15px; font-weight:800;
+          letter-spacing:1px; background:${P.accentBtn}; color:${P.onAccent}; transition:transform .15s, box-shadow .15s; }
+        .ct-btn:hover { transform:translateY(-2px); box-shadow:0 10px 26px ${P.glow}; }
+        .ct-btn:disabled { opacity:.6; cursor:wait; }
 
-          {/* author card */}
-          <div style={{ background: P.card, border: `1px solid ${P.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
-            <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 18 }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
-                background: `linear-gradient(135deg, ${C.goldDark}, ${C.crimson})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 26, border: `2px solid ${P.borderStrong}`,
-              }}>✦</div>
-              <div>
-                <div style={{ color: P.accentText, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
-                  צוריאל
-                </div>
-                <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
-                  מייסד ועורך — סוד 1820
-                </div>
-              </div>
-            </div>
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
-              חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
-            </p>
-          </div>
+        .ct-side { display:flex; flex-direction:column; gap:18px; }
+        .ct-author-top { display:flex; gap:15px; align-items:center; margin-bottom:14px; }
+        .ct-ava { width:60px; height:60px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; font-size:26px;
+          background:linear-gradient(135deg, ${C.goldDark}, ${C.crimson}); border:2px solid ${P.borderStrong}; color:#fff; }
+        .ct-about p { font-family:${FU}; font-size:14.5px; line-height:1.95; color:${P.ink}; margin:0 0 12px; }
+        .ct-about p:last-child { margin-bottom:0; }
+        .ct-err { color:#e0556a; font-family:${FU}; font-size:13px; font-weight:700; margin:0 0 14px; text-align:center; }
 
-          {/* contact info boxes */}
-          {[
-            { icon: "✉", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
-            { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
-            { icon: "👥", label: "קבוצת גימטריה בוואטסאפ", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
-            { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
-            { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
-            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
-            { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
-          ].map(({ icon, label, value, href }) => (
-            <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
-              background: P.card, border: `1px solid ${P.border}`, borderRadius: 2, textDecoration: "none",
-              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = P.borderStrong; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
-              <div>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14 }}>{value}</div>
-              </div>
+        .ct-viral { max-width:880px; margin:0 auto clamp(30px,5vw,46px); border-radius:20px; padding:clamp(22px,3.4vw,32px); text-align:center;
+          border:1px solid ${P.borderStrong}; background:linear-gradient(135deg, ${P.glow}, ${P.cardSoft}); }
+        .ct-viral h3 { font-family:${FD}; font-weight:900; font-size:clamp(22px,4.2vw,33px); color:${P.accentText}; margin:0 0 7px; }
+        .ct-viral p { font-family:${FU}; font-size:clamp(14px,2.2vw,16.5px); color:${P.inkSoft}; margin:0 0 17px; line-height:1.75; max-width:560px; margin-inline:auto; }
+        .ct-viral p b { color:${P.accentText}; font-weight:800; }
+        .ct-viral a { display:inline-flex; align-items:center; gap:7px; font-family:${FU}; font-weight:800; font-size:14.5px; text-decoration:none;
+          color:${P.onAccent}; background:${P.accentBtn}; padding:11px 26px; border-radius:999px; transition:transform .15s, box-shadow .15s; }
+        .ct-viral a:hover { transform:translateY(-2px); box-shadow:0 10px 28px ${P.glow}; }
+
+        .ct-testi { max-width:1000px; margin:clamp(42px,6vw,66px) auto 0; }
+        .ct-testi-h { text-align:center; font-family:${FD}; font-weight:700; font-size:clamp(24px,4.6vw,34px); color:${P.accentText}; margin:0 0 6px; }
+        .ct-testi-s { text-align:center; font-family:${FU}; font-size:14px; color:${P.inkSoft}; margin:0 0 28px; }
+        .ct-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .ct-quote { margin:0; background:${P.card}; border:1px solid ${P.border}; border-radius:18px; padding:22px; position:relative; }
+        .ct-quote .ct-stars { color:${P.accent}; font-size:13px; letter-spacing:2px; margin-bottom:9px; }
+        .ct-quote p { font-family:${FU}; font-size:14.5px; line-height:1.85; color:${P.ink}; margin:0 0 12px; }
+        .ct-quote cite { font-family:${FU}; font-size:12.5px; font-weight:700; color:${P.accentDim}; font-style:normal; }
+
+        @media (max-width:820px){ .ct-channels{ grid-template-columns:repeat(2,1fr); } .ct-main{ grid-template-columns:1fr; } .ct-testi-grid{ grid-template-columns:1fr; } }
+        @media (max-width:480px){ .ct-channels{ grid-template-columns:1fr; } }
+      `}</style>
+
+      <div className="ct-wrap">
+        <header className="ct-hero">
+          <span className="ct-eyebrow">יצירת קשר</span>
+          <h1 className="ct-title">נשמח לשמוע ממך</h1>
+          <p className="ct-sub">שאלות, הצעות ושיתופי פעולה — כל פנייה מתקבלת בברכה ✦</p>
+        </header>
+
+        <div className="ct-channels">
+          {CHANNELS.map(c => (
+            <a key={c.label} className="ct-chan" href={c.href} target="_blank" rel="noopener noreferrer">
+              <span className="ct-chan-ic">{c.icon}</span>
+              <span style={{ minWidth: 0 }}>
+                <span className="ct-chan-l" style={{ display: "block" }}>{c.label}</span>
+                <span className="ct-chan-v" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} dir="ltr">{c.value}</span>
+              </span>
             </a>
           ))}
         </div>
+
+        <div className="ct-viral">
+          <h3>🎬 יוצר סרטונים ויראליים</h3>
+          <p>סרטוני צופן וגימטריה שזכו ל<b>מאות אלפי צפיות</b> — חושפים את רמזי הגאולה לקהל רחב ברחבי הרשת.</p>
+          <a href="https://www.youtube.com/watch?v=Jp0pxGofPjQ" target="_blank" rel="noopener noreferrer">▶ צפו בסרטון הוויראלי</a>
+        </div>
+
+        <div className="ct-main">
+          <section className="ct-card">
+            {sent ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ fontSize: 54, marginBottom: 16 }}>✦</div>
+                <h2 className="ct-card-h" style={{ fontSize: 26 }}>ההודעה נשלחה!</h2>
+                <p style={{ fontFamily: FU, color: P.inkSoft, fontSize: 15 }}>נחזור אליך בהקדם האפשרי 🙏</p>
+                <button className="ct-btn" style={{ width: "auto", marginTop: 22, padding: "12px 28px", background: "transparent", color: P.accentText, border: `1.5px solid ${P.borderStrong}` }}
+                  onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}>שליחת הודעה נוספת</button>
+              </div>
+            ) : (
+              <>
+                <h2 className="ct-card-h">שליחת הודעה</h2>
+                <p className="ct-card-s">נשתדל לחזור אליך מהר ככל האפשר.</p>
+                <form onSubmit={handleSubmit}>
+                  {field("שם מלא *", "name")}
+                  {field("אימייל *", "email", "email")}
+                  {field("נושא", "subject")}
+                  {field("הודעה *", "message", "text", 6)}
+                  {err && <p className="ct-err">{err}</p>}
+                  <button type="submit" className="ct-btn" disabled={sending}>{sending ? "שולח…" : "שליחת הודעה ✦"}</button>
+                </form>
+              </>
+            )}
+          </section>
+
+          <aside className="ct-side">
+            <div className="ct-card">
+              <div className="ct-author-top">
+                <span className="ct-ava">✦</span>
+                <span>
+                  <span style={{ display: "block", fontFamily: FD, fontWeight: 700, fontSize: 19, color: P.accentText }}>צוריאל</span>
+                  <span style={{ display: "block", fontFamily: FU, fontSize: 12, fontWeight: 700, letterSpacing: 1, color: P.accentDim, marginTop: 2 }}>מייסד ועורך · סוד 1820</span>
+                </span>
+              </div>
+              <p style={{ fontFamily: FU, fontSize: 14, lineHeight: 1.85, color: P.inkSoft, margin: 0 }}>
+                חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
+              </p>
+            </div>
+
+            <div className="ct-card ct-about">
+              <div className="ct-chan-l" style={{ textAlign: "center", marginBottom: 12 }}>אודות המיזם</div>
+              <p>מאחורי המיזם עומד צוריאל, יחד עם צוות חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.</p>
+              <p>במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות — שהפכו למערכת חיה המחברת מסורת, מחקר וטכנולוגיה.</p>
+              <p style={{ color: P.accentText }}>החזון: מאגר רמזי הגאולה הגדול בעולם — שבו כל פוסט, מספר, תמונה וצופן מתחברים לתמונה אחת. ✨</p>
+            </div>
+          </aside>
+        </div>
+
+        <section className="ct-testi">
+          <h2 className="ct-testi-h">מה אומרים הגולשים</h2>
+          <p className="ct-testi-s">הודעות אמיתיות מחברי הקהילה 💛</p>
+          <div className="ct-testi-grid">
+            {TESTIMONIALS.map((t, i) => (
+              <blockquote className="ct-quote" key={i}>
+                <div className="ct-stars">★★★★★</div>
+                <p>{t.text}</p>
+                <cite>— {t.who}</cite>
+              </blockquote>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
     </div>
   );
 }
