@@ -10,6 +10,7 @@ import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
+import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
@@ -208,6 +209,7 @@ export default function HomeNewPage() {
         <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
         <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון</p>
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+        <div style={{ marginTop: 16 }}><CommunityWordsBox max={4} /></div>
       </section>
 
       {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}

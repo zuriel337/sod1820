@@ -13,6 +13,7 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import BeitMidrashOverview from "../components/BeitMidrashOverview.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
+import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -794,7 +795,8 @@ function CalcTab({ initial, seed }) {
           מחשבון גימטריה מלא — כל 17 השיטות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
         </p>
         <GematriaCalculator seed={seed} onResult={onResult} />
-        <div style={{ marginTop: 22 }}><NumberResults value={num} term={term} /></div>
+        <div style={{ marginTop: 18 }}><CommunityWordsBox light /></div>
+        <div style={{ marginTop: 18 }}><NumberResults value={num} term={term} /></div>
       </div>
       <aside className="bm-numlist" style={{ width: 96, flex: "0 0 auto", position: "sticky", top: 20 }}>
         <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>✦ ציר המספרים</div>

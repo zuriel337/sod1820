@@ -111,6 +111,19 @@ export async function getGematriaByValue(value) {
   return data ?? [];
 }
 
+// ✦ מילים חדשות מהקהילה — N הביטויים האחרונים שנוספו למאגר (מאומתים), עם זמן.
+export async function getRecentCommunityWords(limit = 4) {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('gematria_words')
+    .select('phrase, ragil, created_at')
+    .eq('is_verified', true)
+    .not('created_at', 'is', null)
+    .order('created_at', { ascending: false, nullsFirst: false })
+    .limit(limit);
+  return data ?? [];
+}
+
 // ===== ארכיון הגלריות ("גלריית רמזי הגאולה") =====
 // סקירה: רשימת גלריות + תמונות קלות (לכריכה+ספירה).
 export async function getGalleriesOverview() {
