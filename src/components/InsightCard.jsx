@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getPostBySlug } from "../lib/supabase.js";
+import { crossesCutoff } from "../lib/crossesNew.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
 
 /**
@@ -12,7 +13,8 @@ import VerifiedBadge from "./VerifiedBadge.jsx";
  * המלא (נטען חי מהפוסט, מקור אחד — לא עותק) + קישור «לפוסט המלא».
  */
 
-const NEW_MS = 7 * 864e5; // "חדש" = 7 ימים אחרונים → תג פועם; ישן → סטטי
+// "חדש" = נוצר מאז הביקור האחרון של המשתמש (per-user) — לא חלון גלובלי קבוע.
+// כך משתמש ותיק לא רואה הבהוב קבוע; אין חדש → אין הבהוב.
 
 // slug של פוסט פנימי מקושר (מתוך source_ref)
 function postSlug(insight) {
@@ -42,7 +44,7 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
   const ext = extHref(insight);
   const numbers = insight.related_numbers || [];
   const phrases = insight.related_phrases || [];
-  const isNew = insight.created_at && (Date.now() - new Date(insight.created_at).getTime()) < NEW_MS;
+  const isNew = !!(insight.created_at && insight.created_at > crossesCutoff());
 
   function toggle() {
     const next = !open; setOpen(next);

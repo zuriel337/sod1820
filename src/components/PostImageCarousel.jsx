@@ -73,13 +73,16 @@ export default function PostImageCarousel({ value, images }) {
     return () => { alive = false; };
   }, [value, provided, images]);
 
-  // מיון: מאוצר (⭐ importance) קודם → דומיננטי ראשון (הערך הוא primary, ואז ממוקד=פחות ערכים) → כרונולוגי.
+  // מיון: מאוצר (⭐) → מספרי-רקע (2701) לסוף → דומיננטי (primary, ממוקד) → כרונולוגי.
   const pics = useMemo(() => {
     if (!imgs) return [];
+    const BG = new Set([2701]);                                      // מספרי-רקע נפוצים (בראשית ברא) — "תוספת"
+    const addon = g => (!BG.has(Number(value)) && (g.all_values || []).some(v => BG.has(Number(v))) ? 1 : 0);
     const prim = g => (Number(g.primary_value) === Number(value) ? 0 : 1);
     const focus = g => (g.all_values || []).length || 99;
     return [...imgs].sort((a, b) =>
       ((Number(b.importance) || 0) - (Number(a.importance) || 0))   // אצירה קודם
+      || (addon(a) - addon(b))                                      // תמונות-רקע (2701) לסוף כשלא מחפשים אותן
       || (prim(a) - prim(b))                                        // הערך = primary → דומיננטי
       || (focus(a) - focus(b))                                      // פחות ערכים = ממוקד יותר
       || (dateVal(b) - dateVal(a)));                                // ואז חדש→ישן
