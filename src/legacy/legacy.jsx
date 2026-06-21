@@ -2492,6 +2492,12 @@ const GLOBAL_CSS = `
 
 const POST_CONTENT_CSS = `
   .sod-post-content { direction: rtl; color: #ede4d3; overflow-x: hidden; font-family: 'Heebo', sans-serif; text-align: center; }
+  /* קישור-מספרים אוטומטי: שומר על צבע המספר הצרוב, מוסיף רמז עדין שהוא לחיץ */
+  .sod-post-content .sod-numlink { cursor: pointer; border-bottom: 1px dotted currentColor; }
+  .sod-post-content .sod-numlink:hover { background: rgba(212,175,55,.28); border-radius: 3px; }
+  /* קישור-ביטוי גימטריה: שומר על העיצוב הצרוב, מסמן לחיצוּת בריחוף (כדי לא להציף) */
+  .sod-post-content .sod-gemlink { cursor: pointer; }
+  .sod-post-content .sod-gemlink:hover { background: rgba(212,175,55,.22); border-radius: 3px; text-decoration: underline dotted; text-underline-offset: 3px; }
   .sod-post-content h1, .sod-post-content h2, .sod-post-content h3,
   .sod-post-content h4, .sod-post-content h5 {
     font-family: 'Heebo', sans-serif;
@@ -2873,6 +2879,28 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed [style*="color: #f6e27a"],
   .sod-post-content.themed [style*="color:#e8c840"],
   .sod-post-content.themed [style*="color:#d4af37"] { color: ${P.accentText} !important; }
+  ${P.mode === "light" ? `
+  /* פוסט WordPress ישן: מספרים/הדגשות בצהוב/ציאן/ירוק-בהיר צרובים נעלמים על קלף בהיר —
+     במצב יום הופכים ל-אדום בולט (לא נהרסים). חוק legacy_content_protocol. */
+  .sod-post-content.themed [style*="color:#ffff00"],
+  .sod-post-content.themed [style*="color: #ffff00"],
+  .sod-post-content.themed [style*="color:#ffff99"],
+  .sod-post-content.themed [style*="color: #ffff99"],
+  .sod-post-content.themed [style*="color:#ffcc00"],
+  .sod-post-content.themed [style*="color: #ffcc00"],
+  .sod-post-content.themed [style*="color:#ffd700"],
+  .sod-post-content.themed [style*="color:yellow"],
+  .sod-post-content.themed [style*="color:#00ff00"],
+  .sod-post-content.themed [style*="color: #00ff00"],
+  .sod-post-content.themed [style*="color:#ccffcc"],
+  .sod-post-content.themed [style*="color:#00ffff"],
+  .sod-post-content.themed [style*="color:#ccffff"],
+  .sod-post-content.themed [style*="color:#00ccff"] { color: #cc0000 !important; }
+  /* לבן צרוב (היה על רקע כהה) → דיו קריא על קלף בהיר */
+  .sod-post-content.themed [style*="color:#ffffff"],
+  .sod-post-content.themed [style*="color: #ffffff"],
+  .sod-post-content.themed [style*="color:white"] { color: ${P.ink} !important; }
+  ` : ""}
 `;
 
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
@@ -4989,6 +5017,47 @@ function PostPageBySlug({ onNav }) {
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);
   }, [post, navigate]);
+
+  // קישור-מספרים אוטומטי (עץ אחד): עוטף כל מספר עצמאי בתוכן ב-data-gem →
+  // לחיצה פותחת את חלונית המספר (openNumberDrawer). לא נוגע בתוכן השמור — רק ב-DOM.
+  useEffect(() => {
+    if (!post) return;
+    const id = setTimeout(() => {
+      const root = contentRef.current;
+      if (!root || root.dataset.numlinked) return;
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!n.nodeValue || !/\d/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+          for (let p = n.parentElement; p && p !== root; p = p.parentElement) {
+            const t = p.tagName;
+            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem")) return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+      const re = /(?<![\d.,/:])(\d{1,4})(?![\d.,/:])/g; // מספר עצמאי 1-4 ספרות (לא בתוך תאריך/שבר)
+      nodes.forEach(node => {
+        const text = node.nodeValue; re.lastIndex = 0;
+        if (!re.test(text)) return; re.lastIndex = 0;
+        const span = document.createElement("span");
+        span.innerHTML = text.replace(re, '<span class="sod-numlink" data-gem="$1" title="פתח את חלונית המספר $1">$1</span>');
+        node.parentNode && node.parentNode.replaceChild(span, node);
+      });
+      // גימטריות-ביטויים: ביטוי עברי קצר ומודגש (מודגש/צבוע) → data-gem (פותח חלונית עם הגימטריה והקשרים)
+      const HEB = /[֐-׿]/;
+      root.querySelectorAll('strong, b, [style*="color"]').forEach(el => {
+        if (el.hasAttribute("data-gem") || el.closest("a") || el.closest("[data-gem]")) return;
+        if (el.querySelector("[data-gem], img, .sod-numlink")) return; // יש ילד מקושר/תמונה — לא לעטוף את כולו
+        const t = (el.textContent || "").trim();
+        if (t.length < 2 || t.length > 18 || /\d/.test(t) || !HEB.test(t)) return; // ביטוי עברי קצר בלבד
+        el.setAttribute("data-gem", t);
+        el.classList.add("sod-gemlink");
+      });
+      if (contentRef.current) contentRef.current.dataset.numlinked = "1";
+    }, 220);
+    return () => clearTimeout(id);
+  }, [post]);
 
   const image    = post?.image_url ?? null;
   const author   = post?.author ?? "";

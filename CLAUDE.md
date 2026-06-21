@@ -10,6 +10,17 @@
 - **כבוד לרמז + יושר:** תמיד להפריד גימטריה (עובדה) מפרשנות (רמז משלים).
 - **המקור המלא:** `select body from project_codex where slug='convergence_law';` ו-`nodes` rule `unified_graph_law`.
 
+## ⛔ פוסטים ישנים / גלריות — פרוטוקול קשיח (`legacy_content_protocol`)
+לפני נגיעה בפוסט ישן (WordPress) או בגלריה/קרוסלה — **קרא את החוק המלא:** `select description from nodes where rule_id='legacy_content_protocol';`. אלו תקלות שחזרו שוב ושוב — דלג עליהן מראש (אל תמציא מנגנון מקביל, השתמש ברכיבים הקנוניים, ותמיד אמת ויזואלית):
+1. **כלל ניקוי WP מוחץ גובה:** `.sod-post-content div[style*="height"]{max-height:24px!}` תופס כל `div` עם height ב-inline — **כולל `line-height`!** רכיב מוטמע (קרוסלה/כיתוב) נמחץ ל-24px ("פס שחור"/תגיות שיושבות על ההסבר). פתרון: class ייעודי + override בספציפיות > 0,2,1 (כלול `.sod-post-content` בסלקטור), הסר `max-height` מכל ה-divים והחזר `height` מפורש.
+2. **ייצור תמונות עברית:** Pillow כאן `raqm=True` → **RAW בלבד, בלי `get_display`/bidi** (היפוך כפול). אל תרווח ספרות. **אמת ויזואלית (Read) לפני העלאה.** `satori`/`api/card` הופך עברית — לא אמין; העדף כרטיס סטטי מאומת.
+3. **שמות `עדכון…`/`נוספה תמונה`** = הערות-לוג WP (~43%), לא כותרות — להסתיר (`cleanName`).
+4. **כתיבה ל-`gallery_images`** = מנהל בלבד (RLS `gi_admin_update` + GRANT UPDATE ל-authenticated).
+5. **סדר גלריה ברירת-מחדל:** `importance↓` ואז תאריך אמין (`occurred_at` → נתיב `/uploads/YYYY/MM/` → `created_at`).
+6. **יום/לילה לפוסט ישן:** WordPress נעול-כהה; להפעלה — `posts.theme='auto'` (`themedPostContentCSS` מנטרל צבעים צרובים).
+7. **קרוסלה RTL:** `translateX(-idx*100%)` (מסילה `direction:ltr`).
+8. **עץ אחד:** לא לשכפל תוכן — הפוסט מקור; חידוש מצביע דרך `insights.source_ref` ונפתח אינליין. **להפנות, לעולם לא להעתיק.**
+
 ## ⛔ חובה לפני הכל — קרא את ההגדרות הקנוניות (`agent_onboarding_law`)
 לפני כל עבודה שנוגעת ב**גימטריה / נתונים / לוגיקה** — **חובה לקרוא קודם** את ההגדרות שמקודדות ב-DB. אל תבנה/תשנה לוגיקה לפי ידע כללי או הנחה — **ההגדרות הנעולות של צוריאל פולייס גוברות תמיד**.
 1. `select rule_id, label, description, metadata from nodes where type='rule' and is_active;` — חוקי המערכת, כולל **הגדרות השיטות הנעולות**: `misratar_multi` (מסתתר = מילה-מילה, הרווח שובר את הרצף!), `ribua_definition`, `method_hierarchy_ragil_foundation` (רגיל=יסוד; סופיות ברגיל=רגיל לא 500-900), `method_priority`.
