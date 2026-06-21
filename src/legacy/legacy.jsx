@@ -5080,7 +5080,8 @@ function PostPageBySlug({ onNav }) {
     .replace(/(<br\s*\/?>\s*){3,}/gi, "<br>")
     .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
     .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
-    .replace(/(מאת[:\s]+[^\n<]{2,40})/g, '<span class="post-author">$1</span>');
+    // עוטף שורת "מאת …" רק בתחילת טקסט (אחרי >) — לא בתוך תכונות כמו alt= (שובר את ה-<img>)
+    .replace(/(^|>)(\s*)(מאת[:\s]+[^\n<]{2,40})/g, '$1$2<span class="post-author">$3</span>');
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
