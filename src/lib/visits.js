@@ -65,6 +65,17 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
+// ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
+export async function getGaInsights(days = 28) {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) return null;
+  const r = await fetch(`/api/ga-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  if (!r.ok) throw new Error("ga-insights " + r.status);
+  return r.json();
+}
+
 // ── סנכרון Google Analytics → traffic_history (source='ga') דרך api/ga-sync ──
 export async function syncGoogleAnalytics(days = 540) {
   if (!supabase) return null;
