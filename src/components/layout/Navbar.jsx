@@ -28,7 +28,7 @@ const MOBILE_TILES = [
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
-  { e: "💬", l: "קהילה", to: "/community" },
+  { e: "💬", l: "דף הצ'אט הותיק", to: "/community/chat" },
   { e: "🏛", l: "מרכז הניווט", to: "/map" },
 ];
 const MOBILE_SOON = [
