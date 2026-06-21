@@ -200,7 +200,7 @@ export default function HomeNewPage() {
               ))}
             </div>
           )}
-          {popular.length > 0 ? (
+          {popular.length >= 3 ? (
             <div className="hn-postgrid">
               {popular.map(p => (
                 <Link key={p.slug} to={`/${p.slug}`} className="hn-card">
@@ -214,7 +214,7 @@ export default function HomeNewPage() {
               ))}
             </div>
           ) : (
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center" }}>אוספים צפיות {hotDays === 1 ? "מהיום" : "מהשבוע"}… המדור יתמלא ככל שגולשים נכנסים.</p>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center", opacity: 0.8 }}>🔒 "נצפים עכשיו" ייפתח אוטומטית כשייצברו מספיק צפיות {hotDays === 1 ? "מהיום" : "מהשבוע"}.</p>
           )}
         </section>
       )}

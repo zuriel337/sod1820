@@ -370,6 +370,12 @@ export async function logView(kind, ref) {
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
 }
+// 🔎 ספירת חיפושים כוללת (כל הזמן) למספר — מד קבוע "כמה פעמים חיפשו". מקור: search_log.
+export async function getSearchCount(value) {
+  if (!supabase || !value) return 0;
+  const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).eq("value", value);
+  return count || 0;
+}
 // 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
 export async function getViewCount(kind, ref, days = 7) {
   if (!supabase || ref == null || ref === "") return 0;
