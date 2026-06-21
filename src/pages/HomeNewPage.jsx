@@ -81,9 +81,7 @@ export default function HomeNewPage() {
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
         .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px;
           aspect-ratio: 1536 / 1024; object-fit:cover; background:${P.cardSoft};
-          -webkit-mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
-          mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
-          filter: drop-shadow(0 16px 46px rgba(0,0,0,.40)); }
+          border:1px solid ${P.borderStrong}; box-shadow:0 16px 46px rgba(0,0,0,.40); }
         .hn-cta-big { font-size:21px; padding:16px 52px; }
         .hn-enter { position:absolute; left:50%; bottom:-26px; transform:translateX(-50%); white-space:nowrap;
           box-shadow:0 10px 34px ${P.glow}; animation:hn-pulse 2.4s ease-in-out infinite; }
@@ -151,15 +149,14 @@ export default function HomeNewPage() {
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
 
-      {/* ===== שער הגלקסיות — בבנייה (כניסה להיכל בינתיים) ===== */}
+      {/* ===== עץ המספרים — כניסה חיה ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🌌 שער הגלקסיות</h2>
-        <p className="hn-sub">חוויית מסך מלא — היכל לכל התכנסות, עם כל התמונות והרמזים</p>
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
-          <div style={{ fontSize: 34, marginBottom: 8 }}>🚧</div>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>השער בבנייה</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>בקרוב ייפתחו כאן כל הגלקסיות. בינתיים — היכנסו להיכל השערים.</div>
-          <Link to="/היכל" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>👑 כניסה להיכל השערים</Link>
+        <h2 className="hn-h2">🕸️ עץ המספרים</h2>
+        <p className="hn-sub">כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד</p>
+        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "26px 22px" }}>
+          <div style={{ fontSize: 32, marginBottom: 10 }}>🕸️</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>סיור תלת-מימדי חי ברשת הקשרים של המספרים. לחצו על מספר וצללו פנימה.</div>
+          <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ המספרים</Link>
         </div>
       </section>
 
