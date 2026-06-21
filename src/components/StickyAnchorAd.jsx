@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript } from "../lib/adsense.js";
+import { useMediaQuery } from "../lib/useMediaQuery.js";
 
-// 📌 מודעה נעוצה בתחתית המסך (anchor) — לדפי קריאה בלבד (פוסטים/ארכיון).
+// 📌 מודעה נעוצה בתחתית המסך (anchor) — מובייל בלבד, בדפי קריאה (פוסטים/ארכיון).
+// בדסקטופ במקומה מוצגת מודעת הצד 300×600 (SideRailAd).
 // • נסגרת בלחיצת ✕ ולא חוזרת באותו ביקור (sessionStorage) — חובה לפי מדיניות גוגל וגם טעם טוב.
 // • מכבדת safe-area של הנייד; z-index מתחת לדיאלוגים.
 // • מרימה אוטומטית את כפתורי השיתוף הצפים (👑/🙏) שלא יישבו עליה — דרך class על <body>.
@@ -10,12 +12,13 @@ const DISMISS_KEY = "sod_anchor_ad_dismissed";
 
 export default function StickyAnchorAd({ slot }) {
   const slotId = slot || ADSENSE_SLOTS.anchor || "";
+  const isMobile = useMediaQuery("(max-width: 899px)");
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem(DISMISS_KEY) === "1"; } catch { return false; }
   });
   const pushed = useRef(false);
 
-  const live = ADSENSE_ENABLED && !!slotId && !dismissed;
+  const live = ADSENSE_ENABLED && !!slotId && !dismissed && isMobile;
 
   // push יחיד ליחידה (גם תחת StrictMode) + הרמת הכפתורים הצפים בזמן שהרצועה פתוחה.
   useEffect(() => {

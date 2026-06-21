@@ -10,6 +10,7 @@ import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import SideRailAd from "../components/SideRailAd.jsx";
 
 // ===== גלריית רמזי הגאולה (/archive) =====
 // טאב 1 "גלריות" — המבנה ההיסטורי, ללא שינוי.
@@ -248,6 +249,7 @@ export default function ArchivePage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 1280, margin: "0 auto", padding: "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
+      <SideRailAd />
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>הארכיון החי</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,46px)", fontWeight: 700, margin: 0, textShadow: "0 0 40px rgba(212,175,55,0.3)" }}>
