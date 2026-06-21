@@ -5,6 +5,7 @@ import { supabase, logSearch, logView, getViewCount, getSearchCount, getHarveste
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
+import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
@@ -521,6 +522,11 @@ export default function EntityPage() {
               </div>
             );
           })()}
+          {value >= 10 && (
+            <div style={{ margin: "16px auto 0", maxWidth: 480 }}>
+              <ZeroScaleLinks value={value} />
+            </div>
+          )}
           {msgs[0] && (
             <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
