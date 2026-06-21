@@ -91,7 +91,7 @@ export default function PostImageCarousel({ value, images }) {
       {/* במה — שקופית אחת בכל פעם */}
       <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${P.borderStrong}`, background: P.cardSoft, boxShadow: `0 6px 26px ${P.glow}` }}>
         <div style={{ position: "relative", width: "100%", height: "clamp(280px,62vw,440px)", overflow: "hidden", direction: "ltr" }}>
-          <div style={{ display: "flex", height: "100%", transition: "transform .55s cubic-bezier(.22,.61,.36,1)", transform: `translateX(${idx * 100}%)` }}>
+          <div style={{ display: "flex", height: "100%", transition: "transform .55s cubic-bezier(.22,.61,.36,1)", transform: `translateX(${-idx * 100}%)` }}>
             {imgs.map((img, i) => (
               <button
                 key={img.id || i}
