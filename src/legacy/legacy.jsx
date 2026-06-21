@@ -12,6 +12,7 @@ import PostShareFab from "../components/PostShareFab.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import ViewedPostsRows from "../components/ViewedPostsRows.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { usePalette } from "../lib/palette.js";
 
@@ -4689,6 +4690,11 @@ function SpotimChatPage() {
         data-post-url="https://sod1820.co.il/community/chat"
         style={{ minHeight: 400 }}
       />
+
+      {/* 🔥 הפוסטים הנצפים — שורות, פרוס במרכז (ספירת צפיות גלויה למנהל בלבד) */}
+      <div style={{ marginTop: 48 }}>
+        <ViewedPostsRows limit={6} />
+      </div>
 
     </div>
   );

@@ -12,6 +12,7 @@ import RecentSearches from "../components/RecentSearches.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
+import ViewedPostsRows from "../components/ViewedPostsRows.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -66,7 +67,7 @@ export default function HomeNewPage() {
 
   // צפיות חיות — נטען מחדש לפי המתג היום/שבוע
   useEffect(() => {
-    getHotPostsLive({ days: hotDays, limit: 4 }).then(p => setPopular(p || [])).catch(() => {});
+    getHotPostsLive({ days: hotDays, limit: 6 }).then(p => setPopular(p || [])).catch(() => {});
   }, [hotDays]);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -200,19 +201,8 @@ export default function HomeNewPage() {
               ))}
             </div>
           )}
-          {popular.length >= 3 ? (
-            <div className="hn-postgrid">
-              {popular.map(p => (
-                <Link key={p.slug} to={`/${p.slug}`} className="hn-card">
-                  <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
-                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(0,0,0,.6)", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>👁 {p.views}</span>
-                  </div>
-                  <div style={{ padding: "10px 12px", flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+          {popular.length > 0 ? (
+            <ViewedPostsRows posts={popular} />
           ) : (
             <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center", opacity: 0.8 }}>🔒 "נצפים עכשיו" ייפתח אוטומטית כשייצברו מספיק צפיות {hotDays === 1 ? "מהיום" : "מהשבוע"}.</p>
           )}
