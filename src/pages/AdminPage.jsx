@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
