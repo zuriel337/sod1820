@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
-import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate } from "../lib/crossesNew.js";
+import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
@@ -1065,23 +1065,24 @@ export default function BeitMidrashPage() {
   const tabParam = params.get("tab");
   const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "convergence"));
   const { subscribed } = useSubscribed();
-  // מנורת עדכונים — נדלקת אם יש ציר התכנסות שאושר/עודכן לאחרונה (7 ימים)
+  // מנורת עדכונים (ציר התכנסות) — per-user (whats_new_law): נדלקת רק על ציר שנוסף מאז ביקורך.
   const [hasUpdates, setHasUpdates] = useState(false);
   useEffect(() => {
     let live = true;
+    const cutoff = seenCutoff("beit-convergence");
     getTopicCards({ approvedOnly: true }).then(cs => {
       if (!live) return;
-      const recent = (cs || []).some(c => (Date.now() - new Date(c.approved_at || c.created_at).getTime()) / 86400000 <= 7);
+      const recent = (cs || []).some(c => (c.approved_at || c.created_at || "") > cutoff);
       setHasUpdates(recent);
     }).catch(() => {});
     return () => { live = false; };
   }, []);
 
-  // מחוון "עדכון חדש" למדורי החידושים — נדלק אם נוסף/עודכן חידוש ב-7 הימים האחרונים
+  // מחוון "עדכון חדש" לחידושי גולשים — per-user (whats_new_law): רק מה שנוסף מאז ביקורך.
   const [insightUpdates, setInsightUpdates] = useState(() => new Set());
   useEffect(() => {
     let live = true;
-    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    const since = seenCutoff("beit-community");
     supabase.from("insights").select("category,tags,updated_at,created_at")
       .or(`updated_at.gte.${since},created_at.gte.${since}`).limit(80)
       .then(({ data }) => {
@@ -1106,6 +1107,11 @@ export default function BeitMidrashPage() {
   }, []);
   // כשנכנסים לטאב ההצלבות — לאפס מיד (CrossesTab גם מסמן נראה)
   useEffect(() => { if (tab === "crosses") setNewCrosses(0); }, [tab]);
+  // פתיחת ציר התכנסות / חידושי גולשים → מסמנים נראה (per-user) → ההבהוב לא יחזור (whats_new_law)
+  useEffect(() => {
+    if (tab === "convergence") { markSeenKey("beit-convergence"); setHasUpdates(false); }
+    if (tab === "community") { markSeenKey("beit-community"); setInsightUpdates(s => { const n = new Set(s); n.delete("community"); return n; }); }
+  }, [tab]);
 
   // סנכרון טאב↔URL — קישורי ?tab= עובדים גם בתוך הדף (לא רק בטעינה ראשונה)
   useEffect(() => {
