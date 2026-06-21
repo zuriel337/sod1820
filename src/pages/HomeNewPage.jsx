@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getPopularByViews, getHotSearches } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
@@ -40,6 +40,8 @@ export default function HomeNewPage() {
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
+  const [popular, setPopular] = useState([]); // 🔥 נצפים ביותר (Jetpack views)
+  const [hot, setHot] = useState([]);         // 🔥 מספרים חמים (search_log)
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
@@ -58,6 +60,8 @@ export default function HomeNewPage() {
       markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
+    getPopularByViews({ limit: 4 }).then(p => setPopular(p || [])).catch(() => {});
+    getHotSearches({ limit: 8 }).then(h => setHot(h || [])).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -169,6 +173,38 @@ export default function HomeNewPage() {
           <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         </div>
       </section>
+
+      {/* ===== 🔥 הכי חם — נצפים ביותר + מחפשים עכשיו ===== */}
+      {(popular.length > 0 || hot.length > 0) && (
+        <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+          <h2 className="hn-h2">🔥 הכי חם</h2>
+          <p className="hn-sub">מה שכולם קוראים ובודקים באתר</p>
+          {hot.length > 0 && (
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
+              <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, alignSelf: "center" }}>🔎 מחפשים עכשיו:</span>
+              {hot.map(h => (
+                <Link key={h.value} to={`/number/${h.value}`} style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800, fontSize: 13, color: P.accentText, background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "4px 12px" }}>
+                  {h.value}<span style={{ color: P.accentDim, fontSize: 10.5, fontWeight: 700 }}> ×{h.count}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+          {popular.length > 0 && (
+            <div className="hn-postgrid">
+              {popular.map(p => (
+                <Link key={p.wp_id} to={`/${p.slug}`} className="hn-card">
+                  <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
+                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(0,0,0,.6)", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>👁 {p.total_views}</span>
+                  </div>
+                  <div style={{ padding: "10px 12px", flex: 1 }}>
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ===== אריחי עדשות ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>

@@ -363,6 +363,18 @@ export async function getPopularByViews({ limit = 60 } = {}) {
   return data ?? [];
 }
 
+// 🔥 חיפושים חמים — המספרים הכי מחופשים לאחרונה (אגרגציה מ-search_log). לרצועת "הכי חם".
+export async function getHotSearches({ limit = 8, lookback = 500 } = {}) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('search_log')
+    .select('value').not('value', 'is', null)
+    .order('created_at', { ascending: false }).limit(lookback);
+  const counts = {};
+  (data || []).forEach(r => { const v = Number(r.value); if (v > 0) counts[v] = (counts[v] || 0) + 1; });
+  return Object.entries(counts).map(([v, c]) => ({ value: +v, count: c }))
+    .sort((a, b) => b.count - a.count).slice(0, limit);
+}
+
 // ── Contact ────────────────────────────────────────────────
 export async function sendContactMessage({ name, email, subject, message }) {
   const { error } = await supabase.from('contact_messages').insert([{
