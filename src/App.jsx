@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
+import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -61,14 +62,14 @@ const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname } = useLocation();
-  useEffect(() => { initGA(); }, []);
+  useEffect(() => { initGA(); initMarketing(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
     // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
-    const t = setTimeout(() => trackPageview(pathname), 350);
+    const t = setTimeout(() => { trackPageview(pathname); trackMarketingPageview(); }, 350);
     trackVisit(pathname);   // מד-כניסות פנימי (SOD1820) — נאסף ישירות אלינו
     return () => clearTimeout(t);
   }, [pathname]);
