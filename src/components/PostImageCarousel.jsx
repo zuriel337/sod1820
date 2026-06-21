@@ -117,14 +117,20 @@ export default function PostImageCarousel({ value, images }) {
 
   return (
     <div
+      className="pic-carousel"
       style={{ maxWidth: 560, margin: "1.2em auto 0", direction: "rtl" }}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
     >
+      {/* חיסון מפני כלל ניקוי תוכן WordPress שמוחץ div עם height inline ל-24px */}
+      <style>{`
+        .pic-carousel .pic-stage { height: clamp(280px,62vw,440px) !important; max-height: none !important; }
+        .pic-carousel .pic-track { height: 100% !important; max-height: none !important; }
+      `}</style>
       {/* במה — שקופית אחת בכל פעם */}
       <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${P.borderStrong}`, background: P.cardSoft, boxShadow: `0 6px 26px ${P.glow}` }}>
-        <div style={{ position: "relative", width: "100%", height: "clamp(280px,62vw,440px)", overflow: "hidden", direction: "ltr" }}>
-          <div style={{ display: "flex", height: "100%", transition: "transform .55s cubic-bezier(.22,.61,.36,1)", transform: `translateX(${-idx * 100}%)` }}>
+        <div className="pic-stage" style={{ position: "relative", width: "100%", height: "clamp(280px,62vw,440px)", overflow: "hidden", direction: "ltr" }}>
+          <div className="pic-track" style={{ display: "flex", height: "100%", transition: "transform .55s cubic-bezier(.22,.61,.36,1)", transform: `translateX(${-idx * 100}%)` }}>
             {pics.map((img, i) => (
               <button
                 key={img.id || i}
