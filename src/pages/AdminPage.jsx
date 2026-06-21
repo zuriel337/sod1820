@@ -1239,24 +1239,29 @@ function TrafficHistoryPanel() {
   );
 }
 
-// ===== 📄 העמודים הישנים הכי נצפים (Jetpack top-posts) =====
+// ===== 📄 ארכיון: העמודים הישנים הכי נצפים (Jetpack top-posts) — מגירה סגורה =====
 function LegacyTopPagesPanel() {
   const mob = useIsMobile();
+  const [open, setOpen] = useState(false);
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
-  useEffect(() => { getLegacyTopPages(15).then(setRows).catch(e => setErr(e.message || "שגיאה")); }, []);
+  useEffect(() => {
+    if (!open || rows) return;
+    getLegacyTopPages(15).then(setRows).catch(e => setErr(e.message || "שגיאה"));
+  }, [open, rows]);
   const max = Math.max(1, ...(rows || []).map(r => r.views || 0));
 
   return (
     <div style={card}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        <span style={{ fontSize: 24 }}>📄</span>
-        <div>
-          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>העמודים הישנים הכי נצפים</div>
+      <button onClick={() => setOpen(o => !o)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "right" }}>
+        <span style={{ fontSize: 22 }}>🗄️</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>ארכיון — העמודים הישנים הכי נצפים</div>
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>מה משך הכי הרבה צפיות באתר הישן (Jetpack)</div>
         </div>
-      </div>
-
+        <span style={{ color: C.goldDim, fontSize: 14, transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
+      </button>
+      {open && <div style={{ marginTop: 12 }}>
       {err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
         : !rows ? <Loading />
         : !rows.length ? <Empty>אין נתונים.</Empty>
@@ -1277,6 +1282,7 @@ function LegacyTopPagesPanel() {
             ))}
           </div>
         )}
+      </div>}
     </div>
   );
 }
@@ -1300,14 +1306,6 @@ function SearchConsolePanel() {
   }, [days]);
 
   const decode = p => { try { return decodeURIComponent(p.replace(/^https?:\/\/[^/]+/, "")) || "/"; } catch { return p; } };
-
-  // אגרגציה לפי חודש — "לאורך הזמן איך זה עולה"
-  const months = useMemo(() => {
-    const m = {};
-    (d?.timeline || []).forEach(t => { const k = (t.date || "").slice(0, 7); if (k) m[k] = (m[k] || 0) + t.clicks; });
-    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b)).map(([key, clicks]) => ({ key, clicks }));
-  }, [d]);
-  const maxM = Math.max(1, ...months.map(x => x.clicks));
 
   return (
     <div style={card}>
@@ -1344,20 +1342,6 @@ function SearchConsolePanel() {
           </div>
         ) : (
           <div style={{ display: "grid", gap: 16 }}>
-            {months.length > 1 && (
-              <div>
-                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📈 כניסות מגוגל לאורך הזמן (קליקים לפי חודש)</div>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130, overflowX: "auto", padding: "6px 2px 0" }}>
-                  {months.map(m => (
-                    <div key={m.key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 32 }}>
-                      <span style={{ fontSize: 10, color: C.goldBright, fontFamily: F.mono }}>{m.clicks.toLocaleString()}</span>
-                      <div title={`${m.key}: ${m.clicks}`} style={{ width: 22, height: Math.max(3, Math.round((m.clicks / maxM) * 90)), background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: "4px 4px 0 0" }} />
-                      <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{m.key.slice(5)}/{m.key.slice(2, 4)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             <div style={{ overflowX: "auto" }}>
               <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>מילות חיפוש מובילות</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
