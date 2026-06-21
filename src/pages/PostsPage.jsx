@@ -4,7 +4,7 @@ import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
-  getDistinctCategoriesAndTags, getGematriaByValue, getPopularByViews,
+  getDistinctCategoriesAndTags, getGematriaByValue,
   getTagCounts, getGalleryNumberTags,
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
@@ -15,14 +15,12 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 // מיון (חדש/ישן/מדובר) · צ'יפים וגלולות לפילטרים · "טען עוד".
 
 const PER = 12;
-const POPULAR_LIMIT = 60;  // כמה פוסטים מדורגים למשוך ב"הכי מדובר" (לפי צפיות Jetpack)
 const TOP_CATS = 10;       // כמה גלולות קטגוריה להציג לפני "עוד"
 const TOP_TAGS = 14;       // כמה תגיות פופולריות להציג לפני "עוד"
 const MAX_TAGS = 80;       // כמה תגיות בסך הכל לאחר הרחבה
 const SORTS = [
   { key: "date_desc", label: "חדש", orderBy: "modified", ascending: false },
   { key: "date_asc",  label: "ישן", orderBy: "modified", ascending: true },
-  { key: "popular",   label: "הכי מדובר 🔥" },  // לפי צפיות Jetpack (legacy_traffic)
 ];
 
 const isHebrew = s => /[א-ת]/.test(s);
@@ -116,8 +114,6 @@ export default function PostsPage() {
     return () => window.removeEventListener("keydown", h);
   }, []);
 
-  const popularMode = sort === "popular";
-
   // טעינת עמוד (גלישה רגילה — לא בחיפוש)
   const loadBrowse = useCallback((p) => {
     setLoading(true); setError("");
@@ -132,30 +128,14 @@ export default function PostsPage() {
       .catch(err => { setError(err.message || "שגיאה בטעינה"); setLoading(false); });
   }, [sortDef.orderBy, sortDef.ascending, filterCat, filterTag, filterYear]);
 
-  // "הכי מדובר" — דירוג לפי צפיות Jetpack (RPC), עם סינון צד-לקוח לפי הפילטרים הפעילים
-  const loadPopular = useCallback(() => {
-    setLoading(true); setError("");
-    getPopularByViews({ limit: POPULAR_LIMIT })
-      .then(rows => {
-        let list = (rows || []).filter(r =>
-          (!filterCat || (r.categories || []).includes(filterCat)) &&
-          (!filterTag || (r.tags || []).includes(filterTag)) &&
-          (!filterYear || new Date(r.date).getFullYear() === filterYear)
-        );
-        setPosts(list.map(adaptPost)); setTotal(list.length); setLoading(false);
-      })
-      .catch(err => { setError(err.message || "שגיאה בטעינה"); setLoading(false); });
-  }, [filterCat, filterTag, filterYear]);
-
   // איפוס עמוד כשמשתנים פילטר/מיון (במצב גלישה)
   useEffect(() => { if (!searching) setPage(1); }, [sort, filterCat, filterTag, filterYear, searching]);
 
   // אפקט גלישה
   useEffect(() => {
     if (searching) return;
-    if (popularMode) loadPopular();
-    else loadBrowse(page);
-  }, [searching, popularMode, page, loadBrowse, loadPopular]);
+    loadBrowse(page);
+  }, [searching, page, loadBrowse]);
 
   // אפקט חיפוש (debounce)
   useEffect(() => {
@@ -351,9 +331,7 @@ export default function PostsPage() {
         <div className="pp-status">
           {searching
             ? `${posts.length.toLocaleString()} תוצאות${posts.length >= 48 ? "+" : ""}`
-            : popularMode
-              ? `🔥 ${posts.length.toLocaleString()} הפוסטים הכי נצפים (לפי נתוני Jetpack)`
-              : total > 0 ? `${total.toLocaleString()} פוסטים` : ""}
+            : total > 0 ? `${total.toLocaleString()} פוסטים` : ""}
         </div>
       )}
 

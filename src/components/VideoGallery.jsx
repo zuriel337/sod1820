@@ -33,7 +33,7 @@ function VideoCard({ v, onPlay, featured }) {
       }} className="vg-card">
         <img src={`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        {featured && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: VIOLET, color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>⭐ הכי נצפה</span>}
+        {featured && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: VIOLET, color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>⭐ מומלץ</span>}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55))" }} />
         <div className="vg-play" style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",

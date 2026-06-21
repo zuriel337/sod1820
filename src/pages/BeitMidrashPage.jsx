@@ -13,7 +13,6 @@ import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import BeitMidrashOverview from "../components/BeitMidrashOverview.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
-import ViewedPostsRows from "../components/ViewedPostsRows.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -1165,11 +1164,6 @@ export default function BeitMidrashPage() {
         </div>
 
         <BeitMidrashOverview />
-
-        {/* 🔥 הפוסטים הנצפים — שורות, פרוס במרכז (ספירת צפיות גלויה למנהל בלבד) */}
-        <div style={{ margin: "26px 0 6px" }}>
-          <ViewedPostsRows light limit={6} />
-        </div>
 
         {/* גוף: תפריט-צד + תוכן */}
         <div ref={gridRef} style={{ display: "flex", gap: 26, alignItems: "flex-start", scrollMarginTop: 12 }} className="bm-grid">

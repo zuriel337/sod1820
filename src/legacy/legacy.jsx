@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -12,7 +12,6 @@ import PostShareFab from "../components/PostShareFab.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
-import ViewedPostsRows from "../components/ViewedPostsRows.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { usePalette } from "../lib/palette.js";
 
@@ -4691,11 +4690,6 @@ function SpotimChatPage() {
         style={{ minHeight: 400 }}
       />
 
-      {/* 🔥 הפוסטים הנצפים — שורות, פרוס במרכז (ספירת צפיות גלויה למנהל בלבד) */}
-      <div style={{ marginTop: 48 }}>
-        <ViewedPostsRows limit={6} />
-      </div>
-
     </div>
   );
 }
@@ -4922,7 +4916,6 @@ function PostPageBySlug({ onNav }) {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [postViews, setPostViews] = useState(0);   // 👁 צפיות חיות השבוע (מחוון "חם")
   const contentRef = useRef(null);
   const loc = useLocation();
   const P = usePalette();
@@ -4965,7 +4958,7 @@ function PostPageBySlug({ onNav }) {
     setLoading(true);
     getPostBySlug(slug)
       .then(row => {
-        if (row) { setPost(row); const rs = row.slug || slug; logView("post", rs); getViewCount("post", rs, 7).then(setPostViews).catch(() => {}); }   // צפייה חיה (לרצועת "הכי חם")
+        if (row) { setPost(row); const rs = row.slug || slug; logView("post", rs); }   // מעקב פנימי (אדמין בלבד) — לא מוצג לגולש
         else setError("הפוסט לא נמצא");
         setLoading(false);
       })
@@ -5201,11 +5194,6 @@ function PostPageBySlug({ onNav }) {
                 </div>
               )}
               <h1 style={{ color: pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
-              {postViews > 0 && (
-                <div style={{ textAlign: "center", margin: "-8px 0 18px", color: postViews >= 5 ? "#e0556a" : pc.muted, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                  {postViews >= 5 ? "🔥 חם" : "👁"} {postViews} צפיות השבוע
-                </div>
-              )}
               {(() => {
                 const by = resolveAuthor(author);
                 // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.

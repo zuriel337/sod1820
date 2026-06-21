@@ -132,7 +132,7 @@ function Wall({ onPick }) {
           {count.toLocaleString("he-IL")} שמות, מילים וביטויים שאנשים בדקו — רשימה נפרדת, הוסיפו את שלכם ☝️
         </span>
         <div style={{ display: "flex", gap: 8, marginInlineStart: "auto" }}>
-          {tabBtn("hot", "🔥 הכי מחושבים")}
+          {tabBtn("hot", "🔝 הכי מחושבים")}
           {tabBtn("new", "🆕 אחרונים")}
         </div>
       </div>

@@ -93,13 +93,13 @@ export default function NumberSearchPage() {
         </form>
       )}
 
-      {/* 🔥 מספר חם עכשיו */}
+      {/* 🔎 המספר הנחקר ביותר היום (מותר: על מה חיפשו) */}
       {hot && (
         <button onClick={() => goVal(hot.value || hot.term)} style={{ marginTop: 26, cursor: "pointer",
           background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "10px 18px",
           display: "inline-flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 18 }}>🔥</span>
-          <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>חם עכשיו</span>
+          <span style={{ fontSize: 18 }}>🔎</span>
+          <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הנחקר ביותר היום</span>
           <span style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 19, fontWeight: 800 }}>{hot.term}</span>
           <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>· {hot.n} חקרו היום</span>
         </button>
