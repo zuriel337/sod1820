@@ -125,11 +125,14 @@ export default function PostImageCarousel({ value, images }) {
       {/* חיסון מפני כלל ניקוי תוכן WordPress (.sod-post-content div[style*=height] → max-height:24px).
           חייב ספציפיות גבוהה מ-0,2,1 — לכן כוללים .sod-post-content בסלקטור (0,3,0 מנצח). */}
       <style>{`
+        /* הכלל של WP תופס גם divים עם line-height (מכיל "height") ומוחץ ל-24px —
+           מסירים את התקרה מכל הקרוסלה (כולל כיתוב השם/ההסבר), ומחזירים גובה לבמה/למסילה. */
+        .sod-post-content .pic-carousel div[style*="height"],
+        .sod-post-content .pic-carousel button[style*="height"] { max-height: none !important; }
         .pic-carousel .pic-stage,
         .sod-post-content .pic-carousel .pic-stage { height: clamp(280px,62vw,440px) !important; max-height: none !important; }
         .pic-carousel .pic-track,
         .sod-post-content .pic-carousel .pic-track { height: 100% !important; max-height: none !important; }
-        .sod-post-content .pic-carousel button[style*="height"] { max-height: none !important; }
       `}</style>
       {/* במה — שקופית אחת בכל פעם */}
       <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${P.borderStrong}`, background: P.cardSoft, boxShadow: `0 6px 26px ${P.glow}` }}>
