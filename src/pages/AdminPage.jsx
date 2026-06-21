@@ -1175,20 +1175,38 @@ function TrafficHistoryPanel() {
   const gap = mob ? 4 : 6;
   const colMin = mob ? 22 : 36;
 
-  // פתיחה אוטומטית על התקופה העדכנית ביותר (קצה ימני), ומשם גוללים אחורה.
+  // ציר-מד שמסתדר אוטומטית: מתאים את עצמו לעמודות הנראות כרגע על המסך
+  // (כך שיא 2015 לא מוחץ את החודשים האחרונים — גוללים, והציר מתכוונן).
   const scrollRef = useRef(null);
+  const [viewMax, setViewMax] = useState(1);
+  const pitch = colMin + gap;
+  const recomputeViewMax = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || !shown.length) return;
+    const first = Math.max(0, Math.floor((el.scrollLeft - 2) / pitch));
+    const last = Math.min(shown.length - 1, Math.ceil((el.scrollLeft + el.clientWidth - 2) / pitch));
+    let m = 1;
+    for (let i = first; i <= last; i++) m = Math.max(m, shown[i]?.views || 0);
+    setViewMax(m);
+  }, [shown, pitch]);
+  // פתיחה אוטומטית על התקופה העדכנית ביותר (קצה ימני) + כיול הציר אליה.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const toEnd = () => { el.scrollLeft = el.scrollWidth; };
+    const toEnd = () => { el.scrollLeft = el.scrollWidth; recomputeViewMax(); };
     toEnd();
     const raf = requestAnimationFrame(toEnd); // אחרי שה-layout מוכן (נייד/RTL)
     return () => cancelAnimationFrame(raf);
-  }, [shown]);
-  const max = Math.max(1, ...shown.map(r => r.views || 0));
+  }, [shown, recomputeViewMax]);
+  const scrollTick = useRef(false);
+  const onScroll = useCallback(() => {
+    if (scrollTick.current) return;
+    scrollTick.current = true;
+    requestAnimationFrame(() => { scrollTick.current = false; recomputeViewMax(); });
+  }, [recomputeViewMax]);
   const total = shown.reduce((s, r) => s + (r.views || 0), 0);
   const peak = shown.reduce((a, r) => (r.views || 0) > (a.views || 0) ? r : a, shown[0] || {});
-  const { h: barH, ticks } = buildScale(max, "linear"); // ציר-מד אחיד + קווי-עזר
+  const { h: barH, ticks } = buildScale(viewMax, "linear"); // ציר-מד מתכוונן + קווי-עזר
   const BZ = mob ? 120 : 140, LBL = 16;                  // גובה אזור-העמודות + תווית
   const fmtLabel = p => {
     const s = String(p);
@@ -1256,8 +1274,8 @@ function TrafficHistoryPanel() {
 
             {/* גרף: עמודות (נגלל) + ציר-מד אנכי בצד (כמות גלישה) */}
             <div style={{ display: "flex", gap: 6 }}>
-              <div ref={scrollRef} dir="ltr" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
-                <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap, height: BZ + LBL, minWidth: shown.length * (bw + gap) + 8, paddingInline: 2 }}>
+              <div ref={scrollRef} onScroll={onScroll} dir="ltr" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
+                <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap, height: BZ + LBL, minWidth: shown.length * pitch + 8, paddingInline: 2 }}>
                   {ticks.map((t, i) => (
                     <div key={"g" + i} style={{ position: "absolute", left: 0, right: 0, bottom: LBL + (t.pct / 100) * BZ, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
                   ))}
@@ -1271,8 +1289,8 @@ function TrafficHistoryPanel() {
                       <div key={i} onClick={() => setSel(active ? null : r.period)}
                         style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: BZ + LBL, minWidth: colMin, cursor: "pointer", borderRadius: 6, background: active ? "rgba(212,175,55,0.14)" : "transparent" }}>
                         <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw, height: BZ }}>
-                          {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none" }} />}
-                          {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0", outline: active && liveH === 0 ? `2px solid ${C.goldBright}` : "none" }} />}
+                          {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none", transition: "height .25s ease" }} />}
+                          {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0", outline: active && liveH === 0 ? `2px solid ${C.goldBright}` : "none", transition: "height .25s ease" }} />}
                         </div>
                         <span style={{ height: LBL, lineHeight: `${LBL}px`, fontSize: mob ? 8.5 : 9.5, color: active ? C.goldBright : C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
                       </div>
@@ -1287,7 +1305,7 @@ function TrafficHistoryPanel() {
                 ))}
               </div>
             </div>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1, textAlign: "center", marginTop: 3 }}>↑ מד כמות גלישה</div>
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1, textAlign: "center", marginTop: 3 }}>↑ מד כמות גלישה · הציר מתכוונן אוטומטית למה שרואים</div>
           </>
         )}
     </div>
