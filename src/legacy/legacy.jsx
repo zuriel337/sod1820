@@ -5117,7 +5117,7 @@ function PostPageBySlug({ onNav }) {
                   ))}
                 </div>
               )}
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
               {(() => {
                 const by = resolveAuthor(author);
                 // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
