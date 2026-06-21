@@ -9,3 +9,5 @@ dist/
 .env
 .vercel
 migration-log.json
+.claude/settings.local.json
+orphan-preview.html
