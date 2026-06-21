@@ -9,6 +9,7 @@ import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import PostShareFab from "../components/PostShareFab.jsx";
+import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
@@ -5138,6 +5139,8 @@ function PostPageBySlug({ onNav }) {
           wpId={post.wp_id}
         />
       )}
+      {/* מודעה נעוצה בתחתית — רק כשהפוסט טעון (no-op בלי מזהה AdSense) */}
+      {post && !loading && <StickyAnchorAd />}
       {image && !loading && (() => {
         // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
         const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);

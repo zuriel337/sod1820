@@ -11,6 +11,7 @@
 //   VITE_ADSENSE_CLIENT      = ca-pub-XXXXXXXXXXXXXXXX  (מזהה המפרסם)
 //   VITE_ADSENSE_SLOT_POST   = מזהה יחידת מודעה לתוך הפוסט (in-article)
 //   VITE_ADSENSE_SLOT_LIST   = מזהה יחידת מודעה לרשימת הפוסטים/ארכיון
+//   VITE_ADSENSE_SLOT_ANCHOR = מזהה יחידת מודעה לרצועה הנעוצה בתחתית (banner אופקי)
 
 export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || "";
 export const ADSENSE_ENABLED = !!ADSENSE_CLIENT;
@@ -19,6 +20,7 @@ export const ADSENSE_ENABLED = !!ADSENSE_CLIENT;
 export const ADSENSE_SLOTS = {
   post: import.meta.env.VITE_ADSENSE_SLOT_POST || "",
   list: import.meta.env.VITE_ADSENSE_SLOT_LIST || "",
+  anchor: import.meta.env.VITE_ADSENSE_SLOT_ANCHOR || "",
 };
 
 let scriptLoaded = false;
