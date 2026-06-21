@@ -5064,12 +5064,16 @@ function PostPageBySlug({ onNav }) {
           wpId={post.wp_id}
         />
       )}
-      {image && !loading && (
-        <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
-          <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.5) sepia(0.3)", display: "block" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />
-        </div>
-      )}
+      {image && !loading && (() => {
+        // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
+        const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);
+        return (
+          <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: isCard ? pc.bg : pc.goldDeep }}>
+            <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: isCard ? "contain" : "cover", filter: isCard ? "none" : "brightness(0.5) sepia(0.3)", display: "block" }} />
+            {!isCard && <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />}
+          </div>
+        );
+      })()}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
           style={{ background: "none", border: "none", color: pc.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
@@ -5117,7 +5121,7 @@ function PostPageBySlug({ onNav }) {
                   ))}
                 </div>
               )}
-              <h1 style={{ color: "#E8D5A3", margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
               {(() => {
                 const by = resolveAuthor(author);
                 // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
