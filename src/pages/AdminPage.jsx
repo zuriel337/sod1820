@@ -1167,32 +1167,34 @@ function TrafficHistoryPanel() {
   const gap = mob ? 4 : 6;
   const colMin = mob ? 22 : 36;
 
-  // ציר-מד שמסתדר אוטומטית: מתאים את עצמו לעמודות הנראות כרגע על המסך
-  // (כך שיא 2015 לא מוחץ את החודשים האחרונים — גוללים, והציר מתכוונן).
+  // סדר תצוגה: העדכני ביותר ראשון (יושב בקצה ימין ב-RTL) — גלוי מיד, בלי גלילה אוטומטית.
+  const display = useMemo(() => [...shown].reverse(), [shown]);
+
+  // ציר-מד שמסתדר אוטומטית לעמודות הנראות כרגע על המסך (לא תלוי בכיוון/scrollLeft).
+  // מודד אילו עמודות נמצאות בתוך חלון-הראייה לפי מיקום בפועל (getBoundingClientRect).
   const scrollRef = useRef(null);
   const [viewMax, setViewMax] = useState(1);
   const pitch = colMin + gap;
   const recomputeViewMax = useCallback(() => {
     const el = scrollRef.current;
-    if (!el || !shown.length) return;
-    const first = Math.max(0, Math.floor((el.scrollLeft - 2) / pitch));
-    const last = Math.min(shown.length - 1, Math.ceil((el.scrollLeft + el.clientWidth - 2) / pitch));
-    let m = 1;
-    for (let i = first; i <= last; i++) m = Math.max(m, shown[i]?.views || 0);
-    setViewMax(m);
-  }, [shown, pitch]);
-  // פתיחה אוטומטית על התקופה העדכנית ביותר (קצה ימני) + כיול הציר אליה.
-  // כמה ניסיונות אחרי שה-layout מוכן — נייד/RTL לפעמים מחמיץ ניסיון בודד.
-  useEffect(() => {
-    const el = scrollRef.current;
     if (!el) return;
-    const toEnd = () => { if (scrollRef.current) { scrollRef.current.scrollLeft = scrollRef.current.scrollWidth; recomputeViewMax(); } };
-    toEnd();
-    const raf = requestAnimationFrame(toEnd);
-    const t1 = setTimeout(toEnd, 80);
-    const t2 = setTimeout(toEnd, 300);
-    return () => { cancelAnimationFrame(raf); clearTimeout(t1); clearTimeout(t2); };
-  }, [shown, recomputeViewMax]);
+    const cont = el.getBoundingClientRect();
+    let m = 1;
+    el.querySelectorAll("[data-v]").forEach(node => {
+      const r = node.getBoundingClientRect();
+      if (r.right > cont.left + 1 && r.left < cont.right - 1) {
+        const v = +node.getAttribute("data-v") || 0;
+        if (v > m) m = v;
+      }
+    });
+    setViewMax(m);
+  }, []);
+  // כיול הציר אחרי שה-layout מוכן (וכשמחליפים תצוגה).
+  useEffect(() => {
+    const raf = requestAnimationFrame(recomputeViewMax);
+    const t = setTimeout(recomputeViewMax, 120);
+    return () => { cancelAnimationFrame(raf); clearTimeout(t); };
+  }, [display, recomputeViewMax]);
   const scrollTick = useRef(false);
   const onScroll = useCallback(() => {
     if (scrollTick.current) return;
@@ -1269,19 +1271,19 @@ function TrafficHistoryPanel() {
 
             {/* גרף: עמודות (נגלל) + ציר-מד אנכי בצד (כמות גלישה) */}
             <div style={{ display: "flex", gap: 6 }}>
-              <div ref={scrollRef} onScroll={onScroll} dir="ltr" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
+              <div ref={scrollRef} onScroll={onScroll} dir="rtl" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
                 <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap, height: BZ + LBL, minWidth: shown.length * pitch + 8, paddingInline: 2 }}>
                   {ticks.map((t, i) => (
                     <div key={"g" + i} style={{ position: "absolute", left: 0, right: 0, bottom: LBL + (t.pct / 100) * BZ, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
                   ))}
-                  {shown.map((r, i) => {
+                  {display.map((r, i) => {
                     const views = r.views || 0, live = r.live_views || 0;
                     const totalH = views > 0 ? Math.max(2, Math.round((barH(views) / 100) * BZ)) : 0;
                     const liveH = live > 0 ? Math.max(2, Math.round((barH(live) / 100) * BZ)) : 0;
                     const jpH = Math.max(0, totalH - liveH);
                     const active = sel === r.period;
                     return (
-                      <div key={i} onClick={() => setSel(active ? null : r.period)}
+                      <div key={i} data-v={views} onClick={() => setSel(active ? null : r.period)}
                         style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: BZ + LBL, minWidth: colMin, cursor: "pointer", borderRadius: 6, background: active ? "rgba(212,175,55,0.14)" : "transparent" }}>
                         <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw, height: BZ }}>
                           {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none", transition: "height .25s ease" }} />}
