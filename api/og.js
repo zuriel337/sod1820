@@ -50,6 +50,23 @@ const STATIC = {
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const stripHtml = (s = '') => String(s).replace(/<[^>]*>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim();
 
+// WhatsApp לא מציג באופן אמין תמונות WebP בתצוגה המקדימה (פייסבוק כן). ממירים WebP
+// מאחסון Supabase ל-JPEG דרך נקודת ה-render — שומר על יחס הממדים, ללא חיתוך — כך
+// שיתוף תפילה/פוסט מביא תמונה גם בוואטסאפ, גם בפייסבוק וגם בטלגרם. jpg/png נשארים כמו שהם.
+function waSafeImage(url) {
+  if (!url || typeof url !== 'string') return url;
+  const m = url.match(/^(https?:\/\/[^/]+)\/storage\/v1\/object\/public\/(.+?\.webp)(?:\?.*)?$/i);
+  if (!m) return url;
+  return `${m[1]}/storage/v1/render/image/public/${m[2]}?width=1200&quality=82`;
+}
+// סוג התמונה ל-og:image:type — עוזר לרובוטים להציג מיד בלי לנחש.
+const ogImageType = (url = '') =>
+  /\/api\/card/.test(url) ? 'image/png'
+  : /\/render\/image\//.test(url) ? 'image/jpeg'
+  : /\.png(\?|$)/i.test(url) ? 'image/png'
+  : /\.webp(\?|$)/i.test(url) ? 'image/webp'
+  : 'image/jpeg';
+
 // תיאור מטא נקי, קצוץ לגבול מילה (~160 תווים) — ללא חיתוך באמצע מילה.
 function cleanDesc(raw = '', max = 160) {
   let s = stripHtml(raw).replace(/^\s*מאת[:\s].{0,40}?(?=\s)/, ' ').replace(/\s+/g, ' ').trim();
@@ -158,6 +175,10 @@ export default async function handler(req, res) {
     }
   }
 
+  // וידוא תמונת שיתוף ידידותית לוואטסאפ (WebP → JPEG דרך render) — לפני בניית המטא וה-JSON-LD.
+  image = waSafeImage(image);
+  const imgType = ogImageType(image);
+
   // ── מטא ייעודי למאמרים + JSON-LD ──
   let articleMeta = '';
   let jsonLd = '';
@@ -203,6 +224,8 @@ export default async function handler(req, res) {
 <meta property="og:description" content="${esc(desc)}"/>
 <meta property="og:url" content="${esc(canonical)}"/>
 <meta property="og:image" content="${esc(image)}"/>
+<meta property="og:image:secure_url" content="${esc(image)}"/>
+<meta property="og:image:type" content="${imgType}"/>
 ${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>
