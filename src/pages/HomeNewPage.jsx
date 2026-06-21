@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
 import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
@@ -162,7 +162,7 @@ export default function HomeNewPage() {
               </div>
               <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>{p.date ? new Date(p.date).toLocaleDateString("he-IL") : ""}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
+                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🕒 עודכן {timeAgoHe(p.modified || p.date)}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
               </div>
             </Link>
             );
