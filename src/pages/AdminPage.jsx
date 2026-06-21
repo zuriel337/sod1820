@@ -1166,10 +1166,13 @@ function TrafficHistoryPanel() {
   useEffect(() => { if (!gaRan.current) { gaRan.current = true; runGaSync(); } }, [runGaSync]);
 
   // תצוגת "ימים" = חודשיים אחרונים בלבד (לא כל השנים).
+  // ממיינים בעצמנו לפי תאריך — Supabase/PostgREST לא מתחייב לשמור את סדר ה-RPC,
+  // ובלי זה slice(-62) עלול לחטוף דווקא את הימים הישנים (2015-2017).
   const dayCap = 62;
   const shown = useMemo(() => {
     if (!rows) return [];
-    return gran === "day" ? rows.slice(-dayCap) : rows;
+    const sorted = [...rows].sort((a, b) => String(a.period).localeCompare(String(b.period)));
+    return gran === "day" ? sorted.slice(-dayCap) : sorted;
   }, [rows, gran, dayCap]);
   const bw = mob ? 16 : 24;        // רוחב עמודה
   const gap = mob ? 4 : 6;
