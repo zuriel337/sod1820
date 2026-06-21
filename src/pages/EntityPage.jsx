@@ -10,6 +10,23 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+
+// 🔗 הצלבות גלריה — תמונות שבהן הערך הוא משני (all_values), מקופל כברירת מחדל
+// כדי שהמספר המבוקש יישאר ממוקד ובולט, בלי לאבד את ההצלבות (הלב).
+function CrossGallery({ value, images, P }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ marginTop: 16, borderTop: `1px solid ${P.border}`, paddingTop: 12 }}>
+      <button onClick={() => setShow(s => !s)} style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5 }}>
+        <span>🔗 {value} מופיע גם בגלריות אחרות (הצלבות)</span>
+        <span style={{ color: P.border }}>· {images.length}</span>
+        <span style={{ flex: 1 }} />
+        <span>{show ? "▴" : "▾"}</span>
+      </button>
+      {show && <div style={{ marginTop: 10 }}><PostImageCarousel value={value} images={images} /></div>}
+    </div>
+  );
+}
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
@@ -544,14 +561,19 @@ export default function EntityPage() {
           </div>
         </Acc>
 
-        {/* ── 🖼 גלריות — אחרי המילים ── */}
-        {d.galleries?.length > 0 && (
-          <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={d.galleriesCount} open={open} onToggle={toggleAcc} P={P}>
-            {/* עץ אחד: אותה קרוסלה רצה כמו בתוך פוסט — חוק קנוני לכל מספר/ביטוי.
-                התמונות כבר נטענו במאגד (primary_value או all_values) — בלי שאילתה כפולה. */}
-            <PostImageCarousel value={value} images={d.galleries} />
-          </Acc>
-        )}
+        {/* ── 🖼 גלריות — ממוקד: רק primary_value=הערך; הצלבות (ערך משני) מקופלות בנפרד ── */}
+        {d.galleries?.length > 0 && (() => {
+          const primary = d.galleries.filter(g => Number(g.primary_value) === Number(value));
+          const cross = d.galleries.filter(g => Number(g.primary_value) !== Number(value));
+          const main = primary.length ? primary : d.galleries; // נפילה לאחור אם אין primary
+          return (
+            <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={main.length} open={open} onToggle={toggleAcc} P={P}>
+              {/* עץ אחד: אותה קרוסלה כמו בפוסט. ממוקד בערך עצמו — לא נטבע ע״י הצלבות. */}
+              <PostImageCarousel value={value} images={main} />
+              {primary.length > 0 && cross.length > 0 && <CrossGallery value={value} images={cross} P={P} />}
+            </Acc>
+          );
+        })()}
 
         {/* טעינה / אין קשרים (הוסרה שורת הכפילות שחזרה על כותרות האקורדיונים) */}
         {loading ? (
