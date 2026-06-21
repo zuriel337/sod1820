@@ -65,15 +65,6 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
-// ── פירוט תקופה מהנתונים החיים: לחיצה על יום/שבוע/חודש בגרף → אילו עמודים, מאיפה, מכשירים ──
-// start/end = מחרוזות תאריך 'YYYY-MM-DD' (חלון חצי-פתוח [start, end)). admin בלבד.
-export async function getPeriodDetail(start, end) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("visit_period_detail", { p_start: start, p_end: end });
-  if (error) throw error;
-  return data;
-}
-
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
   if (!supabase) return null;

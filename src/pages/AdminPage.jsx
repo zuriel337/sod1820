@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getPeriodDetail } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1041,6 +1041,44 @@ function LiveStatsView() {
 
       {!empty && (
         <>
+          {/* גרף צפיות — יום / חודש */}
+          <div style={card}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+              <H>צפיות לפי {granLabel}</H>
+              <span style={{ flex: 1 }} />
+              <div style={segWrap}>
+                {[["linear", "רגיל"], ["log", "לוג"]].map(([k, l]) => <button key={k} onClick={() => setScale(k)} style={segBtn(scale === k)}>{l}</button>)}
+              </div>
+              <div style={segWrap}>
+                {[["day", "יום"], ["month", "חודש"]].map(([k, l]) => <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>)}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <div style={{ flex: 1, minWidth: 0, position: "relative", height: 190, borderInlineStart: `1px solid ${C.border}` }}>
+                {ticks.map((t, i) => <div key={i} style={{ position: "absolute", insetInline: 0, bottom: `${t.pct}%`, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />)}
+                <div style={{ position: "absolute", inset: 0, overflowX: "auto", overflowY: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", minWidth: gran === "day" ? view.length * 8 : "100%", paddingInline: 2 }}>
+                    {view.map(r => (
+                      <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות · ${r.uniques.toLocaleString()} ייחודיים`}
+                        style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
+                        <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${barH(r.views)}%`, minHeight: r.views > 0 ? 2 : 0, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ width: 50, position: "relative", height: 190, flexShrink: 0 }}>
+                {ticks.map((t, i) => <div key={i} style={{ position: "absolute", right: 0, bottom: `${t.pct}%`, transform: "translateY(50%)", color: C.goldDim, fontFamily: F.mono, fontSize: 10, whiteSpace: "nowrap" }}>{t.label}</div>)}
+              </div>
+            </div>
+            {sel && (
+              <div style={{ marginTop: 12, padding: "12px 16px", border: `1px solid ${C.borderGold}`, borderRadius: 12, background: "rgba(212,175,55,0.06)" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>📅 {sel.key} · {sel.views.toLocaleString()} צפיות · {sel.uniques.toLocaleString()} מבקרים ייחודיים</div>
+              </div>
+            )}
+            <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 10, marginTop: 6, textAlign: "center" }}>לחצו על עמודה לפירוט · {view.length} {gran === "day" ? "ימים" : "חודשים"}</div>
+          </div>
+
           {/* דפים מובילים + מאיפה הגיעו */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
             <div style={card}>
@@ -1098,44 +1136,18 @@ function LiveStatsView() {
 }
 
 // ===== 📊 צמיחת התנועה לאורך הזמן (היסטוריית Jetpack + חי) =====
-// חישוב סוף-חלון (חצי-פתוח) לתקופה לפי גרנולריות — להעברה ל-getPeriodDetail
-function periodEnd(periodStr, gran) {
-  const [y, m, d] = String(periodStr).slice(0, 10).split("-").map(Number);
-  const dt = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
-  if (gran === "year") dt.setUTCFullYear(dt.getUTCFullYear() + 1);
-  else if (gran === "month") dt.setUTCMonth(dt.getUTCMonth() + 1);
-  else if (gran === "week") dt.setUTCDate(dt.getUTCDate() + 7);
-  else dt.setUTCDate(dt.getUTCDate() + 1);
-  return dt.toISOString().slice(0, 10);
-}
-const decodePathLabel = p => { try { return decodeURIComponent(p); } catch { return p; } };
-
 function TrafficHistoryPanel() {
   const mob = useIsMobile();
-  const [gran, setGran] = useState("day"); // day | week | month | year
+  const [gran, setGran] = useState("month"); // day | month | year
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
   const [ga, setGa] = useState(null);      // סטטוס סנכרון GA
   const [gaBusy, setGaBusy] = useState(false);
-  const [sel, setSel] = useState(null);       // התקופה שנבחרה (period date string)
-  const [detail, setDetail] = useState(null); // פירוט הנתונים החיים לאותה תקופה
-  const [detailBusy, setDetailBusy] = useState(false);
   const load = useCallback(() => {
     setRows(null); setErr("");
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { setSel(null); setDetail(null); }, [gran]); // החלפת תצוגה → סוגרים פירוט
-
-  // לחיצה על עמודה → בחירת התקופה + משיכת פירוט הנתונים החיים (עמודים/מקורות/מכשירים)
-  const openDetail = useCallback((row) => {
-    if (sel?.period === row.period) { setSel(null); setDetail(null); return; } // קליק חוזר = סגירה
-    setSel(row); setDetail(null); setDetailBusy(true);
-    getPeriodDetail(String(row.period).slice(0, 10), periodEnd(row.period, gran))
-      .then(setDetail)
-      .catch(() => setDetail({ error: true }))
-      .finally(() => setDetailBusy(false));
-  }, [sel, gran]);
 
   const runGaSync = useCallback(async () => {
     setGaBusy(true);
@@ -1165,20 +1177,10 @@ function TrafficHistoryPanel() {
   const scrollRef = useRef(null);
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
-    const toEnd = () => { el.scrollLeft = el.scrollWidth; };
-    toEnd();
-    const raf = requestAnimationFrame(toEnd); // אחרי שה-layout מוכן (נייד/RTL)
-    return () => cancelAnimationFrame(raf);
+    if (el) el.scrollLeft = el.scrollWidth;
   }, [shown]);
   const max = Math.max(1, ...shown.map(r => r.views || 0));
   const total = shown.reduce((s, r) => s + (r.views || 0), 0);
-  // ציר-מד בצד: סקאלה "עגולה" + תוויות כמות גלישה
-  const niceTop = m => { const p = Math.pow(10, Math.floor(Math.log10(Math.max(m, 1)))); const f = m / p; const nf = f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10; return nf * p; };
-  const fmtK = n => n >= 1000 ? +(n / 1000).toFixed(n >= 10000 ? 0 : 1) + "k" : String(Math.round(n));
-  const top = niceTop(max);
-  const yticks = [0, .25, .5, .75, 1].map(fr => ({ fr, label: fmtK(top * fr) }));
-  const BZ = mob ? 120 : 140, LBL = 16; // גובה אזור-העמודות + גובה תווית-התאריך
   const fmtLabel = p => {
     const s = String(p);
     if (gran === "year") return s.slice(0, 4);
@@ -1196,7 +1198,7 @@ function TrafficHistoryPanel() {
         </div>
         <button onClick={runGaSync} disabled={gaBusy} title="משיכת נתונים מ-Google Analytics" style={{ ...segBtn(false), opacity: gaBusy ? 0.5 : 1, cursor: gaBusy ? "default" : "pointer" }}>{gaBusy ? "מסנכרן…" : "🔄 GA"}</button>
         <div style={segWrap}>
-          {[["day", "ימים"], ["week", "שבועות"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
+          {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
             <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
           ))}
         </div>
@@ -1220,106 +1222,26 @@ function TrafficHistoryPanel() {
             <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
               {gran === "day" ? `סה״כ ב-${dayCap} הימים האחרונים` : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
             </div>
-            {/* גרף אחד: עמודות (ימין, נגלל) + ציר-מד כמות גלישה (שמאל) */}
-            <div style={{ display: "flex", gap: 6 }}>
-              <div ref={scrollRef} dir="ltr" style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
-                <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap, height: BZ + LBL, minWidth: shown.length * (bw + gap) + 8, paddingInline: 2 }}>
-                  {/* קווי-עזר אופקיים ברוחב כל הגרף — תואמים לציר-המד */}
-                  {yticks.map((t, i) => (
-                    <div key={"g" + i} style={{ position: "absolute", left: 0, right: 0, bottom: LBL + t.fr * BZ, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
-                  ))}
-                  {shown.map((r, i) => {
-                    const views = r.views || 0, live = r.live_views || 0;
-                    const totalH = views > 0 ? Math.max(2, Math.round((views / top) * BZ)) : 0;
-                    const liveH = live > 0 ? Math.max(2, Math.round((live / top) * BZ)) : 0;
-                    const jpH = Math.max(0, totalH - liveH);
-                    const active = sel?.period === r.period;
-                    return (
-                      <div key={i} onClick={() => openDetail(r)}
-                        style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: BZ + LBL, minWidth: colMin, cursor: "pointer", borderRadius: 6, background: active ? "rgba(76,175,80,0.14)" : "transparent" }}>
-                        <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""} — לחצו לפירוט`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw, height: BZ }}>
-                          {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none" }} />}
-                          {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0", outline: active && liveH === 0 ? `2px solid ${C.goldBright}` : "none" }} />}
-                        </div>
-                        <span style={{ height: LBL, lineHeight: `${LBL}px`, fontSize: mob ? 8.5 : 9.5, color: active ? "#7bd087" : C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              {/* ציר-המד: כמה גלשו */}
-              <div style={{ width: 40, position: "relative", height: BZ + LBL, flexShrink: 0, borderInlineStart: `1px solid ${C.border}` }}>
-                {yticks.map((t, i) => (
-                  <div key={i} style={{ position: "absolute", insetInlineStart: 4, bottom: LBL + t.fr * BZ, transform: "translateY(50%)", color: C.goldDim, fontFamily: F.mono, fontSize: 10, whiteSpace: "nowrap" }}>{t.label}</div>
-                ))}
-              </div>
+            <div ref={scrollRef} dir="ltr" style={{ display: "flex", alignItems: "flex-end", gap, height: 150, overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "6px 2px 0" }}>
+              {shown.map((r, i) => {
+                const views = r.views || 0, live = r.live_views || 0;
+                const totalH = Math.max(3, Math.round((views / max) * 105));
+                const liveH = live > 0 ? Math.max(2, Math.round((live / max) * 105)) : 0;
+                const jpH = Math.max(0, totalH - liveH);
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: colMin }}>
+                    {!mob && <span style={{ fontSize: 10, color: live > 0 ? "#4caf50" : C.goldBright, fontFamily: F.mono }}>{views.toLocaleString()}</span>}
+                    <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw }}>
+                      {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0" }} />}
+                      {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0" }} />}
+                    </div>
+                    <span style={{ fontSize: mob ? 8.5 : 9.5, color: C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
+                  </div>
+                );
+              })}
             </div>
-            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1, textAlign: "center", marginTop: 2 }}>מד כמות גלישה ↑</div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 6 }}>
-              לחצו על כל עמודה לפירוט היום. ב<span style={{ color: "#4caf50" }}>ירוקים (חי)</span> רואים גם אילו עמודים נצפו ומאיפה הגיעו · {mob ? "החליקו הצידה לגלילה" : "גללו הצידה לכל השנים"}
-            </div>
-            <PeriodDetail sel={sel} gran={gran} detail={detail} busy={detailBusy} onClose={() => { setSel(null); setDetail(null); }} />
+            {mob && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 6 }}>הקש על עמודה לראות את המספר המדויק · החלק הצידה לגלילה</div>}
           </>
-        )}
-    </div>
-  );
-}
-
-// פאנל פירוט תקופה — נפתח בלחיצה על עמודה בגרף הצמיחה
-function PeriodDetail({ sel, gran, detail, busy, onClose }) {
-  if (!sel) return null;
-  const granLabel = gran === "year" ? "שנה" : gran === "month" ? "חודש" : gran === "week" ? "שבוע" : "יום";
-  const isLive = (sel.live_views || 0) > 0;            // יום ירוק = יש פירוט עמודים
-  const accent = isLive ? "#7bd087" : C.goldBright;
-  const dayViews = sel.views || 0;                     // הסכום מהעמודה — תמיד מוצג
-  const Bars = ({ items, labelKey, valueKey, href }) => {
-    const max = Math.max(1, ...items.map(x => x[valueKey] || 0));
-    return (
-      <div style={{ display: "grid", gap: 6 }}>
-        {items.map((r, i) => {
-          const label = labelKey === "path" ? decodePathLabel(r[labelKey]) : r[labelKey];
-          return (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 10 }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", direction: "ltr", textAlign: "right" }} title={label}>
-                  {href ? <a href={r[labelKey]} target="_blank" rel="noopener noreferrer" style={{ color: LINK, textDecoration: "none" }}>{label}</a> : label}
-                </div>
-                <div style={{ height: 4, background: C.border, borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${Math.round((r[valueKey] || 0) / max * 100)}%`, background: `linear-gradient(to left, #2e7d32, #4caf50)` }} />
-                </div>
-              </div>
-              <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 12.5 }}>{(r[valueKey] || 0).toLocaleString()}</div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-  return (
-    <div style={{ marginTop: 14, border: `1px solid ${isLive ? "rgba(76,175,80,0.4)" : C.borderGold}`, borderRadius: 12, background: isLive ? "rgba(76,175,80,0.05)" : "rgba(212,175,55,0.05)", padding: "14px 16px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        <div style={{ flex: 1, color: accent, fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>
-          {isLive ? "🟢" : "🟡"} פירוט {granLabel} · {String(sel.period).slice(0, 10)}
-          <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12, fontWeight: 400 }}> · {dayViews.toLocaleString()} צפיות{detail && !detail.error && (detail.uniques || 0) > 0 ? ` · ${(detail.uniques || 0).toLocaleString()} ייחודיים` : ""}</span>
-        </div>
-        <button onClick={onClose} title="סגור" style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, width: 26, height: 26, lineHeight: "1" }}>✕</button>
-      </div>
-      {busy ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: 8 }}>טוען פירוט…</div>
-        : detail?.error ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13 }}>שגיאה בטעינת הפירוט.</div>
-        : !detail || (detail.views || 0) === 0 ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>זהו יום מהאתר הישן (Jetpack) — סה״כ <b style={{ color: C.goldLight }}>{dayViews.toLocaleString()}</b> צפיות. פירוט ברמת העמוד (אילו עמודים, מאיפה הגיעו) קיים מהמעבר לאתר החדש — בעמודות הירוקות.</div>
-        : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
-            <div>
-              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📄 העמודים שנצפו</div>
-              {(detail.paths || []).length ? <Bars items={detail.paths} labelKey="path" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
-            </div>
-            <div>
-              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>↘ מאיפה הגיעו</div>
-              {(detail.referrers || []).length ? <Bars items={detail.referrers} labelKey="referrer" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
-              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "14px 0 8px" }}>📱 מכשירים</div>
-              {(detail.devices || []).length ? <Bars items={detail.devices} labelKey="device" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
-            </div>
-          </div>
         )}
     </div>
   );
