@@ -1179,7 +1179,7 @@ function TrafficHistoryPanel() {
         <span style={{ fontSize: 24 }}>📊</span>
         <div style={{ flex: 1, minWidth: 160 }}>
           <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>צמיחת התנועה לאורך הזמן</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>היסטוריית הצפיות (Jetpack) — איך זה עולה לאורך הזמן</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>קו רציף — <span style={{ color: C.goldBright }}>🟡 Jetpack (עבר)</span> · <span style={{ color: "#4caf50" }}>🟢 האתר החדש (חי)</span></div>
         </div>
         <div style={segWrap}>
           {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
@@ -1200,13 +1200,22 @@ function TrafficHistoryPanel() {
               {gran === "day" ? "סה״כ ב-120 הימים האחרונים" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 150, overflowX: "auto", padding: "6px 2px 0" }}>
-              {shown.map((r, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 36 }}>
-                  <span style={{ fontSize: 10, color: C.goldBright, fontFamily: F.mono }}>{(r.views || 0).toLocaleString()}</span>
-                  <div title={`${r.period}: ${r.views}`} style={{ width: 24, height: Math.max(3, Math.round((r.views / max) * 105)), background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: "4px 4px 0 0" }} />
-                  <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{fmtLabel(r.period)}</span>
-                </div>
-              ))}
+              {shown.map((r, i) => {
+                const views = r.views || 0, live = r.live_views || 0;
+                const totalH = Math.max(3, Math.round((views / max) * 105));
+                const liveH = live > 0 ? Math.max(2, Math.round((live / max) * 105)) : 0;
+                const jpH = Math.max(0, totalH - liveH);
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 36 }}>
+                    <span style={{ fontSize: 10, color: live > 0 ? "#4caf50" : C.goldBright, fontFamily: F.mono }}>{views.toLocaleString()}</span>
+                    <div title={`${r.period}: ${views}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: 24 }}>
+                      {liveH > 0 && <div style={{ width: 24, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0" }} />}
+                      {jpH > 0 && <div style={{ width: 24, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0" }} />}
+                    </div>
+                    <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{fmtLabel(r.period)}</span>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}

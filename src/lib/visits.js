@@ -57,14 +57,10 @@ export async function getVisitStats(days = 90) {
   return data;
 }
 
-// ── היסטוריית תנועה ארוכת-טווח (מונה Jetpack הישן + מקורות נוספים) ──
+// ── היסטוריית תנועה ארוכת-טווח: Jetpack (עבר) + חי (האתר החדש), קו רציף ──
 export async function getTrafficHistory(granularity = "month") {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("traffic_history")
-    .select("period, views, visitors, source")
-    .eq("granularity", granularity)
-    .order("period", { ascending: true });
+  const { data, error } = await supabase.rpc("traffic_history_combined", { p_gran: granularity });
   if (error) throw error;
   return data || [];
 }
