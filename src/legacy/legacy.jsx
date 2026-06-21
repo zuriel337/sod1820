@@ -4893,7 +4893,9 @@ function PostPageBySlug({ onNav }) {
   const P = usePalette();
   // פוסט נקי (theme='auto', לא וורדפרס) = תמה-מודע, מתחלף יום/לילה עם המתג.
   // פוסט ישן (legacy-dark / source=wordpress) = נעול כהה — מכבד צבעים צרובים מ-WP.
-  const themed = post?.theme === "auto" && post?.source !== "wordpress";
+  // themed = מתחלף עם מתג יום/לילה. ברירת מחדל ל-WordPress היא נעול-כהה (צבעים צרובים),
+  // אבל פוסט שסומן במפורש theme='auto' יתחלף — גם פוסט ישן (opt-in דרך הניהול/DB).
+  const themed = post?.theme === "auto";
   const pc = themed
     ? { bg: P.mode === "light" ? P.pageBg : C.bg, bgGlow: P.cardSoft, border: P.border, borderGold: P.borderStrong, faint: P.cardSoft, gold: P.accent, goldBright: P.accentText, goldDark: P.accentDim, goldDeep: P.onAccent, goldDim: P.accentDim, goldLight: P.ink, muted: P.inkSoft, royalLight: C.royalLight, surface: P.card, ink: P.ink, sub: P.inkSoft }
     : { bg: C.bg, bgGlow: C.bgGlow, border: C.border, borderGold: C.borderGold, faint: C.faint, gold: C.gold, goldBright: C.goldBright, goldDark: C.goldDark, goldDeep: C.goldDeep, goldDim: C.goldDim, goldLight: C.goldLight, muted: C.muted, royalLight: C.royalLight, surface: C.surface, ink: "#ede4d3", sub: "#d4ccbf" };

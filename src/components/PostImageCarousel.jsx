@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -36,6 +36,16 @@ function cleanName(name) {
   return s;
 }
 
+// תאריך מיון אמין: occurred_at → תאריך מהנתיב /uploads/YYYY/MM/ → created_at.
+// (כך גם תמונות בלי occurred_at לא "שוקעות" לתחתית והסדר נשאר כרונולוגי נורמלי.)
+function dateVal(img) {
+  if (img.occurred_at) { const d = new Date(img.occurred_at); if (!isNaN(d)) return d.getTime(); }
+  const m = (img.image_url || "").match(/\/uploads\/(\d{4})\/(\d{2})\//);
+  if (m) return new Date(+m[1], (+m[2]) - 1, 1).getTime();
+  if (img.created_at) { const d = new Date(img.created_at); if (!isNaN(d)) return d.getTime(); }
+  return 0;
+}
+
 // המספרים שבתמונה: primary קודם, ואז all_values (ללא כפילות), מסוננים למספרים תקפים.
 function imgNumbers(img) {
   const out = [];
@@ -63,7 +73,10 @@ export default function PostImageCarousel({ value, images }) {
     return () => { alive = false; };
   }, [value, provided, images]);
 
-  const total = imgs ? imgs.length : 0;
+  // סדר ברירת-המחדל ה"נורמלי": מאוצר (importance) קודם, ואז כרונולוגי (חדש→ישן).
+  const pics = useMemo(() => (imgs ? [...imgs].sort((a, b) =>
+    ((Number(b.importance) || 0) - (Number(a.importance) || 0)) || (dateVal(b) - dateVal(a))) : []), [imgs]);
+  const total = pics.length;
   const go = useCallback(d => setIdx(i => total ? (i + d + total) % total : 0), [total]);
   const lbGo = useCallback(d => setLbIdx(i => i == null || !total ? i : (i + d + total) % total), [total]);
 
@@ -99,7 +112,7 @@ export default function PostImageCarousel({ value, images }) {
     display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto",
   };
 
-  const lb = lbIdx != null ? imgs[lbIdx] : null;
+  const lb = lbIdx != null ? pics[lbIdx] : null;
   const lbNm = cleanName(lb?.name);
 
   return (
@@ -112,7 +125,7 @@ export default function PostImageCarousel({ value, images }) {
       <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${P.borderStrong}`, background: P.cardSoft, boxShadow: `0 6px 26px ${P.glow}` }}>
         <div style={{ position: "relative", width: "100%", height: "clamp(280px,62vw,440px)", overflow: "hidden", direction: "ltr" }}>
           <div style={{ display: "flex", height: "100%", transition: "transform .55s cubic-bezier(.22,.61,.36,1)", transform: `translateX(${-idx * 100}%)` }}>
-            {imgs.map((img, i) => (
+            {pics.map((img, i) => (
               <button
                 key={img.id || i}
                 onClick={() => setLbIdx(i)}
@@ -141,7 +154,7 @@ export default function PostImageCarousel({ value, images }) {
 
       {/* כיתוב השקופית: שם · תיאור (מה שנכתב מתחת לתמונה) · מספרים לחיצים · תאריך העלאה */}
       {(() => {
-        const cur = imgs[idx];
+        const cur = pics[idx];
         const nums = imgNumbers(cur);
         const dt = uploadDate(cur);
         const nm = cleanName(cur.name);
@@ -165,7 +178,7 @@ export default function PostImageCarousel({ value, images }) {
       {/* נקודות ניווט */}
       {total > 1 && total <= 30 && (
         <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
-          {imgs.map((_, i) => (
+          {pics.map((_, i) => (
             <button key={i} onClick={() => setIdx(i)} aria-label={`תמונה ${i + 1}`}
               style={{ cursor: "pointer", width: i === idx ? 22 : 8, height: 8, borderRadius: 999, border: "none", padding: 0, background: i === idx ? P.accentBtn : P.border, transition: "all .3s" }} />
           ))}
