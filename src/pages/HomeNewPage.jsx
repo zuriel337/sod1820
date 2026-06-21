@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -6,6 +6,7 @@ import { setTheme } from "../lib/themeMode.js";
 import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
+import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
@@ -54,6 +55,7 @@ export default function HomeNewPage() {
       setCards(c || []);
       const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
       if (ids.length) { try { const im = await getGalleryImagesByIds(ids); setImgMap(Object.fromEntries((im || []).map(x => [x.id, x.image_url]))); } catch { /* ignore */ } }
+      markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
   }, []);
@@ -64,6 +66,12 @@ export default function HomeNewPage() {
 
   // שער הגלקסיות — טופיקים שעוברים סף מחמיר (meter≥63) = גלקסיות פתוחות
   const galaxies = cards.filter(c => (c.meter_score || 0) >= 63).slice(0, 6);
+
+  // LIVE — 4 ההתכנסויות האחרונות בלבד; "חדש" = נוסף מאז הביקור האחרון (per-user).
+  const convCutoff = useMemo(() => seenCutoff("home-conv"), []);
+  const liveCards = useMemo(() => [...cards]
+    .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
+    .slice(0, 4), [cards]);
 
   // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
   const decodeHtml = s => { try { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; } catch { return s; } };
@@ -222,14 +230,16 @@ export default function HomeNewPage() {
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 60px" }}>
         <h2 className="hn-h2"><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</h2>
-        <p className="hn-sub">צירי ההתכנסות החיים — כל ציר מחבר מספר, אירוע וגלריה</p>
+        <p className="hn-sub">ארבע ההתכנסויות האחרונות — החדש מודגש</p>
         <div className="hn-postgrid">
-          {cards.slice(0, 8).map(c => {
+          {liveCards.map(c => {
             const img = imgMap[(c.image_ids || [])[0]];
+            const fresh = isNewSince(c, convCutoff);
             return (
-            <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} className="hn-card">
-              <div style={{ height: 110, background: img ? `center/cover no-repeat url(${img})` : P.cardGrad, display: "flex", alignItems: "flex-end" }}>
+            <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: `0 0 0 1px #e0556a55` } : undefined}>
+              <div style={{ height: 110, background: img ? `center/cover no-repeat url(${img})` : P.cardGrad, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                 <span style={{ color: P.accent, fontSize: 11, letterSpacing: 1, background: P.cardSoft, borderRadius: 999, padding: "2px 9px", margin: 8 }}>{stars(c.quality)}</span>
+                {fresh && <span style={{ background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", margin: 8, animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
               </div>
               <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>

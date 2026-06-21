@@ -34,3 +34,17 @@ export function crossDate(iso) {
   try { return new Date(iso).toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "numeric" }); }
   catch { return ""; }
 }
+
+// ===== גרסה גנרית — "חדש מאז ביקור אחרון" לכל משטח (בית, התכנסויות, חידושים) =====
+// אותו עיקרון, מפתח נפרד לכל משטח. ביקור ראשון: חלון windowDays. משתמש ותיק: מאז שראה.
+export function seenCutoff(key, windowDays = 14) {
+  let saved = null;
+  try { saved = localStorage.getItem("sod-seen-" + key); } catch { /* ignore */ }
+  return saved || new Date(Date.now() - windowDays * 86400000).toISOString();
+}
+export function markSeenKey(key, ts) {
+  try { localStorage.setItem("sod-seen-" + key, ts || new Date().toISOString()); } catch { /* ignore */ }
+}
+export function isNewSince(item, cutoff) {
+  return !!(item && item.created_at && item.created_at > cutoff);
+}
