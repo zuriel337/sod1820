@@ -32,7 +32,6 @@ const COLUMNS = [
     links: [
       { label: "צ'אט האתר", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
-      { label: "תגובות", to: "/community/comments" },
       { label: "בני ההיכל", to: "/members" },
     ],
   },

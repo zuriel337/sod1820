@@ -4331,9 +4331,9 @@ function ContactPage() {
   ];
 
   const TESTIMONIALS = [
-    { text: "צוריאל, אני ממש מודה לך על מה שעשית כאן בשבילי — זו הפעם הראשונה שאני מרגיש ככה כבר תקופה. סוף סוף נפתר לי המידע על הספרה 51… זה גרם לי להוריד דמעות.", who: "חבר בקהילה" },
-    { text: "פתחתי את הקבוצה בעזרתך… תודה גדולה, תמיד אזכור. אתה לא מודע לכמה אתה עוזר — גם בלי להתכוון. 🙏", who: "חברה בקהילה" },
-    { text: "שמח להצטרף לקבוצה היקרה הזו. ראיתי כמה סרטונים כאן ואני כבר מאוהב בכם — עלו והצליחו בגילוי האמת. ✨", who: "מצטרף חדש" },
+    { text: "צוריאל, אני ממש מודה לך על מה שעשית כאן בשבילי — זו הפעם הראשונה שאני מרגיש ככה כבר תקופה. סוף סוף נפתר לי המידע על הספרה 51… זה גרם לי להוריד דמעות.", who: "חבר בקהילה", time: "12:01" },
+    { text: "פתחתי את הקבוצה בעזרתך… תודה גדולה, תמיד אזכור. אתה לא מודע לכמה אתה עוזר — גם בלי להתכוון. 🙏", who: "חברה בקהילה", time: "14:26" },
+    { text: "שמח להצטרף לקבוצה היקרה הזו. ראיתי כמה סרטונים כאן ואני כבר מאוהב בכם — עלו והצליחו בגילוי האמת. ✨", who: "מצטרף חדש", time: "23:02" },
   ];
 
   // צילומי ויראליות אמיתיים מתוך פוסט "צופן החותים" (טיקטוק/טלגרם — צפיות, שיתופים ותגובות)
@@ -4419,10 +4419,16 @@ function ContactPage() {
         .ct-testi-h { text-align:center; font-family:${FD}; font-weight:700; font-size:clamp(24px,4.6vw,34px); color:${P.accentText}; margin:0 0 6px; }
         .ct-testi-s { text-align:center; font-family:${FU}; font-size:14px; color:${P.inkSoft}; margin:0 0 28px; }
         .ct-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-        .ct-quote { margin:0; background:${P.card}; border:1px solid ${P.border}; border-radius:18px; padding:22px; position:relative; }
-        .ct-quote .ct-stars { color:${P.accent}; font-size:13px; letter-spacing:2px; margin-bottom:9px; }
-        .ct-quote p { font-family:${FU}; font-size:14.5px; line-height:1.85; color:${P.ink}; margin:0 0 12px; }
-        .ct-quote cite { font-family:${FU}; font-size:12.5px; font-weight:700; color:${P.accentDim}; font-style:normal; }
+        .ct-wa { background:${P.card}; border:1px solid ${P.border}; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.14); }
+        .ct-wa-head { display:flex; align-items:center; gap:10px; padding:10px 13px; background:${P.cardSoft}; border-bottom:1px solid ${P.border}; }
+        .ct-wa-ava { width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; font-family:${FU}; font-weight:800; font-size:15px; color:#fff; background:linear-gradient(135deg,#25d366,#128c43); }
+        .ct-wa-name { display:block; font-family:${FU}; font-weight:700; font-size:13.5px; color:${P.ink}; line-height:1.15; }
+        .ct-wa-status { font-family:${FU}; font-size:10.5px; color:#25d366; }
+        .ct-wa-body { padding:16px 13px; background:${P.mode === "light" ? "#e9e2d9" : "#0b141a"}; }
+        .ct-wa-bubble { background:${P.mode === "light" ? "#ffffff" : "#202c33"}; border-radius:9px 9px 9px 2px; padding:9px 12px 5px; box-shadow:0 1px 1px rgba(0,0,0,.18); }
+        .ct-wa-bubble p { font-family:${FU}; font-size:13.5px; line-height:1.7; color:${P.mode === "light" ? "#1f2c34" : "#e9edef"}; margin:0; }
+        .ct-wa-time { display:block; text-align:left; direction:ltr; font-family:${FU}; font-size:10.5px; color:${P.mode === "light" ? "#667781" : "#8696a0"}; margin-top:4px; }
+        .ct-wa-time b { color:#53bdeb; font-weight:400; }
 
         @media (max-width:820px){ .ct-channels{ grid-template-columns:repeat(2,1fr); } .ct-main{ grid-template-columns:1fr; } .ct-testi-grid{ grid-template-columns:1fr; } }
         @media (max-width:480px){ .ct-channels{ grid-template-columns:1fr; } }
@@ -4514,11 +4520,21 @@ function ContactPage() {
           <p className="ct-testi-s">הודעות אמיתיות מחברי הקהילה 💛</p>
           <div className="ct-testi-grid">
             {TESTIMONIALS.map((t, i) => (
-              <blockquote className="ct-quote" key={i}>
-                <div className="ct-stars">★★★★★</div>
-                <p>{t.text}</p>
-                <cite>— {t.who}</cite>
-              </blockquote>
+              <div className="ct-wa" key={i}>
+                <div className="ct-wa-head">
+                  <span className="ct-wa-ava">{t.who.charAt(0)}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="ct-wa-name">{t.who}</span>
+                    <span className="ct-wa-status">מקוון</span>
+                  </span>
+                </div>
+                <div className="ct-wa-body">
+                  <div className="ct-wa-bubble">
+                    <p>{t.text}</p>
+                    <span className="ct-wa-time">{t.time} <b>✓✓</b></span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </section>
