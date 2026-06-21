@@ -57,6 +57,14 @@ export async function getVisitStats(days = 90) {
   return data;
 }
 
+// פירוט דפים/מקורות עבור יום (או חודש) בודד שנבחר בגרף (key תואם sel.key).
+export async function getVisitDetail(gran, key) {
+  if (!supabase || !key) return null;
+  const { data, error } = await supabase.rpc("visits_detail_for", { p_gran: gran, p_key: key });
+  if (error) throw error;
+  return data;
+}
+
 // ── היסטוריית תנועה ארוכת-טווח: Jetpack (עבר) + חי (האתר החדש), קו רציף ──
 export async function getTrafficHistory(granularity = "month") {
   if (!supabase) return [];
