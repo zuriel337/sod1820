@@ -1093,33 +1093,8 @@ function LiveStatsView() {
         </>
       )}
 
-      {/* Google Analytics — סטטוס איסוף + דוח Looker חי */}
-      <div style={card}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: LOOKER_URL ? 12 : 0 }}>
-          <span style={{ fontSize: 26 }}>📈</span>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics (חי)</div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>
-              איסוף נתונים: {GA_ENABLED
-                ? <b style={{ color: "#5fbf6a" }}>✅ פעיל (gtag מותקן)</b>
-                : <b style={{ color: C.goldDim }}>⚠️ לא פעיל — הגדירו VITE_GA_ID</b>}
-            </div>
-          </div>
-          {GA_ENABLED && <span style={{ color: "#5fbf6a", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>LIVE</span>}
-        </div>
-        {LOOKER_URL ? (
-          <iframe title="Google Analytics — Looker Studio" src={LOOKER_URL}
-            style={{ width: "100%", height: mobile ? 460 : 640, border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff" }}
-            allowFullScreen />
-        ) : (
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.95, borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
-            <div style={{ color: C.goldLight, fontWeight: 700, marginBottom: 4 }}>להצגת דוח GA4 חי כאן (Realtime, מכשירים, ערים, דפים):</div>
-            1. ב-<a href="https://lookerstudio.google.com" target="_blank" rel="noopener noreferrer" style={linkA}>Looker Studio</a> צרו דוח מחובר ל-GA4.<br />
-            2. שיתוף → "כל מי שיש לו את הקישור" → העתיקו את כתובת ה-Embed.<br />
-            3. הגדירו אותה כמשתנה סביבה <b style={{ color: C.goldLight }}>VITE_LOOKER_URL</b> ב-Vercel — והדוח יופיע כאן.
-          </div>
-        )}
-      </div>
+      {/* Google Analytics — נתונים חיים אמיתיים (מקורות, מדינות, מכשירים, דפים, זמן-אמת) */}
+      <GoogleAnalyticsPanel />
 
       {/* צמיחת תנועה לאורך הזמן — היסטוריית Jetpack + חי */}
       <TrafficHistoryPanel />
@@ -1308,6 +1283,102 @@ function LegacyTopPagesPanel() {
           </div>
         )}
       </div>}
+    </div>
+  );
+}
+
+// ===== 📈 Google Analytics — נתונים חיים אמיתיים (GA4 Data API) =====
+const GA_CHANNEL_HE = {
+  "Organic Search": "חיפוש אורגני", "Direct": "ישיר", "Referral": "הפניה",
+  "Organic Social": "רשתות חברתיות", "Social": "רשתות חברתיות", "Email": "מייל",
+  "Paid Search": "חיפוש ממומן", "Display": "באנרים", "(Unassigned)": "לא משויך",
+  "Organic Shopping": "קניות", "Affiliates": "שותפים", "Audio": "אודיו", "Video": "וידאו",
+};
+const GA_DEVICE_HE = { desktop: "מחשב 🖥️", mobile: "נייד 📱", tablet: "טאבלט", smart_tv: "טלוויזיה" };
+const gaName = (s, map) => map[s] || s;
+
+function GaList({ title, items, fmt }) {
+  const max = Math.max(1, ...(items || []).map(i => i.value || 0));
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+      <div style={{ display: "grid", gap: 7 }}>
+        {(items || []).length ? items.map((it, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 10 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fmt ? fmt(it.key) : it.key}</div>
+              <div style={{ height: 4, background: C.border, borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.round((it.value / max) * 100)}%`, background: `linear-gradient(to left, ${C.goldDim}, ${C.goldBright})` }} />
+              </div>
+            </div>
+            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13 }}>{(it.value || 0).toLocaleString()}</div>
+          </div>
+        )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
+      </div>
+    </div>
+  );
+}
+
+function GoogleAnalyticsPanel() {
+  const [days, setDays] = useState("28");
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true); setErr("");
+    getGaInsights(Number(days)).then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); });
+  }, [days]);
+
+  const stat = (label, val, accent) => (
+    <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", minWidth: 0 }}>
+      <div style={{ color: accent || C.goldBright, fontFamily: F.mono, fontSize: 19, fontWeight: 700 }}>{(val || 0).toLocaleString()}</div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{label}</div>
+    </div>
+  );
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        <span style={{ fontSize: 24 }}>📈</span>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics — נתונים חיים</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>תנועה, מקורות, מדינות, מכשירים, דפים</div>
+        </div>
+        {d?.configured && !d.error && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#4caf50", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4caf50", boxShadow: "0 0 6px #4caf50" }} />
+            {d.realtime} עכשיו
+          </span>
+        )}
+        <div style={segWrap}>
+          {[["7", "7 ימים"], ["28", "28 יום"], ["90", "90 יום"]].map(([k, l]) => (
+            <button key={k} onClick={() => setDays(k)} style={segBtn(days === k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? <Loading />
+        : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !d ? <Empty>צריך להיות מחובר כמנהל.</Empty>
+        : d.configured === false ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: 12 }}>GA עדיין לא מחובר (חסר GA_PROPERTY_ID).</div>
+        : d.error ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 12.5, padding: 12, lineHeight: 1.7 }}>GA החזיר שגיאה:<br /><span style={{ fontFamily: F.mono, fontSize: 11.5, color: C.goldDim }}>{d.error}</span></div>
+        : (
+          <div style={{ display: "grid", gap: 18 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10 }}>
+              {stat("🟢 כעת באתר", d.realtime, "#4caf50")}
+              {stat("משתמשים", d.totals?.users)}
+              {stat("הפעלות", d.totals?.sessions)}
+              {stat("צפיות בדפים", d.totals?.views)}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+              <GaList title="🔗 ערוצי תנועה" items={d.channels} fmt={k => gaName(k, GA_CHANNEL_HE)} />
+              <GaList title="🌐 מקורות" items={d.sources} />
+              <GaList title="🌍 מדינות" items={d.countries} />
+              <GaList title="📱 מכשירים" items={d.devices} fmt={k => gaName(k, GA_DEVICE_HE)} />
+              <GaList title="📄 דפים נצפים" items={d.pages} />
+            </div>
+          </div>
+        )}
     </div>
   );
 }
