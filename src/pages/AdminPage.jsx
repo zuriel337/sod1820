@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -962,6 +962,8 @@ function LiveStatsView() {
   const [gran, setGran] = useState("day");      // day | month
   const [scale, setScale] = useState("linear");  // linear | log
   const [sel, setSel] = useState(null);
+  const [detail, setDetail] = useState(null);     // פירוט הדפים/מקורות ליום/חודש הנבחר
+  const [detailBusy, setDetailBusy] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true); setErr("");
@@ -971,6 +973,17 @@ function LiveStatsView() {
   }, [range]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setSel(null); }, [gran, range]);
+
+  // בחירת עמודה → טוענים את הדפים/מקורות של אותו יום (או חודש). ביטול בחירה → חזרה לכלל הטווח.
+  useEffect(() => {
+    if (!sel) { setDetail(null); setDetailBusy(false); return; }
+    let alive = true;
+    setDetailBusy(true);
+    getVisitDetail(gran, sel.key)
+      .then(d => { if (alive) { setDetail(d); setDetailBusy(false); } })
+      .catch(() => { if (alive) { setDetail(null); setDetailBusy(false); } });
+    return () => { alive = false; };
+  }, [sel, gran]);
 
   // אגרגציה לפי גרנולריות
   const series = useMemo(() => {
@@ -991,8 +1004,12 @@ function LiveStatsView() {
   const { h: barH, ticks } = buildScale(max, scale);
   // נתיבים בעברית נשמרים מקודדים (%D7%...) — מפענחים לתצוגה קריאה
   const decodePath = p => { try { return decodeURIComponent(p); } catch { return p; } };
-  const paths = (s?.paths || []).slice(0, 20).map(p => ({ ...p, label: decodePath(p.path) }));
-  const referrers = (s?.referrers || []).slice(0, 12);
+  // יום/חודש נבחר → מציגים את הדפים/מקורות שלו; אחרת כלל-הטווח.
+  const usingDetail = !!(sel && detail);
+  const srcPaths = usingDetail ? (detail.paths || []) : (s?.paths || []);
+  const srcRefs = usingDetail ? (detail.referrers || []) : (s?.referrers || []);
+  const paths = srcPaths.slice(0, 20).map(p => ({ ...p, label: decodePath(p.path) }));
+  const referrers = srcRefs.slice(0, 12);
   const devices = (s?.devices || []);
   const granLabel = gran === "month" ? "חודש" : "יום";
   const empty = (s?.total_views || 0) === 0;
@@ -1064,22 +1081,25 @@ function LiveStatsView() {
               </div>
             </div>
             {sel && (
-              <div style={{ marginTop: 12, padding: "12px 16px", border: `1px solid ${C.borderGold}`, borderRadius: 12, background: "rgba(212,175,55,0.06)" }}>
+              <div style={{ marginTop: 12, padding: "12px 16px", border: `1px solid ${C.borderGold}`, borderRadius: 12, background: "rgba(212,175,55,0.06)", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>📅 {sel.key} · {sel.views.toLocaleString()} צפיות · {sel.uniques.toLocaleString()} מבקרים ייחודיים</div>
+                <span style={{ flex: 1 }} />
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>{detailBusy ? "טוען דפים…" : "הדפים למטה מציגים את היום הזה"}</span>
+                <button onClick={() => setSel(null)} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "4px 12px", fontFamily: F.heading, fontSize: 12 }}>הצג הכל ✕</button>
               </div>
             )}
-            <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 10, marginTop: 6, textAlign: "center" }}>לחצו על עמודה לפירוט · {view.length} {gran === "day" ? "ימים" : "חודשים"}</div>
+            <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 10, marginTop: 6, textAlign: "center" }}>לחצו על עמודה כדי לראות את הדפים והמקורות של אותו {granLabel} · {view.length} {gran === "day" ? "ימים" : "חודשים"}</div>
           </div>
 
-          {/* דפים מובילים + מאיפה הגיעו */}
+          {/* דפים מובילים + מאיפה הגיעו — כלל-הטווח, או היום/חודש שנבחר בגרף */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
             <div style={card}>
-              <H>📄 הדפים הנצפים ביותר</H>
-              {paths.length ? <BarRow items={paths} labelKey="label" valueKey="views" hrefKey="path" /> : <Empty>אין עדיין נתונים.</Empty>}
+              <H>📄 הדפים הנצפים ביותר{usingDetail ? ` · ${sel.key}` : ""}</H>
+              {detailBusy ? <Empty>טוען…</Empty> : paths.length ? <BarRow items={paths} labelKey="label" valueKey="views" hrefKey="path" /> : <Empty>אין צפיות ב{granLabel} הזה.</Empty>}
             </div>
             <div style={card}>
-              <H>↘ מאיפה הגיעו</H>
-              {referrers.length ? <BarRow items={referrers} labelKey="referrer" valueKey="views" /> : <Empty>אין עדיין נתונים.</Empty>}
+              <H>↘ מאיפה הגיעו{usingDetail ? ` · ${sel.key}` : ""}</H>
+              {detailBusy ? <Empty>טוען…</Empty> : referrers.length ? <BarRow items={referrers} labelKey="referrer" valueKey="views" /> : <Empty>אין נתונים ב{granLabel} הזה.</Empty>}
             </div>
           </div>
 
