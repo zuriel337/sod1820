@@ -40,8 +40,9 @@ export default function PostImageCarousel({ value, images }) {
   const provided = Array.isArray(images);
   const [imgs, setImgs] = useState(provided ? images : null); // null=טוען
   const [idx, setIdx] = useState(0);
-  const [lightbox, setLightbox] = useState(null);
+  const [lbIdx, setLbIdx] = useState(null); // אינדקס מסך-מלא (null=סגור)
   const [paused, setPaused] = useState(false);
+  const touchX = useRef(null);
 
   useEffect(() => {
     // תמונות מוכנות (עמוד המספר) — לא טוענים שוב; אחרת טוענים לפי ערך (בתוך פוסט).
@@ -54,33 +55,41 @@ export default function PostImageCarousel({ value, images }) {
 
   const total = imgs ? imgs.length : 0;
   const go = useCallback(d => setIdx(i => total ? (i + d + total) % total : 0), [total]);
+  const lbGo = useCallback(d => setLbIdx(i => i == null || !total ? i : (i + d + total) % total), [total]);
 
-  // ריצה אוטומטית — אחת אחרי השנייה. עוצר בלייטבוקס / מגע / ריחוף.
+  // ריצה אוטומטית — אחת אחרי השנייה. עוצר במסך-מלא / מגע / ריחוף.
   useEffect(() => {
-    if (paused || lightbox || total < 2) return;
+    if (paused || lbIdx != null || total < 2) return;
     const id = setInterval(() => setIdx(i => (i + 1) % total), 4000);
     return () => clearInterval(id);
-  }, [paused, lightbox, total]);
+  }, [paused, lbIdx, total]);
 
-  // ESC סוגר לייטבוקס; חיצים מנווטים
+  // מקלדת: במסך-מלא מנווט את המסך-מלא; אחרת את הקרוסלה. ESC סוגר.
   useEffect(() => {
     const onKey = e => {
-      if (e.key === "Escape") setLightbox(null);
-      else if (e.key === "ArrowRight") go(1);
-      else if (e.key === "ArrowLeft") go(-1);
+      if (lbIdx != null) {
+        if (e.key === "Escape") setLbIdx(null);
+        else if (e.key === "ArrowRight") lbGo(-1);
+        else if (e.key === "ArrowLeft") lbGo(1);
+      } else {
+        if (e.key === "ArrowRight") go(-1);
+        else if (e.key === "ArrowLeft") go(1);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, lbGo, lbIdx]);
 
   if (imgs === null) return <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 13, padding: "24px 0" }}>טוען גלריה…</div>;
   if (!total) return null;
 
   const btn = {
     cursor: "pointer", border: `1px solid ${P.borderStrong}`, background: P.card, color: P.accentText,
-    width: 40, height: 40, borderRadius: "50%", fontSize: 18, fontWeight: 800, lineHeight: 1,
+    width: 46, height: 44, borderRadius: 12, fontSize: 22, fontWeight: 800, lineHeight: 1,
     display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto",
   };
+
+  const lb = lbIdx != null ? imgs[lbIdx] : null;
 
   return (
     <div
@@ -95,7 +104,7 @@ export default function PostImageCarousel({ value, images }) {
             {imgs.map((img, i) => (
               <button
                 key={img.id || i}
-                onClick={() => setLightbox(img)}
+                onClick={() => setLbIdx(i)}
                 title="הגדל תמונה"
                 style={{ flex: "0 0 100%", width: "100%", height: "100%", padding: 0, border: "none", background: "transparent", cursor: "zoom-in" }}
               >
@@ -108,18 +117,16 @@ export default function PostImageCarousel({ value, images }) {
             ))}
           </div>
         </div>
-
-        {/* חיצים */}
-        {total > 1 && (
-          <>
-            <button onClick={() => go(-1)} aria-label="הקודם" style={{ ...btn, position: "absolute", top: "50%", right: 10, transform: "translateY(-50%)", zIndex: 2 }}>›</button>
-            <button onClick={() => go(1)} aria-label="הבא" style={{ ...btn, position: "absolute", top: "50%", left: 10, transform: "translateY(-50%)", zIndex: 2 }}>‹</button>
-            <div style={{ position: "absolute", top: 10, left: 12, background: "rgba(0,0,0,0.55)", color: "#f3e6c0", fontFamily: F.mono, fontSize: 12, fontWeight: 700, padding: "3px 9px", borderRadius: 999, zIndex: 2 }}>
-              {idx + 1} / {total}
-            </div>
-          </>
-        )}
       </div>
+
+      {/* חיצים + מונה — בתחתית הבמה (לא על התמונה) */}
+      {total > 1 && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginTop: 12 }}>
+          <button onClick={() => go(-1)} aria-label="הקודם" style={btn}>›</button>
+          <div style={{ minWidth: 64, textAlign: "center", color: P.accentText, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{idx + 1} / {total}</div>
+          <button onClick={() => go(1)} aria-label="הבא" style={btn}>‹</button>
+        </div>
+      )}
 
       {/* כיתוב השקופית: שם · תיאור (מה שנכתב מתחת לתמונה) · מספרים לחיצים · תאריך העלאה */}
       {(() => {
@@ -153,17 +160,33 @@ export default function PostImageCarousel({ value, images }) {
         </div>
       )}
 
-      {/* לייטבוקס — תמונה מלאה + שם ותיאור (מה שנכתב מתחת לתמונה) */}
-      {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.92)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, cursor: "zoom-out", direction: "rtl" }}>
-          <img src={lightbox.image_url} alt={lightbox.name || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lightbox.name || lightbox.description ? "78vh" : "92vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
-          {(lightbox.name || lightbox.description) && (
-            <div onClick={e => e.stopPropagation()} style={{ maxWidth: 720, textAlign: "center", marginTop: 14, cursor: "default" }}>
-              {lightbox.name && <div style={{ color: "#e8c840", fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{lightbox.name}</div>}
-              {lightbox.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap" }}>{stripHtml(lightbox.description)}</div>}
+      {/* לייטבוקס — מסך מלא, מדפדף תמונה-תמונה (כפתורים למטה · מקלדת · החלקה) */}
+      {lb && (
+        <div
+          onClick={() => setLbIdx(null)}
+          onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
+          onTouchEnd={e => { const dx = touchX.current == null ? 0 : e.changedTouches[0].clientX - touchX.current; touchX.current = null; if (Math.abs(dx) > 45) lbGo(dx > 0 ? -1 : 1); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 12px", direction: "rtl" }}
+        >
+          <img src={lb.image_url} alt={lb.name || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lb.name || lb.description ? "64vh" : "80vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
+
+          {(lb.name || lb.description) && (
+            <div onClick={e => e.stopPropagation()} style={{ maxWidth: 720, textAlign: "center", marginTop: 12, cursor: "default" }}>
+              {lb.name && <div style={{ color: "#e8c840", fontFamily: F.heading, fontSize: 17, fontWeight: 700 }}>{lb.name}</div>}
+              {lb.description && <div style={{ color: "#cfc9d6", fontFamily: F.body, fontSize: 14, lineHeight: 1.9, marginTop: 8, whiteSpace: "pre-wrap", maxHeight: "18vh", overflow: "auto" }}>{stripHtml(lb.description)}</div>}
             </div>
           )}
-          <button onClick={() => setLightbox(null)} aria-label="סגור" style={{ position: "fixed", top: 16, left: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 22, cursor: "pointer" }}>×</button>
+
+          {/* ניווט תחתון במסך-מלא */}
+          {total > 1 && (
+            <div onClick={e => e.stopPropagation()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginTop: 16 }}>
+              <button onClick={() => lbGo(-1)} aria-label="הקודם" style={{ ...btn, width: 56, height: 50, background: "rgba(255,255,255,0.08)", color: "#fff", borderColor: "rgba(255,255,255,0.35)" }}>›</button>
+              <div style={{ minWidth: 70, textAlign: "center", color: "#f3e6c0", fontFamily: F.mono, fontSize: 15, fontWeight: 700 }}>{lbIdx + 1} / {total}</div>
+              <button onClick={() => lbGo(1)} aria-label="הבא" style={{ ...btn, width: 56, height: 50, background: "rgba(255,255,255,0.08)", color: "#fff", borderColor: "rgba(255,255,255,0.35)" }}>‹</button>
+            </div>
+          )}
+
+          <button onClick={() => setLbIdx(null)} aria-label="סגור" style={{ position: "fixed", top: 16, left: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 22, cursor: "pointer" }}>×</button>
         </div>
       )}
     </div>
