@@ -1159,8 +1159,13 @@ function TrafficHistoryPanel() {
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
 
-  const max = Math.max(1, ...(rows || []).map(r => r.views || 0));
-  const total = (rows || []).reduce((s, r) => s + (r.views || 0), 0);
+  // תצוגת "ימים" מוגבלת ל-120 האחרונים (אחרת אלפי עמודות). חודש/שנה — הכל.
+  const shown = useMemo(() => {
+    if (!rows) return [];
+    return gran === "day" ? rows.slice(-120) : rows;
+  }, [rows, gran]);
+  const max = Math.max(1, ...shown.map(r => r.views || 0));
+  const total = shown.reduce((s, r) => s + (r.views || 0), 0);
   const fmtLabel = p => {
     const s = String(p);
     if (gran === "year") return s.slice(0, 4);
@@ -1192,10 +1197,10 @@ function TrafficHistoryPanel() {
         ) : (
           <>
             <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
-              סה״כ בתצוגה: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
+              {gran === "day" ? "סה״כ ב-120 הימים האחרונים" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 150, overflowX: "auto", padding: "6px 2px 0" }}>
-              {rows.map((r, i) => (
+              {shown.map((r, i) => (
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 36 }}>
                   <span style={{ fontSize: 10, color: C.goldBright, fontFamily: F.mono }}>{(r.views || 0).toLocaleString()}</span>
                   <div title={`${r.period}: ${r.views}`} style={{ width: 24, height: Math.max(3, Math.round((r.views / max) * 105)), background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: "4px 4px 0 0" }} />
