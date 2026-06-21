@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1158,10 +1158,27 @@ function TrafficHistoryPanel() {
   const [gran, setGran] = useState("month"); // day | month | year
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
-  useEffect(() => {
+  const [ga, setGa] = useState(null);      // סטטוס סנכרון GA
+  const [gaBusy, setGaBusy] = useState(false);
+  const load = useCallback(() => {
     setRows(null); setErr("");
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
+  useEffect(() => { load(); }, [load]);
+
+  const runGaSync = useCallback(async () => {
+    setGaBusy(true);
+    try {
+      const r = await syncGoogleAnalytics();
+      setGa(r);
+      if (r && r.written > 0) load(); // נכנסו נתונים חדשים → רענון הגרף
+    } catch (e) { setGa({ error: e.message || "שגיאה" }); }
+    finally { setGaBusy(false); }
+  }, [load]);
+
+  // סנכרון GA אוטומטי פעם אחת בטעינת הפאנל (ממלא פערים אוטומטית)
+  const gaRan = useRef(false);
+  useEffect(() => { if (!gaRan.current) { gaRan.current = true; runGaSync(); } }, [runGaSync]);
 
   // תצוגת "ימים" מוגבלת לאחרונים (אחרת אלפי עמודות) — ~חודשיים אחרונים.
   const dayCap = mob ? 60 : 90;
@@ -1196,12 +1213,20 @@ function TrafficHistoryPanel() {
           <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>צמיחת התנועה לאורך הזמן</div>
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>קו רציף — <span style={{ color: C.goldBright }}>🟡 Jetpack (עבר)</span> · <span style={{ color: "#4caf50" }}>🟢 האתר החדש (חי)</span></div>
         </div>
+        <button onClick={runGaSync} disabled={gaBusy} title="משיכת נתונים מ-Google Analytics" style={{ ...segBtn(false), opacity: gaBusy ? 0.5 : 1, cursor: gaBusy ? "default" : "pointer" }}>{gaBusy ? "מסנכרן…" : "🔄 GA"}</button>
         <div style={segWrap}>
           {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
             <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
           ))}
         </div>
       </div>
+      {ga && (ga.configured === false || ga.error || ga.written > 0) && (
+        <div style={{ color: ga.error ? C.crimsonLight : C.muted, fontFamily: F.body, fontSize: 11.5, marginBottom: 8 }}>
+          {ga.configured === false ? "GA עדיין לא מחובר — ראה הוראות הקמה למטה."
+            : ga.error ? `GA: ${ga.error}`
+            : `✓ סונכרנו ${ga.written} ימים מ-Google Analytics`}
+        </div>
+      )}
 
       {err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
         : !rows ? <Loading />

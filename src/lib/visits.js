@@ -65,6 +65,17 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
+// ── סנכרון Google Analytics → traffic_history (source='ga') דרך api/ga-sync ──
+export async function syncGoogleAnalytics(days = 540) {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) return null;
+  const r = await fetch(`/api/ga-sync?days=${days}`, { method: "POST", headers: { Authorization: "Bearer " + token } });
+  if (!r.ok) throw new Error("ga-sync " + r.status);
+  return r.json();
+}
+
 // ── העמודים הישנים הכי נצפים (Jetpack top-posts) ──
 export async function getLegacyTopPages(limit = 15) {
   if (!supabase) return [];
