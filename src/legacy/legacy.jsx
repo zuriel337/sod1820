@@ -2872,6 +2872,28 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed [style*="color:#111"],
   .sod-post-content.themed [style*="color:#222"],
   .sod-post-content.themed [style*="color:#333"] { color: ${P.ink} !important; }
+  /* טקסט בהיר/לבן צרוב (מ-WP) → דיו לפי התמה (מתאים-מצב: P משתנה עם המתג) — מונע טקסט בלתי-נראה ביום */
+  .sod-post-content.themed [style*="color:#fff"],
+  .sod-post-content.themed [style*="color: #fff"],
+  .sod-post-content.themed [style*="color:#FFF"],
+  .sod-post-content.themed [style*="color:white"],
+  .sod-post-content.themed [style*="color: white"],
+  .sod-post-content.themed [style*="color:#eee"],
+  .sod-post-content.themed [style*="color:#ddd"],
+  .sod-post-content.themed [style*="color:#f5"],
+  .sod-post-content.themed [style*="color:#fafafa"],
+  .sod-post-content.themed font[color="#ffffff"],
+  .sod-post-content.themed font[color="#fff"],
+  .sod-post-content.themed font[color="white"] { color: ${P.ink} !important; }
+  /* רקע בהיר צרוב → שקוף (רקע הדף נשלט ע״י התמה) */
+  .sod-post-content.themed [style*="background:#fff"],
+  .sod-post-content.themed [style*="background: #fff"],
+  .sod-post-content.themed [style*="background-color:#fff"],
+  .sod-post-content.themed [style*="background-color: #fff"],
+  .sod-post-content.themed [style*="background:white"],
+  .sod-post-content.themed [style*="background-color:white"],
+  .sod-post-content.themed [bgcolor="#ffffff"],
+  .sod-post-content.themed [bgcolor="white"] { background: transparent !important; }
   /* גימטריות-זהב צרובות בפוסטי AI (data-gem / זהב מוטבע) → זהב קריא לפי התמה
      (בהיר=זהב כהה קריא על קלף · לילה=זהב בהיר). חוק ai_post_update_law. */
   .sod-post-content.themed [data-gem],
@@ -4275,6 +4297,7 @@ function Navbar({ page, onNav }) {
 
 // ===== CONTACT PAGE =====
 function ContactPage() {
+  const P = usePalette();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -4297,28 +4320,29 @@ function ContactPage() {
 
   const field = (label, key, type = "text", rows) => (
     <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
+      <label style={{ display: "block", color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
         {label}
       </label>
       {rows ? (
         <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
+          style={{ width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 3, color: P.ink, fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
       ) : (
         <input type={type} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
+          style={{ width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 3, color: P.ink, fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
       )}
     </div>
   );
 
   return (
+    <div style={{ background: P.pageBg, minHeight: "100vh" }}>
     <div style={{ direction: "rtl", maxWidth: 1000, margin: "0 auto", padding: "64px 16px 96px" }}>
       {/* hero */}
       <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
+        <div style={{ fontSize: 10, color: P.accentDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
+        <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
           נשמח לשמוע ממך
         </h1>
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
           שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
         </p>
         <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
@@ -4327,11 +4351,11 @@ function ContactPage() {
       {/* אודות — החזון מאחורי המיזם */}
       <div style={{
         maxWidth: 820, margin: "0 auto 56px",
-        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-        border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`,
+        background: P.cardGrad,
+        border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`,
         borderRadius: 2, padding: "36px 34px",
       }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: P.accentDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
           אודות המיזם
         </div>
         {[
@@ -4340,23 +4364,24 @@ function ContactPage() {
           "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
         ].map((para, i) => (
           <p key={i} style={{
-            color: i === 2 ? C.goldLight : "#d8cdb8", fontFamily: F.body,
+            color: i === 2 ? P.accentText : P.ink, fontFamily: F.body,
             fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
           }}>{para}</p>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
+      <div className="contact-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
+        <style>{`@media (max-width:760px){ .contact-cols{ grid-template-columns:1fr !important; } }`}</style>
 
         {/* left — form */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "36px 32px" }}>
+        <div style={{ background: P.card, border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`, borderRadius: 2, padding: "36px 32px" }}>
           {sent ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <div style={{ fontSize: 52, marginBottom: 20 }}>✦</div>
-              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
+              <h2 style={{ color: P.accentText, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
+              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
               <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                style={{ marginTop: 24, background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
+                style={{ marginTop: 24, background: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
                 שלח הודעה נוספת
               </button>
             </div>
@@ -4378,24 +4403,24 @@ function ContactPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* author card */}
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
+          <div style={{ background: P.card, border: `1px solid ${P.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
             <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 18 }}>
               <div style={{
                 width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
                 background: `linear-gradient(135deg, ${C.goldDark}, ${C.crimson})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 26, border: `2px solid ${C.borderGold}`,
+                fontSize: 26, border: `2px solid ${P.borderStrong}`,
               }}>✦</div>
               <div>
-                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
+                <div style={{ color: P.accentText, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
                   צוריאל
                 </div>
-                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+                <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
                   מייסד ועורך — סוד 1820
                 </div>
               </div>
             </div>
-            <p style={{ color: "#c8bfb0", fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
               חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
             </p>
           </div>
@@ -4411,20 +4436,21 @@ function ContactPage() {
             { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
           ].map(({ icon, label, value, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
-              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2, textDecoration: "none",
+              background: P.card, border: `1px solid ${P.border}`, borderRadius: 2, textDecoration: "none",
               padding: "18px 22px", display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s",
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+              onMouseEnter={e => { e.currentTarget.style.borderColor = P.borderStrong; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
               <div>
-                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 14 }}>{value}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14 }}>{value}</div>
               </div>
             </a>
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 }
