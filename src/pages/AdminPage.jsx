@@ -1157,8 +1157,8 @@ function TrafficHistoryPanel() {
   const gaRan = useRef(false);
   useEffect(() => { if (!gaRan.current) { gaRan.current = true; runGaSync(); } }, [runGaSync]);
 
-  // תצוגת "ימים" מוגבלת לאחרונים (אחרת אלפי עמודות) — ~חודשיים אחרונים.
-  const dayCap = mob ? 60 : 90;
+  // תצוגת "ימים" = חודשיים אחרונים בלבד (לא כל השנים).
+  const dayCap = 62;
   const shown = useMemo(() => {
     if (!rows) return [];
     return gran === "day" ? rows.slice(-dayCap) : rows;
@@ -1182,13 +1182,16 @@ function TrafficHistoryPanel() {
     setViewMax(m);
   }, [shown, pitch]);
   // פתיחה אוטומטית על התקופה העדכנית ביותר (קצה ימני) + כיול הציר אליה.
+  // כמה ניסיונות אחרי שה-layout מוכן — נייד/RTL לפעמים מחמיץ ניסיון בודד.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const toEnd = () => { el.scrollLeft = el.scrollWidth; recomputeViewMax(); };
+    const toEnd = () => { if (scrollRef.current) { scrollRef.current.scrollLeft = scrollRef.current.scrollWidth; recomputeViewMax(); } };
     toEnd();
-    const raf = requestAnimationFrame(toEnd); // אחרי שה-layout מוכן (נייד/RTL)
-    return () => cancelAnimationFrame(raf);
+    const raf = requestAnimationFrame(toEnd);
+    const t1 = setTimeout(toEnd, 80);
+    const t2 = setTimeout(toEnd, 300);
+    return () => { cancelAnimationFrame(raf); clearTimeout(t1); clearTimeout(t2); };
   }, [shown, recomputeViewMax]);
   const scrollTick = useRef(false);
   const onScroll = useCallback(() => {
@@ -1261,7 +1264,7 @@ function TrafficHistoryPanel() {
                   <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 13 }}>{(selRow.views || 0).toLocaleString()} צפיות{selRow.live_views > 0 ? ` · חי: ${selRow.live_views.toLocaleString()}` : ""}</span>
                   <button onClick={() => setSel(null)} title="סגור" style={{ cursor: "pointer", background: "none", border: "none", color: C.muted, fontSize: 14, lineHeight: 1, padding: 0 }}>✕</button>
                 </div>
-              ) : <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>הקש על עמודה לראות את המספר המדויק{!mob ? " · גלול הצידה לכל השנים" : ""}</span>}
+              ) : <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>הקש על עמודה לראות את המספר המדויק{!mob ? (gran === "day" ? " · גלול הצידה אחורה בזמן" : " · גלול הצידה לכל השנים") : ""}</span>}
             </div>
 
             {/* גרף: עמודות (נגלל) + ציר-מד אנכי בצד (כמות גלישה) */}
