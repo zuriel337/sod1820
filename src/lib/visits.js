@@ -57,6 +57,18 @@ export async function getVisitStats(days = 90) {
   return data;
 }
 
+// ── היסטוריית תנועה ארוכת-טווח (מונה Jetpack הישן + מקורות נוספים) ──
+export async function getTrafficHistory(granularity = "month") {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("traffic_history")
+    .select("period, views, visitors, source")
+    .eq("granularity", granularity)
+    .order("period", { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
 // ── Google Search Console — שאילתות חיפוש כנתונים (דרך api/search-console) ──
 // שולח את ה-session token של המנהל; ה-endpoint מאמת role=admin ומושך מגוגל.
 export async function getSearchConsole(days = 90) {

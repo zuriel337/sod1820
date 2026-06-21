@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1121,6 +1121,9 @@ function LiveStatsView() {
         )}
       </div>
 
+      {/* צמיחת תנועה לאורך הזמן — היסטוריית Jetpack + חי */}
+      <TrafficHistoryPanel />
+
       {/* Google Search Console — שאילתות חיפוש כנתונים, מחוברות לגרף (עץ אחד) */}
       <SearchConsolePanel />
 
@@ -1142,6 +1145,66 @@ function LiveStatsView() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ===== 📊 צמיחת התנועה לאורך הזמן (היסטוריית Jetpack + חי) =====
+function TrafficHistoryPanel() {
+  const [gran, setGran] = useState("month"); // day | month | year
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    setRows(null); setErr("");
+    getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
+  }, [gran]);
+
+  const max = Math.max(1, ...(rows || []).map(r => r.views || 0));
+  const total = (rows || []).reduce((s, r) => s + (r.views || 0), 0);
+  const fmtLabel = p => {
+    const s = String(p);
+    if (gran === "year") return s.slice(0, 4);
+    if (gran === "month") return `${s.slice(5, 7)}/${s.slice(2, 4)}`;
+    return `${s.slice(8, 10)}/${s.slice(5, 7)}`;
+  };
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+        <span style={{ fontSize: 24 }}>📊</span>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>צמיחת התנועה לאורך הזמן</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>היסטוריית הצפיות (Jetpack) — איך זה עולה לאורך הזמן</div>
+        </div>
+        <div style={segWrap}>
+          {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
+            <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      {err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !rows ? <Loading />
+        : !rows.length ? (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.9, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+            עוד אין נתונים בתצוגה הזו. שלח לי את מספרי ה-<b style={{ color: C.goldLight }}>Jetpack</b> (צילום מסך של הסטטיסטיקות לפי שנים/חודשים) ואטען אותם לכאן — והגרף יידלק.
+          </div>
+        ) : (
+          <>
+            <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
+              סה״כ בתצוגה: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 150, overflowX: "auto", padding: "6px 2px 0" }}>
+              {rows.map((r, i) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 36 }}>
+                  <span style={{ fontSize: 10, color: C.goldBright, fontFamily: F.mono }}>{(r.views || 0).toLocaleString()}</span>
+                  <div title={`${r.period}: ${r.views}`} style={{ width: 24, height: Math.max(3, Math.round((r.views / max) * 105)), background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: "4px 4px 0 0" }} />
+                  <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{fmtLabel(r.period)}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
     </div>
   );
 }
