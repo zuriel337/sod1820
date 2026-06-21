@@ -129,22 +129,20 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
                   </div>
                 )}
               </div>
+              {/* הזמנה לחקור — מוצג רק כשפתחו את "כל השיטות" (אחרת מבלבל מי שלא פתח) */}
+              <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>
+                  💡 כל שיטה היא דרך אחרת לקרוא את אותו ערך. רוצים להבין לעומק ולחקור בעצמכם?
+                </div>
+                <div style={{ display: "flex", gap: 7, flexWrap: "nowrap" }}>
+                  <Link to="/beit-midrash?tab=methods" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px" }}>📐 השיטות מוסברות</Link>
+                  <Link to="/beit-midrash?tab=calc" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "9px 10px" }}>🧮 חקרו במחשבון →</Link>
+                </div>
+              </div>
             </div>
           )}
         </div>
       )}
-
-      {/* הזמנה לחקור בבית המדרש */}
-      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
-        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>
-          💡 כל שיטה היא דרך אחרת לקרוא את אותו ערך. רוצים להבין לעומק ולחקור בעצמכם?
-        </div>
-        {/* שני הכפתורים בשורה אחת — גם בסמארטפון (לא נשברים) */}
-        <div style={{ display: "flex", gap: 7, flexWrap: "nowrap" }}>
-          <Link to="/beit-midrash?tab=methods" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px" }}>📐 השיטות מוסברות</Link>
-          <Link to="/beit-midrash?tab=calc" style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "9px 10px" }}>🧮 חקרו במחשבון →</Link>
-        </div>
-      </div>
     </div>
   );
 }
