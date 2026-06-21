@@ -5066,7 +5066,7 @@ function PostPageBySlug({ onNav }) {
       )}
       {image && !loading && (() => {
         // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
-        const isCard = /\/api\/card/.test(image);
+        const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);
         return (
           <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: isCard ? pc.bg : pc.goldDeep }}>
             <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: isCard ? "contain" : "cover", filter: isCard ? "none" : "brightness(0.5) sepia(0.3)", display: "block" }} />
