@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, getHarvestedPosts } from "../lib/supabase.js";
+import { supabase, logSearch, getHarvestedPosts, getImagesByPrimaryValue } from "../lib/supabase.js";
+import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -24,6 +25,47 @@ function CrossGallery({ value, images, P }) {
         <span>{show ? "▴" : "▾"}</span>
       </button>
       {show && <div style={{ marginTop: 10 }}><PostImageCarousel value={value} images={images} /></div>}
+    </div>
+  );
+}
+
+// 🔗 משפחת האפסים — הזדווגות זיקת-האפסים (zero_scale_law): אותו שורש בסדר גודל אחר.
+// מהמספר N → ÷10 (אם נגמר ב-0), ×10, ×100 — מצרף את גלריות המשפחה כדי ש"לא ייגמר".
+function familyOf(n) {
+  const out = [];
+  if (n % 10 === 0 && n >= 20) out.push({ v: n / 10, label: "÷10" });
+  out.push({ v: n * 10, label: "×10" });
+  if (n * 100 <= 100000) out.push({ v: n * 100, label: "×100" });
+  return out;
+}
+function FamilyGallery({ value, P }) {
+  const [show, setShow] = useState(false);
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    if (!show || data) return;
+    Promise.all(familyOf(Number(value)).map(r =>
+      getImagesByPrimaryValue(r.v).then(imgs => ({ ...r, images: imgs || [] })).catch(() => ({ ...r, images: [] }))
+    )).then(res => setData(res.filter(r => r.images.length)));
+  }, [show, value, data]);
+  return (
+    <div style={{ marginTop: 18, borderTop: `1px solid ${P.border}`, paddingTop: 14 }}>
+      <button onClick={() => setShow(s => !s)} style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5 }}>
+        <span>🔗 גלריות משפחת האפסים (אותו שורש · סדר גודל אחר)</span>
+        <span style={{ flex: 1 }} />
+        <span>{show ? "▴" : "▾"}</span>
+      </button>
+      {show && (data === null
+        ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>טוען…</div>
+        : data.length === 0
+          ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין עדיין תמונות במשפחה.</div>
+          : data.map(r => (
+            <div key={r.v} style={{ marginTop: 14 }}>
+              <Link to={`/number/${r.v}`} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>
+                {r.v} <span style={{ color: P.accentDim, fontWeight: 700 }}>({r.label}) · {r.images.length} תמונות →</span>
+              </Link>
+              <PostImageCarousel value={r.v} images={r.images} />
+            </div>
+          )))}
     </div>
   );
 }
@@ -474,6 +516,11 @@ export default function EntityPage() {
               </div>
             );
           })()}
+          {isNumber && (
+            <div style={{ margin: "14px auto 0", maxWidth: 520 }}>
+              <ZeroScaleLinks value={value} />
+            </div>
+          )}
           {msgs[0] && (
             <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
               {msgs[0].text}
@@ -571,6 +618,7 @@ export default function EntityPage() {
               {/* עץ אחד: אותה קרוסלה כמו בפוסט. ממוקד בערך עצמו — לא נטבע ע״י הצלבות. */}
               <PostImageCarousel value={value} images={main} />
               {primary.length > 0 && cross.length > 0 && <CrossGallery value={value} images={cross} P={P} />}
+              {isNumber && <FamilyGallery value={value} P={P} />}
             </Acc>
           );
         })()}
