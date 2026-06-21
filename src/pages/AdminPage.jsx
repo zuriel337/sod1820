@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -1163,8 +1163,8 @@ function TrafficHistoryPanel() {
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
 
-  // תצוגת "ימים" מוגבלת לאחרונים (אחרת אלפי עמודות) — בנייד פחות, שלא יעמיס.
-  const dayCap = mob ? 45 : 120;
+  // תצוגת "ימים" מוגבלת לאחרונים (אחרת אלפי עמודות) — ~חודשיים אחרונים.
+  const dayCap = mob ? 60 : 90;
   const shown = useMemo(() => {
     if (!rows) return [];
     return gran === "day" ? rows.slice(-dayCap) : rows;
@@ -1172,6 +1172,13 @@ function TrafficHistoryPanel() {
   const bw = mob ? 16 : 24;        // רוחב עמודה
   const gap = mob ? 4 : 6;
   const colMin = mob ? 22 : 36;
+
+  // פתיחה אוטומטית על התקופה העדכנית ביותר (קצה ימני), ומשם גוללים אחורה.
+  const scrollRef = useRef(null);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, [shown]);
   const max = Math.max(1, ...shown.map(r => r.views || 0));
   const total = shown.reduce((s, r) => s + (r.views || 0), 0);
   const fmtLabel = p => {
@@ -1207,7 +1214,7 @@ function TrafficHistoryPanel() {
             <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
               {gran === "day" ? `סה״כ ב-${dayCap} הימים האחרונים` : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
             </div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap, height: 150, overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "6px 2px 0" }}>
+            <div ref={scrollRef} dir="ltr" style={{ display: "flex", alignItems: "flex-end", gap, height: 150, overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "6px 2px 0" }}>
               {shown.map((r, i) => {
                 const views = r.views || 0, live = r.live_views || 0;
                 const totalH = Math.max(3, Math.round((views / max) * 105));
