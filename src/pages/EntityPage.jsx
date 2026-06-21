@@ -522,7 +522,7 @@ export default function EntityPage() {
               </div>
             );
           })()}
-          {isNumber && (
+          {value >= 10 && (
             <div style={{ margin: "14px auto 0", maxWidth: 520 }}>
               <ZeroScaleLinks value={value} />
             </div>
