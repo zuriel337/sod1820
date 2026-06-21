@@ -10,6 +10,9 @@ const FB_TOKEN     = Deno.env.get("FB_PAGE_ACCESS_TOKEN") || "";
 const FB_API       = Deno.env.get("FB_GRAPH_VERSION") || "v21.0";
 const SITE_URL     = (Deno.env.get("SITE_URL") || "https://sod1820.co.il").replace(/\/$/, "");
 const BATCH        = Number(Deno.env.get("FB_SHARE_BATCH") || "5");
+// לינק בתגובה הראשונה (שומר על reach; ברירת מחדל פעיל). UTM לזיהוי תנועה.
+const LINK_IN_COMMENT = (Deno.env.get("FB_LINK_IN_COMMENT") || "true") !== "false";
+const UTM = Deno.env.get("FB_UTM") || "utm_source=facebook&utm_medium=social&utm_campaign=auto";
 
 function json(b: unknown, s = 200) {
   return new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
@@ -24,9 +27,16 @@ async function patchPost(id: number, body: Record<string, unknown>) {
   if (!r.ok) throw new Error(`patch ${r.status}: ${(await r.text()).slice(0, 200)}`);
 }
 
+async function addComment(postId: string, message: string) {
+  const form = new URLSearchParams({ message, access_token: FB_TOKEN });
+  const r = await fetch(`https://graph.facebook.com/${FB_API}/${postId}/comments`, { method: "POST", body: form });
+  if (!r.ok) throw new Error((await r.json())?.error?.message || `comment ${r.status}`);
+}
+
 async function shareOne(p: any): Promise<{ id: number; ok: boolean; fb_id?: string; error?: string }> {
-  const link = encodeURI(`${SITE_URL}/${p.slug}`);
-  const caption = [p.title, (p.excerpt || "").trim(), link].filter(Boolean).join("\n\n");
+  const link = encodeURI(`${SITE_URL}/${p.slug}`) + (UTM ? `?${UTM}` : "");
+  // כיתוב נקי (כותרת + תקציר); הלינק נשלח כתגובה ראשונה כדי לא לפגוע ב-reach
+  const caption = [p.title, (p.excerpt || "").trim(), LINK_IN_COMMENT ? "" : link].filter(Boolean).join("\n\n");
   try {
     let fbId = "";
     if (p.image_url) {
@@ -41,6 +51,10 @@ async function shareOne(p: any): Promise<{ id: number; ok: boolean; fb_id?: stri
       const d = await r.json();
       if (!r.ok) throw new Error(d?.error?.message || `fb ${r.status}`);
       fbId = d.id || "";
+    }
+    // לינק בתגובה הראשונה (לא מפיל את כל השיתוף אם נכשל)
+    if (LINK_IN_COMMENT && fbId) {
+      await addComment(fbId, `🔗 לקריאה המלאה באתר:\n${link}`).catch(() => {});
     }
     await patchPost(p.id, { fb_posted_at: new Date().toISOString(), fb_post_id: fbId, fb_error: null });
     return { id: p.id, ok: true, fb_id: fbId };
