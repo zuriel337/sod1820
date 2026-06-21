@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
+import UpdateBanner from "./components/UpdateBanner.jsx";
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
 import HomeNewPage from "./pages/HomeNewPage.jsx";
@@ -89,6 +90,7 @@ export default function App() {
     <BrowserRouter>
         <RouteEffects />
         <Analytics />
+        <UpdateBanner />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
