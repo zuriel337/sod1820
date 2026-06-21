@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, getHarvestedPosts, getImagesByPrimaryValue } from "../lib/supabase.js";
+import { supabase, logSearch, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -44,7 +44,7 @@ function FamilyGallery({ value, P }) {
   useEffect(() => {
     if (!show || data) return;
     Promise.all(familyOf(Number(value)).map(r =>
-      getImagesByPrimaryValue(r.v).then(imgs => ({ ...r, images: imgs || [] })).catch(() => ({ ...r, images: [] }))
+      getImagesByValue(r.v).then(imgs => ({ ...r, images: imgs || [] })).catch(() => ({ ...r, images: [] }))
     )).then(res => setData(res.filter(r => r.images.length)));
   }, [show, value, data]);
   return (

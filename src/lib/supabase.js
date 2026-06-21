@@ -202,6 +202,21 @@ export async function getImagesByPrimaryValue(value) {
   return data || [];
 }
 
+// תמונות לפי ערך מלא (primary_value או all_values) — למשפחת האפסים / מספרים בלי primary ייעודי.
+export async function getImagesByValue(value) {
+  if (!supabase || !value) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at,importance')
+    .or(`primary_value.eq.${value},all_values.cs.{${value}}`)
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  return data || [];
+}
+
 // ===== דף הישות — איסוף כל המידע סביב מספר/ביטוי =====
 // מחזיר ספירות + פריטים לכל מדור (פוסטים, גלריות, אירועים, תגובות, חידושי AI, מילים שוות).
 export async function getEntityBundle({ term, value, isNumber }) {
