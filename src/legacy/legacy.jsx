@@ -2873,6 +2873,28 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed [style*="color: #f6e27a"],
   .sod-post-content.themed [style*="color:#e8c840"],
   .sod-post-content.themed [style*="color:#d4af37"] { color: ${P.accentText} !important; }
+  ${P.mode === "light" ? `
+  /* פוסט WordPress ישן: מספרים/הדגשות בצהוב/ציאן/ירוק-בהיר צרובים נעלמים על קלף בהיר —
+     במצב יום הופכים ל-אדום בולט (לא נהרסים). חוק legacy_content_protocol. */
+  .sod-post-content.themed [style*="color:#ffff00"],
+  .sod-post-content.themed [style*="color: #ffff00"],
+  .sod-post-content.themed [style*="color:#ffff99"],
+  .sod-post-content.themed [style*="color: #ffff99"],
+  .sod-post-content.themed [style*="color:#ffcc00"],
+  .sod-post-content.themed [style*="color: #ffcc00"],
+  .sod-post-content.themed [style*="color:#ffd700"],
+  .sod-post-content.themed [style*="color:yellow"],
+  .sod-post-content.themed [style*="color:#00ff00"],
+  .sod-post-content.themed [style*="color: #00ff00"],
+  .sod-post-content.themed [style*="color:#ccffcc"],
+  .sod-post-content.themed [style*="color:#00ffff"],
+  .sod-post-content.themed [style*="color:#ccffff"],
+  .sod-post-content.themed [style*="color:#00ccff"] { color: #cc0000 !important; }
+  /* לבן צרוב (היה על רקע כהה) → דיו קריא על קלף בהיר */
+  .sod-post-content.themed [style*="color:#ffffff"],
+  .sod-post-content.themed [style*="color: #ffffff"],
+  .sod-post-content.themed [style*="color:white"] { color: ${P.ink} !important; }
+  ` : ""}
 `;
 
 // ===== שיתוף — וואטסאפ / טלגרם / פייסבוק / X / העתקת קישור + שיתוף מקורי =====
