@@ -13,12 +13,12 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 
 // 🔗 הצלבות גלריה — תמונות שבהן הערך הוא משני (all_values), מקופל כברירת מחדל
 // כדי שהמספר המבוקש יישאר ממוקד ובולט, בלי לאבד את ההצלבות (הלב).
-function CrossGallery({ value, images, P }) {
+function CrossGallery({ value, images, P, label }) {
   const [show, setShow] = useState(false);
   return (
     <div style={{ marginTop: 16, borderTop: `1px solid ${P.border}`, paddingTop: 12 }}>
       <button onClick={() => setShow(s => !s)} style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5 }}>
-        <span>🔗 {value} מופיע גם בגלריות אחרות (הצלבות)</span>
+        <span>{label || `🔗 ${value} מופיע גם בגלריות אחרות (הצלבות)`}</span>
         <span style={{ color: P.border }}>· {images.length}</span>
         <span style={{ flex: 1 }} />
         <span>{show ? "▴" : "▾"}</span>
@@ -607,14 +607,31 @@ export default function EntityPage() {
 
         {/* ── 🖼 גלריות — ממוקד: רק primary_value=הערך; הצלבות (ערך משני) מקופלות בנפרד ── */}
         {d.galleries?.length > 0 && (() => {
-          const primary = d.galleries.filter(g => Number(g.primary_value) === Number(value));
-          const cross = d.galleries.filter(g => Number(g.primary_value) !== Number(value));
-          const main = primary.length ? primary : d.galleries; // נפילה לאחור אם אין primary
+          // סיווג רלוונטיות: "על המספר" (primary) · "אזכור משמעותי" (related) · "אזכור מקרי" (incidental).
+          // מקרי = המספר קבור ברשימת ערכים ארוכה, או מופיע רק כדקות בשעון (HH:NN) — רעש.
+          const n = Number(value);
+          const clockRe = (n >= 0 && n <= 59) ? new RegExp(`\\b\\d{1,2}:${String(n).padStart(2, "0")}\\b`) : null;
+          const classify = g => {
+            if (Number(g.primary_value) === n) return "about";
+            const av = (g.all_values || []).map(Number);
+            if (!av.includes(n)) return "about"; // התאמת שם (לא-מספר) — נשאר ראשי
+            if (av.length > 12) return "incidental";                          // קבור ברשימה ארוכה
+            if (clockRe && clockRe.test(g.description || "")) return "incidental"; // דקות בשעון
+            return "related";                                                 // אזכור משמעותי
+          };
+          const about = [], related = [], incidental = [];
+          for (const g of d.galleries) { const c = classify(g); (c === "about" ? about : c === "related" ? related : incidental).push(g); }
+          const main = [...about, ...related];   // "על המספר" + אזכורים משמעותיים = מה שמתאים למספר
           return (
-            <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={main.length} open={open} onToggle={toggleAcc} P={P}>
-              {/* עץ אחד: אותה קרוסלה כמו בפוסט. ממוקד בערך עצמו — לא נטבע ע״י הצלבות. */}
-              <PostImageCarousel value={value} images={main} />
-              {primary.length > 0 && cross.length > 0 && <CrossGallery value={value} images={cross} P={P} />}
+            <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={main.length || incidental.length} open={open} onToggle={toggleAcc} P={P}>
+              {main.length > 0 ? (
+                <PostImageCarousel value={value} images={main} />
+              ) : (
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, padding: "8px 4px" }}>
+                  אין עדיין תמונות שמוקדשות ל-<b style={{ color: P.accentText }}>{value}</b> — להלן אזכורים משניים בלבד.
+                </div>
+              )}
+              {incidental.length > 0 && <CrossGallery value={value} images={incidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${incidental.length})`} />}
               {isNumber && <FamilyGallery value={value} P={P} />}
             </Acc>
           );

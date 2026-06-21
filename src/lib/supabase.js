@@ -264,11 +264,30 @@ export async function getEntityBundle({ term, value, isNumber }) {
           .catch(() => ({ items: [], count: 0 }))
       : Promise.resolve({ items: [], count: 0 }),
     postsP,
-    // גלריות: למספר — התאמה מדויקת בלבד (primary_value / all_values), לא תת-מחרוזת (כדי ש-26 לא יביא 2620).
+    // גלריות: למספר — שתי שאילתות מדורגות כדי שתמונות *על* המספר (primary_value)
+    // יגיעו תמיד תחילה, ואז אזכורים (all_values). סינון-הרלוונטיות נעשה בדף עצמו.
+    isNumber ? (async () => {
+      try {
+        const cols = 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
+        const ord = q => q.not('curator_hidden', 'is', true)
+          .order('importance', { ascending: false, nullsFirst: false })
+          .order('occurred_at', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false });
+        const [pr, sr] = await Promise.all([
+          ord(supabase.from('gallery_images').select(cols).eq('primary_value', value)).limit(24),
+          ord(supabase.from('gallery_images').select(cols, { count: 'exact' }).contains('all_values', [value])).limit(40),
+        ]);
+        const map = new Map();
+        for (const g of (pr.data || [])) map.set(g.id, g);   // "על המספר" קודם
+        for (const g of (sr.data || [])) if (!map.has(g.id)) map.set(g.id, g);
+        const items = [...map.values()];
+        return { items, count: sr.count ?? items.length };
+      } catch { return { items: [], count: 0 }; }
+    })() :
     sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance',
-      q => (isNumber ? q.or(`primary_value.eq.${value},all_values.cs.{${value}}`) : q.ilike('name', like))
-            .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
-            .order('importance', { ascending: false, nullsFirst: false })   // אצירה: המובחר ראשון
+      q => q.ilike('name', like)
+            .not('curator_hidden', 'is', true)
+            .order('importance', { ascending: false, nullsFirst: false })
             .order('occurred_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false }).limit(18)),
     // אירועים: רק לטקסט (למספר אין שדה מספרי בנודים — נמנע מרעש כמו 2026 עבור 26).
