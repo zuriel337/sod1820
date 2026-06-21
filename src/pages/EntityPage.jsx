@@ -7,7 +7,6 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
-import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
@@ -532,8 +531,6 @@ export default function EntityPage() {
               })()}
 
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
-
-              {value >= 10 && <div style={{ marginTop: 10 }}><ZeroScaleLinks value={value} /></div>}
             </div>
         </Acc>
 
