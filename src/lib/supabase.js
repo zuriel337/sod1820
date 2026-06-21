@@ -732,6 +732,17 @@ export async function getGalleryImagesByIds(ids = []) {
     .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id').in('id', ids);
   return data || [];
 }
+// 🕸️ עץ-קשרים ממוקד-מספר: ההתכנסויות שהמספר שייך אליהן (כל אחת מכילה את
+// המספרים האחרים שמתכנסים יחד). זה הגרף האמיתי — חוט בין מספר↔התכנסות↔מספר.
+export async function getNumberGraph(value) {
+  const n = Number(value);
+  if (!supabase || !Number.isFinite(n)) return { value: n, convergences: [] };
+  const { data } = await supabase.from('nodes')
+    .select('id,label,description,metadata')
+    .eq('type', 'convergence').eq('is_active', true)
+    .contains('metadata', { numbers: [n] });
+  return { value: n, convergences: data || [] };
+}
 // מנוע "צידה": לכל תמונה — אילו מספרים שלה חוזרים במקומות אחרים ובאילו סטים
 export async function getImageConnections(imageId) {
   if (!supabase || !imageId) return null;
