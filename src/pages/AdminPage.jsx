@@ -1166,14 +1166,14 @@ function TrafficHistoryPanel() {
   useEffect(() => { if (!gaRan.current) { gaRan.current = true; runGaSync(); } }, [runGaSync]);
 
   // ממיינים בעצמנו לפי תאריך — Supabase/PostgREST לא מתחייב לשמור את סדר ה-RPC.
-  // ימים = חודשיים אחרונים, שבועות = שנתיים אחרונות (אחרת אלפי עמודות).
-  const dayCap = 62;
+  // תצוגת "ימים" = רק העידן החדש (2026), כך מגדירה ה-RPC — מציגים את כולו (≈170 יום).
+  // ההיסטוריה הישנה חיה בשבועות/חודשים/שנים. שבועות = שנתיים אחרונות (אחרת אלפי עמודות).
   const shown = useMemo(() => {
     if (!rows) return [];
     const sorted = [...rows].sort((a, b) => String(a.period).localeCompare(String(b.period)));
-    const cap = gran === "day" ? dayCap : gran === "week" ? 104 : null;
+    const cap = gran === "week" ? 104 : null;
     return cap ? sorted.slice(-cap) : sorted;
-  }, [rows, gran, dayCap]);
+  }, [rows, gran]);
   const bw = mob ? 16 : 24;        // רוחב עמודה
   const gap = mob ? 4 : 6;
   const colMin = mob ? 22 : 36;
@@ -1263,7 +1263,7 @@ function TrafficHistoryPanel() {
           <>
             {/* סיכום: סה״כ + שיא */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 16px", color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
-              <span>{gran === "day" ? `סה״כ ב-${dayCap} הימים האחרונים` : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות</span>
+              <span>{gran === "day" ? "סה״כ ב-2026" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות</span>
               {peak && peak.views > 0 && <span style={{ color: C.muted }}>שיא: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{(peak.views || 0).toLocaleString()}</b> ({fmtPeriod(peak.period)})</span>}
             </div>
 
