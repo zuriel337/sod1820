@@ -50,7 +50,7 @@ export default function HomeNewPage() {
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
-    getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => setPosts(r || [])).catch(() => {});
+    getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
     getTopicCards({ approvedOnly: true }).then(async c => {
       setCards(c || []);
       const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
@@ -69,6 +69,8 @@ export default function HomeNewPage() {
 
   // LIVE — 4 ההתכנסויות האחרונות בלבד; "חדש" = נוסף מאז הביקור האחרון (per-user).
   const convCutoff = useMemo(() => seenCutoff("home-conv"), []);
+  const postsCutoff = useMemo(() => seenCutoff("home-posts"), []);
+  const isFreshPost = p => Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)) > +new Date(postsCutoff);
   const liveCards = useMemo(() => [...cards]
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
@@ -147,15 +149,20 @@ export default function HomeNewPage() {
         <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
         <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
         <div className="hn-postgrid">
-          {posts.slice(0, 8).map(p => (
-            <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card">
-              <div style={{ height: 120, background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }} />
+          {posts.slice(0, 8).map(p => {
+            const fresh = isFreshPost(p);
+            return (
+            <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: "0 0 0 1px #e0556a55" } : undefined}>
+              <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
+                {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
+              </div>
               <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
                 <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>{p.date ? new Date(p.date).toLocaleDateString("he-IL") : ""}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
               </div>
             </Link>
-          ))}
+            );
+          })}
           {!posts.length && <Skeletons n={4} />}
         </div>
         <div style={{ textAlign: "center", marginTop: 16 }}>
