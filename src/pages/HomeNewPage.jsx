@@ -7,6 +7,7 @@ import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEven
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
+import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
@@ -37,6 +38,7 @@ export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
   const [posts, setPosts] = useState([]);
+  const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
@@ -151,10 +153,12 @@ export default function HomeNewPage() {
         <div className="hn-postgrid">
           {posts.slice(0, 8).map(p => {
             const fresh = isFreshPost(p);
+            const hot = hotSlugs.has(p.slug);
             return (
             <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: "0 0 0 1px #e0556a55" } : undefined}>
               <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
                 {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
+                {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
               </div>
               <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>

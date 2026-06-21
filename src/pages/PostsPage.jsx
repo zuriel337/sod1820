@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { useHotPostSlugs } from "../lib/hotPosts.js";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
   getDistinctCategoriesAndTags, getGematriaByValue,
@@ -27,7 +28,7 @@ const isHebrew = s => /[א-ת]/.test(s);
 const isNumeric = s => /^\d+$/.test(s.trim());
 const shortDate = d => { try { return new Date(d).toLocaleDateString("he-IL"); } catch { return ""; } };
 
-function PostCard({ p, i, view }) {
+function PostCard({ p, i, view, hot }) {
   const P = usePalette();
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
@@ -43,6 +44,7 @@ function PostCard({ p, i, view }) {
       }}>
         {!image && <span className="pp-thumb-mark">✦</span>}
         <span className="pp-thumb-holo" />
+        {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
         {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
       </div>
       <div className="pp-body">
@@ -82,6 +84,7 @@ export default function PostsPage() {
 
   // תוצאות
   const [posts, setPosts] = useState([]);
+  const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -345,7 +348,7 @@ export default function PostsPage() {
       ) : (
         <>
           <div className={view === "grid" ? "pp-grid" : "pp-listcol"}>
-            {posts.map((p, i) => <PostCard key={`${p.slug}-${i}`} p={p} i={i} view={view} />)}
+            {posts.map((p, i) => <PostCard key={`${p.slug}-${i}`} p={p} i={i} view={view} hot={hotSlugs.has(p.slug)} />)}
           </div>
           {hasMore && (
             <div style={{ textAlign: "center", marginTop: 36 }}>
