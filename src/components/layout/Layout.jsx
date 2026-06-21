@@ -11,7 +11,6 @@ import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
-import AdminJoinMonitor from "../AdminJoinMonitor.jsx";
 
 // דפים שכבר הוסבו לפלטה (תומכים במצב בהיר). שאר הדפים נשארים כהים *בכוח* —
 // כך מתג התמה גלובלי, בלי לשבור דפים שעוד לא מוגרו (בית-מדרש/טופיק/ארכיון/...).
@@ -58,7 +57,6 @@ export default function Layout() {
       </div>
       <NumberDrawer />
       <JoinCelebration />
-      <AdminJoinMonitor />
     </div>
   );
 }
