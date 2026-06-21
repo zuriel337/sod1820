@@ -1166,6 +1166,14 @@ function SearchConsolePanel() {
 
   const decode = p => { try { return decodeURIComponent(p.replace(/^https?:\/\/[^/]+/, "")) || "/"; } catch { return p; } };
 
+  // אגרגציה לפי חודש — "לאורך הזמן איך זה עולה"
+  const months = useMemo(() => {
+    const m = {};
+    (d?.timeline || []).forEach(t => { const k = (t.date || "").slice(0, 7); if (k) m[k] = (m[k] || 0) + t.clicks; });
+    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b)).map(([key, clicks]) => ({ key, clicks }));
+  }, [d]);
+  const maxM = Math.max(1, ...months.map(x => x.clicks));
+
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
@@ -1201,6 +1209,20 @@ function SearchConsolePanel() {
           </div>
         ) : (
           <div style={{ display: "grid", gap: 16 }}>
+            {months.length > 1 && (
+              <div>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📈 כניסות מגוגל לאורך הזמן (קליקים לפי חודש)</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130, overflowX: "auto", padding: "6px 2px 0" }}>
+                  {months.map(m => (
+                    <div key={m.key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 32 }}>
+                      <span style={{ fontSize: 10, color: C.goldBright, fontFamily: F.mono }}>{m.clicks.toLocaleString()}</span>
+                      <div title={`${m.key}: ${m.clicks}`} style={{ width: 22, height: Math.max(3, Math.round((m.clicks / maxM) * 90)), background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: "4px 4px 0 0" }} />
+                      <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{m.key.slice(5)}/{m.key.slice(2, 4)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ overflowX: "auto" }}>
               <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>מילות חיפוש מובילות</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>

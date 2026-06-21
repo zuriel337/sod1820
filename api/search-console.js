@@ -76,14 +76,20 @@ export default async function handler(req, res) {
     const base = { startDate: fmt(new Date(Date.now() - days * 864e5)), endDate: fmt(new Date()), rowLimit: 25 };
 
     const token = await getAccessToken(sa);
-    const [queries, pages] = await Promise.all([
+    const [queries, pages, timeline] = await Promise.all([
       gscQuery(token, siteUrl, { ...base, dimensions: ['query'] }),
       gscQuery(token, siteUrl, { ...base, dimensions: ['page'] }),
+      gscQuery(token, siteUrl, { ...base, dimensions: ['date'], rowLimit: 500 }),
     ]);
     const map = r => ({ key: r.keys[0], clicks: r.clicks || 0, impressions: r.impressions || 0, ctr: r.ctr || 0, position: r.position || 0 });
 
     res.setHeader('Cache-Control', 'private, max-age=600');
-    res.status(200).json({ configured: true, days, queries: queries.map(map), pages: pages.map(map) });
+    res.status(200).json({
+      configured: true, days,
+      queries: queries.map(map),
+      pages: pages.map(map),
+      timeline: timeline.map(r => ({ date: r.keys[0], clicks: r.clicks || 0, impressions: r.impressions || 0 })),
+    });
   } catch (e) {
     res.status(200).json({ configured: true, error: String(e.message || e) });
   }
