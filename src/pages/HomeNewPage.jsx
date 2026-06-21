@@ -16,7 +16,7 @@ import NumberOfDay from "../components/NumberOfDay.jsx";
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
-const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.png";
+const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
@@ -80,6 +80,7 @@ export default function HomeNewPage() {
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px ${P.glow}; }
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
         .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px;
+          aspect-ratio: 1536 / 1024; object-fit:cover; background:${P.cardSoft};
           -webkit-mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
           mask-image: radial-gradient(ellipse 92% 86% at 50% 44%, #000 56%, transparent 100%);
           filter: drop-shadow(0 16px 46px rgba(0,0,0,.40)); }
