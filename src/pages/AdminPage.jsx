@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getPeriodDetail } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1128,18 +1128,44 @@ function LiveStatsView() {
 }
 
 // ===== 📊 צמיחת התנועה לאורך הזמן (היסטוריית Jetpack + חי) =====
+// חישוב סוף-חלון (חצי-פתוח) לתקופה לפי גרנולריות — להעברה ל-getPeriodDetail
+function periodEnd(periodStr, gran) {
+  const [y, m, d] = String(periodStr).slice(0, 10).split("-").map(Number);
+  const dt = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
+  if (gran === "year") dt.setUTCFullYear(dt.getUTCFullYear() + 1);
+  else if (gran === "month") dt.setUTCMonth(dt.getUTCMonth() + 1);
+  else if (gran === "week") dt.setUTCDate(dt.getUTCDate() + 7);
+  else dt.setUTCDate(dt.getUTCDate() + 1);
+  return dt.toISOString().slice(0, 10);
+}
+const decodePathLabel = p => { try { return decodeURIComponent(p); } catch { return p; } };
+
 function TrafficHistoryPanel() {
   const mob = useIsMobile();
-  const [gran, setGran] = useState("month"); // day | month | year
+  const [gran, setGran] = useState("day"); // day | week | month | year
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
   const [ga, setGa] = useState(null);      // סטטוס סנכרון GA
   const [gaBusy, setGaBusy] = useState(false);
+  const [sel, setSel] = useState(null);       // התקופה שנבחרה (period date string)
+  const [detail, setDetail] = useState(null); // פירוט הנתונים החיים לאותה תקופה
+  const [detailBusy, setDetailBusy] = useState(false);
   const load = useCallback(() => {
     setRows(null); setErr("");
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { setSel(null); setDetail(null); }, [gran]); // החלפת תצוגה → סוגרים פירוט
+
+  // לחיצה על עמודה → משיכת פירוט הנתונים החיים לאותה תקופה (עמודים/מקורות/מכשירים)
+  const openDetail = useCallback((period) => {
+    if (sel === period) { setSel(null); setDetail(null); return; } // קליק חוזר = סגירה
+    setSel(period); setDetail(null); setDetailBusy(true);
+    getPeriodDetail(String(period).slice(0, 10), periodEnd(period, gran))
+      .then(setDetail)
+      .catch(() => setDetail({ error: true }))
+      .finally(() => setDetailBusy(false));
+  }, [sel, gran]);
 
   const runGaSync = useCallback(async () => {
     setGaBusy(true);
@@ -1190,7 +1216,7 @@ function TrafficHistoryPanel() {
         </div>
         <button onClick={runGaSync} disabled={gaBusy} title="משיכת נתונים מ-Google Analytics" style={{ ...segBtn(false), opacity: gaBusy ? 0.5 : 1, cursor: gaBusy ? "default" : "pointer" }}>{gaBusy ? "מסנכרן…" : "🔄 GA"}</button>
         <div style={segWrap}>
-          {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
+          {[["day", "ימים"], ["week", "שבועות"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
             <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
           ))}
         </div>
@@ -1220,20 +1246,83 @@ function TrafficHistoryPanel() {
                 const totalH = Math.max(3, Math.round((views / max) * 105));
                 const liveH = live > 0 ? Math.max(2, Math.round((live / max) * 105)) : 0;
                 const jpH = Math.max(0, totalH - liveH);
+                const active = sel === r.period;
+                const clickable = live > 0; // פירוט זמין רק לתקופות עם נתונים חיים
                 return (
-                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: colMin }}>
+                  <div key={i} onClick={clickable ? () => openDetail(r.period) : undefined}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: colMin, cursor: clickable ? "pointer" : "default", borderRadius: 6, padding: "2px 1px", background: active ? "rgba(76,175,80,0.12)" : "transparent" }}>
                     {!mob && <span style={{ fontSize: 10, color: live > 0 ? "#4caf50" : C.goldBright, fontFamily: F.mono }}>{views.toLocaleString()}</span>}
-                    <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw }}>
-                      {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0" }} />}
+                    <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live} — לחצו לפירוט)` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw }}>
+                      {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #4caf50" : "none" }} />}
                       {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0" }} />}
                     </div>
-                    <span style={{ fontSize: mob ? 8.5 : 9.5, color: C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
+                    <span style={{ fontSize: mob ? 8.5 : 9.5, color: active ? "#4caf50" : C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
                   </div>
                 );
               })}
             </div>
-            {mob && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 6 }}>הקש על עמודה לראות את המספר המדויק · החלק הצידה לגלילה</div>}
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 6 }}>
+              לחצו על עמודה <span style={{ color: "#4caf50" }}>ירוקה (חי)</span> לפירוט: אילו עמודים נצפו, מאיפה הגיעו ובאילו מכשירים · {mob ? "החליקו הצידה לגלילה" : "גללו הצידה לכל השנים"}
+            </div>
+            <PeriodDetail sel={sel} gran={gran} detail={detail} busy={detailBusy} onClose={() => { setSel(null); setDetail(null); }} />
           </>
+        )}
+    </div>
+  );
+}
+
+// פאנל פירוט תקופה — נפתח בלחיצה על עמודה בגרף הצמיחה (נתונים חיים בלבד)
+function PeriodDetail({ sel, gran, detail, busy, onClose }) {
+  if (!sel) return null;
+  const granLabel = gran === "year" ? "שנה" : gran === "month" ? "חודש" : gran === "week" ? "שבוע" : "יום";
+  const Bars = ({ items, labelKey, valueKey, href }) => {
+    const max = Math.max(1, ...items.map(x => x[valueKey] || 0));
+    return (
+      <div style={{ display: "grid", gap: 6 }}>
+        {items.map((r, i) => {
+          const label = labelKey === "path" ? decodePathLabel(r[labelKey]) : r[labelKey];
+          return (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", direction: "ltr", textAlign: "right" }} title={label}>
+                  {href ? <a href={r[labelKey]} target="_blank" rel="noopener noreferrer" style={{ color: LINK, textDecoration: "none" }}>{label}</a> : label}
+                </div>
+                <div style={{ height: 4, background: C.border, borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${Math.round((r[valueKey] || 0) / max * 100)}%`, background: `linear-gradient(to left, #2e7d32, #4caf50)` }} />
+                </div>
+              </div>
+              <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 12.5 }}>{(r[valueKey] || 0).toLocaleString()}</div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+  return (
+    <div style={{ marginTop: 14, border: `1px solid rgba(76,175,80,0.4)`, borderRadius: 12, background: "rgba(76,175,80,0.05)", padding: "14px 16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+        <div style={{ flex: 1, color: "#7bd087", fontFamily: F.regal, fontSize: 15, fontWeight: 700 }}>
+          🟢 פירוט {granLabel} · {String(sel).slice(0, 10)}
+          {detail && !detail.error && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12, fontWeight: 400 }}> · {(detail.views || 0).toLocaleString()} צפיות · {(detail.uniques || 0).toLocaleString()} ייחודיים</span>}
+        </div>
+        <button onClick={onClose} title="סגור" style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, width: 26, height: 26, lineHeight: "1" }}>✕</button>
+      </div>
+      {busy ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: 8 }}>טוען פירוט…</div>
+        : detail?.error ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13 }}>שגיאה בטעינת הפירוט.</div>
+        : !detail || (detail.views || 0) === 0 ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>אין נתונים חיים לתקופה זו (פירוט ברמת העמוד זמין מהמעבר לאתר החדש).</div>
+        : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
+            <div>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📄 העמודים שנצפו</div>
+              {(detail.paths || []).length ? <Bars items={detail.paths} labelKey="path" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
+            </div>
+            <div>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>↘ מאיפה הגיעו</div>
+              {(detail.referrers || []).length ? <Bars items={detail.referrers} labelKey="referrer" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, margin: "14px 0 8px" }}>📱 מכשירים</div>
+              {(detail.devices || []).length ? <Bars items={detail.devices} labelKey="device" valueKey="views" /> : <div style={{ color: C.muted, fontSize: 12 }}>—</div>}
+            </div>
+          </div>
         )}
     </div>
   );
