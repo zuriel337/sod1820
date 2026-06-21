@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getPopularByViews, getHotSearches } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getHotPostsLive, getHotSearches } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
@@ -40,7 +40,8 @@ export default function HomeNewPage() {
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
-  const [popular, setPopular] = useState([]); // 🔥 נצפים ביותר (Jetpack views)
+  const [popular, setPopular] = useState([]); // 🔥 נצפים עכשיו (צפיות חיות)
+  const [hotDays, setHotDays] = useState(7);  // חלון "הכי חם": היום=1 / השבוע=7
   const [hot, setHot] = useState([]);         // 🔥 מספרים חמים (search_log)
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
@@ -60,9 +61,13 @@ export default function HomeNewPage() {
       markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
-    getPopularByViews({ limit: 4 }).then(p => setPopular(p || [])).catch(() => {});
     getHotSearches({ limit: 8 }).then(h => setHot(h || [])).catch(() => {});
   }, []);
+
+  // צפיות חיות — נטען מחדש לפי המתג היום/שבוע
+  useEffect(() => {
+    getHotPostsLive({ days: hotDays, limit: 4 }).then(p => setPopular(p || [])).catch(() => {});
+  }, [hotDays]);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
   // יום = קלף קרם (אטום, מכסה). מקור אחד: SpaceBackground.jsx → משנה את כל הדפים הכהים.
@@ -178,7 +183,13 @@ export default function HomeNewPage() {
       {(popular.length > 0 || hot.length > 0) && (
         <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
           <h2 className="hn-h2">🔥 הכי חם</h2>
-          <p className="hn-sub">מה שכולם קוראים ובודקים באתר</p>
+          <p className="hn-sub">מה שכולם קוראים ובודקים באתר — בזמן אמת</p>
+          <div style={{ display: "flex", gap: 7, justifyContent: "center", marginBottom: 14 }}>
+            {[[1, "היום"], [7, "השבוע"]].map(([d, lbl]) => (
+              <button key={d} onClick={() => setHotDays(d)} style={{ cursor: "pointer", borderRadius: 999, padding: "5px 16px", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
+                border: `1px solid ${hotDays === d ? P.accent : P.border}`, background: hotDays === d ? P.glow : "transparent", color: hotDays === d ? P.accentText : P.inkSoft }}>{lbl}</button>
+            ))}
+          </div>
           {hot.length > 0 && (
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
               <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, alignSelf: "center" }}>🔎 מחפשים עכשיו:</span>
@@ -189,12 +200,12 @@ export default function HomeNewPage() {
               ))}
             </div>
           )}
-          {popular.length > 0 && (
+          {popular.length > 0 ? (
             <div className="hn-postgrid">
               {popular.map(p => (
-                <Link key={p.wp_id} to={`/${p.slug}`} className="hn-card">
+                <Link key={p.slug} to={`/${p.slug}`} className="hn-card">
                   <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
-                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(0,0,0,.6)", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>👁 {p.total_views}</span>
+                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(0,0,0,.6)", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>👁 {p.views}</span>
                   </div>
                   <div style={{ padding: "10px 12px", flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
@@ -202,6 +213,8 @@ export default function HomeNewPage() {
                 </Link>
               ))}
             </div>
+          ) : (
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center" }}>אוספים צפיות {hotDays === 1 ? "מהיום" : "מהשבוע"}… המדור יתמלא ככל שגולשים נכנסים.</p>
           )}
         </section>
       )}

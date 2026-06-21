@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -369,6 +369,7 @@ export default function EntityPage() {
       .catch(() => { if (alive) setLoading(false); });
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
     if (term) logSearch(term, value);
+    if (value) logView("number", value);   // צפייה חיה בדף המספר (לרצועת "הכי חם")
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
