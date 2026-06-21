@@ -370,6 +370,12 @@ export async function logView(kind, ref) {
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
 }
+// 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
+export async function getViewCount(kind, ref, days = 7) {
+  if (!supabase || ref == null || ref === "") return 0;
+  const { data } = await supabase.rpc("view_count", { p_kind: kind, p_ref: String(ref), p_days: days });
+  return Number(data) || 0;
+}
 // 🔥 פוסטים נצפים עכשיו (חי, לפי חלון ימים — היום=1, השבוע=7)
 export async function getHotPostsLive({ days = 7, limit = 4 } = {}) {
   if (!supabase) return [];

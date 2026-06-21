@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getViewCount, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
 import ZeroScaleLinks from "../components/ZeroScaleLinks.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -329,6 +329,7 @@ export default function EntityPage() {
   const [loading, setLoading] = useState(true);
   const [harvest, setHarvest] = useState([]);
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
+  const [views, setViews] = useState(0);          // 👁 צפיות חיות השבוע (מחוון "חם")
   const [q, setQ] = useState("");
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
   // מילים תמיד פתוחות; השאר דביק (זוכר מה הגולש פתח); ברירת מחדל ראשונה = מילים + שורשים.
@@ -369,7 +370,7 @@ export default function EntityPage() {
       .catch(() => { if (alive) setLoading(false); });
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
     if (term) logSearch(term, value);
-    if (value) logView("number", value);   // צפייה חיה בדף המספר (לרצועת "הכי חם")
+    if (value) { logView("number", value); getViewCount("number", value, 7).then(n => alive && setViews(n)).catch(() => {}); }
     return () => { alive = false; };
   }, [term, value, isNumber]);
 
@@ -509,6 +510,7 @@ export default function EntityPage() {
                   <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>👑 {typeLabel}</span>
                   {hasGate && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 📜 {sigs.length} חתימות</span>}
                   {totalConn > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 🌳 מחובר ל-{totalConn}</span>}
+                  {views > 0 && <span style={{ color: views >= 5 ? "#e0556a" : P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>· {views >= 5 ? "🔥 חם" : "👁"} {views} השבוע</span>}
                 </div>
                 <NumberPulse value={value} onExplore={() => { setOpen(o => ({ ...o, dna: true })); setTimeout(() => scrollTo("dna"), 80); }} />
               </div>

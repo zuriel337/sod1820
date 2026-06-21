@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4916,6 +4916,7 @@ function PostPageBySlug({ onNav }) {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [postViews, setPostViews] = useState(0);   // 👁 צפיות חיות השבוע (מחוון "חם")
   const contentRef = useRef(null);
   const loc = useLocation();
   const P = usePalette();
@@ -4958,7 +4959,7 @@ function PostPageBySlug({ onNav }) {
     setLoading(true);
     getPostBySlug(slug)
       .then(row => {
-        if (row) { setPost(row); logView("post", row.slug || slug); }   // צפייה חיה (לרצועת "הכי חם")
+        if (row) { setPost(row); const rs = row.slug || slug; logView("post", rs); getViewCount("post", rs, 7).then(setPostViews).catch(() => {}); }   // צפייה חיה (לרצועת "הכי חם")
         else setError("הפוסט לא נמצא");
         setLoading(false);
       })
@@ -5030,7 +5031,8 @@ function PostPageBySlug({ onNav }) {
           if (!n.nodeValue || !/\d/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
           for (let p = n.parentElement; p && p !== root; p = p.parentElement) {
             const t = p.tagName;
-            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem")) return NodeFilter.FILTER_REJECT;
+            // מדלגים על קישורים, סקריפטים, data-gem, ורכיבי React אינטראקטיביים (קרוסלה) — לא להפוך את ה-UI שלהם ללחיץ-מספר
+            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem") || (p.classList && p.classList.contains("pic-carousel"))) return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
         },
@@ -5047,7 +5049,7 @@ function PostPageBySlug({ onNav }) {
       // גימטריות-ביטויים: ביטוי עברי קצר ומודגש (מודגש/צבוע) → data-gem (פותח חלונית עם הגימטריה והקשרים)
       const HEB = /[֐-׿]/;
       root.querySelectorAll('strong, b, [style*="color"]').forEach(el => {
-        if (el.hasAttribute("data-gem") || el.closest("a") || el.closest("[data-gem]")) return;
+        if (el.hasAttribute("data-gem") || el.closest("a") || el.closest("[data-gem]") || el.closest(".pic-carousel")) return;
         if (el.querySelector("[data-gem], img, .sod-numlink")) return; // יש ילד מקושר/תמונה — לא לעטוף את כולו
         const t = (el.textContent || "").trim();
         if (t.length < 2 || t.length > 18 || /\d/.test(t) || !HEB.test(t)) return; // ביטוי עברי קצר בלבד
@@ -5193,6 +5195,11 @@ function PostPageBySlug({ onNav }) {
                 </div>
               )}
               <h1 style={{ color: pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
+              {postViews > 0 && (
+                <div style={{ textAlign: "center", margin: "-8px 0 18px", color: postViews >= 5 ? "#e0556a" : pc.muted, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                  {postViews >= 5 ? "🔥 חם" : "👁"} {postViews} צפיות השבוע
+                </div>
+              )}
               {(() => {
                 const by = resolveAuthor(author);
                 // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
