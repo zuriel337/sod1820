@@ -65,6 +65,14 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
+// ── העמודים הישנים הכי נצפים (Jetpack top-posts) ──
+export async function getLegacyTopPages(limit = 15) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("legacy_top_pages", { p_limit: limit });
+  if (error) throw error;
+  return data || [];
+}
+
 // ── Google Search Console — שאילתות חיפוש כנתונים (דרך api/search-console) ──
 // שולח את ה-session token של המנהל; ה-endpoint מאמת role=admin ומושך מגוגל.
 export async function getSearchConsole(days = 90) {

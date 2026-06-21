@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getSearchConsole, getTrafficHistory } from "../lib/visits.js";
+import { getVisitStats, getSearchConsole, getTrafficHistory, getLegacyTopPages } from "../lib/visits.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -1124,6 +1124,9 @@ function LiveStatsView() {
       {/* צמיחת תנועה לאורך הזמן — היסטוריית Jetpack + חי */}
       <TrafficHistoryPanel />
 
+      {/* העמודים הישנים הכי נצפים (Jetpack) */}
+      <LegacyTopPagesPanel />
+
       {/* Google Search Console — שאילתות חיפוש כנתונים, מחוברות לגרף (עץ אחד) */}
       <SearchConsolePanel />
 
@@ -1151,6 +1154,7 @@ function LiveStatsView() {
 
 // ===== 📊 צמיחת התנועה לאורך הזמן (היסטוריית Jetpack + חי) =====
 function TrafficHistoryPanel() {
+  const mob = useIsMobile();
   const [gran, setGran] = useState("month"); // day | month | year
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
@@ -1159,11 +1163,15 @@ function TrafficHistoryPanel() {
     getTrafficHistory(gran).then(setRows).catch(e => setErr(e.message || "שגיאה"));
   }, [gran]);
 
-  // תצוגת "ימים" מוגבלת ל-120 האחרונים (אחרת אלפי עמודות). חודש/שנה — הכל.
+  // תצוגת "ימים" מוגבלת לאחרונים (אחרת אלפי עמודות) — בנייד פחות, שלא יעמיס.
+  const dayCap = mob ? 45 : 120;
   const shown = useMemo(() => {
     if (!rows) return [];
-    return gran === "day" ? rows.slice(-120) : rows;
-  }, [rows, gran]);
+    return gran === "day" ? rows.slice(-dayCap) : rows;
+  }, [rows, gran, dayCap]);
+  const bw = mob ? 16 : 24;        // רוחב עמודה
+  const gap = mob ? 4 : 6;
+  const colMin = mob ? 22 : 36;
   const max = Math.max(1, ...shown.map(r => r.views || 0));
   const total = shown.reduce((s, r) => s + (r.views || 0), 0);
   const fmtLabel = p => {
@@ -1197,27 +1205,70 @@ function TrafficHistoryPanel() {
         ) : (
           <>
             <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
-              {gran === "day" ? "סה״כ ב-120 הימים האחרונים" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
+              {gran === "day" ? `סה״כ ב-${dayCap} הימים האחרונים` : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות
             </div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 150, overflowX: "auto", padding: "6px 2px 0" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap, height: 150, overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "6px 2px 0" }}>
               {shown.map((r, i) => {
                 const views = r.views || 0, live = r.live_views || 0;
                 const totalH = Math.max(3, Math.round((views / max) * 105));
                 const liveH = live > 0 ? Math.max(2, Math.round((live / max) * 105)) : 0;
                 const jpH = Math.max(0, totalH - liveH);
                 return (
-                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 36 }}>
-                    <span style={{ fontSize: 10, color: live > 0 ? "#4caf50" : C.goldBright, fontFamily: F.mono }}>{views.toLocaleString()}</span>
-                    <div title={`${r.period}: ${views}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: 24 }}>
-                      {liveH > 0 && <div style={{ width: 24, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0" }} />}
-                      {jpH > 0 && <div style={{ width: 24, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0" }} />}
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: colMin }}>
+                    {!mob && <span style={{ fontSize: 10, color: live > 0 ? "#4caf50" : C.goldBright, fontFamily: F.mono }}>{views.toLocaleString()}</span>}
+                    <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw }}>
+                      {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0" }} />}
+                      {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0" }} />}
                     </div>
-                    <span style={{ fontSize: 9.5, color: C.muted, fontFamily: F.mono }}>{fmtLabel(r.period)}</span>
+                    <span style={{ fontSize: mob ? 8.5 : 9.5, color: C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
                   </div>
                 );
               })}
             </div>
+            {mob && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 6 }}>הקש על עמודה לראות את המספר המדויק · החלק הצידה לגלילה</div>}
           </>
+        )}
+    </div>
+  );
+}
+
+// ===== 📄 העמודים הישנים הכי נצפים (Jetpack top-posts) =====
+function LegacyTopPagesPanel() {
+  const mob = useIsMobile();
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => { getLegacyTopPages(15).then(setRows).catch(e => setErr(e.message || "שגיאה")); }, []);
+  const max = Math.max(1, ...(rows || []).map(r => r.views || 0));
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+        <span style={{ fontSize: 24 }}>📄</span>
+        <div>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>העמודים הישנים הכי נצפים</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>מה משך הכי הרבה צפיות באתר הישן (Jetpack)</div>
+        </div>
+      </div>
+
+      {err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !rows ? <Loading />
+        : !rows.length ? <Empty>אין נתונים.</Empty>
+        : (
+          <div style={{ display: "grid", gap: mob ? 10 : 8 }}>
+            {rows.map((r, i) => (
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 10, borderBottom: `1px solid ${C.border}`, paddingBottom: mob ? 8 : 6 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: mob ? 13 : 14, lineHeight: 1.45, wordBreak: "break-word" }}>
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{i + 1}.</span> {r.title}
+                  </div>
+                  <div style={{ height: 5, background: C.border, borderRadius: 3, marginTop: 5, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.round((r.views / max) * 100)}%`, background: `linear-gradient(to left, ${C.goldDim}, ${C.goldBright})` }} />
+                  </div>
+                </div>
+                <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: mob ? 13 : 14, whiteSpace: "nowrap" }}>{(r.views || 0).toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
         )}
     </div>
   );
