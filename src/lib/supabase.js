@@ -781,21 +781,35 @@ export async function addWallWord(phrase, ragil) {
   try { await supabase.rpc('add_wall_word', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
   catch { /* שקט — לוג בלבד, לא לשבור את החישוב */ }
 }
+// שמירה פרטית (אדמין): נשמרת עם private=true — לעולם לא מוצגת בקיר הציבורי.
+export async function saveWallWordPrivate(phrase, ragil) {
+  if (!supabase || !phrase || !ragil) return;
+  try { await supabase.rpc('save_wall_word_private', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
+  catch { /* שקט */ }
+}
+// הקיר הפרטי של האדמין — רק המילים שסומנו private.
+export async function getWallPrivate(limit = 60) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('gematria_wall')
+    .select('phrase,ragil,hits,last_at').eq('private', true)
+    .order('last_at', { ascending: false }).limit(limit);
+  return data || [];
+}
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits,last_at').order('last_at', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallPopular(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits').order('hits', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits').eq('private', false).order('hits', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallCount() {
   if (!supabase) return 0;
-  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true });
+  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true }).eq('private', false);
   return count || 0;
 }
 

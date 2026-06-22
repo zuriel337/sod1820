@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { supabase, addWallWord, logSearch } from "../lib/supabase.js";
+import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate } from "../lib/supabase.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
@@ -14,6 +15,7 @@ const L = {
 };
 
 export default function GematriaCalculator({ seed, onResult }) {
+  const { isAdmin } = useAuth();
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
@@ -74,16 +76,32 @@ export default function GematriaCalculator({ seed, onResult }) {
     return () => { live = false; };
   }, [word]); // eslint-disable-line
 
-  // שמירה לקיר + רישום חיפושים (עץ אחד)
+  // שמירה לקיר + רישום חיפושים (עץ אחד).
+  // אדמין: חיפושיו אינם נשמרים לקיר הציבורי ולא נרשמים — שמירה רק ידנית ופרטית (כפתור למטה).
   useEffect(() => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
+    if (isAdmin) { if (onResult) onResult({ word, ragil: ragilVal }); return; }
     const t = setTimeout(async () => {
       await addWallWord(word, ragilVal);
       logSearch(word, ragilVal);
       if (onResult) onResult({ word, ragil: ragilVal });
     }, 900);
     return () => clearTimeout(t);
-  }, [word, ragilVal, onResult]);
+  }, [word, ragilVal, onResult, isAdmin]);
+
+  // קיר פרטי לאדמין: שמירה ידנית + רשימה שרק האדמין רואה
+  const [privSaved, setPrivSaved] = useState("");
+  const [privList, setPrivList] = useState([]);
+  const [privOpen, setPrivOpen] = useState(false);
+  const loadPriv = () => { if (isAdmin) getWallPrivate(40).then(setPrivList).catch(() => {}); };
+  useEffect(() => { loadPriv(); }, [isAdmin]); // eslint-disable-line
+  const savePrivate = async () => {
+    if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
+    await saveWallWordPrivate(word, ragilVal);
+    setPrivSaved("נשמר לרשימה הפרטית ✓");
+    setTimeout(() => setPrivSaved(""), 2600);
+    loadPriv();
+  };
 
   const thS = { background: L.soft, color: L.goldDeep, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "8px 10px", textAlign: "center", whiteSpace: "nowrap", borderBottom: `2px solid ${L.line}` };
   const tdS = { color: L.ink, fontFamily: F.body, fontSize: 13.5, padding: "7px 10px", borderBottom: `1px solid ${L.line}` };
@@ -149,6 +167,33 @@ export default function GematriaCalculator({ seed, onResult }) {
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
         {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
+
+        {/* 🔒 מצב אדמין — חיפושים אינם נשמרים לקיר הציבורי; שמירה ידנית פרטית בלבד */}
+        {isAdmin && (
+          <div style={{ marginTop: 11, background: "#f3f7ff", border: "1px solid #c9d9f5", borderRadius: 12, padding: "10px 12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ color: "#2c5fb3", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🔒 מצב אדמין</span>
+              <span style={{ color: "#5a6b85", fontFamily: F.body, fontSize: 12 }}>חיפושיך אינם נשמרים לקיר הציבורי</span>
+              <button onClick={savePrivate} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px" }}>💾 שמור פרטי</button>
+            </div>
+            {privSaved && <div style={{ color: "#2c7a3f", fontFamily: F.body, fontSize: 12, marginTop: 6 }}>{privSaved}</div>}
+            {privList.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <button onClick={() => setPrivOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "1px solid #c9d9f5", borderRadius: 999, color: "#2c5fb3", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px" }}>{privOpen ? "▴" : "▾"} הרשימה הפרטית שלי ({privList.length})</button>
+                {privOpen && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                    {privList.map((r, i) => (
+                      <button key={i} onClick={() => setQ(r.phrase)} title="טען למחשבון" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #c9d9f5", borderRadius: 999, padding: "4px 6px 4px 11px", fontFamily: F.body, fontSize: 13, color: "#23201a" }}>
+                        {r.phrase}
+                        <span style={{ background: "#eaf0fb", color: "#2c5fb3", fontFamily: F.mono, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{r.ragil}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 🔍 חיפוש מורכב — רמות: שורה אחת / שתיים, עצמאיות מהעליונה */}
         {!advOpen ? (
