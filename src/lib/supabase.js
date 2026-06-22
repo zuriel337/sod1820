@@ -926,6 +926,18 @@ export async function getRecentCrosses(limit = 12) {
   } catch { return []; }
 }
 
+// 🧪 מעבדת צוריאל — שכבת חקירה (insights space='lab'): חידושים חזקים/מבניים שטרם עברו שרשרת הוכחה מלאה.
+export async function getLabInsights(limit = 80) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from('insights')
+      .select('id,title,body,category,related_numbers,related_phrases,evidence_level,origin,tags,created_at')
+      .eq('space', 'lab').eq('is_active', true)
+      .order('created_at', { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim) + העולם של כל ביטוי (מ-nodes).
 // המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
 export async function getValueFamilies(value, perMethod = 20) {

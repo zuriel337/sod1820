@@ -13,7 +13,7 @@ import {
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration,
-  getWallPrivate,
+  getWallPrivate, getLabInsights,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -24,7 +24,7 @@ import GematriaCalculator from "../components/GematriaCalculator.jsx";
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
-  { key: "research", label: "🔬 אני חוקר" },
+  { key: "research", label: "🧪 מעבדת צוריאל" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
@@ -971,19 +971,21 @@ function ScannerTab() {
   );
 }
 
-// ===== 🔬 אני חוקר — מרחב מחקר אישי ופרטי. מה שנחקר כאן לא מופיע לאף אחד. =====
-// מציג את «ההצלבה הנסתרת שלי»: כל פריט שחקרתי (קיר פרטי) מדורג לפי נדירות — אותו מנוע של הסורק.
+// ===== 🧪 מעבדת צוריאל — שכבת חקירה (rule tzuriel_lab) =====
+// קוקפיט אחד: (1) מחשבון מחקר פרטי + «ההצלבה הנסתרת שלי» (קיר פרטי מדורג לפי נדירות);
+// (2) חידושי המעבדה הקיימים — insights space='lab' (EXPLORATORY, evidence_level 2).
 function ResearchTab() {
   const [rows, setRows] = useState(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [lab, setLab] = useState(null);
 
   async function analyze() {
     setBusy(true); setNote("טוען את המחקר שלי…"); setRows(null);
     try {
       const priv = await getWallPrivate(200);
       const phrases = [...new Set((priv || []).map(r => (r.phrase || "").trim()).filter(Boolean))];
-      if (!phrases.length) { setNote("עדיין אין פריטים — חקרו משהו במחשבון למעלה (נשמר אוטומטית לפרטי)."); setBusy(false); return; }
+      if (!phrases.length) { setNote("עדיין אין פריטים — חקרו משהו במחשבון (נשמר אוטומטית לפרטי)."); setBusy(false); return; }
       const items = phrases.map(p => {
         const ms = SCAN_METHODS.filter(k => k !== "הנעלם").map(k => {
           const m = METHODS.find(x => x.key === k); return m ? { label: k, value: m.fn(p) } : null;
@@ -999,16 +1001,17 @@ function ResearchTab() {
     } catch (e) { setNote("שגיאה: " + (e.message || e)); }
     finally { setBusy(false); }
   }
-  useEffect(() => { analyze(); }, []); // eslint-disable-line
+  useEffect(() => { analyze(); getLabInsights(80).then(setLab).catch(() => setLab([])); }, []); // eslint-disable-line
 
   const sc = s => s >= 70 ? "#3fae5a" : s >= 40 ? C.goldBright : C.goldDim;
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={card}>
-        <H>🔬 אני חוקר</H>
+        <H>🧪 מעבדת צוריאל</H>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "6px 0 14px", lineHeight: 1.8 }}>
-          מרחב פרטי לגמרי — מה שתחקור כאן <b style={{ color: C.goldDim }}>נשמר רק אצלך</b> ולא מופיע באתר, ברשימת החיפושים או בקיר.
-          המחשבון המלא לרשותך, וכל פריט נצבר ל«ההצלבה הנסתרת שלי» למטה, מדורג לפי נדירות.
+          שכבת חקירה — חידושים חזקים/מבניים שטרם עברו שרשרת הוכחה מלאה (<b style={{ color: C.goldDim }}>EXPLORATORY</b>).
+          המחשבון כאן <b style={{ color: C.goldDim }}>פרטי לחלוטין</b> — נשמר רק אצלך, לא באתר/ברשימת החיפושים/בקיר.
+          כל פריט נצבר ל«ההצלבה הנסתרת שלי» ומדורג לפי נדירות.
         </div>
         <GematriaCalculator research />
         <div style={{ marginTop: 12 }}>
@@ -1043,6 +1046,40 @@ function ResearchTab() {
           </table>
         </div>
       )}
+
+      {/* 🧫 חידושי המעבדה הקיימים — insights space='lab' */}
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>
+          🧫 חידושי המעבדה {lab ? `(${lab.length})` : ""}
+        </div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12, lineHeight: 1.7 }}>
+          מה שכבר שמור בשכבת החקירה (space=lab). כשמצטברת שרשרת הוכחה — מקדמים ל-evidence_level 4 והחידוש עולה מהמעבדה.
+        </div>
+        {!lab ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
+          : lab.length === 0 ? <Empty>אין עדיין חידושים במעבדה.</Empty>
+          : (
+          <div style={{ display: "grid", gap: 10 }}>
+            {lab.map(it => (
+              <div key={it.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", background: C.bg }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
+                  {it.category && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>· {it.category}</span>}
+                  {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>· ev{it.evidence_level}</span>}
+                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {it.origin}</span>
+                </div>
+                {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 5 }}>{it.body}</div>}
+                {(it.related_numbers || []).length > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                    {it.related_numbers.map(n => (
+                      <Link key={n} to={`/number/${n}`} style={{ color: LINK, fontFamily: F.mono, fontSize: 12, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 9px" }}>{n} →</Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
