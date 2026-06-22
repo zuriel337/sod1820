@@ -4407,7 +4407,7 @@ function PostPageBySlug({ onNav }) {
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: "rgba(20,15,12,0.5)", border: `1px solid ${pc.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
                       <img src={by.avatar} alt={by.name} width={38} height={38}
                         style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }} />
                       <div style={{ textAlign: "right" }}>
@@ -4441,14 +4441,22 @@ function PostPageBySlug({ onNav }) {
                 return true;
               });
               if (!warm.length) return null;
+              // צבעי "מספרים קשורים" (סגול = מספרים) — תמה-מודע: גוונים קריאים על קרם במצב בהיר.
+              const lightUI = themed && P.mode === "light";
+              const pl = {
+                label: lightUI ? "#6d4aa3" : "#b39ddb",
+                bg:    lightUI ? "#efe7fb" : "#1a0a2e",
+                border:lightUI ? "rgba(124,58,237,0.32)" : "#7c3aed",
+                text:  lightUI ? "#5b3a8c" : "#c4b5fd",
+              };
               return (
                 <div style={{ marginBottom: 40 }}>
-                  <div style={{ fontSize: 12, color: "#b39ddb", letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
+                  <div style={{ fontSize: 12, color: pl.label, letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {warm.map(({ phrase, ragil }) => (
                       <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
-                        background: "#1a0a2e", border: "1px solid #7c3aed",
-                        color: "#c4b5fd", fontSize: 12, padding: "4px 13px",
+                        background: pl.bg, border: `1px solid ${pl.border}`,
+                        color: pl.text, fontSize: 12, padding: "4px 13px",
                         fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
                       }}>{phrase} | {ragil}</span>
                     ))}

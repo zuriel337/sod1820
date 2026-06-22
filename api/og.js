@@ -171,7 +171,16 @@ export default async function handler(req, res) {
           post = rows[0];
           title = stripHtml(post.title) + ' · ' + SITE_NAME;
           desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
-          if (post.image_url) image = post.image_url;
+          if (post.image_url) {
+            image = post.image_url;
+          } else {
+            // אין תמונת פוסט → כרטיס שיתוף דינמי עם כותרת הפוסט.
+            // ערובה מערכתית: לעולם לא משתפים פוסט עם תמונה גנרית/חסרה — תמיד כרטיס שקשור לפוסט.
+            const ttl = stripHtml(post.title);
+            const heroTitle = ttl.length > 46 ? ttl.slice(0, 46).replace(/\s+\S*$/, '') + '…' : ttl;
+            const cat = Array.isArray(post.categories) && post.categories[0] ? stripHtml(post.categories[0]) : '';
+            image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
+          }
           type = 'article';
           break;
         }
