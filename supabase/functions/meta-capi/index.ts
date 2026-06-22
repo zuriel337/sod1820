@@ -6,7 +6,7 @@
 // no-op בטוח: בלי הסודות מחזיר 200 עם skipped (לא שובר את האתר).
 //
 // סודות נדרשים (Supabase → Edge Functions → Secrets):
-//   META_PIXEL_ID      = 992562036849823
+//   META_PIXEL_ID      = 2069480399945823   (הפיקסל "פרסום 2", תחת קול הגאולה שרותי מידע)
 //   META_CAPI_TOKEN    = טוקן ה-Conversions API (Dataset → Settings → Generate access token)
 // אופציונלי: META_GRAPH_VERSION (v21.0) · META_TEST_EVENT_CODE (לבדיקה ב-Events Manager)
 
