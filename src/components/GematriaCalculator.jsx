@@ -16,7 +16,7 @@ const L = {
   gold: "#9a7818", goldDeep: "#7a5e12", line: "#e7dfcc", active: "#fbf3da",
 };
 
-export default function GematriaCalculator({ seed, onResult }) {
+export default function GematriaCalculator({ seed, onResult, research = false }) {
   const { isAdmin } = useAuth();
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
@@ -79,26 +79,29 @@ export default function GematriaCalculator({ seed, onResult }) {
     return () => { live = false; };
   }, [word]); // eslint-disable-line
 
-  // שמירה לקיר + רישום חיפושים (עץ אחד).
-  // אדמין: חיפושיו אינם נשמרים לקיר הציבורי ולא נרשמים — שמירה רק ידנית ופרטית (כפתור למטה).
-  // מצב אנונימי: לא נשמר לקיר ולא להיסטוריה (logSearch מגן על עצמו; הקיר נחסם כאן).
+  // שמירה + רישום חיפושים (עץ אחד).
+  // ציבורי (כולל אדמין): נשמר לקיר הציבורי ונרשם לרשימת החיפושים (אלא אם מצב אנונימי).
+  // מצב מחקר (research): נשמר רק לקיר הפרטי שלי — לא לקיר הציבורי ולא לרשימת החיפושים.
   useEffect(() => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
-    if (isAdmin) { if (onResult) onResult({ word, ragil: ragilVal }); return; }
     const t = setTimeout(async () => {
-      if (!isAnon()) await addWallWord(word, ragilVal);
-      logSearch(word, ragilVal);
+      if (research) {
+        await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד
+      } else {
+        if (!isAnon()) await addWallWord(word, ragilVal);
+        logSearch(word, ragilVal);                     // ציבורי (logSearch מגן עצמית במצב אנונימי)
+      }
       if (onResult) onResult({ word, ragil: ragilVal });
     }, 900);
     return () => clearTimeout(t);
-  }, [word, ragilVal, onResult, isAdmin, anon]);
+  }, [word, ragilVal, onResult, anon, research]);
 
   // קיר פרטי לאדמין: שמירה ידנית + רשימה שרק האדמין רואה
   const [privSaved, setPrivSaved] = useState("");
   const [privList, setPrivList] = useState([]);
   const [privOpen, setPrivOpen] = useState(false);
-  const loadPriv = () => { if (isAdmin) getWallPrivate(40).then(setPrivList).catch(() => {}); };
-  useEffect(() => { loadPriv(); }, [isAdmin]); // eslint-disable-line
+  const loadPriv = () => { if (research || isAdmin) getWallPrivate(40).then(setPrivList).catch(() => {}); };
+  useEffect(() => { loadPriv(); }, [research, isAdmin]); // eslint-disable-line
   const savePrivate = async () => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
     await saveWallWordPrivate(word, ragilVal);
@@ -172,19 +175,19 @@ export default function GematriaCalculator({ seed, onResult }) {
         }} />
         {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
 
-        {/* 🕶️ חיפוש אנונימי — לא נשמר בהיסטוריה/בקיר (לגולש; אדמין ממילא לא נשמר) */}
-        {!isAdmin && (
+        {/* 🕶️ חיפוש אנונימי — לא נשמר בהיסטוריה/בקיר (מצב ציבורי בלבד) */}
+        {!research && (
           <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
             <AnonToggle size="sm" />
           </div>
         )}
 
-        {/* 🔒 מצב אדמין — חיפושים אינם נשמרים לקיר הציבורי; שמירה ידנית פרטית בלבד */}
-        {isAdmin && (
+        {/* 🔬 מצב מחקר אישי — נשמר אוטומטית לרשימה הפרטית (לא לקיר הציבורי ולא לרשימת החיפושים) */}
+        {research && (
           <div style={{ marginTop: 11, background: "#f3f7ff", border: "1px solid #c9d9f5", borderRadius: 12, padding: "10px 12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ color: "#2c5fb3", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🔒 מצב אדמין</span>
-              <span style={{ color: "#5a6b85", fontFamily: F.body, fontSize: 12 }}>חיפושיך אינם נשמרים לקיר הציבורי</span>
+              <span style={{ color: "#2c5fb3", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🔬 מצב מחקר</span>
+              <span style={{ color: "#5a6b85", fontFamily: F.body, fontSize: 12 }}>נשמר אוטומטית לרשימה הפרטית שלך — לא מופיע לאף אחד</span>
               <button onClick={savePrivate} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px" }}>💾 שמור פרטי</button>
             </div>
             {privSaved && <div style={{ color: "#2c7a3f", fontFamily: F.body, fontSize: 12, marginTop: 6 }}>{privSaved}</div>}

@@ -13,15 +13,18 @@ import {
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration,
+  getWallPrivate,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
+import GematriaCalculator from "../components/GematriaCalculator.jsx";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "research", label: "🔬 אני חוקר" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
@@ -87,6 +90,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "research" && <ResearchTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
       {tab === "subs" && <SubscribersTab />}
@@ -963,6 +967,82 @@ function ScannerTab() {
         </div>
       )}
       {rows && rows.length === 0 && <Empty>אין תוצאות בסף הזה — הורד את סף הנדירות או הרחב את הקלט.</Empty>}
+    </div>
+  );
+}
+
+// ===== 🔬 אני חוקר — מרחב מחקר אישי ופרטי. מה שנחקר כאן לא מופיע לאף אחד. =====
+// מציג את «ההצלבה הנסתרת שלי»: כל פריט שחקרתי (קיר פרטי) מדורג לפי נדירות — אותו מנוע של הסורק.
+function ResearchTab() {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+
+  async function analyze() {
+    setBusy(true); setNote("טוען את המחקר שלי…"); setRows(null);
+    try {
+      const priv = await getWallPrivate(200);
+      const phrases = [...new Set((priv || []).map(r => (r.phrase || "").trim()).filter(Boolean))];
+      if (!phrases.length) { setNote("עדיין אין פריטים — חקרו משהו במחשבון למעלה (נשמר אוטומטית לפרטי)."); setBusy(false); return; }
+      const items = phrases.map(p => {
+        const ms = SCAN_METHODS.filter(k => k !== "הנעלם").map(k => {
+          const m = METHODS.find(x => x.key === k); return m ? { label: k, value: m.fn(p) } : null;
+        }).filter(m => m && m.value > 0);
+        return { key: p, kind: "phrase", value: ms.find(m => m.label === "רגיל")?.value ?? ms[0]?.value ?? null, methods: ms };
+      }).filter(it => it.methods.length);
+      const pairs = collectPairs(items);
+      const sizeMap = await fetchFamilySizes(pairs);
+      const resoMap = await fetchResonanceMap(pairs.map(p => p.value));
+      const scored = items.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }))
+        .sort((a, b) => (b.rarity.score - a.rarity.score) || (a.value || 0) - (b.value || 0));
+      setRows(scored); setNote(`${scored.length} פריטים במחקר שלי`);
+    } catch (e) { setNote("שגיאה: " + (e.message || e)); }
+    finally { setBusy(false); }
+  }
+  useEffect(() => { analyze(); }, []); // eslint-disable-line
+
+  const sc = s => s >= 70 ? "#3fae5a" : s >= 40 ? C.goldBright : C.goldDim;
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={card}>
+        <H>🔬 אני חוקר</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "6px 0 14px", lineHeight: 1.8 }}>
+          מרחב פרטי לגמרי — מה שתחקור כאן <b style={{ color: C.goldDim }}>נשמר רק אצלך</b> ולא מופיע באתר, ברשימת החיפושים או בקיר.
+          המחשבון המלא לרשותך, וכל פריט נצבר ל«ההצלבה הנסתרת שלי» למטה, מדורג לפי נדירות.
+        </div>
+        <GematriaCalculator research />
+        <div style={{ marginTop: 12 }}>
+          <BtnGold onClick={analyze}>{busy ? "מנתח…" : "🔄 רענן את ההצלבה הנסתרת שלי"}</BtnGold>
+          {note && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12.5, marginInlineStart: 10 }}>{note}</span>}
+        </div>
+      </div>
+
+      {rows && rows.length > 0 && (
+        <div style={{ ...card, overflowX: "auto" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15, marginBottom: 10 }}>💎 ההצלבה הנסתרת שלי</div>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 540 }}>
+            <thead><tr>
+              <th style={th}>#</th><th style={th}>פריט</th><th style={th}>ערך</th><th style={th}>משפחה</th><th style={th}>נדירות</th><th style={th}>⚡</th><th style={th}></th>
+            </tr></thead>
+            <tbody>
+              {rows.slice(0, 300).map((r, i) => (
+                <tr key={r.key + i}>
+                  <td style={{ ...td, color: C.goldDim, fontFamily: F.mono }}>{i + 1}</td>
+                  <td style={{ ...td, color: C.goldBright, fontWeight: 700 }} title={r.methods.map(m => `${m.label}=${m.value}`).join(" · ")}>{r.key}</td>
+                  <td style={{ ...td, fontFamily: F.mono }}>{r.value ?? "—"}</td>
+                  <td style={{ ...td, fontFamily: F.mono, color: (r.rarity.rarestSize ?? 99) <= 6 ? "#3fae5a" : C.goldLight }}>{r.rarity.rarestSize ?? "—"}</td>
+                  <td style={{ ...td, fontFamily: F.mono, fontWeight: 800, color: sc(r.rarity.score) }}>{r.rarity.score}</td>
+                  <td style={{ ...td, fontFamily: F.mono }} title={r.rarity.resonance ? `מהדהד ב-${r.rarity.resonance} סקאלות-אפס` : ""}>{r.rarity.resonance ? `⚡${r.rarity.resonance}` : ""}</td>
+                  <td style={td}>
+                    {r.value != null && <Link to={`/number/${r.value}`} style={{ color: LINK, fontFamily: F.heading, fontSize: 12, textDecoration: "none", marginInlineEnd: 10 }}>מספר →</Link>}
+                    <Link to={`/journey?from=${encodeURIComponent(r.key)}`} style={{ color: LINK, fontFamily: F.heading, fontSize: 12, textDecoration: "none" }}>מסע →</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
