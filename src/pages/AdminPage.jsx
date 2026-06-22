@@ -749,6 +749,7 @@ function ScannerTab() {
   const [withReso, setWithReso] = useState(true);      // בונוס תהודת-אפס
   const [minScore, setMinScore] = useState(0);         // סף נדירות
   const [maxFamily, setMaxFamily] = useState("");      // משפחה מקסימלית (ריק = ללא הגבלה)
+  const [maxWords, setMaxWords] = useState("5");       // 📏 מילים מקסימלי — מנטרל משפטים ארוכים (ריק = ללא הגבלה)
   const [sort, setSort] = useState("rarity");          // rarity | value | family
   const [rows, setRows] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -809,8 +810,9 @@ function ScannerTab() {
     try {
       const pick = (methods.length ? methods : ["רגיל"]).filter(k => k !== "הנעלם"); // הנעלם לא ב-bidim
       const mf = parseInt(maxFamily, 10);
+      const mw = parseInt(maxWords, 10);
       const { data, error } = await supabase.rpc("scan_corpus_rarity", {
-        p_methods: pick, p_max_family: isNaN(mf) ? null : mf, p_limit: 800,
+        p_methods: pick, p_max_family: isNaN(mf) ? null : mf, p_max_words: isNaN(mw) ? null : mw, p_limit: 800,
       });
       if (error) throw error;
       const items = (data || []).map(r => {
@@ -829,17 +831,21 @@ function ScannerTab() {
 
   // דירוג רשימת פריטים — אותו צינור לכל מצבי הסריקה (הדבקה / טווח / כל המאגר)
   async function rankItems(items) {
-    const pairs = collectPairs(items);
+    const wordCount = s => (String(s || "").trim().split(/\s+/).filter(Boolean).length || 0);
+    const mw = parseInt(maxWords, 10);
+    let pool = items.map(it => ({ ...it, nWords: it.kind === "phrase" ? wordCount(it.key) : 1 }));
+    if (!isNaN(mw)) pool = pool.filter(it => it.nWords <= mw); // 📏 סינון אורך — מנטרל משפטים ארוכים
+    const pairs = collectPairs(pool);
     const sizeMap = await fetchFamilySizes(pairs);
     const resoMap = withReso ? await fetchResonanceMap(pairs.map(p => p.value)) : {};
-    let scored = items.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }));
+    let scored = pool.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }));
     const mf = parseInt(maxFamily, 10);
     if (!isNaN(mf)) scored = scored.filter(it => it.rarity.rarestSize != null && it.rarity.rarestSize <= mf);
     scored = scored.filter(it => it.rarity.score >= minScore);
     scored.sort((a, b) =>
       sort === "value" ? (a.value || 0) - (b.value || 0)
       : sort === "family" ? (a.rarity.rarestSize ?? 1e9) - (b.rarity.rarestSize ?? 1e9)
-      : b.rarity.score - a.rarity.score);
+      : (b.rarity.score - a.rarity.score) || (a.nWords - b.nWords)); // שובר-שוויון: קצר קודם
     return scored;
   }
 
@@ -902,6 +908,9 @@ function ScannerTab() {
           </label>
           <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }}>
             משפחה עד <input value={maxFamily} onChange={e => setMaxFamily(e.target.value)} placeholder="∞" style={{ ...mono, width: 56 }} /> ביטויים
+          </label>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }} title="מנטרל משפטים ארוכים שנדירים 'טריוויאלית'. ריק = ללא הגבלה.">
+            📏 מילים עד <input value={maxWords} onChange={e => setMaxWords(e.target.value)} placeholder="∞" style={{ ...mono, width: 56 }} />
           </label>
           <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }}>
             מיון:
