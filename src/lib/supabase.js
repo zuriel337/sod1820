@@ -952,6 +952,84 @@ export async function getValueFamilies(value, perMethod = 20) {
   } catch { return []; }
 }
 
+// 🔢 תהודת האפס (zero_scale_law) — אותו שורש בסדר גודל אחר. סקאלות אחיות לערך.
+export function zeroScales(n) {
+  n = Number(n);
+  const out = [];
+  if (!n || n < 1) return out;
+  if (n % 100 === 0 && n / 100 >= 10) out.push({ v: n / 100, label: "÷100" });
+  if (n % 10 === 0 && n / 10 >= 10) out.push({ v: n / 10, label: "÷10" });
+  out.push({ v: n * 10, label: "×10" });
+  if (n * 100 <= 1000000) out.push({ v: n * 100, label: "×100" });
+  return out;
+}
+
+// 🔢 תהודת האפס — הערך מהדהד בכל שכבות הגרף בסדרי גודל שונים (לא רק התאמת-ערך — משפחת-ערך).
+// לכל סקאלה אחות מחזיר: מילים (רגיל) · גלריות · התכנסויות. מסנן סקאלות ריקות.
+export async function getZeroResonance(value) {
+  if (!supabase) return [];
+  const scales = zeroScales(value);
+  if (!scales.length) return [];
+  const vals = scales.map(s => s.v);
+  // מילים (רגיל) בכל הסקאלות — שאילתה אחת
+  const wordsBy = {};
+  try {
+    const { data } = await supabase.from('bidim').select('value,phrase').eq('method', 'רגיל').in('value', vals).limit(5000);
+    (data || []).forEach(r => {
+      const g = (wordsBy[r.value] ||= { count: 0, seen: new Set(), sample: [] });
+      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.count++; if (g.sample.length < 8) g.sample.push(r.phrase); }
+    });
+  } catch { /* ignore */ }
+  // התכנסויות מאושרות שמכילות אחת הסקאלות — שאילתה אחת
+  const topicsBy = {};
+  try {
+    const { data } = await supabase.from('topic_cards').select('slug,title,numbers').eq('status', 'approved').overlaps('numbers', vals).limit(200);
+    (data || []).forEach(t => (t.numbers || []).forEach(n => { if (vals.includes(n)) (topicsBy[n] ||= []).push({ slug: t.slug, title: t.title }); }));
+  } catch { /* ignore */ }
+  // גלריות — לכל סקאלה (תמונות שהערך מופיע בהן)
+  const imgs = await Promise.all(scales.map(s => getImagesByValue(s.v).then(x => x || []).catch(() => [])));
+  return scales.map((s, i) => ({
+    v: s.v, label: s.label,
+    words: { count: wordsBy[s.v]?.count || 0, sample: wordsBy[s.v]?.sample || [] },
+    images: imgs[i],
+    topics: topicsBy[s.v] || [],
+  })).filter(r => r.words.count || r.images.length || r.topics.length);
+}
+
+
+// מחזיר [{value, size}] ממוין יורד לפי גודל המשפחה (כמה ביטויים שווים לאותו ערך).
+export async function getPhraseValueFamilies(phrase) {
+  if (!supabase || !phrase) return [];
+  const { data: mine } = await supabase.from('bidim').select('value').eq('phrase', phrase);
+  const vals = [...new Set((mine || []).map(r => r.value).filter(v => v >= 10))];
+  if (!vals.length) return [];
+  const { data: fam } = await supabase.from('bidim').select('value,phrase').in('value', vals).limit(8000);
+  const byVal = {};
+  (fam || []).forEach(r => { (byVal[r.value] ||= new Set()).add(r.phrase); });
+  return vals.map(v => ({ value: v, size: byVal[v] ? byVal[v].size : 0 })).sort((a, b) => b.size - a.size);
+}
+// 🌳 מסע ההתכנסות — רשימת הביטויים ששווים לערך (משפחת-הערך = "בתוך המספר"). + world מ-nodes כשקיים.
+export async function getValuePhraseList(value, limit = 120) {
+  if (!supabase || !value) return [];
+  const { data } = await supabase.from('bidim').select('phrase').eq('value', value).limit(limit * 2);
+  const phrases = [...new Set((data || []).map(r => r.phrase).filter(Boolean))].slice(0, limit);
+  if (!phrases.length) return [];
+  const worldMap = {};
+  for (let i = 0; i < phrases.length; i += 300) {
+    const chunk = phrases.slice(i, i + 300);
+    const { data: ents } = await supabase.from('nodes').select('label,metadata').eq('type', 'entity').in('label', chunk).limit(1000);
+    (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+  }
+  return phrases.map(p => ({ phrase: p, world: worldMap[p] || null }));
+}
+// 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
+export async function getRandomStartPhrase() {
+  if (!supabase) return null;
+  const { data } = await supabase.from('nodes').select('label').eq('type', 'entity').eq('is_active', true).gte('weight', 4).limit(400);
+  const pool = [...new Set((data || []).map(r => r.label).filter(Boolean))];
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+}
+
 // 🧬 משפחות לפי שיטה — לדף ביטוי: לכל שיטה הערך של הביטוי *באותה שיטה* + המילים השוות לו שם.
 // pairs: [{method, value}] (הערך של הביטוי בכל שיטה). מחזיר [{method, value, count, phrases}].
 export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) {

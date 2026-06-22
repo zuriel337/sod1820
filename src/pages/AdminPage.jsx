@@ -16,10 +16,13 @@ import {
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
+import { KEY_NUMBERS } from "../theme.js";
+import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
@@ -84,6 +87,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
@@ -726,6 +730,192 @@ function OcrTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ===== 🔍 סורק נדירות — סורק מלא ביטויים/ערכים ומדרג לפי נדירות (אותו מנוע של «ההצלבה הנסתרת») =====
+// המנוע סופר בשבילך: לכל פריט — גודל משפחת-הערך (כמה ביטויים חולקים אותו) + בונוס תהודת-אפס.
+// משפחה קטנה = נדיר = ציון גבוה. אין חיפוש ידני — מדביקים רשימה / טווח, והכל מדורג אוטומטית.
+const SCAN_METHODS = ["רגיל", "מילוי", "מסתתר", "קדמי", "ריבוע", "סידורי", "אתבש", "אלבם", "הנעלם", "הכפלה"];
+
+function ScannerTab() {
+  const [mode, setMode] = useState("phrases");        // phrases | values
+  const [text, setText] = useState("");               // ביטויים (שורה לכל ביטוי)
+  const [rangeFrom, setRangeFrom] = useState("1");
+  const [rangeTo, setRangeTo] = useState("1000");
+  const [rangeStep, setRangeStep] = useState("1");
+  const [methods, setMethods] = useState(["רגיל"]);   // שיטות לסריקת ביטויים
+  const [withReso, setWithReso] = useState(true);      // בונוס תהודת-אפס
+  const [minScore, setMinScore] = useState(0);         // סף נדירות
+  const [maxFamily, setMaxFamily] = useState("");      // משפחה מקסימלית (ריק = ללא הגבלה)
+  const [sort, setSort] = useState("rarity");          // rarity | value | family
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+
+  function toggleMethod(k) { setMethods(m => m.includes(k) ? m.filter(x => x !== k) : [...m, k]); }
+
+  // בונה את הפריטים לסריקה (כל פריט = "הצלבה" של עצמו על-פני השיטות הנבחרות)
+  function buildItems() {
+    if (mode === "values") {
+      const a = parseInt(rangeFrom, 10), b = parseInt(rangeTo, 10), st = Math.max(1, parseInt(rangeStep, 10) || 1);
+      if (isNaN(a) || isNaN(b)) return [];
+      const out = [];
+      for (let v = a; v <= b && out.length < 2000; v += st) out.push({ key: String(v), kind: "value", value: v, methods: [{ label: "רגיל", value: v }] });
+      return out;
+    }
+    const phrases = [...new Set(text.split("\n").map(s => s.trim()).filter(Boolean))].slice(0, 600);
+    const pick = methods.length ? methods : ["רגיל"];
+    return phrases.map(p => {
+      const ms = pick.map(k => { const m = METHODS.find(x => x.key === k); return m ? { label: k, value: m.fn(p) } : null; })
+        .filter(m => m && m.value > 0);
+      return { key: p, kind: "phrase", value: ms[0]?.value ?? null, methods: ms };
+    }).filter(it => it.methods.length);
+  }
+
+  async function loadGoldEntities() {
+    setBusy(true); setNote("טוען ישויות זהב…");
+    try {
+      const { data } = await supabase.from("nodes").select("label").eq("type", "entity").eq("is_active", true).gte("weight", 3).limit(600);
+      const labels = [...new Set((data || []).map(r => r.label).filter(Boolean))];
+      setMode("phrases"); setText(labels.join("\n")); setNote(`נטענו ${labels.length} ישויות זהב — לחץ «סרוק».`);
+    } catch (e) { setNote("שגיאה: " + (e.message || e)); }
+    finally { setBusy(false); }
+  }
+  function loadKeyNumbers() {
+    setMode("values");
+    const ns = Object.keys(KEY_NUMBERS).map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
+    if (ns.length) { setRangeFrom(String(ns[0])); setRangeTo(String(ns[ns.length - 1])); }
+    setText(""); setNote(`${ns.length} מספרי מפתח — עבור למצב «ערכים» וסרוק, או הדבק ידנית.`);
+  }
+
+  async function scan() {
+    setBusy(true); setRows(null); setNote("");
+    try {
+      const items = buildItems();
+      if (!items.length) { setNote("אין מה לסרוק — הדבק ביטויים או הגדר טווח."); setBusy(false); return; }
+      const pairs = collectPairs(items);
+      const sizeMap = await fetchFamilySizes(pairs);
+      const resoMap = withReso ? await fetchResonanceMap(pairs.map(p => p.value)) : {};
+      let scored = items.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }));
+      const mf = parseInt(maxFamily, 10);
+      if (!isNaN(mf)) scored = scored.filter(it => it.rarity.rarestSize != null && it.rarity.rarestSize <= mf);
+      scored = scored.filter(it => it.rarity.score >= minScore);
+      scored.sort((a, b) =>
+        sort === "value" ? (a.value || 0) - (b.value || 0)
+        : sort === "family" ? (a.rarity.rarestSize ?? 1e9) - (b.rarity.rarestSize ?? 1e9)
+        : b.rarity.score - a.rarity.score);
+      setRows(scored);
+      setNote(`נסרקו ${items.length} · הוצגו ${scored.length}`);
+    } catch (e) { setNote("שגיאה: " + (e.message || e)); }
+    finally { setBusy(false); }
+  }
+
+  function exportCsv() {
+    if (!rows || !rows.length) return;
+    const head = ["פריט", "ערך", "משפחה נדירה", "ציון נדירות", "תהודת-אפס", "שיטות"];
+    const body = rows.map(r => [r.key, r.value ?? "", r.rarity.rarestSize ?? "", r.rarity.score, r.rarity.resonance || 0, r.methods.map(m => `${m.label}=${m.value}`).join(" | ")]);
+    downloadCsv(`rarity-scan-${Date.now()}.csv`, [head, ...body]);
+  }
+
+  const mPill = on => ({ cursor: "pointer", fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "5px 11px", borderRadius: 999, border: `1px solid ${on ? C.gold : C.border}`, background: on ? "rgba(212,175,55,0.18)" : "transparent", color: on ? C.goldBright : C.muted });
+  const inp = { background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, padding: "8px 12px", fontFamily: F.body, fontSize: 14 };
+  const mono = { ...inp, fontFamily: F.mono, direction: "ltr", textAlign: "center", width: 90 };
+  const sc = s => s >= 70 ? "#3fae5a" : s >= 40 ? C.goldBright : C.goldDim;
+
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={card}>
+        <H>🔍 סורק נדירות</H>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, margin: "6px 0 14px", lineHeight: 1.8 }}>
+          המנוע סופר בשבילך — <b style={{ color: C.goldDim }}>אין חיפוש ידני</b>. הדבק רשימת ביטויים (שורה לכל אחד) או הגדר טווח ערכים, בחר שיטות, ולחץ «סרוק».
+          כל פריט מדורג לפי נדירות: <b style={{ color: C.goldDim }}>משפחה קטנה = נדיר = ציון גבוה</b>, ועם בונוס תהודת-אפס (⚡).
+        </div>
+
+        {/* מצב + טעינה מהירה */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12, alignItems: "center" }}>
+          <button onClick={() => setMode("phrases")} style={mPill(mode === "phrases")}>✍️ ביטויים</button>
+          <button onClick={() => setMode("values")} style={mPill(mode === "values")}>🔢 טווח ערכים</button>
+          <span style={{ width: 1, height: 20, background: C.border }} />
+          <button onClick={loadGoldEntities} style={mPill(false)}>★ טען ישויות זהב</button>
+          <button onClick={loadKeyNumbers} style={mPill(false)}>🔑 מספרי מפתח</button>
+        </div>
+
+        {mode === "phrases" ? (
+          <>
+            <textarea value={text} onChange={e => setText(e.target.value)} rows={7}
+              placeholder={"ביטוי בכל שורה…\nמשיח בן דוד\nירושלים\nפרה אדומה"}
+              style={{ ...inp, width: "100%", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+            <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, margin: "12px 0 6px" }}>שיטות לסריקה (כל פריט נמדד בכל שיטה — הנדיר ביותר קובע):</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {SCAN_METHODS.map(k => <button key={k} onClick={() => toggleMethod(k)} style={mPill(methods.includes(k))}>{k}</button>)}
+            </div>
+          </>
+        ) : (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div><div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 4 }}>מ-</div><input value={rangeFrom} onChange={e => setRangeFrom(e.target.value)} style={mono} /></div>
+            <div><div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 4 }}>עד</div><input value={rangeTo} onChange={e => setRangeTo(e.target.value)} style={mono} /></div>
+            <div><div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 4 }}>קפיצה</div><input value={rangeStep} onChange={e => setRangeStep(e.target.value)} style={mono} /></div>
+          </div>
+        )}
+
+        {/* אפשרויות */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13, cursor: "pointer" }}>
+            <input type="checkbox" checked={withReso} onChange={e => setWithReso(e.target.checked)} /> ⚡ בונוס תהודת-אפס
+          </label>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }}>
+            סף נדירות: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{minScore}</b>
+            <input type="range" min="0" max="100" value={minScore} onChange={e => setMinScore(Number(e.target.value))} />
+          </label>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }}>
+            משפחה עד <input value={maxFamily} onChange={e => setMaxFamily(e.target.value)} placeholder="∞" style={{ ...mono, width: 56 }} /> ביטויים
+          </label>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.goldLight, fontFamily: F.heading, fontSize: 13 }}>
+            מיון:
+            <select value={sort} onChange={e => setSort(e.target.value)} style={{ ...inp, padding: "6px 10px" }}>
+              <option value="rarity">נדירות ↓</option>
+              <option value="family">משפחה ↑</option>
+              <option value="value">ערך ↑</option>
+            </select>
+          </label>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center", flexWrap: "wrap" }}>
+          {busy ? <span style={{ color: C.goldDim, fontFamily: F.heading }}>סורק…</span> : <BtnGold onClick={scan}>🔍 סרוק</BtnGold>}
+          {rows && rows.length > 0 && <button onClick={exportCsv} style={iconBtn}>⬇ ייצוא CSV</button>}
+          {note && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12.5 }}>{note}</span>}
+        </div>
+      </div>
+
+      {rows && rows.length > 0 && (
+        <div style={{ ...card, overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+            <thead><tr>
+              <th style={th}>#</th><th style={th}>פריט</th><th style={th}>ערך</th><th style={th}>משפחה</th><th style={th}>נדירות</th><th style={th}>⚡</th><th style={th}></th>
+            </tr></thead>
+            <tbody>
+              {rows.slice(0, 400).map((r, i) => (
+                <tr key={r.key + i}>
+                  <td style={{ ...td, color: C.goldDim, fontFamily: F.mono }}>{i + 1}</td>
+                  <td style={{ ...td, color: C.goldBright, fontWeight: 700 }} title={r.methods.map(m => `${m.label}=${m.value}`).join(" · ")}>{r.key}</td>
+                  <td style={{ ...td, fontFamily: F.mono }}>{r.value ?? "—"}</td>
+                  <td style={{ ...td, fontFamily: F.mono, color: (r.rarity.rarestSize ?? 99) <= 6 ? "#3fae5a" : C.goldLight }}>{r.rarity.rarestSize ?? "—"}</td>
+                  <td style={{ ...td, fontFamily: F.mono, fontWeight: 800, color: sc(r.rarity.score) }}>{r.rarity.score}</td>
+                  <td style={{ ...td, fontFamily: F.mono }} title={r.rarity.resonance ? `מהדהד ב-${r.rarity.resonance} סקאלות-אפס` : ""}>{r.rarity.resonance ? `⚡${r.rarity.resonance}` : ""}</td>
+                  <td style={td}>
+                    {r.value != null && <Link to={`/number/${r.value}`} style={{ color: LINK, fontFamily: F.heading, fontSize: 12, textDecoration: "none", marginInlineEnd: 10 }}>מספר →</Link>}
+                    {r.kind === "phrase" && <Link to={`/journey?from=${encodeURIComponent(r.key)}`} style={{ color: LINK, fontFamily: F.heading, fontSize: 12, textDecoration: "none" }}>מסע →</Link>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {rows.length > 400 && <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, textAlign: "center", marginTop: 10 }}>מוצגות 400 הראשונות מתוך {rows.length} — צמצם עם הסף/מיון או ייצא CSV.</div>}
+        </div>
+      )}
+      {rows && rows.length === 0 && <Empty>אין תוצאות בסף הזה — הורד את סף הנדירות או הרחב את הקלט.</Empty>}
     </div>
   );
 }

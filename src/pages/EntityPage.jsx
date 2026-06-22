@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -28,43 +28,74 @@ function CrossGallery({ value, images, P, label }) {
   );
 }
 
-// 🔗 משפחת האפסים — הזדווגות זיקת-האפסים (zero_scale_law): אותו שורש בסדר גודל אחר.
-// מהמספר N → ÷10 (אם נגמר ב-0), ×10, ×100 — מצרף את גלריות המשפחה כדי ש"לא ייגמר".
-function familyOf(n) {
-  const out = [];
-  if (n % 10 === 0 && n >= 20) out.push({ v: n / 10, label: "÷10" });
-  out.push({ v: n * 10, label: "×10" });
-  if (n * 100 <= 100000) out.push({ v: n * 100, label: "×100" });
-  return out;
+// 🔢 תהודת האפס (zero_scale_law) — אותו שורש בסדר גודל אחר. כאן הערך מהדהד בכל
+// שכבות הגרף (מילים · גלריות · התכנסויות) בכל סקאלה — "משפחת-ערך", לא רק התאמת-ערך.
+function ResonanceRung({ r, P }) {
+  const [open, setOpen] = useState(false);
+  const bits = [];
+  if (r.words.count) bits.push(`${r.words.count} מילים`);
+  if (r.images.length) bits.push(`${r.images.length} גלריות`);
+  if (r.topics.length) bits.push(`${r.topics.length} התכנסויות`);
+  return (
+    <div style={{ marginTop: 12, border: `1px solid ${P.border}`, borderRadius: 14, background: P.cardSoft, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "11px 13px" }}>
+        <Link to={`/number/${r.v}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 7, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 16 }}>
+          {r.v}
+          <span style={{ color: P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 12, fontWeight: 700 }}>{r.label}</span>
+        </Link>
+        <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{bits.join(" · ")}</span>
+        <span style={{ flex: 1 }} />
+        <Link to={`/number/${r.v}`} style={{ textDecoration: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>פתח →</Link>
+        {(r.words.sample.length || r.images.length) > 0 && (
+          <button onClick={() => setOpen(o => !o)} title="הצצה" style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontSize: 13, padding: "0 2px" }}>{open ? "▴" : "▾"}</button>
+        )}
+      </div>
+      {open && (
+        <div style={{ padding: "0 13px 13px", display: "grid", gap: 11 }}>
+          {r.words.sample.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {r.words.sample.map((p, i) => (
+                <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.body, fontSize: 13 }}>{p}</Link>
+              ))}
+            </div>
+          )}
+          {r.topics.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {r.topics.map(t => (
+                <Link key={t.slug} to={`/topic/${t.slug}`} style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "3px 11px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>✦ {t.title}</Link>
+              ))}
+            </div>
+          )}
+          {r.images.length > 0 && <PostImageCarousel value={r.v} images={r.images} />}
+        </div>
+      )}
+    </div>
+  );
 }
-function FamilyGallery({ value, P }) {
+function ZeroResonance({ value, P }) {
   const [show, setShow] = useState(false);
   const [data, setData] = useState(null);
   useEffect(() => {
     if (!show || data) return;
-    Promise.all(familyOf(Number(value)).map(r =>
-      getImagesByValue(r.v).then(imgs => ({ ...r, images: imgs || [] })).catch(() => ({ ...r, images: [] }))
-    )).then(res => setData(res.filter(r => r.images.length)));
+    getZeroResonance(Number(value)).then(res => setData(res || [])).catch(() => setData([]));
   }, [show, value, data]);
   return (
     <div style={{ marginTop: 18, borderTop: `1px solid ${P.border}`, paddingTop: 14 }}>
       <button onClick={() => setShow(s => !s)} style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5 }}>
-        <span>🔗 גלריות משפחת האפסים (אותו שורש · סדר גודל אחר)</span>
+        <span>🔢 תהודת האפס — אותו שורש מהדהד בסדרי גודל אחרים</span>
         <span style={{ flex: 1 }} />
         <span>{show ? "▴" : "▾"}</span>
       </button>
       {show && (data === null
         ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>טוען…</div>
         : data.length === 0
-          ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין עדיין תמונות במשפחה.</div>
-          : data.map(r => (
-            <div key={r.v} style={{ marginTop: 14 }}>
-              <Link to={`/number/${r.v}`} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>
-                {r.v} <span style={{ color: P.accentDim, fontWeight: 700 }}>({r.label}) · {r.images.length} תמונות →</span>
-              </Link>
-              <PostImageCarousel value={r.v} images={r.images} />
+          ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "10px 0" }}>אין עדיין תהודה במשפחה.</div>
+          : <>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.7, marginTop: 8 }}>
+              {value} מהדהד גם כאן — אותו שורש, סדר גודל אחר. כל סקאלה היא דף שלם בפני עצמו.
             </div>
-          )))}
+            {data.map(r => <ResonanceRung key={r.v} r={r} P={P} />)}
+          </>)}
     </div>
   );
 }
@@ -611,7 +642,19 @@ export default function EntityPage() {
           // מקרי = המספר קבור ברשימת ערכים ארוכה, או מופיע רק כדקות בשעון (HH:NN) — רעש.
           const n = Number(value);
           const clockRe = (n >= 0 && n <= 59) ? new RegExp(`\\b\\d{1,2}:${String(n).padStart(2, "0")}\\b`) : null;
+          // 📅 ארטיפקט-תאריך: n מופיע בתמונה רק כיום/חודש בתבנית DD.MM.YYYY (לא כמספר עצמאי).
+          // שמות-לוג של וורדפרס («עדכון 16.6.2017») הזריקו את היום כ-primary_value שגוי — רעש, לא ערך.
+          const dateArtifact = g => {
+            if (n < 1 || n > 31) return false;
+            const text = `${g.name || ""} ${g.description || ""}`;
+            const nn = String(n);
+            // אם n מופיע כמספר עצמאי (לא צמוד ל-/ . : שמסמנים תאריך/שעה) → ערך אמיתי, לא תאריך.
+            if (new RegExp(`(^|[^0-9./])${nn}(?![0-9./:])`).test(text)) return false;
+            // אחרת — האם הוא יום/חודש בתבנית תאריך?
+            return new RegExp(`(^|[^0-9])(${nn}[./]\\d{1,2}[./]\\d{2,4}|\\d{1,2}[./]${nn}[./]\\d{2,4})`).test(text);
+          };
           const classify = g => {
+            if (dateArtifact(g)) return "incidental";                          // n רק מתאריך → רעש
             if (Number(g.primary_value) === n) return "about";
             const av = (g.all_values || []).map(Number);
             if (!av.includes(n)) return "about"; // התאמת שם (לא-מספר) — נשאר ראשי
@@ -632,7 +675,7 @@ export default function EntityPage() {
                 </div>
               )}
               {incidental.length > 0 && <CrossGallery value={value} images={incidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${incidental.length})`} />}
-              {isNumber && <FamilyGallery value={value} P={P} />}
+              {isNumber && <ZeroResonance value={value} P={P} />}
             </Acc>
           );
         })()}
