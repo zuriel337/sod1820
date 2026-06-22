@@ -217,6 +217,9 @@ export default function Footer() {
       <div className="foot-bottom">
         <span>© {new Date().getFullYear()} סוד 1820 · כל הזכויות שמורות</span>
         <span style={{ opacity: 0.85 }}>
+          🔒 המערכת מודדת שימוש בפיצ'רים לצורך שיפור האתר, אך אינה שומרת את תוכן החיפושים האישיים
+        </span>
+        <span style={{ opacity: 0.85 }}>
           מוזיקה: "Strength of the Titans" — Kevin MacLeod (incompetech.com) · CC BY 4.0
         </span>
         <span style={{ color: cc.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
