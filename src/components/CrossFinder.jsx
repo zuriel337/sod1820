@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { findNameCross } from "../lib/nameCross.js";
 import { shareCross, crossCardDataUrl } from "../lib/crossCard.js";
 import { collectPairs, fetchFamilySizes, rankByRarity, scoreCross } from "../lib/crossRarity.js";
+import { logView } from "../lib/supabase.js";
 
 // 🔮 "מצא לי הצלבה" — לשם/ביטוי נתון, מוצא מילים קדושות שמתכנסות איתו בכמה שיטות.
 // מנוע: findNameCross (gematria_engine_law — חישוב דרך METHODS בלבד). שיתוף ויזואלי: shareCross.
@@ -169,7 +170,7 @@ export default function CrossFinder({ term }) {
 
           {/* מתג «נדירות בלבד» — ברירת מחדל כבוי (=התנהגות קיימת). דולק = רק ≥2 שיטות בלתי-תלויות, לפי נדירות. */}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-            <button onClick={() => setRareOnly(v => !v)} title="מסנן התאמות טריוויאליות (רגיל+גדול) ומדרג לפי נדירות אמיתית"
+            <button onClick={() => setRareOnly(v => { if (!v) logView("cross_rare_on", term); return !v; })} title="מסנן התאמות טריוויאליות (רגיל+גדול) ומדרג לפי נדירות אמיתית"
               style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7, background: rareOnly ? "rgba(47,158,107,0.15)" : P.card, border: `1px solid ${rareOnly ? "#2f9e6b" : P.border}`, color: rareOnly ? "#2f9e6b" : P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 14px" }}>
               {rareOnly ? "✓ " : ""}✨ נדירות בלבד
             </button>

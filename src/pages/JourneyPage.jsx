@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 
@@ -55,6 +55,7 @@ export default function JourneyPage() {
     setGoal(clamp(fam.length, 3, 7));
     setPath([start]);
     setLoading(false);
+    logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
   }
 
   useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
@@ -63,11 +64,20 @@ export default function JourneyPage() {
     if (finished || !family.length) return;
     const seen = new Set(path.map(p => p.phrase));
     const pool = family.filter(f => !seen.has(f.phrase));
-    if (!pool.length) { setFinished("stopped"); return; }   // המשפחה נגמרה → נעצר ביושר (לא ממציאים)
+    if (!pool.length) {   // המשפחה נגמרה → נעצר ביושר (לא ממציאים)
+      setFinished("stopped");
+      logView("journey_stall", String(target));            // 📊 פאנל: נעצר (אין עוד שכן)
+      logView("journey_target_revealed", String(target));  // 📊 פאנל: הערך נחשף
+      return;
+    }
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
-    if (np.length >= goal) setFinished("complete");
+    if (np.length >= goal) {
+      setFinished("complete");
+      logView("journey_complete", String(target));          // 📊 פאנל: השלמת מסע (100%)
+      logView("journey_target_revealed", String(target));   // 📊 פאנל: הערך נחשף
+    }
   }
 
   function restart() { begin(""); }
@@ -75,6 +85,7 @@ export default function JourneyPage() {
   async function shareJourney() {
     if (busy || target == null) return;
     setBusy(true);
+    logView("journey_share", String(target));   // 📊 פאנל: שיתוף מסע
     try { await shareNumberSmart(target, path.map(s => ({ phrase: s.phrase }))); } finally { setBusy(false); }
   }
 
@@ -137,7 +148,7 @@ export default function JourneyPage() {
           {/* כפתורים — פתיחת הגזע · שיתוף · מסע חדש */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             {target != null && (
-              <Link to={`/number/${target}`} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              <Link to={`/number/${target}`} onClick={() => logView("journey_open", String(target))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
                 פתח את {target} →
               </Link>
             )}
