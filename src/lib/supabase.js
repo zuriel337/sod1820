@@ -952,6 +952,40 @@ export async function getValueFamilies(value, perMethod = 20) {
   } catch { return []; }
 }
 
+// 🌳 מסע ההתכנסות — ערכי ביטוי + גודל משפחת-הערך (לבחירת ערך-יעד נסתר ועשיר).
+// מחזיר [{value, size}] ממוין יורד לפי גודל המשפחה (כמה ביטויים שווים לאותו ערך).
+export async function getPhraseValueFamilies(phrase) {
+  if (!supabase || !phrase) return [];
+  const { data: mine } = await supabase.from('bidim').select('value').eq('phrase', phrase);
+  const vals = [...new Set((mine || []).map(r => r.value).filter(v => v >= 10))];
+  if (!vals.length) return [];
+  const { data: fam } = await supabase.from('bidim').select('value,phrase').in('value', vals).limit(8000);
+  const byVal = {};
+  (fam || []).forEach(r => { (byVal[r.value] ||= new Set()).add(r.phrase); });
+  return vals.map(v => ({ value: v, size: byVal[v] ? byVal[v].size : 0 })).sort((a, b) => b.size - a.size);
+}
+// 🌳 מסע ההתכנסות — רשימת הביטויים ששווים לערך (משפחת-הערך = "בתוך המספר"). + world מ-nodes כשקיים.
+export async function getValuePhraseList(value, limit = 120) {
+  if (!supabase || !value) return [];
+  const { data } = await supabase.from('bidim').select('phrase').eq('value', value).limit(limit * 2);
+  const phrases = [...new Set((data || []).map(r => r.phrase).filter(Boolean))].slice(0, limit);
+  if (!phrases.length) return [];
+  const worldMap = {};
+  for (let i = 0; i < phrases.length; i += 300) {
+    const chunk = phrases.slice(i, i + 300);
+    const { data: ents } = await supabase.from('nodes').select('label,metadata').eq('type', 'entity').in('label', chunk).limit(1000);
+    (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+  }
+  return phrases.map(p => ({ phrase: p, world: worldMap[p] || null }));
+}
+// 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
+export async function getRandomStartPhrase() {
+  if (!supabase) return null;
+  const { data } = await supabase.from('nodes').select('label').eq('type', 'entity').eq('is_active', true).gte('weight', 4).limit(400);
+  const pool = [...new Set((data || []).map(r => r.label).filter(Boolean))];
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+}
+
 // 🧬 משפחות לפי שיטה — לדף ביטוי: לכל שיטה הערך של הביטוי *באותה שיטה* + המילים השוות לו שם.
 // pairs: [{method, value}] (הערך של הביטוי בכל שיטה). מחזיר [{method, value, count, phrases}].
 export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) {
