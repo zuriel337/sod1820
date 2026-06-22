@@ -611,7 +611,19 @@ export default function EntityPage() {
           // מקרי = המספר קבור ברשימת ערכים ארוכה, או מופיע רק כדקות בשעון (HH:NN) — רעש.
           const n = Number(value);
           const clockRe = (n >= 0 && n <= 59) ? new RegExp(`\\b\\d{1,2}:${String(n).padStart(2, "0")}\\b`) : null;
+          // 📅 ארטיפקט-תאריך: n מופיע בתמונה רק כיום/חודש בתבנית DD.MM.YYYY (לא כמספר עצמאי).
+          // שמות-לוג של וורדפרס («עדכון 16.6.2017») הזריקו את היום כ-primary_value שגוי — רעש, לא ערך.
+          const dateArtifact = g => {
+            if (n < 1 || n > 31) return false;
+            const text = `${g.name || ""} ${g.description || ""}`;
+            const nn = String(n);
+            // אם n מופיע כמספר עצמאי (לא צמוד ל-/ . : שמסמנים תאריך/שעה) → ערך אמיתי, לא תאריך.
+            if (new RegExp(`(^|[^0-9./])${nn}(?![0-9./:])`).test(text)) return false;
+            // אחרת — האם הוא יום/חודש בתבנית תאריך?
+            return new RegExp(`(^|[^0-9])(${nn}[./]\\d{1,2}[./]\\d{2,4}|\\d{1,2}[./]${nn}[./]\\d{2,4})`).test(text);
+          };
           const classify = g => {
+            if (dateArtifact(g)) return "incidental";                          // n רק מתאריך → רעש
             if (Number(g.primary_value) === n) return "about";
             const av = (g.all_values || []).map(Number);
             if (!av.includes(n)) return "about"; // התאמת שם (לא-מספר) — נשאר ראשי
