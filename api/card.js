@@ -88,8 +88,9 @@ export default async function handler(req) {
     r.arrayBuffer()
   );
 
-  // התאמת גודל הגופן לאורך הגיבור
-  const heroSize = hero.length <= 4 ? 320 : hero.length <= 8 ? 200 : hero.length <= 14 ? 120 : 84;
+  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי)
+  const heroSize = hero.length <= 4 ? 320 : hero.length <= 8 ? 200 : hero.length <= 14 ? 120
+                 : hero.length <= 22 ? 88 : hero.length <= 34 ? 66 : 52;
   // גודל שורת הגימטריה — שורה אחת תמיד (מתכווץ לפי אורך)
   const subSize = sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.length <= 38 ? 34 : sub.length <= 52 ? 27 : 22;
 
@@ -150,9 +151,11 @@ export default async function handler(req) {
           fontSize: `${heroSize}px`,
           fontWeight: 800,
           color: '#ffe9a8',
-          lineHeight: 1,
+          lineHeight: 1.12,
           textShadow: '0 0 40px rgba(212,175,55,0.55)',
           padding: '4px 24px',
+          maxWidth: '1080px',
+          textAlign: 'center',
         },
       },
       hero
