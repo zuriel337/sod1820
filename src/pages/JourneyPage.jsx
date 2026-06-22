@@ -21,6 +21,25 @@ const LINES = [
   "ומכאן אל",
 ];
 
+// 🤖 «מסר מהמנוע» (בטא) — הודעה שנגזרת מנתוני המסע עצמם (לא טקסט קבוע). בעתיד תהפוך ל-AI מותאם.
+function engineMessage({ root, bases = [], stations = 0, dWorld }) {
+  const out = [];
+  if (stations > 0) out.push(`ראיתי אותך עובר ${stations} תחנות — וכולן, ללא יוצא מן הכלל, נפלו על ${root}.`);
+  if (bases.length > 1) out.push(`והערך לא נעצר: הוא המשיך להדהד בסדרי גודל — ${bases.join(" → ")}. מה שראית קטן ממה שיש מתחת.`);
+  if (dWorld) out.push(`השדה ששב וחזר אליך הוא «${dWorld}» — שם נמצא הלב של המסע שלך.`);
+  if (KEY_NUMBERS[root]) out.push(`וזכור: ${root} הוא ${KEY_NUMBERS[root]}.`);
+  out.push("זה רק קצה הקצה. בגרסה הבאה אדבר אליך אישית — לפי בדיוק מה שחיפשת.");
+  return out;
+}
+
+// 🔮 ריבוע פיתוחים עתידיים — מה שבדרך (כולל גרסה 2 של המסע)
+const FUTURE = [
+  { icon: "🤖", title: "מסר מהמנוע — אישי (AI)", note: "ההודעה תיכתב במיוחד עבורך לפי המסע שעשית", soon: true },
+  { icon: "🧭", title: "מסע מודרך לפי שדה/עולם", note: "לבחור נושא — והמנוע בונה מסע סביבו" },
+  { icon: "💾", title: "המסעות שלי", note: "היסטוריה אישית — לשמור ולחזור למסעות" },
+  { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
+];
+
 export default function JourneyPage() {
   const P = usePalette();
   const [sp] = useSearchParams();
@@ -187,6 +206,48 @@ export default function JourneyPage() {
               ))}
             </div>
           )}
+
+          {/* 🤖 מסר מהמנוע (בטא) — נגזר מנתוני המסע */}
+          {root != null && (
+            <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px", boxShadow: `0 0 30px ${P.glow}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
+                <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>🤖 מסר מהמנוע</span>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px" }}>בטא · בפיתוח</span>
+              </div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
+                  <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 🔮 ריבוע פיתוחים עתידיים + גרסה 2 */}
+          <div style={{ maxWidth: 520, margin: "0 auto 24px", textAlign: "right", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px" }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>🔮 מה עוד בדרך</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 12 }}>המסע הזה רק מתחיל לגדול. הנה מה שהמנוע יֵדע לעשות בקרוב:</div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {FUTURE.map((f, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: P.glow, border: `1px solid ${P.border}`, borderRadius: 12, padding: "9px 12px" }}>
+                  <span style={{ fontSize: 17, lineHeight: 1.2 }}>{f.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>{f.title}{f.soon && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 10, fontWeight: 800, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "1px 7px", marginInlineStart: 8 }}>בקרוב</span>}</div>
+                    <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>{f.note}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* גרסה 2 — הכותרת הגדולה */}
+            <div style={{ marginTop: 12, background: `linear-gradient(135deg, ${P.accent}22, ${P.glow})`, border: `1.5px solid ${P.accent}`, borderRadius: 14, padding: "12px 14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✨ מסע · גרסה 2</span>
+                <span style={{ color: P.onAccent, background: P.accentBtn, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 10px" }}>בדרך</span>
+              </div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginTop: 6 }}>
+                מסע מודרך עם הסתעפויות לבחירתך, בחירת עומק (קצר/עמוק), ומסר-מנוע אישי שנכתב בזמן אמת. אתה תכוון את המסע — לא רק תצפה בו.
+              </div>
+            </div>
+          </div>
 
           {/* כפתורים — פתיחת הגזע · שיתוף · מסע חדש */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
