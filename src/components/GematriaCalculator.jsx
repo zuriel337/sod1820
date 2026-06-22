@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { isAnon } from "../lib/privacy.js";
+import AnonToggle, { useAnon } from "./AnonToggle.jsx";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
@@ -19,6 +21,7 @@ export default function GematriaCalculator({ seed, onResult }) {
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
+  const anon = useAnon();   // 🕶️ מצב אנונימי — לרענון האפקט כשמשתנה
   const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
   const [counts, setCounts] = useState({});
@@ -78,16 +81,17 @@ export default function GematriaCalculator({ seed, onResult }) {
 
   // שמירה לקיר + רישום חיפושים (עץ אחד).
   // אדמין: חיפושיו אינם נשמרים לקיר הציבורי ולא נרשמים — שמירה רק ידנית ופרטית (כפתור למטה).
+  // מצב אנונימי: לא נשמר לקיר ולא להיסטוריה (logSearch מגן על עצמו; הקיר נחסם כאן).
   useEffect(() => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
     if (isAdmin) { if (onResult) onResult({ word, ragil: ragilVal }); return; }
     const t = setTimeout(async () => {
-      await addWallWord(word, ragilVal);
+      if (!isAnon()) await addWallWord(word, ragilVal);
       logSearch(word, ragilVal);
       if (onResult) onResult({ word, ragil: ragilVal });
     }, 900);
     return () => clearTimeout(t);
-  }, [word, ragilVal, onResult, isAdmin]);
+  }, [word, ragilVal, onResult, isAdmin, anon]);
 
   // קיר פרטי לאדמין: שמירה ידנית + רשימה שרק האדמין רואה
   const [privSaved, setPrivSaved] = useState("");
@@ -167,6 +171,13 @@ export default function GematriaCalculator({ seed, onResult }) {
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
         {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
+
+        {/* 🕶️ חיפוש אנונימי — לא נשמר בהיסטוריה/בקיר (לגולש; אדמין ממילא לא נשמר) */}
+        {!isAdmin && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+            <AnonToggle size="sm" />
+          </div>
+        )}
 
         {/* 🔒 מצב אדמין — חיפושים אינם נשמרים לקיר הציבורי; שמירה ידנית פרטית בלבד */}
         {isAdmin && (

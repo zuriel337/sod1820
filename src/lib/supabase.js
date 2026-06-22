@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { isAnon } from './privacy.js';
 
 const supabase = createClient(
   'https://linswmnnkjxvweumprav.supabase.co',
@@ -846,6 +847,7 @@ function cleanTitle(s) {
 const SEARCH_TERM_OK = /^[ 0-9א-ת׳״'"\-]{1,40}$/;
 // תיעוד חיפוש אמיתי (מהמחשבון / דף הביטוי). ללא PII; נכשל בשקט. דדופ לכל גלישה.
 export async function logSearch(term, value) {
+  if (isAnon()) return;   // 🕶️ מצב אנונימי — לא נשמר בהיסטוריית החיפושים
   const t = (term || '').trim();
   if (!SEARCH_TERM_OK.test(t)) return;
   try {
