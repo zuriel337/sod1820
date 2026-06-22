@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { findNameCross } from "../lib/nameCross.js";
 import { shareCross, crossCardDataUrl } from "../lib/crossCard.js";
-import { collectPairs, fetchFamilySizes, rankByRarity, scoreCross } from "../lib/crossRarity.js";
+import { collectPairs, fetchFamilySizes, fetchResonanceMap, rankByRarity, scoreCross } from "../lib/crossRarity.js";
 import { logView } from "../lib/supabase.js";
 
 // 🔮 "מצא לי הצלבה" — לשם/ביטוי נתון, מוצא מילים קדושות שמתכנסות איתו בכמה שיטות.
@@ -30,9 +30,9 @@ function RarityBadge({ rarity, P }) {
   const c = s >= 70 ? "#2f9e6b" : s >= 40 ? P.accentText : P.accentDim;
   return (
     <div style={{ textAlign: "center", marginTop: 6 }}>
-      <span title={`${rarity.indepCount} שיטות בלתי-תלויות${rarity.rarestSize != null ? ` · הנדיר ביותר: ${rarity.rarestSize} ביטויים בלבד` : ""}`}
+      <span title={`${rarity.indepCount} שיטות בלתי-תלויות${rarity.rarestSize != null ? ` · הנדיר ביותר: ${rarity.rarestSize} ביטויים בלבד` : ""}${rarity.resonance ? ` · מהדהד ב-${rarity.resonance} סקאלות-אפס (+${rarity.resoBonus})` : ""}`}
         style={{ display: "inline-flex", alignItems: "center", gap: 6, color: c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, border: `1px solid ${c}33`, background: `${c}14`, borderRadius: 999, padding: "2px 11px" }}>
-        🎯 מד נדירות {s}/100
+        🎯 מד נדירות {s}/100{rarity.resonance ? " ⚡" : ""}
       </span>
     </div>
   );
@@ -107,35 +107,38 @@ export default function CrossFinder({ term }) {
   const [cross, setCross] = useState(null);
   const [showMore, setShowMore] = useState(false);
   const [sizeMap, setSizeMap] = useState({});   // "method|value" → גודל משפחה (לנדירות)
+  const [resoMap, setResoMap] = useState({});   // value → כמה סקאלות-אפס מהדהדות (בונוס נדירות)
   const [rareOnly, setRareOnly] = useState(false); // מסנן «נדירות בלבד» — ברירת מחדל כבוי
   const engaged = useRef(false); // האם המשתמש כבר הפעיל — אז נרענן אוטומטית בכל שם חדש
 
   const find = useCallback(async () => {
     engaged.current = true;
-    setStatus("busy"); setCross(null); setShowMore(false); setSizeMap({});
+    setStatus("busy"); setCross(null); setShowMore(false); setSizeMap({}); setResoMap({});
     try {
       const c = await findNameCross(term);
       if (c && c.matchCount >= 2) {
         setCross(c); setStatus("done");
-        // נדירות (אופציונלי) — מביא גדלי-משפחה ל-bidim ברקע; לא חוסם את התצוגה.
-        fetchFamilySizes(collectPairs([c, ...(c.others || [])])).then(setSizeMap).catch(() => {});
+        // נדירות (אופציונלי) — מביא גדלי-משפחה + תהודת-אפס ל-bidim ברקע; לא חוסם את התצוגה.
+        const pairs = collectPairs([c, ...(c.others || [])]);
+        fetchFamilySizes(pairs).then(setSizeMap).catch(() => {});
+        fetchResonanceMap(pairs.map(p => p.value)).then(setResoMap).catch(() => {});
       } else setStatus("none");
     } catch { setStatus("none"); }
   }, [term]);
 
   // שם/ביטוי חדש → לנקות תוצאה ישנה; אם המשתמש כבר הפעיל פעם — לרענן לבד (בלי "עוד אחת")
   useEffect(() => {
-    setCross(null); setShowMore(false); setSizeMap({});
+    setCross(null); setShowMore(false); setSizeMap({}); setResoMap({});
     if (engaged.current) find();
     else setStatus("idle");
   }, [term, find]);
 
-  // צירוף ציון-נדירות לכל הצלבה (פר-משתמש, חי). primary + others.
-  const primaryScored = cross ? { ...cross, rarity: scoreCross(cross, sizeMap) } : null;
+  // צירוף ציון-נדירות לכל הצלבה (פר-משתמש, חי). primary + others. כולל בונוס תהודת-אפס.
+  const primaryScored = cross ? { ...cross, rarity: scoreCross(cross, sizeMap, resoMap) } : null;
   const others = (cross && cross.others) || [];
-  const othersScored = others.map(o => ({ ...o, rarity: scoreCross(o, sizeMap) }));
+  const othersScored = others.map(o => ({ ...o, rarity: scoreCross(o, sizeMap, resoMap) }));
   // מצב «נדירות בלבד» — רק הצלבות עם ≥2 שיטות בלתי-תלויות, ממוין לפי נדירות.
-  const rareList = rankByRarity([primaryScored, ...othersScored].filter(Boolean), sizeMap)
+  const rareList = rankByRarity([primaryScored, ...othersScored].filter(Boolean), sizeMap, resoMap)
     .filter(c => !c.rarity.trivial);
 
   return (

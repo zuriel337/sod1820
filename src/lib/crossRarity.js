@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase, zeroScales } from "./supabase.js";
 
 // ===== מנוע נדירות ל«הצלבה הנסתרת» — נדירות מבוססת-נתונים =====
 // העיקרון (לפי צוריאל): לא לספור שיטות אלא למדוד נדירות. חוזק התאמה בשיטה ∝ 1/גודל-משפחת-הערך
@@ -50,23 +50,49 @@ export async function fetchFamilySizes(pairs = []) {
   return out;
 }
 
+// 🔢 בונוס תהודת-אפס: ערך שגם הדהוד שלו בסקאלות (×10/÷10…) עשיר בביטויים = דפוס חזק יותר.
+// מחזיר map: value → כמה סקאלות-אפס אחיות מהדהדות (יש בהן ≥2 ביטויים ברגיל). שאילתה אחת.
+export async function fetchResonanceMap(values = []) {
+  const out = {};
+  if (!supabase || !values.length) return out;
+  const sibsOf = {}, allSibs = new Set();
+  for (const v of new Set(values.filter(v => v != null))) {
+    const sc = zeroScales(v).map(s => s.v);
+    sibsOf[v] = sc;
+    sc.forEach(s => allSibs.add(s));
+  }
+  if (!allSibs.size) return out;
+  const rich = new Set();
+  try {
+    const { data } = await supabase.from("bidim").select("value,phrase").eq("method", "רגיל").in("value", [...allSibs]).limit(20000);
+    const cnt = {};
+    (data || []).forEach(r => { (cnt[r.value] ||= new Set()).add(r.phrase); });
+    for (const k of Object.keys(cnt)) if (cnt[k].size >= 2) rich.add(Number(k));
+  } catch { /* ignore — תהודה אופציונלית */ }
+  for (const v of Object.keys(sibsOf)) out[v] = sibsOf[v].filter(s => rich.has(s)).length;
+  return out;
+}
+
 // מחשב «מד נדירות» 0–100 להצלבה אחת. trivial = פחות מ-2 שיטות בלתי-תלויות (רק רגיל/רגיל+גדול).
-export function scoreCross(cross, sizeMap = {}) {
+export function scoreCross(cross, sizeMap = {}, resoMap = {}) {
   const indep = independentMethods(cross.methods || []);
-  let pts = 0, rarest = Infinity;
+  let pts = 0, rarest = Infinity, reso = 0;
   for (const m of indep) {
     const size = sizeMap[`${m.label}|${m.value}`];
     pts += methodPoints(size);
     if (size != null && size < rarest) rarest = size;
+    const rv = resoMap[m.value]; if (rv) reso = Math.max(reso, rv);
   }
   if (indep.some(m => ANCHOR_SET.has(m.value))) pts += 10; // עוגן קדוש = בונוס
+  const resoBonus = Math.min(12, reso * 4);                // תהודת-אפס: עד 12 נק'
+  pts += resoBonus;
   const score = Math.max(0, Math.min(100, Math.round(pts)));
-  return { score, indepCount: indep.length, rarestSize: isFinite(rarest) ? rarest : null, trivial: indep.length < 2 };
+  return { score, indepCount: indep.length, rarestSize: isFinite(rarest) ? rarest : null, resonance: reso, resoBonus, trivial: indep.length < 2 };
 }
 
 // מדרג רשימת הצלבות לפי נדירות (גבוה→נמוך). מצרף .rarity לכל אחת.
-export function rankByRarity(crosses = [], sizeMap = {}) {
+export function rankByRarity(crosses = [], sizeMap = {}, resoMap = {}) {
   return crosses
-    .map(c => ({ ...c, rarity: scoreCross(c, sizeMap) }))
+    .map(c => ({ ...c, rarity: scoreCross(c, sizeMap, resoMap) }))
     .sort((a, b) => b.rarity.score - a.rarity.score);
 }
