@@ -241,250 +241,8 @@ function PageBody({ bodyHtml }) {
   );
 }
 
-// ===== LATEST POSTS SECTION =====
+// ===== ELS (דילוגי אותיות) =====
 
-function LatestPostsSection({ onNav }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getPostsFromSupabase({ limit: 10 })
-      .then(({ posts: rows }) => {
-        setPosts(rows.map(adaptPost));
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (!loading && posts.length === 0) return null;
-
-  return (
-    <div style={{
-      padding: "88px 24px",
-      borderTop: `1px solid ${C.border}`,
-      borderBottom: `1px solid ${C.border}`,
-      background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
-    }}>
-      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-        <SectionHeader eyebrow="" title="פוסטים אחרונים" />
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
-          gap: 16,
-        }}>
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-            : posts.map(post => (
-                <PostCard key={post.id} post={post} onPost={() => onNav("post", post)} />
-              ))
-          }
-        </div>
-        {!loading && (
-          <div style={{ textAlign: "center", marginTop: 44 }}>
-            <GoldButton variant="secondary" onClick={() => onNav("blog")}>
-              לכל הפוסטים ←
-            </GoldButton>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ===== LANDING PAGE =====
-
-function Landing({ onNav }) {
-  return (
-    <div style={{ direction: "rtl" }}>
-
-      {/* ── CROWN ── */}
-      <div style={{
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        textAlign: "center",
-        padding: "48px 18px 32px",
-        background: `radial-gradient(ellipse at 50% 20%, rgba(26,18,0,0.5) 0%, transparent 60%)`,
-      }}>
-        <div style={{
-          position: "relative",
-          display: "inline-block",
-          marginBottom: 20,
-          opacity: 0.95,
-          transform: "translateZ(0)",
-        }}>
-          {/* קרני אור */}
-          <div style={{
-            position: "absolute", top: "50%", left: "50%",
-            width: 160, height: 160,
-            background: `conic-gradient(from 0deg,
-              transparent 0deg, rgba(212,175,55,0.16) 12deg, transparent 24deg,
-              transparent 60deg, rgba(212,175,55,0.11) 72deg, transparent 84deg,
-              transparent 120deg, rgba(212,175,55,0.14) 132deg, transparent 144deg,
-              transparent 180deg, rgba(212,175,55,0.09) 192deg, transparent 204deg,
-              transparent 240deg, rgba(212,175,55,0.12) 252deg, transparent 264deg,
-              transparent 300deg, rgba(212,175,55,0.08) 312deg, transparent 324deg)`,
-            borderRadius: "50%",
-            animation: "light-rays 16s linear infinite",
-            pointerEvents: "none",
-          }} />
-          <img
-            src={LOGO_URL}
-            alt="SOD1820 logo"
-            style={{
-              height: 76,
-              width: "auto",
-              display: "block",
-              position: "relative", zIndex: 1,
-              animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-              filter: "drop-shadow(0 0 24px rgba(232,200,74,0.78))",
-            }}
-          />
-          <span style={{
-            position: "absolute", zIndex: 2,
-            top: "-16%", left: "-14%",
-            color: C.goldLight, fontSize: 18, opacity: 0.9,
-            animation: "royal-sparkle 3.6s ease-in-out infinite",
-          }}>✦</span>
-          <span style={{
-            position: "absolute", zIndex: 2,
-            top: "4%", right: "-12%",
-            color: C.goldBright, fontSize: 14, opacity: 0.85,
-            animation: "royal-sparkle 4.6s ease-in-out infinite reverse",
-          }}>✦</span>
-        </div>
-      </div>
-
-      {/* ── GEMATRIA UPLOAD FINDINGS ── */}
-      <UploadFindings />
-
-      {/* ── LATEST POSTS ── */}
-      <LatestPostsSection onNav={onNav} />
-
-    </div>
-  );
-}
-
-// ===== HOME PAGE =====
-
-function HeroSection({ onNav }) {
-  return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      textAlign: "center",
-      padding: "72px 24px 56px",
-      background: `radial-gradient(ellipse at 50% 0%, rgba(26,18,0,0.55) 0%, transparent 65%)`,
-    }}>
-      <div style={{ position: "relative", display: "inline-block", marginBottom: 32 }}>
-        {/* קרני אור מסתובבות */}
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          width: 180, height: 180,
-          background: `conic-gradient(from 0deg,
-            transparent 0deg, rgba(212,175,55,0.18) 12deg, transparent 24deg,
-            transparent 60deg, rgba(212,175,55,0.12) 72deg, transparent 84deg,
-            transparent 120deg, rgba(212,175,55,0.15) 132deg, transparent 144deg,
-            transparent 180deg, rgba(212,175,55,0.1) 192deg, transparent 204deg,
-            transparent 240deg, rgba(212,175,55,0.13) 252deg, transparent 264deg,
-            transparent 300deg, rgba(212,175,55,0.09) 312deg, transparent 324deg)`,
-          borderRadius: "50%",
-          animation: "light-rays 14s linear infinite",
-          pointerEvents: "none",
-        }} />
-        <img
-          src={LOGO_URL}
-          alt="SOD1820 logo"
-          style={{
-            height: 80, width: "auto", display: "block", position: "relative", zIndex: 1,
-            animation: "crown-spin 12s linear infinite, royal-pulse 4.2s ease-in-out infinite",
-            filter: "drop-shadow(0 0 28px rgba(232,200,74,0.85))",
-          }}
-        />
-        <span style={{ position: "absolute", top: "-16%", left: "-14%", color: C.goldLight, fontSize: 18, opacity: 0.9, animation: "royal-sparkle 3.6s ease-in-out infinite", zIndex: 2 }}>✦</span>
-        <span style={{ position: "absolute", top: "4%", right: "-12%", color: C.goldBright, fontSize: 14, opacity: 0.85, animation: "royal-sparkle 4.6s ease-in-out infinite reverse", zIndex: 2 }}>✦</span>
-      </div>
-
-      <div style={{ fontSize: 10, color: C.goldDim, letterSpacing: 7, marginBottom: 20, fontFamily: F.cinzel, textTransform: "uppercase" }}>SOD1820 · כי לה' המלוכה</div>
-
-      <h1 style={{
-        color: C.goldBright,
-        margin: "0 0 20px",
-        fontSize: "clamp(32px, 6vw, 62px)",
-        fontFamily: F.regal,
-        fontWeight: 700,
-        letterSpacing: 2,
-        lineHeight: 1.2,
-        textShadow: `0 0 80px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)`,
-        maxWidth: 680,
-        animation: "hero-shimmer 5s ease-in-out infinite",
-      }}>
-        הקוד הנסתר בשפה העברית
-      </h1>
-
-      <p style={{
-        color: C.goldDim,
-        fontSize: "clamp(14px, 2vw, 17px)",
-        fontFamily: F.body,
-        lineHeight: 2,
-        maxWidth: 540,
-        margin: "0 0 40px",
-      }}>
-        גימטריה היא לא עניין של מספרים בלבד — היא שפה חיה שמגלה את המציאות מאחורי המציאות. למד לקרוא את הקוד שמסתתר בכל מילה.
-      </p>
-
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-        <GoldButton onClick={() => onNav("blog")}>לפוסטים האחרונים</GoldButton>
-        <GoldButton variant="secondary" onClick={() => onNav("about")}>אודות</GoldButton>
-      </div>
-
-      <div style={{ marginTop: 52 }}>
-        <RoyalDivider width={220} />
-      </div>
-    </div>
-  );
-}
-
-function StatsBar() {
-  const stats = [
-    ["112", "אירועים מתועדים"],
-    ["10+", "שנות מחקר"],
-    ["1820", "שם יהוה"],
-    ["4", "שיטות גימטריה"],
-  ];
-  return (
-    <div style={{
-      background: C.surface,
-      borderTop: `1px solid ${C.border}`,
-      borderBottom: `1px solid ${C.border}`,
-      padding: "28px 24px",
-    }}>
-      <div style={{
-        maxWidth: 840, margin: "0 auto",
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-      }}>
-        {stats.map(([num, label], i) => (
-          <div key={label} style={{
-            textAlign: "center",
-            padding: "12px 16px",
-            borderRight: i < stats.length - 1 ? `1px solid ${C.border}` : "none",
-          }}>
-            <div style={{
-              fontSize: 28, color: C.goldBright, fontWeight: 900,
-              fontFamily: F.heading, textShadow: `0 0 20px ${C.goldDeep}`,
-            }}>{num}</div>
-            <div style={{
-              fontSize: 9, color: C.muted, marginTop: 6,
-              letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase",
-            }}>{label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ===== ELS — דילוגי אותיות =====
 const ELS_SOURCE = `
   בראשית ברא אלהים את השמים ואת הארץ
   והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים
@@ -1107,456 +865,6 @@ function ELSSection() {
     </div>
   );
 }
-
-function TestimonialsSection() {
-  return (
-    <div style={{
-      padding: "80px 24px",
-      borderTop: `1px solid ${C.border}`,
-      background: C.bg,
-    }}>
-      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-        <SectionHeader eyebrow="תלמידים" title="מה אומרים התלמידים" />
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
-          gap: 16,
-        }}>
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} style={{
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              borderTop: `2px solid ${C.borderGold}`,
-              borderRadius: 2,
-              padding: "28px 24px",
-            }}>
-              <div style={{ color: C.goldBright, fontSize: 14, marginBottom: 12 }}>
-                {"★".repeat(t.stars)}
-              </div>
-              <p style={{
-                color: "#ede4d3", fontFamily: F.body,
-                fontSize: 14, lineHeight: 2,
-                margin: "0 0 16px", fontStyle: "italic",
-              }}>"{t.text}"</p>
-              <div style={{
-                fontSize: 10, color: C.goldDim,
-                fontFamily: F.heading, letterSpacing: 3,
-                textTransform: "uppercase",
-              }}>{t.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ===== AXIS / TIMELINE CONSTANTS =====
-const AXIS_COLOR = {
-  '7.10':      '#c0392b',
-  'אירן':      '#8e44ad',
-  'טראמפ':    '#2471a3',
-  'קורונה':   '#b7950b',
-  'אסון_טבע': '#935116',
-  'ירושלים':  '#b7770d',
-};
-const AXIS_LABEL = {
-  '7.10':      '7.10 — שמחת תורה',
-  'אירן':      'אירן',
-  'טראמפ':    'טראמפ',
-  'קורונה':   'קורונה',
-  'אסון_טבע': 'אסון טבע',
-  'ירושלים':  'ירושלים',
-};
-const WEIGHT_R = [0, 5, 7, 10, 14, 20];
-const cleanLabel = s => s ? s.replace(/&quot;/g, '"').replace(/&#8211;/g, '–').replace(/&#\d+;/g, '').trim() : '';
-
-// ── LIVE SIGNAL BAR ───────────────────────────────────────────────────────────
-function LiveSignalBar({ events }) {
-  const anchors = events
-    .filter(e => (e.weight || 1) >= 3)
-    .sort((a, b) => (b.metadata?.occurred_at || '').localeCompare(a.metadata?.occurred_at || ''))
-    .slice(0, 6);
-
-  if (!anchors.length) return null;
-
-  const items = [...anchors, ...anchors];
-
-  return (
-    <div style={{
-      background: `linear-gradient(90deg, ${C.bg} 0%, ${C.surface} 50%, ${C.bg} 100%)`,
-      borderTop: `1px solid ${C.borderGold}`,
-      borderBottom: `1px solid ${C.border}`,
-      overflow: 'hidden',
-      height: 44,
-      display: 'flex',
-      alignItems: 'center',
-    }}>
-      <div style={{ display: 'flex', animation: 'ticker-scroll 50s linear infinite', whiteSpace: 'nowrap' }}>
-        {items.map((e, i) => (
-          <span key={i} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '0 28px',
-            color: e.axis_theme ? (AXIS_COLOR[e.axis_theme] || C.goldDim) : C.goldDim,
-            fontSize: 11, fontFamily: F.heading, letterSpacing: 2,
-          }}>
-            <span style={{ color: C.goldDim, fontSize: 7 }}>✦</span>
-            {e.hebrew_date && <span style={{ color: C.goldDim, fontSize: 10 }}>{e.hebrew_date}</span>}
-            {e.hebrew_date && <span style={{ color: C.border, margin: '0 2px' }}>·</span>}
-            <span>{cleanLabel(e.label).slice(0, 55)}{cleanLabel(e.label).length > 55 ? '…' : ''}</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── TIME AXIS SECTION ─────────────────────────────────────────────────────────
-function TimelineSection({ events, onNav }) {
-  const [sel, setSel] = useState(null);
-
-  const byYear = {};
-  events.forEach(e => {
-    const yr = e.metadata?.year;
-    if (!yr || yr < 2014 || yr > 2027) return;
-    if (!byYear[yr]) byYear[yr] = [];
-    byYear[yr].push(e);
-  });
-
-  const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
-  if (!years.length) return null;
-
-  return (
-    <section style={{
-      padding: '72px 0 56px',
-      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.surface} 100%)`,
-      borderTop: `1px solid ${C.border}`,
-    }}>
-      <div style={{ padding: '0 24px', maxWidth: 1200, margin: '0 auto 40px' }}>
-        <SectionHeader eyebrow="ציר הזמן" title="עשר שנות רמזים" />
-      </div>
-
-      <div style={{ overflowX: 'auto', paddingBottom: 12 }}>
-        <div style={{
-          position: 'relative',
-          display: 'flex',
-          padding: '0 40px',
-          minWidth: years.length * 110 + 80,
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: 48, left: 40, right: 40, height: 1,
-            background: `linear-gradient(to right, transparent, ${C.borderGold} 15%, ${C.gold} 50%, ${C.borderGold} 85%, transparent)`,
-            zIndex: 0,
-          }} />
-
-          {years.map(yr => {
-            const evts = byYear[yr].sort((a, b) => (b.weight || 1) - (a.weight || 1));
-            const topW = evts[0]?.weight || 1;
-            const markerR = topW >= 4 ? 6 : topW >= 3 ? 4 : 3;
-
-            return (
-              <div key={yr} style={{
-                flex: '0 0 110px', display: 'flex', flexDirection: 'column',
-                alignItems: 'center', zIndex: 1, paddingTop: 8,
-              }}>
-                <div style={{
-                  fontSize: 10, lineHeight: '22px', marginBottom: 8,
-                  color: topW >= 4 ? C.goldBright : topW >= 3 ? C.goldLight : C.goldDim,
-                  fontFamily: F.cinzel, letterSpacing: 2, fontWeight: topW >= 4 ? 700 : 400,
-                }}>{yr}</div>
-
-                <div style={{
-                  width: markerR * 2, height: markerR * 2, borderRadius: '50%',
-                  background: topW >= 4 ? C.goldBright : topW >= 3 ? C.gold : C.borderGold,
-                  boxShadow: topW >= 4 ? `0 0 14px ${C.gold}88` : 'none',
-                  marginBottom: 14, flexShrink: 0,
-                }} />
-
-                {evts.slice(0, 7).map((e, i) => {
-                  const r = WEIGHT_R[e.weight || 1];
-                  const col = e.axis_theme ? (AXIS_COLOR[e.axis_theme] || '#55504a') : '#55504a';
-                  const isSel = sel?.id === e.id;
-                  return (
-                    <div
-                      key={e.id || i}
-                      title={cleanLabel(e.label).slice(0, 80)}
-                      onClick={() => setSel(isSel ? null : e)}
-                      style={{
-                        width: r * 2, height: r * 2, borderRadius: '50%',
-                        background: col,
-                        border: `1px solid ${isSel ? C.goldBright : 'rgba(255,255,255,0.1)'}`,
-                        cursor: 'pointer', marginBottom: 6, flexShrink: 0,
-                        transition: 'transform 0.15s, box-shadow 0.15s',
-                        transform: isSel ? 'scale(1.3)' : 'scale(1)',
-                        boxShadow: isSel ? `0 0 ${r + 4}px ${col}` : e.weight >= 4 ? `0 0 ${r}px ${col}88` : 'none',
-                      }}
-                    />
-                  );
-                })}
-                {evts.length > 7 && (
-                  <div style={{ fontSize: 8, color: C.muted, fontFamily: F.heading, letterSpacing: 1, marginTop: 2 }}>
-                    +{evts.length - 7}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', padding: '20px 24px 0' }}>
-        {Object.entries(AXIS_COLOR).map(([theme, color]) => (
-          <div key={theme} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: C.muted, fontFamily: F.heading }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
-            {AXIS_LABEL[theme] || theme}
-          </div>
-        ))}
-      </div>
-
-      {sel && (
-        <div
-          onClick={() => setSel(null)}
-          style={{
-            maxWidth: 560, margin: '28px auto 0',
-            padding: '20px 24px',
-            background: C.surface,
-            border: `1px solid ${sel.axis_theme ? (AXIS_COLOR[sel.axis_theme] || C.borderGold) : C.borderGold}`,
-            borderTop: `3px solid ${sel.axis_theme ? (AXIS_COLOR[sel.axis_theme] || C.gold) : C.gold}`,
-            borderRadius: 2, direction: 'rtl', cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
-            <div style={{ fontSize: 14, color: C.goldLight, fontFamily: F.body, lineHeight: 1.7, flex: 1 }}>
-              {cleanLabel(sel.label)}
-            </div>
-            <div style={{ fontSize: 9, color: C.muted, fontFamily: F.heading, letterSpacing: 2, flexShrink: 0 }}>
-              {sel.metadata?.year}
-            </div>
-          </div>
-          {sel.hebrew_date && (
-            <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 3, marginBottom: 10 }}>
-              {sel.hebrew_date}{sel.metadata?.occurred_at ? ` · ${sel.metadata.occurred_at.slice(0, 10)}` : ''}
-            </div>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {sel.axis_theme && (
-              <div style={{
-                background: (AXIS_COLOR[sel.axis_theme] || C.goldDark) + '22',
-                border: `1px solid ${AXIS_COLOR[sel.axis_theme] || C.borderGold}`,
-                color: AXIS_COLOR[sel.axis_theme] || C.goldDim,
-                fontSize: 9, letterSpacing: 3, padding: '3px 10px', fontFamily: F.heading,
-              }}>{sel.axis_theme}</div>
-            )}
-            {sel.metadata?.post_wp_id && (
-              <button
-                onClick={ev => { ev.stopPropagation(); onNav('blog'); }}
-                style={{
-                  background: 'none', border: `1px solid ${C.border}`,
-                  color: C.goldDim, fontSize: 9, letterSpacing: 2,
-                  fontFamily: F.heading, padding: '3px 10px', cursor: 'pointer',
-                }}
-              >לפוסט ←</button>
-            )}
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
-
-// ── AXIS THEME CARDS ──────────────────────────────────────────────────────────
-function AxisThemeCards({ events, onNav }) {
-  const [hovTheme, setHovTheme] = useState(null);
-
-  const themes = {};
-  events.forEach(e => {
-    if (!e.axis_theme) return;
-    if (!themes[e.axis_theme]) themes[e.axis_theme] = { count: 0, maxWeight: 0, latest: null };
-    themes[e.axis_theme].count++;
-    if ((e.weight || 1) > themes[e.axis_theme].maxWeight) themes[e.axis_theme].maxWeight = e.weight || 1;
-    const d = e.metadata?.occurred_at || '';
-    if (!themes[e.axis_theme].latest || d > (themes[e.axis_theme].latest.date || ''))
-      themes[e.axis_theme].latest = { label: e.label, date: d, hebrew_date: e.hebrew_date };
-  });
-
-  const sorted = Object.entries(themes).sort((a, b) => b[1].maxWeight - a[1].maxWeight || b[1].count - a[1].count);
-  if (!sorted.length) return null;
-
-  return (
-    <section style={{ padding: '64px 24px', background: C.bg, borderTop: `1px solid ${C.border}` }}>
-      <div style={{ maxWidth: 1040, margin: '0 auto' }}>
-        <SectionHeader eyebrow="צירים" title="ציריי המחקר" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-          {sorted.map(([theme, data]) => {
-            const col = AXIS_COLOR[theme] || C.goldDim;
-            const hov = hovTheme === theme;
-            return (
-              <div
-                key={theme}
-                onMouseEnter={() => setHovTheme(theme)}
-                onMouseLeave={() => setHovTheme(null)}
-                onClick={() => onNav('blog')}
-                style={{
-                  background: hov ? C.surface2 : C.surface,
-                  border: `1px solid ${hov ? col : C.border}`,
-                  borderTop: `3px solid ${col}`,
-                  borderRadius: 2, padding: '24px 20px',
-                  cursor: 'pointer', transition: 'all 0.22s', direction: 'rtl',
-                }}
-              >
-                <div style={{
-                  fontSize: 20, color: col, fontFamily: F.regal, fontWeight: 700, marginBottom: 8,
-                  textShadow: hov ? `0 0 20px ${col}66` : 'none', transition: 'text-shadow 0.22s',
-                }}>{AXIS_LABEL[theme] || theme}</div>
-                <div style={{ fontSize: 30, color: C.goldBright, fontFamily: F.heading, fontWeight: 900, lineHeight: 1, marginBottom: 4 }}>
-                  {data.count}
-                </div>
-                <div style={{ fontSize: 9, color: C.muted, fontFamily: F.heading, letterSpacing: 3, marginBottom: 14 }}>
-                  רמזים מתועדים
-                </div>
-                {data.latest?.hebrew_date && (
-                  <div style={{ fontSize: 9, color: col, fontFamily: F.heading, letterSpacing: 2, marginBottom: 12 }}>
-                    {data.latest.hebrew_date}
-                  </div>
-                )}
-                <div style={{ display: 'flex', gap: 3 }}>
-                  {[1, 2, 3, 4, 5].map(w => (
-                    <div key={w} style={{
-                      flex: 1, height: 3, borderRadius: 2,
-                      background: w <= data.maxWeight ? col : C.faint, transition: 'background 0.22s',
-                    }} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── GALLERY NUMBERS SECTION ───────────────────────────────────────────────────
-function GalleryNumbersSection() {
-  const [byNumber, setByNumber] = useState([]);
-  const [hovIdx, setHovIdx] = useState(null);
-
-  useEffect(() => {
-    supabase
-      .from('galleries')
-      .select('id, name, anchor_number, img_count')
-      .gt('anchor_number', 0)
-      .order('anchor_number', { ascending: true })
-      .limit(300)
-      .then(({ data }) => {
-        if (!data) return;
-        const grouped = {};
-        data.forEach(g => {
-          const n = g.anchor_number;
-          if (!grouped[n]) grouped[n] = { anchor_number: n, rows: [], total: 0 };
-          grouped[n].rows.push(g);
-          grouped[n].total += g.img_count || 0;
-        });
-        setByNumber(
-          Object.values(grouped).map(g => ({
-            anchor_number: g.anchor_number,
-            name: g.rows.sort((a, b) => (a.name?.length || 99) - (b.name?.length || 99))[0]?.name || '',
-            count: g.rows.length,
-            total: g.total,
-          }))
-        );
-      });
-  }, []);
-
-  if (!byNumber.length) return null;
-
-  return (
-    <section style={{
-      padding: '64px 0',
-      background: `linear-gradient(180deg, ${C.surface} 0%, ${C.bg} 100%)`,
-      borderTop: `1px solid ${C.border}`,
-    }}>
-      <div style={{ padding: '0 24px', maxWidth: 1040, margin: '0 auto 32px' }}>
-        <SectionHeader eyebrow="גלריות" title="המספרים הגדולים" />
-      </div>
-      <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
-        <div style={{ display: 'flex', gap: 16, padding: '0 32px', width: 'max-content' }}>
-          {byNumber.map((g, i) => {
-            const hov = hovIdx === i;
-            return (
-              <div
-                key={g.anchor_number}
-                onMouseEnter={() => setHovIdx(i)}
-                onMouseLeave={() => setHovIdx(null)}
-                style={{
-                  width: 140, flexShrink: 0,
-                  background: hov ? C.surface2 : C.surface,
-                  border: `1px solid ${hov ? C.gold : C.border}`,
-                  borderTop: `2px solid ${hov ? C.goldBright : C.borderGold}`,
-                  borderRadius: 2, padding: '20px 16px',
-                  cursor: 'pointer', transition: 'all 0.22s',
-                  textAlign: 'center', direction: 'rtl',
-                }}
-              >
-                <div style={{
-                  fontSize: g.anchor_number > 9999 ? 22 : g.anchor_number > 999 ? 28 : 36,
-                  color: hov ? C.goldBright : C.goldLight,
-                  fontFamily: F.regal, fontWeight: 700, lineHeight: 1.1, marginBottom: 8,
-                  textShadow: hov ? `0 0 24px ${C.goldDark}` : 'none', transition: 'all 0.22s',
-                }}>{g.anchor_number}</div>
-                <div style={{
-                  fontSize: 9, color: C.muted, fontFamily: F.heading,
-                  letterSpacing: 1, lineHeight: 1.5, overflow: 'hidden',
-                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                }}>{g.name}</div>
-                {g.total > 0 && (
-                  <div style={{ marginTop: 8, fontSize: 8, color: C.goldDim, fontFamily: F.heading, letterSpacing: 2 }}>
-                    {g.total} תמונות{g.count > 1 ? ` · ${g.count} גלריות` : ''}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HomePage({ onNav, pageContent, adminMode }) {
-  const [axisEvents, setAxisEvents] = useState([]);
-
-  useEffect(() => {
-    supabase
-      .from('nodes')
-      .select('id, label, weight, hebrew_date, axis_theme, metadata')
-      .eq('type', 'event')
-      .then(({ data }) => setAxisEvents(data ?? []));
-  }, []);
-
-  return (
-    <div style={{ direction: "rtl" }}>
-      <HeroSection onNav={onNav} />
-      <LiveSignalBar events={axisEvents} />
-      <TimelineSection events={axisEvents} onNav={onNav} />
-      <AxisThemeCards events={axisEvents} onNav={onNav} />
-      <GalleryNumbersSection />
-      <StatsBar />
-      <ELSSection />
-      <div style={{ padding: "40px 0", background: C.surface }}>
-        <UploadFindings />
-      </div>
-      <TestimonialsSection />
-      <LatestPostsSection onNav={onNav} />
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 16px 80px" }}>
-        <PopularPostsWidget onNav={onNav} />
-      </div>
-    </div>
-  );
-}
-
-// ===== ABOUT PAGE =====
 
 function AboutPage({ onNav, pageContent, adminMode }) {
   const { title, description, bodyHtml, category } = pageContent || {};
@@ -2874,6 +2182,28 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed [style*="color:#111"],
   .sod-post-content.themed [style*="color:#222"],
   .sod-post-content.themed [style*="color:#333"] { color: ${P.ink} !important; }
+  /* טקסט בהיר/לבן צרוב (מ-WP) → דיו לפי התמה (מתאים-מצב: P משתנה עם המתג) — מונע טקסט בלתי-נראה ביום */
+  .sod-post-content.themed [style*="color:#fff"],
+  .sod-post-content.themed [style*="color: #fff"],
+  .sod-post-content.themed [style*="color:#FFF"],
+  .sod-post-content.themed [style*="color:white"],
+  .sod-post-content.themed [style*="color: white"],
+  .sod-post-content.themed [style*="color:#eee"],
+  .sod-post-content.themed [style*="color:#ddd"],
+  .sod-post-content.themed [style*="color:#f5"],
+  .sod-post-content.themed [style*="color:#fafafa"],
+  .sod-post-content.themed font[color="#ffffff"],
+  .sod-post-content.themed font[color="#fff"],
+  .sod-post-content.themed font[color="white"] { color: ${P.ink} !important; }
+  /* רקע בהיר צרוב → שקוף (רקע הדף נשלט ע״י התמה) */
+  .sod-post-content.themed [style*="background:#fff"],
+  .sod-post-content.themed [style*="background: #fff"],
+  .sod-post-content.themed [style*="background-color:#fff"],
+  .sod-post-content.themed [style*="background-color: #fff"],
+  .sod-post-content.themed [style*="background:white"],
+  .sod-post-content.themed [style*="background-color:white"],
+  .sod-post-content.themed [bgcolor="#ffffff"],
+  .sod-post-content.themed [bgcolor="white"] { background: transparent !important; }
   /* גימטריות-זהב צרובות בפוסטי AI (data-gem / זהב מוטבע) → זהב קריא לפי התמה
      (בהיר=זהב כהה קריא על קלף · לילה=זהב בהיר). חוק ai_post_update_law. */
   .sod-post-content.themed [data-gem],
@@ -4277,6 +3607,7 @@ function Navbar({ page, onNav }) {
 
 // ===== CONTACT PAGE =====
 function ContactPage() {
+  const P = usePalette();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -4297,195 +3628,231 @@ function ContactPage() {
     finally { setSending(false); }
   }
 
+  const FD = "'Frank Ruhl Libre', 'David Libre', serif";
+  const FU = "'Assistant', 'Heebo', sans-serif";
+
+  const CHANNELS = [
+    { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
+    { icon: "👥", label: "קבוצת הגימטריה", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
+    { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
+    { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
+    { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
+    { icon: "✉️", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
+  ];
+
+  const TESTIMONIALS = [
+    { text: "צוריאל, אני ממש מודה לך על מה שעשית כאן בשבילי — זו הפעם הראשונה שאני מרגיש ככה כבר תקופה. סוף סוף נפתר לי המידע על הספרה 51… זה גרם לי להוריד דמעות.", who: "חבר בקהילה", time: "12:01" },
+    { text: "פתחתי את הקבוצה בעזרתך… תודה גדולה, תמיד אזכור. אתה לא מודע לכמה אתה עוזר — גם בלי להתכוון. 🙏", who: "חברה בקהילה", time: "14:26" },
+    { text: "שמח להצטרף לקבוצה היקרה הזו. ראיתי כמה סרטונים כאן ואני כבר מאוהב בכם — עלו והצליחו בגילוי האמת. ✨", who: "מצטרף חדש", time: "23:02" },
+  ];
+
+  // צילומי ויראליות אמיתיים מתוך פוסט "צופן החותים" (טיקטוק/טלגרם — צפיות, שיתופים ותגובות)
+  const VIRAL_POST = "%d7%91%d7%a6%d7%95%d7%a4%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a2%d7%9c-%d7%94%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%a8%d7%95%d7%90%d7%99%d7%9d-%d7%90%d7%aa-%d7%9b%d7%95%d7%95%d7%a0%d7%aa-%d7%90%d7%99";
+  const VIRAL_SHOTS = [
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/b2b327e1fc6efddc.jpg",
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/05fef5a47e6e3d33.jpg",
+    "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/08/060b460286b225ac.jpg",
+  ];
+
   const field = (label, key, type = "text", rows) => (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>
-        {label}
-      </label>
-      {rows ? (
-        <textarea rows={rows} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.body, fontSize: 15, padding: "12px 16px", outline: "none", resize: "vertical", direction: "rtl", lineHeight: 1.7 }} />
-      ) : (
-        <input type={type} value={form[key]} onChange={e => set(key, e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 3, color: "#ede4d3", fontFamily: F.heading, fontSize: 14, padding: "12px 16px", outline: "none", direction: "rtl" }} />
-      )}
+    <div className="ct-field">
+      <label htmlFor={"ct-" + key}>{label}</label>
+      {rows
+        ? <textarea id={"ct-" + key} rows={rows} value={form[key]} onChange={e => set(key, e.target.value)} dir="rtl" />
+        : <input id={"ct-" + key} type={type} value={form[key]} onChange={e => set(key, e.target.value)} dir="rtl" />}
     </div>
   );
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1000, margin: "0 auto", padding: "64px 16px 96px" }}>
-      {/* hero */}
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10 }}>יצירת קשר</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: "clamp(28px,6vw,52px)", fontWeight: 700, margin: "0 0 14px", letterSpacing: 1 }}>
-          נשמח לשמוע ממך
-        </h1>
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>
-          שאלות, הצעות, שיתופי פעולה — כל פנייה מתקבלת בברכה
-        </p>
-        <RoyalDivider width={140} style={{ margin: "22px auto 0" }} />
-      </div>
+    <div style={{ background: P.pageBg, minHeight: "100vh", direction: "rtl" }}>
+      <style>{`
+        .ct-wrap { max-width: 1060px; margin: 0 auto; padding: clamp(40px,7vw,84px) 16px 110px; }
+        .ct-hero { text-align: center; position: relative; margin-bottom: clamp(34px,5vw,54px); }
+        .ct-hero::before { content:""; position:absolute; left:50%; top:-30%; width:min(560px,92%); height:280px;
+          transform:translateX(-50%); background:radial-gradient(closest-side, ${P.glow}, transparent 72%); opacity:.55; pointer-events:none; }
+        .ct-eyebrow { position:relative; display:inline-block; font-family:${FU}; font-size:12px; font-weight:700; letter-spacing:5px;
+          text-transform:uppercase; color:${P.accentDim}; padding:5px 16px; border:1px solid ${P.border}; border-radius:999px; background:${P.cardSoft}; }
+        .ct-title { position:relative; font-family:${FD}; font-weight:900; font-size:clamp(36px,7.5vw,70px); line-height:1.04; margin:18px 0 12px;
+          background:linear-gradient(120deg, ${P.accentText}, ${P.accent} 55%, ${P.heroNum}); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .ct-sub { position:relative; font-family:${FU}; font-size:clamp(15px,2.4vw,18px); color:${P.inkSoft}; max-width:520px; margin:0 auto; line-height:1.7; }
 
-      {/* אודות — החזון מאחורי המיזם */}
-      <div style={{
-        maxWidth: 820, margin: "0 auto 56px",
-        background: `linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%)`,
-        border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`,
-        borderRadius: 2, padding: "36px 34px",
-      }}>
-        <div style={{ fontSize: 10, color: C.goldDim, fontFamily: F.heading, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, textAlign: "center" }}>
-          אודות המיזם
-        </div>
-        {[
-          "מאחורי המיזם עומד צוריאל, יחד עם צוות רחב של חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים במשך שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.",
-          "במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות, שהפכו בהדרגה למערכת חיה ומתפתחת המחברת בין מסורת, מחקר וטכנולוגיה מתקדמת.",
-          "החזון הוא לבנות את מאגר רמזי הגאולה הגדול בעולם – מקום שבו כל פוסט, מספר, תמונה וצופן מתחברים יחד לכדי תמונה רחבה אחת, ומאפשרים לכל אדם לחקור, לגלות ולהעמיק בשפת המספרים בדרך חדשה. ✨",
-        ].map((para, i) => (
-          <p key={i} style={{
-            color: i === 2 ? C.goldLight : "#d8cdb8", fontFamily: F.body,
-            fontSize: 16, lineHeight: 2.05, margin: i === 0 ? 0 : "16px 0 0", textAlign: "center",
-          }}>{para}</p>
-        ))}
-      </div>
+        .ct-channels { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:880px; margin:0 auto clamp(34px,5vw,52px); }
+        .ct-chan { display:flex; align-items:center; gap:13px; text-decoration:none; padding:14px 16px; border-radius:16px; min-width:0;
+          background:${P.card}; border:1px solid ${P.border}; transition:transform .18s, border-color .18s, box-shadow .18s; }
+        .ct-chan:hover { transform:translateY(-3px); border-color:${P.accent}; box-shadow:0 12px 30px ${P.glow}; }
+        .ct-chan-ic { flex:0 0 auto; width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:21px;
+          background:${P.cardSoft}; border:1px solid ${P.border}; }
+        .ct-chan-l { font-family:${FU}; font-size:11px; font-weight:700; letter-spacing:.5px; color:${P.accentDim}; }
+        .ct-chan-v { font-family:${FU}; font-size:14.5px; font-weight:600; color:${P.ink}; margin-top:1px; }
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
+        .ct-main { display:grid; grid-template-columns:1.25fr .9fr; gap:22px; align-items:start; }
+        .ct-card { background:${P.cardGrad}; border:1px solid ${P.border}; border-radius:20px; padding:clamp(22px,3vw,34px); box-shadow:0 10px 40px rgba(0,0,0,.12); }
+        .ct-card-h { font-family:${FD}; font-weight:700; font-size:23px; color:${P.accentText}; margin:0 0 4px; }
+        .ct-card-s { font-family:${FU}; font-size:13.5px; color:${P.inkSoft}; margin:0 0 22px; }
 
-        {/* left — form */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}`, borderRadius: 2, padding: "36px 32px" }}>
-          {sent ? (
-            <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <div style={{ fontSize: 52, marginBottom: 20 }}>✦</div>
-              <h2 style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 24, marginBottom: 12 }}>ההודעה נשלחה!</h2>
-              <p style={{ color: C.muted, fontFamily: F.body, fontSize: 15 }}>נחזור אליך בהקדם האפשרי</p>
-              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                style={{ marginTop: 24, background: "none", border: `1px solid ${C.borderGold}`, color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, padding: "10px 24px", cursor: "pointer", borderRadius: 2 }}>
-                שלח הודעה נוספת
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              {field("שם מלא *", "name")}
-              {field("אימייל *", "email", "email")}
-              {field("נושא", "subject")}
-              {field("הודעה *", "message", "text", 6)}
-              {err && <p style={{ color: "#c05050", fontFamily: F.heading, fontSize: 12, marginBottom: 16 }}>{err}</p>}
-              <GoldButton type="submit" disabled={sending} style={{ width: "100%", padding: "14px", fontSize: 13, letterSpacing: 3 }}>
-                {sending ? "שולח..." : "שלח הודעה ✦"}
-              </GoldButton>
-            </form>
-          )}
-        </div>
+        .ct-field { margin-bottom:16px; }
+        .ct-field label { display:block; font-family:${FU}; font-size:12.5px; font-weight:700; color:${P.accentDim}; margin-bottom:6px; }
+        .ct-field input, .ct-field textarea { width:100%; box-sizing:border-box; background:${P.cardSoft}; color:${P.ink};
+          border:1.5px solid ${P.border}; border-radius:12px; font-family:${FU}; font-size:15px; padding:12px 15px; outline:none;
+          transition:border-color .16s, box-shadow .16s; }
+        .ct-field textarea { resize:vertical; line-height:1.7; min-height:130px; }
+        .ct-field input:focus, .ct-field textarea:focus { border-color:${P.accent}; box-shadow:0 0 0 3px ${P.glow}; }
 
-        {/* right — author card + info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        .ct-btn { width:100%; cursor:pointer; border:none; border-radius:12px; padding:15px; font-family:${FU}; font-size:15px; font-weight:800;
+          letter-spacing:1px; background:${P.accentBtn}; color:${P.onAccent}; transition:transform .15s, box-shadow .15s; }
+        .ct-btn:hover { transform:translateY(-2px); box-shadow:0 10px 26px ${P.glow}; }
+        .ct-btn:disabled { opacity:.6; cursor:wait; }
 
-          {/* author card */}
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.crimson}`, borderRadius: 2, padding: "28px 28px 24px" }}>
-            <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 18 }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
-                background: `linear-gradient(135deg, ${C.goldDark}, ${C.crimson})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 26, border: `2px solid ${C.borderGold}`,
-              }}>✦</div>
-              <div>
-                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
-                  צוריאל
-                </div>
-                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
-                  מייסד ועורך — סוד 1820
-                </div>
-              </div>
-            </div>
-            <p style={{ color: "#c8bfb0", fontFamily: F.body, fontSize: 14, lineHeight: 1.85, margin: 0 }}>
-              חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
-            </p>
-          </div>
+        .ct-side { display:flex; flex-direction:column; gap:18px; }
+        .ct-author-top { display:flex; gap:15px; align-items:center; margin-bottom:14px; }
+        .ct-ava { width:60px; height:60px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; font-size:26px;
+          background:linear-gradient(135deg, ${C.goldDark}, ${C.crimson}); border:2px solid ${P.borderStrong}; color:#fff; }
+        .ct-about p { font-family:${FU}; font-size:14.5px; line-height:1.95; color:${P.ink}; margin:0 0 12px; }
+        .ct-about p:last-child { margin-bottom:0; }
+        .ct-err { color:#e0556a; font-family:${FU}; font-size:13px; font-weight:700; margin:0 0 14px; text-align:center; }
 
-          {/* contact info boxes */}
-          {[
-            { icon: "✉", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
-            { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
-            { icon: "👥", label: "קבוצת גימטריה בוואטסאפ", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
-            { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
-            { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
-            { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
-            { icon: "🌐", label: "אתר", value: "sod1820.co.il", href: "https://sod1820.co.il" },
-          ].map(({ icon, label, value, href }) => (
-            <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
-              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 2, textDecoration: "none",
-              padding: "18px 22px", display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderGold; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
-              <div>
-                <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 14 }}>{value}</div>
-              </div>
+        .ct-viral { max-width:880px; margin:0 auto clamp(30px,5vw,46px); border-radius:20px; padding:clamp(22px,3.4vw,32px); text-align:center;
+          border:1px solid ${P.borderStrong}; background:linear-gradient(135deg, ${P.glow}, ${P.cardSoft}); }
+        .ct-viral h3 { font-family:${FD}; font-weight:900; font-size:clamp(22px,4.2vw,33px); color:${P.accentText}; margin:0 0 7px; }
+        .ct-viral p { font-family:${FU}; font-size:clamp(14px,2.2vw,16.5px); color:${P.inkSoft}; margin:0 0 17px; line-height:1.75; max-width:560px; margin-inline:auto; }
+        .ct-viral p b { color:${P.accentText}; font-weight:800; }
+        .ct-viral-shots { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:2px 0 18px; }
+        .ct-viral-shots a { display:block; width:148px; aspect-ratio:9/16; border-radius:14px; overflow:hidden; border:1px solid ${P.borderStrong}; background:${P.cardSoft}; transition:transform .18s, box-shadow .18s; }
+        .ct-viral-shots a:hover { transform:translateY(-3px); box-shadow:0 12px 30px ${P.glow}; }
+        .ct-viral-shots img { width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+        .ct-viral-cta { display:inline-flex; align-items:center; gap:7px; font-family:${FU}; font-weight:800; font-size:14.5px; text-decoration:none;
+          color:${P.onAccent}; background:${P.accentBtn}; padding:11px 26px; border-radius:999px; transition:transform .15s, box-shadow .15s; }
+        .ct-viral-cta:hover { transform:translateY(-2px); box-shadow:0 10px 28px ${P.glow}; }
+        @media (max-width:480px){ .ct-viral-shots a{ width:108px; } }
+
+        .ct-testi { max-width:1000px; margin:clamp(42px,6vw,66px) auto 0; }
+        .ct-testi-h { text-align:center; font-family:${FD}; font-weight:700; font-size:clamp(24px,4.6vw,34px); color:${P.accentText}; margin:0 0 6px; }
+        .ct-testi-s { text-align:center; font-family:${FU}; font-size:14px; color:${P.inkSoft}; margin:0 0 28px; }
+        .ct-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .ct-wa { background:${P.card}; border:1px solid ${P.border}; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.14); }
+        .ct-wa-head { display:flex; align-items:center; gap:10px; padding:10px 13px; background:${P.cardSoft}; border-bottom:1px solid ${P.border}; }
+        .ct-wa-ava { width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; font-family:${FU}; font-weight:800; font-size:15px; color:#fff; background:linear-gradient(135deg,#25d366,#128c43); }
+        .ct-wa-name { display:block; font-family:${FU}; font-weight:700; font-size:13.5px; color:${P.ink}; line-height:1.15; }
+        .ct-wa-status { font-family:${FU}; font-size:10.5px; color:#25d366; }
+        .ct-wa-body { padding:16px 13px; background:${P.mode === "light" ? "#e9e2d9" : "#0b141a"}; }
+        .ct-wa-bubble { background:${P.mode === "light" ? "#ffffff" : "#202c33"}; border-radius:9px 9px 9px 2px; padding:9px 12px 5px; box-shadow:0 1px 1px rgba(0,0,0,.18); }
+        .ct-wa-bubble p { font-family:${FU}; font-size:13.5px; line-height:1.7; color:${P.mode === "light" ? "#1f2c34" : "#e9edef"}; margin:0; }
+        .ct-wa-time { display:block; text-align:left; direction:ltr; font-family:${FU}; font-size:10.5px; color:${P.mode === "light" ? "#667781" : "#8696a0"}; margin-top:4px; }
+        .ct-wa-time b { color:#53bdeb; font-weight:400; }
+
+        @media (max-width:820px){ .ct-channels{ grid-template-columns:repeat(2,1fr); } .ct-main{ grid-template-columns:1fr; } .ct-testi-grid{ grid-template-columns:1fr; } }
+        @media (max-width:480px){ .ct-channels{ grid-template-columns:1fr; } }
+      `}</style>
+
+      <div className="ct-wrap">
+        <header className="ct-hero">
+          <span className="ct-eyebrow">יצירת קשר</span>
+          <h1 className="ct-title">נשמח לשמוע ממך</h1>
+          <p className="ct-sub">שאלות, הצעות ושיתופי פעולה — כל פנייה מתקבלת בברכה ✦</p>
+        </header>
+
+        <div className="ct-channels">
+          {CHANNELS.map(c => (
+            <a key={c.label} className="ct-chan" href={c.href} target="_blank" rel="noopener noreferrer">
+              <span className="ct-chan-ic">{c.icon}</span>
+              <span style={{ minWidth: 0 }}>
+                <span className="ct-chan-l" style={{ display: "block" }}>{c.label}</span>
+                <span className="ct-chan-v" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} dir="ltr">{c.value}</span>
+              </span>
             </a>
           ))}
         </div>
-      </div>
-    </div>
-  );
-}
 
-// ===== POPULAR POSTS WIDGET =====
-function PopularPostsWidget({ onNav }) {
-  const [posts, setPosts] = useState([]);
-  useEffect(() => {
-    getPopularPosts({ limit: 8 }).then(rows => {
-      setPosts(rows.map(r => ({
-        id: r.wp_id, title: r.title, slug: r.slug,
-        image_url: r.image_url, date: r.date, commentCount: r.comment_count,
-      })));
-    }).catch(() => {});
-  }, []);
+        <div className="ct-viral">
+          <h3>🎬 יוצר סרטונים ויראליים</h3>
+          <p>סרטוני צופן וגימטריה שזכו ל<b>מאות אלפי צפיות</b> והופצו בטיקטוק, בטלגרם וברשתות — עם אלפי תגובות, שיתופים ולייקים.</p>
+          <div className="ct-viral-shots">
+            {VIRAL_SHOTS.map((s, i) => (
+              <a key={i} href={"/" + VIRAL_POST} title="לפוסט המלא — צופן החותים">
+                <img src={s} alt="צילום מסך ויראלי — צופן החותים" loading="lazy" />
+              </a>
+            ))}
+          </div>
+          <a className="ct-viral-cta" href="https://www.youtube.com/watch?v=Jp0pxGofPjQ" target="_blank" rel="noopener noreferrer">▶ צפו בסרטון הוויראלי</a>
+        </div>
 
-  if (!posts.length) return null;
+        <div className="ct-main">
+          <section className="ct-card">
+            {sent ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ fontSize: 54, marginBottom: 16 }}>✦</div>
+                <h2 className="ct-card-h" style={{ fontSize: 26 }}>ההודעה נשלחה!</h2>
+                <p style={{ fontFamily: FU, color: P.inkSoft, fontSize: 15 }}>נחזור אליך בהקדם האפשרי 🙏</p>
+                <button className="ct-btn" style={{ width: "auto", marginTop: 22, padding: "12px 28px", background: "transparent", color: P.accentText, border: `1.5px solid ${P.borderStrong}` }}
+                  onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }}>שליחת הודעה נוספת</button>
+              </div>
+            ) : (
+              <>
+                <h2 className="ct-card-h">שליחת הודעה</h2>
+                <p className="ct-card-s">נשתדל לחזור אליך מהר ככל האפשר.</p>
+                <form onSubmit={handleSubmit}>
+                  {field("שם מלא *", "name")}
+                  {field("אימייל *", "email", "email")}
+                  {field("נושא", "subject")}
+                  {field("הודעה *", "message", "text", 6)}
+                  {err && <p className="ct-err">{err}</p>}
+                  <button type="submit" className="ct-btn" disabled={sending}>{sending ? "שולח…" : "שליחת הודעה ✦"}</button>
+                </form>
+              </>
+            )}
+          </section>
 
-  return (
-    <div style={{ marginTop: 64 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
-        <RoyalDivider width={48} />
-        <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase", whiteSpace: "nowrap" }}>
-          פוסטים פופולריים
-        </span>
-        <RoyalDivider width={48} />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {posts.map((post, i) => {
-          const d = post.date ? new Date(post.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-          return (
-            <div key={post.id} onClick={() => onNav("post", { slug: post.slug, id: post.id })}
-              style={{ display: "flex", gap: 14, alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: `1px solid ${C.border}`, borderRadius: 2, cursor: "pointer", transition: "background 0.15s" }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(212,175,55,0.05)"}
-              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
-            >
-              <span style={{ color: C.borderGold, fontFamily: F.heading, fontSize: 13, fontWeight: 700, width: 24, textAlign: "center", flexShrink: 0 }}>
-                {i + 1}
-              </span>
-              {post.image_url && (
-                <img src={post.image_url} alt="" style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 2, flexShrink: 0, filter: "brightness(0.8)" }} />
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: "#ede4d3", fontFamily: F.body, fontSize: 13, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                  {post.title}
+          <aside className="ct-side">
+            <div className="ct-card">
+              <div className="ct-author-top">
+                <span className="ct-ava">✦</span>
+                <span>
+                  <span style={{ display: "block", fontFamily: FD, fontWeight: 700, fontSize: 19, color: P.accentText }}>צוריאל</span>
+                  <span style={{ display: "block", fontFamily: FU, fontSize: 12, fontWeight: 700, letterSpacing: 1, color: P.accentDim, marginTop: 2 }}>מייסד ועורך · סוד 1820</span>
+                </span>
+              </div>
+              <p style={{ fontFamily: FU, fontSize: 14, lineHeight: 1.85, color: P.inkSoft, margin: 0 }}>
+                חוקר גימטריה, צפנים בתורה ורמזי אחרית הימים. מפיץ תובנות על הגאולה ומתעד אירועים בזמן אמת דרך משקפת הקבלה.
+              </p>
+            </div>
+
+            <div className="ct-card ct-about">
+              <div className="ct-chan-l" style={{ textAlign: "center", marginBottom: 12 }}>אודות המיזם</div>
+              <p>מאחורי המיזם עומד צוריאל, יחד עם צוות חוקרי רמזים, גימטריה וקבלה מהארץ ומהעולם, הפועלים שנים באיסוף, תיעוד ופיתוח של מאגר ידע ייחודי.</p>
+              <p>במשך יותר מעשור נאספו אלפי חיבורים, מספרים, צפנים ותובנות — שהפכו למערכת חיה המחברת מסורת, מחקר וטכנולוגיה.</p>
+              <p style={{ color: P.accentText }}>החזון: מאגר רמזי הגאולה הגדול בעולם — שבו כל פוסט, מספר, תמונה וצופן מתחברים לתמונה אחת. ✨</p>
+            </div>
+          </aside>
+        </div>
+
+        <section className="ct-testi">
+          <h2 className="ct-testi-h">מה אומרים הגולשים</h2>
+          <p className="ct-testi-s">הודעות אמיתיות מחברי הקהילה 💛</p>
+          <div className="ct-testi-grid">
+            {TESTIMONIALS.map((t, i) => (
+              <div className="ct-wa" key={i}>
+                <div className="ct-wa-head">
+                  <span className="ct-wa-ava">{t.who.charAt(0)}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="ct-wa-name">{t.who}</span>
+                    <span className="ct-wa-status">מקוון</span>
+                  </span>
                 </div>
-                <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10, marginTop: 3 }}>
-                  {d}{post.commentCount > 0 && ` · ${post.commentCount} תגובות`}
+                <div className="ct-wa-body">
+                  <div className="ct-wa-bubble">
+                    <p>{t.text}</p>
+                    <span className="ct-wa-time">{t.time} <b>✓✓</b></span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
 }
 
-// ===== CHAT PAGE =====
 function ChatPage() {
   const [messages, setMessages]   = useState([]);
   const [author,   setAuthor]     = useState(() => localStorage.getItem("chat_author") || "");
@@ -4693,176 +4060,6 @@ function SpotimChatPage() {
       />
 
     </div>
-  );
-}
-
-// ===== FOOTER =====
-
-function NewsletterSignup() {
-  const [email, setEmail] = useState("");
-  const [done, setDone]   = useState(false);
-  const [busy, setBusy]   = useState(false);
-  async function submit() {
-    const e = email.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return;
-    setBusy(true);
-    try { await subscribeEmail({ email: e, source: "newsletter" }); } catch {}
-    setDone(true); setBusy(false);
-  }
-  return (
-    <div style={{ maxWidth: 1040, margin: "0 auto 28px", paddingBottom: 28, borderBottom: `1px solid ${C.border}` }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
-        <div>
-          <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 16 }}>השער נפתח — אל תישארו בחוץ.</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>הצטרפו למנויים וקבלו את הסודות — כל צופן, רמז וגילוי חדש, ראשונים.</div>
-        </div>
-        {done ? (
-          <div style={{ color: C.gold, fontFamily: F.body, fontSize: 14 }}>✦ נרשמת בהצלחה — תודה!</div>
-        ) : (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="האימייל שלך" dir="ltr"
-              onKeyDown={e => e.key === "Enter" && submit()}
-              style={{ background: C.bg, border: `1px solid ${C.borderGold}`, color: C.goldBright, padding: "10px 14px", borderRadius: 4, fontFamily: F.body, fontSize: 14, minWidth: 220, outline: "none" }} />
-            <GoldButton onClick={submit} disabled={busy} style={{ padding: "10px 24px", fontSize: 11 }}>{busy ? "..." : "הרשמה"}</GoldButton>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Footer({ onNav, navItems }) {
-  const items = navItems?.length ? navItems : NAV_ITEMS;
-
-  function handleItem(item) {
-    if (item.route) onNav(item.route);
-    else if (item.url && item.url !== "#") window.open(item.url, "_blank", "noopener,noreferrer");
-    else if (item.key && !item.url) onNav(item.key);
-  }
-
-  return (
-    <footer style={{
-      borderTop: `1px solid ${C.border}`,
-      background: `linear-gradient(180deg, ${C.surface2} 0%, ${C.surface} 100%)`,
-      padding: "56px 36px 28px",
-      direction: "rtl",
-    }}>
-      <NewsletterSignup />
-      <div style={{
-        maxWidth: 1040,
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        flexWrap: "wrap",
-        gap: 32,
-        paddingBottom: 36,
-      }}>
-        <div style={{ minWidth: 240, flex: 1, maxWidth: 280 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
-            <div style={{ position: "relative", display: "inline-flex" }}>
-              <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 36, width: "auto" }} />
-              <span style={{
-                position: "absolute", top: -5, right: -8,
-                background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
-                color: "#f6e27a", fontSize: 7, fontWeight: 800,
-                fontFamily: F.heading, padding: "1.5px 4px",
-                borderRadius: 3, border: `1px solid ${C.goldDim}`,
-                lineHeight: 1.3, boxShadow: "0 0 6px rgba(122,19,32,0.6)",
-                textTransform: "uppercase",
-              }}>AI</span>
-            </div>
-            <div>
-              <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>
-                סוד המספרים
-              </div>
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 9, letterSpacing: 2, marginTop: 4 }}>
-                לימוד גימטריה מעמיק לדרך שלמה
-              </div>
-            </div>
-          </div>
-          <div style={{ fontSize: 12, color: C.muted, fontFamily: F.body, lineHeight: 1.8, maxWidth: 260 }}>
-            כי לה' המלוכה · sod1820.co.il<br />
-            נחזור בקרוב עם שיעורים חיים, כלים מיוחדים וגישה אישית.
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", flex: 2, minWidth: 240 }}>
-          <div style={{ minWidth: 160 }}>
-            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
-              קישורים מהירים
-            </div>
-            {items.map(n => (
-              <button key={n.key} onClick={() => handleItem(n)} style={{
-                display: "block",
-                background: "none",
-                border: "none",
-                color: C.goldDim,
-                cursor: "pointer",
-                fontSize: 13,
-                fontFamily: F.body,
-                padding: "6px 0",
-                textAlign: "right",
-              }}>
-                {n.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ minWidth: 220, flex: 1, maxWidth: 260 }}>
-          <div style={{ fontSize: 10, color: C.muted, letterSpacing: 4, marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase" }}>
-            כלים
-          </div>
-          <div style={{ display: "grid", gap: 12 }}>
-            {[["דוח מספרים", "numbers-report"], ["תצוגה מקדימה", "theme-preview"], ["לוח גלישה", "traffic"], ["ניהול", "admin"]].map(([label, key]) => (
-              <button key={key} onClick={() => onNav(key)} style={{
-                background: C.bgGlow,
-                border: `1px solid ${C.borderGold}`,
-                color: C.goldBright,
-                cursor: "pointer",
-                fontSize: 12,
-                fontFamily: F.heading,
-                letterSpacing: 1.5,
-                padding: "12px 14px",
-                textTransform: "uppercase",
-                borderRadius: 4,
-                textAlign: "right",
-                transition: "transform 0.2s, background 0.2s",
-              }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = C.surface;
-                  e.currentTarget.style.transform = "translateX(-2px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = C.bgGlow;
-                  e.currentTarget.style.transform = "none";
-                }}
-              >{label}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div style={{
-        maxWidth: 1040,
-        margin: "0 auto",
-        paddingTop: 26,
-        borderTop: `1px solid ${C.faint}`,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: 10,
-      }}>
-        <div style={{ fontSize: 11, color: C.muted, fontFamily: F.heading, letterSpacing: 3, lineHeight: 1.5 }}>
-          © {new Date().getFullYear()} SOD1820 · כל הזכויות שמורות
-        </div>
-        <div style={{ fontSize: 11, color: C.goldDim, fontFamily: F.body, textAlign: "right" }}>
-          א↔ל · ב↔מ · ג↔נ · כ↔ת
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -5490,11 +4687,8 @@ export {
   BlogPage, PostPageBySlug, CategoryPage, TagPage, GematriaPhrasePage,
   AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
   AdminPage, TrafficDashboardPage, NumbersReportPage, ThemePreviewPage,
-  // מקטעים/וידג'טים לשימוש בדף הבית ובמקומות אחרים
-  LatestPostsSection, TimelineSection, LiveSignalBar, AxisThemeCards,
-  GalleryNumbersSection, StatsBar, TestimonialsSection, PopularPostsWidget,
-  NewsletterSignup, EventsSidebar, HeroSection,
-  PostCard, PostSkeleton, WPArticleCard,
+  // מקטעים/וידג'טים חיים (בשימוש ב-BlogPage)
+  EventsSidebar, PostCard, PostSkeleton, WPArticleCard,
   // עזרים/קבועים
   STATIC_NAV_ITEMS, mapUrlToRoute,
   PAGE_CONTENT_DEFAULTS, PAGE_CONTENT_STORE_KEY,

@@ -11,13 +11,6 @@ export function signInWithGoogle() {
   });
 }
 
-export function signInWithMagicLink(email) {
-  return supabase.auth.signInWithOtp({
-    email: (email || '').trim(),
-    options: { emailRedirectTo: SITE_URL + '/' },
-  });
-}
-
 // כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין
 export async function signInWithPassword(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -64,21 +57,9 @@ export async function verifyEmailOtp(email, token) {
   return data;
 }
 
-export async function getCurrentUser() {
-  const { data } = await supabase.auth.getUser();
-  return data?.user ?? null;
-}
-
 export async function getSession() {
   const { data } = await supabase.auth.getSession();
   return data?.session ?? null;
-}
-
-export function onAuthChange(callback) {
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session?.user ?? null);
-  });
-  return () => data?.subscription?.unsubscribe?.();
 }
 
 export function signOut() {

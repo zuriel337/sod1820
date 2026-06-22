@@ -8,7 +8,6 @@ const supabase = createClient(
 export default supabase;
 export { supabase };
 
-
 export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
@@ -91,12 +90,6 @@ export async function getPostBySlug(slug) {
   return data[0];
 }
 
-export async function getPostByWpId(wpId) {
-  if (!supabase || !wpId) return null;
-  const { data } = await supabase.from('posts').select('*').eq('wp_id', wpId).limit(1);
-  return data?.[0] ?? null;
-}
-
 export async function getGematriaByPhrases(phrases) {
   if (!supabase || !phrases?.length) return [];
   const { data } = await supabase
@@ -115,6 +108,19 @@ export async function getGematriaByValue(value) {
     .select('phrase, ragil')
     .eq('ragil', value)
     .limit(12);
+  return data ?? [];
+}
+
+// ✦ מילים חדשות מהקהילה — N הביטויים האחרונים שנוספו למאגר (מאומתים), עם זמן.
+export async function getRecentCommunityWords(limit = 4) {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('gematria_words')
+    .select('phrase, ragil, created_at')
+    .eq('is_verified', true)
+    .not('created_at', 'is', null)
+    .order('created_at', { ascending: false, nullsFirst: false })
+    .limit(limit);
   return data ?? [];
 }
 
@@ -373,15 +379,6 @@ export async function getPopularPosts({ limit = 10 } = {}) {
   return recent ?? [];
 }
 
-// ── Popular posts (by Jetpack views — legacy_traffic, source='jetpack') ──
-// מחזיר פוסטים מדורגים לפי סך הצפיות שיובאו מ-Jetpack (ראה RPC popular_posts_by_views).
-export async function getPopularByViews({ limit = 60 } = {}) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.rpc('popular_posts_by_views', { lim: limit });
-  if (error) throw error;
-  return data ?? [];
-}
-
 // 👁 מעקב צפיות חי — שורה לכל צפייה (פעם אחת לכל ref בכל session, כדי לא לנפח).
 export async function logView(kind, ref) {
   if (!supabase || !kind || ref == null || ref === "") return;
@@ -406,24 +403,6 @@ export async function getHotPostsLive({ days = 7, limit = 4 } = {}) {
   if (!supabase) return [];
   const { data } = await supabase.rpc("hot_posts_live", { days, lim: limit });
   return data || [];
-}
-// 🔥 מספרים נצפים עכשיו (חי)
-export async function getHotNumbersLive({ days = 7, limit = 8 } = {}) {
-  if (!supabase) return [];
-  const { data } = await supabase.rpc("hot_numbers_live", { days, lim: limit });
-  return data || [];
-}
-
-// 🔥 חיפושים חמים — המספרים הכי מחופשים לאחרונה (אגרגציה מ-search_log). לרצועת "הכי חם".
-export async function getHotSearches({ limit = 8, lookback = 500 } = {}) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('search_log')
-    .select('value').not('value', 'is', null)
-    .order('created_at', { ascending: false }).limit(lookback);
-  const counts = {};
-  (data || []).forEach(r => { const v = Number(r.value); if (v > 0) counts[v] = (counts[v] || 0) + 1; });
-  return Object.entries(counts).map(([v, c]) => ({ value: +v, count: c }))
-    .sort((a, b) => b.count - a.count).slice(0, limit);
 }
 
 // ── Contact ────────────────────────────────────────────────
@@ -558,42 +537,6 @@ export async function logActivity(kind, ref = null, title = null) {
   try { await supabase.from('user_activity').insert({ kind, ref, title: title ? String(title).slice(0, 200) : null }); }
   catch { /* silent */ }
 }
-// מצב המשתמש הנוכחי — first/last seen, ימים פעילים, האם חזר אחרי הפסקה
-export async function getMyEngagement() {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc('my_engagement');
-  if (error) return null;
-  return Array.isArray(data) ? data[0] : data;
-}
-// סקירת מעורבות לאדמין (כולל מבקרים חוזרים)
-export async function getEngagementOverview() {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc('engagement_overview');
-  if (error) return null;
-  return Array.isArray(data) ? data[0] : data;
-}
-
-// ── שיעורי שמע "סוד החשמל" — מבחר אקראי (RPC קל) ───────────
-export async function getRandomShiurim(limit = 12) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.rpc('random_shiurim', { lim: limit });
-  if (error) return [];
-  return data || [];
-}
-
-// ── הודעות/באנרים מונחי-נתונים לפי מיקום (ניתן לעריכה בלי דפלוי) ──
-export async function getAnnouncement(location) {
-  if (!supabase || !location) return null;
-  const { data } = await supabase
-    .from('announcements')
-    .select('title, body, updated_at')
-    .eq('location', location)
-    .eq('is_active', true)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return data || null;
-}
 
 // מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
 export async function getPostsMetaByWpIds(wpIds = []) {
@@ -609,25 +552,6 @@ export async function getShareCounts(wpIds = []) {
   const map = {};
   (data || []).forEach(r => { map[r.wp_id] = r.count; });
   return map;
-}
-
-// ── Insights / חידושים (בית המדרש) ─────────────────────────
-// origin='ai' → חידושי AI · convergence=true → התראות התכנסות/1820 (חידושי המערכת)
-// space='core' → רק חידושים מאושרים (ברירת מחדל לציבור; 'lab' = מעבדה/בחקירה)
-export async function getInsights({ origin = null, convergence = false, space = 'core', limit = 30 } = {}) {
-  if (!supabase) return [];
-  let q = supabase
-    .from('insights')
-    .select('id, title, body, proof, related_numbers, related_phrases, tags, source_ref, source_type, category, origin, has_1820, convergence_score, created_at')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  if (origin) q = q.eq('origin', origin);
-  if (space) q = q.eq('space', space);
-  if (convergence) q = q.or('has_1820.eq.true,convergence_score.gt.0');
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
 }
 
 // ── Admin inbox (הודעות + מנויים) — מאחורי סיסמת ניהול בצד-שרת ──
@@ -857,21 +781,35 @@ export async function addWallWord(phrase, ragil) {
   try { await supabase.rpc('add_wall_word', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
   catch { /* שקט — לוג בלבד, לא לשבור את החישוב */ }
 }
+// שמירה פרטית (אדמין): נשמרת עם private=true — לעולם לא מוצגת בקיר הציבורי.
+export async function saveWallWordPrivate(phrase, ragil) {
+  if (!supabase || !phrase || !ragil) return;
+  try { await supabase.rpc('save_wall_word_private', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
+  catch { /* שקט */ }
+}
+// הקיר הפרטי של האדמין — רק המילים שסומנו private.
+export async function getWallPrivate(limit = 60) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('gematria_wall')
+    .select('phrase,ragil,hits,last_at').eq('private', true)
+    .order('last_at', { ascending: false }).limit(limit);
+  return data || [];
+}
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits,last_at').order('last_at', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallPopular(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits').order('hits', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits').eq('private', false).order('hits', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallCount() {
   if (!supabase) return 0;
-  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true });
+  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true }).eq('private', false);
   return count || 0;
 }
 
@@ -918,66 +856,10 @@ export async function logSearch(term, value) {
   try { await supabase.from('search_log').insert({ term: t, value: Number.isFinite(value) ? value : null }); } catch { /* ignore */ }
 }
 
-// סטטיסטיקות חיות בטוחות (ספירות בלבד) לפס הויראלי.
-export async function getLiveStats() {
-  try { const { data } = await supabase.rpc('live_stats'); return data || null; } catch { return null; }
-}
-
 // 🚪 שער היום — נבחר דטרמיניסטית לפי היום בשנה מתוך חידושי ההצלבות המככבים (כולם רואים אותו שער).
 export function dayOfYear() {
   const now = new Date();
   return Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
-}
-// מינימום הצטרפות יומי לתצוגה (הוכחה חברתית): מינימום 2, יציב ליום, ומעליו עולה עם הרשמות אמת.
-export function displayJoinedToday(real) {
-  const base = 2 + (dayOfYear() % 5); // 2..6, קבוע לאורך היום
-  return Math.max(base, real || 0);
-}
-export async function getGateOfDay() {
-  try {
-    const { data } = await supabase.from('insights')
-      .select('id,title,related_numbers,panel_data')
-      .eq('category', 'הצלבות').eq('is_active', true)
-      .order('convergence_score', { ascending: false }).limit(40);
-    const list = (data || []).filter(d => d.panel_data?.featured);
-    if (!list.length) return null;
-    return list[dayOfYear() % list.length];
-  } catch { return null; }
-}
-
-// כל הפנינות (insights עם gematria_pairs) — לשורה הרצה למעלה. המככבות קודם.
-export async function getCrossTickerItems() {
-  try {
-    const { data } = await supabase.from('insights')
-      .select('id,title,gematria_pairs,panel_data,convergence_score')
-      .not('gematria_pairs', 'is', null).eq('is_active', true)
-      .order('convergence_score', { ascending: false, nullsFirst: false }).limit(24);
-    return (data || []).sort((a, b) => (b.panel_data?.featured ? 1 : 0) - (a.panel_data?.featured ? 1 : 0));
-  } catch { return []; }
-}
-
-export async function getLiveFeed() {
-  const [searches, cards, posts, ins] = await Promise.all([
-    supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false }).limit(16),
-    supabase.from('topic_cards').select('slug,title,created_at,approved_at').not('approved_at', 'is', null).order('approved_at', { ascending: false }).limit(6),
-    supabase.from('posts').select('title,slug,date').order('date', { ascending: false }).limit(6),
-    supabase.from('insights').select('title,source_ref,origin,created_at').eq('origin', 'ai').order('created_at', { ascending: false }).limit(6),
-  ].map(p => p.then(r => r.data || []).catch(() => [])));
-
-  const items = [];
-  for (const s of searches) {
-    const isNum = /^\d+$/.test(s.term);
-    items.push({ k: 'search', ts: s.created_at,
-      icon: isNum ? '🔢' : '🔍',
-      text: isNum ? `נפתח דף המספר ${s.term}` : `חיפשו: ${s.term}`,
-      to: `/number/${encodeURIComponent(s.term)}` });
-  }
-  for (const c of cards) items.push({ k: 'conv', ts: c.approved_at || c.created_at, icon: '🌳', text: `התכנסות חדשה: ${cleanTitle(c.title)}`, to: `/topic/${encodeURIComponent(c.slug)}` });
-  for (const p of posts) items.push({ k: 'post', ts: p.date, icon: '📚', text: `פוסט חדש: ${cleanTitle(p.title)}`, to: `/${p.slug}` });
-  for (const i of ins) items.push({ k: 'ai', ts: i.created_at, icon: '🧠', text: `גילוי AI: ${cleanTitle(i.title)}`, to: '/beit-midrash' });
-
-  items.sort((a, b) => new Date(b.ts) - new Date(a.ts));
-  return items;
 }
 
 // 🕒 פיד חיפושים מאוחד — מקור אחד (search_log) עם דרגות לפי משתמש.
