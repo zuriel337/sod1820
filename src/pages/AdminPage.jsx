@@ -795,21 +795,52 @@ function ScannerTab() {
     try {
       const items = buildItems();
       if (!items.length) { setNote("אין מה לסרוק — הדבק ביטויים או הגדר טווח."); setBusy(false); return; }
-      const pairs = collectPairs(items);
-      const sizeMap = await fetchFamilySizes(pairs);
-      const resoMap = withReso ? await fetchResonanceMap(pairs.map(p => p.value)) : {};
-      let scored = items.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }));
-      const mf = parseInt(maxFamily, 10);
-      if (!isNaN(mf)) scored = scored.filter(it => it.rarity.rarestSize != null && it.rarity.rarestSize <= mf);
-      scored = scored.filter(it => it.rarity.score >= minScore);
-      scored.sort((a, b) =>
-        sort === "value" ? (a.value || 0) - (b.value || 0)
-        : sort === "family" ? (a.rarity.rarestSize ?? 1e9) - (b.rarity.rarestSize ?? 1e9)
-        : b.rarity.score - a.rarity.score);
+      const scored = await rankItems(items);
       setRows(scored);
       setNote(`נסרקו ${items.length} · הוצגו ${scored.length}`);
     } catch (e) { setNote("שגיאה: " + (e.message || e)); }
     finally { setBusy(false); }
+  }
+
+  // 🌐 סריקת כל המאגר — השרת מדרג את כל ~13,400 הביטויים לפי נדירות ומחזיר את הצמרת,
+  // ואז הלקוח מחשב עליהם ציון מדויק (כולל ⚡ תהודה ועוגנים) — אותו מנוע כמו בהדבקה.
+  async function scanCorpus() {
+    setBusy(true); setRows(null); setNote("מדרג את כל המאגר בשרת…");
+    try {
+      const pick = (methods.length ? methods : ["רגיל"]).filter(k => k !== "הנעלם"); // הנעלם לא ב-bidim
+      const mf = parseInt(maxFamily, 10);
+      const { data, error } = await supabase.rpc("scan_corpus_rarity", {
+        p_methods: pick, p_max_family: isNaN(mf) ? null : mf, p_limit: 800,
+      });
+      if (error) throw error;
+      const items = (data || []).map(r => {
+        const ms = (r.methods || []).filter(m => m && m.value > 0);
+        const reg = ms.find(m => m.label === "רגיל");
+        return { key: r.phrase, kind: "phrase", value: (reg || ms[0])?.value ?? null, methods: ms };
+      }).filter(it => it.methods.length);
+      if (!items.length) { setNote("לא חזרו מועמדים — בחר שיטות או הקטן «משפחה עד»."); setBusy(false); return; }
+      setNote("מחשב נדירות מדויקת (תהודה + עוגנים)…");
+      const scored = await rankItems(items);
+      setRows(scored);
+      setNote(`כל המאגר נסרק · ${items.length} מועמדים מובילים · הוצגו ${scored.length}`);
+    } catch (e) { setNote("שגיאה: " + (e.message || e)); }
+    finally { setBusy(false); }
+  }
+
+  // דירוג רשימת פריטים — אותו צינור לכל מצבי הסריקה (הדבקה / טווח / כל המאגר)
+  async function rankItems(items) {
+    const pairs = collectPairs(items);
+    const sizeMap = await fetchFamilySizes(pairs);
+    const resoMap = withReso ? await fetchResonanceMap(pairs.map(p => p.value)) : {};
+    let scored = items.map(it => ({ ...it, rarity: scoreCross(it, sizeMap, resoMap) }));
+    const mf = parseInt(maxFamily, 10);
+    if (!isNaN(mf)) scored = scored.filter(it => it.rarity.rarestSize != null && it.rarity.rarestSize <= mf);
+    scored = scored.filter(it => it.rarity.score >= minScore);
+    scored.sort((a, b) =>
+      sort === "value" ? (a.value || 0) - (b.value || 0)
+      : sort === "family" ? (a.rarity.rarestSize ?? 1e9) - (b.rarity.rarestSize ?? 1e9)
+      : b.rarity.score - a.rarity.score);
+    return scored;
   }
 
   function exportCsv() {
@@ -883,9 +914,16 @@ function ScannerTab() {
         </div>
 
         <div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center", flexWrap: "wrap" }}>
-          {busy ? <span style={{ color: C.goldDim, fontFamily: F.heading }}>סורק…</span> : <BtnGold onClick={scan}>🔍 סרוק</BtnGold>}
+          {busy ? <span style={{ color: C.goldDim, fontFamily: F.heading }}>סורק…</span> : <>
+            <BtnGold onClick={scan}>🔍 סרוק רשימה</BtnGold>
+            <button onClick={scanCorpus} style={{ ...iconBtn, borderColor: C.gold, color: C.goldBright }} title="מדרג את כל ~13,400 הביטויים שבמאגר לפי נדירות, ומציף את ההצלבה הכי גבוהה. בחר את השיטות שיכנסו להצלבה.">🌐 סרוק את כל המאגר</button>
+          </>}
           {rows && rows.length > 0 && <button onClick={exportCsv} style={iconBtn}>⬇ ייצוא CSV</button>}
           {note && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12.5 }}>{note}</span>}
+        </div>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 8, lineHeight: 1.7 }}>
+          🌐 <b style={{ color: C.muted }}>כל המאגר:</b> השרת מדרג את כל הביטויים לפי השיטות שסימנת ומחזיר את הצמרת, ואז הציון המדויק (⚡ תהודה + עוגנים) מחושב כאן.
+          טיפ: ביטויים ארוכים נדירים "טריוויאלית" — לסינון אמיתי הגדל את מספר השיטות או מיין לפי <b style={{ color: C.muted }}>נדירות ↓</b> שמשקלל גם תהודה ועוגנים.
         </div>
       </div>
 
