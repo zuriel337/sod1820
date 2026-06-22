@@ -7,7 +7,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 // כל הטקסט רץ בלולאה (marquee); לחיצה על הרצועה מנווטת לצ'אט (/community/chat) שם
 // נמצאת התגובה המלאה. להחלפת התגובה — לערוך כאן בלבד (text + author).
 const HOT_CHAT = {
-  active: true,
+  active: false,
   to: "/community/chat",
   author: "שינשין",
   text:
