@@ -32,7 +32,7 @@ let scriptLoaded = false;
 
 // טעינת סקריפט ה-AdSense פעם אחת (נקרא מתוך AdSlot, לא גלובלית).
 export function ensureAdSenseScript() {
-  if (scriptLoaded || !ADSENSE_CLIENT || typeof document === "undefined") return;
+  if (scriptLoaded || !ADSENSE_ENABLED || typeof document === "undefined") return;
   scriptLoaded = true;
   const s = document.createElement("script");
   s.async = true;
