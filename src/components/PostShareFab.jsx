@@ -40,7 +40,7 @@ export default function PostShareFab({ url, title, wpId }) {
       <div className="psf-wrap">
         <button onClick={() => setOpen(true)} className="psf" aria-label="שתפו את הפוסט">
           <span aria-hidden style={{ fontSize: 17 }}>👑</span>
-          <span>שתפו את הסוד</span>
+          <span>שתפו את הפוסט</span>
           {count > 0 && <span className="psf-count">✨ {count.toLocaleString("he-IL")}</span>}
         </button>
       </div>
@@ -51,9 +51,9 @@ export default function PostShareFab({ url, title, wpId }) {
             <button className="psf-x" onClick={() => setOpen(false)} aria-label="סגירה">×</button>
             <div className="psf-crown">👑</div>
             <div className="psf-kicker">כִּי לַה׳ הַמְּלוּכָה</div>
-            <h2 className="psf-title">הפיצו את הסוד</h2>
+            <h2 className="psf-title">הפיצו הלאה</h2>
             <p className="psf-text">כל שיתוף הוא ניצוץ — שעוד נשמה תגלה את סוד 1820 ואת ההצלבות שמאחורי המציאות.</p>
-            {count > 0 && <div className="psf-social">✨ כבר <b>{count.toLocaleString("he-IL")}</b> שיתפו את הסוד</div>}
+            {count > 0 && <div className="psf-social">✨ כבר <b>{count.toLocaleString("he-IL")}</b> שיתפו</div>}
             <div className="psf-actions">
               <button className="psf-primary" onClick={shareNow}>📲 שתפו עכשיו</button>
               <button className="psf-copy" onClick={copyLink}>{copied ? "✓ הקישור הועתק" : "🔗 העתק קישור"}</button>

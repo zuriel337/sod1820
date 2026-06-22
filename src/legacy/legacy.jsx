@@ -8,7 +8,8 @@ import { resolveAuthor } from "../lib/authors.js";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
-import PostShareFab from "../components/PostShareFab.jsx";
+import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
@@ -4263,6 +4264,9 @@ function PostPageBySlug({ onNav }) {
   const title    = stripHtml(post?.title ?? "");
   const date     = formatDateHe(post?.date ?? "");
   const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
+  // מודעות מוצגות רק על פוסטים "ישנים" — לפחות שבוע מאז הפרסום (לא על תוכן עדכני).
+  const postAgeDays = post?.date ? (Date.now() - new Date(post.date).getTime()) / 86400000 : 0;
+  const adsAllowed = postAgeDays >= 7;
   const content  = (post?.content ?? "")
     // strip injected full-HTML boilerplate (common from pasted AI-generated content)
     .replace(/<!DOCTYPE[^>]*>/gi, "")
@@ -4328,13 +4332,9 @@ function PostPageBySlug({ onNav }) {
           wpId={post.wp_id}
         />
       )}
-      {post && !loading && !PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
-        <PostShareFab
-          url={`${SITE_URL}/${post.slug || slug}`}
-          title={title}
-          wpId={post.wp_id}
-        />
-      )}
+      {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
+      {post && !loading && adsAllowed && <StickyAnchorAd />}
+      {post && !loading && adsAllowed && <SideRailAd />}
       {image && !loading && (() => {
         // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
         const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);

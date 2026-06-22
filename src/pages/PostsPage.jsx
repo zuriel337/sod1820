@@ -10,6 +10,8 @@ import {
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import SideRailAd from "../components/SideRailAd.jsx";
 
 // ===== דף הפוסטים — עיצוב זהב מלכותי + חיפוש חכם מאוחד =====
 // חיפוש חכם: מזהה לבד טקסט / מספר / ביטוי עברי→גימטריה.
@@ -181,6 +183,8 @@ export default function PostsPage() {
 
   return (
     <div style={{ direction: "rtl", maxWidth: 1280, margin: "0 auto", padding: "48px 18px 90px", position: "relative", zIndex: 1 }}>
+      <StickyAnchorAd />
+      <SideRailAd />
       {/* כותרת */}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>
