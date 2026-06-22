@@ -79,10 +79,19 @@ function UniversalSearch({ onDone, full }) {
   function close() { setQ(""); setPosts([]); setOpen(false); onDone?.(); }
   function go(to) { nav(to); close(); }
   // חיפוש מספר/מילה → דף הישות המלא (לא הסרגל הצף).
-  function submit(e) { e.preventDefault(); const v = q.trim(); if (v) go("/number/" + encodeURIComponent(v)); }
+  function submit(e) {
+    e.preventDefault();
+    const v = q.trim();
+    if (!v) return;
+    // 💬 "צאט"/"צ'אט"/chat → דף הצ'אט (לא חיפוש גימטריה)
+    if (v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v)) return go("/community/chat");
+    go("/number/" + encodeURIComponent(v));
+  }
 
   const v = q.trim();
   const gem = /[א-ת]/.test(v) ? calcGem(v) : (/^\d+$/.test(v) ? +v : null);
+  // 💬 חיפוש "צאט"/"צ'אט"/chat → קיצור דרך לצ'אט האתר
+  const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
     { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
     { e: "🌳", l: "עץ המספרים", to: "/numbers" },
@@ -101,6 +110,11 @@ function UniversalSearch({ onDone, full }) {
 
       {open && v.length >= 2 && (
         <div className="nav-gem-drop">
+          {isChatQuery && (
+            <button className="nav-drop-row" onClick={() => go("/community/chat")}>
+              <span>💬</span><span>עבור ל<b style={{ color: cc.goldBright }}>צ'אט האתר</b> ←</span>
+            </button>
+          )}
           {gem != null && (
             <button className="nav-drop-row" onClick={() => go("/number/" + encodeURIComponent(v))}>
               <span>🔢</span><span>גימטריה של «{v}» = <b style={{ color: cc.goldBright }}>{gem}</b> · גלה הכל ←</span>

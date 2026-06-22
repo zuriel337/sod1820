@@ -15,6 +15,10 @@ const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID;
 export const META_ENABLED = !!META_PIXEL_ID;
 export const GOOGLE_ADS_ENABLED = !!GOOGLE_ADS_ID;
 
+// נקודת קצה ל-Conversions API (edge function ב-Supabase). שולחים אליה כל אירוע
+// במקביל לפיקסל-בדפדפן, עם event_id זהה — Meta מאחדת (דדופ) ולא סופרת פעמיים.
+const CAPI_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/meta-capi";
+
 let metaInited = false;
 let adsInited = false;
 
@@ -59,7 +63,9 @@ function initGoogleAds() {
 // בונה את קהלי הרימרקטינג והקהלים-הדומים (lookalike) — הלב של "עוד תנועה".
 export function trackMarketingPageview() {
   if (typeof window === "undefined") return;
-  if (META_PIXEL_ID && window.fbq) window.fbq("track", "PageView");
+  const eventId = genEventId();
+  if (META_PIXEL_ID && window.fbq) window.fbq("track", "PageView", {}, { eventID: eventId });
+  sendCAPI("PageView", eventId, {});
   // Google Ads: צפיות נספרות אוטומטית דרך ה-config; GA4 page_view נשלח ב-analytics.js.
 }
 
@@ -75,16 +81,50 @@ const META_STD = {
 // דוגמה: subscribe: "AbCdEfGhIj".  (ה-send_to יהיה `${GOOGLE_ADS_ID}/<label>`)
 const ADS_LABELS = {};
 
-// ── אירוע המרה אחיד — משדר ל-GA4 + מטא + Google Ads בקריאה אחת ──
+// ── עזרי CAPI: event_id לדדופ, קריאת קוקי (fbp/fbc), ושליחה לצד-שרת ──
+function genEventId() {
+  try { return crypto.randomUUID(); }
+  catch { return `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+}
+function getCookie(name) {
+  if (typeof document === "undefined") return undefined;
+  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : undefined;
+}
+// שליחה ל-CAPI (fire-and-forget). פעיל רק כשהפיקסל מוגדר; לא חוסם ולא שובר אם נכשל.
+function sendCAPI(eventName, eventId, params = {}) {
+  if (!META_ENABLED || typeof fetch === "undefined") return;
+  try {
+    fetch(CAPI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_name: eventName,
+        event_id: eventId,
+        event_source_url: typeof location !== "undefined" ? location.href : undefined,
+        fbp: getCookie("_fbp"),
+        fbc: getCookie("_fbc"),
+        custom_data: params,
+      }),
+      keepalive: true, // נשלח גם אם המשתמש עוזב את הדף
+    }).catch(() => {});
+  } catch { /* noop */ }
+}
+
+// ── אירוע המרה אחיד — משדר ל-GA4 + מטא (פיקסל+CAPI) + Google Ads בקריאה אחת ──
 export function trackConversion(name, params = {}) {
   if (typeof window === "undefined") return;
   // GA4 (תמיד — אם פעיל)
   if (window.gtag) window.gtag("event", name, params);
-  // Meta
-  if (META_PIXEL_ID && window.fbq) {
-    const std = META_STD[name];
-    if (std) window.fbq("track", std, params);
-    else window.fbq("trackCustom", name, params);
+  // Meta — פיקסל בדפדפן + CAPI בצד-שרת, עם event_id זהה לדדופ.
+  if (META_ENABLED) {
+    const metaName = META_STD[name] || name;
+    const eventId = genEventId();
+    if (window.fbq) {
+      if (META_STD[name]) window.fbq("track", metaName, params, { eventID: eventId });
+      else window.fbq("trackCustom", metaName, params, { eventID: eventId });
+    }
+    sendCAPI(metaName, eventId, params);
   }
   // Google Ads (רק אם הוגדר label להמרה הזו)
   if (GOOGLE_ADS_ID && window.gtag && ADS_LABELS[name]) {

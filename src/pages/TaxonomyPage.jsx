@@ -49,12 +49,18 @@ function TaxonomyView({ kind }) {
   const name = fromSlug(slug);
   const isTag = kind === "tag";
   const gem = calcGem(name);
+  // 💬 "צאט"/"צ'אט" כתגית → הפניה לדף הצ'אט (גולשים מחפשים את הצ'אט דרך תג/חיפוש)
+  const isChatTag = isTag && ((name || "").replace(/['"׳״\s]/g, "") === "צאט" || /chat/i.test(name || ""));
 
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isChatTag) navigate("/community/chat", { replace: true });
+  }, [isChatTag, navigate]);
 
   useEffect(() => {
     const label = isTag ? "תגית" : "קטגוריה";
@@ -99,6 +105,8 @@ function TaxonomyView({ kind }) {
 
   const hasMore = posts.length < total;
   const eyebrow = isTag ? "תגית" : "קטגוריה";
+
+  if (isChatTag) return null; // מעבירים לדף הצ'אט (useEffect) — לא מציגים דף תג ריק
 
   return (
     <div style={{ direction: "rtl", maxWidth: 1280, margin: "0 auto", padding: "48px 18px 90px", position: "relative", zIndex: 1 }}>
