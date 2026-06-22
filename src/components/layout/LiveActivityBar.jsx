@@ -59,8 +59,9 @@ export default function LiveActivityBar() {
         /* מסילת המבזק — חלון עם overflow מוסתר; הרצועה רצה בתוכו */
         .lab-hot-marquee { flex:1 1 auto; min-width:0; overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent); mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent); }
         .lab-hot-track { display:flex; direction:ltr; width:max-content; animation: lab-ticker 38s linear infinite; }
-        .lab-hot-item { direction:rtl; white-space:nowrap; padding-left:60px; color:#ffe0a8;
+        .lab-hot-item { direction:rtl; white-space:nowrap; color:#ffe0a8;
           font-family:${F.heading}; font-size:12.5px; font-weight:700; }
+        .lab-hot-sep { display:inline-block; margin:0 46px; color:#ff9b3d; font-size:11px; vertical-align:1px; }
         .lab-hot-cta { flex:none; color:#ffd36b; font-family:${F.heading}; font-size:11.5px; font-weight:800; white-space:nowrap; }
 
         @media (max-width: 640px) {
@@ -87,8 +88,8 @@ export default function LiveActivityBar() {
           <span className="lab-hot-badge">חם בצ'אט</span>
           <div className="lab-hot-marquee">
             <div className="lab-hot-track">
-              <span className="lab-hot-item" aria-hidden>{item}</span>
-              <span className="lab-hot-item" aria-hidden>{item}</span>
+              <span className="lab-hot-item" aria-hidden><span className="lab-hot-sep">🔥</span>{item}</span>
+              <span className="lab-hot-item" aria-hidden><span className="lab-hot-sep">🔥</span>{item}</span>
             </div>
           </div>
           <span className="lab-hot-cta">לשיחה ←</span>
