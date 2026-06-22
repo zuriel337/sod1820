@@ -15,7 +15,10 @@
 //   VITE_ADSENSE_SLOT_SIDE   = מזהה יחידת מודעה לצד בדסקטופ (אנכי 300×600)
 
 export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || "";
-export const ADSENSE_ENABLED = !!ADSENSE_CLIENT;
+// 🛑 מתג כיבוי גלובלי — כל עוד true, אין שום מודעת AdSense באתר (גם אם הוגדר מזהה מפרסם).
+// להחזרת המודעות: שנה ל-false (וודא ש-VITE_ADSENSE_CLIENT מוגדר ב-Vercel).
+const ADSENSE_KILL_SWITCH = true;
+export const ADSENSE_ENABLED = !ADSENSE_KILL_SWITCH && !!ADSENSE_CLIENT;
 
 // מזהי יחידות פר-מיקום (ברירת-מחדל מ-env; אפשר לעקוף דרך prop ב-AdSlot).
 export const ADSENSE_SLOTS = {
@@ -29,7 +32,7 @@ let scriptLoaded = false;
 
 // טעינת סקריפט ה-AdSense פעם אחת (נקרא מתוך AdSlot, לא גלובלית).
 export function ensureAdSenseScript() {
-  if (scriptLoaded || !ADSENSE_CLIENT || typeof document === "undefined") return;
+  if (scriptLoaded || !ADSENSE_ENABLED || typeof document === "undefined") return;
   scriptLoaded = true;
   const s = document.createElement("script");
   s.async = true;
