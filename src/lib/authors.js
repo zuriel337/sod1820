@@ -3,6 +3,7 @@
 export const AUTHORS = {
   "המערכת": { avatar: "/logo.png", role: "מערכת סוד 1820" },
   "מזכה הרבים": { avatar: "/logo.png", role: "מדור התחזקות וזיכוי הרבים" },
+  "מערכת כי לה׳ המלוכה": { avatar: "/logo.png", role: "מנוע חידושי ההצלבות · סוד 1820" },
   // דוגמה לכתב נוסף:
   // "ישראל ישראלי": { avatar: "/authors/israel.jpg", role: "כתב" },
 };
