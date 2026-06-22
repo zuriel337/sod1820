@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 
 // ===== «מסע ההתכנסות» — טיול בתוך הערך (value-as-trunk) =====
 // המסע מטייל בין ביטויים ששווים לאותו ערך גימטרי (משפחת-הערך מ-bidim). ערך-היעד נסתר עד השיא,
-// ואז נחשף: "לא טיילת בין מילים — טיילת בתוך הערך 596". אין קפיצות מומצאות: כשהמשפחה נגמרת, המסע נעצר ביושר.
+// ואז נחשף: "לא טיילת בין מילים — טיילת בתוך הערך 596". כשמשפחת-הערך נגמרת, המסע אינו נעצר מיד —
+// הוא «קופץ» לסקאלת-אפס עשירה (zero_scale_law: 560→5600) וממשיך. הערך מהדהד כלפי מעלה. רק כשגם
+// משפחת-התהודה נגמרת — נעצר ביושר. אין קפיצות מומצאות.
 
 const LINES = [
   "ומה עוד נפגש כאן —",
@@ -23,9 +25,10 @@ export default function JourneyPage() {
   const P = usePalette();
   const [sp] = useSearchParams();
   const startFrom = (sp.get("from") || "").trim();
-  const [target, setTarget] = useState(null);     // ערך-היעד הנסתר
+  const [target, setTarget] = useState(null);     // ערך-היעד הנסתר (הסקאלה הפעילה)
+  const [bases, setBases] = useState([]);          // [value, value*10, ...] — סקאלות שהמסע עבר (שורש→תהודה)
   const [family, setFamily] = useState([]);        // [{phrase, world}] — כל הביטויים = target
-  const [path, setPath] = useState([]);            // [{phrase, world}] — התחנות שעברנו
+  const [path, setPath] = useState([]);            // [{phrase, world} | {leap:true, phrase}] — התחנות שעברנו
   const [goal, setGoal] = useState(5);             // תחנות להתכנסות מלאה
   const [finished, setFinished] = useState(null);  // null | "complete" | "stopped"
   const [busy, setBusy] = useState(false);
@@ -35,7 +38,7 @@ export default function JourneyPage() {
 
   // מאתחל מסע: בוחר ערך-יעד נסתר (משפחה עשירה) וטוען את משפחת-הערך לטייל בה.
   async function begin(fromParam) {
-    setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]);
+    setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     let value = null, startPhrase = null;
     if (isNumeric(fromParam)) {
       value = parseInt(fromParam, 10);
@@ -51,6 +54,7 @@ export default function JourneyPage() {
     const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
     const start = startIdx >= 0 ? fam[startIdx] : fam[0];
     setTarget(value);
+    setBases([value]);
     setFamily(fam);
     setGoal(clamp(fam.length, 3, 7));
     setPath([start]);
@@ -60,39 +64,70 @@ export default function JourneyPage() {
 
   useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
 
-  function step() {
-    if (finished || !family.length) return;
-    const seen = new Set(path.map(p => p.phrase));
+  // 🔢 קפיצת-תהודה — כשמשפחת-הערך נגמרת, מחפש סקאלת-אפס עשירה בביטויים חדשים (zero_scale_law).
+  async function tryLeap(seen) {
+    if (bases.length >= 3) return null;            // עד 2 קפיצות — לא רץ לאינסוף
+    let best = null;
+    for (const s of zeroScales(target)) {
+      if (bases.includes(s.v)) continue;           // לא חוזרים לסקאלה שכבר היינו בה
+      const fam = await getValuePhraseList(s.v).catch(() => []);
+      const fresh = fam.filter(f => !seen.has(f.phrase));
+      if (fresh.length >= 2 && (!best || fresh.length > best.fresh.length)) best = { v: s.v, fam, fresh };
+    }
+    if (!best) return null;
+    return { value: best.v, fam: best.fam, first: best.fresh[Math.floor(Math.random() * best.fresh.length)] };
+  }
+
+  async function step() {
+    if (finished || busy || !family.length) return;
+    const seen = new Set(path.filter(p => !p.leap).map(p => p.phrase));
     const pool = family.filter(f => !seen.has(f.phrase));
-    if (!pool.length) {   // המשפחה נגמרה → נעצר ביושר (לא ממציאים)
+    if (!pool.length) {
+      // משפחת-הערך נגמרה → לפני עצירה, ננסה לקפוץ לסקאלת-אפס (הערך מהדהד כלפי מעלה)
+      setBusy(true);
+      const leap = await tryLeap(seen);
+      setBusy(false);
+      if (leap) {
+        setBases(b => [...b, leap.value]);
+        setTarget(leap.value);
+        setFamily(leap.fam);
+        setGoal(g => g + clamp(leap.fam.length, 2, 4));
+        setPath(p => [...p, { leap: true, phrase: `⚡ הערך מהדהד · ${target} → ${leap.value}` }, leap.first]);
+        logView("journey_leap", `${target}->${leap.value}`);  // 📊 פאנל: קפיצת-תהודה
+        return;
+      }
       setFinished("stopped");
-      logView("journey_stall", String(target));            // 📊 פאנל: נעצר (אין עוד שכן)
-      logView("journey_target_revealed", String(target));  // 📊 פאנל: הערך נחשף
+      logView("journey_stall", String(target));            // 📊 פאנל: נעצר (גם התהודה נגמרה)
+      logView("journey_target_revealed", String(bases[0])); // 📊 פאנל: הערך נחשף
       return;
     }
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
-    if (np.length >= goal) {
+    if (np.filter(p => !p.leap).length >= goal) {
       setFinished("complete");
-      logView("journey_complete", String(target));          // 📊 פאנל: השלמת מסע (100%)
-      logView("journey_target_revealed", String(target));   // 📊 פאנל: הערך נחשף
+      logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
+      logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
     }
   }
 
   function restart() { begin(""); }
 
+  const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
+  const leaped = bases.length > 1;
+
   async function shareJourney() {
-    if (busy || target == null) return;
+    if (busy || root == null) return;
     setBusy(true);
-    logView("journey_share", String(target));   // 📊 פאנל: שיתוף מסע
-    try { await shareNumberSmart(target, path.map(s => ({ phrase: s.phrase }))); } finally { setBusy(false); }
+    logView("journey_share", String(root));   // 📊 פאנל: שיתוף מסע
+    try { await shareNumberSmart(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase }))); } finally { setBusy(false); }
   }
 
   const cur = path[path.length - 1];
   const prev = path.length > 1 ? path[path.length - 2] : null;
-  const dWorld = dominantWorld(path);
-  const progress = goal > 0 ? clamp(Math.round((path.length / goal) * 100), 0, 100) : 0;
+  const stations = path.filter(p => !p.leap);
+  const dWorld = dominantWorld(stations);
+  const progress = goal > 0 ? clamp(Math.round((stations.length / goal) * 100), 0, 100) : 0;
 
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
@@ -118,15 +153,21 @@ export default function JourneyPage() {
           {finished === "stopped" && (
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginBottom: 12 }}>הקשרים הידועים הובילו אותך עד לנקודה זו.</div>
           )}
-          {target != null && (
+          {root != null && (
             <>
               <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15, marginBottom: 4 }}>הגילוי</div>
               <div style={{ animation: "jReveal .7s ease both", color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(64px,16vw,120px)", fontWeight: 900, lineHeight: 1, textShadow: `0 0 50px ${P.glow}` }}>
-                {target}
+                {root}
               </div>
-              {KEY_NUMBERS[target] && <div style={{ color: P.accent, fontFamily: F.body, fontSize: 14, marginTop: 8, fontStyle: "italic" }}>{KEY_NUMBERS[target]}</div>}
+              {KEY_NUMBERS[root] && <div style={{ color: P.accent, fontFamily: F.body, fontSize: 14, marginTop: 8, fontStyle: "italic" }}>{KEY_NUMBERS[root]}</div>}
+              {leaped && (
+                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, marginTop: 12, display: "inline-flex", gap: 7, alignItems: "center", flexWrap: "wrap", justifyContent: "center", background: P.glow, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "6px 16px" }}>
+                  <span>⚡ הערך מהדהד בסדרי גודל:</span>
+                  {bases.map((b, i) => <React.Fragment key={b}>{i > 0 && <span style={{ color: P.accentDim }}>→</span>}<b style={{ color: P.accentText }}>{b}</b></React.Fragment>)}
+                </div>
+              )}
               <p style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(16px,3vw,20px)", fontWeight: 700, lineHeight: 1.6, maxWidth: 460, margin: "18px auto 6px" }}>
-                לא טיילת בין מילים. טיילת בתוך הערך.
+                {leaped ? "לא טיילת בין מילים. טיילת בתוך הערך — והוא הִדהד מעלה." : "לא טיילת בין מילים. טיילת בתוך הערך."}
               </p>
             </>
           )}
@@ -137,8 +178,10 @@ export default function JourneyPage() {
             <div style={{ display: "inline-flex", flexDirection: "column", gap: 7, alignItems: "center", margin: "6px auto 24px" }}>
               {path.map((s, i) => (
                 <React.Fragment key={i}>
-                  <span style={{ color: i === 0 ? P.accentText : P.ink, fontFamily: F.body, fontSize: 15, fontWeight: i === 0 ? 800 : 600,
-                    border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "4px 16px", background: P.glow }}>{s.phrase}</span>
+                  {s.leap
+                    ? <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, fontStyle: "italic" }}>{s.phrase}</span>
+                    : <span style={{ color: i === 0 ? P.accentText : P.ink, fontFamily: F.body, fontSize: 15, fontWeight: i === 0 ? 800 : 600,
+                      border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "4px 16px", background: P.glow }}>{s.phrase}</span>}
                   {i < path.length - 1 && <span style={{ color: P.accentDim, fontSize: 14 }}>↓</span>}
                 </React.Fragment>
               ))}
@@ -147,12 +190,12 @@ export default function JourneyPage() {
 
           {/* כפתורים — פתיחת הגזע · שיתוף · מסע חדש */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            {target != null && (
-              <Link to={`/number/${target}`} onClick={() => logView("journey_open", String(target))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
-                פתח את {target} →
+            {root != null && (
+              <Link to={`/number/${root}`} onClick={() => logView("journey_open", String(root))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+                פתח את {root} →
               </Link>
             )}
-            {target != null && (
+            {root != null && (
               <button onClick={shareJourney} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 22px" }}>
                 {busy ? "מכין…" : "שתפו את המסע ✦"}
               </button>
@@ -212,7 +255,9 @@ export default function JourneyPage() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", alignItems: "center" }}>
                 {path.slice(-12).map((s, i, a) => (
                   <React.Fragment key={i}>
-                    <span style={{ color: s === cur ? P.accentText : P.inkSoft, fontFamily: F.body, fontSize: 13, border: `1px solid ${s === cur ? P.borderStrong : P.border}`, borderRadius: 999, padding: "3px 11px" }}>{s.phrase}</span>
+                    {s.leap
+                      ? <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, fontStyle: "italic" }}>{s.phrase}</span>
+                      : <span style={{ color: s === cur ? P.accentText : P.inkSoft, fontFamily: F.body, fontSize: 13, border: `1px solid ${s === cur ? P.borderStrong : P.border}`, borderRadius: 999, padding: "3px 11px" }}>{s.phrase}</span>}
                     {i < a.length - 1 && <span style={{ color: P.accentDim, fontSize: 12 }}>←</span>}
                   </React.Fragment>
                 ))}
