@@ -59,6 +59,10 @@ function waSafeImage(url) {
   if (!m) return url;
   return `${m[1]}/storage/v1/render/image/public/${m[2]}?width=1200&quality=82`;
 }
+// ממדי התמונה ל-og:image:width/height — רק לכרטיס הדינמי (/api/card), שתמיד 1200×630.
+// תמונות render/raw (webp→jpeg, תמונת פוסט) — היחס נשמר והגובה משתנה, ולכן לא מצהירים
+// ממדים קבועים (הצהרה שגויה גרועה מהיעדר הצהרה: הרובוט חותך/מותח).
+const ogImageDims = (url = '') => /\/api\/card/.test(url) ? { w: 1200, h: 630 } : null;
 // סוג התמונה ל-og:image:type — עוזר לרובוטים להציג מיד בלי לנחש.
 const ogImageType = (url = '') =>
   /\/api\/card/.test(url) ? 'image/png'
@@ -178,6 +182,7 @@ export default async function handler(req, res) {
   // וידוא תמונת שיתוף ידידותית לוואטסאפ (WebP → JPEG דרך render) — לפני בניית המטא וה-JSON-LD.
   image = waSafeImage(image);
   const imgType = ogImageType(image);
+  const imgDims = ogImageDims(image);
 
   // ── מטא ייעודי למאמרים + JSON-LD ──
   let articleMeta = '';
@@ -226,6 +231,7 @@ export default async function handler(req, res) {
 <meta property="og:image" content="${esc(image)}"/>
 <meta property="og:image:secure_url" content="${esc(image)}"/>
 <meta property="og:image:type" content="${imgType}"/>
+${imgDims ? `<meta property="og:image:width" content="${imgDims.w}"/><meta property="og:image:height" content="${imgDims.h}"/>` : ''}
 ${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>
