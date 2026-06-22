@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
+import { cleanName } from "../lib/galleryName.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
 // כאן נפגשים כל החוטים: מספרים, תמונות, חיבורים ורמזים — שער לעולם שלם של קשרים.
@@ -141,9 +142,9 @@ export default function TopicPage() {
                     </span>
                     {img && open && (
                       <div style={{ margin: "8px 0 4px", maxWidth: 420 }}>
-                        <img src={img.image_url} alt={img.name || text} loading="lazy"
+                        <img src={img.image_url} alt={cleanName(img.name) || text} loading="lazy"
                           style={{ width: "100%", borderRadius: 10, border: `1px solid ${P.borderStrong}`, display: "block" }} />
-                        {(img.description || img.name) && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 5 }}>{img.description || img.name}</div>}
+                        {(img.description || cleanName(img.name)) && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 5 }}>{img.description || cleanName(img.name)}</div>}
                       </div>
                     )}
                   </li>
@@ -196,7 +197,7 @@ export default function TopicPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>כל תמונה היא ממצא בציר — בסדר שמספר את הסיפור.</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px,1fr))", gap: 16 }}>
             {imgs.map((im, i) => {
-              const caption = (im.description || im.name || "").trim();
+              const caption = (im.description || cleanName(im.name) || "").trim();
               const nums = (im.ocr_numbers || []).filter(n => n >= 10).slice(0, 5);
               return (
                 <Link key={im.id} to="/archive" style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>

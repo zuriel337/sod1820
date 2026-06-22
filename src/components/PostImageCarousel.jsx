@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getImagesByPrimaryValue } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import { cleanName } from "../lib/galleryName.js";
 
 // 🎞️ קרוסלת רמזים — תמונות לפי ערך, רצות אחת-אחרי-השנייה (לא רשת).
 // כל שקופית: תמונה שנפתחת בלייטבוקס · צ'יפ מספר → /number/:n · תאריך העלאה.
@@ -24,16 +25,6 @@ function uploadDate(img) {
   const m = (img.image_url || "").match(/\/uploads\/(\d{4})\/(\d{2})\//);
   if (m) return `${HE_MONTHS[(+m[2]) - 1] || m[2]} ${m[1]}`;
   return null;
-}
-
-// שמות "עדכון … נוספה/נוספו תמונה/מסר" הם הערות-לוג מוורדפרס (~43% מהתמונות),
-// לא כותרות אמיתיות — לא מציגים אותן ככותרת (מבלבל). מחזיר שם תקין או null.
-function cleanName(name) {
-  const s = (name || "").trim();
-  if (!s) return null;
-  if (/^עדכון\b/.test(s)) return null;            // "עדכון 24/5/2020 …"
-  if (/נוספ\w*\s+(תמונה|תמונות|מסר|מסרים)/.test(s)) return null;
-  return s;
 }
 
 // תאריך מיון אמין: occurred_at → תאריך מהנתיב /uploads/YYYY/MM/ → created_at.
