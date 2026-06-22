@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { findNameCross } from "../lib/nameCross.js";
 import { shareCross, crossCardDataUrl } from "../lib/crossCard.js";
+import { collectPairs, fetchFamilySizes, rankByRarity, scoreCross } from "../lib/crossRarity.js";
 
 // 🔮 "מצא לי הצלבה" — לשם/ביטוי נתון, מוצא מילים קדושות שמתכנסות איתו בכמה שיטות.
 // מנוע: findNameCross (gematria_engine_law — חישוב דרך METHODS בלבד). שיתוף ויזואלי: shareCross.
@@ -20,6 +21,21 @@ const makeItem = (term, c) => ({
     { phrase: c.partner, ragil: c.value, mistater: c.mistater },
   ] },
 });
+
+// תג «מד נדירות» — נדירות מבוססת-נתונים (גודל משפחת-הערך). ירוק=נדיר, אפור=טריוויאלי.
+function RarityBadge({ rarity, P }) {
+  if (!rarity) return null;
+  const s = rarity.score;
+  const c = s >= 70 ? "#2f9e6b" : s >= 40 ? P.accentText : P.accentDim;
+  return (
+    <div style={{ textAlign: "center", marginTop: 6 }}>
+      <span title={`${rarity.indepCount} שיטות בלתי-תלויות${rarity.rarestSize != null ? ` · הנדיר ביותר: ${rarity.rarestSize} ביטויים בלבד` : ""}`}
+        style={{ display: "inline-flex", alignItems: "center", gap: 6, color: c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, border: `1px solid ${c}33`, background: `${c}14`, borderRadius: 999, padding: "2px 11px" }}>
+        🎯 מד נדירות {s}/100
+      </span>
+    </div>
+  );
+}
 
 // תצוגת הצלבה בודדת — קו «=», עוגן, צ'יפים, שיתוף + תצוגה מקדימה של התמונה
 function Cross({ term, c, P, primary }) {
@@ -64,6 +80,7 @@ function Cross({ term, c, P, primary }) {
       <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textAlign: "center", marginTop: 8 }}>
         {c.matchCount} שיטות מסכימות — עובדה גימטרית, לא פרשנות.
       </div>
+      <RarityBadge rarity={c.rarity} P={P} />
 
       <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
         <button onClick={doShare} disabled={shareBusy} style={{ cursor: shareBusy ? "wait" : "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: primary ? 14.5 : 13, fontWeight: 800, padding: primary ? "11px 24px" : "9px 18px" }}>
@@ -88,26 +105,37 @@ export default function CrossFinder({ term }) {
   const [status, setStatus] = useState("idle"); // idle · busy · done · none
   const [cross, setCross] = useState(null);
   const [showMore, setShowMore] = useState(false);
+  const [sizeMap, setSizeMap] = useState({});   // "method|value" → גודל משפחה (לנדירות)
+  const [rareOnly, setRareOnly] = useState(false); // מסנן «נדירות בלבד» — ברירת מחדל כבוי
   const engaged = useRef(false); // האם המשתמש כבר הפעיל — אז נרענן אוטומטית בכל שם חדש
 
   const find = useCallback(async () => {
     engaged.current = true;
-    setStatus("busy"); setCross(null); setShowMore(false);
+    setStatus("busy"); setCross(null); setShowMore(false); setSizeMap({});
     try {
       const c = await findNameCross(term);
-      if (c && c.matchCount >= 2) { setCross(c); setStatus("done"); }
-      else setStatus("none");
+      if (c && c.matchCount >= 2) {
+        setCross(c); setStatus("done");
+        // נדירות (אופציונלי) — מביא גדלי-משפחה ל-bidim ברקע; לא חוסם את התצוגה.
+        fetchFamilySizes(collectPairs([c, ...(c.others || [])])).then(setSizeMap).catch(() => {});
+      } else setStatus("none");
     } catch { setStatus("none"); }
   }, [term]);
 
   // שם/ביטוי חדש → לנקות תוצאה ישנה; אם המשתמש כבר הפעיל פעם — לרענן לבד (בלי "עוד אחת")
   useEffect(() => {
-    setCross(null); setShowMore(false);
+    setCross(null); setShowMore(false); setSizeMap({});
     if (engaged.current) find();
     else setStatus("idle");
   }, [term, find]);
 
+  // צירוף ציון-נדירות לכל הצלבה (פר-משתמש, חי). primary + others.
+  const primaryScored = cross ? { ...cross, rarity: scoreCross(cross, sizeMap) } : null;
   const others = (cross && cross.others) || [];
+  const othersScored = others.map(o => ({ ...o, rarity: scoreCross(o, sizeMap) }));
+  // מצב «נדירות בלבד» — רק הצלבות עם ≥2 שיטות בלתי-תלויות, ממוין לפי נדירות.
+  const rareList = rankByRarity([primaryScored, ...othersScored].filter(Boolean), sizeMap)
+    .filter(c => !c.rarity.trivial);
 
   return (
     <div style={{ background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: `0 4px 22px ${P.glow}` }}>
@@ -138,21 +166,42 @@ export default function CrossFinder({ term }) {
       {status === "done" && cross && (
         <div style={{ animation: "cf-rise .5s ease both" }}>
           <style>{`@keyframes cf-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}`}</style>
-          <Cross term={term} c={cross} P={P} primary />
 
-          {/* יש עוד הצלבות? — אופציה לפתוח */}
-          {others.length > 0 && (
-            <div style={{ marginTop: 14 }}>
-              <button onClick={() => setShowMore(s => !s)} style={{ cursor: "pointer", width: "100%", display: "flex", alignItems: "center", gap: 8, background: showMore ? P.card : "rgba(201,162,39,0.10)", border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 14px" }}>
-                <span style={{ color: P.accentDim, fontSize: 13 }}>{showMore ? "▴" : "▾"}</span>
-                <span style={{ flex: 1, textAlign: "right" }}>{showMore ? "הסתר את שאר ההצלבות" : `✦ יש עוד ${others.length} הצלבות ל«${term}» — פתחו לראות`}</span>
-              </button>
-              {showMore && (
-                <div style={{ marginTop: 4 }}>
-                  {others.map((o, i) => <Cross key={i} term={term} c={o} P={P} />)}
+          {/* מתג «נדירות בלבד» — ברירת מחדל כבוי (=התנהגות קיימת). דולק = רק ≥2 שיטות בלתי-תלויות, לפי נדירות. */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <button onClick={() => setRareOnly(v => !v)} title="מסנן התאמות טריוויאליות (רגיל+גדול) ומדרג לפי נדירות אמיתית"
+              style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7, background: rareOnly ? "rgba(47,158,107,0.15)" : P.card, border: `1px solid ${rareOnly ? "#2f9e6b" : P.border}`, color: rareOnly ? "#2f9e6b" : P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 14px" }}>
+              {rareOnly ? "✓ " : ""}✨ נדירות בלבד
+            </button>
+          </div>
+
+          {rareOnly ? (
+            rareList.length ? (
+              rareList.map((c, i) => <Cross key={i} term={term} c={c} P={P} primary={i === 0} />)
+            ) : (
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, textAlign: "center", padding: "8px 0" }}>
+                כל ההתאמות כאן הן רגיל/גדול בלבד (טריוויאליות). אין הצלבה רב-שיטתית נדירה ל«{term}».
+              </div>
+            )
+          ) : (
+            <>
+              <Cross term={term} c={primaryScored} P={P} primary />
+
+              {/* יש עוד הצלבות? — אופציה לפתוח */}
+              {othersScored.length > 0 && (
+                <div style={{ marginTop: 14 }}>
+                  <button onClick={() => setShowMore(s => !s)} style={{ cursor: "pointer", width: "100%", display: "flex", alignItems: "center", gap: 8, background: showMore ? P.card : "rgba(201,162,39,0.10)", border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 14px" }}>
+                    <span style={{ color: P.accentDim, fontSize: 13 }}>{showMore ? "▴" : "▾"}</span>
+                    <span style={{ flex: 1, textAlign: "right" }}>{showMore ? "הסתר את שאר ההצלבות" : `✦ יש עוד ${othersScored.length} הצלבות ל«${term}» — פתחו לראות`}</span>
+                  </button>
+                  {showMore && (
+                    <div style={{ marginTop: 4 }}>
+                      {othersScored.map((o, i) => <Cross key={i} term={term} c={o} P={P} />)}
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
 
           <div style={{ textAlign: "center", marginTop: 14 }}>
