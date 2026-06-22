@@ -390,7 +390,7 @@ export async function logView(kind, ref) {
 // 🔎 ספירת חיפושים כוללת (כל הזמן) למספר — מד קבוע "כמה פעמים חיפשו". מקור: search_log.
 export async function getSearchCount(value) {
   if (!supabase || !value) return 0;
-  const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).eq("value", value);
+  const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).eq("value", value).eq("hidden", false);
   return count || 0;
 }
 // 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
@@ -799,18 +799,18 @@ export async function getWallPrivate(limit = 60) {
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits,last_at').eq('private', false).eq('hidden', false).order('last_at', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallPopular(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits').eq('private', false).order('hits', { ascending: false }).limit(limit);
+    .select('phrase,ragil,hits').eq('private', false).eq('hidden', false).order('hits', { ascending: false }).limit(limit);
   return data || [];
 }
 export async function getWallCount() {
   if (!supabase) return 0;
-  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true }).eq('private', false);
+  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true }).eq('private', false).eq('hidden', false);
   return count || 0;
 }
 
@@ -875,7 +875,7 @@ const SEARCH_TIERS = {
 export async function getSearchFeed(tier = 'anon') {
   try {
     const t = SEARCH_TIERS[tier] || SEARCH_TIERS.anon;
-    let q = supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false });
+    let q = supabase.from('search_log').select('term,value,created_at').eq('hidden', false).order('created_at', { ascending: false });
     if (t.days) q = q.gte('created_at', new Date(Date.now() - t.days * 86400000).toISOString());
     const { data } = await q.limit(Math.min(800, t.limit * 4));
     const seen = new Set(); const out = [];
@@ -903,6 +903,7 @@ export async function getRecentSearches(limit = 6) {
   try {
     const { data } = await supabase.from('search_log')
       .select('term,value,created_at')
+      .eq('hidden', false)
       .order('created_at', { ascending: false }).limit(60);
     const seen = new Set(); const out = [];
     for (const r of (data || [])) {
@@ -1074,7 +1075,7 @@ export async function getHotNumber() {
   try {
     const since = new Date(); since.setHours(0, 0, 0, 0);
     const { data } = await supabase.from('search_log')
-      .select('term,value').gte('created_at', since.toISOString()).limit(800);
+      .select('term,value').eq('hidden', false).gte('created_at', since.toISOString()).limit(800);
     const counts = {};
     for (const r of (data || [])) {
       const t = (r.term || '').trim(); if (!t) continue;
