@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
-import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet } from "../lib/supabase.js";
+import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { computePulse, filterHints, hintNums, domNum, shortDate } from "../lib/reality.js";
@@ -30,6 +30,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const [rare, setRare] = useState(false);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set} | null
   const [lbIdx, setLbIdx] = useState(null);           // לייטבוקס מאוחד (שולט כשיש Hero)
+  const [picker, setPicker] = useState(null);          // {images, search, loading} | null — כלי הוספה לזרם
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
   useEffect(() => {
@@ -100,6 +101,24 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
     catch (e) { alert("עדכון נכשל: " + (e.message || e)); }
   }
 
+  async function openPicker(search = "") {
+    setPicker({ images: [], search, loading: true });
+    try { setPicker({ images: await getGalleriesForStreamPicker({ search }), search, loading: false }); }
+    catch { setPicker(null); }
+  }
+  async function pickerSearch(s) {
+    setPicker(p => ({ ...p, search: s, loading: true }));
+    try { const imgs = await getGalleriesForStreamPicker({ search: s }); setPicker(p => p ? { ...p, images: imgs, loading: false } : null); }
+    catch { /* ignore */ }
+  }
+  async function addToStream(img) {
+    try {
+      await addImageToRealityStream(img.id);
+      setHints(await getRealityHints(1000));
+      setPicker(p => p ? { ...p, images: p.images.filter(i => i.id !== img.id) } : null);
+    } catch (e) { alert("הוספה נכשלה: " + (e.message || e)); }
+  }
+
   return (
     <div style={{ direction: "rtl" }}>
       <h2 className="hn-h2">🌊 זרם המציאות</h2>
@@ -153,7 +172,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
             </div>
           )}
           <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginBottom: 6 }}>הוסף מהמספרים הנפוצים בזרם:</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 130, overflowY: "auto" }}>
             {numOptions.slice(0, 24).map(({ n, k }) => (
               <button key={n} onClick={() => setBuilder(b => { const s = new Set(b.numbers); s.has(n) ? s.delete(n) : s.add(n); return { ...b, numbers: s }; })}
                 style={chip(P, builder.numbers.has(n))}>{n}<span style={{ marginInlineStart: 5, opacity: 0.7, fontSize: 11 }}>{k}</span></button>
@@ -181,8 +200,41 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
           </span>
         )}
         <span style={{ flex: 1 }} />
+        {isAdmin && <button onClick={() => picker ? setPicker(null) : openPicker()} style={chip(P, picker != null)} title="הוסף תמונה מכל הגלריות לזרם המציאות">🖼️ הוסף לזרם</button>}
         <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12 }}>{filtered.length} רמזים</span>
       </div>
+
+      {/* בורר תמונות מהגלריות לזרם (admin) */}
+      {picker && (
+        <div style={{ border: `1px dashed ${P.borderStrong}`, borderRadius: 14, background: P.cardSoft, padding: 14, marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+            <input value={picker.search} placeholder="חפש לפי שם, מספר או טקסט…" dir="rtl"
+              onChange={e => pickerSearch(e.target.value)}
+              style={{ flex: 1, minWidth: 160, background: P.card, border: `1px solid ${P.border}`, borderRadius: 8, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "7px 12px" }} />
+            <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12 }}>{picker.images.length} תמונות</span>
+            <button onClick={() => setPicker(null)} style={chip(P, false)}>✕ סגור</button>
+          </div>
+          {picker.loading
+            ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "14px 0" }}>טוען תמונות…</div>
+            : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(90px,1fr))", gap: 8, maxHeight: 340, overflowY: "auto" }}>
+                {picker.images.map(img => (
+                  <button key={img.id} onClick={() => addToStream(img)} title={`הוסף: ${img.name || img.id}`}
+                    style={{ cursor: "pointer", background: "none", border: `1.5px solid ${P.border}`, borderRadius: 10, overflow: "hidden", padding: 0, position: "relative", transition: "border-color .15s" }}>
+                    <img src={img.image_url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                    {(img.primary_value ?? (img.all_values || [])[0]) != null && (
+                      <span style={{ position: "absolute", bottom: 3, insetInlineStart: 3, background: "rgba(212,175,55,0.92)", color: "#1a0e00", fontFamily: F.mono, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "1px 5px" }}>
+                        {img.primary_value ?? (img.all_values || [])[0]}
+                      </span>
+                    )}
+                    <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0)", color: "#fff", fontSize: 22, opacity: 0, transition: "all .15s" }}
+                      className="picker-add-overlay">➕</span>
+                  </button>
+                ))}
+                {!picker.images.length && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, gridColumn: "1/-1", padding: "20px 0", textAlign: "center" }}>לא נמצאו תמונות מחוץ לזרם</div>}
+              </div>
+          }
+        </div>
+      )}
 
       {/* ===== Hero — הרמז האחרון כ-Hero מסך-מלא (כשיש showHero) ===== */}
       {showHero && filtered.length > 0 && (() => {
@@ -198,7 +250,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
             style={{ cursor: "zoom-in", position: "relative", overflow: "hidden", borderRadius: 18, marginBottom: 18, minHeight: 260 }}
           >
             {h.image_url
-              ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "min(60vh, 560px)", objectFit: "cover", display: "block", borderRadius: 18 }} />
+              ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "min(60vh, 560px)", objectFit: "contain", display: "block", borderRadius: 18, background: "#09080f" }} />
               : <div style={{ height: 300, background: "linear-gradient(135deg, #1a1200, #0a0a0a)", borderRadius: 18 }} />
             }
             {/* overlay */}

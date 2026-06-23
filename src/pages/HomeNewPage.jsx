@@ -87,11 +87,10 @@ export default function HomeNewPage() {
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
 
-  // «עדכונים אחרונים» = פוסטים + רמזים שעלו לזרם המציאות, ממוזגים לפי תאריך (החדש למעלה).
-  // לחיצה על רמז גוללת אל גלריית זרם המציאות בדף הבית (לא משכפלת — מפנה).
+  // «עדכונים אחרונים» = פוסטים + גלריות מומלצות, ממוזגים לפי תאריך (החדש למעלה).
+  // הרמזים עצמם מוצגים בנפרד בסקשן "זרם המציאות" — לא משכפלים כאן.
   const updatesFeed = useMemo(() => {
     const ps = (posts || []).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
-    const hs = (hints || []).slice(0, 4).map(h => ({ kind: "hint", date: effDate(h), data: h }));
     // גלריות רמזים מומלצות — תאריך/כריכה לפי הרמז העדכני ביותר שמתאים לסט
     const ss = (homeSets || []).map(s => {
       const ns = new Set(s.numbers || []);
@@ -99,7 +98,7 @@ export default function HomeNewPage() {
       for (const h of (hints || [])) if (hintNums(h).some(n => ns.has(n))) { const d = effDate(h); if (d > date) { date = d; cover = h.image_url; } }
       return { kind: "set", date, data: { ...s, cover } };
     }).filter(x => x.date > 0);
-    return [...ps, ...hs, ...ss].sort((a, b) => b.date - a.date).slice(0, 8);
+    return [...ps, ...ss].sort((a, b) => b.date - a.date).slice(0, 8);
   }, [posts, hints, homeSets]);
   const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 

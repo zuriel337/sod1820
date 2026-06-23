@@ -807,6 +807,36 @@ export async function findGalleryImages(term, limit = 10) {
     .not('image_url', 'is', null).limit(limit);
   return data || [];
 }
+
+// ===== כפתור «הוסף לזרם» — מכל הגלריות ל-source='update' =====
+export async function getGalleriesForStreamPicker({ limit = 300, search = "" } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('gallery_images')
+    .select('id,image_url,name,primary_value,all_values,occurred_at,source,gallery_id')
+    .not('image_url', 'is', null)
+    .not('source', 'eq', 'update')
+    .not('curator_hidden', 'is', true);
+  if (search.trim()) {
+    const t = search.trim();
+    if (/^\d+$/.test(t)) { const n = parseInt(t, 10); q = q.or(`primary_value.eq.${n},all_values.cs.{${n}}`); }
+    else q = q.or(`name.ilike.%${t}%,ocr_text.ilike.%${t}%`);
+  }
+  const { data } = await q
+    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
+
+export async function addImageToRealityStream(id, occurredAt = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('gallery_images')
+    .update({ source: 'update', occurred_at: occurredAt ?? new Date().toISOString() })
+    .eq('id', id)
+    .select('id').single();
+  if (error) throw error;
+  return data;
+}
 export async function createTopicCardDraft(card) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('topic_cards')
