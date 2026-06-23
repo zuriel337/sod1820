@@ -1146,3 +1146,39 @@ export async function getHarvestedPosts(value, lim = 6) {
     return data || [];
   } catch { return []; }
 }
+
+// ✦ topic_cards שמכילים מספר — לרצועת גילוי בדף המספר.
+export async function getTopicCardsByNumber(value, limit = 6) {
+  if (!supabase || !value) return [];
+  try {
+    const { data } = await supabase.from('topic_cards')
+      .select('slug, title, numbers, quality')
+      .eq('status', 'approved')
+      .contains('numbers', [value])
+      .order('quality', { ascending: false })
+      .limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
+// 🔍 autocomplete עברי — חיפוש prefix בטבלת bidim (שיטת רגיל).
+export async function searchPhrases(prefix, limit = 8) {
+  if (!supabase || !prefix || prefix.length < 2) return [];
+  try {
+    const { data } = await supabase.from('bidim')
+      .select('phrase, value')
+      .eq('method', 'רגיל')
+      .ilike('phrase', `${prefix}%`)
+      .order('value', { ascending: true })
+      .limit(limit * 3);
+    const seen = new Set(), out = [];
+    for (const r of (data || [])) {
+      if (!seen.has(r.phrase)) {
+        seen.add(r.phrase);
+        out.push(r);
+        if (out.length >= limit) break;
+      }
+    }
+    return out;
+  } catch { return []; }
+}
