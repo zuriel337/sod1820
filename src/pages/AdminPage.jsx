@@ -594,6 +594,16 @@ function CurationTab() {
     } catch (e) { alert(e.message || e); }
     finally { setBusy(null); }
   }
+  // 🆕 הוסף/הסר מהפיד «עדכוני גלריה» (source='update'). חוזר ל-'manual' בביטול.
+  async function toggleUpdate(im) {
+    setBusy(im.id);
+    const next = im.source === "update" ? "manual" : "update";
+    try {
+      const saved = await setImageCuration(im.id, { source: next });
+      setRows(rs => rs.map(r => r.id === im.id ? { ...r, source: saved?.source ?? next } : r));
+    } catch (e) { alert(e.message || e); }
+    finally { setBusy(null); }
+  }
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
@@ -625,6 +635,7 @@ function CurationTab() {
               <div style={{ position: "relative", aspectRatio: "4/3", background: `center/cover no-repeat url(${im.image_url})` }}>
                 <span style={{ position: "absolute", top: 6, insetInlineStart: 6, background: "rgba(8,5,2,0.8)", color: C.goldBright, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>⭐ {im.importance ?? 0}</span>
                 {im.curator_hidden && <span style={{ position: "absolute", top: 6, insetInlineEnd: 6, background: "rgba(8,5,2,0.8)", color: "#d98a92", fontFamily: F.heading, fontSize: 11, borderRadius: 999, padding: "2px 8px" }}>מוסתר</span>}
+                {im.source === "update" && !im.curator_hidden && <span style={{ position: "absolute", top: 6, insetInlineEnd: 6, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 8px" }}>🆕 בפיד</span>}
               </div>
               <div style={{ padding: "10px 12px" }}>
                 {(im.ocr_numbers || []).length > 0 && <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5, marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} dir="ltr">{(im.ocr_numbers || []).slice(0, 8).join(" · ")}</div>}
@@ -632,6 +643,7 @@ function CurationTab() {
                   <button disabled={busy === im.id} onClick={() => bump(im, 10)} style={curBtn}>⭐ +</button>
                   <button disabled={busy === im.id} onClick={() => bump(im, -10)} style={curBtn}>−</button>
                   <button disabled={busy === im.id} onClick={() => toggleHide(im)} style={{ ...curBtn, borderColor: im.curator_hidden ? C.borderGold : C.border }}>{im.curator_hidden ? "👁 הצג" : "👁 הסתר"}</button>
+                  <button disabled={busy === im.id} onClick={() => toggleUpdate(im)} title="הוסף/הסר מהפיד «עדכוני גלריה»" style={{ ...curBtn, borderColor: im.source === "update" ? "#e0556a" : C.border, color: im.source === "update" ? "#e0556a" : C.goldLight }}>{im.source === "update" ? "🆕 בפיד ✓" : "🆕 לפיד"}</button>
                 </div>
               </div>
             </div>
@@ -2069,6 +2081,13 @@ function SetsTab() {
     catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
   async function remove(id) { if (!window.confirm("למחוק את הסט?")) return; try { await deleteNumberSet(id); load(); } catch (e) { alert(e.message); } }
+  // ⭐ שליטה אילו סדרות מוצגות גם בדף הבית (שומר description/sort_order הקיימים)
+  async function toggleHome(s) {
+    try {
+      await saveNumberSet({ id: s.id, name: s.name, numbers: s.numbers, description: s.description, sort_order: s.sort_order, show_on_home: !s.show_on_home });
+      load();
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
   if (!sets) return <Loading />;
   return (
     <div style={{ display: "grid", gap: 14 }}>
@@ -2100,7 +2119,9 @@ function SetsTab() {
           <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{s.name}</span>
           <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 13 }}>{(s.numbers || []).join(" · ")}</span>
           {s.image_order?.length > 0 && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>· {s.image_order.length} מובלטות</span>}
+          {s.show_on_home && <span style={{ color: "#e0b34a", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>· ⭐ בדף הבית</span>}
           <span style={{ flex: 1 }} />
+          <button onClick={() => toggleHome(s)} title="הצג/הסתר את הסדרה בדף הבית" style={{ ...iconBtn, color: s.show_on_home ? "#e0b34a" : C.muted }}>{s.show_on_home ? "⭐ בבית ✓" : "☆ הצג בבית"}</button>
           <button onClick={() => setDraft({ id: s.id, name: s.name, numbers: (s.numbers || []).join(", ") })} style={iconBtn}>✎ ערוך</button>
           <button onClick={() => remove(s.id)} style={iconBtn}>🗑 מחק</button>
         </div>

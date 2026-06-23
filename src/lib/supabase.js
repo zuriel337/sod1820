@@ -156,10 +156,11 @@ export async function getNumberSets() {
     .eq('is_active', true).order('sort_order', { ascending: true }).order('created_at', { ascending: true });
   return data || [];
 }
-export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined }) {
+export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined, show_on_home = undefined }) {
   if (!supabase) throw new Error('no supabase');
   const row = { name, numbers, description, sort_order };
   if (image_order !== undefined) row.image_order = image_order;
+  if (show_on_home !== undefined) row.show_on_home = show_on_home;
   if (id) {
     const { data, error } = await supabase.from('number_sets')
       .update({ ...row, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
@@ -172,6 +173,29 @@ export async function deleteNumberSet(id) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('number_sets').delete().eq('id', id);
   if (error) throw error;
+}
+// סטים שצוריאל סימן «הצג בדף הבית» — שליטה אילו סדרות גימטריה מהגלריה מופיעות בבית.
+export async function getHomeSets() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('number_sets').select('*')
+    .eq('is_active', true).eq('show_on_home', true)
+    .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  return data || [];
+}
+
+// ===== פיד «עדכוני גלריה» — עדשה על gallery_images (source='update') =====
+// תצלומי-עדכון טריים (חדשות/ממצאים) — לא טבלה חדשה, רק שאילתה. החדש למעלה.
+export async function getGalleryUpdates(limit = 60) {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance')
+    .eq('source', 'update')
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
 }
 
 // תחנות ציר ההתגלות (לגשר בין סט מספרים לאירועים)
@@ -665,7 +689,7 @@ export async function getConvergenceEntities(nodeId) {
 export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
   if (!supabase) return [];
   let q = supabase.from('gallery_images')
-    .select('id,image_url,name,ocr_numbers,occurred_at,importance,curator_hidden')
+    .select('id,image_url,name,ocr_numbers,occurred_at,importance,curator_hidden,source')
     .not('image_url', 'is', null);
   const t = (term || '').trim();
   if (t) {
@@ -693,7 +717,7 @@ export async function searchArchiveOcrIds(q, { limit = 800 } = {}) {
 export async function setImageCuration(id, patch) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('gallery_images')
-    .update(patch).eq('id', id).select('id,importance,curator_hidden').maybeSingle();
+    .update(patch).eq('id', id).select('id,importance,curator_hidden,source').maybeSingle();
   if (error) throw error;
   return data;
 }

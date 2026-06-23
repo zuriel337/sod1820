@@ -260,6 +260,14 @@ export default function ArchivePage() {
             {gals.length} גלריות · {total.toLocaleString()} תמונות · כל תמונה מחוברת למספר שלה
           </div>
         )}
+        <div style={{ marginTop: 14 }}>
+          <Link to="/gallery-updates" style={{
+            display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+            background: "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(8,5,2,0.4))",
+            border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999,
+            fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 20px",
+          }}>🆕 עדכוני גלריה — הממצאים הטריים ביותר ←</Link>
+        </div>
       </div>
 
       {/* טאבים */}
