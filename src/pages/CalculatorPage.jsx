@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { getWallRecent, getWallPopular, getWallCount } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
+import { maskGibberish } from "../lib/nameMask.js";
 
 // ===== מחשבון הגימטריה (ניסוי ויראלי) — דף לבן עצמאי =====
 // כל מילה/שם שמחשבים נרשם ל"קיר החי" (gematria_wall) ומופיע לכולם.
@@ -145,7 +146,7 @@ function Wall({ onPick }) {
         // אחרונים — רשימה חיה עם "נוסף לפני X דקות"
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {rows.map((r, i) => (
-            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${r.phrase} = ${r.ragil}`} style={{
+            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${maskGibberish(r.phrase)} = ${r.ragil}`} style={{
               cursor: "pointer", display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "right",
               background: L.panel, border: `1px solid ${L.line}`, borderRadius: 12, padding: "10px 14px",
             }}>
@@ -153,7 +154,7 @@ function Wall({ onPick }) {
                 background: L.active, color: L.goldDeep, fontFamily: F.mono, fontSize: 14, fontWeight: 800,
                 borderRadius: 999, padding: "4px 12px", minWidth: 34, textAlign: "center",
               }}>{r.ragil}</span>
-              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 15.5, fontWeight: 600, flex: 1 }}>{r.phrase}</span>
+              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 15.5, fontWeight: 600, flex: 1 }}>{maskGibberish(r.phrase)}</span>
               <span style={{ color: i === 0 ? "#1a8f3c" : L.sub, fontFamily: F.body, fontSize: 12, whiteSpace: "nowrap" }}>
                 {i === 0 ? "🟢 " : ""}{timeAgo(r.last_at)}
               </span>
@@ -164,12 +165,12 @@ function Wall({ onPick }) {
         // הכי מחושבים — ענן שבבים
         <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
           {rows.map((r) => (
-            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${r.phrase} = ${r.ragil} · חושב ${r.hits} פעמים`} style={{
+            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${maskGibberish(r.phrase)} = ${r.ragil} · חושב ${r.hits} פעמים`} style={{
               cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8,
               background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999,
               padding: "6px 6px 6px 14px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}>
-              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600 }}>{r.phrase}</span>
+              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600 }}>{maskGibberish(r.phrase)}</span>
               <span style={{
                 background: L.active, color: L.goldDeep, fontFamily: F.mono, fontSize: 13, fontWeight: 800,
                 borderRadius: 999, padding: "3px 10px", minWidth: 28, textAlign: "center",

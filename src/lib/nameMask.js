@@ -56,9 +56,47 @@ export function looksLikeName(term) {
 
 const head2 = w => { const h = [...String(w || "")].filter(c => HEB.test(c)).slice(0, 2).join(""); return (h || "★") + "★★★"; };
 
+// ✶ זיהוי ג'יבריש — מילים שאי אפשר לקרוא תחבירית (מקשמוש/רצף א״ב/אות חוזרת/סופית באמצע).
+// היוריסטיקה מבנית בלבד (בלי מילון) — כדי לא למסך שמות אמיתיים שאינם במאגר.
+const GIB = "★★★";
+const SOFIT = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+const ALEFBET = "אבגדהוזחטיכלמנסעפצקרשת";
+const OK_PUNCT = /[\d׳״'"־\-]/;
+
+// מילה תחבירית? false = ג'יבריש (אם מילה אחת בביטוי נכשלת — כל הביטוי לא-קריא).
+export function isReadable(term) {
+  const t = String(term || "").trim();
+  if (!t) return true;
+  for (const tok of t.split(/[\s\-־]+/)) {
+    if (!tok) continue;
+    if (/^\d+$/.test(tok)) continue;                                  // מספר טהור — קריא
+    // אות לא-עברית שאינה ספרה/פיסוק מותר → לטינית/סקריפט אחר
+    if ([...tok].some(c => !HEB.test(c) && !OK_PUNCT.test(c))) return false;
+    const heb = [...tok].filter(c => HEB.test(c));
+    if (!heb.length) continue;
+    if (heb.length >= 14) return false;                               // אורך קיצון = מקשמוש
+    for (let i = 0; i < heb.length; i++)                              // סופית שלא בסוף = פסול תחבירית
+      if (SOFIT[heb[i]] && i !== heb.length - 1) return false;
+    const s = heb.join("");
+    if (/(.)\1\1/.test(s)) return false;                             // אות ×3 ברצף
+    const norm = heb.map(c => SOFIT[c] || c);                         // רצף א״ב עולה ≥4
+    let run = 1;
+    for (let i = 1; i < norm.length; i++) {
+      const a = ALEFBET.indexOf(norm[i - 1]), b = ALEFBET.indexOf(norm[i]);
+      if (a >= 0 && b === a + 1) { if (++run >= 4) return false; } else run = 1;
+    }
+  }
+  return true;
+}
+
+// מסכת ג'יבריש לתצוגה גולמית (קיר): לא-קריא → ★★★, אחרת המילה כמות שהיא.
+export const maskGibberish = t => isReadable(t) ? t : GIB;
+
 // מסכה: «פלוני בן/בת אלמוני» → מוחקים לגמרי את שם ההורה ומסתירים את הפרטי (2 אותיות).
 //        שם פרטי + משפחה → רק השם הפרטי + כוכביות. שם בודד → 2 אותיות. אדמין → ללא מסכה.
+//        ג'יבריש → ★★★ לכולם (כולל אדמין) — רעש, לא פרטיות.
 export function maskTerm(term, isAdmin) {
+  if (!isReadable(term)) return GIB;
   if (isAdmin) return term;
   if (!looksLikeName(term)) return term;
   const words = String(term).trim().split(/\s+/);
@@ -67,8 +105,8 @@ export function maskTerm(term, isAdmin) {
   return head2(words[0]);                               // שם בודד → 2 אותיות
 }
 
-// יעד לינק בטוח: לשם מוסתר (לא-אדמין) → לפי הערך המספרי (לא חושף את השם ב-URL).
+// יעד לינק בטוח: לשם מוסתר (לא-אדמין) או לג'יבריש → לפי הערך המספרי (לא חושף את המחרוזת ב-URL).
 export function safeSearchHref(term, value, isAdmin) {
-  if (!isAdmin && looksLikeName(term) && value != null) return `/number/${value}`;
+  if (value != null && (!isReadable(term) || (!isAdmin && looksLikeName(term)))) return `/number/${value}`;
   return `/number/${encodeURIComponent(term)}`;
 }
