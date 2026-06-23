@@ -6,6 +6,7 @@ import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { isNewSince } from "../lib/crossesNew.js";
 import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
+import Lightbox from "./Lightbox.jsx";
 
 // ===== זרם המציאות — «קיר חי» (Masonry) של רמזים =====
 // כל כרטיס = רמז: תמונה בגובה טבעי + מספר דומיננטי + תאריך + תגיות. גלילה אינסופית (IntersectionObserver).
@@ -14,11 +15,13 @@ import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
 
 const PAGE = 12;
 
-export default function RealityStream({ hints = [], cutoff, compact = false, onPick, palette }) {
+// onLightbox(hints, idx) — אם מסופק, הורה מנהל את הלייטבוקס (לתמיכה ב-hero מאוחד).
+// אם לא מסופק, הרכיב מנהל לייטבוקס פנימי עם <Lightbox> ומאפשר ניווט בין כל הרמזים.
+export default function RealityStream({ hints = [], cutoff, compact = false, onPick, palette, onLightbox }) {
   const auto = usePalette();
   const P = palette || auto;
   const [visible, setVisible] = useState(compact ? 8 : PAGE);
-  const [lightbox, setLightbox] = useState(null);
+  const [lbIdx, setLbIdx] = useState(null);
   const sentinel = useRef(null);
 
   useEffect(() => { setVisible(compact ? 8 : PAGE); }, [hints, compact]);
@@ -85,7 +88,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
           const desc = !title && h.description ? stripHtml(h.description) : null;
           return (
             <article key={h.id} className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
-              <div className="rs-imgwrap" onClick={() => setLightbox(h)}>
+              <div className="rs-imgwrap" onClick={() => onLightbox ? onLightbox(hints, idx) : setLbIdx(idx)}>
                 {h.image_url
                   ? <img src={h.image_url} alt={title || ""} loading="lazy" />
                   : <div style={{ height: 160, background: P.cardGrad }} />}
@@ -122,21 +125,8 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
         visible < hints.length && <div ref={sentinel} style={{ height: 1 }} aria-hidden />
       )}
 
-      {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.95)", overflowY: "auto", padding: "32px 16px", direction: "rtl" }}>
-          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 820, margin: "0 auto" }}>
-            <div style={{ textAlign: "left", marginBottom: 8 }}>
-              <button onClick={() => setLightbox(null)} style={{ background: "none", border: "1px solid #ffffff55", color: "#fff", fontSize: 22, cursor: "pointer", borderRadius: 8, width: 42, height: 42 }}>×</button>
-            </div>
-            <img src={lightbox.image_url} alt={cleanName(lightbox.name) || ""} style={{ width: "100%", display: "block", borderRadius: 12 }} />
-            {(cleanName(lightbox.name) || lightbox.description) && (
-              <div style={{ color: "#eee", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, marginTop: 12, whiteSpace: "pre-wrap" }}>
-                {cleanName(lightbox.name) && <div style={{ fontFamily: F.regal, fontWeight: 700, marginBottom: 6 }}>{cleanName(lightbox.name)}</div>}
-                {lightbox.description && stripHtml(lightbox.description)}
-              </div>
-            )}
-          </div>
-        </div>
+      {!onLightbox && lbIdx != null && (
+        <Lightbox images={hints} initialIndex={lbIdx} onClose={() => setLbIdx(null)} />
       )}
     </div>
   );

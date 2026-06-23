@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
-import { computePulse, filterHints, hintNums } from "../lib/reality.js";
+import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
+import { computePulse, filterHints, hintNums, domNum, shortDate } from "../lib/reality.js";
+import { cleanName } from "../lib/galleryName.js";
 import RealityPulse from "./RealityPulse.jsx";
 import RealityStream from "./RealityStream.jsx";
+import Lightbox from "./Lightbox.jsx";
 
 // ===== «עולם המציאות» — דופק + גלריות-רמזים שמורות + סינון דינמי + קיר חי =====
 // «גלריות רמזים» = number_sets שמורים בשם (מתכונת הגלריות הישנה, בצורה חדשה ומתכווננת) —
@@ -14,7 +17,7 @@ import RealityStream from "./RealityStream.jsx";
 // מומלצות צפות גם לדף הבית, לעדכונים האחרונים ולדף הגלריות. חוק העץ האחד.
 // forceDark = כפיית פלטה כהה (בתוך הארכיון/הגלריה שתמיד שחורים). בבית — הבורר הרגיל.
 
-export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null }) {
+export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false }) {
   const auto = usePalette();
   const P = forceDark ? PALETTES.dark : auto;
   const { isAdmin } = useAuth();
@@ -26,6 +29,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const [streamPeriod, setStreamPeriod] = useState(null); // null=הכל
   const [rare, setRare] = useState(false);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set} | null
+  const [lbIdx, setLbIdx] = useState(null);           // לייטבוקס מאוחד (שולט כשיש Hero)
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
   useEffect(() => {
@@ -180,7 +184,63 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12 }}>{filtered.length} רמזים</span>
       </div>
 
-      <RealityStream hints={filtered} cutoff={cutoff} compact={compact} onPick={setValue} palette={P} />
+      {/* ===== Hero — הרמז האחרון כ-Hero מסך-מלא (כשיש showHero) ===== */}
+      {showHero && filtered.length > 0 && (() => {
+        const h = filtered[0];
+        const v = domNum(h);
+        const title = cleanName(h?.name);
+        const date = shortDate(h);
+        const isFresh = isNewSince(h, cutoff);
+        return (
+          <div
+            className="rw-hero"
+            onClick={() => setLbIdx(0)}
+            style={{ cursor: "zoom-in", position: "relative", overflow: "hidden", borderRadius: 18, marginBottom: 18, minHeight: 260 }}
+          >
+            {h.image_url
+              ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "min(60vh, 560px)", objectFit: "cover", display: "block", borderRadius: 18 }} />
+              : <div style={{ height: 300, background: "linear-gradient(135deg, #1a1200, #0a0a0a)", borderRadius: 18 }} />
+            }
+            {/* overlay */}
+            <div style={{ position: "absolute", inset: 0, borderRadius: 18, background: "linear-gradient(180deg, rgba(0,0,0,0.22) 0%, transparent 32%, transparent 52%, rgba(0,0,0,0.72) 100%)", pointerEvents: "none" }} />
+            {/* badge חדש */}
+            {isFresh && (
+              <span style={{ position: "absolute", top: 14, insetInlineEnd: 14, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "3px 11px", zIndex: 2, animation: "hn-pulse 1.8s ease-in-out infinite" }}>
+                🆕 חדש
+              </span>
+            )}
+            {/* מספר דומיננטי ענק */}
+            {v != null && (
+              <Link
+                to={`/number/${v}`}
+                onClick={e => e.stopPropagation()}
+                style={{ position: "absolute", top: 14, insetInlineStart: 14, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(32px,5vw,62px)", borderRadius: 14, padding: "4px 18px", zIndex: 2, textDecoration: "none", lineHeight: 1.1 }}
+              >{v}</Link>
+            )}
+            {/* מידע תחתי */}
+            <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "18px 20px", zIndex: 2, direction: "rtl" }}>
+              {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(17px,2.5vw,24px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.8)", marginBottom: 4 }}>{title}</div>}
+              {date && <div style={{ color: "rgba(255,255,255,0.65)", fontFamily: F.heading, fontSize: 12.5 }}>🗓️ {date} · לחץ לפתיחה</div>}
+            </div>
+            {/* גבול זהב */}
+            <div style={{ position: "absolute", inset: 0, borderRadius: 18, boxShadow: "inset 0 0 0 1.5px rgba(212,175,55,0.28)", pointerEvents: "none" }} />
+          </div>
+        );
+      })()}
+
+      <RealityStream
+        hints={showHero && filtered.length > 0 ? filtered.slice(1) : filtered}
+        cutoff={cutoff}
+        compact={compact}
+        onPick={setValue}
+        palette={P}
+        onLightbox={showHero ? (_, relIdx) => setLbIdx(1 + relIdx) : undefined}
+      />
+
+      {/* לייטבוקס מאוחד — מכסה hero + גריד */}
+      {showHero && lbIdx != null && (
+        <Lightbox images={filtered} initialIndex={lbIdx} onClose={() => setLbIdx(null)} />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
+import RealityWorld from "../components/RealityWorld.jsx";
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
 function BrandStrip() {
@@ -500,8 +501,48 @@ export default function HomePage() {
       {/* מספרי המפתח (בהקמה) — ליד אזור הגלריות; יתחבר לגלריות */}
       <HomeDashboard />
 
-      {/* ארכיון ההתגלות — הריבוע הגדול (מקום הגלריות) */}
-      <ArchiveBox />
+      {/* ===== זרם המציאות — Dark Island מלכותי ===== */}
+      {/* background כהה קבוע בלי קשר למצב יום/לילה (forceDark). Hero = הרמז האחרון. */}
+      <section className="reality-dark-island">
+        <style>{`
+          .reality-dark-island {
+            background: #09080f;
+            color-scheme: dark;
+            padding: 48px 18px 56px;
+            margin-top: 8px;
+          }
+          .reality-dark-island h2.hn-h2,
+          .reality-dark-island .hn-sub {
+            color: #d4af37;
+          }
+          .reality-dark-island .rw-hero img {
+            animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both;
+          }
+          @keyframes rw-hero-in {
+            from { opacity: 0; transform: scale(.98); }
+            to   { opacity: 1; transform: scale(1); }
+          }
+          .reality-dark-island .rw-hero:hover img {
+            filter: brightness(1.05);
+            transition: filter .4s;
+          }
+        `}</style>
+        <div style={{ maxWidth: 1360, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
+            <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
+              🌊 זרם המציאות
+            </h2>
+            <span style={{ flex: 1 }} />
+            <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
+              הזרם המלא →
+            </Link>
+          </div>
+          <p style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, marginTop: 0, marginBottom: 22 }}>
+            הרמזים האחרונים שעלו מהמציאות — כל תמונה מקשרת למספר בגרף הידע.
+          </p>
+          <RealityWorld compact forceDark showHero />
+        </div>
+      </section>
 
       <style>{`
         @media (max-width: 1080px) {
