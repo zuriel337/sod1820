@@ -15,6 +15,7 @@ import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+import { track, trackWhatsapp } from "../lib/tracking.js";
 import { usePalette } from "../lib/palette.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
@@ -2252,19 +2253,22 @@ function ShareBar({ url, title, text }) {
   const fb = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
   const x  = `https://twitter.com/intent/tweet?text=${enc(body)}&url=${enc(url)}`;
 
+  const slug = (() => { try { return new URL(url).pathname.replace(/^\//, ""); } catch { return url; } })();
   const btns = [
-    { label: "וואטסאפ", emoji: "💬", href: wa, bg: "#1faa55" },
-    { label: "טלגרם", emoji: "✈️", href: tg, bg: "#2aabee" },
-    { label: "פייסבוק", emoji: "👍", href: fb, bg: "#1877f2" },
-    { label: "X", emoji: "𝕏", href: x, bg: "#111" },
+    { label: "וואטסאפ", emoji: "💬", href: wa, bg: "#1faa55", platform: "whatsapp" },
+    { label: "טלגרם", emoji: "✈️", href: tg, bg: "#2aabee", platform: "telegram" },
+    { label: "פייסבוק", emoji: "👍", href: fb, bg: "#1877f2", platform: "facebook" },
+    { label: "X", emoji: "𝕏", href: x, bg: "#111", platform: "x" },
   ];
 
   function copy() {
+    track("share", slug, "share", { platform: "copy" });
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
     } else { window.prompt("העתיקו את הקישור:", url); }
   }
   function native() {
+    track("share", slug, "share", { platform: "native" });
     if (navigator.share) navigator.share({ title, text: body, url }).catch(() => {});
   }
   const canNative = typeof navigator !== "undefined" && !!navigator.share;
@@ -2279,7 +2283,9 @@ function ShareBar({ url, title, text }) {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
       {btns.map(b => (
-        <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer" style={{ ...base, background: b.bg }}
+        <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer"
+          style={{ ...base, background: b.bg }}
+          onClick={() => { if (b.platform === "whatsapp") trackWhatsapp(slug); else track("share", slug, "share", { platform: b.platform }); }}
           onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.4)"; }}
           onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
           <span aria-hidden>{b.emoji}</span>{b.label}

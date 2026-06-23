@@ -10,6 +10,7 @@ import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 
@@ -41,6 +42,7 @@ const imgNums = im => [...new Set([...(im.all_values || []), ...(im.primary_valu
 export default function ArchivePage() {
   const { isAdmin } = useAuth();
   const loc = useLocation();
+  useEffect(() => { track("reality-stream"); }, []); // eslint-disable-line
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(loc.search).get("tab");
     return t === "galleries" ? "galleries" : t === "pool" ? "pool" : "reality";

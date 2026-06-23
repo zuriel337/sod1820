@@ -24,6 +24,7 @@ import GematriaCalculator from "../components/GematriaCalculator.jsx";
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "popularity", label: "📈 פופולריות" },
   { key: "research", label: "🧪 מעבדת צוריאל" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
@@ -90,6 +91,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "popularity" && <PopularityTab />}
       {tab === "research" && <ResearchTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
@@ -1161,6 +1163,154 @@ function buildScale(maxV, scale) {
   const top = nf * p;
   const ticks = [0, .25, .5, .75, 1].map(fr => ({ pct: fr * 100, label: fmt(top * fr) }));
   return { h: v => Math.min(100, v / top * 100), ticks };
+}
+
+/// ===== פופולריות מדורים — visitor_events =====
+const WINDOWS = [
+  { label: "היום", days: 1 },
+  { label: "7 ימים", days: 7 },
+  { label: "30 ימים", days: 30 },
+  { label: "הכל", days: 0 },
+];
+const SECTION_LABELS = {
+  home: "דף הבית", number: "מספרים", convergence: "התכנסויות",
+  post: "פוסטים", "reality-stream": "זרם המציאות",
+  "beit-midrash": "בית המדרש", timeline: "ציר הזמן",
+  share: "שיתופים",
+};
+
+function PopularityTab() {
+  const [win, setWin] = useState(7);
+  const [sections, setSections] = useState([]);
+  const [topNums, setTopNums] = useState([]);
+  const [topImgs, setTopImgs] = useState([]);
+  const [topWa, setTopWa] = useState([]);
+  const [uniq, setUniq] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    import("../lib/supabase.js").then(({ supabase }) => {
+      if (!supabase) return;
+      setLoading(true);
+      const since = win > 0
+        ? new Date(Date.now() - win * 86400000).toISOString()
+        : "2020-01-01T00:00:00Z";
+
+      const agg = (arr, key) => {
+        const cnt = {};
+        arr.forEach(r => { const v = r[key]; if (v) cnt[v] = (cnt[v] || 0) + 1; });
+        return Object.entries(cnt).sort((a, b) => b[1] - a[1]);
+      };
+
+      Promise.all([
+        // כל הנתונים בשאילתה אחת (max 2000 שורות אחרונות)
+        supabase.from("visitor_events")
+          .select("section, slug, event_type, meta, visitor_id")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(2000)
+          .then(({ data }) => {
+            const rows = data || [];
+            // sections
+            const secCnt = {};
+            rows.forEach(r => { const s = r.section; if (s) secCnt[s] = (secCnt[s] || 0) + 1; });
+            setSections(Object.entries(secCnt).sort((a,b)=>b[1]-a[1]).map(([section,count])=>({section,count})));
+            // top numbers
+            const numRows = rows.filter(r => r.section === "number");
+            setTopNums(agg(numRows, "slug").slice(0, 10));
+            // top image clicks
+            const imgCnt = {};
+            rows.filter(r => r.event_type === "image_click").forEach(r => { const v = r.meta?.value; if (v) imgCnt[v] = (imgCnt[v] || 0) + 1; });
+            setTopImgs(Object.entries(imgCnt).sort((a,b)=>b[1]-a[1]).slice(0, 10));
+            // WhatsApp
+            const waRows = rows.filter(r => r.event_type === "share" && r.meta?.platform === "whatsapp");
+            setTopWa(agg(waRows, "slug").slice(0, 8));
+            // גולשים ייחודיים
+            setUniq(new Set(rows.map(r => r.visitor_id)).size);
+          }).catch(() => {}),
+      ]).finally(() => setLoading(false));
+    });
+  }, [win]);
+
+  const maxSec = sections.reduce((m, r) => Math.max(m, r.count || 0), 1);
+
+  return (
+    <div style={{ display: "grid", gap: 22 }}>
+      {/* בורר חלון זמן */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {WINDOWS.map(w => (
+          <button key={w.days} onClick={() => setWin(w.days)} style={{
+            cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
+            padding: "6px 16px", borderRadius: 999,
+            border: `1px solid ${win === w.days ? C.gold : C.border}`,
+            background: win === w.days ? "rgba(212,175,55,0.15)" : "transparent",
+            color: win === w.days ? C.goldBright : C.muted,
+          }}>{w.label}</button>
+        ))}
+        {uniq != null && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, marginRight: "auto", alignSelf: "center" }}>גולשים ייחודיים: <b style={{ color: C.goldBright }}>{uniq}</b></span>}
+      </div>
+      {loading && <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 14, textAlign: "center" }}>טוען…</div>}
+
+      {/* TOP מדורים — bar chart */}
+      {sections.length > 0 && (
+        <div style={{ ...card }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>📊 מדורים פופולריים</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {sections.map(r => (
+              <div key={r.section} style={{ display: "grid", gridTemplateColumns: "110px 1fr 40px", alignItems: "center", gap: 10 }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5 }}>{SECTION_LABELS[r.section] || r.section}</span>
+                <div style={{ background: C.bgGlow, borderRadius: 999, height: 10, overflow: "hidden" }}>
+                  <div style={{ height: "100%", background: `linear-gradient(90deg, ${C.gold}, ${C.goldBright})`, width: `${Math.round((r.count / maxSec) * 100)}%`, borderRadius: 999, transition: "width .4s" }} />
+                </div>
+                <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, textAlign: "left" }}>{r.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
+        {/* TOP מספרים */}
+        {topNums.length > 0 && (
+          <div style={{ ...card }}>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 12 }}>🔢 מספרים חמים</div>
+            {topNums.map(([slug, cnt]) => (
+              <div key={slug} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${C.border}` }}>
+                <a href={`/number/${slug}`} style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 13, textDecoration: "none" }}>{slug}</a>
+                <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>{cnt}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* TOP תמונות שנלחצו */}
+        {topImgs.length > 0 && (
+          <div style={{ ...card }}>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 12 }}>🖼 תמונות בזרם (לחיצות)</div>
+            {topImgs.map(([val, cnt]) => (
+              <div key={val} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5 }}>ערך {val}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>{cnt}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* TOP וואצאפ */}
+        {topWa.length > 0 && (
+          <div style={{ ...card }}>
+            <div style={{ color: "#1faa55", fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 12 }}>💬 שיתופי וואצאפ</div>
+            {topWa.map(([slug, cnt]) => (
+              <div key={slug} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${C.border}` }}>
+                <a href={`/${slug}`} style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, textDecoration: "none" }}>{slug}</a>
+                <span style={{ color: "#1faa55", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{cnt} 💬</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ===== מעטפת: שני תת-טאבים — חי (האתר החדש) / היסטוריה (Jetpack) =====

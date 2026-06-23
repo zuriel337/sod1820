@@ -11,6 +11,7 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
+import { track } from "../lib/tracking.js";
 
 // 🔗 הצלבות גלריה — תמונות שבהן הערך הוא משני (all_values), מקופל כברירת מחדל
 // כדי שהמספר המבוקש יישאר ממוקד ובולט, בלי לאבד את ההצלבות (הלב).
@@ -402,7 +403,8 @@ export default function EntityPage() {
     document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
     if (term) logSearch(term, value);
     if (value) {
-      logView("number", value);   // מעקב פנימי (אדמין בלבד) — לא מוצג לגולש
+      logView("number", value);
+      track("number", String(value));
       getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});
     }
     return () => { alive = false; };

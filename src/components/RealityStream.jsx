@@ -7,6 +7,7 @@ import { stripHtml } from "../lib/format.js";
 import { isNewSince } from "../lib/crossesNew.js";
 import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
 import Lightbox from "./Lightbox.jsx";
+import { trackImageClick } from "../lib/tracking.js";
 
 // ===== זרם המציאות — «קיר חי» (Masonry) של רמזים =====
 // כל כרטיס = רמז: תמונה בגובה טבעי + מספר דומיננטי + תאריך + תגיות. גלילה אינסופית (IntersectionObserver).
@@ -88,7 +89,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
           const desc = !title && h.description ? stripHtml(h.description) : null;
           return (
             <article key={h.id} className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
-              <div className="rs-imgwrap" onClick={() => onLightbox ? onLightbox(hints, idx) : setLbIdx(idx)}>
+              <div className="rs-imgwrap" onClick={() => { trackImageClick(h.id, domNum(h)); onLightbox ? onLightbox(hints, idx) : setLbIdx(idx); }}>
                 {h.image_url
                   ? <img src={h.image_url} alt={title || ""} loading="lazy" />
                   : <div style={{ height: 160, background: P.cardGrad }} />}

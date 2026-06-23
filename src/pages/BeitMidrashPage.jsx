@@ -6,6 +6,7 @@ import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate,
 import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
+import { track } from "../lib/tracking.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -1067,6 +1068,7 @@ export default function BeitMidrashPage() {
   const tabParam = params.get("tab");
   const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "convergence"));
   const { subscribed } = useSubscribed();
+  useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // מנורת עדכונים (ציר התכנסות) — per-user (whats_new_law): נדלקת רק על ציר שנוסף מאז ביקורך.
   const [hasUpdates, setHasUpdates] = useState(false);
   useEffect(() => {

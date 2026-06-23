@@ -6,6 +6,7 @@ import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } fro
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import Lightbox from "../components/Lightbox.jsx";
+import { track } from "../lib/tracking.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
 // כאן נפגשים כל החוטים: מספרים, תמונות, חיבורים ורמזים — שער לעולם שלם של קשרים.
@@ -23,6 +24,8 @@ export default function TopicPage() {
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
   const [lbIdx, setLbIdx] = useState(null); // lightbox גלריה
+
+  useEffect(() => { if (slug) track("convergence", slug); }, [slug]);
 
   useEffect(() => {
     let live = true;

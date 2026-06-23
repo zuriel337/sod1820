@@ -10,6 +10,7 @@ import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
+import { track } from "../lib/tracking.js";
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
 function BrandStrip() {
@@ -404,6 +405,8 @@ export default function HomePage() {
   const nav = useLegacyNav();
   const narrow = useIsNarrow();
   const [posts, setPosts] = useState([]);
+
+  useEffect(() => { track("home"); }, []);
 
   useEffect(() => {
     getPostsFromSupabase({ limit: 6, orderBy: "modified" })
