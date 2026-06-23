@@ -17,6 +17,7 @@ import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
+import { track } from "../lib/tracking.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -53,6 +54,7 @@ export default function HomeNewPage() {
 
   // בורר תמה לגולש חדש — מופיע פעם אחת (כשאין העדפה שמורה). ברירת המחדל כהה; כאן בוחרים.
   const [showThemePick, setShowThemePick] = useState(false);
+  useEffect(() => { track("home"); }, []);
   useEffect(() => { try { if (!localStorage.getItem("sod-theme")) setShowThemePick(true); } catch { /* ignore */ } }, []);
   const pickTheme = m => { setTheme(m); setShowThemePick(false); };
 
@@ -230,9 +232,26 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== 🌊 זרם המציאות + דופק המציאות (המספרים החיים) ===== */}
-      <section id="reality-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
-        <RealityWorld compact />
+      {/* ===== 🌊 זרם המציאות — Dark Island מלכותי ===== */}
+      {/* רקע כהה קבוע (#09080f) ללא תלות במצב יום/לילה — forceDark. Hero = הרמז האחרון. */}
+      <section id="reality-home" style={{ background: "#09080f", colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
+        <style>{`
+          #reality-home .rw-hero img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
+          @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
+          #reality-home .hn-h2, #reality-home h2 { color: #d4af37 !important; }
+        `}</style>
+        <div style={{ maxWidth: 1360, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
+            <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
+              🌊 זרם המציאות
+            </h2>
+            <span style={{ flex: 1 }} />
+            <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
+              הזרם המלא →
+            </Link>
+          </div>
+          <RealityWorld compact forceDark showHero />
+        </div>
       </section>
 
       {/* ===== אריחי עדשות ===== */}
