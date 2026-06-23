@@ -13,6 +13,7 @@ import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import Lightbox from "../components/Lightbox.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { usePalette } from "../lib/palette.js";
 
@@ -1864,6 +1865,12 @@ const POST_CONTENT_CSS = `
     border-radius: 2px;
     border: 1px solid ${C.border};
     filter: brightness(0.85) sepia(0.15);
+    cursor: zoom-in;
+    transition: filter .2s, box-shadow .2s;
+  }
+  .sod-post-content img:hover {
+    filter: brightness(1) sepia(0.05);
+    box-shadow: 0 6px 28px rgba(0,0,0,.5), 0 0 18px rgba(212,175,55,.25);
   }
 
   /* ── Jetpack "tiled gallery" + WordPress classic gallery ──
@@ -4134,6 +4141,10 @@ function PostPageBySlug({ onNav }) {
   const [saving, setSaving] = useState(false);
   const [saveErr, setSaveErr] = useState("");
 
+  // לייטבוקס לתמונות inline בתוכן הפוסט (לא בקרוסלה)
+  const [lbImages, setLbImages] = useState(null);
+  const [lbStartIdx, setLbStartIdx] = useState(0);
+
   function startEdit() {
     setDraft({ title: post?.title ?? "", excerpt: post?.excerpt ?? "", content: post?.content ?? "" });
     setSaveErr("");
@@ -4195,6 +4206,15 @@ function PostPageBySlug({ onNav }) {
     const el = contentRef.current;
     if (!el) return;
     const onClick = e => {
+      // תמונה inline (לא בתוך קרוסלה) → לייטבוקס
+      const imgEl = e.target.closest("img");
+      if (imgEl && el.contains(imgEl) && !imgEl.closest(".pic-carousel")) {
+        const allImgs = [...el.querySelectorAll("img:not(.pic-carousel img)")].filter(i => i.src);
+        const idx = allImgs.indexOf(imgEl);
+        setLbImages(allImgs.map(i => ({ image_url: i.src, name: i.alt || "" })));
+        setLbStartIdx(Math.max(0, idx));
+        return;
+      }
       const gemEl = e.target.closest("[data-gem]");
       if (gemEl && el.contains(gemEl)) {
         e.preventDefault();
@@ -4474,6 +4494,7 @@ function PostPageBySlug({ onNav }) {
                   : (seg ? <div key={"html" + i} dangerouslySetInnerHTML={{ __html: seg }} /> : null)
               )}
             </div>
+            {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
                 {tags.map(name => (
