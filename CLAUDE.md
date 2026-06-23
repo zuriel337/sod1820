@@ -21,6 +21,14 @@
 7. **קרוסלה RTL:** `translateX(-idx*100%)` (מסילה `direction:ltr`).
 8. **עץ אחד:** לא לשכפל תוכן — הפוסט מקור; חידוש מצביע דרך `insights.source_ref` ונפתח אינליין. **להפנות, לעולם לא להעתיק.**
 
+## 🌊 זרם המציאות + דופק המציאות (`reality_stream_law`)
+המעבר מ«גלריות נפרדות» ל**מוצר** בן 3 שכבות מעל `gallery_images` (קרא את החוק המלא: `select description from nodes where rule_id='reality_stream_law';` ו-`select body from project_codex where slug='reality_stream_law';`):
+1. **זרם המציאות** — עדשה אחת על `gallery_images where source='update'`. היחידה היא **רמז**: `image_url` + `primary_value` (מספר דומיננטי — מניע את הדופק) + `all_values` (תגיות-מספרים לסינון) + `occurred_at` (תאריך אירוע) + `name` (כותרת) + `ocr_meta.entities` (תגיות-נושא).
+2. **אוספים** — הגלריות הישנות (`hugeit_migration`/`manual`) כתערוכות מוזיאון. לא נמחקות.
+3. **דופק המציאות** — ספירה אוטומטית לפי חלון (היום/שבוע/חודש/כל-הזמנים) על `primary_value`, **ציר = `occurred_at` עם נפילה ל-`created_at`**, כולל מגמה (השבוע מול הקודם).
+- **חישוב טהור:** `src/lib/reality.js` (`computePulse`/`filterHints`/`computeTrend`). נתונים: `getRealityHints`. רכיבים: `RealityWorld`/`RealityStream`/`RealityPulse`. כל מספר = node בגרף → הרמז מפנה ל-`/number/:n` (`EntityPage`), **לא משכפל**.
+- **קביעת מספר בהעלאה:** `gallery-ocr` מציע (`ocr_numbers`), צוריאל מאשר את הדומיננטי. אסור לקבוע מספר דומיננטי אוטומטית בלי אישור.
+
 ## ⛔ חובה לפני הכל — קרא את ההגדרות הקנוניות (`agent_onboarding_law`)
 לפני כל עבודה שנוגעת ב**גימטריה / נתונים / לוגיקה** — **חובה לקרוא קודם** את ההגדרות שמקודדות ב-DB. אל תבנה/תשנה לוגיקה לפי ידע כללי או הנחה — **ההגדרות הנעולות של צוריאל פולייס גוברות תמיד**.
 1. `select rule_id, label, description, metadata from nodes where type='rule' and is_active;` — חוקי המערכת, כולל **הגדרות השיטות הנעולות**: `misratar_multi` (מסתתר = מילה-מילה, הרווח שובר את הרצף!), `ribua_definition`, `method_hierarchy_ragil_foundation` (רגיל=יסוד; סופיות ברגיל=רגיל לא 500-900), `method_priority`.

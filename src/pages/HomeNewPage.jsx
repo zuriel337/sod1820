@@ -14,7 +14,7 @@ import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
-import HomeFeed from "../components/HomeFeed.jsx";
+import RealityWorld from "../components/RealityWorld.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -176,9 +176,9 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== 🆕 פיד עדכוני גלריה + נבחרים מהסטים (ווידג'ט מאובזר) ===== */}
+      {/* ===== 🌊 זרם המציאות + דופק המציאות (המספרים החיים) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <HomeFeed />
+        <RealityWorld compact />
       </section>
 
       {/* ===== אריחי עדשות ===== */}
