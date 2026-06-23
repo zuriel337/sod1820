@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabase.js";
 import { C, F } from "../../theme.js";
-import { usePalette } from "../../lib/palette.js";
+import { usePalette, PALETTES } from "../../lib/palette.js";
 import { stripHtml } from "../../lib/format.js";
 
 // ===== ציר ההתגלות — הפס הקבוע =====
@@ -54,13 +54,16 @@ function dotStyle(ev, active, P) {
 }
 
 export default function RevelationAxis() {
-  const P = usePalette();
+  const auto = usePalette();
   const [events, setEvents] = useState([]);
   const [aiPosts, setAiPosts] = useState([]);
   const [hovered, setHovered] = useState(null);
   const [hoveredAi, setHoveredAi] = useState(null);
   const nav = useNavigate();
   const { pathname, hash } = useLocation();
+  // ציר ההתגלות עוקב אחרי בורר הצבע (יום/לילה) — אבל בעמודים שתמיד שחורים
+  // (הגלריות והציר המלא) הוא נשאר כהה, כדי להתאים לרקע הקבוע שלהם.
+  const P = (pathname.startsWith("/archive") || pathname.startsWith("/timeline")) ? PALETTES.dark : auto;
 
   useEffect(() => {
     supabase.from("nodes")
@@ -132,7 +135,7 @@ export default function RevelationAxis() {
             {hoveredAi?.wp_id === p.wp_id && (
               <div style={{
                 position: "absolute", right: -14, transform: "translateX(100%)", width: 250,
-                background: "rgba(10,7,16,0.96)", border: `1px solid ${AI_BLUE}66`,
+                background: P.card, border: `1px solid ${AI_BLUE}66`,
                 borderRadius: 12, padding: "13px 15px", direction: "rtl", zIndex: 5,
                 boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 26px ${AI_BLUE}44`,
               }}>
@@ -140,7 +143,7 @@ export default function RevelationAxis() {
                   border: `1px solid ${AI_BLUE}66`, color: AI_BLUE, fontFamily: F.heading, fontSize: 10, letterSpacing: 1, fontWeight: 700 }}>
                   🔵 עדכון AI
                 </div>
-                <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 13, fontWeight: 700, lineHeight: 1.55 }}>
+                <div style={{ color: P.accentText, fontFamily: F.royal, fontSize: 13, fontWeight: 700, lineHeight: 1.55 }}>
                   {stripHtml(p.title || "").slice(0, 95)}
                 </div>
                 <div style={{ marginTop: 9, color: AI_BLUE, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>
@@ -162,16 +165,16 @@ export default function RevelationAxis() {
               {hovered?.id === ev.id && (
                 <div style={{
                   position: "absolute", right: -14, transform: "translateX(100%)", width: 250,
-                  background: "rgba(10,7,16,0.96)", border: `1px solid ${C.borderGold}`,
+                  background: P.card, border: `1px solid ${P.borderStrong}`,
                   borderRadius: 12, padding: "13px 15px", direction: "rtl", zIndex: 5,
                   boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 26px ${VIOLET}33`,
                 }}>
-                  <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, lineHeight: 1.55 }}>
+                  <div style={{ color: P.accentText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, lineHeight: 1.55 }}>
                     {stripHtml(ev.label || "").slice(0, 90)}
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
-                    {ev.hebrew_date && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1 }}>{ev.hebrew_date}</span>}
-                    {ev.metadata?.year && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10.5 }}>· {ev.metadata.year}</span>}
+                    {ev.hebrew_date && <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1 }}>{ev.hebrew_date}</span>}
+                    {ev.metadata?.year && <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5 }}>· {ev.metadata.year}</span>}
                     {ev.gallery_id && <span style={{ color: VIOLET, fontSize: 11 }}>🖼 גלריה</span>}
                   </div>
                   {ev.axis_theme && (
@@ -180,7 +183,7 @@ export default function RevelationAxis() {
                       {ev.axis_theme}
                     </div>
                   )}
-                  <div style={{ marginTop: 9, color: C.goldDim, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>
+                  <div style={{ marginTop: 9, color: P.inkSoft, fontFamily: F.heading, fontSize: 10, letterSpacing: 1 }}>
                     לחץ כדי להיכנס לתחנה ←
                   </div>
                 </div>

@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates, getHomeSets } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
-import { effDate, shortDate, domNum } from "../lib/reality.js";
+import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
@@ -43,6 +43,7 @@ export default function HomeNewPage() {
   const nav = useNavigate();
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
+  const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
@@ -58,7 +59,8 @@ export default function HomeNewPage() {
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
-    getGalleryUpdates(8).then(r => setHints(r || [])).catch(() => {});
+    getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    getHomeSets().then(r => setHomeSets(r || [])).catch(() => {});
     getTopicCards({ approvedOnly: true }).then(async c => {
       setCards(c || []);
       const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
@@ -87,9 +89,16 @@ export default function HomeNewPage() {
   // לחיצה על רמז גוללת אל גלריית זרם המציאות בדף הבית (לא משכפלת — מפנה).
   const updatesFeed = useMemo(() => {
     const ps = (posts || []).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
-    const hs = (hints || []).map(h => ({ kind: "hint", date: effDate(h), data: h }));
-    return [...ps, ...hs].sort((a, b) => b.date - a.date).slice(0, 8);
-  }, [posts, hints]);
+    const hs = (hints || []).slice(0, 4).map(h => ({ kind: "hint", date: effDate(h), data: h }));
+    // גלריות רמזים מומלצות — תאריך/כריכה לפי הרמז העדכני ביותר שמתאים לסט
+    const ss = (homeSets || []).map(s => {
+      const ns = new Set(s.numbers || []);
+      let cover = null, date = 0;
+      for (const h of (hints || [])) if (hintNums(h).some(n => ns.has(n))) { const d = effDate(h); if (d > date) { date = d; cover = h.image_url; } }
+      return { kind: "set", date, data: { ...s, cover } };
+    }).filter(x => x.date > 0);
+    return [...ps, ...hs, ...ss].sort((a, b) => b.date - a.date).slice(0, 8);
+  }, [posts, hints, homeSets]);
   const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
   // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
@@ -167,6 +176,20 @@ export default function HomeNewPage() {
         <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
         <div className="hn-postgrid">
           {updatesFeed.map(item => {
+            if (item.kind === "set") {
+              const s = item.data;
+              return (
+                <Link key={`s${s.id}`} to={`/archive?tab=reality&set=${s.id}`} className="hn-card" style={{ borderColor: "#d4af3766" }}>
+                  <div style={{ height: 120, position: "relative", background: s.cover ? `center/cover no-repeat url(${s.cover})` : P.cardGrad }}>
+                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(212,175,55,0.96)", color: "#1a0e00", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🗂️ גלריית רמזים</span>
+                  </div>
+                  <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45 }}>{s.name}</div>
+                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🌊 {(s.numbers || []).slice(0, 4).join(" · ")} ←</div>
+                  </div>
+                </Link>
+              );
+            }
             if (item.kind === "hint") {
               const h = item.data;
               const v = domNum(h);

@@ -14,8 +14,9 @@ import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
 
 const PAGE = 12;
 
-export default function RealityStream({ hints = [], cutoff, compact = false, onPick }) {
-  const P = usePalette();
+export default function RealityStream({ hints = [], cutoff, compact = false, onPick, palette }) {
+  const auto = usePalette();
+  const P = palette || auto;
   const [visible, setVisible] = useState(compact ? 8 : PAGE);
   const [lightbox, setLightbox] = useState(null);
   const sentinel = useRef(null);

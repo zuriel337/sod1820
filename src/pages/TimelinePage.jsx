@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase.js";
 import { C, F } from "../theme.js";
 import { stripHtml } from "../lib/format.js";
 import { SectionHeader } from "../components/ui.jsx";
+import TimelineStrongNumbers from "../components/axis/TimelineStrongNumbers.jsx";
 
 // ===== ציר ההתגלות — העמוד המלא =====
 // כל אירועי הציר מקובצים לפי שנה, וכל תחנה מחוברת לתוכן שלה:
@@ -248,6 +249,7 @@ export default function TimelinePage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <style>{PAGE_CSS}</style>
+      <TimelineStrongNumbers />
       <ConvergenceIndexPanel items={convergences} />
       <SectionHeader eyebrow="המסע בזמן" title="🌅 ציר ההתגלות" />
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 620, margin: "-24px auto 28px" }}>

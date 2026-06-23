@@ -294,13 +294,24 @@ export default function ArchivePage() {
       {/* ============ טאב זרם המציאות — הגלריה החיה והמתכווננת (מעל האוספים) ============ */}
       {tab === "reality" && (
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <RealityWorld />
+          <RealityWorld forceDark presetSetId={new URLSearchParams(loc.search).get("set")} />
         </div>
       )}
 
-      {/* ============ טאב גלריות (ההיסטורי — ללא שינוי) ============ */}
+      {/* ============ טאב גלריות (ההיסטורי) — עם רצועת גלריות-רמזים מומלצות ============ */}
       {tab === "galleries" && (
-        gals === null ? (
+      <>
+        {sets.some(s => s.show_on_home) && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "center", marginBottom: 22 }}>
+            <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🌊 גלריות רמזים חיות:</span>
+            {sets.filter(s => s.show_on_home).map(s => (
+              <Link key={s.id} to={`/archive?tab=reality&set=${s.id}`} className="ar-pill" style={{ textDecoration: "none" }}>
+                🗂️ {s.name}
+              </Link>
+            ))}
+          </div>
+        )}
+        {gals === null ? (
           <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען גלריות…</div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 16 }}>
@@ -321,7 +332,8 @@ export default function ArchivePage() {
               </button>
             ))}
           </div>
-        )
+        )}
+      </>
       )}
 
       {/* ============ טאב מאגר / סטים ============ */}

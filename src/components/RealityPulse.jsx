@@ -14,8 +14,9 @@ const PERIODS = [
   { key: "month", label: "החודש", field: "hotMonth", countKey: "month" },
 ];
 
-export default function RealityPulse({ pulse, period = "week", onPeriod, activeValue, onPick, max = 6 }) {
-  const P = usePalette();
+export default function RealityPulse({ pulse, period = "week", onPeriod, activeValue, onPick, max = 6, palette }) {
+  const auto = usePalette();
+  const P = palette || auto;
   if (!pulse) return null;
   const cur = PERIODS.find(p => p.key === period) || PERIODS[1];
   const list = (pulse[cur.field] || []).slice(0, max);
