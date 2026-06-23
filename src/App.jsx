@@ -42,7 +42,6 @@ const TimelinePage = React.lazy(() => import("./pages/TimelinePage.jsx"));
 const NumberSearchPage = React.lazy(() => import("./pages/NumberSearchPage.jsx"));
 const NamePage = React.lazy(() => import("./pages/NamePage.jsx"));
 const ArchivePage = React.lazy(() => import("./pages/ArchivePage.jsx"));
-const GalleryUpdatesPage = React.lazy(() => import("./pages/GalleryUpdatesPage.jsx"));
 const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx"));
 const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
@@ -125,7 +124,7 @@ export default function App() {
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
           <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
-          <Route path="/gallery-updates" element={<GalleryUpdatesPage />} />
+          <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/community/chat" element={<SpotimChatRoute />} />

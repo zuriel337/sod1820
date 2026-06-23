@@ -7,8 +7,9 @@ import { stripHtml } from "../lib/format.js";
 import { isNewSince } from "../lib/crossesNew.js";
 import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
 
-// ===== זרם המציאות — גלריה אחת אינסופית של «רמזים» =====
-// כל כרטיס = רמז: תמונה + מספר דומיננטי + תאריך + תגיות. גלילה אינסופית (IntersectionObserver).
+// ===== זרם המציאות — «קיר חי» (Masonry) של רמזים =====
+// כל כרטיס = רמז: תמונה בגובה טבעי + מספר דומיננטי + תאריך + תגיות. גלילה אינסופית (IntersectionObserver).
+// קיר טורים (column-count) → גבהים משתנים כמו Pinterest; אנימציית הופעה מדורגת.
 // lightbox פנימי; השבב המספרי מקשר לדף המספר הקנוני (/number/:n) — חוק העץ האחד.
 
 const PAGE = 12;
@@ -25,7 +26,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
     if (compact || !sentinel.current) return;
     const io = new IntersectionObserver(es => {
       if (es[0].isIntersecting) setVisible(v => Math.min(v + PAGE, hints.length));
-    }, { rootMargin: "600px" });
+    }, { rootMargin: "700px" });
     io.observe(sentinel.current);
     return () => io.disconnect();
   }, [compact, hints.length]);
@@ -39,51 +40,72 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
   return (
     <div style={{ direction: "rtl" }}>
       <style>{`
-        .rs-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-        @media (max-width:820px){ .rs-grid{ grid-template-columns:repeat(3,1fr); } }
-        @media (max-width:520px){ .rs-grid{ grid-template-columns:1fr 1fr; } }
-        .rs-card { background:${P.card}; border:1px solid ${P.border}; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;
-          transition:transform .15s,border-color .15s; }
+        .rs-wall { column-count:4; column-gap:14px; }
+        @media (max-width:980px){ .rs-wall{ column-count:3; } }
+        @media (max-width:640px){ .rs-wall{ column-count:2; column-gap:10px; } }
+        .rs-card { break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:14px; display:block; width:100%;
+          background:${P.card}; border:1px solid ${P.border}; border-radius:16px; overflow:hidden;
+          transition:transform .18s, border-color .18s, box-shadow .18s; animation:rs-rise .5s cubic-bezier(.2,.7,.3,1) both; }
+        @media (max-width:640px){ .rs-card{ margin-bottom:10px; border-radius:13px; } }
+        @keyframes rs-rise { from{ opacity:0; transform:translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+        .rs-card:hover { transform:translateY(-4px); border-color:${P.accent}; box-shadow:0 14px 40px rgba(0,0,0,.4), 0 0 26px ${P.glow}; }
         .rs-card.fresh { border-color:#e0556a; box-shadow:0 0 0 1px #e0556a55; }
-        .rs-card:hover { transform:translateY(-3px); border-color:${P.accent}; }
-        .rs-thumb { height:140px; position:relative; cursor:zoom-in; background-size:cover; background-position:center; }
-        .rs-new { position:absolute; top:8px; inset-inline-end:8px; background:#e0556a; color:#fff; font-family:${F.heading};
-          font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 9px; animation:hn-pulse 1.8s ease-in-out infinite; }
-        .rs-num { position:absolute; top:8px; inset-inline-start:8px; text-decoration:none; background:rgba(212,175,55,0.95); color:#1a0e00;
-          font-family:${F.mono}; font-size:13px; font-weight:800; border-radius:999px; padding:2px 10px; }
-        .rs-body { padding:10px 12px; display:flex; flex-direction:column; gap:6px; flex:1; }
+        .rs-imgwrap { position:relative; cursor:zoom-in; overflow:hidden; line-height:0; background:${P.cardSoft}; }
+        .rs-imgwrap img { width:100%; height:auto; display:block; transition:transform .5s cubic-bezier(.2,.7,.3,1); }
+        .rs-card:hover .rs-imgwrap img { transform:scale(1.05); }
+        .rs-shade { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.32) 0%, transparent 26%, transparent 62%, rgba(0,0,0,.55) 100%); pointer-events:none; }
+        .rs-new { position:absolute; top:9px; inset-inline-end:9px; background:#e0556a; color:#fff; font-family:${F.heading};
+          font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 9px; animation:hn-pulse 1.8s ease-in-out infinite; z-index:2; }
+        .rs-num { position:absolute; top:9px; inset-inline-start:9px; text-decoration:none; background:rgba(212,175,55,0.96); color:#1a0e00;
+          font-family:${F.mono}; font-size:13.5px; font-weight:800; border-radius:999px; padding:2px 11px; z-index:2;
+          box-shadow:0 2px 10px rgba(0,0,0,.35); transition:transform .15s; }
+        .rs-num:hover { transform:scale(1.08); }
+        .rs-zoom { position:absolute; bottom:9px; inset-inline-start:9px; z-index:2; color:#fff; font-size:13px; opacity:0; transition:opacity .2s;
+          background:rgba(0,0,0,.45); border-radius:999px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
+        .rs-card:hover .rs-zoom { opacity:1; }
+        .rs-body { padding:10px 12px; display:flex; flex-direction:column; gap:6px; }
         .rs-date { color:${P.inkSoft}; font-family:${F.heading}; font-size:11px; }
         .rs-title { color:${P.ink}; font-family:${F.regal}; font-size:14px; font-weight:700; line-height:1.4;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .rs-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:auto; }
+        .rs-tags { display:flex; gap:5px; flex-wrap:wrap; }
         .rs-tag { font-family:${F.heading}; font-size:10.5px; color:${P.inkSoft}; background:${P.cardSoft};
           border:1px solid ${P.border}; border-radius:999px; padding:1px 8px; }
+        button.rs-tag { cursor:pointer; }
+        button.rs-tag:hover { border-color:${P.accent}; color:${P.accentText}; }
       `}</style>
 
-      <div className="rs-grid">
-        {shown.map(h => {
+      <div className="rs-wall">
+        {shown.map((h, idx) => {
           const fresh = cutoff ? isNewSince(h, cutoff) : false;
           const v = domNum(h);
           const title = cleanName(h.name);
           const tags = hintTags(h);
           const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
+          const desc = !title && h.description ? stripHtml(h.description) : null;
           return (
-            <article key={h.id} className={`rs-card${fresh ? " fresh" : ""}`}>
-              <div className="rs-thumb" style={{ backgroundImage: h.image_url ? `url(${h.image_url})` : "none", background: h.image_url ? undefined : P.cardGrad }} onClick={() => setLightbox(h)}>
+            <article key={h.id} className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
+              <div className="rs-imgwrap" onClick={() => setLightbox(h)}>
+                {h.image_url
+                  ? <img src={h.image_url} alt={title || ""} loading="lazy" />
+                  : <div style={{ height: 160, background: P.cardGrad }} />}
+                <span className="rs-shade" />
                 {fresh && <span className="rs-new">🆕 חדש</span>}
                 {v != null && <Link to={`/number/${v}`} className="rs-num" onClick={e => e.stopPropagation()} title="לדף המספר">{v}</Link>}
+                <span className="rs-zoom" aria-hidden>⤢</span>
               </div>
-              <div className="rs-body">
-                {shortDate(h) && <div className="rs-date">🗓️ {shortDate(h)}</div>}
-                {title && <div className="rs-title">{title}</div>}
-                {h.description && !title && <div className="rs-title">{stripHtml(h.description)}</div>}
-                {(tags.length > 0 || extraNums.length > 0) && (
-                  <div className="rs-tags">
-                    {tags.map((t, i) => <span key={`t${i}`} className="rs-tag">{t}</span>)}
-                    {extraNums.map(n => <button key={`n${n}`} className="rs-tag" style={{ cursor: "pointer" }} onClick={() => onPick?.(n)}>#{n}</button>)}
-                  </div>
-                )}
-              </div>
+              {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0) && (
+                <div className="rs-body">
+                  {shortDate(h) && <div className="rs-date">🗓️ {shortDate(h)}</div>}
+                  {title && <div className="rs-title">{title}</div>}
+                  {desc && <div className="rs-title">{desc}</div>}
+                  {(tags.length > 0 || extraNums.length > 0) && (
+                    <div className="rs-tags">
+                      {tags.map((t, i) => <span key={`t${i}`} className="rs-tag">{t}</span>)}
+                      {extraNums.map(n => <button key={`n${n}`} className="rs-tag" onClick={() => onPick?.(n)}>#{n}</button>)}
+                    </div>
+                  )}
+                </div>
+              )}
             </article>
           );
         })}
@@ -92,7 +114,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
       {compact ? (
         hints.length > visible && (
           <div style={{ textAlign: "center", marginTop: 16 }}>
-            <Link to="/gallery-updates" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>אל זרם המציאות המלא · עוד {hints.length - visible} →</Link>
+            <Link to="/archive" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>אל זרם המציאות המלא · עוד {hints.length - visible} →</Link>
           </div>
         )
       ) : (

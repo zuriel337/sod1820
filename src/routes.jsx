@@ -9,8 +9,8 @@ export const NAV = [
   { label: "עץ המספרים", emoji: "🌳", to: "/numbers" },
   { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },
   { label: "פוסטים", emoji: "📖", to: "/post" },
-  { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive" },
-  { label: "עדכוני גלריה", emoji: "🆕", to: "/gallery-updates" },
+  { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
+  { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive?tab=galleries" },
   { label: 'הצופן התנ"כי · בקרוב', emoji: "🔒", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [

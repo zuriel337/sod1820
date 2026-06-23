@@ -11,6 +11,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
+import RealityWorld from "../components/RealityWorld.jsx";
 
 // ===== גלריית רמזי הגאולה (/archive) =====
 // טאב 1 "גלריות" — המבנה ההיסטורי, ללא שינוי.
@@ -40,7 +41,15 @@ const imgNums = im => [...new Set([...(im.all_values || []), ...(im.primary_valu
 export default function ArchivePage() {
   const { isAdmin } = useAuth();
   const loc = useLocation();
-  const [tab, setTab] = useState(() => new URLSearchParams(loc.search).get("tab") === "galleries" ? "galleries" : "pool");
+  const [tab, setTab] = useState(() => {
+    const t = new URLSearchParams(loc.search).get("tab");
+    return t === "galleries" ? "galleries" : t === "pool" ? "pool" : "reality";
+  });
+  // סנכרון טאב כשמנווטים עם ?tab= (אותו עמוד, לא מתבצע remount)
+  useEffect(() => {
+    const t = new URLSearchParams(loc.search).get("tab");
+    if (t === "galleries" || t === "pool" || t === "reality") setTab(t);
+  }, [loc.search]);
   const [gals, setGals] = useState(null);
   const [imgs, setImgs] = useState([]);
   const [sets, setSets] = useState([]);
@@ -261,18 +270,18 @@ export default function ArchivePage() {
           </div>
         )}
         <div style={{ marginTop: 14 }}>
-          <Link to="/gallery-updates" style={{
-            display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+          <button onClick={() => setTab("reality")} style={{
+            display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",
             background: "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(8,5,2,0.4))",
             border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999,
             fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 20px",
-          }}>🆕 עדכוני גלריה — הממצאים הטריים ביותר ←</Link>
+          }}>🌊 זרם המציאות — הממצאים הטריים ביותר ←</button>
         </div>
       </div>
 
       {/* טאבים */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 26 }}>
-        {[["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 26, flexWrap: "wrap" }}>
+        {[["reality", "🌊 זרם המציאות"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 20px", borderRadius: 999,
             border: `1px solid ${tab === k ? C.gold : C.border}`,
@@ -281,6 +290,13 @@ export default function ArchivePage() {
           }}>{l}</button>
         ))}
       </div>
+
+      {/* ============ טאב זרם המציאות — הגלריה החיה והמתכווננת (מעל האוספים) ============ */}
+      {tab === "reality" && (
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <RealityWorld />
+        </div>
+      )}
 
       {/* ============ טאב גלריות (ההיסטורי — ללא שינוי) ============ */}
       {tab === "galleries" && (
@@ -653,6 +669,9 @@ export default function ArchivePage() {
       )}
 
       <style>{`
+        .hn-h2 { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(20px,3vw,27px); font-weight: 800; text-align: center; margin: 0 0 4px; }
+        .hn-sub { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; text-align: center; margin: 0 0 20px; }
+        @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
         .arch-card:hover { border-color: ${C.gold} !important; box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 22px rgba(212,175,55,0.18); }
         .ar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
         .ar-panel { max-width: 980px; margin: 0 auto 18px; padding: 14px 16px 11px; border: 1px solid ${C.borderGold}; border-radius: 16px;

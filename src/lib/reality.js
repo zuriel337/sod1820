@@ -90,10 +90,11 @@ export function trendLabel(trend) {
   return `${arrow} ${sign}${trend.pct}%`;
 }
 
-// סינון הזרם לפי שבב פעיל
-export function filterHints(hints = [], { value = null, period = null, rare = false } = {}) {
+// סינון הזרם לפי שבב פעיל. value=מספר יחיד; values=סט מספרים («גלריית רמזים» שמורה).
+export function filterHints(hints = [], { value = null, values = null, period = null, rare = false } = {}) {
   let arr = hints;
   if (value != null) arr = arr.filter(h => hintNums(h).includes(value));
+  if (values && values.length) { const s = new Set(values); arr = arr.filter(h => hintNums(h).some(n => s.has(n))); }
   if (period) {
     const now = Date.now();
     const cut = period === "today" ? (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return +d; })()

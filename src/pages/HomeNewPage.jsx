@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
+import { effDate, shortDate, domNum } from "../lib/reality.js";
+import { cleanName } from "../lib/galleryName.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
@@ -40,6 +42,7 @@ export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
@@ -55,6 +58,7 @@ export default function HomeNewPage() {
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
+    getGalleryUpdates(8).then(r => setHints(r || [])).catch(() => {});
     getTopicCards({ approvedOnly: true }).then(async c => {
       setCards(c || []);
       const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
@@ -78,6 +82,15 @@ export default function HomeNewPage() {
   const liveCards = useMemo(() => [...cards]
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
+
+  // «עדכונים אחרונים» = פוסטים + רמזים שעלו לזרם המציאות, ממוזגים לפי תאריך (החדש למעלה).
+  // לחיצה על רמז גוללת אל גלריית זרם המציאות בדף הבית (לא משכפלת — מפנה).
+  const updatesFeed = useMemo(() => {
+    const ps = (posts || []).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
+    const hs = (hints || []).map(h => ({ kind: "hint", date: effDate(h), data: h }));
+    return [...ps, ...hs].sort((a, b) => b.date - a.date).slice(0, 8);
+  }, [posts, hints]);
+  const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
   // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
   const decodeHtml = s => { try { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; } catch { return s; } };
@@ -153,7 +166,25 @@ export default function HomeNewPage() {
         <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
         <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
         <div className="hn-postgrid">
-          {posts.slice(0, 8).map(p => {
+          {updatesFeed.map(item => {
+            if (item.kind === "hint") {
+              const h = item.data;
+              const v = domNum(h);
+              const title = cleanName(h.name);
+              return (
+                <button key={`h${h.id}`} onClick={goReality} className="hn-card" style={{ cursor: "pointer", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
+                  <div style={{ height: 120, position: "relative", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
+                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
+                    {v != null && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(212,175,55,0.96)", color: "#1a0e00", fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{v}</span>}
+                  </div>
+                  <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז חדש בזרם המציאות"}</div>
+                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🌊 לזרם המציאות{shortDate(h) ? ` · ${shortDate(h)}` : ""}</div>
+                  </div>
+                </button>
+              );
+            }
+            const p = item.data;
             const fresh = isFreshPost(p);
             const hot = hotSlugs.has(p.slug);
             return (
@@ -169,7 +200,7 @@ export default function HomeNewPage() {
             </Link>
             );
           })}
-          {!posts.length && <Skeletons n={4} />}
+          {!posts.length && !hints.length && <Skeletons n={4} />}
         </div>
         <div style={{ textAlign: "center", marginTop: 16 }}>
           <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
@@ -177,7 +208,7 @@ export default function HomeNewPage() {
       </section>
 
       {/* ===== 🌊 זרם המציאות + דופק המציאות (המספרים החיים) ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+      <section id="reality-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
         <RealityWorld compact />
       </section>
 
