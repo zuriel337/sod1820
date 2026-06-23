@@ -477,9 +477,9 @@ export default function EntityPage() {
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, lineHeight: 2, maxWidth: 460, margin: "18px auto 26px" }}>
             זהו <b style={{ color: P.accentText }}>מספר יסוד</b> (ספרה בודדת). מספר בודד מופיע באינספור מקומות — לכן חוקרים אותו דרך מסע «סולמות ההתגלות», שם כל ספרה נפתחת לרבדים.
           </p>
-          <Link to="/sulamot" style={{ display: "inline-block", padding: "13px 26px", borderRadius: 10, textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>
-            🪜 לסולמות ההתגלות →
-          </Link>
+          <span style={{ display: "inline-block", padding: "13px 26px", borderRadius: 10, background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 15, fontWeight: 800, opacity: 0.5, cursor: "default" }}>
+            🪜 סולמות ההתגלות · 🔒 בקרוב
+          </span>
         </div>
       </Shell>
     );
