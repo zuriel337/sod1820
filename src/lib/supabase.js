@@ -762,7 +762,7 @@ export async function mergeTopicCards(keepId, mergeIds = []) {
 export async function getGalleryImagesByIds(ids = []) {
   if (!supabase || !ids.length) return [];
   const { data } = await supabase.from('gallery_images')
-    .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id').in('id', ids);
+    .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id,primary_value,all_values').in('id', ids);
   return data || [];
 }
 // 🕸️ עץ-קשרים ממוקד-מספר: ההתכנסויות שהמספר שייך אליהן (כל אחת מכילה את

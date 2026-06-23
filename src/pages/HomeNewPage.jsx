@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setTheme } from "../lib/themeMode.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates, getHomeSets, getImagesByValue } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
-import { cleanName } from "../lib/galleryName.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
@@ -15,6 +14,7 @@ import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
+import HomeFeed from "../components/HomeFeed.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -44,9 +44,6 @@ export default function HomeNewPage() {
   const [cards, setCards] = useState([]);
   const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
-  const [galUpdates, setGalUpdates] = useState([]); // 🆕 עדכוני גלריה (source='update')
-  const [homeSets, setHomeSets] = useState([]);     // 🖼 סדרות שצוריאל סימן «הצג בבית»
-  const [homeSetImgs, setHomeSetImgs] = useState({}); // setId -> [images] לתצוגה מקדימה
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
@@ -65,21 +62,6 @@ export default function HomeNewPage() {
       markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
-    // 🆕 עדכוני גלריה — קופצים בראש «עדכונים אחרונים» (עם התיוג)
-    getGalleryUpdates(6).then(r => { setGalUpdates(r || []); markSeenKey("home-gallery"); }).catch(() => {});
-    // 🖼 סדרות גימטריה שסומנו «הצג בבית» — מדור גלריות נשלט-מנהל
-    getHomeSets().then(async sets => {
-      setHomeSets(sets || []);
-      const entries = await Promise.all((sets || []).map(async s => {
-        try {
-          let imgs = [];
-          if (s.image_order?.length) imgs = await getGalleryImagesByIds(s.image_order.slice(0, 8));
-          if (!imgs.length && s.numbers?.length) imgs = (await getImagesByValue(s.numbers[0])).slice(0, 8);
-          return [s.id, imgs];
-        } catch { return [s.id, []]; }
-      }));
-      setHomeSetImgs(Object.fromEntries(entries));
-    }).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -92,7 +74,6 @@ export default function HomeNewPage() {
   // LIVE — 4 ההתכנסויות האחרונות בלבד; "חדש" = נוסף מאז הביקור האחרון (per-user).
   const convCutoff = useMemo(() => seenCutoff("home-conv"), []);
   const postsCutoff = useMemo(() => seenCutoff("home-posts"), []);
-  const galCutoff = useMemo(() => seenCutoff("home-gallery"), []);
   const isFreshPost = p => Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)) > +new Date(postsCutoff);
   const liveCards = useMemo(() => [...cards]
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
@@ -172,25 +153,7 @@ export default function HomeNewPage() {
         <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
         <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
         <div className="hn-postgrid">
-          {galUpdates.slice(0, 2).map(u => {
-            const fresh = isNewSince(u, galCutoff);
-            const title = cleanName(u.name) || "עדכון גלריה";
-            const tag = u.primary_value ?? (u.all_values || [])[0];
-            return (
-            <Link key={`gu-${u.id}`} to="/gallery-updates" className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: "0 0 0 1px #e0556a55" } : undefined}>
-              <div style={{ height: 120, position: "relative", background: u.image_url ? `center/cover no-repeat url(${u.image_url})` : P.cardGrad }}>
-                {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
-                {tag != null && <span title="התיוג המספרי" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(212,175,55,0.92)", color: "#1a0e00", fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{tag}</span>}
-                <span style={{ position: "absolute", bottom: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🆕 עדכון גלריה</span>
-              </div>
-              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
-                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🖼 פיד עדכוני הגלריה ←</div>
-              </div>
-            </Link>
-            );
-          })}
-          {posts.slice(0, 8 - Math.min(2, galUpdates.length)).map(p => {
+          {posts.slice(0, 8).map(p => {
             const fresh = isFreshPost(p);
             const hot = hotSlugs.has(p.slug);
             return (
@@ -213,6 +176,11 @@ export default function HomeNewPage() {
         </div>
       </section>
 
+      {/* ===== 🆕 פיד עדכוני גלריה + נבחרים מהסטים (ווידג'ט מאובזר) ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+        <HomeFeed />
+      </section>
+
       {/* ===== אריחי עדשות ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <div className="hn-grid6">
@@ -224,40 +192,6 @@ export default function HomeNewPage() {
           ))}
         </div>
       </section>
-
-      {/* ===== 🖼 גלריות נבחרות — נשלט-מנהל (סדרות שסומנו «הצג בבית») ===== */}
-      {homeSets.length > 0 && (
-        <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-          <h2 className="hn-h2">🖼 גלריות נבחרות</h2>
-          <p className="hn-sub">סדרות הגימטריה שסידרנו בגלריה — מבחר לדף הבית</p>
-          <div style={{ display: "grid", gap: 22 }}>
-            {homeSets.map(s => {
-              const imgs = (homeSetImgs[s.id] || []).filter(im => im.image_url);
-              if (!imgs.length) return null;
-              return (
-                <div key={s.id}>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10 }}>
-                    <Link to="/archive" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>{s.name}</Link>
-                    <span style={{ color: P.inkSoft, fontFamily: F.mono, fontSize: 12 }}>{(s.numbers || []).join(" · ")}</span>
-                    <span style={{ flex: 1 }} />
-                    <Link to="/archive" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5 }}>כל הסדרה →</Link>
-                  </div>
-                  <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6 }}>
-                    {imgs.map(im => {
-                      const v = im.primary_value ?? (s.numbers || [])[0];
-                      return (
-                        <Link key={im.id} to={v != null ? `/number/${v}` : "/archive"} style={{ flex: "0 0 auto", width: 140, position: "relative", borderRadius: 12, overflow: "hidden", border: `1px solid ${P.border}`, aspectRatio: "1/1", background: `center/cover no-repeat url(${im.image_url})` }}>
-                          {v != null && <span style={{ position: "absolute", top: 6, insetInlineEnd: 6, background: "rgba(212,175,55,0.92)", color: "#1a0e00", fontFamily: F.mono, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{v}</span>}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
