@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { getPostsFromSupabase, adaptPost, getTopicCards } from "../lib/supabase.js";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getPostsFromSupabase, adaptPost, getTopicCards, searchPhrases } from "../lib/supabase.js";
 import { topicTag } from "../lib/topicCards.js";
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
 import PulseRing from "../components/PulseRing.jsx";
@@ -9,6 +9,73 @@ import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
+
+// 🔍 רצועת חיפוש מהיר — מנוע המספרים עם autocomplete, בראש הבית.
+function HomeSearchStrip() {
+  const nav = useNavigate();
+  const [q, setQ] = useState("");
+  const [sugs, setSugs] = useState([]);
+  const [show, setShow] = useState(false);
+  const inpRef = useRef(null);
+  const sugRef = useRef(null);
+
+  useEffect(() => {
+    if (!q.trim() || q.length < 2) { setSugs([]); setShow(false); return; }
+    const id = setTimeout(() => {
+      searchPhrases(q.trim()).then(r => { setSugs(r); setShow(r.length > 0); }).catch(() => {});
+    }, 300);
+    return () => clearTimeout(id);
+  }, [q]);
+
+  useEffect(() => {
+    const h = e => { if (sugRef.current && !sugRef.current.contains(e.target) && !inpRef.current?.contains(e.target)) setShow(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  const go = v => { const t = String(v).trim(); if (!t) return; setQ(""); setShow(false); setSugs([]); nav(`/number/${encodeURIComponent(t)}`); };
+  const goSug = s => { setQ(""); setShow(false); setSugs([]); if (s.type === 'post') nav(`/${s.slug}`); else go(s.phrase); };
+  const submit = e => { e.preventDefault(); go(q); };
+
+  return (
+    <div style={{ maxWidth: 580, margin: "0 auto", padding: "18px 18px 6px", direction: "rtl", position: "relative" }}>
+      <div style={{ textAlign: "center", marginBottom: 10, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1.5 }}>
+        🔢 חפשו שם, מילה, מספר…
+      </div>
+      <div style={{ position: "relative" }}>
+        <form onSubmit={submit} style={{ display: "flex", gap: 8 }}>
+          <input ref={inpRef} value={q} onChange={e => setQ(e.target.value)} onFocus={() => sugs.length > 0 && setShow(true)}
+            placeholder="שם · מספר · פסוק · רמז" dir="rtl"
+            style={{ flex: 1, background: "rgba(20,15,12,0.85)", border: `1px solid ${C.borderGold}`,
+              borderRadius: 999, color: C.goldBright, fontFamily: F.body, fontSize: 15, fontWeight: 500,
+              padding: "11px 20px", outline: "none", textAlign: "center",
+              boxShadow: `0 3px 18px rgba(212,175,55,0.18)` }} />
+          <button type="submit" style={{ cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+            color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "0 20px" }}>גלו ✦</button>
+        </form>
+        {show && sugs.length > 0 && (
+          <div ref={sugRef} style={{ position: "absolute", top: "calc(100% + 5px)", right: 0, left: 0, zIndex: 400,
+            background: "rgb(20,15,12)", border: `1px solid ${C.borderGold}`, borderRadius: 14,
+            boxShadow: "0 8px 28px rgba(0,0,0,.7)", overflow: "hidden", direction: "rtl" }}>
+            {sugs.map((s, i) => (
+              <button key={i} onMouseDown={() => goSug(s)}
+                style={{ width: "100%", cursor: "pointer", background: "rgb(20,15,12)", border: "none",
+                  borderBottom: i < sugs.length - 1 ? `1px solid ${C.border}` : "none",
+                  display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 18px" }}>
+                <span style={{ color: C.goldBright, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>
+                  {s.type === "post" ? "📖 " : ""}{s.phrase}
+                </span>
+                {s.type === "phrase"
+                  ? <span style={{ color: C.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, background: "rgba(212,175,55,0.12)", borderRadius: 999, padding: "1px 9px" }}>= {s.value}</span>
+                  : <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>פוסט →</span>}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
 function BrandStrip() {
@@ -431,6 +498,7 @@ export default function HomePage() {
   return (
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
+      <HomeSearchStrip />
 
       {narrow ? (
         /* מובייל: כותרת → עדכונים אחרונים → שערי המערכת → היכל השערים */

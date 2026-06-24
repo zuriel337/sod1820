@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, searchPhrases } from "../lib/supabase.js";
 import AnonToggle from "../components/AnonToggle.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -378,6 +378,10 @@ export default function EntityPage() {
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [searched, setSearched] = useState(0);    // 🔎 חיפושים כוללים (מד קבוע — מותר: כמה חיפשו)
   const [q, setQ] = useState("");
+  const [epSugs, setEpSugs] = useState([]);
+  const [showEpSugs, setShowEpSugs] = useState(false);
+  const epSugRef = useRef(null);
+  const epInpRef = useRef(null);
   const heroRef = useRef(null);
   const [heroGone, setHeroGone] = useState(false);
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
@@ -396,7 +400,22 @@ export default function EntityPage() {
     else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
     setTimeout(() => scrollTo(id), 70);
   };
-  const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
+  const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); setShowEpSugs(false); nav(`/number/${encodeURIComponent(v)}`); } };
+  const goEpSug = s => { setQ(""); setShowEpSugs(false); if (s.type === 'post') nav(`/${s.slug}`); else nav(`/number/${encodeURIComponent(s.phrase)}`); };
+
+  useEffect(() => {
+    if (!q.trim() || q.length < 2) { setEpSugs([]); setShowEpSugs(false); return; }
+    const id = setTimeout(() => {
+      searchPhrases(q.trim()).then(r => { setEpSugs(r); setShowEpSugs(r.length > 0); }).catch(() => {});
+    }, 300);
+    return () => clearTimeout(id);
+  }, [q]);
+
+  useEffect(() => {
+    const handler = e => { if (epSugRef.current && !epSugRef.current.contains(e.target) && !epInpRef.current?.contains(e.target)) setShowEpSugs(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // כרטיס מעוצב לפי התמה
   const card = {
@@ -548,10 +567,32 @@ export default function EntityPage() {
         <div className="ep-toprow">
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
           <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
-          <form onSubmit={goSearch} className="ep-topsearch">
-            <input value={q} onChange={e => setQ(e.target.value)} className="ep-topsearch-inp" placeholder="חפשו שם · מילה · מספר…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center" }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px", whiteSpace: "nowrap" }}>חפש ✦</button>
-          </form>
+          <div style={{ position: "relative" }} className="ep-topsearch">
+            <form onSubmit={goSearch} style={{ display: "flex", gap: 7 }}>
+              <input ref={epInpRef} value={q} onChange={e => setQ(e.target.value)} onFocus={() => epSugs.length > 0 && setShowEpSugs(true)} className="ep-topsearch-inp" placeholder="חפשו שם · מילה · מספר…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center" }} />
+              <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px", whiteSpace: "nowrap" }}>חפש ✦</button>
+            </form>
+            {showEpSugs && epSugs.length > 0 && (
+              <div ref={epSugRef} style={{ position: "absolute", top: "calc(100% + 5px)", right: 0, left: 0, zIndex: 300,
+                background: P.mode === "dark" ? "rgb(20,15,12)" : "#fff",
+                border: `1px solid ${P.borderStrong}`, borderRadius: 12,
+                boxShadow: "0 8px 28px rgba(0,0,0,.5)", overflow: "hidden", direction: "rtl" }}>
+                {epSugs.map((s, i) => (
+                  <button key={i} onMouseDown={() => goEpSug(s)}
+                    style={{ width: "100%", cursor: "pointer", background: P.mode === "dark" ? "rgb(20,15,12)" : "#fff",
+                      border: "none", borderBottom: i < epSugs.length - 1 ? `1px solid ${P.border}` : "none",
+                      display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 16px" }}>
+                    <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>
+                      {s.type === "post" ? "📖 " : ""}{s.phrase}
+                    </span>
+                    {s.type === "phrase"
+                      ? <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 12, fontWeight: 800, background: P.mode === "dark" ? "rgba(212,175,55,0.15)" : "#faf6ec", borderRadius: 999, padding: "1px 8px" }}>= {s.value}</span>
+                      : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, borderRadius: 999, padding: "1px 8px" }}>פוסט →</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Sticky nav bar — מוצג כשגוללים מתחת להירו ── */}
