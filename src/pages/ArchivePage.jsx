@@ -13,6 +13,9 @@ import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
+import RealityStream from "../components/RealityStream.jsx";
+import { PALETTES } from "../lib/palette.js";
+import { hintNums } from "../lib/reality.js";
 
 // ===== גלריית רמזי הגאולה (/archive) =====
 // טאב 1 "גלריות" — המבנה ההיסטורי, ללא שינוי.
@@ -37,8 +40,6 @@ function eventLabel(im) {
   const d = descDate(im.description);
   return d ? d.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" }) : null;
 }
-const imgNums = im => [...new Set([...(im.all_values || []), ...(im.primary_value != null ? [im.primary_value] : [])])];
-
 export default function ArchivePage() {
   const { isAdmin } = useAuth();
   const loc = useLocation();
@@ -133,7 +134,7 @@ export default function ArchivePage() {
 
   const numOptions = useMemo(() => {
     const c = {};
-    for (const im of imgs) for (const v of imgNums(im)) c[v] = (c[v] || 0) + 1;
+    for (const im of imgs) for (const v of hintNums(im)) c[v] = (c[v] || 0) + 1;
     return Object.entries(c).map(([n, k]) => ({ n: +n, k })).sort((a, b) => b.k - a.k);
   }, [imgs]);
   const yearOptions = useMemo(() => {
@@ -168,7 +169,7 @@ export default function ArchivePage() {
     for (const im of imgs) {
       const g = im.gallery_id;
       if (!m[g]) m[g] = { nums: new Set(), years: new Set() };
-      for (const v of imgNums(im)) m[g].nums.add(v);
+      for (const v of hintNums(im)) m[g].nums.add(v);
       const y = eventYear(im); if (y) m[g].years.add(y);
     }
     return m;
@@ -195,16 +196,16 @@ export default function ArchivePage() {
 
   const pool = useMemo(() => {
     let arr = sortedImgs.filter(im => {
-      if (setNums && !imgNums(im).some(v => setNums.has(v))) return false;
-      if (numFilter != null && !imgNums(im).includes(numFilter)) return false;
+      if (setNums && !hintNums(im).some(v => setNums.has(v))) return false;
+      if (numFilter != null && !hintNums(im).includes(numFilter)) return false;
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
-      if (qNum != null) { if (!imgNums(im).includes(qNum)) return false; }
+      if (qNum != null) { if (!hintNums(im).includes(qNum)) return false; }
       else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
       return true;
     });
     if (sortMode === "cross") {
       // הכי הרבה הצטלבויות: קודם תמונות שנושאות הכי הרבה ממספרי הסט, ואז הכי הרבה מספרים בכלל
-      const score = im => (setNums ? imgNums(im).filter(v => setNums.has(v)).length : 0) * 1000 + imgNums(im).length;
+      const score = im => (setNums ? hintNums(im).filter(v => setNums.has(v)).length : 0) * 1000 + hintNums(im).length;
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
@@ -371,7 +372,7 @@ export default function ArchivePage() {
                   onChange={e => setBuilder(b => ({ ...b, name: e.target.value }))} />
                 <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>
                   {builder.numbers.size} מספרים · {pool.length /* preview uses current filters; rough */ ? "" : ""}
-                  {imgs.filter(im => imgNums(im).some(v => builder.numbers.has(v))).length} תמונות
+                  {imgs.filter(im => hintNums(im).some(v => builder.numbers.has(v))).length} תמונות
                 </span>
                 <AddNumber onAdd={n => setBuilder(b => { const s = new Set(b.numbers); s.add(n); return { ...b, numbers: s }; })} />
                 <div style={{ flex: 1 }} />
@@ -526,7 +527,7 @@ export default function ArchivePage() {
                       {open && (
                         <div className="ar-acc-body">
                           {gimgs.map(im => {
-                            const xs = setNums ? imgNums(im).filter(v => setNums.has(v)) : [];
+                            const xs = setNums ? hintNums(im).filter(v => setNums.has(v)) : [];
                             return (
                             <figure key={im.id} className="ar-feed-img">
                               {(eventLabel(im) || xs.length >= 2) && (
@@ -607,23 +608,7 @@ export default function ArchivePage() {
               )}
             </>
           ) : (
-            <>
-              <div className="ar-grid">
-                {pool.slice(0, limit).map(im => (
-                  <button key={im.id} onClick={() => setLightbox(im)} className="arch-card ar-imgcard">
-                    <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                    <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
-                    {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
-                    {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
-                  </button>
-                ))}
-              </div>
-              {pool.length > limit && (
-                <div style={{ textAlign: "center", marginTop: 30 }}>
-                  <button className="ar-loadmore" onClick={() => setLimit(l => l + PER)}>טען עוד · נותרו {(pool.length - limit).toLocaleString()}</button>
-                </div>
-              )}
-            </>
+            <RealityStream hints={pool} palette={PALETTES.dark} />
           )}
           </div>
         </div>

@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
-import Lightbox from "../components/Lightbox.jsx";
+import RealityStream from "../components/RealityStream.jsx";
 import { track } from "../lib/tracking.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
@@ -23,7 +23,6 @@ export default function TopicPage() {
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
-  const [lbIdx, setLbIdx] = useState(null); // lightbox גלריה
 
   useEffect(() => { if (slug) track("convergence", slug); }, [slug]);
 
@@ -195,44 +194,15 @@ export default function TopicPage() {
         );
       })()}
 
-      {/* ממצאים בגלריות — תמונות גדולות, מוסברות, בסדר שנקבע, מקשרות לגלריה */}
+      {/* ממצאים בגלריות — masonry, מספרים לינקים, תאריכים, lightbox מובנה */}
       {imgs.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>
           <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>🖼 ממצאים בגלריות ({imgs.length})</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>כל תמונה היא ממצא בציר — בסדר שמספר את הסיפור.</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px,1fr))", gap: 16 }}>
-            {imgs.map((im, i) => {
-              const caption = (im.description || cleanName(im.name) || "").trim();
-              const nums = (im.ocr_numbers || []).filter(n => n >= 10).slice(0, 5);
-              return (
-                <div key={im.id} onClick={() => setLbIdx(i)} style={{ cursor: "zoom-in", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column", transition: "border-color .18s, box-shadow .18s" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; e.currentTarget.style.boxShadow = `0 8px 28px rgba(0,0,0,.35)`; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; e.currentTarget.style.boxShadow = "none"; }}
-                >
-                  <div style={{ position: "relative", height: 200, background: "#0a0702", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                    <img src={im.image_url} alt={caption || ""} loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }} />
-                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(8,5,2,0.85)", color: "#f6e27a", fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{i + 1}</span>
-                  </div>
-                  <div style={{ padding: "11px 13px", flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
-                    {caption && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{caption}</div>}
-                    {nums.length > 0 && (
-                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                        {nums.map(n => <span key={n} style={{ fontFamily: F.mono, fontSize: 11.5, fontWeight: 700, color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 8px" }}>{n}</span>)}
-                      </div>
-                    )}
-                    <span style={{ marginTop: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>⤢ לחץ לפתיחה</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {lbIdx != null && (
-            <Lightbox
-              images={imgs.map(im => ({ ...im, all_values: im.ocr_numbers || [], primary_value: (im.ocr_numbers || [])[0] ?? null }))}
-              initialIndex={lbIdx}
-              onClose={() => setLbIdx(null)}
-            />
-          )}
+          <RealityStream
+            hints={imgs.map(im => ({ ...im, all_values: im.ocr_numbers || [], primary_value: (im.ocr_numbers || [])[0] ?? null }))}
+            palette={P}
+          />
         </div>
       )}
 
