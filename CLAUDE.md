@@ -36,6 +36,17 @@
 3. **חישוב גימטריה = מאושר-מראש** (`auto_compute_preapproved`). **כתיבה לליבה (UPDATE/DELETE/ALTER/הסתרה) דורשת אישור מפורש של צוריאל.** תיקון שורה מחוברת לפוסט = במקום, לא החלפה (`preserve_linked_row`).
 4. **מנוע רשמי בלבד** (`gematria_engine_law`): אסור לחשב גימטריה מזיכרון / ניחוש / ידנית — רק דרך פונקציות המערכת (`src/lib/gematria.js`). באי-ודאות — לעצור ולאמת. ביטוי שצוריאל הציג וכבר אומת = **נתון מערכת**, לא לחשב מחדש ללא צורך (`verified_value_is_system_data`).
 
+## ⛔ פרסום פוסטים — חוק ליבה (`post_publish_law`) — לקרוא לפני כל INSERT
+> **חוק נעול ב-DB:** `select description from nodes where rule_id='post_publish_law';`
+
+**הכי חשוב — שדות שגורמים לפוסט להיעלם:**
+- **`modified` חייב להיות שווה ל-`date`** — לעולם לא null. רשימת /post ממוינת לפי `modified DESC nullsFirst:false`; פוסט עם `modified=null` שוקע לסוף ולא נראה.
+- **תמונה בתוכן:** אם יש `image_url` — להכניסה גם לתוך `content` עם הגבלת גודל. לא מכניסים תמונה ענקית ללא `max-width`. פורמט:
+  ```html
+  <div style="text-align:center;margin:22px 0;"><img src="URL" alt="תיאור" style="max-width:280px;width:100%;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,0.5);" /></div>
+  ```
+- **אימות אחרי INSERT:** `SELECT id, slug, date, modified FROM posts WHERE slug='<slug>' LIMIT 1;` — אם modified=null → `UPDATE posts SET modified=date WHERE id=<id>;`
+
 ## פרסום פוסטים — מוסכמות (לכבד תמיד)
 - **פוסט על אירוע שקורה ("משהו שקורה" / חדשות / תיעוד בזמן אמת)** → תמיד לשייך לקטגוריה **`תיעוד אירועים`**.
 - **קטגוריות ותגיות — להשתמש בקיימות, לא להמציא כפילויות.** לפני פרסום: `select distinct unnest(categories) from posts;` / `... unnest(tags) ...` ולחפש את הקיים (למשל פוסט פרה אדומה → תגית `פרה אדומה`, קטגוריה `בית המקדש השלישי`).
