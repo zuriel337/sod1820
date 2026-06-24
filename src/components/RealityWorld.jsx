@@ -36,7 +36,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
   useEffect(() => {
-    getRealityHints(1000).then(r => { setHints(r || []); markSeenKey("home-gallery"); }).catch(() => setHints([]));
+    getRealityHints(50).then(r => { setHints(r || []); markSeenKey("home-gallery"); }).catch(() => setHints([]));
     reloadSets();
   }, []);
 
@@ -116,7 +116,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   async function addToStream(img) {
     try {
       await addImageToRealityStream(img.id);
-      setHints(await getRealityHints(1000));
+      setHints(await getRealityHints(50));
       setPicker(p => p ? { ...p, images: p.images.filter(i => i.id !== img.id) } : null);
     } catch (e) { alert("הוספה נכשלה: " + (e.message || e)); }
   }
@@ -282,18 +282,92 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         );
       })()}
 
-      <RealityStream
-        hints={showHero && filtered.length > 0 ? filtered.slice(1) : filtered}
-        cutoff={cutoff}
-        compact={compact}
-        onPick={setValue}
-        palette={P}
-        onLightbox={showHero ? (_, relIdx) => setLbIdx(1 + relIdx) : undefined}
-        onEdit={isAdmin ? h => setEditImg(h) : null}
-      />
+      {/* ===== פריסה: עמודה שמאלית (Hero Strip) + זרם ראשי ===== */}
+      {(() => {
+        const useHeroStrip = !compact && !showHero && filtered.length >= 2;
+        const heroHints = useHeroStrip ? filtered.slice(0, 3) : [];
+        const streamHints = showHero && filtered.length > 0 ? filtered.slice(1)
+          : useHeroStrip ? filtered.slice(3)
+          : filtered;
+        const streamLbOffset = showHero ? 1 : useHeroStrip ? 3 : 0;
 
-      {/* לייטבוקס מאוחד — מכסה hero + גריד */}
-      {showHero && lbIdx != null && (
+        return (
+          <div style={{ display: "grid", gridTemplateColumns: useHeroStrip ? "200px 1fr" : "1fr", gap: 16 }}>
+            {/* עמודה שמאלית — 3 התמונות האחרונות */}
+            {useHeroStrip && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>📍 אחרונים</div>
+                {heroHints.map((h, i) => {
+                  const isLarge = i === 0;
+                  const v = h.primary_value;
+                  const title = h.name ? h.name.replace(/^(עדכון|נוספה תמונה|added|update)[^,\n]*/i, "").trim() : "";
+                  const date = h.occurred_at ? new Date(h.occurred_at).toLocaleDateString("he-IL", { day: "numeric", month: "short" }) : "";
+                  return (
+                    <div key={h.id} onClick={() => setLbIdx(i)}
+                      style={{ cursor: "zoom-in", position: "relative", borderRadius: isLarge ? 14 : 10, overflow: "hidden", flexShrink: 0,
+                        height: isLarge ? 190 : 120, border: `1px solid ${P.borderStrong}`,
+                        boxShadow: isLarge ? `0 6px 28px rgba(0,0,0,0.5), 0 0 18px ${P.glow}` : "none",
+                        transition: "transform .18s, box-shadow .18s" }}
+                      onMouseEnter={e => e.currentTarget.style.transform = "scale(1.02)"}
+                      onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                    >
+                      {h.image_url
+                        ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        : <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#1a1200,#0a0a0a)" }} />
+                      }
+                      {/* gradient overlay */}
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, transparent 30%, rgba(0,0,0,0.65) 100%)", pointerEvents: "none" }} />
+                      {/* number badge */}
+                      {v != null && (
+                        <Link to={`/number/${v}`} onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", top: 6, insetInlineStart: 6, background: "rgba(212,175,55,0.95)", color: "#1a0e00",
+                            fontFamily: F.mono, fontWeight: 900, fontSize: isLarge ? 17 : 13, borderRadius: 8, padding: "2px 8px", zIndex: 2, textDecoration: "none", lineHeight: 1.2 }}>
+                          {v}
+                        </Link>
+                      )}
+                      {/* edit (admin) */}
+                      {isAdmin && (
+                        <button onClick={e => { e.stopPropagation(); setEditImg(h); }}
+                          title="ערוך" style={{ position: "absolute", top: 6, insetInlineEnd: 6, zIndex: 3,
+                            background: "rgba(0,0,0,0.5)", color: "#fff", border: "none", borderRadius: 999,
+                            width: 22, height: 22, fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✏️</button>
+                      )}
+                      {/* bottom info */}
+                      {(title || date) && (
+                        <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: isLarge ? "10px 10px 8px" : "6px 8px 6px", zIndex: 2 }}>
+                          {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: isLarge ? 13 : 11, fontWeight: 700, textShadow: "0 1px 6px rgba(0,0,0,0.9)", lineHeight: 1.3,
+                            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>}
+                          {date && <div style={{ color: "rgba(255,255,255,0.6)", fontFamily: F.heading, fontSize: 10, marginTop: 2 }}>{date}</div>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {/* link to full archive */}
+                <Link to="/archive" style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, textDecoration: "none", textAlign: "center", padding: "4px 0", borderTop: `1px solid ${P.border}`, marginTop: 4 }}>
+                  ← הזרם המלא
+                </Link>
+              </div>
+            )}
+
+            {/* עמודה ימנית — הזרם הראשי */}
+            <div style={{ minWidth: 0 }}>
+              <RealityStream
+                hints={streamHints}
+                cutoff={cutoff}
+                compact={compact}
+                onPick={setValue}
+                palette={P}
+                onLightbox={(_, relIdx) => setLbIdx(streamLbOffset + relIdx)}
+                onEdit={isAdmin ? h => setEditImg(h) : null}
+              />
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* לייטבוקס מאוחד — hero strip + גריד */}
+      {lbIdx != null && (
         <Lightbox images={filtered} initialIndex={lbIdx} onClose={() => setLbIdx(null)}
           onEdit={isAdmin ? h => { setLbIdx(null); setEditImg(h); } : null} />
       )}

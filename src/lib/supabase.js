@@ -879,6 +879,27 @@ export async function addImageToRealityStream(id, occurredAt = null) {
   if (error) throw error;
   return data;
 }
+
+// גלריה ציבורית — כל התמונות עם פילטר סוג + חיפוש + פגינציה
+export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "" } = {}) {
+  if (!supabase) return { data: [], count: 0 };
+  let q = supabase.from('gallery_images')
+    .select('id,name,description,image_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true);
+  if (type) q = q.eq('image_type', type);
+  if (search.trim()) {
+    const t = search.trim();
+    if (/^\d+$/.test(t)) { const n = parseInt(t, 10); q = q.or(`primary_value.eq.${n},all_values.cs.{${n}}`); }
+    else q = q.or(`name.ilike.%${t}%,description.ilike.%${t}%`);
+  }
+  const { data, count, error } = await q
+    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .range(page * limit, (page + 1) * limit - 1);
+  if (error) return { data: [], count: 0 };
+  return { data: data || [], count: count || 0 };
+}
 export async function createTopicCardDraft(card) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('topic_cards')

@@ -37,6 +37,7 @@ const TABS = [
   { key: "curation", label: "⭐ אצירת תמונות" },
   { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
+  { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
   { key: "worklog",  label: "📝 יומן עבודה" },
   { key: "stream",   label: "🌊 זרם המציאות" },
@@ -107,6 +108,7 @@ export default function AdminPage() {
       {tab === "curation" && <CurationTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
+      {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
       {tab === "worklog" && <WorkLogTab />}
       {tab === "stream" && <StreamAdminTab />}
@@ -2387,6 +2389,131 @@ function Empty({ children }) { return <div style={{ textAlign: "center", color: 
 
 const fld = { background: "rgba(0,0,0,0.3)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.heading, fontSize: 13, padding: "9px 12px", width: "100%", boxSizing: "border-box", direction: "rtl", outline: "none" };
 
+// ===== ClassifyTab — סיווג מהיר של תמונות =====
+const IMAGE_TYPES = [
+  { key: "hint",      label: "💡 רמז",       shortcut: "H", color: "#e9c84a" },
+  { key: "gematria",  label: "🔢 גימטריה",   shortcut: "G", color: "#7bbf7b" },
+  { key: "method",    label: "📐 שיטה",       shortcut: "M", color: "#80b4ff" },
+  { key: "event",     label: "📰 אירוע",      shortcut: "E", color: "#f4a56a" },
+  { key: "gallery",   label: "🖼 כללי",       shortcut: "K", color: "#b08fff" },
+];
+
+function ClassifyTab() {
+  const [imgs, setImgs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [saving, setSaving] = useState({});
+  const [done, setDone] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  const PAGE = 50;
+
+  async function loadPage(p, all) {
+    if (!supabase) return;
+    setLoading(true);
+    let q = supabase.from("gallery_images")
+      .select("id,name,image_url,primary_value,occurred_at,image_type,source", { count: "exact" });
+    if (!all) q = q.is("image_type", null);
+    const { data, count, error } = await q.order("created_at", { ascending: false }).range(p * PAGE, (p + 1) * PAGE - 1);
+    if (!error) { setImgs(data || []); setTotal(count || 0); }
+    setLoading(false);
+  }
+
+  useEffect(() => { loadPage(page, showAll); }, [page, showAll]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      const t = IMAGE_TYPES.find(t => t.shortcut === e.key.toUpperCase());
+      if (t && imgs.length) classifyFirst(imgs[0].id, t.key);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [imgs]);
+
+  async function classify(id, type) {
+    setSaving(p => ({ ...p, [id]: true }));
+    try {
+      await setImageCuration(id, { image_type: type });
+      setImgs(prev => prev.filter(i => i.id !== id));
+      setDone(p => p + 1);
+      setTotal(p => p - 1);
+    } catch(e) { alert("שגיאה: " + e.message); }
+    setSaving(p => ({ ...p, [id]: false }));
+  }
+
+  function classifyFirst(id, type) { classify(id, type); }
+
+  const classified = done;
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+            🏷️ סיווג תמונות {showAll ? "(הכל)" : "(לא מסווגות)"}
+          </div>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>
+            {total} תמונות · סווגתי {classified} כרגע
+          </span>
+          <button onClick={() => { setShowAll(p => !p); setPage(0); setDone(0); }} style={{ ...iconBtn, marginRight: "auto" }}>
+            {showAll ? "הצג לא מסווגות" : "הצג הכל"}
+          </button>
+        </div>
+
+        <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginBottom: 8 }}>קיצורי מקלדת:</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {IMAGE_TYPES.map(t => (
+              <span key={t.key} style={{ color: t.color, fontFamily: F.heading, fontSize: 12, background: "rgba(0,0,0,0.35)", border: `1px solid ${t.color}44`, borderRadius: 6, padding: "3px 10px" }}>
+                <kbd style={{ fontWeight: 800 }}>{t.shortcut}</kbd> = {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {loading ? <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 13, padding: 20 }}>טוען…</div> : (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+              {imgs.map((img, idx) => (
+                <div key={img.id} style={{ background: "rgba(0,0,0,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden", position: "relative" }}>
+                  {idx === 0 && <div style={{ position: "absolute", top: 6, right: 6, background: C.gold, color: "#1a0e00", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", zIndex: 2 }}>⌨️ NEXT</div>}
+                  <img src={img.image_url} alt="" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} onError={e => { e.target.style.display = "none"; }} />
+                  <div style={{ padding: "8px 10px 10px" }}>
+                    <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 4 }}>
+                      {img.name || "(ללא שם)"}
+                    </div>
+                    <div style={{ color: C.muted, fontFamily: "monospace", fontSize: 10, marginBottom: 8 }}>
+                      #{img.primary_value || "?"} · {img.source || "?"} · {img.image_type ? `✓ ${img.image_type}` : "לא מסווג"}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
+                      {IMAGE_TYPES.map(t => (
+                        <button key={t.key} disabled={!!saving[img.id]} onClick={() => classify(img.id, t.key)} style={{
+                          cursor: "pointer", border: `1px solid ${t.color}66`, borderRadius: 7, padding: "5px 8px",
+                          background: saving[img.id] ? "rgba(0,0,0,0.2)" : `${t.color}11`,
+                          color: t.color, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
+                        }}>{t.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {!imgs.length && <Empty>{showAll ? "אין תמונות" : "✅ כל התמונות מסווגות!"}</Empty>}
+            {total > PAGE && (
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16, alignItems: "center" }}>
+                <button disabled={page === 0} onClick={() => setPage(p => p - 1)} style={iconBtn}>→ הקודם</button>
+                <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>עמוד {page + 1}</span>
+                <button disabled={(page + 1) * PAGE >= total} onClick={() => setPage(p => p + 1)} style={iconBtn}>← הבא</button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ===== MetaTab — מעקב Meta Pixel + CAPI =====
 const CAPI_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/meta-capi";
 function MetaTab() {
@@ -2595,3 +2722,4 @@ function StreamAdminTab() {
     </div>
   );
 }
+
