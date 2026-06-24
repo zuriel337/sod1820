@@ -46,6 +46,7 @@ const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx
 const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
+const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
@@ -124,6 +125,7 @@ export default function App() {
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
           <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
