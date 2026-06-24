@@ -85,6 +85,12 @@ export default function ArchivePage() {
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
   const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
   const [draftOrder, setDraftOrder] = useState([]);   // רשימת מזהי תמונות מובלטות (סדר)
+  // workspace dashboard
+  const [typeFilter, setTypeFilter] = useState(null);  // null/'hint'/'gematria'/'method'/'event'/'gallery'/'__none'
+  const [sourceFilter, setSourceFilter] = useState(null); // null/'update'/'not-update'
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [multiSelect, setMultiSelect] = useState(false);
+  const [masonryView, setMasonryView] = useState(true);
 
   useEffect(() => {
     getGalleriesOverview().then(({ gals, imgs }) => {
@@ -217,6 +223,10 @@ export default function ArchivePage() {
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
       if (qNum != null) { if (!hintNums(im).includes(qNum)) return false; }
       else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
+      if (typeFilter === '__none') { if (im.image_type != null) return false; }
+      else if (typeFilter) { if (im.image_type !== typeFilter) return false; }
+      if (sourceFilter === 'update') { if (im.source !== 'update') return false; }
+      else if (sourceFilter === 'not-update') { if (im.source === 'update') return false; }
       return true;
     });
     if (sortMode === "cross") {
@@ -288,6 +298,36 @@ export default function ArchivePage() {
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
 
+  // ── batch actions ──
+  function toggleSelect(id) {
+    setSelectedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  }
+  async function addSelectedToStream() {
+    for (const id of selectedIds) {
+      const im = imgs.find(x => x.id === id);
+      if (im && im.source !== 'update') await addToStream(im).catch(() => {});
+    }
+    setSelectedIds(new Set());
+  }
+  async function removeSelectedFromStream() {
+    for (const id of selectedIds) {
+      await setImageCuration(id, { source: 'manual' }).catch(() => {});
+    }
+    setImgs(prev => prev.map(x => selectedIds.has(x.id) ? { ...x, source: 'manual' } : x));
+    setSelectedIds(new Set());
+  }
+  async function setTypeForSelected(type) {
+    const patch = { image_type: type || null };
+    for (const id of selectedIds) await setImageCuration(id, patch).catch(() => {});
+    setImgs(prev => prev.map(x => selectedIds.has(x.id) ? { ...x, ...patch } : x));
+    setSelectedIds(new Set());
+  }
+  async function addGalleryToStream(galleryId) {
+    const gimgs = imgs.filter(im => im.gallery_id === galleryId && im.source !== 'update');
+    if (!gimgs.length) return;
+    for (const im of gimgs) await addToStream(im).catch(() => {});
+  }
+
   async function reloadSets() { try { setSets(await getNumberSets()); } catch {} }
   async function saveBuilder() {
     const nums = [...builder.numbers].sort((a, b) => a - b);
@@ -304,7 +344,7 @@ export default function ArchivePage() {
   }
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1280, margin: "0 auto", padding: "48px 16px 90px", position: "relative", zIndex: 1 }}>
+    <div style={{ direction: "rtl", maxWidth: tab === "pool" ? "none" : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 0 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
       <SideRailAd />
       <div style={{ textAlign: "center", marginBottom: 22 }}>
@@ -388,157 +428,187 @@ export default function ArchivePage() {
       {tab === "pool" && (
         <div className="ar-layout">
           <aside className="ar-side">
-          {/* סטים */}
-          <div className="ar-side-title">🔢 מאגר סטים</div>
-          <div className="ar-row">
-            {sets.map(s => (
-              <span key={s.id} style={{ display: "inline-flex", alignItems: "center" }}>
-                <button className={`ar-set${activeSet?.id === s.id ? " active" : ""}`} onClick={() => setActiveSet(activeSet?.id === s.id ? null : s)}
-                  title={(s.description || "") + " · " + (s.numbers || []).join(", ")}>
-                  {s.name} <span className="ar-set-nums">{(s.numbers || []).join("·")}</span>
+            {/* ── סוגי תמונות (מחוק העץ האחד) ── */}
+            <div className="ar-side-title">📂 סוג תמונה</div>
+            <div className="ar-type-btns">
+              {[
+                [null,       '🖼 הכל',        imgs.length],
+                ['hint',     '💡 רמזים',       imgs.filter(x => x.image_type === 'hint').length],
+                ['gematria', '🔢 גימטריה',     imgs.filter(x => x.image_type === 'gematria').length],
+                ['method',   '📐 שיטות',       imgs.filter(x => x.image_type === 'method').length],
+                ['event',    '📰 אירועים',     imgs.filter(x => x.image_type === 'event').length],
+                ['gallery',  '🗂 כללי',        imgs.filter(x => x.image_type === 'gallery').length],
+                ['__none',   '❓ לא מסווג',    imgs.filter(x => x.image_type == null).length],
+              ].map(([k, l, cnt]) => (
+                <button key={String(k)} className={`ar-type-btn${typeFilter === k ? ' active' : ''}`}
+                  onClick={() => setTypeFilter(prev => prev === k ? null : k)}>
+                  <span>{l}</span>
+                  <span className="ar-type-cnt">{cnt}</span>
                 </button>
-                {isAdmin && (
-                  <>
-                    <button className="ar-icn" title="עריכה" onClick={() => setBuilder({ id: s.id, name: s.name, numbers: new Set(s.numbers || []) })}>✎</button>
-                    <button className="ar-icn" title="מחיקה" onClick={() => removeSet(s.id)}>🗑</button>
-                  </>
-                )}
-              </span>
-            ))}
-            {isAdmin && <button className="ar-set ar-new" onClick={() => setBuilder({ name: "", numbers: new Set() })}>➕ סט חדש</button>}
-            <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>כל הגלריות</button>
-          </div>
+              ))}
+            </div>
 
-          {/* בונה-סטים (מנהלים) */}
-          {isAdmin && builder && (
-            <div className="ar-builder">
-              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
-                <input className="ar-input" value={builder.name} placeholder="שם הסט (למשל: דוד המלך)"
-                  onChange={e => setBuilder(b => ({ ...b, name: e.target.value }))} />
-                <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>
-                  {builder.numbers.size} מספרים · {pool.length /* preview uses current filters; rough */ ? "" : ""}
-                  {imgs.filter(im => hintNums(im).some(v => builder.numbers.has(v))).length} תמונות
+            {/* ── מקור ── */}
+            <div className="ar-side-title" style={{ marginTop: 16 }}>🌊 מקור</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
+              {[
+                [null,        '📦 כל המאגר',   imgs.length],
+                ['update',    '🌊 בזרם כרגע',  imgs.filter(x => x.source === 'update').length],
+                ['not-update','📁 גלריה בלבד', imgs.filter(x => x.source !== 'update').length],
+              ].map(([k, l, cnt]) => (
+                <button key={String(k)} className={`ar-type-btn${sourceFilter === k ? ' active' : ''}`}
+                  onClick={() => setSourceFilter(prev => prev === k ? null : k)}>
+                  <span>{l}</span>
+                  <span className="ar-type-cnt">{cnt}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* ── מאגר סטים ── */}
+            <div className="ar-side-title" style={{ marginTop: 16 }}>🔢 מאגר סטים</div>
+            <div className="ar-row" style={{ marginTop: 6 }}>
+              <button className={`ar-set${!activeSet ? " active" : ""}`} onClick={() => setActiveSet(null)}>כל הגלריות</button>
+              {sets.map(s => (
+                <span key={s.id} style={{ display: "inline-flex", alignItems: "center" }}>
+                  <button className={`ar-set${activeSet?.id === s.id ? " active" : ""}`}
+                    onClick={() => setActiveSet(activeSet?.id === s.id ? null : s)}
+                    title={(s.description || "") + " · " + (s.numbers || []).join(", ")}>
+                    {s.name} <span className="ar-set-nums">{(s.numbers || []).join("·")}</span>
+                  </button>
+                  {isAdmin && (
+                    <>
+                      <button className="ar-icn" title="עריכה" onClick={() => setBuilder({ id: s.id, name: s.name, numbers: new Set(s.numbers || []) })}>✎</button>
+                      <button className="ar-icn" title="מחיקה" onClick={() => removeSet(s.id)}>🗑</button>
+                    </>
+                  )}
                 </span>
-                <AddNumber onAdd={n => setBuilder(b => { const s = new Set(b.numbers); s.add(n); return { ...b, numbers: s }; })} />
-                <div style={{ flex: 1 }} />
-                <button className="ar-save" onClick={saveBuilder}>💾 שמור</button>
-                <button className="ar-cancel" onClick={() => setBuilder(null)}>ביטול</button>
-              </div>
-              {builder.numbers.size > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-                  {[...builder.numbers].sort((a, b) => a - b).map(n => (
-                    <button key={n} className="ar-pill active ar-sm" onClick={() => setBuilder(b => { const s = new Set(b.numbers); s.delete(n); return { ...b, numbers: s }; })}>
-                      {n} ✕
+              ))}
+              {isAdmin && <button className="ar-set ar-new" onClick={() => setBuilder({ name: "", numbers: new Set() })}>➕ סט חדש</button>}
+            </div>
+
+            {/* ── בונה-סטים ── */}
+            {isAdmin && builder && (
+              <div className="ar-builder" style={{ marginTop: 10 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+                  <input className="ar-input" value={builder.name} placeholder="שם הסט…"
+                    onChange={e => setBuilder(b => ({ ...b, name: e.target.value }))} />
+                  <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>
+                    {imgs.filter(im => hintNums(im).some(v => builder.numbers.has(v))).length} תמונות
+                  </span>
+                  <AddNumber onAdd={n => setBuilder(b => { const s = new Set(b.numbers); s.add(n); return { ...b, numbers: s }; })} />
+                  <button className="ar-save" onClick={saveBuilder}>💾</button>
+                  <button className="ar-cancel" onClick={() => setBuilder(null)}>✕</button>
+                </div>
+                {builder.numbers.size > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+                    {[...builder.numbers].sort((a, b) => a - b).map(n => (
+                      <button key={n} className="ar-pill active ar-sm" onClick={() => setBuilder(b => { const s = new Set(b.numbers); s.delete(n); return { ...b, numbers: s }; })}>
+                        {n} ✕
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {numOptions.slice(0, 24).map(({ n, k }) => (
+                    <button key={n} className={`ar-pill ar-sm${builder.numbers.has(n) ? " active" : ""}`}
+                      onClick={() => setBuilder(b => { const s = new Set(b.numbers); s.has(n) ? s.delete(n) : s.add(n); return { ...b, numbers: s }; })}>
+                      {n}<span className="ar-count">{k}</span>
                     </button>
                   ))}
                 </div>
-              )}
-              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 6 }}>הוסף מהמספרים הנפוצים:</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {numOptions.slice(0, 30).map(({ n, k }) => (
-                  <button key={n} className={`ar-pill ar-sm${builder.numbers.has(n) ? " active" : ""}`}
-                    onClick={() => setBuilder(b => { const s = new Set(b.numbers); s.has(n) ? s.delete(n) : s.add(n); return { ...b, numbers: s }; })}>
-                    {n}<span className="ar-count">{k}</span>
-                  </button>
-                ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* פילטרים */}
-          <div className="ar-panel">
-            <div className="ar-row">
+            {/* ── חיפוש + פילטרים נוספים ── */}
+            <div style={{ marginTop: 16 }}>
               <div className="ar-search">
                 <span aria-hidden>🔎</span>
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="חיפוש לפי מספר (למשל 1237) או טקסט בתיאור…" aria-label="חיפוש" />
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר או טקסט…" aria-label="חיפוש" />
                 {query && <button className="ar-x" onClick={() => setQuery("")}>×</button>}
               </div>
-              <button className={`ar-pill${filtersOpen ? " active" : ""}`} onClick={() => setFiltersOpen(o => !o)} title="סינון מתקדם">
-                🎚️ סינון {filtersOpen ? "▲" : "▾"}
-              </button>
-            </div>
 
-            {filtersOpen && (
-              <>
-                <div className="ar-row">
-                  <div className="ar-seg" role="group" aria-label="תצוגה">
-                    <button className={`ar-pill${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")} title="רשימת גלריות">🗂 גלריות</button>
-                    <button className={`ar-pill${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")} title="כל התמונות">🖼 תמונות</button>
+              {/* תצוגה ומיון — רק בתמונות */}
+              <div className="ar-row" style={{ marginTop: 10 }}>
+                <button className={`ar-pill ar-sm${viewMode === "galleries" ? " active" : ""}`} onClick={() => setViewMode("galleries")}>🗂 גלריות</button>
+                <button className={`ar-pill ar-sm${viewMode === "images" ? " active" : ""}`} onClick={() => setViewMode("images")}>🖼 תמונות</button>
+              </div>
+              {viewMode === "images" && (
+                <div className="ar-row" style={{ marginTop: 6 }}>
+                  <button className={`ar-pill ar-sm${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")}>📅 תאריך</button>
+                  <button className={`ar-pill ar-sm${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")}>🗂 גלריה</button>
+                  <button className={`ar-pill ar-sm${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")}>⚡ הצטלבויות</button>
+                </div>
+              )}
+
+              {/* מספרים נפוצים */}
+              {hotNums.length > 0 && (
+                <>
+                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginTop: 12, marginBottom: 5 }}>⚡ מספרים נפוצים</div>
+                  <div className="ar-row">
+                    {hotNums.map(({ n }) => (
+                      <button key={n} className={`ar-pill ar-sm${numFilters.has(n) ? " active" : ""}`} onClick={() => toggleNum(n)}>{n}</button>
+                    ))}
                   </div>
-                  {viewMode === "images" && (
-                    <div className="ar-seg" role="group" aria-label="מיון">
-                      <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
-                      <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
-                      <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
+                  {numFilters.size > 0 && (
+                    <div className="ar-row" style={{ marginTop: 6 }}>
+                      <button className={`ar-pill ar-sm${filterMode === "OR" ? " active" : ""}`} onClick={() => setFilterMode("OR")}>OR</button>
+                      <button className={`ar-pill ar-sm${filterMode === "AND" ? " active" : ""}`} onClick={() => setFilterMode("AND")}>AND</button>
+                      <button className={`ar-pill ar-sm${dominantOnly ? " active" : ""}`} onClick={() => setDominantOnly(v => !v)}>דומיננטי</button>
                     </div>
                   )}
-                </div>
-                {numOptions.length > 0 && (
-                  <>
-                    {/* "מספרים חזקים" — top-10 לפי שכיחות, הצעות מהירות */}
-                    <div className="ar-row">
-                      <span className="ar-label">⚡ נפוצים</span>
-                      {hotNums.map(({ n }) => (
-                        <button key={n} className={`ar-pill ar-sm${numFilters.has(n) ? " active" : ""}`} onClick={() => toggleNum(n)} title="הוסף לסינון">
-                          {n}
-                        </button>
-                      ))}
-                    </div>
-                    {/* כל המספרים */}
-                    <div className="ar-row">
-                      <span className="ar-label">🔢 מספר</span>
-                      {shownNums.map(({ n, k }) => (
-                        <button key={n} className={`ar-pill ar-sm${numFilters.has(n) ? " active" : ""}`} onClick={() => toggleNum(n)}>
-                          {n}<span className="ar-count">{k}</span>
-                        </button>
-                      ))}
-                      {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
-                    </div>
-                    {/* AND / OR + דומיננטי — מופיע כשנבחרו מספרים */}
-                    {numFilters.size > 0 && (
-                      <div className="ar-row">
-                        <span className="ar-label">🔗 סינון</span>
-                        <button className={`ar-pill ar-sm${filterMode === "OR" ? " active" : ""}`} onClick={() => setFilterMode("OR")} title="תמונה עם לפחות אחד מהמספרים">OR — אחד מהם</button>
-                        <button className={`ar-pill ar-sm${filterMode === "AND" ? " active" : ""}`} onClick={() => setFilterMode("AND")} title="תמונה עם כל המספרים יחד">AND — כולם</button>
-                        <button className={`ar-pill ar-sm${dominantOnly ? " active" : ""}`} onClick={() => setDominantOnly(v => !v)} title="רק תמונות שמספר זה הוא הדומיננטי שלהן">דומיננטי בלבד</button>
-                      </div>
-                    )}
-                  </>
-                )}
-                {yearOptions.length > 0 && (
+                </>
+              )}
+
+              {/* שנה */}
+              {yearOptions.length > 0 && (
+                <>
+                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginTop: 12, marginBottom: 5 }}>🗓️ שנה</div>
                   <div className="ar-row">
-                    <span className="ar-label">🗓️ שנה</span>
                     {yearOptions.map(y => (
                       <button key={y} className={`ar-pill ar-sm${yearFilter === y ? " active" : ""}`} onClick={() => setYearFilter(p => p === y ? null : y)}>{y}</button>
                     ))}
                   </div>
-                )}
-              </>
-            )}
-            {hasFilter && (
-              <div className="ar-row" style={{ paddingTop: 4, borderTop: `1px solid ${C.faint}` }}>
-                {activeSet && <span className="ar-chip">סט: {activeSet.name}<button onClick={() => setActiveSet(null)}>×</button></span>}
-                {[...numFilters].map(n => (
-                  <span key={n} className="ar-chip">
-                    {n}<button onClick={() => toggleNum(n)}>×</button>
-                  </span>
-                ))}
-                {numFilters.size >= 2 && (
-                  <button className="ar-pill ar-sm" style={{ padding: "3px 10px" }} onClick={() => setFilterMode(m => m === "AND" ? "OR" : "AND")} title="החלף AND/OR">
-                    {filterMode}
-                  </button>
-                )}
-                {dominantOnly && <span className="ar-chip">דומיננטי<button onClick={() => setDominantOnly(false)}>×</button></span>}
-                {yearFilter != null && <span className="ar-chip">שנה: {yearFilter}<button onClick={() => setYearFilter(null)}>×</button></span>}
-                {q && <span className="ar-chip">חיפוש: {query}<button onClick={() => setQuery("")}>×</button></span>}
-                <button className="ar-clear" onClick={() => { setActiveSet(null); setNumFilters(new Set()); setFilterMode("OR"); setDominantOnly(false); setYearFilter(null); setQuery(""); }}>נקה הכל ×</button>
-              </div>
-            )}
-          </div>
+                </>
+              )}
 
+              {/* chips פעילים + ניקוי */}
+              {(hasFilter || typeFilter || sourceFilter) && (
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.faint}` }}>
+                  <button className="ar-clear" style={{ width: "100%" }} onClick={() => {
+                    setActiveSet(null); setNumFilters(new Set()); setFilterMode("OR"); setDominantOnly(false);
+                    setYearFilter(null); setQuery(""); setTypeFilter(null); setSourceFilter(null);
+                  }}>× נקה כל הפילטרים</button>
+                </div>
+              )}
+            </div>
           </aside>
 
           <div className="ar-feed">
+          {/* ── toolbar: תצוגה + multi-select ── */}
+          {viewMode === "images" && !curating && (
+            <div className="ar-toolbar">
+              <button className={`ar-pill ar-sm${masonryView ? ' active' : ''}`} onClick={() => setMasonryView(true)}>⊞ פסיפס</button>
+              <button className={`ar-pill ar-sm${!masonryView ? ' active' : ''}`} onClick={() => setMasonryView(false)}>🃏 כרטיסים</button>
+              {isAdmin && masonryView && (
+                <button className={`ar-pill ar-sm${multiSelect ? ' active' : ''}`}
+                  onClick={() => { setMultiSelect(m => !m); setSelectedIds(new Set()); }}>
+                  ☑️ {multiSelect ? `בחירה (${selectedIds.size})` : 'בחירה מרובה'}
+                </button>
+              )}
+              {isAdmin && multiSelect && selectedIds.size > 0 && (
+                <>
+                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>·</span>
+                  <button className="ar-save" style={{ fontSize: 12, padding: "5px 12px" }} onClick={addSelectedToStream}>🌊 הכנס לזרם</button>
+                  <button className="ar-cancel" style={{ fontSize: 12, padding: "5px 12px" }} onClick={removeSelectedFromStream}>הוצא מהזרם</button>
+                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>סוג:</span>
+                  {[['hint','💡'],['gematria','🔢'],['method','📐'],['event','📰'],['gallery','🗂'],['','✕']].map(([t, lbl]) => (
+                    <button key={t} className="ar-pill ar-sm" onClick={() => setTypeForSelected(t || null)} title={t || 'נקה סוג'}>{lbl}</button>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+
           {/* גשר לציר האירועים — רק בתצוגת תמונות, לא בגלריות (כדי לא ליצור "חור שחור" מעל הרשימה) */}
           {viewMode === "images" && bridgeEvents.length > 0 && (
             <div className="ar-bridge">
@@ -598,6 +668,11 @@ export default function ArchivePage() {
                           {g.anchor != null && <span className="ar-anchor">{g.anchor}</span>}
                         </span>
                         <span className="ar-acc-name">{g.name || "גלריה"}<span className="ar-acc-sub">{g.count} תמונות</span></span>
+                        {isAdmin && (
+                          <span onClick={e => { e.stopPropagation(); addGalleryToStream(g.id); }}
+                            className="ar-pill ar-sm" style={{ fontSize: 11, padding: "3px 10px", marginInlineEnd: 8 }}
+                            title="הכנס את כל תמונות הגלריה לזרם המציאות">🌊 לזרם</span>
+                        )}
                         <span className="ar-acc-arrow">{open ? "▲" : "▼"}</span>
                       </button>
                       {open && (
@@ -641,7 +716,7 @@ export default function ArchivePage() {
               </div>
             )
           ) : pool.length === 0 ? (
-            <div className="ar-empty">לא נמצאו תמונות תואמות.</div>
+            <div className="ar-empty">לא נמצאו תמונות{typeFilter || sourceFilter ? " עבור הפילטר הנוכחי" : " תואמות"}.</div>
           ) : curated ? (
             <>
               {highlighted.length > 0 && (
@@ -683,6 +758,54 @@ export default function ArchivePage() {
               {rest.length > limit && (
                 <div style={{ textAlign: "center", marginTop: 30 }}>
                   <button className="ar-loadmore" onClick={() => setLimit(l => l + PER)}>טען עוד · נותרו {(rest.length - limit).toLocaleString()}</button>
+                </div>
+              )}
+            </>
+          ) : masonryView ? (
+            <>
+              <div className="ar-masonry">
+                {pool.slice(0, limit).map((im, idx) => {
+                  const isSel = selectedIds.has(im.id);
+                  const TYPE_EMOJI = { hint: '💡', gematria: '🔢', method: '📐', event: '📰', gallery: '🗂' };
+                  return (
+                    <div key={im.id} className={`ar-mcard${isSel ? ' ar-msel' : ''}`}>
+                      <div className="ar-mwrap"
+                        onClick={() => multiSelect
+                          ? toggleSelect(im.id)
+                          : (setLbImages(pool), setLbStart(idx))
+                        }
+                      >
+                        <img src={im.image_url} alt={im.name || ''} loading="lazy"
+                          onError={e => { e.target.style.display = 'none'; }} />
+                        <div className="ar-mshade" />
+                        {multiSelect && <div className={`ar-mchk${isSel ? ' on' : ''}`}>{isSel ? '✓' : ''}</div>}
+                        {im.primary_value != null && !multiSelect && (
+                          <Link to={`/number/${im.primary_value}`} className="ar-mnum" onClick={e => e.stopPropagation()}>{im.primary_value}</Link>
+                        )}
+                        {im.image_type && <span className="ar-mtype">{TYPE_EMOJI[im.image_type] || ''}</span>}
+                        {im.source === 'update' && <span className="ar-mstream-badge">🌊</span>}
+                        {isAdmin && !multiSelect && (
+                          <button className="ar-medit" onClick={e => { e.stopPropagation(); setEditImg(im); }} title="ערוך">✏️</button>
+                        )}
+                        {isAdmin && !multiSelect && im.source !== 'update' && (
+                          <button className="ar-madd" onClick={e => { e.stopPropagation(); addToStream(im); }} title="הכנס לזרם">🌊</button>
+                        )}
+                      </div>
+                      {(im.name || eventLabel(im)) && (
+                        <div className="ar-mcap">
+                          {im.name && <div className="ar-mname">{im.name}</div>}
+                          {eventLabel(im) && <div className="ar-mdate">📅 {eventLabel(im)}</div>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {pool.length > limit && (
+                <div style={{ textAlign: 'center', marginTop: 30 }}>
+                  <button className="ar-loadmore" onClick={() => setLimit(l => l + PER)}>
+                    טען עוד · נותרו {(pool.length - limit).toLocaleString()}
+                  </button>
                 </div>
               )}
             </>
@@ -801,18 +924,68 @@ export default function ArchivePage() {
         .ar-galrow-go { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; padding-inline: 16px; white-space: nowrap; }
         @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
 
-        /* פריסת מאגר: אזור ראשי (ימין) + סרגל צד (שמאל) */
-        .ar-layout { display: grid; grid-template-columns: 1fr 330px; gap: 22px; align-items: start; }
-        .ar-feed { grid-column: 1; min-width: 0; }
-        .ar-side { grid-column: 2; position: sticky; top: 74px; align-self: start; max-height: calc(100vh - 88px); overflow-y: auto;
-          display: flex; flex-direction: column; gap: 12px; padding: 4px; }
+        /* פריסת מאגר: אזור ראשי (ימין RTL) + סרגל צד (שמאל RTL) */
+        .ar-layout { display: grid; grid-template-columns: 1fr 280px; gap: 0; align-items: start; }
+        .ar-feed { grid-column: 1; min-width: 0; padding: 0 16px; }
+        .ar-side { grid-column: 2; position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 76px); overflow-y: auto;
+          display: flex; flex-direction: column; gap: 4px; padding: 16px 14px;
+          border-inline-start: 1px solid rgba(212,175,55,0.12); background: rgba(4,3,8,0.55); }
         .ar-side .ar-row { justify-content: flex-start; }
+        .ar-side-title { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 15px; font-weight: 700; }
         @media (max-width: 900px) {
           .ar-layout { grid-template-columns: 1fr; }
-          /* בנייד: הגלריה/תמונות קודם, הפאנל/סינון מתחת */
-          .ar-feed { grid-column: 1; grid-row: 1; }
-          .ar-side { grid-column: 1; grid-row: 2; position: static; max-height: none; }
+          .ar-feed { grid-column: 1; grid-row: 1; padding: 0 10px; }
+          .ar-side { grid-column: 1; grid-row: 2; position: static; max-height: none; border-inline-start: none;
+            border-top: 1px solid rgba(212,175,55,0.12); }
         }
+        /* type buttons (sidebar) */
+        .ar-type-btns { display: flex; flex-direction: column; gap: 4px; margin-top: 7px; }
+        .ar-type-btn { cursor: pointer; text-align: right; padding: 7px 11px; border-radius: 9px;
+          font-family: ${F.heading}; font-size: 13px; font-weight: 700;
+          border: 1px solid ${C.border}; background: transparent; color: ${C.muted};
+          display: flex; justify-content: space-between; align-items: center;
+          transition: background .15s, border-color .15s, color .15s; }
+        .ar-type-btn:hover { border-color: ${C.gold}44; color: ${C.goldLight}; background: rgba(212,175,55,0.06); }
+        .ar-type-btn.active { background: linear-gradient(135deg,rgba(212,175,55,0.2),rgba(8,5,2,0.4)); border-color: ${C.gold}; color: ${C.goldBright}; }
+        .ar-type-cnt { font-family: ${F.mono}; font-size: 11px; color: ${C.goldDim}; background: rgba(0,0,0,0.3); border-radius: 999px; padding: 1px 7px; }
+        .ar-type-btn.active .ar-type-cnt { color: ${C.gold}; }
+        /* toolbar */
+        .ar-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-bottom: 14px; }
+        /* masonry grid */
+        .ar-masonry { column-count: 4; column-gap: 12px; }
+        @media(max-width:1400px){ .ar-masonry{ column-count:3; } }
+        @media(max-width:900px){ .ar-masonry{ column-count:2; column-gap:8px; } }
+        @media(max-width:480px){ .ar-masonry{ column-count:2; column-gap:6px; } }
+        .ar-mcard { break-inside: avoid; -webkit-column-break-inside: avoid; margin-bottom: 12px;
+          border-radius: 13px; overflow: hidden; border: 1px solid ${C.border}; background: #0d0b10;
+          transition: border-color .18s, box-shadow .18s; }
+        .ar-mcard:hover { border-color: ${C.gold}55; box-shadow: 0 10px 28px rgba(0,0,0,0.5); }
+        .ar-mcard.ar-msel { border-color: ${C.gold}; box-shadow: 0 0 0 2px ${C.gold}66; }
+        .ar-mwrap { position: relative; overflow: hidden; cursor: zoom-in; line-height: 0; }
+        .ar-mwrap img { width: 100%; height: auto; display: block; transition: transform .4s; }
+        .ar-mcard:hover .ar-mwrap img { transform: scale(1.04); }
+        .ar-mshade { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,.22) 0%,transparent 28%,transparent 62%,rgba(0,0,0,.55) 100%); pointer-events: none; }
+        .ar-mchk { position: absolute; top: 8px; inset-inline-start: 8px; width: 22px; height: 22px; border-radius: 999px;
+          border: 2px solid rgba(255,255,255,.65); background: rgba(0,0,0,.45); color: #fff; font-size: 13px; font-weight: 800;
+          display: flex; align-items: center; justify-content: center; z-index: 3; }
+        .ar-mchk.on { background: ${C.gold}; border-color: ${C.gold}; color: #1a0e00; }
+        .ar-mnum { position: absolute; top: 7px; inset-inline-end: 7px; background: rgba(212,175,55,0.95); color: #1a0e00;
+          font-family: ${F.mono}; font-size: 12px; font-weight: 900; border-radius: 999px; padding: 2px 9px; z-index: 2; text-decoration: none; }
+        .ar-mtype { position: absolute; top: 7px; inset-inline-start: 7px; background: rgba(0,0,0,0.62);
+          color: #ffffffcc; font-size: 11px; border-radius: 999px; padding: 2px 7px; z-index: 2; }
+        .ar-mstream-badge { position: absolute; bottom: 7px; inset-inline-start: 7px; background: rgba(0,55,120,0.8);
+          color: #60aaff; font-size: 11px; border-radius: 999px; padding: 2px 7px; z-index: 2; }
+        .ar-medit { position: absolute; bottom: 7px; inset-inline-end: 7px; z-index: 3; background: rgba(0,0,0,.6);
+          color: #fff; border: none; border-radius: 999px; width: 26px; height: 26px; font-size: 12px; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+        .ar-madd { position: absolute; bottom: 7px; inset-inline-end: 38px; z-index: 3; background: rgba(0,45,110,.7);
+          color: #60aaff; border: none; border-radius: 999px; width: 26px; height: 26px; font-size: 11px; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+        .ar-mcard:hover .ar-medit, .ar-mcard:hover .ar-madd { opacity: 1; }
+        .ar-mcap { padding: 8px 11px 10px; }
+        .ar-mname { color: ${C.goldLight}; font-family: ${F.regal}; font-size: 13px; font-weight: 700; line-height: 1.35;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .ar-mdate { color: ${C.muted}; font-family: ${F.heading}; font-size: 10.5px; margin-top: 3px; }
         /* אקורדיון גלריות */
         .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }
         .ar-acc-head { display: flex; align-items: center; gap: 14px; width: 100%; cursor: pointer; text-align: right; background: none; border: none; padding: 10px 14px; }
