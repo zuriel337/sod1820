@@ -828,6 +828,48 @@ export async function getGalleriesForStreamPicker({ limit = 300, search = "" } =
   return data || [];
 }
 
+// ===== ניהול תמונות — עריכה ומחיקה =====
+
+// בדיקת חיבורים לפני מחיקת תמונה — מחזיר רשימת מקומות שהתמונה מופיעה בהם.
+export async function checkImageConnections(imageId, imageUrl) {
+  if (!supabase) return [];
+  const refs = [];
+  try {
+    const { data: topics } = await supabase
+      .from('topic_cards')
+      .select('id,title')
+      .contains('image_ids', [imageId])
+      .limit(10);
+    if (topics?.length) refs.push(...topics.map(t => ({ type: 'topic', label: t.title || 'התכנסות ללא שם' })));
+  } catch {}
+  try {
+    if (imageUrl) {
+      const { data: posts } = await supabase
+        .from('posts')
+        .select('wp_id,title,slug')
+        .eq('image_url', imageUrl)
+        .limit(10);
+      if (posts?.length) refs.push(...posts.map(p => ({ type: 'post', label: p.title || p.slug || 'פוסט' })));
+    }
+  } catch {}
+  try {
+    const { data: ins } = await supabase
+      .from('insights')
+      .select('id,title')
+      .eq('source_ref', String(imageId))
+      .limit(10);
+    if (ins?.length) refs.push(...ins.map(i => ({ type: 'insight', label: i.title || 'חידוש' })));
+  } catch {}
+  return refs;
+}
+
+// מחיקת תמונה מ-gallery_images (מחיקה מוחלטת — מנהל בלבד).
+export async function deleteGalleryImage(id) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('gallery_images').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function addImageToRealityStream(id, occurredAt = null) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('gallery_images')

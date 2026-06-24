@@ -102,7 +102,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
       )}
 
       {!onLightbox && lbIdx != null && (
-        <Lightbox images={hints} initialIndex={lbIdx} onClose={() => setLbIdx(null)} />
+        <Lightbox images={hints} initialIndex={lbIdx} onClose={() => setLbIdx(null)} onEdit={onEdit ? h => { setLbIdx(null); onEdit(h); } : null} />
       )}
     </div>
   );

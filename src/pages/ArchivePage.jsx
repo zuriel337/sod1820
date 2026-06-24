@@ -727,6 +727,7 @@ export default function ArchivePage() {
           image={editImg}
           onSave={handleSave}
           onClose={() => setEditImg(null)}
+          onDelete={id => { setImgs(prev => prev.filter(x => x.id !== id)); setEditImg(null); }}
           onRemoveFromStream={editImg.source === "update" ? handleRemoveFromStream : null}
         />
       )}
@@ -734,7 +735,14 @@ export default function ArchivePage() {
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.95)", overflowY: "auto", padding: "32px 16px", direction: "rtl" }}>
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: 760, margin: "0 auto" }}>
-            <div style={{ textAlign: "left", marginBottom: 8 }}>
+            <div style={{ textAlign: "left", marginBottom: 8, display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              {isAdmin && (
+                <button
+                  onClick={() => { setEditImg(lightbox); setLightbox(null); }}
+                  style={{ background: "rgba(212,175,55,0.15)", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 16, cursor: "pointer", borderRadius: 8, padding: "0 14px", height: 42 }}
+                  title="עריכת תמונה"
+                >✏️</button>
+              )}
               <button onClick={() => setLightbox(null)} style={{ background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 22, cursor: "pointer", borderRadius: 8, width: 42, height: 42 }}>×</button>
             </div>
             <div style={{ background: "rgba(20,15,12,0.5)", border: `1px solid ${C.borderGold}`, borderRadius: 14, overflow: "hidden" }}>

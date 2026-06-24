@@ -4,7 +4,8 @@ import { F } from "../theme.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
 
-export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
+// onEdit(image) — אם מסופק, מציג כפתור ✏️ בראש ה-lightbox (למנהלים בלבד).
+export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const touchStart = useRef(null);
@@ -63,6 +64,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
           </span>
         )}
         <span style={{ flex: 1 }} />
+        {onEdit && (
+          <button
+            onClick={e => { e.stopPropagation(); onEdit(images[idx]); }}
+            style={{ ...closeBtn, fontSize: 16, background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#d4af37" }}
+            aria-label="עריכת תמונה"
+          >✏️</button>
+        )}
         {v != null && (
           <Link
             to={`/number/${v}`}

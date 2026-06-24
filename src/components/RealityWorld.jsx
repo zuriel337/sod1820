@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
-import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream } from "../lib/supabase.js";
+import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream, setImageCuration } from "../lib/supabase.js";
+import ImageEditModal from "./ImageEditModal.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { computePulse, filterHints, hintNums, domNum, shortDate } from "../lib/reality.js";
@@ -30,6 +31,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const [rare, setRare] = useState(false);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set} | null
   const [lbIdx, setLbIdx] = useState(null);           // לייטבוקס מאוחד (שולט כשיש Hero)
+  const [editImg, setEditImg] = useState(null);        // תמונה שנפתחת לעריכה
   const [picker, setPicker] = useState(null);          // {images, search, loading} | null — כלי הוספה לזרם
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
@@ -287,11 +289,34 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         onPick={setValue}
         palette={P}
         onLightbox={showHero ? (_, relIdx) => setLbIdx(1 + relIdx) : undefined}
+        onEdit={isAdmin ? h => setEditImg(h) : null}
       />
 
       {/* לייטבוקס מאוחד — מכסה hero + גריד */}
       {showHero && lbIdx != null && (
-        <Lightbox images={filtered} initialIndex={lbIdx} onClose={() => setLbIdx(null)} />
+        <Lightbox images={filtered} initialIndex={lbIdx} onClose={() => setLbIdx(null)}
+          onEdit={isAdmin ? h => { setLbIdx(null); setEditImg(h); } : null} />
+      )}
+
+      {/* מודאל עריכה */}
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onClose={() => setEditImg(null)}
+          onSave={async patch => {
+            if (Object.keys(patch).length) {
+              await setImageCuration(editImg.id, patch);
+              setHints(prev => prev ? prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x) : prev);
+            }
+            setEditImg(null);
+          }}
+          onDelete={id => setHints(prev => prev ? prev.filter(x => x.id !== id) : prev)}
+          onRemoveFromStream={editImg.source === "update" ? async () => {
+            await setImageCuration(editImg.id, { source: "manual" });
+            setHints(prev => prev ? prev.filter(x => x.id !== editImg.id) : prev);
+            setEditImg(null);
+          } : null}
+        />
       )}
     </div>
   );
