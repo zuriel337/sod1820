@@ -12,6 +12,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
+import HintSetWizard from "../components/HintSetWizard.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
@@ -97,6 +98,7 @@ export default function ArchivePage() {
   const [hintSets, setHintSets] = useState([]);
   const [activeHintSet, setActiveHintSet] = useState(null);
   const [hintSetDraft, setHintSetDraft] = useState(null); // {name, visibility, importance}
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   useEffect(() => {
     getGalleriesOverview().then(({ gals, imgs }) => {
@@ -575,9 +577,9 @@ export default function ArchivePage() {
                     </div>
                   </div>
                 ) : (
-                  <button className="ar-set ar-new" style={{ marginTop: 6 }}
-                    onClick={() => setHintSetDraft({ name: "", visibility: "public", importance: 3 })}>
-                    ➕ סט תוכן חדש
+                  <button className="ar-set ar-new" style={{ marginTop: 6, background: "linear-gradient(135deg,rgba(212,175,55,0.22),rgba(180,140,30,0.12))", border: "1px solid rgba(212,175,55,0.55)", color: "#d4af37", fontWeight: 800 }}
+                    onClick={() => setWizardOpen(true)}>
+                    ✨ אשף סט / מסלול
                   </button>
                 )}
                 {activeHintSet && (
@@ -943,6 +945,14 @@ export default function ArchivePage() {
           initialIndex={lbStart}
           onClose={() => setLbImages(null)}
           onEdit={isAdmin ? h => { setLbImages(null); setEditImg(h); } : null}
+        />
+      )}
+
+      {wizardOpen && isAdmin && (
+        <HintSetWizard
+          imgs={imgs}
+          onClose={() => setWizardOpen(false)}
+          onSaved={async () => { await reloadHintSets(); setWizardOpen(false); }}
         />
       )}
 
