@@ -23,7 +23,7 @@ export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midra
   useEffect(() => {
     let live = true;
     getSearchFeed(tier).then(r => { if (live) setRows(r); }).catch(() => {});
-    const id = setInterval(() => getSearchFeed(tier).then(r => live && setRows(r)).catch(() => {}), 45000);
+    const id = setInterval(() => { if (!document.hidden) getSearchFeed(tier).then(r => live && setRows(r)).catch(() => {}); }, 45000);
     return () => { live = false; clearInterval(id); };
   }, [tier]);
 

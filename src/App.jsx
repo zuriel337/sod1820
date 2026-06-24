@@ -14,7 +14,7 @@ import UpdateBanner from "./components/UpdateBanner.jsx";
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
 import HomeNewPage from "./pages/HomeNewPage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
-import EntityPage from "./pages/EntityPage.jsx";
+const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";

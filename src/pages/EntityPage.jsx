@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
 import AnonToggle from "../components/AnonToggle.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -102,7 +102,7 @@ function ZeroResonance({ value, P }) {
   );
 }
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
-import { SITE_URL } from "../lib/seo.js";
+import { SITE_URL, applySeo, DEFAULT_IMAGE } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { resolve, getScore, getBundle } from "../lib/engine.js";
@@ -279,6 +279,22 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function ShimmerRow({ P, count = 3 }) {
+  return (
+    <>
+      <style>{`
+        @keyframes ep-sh { 100% { transform: translateX(-100%); } }
+        .ep-sk { background: ${P.cardSoft}; border: 1px solid ${P.border}; border-radius: 14px;
+          height: 64px; position: relative; overflow: hidden; margin-bottom: 10px; }
+        .ep-sk::after { content: ""; position: absolute; inset: 0; transform: translateX(100%);
+          background: linear-gradient(90deg, transparent, ${P.glow}, transparent);
+          animation: ep-sh 1.4s ease-in-out infinite; }
+      `}</style>
+      {Array.from({ length: count }).map((_, i) => <div key={i} className="ep-sk" aria-hidden />)}
+    </>
+  );
+}
+
 
 // עוטף תמה ברמת מודול (יציב — מונע remount ואיבוד פוקוס בהקלדה)
 function Shell({ P, children }) {
@@ -363,6 +379,8 @@ export default function EntityPage() {
   const [cardUrl, setCardUrl] = useState(null);   // תמונת המספר שנוצרה (תצוגה מקדימה)
   const [searched, setSearched] = useState(0);    // 🔎 חיפושים כוללים (מד קבוע — מותר: כמה חיפשו)
   const [q, setQ] = useState("");
+  const heroRef = useRef(null);
+  const [heroGone, setHeroGone] = useState(false);
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
   // מילים תמיד פתוחות; השאר דביק (זוכר מה הגולש פתח); ברירת מחדל ראשונה = מילים + שורשים.
   const [open, setOpen] = useState(() => {
@@ -396,19 +414,38 @@ export default function EntityPage() {
 
   useEffect(() => {
     let alive = true;
-    setLoading(true); setData(null); setOpen(o => ({ ...o, words: true }));
-    getBundle({ term, value, isNumber })
-      .then(d => { if (alive) { setData(d); setLoading(false); } })
-      .catch(() => { if (alive) setLoading(false); });
-    document.title = `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"} · סוד 1820`;
+    setLoading(true); setData(null); setHarvest([]); setOpen(o => ({ ...o, words: true }));
+    const quickMsg = buildMessages({ term, value, isNumber, phrases: [] })[0]?.text;
+    applySeo({
+      title: `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"}`,
+      description: quickMsg
+        ? `${term} = ${value} · ${quickMsg}`
+        : `המספר ${value} — גימטריה, מילים שוות, גלריות ועוד`,
+      path: `/number/${encodeURIComponent(phrase)}`,
+      image: DEFAULT_IMAGE,
+    });
     if (term) logSearch(term, value);
     if (value) {
       logView("number", value);
       track("number", String(value));
       getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});
     }
+    Promise.all([
+      getBundle({ term, value, isNumber }),
+      value ? getHarvestedPosts(value, 6) : Promise.resolve([]),
+    ]).then(([d, h]) => {
+      if (alive) { setData(d); setHarvest(h || []); setLoading(false); }
+    }).catch(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [term, value, isNumber]);
+
+  // Sticky nav: מעקב אחרי גלילה מהירו (IntersectionObserver)
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const obs = new IntersectionObserver(([e]) => setHeroGone(!e.isIntersecting), { threshold: 0 });
+    obs.observe(heroRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   // הגעה ממחשבון/שיטה עם focus=dna → פותח את צירי ההתכנסות (DNA) וגולל אליהם
   useEffect(() => {
@@ -418,14 +455,6 @@ export default function EntityPage() {
       return () => clearTimeout(t);
     }
   }, [term]); // eslint-disable-line
-
-  // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה
-  useEffect(() => {
-    let alive = true;
-    setHarvest([]);
-    if (value) getHarvestedPosts(value, 6).then(h => { if (alive) setHarvest(h || []); });
-    return () => { alive = false; };
-  }, [value]);
 
 
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
@@ -454,6 +483,17 @@ export default function EntityPage() {
   }, [value, isNumber]);
   const hasGate = isNumber && sigs.length > 0;
   const gold = useGold();
+
+  // ✦ topic_cards שמכילים מספר זה — גילוי התכנסויות קשורות
+  const [topics, setTopics] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    setTopics([]);
+    if (isNumber && value >= 10) {
+      getTopicCardsByNumber(value).then(t => { if (alive) setTopics(t); }).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, [value, isNumber]);
 
   const d = data || {};
   const chips = [
@@ -487,18 +527,9 @@ export default function EntityPage() {
     );
   }
 
-  // בזמן בדיקת חתימות (מספרים) — placeholder קצר למניעת הבהוב לפני השער
-  if (isNumber && value >= 10 && !sigsLoaded) {
-    return (
-      <Shell P={P}>
-        <div style={{ direction: "rtl", minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, opacity: 0.4 }}>{value}</div>
-        </div>
-      </Shell>
-    );
-  }
   // ── שער מלכותי — נפתח בלחיצה (number_page_law, שכבה 2). נשאר כהה-קולנועי בכוונה ──
-  if (hasGate && !gateOpen) {
+  // sigsLoaded מוודא שלא נראה שער לפני שיודעים אם יש חתימות — ללא חסימת כל הדף.
+  if (sigsLoaded && hasGate && !gateOpen) {
     return <RoyalGate value={value} signatures={sigs} onOpen={() => setGateOpen(true)} onBack={() => nav(-1)} />;
   }
 
@@ -525,8 +556,33 @@ export default function EntityPage() {
           </form>
         </div>
 
+        {/* ── Sticky nav bar — מוצג כשגוללים מתחת להירו ── */}
+        {heroGone && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+            background: P.mode === "dark" ? "rgba(7,5,14,0.95)" : "rgba(246,241,230,0.95)",
+            backdropFilter: "blur(8px)", borderBottom: `1px solid ${P.border}`,
+            display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", direction: "rtl",
+          }}>
+            <span style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{value}</span>
+            {!isNumber && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13 }}>{term}</span>}
+            <span style={{ flex: 1 }} />
+            {[
+              { id: "dna", e: "🧬" }, { id: "words", e: "🌳" },
+              { id: "galleries", e: "🖼" }, { id: "posts", e: "📖" }, { id: "roots", e: "🌱" }
+            ].map(s => (
+              <button key={s.id} onClick={() => goChip(s.id)}
+                style={{ cursor: "pointer", background: "none", border: "none",
+                  color: open[s.id] ? P.accentText : P.accentDim,
+                  fontFamily: F.heading, fontSize: 18, padding: "2px 4px" }}>
+                {s.e}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* ── הירו: מספר + משפט חם + שיתוף ── */}
-        <div style={{ textAlign: "center", marginBottom: 26 }}>
+        <div ref={heroRef} style={{ textAlign: "center", marginBottom: 26 }}>
           <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>
             {isNumber ? "דף המספר" : "דף הביטוי"}
           </div>
@@ -572,6 +628,36 @@ export default function EntityPage() {
               ? `המספר ${value} — מה הוא אומר עליך? 🔢✨\n${SITE_URL}/number/${value}`
               : `הגימטריה של "${term}" = ${value} ✨\nגלו את הסוד בשם שלכם במחשבון של סוד 1820:\n${SITE_URL}/number/${encodeURIComponent(term)}`} />
         </div>
+
+        {/* ── 🧭 ניווט מהיר — קפיצה לסקציה (chips) ── */}
+        {chips.length > 0 && !loading && (
+          <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", marginTop: 18, marginBottom: 4 }}>
+            {chips.map(c => (
+              <button key={c.id} onClick={() => goChip(c.id)}
+                style={{ cursor: "pointer", background: P.cardSoft, border: `1px solid ${P.border}`,
+                  borderRadius: 999, color: P.accentText, fontFamily: F.heading,
+                  fontSize: 13, fontWeight: 700, padding: "6px 14px",
+                  display: "inline-flex", alignItems: "center", gap: 5 }}>
+                {c.e} {c.l}
+                <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 12, fontWeight: 800,
+                  background: P.card, borderRadius: 999, padding: "1px 8px" }}>{c.n}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ── ✦ נושאים — topic_cards שמכילים מספר זה (גרף הידע) ── */}
+        {topics.length > 0 && (
+          <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", marginTop: 10, marginBottom: 4 }}>
+            {topics.map(t => (
+              <Link key={t.slug} to={`/topic/${t.slug}`}
+                style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
+                  borderRadius: 999, padding: "5px 14px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                ✦ {t.title}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* ── 👑 באנר-תפארת לדף-דגל (1820 וכו') — על הדף הקנוני, לא מערכת מקבילה ── */}
         {isNumber && FLAGSHIP[value] && <FlagshipSeals cfg={FLAGSHIP[value]} />}
@@ -684,14 +770,27 @@ export default function EntityPage() {
           );
         })()}
 
-        {/* טעינה / אין קשרים (הוסרה שורת הכפילות שחזרה על כותרות האקורדיונים) */}
-        {loading ? (
-          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 24 }}>טוען…</div>
-        ) : chips.length === 0 ? (
-          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 18, marginBottom: 16 }}>
-            עדיין לא נמצאו קשרים ל«{term}» — נסו מספר או ביטוי אחר.
+        {loading && <ShimmerRow P={P} count={3} />}
+        {!loading && chips.length === 0 && (
+          <div style={{ textAlign: "center", padding: "24px 12px", maxWidth: 480, margin: "0 auto" }}>
+            <p style={{ color: P.ink, fontFamily: F.body, fontSize: 16, lineHeight: 1.8 }}>
+              עדיין לא נמצאו קשרים ל-<b style={{ color: P.accentText }}>{term}</b>.
+              {msgs[0] && ` — ${msgs[0].text}`}
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
+              {[1820, 358, 26, 86, 541].map(n => (
+                <Link key={n} to={`/number/${n}`}
+                  style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
+                    borderRadius: 999, padding: "7px 16px", fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>
+                  {n}
+                </Link>
+              ))}
+            </div>
+            <Link to="/number" style={{ display: "block", marginTop: 16, color: P.accentText, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>
+              🔢 חיפוש חדש →
+            </Link>
           </div>
-        ) : null}
+        )}
 
         {/* ── 📖 פוסטים (כלי עזר — מקס 4 + הצלבות 3) ── */}
         {(d.posts?.length > 0 || harvest.length > 0) && (
