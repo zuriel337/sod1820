@@ -135,6 +135,7 @@ export default async function handler(req) {
           fontSize: '34px',
           letterSpacing: '6px',
           marginBottom: '8px',
+          direction: 'rtl',
         },
       },
       h('span', null, '✦'),
@@ -155,6 +156,7 @@ export default async function handler(req) {
           padding: '4px 24px',
           maxWidth: '1080px',
           textAlign: 'center',
+          direction: 'rtl',
         },
       },
       hero
@@ -171,6 +173,7 @@ export default async function handler(req) {
               marginTop: '24px',
               whiteSpace: 'nowrap',
               textAlign: 'center',
+              direction: 'rtl',
             },
           },
           sub
@@ -188,8 +191,8 @@ export default async function handler(req) {
           gap: '8px',
         },
       },
-      h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800 } }, teaser),
-      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, 'תתחילו לגלות · sod1820.co.il')
+      h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800, direction: 'rtl' } }, teaser),
+      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6', direction: 'rtl' } }, 'תתחילו לגלות · sod1820.co.il')
     )
   );
 
