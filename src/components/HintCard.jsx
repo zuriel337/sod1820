@@ -15,7 +15,7 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
   const title = cleanName(h.name);
   const tags = hintTags(h);
   const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
-  const desc = !title && h.description ? stripHtml(h.description) : null;
+  const desc = h.description ? stripHtml(h.description) : null;
 
   return (
     <article className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>

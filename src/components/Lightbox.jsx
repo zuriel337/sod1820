@@ -4,18 +4,19 @@ import { F } from "../theme.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
 
-// ===== לייטבוקס מסך-מלא — ניווט ←→ + מגע + מקלדת =====
-// RTL: ציר התמונות direction:ltr, translateX(-idx*100%) — חוק ה-CLAUDE.md (carousel_rtl).
-// ניווט: לחצנים + ArrowLeft/ArrowRight + swipe. Escape לסגירה.
-
 export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
   const [idx, setIdx] = useState(initialIndex);
+  const [fadeKey, setFadeKey] = useState(0);
   const touchStart = useRef(null);
 
   useEffect(() => { setIdx(initialIndex); }, [initialIndex]);
 
-  const prev = () => setIdx(i => (i > 0 ? i - 1 : images.length - 1));
-  const next = () => setIdx(i => (i < images.length - 1 ? i + 1 : 0));
+  function go(newIdx) {
+    setIdx(newIdx);
+    setFadeKey(k => k + 1);
+  }
+  const prev = () => go(idx > 0 ? idx - 1 : images.length - 1);
+  const next = () => go(idx < images.length - 1 ? idx + 1 : 0);
 
   useEffect(() => {
     const fn = e => {
@@ -46,16 +47,16 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
         direction: "rtl",
       }}
     >
-      {/* ===== Header ===== */}
+      <style>{`
+        @keyframes lb-fade { from { opacity: 0; transform: scale(.975); } to { opacity: 1; transform: scale(1); } }
+      `}</style>
+
+      {/* Header */}
       <div
         style={{ display: "flex", alignItems: "center", padding: "10px 14px", gap: 10, flexShrink: 0 }}
         onClick={e => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          style={closeBtn}
-          aria-label="סגור"
-        >✕</button>
+        <button onClick={onClose} style={closeBtn} aria-label="סגור">✕</button>
         {images.length > 1 && (
           <span style={{ color: "#ffffff55", fontFamily: F.heading, fontSize: 12.5 }}>
             {idx + 1} / {images.length}
@@ -75,9 +76,9 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
         )}
       </div>
 
-      {/* ===== Image + nav ===== */}
+      {/* Image */}
       <div
-        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", minHeight: 0, overflow: "hidden" }}
+        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", minHeight: 0 }}
         onClick={e => e.stopPropagation()}
         onTouchStart={e => { touchStart.current = e.touches[0].clientX; }}
         onTouchEnd={e => {
@@ -92,54 +93,46 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
           <button onClick={prev} style={navBtnStyle("right")} aria-label="הקודם">&#8250;</button>
         )}
 
-        {/* track direction:ltr + translateX(-idx*100%) כחוק ה-CLAUDE.md */}
-        <div style={{ width: "min(90vw, 1000px)", height: "calc(100vh - 160px)", overflow: "hidden", position: "relative" }}>
-          <div
-            style={{
-              display: "flex", direction: "ltr",
-              width: `${images.length * 100}%`,
-              height: "100%",
-              transition: "transform .35s cubic-bezier(.25,.8,.25,1)",
-              transform: `translateX(-${(idx / images.length) * 100}%)`,
-            }}
-          >
-            {images.map((img, i) => (
-              <div
-                key={img?.id ?? i}
-                style={{ width: `${100 / images.length}%`, height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-              >
-                {img?.image_url
-                  ? <img
-                      src={img.image_url}
-                      alt={cleanName(img?.name) || ""}
-                      style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 10, display: "block" }}
-                    />
-                  : <div style={{ width: 360, height: 240, background: "#1a1a1a", borderRadius: 10 }} />
-                }
-              </div>
-            ))}
-          </div>
-        </div>
+        {h?.image_url
+          ? <img
+              key={fadeKey}
+              src={h.image_url}
+              alt={title || ""}
+              style={{
+                maxWidth: "min(90vw, 1000px)", maxHeight: "calc(100vh - 160px)",
+                objectFit: "contain", borderRadius: 10, display: "block",
+                animation: "lb-fade .25s ease",
+              }}
+            />
+          : <div style={{ width: 360, height: 240, background: "#1a1a1a", borderRadius: 10 }} />
+        }
 
         {images.length > 1 && (
           <button onClick={next} style={navBtnStyle("left")} aria-label="הבא">&#8249;</button>
         )}
       </div>
 
-      {/* ===== Footer info ===== */}
-      {(title || date || nums.length > 0) && (
+      {/* Footer info */}
+      {(title || h?.name || date || h?.description || nums.length > 0) && (
         <div
-          style={{ padding: "10px 20px 18px", textAlign: "center", flexShrink: 0 }}
+          style={{ padding: "10px 20px 14px", textAlign: "center", flexShrink: 0, maxWidth: 720, margin: "0 auto", width: "100%" }}
           onClick={e => e.stopPropagation()}
         >
-          {title && (
-            <div style={{ color: "#fff", fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, marginBottom: 5 }}>
-              {title}
+          {title
+            ? <div style={{ color: "#fff", fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, marginBottom: 4 }}>{title}</div>
+            : h?.name
+              ? <div style={{ color: "#ffffffaa", fontFamily: F.body, fontSize: 14, marginBottom: 4 }}>{h.name}</div>
+              : null
+          }
+          {date && (
+            <div style={{ color: "#ffffff66", fontFamily: F.heading, fontSize: 12, marginBottom: 6 }}>
+              🗓️ {date}
             </div>
           )}
-          {date && (
-            <div style={{ color: "#ffffff66", fontFamily: F.heading, fontSize: 12, marginBottom: 7 }}>
-              🗓️ {date}
+          {h?.description && (
+            <div style={{ color: "#ffffffaa", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 6,
+              display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+              {h.description.replace(/<[^>]+>/g, "")}
             </div>
           )}
           {nums.length > 0 && (
@@ -167,13 +160,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose }) {
       {/* Dots navigation */}
       {images.length > 1 && images.length <= 20 && (
         <div
-          style={{ display: "flex", justifyContent: "center", gap: 6, padding: "0 16px 14px", flexShrink: 0 }}
+          style={{ display: "flex", justifyContent: "center", gap: 6, padding: "0 16px 12px", flexShrink: 0 }}
           onClick={e => e.stopPropagation()}
         >
           {images.map((_, i) => (
             <button
               key={i}
-              onClick={() => setIdx(i)}
+              onClick={() => go(i)}
               style={{
                 width: i === idx ? 20 : 7, height: 7,
                 borderRadius: 999,
