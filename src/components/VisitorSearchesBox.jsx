@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { getWallRecent } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
-import { maskGibberish, isReadable } from "../lib/nameMask.js";
+import { isReadable } from "../lib/nameMask.js";
+
+// תצוגה: מילה תקינה מבנית — או שניצלה מהמאגר (recognized) — מוצגת במלואה; אחרת ★★★.
+const wallOk = (r) => isReadable(r.phrase) || r.recognized;
+const wallText = (r) => (wallOk(r) ? r.phrase : "★★★");
 
 // 🔎 תיבת "מה גולשים חיפשו" — מציגה מתוך קיר הגימטריה (gematria_wall) את
 // השמות/המילים/הביטויים שאנשים בדקו במחשבון. רשימה נפרדת מהמאגר המאומת.
@@ -24,7 +28,7 @@ export default function VisitorSearchesBox({ light = false, limit = 24, onPick, 
 
   const chipInner = (r) => (
     <>
-      <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{maskGibberish(r.phrase)}</span>
+      <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{wallText(r)}</span>
       <span style={{ background: P.badge, color: P.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px", minWidth: 26, textAlign: "center" }}>{r.ragil}</span>
       {r.last_at && <span style={{ color: P.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.last_at)}</span>}
     </>
@@ -43,9 +47,9 @@ export default function VisitorSearchesBox({ light = false, limit = 24, onPick, 
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {rows.map((r) => onPick ? (
-            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${maskGibberish(r.phrase)} = ${r.ragil}`} style={chipStyle}>{chipInner(r)}</button>
+            <button key={r.phrase} onClick={() => onPick(r.phrase)} title={`${wallText(r)} = ${r.ragil}`} style={chipStyle}>{chipInner(r)}</button>
           ) : (
-            <Link key={r.phrase} to={isReadable(r.phrase) ? `/number/${encodeURIComponent(r.phrase)}` : `/number/${r.ragil}`} title={`${maskGibberish(r.phrase)} = ${r.ragil}`} style={chipStyle}>{chipInner(r)}</Link>
+            <Link key={r.phrase} to={wallOk(r) ? `/number/${encodeURIComponent(r.phrase)}` : `/number/${r.ragil}`} title={`${wallText(r)} = ${r.ragil}`} style={chipStyle}>{chipInner(r)}</Link>
           ))}
         </div>
       )}

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { isAnon } from './privacy.js';
+import { isReadable } from './nameMask.js';
 
 const supabase = createClient(
   'https://linswmnnkjxvweumprav.supabase.co',
@@ -931,17 +932,28 @@ export async function getWallPrivate(limit = 60) {
     .order('last_at', { ascending: false }).limit(limit);
   return data || [];
 }
+// 🛟 שכבת "מציל" — מילה שנכשלה במבחן הכתיב המבני אבל קיימת במאגר gematria_words
+// מסומנת recognized=true כדי שתוצג במלואה. לעולם רק מוסיף (מציל מילה אמיתית נדירה),
+// אף פעם לא חוסם מילה תקינה — מילים איכותיות שלא במאגר ממשיכות להופיע כרגיל.
+async function rescueFromCorpus(rows) {
+  if (!rows.length) return rows;
+  const suspect = [...new Set(rows.filter(r => !isReadable(r.phrase)).map(r => r.phrase))];
+  if (!suspect.length) return rows;
+  const { data } = await supabase.from('gematria_words').select('phrase').in('phrase', suspect);
+  const known = new Set((data || []).map(d => d.phrase));
+  return known.size ? rows.map(r => known.has(r.phrase) ? { ...r, recognized: true } : r) : rows;
+}
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
     .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
-  return data || [];
+  return rescueFromCorpus(data || []);
 }
 export async function getWallPopular(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase.from('gematria_wall')
     .select('phrase,ragil,hits').eq('private', false).order('hits', { ascending: false }).limit(limit);
-  return data || [];
+  return rescueFromCorpus(data || []);
 }
 export async function getWallCount() {
   if (!supabase) return 0;

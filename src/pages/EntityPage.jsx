@@ -665,6 +665,9 @@ export default function EntityPage() {
         {/* ── ✦ טבעת החתימות (למספרי-חתימה, אחרי פתיחת השער) ── */}
         {hasGate && <SignaturesRing signatures={sigs} value={value} />}
 
+        {/* ── ✦ הערת ישות: משפט קנוני שנשמר על ישות (תיוג/gematria_pair_law) — מופיע תמיד כשמדברים עליה ── */}
+        <EntityNoteCard term={term} value={value} />
+
         {/* ── 🔮 מצא לי הצלבה — בדף הביטוי בלבד (השם/הביטוי מול מילה קדושה) ── */}
         {!isNumber && (
           <div style={{ marginBottom: 18 }}>
@@ -974,6 +977,53 @@ function RoyalGate({ value, signatures, onOpen, onBack }) {
         {signatures.length} חתימות נסתרות · מאחורי המספר מסתתר עולם שלם
       </div>
     </div>
+  );
+}
+
+// ── ✦ הערת ישות: משפט קנוני שנשמר על node מסוג entity (description) + תיוגים. ──
+// data-driven: כל ישות עם description תציג אותו תמיד בדף שלה (לפי שם) ובדף הערך השווה (metadata.value).
+function EntityNoteCard({ term, value }) {
+  const P = usePalette();
+  const [notes, setNotes] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    setNotes([]);
+    if (!supabase) return;
+    const t = String(term || "").trim();
+    const base = () => supabase.from("nodes").select("label,description,metadata")
+      .eq("type", "entity").eq("is_active", true);
+    const queries = [];
+    if (t) queries.push(base().eq("label", t));
+    if (Number.isFinite(value)) queries.push(base().eq("metadata->>value", String(value)));
+    if (!queries.length) return;
+    Promise.all(queries).then(results => {
+      if (!alive) return;
+      const seen = new Set(); const list = [];
+      for (const { data } of results) for (const r of (data || [])) {
+        if (!r.description || !r.description.trim() || seen.has(r.label)) continue;
+        seen.add(r.label); list.push(r);
+      }
+      setNotes(list);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [term, value]);
+  if (!notes.length) return null;
+  return (
+    <section style={{ marginBottom: 22 }}>
+      {notes.map(n => (
+        <div key={n.label} style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.03))", border: `1px solid ${P.accent}`, borderRadius: 14, padding: "15px 18px", marginBottom: 10 }}>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 6 }}>✦ {n.label}</div>
+          <div style={{ color: P.ink, fontFamily: F.regal, fontSize: "clamp(15px,2.3vw,18px)", lineHeight: 1.7 }}>{n.description}</div>
+          {Array.isArray(n.metadata?.tags) && n.metadata.tags.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 11 }}>
+              {n.metadata.tags.map(tg => (
+                <span key={tg} style={{ color: P.accentDim, background: "rgba(212,175,55,0.10)", border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.body, fontSize: 12.5 }}>#{tg}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </section>
   );
 }
 

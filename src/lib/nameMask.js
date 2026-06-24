@@ -62,11 +62,14 @@ const GIB = "★★★";
 const SOFIT = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const ALEFBET = "אבגדהוזחטיכלמנסעפצקרשת";
 const OK_PUNCT = /[\d׳״'"־\-]/;
+const VOWEL = new Set(["א", "ה", "ו", "י", "ע"]);   // אותיות אם-קריאה (מטרי לקציוניס)
+const HASFINAL = "כמנפצ";                            // אותיות שצורתן בסוף מילה חייבת להיות סופית
 
 // מילה תחבירית? false = ג'יבריש (אם מילה אחת בביטוי נכשלת — כל הביטוי לא-קריא).
 export function isReadable(term) {
   const t = String(term || "").trim();
   if (!t) return true;
+  let zeroVowelTokens = 0, totalHeb = 0;
   for (const tok of t.split(/[\s\-־]+/)) {
     if (!tok) continue;
     if (/^\d+$/.test(tok)) continue;                                  // מספר טהור — קריא
@@ -77,6 +80,8 @@ export function isReadable(term) {
     if (heb.length >= 14) return false;                               // אורך קיצון = מקשמוש
     for (let i = 0; i < heb.length; i++)                              // סופית שלא בסוף = פסול תחבירית
       if (SOFIT[heb[i]] && i !== heb.length - 1) return false;
+    // אות שיש לה צורה סופית (כ/מ/נ/פ/צ) בסוף מילה = איות פסול (חייב ך/ם/ן/ף/ץ)
+    if (heb.length >= 2 && HASFINAL.includes(heb[heb.length - 1])) return false;
     const s = heb.join("");
     if (/(.)\1\1/.test(s)) return false;                             // אות ×3 ברצף
     const norm = heb.map(c => SOFIT[c] || c);                         // רצף א״ב עולה ≥4
@@ -85,7 +90,14 @@ export function isReadable(term) {
       const a = ALEFBET.indexOf(norm[i - 1]), b = ALEFBET.indexOf(norm[i]);
       if (a >= 0 && b === a + 1) { if (++run >= 4) return false; } else run = 1;
     }
+    const vowels = heb.filter(c => VOWEL.has(c)).length;
+    if (heb.length >= 5 && vowels / heb.length < 0.2) return false;   // מילה ארוכה כמעט בלי תנועות = מקשמוש עיצורים
+    if (heb.length >= 6 && new Set(norm).size / heb.length < 0.4) return false; // מעט אותיות שונות = חזרתיות (ובובבו)
+    if (heb.length >= 2 && vowels === 0) zeroVowelTokens++;
+    totalHeb += heb.length;
   }
+  // ≥2 אסימוני-עיצורים בלי שום תנועה + אורך כולל ≥7 = ג'יבריש (כף פגם קעד) — בלי למסך "כל דם"/"בן גד"
+  if (zeroVowelTokens >= 2 && totalHeb >= 7) return false;
   return true;
 }
 
