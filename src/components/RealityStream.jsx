@@ -14,7 +14,7 @@ const PAGE = 12;
 
 // onLightbox(hints, idx) — אם מסופק, הורה מנהל את הלייטבוקס (לתמיכה ב-hero מאוחד).
 // אם לא מסופק, הרכיב מנהל לייטבוקס פנימי עם <Lightbox> ומאפשר ניווט בין כל הרמזים.
-export default function RealityStream({ hints = [], cutoff, compact = false, onPick, palette, onLightbox }) {
+export default function RealityStream({ hints = [], cutoff, compact = false, onPick, palette, onLightbox, onAddToStream }) {
   const auto = usePalette();
   const P = palette || auto;
   const [visible, setVisible] = useState(compact ? 8 : PAGE);
@@ -85,6 +85,7 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
             palette={P}
             onPick={onPick}
             onOpen={() => onLightbox ? onLightbox(hints, idx) : setLbIdx(idx)}
+            onAddToStream={onAddToStream ? () => onAddToStream(h) : null}
           />
         ))}
       </div>

@@ -4,7 +4,7 @@ import { C, F } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
-  searchArchiveOcrIds,
+  searchArchiveOcrIds, addImageToRealityStream,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -64,8 +64,10 @@ export default function ArchivePage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   // pool tab
-  const [activeSet, setActiveSet] = useState(null);   // set object
-  const [numFilter, setNumFilter] = useState(null);
+  const [activeSet, setActiveSet] = useState(null);      // set object
+  const [numFilters, setNumFilters] = useState(new Set()); // multi-number filter basket
+  const [filterMode, setFilterMode] = useState("OR");     // "OR" | "AND"
+  const [dominantOnly, setDominantOnly] = useState(false); // only primary_value
   const [yearFilter, setYearFilter] = useState(null);
   const [query, setQuery] = useState("");
   const [ocrMatch, setOcrMatch] = useState(null); // {imgs:Set, gals:Set} מחיפוש OCR בשרת
@@ -143,7 +145,8 @@ export default function ArchivePage() {
     return [...s].sort((a, b) => b - a);
   }, [imgs]);
 
-  useEffect(() => { setLimit(PER); }, [activeSet, numFilter, yearFilter, query, tab]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setLimit(PER); }, [activeSet, numFilters.size, yearFilter, query, tab]);
 
   const qRaw = query.trim();
   const qNum = /^\d+$/.test(qRaw) ? parseInt(qRaw, 10) : null;   // חיפוש מספר → סינון לפי ערך
@@ -176,19 +179,22 @@ export default function ArchivePage() {
   }, [imgs]);
 
   // גלריות החברות בסט (לתצוגת "גלריות" — שורות רחבות, החדשה למעלה לפי seq)
+  // כשמסננים לפי מספרים מרובים — מספיק שגלריה מכילה אחד מהם (OR-level)
   const memberGals = useMemo(() => {
     let list = gals || [];
     const inSet = g => setNums && (setNums.has(g.anchor) || (galMeta[g.id] && [...galMeta[g.id].nums].some(v => setNums.has(v))));
     if (setNums) list = list.filter(inSet);
-    if (numFilter != null) list = list.filter(g => g.anchor === numFilter || (galMeta[g.id] && galMeta[g.id].nums.has(numFilter)));
+    if (numFilters.size > 0) {
+      const nums = [...numFilters];
+      list = list.filter(g => nums.some(n => g.anchor === n || (galMeta[g.id] && galMeta[g.id].nums.has(n))));
+    }
     if (qNum != null) list = list.filter(g => g.anchor === qNum || (galMeta[g.id] && galMeta[g.id].nums.has(qNum)));
     else if (q) {
-      // התאמת טקסט/OCR: גלריה תואמת אם שמה מכיל, או שיש בה תמונה שהשם/תיאור/OCR שלה מכיל
       const gidMatch = ocrMatch?.gals || new Set();
       list = list.filter(g => (g.name || "").toLowerCase().includes(q) || gidMatch.has(g.id));
     }
     return list;
-  }, [gals, setNums, galMeta, numFilter, q, qNum, ocrMatch]);
+  }, [gals, setNums, galMeta, numFilters, q, qNum, ocrMatch]);
 
   // ברירת מחדל: הגלריה האחרונה (החדשה) פתוחה
   const firstGalId = memberGals[0]?.id ?? null;
@@ -197,22 +203,27 @@ export default function ArchivePage() {
   const pool = useMemo(() => {
     let arr = sortedImgs.filter(im => {
       if (setNums && !hintNums(im).some(v => setNums.has(v))) return false;
-      if (numFilter != null && !hintNums(im).includes(numFilter)) return false;
+      if (numFilters.size > 0) {
+        const nums = [...numFilters];
+        const match = dominantOnly
+          ? (filterMode === "AND" ? nums.every(n => n === im.primary_value) : nums.includes(im.primary_value))
+          : (filterMode === "AND" ? nums.every(n => hintNums(im).includes(n)) : nums.some(n => hintNums(im).includes(n)));
+        if (!match) return false;
+      }
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
       if (qNum != null) { if (!hintNums(im).includes(qNum)) return false; }
       else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
       return true;
     });
     if (sortMode === "cross") {
-      // הכי הרבה הצטלבויות: קודם תמונות שנושאות הכי הרבה ממספרי הסט, ואז הכי הרבה מספרים בכלל
       const score = im => (setNums ? hintNums(im).filter(v => setNums.has(v)).length : 0) * 1000 + hintNums(im).length;
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, setNums, numFilter, yearFilter, q, qNum, sortMode, ocrMatch]);
+  }, [sortedImgs, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
-  const bridgeNums = activeSet ? activeSet.numbers : (numFilter != null ? [numFilter] : null);
+  const bridgeNums = activeSet ? activeSet.numbers : (numFilters.size > 0 ? [...numFilters] : null);
   const bridgeEvents = useMemo(() => {
     if (!bridgeNums) return [];
     const s = new Set(bridgeNums);
@@ -220,7 +231,19 @@ export default function ArchivePage() {
   }, [teder, bridgeNums]);
 
   const shownNums = showAllNums ? numOptions : numOptions.slice(0, 16);
-  const hasFilter = activeSet || numFilter != null || yearFilter != null || q;
+  const hasFilter = activeSet || numFilters.size > 0 || yearFilter != null || q;
+  const hotNums = numOptions.slice(0, 10); // top-10 by frequency — "strong numbers" suggestions
+
+  function toggleNum(n) {
+    setNumFilters(prev => { const s = new Set(prev); s.has(n) ? s.delete(n) : s.add(n); return s; });
+  }
+
+  async function addToStream(im) {
+    try {
+      await addImageToRealityStream(im.id);
+      setImgs(prev => prev.map(x => x.id === im.id ? { ...x, source: "update" } : x));
+    } catch (e) { alert("הוספה לזרם נכשלה: " + (e.message || e)); }
+  }
 
   // ── הבלטה / סידור ידני בתוך סט ──
   useEffect(() => { setCurating(false); }, [activeSet]);
@@ -429,15 +452,36 @@ export default function ArchivePage() {
                   )}
                 </div>
                 {numOptions.length > 0 && (
-                  <div className="ar-row">
-                    <span className="ar-label">🔢 מספר</span>
-                    {shownNums.map(({ n, k }) => (
-                      <button key={n} className={`ar-pill ar-sm${numFilter === n ? " active" : ""}`} onClick={() => setNumFilter(p => p === n ? null : n)}>
-                        {n}<span className="ar-count">{k}</span>
-                      </button>
-                    ))}
-                    {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
-                  </div>
+                  <>
+                    {/* "מספרים חזקים" — top-10 לפי שכיחות, הצעות מהירות */}
+                    <div className="ar-row">
+                      <span className="ar-label">⚡ נפוצים</span>
+                      {hotNums.map(({ n }) => (
+                        <button key={n} className={`ar-pill ar-sm${numFilters.has(n) ? " active" : ""}`} onClick={() => toggleNum(n)} title="הוסף לסינון">
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                    {/* כל המספרים */}
+                    <div className="ar-row">
+                      <span className="ar-label">🔢 מספר</span>
+                      {shownNums.map(({ n, k }) => (
+                        <button key={n} className={`ar-pill ar-sm${numFilters.has(n) ? " active" : ""}`} onClick={() => toggleNum(n)}>
+                          {n}<span className="ar-count">{k}</span>
+                        </button>
+                      ))}
+                      {numOptions.length > 16 && <button className="ar-pill ar-more" onClick={() => setShowAllNums(v => !v)}>{showAllNums ? "פחות ▲" : "עוד ▾"}</button>}
+                    </div>
+                    {/* AND / OR + דומיננטי — מופיע כשנבחרו מספרים */}
+                    {numFilters.size > 0 && (
+                      <div className="ar-row">
+                        <span className="ar-label">🔗 סינון</span>
+                        <button className={`ar-pill ar-sm${filterMode === "OR" ? " active" : ""}`} onClick={() => setFilterMode("OR")} title="תמונה עם לפחות אחד מהמספרים">OR — אחד מהם</button>
+                        <button className={`ar-pill ar-sm${filterMode === "AND" ? " active" : ""}`} onClick={() => setFilterMode("AND")} title="תמונה עם כל המספרים יחד">AND — כולם</button>
+                        <button className={`ar-pill ar-sm${dominantOnly ? " active" : ""}`} onClick={() => setDominantOnly(v => !v)} title="רק תמונות שמספר זה הוא הדומיננטי שלהן">דומיננטי בלבד</button>
+                      </div>
+                    )}
+                  </>
                 )}
                 {yearOptions.length > 0 && (
                   <div className="ar-row">
@@ -452,10 +496,20 @@ export default function ArchivePage() {
             {hasFilter && (
               <div className="ar-row" style={{ paddingTop: 4, borderTop: `1px solid ${C.faint}` }}>
                 {activeSet && <span className="ar-chip">סט: {activeSet.name}<button onClick={() => setActiveSet(null)}>×</button></span>}
-                {numFilter != null && <span className="ar-chip">מספר: {numFilter}<button onClick={() => setNumFilter(null)}>×</button></span>}
+                {[...numFilters].map(n => (
+                  <span key={n} className="ar-chip">
+                    {n}<button onClick={() => toggleNum(n)}>×</button>
+                  </span>
+                ))}
+                {numFilters.size >= 2 && (
+                  <button className="ar-pill ar-sm" style={{ padding: "3px 10px" }} onClick={() => setFilterMode(m => m === "AND" ? "OR" : "AND")} title="החלף AND/OR">
+                    {filterMode}
+                  </button>
+                )}
+                {dominantOnly && <span className="ar-chip">דומיננטי<button onClick={() => setDominantOnly(false)}>×</button></span>}
                 {yearFilter != null && <span className="ar-chip">שנה: {yearFilter}<button onClick={() => setYearFilter(null)}>×</button></span>}
                 {q && <span className="ar-chip">חיפוש: {query}<button onClick={() => setQuery("")}>×</button></span>}
-                <button className="ar-clear" onClick={() => { setActiveSet(null); setNumFilter(null); setYearFilter(null); setQuery(""); }}>נקה הכל ×</button>
+                <button className="ar-clear" onClick={() => { setActiveSet(null); setNumFilters(new Set()); setFilterMode("OR"); setDominantOnly(false); setYearFilter(null); setQuery(""); }}>נקה הכל ×</button>
               </div>
             )}
           </div>
@@ -608,7 +662,7 @@ export default function ArchivePage() {
               )}
             </>
           ) : (
-            <RealityStream hints={pool} palette={PALETTES.dark} />
+            <RealityStream hints={pool} palette={PALETTES.dark} onAddToStream={isAdmin ? addToStream : null} />
           )}
           </div>
         </div>

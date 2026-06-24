@@ -9,7 +9,7 @@ import { trackImageClick } from "../lib/tracking.js";
 // Single hint card — CSS classes (rs-card, rs-imgwrap, etc.) must be injected by the parent layout.
 // onOpen() — called when user clicks the image to open lightbox.
 // onPick(n) — called when user clicks an extra number tag.
-export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, onOpen }) {
+export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, onOpen, onAddToStream }) {
   const fresh = cutoff ? isNewSince(h, cutoff) : false;
   const v = domNum(h);
   const title = cleanName(h.name);
@@ -27,6 +27,15 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
         {fresh && <span className="rs-new">🆕 חדש</span>}
         {v != null && <Link to={`/number/${v}`} className="rs-num" onClick={e => e.stopPropagation()} title="לדף המספר">{v}</Link>}
         <span className="rs-zoom" aria-hidden>⤢</span>
+        {onAddToStream && (
+          <button
+            onClick={e => { e.stopPropagation(); onAddToStream(); }}
+            title="הוסף לזרם המציאות"
+            style={{ position: "absolute", bottom: 9, insetInlineEnd: 9, zIndex: 3, background: "rgba(212,175,55,0.92)", color: "#1a0e00",
+              border: "none", borderRadius: 999, width: 26, height: 26, fontSize: 14, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}
+          >+</button>
+        )}
       </div>
       {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0) && (
         <div className="rs-body">
