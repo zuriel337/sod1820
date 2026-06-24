@@ -86,7 +86,7 @@ export default function ArchivePage() {
   const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
   const [draftOrder, setDraftOrder] = useState([]);   // רשימת מזהי תמונות מובלטות (סדר)
   // workspace dashboard
-  const [typeFilter, setTypeFilter] = useState(null);  // null/'hint'/'gematria'/'method'/'event'/'gallery'/'__none'
+  const [typeFilter, setTypeFilter] = useState(null);  // null/'hint'/'gematria'/'trail'/'event'/'gallery'/'__none'
   const [sourceFilter, setSourceFilter] = useState(null); // null/'update'/'not-update'
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [multiSelect, setMultiSelect] = useState(false);
@@ -344,7 +344,7 @@ export default function ArchivePage() {
   }
 
   return (
-    <div style={{ direction: "rtl", maxWidth: tab === "pool" ? "none" : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 0 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
+    <div style={{ direction: "rtl", maxWidth: tab === "pool" ? "none" : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 0 90px 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
       <SideRailAd />
       <div style={{ textAlign: "center", marginBottom: 22 }}>
@@ -435,7 +435,7 @@ export default function ArchivePage() {
                 [null,       '🖼 הכל',        imgs.length],
                 ['hint',     '💡 רמזים',       imgs.filter(x => x.image_type === 'hint').length],
                 ['gematria', '🔢 גימטריה',     imgs.filter(x => x.image_type === 'gematria').length],
-                ['method',   '📐 שיטות',       imgs.filter(x => x.image_type === 'method').length],
+                ['trail',    '📖 מסלולים',      imgs.filter(x => x.image_type === 'trail').length],
                 ['event',    '📰 אירועים',     imgs.filter(x => x.image_type === 'event').length],
                 ['gallery',  '🗂 כללי',        imgs.filter(x => x.image_type === 'gallery').length],
                 ['__none',   '❓ לא מסווג',    imgs.filter(x => x.image_type == null).length],
@@ -601,7 +601,7 @@ export default function ArchivePage() {
                   <button className="ar-save" style={{ fontSize: 12, padding: "5px 12px" }} onClick={addSelectedToStream}>🌊 הכנס לזרם</button>
                   <button className="ar-cancel" style={{ fontSize: 12, padding: "5px 12px" }} onClick={removeSelectedFromStream}>הוצא מהזרם</button>
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>סוג:</span>
-                  {[['hint','💡'],['gematria','🔢'],['method','📐'],['event','📰'],['gallery','🗂'],['','✕']].map(([t, lbl]) => (
+                  {[['hint','💡'],['gematria','🔢'],['trail','📖'],['event','📰'],['gallery','🗂'],['','✕']].map(([t, lbl]) => (
                     <button key={t} className="ar-pill ar-sm" onClick={() => setTypeForSelected(t || null)} title={t || 'נקה סוג'}>{lbl}</button>
                   ))}
                 </>
@@ -691,7 +691,7 @@ export default function ArchivePage() {
                                 onClick={() => { setLbImages(gimgs); setLbStart(imIdx); }}
                                 style={{ display: "block", width: "100%", background: "none", border: "none", padding: 0, cursor: "zoom-in" }}
                               >
-                                <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
+                                <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ display: "block" }} />
                               </button>
                               {(im.name || im.description || (im.all_values || []).length > 0) && (
                                 <figcaption className="ar-feed-cap">
@@ -766,7 +766,7 @@ export default function ArchivePage() {
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
-                  const TYPE_EMOJI = { hint: '💡', gematria: '🔢', method: '📐', event: '📰', gallery: '🗂' };
+                  const TYPE_EMOJI = { hint: '💡', gematria: '🔢', trail: '📖', event: '📰', gallery: '🗂' };
                   return (
                     <div key={im.id} className={`ar-mcard${isSel ? ' ar-msel' : ''}`}>
                       <div className="ar-mwrap"

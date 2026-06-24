@@ -14,7 +14,7 @@ import { checkImageConnections, deleteGalleryImage, setImageCuration } from "../
 const TYPES = [
   { key: "hint",     label: "💡 רמז",      color: "#e9c84a" },
   { key: "gematria", label: "🔢 גימטריה",  color: "#7bbf7b" },
-  { key: "method",   label: "📐 שיטה",     color: "#80b4ff" },
+  { key: "trail",    label: "📖 מסלול",    color: "#80b4ff" },
   { key: "event",    label: "📰 אירוע",    color: "#f4a56a" },
   { key: "gallery",  label: "🖼 כללי",     color: "#b08fff" },
 ];
