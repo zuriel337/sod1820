@@ -36,7 +36,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
   useEffect(() => {
-    getRealityHints(1000).then(r => { setHints(r || []); markSeenKey("home-gallery"); }).catch(() => setHints([]));
+    getRealityHints(50).then(r => { setHints(r || []); markSeenKey("home-gallery"); }).catch(() => setHints([]));
     reloadSets();
   }, []);
 
@@ -116,7 +116,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   async function addToStream(img) {
     try {
       await addImageToRealityStream(img.id);
-      setHints(await getRealityHints(1000));
+      setHints(await getRealityHints(50));
       setPicker(p => p ? { ...p, images: p.images.filter(i => i.id !== img.id) } : null);
     } catch (e) { alert("הוספה נכשלה: " + (e.message || e)); }
   }

@@ -36,6 +36,10 @@ const TABS = [
   { key: "curation", label: "⭐ אצירת תמונות" },
   { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
+  { key: "classify", label: "🏷️ סיווג תמונות" },
+  { key: "meta",     label: "📡 מעקב Meta" },
+  { key: "worklog",  label: "📝 יומן עבודה" },
+  { key: "stream",   label: "🌊 זרם המציאות" },
 ];
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -103,6 +107,10 @@ export default function AdminPage() {
       {tab === "curation" && <CurationTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
+      {tab === "classify" && <ClassifyTab />}
+      {tab === "meta" && <MetaTab />}
+      {tab === "worklog" && <WorkLogTab />}
+      {tab === "stream" && <StreamAdminTab />}
     </div>
   );
 }
@@ -2377,3 +2385,340 @@ function BtnGold({ children, onClick }) {
 }
 function H({ children }) { return <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{children}</span>; }
 function Empty({ children }) { return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>{children}</div>; }
+
+const fld = { background: "rgba(0,0,0,0.3)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.heading, fontSize: 13, padding: "9px 12px", width: "100%", boxSizing: "border-box", direction: "rtl", outline: "none" };
+
+// ===== ClassifyTab — סיווג מהיר של תמונות =====
+const IMAGE_TYPES = [
+  { key: "hint",      label: "💡 רמז",       shortcut: "H", color: "#e9c84a" },
+  { key: "gematria",  label: "🔢 גימטריה",   shortcut: "G", color: "#7bbf7b" },
+  { key: "method",    label: "📐 שיטה",       shortcut: "M", color: "#80b4ff" },
+  { key: "event",     label: "📰 אירוע",      shortcut: "E", color: "#f4a56a" },
+  { key: "gallery",   label: "🖼 כללי",       shortcut: "K", color: "#b08fff" },
+];
+
+function ClassifyTab() {
+  const [imgs, setImgs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [saving, setSaving] = useState({});
+  const [done, setDone] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  const PAGE = 50;
+
+  async function loadPage(p, all) {
+    if (!supabase) return;
+    setLoading(true);
+    let q = supabase.from("gallery_images")
+      .select("id,name,image_url,primary_value,occurred_at,image_type,source", { count: "exact" });
+    if (!all) q = q.is("image_type", null);
+    const { data, count, error } = await q.order("created_at", { ascending: false }).range(p * PAGE, (p + 1) * PAGE - 1);
+    if (!error) { setImgs(data || []); setTotal(count || 0); }
+    setLoading(false);
+  }
+
+  useEffect(() => { loadPage(page, showAll); }, [page, showAll]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      const t = IMAGE_TYPES.find(t => t.shortcut === e.key.toUpperCase());
+      if (t && imgs.length) classifyFirst(imgs[0].id, t.key);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [imgs]);
+
+  async function classify(id, type) {
+    setSaving(p => ({ ...p, [id]: true }));
+    try {
+      await setImageCuration(id, { image_type: type });
+      setImgs(prev => prev.filter(i => i.id !== id));
+      setDone(p => p + 1);
+      setTotal(p => p - 1);
+    } catch(e) { alert("שגיאה: " + e.message); }
+    setSaving(p => ({ ...p, [id]: false }));
+  }
+
+  function classifyFirst(id, type) { classify(id, type); }
+
+  const classified = done;
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+            🏷️ סיווג תמונות {showAll ? "(הכל)" : "(לא מסווגות)"}
+          </div>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>
+            {total} תמונות · סווגתי {classified} כרגע
+          </span>
+          <button onClick={() => { setShowAll(p => !p); setPage(0); setDone(0); }} style={{ ...iconBtn, marginRight: "auto" }}>
+            {showAll ? "הצג לא מסווגות" : "הצג הכל"}
+          </button>
+        </div>
+
+        <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginBottom: 8 }}>קיצורי מקלדת:</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {IMAGE_TYPES.map(t => (
+              <span key={t.key} style={{ color: t.color, fontFamily: F.heading, fontSize: 12, background: "rgba(0,0,0,0.35)", border: `1px solid ${t.color}44`, borderRadius: 6, padding: "3px 10px" }}>
+                <kbd style={{ fontWeight: 800 }}>{t.shortcut}</kbd> = {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {loading ? <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 13, padding: 20 }}>טוען…</div> : (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+              {imgs.map((img, idx) => (
+                <div key={img.id} style={{ background: "rgba(0,0,0,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden", position: "relative" }}>
+                  {idx === 0 && <div style={{ position: "absolute", top: 6, right: 6, background: C.gold, color: "#1a0e00", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", zIndex: 2 }}>⌨️ NEXT</div>}
+                  <img src={img.image_url} alt="" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} onError={e => { e.target.style.display = "none"; }} />
+                  <div style={{ padding: "8px 10px 10px" }}>
+                    <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 4 }}>
+                      {img.name || "(ללא שם)"}
+                    </div>
+                    <div style={{ color: C.muted, fontFamily: "monospace", fontSize: 10, marginBottom: 8 }}>
+                      #{img.primary_value || "?"} · {img.source || "?"} · {img.image_type ? `✓ ${img.image_type}` : "לא מסווג"}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
+                      {IMAGE_TYPES.map(t => (
+                        <button key={t.key} disabled={!!saving[img.id]} onClick={() => classify(img.id, t.key)} style={{
+                          cursor: "pointer", border: `1px solid ${t.color}66`, borderRadius: 7, padding: "5px 8px",
+                          background: saving[img.id] ? "rgba(0,0,0,0.2)" : `${t.color}11`,
+                          color: t.color, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
+                        }}>{t.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {!imgs.length && <Empty>{showAll ? "אין תמונות" : "✅ כל התמונות מסווגות!"}</Empty>}
+            {total > PAGE && (
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16, alignItems: "center" }}>
+                <button disabled={page === 0} onClick={() => setPage(p => p - 1)} style={iconBtn}>→ הקודם</button>
+                <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>עמוד {page + 1}</span>
+                <button disabled={(page + 1) * PAGE >= total} onClick={() => setPage(p => p + 1)} style={iconBtn}>← הבא</button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== MetaTab — מעקב Meta Pixel + CAPI =====
+const CAPI_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/meta-capi";
+function MetaTab() {
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [win, setWin] = useState(7);
+
+  useEffect(() => {
+    if (!supabase) return;
+    setLoading(true);
+    const since = new Date(Date.now() - win * 86400000).toISOString();
+    supabase.from("visitor_events").select("section,slug,event_type,meta,visitor_id,created_at")
+      .gte("created_at", since).order("created_at", { ascending: false }).limit(100)
+      .then(({ data }) => { setEvents(data || []); setLoading(false); }).catch(() => setLoading(false));
+  }, [win]);
+
+  async function testCapi() {
+    setTesting(true); setTestResult(null);
+    try {
+      const r = await fetch(CAPI_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_name: "PageView", event_source_url: "https://sod1820.co.il/admin-test" }) });
+      setTestResult(await r.json());
+    } catch(e) { setTestResult({ ok: false, error: String(e) }); }
+    setTesting(false);
+  }
+
+  const byType = {};
+  events.forEach(e => { byType[e.event_type] = (byType[e.event_type] || 0) + 1; });
+  const uniq = new Set(events.map(e => e.visitor_id)).size;
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>📡 Meta Conversions API</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          <code style={{ color: C.gold, fontFamily: "monospace", fontSize: 11, background: "rgba(0,0,0,0.35)", padding: "4px 10px", borderRadius: 6 }}>{CAPI_URL}</code>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <BtnGold onClick={testCapi}>{testing ? "בודק…" : "🧪 שלח אירוע בדיקה"}</BtnGold>
+          {testResult && (
+            <span style={{ color: testResult.ok ? "#7bbf7b" : "#e57373", fontFamily: F.heading, fontSize: 13 }}>
+              {testResult.ok
+                ? `✅ הצליח — events_received: ${testResult.events_received} | trace: ${testResult.fbtrace_id}`
+                : `❌ ${testResult.skipped || testResult.error || "שגיאה"}`}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>👁 אירועי גולשים</div>
+          <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginRight: "auto" }}>ייחודיים: <b style={{ color: C.goldBright }}>{uniq}</b></span>
+          {[{l:"24ש",d:1},{l:"7י",d:7},{l:"30י",d:30}].map(w => (
+            <button key={w.d} onClick={() => setWin(w.d)} style={{ cursor:"pointer", fontFamily:F.heading, fontSize:12, padding:"4px 12px", borderRadius:999, border:`1px solid ${win===w.d?C.gold:C.border}`, background:win===w.d?"rgba(212,175,55,0.15)":"transparent", color:win===w.d?C.goldBright:C.muted }}>{w.l}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          {Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type, cnt]) => (
+            <div key={type} style={{ background:"rgba(212,175,55,0.08)", border:`1px solid ${C.borderGold}`, borderRadius:8, padding:"5px 12px", fontFamily:F.heading, fontSize:12 }}>
+              <span style={{ color:C.goldDim }}>{type}:</span> <b style={{ color:C.goldBright }}>{cnt}</b>
+            </div>
+          ))}
+        </div>
+        {loading ? <div style={{ color:C.muted, fontFamily:F.heading, fontSize:13 }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:5, maxHeight:360, overflowY:"auto" }}>
+            {events.map((e,i) => (
+              <div key={i} style={{ display:"grid", gridTemplateColumns:"130px 90px 90px 1fr", gap:8, alignItems:"center", borderBottom:`1px solid ${C.border}`, paddingBottom:5 }}>
+                <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{new Date(e.created_at).toLocaleString("he-IL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</span>
+                <span style={{ color:C.goldLight, fontFamily:F.heading, fontSize:11 }}>{e.section}</span>
+                <span style={{ color:C.gold, fontFamily:F.heading, fontSize:11 }}>{e.event_type}</span>
+                <span style={{ color:C.muted, fontFamily:F.heading, fontSize:11, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{e.slug || (e.meta ? JSON.stringify(e.meta).slice(0,40) : "")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== WorkLogTab — יומן עבודה =====
+function WorkLogTab() {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ topic: "", what_we_did: "", status: "הושלם", open_threads: "" });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  function load() {
+    if (!supabase) return;
+    supabase.from("work_log").select("*").order("created_at", { ascending: false }).limit(30)
+      .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
+  }
+  useEffect(load, []);
+
+  async function addEntry() {
+    if (!form.topic || !form.what_we_did) return;
+    setSaving(true);
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase.from("work_log").insert({
+      session_date: today, topic: form.topic, what_we_did: form.what_we_did,
+      status: form.status, open_threads: form.open_threads || null,
+    }).select().single();
+    if (!error && data) {
+      setEntries(prev => [data, ...prev]);
+      setForm({ topic: "", what_we_did: "", status: "הושלם", open_threads: "" });
+      setSaved(true); setTimeout(() => setSaved(false), 2000);
+    }
+    setSaving(false);
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>✍️ רשומה חדשה</div>
+        <div style={{ display: "grid", gap: 10 }}>
+          <input value={form.topic} onChange={e => setForm(p=>({...p,topic:e.target.value}))} placeholder="נושא" style={fld} />
+          <textarea value={form.what_we_did} onChange={e => setForm(p=>({...p,what_we_did:e.target.value}))} placeholder="מה עשינו" rows={3} style={{ ...fld, resize:"vertical" }} />
+          <input value={form.open_threads} onChange={e => setForm(p=>({...p,open_threads:e.target.value}))} placeholder="חוטים פתוחים (אופציונלי)" style={fld} />
+          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+            <BtnGold onClick={addEntry}>{saving ? "שומר…" : "💾 שמור"}</BtnGold>
+            {saved && <span style={{ color:"#7bbf7b", fontFamily:F.heading, fontSize:13 }}>✅ נשמר</span>}
+          </div>
+        </div>
+      </div>
+      <div style={card}>
+        <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700, marginBottom:14 }}>📋 רשומות אחרונות</div>
+        {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:16 }}>
+            {entries.map(e => (
+              <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+                <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
+                  <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
+                  <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
+                  <span style={{ color:e.status==="הושלם"?"#7bbf7b":C.gold, fontFamily:F.heading, fontSize:11, marginRight:"auto" }}>{e.status}</span>
+                </div>
+                <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
+                {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+              </div>
+            ))}
+            {!entries.length && <Empty>אין רשומות עדיין</Empty>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== StreamAdminTab — ניהול זרם המציאות =====
+function StreamAdminTab() {
+  const [hints, setHints] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editImg, setEditImg] = useState(null);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    getRealityHints(300).then(data => { setHints(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  async function removeFromStream(id) {
+    await setImageCuration(id, { source: "manual" });
+    setHints(prev => prev.filter(h => h.id !== id));
+  }
+
+  const filtered = q ? hints.filter(h => (h.name||"").includes(q) || String(h.primary_value||"").includes(q)) : hints;
+
+  return (
+    <div style={{ display:"grid", gap:20 }}>
+      <div style={card}>
+        <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:14, flexWrap:"wrap" }}>
+          <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700 }}>🌊 זרם המציאות — {hints.length} רמזים</div>
+          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="סנן לפי שם / מספר" style={{ ...fld, maxWidth:200, marginRight:"auto" }} />
+        </div>
+        {loading ? <div style={{ color:C.muted, fontFamily:F.heading, fontSize:13 }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:6, maxHeight:520, overflowY:"auto" }}>
+            {filtered.map(h => (
+              <div key={h.id} style={{ display:"grid", gridTemplateColumns:"52px 1fr auto auto", gap:10, alignItems:"center", borderBottom:`1px solid ${C.border}`, paddingBottom:6 }}>
+                {h.image_url
+                  ? <img src={h.image_url} alt="" style={{ width:52, height:52, objectFit:"cover", borderRadius:5 }} />
+                  : <div style={{ width:52, height:52, background:C.border, borderRadius:5 }} />}
+                <div style={{ minWidth:0 }}>
+                  <div style={{ color:C.goldLight, fontFamily:F.heading, fontSize:12, fontWeight:700, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{h.name || "(ללא שם)"}</div>
+                  <div style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>
+                    {h.occurred_at ? h.occurred_at.slice(0,10) : "—"} · #{h.primary_value || "?"}
+                  </div>
+                </div>
+                <button onClick={() => setEditImg(h)} style={iconBtn} title="ערוך">✏️</button>
+                <button onClick={() => removeFromStream(h.id)} style={{ ...iconBtn, color:"#e57373", borderColor:"#e57373" }} title="הוצא מהזרם">↩</button>
+              </div>
+            ))}
+            {!filtered.length && <Empty>אין תוצאות</Empty>}
+          </div>
+        )}
+      </div>
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onSave={async patch => { await setImageCuration(editImg.id, patch); setHints(prev => prev.map(h => h.id===editImg.id ? {...h,...patch} : h)); setEditImg(null); }}
+          onClose={() => setEditImg(null)}
+          onRemoveFromStream={editImg.source === "update" ? () => { removeFromStream(editImg.id); setEditImg(null); } : null}
+        />
+      )}
+    </div>
+  );
+}
+
