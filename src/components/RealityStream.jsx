@@ -2,12 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { cleanName } from "../lib/galleryName.js";
-import { stripHtml } from "../lib/format.js";
-import { isNewSince } from "../lib/crossesNew.js";
-import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
 import Lightbox from "./Lightbox.jsx";
-import { trackImageClick } from "../lib/tracking.js";
+import HintCard from "./HintCard.jsx";
 
 // ===== זרם המציאות — «קיר חי» (Masonry) של רמזים =====
 // כל כרטיס = רמז: תמונה בגובה טבעי + מספר דומיננטי + תאריך + תגיות. גלילה אינסופית (IntersectionObserver).
@@ -80,40 +76,17 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
       `}</style>
 
       <div className="rs-wall">
-        {shown.map((h, idx) => {
-          const fresh = cutoff ? isNewSince(h, cutoff) : false;
-          const v = domNum(h);
-          const title = cleanName(h.name);
-          const tags = hintTags(h);
-          const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
-          const desc = !title && h.description ? stripHtml(h.description) : null;
-          return (
-            <article key={h.id} className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
-              <div className="rs-imgwrap" onClick={() => { trackImageClick(h.id, domNum(h)); onLightbox ? onLightbox(hints, idx) : setLbIdx(idx); }}>
-                {h.image_url
-                  ? <img src={h.image_url} alt={title || ""} loading="lazy" />
-                  : <div style={{ height: 160, background: P.cardGrad }} />}
-                <span className="rs-shade" />
-                {fresh && <span className="rs-new">🆕 חדש</span>}
-                {v != null && <Link to={`/number/${v}`} className="rs-num" onClick={e => e.stopPropagation()} title="לדף המספר">{v}</Link>}
-                <span className="rs-zoom" aria-hidden>⤢</span>
-              </div>
-              {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0) && (
-                <div className="rs-body">
-                  {shortDate(h) && <div className="rs-date">🗓️ {shortDate(h)}</div>}
-                  {title && <div className="rs-title">{title}</div>}
-                  {desc && <div className="rs-title">{desc}</div>}
-                  {(tags.length > 0 || extraNums.length > 0) && (
-                    <div className="rs-tags">
-                      {tags.map((t, i) => <span key={`t${i}`} className="rs-tag">{t}</span>)}
-                      {extraNums.map(n => <button key={`n${n}`} className="rs-tag" onClick={() => onPick?.(n)}>#{n}</button>)}
-                    </div>
-                  )}
-                </div>
-              )}
-            </article>
-          );
-        })}
+        {shown.map((h, idx) => (
+          <HintCard
+            key={h.id}
+            hint={h}
+            idx={idx}
+            cutoff={cutoff}
+            palette={P}
+            onPick={onPick}
+            onOpen={() => onLightbox ? onLightbox(hints, idx) : setLbIdx(idx)}
+          />
+        ))}
       </div>
 
       {compact ? (
