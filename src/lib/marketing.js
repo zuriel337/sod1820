@@ -4,7 +4,7 @@
 // פשוט ע"י הוספת משתני סביבה ב-Vercel — בלי שינוי קוד.
 //
 // משתני הסביבה (ב-Vercel → Settings → Environment Variables):
-//   VITE_META_PIXEL_ID   = מזהה הפיקסל של מטא (מספר, למשל 1234567890123456)
+//   VITE_META_PIXEL_ID   = 992562036849823  (SOD1820 Web pixel)
 //   VITE_GOOGLE_ADS_ID   = מזהה Google Ads (בפורמט AW-XXXXXXXXXX)
 //
 // כל ההמרות עוברות דרך trackConversion אחד שמשדר ל-GA4 + מטא + Google Ads בבת אחת.
