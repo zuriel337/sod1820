@@ -87,6 +87,35 @@
 פוסט היסוד: `wp_id=17` ("שם ה' בתורה 1820 פעם") מוצג בראש בית המדרש כ-«פוסט היסוד» (כבוד לסוד 1820).
 כשנוצר חידוש AI מפוסט/גלריה — הוא נשמר ב-`insights` (origin='ai'), מופיע בתיבת ה-AI בבית המדרש, ולחיצה מנווטת לפוסט/גלריה (`source_ref`).
 
+## 🚀 Meta Growth OS — תוכנית העל (24 שכבות)
+> **חזון:** Sod1820 הופך ממשהו שאנשים קוראים בו למשהו שאנשים חוזרים אליו כל יום — מערכת הפעלה של משמעות (SodOS).
+> הרשומה המלאה: `select what_we_did from work_log where topic='Meta Growth OS — תוכנית העל (24 שכבות)' order by created_at desc limit 1;`
+
+**סטטוס שכבות (עדכני ל-24.6.2026):**
+
+| שכבה | שם | סטטוס |
+|------|-----|--------|
+| 0 | תשתית (Pixel, CAPI, Secrets) | ✅ הושלם |
+| 1 | Pixel + CAPI מקבילי | ✅ הושלם |
+| 2 | Event Architecture (number_view, hint_view, journey…) | 🔶 חלקי |
+| 3 | UTM Engine | 🔶 חלקי |
+| 4 | Share Tracking (WhatsApp/Telegram/Facebook/Copy) | ✅ הושלם |
+| 5 | Propagation Engine (rid=, עצי התפשטות) | ❌ לא הושלם |
+| 6 | Meta Audiences אוטומטיות | ❌ לא הושלם |
+| 7 | Lookalikes | ❌ לא הושלם |
+| 8 | Auto Publishing (Graph API) | ❌ לא הושלם |
+| 9 | WhatsApp Cloud API | ❌ לא הושלם |
+| 10 | Reality Pulse (primary_value, occurred_at, דופק) | ✅ הושלם |
+| 11 | Dashboard (AdminPage + MetaTab + PopularityTab) | ✅ הושלם |
+| 12 | AI Insights לילי | ❌ לא הושלם |
+| 13 | Audience DNA | ❌ לא הושלם |
+| 14 | Newsletter Intelligence | ❌ לא הושלם |
+| 15 | Holy Grail Dashboard | ❌ לא הושלם |
+| 16-24 | Reality Intelligence → SodOS | ❌ חזון עתיד |
+
+**הבשלות הבאה לפיתוח:** שכבה 2 (event architecture מלאה) → שכבה 3 (UTM) → שכבה 5 (rid propagation).
+**תלויות חיצוניות:** שכבות 6-9 דורשות System User Token + הרשאות Meta Graph API.
+
 ## ⛔ פריסה — חוק (`deploy_on_request`)
 **צוריאל מחליט מתי מעלים לאוויר. לא דוחפים ל-`main` אוטומטית.**
 - כל push ל-`main` = פריסת Vercel, והמכסה החינמית מוגבלת (100 פריסות/יום). אסור לבזבז אותה על כל תיקון קטן.
