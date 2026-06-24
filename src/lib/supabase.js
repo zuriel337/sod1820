@@ -1161,22 +1161,36 @@ export async function getTopicCardsByNumber(value, limit = 6) {
   } catch { return []; }
 }
 
-// 🔍 autocomplete עברי — חיפוש prefix בטבלת bidim (שיטת רגיל).
+// 🔍 autocomplete — prefix search בבidim + כותרות פוסטים. מסנן שמות אישיים שהוסתרו.
 export async function searchPhrases(prefix, limit = 8) {
   if (!supabase || !prefix || prefix.length < 2) return [];
   try {
-    const { data } = await supabase.from('bidim')
-      .select('phrase, value')
-      .eq('method', 'רגיל')
-      .ilike('phrase', `${prefix}%`)
-      .order('value', { ascending: true })
-      .limit(limit * 3);
+    const [{ data: phrases }, { data: posts }] = await Promise.all([
+      supabase.from('bidim')
+        .select('phrase, value')
+        .eq('method', 'רגיל')
+        .ilike('phrase', `${prefix}%`)
+        .not('phrase', 'ilike', 'סלין לאה%')
+        .order('value', { ascending: true })
+        .limit(limit * 2),
+      supabase.from('posts')
+        .select('title, slug')
+        .ilike('title', `%${prefix}%`)
+        .not('title', 'ilike', 'סלין לאה%')
+        .limit(3),
+    ]);
     const seen = new Set(), out = [];
-    for (const r of (data || [])) {
+    for (const r of (phrases || [])) {
       if (!seen.has(r.phrase)) {
         seen.add(r.phrase);
-        out.push(r);
+        out.push({ phrase: r.phrase, value: r.value, type: 'phrase' });
         if (out.length >= limit) break;
+      }
+    }
+    for (const r of (posts || [])) {
+      if (!seen.has(r.title) && out.length < limit) {
+        seen.add(r.title);
+        out.push({ phrase: r.title, slug: r.slug, type: 'post' });
       }
     }
     return out;

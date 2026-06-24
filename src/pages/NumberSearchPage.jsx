@@ -52,6 +52,7 @@ export default function NumberSearchPage() {
   }, []);
 
   const goVal = v => { const t = String(v).trim(); if (t) { setShowSug(false); setSuggestions([]); nav(`/number/${encodeURIComponent(t)}`); } };
+  const goSug = s => { setShowSug(false); setSuggestions([]); if (s.type === 'post') nav(`/${s.slug}`); else goVal(s.phrase); };
   const isHebInput = /[א-ת]/.test(q);
   const previewVal = isHebInput && q.trim() ? calcGem(q.trim()) : null;
   const go = e => { e.preventDefault(); goVal(q); };
@@ -86,18 +87,27 @@ export default function NumberSearchPage() {
         {showSug && suggestions.length > 0 && (
           <div ref={sugRef} style={{
             position: "absolute", top: "calc(100% + 6px)", right: 0, left: 0, zIndex: 100,
-            background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 16,
-            boxShadow: `0 8px 32px rgba(0,0,0,.35)`, overflow: "hidden", direction: "rtl",
+            background: P.mode === "dark" ? "rgb(20,15,12)" : "#fff",
+            border: `1px solid ${P.borderStrong}`, borderRadius: 16,
+            boxShadow: `0 8px 32px rgba(0,0,0,.55)`, overflow: "hidden", direction: "rtl",
           }}>
             {suggestions.map((s, i) => (
-              <button key={i} onMouseDown={() => goVal(s.phrase)}
-                style={{ width: "100%", cursor: "pointer", background: "none", border: "none",
+              <button key={i} onMouseDown={() => goSug(s)}
+                style={{ width: "100%", cursor: "pointer",
+                  background: P.mode === "dark" ? "rgb(20,15,12)" : "#fff",
+                  border: "none",
                   borderBottom: i < suggestions.length - 1 ? `1px solid ${P.border}` : "none",
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   padding: "11px 20px", textAlign: "right" }}>
-                <span style={{ color: P.ink, fontFamily: F.body, fontSize: 15, fontWeight: 600 }}>{s.phrase}</span>
-                <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 13, fontWeight: 800,
-                  background: P.cardSoft, borderRadius: 999, padding: "2px 10px" }}>= {s.value}</span>
+                <span style={{ color: P.ink, fontFamily: F.body, fontSize: 15, fontWeight: 600 }}>
+                  {s.type === "post" ? "📖 " : ""}{s.phrase}
+                </span>
+                {s.type === "phrase"
+                  ? <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 13, fontWeight: 800,
+                      background: P.mode === "dark" ? "rgba(212,175,55,0.15)" : "#faf6ec", borderRadius: 999, padding: "2px 10px" }}>= {s.value}</span>
+                  : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
+                      background: P.mode === "dark" ? "rgba(212,175,55,0.1)" : "#faf6ec", borderRadius: 999, padding: "2px 10px" }}>פוסט →</span>
+                }
               </button>
             ))}
           </div>
