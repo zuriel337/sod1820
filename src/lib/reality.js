@@ -107,7 +107,11 @@ export function filterHints(hints = [], { value = null, values = null, period = 
     for (const h of hints) { const v = domNum(h); if (v != null) cnt.set(v, (cnt.get(v) || 0) + 1); }
     arr = arr.filter(h => { const v = domNum(h); return v != null && (cnt.get(v) || 0) <= RARE_MAX; });
   }
-  return [...arr].sort((a, b) => effDate(b) - effDate(a));
+  return [...arr].sort((a, b) =>
+    ((b.importance ?? 0) - (a.importance ?? 0)) ||
+    (effDate(b) - effDate(a)) ||
+    (new Date(b.created_at) - new Date(a.created_at))
+  );
 }
 
 // פירוק תאריך קצר לתצוגה
