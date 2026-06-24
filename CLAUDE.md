@@ -116,6 +116,33 @@
 **הבשלות הבאה לפיתוח:** שכבה 2 (event architecture מלאה) → שכבה 3 (UTM) → שכבה 5 (rid propagation).
 **תלויות חיצוניות:** שכבות 6-9 דורשות System User Token + הרשאות Meta Graph API.
 
+## 👑 ארכיטקטורת הפלטפורמה — 6 רמות + טוקנים + Academy (`platform_tiers_law`)
+> Sod1820 = פלטפורמת מחקר, לימוד וקהילה. לא אתר תוכן.
+> פרטים: `select what_we_did from work_log where topic='Sod1820 Platform Architecture — 6 רמות + טוקנים + Academy' limit 1;`
+
+**6 רמות גישה:**
+```
+0. אורח         — גימטריה, חדשות, דפי מספר, חלק מרמזים (חינם, ללא הרשמה)
+1. רשום         — אזור אישי, שמירה, מועדפים, היסטוריה (חינם + הרשמה)
+2. תלמיד היכל  — מסעות, אוספים, AI בסיסי (מנוי בסיסי)
+3. בני היכל    — העלאת רמזים, Reality Profile, AI מתקדם, קורסים (מנוי מרכזי = כסף גדול)
+4. חוקרי היכל  — ELS מלא, נדירות, AI Research, Graph Explorer (Premium)
+5. שותפי היכל  — VIP, גישה מוקדמת, מפגשים (Elite)
+```
+
+**Sod Credits (מטבע פנימי):**
+- חיפוש ELS = 10 קרדיטים · דוח AI = 25 · הצלבה = 5 · מסע AI = 30
+- מנוי = מכסה חודשית + אפשר לקנות עוד
+
+**5 מנועים:** גימטריה · ELS/תורה · Reality Stream · Academy (5 דרגות) · Community
+
+**אוטומציה:** סיום קורס/דרגה → הוספה אוטומטית לקבוצת טלגרם מתאימה
+
+**DB foundation (לבנות ראשון):**
+- `profiles` table: `user_id, email, tier(0-5), credits, xp, level, joined_at`
+- RLS לפי tier על כל פיצ'ר רגיש
+- **Gate order:** tier≥4 → ELS · tier≥3 → העלאת רמזים · tier≥2 → מסעות
+
 ## 👥 ארכיטקטורת זהות — UGC + קהילה (`identity_architecture_law`)
 > Sod1820 = ויקיפדיה חיה של רמזים ומספרים. **לא לחייב הרשמה בהתחלה.**
 > פרטים מלאים: `select what_we_did from work_log where topic='ארכיטקטורת זהות — אנונימי → חוקר (UGC Layer)' limit 1;`
