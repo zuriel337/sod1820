@@ -12,7 +12,7 @@ import {
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
-  searchGalleryForCuration, setImageCuration,
+  searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights,
   supabase,
 } from "../lib/supabase.js";
@@ -20,6 +20,7 @@ import { METHODS } from "../lib/gematria.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
+import ImageEditModal from "../components/ImageEditModal.jsx";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
@@ -36,6 +37,9 @@ const TABS = [
   { key: "curation", label: "⭐ אצירת תמונות" },
   { key: "upload",   label: "📷 העלאת תמונה" },
   { key: "ocr",      label: "🔤 OCR" },
+  { key: "meta",     label: "📡 מעקב Meta" },
+  { key: "worklog",  label: "📝 יומן עבודה" },
+  { key: "stream",   label: "🌊 זרם המציאות" },
 ];
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -103,6 +107,9 @@ export default function AdminPage() {
       {tab === "curation" && <CurationTab />}
       {tab === "upload" && <ImageUploadTab />}
       {tab === "ocr" && <OcrTab />}
+      {tab === "meta" && <MetaTab />}
+      {tab === "worklog" && <WorkLogTab />}
+      {tab === "stream" && <StreamAdminTab />}
     </div>
   );
 }
@@ -2377,3 +2384,214 @@ function BtnGold({ children, onClick }) {
 }
 function H({ children }) { return <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{children}</span>; }
 function Empty({ children }) { return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>{children}</div>; }
+
+const fld = { background: "rgba(0,0,0,0.3)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.heading, fontSize: 13, padding: "9px 12px", width: "100%", boxSizing: "border-box", direction: "rtl", outline: "none" };
+
+// ===== MetaTab — מעקב Meta Pixel + CAPI =====
+const CAPI_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/meta-capi";
+function MetaTab() {
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [win, setWin] = useState(7);
+
+  useEffect(() => {
+    if (!supabase) return;
+    setLoading(true);
+    const since = new Date(Date.now() - win * 86400000).toISOString();
+    supabase.from("visitor_events").select("section,slug,event_type,meta,visitor_id,created_at")
+      .gte("created_at", since).order("created_at", { ascending: false }).limit(100)
+      .then(({ data }) => { setEvents(data || []); setLoading(false); }).catch(() => setLoading(false));
+  }, [win]);
+
+  async function testCapi() {
+    setTesting(true); setTestResult(null);
+    try {
+      const r = await fetch(CAPI_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_name: "PageView", event_source_url: "https://sod1820.co.il/admin-test" }) });
+      setTestResult(await r.json());
+    } catch(e) { setTestResult({ ok: false, error: String(e) }); }
+    setTesting(false);
+  }
+
+  const byType = {};
+  events.forEach(e => { byType[e.event_type] = (byType[e.event_type] || 0) + 1; });
+  const uniq = new Set(events.map(e => e.visitor_id)).size;
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>📡 Meta Conversions API</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          <code style={{ color: C.gold, fontFamily: "monospace", fontSize: 11, background: "rgba(0,0,0,0.35)", padding: "4px 10px", borderRadius: 6 }}>{CAPI_URL}</code>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <BtnGold onClick={testCapi}>{testing ? "בודק…" : "🧪 שלח אירוע בדיקה"}</BtnGold>
+          {testResult && (
+            <span style={{ color: testResult.ok ? "#7bbf7b" : "#e57373", fontFamily: F.heading, fontSize: 13 }}>
+              {testResult.ok
+                ? `✅ הצליח — events_received: ${testResult.events_received} | trace: ${testResult.fbtrace_id}`
+                : `❌ ${testResult.skipped || testResult.error || "שגיאה"}`}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>👁 אירועי גולשים</div>
+          <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginRight: "auto" }}>ייחודיים: <b style={{ color: C.goldBright }}>{uniq}</b></span>
+          {[{l:"24ש",d:1},{l:"7י",d:7},{l:"30י",d:30}].map(w => (
+            <button key={w.d} onClick={() => setWin(w.d)} style={{ cursor:"pointer", fontFamily:F.heading, fontSize:12, padding:"4px 12px", borderRadius:999, border:`1px solid ${win===w.d?C.gold:C.border}`, background:win===w.d?"rgba(212,175,55,0.15)":"transparent", color:win===w.d?C.goldBright:C.muted }}>{w.l}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          {Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type, cnt]) => (
+            <div key={type} style={{ background:"rgba(212,175,55,0.08)", border:`1px solid ${C.borderGold}`, borderRadius:8, padding:"5px 12px", fontFamily:F.heading, fontSize:12 }}>
+              <span style={{ color:C.goldDim }}>{type}:</span> <b style={{ color:C.goldBright }}>{cnt}</b>
+            </div>
+          ))}
+        </div>
+        {loading ? <div style={{ color:C.muted, fontFamily:F.heading, fontSize:13 }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:5, maxHeight:360, overflowY:"auto" }}>
+            {events.map((e,i) => (
+              <div key={i} style={{ display:"grid", gridTemplateColumns:"130px 90px 90px 1fr", gap:8, alignItems:"center", borderBottom:`1px solid ${C.border}`, paddingBottom:5 }}>
+                <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{new Date(e.created_at).toLocaleString("he-IL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</span>
+                <span style={{ color:C.goldLight, fontFamily:F.heading, fontSize:11 }}>{e.section}</span>
+                <span style={{ color:C.gold, fontFamily:F.heading, fontSize:11 }}>{e.event_type}</span>
+                <span style={{ color:C.muted, fontFamily:F.heading, fontSize:11, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{e.slug || (e.meta ? JSON.stringify(e.meta).slice(0,40) : "")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== WorkLogTab — יומן עבודה =====
+function WorkLogTab() {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ topic: "", what_we_did: "", status: "הושלם", open_threads: "" });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  function load() {
+    if (!supabase) return;
+    supabase.from("work_log").select("*").order("created_at", { ascending: false }).limit(30)
+      .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
+  }
+  useEffect(load, []);
+
+  async function addEntry() {
+    if (!form.topic || !form.what_we_did) return;
+    setSaving(true);
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase.from("work_log").insert({
+      session_date: today, topic: form.topic, what_we_did: form.what_we_did,
+      status: form.status, open_threads: form.open_threads || null,
+    }).select().single();
+    if (!error && data) {
+      setEntries(prev => [data, ...prev]);
+      setForm({ topic: "", what_we_did: "", status: "הושלם", open_threads: "" });
+      setSaved(true); setTimeout(() => setSaved(false), 2000);
+    }
+    setSaving(false);
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>✍️ רשומה חדשה</div>
+        <div style={{ display: "grid", gap: 10 }}>
+          <input value={form.topic} onChange={e => setForm(p=>({...p,topic:e.target.value}))} placeholder="נושא" style={fld} />
+          <textarea value={form.what_we_did} onChange={e => setForm(p=>({...p,what_we_did:e.target.value}))} placeholder="מה עשינו" rows={3} style={{ ...fld, resize:"vertical" }} />
+          <input value={form.open_threads} onChange={e => setForm(p=>({...p,open_threads:e.target.value}))} placeholder="חוטים פתוחים (אופציונלי)" style={fld} />
+          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+            <BtnGold onClick={addEntry}>{saving ? "שומר…" : "💾 שמור"}</BtnGold>
+            {saved && <span style={{ color:"#7bbf7b", fontFamily:F.heading, fontSize:13 }}>✅ נשמר</span>}
+          </div>
+        </div>
+      </div>
+      <div style={card}>
+        <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700, marginBottom:14 }}>📋 רשומות אחרונות</div>
+        {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:16 }}>
+            {entries.map(e => (
+              <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+                <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
+                  <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
+                  <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
+                  <span style={{ color:e.status==="הושלם"?"#7bbf7b":C.gold, fontFamily:F.heading, fontSize:11, marginRight:"auto" }}>{e.status}</span>
+                </div>
+                <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
+                {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+              </div>
+            ))}
+            {!entries.length && <Empty>אין רשומות עדיין</Empty>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== StreamAdminTab — ניהול זרם המציאות =====
+function StreamAdminTab() {
+  const [hints, setHints] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editImg, setEditImg] = useState(null);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    getRealityHints(300).then(data => { setHints(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  async function removeFromStream(id) {
+    await setImageCuration(id, { source: "manual" });
+    setHints(prev => prev.filter(h => h.id !== id));
+  }
+
+  const filtered = q ? hints.filter(h => (h.name||"").includes(q) || String(h.primary_value||"").includes(q)) : hints;
+
+  return (
+    <div style={{ display:"grid", gap:20 }}>
+      <div style={card}>
+        <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:14, flexWrap:"wrap" }}>
+          <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700 }}>🌊 זרם המציאות — {hints.length} רמזים</div>
+          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="סנן לפי שם / מספר" style={{ ...fld, maxWidth:200, marginRight:"auto" }} />
+        </div>
+        {loading ? <div style={{ color:C.muted, fontFamily:F.heading, fontSize:13 }}>טוען…</div> : (
+          <div style={{ display:"grid", gap:6, maxHeight:520, overflowY:"auto" }}>
+            {filtered.map(h => (
+              <div key={h.id} style={{ display:"grid", gridTemplateColumns:"52px 1fr auto auto", gap:10, alignItems:"center", borderBottom:`1px solid ${C.border}`, paddingBottom:6 }}>
+                {h.image_url
+                  ? <img src={h.image_url} alt="" style={{ width:52, height:52, objectFit:"cover", borderRadius:5 }} />
+                  : <div style={{ width:52, height:52, background:C.border, borderRadius:5 }} />}
+                <div style={{ minWidth:0 }}>
+                  <div style={{ color:C.goldLight, fontFamily:F.heading, fontSize:12, fontWeight:700, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{h.name || "(ללא שם)"}</div>
+                  <div style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>
+                    {h.occurred_at ? h.occurred_at.slice(0,10) : "—"} · #{h.primary_value || "?"}
+                  </div>
+                </div>
+                <button onClick={() => setEditImg(h)} style={iconBtn} title="ערוך">✏️</button>
+                <button onClick={() => removeFromStream(h.id)} style={{ ...iconBtn, color:"#e57373", borderColor:"#e57373" }} title="הוצא מהזרם">↩</button>
+              </div>
+            ))}
+            {!filtered.length && <Empty>אין תוצאות</Empty>}
+          </div>
+        )}
+      </div>
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onSave={async patch => { await setImageCuration(editImg.id, patch); setHints(prev => prev.map(h => h.id===editImg.id ? {...h,...patch} : h)); setEditImg(null); }}
+          onClose={() => setEditImg(null)}
+          onRemoveFromStream={editImg.source === "update" ? () => { removeFromStream(editImg.id); setEditImg(null); } : null}
+        />
+      )}
+    </div>
+  );
+}
