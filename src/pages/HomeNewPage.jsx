@@ -249,7 +249,16 @@ export default function HomeNewPage() {
               הזרם המלא →
             </Link>
           </div>
-          <RealityWorld compact forceDark showHero />
+          <div style={{ textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18 }}>
+            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
+            <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
+              זרם המציאות — בבנייה
+            </div>
+            <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
+              הממשק מתעדכן לגרסה חדשה.<br />
+              הרמזים יחזרו בקרוב עם יכולות חדשות.
+            </div>
+          </div>
         </div>
       </section>
 

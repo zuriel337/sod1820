@@ -209,7 +209,9 @@ export async function getRealityHints(limit = 1000) {
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
+    .order('importance', { ascending: false, nullsFirst: false })
     .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
     .limit(limit);
   return data || [];
 }
@@ -1274,4 +1276,90 @@ export async function searchPhrases(prefix, limit = 8) {
     }
     return out;
   } catch { return []; }
+}
+
+// ── hint_sets ──
+export async function getHintSets({ status = null } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('hint_sets').select('*')
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  if (status) q = q.eq('status', status);
+  const { data } = await q;
+  return data || [];
+}
+
+export async function getHintSet(id) {
+  if (!supabase) return null;
+  const { data: set } = await supabase.from('hint_sets').select('*').eq('id', id).single();
+  const { data: members } = await supabase.from('hint_set_members').select('*').eq('set_id', id).order('sort_order');
+  return { ...set, members: members || [] };
+}
+
+export async function saveHintSet(fields) {
+  if (!supabase) throw new Error('no supabase');
+  const { id, ...rest } = fields;
+  rest.updated_at = new Date().toISOString();
+  if (id) {
+    const { data } = await supabase.from('hint_sets').update(rest).eq('id', id).select().single();
+    return data;
+  }
+  const { data } = await supabase.from('hint_sets').insert(rest).select().single();
+  return data;
+}
+
+export async function addHintSetMember(setId, memberType, memberId, sortOrder = 0, note = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data } = await supabase.from('hint_set_members')
+    .insert({ set_id: setId, member_type: memberType, member_id: String(memberId), sort_order: sortOrder, note })
+    .select().single();
+  return data;
+}
+
+export async function removeHintSetMember(id) {
+  if (!supabase) return;
+  await supabase.from('hint_set_members').delete().eq('id', id);
+}
+
+export async function reorderHintSetMembers(setId, orderedMemberIds) {
+  if (!supabase) return;
+  await Promise.all(orderedMemberIds.map((id, i) =>
+    supabase.from('hint_set_members').update({ sort_order: i }).eq('id', id).eq('set_id', setId)
+  ));
+}
+
+// ── trails ──
+export async function getTrails({ status = null } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('trails').select('*')
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  if (status) q = q.eq('status', status);
+  const { data } = await q;
+  return data || [];
+}
+
+export async function saveTrail(fields) {
+  if (!supabase) throw new Error('no supabase');
+  const { id, ...rest } = fields;
+  rest.updated_at = new Date().toISOString();
+  if (id) {
+    const { data } = await supabase.from('trails').update(rest).eq('id', id).select().single();
+    return data;
+  }
+  const { data } = await supabase.from('trails').insert(rest).select().single();
+  return data;
+}
+
+export async function addTrailMember(trailId, memberType, memberId, sortOrder = 0, note = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data } = await supabase.from('trail_members')
+    .insert({ trail_id: trailId, member_type: memberType, member_id: String(memberId), sort_order: sortOrder, note })
+    .select().single();
+  return data;
+}
+
+export async function removeTrailMember(id) {
+  if (!supabase) return;
+  await supabase.from('trail_members').delete().eq('id', id);
 }
