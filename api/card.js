@@ -106,7 +106,6 @@ export default async function handler(req) {
         justifyContent: 'center',
         background: 'radial-gradient(circle at 50% 38%, #1a1340 0%, #0b0820 45%, #05030d 100%)',
         fontFamily: 'Heebo',
-        direction: 'rtl',
         position: 'relative',
       },
     },
