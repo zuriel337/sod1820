@@ -116,6 +116,34 @@
 **הבשלות הבאה לפיתוח:** שכבה 2 (event architecture מלאה) → שכבה 3 (UTM) → שכבה 5 (rid propagation).
 **תלויות חיצוניות:** שכבות 6-9 דורשות System User Token + הרשאות Meta Graph API.
 
+## 👥 ארכיטקטורת זהות — UGC + קהילה (`identity_architecture_law`)
+> Sod1820 = ויקיפדיה חיה של רמזים ומספרים. **לא לחייב הרשמה בהתחלה.**
+> פרטים מלאים: `select what_we_did from work_log where topic='ארכיטקטורת זהות — אנונימי → חוקר (UGC Layer)' limit 1;`
+
+**מסלול הזהות:**
+```
+אנונימי (visitor_id)
+  ↓ [דיווח רמז / חיפושים / מסעות]
+מזוהה רך (visitor_id עם היסטוריה)
+  ↓ [הצעה רכה: "שמור תגליות"]
+חשבון (Supabase Auth)
+  ↓
+חוקר (פרופיל, ציון, תגיות)
+  ↓
+תורם (רמזים מאושרים, Collective Discovery)
+  ↓
+יוצר מסעות
+```
+
+**הפיצ'ר הראשון לבנות: `➕ דווח רמז`**
+- טבלה: `community_hints` (visitor_id, image_url, number, description, source_url, status=pending)
+- UI: כפתור בזרם המציאות + בדפי מספר
+- Admin: טאב אישור ב-AdminPage (community_review)
+- אחרי אישור: עובר ל-gallery_images עם source='community'
+
+**Collective Discovery (עתיד):** 5+ דיווחים על אותו מספר → "זוהתה התכנסות קהילתית סביב X" (אוטומטי)
+**Research Score (עתיד):** ציון לכל תורם — רמזים שאושרו + תגליות נדירות + שיתופים
+
 ## ⛔ פריסה — חוק (`deploy_on_request`)
 **צוריאל מחליט מתי מעלים לאוויר. לא דוחפים ל-`main` אוטומטית.**
 - כל push ל-`main` = פריסת Vercel, והמכסה החינמית מוגבלת (100 פריסות/יום). אסור לבזבז אותה על כל תיקון קטן.
