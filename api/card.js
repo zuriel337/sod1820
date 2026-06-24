@@ -19,6 +19,34 @@ export const config = { runtime: 'edge' };
 
 const h = (tag, props, ...kids) => React.createElement(tag, props, ...kids);
 
+// satori מרנדר שמאל-לימין בלבד — עברית נראית הפוכה.
+// הפתרון: להפוך את המחרוזת לפני העברה, אז satori "מתקן" אותה.
+// לוגיקה: היפוך תווים + שמירת ספרות/ASCII קריאות בסדרן.
+const rev = (s) => {
+  if (!s) return s;
+  // מפצלים ל-segments: עברית (כולל רווחים/פיסוק) ו-ASCII
+  const segs = [];
+  let i = 0;
+  while (i < s.length) {
+    // ASCII ברצף (אותיות לטיניות, ספרות, נקודות כגון URL) — שומרים כמות שהן
+    const isAsciiAlnum = (c) => (c >= 0x30 && c <= 0x39) || (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) || c === 0x2E || c === 0x2F || c === 0x3A;
+    if (isAsciiAlnum(s.charCodeAt(i))) {
+      let j = i;
+      while (j < s.length && isAsciiAlnum(s.charCodeAt(j))) j++;
+      segs.push({ t: 'a', v: s.slice(i, j) });
+      i = j;
+    } else {
+      // עברית + רווחים + פיסוק — הכל עד ה-ASCII הבא
+      let j = i;
+      while (j < s.length && !isAsciiAlnum(s.charCodeAt(j))) j++;
+      segs.push({ t: 'h', v: s.slice(i, j) });
+      i = j;
+    }
+  }
+  // היפוך סדר ה-segments + היפוך תווים בתוך כל segment עברי
+  return segs.reverse().map(sg => sg.t === 'a' ? sg.v : sg.v.split('').reverse().join('')).join('');
+};
+
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
@@ -135,14 +163,13 @@ export default async function handler(req) {
           fontSize: '34px',
           letterSpacing: '6px',
           marginBottom: '8px',
-          direction: 'rtl',
         },
       },
       h('span', null, '✦'),
-      h('span', null, 'סוד 1820'),
+      h('span', null, rev('סוד 1820')),
       h('span', null, '✦')
     ),
-    // הגיבור — מספר/מילה ענקיים
+    // הגיבור — מספר/מילה ענקיים (מספרים לא הופכים, רק מילות עברית)
     h(
       'div',
       {
@@ -156,10 +183,9 @@ export default async function handler(req) {
           padding: '4px 24px',
           maxWidth: '1080px',
           textAlign: 'center',
-          direction: 'rtl',
         },
       },
-      hero
+      heroIsNumber ? hero : rev(hero)
     ),
     // שורת המשנה — מה שווה לו
     sub
@@ -173,10 +199,9 @@ export default async function handler(req) {
               marginTop: '24px',
               whiteSpace: 'nowrap',
               textAlign: 'center',
-              direction: 'rtl',
             },
           },
-          sub
+          rev(sub)
         )
       : null,
     // כיתוב ויראלי + קריאה לפעולה
@@ -191,8 +216,8 @@ export default async function handler(req) {
           gap: '8px',
         },
       },
-      h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800, direction: 'rtl' } }, teaser),
-      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6', direction: 'rtl' } }, 'תתחילו לגלות · sod1820.co.il')
+      h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800 } }, rev(teaser)),
+      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev('תתחילו לגלות') + ' · sod1820.co.il')
     )
   );
 
