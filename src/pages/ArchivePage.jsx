@@ -4,12 +4,13 @@ import { C, F } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
-  searchArchiveOcrIds, addImageToRealityStream,
+  searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import ImageEditModal from "../components/ImageEditModal.jsx";
 import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
@@ -78,6 +79,7 @@ export default function ArchivePage() {
   const [filtersOpen, setFiltersOpen] = useState(false);   // פאנל סינון מתקפל (סגור כברירת מחדל)
   const [limit, setLimit] = useState(PER);
   const [lightbox, setLightbox] = useState(null);
+  const [editImg, setEditImg] = useState(null);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
   const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
   const [draftOrder, setDraftOrder] = useState([]);   // רשימת מזהי תמונות מובלטות (סדר)
@@ -240,9 +242,27 @@ export default function ArchivePage() {
 
   async function addToStream(im) {
     try {
-      await addImageToRealityStream(im.id);
+      await addImageToRealityStream(im.id, im.occurred_at || null);
       setImgs(prev => prev.map(x => x.id === im.id ? { ...x, source: "update" } : x));
     } catch (e) { alert("הוספה לזרם נכשלה: " + (e.message || e)); }
+  }
+
+  async function handleSave(patch) {
+    if (!editImg || !Object.keys(patch).length) { setEditImg(null); return; }
+    try {
+      await setImageCuration(editImg.id, patch);
+      setImgs(prev => prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x));
+      setEditImg(null);
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
+  async function handleRemoveFromStream() {
+    if (!editImg) return;
+    try {
+      await setImageCuration(editImg.id, { source: "manual" });
+      setImgs(prev => prev.map(x => x.id === editImg.id ? { ...x, source: "manual" } : x));
+      setEditImg(null);
+    } catch (e) { alert("הסרה נכשלה: " + (e.message || e)); }
   }
 
   // ── הבלטה / סידור ידני בתוך סט ──
@@ -662,7 +682,7 @@ export default function ArchivePage() {
               )}
             </>
           ) : (
-            <RealityStream hints={pool} palette={PALETTES.dark} onAddToStream={isAdmin ? addToStream : null} />
+            <RealityStream hints={pool} palette={PALETTES.dark} onAddToStream={isAdmin ? addToStream : null} onEdit={isAdmin ? h => setEditImg(h) : null} />
           )}
           </div>
         </div>
@@ -702,6 +722,15 @@ export default function ArchivePage() {
       )}
 
       {/* לייטבוקס תמונה (טאב מאגר) */}
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onSave={handleSave}
+          onClose={() => setEditImg(null)}
+          onRemoveFromStream={editImg.source === "update" ? handleRemoveFromStream : null}
+        />
+      )}
+
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.95)", overflowY: "auto", padding: "32px 16px", direction: "rtl" }}>
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: 760, margin: "0 auto" }}>

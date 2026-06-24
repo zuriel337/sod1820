@@ -209,7 +209,7 @@ export async function getRealityHints(limit = 1000) {
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
-    .order('created_at', { ascending: false })
+    .order('occurred_at', { ascending: false, nullsFirst: false })
     .limit(limit);
   return data || [];
 }

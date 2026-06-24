@@ -9,7 +9,8 @@ import { trackImageClick } from "../lib/tracking.js";
 // Single hint card — CSS classes (rs-card, rs-imgwrap, etc.) must be injected by the parent layout.
 // onOpen() — called when user clicks the image to open lightbox.
 // onPick(n) — called when user clicks an extra number tag.
-export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, onOpen, onAddToStream }) {
+// onEdit() — called when admin clicks ✏️ to open edit modal.
+export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, onOpen, onAddToStream, onEdit }) {
   const fresh = cutoff ? isNewSince(h, cutoff) : false;
   const v = domNum(h);
   const title = cleanName(h.name);
@@ -35,6 +36,15 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
               border: "none", borderRadius: 999, width: 26, height: 26, fontSize: 14, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}
           >+</button>
+        )}
+        {onEdit && (
+          <button
+            onClick={e => { e.stopPropagation(); onEdit(); }}
+            title="ערוך תמונה"
+            style={{ position: "absolute", bottom: 9, insetInlineStart: 9, zIndex: 3, background: "rgba(0,0,0,0.55)", color: "#fff",
+              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999, width: 26, height: 26, fontSize: 12, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center" }}
+          >✏️</button>
         )}
       </div>
       {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0) && (
