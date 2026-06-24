@@ -11,6 +11,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
+import Lightbox from "../components/Lightbox.jsx";
 import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
@@ -78,7 +79,8 @@ export default function ArchivePage() {
   const [showAllNums, setShowAllNums] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);   // פאנל סינון מתקפל (סגור כברירת מחדל)
   const [limit, setLimit] = useState(PER);
-  const [lightbox, setLightbox] = useState(null);
+  const [lbImages, setLbImages] = useState(null);   // מערך תמונות ללייטבוקס
+  const [lbStart, setLbStart] = useState(0);         // אינדקס פתיחה
   const [editImg, setEditImg] = useState(null);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
   const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
@@ -600,7 +602,7 @@ export default function ArchivePage() {
                       </button>
                       {open && (
                         <div className="ar-acc-body">
-                          {gimgs.map(im => {
+                          {gimgs.map((im, imIdx) => {
                             const xs = setNums ? hintNums(im).filter(v => setNums.has(v)) : [];
                             return (
                             <figure key={im.id} className="ar-feed-img">
@@ -610,9 +612,12 @@ export default function ArchivePage() {
                                   {xs.length >= 2 && <span className="ar-cross" title={`הצטלבות חזקה: ${xs.join(" ∩ ")}`}>⚡ הצטלבות חזקה · {xs.join("∩")}</span>}
                                 </div>
                               )}
-                              <a href={im.image_url} target="_blank" rel="noopener noreferrer">
-                                <img src={im.image_url} alt={im.name || ""} loading="lazy" />
-                              </a>
+                              <button
+                                onClick={() => { setLbImages(gimgs); setLbStart(imIdx); }}
+                                style={{ display: "block", width: "100%", background: "none", border: "none", padding: 0, cursor: "zoom-in" }}
+                              >
+                                <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
+                              </button>
                               {(im.name || im.description || (im.all_values || []).length > 0) && (
                                 <figcaption className="ar-feed-cap">
                                   {im.name && <div className="ar-feed-name">{im.name}</div>}
@@ -645,7 +650,7 @@ export default function ArchivePage() {
                   <div className="ar-grid">
                     {highlighted.map((im, idx) => (
                       <div key={im.id} className="ar-imgwrap">
-                        <button onClick={() => curating ? toggleHi(im.id) : setLightbox(im)} className={`arch-card ar-imgcard${curating ? " ar-on" : ""}`}>
+                        <button onClick={() => curating ? toggleHi(im.id) : (setLbImages([...highlighted, ...rest]), setLbStart(idx))} className={`arch-card ar-imgcard${curating ? " ar-on" : ""}`}>
                           <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                           <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
                           <span className="ar-pos">{idx + 1}</span>
@@ -666,8 +671,8 @@ export default function ArchivePage() {
               )}
               <div className="ar-subhead">{curating ? "↓ לחץ תמונה כדי להבליט" : "שבילים — שאר התמונות"}</div>
               <div className="ar-grid">
-                {rest.slice(0, limit).map(im => (
-                  <button key={im.id} onClick={() => curating ? toggleHi(im.id) : setLightbox(im)} className="arch-card ar-imgcard">
+                {rest.slice(0, limit).map((im, idx) => (
+                  <button key={im.id} onClick={() => curating ? toggleHi(im.id) : (setLbImages([...highlighted, ...rest]), setLbStart(highlighted.length + idx))} className="arch-card ar-imgcard">
                     <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
                     {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
@@ -732,30 +737,13 @@ export default function ArchivePage() {
         />
       )}
 
-      {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.95)", overflowY: "auto", padding: "32px 16px", direction: "rtl" }}>
-          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 760, margin: "0 auto" }}>
-            <div style={{ textAlign: "left", marginBottom: 8, display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              {isAdmin && (
-                <button
-                  onClick={() => { setEditImg(lightbox); setLightbox(null); }}
-                  style={{ background: "rgba(212,175,55,0.15)", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 16, cursor: "pointer", borderRadius: 8, padding: "0 14px", height: 42 }}
-                  title="עריכת תמונה"
-                >✏️</button>
-              )}
-              <button onClick={() => setLightbox(null)} style={{ background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, fontSize: 22, cursor: "pointer", borderRadius: 8, width: 42, height: 42 }}>×</button>
-            </div>
-            <div style={{ background: "rgba(20,15,12,0.5)", border: `1px solid ${C.borderGold}`, borderRadius: 14, overflow: "hidden" }}>
-              {eventLabel(lightbox) && (
-                <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 16px", borderBottom: `1px solid ${C.border}`, color: C.goldDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                  <span aria-hidden>🗓️</span>{eventLabel(lightbox)}
-                </div>
-              )}
-              <img src={lightbox.image_url} alt={lightbox.name || ""} style={{ width: "100%", display: "block" }} />
-              <ImageMeta im={lightbox} onClose={() => setLightbox(null)} />
-            </div>
-          </div>
-        </div>
+      {lbImages && (
+        <Lightbox
+          images={lbImages}
+          initialIndex={lbStart}
+          onClose={() => setLbImages(null)}
+          onEdit={isAdmin ? h => { setLbImages(null); setEditImg(h); } : null}
+        />
       )}
 
       <style>{`

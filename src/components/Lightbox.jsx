@@ -8,7 +8,18 @@ import { shortDate, domNum, hintNums } from "../lib/reality.js";
 export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
+  const [shared, setShared] = useState(false);
   const touchStart = useRef(null);
+
+  async function handleShare(image) {
+    const url = image?.image_url || window.location.href;
+    const title = cleanName(image?.name) || 'SOD1820';
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); } catch {}
+    } else {
+      try { await navigator.clipboard.writeText(url); setShared(true); setTimeout(() => setShared(false), 2000); } catch {}
+    }
+  }
 
   useEffect(() => { setIdx(initialIndex); }, [initialIndex]);
 
@@ -64,6 +75,27 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
           </span>
         )}
         <span style={{ flex: 1 }} />
+
+        {/* כפתורי פעולה — לכולם */}
+        {h?.image_url && (
+          <a
+            href={h.image_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{ ...closeBtn, fontSize: 17, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffffbb" }}
+            title="פתח בגודל מלא"
+            aria-label="פתח בגודל מלא"
+          >⤢</a>
+        )}
+        <button
+          onClick={e => { e.stopPropagation(); handleShare(h); }}
+          style={{ ...closeBtn, fontSize: 15, color: shared ? "#5ef0a0" : "#ffffffbb", transition: "color .3s" }}
+          title={shared ? "הועתק!" : "שתף תמונה"}
+          aria-label="שתף"
+        >{shared ? "✓" : "🔗"}</button>
+
+        {/* עריכה — למנהלים בלבד */}
         {onEdit && (
           <button
             onClick={e => { e.stopPropagation(); onEdit(images[idx]); }}
@@ -71,6 +103,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
             aria-label="עריכת תמונה"
           >✏️</button>
         )}
+
         {v != null && (
           <Link
             to={`/number/${v}`}
