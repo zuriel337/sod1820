@@ -87,7 +87,7 @@ export default async function handler(req, res) {
 
   let title = STATIC['/'].title;
   let desc = DEFAULT_DESC;
-  let image = cardUrl(STATIC['/'].card);
+  let image = DEFAULT_IMAGE;
   let type = 'website';
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   const canonical = SITE + (path === '/' ? '' : path);
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
-    if (STATIC[key].card) image = cardUrl(STATIC[key].card);
+    // cardUrl() uses satori which flips Hebrew — use static logo instead
   } else if (key.startsWith('/topic/')) {
     // ציר התכנסות — כותרת/תת + תמונה ראשונה מהגלריה
     let slug = key.slice('/topic/'.length);
@@ -133,10 +133,8 @@ export default async function handler(req, res) {
         title = stripHtml(c.title) + ' · ' + SITE_NAME;
         desc = cleanDesc(c.subtitle || `מרכז ההתכנסות של ${stripHtml(c.title)}${(c.highlight_numbers || []).length ? ' — ' + c.highlight_numbers.join(' · ') : ''}`) || DEFAULT_DESC;
         type = 'article';
-        // תמונת שיתוף דינמית: כותרת ההתכנסות גדולה + המספרים. נופלת חזרה לתמונת גלריה.
-        const nums = Array.isArray(c.highlight_numbers) ? c.highlight_numbers.filter(x => x != null) : [];
-        const ct = stripHtml(c.title);
-        image = `${SITE}/api/card?w=${encodeURIComponent(ct)}&sub=${encodeURIComponent(nums.length ? nums.join('  ·  ') : 'מרכז ההתכנסות')}`;
+        // cardUrl with Hebrew title flips in satori — use logo
+        image = DEFAULT_IMAGE;
       }
     } catch { /* fallback to defaults */ }
   } else if (key.startsWith('/number/')) {
@@ -174,10 +172,8 @@ export default async function handler(req, res) {
           if (post.image_url) {
             image = post.image_url;
           } else {
-            const ttl = stripHtml(post.title);
-            const heroTitle = ttl.length > 46 ? ttl.slice(0, 46).replace(/\s+\S*$/, '') + '…' : ttl;
-            const cat = Array.isArray(post.categories) && post.categories[0] ? stripHtml(post.categories[0]) : '';
-            image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
+            // אין תמונת פוסט — לוגו סטטי (cardUrl מהפך עברית בsatori)
+            image = DEFAULT_IMAGE;
           }
           type = 'article';
           break;
