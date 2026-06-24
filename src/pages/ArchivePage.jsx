@@ -539,8 +539,8 @@ export default function ArchivePage() {
           </aside>
 
           <div className="ar-feed">
-          {/* גשר לציר האירועים */}
-          {bridgeEvents.length > 0 && (
+          {/* גשר לציר האירועים — רק בתצוגת תמונות, לא בגלריות (כדי לא ליצור "חור שחור" מעל הרשימה) */}
+          {viewMode === "images" && bridgeEvents.length > 0 && (
             <div className="ar-bridge">
               <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 700 }}>🌅 אירועים מהציר עם המספרים האלה:</span>
               {bridgeEvents.map(t => (
@@ -809,9 +809,9 @@ export default function ArchivePage() {
         .ar-side .ar-row { justify-content: flex-start; }
         @media (max-width: 900px) {
           .ar-layout { grid-template-columns: 1fr; }
-          /* בנייד: הסטים/חיפוש/סינון למעלה — לא נדחקים מתחת לכל התמונות */
-          .ar-side { grid-column: 1; grid-row: 1; position: static; max-height: none; }
-          .ar-feed { grid-column: 1; grid-row: 2; }
+          /* בנייד: הגלריה/תמונות קודם, הפאנל/סינון מתחת */
+          .ar-feed { grid-column: 1; grid-row: 1; }
+          .ar-side { grid-column: 1; grid-row: 2; position: static; max-height: none; }
         }
         /* אקורדיון גלריות */
         .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }
