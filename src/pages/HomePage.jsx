@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getPostsFromSupabase, adaptPost, getTopicCards } from "../lib/supabase.js";
 import { topicTag } from "../lib/topicCards.js";
 import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../theme.js";
@@ -8,6 +8,7 @@ import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
+import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import { track } from "../lib/tracking.js";
@@ -25,7 +26,7 @@ function BrandStrip() {
 // שערי המערכת — כולם סגורים ("🔒 בקרוב"), פרט לבית המדרש שמקושר לדף ("🛠️ בהקמה").
 const GATES = [
   { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline" },
-  { icon: "🌳", title: "עץ המספרים", sub: "שורש כל מספר" },
+  { icon: "🔢", title: "מנוע המספרים", sub: "הגוגל של המספרים", to: "/number" },
   { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI", to: "/beit-midrash" },
   { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
@@ -91,6 +92,46 @@ function ShiurimCard() {
         .sod-shiur-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12.5px;font-weight:700;}
       `}</style>
     </Link>
+  );
+}
+
+// 🔢 מנוע המספרים — כרטיס עם חיפוש מהיר + לוגו + קישור
+function NumberSearchCard() {
+  const nav = useNavigate();
+  const [nq, setNq] = useState("");
+  const go = e => { e.preventDefault(); nav(nq.trim() ? `/number/${encodeURIComponent(nq.trim())}` : "/number"); };
+  return (
+    <div className="sod-nsc">
+      <div className="sod-nsc-logo"><NumberEngineLogo size={30} prefix="🔢" /></div>
+      <div className="sod-nsc-sub">גלו קשרים נסתרים בין מספרים, שמות, פסוקים ורמזים</div>
+      <form onSubmit={go} className="sod-nsc-form">
+        <input
+          value={nq} onChange={e => setNq(e.target.value)}
+          placeholder="מספר, שם, פסוק…" dir="rtl"
+          className="sod-nsc-inp"
+        />
+        <button type="submit" className="sod-nsc-btn">✦</button>
+      </form>
+      <Link to="/number" className="sod-nsc-go">לכל המנוע →</Link>
+      <style>{`
+        .sod-nsc{display:flex;flex-direction:column;gap:10px;height:100%;box-sizing:border-box;
+          border-radius:12px;padding:14px;border:1px solid ${C.borderGold};
+          background:linear-gradient(135deg,rgba(212,175,55,0.07),rgba(8,5,2,0.5));}
+        .sod-nsc:hover{border-color:${C.gold};}
+        .sod-nsc-logo{flex-shrink:0;}
+        .sod-nsc-sub{color:${C.goldDim};font-family:${F.body};font-size:12.5px;line-height:1.6;flex:1;}
+        .sod-nsc-form{display:flex;gap:6px;}
+        .sod-nsc-inp{flex:1;min-width:0;background:rgba(212,175,55,0.07);border:1px solid ${C.borderGold};
+          border-radius:999px;color:${C.goldBright};font-family:${F.body};font-size:13.5px;padding:8px 14px;
+          outline:none;text-align:right;}
+        .sod-nsc-inp::placeholder{color:${C.goldDim};opacity:1;}
+        .sod-nsc-btn{cursor:pointer;background:linear-gradient(135deg,${C.gold},#c9a227);color:#1a0e00;
+          border:none;border-radius:999px;font-family:${F.heading};font-weight:800;font-size:14px;
+          padding:8px 14px;flex-shrink:0;}
+        .sod-nsc-go{align-self:flex-start;color:${C.goldBright};font-family:${F.heading};font-size:12.5px;font-weight:700;text-decoration:none;}
+        .sod-nsc-go:hover{text-decoration:underline;}
+      `}</style>
+    </div>
   );
 }
 
@@ -461,16 +502,18 @@ export default function HomePage() {
       {/* שלושה ריבועים — תפילות · שיעורים (מתחלפים) · הצלבת שיטות (HOT) */}
       <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px 24px", direction: "rtl" }}>
         <div className="sod-home-squares">
+          <NumberSearchCard />
           <PopularPrayersBox title="🙏 תפילות לרפואה שלמה" />
           <ShiurimCard />
           <CrossTeaserCard />
         </div>
         <style>{`
-          /* שורה סימטרית: 3 ריבועים שווים בגובה אחיד, או טור יחיד במובייל (לעולם לא 2+1) */
-          .sod-home-squares { display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 16px; align-items: stretch; max-width: 940px; margin: 0 auto; }
+          /* 4 ריבועים: desktop=4 עמודות, טאבלט=2×2, מובייל=טור יחיד */
+          .sod-home-squares { display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; align-items: stretch; max-width: 1200px; margin: 0 auto; }
           .sod-home-squares > .ppb { height: 100%; }
-          @media (max-width: 820px) { .sod-home-squares { grid-template-columns: 1fr; max-width: 460px; } }
+          @media (max-width: 1080px) { .sod-home-squares { grid-template-columns: repeat(2, 1fr); max-width: 680px; } }
+          @media (max-width: 560px) { .sod-home-squares { grid-template-columns: 1fr; max-width: 460px; } }
           /* ריבוע התפילות — קומפקטי וסטטי */
           .sod-home-squares > .ppb { max-width: none; margin: 0; padding: 13px 14px; box-shadow: none; }
           .sod-home-squares .ppb-head { margin-bottom: 9px; }
