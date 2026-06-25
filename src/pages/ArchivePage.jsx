@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { C, F } from "../theme.js";
 import {
@@ -90,9 +91,11 @@ export default function ArchivePage() {
   // workspace dashboard
   const [typeFilter, setTypeFilter] = useState(null);  // null/'hint'/'gematria'/'trail'/'event'/'gallery'/'__none'
   const [sourceFilter, setSourceFilter] = useState(null); // null/'update'/'not-update'
+  const [showHidden, setShowHidden] = useState(false); // הצג/הסתר מוסתרות (curator_hidden)
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
+  const [bulkType, setBulkType] = useState(null);
 
   // hint_sets
   const [hintSets, setHintSets] = useState([]);
@@ -150,8 +153,8 @@ export default function ArchivePage() {
     const withD = [], without = [];
     for (const im of arr) (eventDate(im) ? withD : without).push(im);
     withD.sort((a, b) =>
-      ((b.importance ?? 0) - (a.importance ?? 0)) ||
       (eventDate(b) - eventDate(a)) ||
+      ((b.importance ?? 0) - (a.importance ?? 0)) ||
       (new Date(b.created_at || 0) - new Date(a.created_at || 0))
     );
     return [...withD, ...without];
@@ -225,6 +228,7 @@ export default function ArchivePage() {
 
   const pool = useMemo(() => {
     let arr = sortedImgs.filter(im => {
+      if (!showHidden && im.curator_hidden) return false; // מוסתרות: מוסתרות בברירת מחדל
       if (typeFilter === '__none' ? im.image_type != null : typeFilter != null && im.image_type !== typeFilter) return false;
       if (sourceFilter === 'update' && im.source !== 'update') return false;
       if (sourceFilter === 'not-update' && im.source === 'update') return false;
@@ -246,7 +250,7 @@ export default function ArchivePage() {
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
+  }, [sortedImgs, showHidden, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilters.size > 0 ? [...numFilters] : null);
@@ -324,6 +328,17 @@ export default function ArchivePage() {
       setHintSetDraft(null);
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
+  async function bulkTagSelected() {
+    if (!bulkType || !selectedIds.size) return;
+    const ids = [...selectedIds];
+    try {
+      await Promise.all(ids.map(id => setImageCuration(id, { image_type: bulkType })));
+      setImgs(prev => prev.map(x => selectedIds.has(x.id) ? { ...x, image_type: bulkType } : x));
+      setSelectedIds(new Set());
+      setBulkType(null);
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
   async function addToHintSet(im) {
     if (!activeHintSet) return;
     const memberCount = activeHintSet._memberCount ?? 0;
@@ -347,6 +362,188 @@ export default function ArchivePage() {
   }
 
   return (
+    <>
+    {createPortal(<style id="ar-page-css">{`
+      .arch-card:hover { border-color: ${C.gold} !important; box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 22px rgba(212,175,55,0.18); }
+      .ar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+      .ar-panel { max-width: 980px; margin: 0 auto 18px; padding: 14px 16px 11px; border: 1px solid ${C.borderGold}; border-radius: 16px;
+        background: linear-gradient(165deg, rgba(20,15,12,0.72), rgba(8,5,2,0.55)); display: flex; flex-direction: column; gap: 10px; }
+      .ar-label { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
+      .ar-search { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 180px; background: rgba(8,5,2,0.6); border: 1px solid ${C.border}; border-radius: 999px; padding: 5px 13px; }
+      .ar-search input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: ${C.goldLight}; font-family: ${F.body}; font-size: 15px; padding: 5px 2px; }
+      .ar-x { background: none; border: none; color: ${C.muted}; font-size: 20px; cursor: pointer; }
+      .ar-pill { cursor: pointer; background: rgba(20,15,12,0.6); border: 1px solid ${C.border}; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; padding: 6px 13px; border-radius: 999px; }
+      .ar-pill:hover { border-color: ${C.gold}; }
+      .ar-pill.active { background: linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color: #1a0e00; border-color: ${C.gold}; }
+      .ar-sm { font-family: ${F.mono}; font-size: 12.5px; padding: 5px 11px; }
+      .ar-more { background: transparent; border-style: dashed; color: ${C.goldDim}; }
+      .ar-count { margin-inline-start: 6px; padding: 1px 6px; border-radius: 999px; background: rgba(8,5,2,0.5); color: ${C.goldDim}; font-size: 11px; }
+      .ar-pill.active .ar-count { background: rgba(0,0,0,0.22); color: #1a0e00; }
+      .ar-set { cursor: pointer; background: rgba(20,15,12,0.6); border: 1px solid ${C.borderGold}; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 14px; font-weight: 700; padding: 8px 16px; border-radius: 999px; }
+      .ar-set.active { background: linear-gradient(135deg, ${C.crimson}, ${C.crimsonLight}); color: ${C.goldBright}; border-color: ${C.gold}; }
+      .ar-set-nums { font-family: ${F.mono}; font-size: 11px; opacity: 0.8; margin-inline-start: 4px; }
+      .ar-new { border-style: dashed; color: ${C.goldDim}; }
+      .ar-icn { background: none; border: none; cursor: pointer; color: ${C.goldDim}; font-size: 13px; padding: 2px 4px; }
+      .ar-icn:hover { color: ${C.goldBright}; }
+      .ar-builder { max-width: 980px; margin: 0 auto 16px; padding: 16px; border: 1px dashed ${C.borderGold}; border-radius: 14px; background: rgba(8,5,2,0.4); }
+      .ar-input { background: rgba(8,5,2,0.6); border: 1px solid ${C.border}; border-radius: 8px; color: ${C.goldLight}; font-family: ${F.body}; font-size: 15px; padding: 8px 12px; }
+      .ar-save { background: ${C.gold}; color: #1a0e00; border: none; border-radius: 999px; padding: 8px 18px; font-family: ${F.heading}; font-weight: 800; cursor: pointer; }
+      .ar-cancel { background: none; border: 1px solid ${C.border}; color: ${C.muted}; border-radius: 999px; padding: 8px 16px; cursor: pointer; font-family: ${F.heading}; }
+      .ar-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(212,175,55,0.12); border: 1px solid ${C.borderGold}; border-radius: 999px; padding: 4px 6px 4px 12px; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12px; }
+      .ar-chip button { background: none; border: none; color: ${C.goldDim}; cursor: pointer; font-size: 16px; }
+      .ar-clear { background: none; border: 1px solid ${C.crimsonLight}; color: #d98a92; border-radius: 999px; padding: 5px 14px; cursor: pointer; font-family: ${F.heading}; font-size: 12px; }
+      .ar-bridge { max-width: 980px; margin: 0 auto 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
+        border: 1px solid ${C.borderGold}; border-radius: 14px; background: linear-gradient(120deg, rgba(122,19,32,0.22), rgba(61,31,92,0.18)); }
+      .ar-evt { color: ${C.goldLight}; text-decoration: none; font-family: ${F.heading}; font-size: 13px; background: rgba(8,5,2,0.5); border: 1px solid ${C.border}; border-radius: 999px; padding: 5px 13px; }
+      .ar-evt:hover { border-color: ${C.gold}; color: ${C.goldBright}; }
+      .ar-status { text-align: center; color: ${C.muted}; font-family: ${F.heading}; font-size: 13px; margin: 4px 0 18px; }
+      .ar-empty { text-align: center; color: ${C.muted}; font-family: ${F.body}; padding: 50px 20px; font-size: 15px; }
+      .ar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+      @media (max-width: 600px) { .ar-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; } }
+      .ar-imgcard { position: relative; cursor: pointer; padding: 0; overflow: hidden; border: 1px solid ${C.border}; border-radius: 12px; background: #000; aspect-ratio: 1/1; display: block; }
+      .ar-anchor { position: absolute; top: 7px; inset-inline-end: 7px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+      .ar-imgdate { position: absolute; bottom: 6px; inset-inline-start: 7px; color: ${C.goldBright}; font-family: ${F.heading}; font-size: 10px; font-weight: 700; background: rgba(5,4,0,0.6); border-radius: 6px; padding: 2px 6px; }
+      .ar-loadmore { cursor: pointer; background: linear-gradient(135deg, rgba(212,175,55,0.16), rgba(8,5,2,0.4)); border: 1px solid ${C.borderGold}; border-radius: 999px; color: ${C.goldBright}; font-family: ${F.heading}; font-weight: 700; font-size: 15px; padding: 12px 36px; }
+      .ar-galrow { display: flex; align-items: center; gap: 16px; width: 100%; text-align: right; cursor: pointer; padding: 0; overflow: hidden;
+        border: 1px solid ${C.border}; border-radius: 14px; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); transition: border-color .18s, transform .12s, box-shadow .18s; }
+      .ar-galrow:hover { border-color: ${C.gold}; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.16); }
+      .ar-galrow-thumb { position: relative; width: 130px; height: 90px; flex-shrink: 0; }
+      .ar-galrow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 10px 0; }
+      .ar-galrow-name { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 18px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .ar-galrow-sub { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12.5px; }
+      .ar-galrow-go { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; padding-inline: 16px; white-space: nowrap; }
+      @media (max-width: 520px) { .ar-galrow-thumb { width: 92px; height: 70px; } .ar-galrow-name { font-size: 15px; } }
+
+      /* ── פריסת מאגר: תוכן (ימין) + סרגל צד (שמאל) ── */
+      .ar-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        grid-template-areas: "feed side";
+        gap: 22px;
+        align-items: start;
+      }
+      .ar-feed { grid-area: feed; min-width: 0; }
+      .ar-side {
+        grid-area: side;
+        position: sticky;
+        top: 74px;
+        align-self: start;
+        max-height: calc(100vh - 88px);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 4px;
+      }
+      .ar-side .ar-row { justify-content: flex-start; }
+      @media (max-width: 900px) {
+        .ar-layout {
+          grid-template-columns: 1fr;
+          grid-template-areas: "feed" "side";
+        }
+        .ar-side { position: static; max-height: none; }
+      }
+
+      /* אקורדיון גלריות */
+      .ar-acc { border: 1px solid ${C.border}; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, rgba(20,15,12,0.55), rgba(8,5,2,0.45)); }
+      .ar-acc-head { display: flex; align-items: center; gap: 14px; width: 100%; cursor: pointer; text-align: right; background: none; border: none; padding: 10px 14px; }
+      .ar-acc-head:hover { background: rgba(212,175,55,0.06); }
+      .ar-acc-thumb { position: relative; width: 88px; height: 62px; border-radius: 8px; flex-shrink: 0; }
+      .ar-acc-name { flex: 1; min-width: 0; color: ${C.goldBright}; font-family: ${F.regal}; font-size: 17px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .ar-acc-sub { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; font-weight: 700; }
+      .ar-acc-arrow { color: ${C.goldDim}; font-size: 12px; }
+      .ar-acc-body { display: grid; gap: 24px; padding: 10px 16px 20px; border-top: 1px solid ${C.faint}; }
+      .ar-feed-img { margin: 0; }
+      .ar-feed-date { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: ${C.goldDim}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+      .ar-feed-img img { display: block; max-width: 100%; max-height: 72vh; width: auto; margin: 0 auto; border-radius: 12px; border: 1px solid ${C.border}; }
+      .ar-feed-cap { padding-top: 10px; }
+      .ar-feed-name { color: ${C.goldLight}; font-family: ${F.regal}; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+      .ar-feed-desc { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; line-height: 1.85; white-space: pre-wrap; }
+      .ar-feed-nums { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+      .ar-feed-num { text-decoration: none; font-family: ${F.mono}; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid ${C.borderGold}; color: ${C.goldLight}; background: rgba(8,5,2,0.5); }
+      .ar-feed-num.primary { background: ${C.gold}; color: #1a0e00; }
+      .ar-cross { background: linear-gradient(135deg, rgba(122,19,32,0.55), rgba(212,175,55,0.3)); border: 1px solid ${C.borderGold};
+        border-radius: 999px; padding: 2px 11px; color: ${C.goldBright}; font-family: ${F.heading}; font-size: 11px; font-weight: 800; }
+      .ar-side-title { color: ${C.goldBright}; font-family: ${F.regal}; font-size: 18px; font-weight: 700; padding: 2px 4px; }
+      .ar-curatebar { max-width: 980px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed ${C.borderGold}; border-radius: 12px; background: rgba(8,5,2,0.4); }
+      .ar-subhead { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; letter-spacing: 2; text-transform: uppercase; margin: 18px 0 10px; }
+      .ar-imgwrap { display: flex; flex-direction: column; gap: 4px; }
+      .ar-imgcard.ar-on { outline: 2px solid ${C.gold}; outline-offset: -2px; }
+      .ar-pos { position: absolute; top: 7px; inset-inline-start: 7px; background: ${C.gold}; color: #1a0e00; font-family: ${F.mono}; font-size: 12px; font-weight: 800; min-width: 20px; text-align: center; padding: 1px 5px; border-radius: 999px; }
+      .ar-movebar { display: flex; gap: 4px; }
+      .ar-movebar button { flex: 1; cursor: pointer; background: rgba(20,15,12,0.7); border: 1px solid ${C.border}; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 11px; font-weight: 700; padding: 4px 0; border-radius: 6px; }
+      .ar-movebar button:hover { border-color: ${C.gold}; color: ${C.goldBright}; }
+
+      /* ── סוגי תמונות: כפתורי סרגל צד ── */
+      .ar-type-btns { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+      .ar-type-btn {
+        cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+        width: 100%; text-align: right; background: rgba(20,15,12,0.5); border: 1px solid ${C.border};
+        color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
+        padding: 6px 10px; border-radius: 8px; transition: border-color .15s;
+      }
+      .ar-type-btn:hover { border-color: ${C.gold}; }
+      .ar-type-btn.active { background: linear-gradient(135deg,rgba(212,175,55,0.2),rgba(8,5,2,0.4)); border-color: ${C.gold}; color: ${C.goldBright}; }
+      .ar-type-cnt { font-family: ${F.mono}; font-size: 11px; color: ${C.muted}; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 999px; flex-shrink: 0; }
+      .ar-type-btn.active .ar-type-cnt { color: ${C.goldDim}; }
+
+      /* ── תצוגת מאגר (masonry) ── */
+      .ar-masonry {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px;
+        align-items: start;
+      }
+      @media (max-width: 600px) { .ar-masonry { grid-template-columns: repeat(2, 1fr); } }
+      .ar-mcard {
+        position: relative; border-radius: 10px; overflow: hidden;
+        background: rgba(8,5,2,0.8); border: 1px solid ${C.border};
+        transition: border-color .15s, transform .12s;
+        break-inside: avoid;
+      }
+      .ar-mcard:hover { border-color: ${C.gold}; }
+      .ar-msel { border-color: ${C.gold} !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.35); }
+      .ar-mwrap { position: relative; cursor: pointer; min-height: 80px; }
+      .ar-mwrap img { display: block; width: 100%; height: auto; }
+      .ar-mshade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(5,4,0,0.82)); pointer-events: none; }
+      .ar-mchk { position: absolute; top: 6px; inset-inline-start: 6px; width: 22px; height: 22px; border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.4);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 12px; font-weight: 800; z-index: 2; }
+      .ar-mchk.on { background: ${C.gold}; border-color: ${C.gold}; color: #1a0e00; }
+      .ar-mnum { position: absolute; top: 6px; inset-inline-end: 6px;
+        background: rgba(212,175,55,0.88); color: #1a0e00;
+        font-family: ${F.mono}; font-size: 11px; font-weight: 800;
+        padding: 2px 8px; border-radius: 999px; text-decoration: none; z-index: 2; }
+      .ar-mtype { position: absolute; bottom: 8px; inset-inline-end: 8px; font-size: 14px; z-index: 2; }
+      .ar-mstream-badge { position: absolute; top: 6px; inset-inline-start: 6px; font-size: 13px; z-index: 2; }
+      .ar-medit { position: absolute; bottom: 8px; inset-inline-start: 8px; z-index: 3;
+        background: rgba(20,15,12,0.82); border: 1px solid ${C.borderGold}; border-radius: 6px;
+        width: 28px; height: 28px; font-size: 14px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; padding: 0; }
+      .ar-madd { position: absolute; bottom: 8px; inset-inline-start: 40px; z-index: 3;
+        background: rgba(20,15,12,0.82); border: 1px solid ${C.borderGold}; border-radius: 6px;
+        width: 28px; height: 28px; font-size: 14px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; padding: 0; }
+      .ar-mcap { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
+      .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
+        overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .ar-mdate { color: ${C.muted}; font-family: ${F.heading}; font-size: 11px; }
+      .hn-h2 { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(20px,3vw,27px); font-weight: 800; text-align: center; margin: 0 0 4px; }
+      .hn-sub { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; text-align: center; margin: 0 0 20px; }
+      @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+
+      /* ── סרגל תיוג מרובה ── */
+      .ar-bulkbar {
+        margin-bottom: 12px; padding: 10px 14px;
+        border: 1px solid ${C.borderGold}; border-radius: 12px;
+        background: rgba(20,15,12,0.55);
+        display: flex; flex-direction: column; gap: 6px;
+      }
+      .ar-bulkrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .ar-untag { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; }
+      .ar-untag strong { color: ${C.goldBright}; font-size: 13px; }
+    `}</style>, document.head)}
     <div style={{ direction: "rtl", maxWidth: tab === "pool" ? "none" : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 0 90px 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
       <SideRailAd />
@@ -435,13 +632,13 @@ export default function ArchivePage() {
             <div className="ar-side-title">📂 סוג תמונה</div>
             <div className="ar-type-btns">
               {[
-                [null,       '🖼 הכל',        imgs.length],
-                ['hint',     '💡 רמזים',       imgs.filter(x => x.image_type === 'hint').length],
-                ['gematria', '🔢 גימטריה',     imgs.filter(x => x.image_type === 'gematria').length],
-                ['trail',    '📖 מסלולים',      imgs.filter(x => x.image_type === 'trail').length],
-                ['event',    '📰 אירועים',     imgs.filter(x => x.image_type === 'event').length],
-                ['gallery',  '🗂 כללי',        imgs.filter(x => x.image_type === 'gallery').length],
-                ['__none',   '❓ לא מסווג',    imgs.filter(x => x.image_type == null).length],
+                [null,       '🖼 הכל',        imgs.filter(x => !x.curator_hidden).length],
+                ['hint',     '💡 רמזים',       imgs.filter(x => !x.curator_hidden && x.image_type === 'hint').length],
+                ['gematria', '🔢 גימטריה',     imgs.filter(x => !x.curator_hidden && x.image_type === 'gematria').length],
+                ['trail',    '📖 מסלולים',      imgs.filter(x => !x.curator_hidden && x.image_type === 'trail').length],
+                ['event',    '📰 אירועים',     imgs.filter(x => !x.curator_hidden && x.image_type === 'event').length],
+                ['gallery',  '🗂 כללי',        imgs.filter(x => !x.curator_hidden && x.image_type === 'gallery').length],
+                ['__none',   '❓ לא מסווג',    imgs.filter(x => !x.curator_hidden && x.image_type == null).length],
               ].map(([k, l, cnt]) => (
                 <button key={String(k)} className={`ar-type-btn${typeFilter === k ? ' active' : ''}`}
                   onClick={() => setTypeFilter(prev => prev === k ? null : k)}>
@@ -455,9 +652,9 @@ export default function ArchivePage() {
             <div className="ar-side-title" style={{ marginTop: 16 }}>🌊 מקור</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
               {[
-                [null,        '📦 כל המאגר',   imgs.length],
-                ['update',    '🌊 בזרם כרגע',  imgs.filter(x => x.source === 'update').length],
-                ['not-update','📁 גלריה בלבד', imgs.filter(x => x.source !== 'update').length],
+                [null,        '📦 כל המאגר',   imgs.filter(x => !x.curator_hidden).length],
+                ['update',    '🌊 בזרם כרגע',  imgs.filter(x => x.source === 'update' && !x.curator_hidden).length],
+                ['not-update','📁 גלריה בלבד', imgs.filter(x => x.source !== 'update' && !x.curator_hidden).length],
               ].map(([k, l, cnt]) => (
                 <button key={String(k)} className={`ar-type-btn${sourceFilter === k ? ' active' : ''}`}
                   onClick={() => setSourceFilter(prev => prev === k ? null : k)}>
@@ -465,6 +662,12 @@ export default function ArchivePage() {
                   <span className="ar-type-cnt">{cnt}</span>
                 </button>
               ))}
+              {imgs.some(x => x.curator_hidden) && (
+                <button onClick={() => setShowHidden(v => !v)}
+                  style={{ marginTop: 4, cursor: "pointer", background: "none", border: "none", color: showHidden ? "#e74c3c" : "#888", fontFamily: "inherit", fontSize: 12, textAlign: "right", padding: "2px 0" }}>
+                  {showHidden ? '🚫 הסתר מוסתרות' : `👁 הצג מוסתרות (${imgs.filter(x => x.curator_hidden).length})`}
+                </button>
+              )}
             </div>
 
           {/* ── מאגר סטים (מספרים) ── */}
@@ -832,6 +1035,48 @@ export default function ArchivePage() {
             </>
           ) : masonryView ? (
             <>
+              {/* ── סרגל תיוג מרובה (מנהל) ── */}
+              {isAdmin && (
+                <div className="ar-bulkbar">
+                  <div className="ar-bulkrow">
+                    <button
+                      className={`ar-pill ar-sm${multiSelect ? ' active' : ''}`}
+                      onClick={() => { setMultiSelect(m => !m); if (multiSelect) { setSelectedIds(new Set()); setBulkType(null); } }}
+                    >✓ בחירה מרובה</button>
+                    {multiSelect && (
+                      <>
+                        <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set(pool.slice(0, limit).map(im => im.id)))}>
+                          בחר הכל ({Math.min(pool.length, limit)})
+                        </button>
+                        {selectedIds.size > 0 && (
+                          <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set())}>בטל הכל</button>
+                        )}
+                        {selectedIds.size > 0 && (
+                          <span className="ar-label" style={{ color: C.gold, fontWeight: 700 }}>{selectedIds.size} נבחרו</span>
+                        )}
+                      </>
+                    )}
+                    <span style={{ flex: 1 }} />
+                    <span className="ar-untag">⬜ <strong>{imgs.filter(im => !im.image_type).length}</strong> ללא תיוג</span>
+                  </div>
+                  {multiSelect && selectedIds.size > 0 && (
+                    <div className="ar-bulkrow">
+                      <span className="ar-label">תייג כ:</span>
+                      {[['hint','💡 רמז'],['gematria','🔢 גימטריה'],['trail','📖 מסלול'],['event','📰 אירוע'],['gallery','🗂 גלריה']].map(([k, l]) => (
+                        <button key={k} className={`ar-pill ar-sm${bulkType===k?' active':''}`}
+                          onClick={() => setBulkType(b => b===k ? null : k)}>{l}</button>
+                      ))}
+                      {bulkType && (
+                        <button className="ar-save" style={{ padding: "6px 18px" }} onClick={bulkTagSelected}>
+                          💾 שמור ל-{selectedIds.size} תמונות
+                        </button>
+                      )}
+                      <button className="ar-cancel" style={{ padding: "5px 12px" }}
+                        onClick={() => { setBulkType(null); setSelectedIds(new Set()); }}>ביטול</button>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
@@ -1097,6 +1342,7 @@ export default function ArchivePage() {
         .ar-type-btn.active { background: linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color: #1a0e00; border-color: ${C.gold}; }
       `}</style>
     </div>
+  </>
   );
 }
 

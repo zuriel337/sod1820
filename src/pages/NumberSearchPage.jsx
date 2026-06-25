@@ -86,8 +86,9 @@ export default function NumberSearchPage() {
         {showSug && suggestions.length > 0 && (
           <div ref={sugRef} style={{
             position: "absolute", top: "calc(100% + 6px)", right: 0, left: 0, zIndex: 100,
-            background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 16,
-            boxShadow: `0 8px 32px rgba(0,0,0,.35)`, overflow: "hidden", direction: "rtl",
+            background: P.mode === "dark" ? "rgba(15,10,8,0.97)" : P.card,
+            border: `1px solid ${P.borderStrong}`, borderRadius: 16,
+            boxShadow: `0 8px 40px rgba(0,0,0,.75)`, overflow: "hidden", direction: "rtl",
           }}>
             {suggestions.map((s, i) => (
               <button key={i} onMouseDown={() => goVal(s.phrase)}

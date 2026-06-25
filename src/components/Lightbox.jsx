@@ -154,7 +154,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       </div>
 
       {/* Footer info */}
-      {(title || h?.name || date || h?.description || nums.length > 0) && (
+      {(title || h?.name || date || h?.description || nums.length > 0 || onEdit) && (
         <div
           style={{ padding: "10px 20px 14px", textAlign: "center", flexShrink: 0, maxWidth: 720, margin: "0 auto", width: "100%" }}
           onClick={e => e.stopPropagation()}
@@ -195,6 +195,21 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
               ))}
             </div>
           )}
+          {onEdit && (
+            <button
+              onClick={e => { e.stopPropagation(); onEdit(images[idx]); }}
+              style={{
+                marginTop: 12,
+                background: "rgba(212,175,55,0.12)",
+                border: "1px solid rgba(212,175,55,0.5)",
+                color: "#d4af37",
+                fontFamily: F.heading, fontWeight: 700, fontSize: 14,
+                borderRadius: 10, padding: "9px 28px",
+                cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7,
+              }}
+              aria-label="עריכת תמונה"
+            >✏️ עריכת תמונה — משפיע בכל מקום</button>
+          )}
         </div>
       )}
 
@@ -225,13 +240,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 }
 
 const closeBtn = {
-  background: "none",
-  border: "1px solid rgba(255,255,255,0.2)",
+  background: "rgba(255,255,255,0.1)",
+  border: "1px solid rgba(255,255,255,0.45)",
   color: "#fff",
-  fontSize: 18,
+  fontSize: 20,
   cursor: "pointer",
   borderRadius: 8,
-  width: 38, height: 38,
+  width: 40, height: 40,
   display: "flex", alignItems: "center", justifyContent: "center",
   lineHeight: 1,
 };

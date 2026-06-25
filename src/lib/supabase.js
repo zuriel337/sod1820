@@ -10,7 +10,7 @@ const supabase = createClient(
 export default supabase;
 export { supabase };
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, orderBy = 'date', ascending = false } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
@@ -20,6 +20,7 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
   if (category) query = query.contains('categories', [category]);
   if (tag) query = query.contains('tags', [tag]);
+  if (author) query = query.eq('author', author);
   if (year) {
     query = query
       .gte('date', `${year}-01-01`)
@@ -137,7 +138,7 @@ export async function getGalleriesOverview() {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,curator_hidden')
+      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden')
       .not('image_url', 'is', null)
       .order('occurred_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })

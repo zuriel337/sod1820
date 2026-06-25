@@ -1118,6 +1118,16 @@ function formatDateHe(dateStr) {
   }
 }
 
+function formatDateHebrewCal(dateStr) {
+  try {
+    return new Date(dateStr).toLocaleDateString("he-IL-u-ca-hebrew", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
 function formatDateWP(isoDate) {
   if (!isoDate) return '';
   const d = new Date(isoDate);
@@ -4289,6 +4299,7 @@ function PostPageBySlug({ onNav }) {
   const author   = post?.author ?? "";
   const title    = stripHtml(post?.title ?? "");
   const date     = formatDateHe(post?.date ?? "");
+  const dateHeb  = formatDateHebrewCal(post?.date ?? "");
   const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
   // מודעות מוצגות רק על פוסטים "ישנים" — לפחות שבוע מאז הפרסום (לא על תוכן עדכני).
   const postAgeDays = post?.date ? (Date.now() - new Date(post.date).getTime()) / 86400000 : 0;
@@ -4433,25 +4444,34 @@ function PostPageBySlug({ onNav }) {
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 11, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "7px 16px 7px 8px" }}>
+                    <div
+                      onClick={() => navigate('/post?author=' + encodeURIComponent(by.name))}
+                      title={`כל הפוסטים של ${by.name}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 13, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "9px 22px 9px 14px", cursor: "pointer", transition: "border-color .15s" }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = pc.borderGold}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = pc.border}
+                    >
                       <img src={by.avatar} alt={by.name} width={38} height={38}
-                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }} />
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }}
+                        onError={e => { e.currentTarget.src = "/logo.png"; }} />
                       <div style={{ textAlign: "right" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                           <span style={{ color: pc.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
                           {isVerified && <VerifiedBadge variant="ai" size={13} />}
                         </div>
                         <div style={{ color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
-                          {by.role} · {date}{modified ? ` · עודכן ${modified}` : ""}
+                          {by.role}
                         </div>
                       </div>
                     </div>
                   </div>
                 );
               })()}
-              {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה + תאריך עדכון */}
+              {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה (לועזי + עברי) + תאריך עדכון (לועזי בלבד) */}
               <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
-                <span title="תאריך יצירת הפוסט">📅 נוצר: {date}</span>
+                <span title="תאריך יצירת הפוסט">
+                  📅 נוצר: {date}{dateHeb ? <span style={{ opacity: 0.65 }}> / {dateHeb}</span> : null}
+                </span>
                 {modified && <span style={{ color: pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
               </div>
               <RoyalDivider width={160} />
