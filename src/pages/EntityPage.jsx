@@ -457,6 +457,28 @@ export default function EntityPage() {
   }, [term]); // eslint-disable-line
 
 
+  // ── ישויות כסף (silver_entity_law) — הבהוב 10 שניות על ההתכנסות הרלוונטית ──
+  const [silverEntities, setSilverEntities] = useState([]);
+  const [silverFlash, setSilverFlash] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    setSilverEntities([]); setSilverFlash(false);
+    if (!isNumber) return;
+    supabase.from("nodes")
+      .select("label,description,metadata")
+      .eq("type", "entity").eq("is_active", true)
+      .eq("metadata->>role", "silver_entity")
+      .eq("metadata->>value", value)
+      .then(({ data: rows }) => {
+        if (!alive || !rows?.length) return;
+        setSilverEntities(rows.map(r => ({ label: r.label, phrase: r.metadata?.phrase, method: r.metadata?.method })));
+        setSilverFlash(true);
+        const t = setTimeout(() => { if (alive) setSilverFlash(false); }, 10000);
+        return () => clearTimeout(t);
+      }).catch(() => {});
+    return () => { alive = false; };
+  }, [value, isNumber]);
+
   // ── שער מלכותי: חתימות-זהב שנופלות בדיוק על המספר הזה (number_page_law) ──
   const [sigs, setSigs] = useState([]);
   const [sigsLoaded, setSigsLoaded] = useState(false);
@@ -546,6 +568,9 @@ export default function EntityPage() {
             .ep-topsearch { order:-1; flex-basis:100%; margin-inline-start:0; margin-bottom:6px; }
             .ep-topsearch-inp { flex:1; width:auto; min-width:0; }
           }
+          @keyframes silver-pulse{0%,100%{box-shadow:0 0 6px rgba(192,192,192,.35);border-color:rgba(192,192,192,.45)}50%{box-shadow:0 0 22px rgba(220,220,220,.85),0 0 8px rgba(192,192,192,.7);border-color:#c8c8c8}}
+          .ep-silver-chip{animation:silver-pulse 1.8s ease-in-out infinite!important;border:1px solid rgba(192,192,192,.5)!important;}
+          .ep-silver-banner{animation:silver-pulse 1.8s ease-in-out infinite;}
         `}</style>
         <div className="ep-toprow">
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
@@ -646,16 +671,39 @@ export default function EntityPage() {
           </div>
         )}
 
+        {/* ── 🥈 ישות כסף — באנר הבהוב 10 שניות (silver_entity_law) ── */}
+        {silverFlash && silverEntities.length > 0 && (
+          <div className="ep-silver-banner" style={{
+            margin: "6px auto 2px", maxWidth: 540, padding: "9px 18px",
+            border: "1px solid rgba(192,192,192,0.45)", borderRadius: 14,
+            background: "rgba(192,192,192,0.07)",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10, direction: "rtl",
+          }}>
+            <span style={{ fontSize: 17 }}>🥈</span>
+            <span style={{ color: "#b8b8b8", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>ישות כסף</span>
+            {silverEntities.map((e, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
+                <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 700 }}>{e.label}</span>
+                {e.method && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 600 }}>({e.method})</span>}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* ── ✦ נושאים — topic_cards שמכילים מספר זה (גרף הידע) ── */}
         {topics.length > 0 && (
           <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", marginTop: 10, marginBottom: 4 }}>
-            {topics.map(t => (
-              <Link key={t.slug} to={`/topic/${t.slug}`}
-                style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
-                  borderRadius: 999, padding: "5px 14px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                ✦ {t.title}
-              </Link>
-            ))}
+            {topics.map(t => {
+              const isSilver = silverFlash && silverEntities.some(e => e.phrase && t.title.includes(e.phrase));
+              return (
+                <Link key={t.slug} to={`/topic/${t.slug}`}
+                  className={isSilver ? "ep-silver-chip" : ""}
+                  style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
+                    borderRadius: 999, padding: "5px 14px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                  ✦ {t.title}
+                </Link>
+              );
+            })}
           </div>
         )}
 
