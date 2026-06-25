@@ -999,6 +999,38 @@ function ConvergenceStars({ q }) {
   const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
   return <span style={{ color: L.gold, fontSize: 12, letterSpacing: 1 }}>{"★".repeat(n)}{"☆".repeat(5 - n)}</span>;
 }
+// ✨ ניצוצות מהשיעור — ציטוט נבחר משיעור, עם לינק לשיעור המלא.
+// מקור: insights category='ניצוץ מהשיעור', source_ref=slug של הפוסט. מפנה, לא משכפל (עץ אחד).
+function ShiurSparks() {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("insights")
+      .select("id,title,body,source_ref")
+      .eq("category", "ניצוץ מהשיעור").eq("is_active", true)
+      .order("created_at", { ascending: false }).limit(6)
+      .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
+    return () => { live = false; };
+  }, []);
+  if (!items || !items.length) return null;
+  return (
+    <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+      {items.map(it => {
+        const slug = (it.source_ref || "").replace(/^\/+/, "");
+        return (
+          <div key={it.id} style={{ background: "linear-gradient(135deg,#fffdf6,#fbf3da)", border: `1px solid ${L.gold}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 14, padding: "16px 18px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginBottom: 9 }}>
+              <span aria-hidden style={{ fontSize: 20, lineHeight: 1.2, flexShrink: 0 }}>✨</span>
+              <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 700, lineHeight: 1.45 }}>{it.title}</span>
+            </div>
+            {it.body && <p style={{ color: "#3a342a", fontFamily: F.body, fontSize: 15, lineHeight: 1.95, margin: "0 0 12px", whiteSpace: "pre-wrap" }}>{it.body}</p>}
+            {slug && <Link to={`/${slug}`} style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 14, fontWeight: 800, textDecoration: "none" }}>✦ לשיעור המלא →</Link>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 function ConvergenceSection() {
   const [cards, setCards] = useState(null);
   const { subscribed } = useSubscribed();
@@ -1010,6 +1042,8 @@ function ConvergenceSection() {
   }, []);
   if (cards === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   if (!cards.length) return (
+    <div>
+      <ShiurSparks />
     <div style={{ textAlign: "center", padding: "50px 20px", color: L.sub }}>
       <div style={{ fontSize: 34, marginBottom: 10 }}>🌐</div>
       <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 6 }}>צירי התכנסות</div>
@@ -1017,9 +1051,11 @@ function ConvergenceSection() {
         כאן נאספים החיבורים: כל ציר הוא גשר בין מספר, אירוע וגלריה. הציר הראשון ייפתח בקרוב.
       </p>
     </div>
+    </div>
   );
   return (
     <div>
+      <ShiurSparks />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: "0 0 18px", maxWidth: 620 }}>
         🌿 החקירה ממשיכה — כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
       </p>
