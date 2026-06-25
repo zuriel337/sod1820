@@ -225,13 +225,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 }
 
 const closeBtn = {
-  background: "none",
-  border: "1px solid rgba(255,255,255,0.2)",
+  background: "rgba(255,255,255,0.1)",
+  border: "1px solid rgba(255,255,255,0.45)",
   color: "#fff",
-  fontSize: 18,
+  fontSize: 20,
   cursor: "pointer",
   borderRadius: 8,
-  width: 38, height: 38,
+  width: 40, height: 40,
   display: "flex", alignItems: "center", justifyContent: "center",
   lineHeight: 1,
 };
