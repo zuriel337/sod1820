@@ -8,6 +8,16 @@
   ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/wp-admin", "destination": "/api/honeypot" },
+    { "source": "/wp-admin/(.*)", "destination": "/api/honeypot" },
+    { "source": "/wp-login.php", "destination": "/api/honeypot" },
+    { "source": "/wp-cron.php", "destination": "/api/honeypot" },
+    { "source": "/wp-includes/(.*)", "destination": "/api/honeypot" },
+    { "source": "/wp-content/(.*)", "destination": "/api/honeypot" },
+    { "source": "/xmlrpc.php", "destination": "/api/honeypot" },
+    { "source": "/.env", "destination": "/api/honeypot" },
+    { "source": "/phpinfo.php", "destination": "/api/honeypot" },
+    { "source": "/admin/(.*)", "destination": "/api/honeypot" },
     {
       "source": "/(.*)",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|redditbot|Applebot|SkypeUriPreview|vkShare|Embedly|Iframely|W3C_Validator).*" }],
