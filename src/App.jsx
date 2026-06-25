@@ -58,6 +58,7 @@ const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
 const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
 const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
 const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
+const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -106,6 +107,7 @@ export default function App() {
           <Route path="/sulamot9" element={<RoomsExperience mode={9} />} />
           <Route path="/sulamot10" element={<RoomsExperience mode={10} />} />
           <Route path="/sulamot11" element={<RoomEnter />} />
+          <Route path="/cheder/:n" element={<HintRoomPage />} />
           <Route path="/reveal" element={<GematriaRevealPage />} />
           {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
           <Route path="/היכל" element={<HeichalPage />} />
