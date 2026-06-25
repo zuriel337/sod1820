@@ -154,7 +154,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       </div>
 
       {/* Footer info */}
-      {(title || h?.name || date || h?.description || nums.length > 0) && (
+      {(title || h?.name || date || h?.description || nums.length > 0 || onEdit) && (
         <div
           style={{ padding: "10px 20px 14px", textAlign: "center", flexShrink: 0, maxWidth: 720, margin: "0 auto", width: "100%" }}
           onClick={e => e.stopPropagation()}
@@ -194,6 +194,21 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
                 >{n}</Link>
               ))}
             </div>
+          )}
+          {onEdit && (
+            <button
+              onClick={e => { e.stopPropagation(); onEdit(images[idx]); }}
+              style={{
+                marginTop: 12,
+                background: "rgba(212,175,55,0.12)",
+                border: "1px solid rgba(212,175,55,0.5)",
+                color: "#d4af37",
+                fontFamily: F.heading, fontWeight: 700, fontSize: 14,
+                borderRadius: 10, padding: "9px 28px",
+                cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7,
+              }}
+              aria-label="עריכת תמונה"
+            >✏️ עריכת תמונה — משפיע בכל מקום</button>
           )}
         </div>
       )}

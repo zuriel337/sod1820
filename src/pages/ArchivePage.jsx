@@ -94,6 +94,7 @@ export default function ArchivePage() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
+  const [bulkType, setBulkType] = useState(null);
 
   // hint_sets
   const [hintSets, setHintSets] = useState([]);
@@ -325,6 +326,17 @@ export default function ArchivePage() {
       setHintSetDraft(null);
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
+  async function bulkTagSelected() {
+    if (!bulkType || !selectedIds.size) return;
+    const ids = [...selectedIds];
+    try {
+      await Promise.all(ids.map(id => setImageCuration(id, { image_type: bulkType })));
+      setImgs(prev => prev.map(x => selectedIds.has(x.id) ? { ...x, image_type: bulkType } : x));
+      setSelectedIds(new Set());
+      setBulkType(null);
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
   async function addToHintSet(im) {
     if (!activeHintSet) return;
     const memberCount = activeHintSet._memberCount ?? 0;
@@ -518,6 +530,17 @@ export default function ArchivePage() {
       .hn-h2 { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(20px,3vw,27px); font-weight: 800; text-align: center; margin: 0 0 4px; }
       .hn-sub { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; text-align: center; margin: 0 0 20px; }
       @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+
+      /* ── סרגל תיוג מרובה ── */
+      .ar-bulkbar {
+        margin-bottom: 12px; padding: 10px 14px;
+        border: 1px solid ${C.borderGold}; border-radius: 12px;
+        background: rgba(20,15,12,0.55);
+        display: flex; flex-direction: column; gap: 6px;
+      }
+      .ar-bulkrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .ar-untag { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; }
+      .ar-untag strong { color: ${C.goldBright}; font-size: 13px; }
     `}</style>, document.head)}
     <div style={{ direction: "rtl", maxWidth: 1280, margin: "0 auto", padding: "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
@@ -1004,6 +1027,48 @@ export default function ArchivePage() {
             </>
           ) : masonryView ? (
             <>
+              {/* ── סרגל תיוג מרובה (מנהל) ── */}
+              {isAdmin && (
+                <div className="ar-bulkbar">
+                  <div className="ar-bulkrow">
+                    <button
+                      className={`ar-pill ar-sm${multiSelect ? ' active' : ''}`}
+                      onClick={() => { setMultiSelect(m => !m); if (multiSelect) { setSelectedIds(new Set()); setBulkType(null); } }}
+                    >✓ בחירה מרובה</button>
+                    {multiSelect && (
+                      <>
+                        <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set(pool.slice(0, limit).map(im => im.id)))}>
+                          בחר הכל ({Math.min(pool.length, limit)})
+                        </button>
+                        {selectedIds.size > 0 && (
+                          <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set())}>בטל הכל</button>
+                        )}
+                        {selectedIds.size > 0 && (
+                          <span className="ar-label" style={{ color: C.gold, fontWeight: 700 }}>{selectedIds.size} נבחרו</span>
+                        )}
+                      </>
+                    )}
+                    <span style={{ flex: 1 }} />
+                    <span className="ar-untag">⬜ <strong>{imgs.filter(im => !im.image_type).length}</strong> ללא תיוג</span>
+                  </div>
+                  {multiSelect && selectedIds.size > 0 && (
+                    <div className="ar-bulkrow">
+                      <span className="ar-label">תייג כ:</span>
+                      {[['hint','💡 רמז'],['gematria','🔢 גימטריה'],['trail','📖 מסלול'],['event','📰 אירוע'],['gallery','🗂 גלריה']].map(([k, l]) => (
+                        <button key={k} className={`ar-pill ar-sm${bulkType===k?' active':''}`}
+                          onClick={() => setBulkType(b => b===k ? null : k)}>{l}</button>
+                      ))}
+                      {bulkType && (
+                        <button className="ar-save" style={{ padding: "6px 18px" }} onClick={bulkTagSelected}>
+                          💾 שמור ל-{selectedIds.size} תמונות
+                        </button>
+                      )}
+                      <button className="ar-cancel" style={{ padding: "5px 12px" }}
+                        onClick={() => { setBulkType(null); setSelectedIds(new Set()); }}>ביטול</button>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
