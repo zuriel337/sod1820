@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { checkImageConnections, deleteGalleryImage, setImageCuration } from "../lib/supabase.js";
@@ -19,6 +19,19 @@ const TYPES = [
   { key: "gallery",  label: "🖼 כללי",     color: "#b08fff" },
 ];
 
+// תגיות מוגדרות-מראש לתמונות
+const PRESET_TAGS = [
+  // מקור הרמז
+  "מספרי לוחיות", "מספרי לוטו", "שעון", "מחיר / קופה", "מספר טלפון", "כרטיס / כרטיסייה",
+  "מספר בית", "ת.ז / מסמך", "חשבונית", "מסך / אתר",
+  // נושא
+  "משיח", "גאולה", "45 = גאולה", "14 = דוד", "67 = בינה", "1820", "הצופן התנכי",
+  "בראשית", "רעידת אדמה", "פיגוע", "מספר יפה 1234/1111",
+  "בית המקדש השלישי", "טראמפ", "אירן", "ארה\"ב", "רוסיה",
+  // סוג תוכן
+  "גלריות גימטריה", "צפונות בתורה", "סוד האותיות והמספרים", "תיעוד אירועים",
+];
+
 export default function ImageEditModal({ image: im, onSave, onClose, onDelete, onRemoveFromStream }) {
   const [name, setName] = useState(im.name || "");
   const [description, setDescription] = useState((im.description || "").replace(/<[^>]+>/g, ""));
@@ -28,7 +41,10 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [imageType, setImageType] = useState(im.image_type || "");
   const [importance, setImportance] = useState(im.importance ?? 3);
   const [curatorHidden, setCuratorHidden] = useState(!!im.curator_hidden);
+  const [tags, setTags] = useState(im.tags || []);
+  const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const tagInputRef = useRef(null);
 
   const [deleteStep, setDeleteStep] = useState(null);
   const [connections, setConnections] = useState([]);
@@ -47,6 +63,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     if (imageType !== (im.image_type || "")) patch.image_type = imageType || null;
     if (importance !== (im.importance ?? 3)) patch.importance = Number(importance);
     if (curatorHidden !== !!im.curator_hidden) patch.curator_hidden = curatorHidden;
+    const origTags = JSON.stringify([...(im.tags || [])].sort());
+    if (JSON.stringify([...tags].sort()) !== origTags) patch.tags = tags;
     await onSave(patch);
     setSaving(false);
   }
@@ -177,6 +195,53 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
                     color: imageType === t.key ? t.color : "#ffffffaa", fontFamily: F.heading, fontWeight: 700, fontSize: 12,
                   }}>{t.label}</button>
                 ))}
+              </div>
+            </div>
+
+            {/* === תגיות === */}
+            <div style={section}>
+              <div style={secTitle}>🏷 תגיות נושא</div>
+              {/* תגיות פעילות */}
+              {tags.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 6 }}>
+                  {tags.map(t => (
+                    <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(212,175,55,0.18)", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 999, padding: "3px 10px", color: "#d4af37", fontFamily: F.heading, fontSize: 12 }}>
+                      {t}
+                      <button onClick={() => setTags(prev => prev.filter(x => x !== t))} style={{ background: "none", border: "none", color: "#d4af3799", cursor: "pointer", padding: 0, fontSize: 13, lineHeight: 1 }}>×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* תגיות מוגדרות-מראש */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+                {PRESET_TAGS.filter(t => !tags.includes(t)).map(t => (
+                  <button key={t} onClick={() => setTags(prev => [...prev, t])} style={{ cursor: "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "3px 10px", color: "#ffffffaa", fontFamily: F.heading, fontSize: 11.5 }}>
+                    + {t}
+                  </button>
+                ))}
+              </div>
+              {/* הוספה חופשית */}
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  ref={tagInputRef}
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => {
+                    if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
+                      e.preventDefault();
+                      const t = tagInput.trim().replace(/,$/, "");
+                      if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
+                      setTagInput("");
+                    }
+                  }}
+                  placeholder="תגית חופשית + Enter"
+                  style={{ ...inputStyle, flex: 1, fontSize: 13 }}
+                />
+                <button onClick={() => {
+                  const t = tagInput.trim();
+                  if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
+                  setTagInput(""); tagInputRef.current?.focus();
+                }} style={{ ...secBtn, padding: "7px 12px" }}>+</button>
               </div>
             </div>
 
