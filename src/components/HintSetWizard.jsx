@@ -86,7 +86,7 @@ export default function HintSetWizard({ imgs = [], onClose, onSaved }) {
   const [fields, setFields] = useState({
     name: "", summary: "", description: "", importance: 3,
     visibility: "public", status: "draft",
-    primary_value: "", anchor_numbers: "",
+    primary_number: "", anchor_numbers: "",
     cover_image: "", trail_type: "story",
   });
   const [numFilter, setNumFilter] = useState("");
@@ -106,7 +106,7 @@ export default function HintSetWizard({ imgs = [], onClose, onSaved }) {
   const filteredImgs = numVal
     ? imgs.filter(im => {
         const nums = hintNums(im).map(String);
-        const pv = String(im.primary_value ?? "");
+        const pv = String(im.primary_value ?? im.primary_number ?? "");
         return nums.includes(numVal) || pv === numVal;
       })
     : imgs;
@@ -156,7 +156,8 @@ export default function HintSetWizard({ imgs = [], onClose, onSaved }) {
         importance: fields.importance,
         visibility: fields.visibility,
         status: status || fields.status,
-        primary_value: fields.primary_value ? parseInt(fields.primary_value, 10) || null : null,
+        primary_number: fields.primary_number ? parseInt(fields.primary_number, 10) || null : null,
+        primary_value:  fields.primary_number ? parseInt(fields.primary_number, 10) || null : null,
         anchor_numbers: anchors?.length ? anchors : null,
         cover_image: fields.cover_image.trim() || (ordered[0]?.image_url ?? null) || null,
       };
@@ -342,8 +343,8 @@ export default function HintSetWizard({ imgs = [], onClose, onSaved }) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <FieldLabel label="מספר ראשי" tooltip="המספר שמייצג את הסט (לכרטיס ולדף המספר)" />
-                  <input {...inp()} type="number" value={fields.primary_value}
-                    onChange={e => upd("primary_value", e.target.value)} placeholder="למשל: 45" />
+                  <input {...inp()} type="number" value={fields.primary_number}
+                    onChange={e => upd("primary_number", e.target.value)} placeholder="למשל: 45" />
                 </div>
                 <div>
                   <FieldLabel label="מספרים דומיננטיים" tooltip="המספרים שאליהם הסט שייך. דפי המספר ימשכו אוטומטית. מופרדים בפסיק." />

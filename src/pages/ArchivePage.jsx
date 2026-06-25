@@ -141,7 +141,7 @@ export default function ArchivePage() {
   // מיפוי גלריה → סדר התוסף (wp_gallery_id); גבוה = חדש יותר
   const galSeqById = useMemo(() => { const m = {}; for (const g of (gals || [])) m[g.id] = g.seq; return m; }, [gals]);
 
-  // ── מאגר: מיון. ברירת מחדל "גלריה" = כסדר התוסף (גלריה חדשה למעלה, בתוכה לפי ordering). או "תאריך".
+  // ── מאגר: מיון. ברירת מחדל "גלריה" = כסדר התוסף. "תאריך" = לפי תאריך אירוע. "recent" = לפי העלאה.
   const sortedImgs = useMemo(() => {
     const arr = [...imgs];
     if (sortMode === "gallery") {
@@ -149,6 +149,12 @@ export default function ArchivePage() {
         (galSeqById[b.gallery_id] ?? -1) - (galSeqById[a.gallery_id] ?? -1) ||
         (a.ordering ?? 0) - (b.ordering ?? 0));
       return arr;
+    }
+    if (sortMode === "recent") {
+      return arr.sort((a, b) =>
+        (new Date(b.created_at || 0) - new Date(a.created_at || 0)) ||
+        ((b.importance ?? 0) - (a.importance ?? 0))
+      );
     }
     const withD = [], without = [];
     for (const im of arr) (eventDate(im) ? withD : without).push(im);
@@ -817,6 +823,7 @@ export default function ArchivePage() {
                     <div className="ar-seg" role="group" aria-label="מיון">
                       <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
                       <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                      <button className={`ar-pill${sortMode === "recent" ? " active" : ""}`} onClick={() => setSortMode("recent")} title="לפי תאריך העלאה — הועלו לאחרונה ראשון">🆕 הועלו לאחרונה</button>
                       <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
                     </div>
                   )}
@@ -919,7 +926,7 @@ export default function ArchivePage() {
               ? `${memberGals.length} גלריות${activeSet ? ` בסט «${activeSet.name}»` : ""} · החדשה למעלה`
               : curated
                 ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
-                : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : "מהחדש לישן"}`}
+                : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : sortMode === "recent" ? "🆕 לפי תאריך העלאה" : "מהחדש לישן"}`}
           </div>
 
           {viewMode === "galleries" ? (
