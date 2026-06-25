@@ -153,8 +153,8 @@ export default function ArchivePage() {
     const withD = [], without = [];
     for (const im of arr) (eventDate(im) ? withD : without).push(im);
     withD.sort((a, b) =>
-      ((b.importance ?? 0) - (a.importance ?? 0)) ||
       (eventDate(b) - eventDate(a)) ||
+      ((b.importance ?? 0) - (a.importance ?? 0)) ||
       (new Date(b.created_at || 0) - new Date(a.created_at || 0))
     );
     return [...withD, ...without];
