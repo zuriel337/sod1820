@@ -4444,16 +4444,23 @@ function PostPageBySlug({ onNav }) {
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 13, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "9px 22px 9px 14px" }}>
+                    <div
+                      onClick={() => navigate('/post?author=' + encodeURIComponent(by.name))}
+                      title={`כל הפוסטים של ${by.name}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 13, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "9px 22px 9px 14px", cursor: "pointer", transition: "border-color .15s" }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = pc.borderGold}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = pc.border}
+                    >
                       <img src={by.avatar} alt={by.name} width={38} height={38}
-                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }} />
+                        style={{ borderRadius: "50%", objectFit: "cover", border: `1px solid ${pc.borderGold}`, flex: "0 0 auto", background: pc.bg }}
+                        onError={e => { e.currentTarget.src = "/logo.png"; }} />
                       <div style={{ textAlign: "right" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                           <span style={{ color: pc.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{by.name}</span>
                           {isVerified && <VerifiedBadge variant="ai" size={13} />}
                         </div>
                         <div style={{ color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 2 }}>
-                          {by.role} · {date}{dateHeb ? <span style={{ opacity: 0.7 }}> / {dateHeb}</span> : null}{modified ? ` · עודכן ${modified}` : ""}
+                          {by.role}
                         </div>
                       </div>
                     </div>

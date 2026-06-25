@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
@@ -66,6 +66,8 @@ function PostCard({ p, i, view, hot }) {
 
 export default function PostsPage() {
   const P = usePalette();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   // נתוני עזר
   const [cats, setCats] = useState([]);
   const [tagList, setTagList] = useState([]);     // [{ tag, posts }] לפי פופולריות
@@ -77,6 +79,7 @@ export default function PostsPage() {
   const [filterCat, setFilterCat] = useState(null);
   const [filterTag, setFilterTag] = useState(null);
   const [filterYear, setFilterYear] = useState(null);
+  const filterAuthor = searchParams.get("author") || null;
   const [sort, setSort] = useState("date_desc");
   const [view, setView] = useState("grid");
   const [showFilters, setShowFilters] = useState(false); // כל המסננים סגורים כברירת מחדל
@@ -124,17 +127,17 @@ export default function PostsPage() {
     setLoading(true); setError("");
     getPostsFromSupabase({
       limit: PER, page: p, orderBy: sortDef.orderBy, ascending: sortDef.ascending,
-      category: filterCat, tag: filterTag, year: filterYear,
+      category: filterCat, tag: filterTag, year: filterYear, author: filterAuthor,
     })
       .then(({ posts: rows, total }) => {
         setPosts(prev => p === 1 ? rows.map(adaptPost) : [...prev, ...rows.map(adaptPost)]);
         setTotal(total); setLoading(false);
       })
       .catch(err => { setError(err.message || "שגיאה בטעינה"); setLoading(false); });
-  }, [sortDef.orderBy, sortDef.ascending, filterCat, filterTag, filterYear]);
+  }, [sortDef.orderBy, sortDef.ascending, filterCat, filterTag, filterYear, filterAuthor]);
 
   // איפוס עמוד כשמשתנים פילטר/מיון (במצב גלישה)
-  useEffect(() => { if (!searching) setPage(1); }, [sort, filterCat, filterTag, filterYear, searching]);
+  useEffect(() => { if (!searching) setPage(1); }, [sort, filterCat, filterTag, filterYear, filterAuthor, searching]);
 
   // אפקט גלישה
   useEffect(() => {
@@ -187,15 +190,25 @@ export default function PostsPage() {
       <SideRailAd />
       {/* כותרת */}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
-        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>
-          📖 פוסטים
-        </div>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,44px)", fontWeight: 700, margin: 0, textShadow: `0 0 40px ${P.glow}` }}>
-          תובנות ותגליות
-        </h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, marginTop: 10 }}>
-          חיפוש חכם — טקסט, מספר או גימטריה. הקלידו ונחשוף את הרמזים.
-        </p>
+        {filterAuthor ? (
+          <>
+            <button onClick={() => setSearchParams({})} style={{ background: "none", border: "none", color: P.inkSoft, cursor: "pointer", fontFamily: F.heading, fontSize: 13, letterSpacing: 3, marginBottom: 12 }}>← כל הפוסטים</button>
+            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>✍️ פוסטים של</div>
+            <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(22px,4vw,36px)", fontWeight: 700, margin: 0 }}>{filterAuthor}</h1>
+          </>
+        ) : (
+          <>
+            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>
+              📖 פוסטים
+            </div>
+            <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,44px)", fontWeight: 700, margin: 0, textShadow: `0 0 40px ${P.glow}` }}>
+              תובנות ותגליות
+            </h1>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, marginTop: 10 }}>
+              חיפוש חכם — טקסט, מספר או גימטריה. הקלידו ונחשוף את הרמזים.
+            </p>
+          </>
+        )}
       </div>
 
       {/* ── מרכז החיפוש ── */}
