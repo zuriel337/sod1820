@@ -1078,7 +1078,149 @@ function ResearchTab() {
           מה שכבר שמור בשכבת החקירה (space=lab). כשמצטברת שרשרת הוכחה — מקדמים ל-evidence_level 4 והחידוש עולה מהמעבדה.
         </div>
         {!lab ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
-          : lab.length === 0 ? <Empty>אין עדיין חידושים במעבדה.</Empty>
+          : lab.length === 0 ? <Empty>אין טיוטות — כל החידושים פורסמו.</Empty>
+          : (() => {
+            const sorted = [...lab].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            const groupKey = it => {
+              const ns = it.related_numbers || [];
+              if (ns.includes(400) || ns.includes(40)) return 400;
+              if (ns.includes(358) || ns.includes(853)) return 358;
+              return ns[0] ?? 0;
+            };
+            const groups = {};
+            sorted.forEach(it => { const k = groupKey(it); (groups[k] = groups[k] || []).push(it); });
+            const groupEntries = Object.entries(groups).sort(([a], [b]) => Number(a) - Number(b));
+            const GROUP_LABEL = { 400: '◈ ת׳ / מ׳ — 40 · 400', 358: '◈ משיח / 358', 0: '◈ אחר' };
+            const inp = { background: "rgba(4,2,14,0.7)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 13, padding: "7px 10px", width: "100%", boxSizing: "border-box" };
+            return (
+              <div style={{ display: "grid", gap: 20 }}>
+                {groupEntries.map(([key, items]) => (
+                  <div key={key}>
+                    <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2,
+                      padding: "5px 0 8px", borderBottom: `1px solid rgba(212,175,55,0.18)`, marginBottom: 10 }}>
+                      {GROUP_LABEL[key] || `◈ ${key}`} · {items.length} פריטים
+                    </div>
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {items.map(it => {
+                        const isOpen = expandedId === it.id;
+                        const draft = editDraft[it.id] || {};
+                        return (
+                          <div key={it.id} style={{ border: `1px solid ${isOpen ? "rgba(132,88,255,0.6)" : "rgba(132,88,255,0.25)"}`, borderRadius: 12, background: "rgba(132,88,255,0.04)", overflow: "hidden" }}>
+                            {/* ── שורת כותרת ── */}
+                            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", padding: "10px 13px", cursor: "pointer" }}
+                              onClick={() => startEdit(it)}>
+                              <span style={{ color: isOpen ? "#c9a6ff" : C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, flex: 1 }}>{it.title}</span>
+                              {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 10 }}>ev{it.evidence_level}</span>}
+                              <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>{new Date(it.created_at).toLocaleDateString("he-IL", { day:"numeric", month:"short" })}</span>
+                              <span style={{ color: "rgba(132,88,255,0.7)", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{isOpen ? "▲ סגור" : "▼ פתח"}</span>
+                            </div>
+
+                            {/* ── תוכן מורחב ── */}
+                            {isOpen && (
+                              <div style={{ borderTop: "1px solid rgba(132,88,255,0.2)", padding: "14px 13px", display: "grid", gap: 12 }}>
+
+                                {/* כותרת */}
+                                <div>
+                                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 4 }}>כותרת</div>
+                                  <input value={draft.title ?? it.title} onChange={e => setEditDraft(p => ({ ...p, [it.id]: { ...p[it.id], title: e.target.value } }))} style={inp} />
+                                </div>
+
+                                {/* גוף מלא */}
+                                <div>
+                                  <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 4 }}>תוכן מלא</div>
+                                  <textarea value={draft.body ?? it.body ?? ""} rows={6}
+                                    onChange={e => setEditDraft(p => ({ ...p, [it.id]: { ...p[it.id], body: e.target.value } }))}
+                                    style={{ ...inp, resize: "vertical", lineHeight: 1.7, whiteSpace: "pre-wrap" }} />
+                                </div>
+
+                                {/* מספרים + רמת ראיה */}
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10 }}>
+                                  <div>
+                                    <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 4 }}>מספרים קשורים (פסיק)</div>
+                                    <input value={draft.related_numbers_str ?? (it.related_numbers||[]).join(", ")}
+                                      onChange={e => setEditDraft(p => ({ ...p, [it.id]: { ...p[it.id], related_numbers_str: e.target.value } }))}
+                                      style={{ ...inp, direction: "ltr", textAlign: "right" }} />
+                                  </div>
+                                  <div>
+                                    <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11, marginBottom: 4 }}>רמת ראיה (1-5)</div>
+                                    <input type="number" min={1} max={5} value={draft.evidence_level ?? (it.evidence_level ?? "")}
+                                      onChange={e => setEditDraft(p => ({ ...p, [it.id]: { ...p[it.id], evidence_level: e.target.value } }))}
+                                      style={{ ...inp, width: 70, textAlign: "center", direction: "ltr" }} />
+                                  </div>
+                                </div>
+
+                                {/* כפתורי פעולה */}
+                                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                  <button onClick={() => saveInsight(it.id)} style={{ background: "rgba(132,88,255,0.2)", border: "1px solid rgba(132,88,255,0.5)", color: "#c9a6ff", borderRadius: 999, padding: "6px 16px", cursor: "pointer", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                                    {saving === it.id ? "שומר…" : "💾 שמור"}
+                                  </button>
+                                  <button onClick={async () => {
+                                    const { error } = await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
+                                    if (error) { alert('שגיאה בפרסום: ' + error.message); return; }
+                                    await loadLab();
+                                    setExpandedId(null);
+                                    setPromotedId(it.id);
+                                    setTimeout(() => setPromotedId(null), 6000);
+                                  }} style={{ background: "rgba(212,175,55,0.12)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "6px 16px", cursor: "pointer", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                                    ✨ פרסם → בית המדרש
+                                  </button>
+                                </div>
+
+                                {/* 🔒 אופציות עתידיות */}
+                                <div style={{ marginTop: 4, borderTop: "1px dashed rgba(212,175,55,0.12)", paddingTop: 12 }}>
+                                  <div style={{ color: "rgba(212,175,55,0.3)", fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 8, letterSpacing: 1 }}>🔒 אופציות עתידיות</div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                                    {[
+                                      { icon: "👁", label: "נראות: ציבורי / רשומים / מנויים" },
+                                      { icon: "📦", label: "שייך לסט (hint_set)" },
+                                      { icon: "📖", label: "שייך למסלול (trail)" },
+                                      { icon: "🔗", label: "פוסט מקור" },
+                                      { icon: "🏷", label: "תגיות שיטה" },
+                                    ].map(opt => (
+                                      <span key={opt.label} style={{ background: "rgba(4,2,14,0.5)", border: "1px dashed rgba(212,175,55,0.15)", borderRadius: 8, padding: "5px 10px", color: "rgba(212,175,55,0.3)", fontFamily: F.heading, fontSize: 11, cursor: "not-allowed" }} title="בקרוב">
+                                        {opt.icon} {opt.label}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                              </div>
+                            )}
+
+                            {/* מספרים בשורה (כשסגור) */}
+                            {!isOpen && (it.related_numbers || []).length > 0 && (
+                              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", padding: "0 13px 10px" }}>
+                                {it.related_numbers.map(n => (
+                                  <Link key={n} to={`/number/${n}`} onClick={e => e.stopPropagation()}
+                                    style={{ color: LINK, fontFamily: F.mono, fontSize: 11, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "1px 8px" }}>{n}</Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()
+        }
+      </div>
+
+      {/* ✅ פורסמו — category='מעבדת צוריאל', space IS NULL */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>
+            ✅ פורסמו מהמעבדה {published ? `(${published.length})` : ""}
+          </div>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, background: "rgba(63,174,90,0.08)", border: "1px solid rgba(63,174,90,0.3)", borderRadius: 999, padding: "2px 8px" }}>בית המדרש</span>
+        </div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>
+          חידושים שיצאו מהמעבדה ומוצגים בפומבי. לחץ <b style={{ color: C.goldDim }}>החזר לטיוטה</b> כדי להסיר מהתצוגה.
+        </div>
+        {!published ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
+          : published.length === 0 ? <Empty>אין חידושים פורסמו עדיין.</Empty>
           : (
           <div style={{ display: "grid", gap: 10 }}>
             {lab.map(it => (
