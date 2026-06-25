@@ -1042,7 +1042,7 @@ function ResearchTab() {
   }
 
   async function demoteInsight(id) {
-    await supabase.from('insights').update({ space: 'lab' }).eq('id', id);
+    await supabase.from('insights').update({ space: 'lab', category: 'מעבדת צוריאל' }).eq('id', id);
     await loadLab();
   }
 
@@ -1137,17 +1137,12 @@ function ResearchTab() {
                             <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
                             {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>ev{it.evidence_level}</span>}
                             <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>· {new Date(it.created_at).toLocaleDateString("he-IL", { day:"numeric", month:"short" })}</span>
-                            <div style={{ marginInlineStart: "auto", display: "flex", gap: 6 }}>
-                              <button onClick={() => promoteInsight(it.id)} style={{ background: "rgba(63,174,90,0.12)", border: "1px solid rgba(63,174,90,0.4)", color: "#3fae5a", borderRadius: 999, padding: "3px 10px", cursor: "pointer", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>
-                                ✅ פרסם
-                              </button>
-                              <button onClick={async () => {
-                                await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
-                                await loadLab();
-                              }} style={{ background: "rgba(212,175,55,0.1)", border: `1px solid ${C.borderGold}`, color: C.goldDim, borderRadius: 999, padding: "3px 10px", cursor: "pointer", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>
-                                ✨ פרסם → הצלבות
-                              </button>
-                            </div>
+                            <button onClick={async () => {
+                              await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
+                              await loadLab();
+                            }} style={{ marginInlineStart: "auto", background: "rgba(212,175,55,0.12)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "4px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>
+                              ✨ פרסם → בית המדרש
+                            </button>
                           </div>
                           {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>{it.body.slice(0, 220)}{it.body.length > 220 ? "…" : ""}</div>}
                           {(it.related_numbers || []).length > 0 && (
@@ -1189,7 +1184,7 @@ function ResearchTab() {
                   <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
                   {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>ev{it.evidence_level}</span>}
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {it.origin}</span>
-                  <button onClick={() => demoteInsight(it.id)} style={{ marginInlineStart: "auto", background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, color: C.goldDim, borderRadius: 999, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11 }}>
+                  <button onClick={() => demoteInsight(it.id)} style={{ marginInlineStart: "auto", background: "rgba(132,88,255,0.1)", border: "1px solid rgba(132,88,255,0.35)", color: "#c9a6ff", borderRadius: 999, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11 }}>
                     ↩ החזר לטיוטה
                   </button>
                 </div>
