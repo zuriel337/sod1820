@@ -1054,6 +1054,47 @@ export default function ArchivePage() {
         .ar-movebar { display: flex; gap: 4px; }
         .ar-movebar button { flex: 1; cursor: pointer; background: rgba(20,15,12,0.7); border: 1px solid ${C.border}; color: ${C.goldLight}; font-family: ${F.heading}; font-size: 11px; font-weight: 700; padding: 4px 0; border-radius: 6px; }
         .ar-movebar button:hover { border-color: ${C.gold}; color: ${C.goldBright}; }
+
+        /* ── masonry card grid ── */
+        .ar-masonry { columns: 4 220px; column-gap: 12px; }
+        @media (max-width: 1100px) { .ar-masonry { columns: 3 180px; } }
+        @media (max-width: 680px)  { .ar-masonry { columns: 2 140px; column-gap: 8px; } }
+        .ar-mcard { break-inside: avoid; margin-bottom: 12px; border-radius: 12px; overflow: hidden;
+          background: rgba(8,5,2,0.6); border: 1px solid ${C.border};
+          transition: border-color .18s, transform .12s, box-shadow .18s; }
+        .ar-mcard:hover { border-color: ${C.borderGold}; box-shadow: 0 8px 28px rgba(0,0,0,0.5), 0 0 14px rgba(212,175,55,0.12); }
+        .ar-msel { border-color: ${C.gold} !important; outline: 2px solid rgba(212,175,55,0.5); outline-offset: -2px; }
+        .ar-mwrap { position: relative; cursor: pointer; overflow: hidden; }
+        .ar-mwrap img { display: block; width: 100%; height: auto; transition: transform .3s; }
+        .ar-mwrap:hover img { transform: scale(1.04); }
+        .ar-mshade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(4,2,14,0.82) 0%, transparent 50%); pointer-events: none; }
+        .ar-mnum { position: absolute; bottom: 9px; inset-inline-end: 9px; background: rgba(212,175,55,0.92); color: #1a0e00;
+          font-family: ${F.mono}; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 999px; text-decoration: none; z-index: 3; }
+        .ar-mtype { position: absolute; top: 8px; inset-inline-end: 8px; font-size: 14px; z-index: 3; }
+        .ar-mstream-badge { position: absolute; top: 8px; inset-inline-start: 8px; font-size: 13px; z-index: 3; }
+        .ar-medit { position: absolute; bottom: 9px; inset-inline-start: 9px; background: rgba(4,2,14,0.72);
+          border: 1px solid ${C.borderGold}; border-radius: 999px; width: 26px; height: 26px;
+          display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; z-index: 3; }
+        .ar-madd { position: absolute; bottom: 9px; inset-inline-start: 38px; background: rgba(4,2,14,0.72);
+          border: 1px solid ${C.borderGold}; border-radius: 999px; width: 26px; height: 26px;
+          display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; z-index: 3; }
+        .ar-mchk { position: absolute; top: 8px; inset-inline-start: 8px; width: 22px; height: 22px;
+          background: rgba(4,2,14,0.72); border: 1.5px solid ${C.borderGold}; border-radius: 6px;
+          display: flex; align-items: center; justify-content: center; color: ${C.goldBright};
+          font-size: 14px; font-weight: 800; z-index: 3; }
+        .ar-mchk.on { background: ${C.gold}; color: #1a0e00; border-color: ${C.gold}; }
+        .ar-mcap { padding: 8px 11px 10px; background: rgba(4,2,14,0.55); }
+        .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; line-height: 1.5;
+          overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .ar-mdate { color: ${C.muted}; font-family: ${F.heading}; font-size: 11px; margin-top: 3px; }
+
+        /* ── type / source filter buttons ── */
+        .ar-type-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .ar-type-btn { cursor: pointer; background: rgba(20,15,12,0.6); border: 1px solid ${C.border}; color: ${C.goldLight};
+          font-family: ${F.heading}; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
+          white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+        .ar-type-btn:hover { border-color: ${C.borderGold}; color: ${C.goldBright}; }
+        .ar-type-btn.active { background: linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color: #1a0e00; border-color: ${C.gold}; }
       `}</style>
     </div>
   );
