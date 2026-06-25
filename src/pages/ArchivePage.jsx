@@ -91,6 +91,7 @@ export default function ArchivePage() {
   // workspace dashboard
   const [typeFilter, setTypeFilter] = useState(null);  // null/'hint'/'gematria'/'trail'/'event'/'gallery'/'__none'
   const [sourceFilter, setSourceFilter] = useState(null); // null/'update'/'not-update'
+  const [showHidden, setShowHidden] = useState(false); // הצג/הסתר מוסתרות (curator_hidden)
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
@@ -227,6 +228,7 @@ export default function ArchivePage() {
 
   const pool = useMemo(() => {
     let arr = sortedImgs.filter(im => {
+      if (!showHidden && im.curator_hidden) return false; // מוסתרות: מוסתרות בברירת מחדל
       if (typeFilter === '__none' ? im.image_type != null : typeFilter != null && im.image_type !== typeFilter) return false;
       if (sourceFilter === 'update' && im.source !== 'update') return false;
       if (sourceFilter === 'not-update' && im.source === 'update') return false;
@@ -248,7 +250,7 @@ export default function ArchivePage() {
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
+  }, [sortedImgs, showHidden, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilters.size > 0 ? [...numFilters] : null);
@@ -630,13 +632,13 @@ export default function ArchivePage() {
             <div className="ar-side-title">📂 סוג תמונה</div>
             <div className="ar-type-btns">
               {[
-                [null,       '🖼 הכל',        imgs.length],
-                ['hint',     '💡 רמזים',       imgs.filter(x => x.image_type === 'hint').length],
-                ['gematria', '🔢 גימטריה',     imgs.filter(x => x.image_type === 'gematria').length],
-                ['trail',    '📖 מסלולים',      imgs.filter(x => x.image_type === 'trail').length],
-                ['event',    '📰 אירועים',     imgs.filter(x => x.image_type === 'event').length],
-                ['gallery',  '🗂 כללי',        imgs.filter(x => x.image_type === 'gallery').length],
-                ['__none',   '❓ לא מסווג',    imgs.filter(x => x.image_type == null).length],
+                [null,       '🖼 הכל',        imgs.filter(x => !x.curator_hidden).length],
+                ['hint',     '💡 רמזים',       imgs.filter(x => !x.curator_hidden && x.image_type === 'hint').length],
+                ['gematria', '🔢 גימטריה',     imgs.filter(x => !x.curator_hidden && x.image_type === 'gematria').length],
+                ['trail',    '📖 מסלולים',      imgs.filter(x => !x.curator_hidden && x.image_type === 'trail').length],
+                ['event',    '📰 אירועים',     imgs.filter(x => !x.curator_hidden && x.image_type === 'event').length],
+                ['gallery',  '🗂 כללי',        imgs.filter(x => !x.curator_hidden && x.image_type === 'gallery').length],
+                ['__none',   '❓ לא מסווג',    imgs.filter(x => !x.curator_hidden && x.image_type == null).length],
               ].map(([k, l, cnt]) => (
                 <button key={String(k)} className={`ar-type-btn${typeFilter === k ? ' active' : ''}`}
                   onClick={() => setTypeFilter(prev => prev === k ? null : k)}>
@@ -650,9 +652,9 @@ export default function ArchivePage() {
             <div className="ar-side-title" style={{ marginTop: 16 }}>🌊 מקור</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 6 }}>
               {[
-                [null,        '📦 כל המאגר',   imgs.length],
-                ['update',    '🌊 בזרם כרגע',  imgs.filter(x => x.source === 'update').length],
-                ['not-update','📁 גלריה בלבד', imgs.filter(x => x.source !== 'update').length],
+                [null,        '📦 כל המאגר',   imgs.filter(x => !x.curator_hidden).length],
+                ['update',    '🌊 בזרם כרגע',  imgs.filter(x => x.source === 'update' && !x.curator_hidden).length],
+                ['not-update','📁 גלריה בלבד', imgs.filter(x => x.source !== 'update' && !x.curator_hidden).length],
               ].map(([k, l, cnt]) => (
                 <button key={String(k)} className={`ar-type-btn${sourceFilter === k ? ' active' : ''}`}
                   onClick={() => setSourceFilter(prev => prev === k ? null : k)}>
@@ -660,6 +662,12 @@ export default function ArchivePage() {
                   <span className="ar-type-cnt">{cnt}</span>
                 </button>
               ))}
+              {imgs.some(x => x.curator_hidden) && (
+                <button onClick={() => setShowHidden(v => !v)}
+                  style={{ marginTop: 4, cursor: "pointer", background: "none", border: "none", color: showHidden ? "#e74c3c" : "#888", fontFamily: "inherit", fontSize: 12, textAlign: "right", padding: "2px 0" }}>
+                  {showHidden ? '🚫 הסתר מוסתרות' : `👁 הצג מוסתרות (${imgs.filter(x => x.curator_hidden).length})`}
+                </button>
+              )}
             </div>
 
           {/* ── מאגר סטים (מספרים) ── */}
