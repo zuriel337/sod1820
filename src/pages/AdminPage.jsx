@@ -1218,7 +1218,8 @@ function ResearchTab() {
                                     {saving === it.id ? "שומר…" : "💾 שמור"}
                                   </button>
                                   <button onClick={async () => {
-                                    await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
+                                    const { error } = await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
+                                    if (error) { alert('שגיאה בפרסום: ' + error.message); return; }
                                     await loadLab();
                                     setExpandedId(null);
                                     setPromotedId(it.id);
