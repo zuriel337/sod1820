@@ -1092,44 +1092,80 @@ function ResearchTab() {
         </div>
       )}
 
-      {/* 🔬 טיוטות — space='lab' */}
+      {/* 🔬 טיוטות — space='lab', מקובצות לפי מספר, ישנות ראשון */}
       <div style={card}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
           <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>
             🔬 טיוטות המעבדה {lab ? `(${lab.length})` : ""}
           </div>
-          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px" }}>space=lab</span>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px" }}>space=lab · ישנות ראשון, חדשות למטה</span>
         </div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12, lineHeight: 1.7 }}>
-          חידושים שעדיין בשלב חקירה. כשמצטברת שרשרת הוכחה — לחץ <b style={{ color: C.goldDim }}>פרסם</b> כדי להעלות לבית המדרש.
+          חידושים שעדיין בשלב חקירה, מקובצים לפי מספר. לחץ <b style={{ color: C.goldDim }}>פרסם →הצלבות</b> להעביר לבית המדרש, או <b style={{ color: C.goldDim }}>פרסם</b> להשאיר בקטגוריה הנוכחית.
         </div>
         {!lab ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
           : lab.length === 0 ? <Empty>אין טיוטות — כל החידושים פורסמו.</Empty>
-          : (
-          <div style={{ display: "grid", gap: 10 }}>
-            {lab.map(it => (
-              <div key={it.id} style={{ border: `1px solid rgba(132,88,255,0.3)`, borderRadius: 10, padding: "11px 13px", background: "rgba(132,88,255,0.04)" }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", marginBottom: 4 }}>
-                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
-                  {it.category && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>· {it.category}</span>}
-                  {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>· ev{it.evidence_level}</span>}
-                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {it.origin}</span>
-                  <button onClick={() => promoteInsight(it.id)} style={{ marginInlineStart: "auto", background: "rgba(63,174,90,0.12)", border: "1px solid rgba(63,174,90,0.4)", color: "#3fae5a", borderRadius: 999, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>
-                    ✅ פרסם
-                  </button>
-                </div>
-                {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>{it.body.slice(0, 200)}{it.body.length > 200 ? "…" : ""}</div>}
-                {(it.related_numbers || []).length > 0 && (
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                    {it.related_numbers.map(n => (
-                      <Link key={n} to={`/number/${n}`} style={{ color: LINK, fontFamily: F.mono, fontSize: 12, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 9px" }}>{n} →</Link>
-                    ))}
+          : (() => {
+            // sort ascending (oldest first, newest at bottom)
+            const sorted = [...lab].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            // group: items with 400 or 40 → key 400; items with 358 or 853 → key 358; else first number
+            const groupKey = it => {
+              const ns = it.related_numbers || [];
+              if (ns.includes(400) || ns.includes(40)) return 400;
+              if (ns.includes(358) || ns.includes(853)) return 358;
+              return ns[0] ?? 0;
+            };
+            const groups = {};
+            sorted.forEach(it => {
+              const k = groupKey(it);
+              (groups[k] = groups[k] || []).push(it);
+            });
+            const groupEntries = Object.entries(groups).sort(([a], [b]) => Number(a) - Number(b));
+            const GROUP_LABEL = { 400: '◈ ת׳ / מ׳ — 40 · 400', 358: '◈ משיח / 358', 0: '◈ אחר' };
+            return (
+              <div style={{ display: "grid", gap: 20 }}>
+                {groupEntries.map(([key, items]) => (
+                  <div key={key}>
+                    <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2,
+                      padding: "5px 0 8px", borderBottom: `1px solid rgba(212,175,55,0.18)`, marginBottom: 10 }}>
+                      {GROUP_LABEL[key] || `◈ ${key}`} · {items.length} פריטים
+                    </div>
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {items.map(it => (
+                        <div key={it.id} style={{ border: `1px solid rgba(132,88,255,0.3)`, borderRadius: 10, padding: "11px 13px", background: "rgba(132,88,255,0.04)" }}>
+                          <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", marginBottom: 4 }}>
+                            <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
+                            {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>ev{it.evidence_level}</span>}
+                            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>· {new Date(it.created_at).toLocaleDateString("he-IL", { day:"numeric", month:"short" })}</span>
+                            <div style={{ marginInlineStart: "auto", display: "flex", gap: 6 }}>
+                              <button onClick={() => promoteInsight(it.id)} style={{ background: "rgba(63,174,90,0.12)", border: "1px solid rgba(63,174,90,0.4)", color: "#3fae5a", borderRadius: 999, padding: "3px 10px", cursor: "pointer", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>
+                                ✅ פרסם
+                              </button>
+                              <button onClick={async () => {
+                                await supabase.from('insights').update({ space: null, category: 'הצלבות' }).eq('id', it.id);
+                                await loadLab();
+                              }} style={{ background: "rgba(212,175,55,0.1)", border: `1px solid ${C.borderGold}`, color: C.goldDim, borderRadius: 999, padding: "3px 10px", cursor: "pointer", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>
+                                ✨ פרסם → הצלבות
+                              </button>
+                            </div>
+                          </div>
+                          {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>{it.body.slice(0, 220)}{it.body.length > 220 ? "…" : ""}</div>}
+                          {(it.related_numbers || []).length > 0 && (
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                              {it.related_numbers.map(n => (
+                                <Link key={n} to={`/number/${n}`} style={{ color: LINK, fontFamily: F.mono, fontSize: 12, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 9px" }}>{n} →</Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            );
+          })()
+        }
       </div>
 
       {/* ✅ פורסמו — category='מעבדת צוריאל', space IS NULL */}
