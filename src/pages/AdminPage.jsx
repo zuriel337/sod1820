@@ -1024,7 +1024,29 @@ function ResearchTab() {
     } catch (e) { setNote("שגיאה: " + (e.message || e)); }
     finally { setBusy(false); }
   }
-  useEffect(() => { analyze(); getLabInsights(80).then(setLab).catch(() => setLab([])); }, []); // eslint-disable-line
+  const [published, setPublished] = useState(null);
+
+  async function loadLab() {
+    const drafts = await getLabInsights(80).catch(() => []);
+    setLab(drafts);
+    const { data: pub } = await supabase.from('insights')
+      .select('id,title,body,category,related_numbers,evidence_level,origin,tags,created_at')
+      .eq('category', 'מעבדת צוריאל').is('space', null).eq('is_active', true)
+      .order('created_at', { ascending: false }).limit(80);
+    setPublished(pub || []);
+  }
+
+  async function promoteInsight(id) {
+    await supabase.from('insights').update({ space: null }).eq('id', id);
+    await loadLab();
+  }
+
+  async function demoteInsight(id) {
+    await supabase.from('insights').update({ space: 'lab' }).eq('id', id);
+    await loadLab();
+  }
+
+  useEffect(() => { analyze(); loadLab(); }, []); // eslint-disable-line
 
   const sc = s => s >= 70 ? "#3fae5a" : s >= 40 ? C.goldBright : C.goldDim;
   return (
@@ -1070,27 +1092,72 @@ function ResearchTab() {
         </div>
       )}
 
-      {/* 🧫 חידושי המעבדה הקיימים — insights space='lab' */}
+      {/* 🔬 טיוטות — space='lab' */}
       <div style={card}>
-        <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>
-          🧫 חידושי המעבדה {lab ? `(${lab.length})` : ""}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>
+            🔬 טיוטות המעבדה {lab ? `(${lab.length})` : ""}
+          </div>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 8px" }}>space=lab</span>
         </div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12, lineHeight: 1.7 }}>
-          מה שכבר שמור בשכבת החקירה (space=lab). כשמצטברת שרשרת הוכחה — מקדמים ל-evidence_level 4 והחידוש עולה מהמעבדה.
+          חידושים שעדיין בשלב חקירה. כשמצטברת שרשרת הוכחה — לחץ <b style={{ color: C.goldDim }}>פרסם</b> כדי להעלות לבית המדרש.
         </div>
         {!lab ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
-          : lab.length === 0 ? <Empty>אין עדיין חידושים במעבדה.</Empty>
+          : lab.length === 0 ? <Empty>אין טיוטות — כל החידושים פורסמו.</Empty>
           : (
           <div style={{ display: "grid", gap: 10 }}>
             {lab.map(it => (
-              <div key={it.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", background: C.bg }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+              <div key={it.id} style={{ border: `1px solid rgba(132,88,255,0.3)`, borderRadius: 10, padding: "11px 13px", background: "rgba(132,88,255,0.04)" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", marginBottom: 4 }}>
                   <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
                   {it.category && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11 }}>· {it.category}</span>}
                   {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>· ev{it.evidence_level}</span>}
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {it.origin}</span>
+                  <button onClick={() => promoteInsight(it.id)} style={{ marginInlineStart: "auto", background: "rgba(63,174,90,0.12)", border: "1px solid rgba(63,174,90,0.4)", color: "#3fae5a", borderRadius: 999, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>
+                    ✅ פרסם
+                  </button>
                 </div>
-                {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 5 }}>{it.body}</div>}
+                {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>{it.body.slice(0, 200)}{it.body.length > 200 ? "…" : ""}</div>}
+                {(it.related_numbers || []).length > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                    {it.related_numbers.map(n => (
+                      <Link key={n} to={`/number/${n}`} style={{ color: LINK, fontFamily: F.mono, fontSize: 12, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 9px" }}>{n} →</Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ✅ פורסמו — category='מעבדת צוריאל', space IS NULL */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>
+            ✅ פורסמו מהמעבדה {published ? `(${published.length})` : ""}
+          </div>
+          <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, background: "rgba(63,174,90,0.08)", border: "1px solid rgba(63,174,90,0.3)", borderRadius: 999, padding: "2px 8px" }}>בית המדרש</span>
+        </div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>
+          חידושים שיצאו מהמעבדה ומוצגים בפומבי. לחץ <b style={{ color: C.goldDim }}>החזר לטיוטה</b> כדי להסיר מהתצוגה.
+        </div>
+        {!published ? <div style={{ color: C.muted, fontFamily: F.body }}>טוען…</div>
+          : published.length === 0 ? <Empty>אין חידושים פורסמו עדיין.</Empty>
+          : (
+          <div style={{ display: "grid", gap: 10 }}>
+            {published.map(it => (
+              <div key={it.id} style={{ border: `1px solid rgba(63,174,90,0.25)`, borderRadius: 10, padding: "11px 13px", background: "rgba(63,174,90,0.04)" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", marginBottom: 4 }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title}</span>
+                  {it.evidence_level != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>ev{it.evidence_level}</span>}
+                  <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {it.origin}</span>
+                  <button onClick={() => demoteInsight(it.id)} style={{ marginInlineStart: "auto", background: "rgba(212,175,55,0.08)", border: `1px solid ${C.borderGold}`, color: C.goldDim, borderRadius: 999, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11 }}>
+                    ↩ החזר לטיוטה
+                  </button>
+                </div>
+                {it.body && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>{it.body.slice(0, 200)}{it.body.length > 200 ? "…" : ""}</div>}
                 {(it.related_numbers || []).length > 0 && (
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
                     {it.related_numbers.map(n => (
