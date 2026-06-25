@@ -32,6 +32,17 @@ export function formatDateHe(dateStr) {
   }
 }
 
+// תאריך לפי הלוח העברי — "כ״ח בסיוון התשפ״ו"
+export function formatDateHebrewCal(dateStr) {
+  try {
+    return new Date(dateStr).toLocaleDateString("he-IL-u-ca-hebrew", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
 export function formatDateWP(isoDate) {
   if (!isoDate) return '';
   const d = new Date(isoDate);
