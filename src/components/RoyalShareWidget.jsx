@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { LOGO_URL } from "../theme.js";
 import { trackShare } from "../lib/tracking.js";
+import { withRid } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 
@@ -35,7 +36,8 @@ export default function RoyalShareWidget() {
     return () => { alive = false; };
   }, []);
 
-  const url = typeof window !== "undefined" ? window.location.href : "https://sod1820.co.il";
+  // קישור השיתוף נושא rid=<המשתף> למדידת ויראליות אמיתית
+  const url = withRid(typeof window !== "undefined" ? window.location.href : "https://sod1820.co.il");
   const rawTitle = typeof document !== "undefined" ? document.title : "סוד 1820";
   const title = (rawTitle.split(/[|·–—-]/)[0] || "סוד 1820").trim();
   const text = `${title} 👑`;
