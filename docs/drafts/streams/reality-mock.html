@@ -1,0 +1,46 @@
+<!doctype html><html dir="rtl" lang="he"><head><meta charset="utf-8">
+<style>
+  body{margin:0;background:#070b12;font-family:Arial,Helvetica,sans-serif;color:#dfeaf3}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(127,200,255,.12);height:430px}
+  #rain{position:absolute;inset:0;width:100%;height:100%;opacity:.4}
+  .fade{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(7,11,18,.45),rgba(7,11,18,.82) 70%)}
+  .hc{position:relative;z-index:1;text-align:center;padding:64px 16px;max-width:720px;margin:0 auto}
+  .eye{font-size:12.5px;letter-spacing:6px;color:#7fc8ff;text-transform:uppercase;margin-bottom:12px;opacity:.9}
+  h1{font-size:64px;font-weight:900;margin:0 0 12px;color:#eaf2fa;text-shadow:0 0 60px rgba(127,200,255,.45)}
+  .sub{font-size:17px;color:#aebfcd;max-width:560px;margin:0 auto 26px;line-height:1.8}
+  .srch{display:flex;gap:8px;max-width:420px;margin:0 auto}
+  .srch input{flex:1;padding:12px 16px;border-radius:999px;border:1px solid rgba(127,200,255,.4);background:rgba(7,11,18,.6);color:#eaf2fa;font-size:15px}
+  .srch button{padding:12px 22px;border-radius:999px;border:0;background:#7fc8ff;color:#06121f;font-weight:800}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px 60px}
+  h2{font-size:22px;font-weight:800;color:#eaf2fa;margin:46px 0 4px}
+  .muted{font-size:13px;color:#7f97ab;margin-bottom:14px}
+  .row{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 16px}
+  .card{flex:0 0 200px;padding:16px;border-radius:14px;background:rgba(127,200,255,.05);border:1px solid rgba(127,200,255,.22)}
+  .card.hot{background:linear-gradient(150deg,rgba(155,123,255,.16),rgba(7,11,18,.6));border-color:#9b7bff66}
+  .g{font-size:30px;margin-bottom:8px}.ct{font-size:16px;font-weight:800;color:#eaf2fa}.cd{font-size:12.5px;color:#8aa0b3;margin-top:4px;line-height:1.6}.go{font-size:12.5px;color:#7fc8ff;font-weight:700;margin-top:12px}
+  .badge{float:left;font-size:9.5px;font-weight:800;color:#1a0e00;background:linear-gradient(135deg,#c9a6ff,#ff8ad1);border-radius:999px;padding:2px 8px}
+</style></head><body>
+<div class="hero"><canvas id="rain"></canvas><div class="fade"></div>
+  <div class="hc"><div class="eye">🎬 העדשה החילונית</div><h1>קוד המציאות</h1>
+  <div class="sub">מתחת לכל מספר מסתתר דפוס. אותו מנוע, אותה אמת — עדשה שמסתכלת על המציאות כעל <b style="color:#7fc8ff">קוד</b>.</div>
+  <div class="srch"><input placeholder="הקלד מספר או מילה…"><button>פענח</button></div></div>
+</div>
+<div class="wrap">
+  <h2>🎬 הצופן בקולנוע</h2><div class="muted">הקוד שמסתתר בתוך הסרטים</div>
+  <div class="row">
+    <div class="card hot"><span class="badge">חדש</span><div class="g">🦑</div><div class="ct">משחקי הדיונון — 456</div><div class="cd">דיונון=עבדים · 067=בינה=ניאו</div><div class="go">היכנס →</div></div>
+    <div class="card"><div class="g">🎬</div><div class="ct">הצופן הנסתר של מטריקס — 506</div><div class="cd">המטריקס=משיח בן דוד=424</div><div class="go">היכנס →</div></div>
+  </div>
+  <h2>🧪 אזור הניסויים</h2><div class="muted">חוויות תלת-מימד — היכנס, תעוף, תגלה</div>
+  <div class="row" id="exp"></div>
+</div>
+<script>
+  // matrix rain — one-shot paint (no animation loop → chrome won't hang)
+  var c=document.getElementById('rain');c.width=c.offsetWidth;c.height=c.offsetHeight;
+  var x=c.getContext('2d'),ch="0123456789אבגדהוזחטיכלמנסעפצקרשת67506182424".split(''),fs=16,cols=Math.floor(c.width/fs);
+  x.fillStyle="#070b12";x.fillRect(0,0,c.width,c.height);x.font=fs+"px monospace";
+  for(var i=0;i<cols;i++){var n=2+Math.floor(Math.random()*22);for(var j=0;j<n;j++){var yy=Math.random()*c.height;x.fillStyle=(j==n-1)?"#eaf6ff":"rgba(127,200,255,"+(0.25+0.5*Math.random())+")";x.fillText(ch[Math.floor(Math.random()*ch.length)],i*fs,yy)}}
+  // experiments cards
+  var L=[["🌌","גלקסיה · בסיס","כדורי הצירים + קווי הצטלבות",0],["✨","גלקסיה 2","+ כוכבי-לוויין + ניצוצות",0],["🔥","גלקסיה 4 · מקס","הילות + נבולה + hi-poly",0],["🧬","DNA · סגול","סליל כפול עולה",0],["🌠","כניסה לחדר · קוסמי","עפים פנימה → 360°",1],["🔮","חדר הרמז · ת׳","חידושים + תמונות לכל מספר",1]];
+  document.getElementById('exp').innerHTML=L.map(function(o){return '<div class="card'+(o[3]?' hot':'')+'">'+(o[3]?'<span class="badge">חדש</span>':'')+'<div class="g">'+o[0]+'</div><div class="ct">'+o[1]+'</div><div class="cd">'+o[2]+'</div><div class="go">היכנס →</div></div>'}).join('');
+</script></body></html>

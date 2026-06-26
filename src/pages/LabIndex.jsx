@@ -2,22 +2,9 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { applySeo } from "../lib/seo.js";
+import { LAB_ITEMS as ITEMS } from "../lib/labItems.js";
 
-// /lab — ריכוז כל חוויות הסולמות (תלת-מימד)
-const ITEMS = [
-  { to: "/sulamot", t: "גלקסיה · בסיס", d: "כדורי הצירים + קווי הצטלבות", g: "🌌" },
-  { to: "/sulamot2", t: "גלקסיה 2", d: "+ כוכבי-לוויין (מספרים) + ניצוצות", g: "✨" },
-  { to: "/sulamot3", t: "גלקסיה 3", d: "+ ריחוף + ליבה + קווים פועמים", g: "💫" },
-  { to: "/sulamot4", t: "גלקסיה 4 · מקס", d: "הילות + נבולה + hi-poly", g: "🔥" },
-  { to: "/sulamot5", t: "חדרים · מעגל", d: "הצירים סביבך, עפים ביניהם", g: "🟡" },
-  { to: "/sulamot6", t: "חדרים · מסדרון", d: "טסים קדימה פנימה", g: "🚪" },
-  { to: "/sulamot7", t: "חדרים · סולם עולה", d: "ספירלה מטפסת מעלה", g: "🪜" },
-  { to: "/sulamot8", t: "DNA · סגול", d: "סליל כפול עולה", g: "🧬" },
-  { to: "/sulamot9", t: "כיפת כוכבים · תכלת", d: "חדרים על פני כדור", g: "🧊" },
-  { to: "/sulamot10", t: "מגדל · ברקת", d: "טיפוס אנכי בין קומות", g: "💚" },
-  { to: "/sulamot11", t: "כניסה לתוך החדר · קוסמי", d: "עפים לתוך הכדור → התמונות עוטפות 360°", g: "🌠", hot: true },
-  { to: "/cheder/400", t: "חדר הרמז · ת׳", d: "חידושים + תמונות + הקראה עברית — לכל מספר", g: "🔮", hot: true },
-];
+// /lab — ריכוז כל חוויות הסולמות (תלת-מימד). הרשימה מ-labItems.js (מקור משותף).
 
 export default function LabIndex() {
   useEffect(() => { applySeo({ title: "ניסויי תלת-מימד · סולמות", description: "כל חוויות התלת-מימד של סוד 1820", path: "/lab" }); }, []);
