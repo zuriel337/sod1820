@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { C, F } from "../theme.js";
@@ -6,7 +6,7 @@ import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
   searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
-  getHintSets, saveHintSet, addHintSetMember,
+  getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -96,6 +96,12 @@ export default function ArchivePage() {
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
   const [bulkType, setBulkType] = useState(null);
+  const [eventFilter, setEventFilter] = useState(false); // סינון: תמונות עם תאריך אירוע בלבד
+
+  // drag-and-drop classification
+  const dragIdsRef = useRef(new Set());
+  const [dragging, setDragging] = useState(false);
+  const [dropTarget, setDropTarget] = useState(null); // type key being hovered
 
   // hint_sets
   const [hintSets, setHintSets] = useState([]);
@@ -141,7 +147,7 @@ export default function ArchivePage() {
   // מיפוי גלריה → סדר התוסף (wp_gallery_id); גבוה = חדש יותר
   const galSeqById = useMemo(() => { const m = {}; for (const g of (gals || [])) m[g.id] = g.seq; return m; }, [gals]);
 
-  // ── מאגר: מיון. ברירת מחדל "גלריה" = כסדר התוסף (גלריה חדשה למעלה, בתוכה לפי ordering). או "תאריך".
+  // ── מאגר: מיון. ברירת מחדל "גלריה" = כסדר התוסף. "תאריך" = לפי תאריך אירוע. "recent" = לפי העלאה.
   const sortedImgs = useMemo(() => {
     const arr = [...imgs];
     if (sortMode === "gallery") {
@@ -149,6 +155,12 @@ export default function ArchivePage() {
         (galSeqById[b.gallery_id] ?? -1) - (galSeqById[a.gallery_id] ?? -1) ||
         (a.ordering ?? 0) - (b.ordering ?? 0));
       return arr;
+    }
+    if (sortMode === "recent") {
+      return arr.sort((a, b) =>
+        (new Date(b.created_at || 0) - new Date(a.created_at || 0)) ||
+        ((b.importance ?? 0) - (a.importance ?? 0))
+      );
     }
     const withD = [], without = [];
     for (const im of arr) (eventDate(im) ? withD : without).push(im);
@@ -240,6 +252,7 @@ export default function ArchivePage() {
           : (filterMode === "AND" ? nums.every(n => hintNums(im).includes(n)) : nums.some(n => hintNums(im).includes(n)));
         if (!match) return false;
       }
+      if (eventFilter && !im.occurred_at) return false;
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
       if (qNum != null) { if (!hintNums(im).includes(qNum)) return false; }
       else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
@@ -250,7 +263,7 @@ export default function ArchivePage() {
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, showHidden, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
+  }, [sortedImgs, showHidden, typeFilter, sourceFilter, eventFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilters.size > 0 ? [...numFilters] : null);
@@ -347,6 +360,41 @@ export default function ArchivePage() {
       setActiveHintSet(s => ({ ...s, _memberCount: memberCount + 1 }));
     } catch (e) { alert("הוספה נכשלה: " + (e.message || e)); }
   }
+
+  // ── drag-and-drop classification ──
+  function handleDragStart(e, im) {
+    const ids = selectedIds.size > 0 && selectedIds.has(im.id) ? [...selectedIds] : [im.id];
+    dragIdsRef.current = new Set(ids);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', ids.join(','));
+    setDragging(true);
+  }
+  function handleDragEnd() { setDragging(false); setDropTarget(null); }
+  async function dropOnType(targetType) {
+    const ids = [...dragIdsRef.current];
+    if (!ids.length) return;
+    setDragging(false); setDropTarget(null);
+    try {
+      await Promise.all(ids.map(id => setImageCuration(id, { image_type: targetType })));
+      const captured = new Set(dragIdsRef.current);
+      setImgs(prev => prev.map(x => captured.has(x.id) ? { ...x, image_type: targetType } : x));
+      dragIdsRef.current = new Set();
+      setSelectedIds(new Set());
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
+  async function deleteImage(im) {
+    if (im.source === 'update') {
+      alert("לא ניתן למחוק תמונה מהזרם — ניתן להסתיר בלבד (curator_hidden).");
+      return;
+    }
+    if (!window.confirm(`למחוק לצמיתות את התמונה "${im.name || im.id}"?\nפעולה זו אינה הפיכה.`)) return;
+    try {
+      await deleteGalleryImage(im.id);
+      setImgs(prev => prev.filter(x => x.id !== im.id));
+    } catch (e) { alert("מחיקה נכשלה: " + (e.message || e)); }
+  }
+
   async function saveBuilder() {
     const nums = [...builder.numbers].sort((a, b) => a - b);
     if (!builder.name.trim() || !nums.length) return;
@@ -485,7 +533,11 @@ export default function ArchivePage() {
       .ar-type-btn:hover { border-color: ${C.gold}; }
       .ar-type-btn.active { background: linear-gradient(135deg,rgba(212,175,55,0.2),rgba(8,5,2,0.4)); border-color: ${C.gold}; color: ${C.goldBright}; }
       .ar-type-cnt { font-family: ${F.mono}; font-size: 11px; color: ${C.muted}; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 999px; flex-shrink: 0; }
-      .ar-type-btn.active .ar-type-cnt { color: ${C.goldDim}; }
+      .ar-type-btn.active .ar-type-cnt { color: rgba(10,5,0,0.85); background: rgba(212,175,55,0.55); }
+      .ar-type-btn.drop-hover { border-color: #fff; background: rgba(212,175,55,0.35); transform: scale(1.04); box-shadow: 0 0 0 2px rgba(212,175,55,0.6); }
+      .ar-mcard[draggable] { cursor: grab; }
+      .ar-mcard[draggable]:active { cursor: grabbing; }
+      .ar-mcard.ar-dragging { opacity: 0.5; }
 
       /* ── תצוגת מאגר (masonry) ── */
       .ar-masonry {
@@ -525,6 +577,13 @@ export default function ArchivePage() {
         background: rgba(20,15,12,0.82); border: 1px solid ${C.borderGold}; border-radius: 6px;
         width: 28px; height: 28px; font-size: 14px; cursor: pointer;
         display: flex; align-items: center; justify-content: center; padding: 0; }
+      .ar-mevent-badge { position: absolute; top: 6px; inset-inline-start: 6px; font-size: 11px; z-index: 2;
+        background: rgba(30,80,160,0.75); border-radius: 4px; padding: 1px 4px; color: #aad4ff; }
+      .ar-mdel { position: absolute; top: 7px; inset-inline-end: 7px; z-index: 3;
+        background: rgba(120,20,20,0.82); border: 1px solid rgba(200,60,60,0.5); border-radius: 6px;
+        width: 24px; height: 24px; font-size: 12px; cursor: pointer; opacity: 0; transition: opacity .15s;
+        display: flex; align-items: center; justify-content: center; padding: 0; color: #ff9999; }
+      .ar-mcard:hover .ar-mdel { opacity: 1; }
       .ar-mcap { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
       .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
         overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -635,17 +694,29 @@ export default function ArchivePage() {
                 [null,       '🖼 הכל',        imgs.filter(x => !x.curator_hidden).length],
                 ['hint',     '💡 רמזים',       imgs.filter(x => !x.curator_hidden && x.image_type === 'hint').length],
                 ['gematria', '🔢 גימטריה',     imgs.filter(x => !x.curator_hidden && x.image_type === 'gematria').length],
-                ['trail',    '📖 מסלולים',      imgs.filter(x => !x.curator_hidden && x.image_type === 'trail').length],
-                ['event',    '📰 אירועים',     imgs.filter(x => !x.curator_hidden && x.image_type === 'event').length],
-                ['gallery',  '🗂 כללי',        imgs.filter(x => !x.curator_hidden && x.image_type === 'gallery').length],
                 ['__none',   '❓ לא מסווג',    imgs.filter(x => !x.curator_hidden && x.image_type == null).length],
               ].map(([k, l, cnt]) => (
-                <button key={String(k)} className={`ar-type-btn${typeFilter === k ? ' active' : ''}`}
-                  onClick={() => setTypeFilter(prev => prev === k ? null : k)}>
+                <button key={String(k)}
+                  className={`ar-type-btn${typeFilter === k ? ' active' : ''}${dragging && (k === 'hint' || k === 'gematria') && dropTarget === k ? ' drop-hover' : ''}`}
+                  onClick={() => setTypeFilter(prev => prev === k ? null : k)}
+                  onDragOver={isAdmin && (k === 'hint' || k === 'gematria') ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropTarget(k); } : undefined}
+                  onDragLeave={isAdmin && (k === 'hint' || k === 'gematria') ? () => setDropTarget(null) : undefined}
+                  onDrop={isAdmin && (k === 'hint' || k === 'gematria') ? e => { e.preventDefault(); dropOnType(k); } : undefined}
+                >
                   <span>{l}</span>
                   <span className="ar-type-cnt">{cnt}</span>
+                  {dragging && (k === 'hint' || k === 'gematria') && <span style={{fontSize:10,opacity:0.7,marginInlineStart:4}}>⬇</span>}
                 </button>
               ))}
+              {/* ── שכבה שנייה: אירועים (חוצה סוגים) ── */}
+              <button
+                className={`ar-type-btn${eventFilter ? ' active' : ''}`}
+                onClick={() => setEventFilter(v => !v)}
+                style={{ marginTop: 4, borderStyle: 'dashed' }}
+              >
+                <span>📅 עם תאריך</span>
+                <span className="ar-type-cnt">{imgs.filter(x => !x.curator_hidden && x.occurred_at).length}</span>
+              </button>
             </div>
 
             {/* ── מקור ── */}
@@ -817,6 +888,7 @@ export default function ArchivePage() {
                     <div className="ar-seg" role="group" aria-label="מיון">
                       <button className={`ar-pill${sortMode === "gallery" ? " active" : ""}`} onClick={() => setSortMode("gallery")} title="כסדר התוסף — גלריה חדשה למעלה">לפי גלריה</button>
                       <button className={`ar-pill${sortMode === "date" ? " active" : ""}`} onClick={() => setSortMode("date")} title="לפי תאריך האירוע">לפי תאריך</button>
+                      <button className={`ar-pill${sortMode === "recent" ? " active" : ""}`} onClick={() => setSortMode("recent")} title="לפי תאריך העלאה — הועלו לאחרונה ראשון">🆕 הועלו לאחרונה</button>
                       <button className={`ar-pill${sortMode === "cross" ? " active" : ""}`} onClick={() => setSortMode("cross")} title="הכי הרבה הצטלבויות מספרים">⚡ הצטלבויות</button>
                     </div>
                   )}
@@ -919,7 +991,7 @@ export default function ArchivePage() {
               ? `${memberGals.length} גלריות${activeSet ? ` בסט «${activeSet.name}»` : ""} · החדשה למעלה`
               : curated
                 ? `${highlighted.length} מובלטות · ${rest.length.toLocaleString()} בשבילים`
-                : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : "מהחדש לישן"}`}
+                : `${pool.length.toLocaleString()} תמונות${hasFilter ? " (מסוננות)" : ""} · ${sortMode === "gallery" ? "לפי סדר הגלריות (התוסף)" : sortMode === "recent" ? "🆕 לפי תאריך העלאה" : "מהחדש לישן"}`}
           </div>
 
           {viewMode === "galleries" ? (
@@ -1082,7 +1154,12 @@ export default function ArchivePage() {
                   const isSel = selectedIds.has(im.id);
                   const TYPE_EMOJI = { hint: '💡', gematria: '🔢', trail: '📖', event: '📰', gallery: '🗂' };
                   return (
-                    <div key={im.id} className={`ar-mcard${isSel ? ' ar-msel' : ''}`}>
+                    <div key={im.id}
+                      className={`ar-mcard${isSel ? ' ar-msel' : ''}${dragging && dragIdsRef.current.has(im.id) ? ' ar-dragging' : ''}`}
+                      draggable={isAdmin}
+                      onDragStart={isAdmin ? e => handleDragStart(e, im) : undefined}
+                      onDragEnd={isAdmin ? handleDragEnd : undefined}
+                    >
                       <div className="ar-mwrap"
                         onClick={() => multiSelect
                           ? toggleSelect(im.id)
@@ -1098,6 +1175,7 @@ export default function ArchivePage() {
                         )}
                         {im.image_type && <span className="ar-mtype">{TYPE_EMOJI[im.image_type] || ''}</span>}
                         {im.source === 'update' && <span className="ar-mstream-badge">🌊</span>}
+                        {im.occurred_at && im.source !== 'update' && <span className="ar-mevent-badge">📅</span>}
                         {isAdmin && !multiSelect && (
                           <button className="ar-medit" onClick={e => { e.stopPropagation(); setEditImg(im); }} title="ערוך">✏️</button>
                         )}
@@ -1113,6 +1191,9 @@ export default function ArchivePage() {
                               display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
                             📦
                           </button>
+                        )}
+                        {isAdmin && !multiSelect && im.source !== 'update' && (
+                          <button className="ar-mdel" onClick={e => { e.stopPropagation(); deleteImage(im); }} title="מחק לצמיתות">🗑</button>
                         )}
                       </div>
                       {(im.name || eventLabel(im)) && (
