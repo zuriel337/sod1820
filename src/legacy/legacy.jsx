@@ -15,6 +15,8 @@ import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import Lightbox from "../components/Lightbox.jsx";
+import MatrixRain from "../components/MatrixRain.jsx";
+import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
 import { usePalette } from "../lib/palette.js";
@@ -2359,8 +2361,18 @@ function PostPage({ post, onBack }) {
   const date    = formatDateHe(fullPost?.date ?? post?.date ?? "");
   const content = fullPost?.content ?? "";
 
+  const fx = POST_FX[post?.slug] || POST_FX[fullPost?.slug];
+
   return (
     <div style={{ direction: "rtl" }}>
+      {/* באנר מטריקס-ריין בראש העמוד — פר-פוסט (לדוגמה מטריקס: ירוק + 506 נוזל) */}
+      {fx && (
+        <div style={{ position: "relative", height: "clamp(170px, 30vw, 280px)", overflow: "hidden", background: "#070b12" }}>
+          <MatrixRain color={fx.color} headColor={fx.headColor} featured={fx.featured} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(7,11,18,0.05) 35%, ${C.bg} 100%)`, pointerEvents: "none" }} />
+        </div>
+      )}
+
       {/* hero image */}
       {image && !loading && (
         <div style={{
@@ -4315,6 +4327,7 @@ function PostPageBySlug({ onNav }) {
   }, [post]);
 
   const image    = post?.image_url ?? null;
+  const fx       = POST_FX[slug];   // אפקט ראש-עמוד (מטריקס-ריין) פר-פוסט
   const author   = post?.author ?? "";
   const title    = stripHtml(post?.title ?? "");
   const date     = formatDateHe(post?.date ?? "");
@@ -4391,7 +4404,14 @@ function PostPageBySlug({ onNav }) {
       {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
       {post && !loading && adsAllowed && <StickyAnchorAd />}
       {post && !loading && adsAllowed && <SideRailAd />}
-      {image && !loading && (() => {
+      {/* באנר מטריקס-ריין בראש העמוד — ה-hero לפוסט עם fx (לדוגמה מטריקס: ירוק + 506 נוזל). מחליף את תמונת ה-hero. */}
+      {fx && !loading && (
+        <div style={{ position: "relative", height: "clamp(200px, 34vw, 320px)", overflow: "hidden", background: "#070b12" }}>
+          <MatrixRain color={fx.color} headColor={fx.headColor} featured={fx.featured} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(7,11,18,0.05) 35%, ${pc.bg} 100%)`, pointerEvents: "none" }} />
+        </div>
+      )}
+      {image && !loading && !fx && (() => {
         // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
         const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);
         return (
