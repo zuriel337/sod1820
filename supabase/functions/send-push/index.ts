@@ -35,12 +35,29 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data: subs } = await supabase
       .from("push_subscriptions")
-      .select("endpoint, p256dh, auth, topics");
+      .select("endpoint, p256dh, auth, topics, user_id, visitor_id");
 
-    // topic ריק → הכל. אחרת: מנויים שסימנו את הנושא, או שלא סימנו נושאים (=הכל).
-    const targets = (subs || []).filter((s: { topics?: string[] }) =>
-      !topic || !Array.isArray(s.topics) || s.topics.length === 0 || s.topics.includes(topic)
-    );
+    // מצב שקט — לאסוף זהויות מושתקות (muted_until בעתיד) ולדלג עליהן.
+    const { data: muted } = await supabase
+      .from("notification_prefs")
+      .select("user_id, visitor_id, muted_until")
+      .not("muted_until", "is", null);
+    const now = Date.now();
+    const mutedUsers = new Set<string>();
+    const mutedVisitors = new Set<string>();
+    (muted || []).forEach((m: { user_id?: string; visitor_id?: string; muted_until?: string }) => {
+      if (m.muted_until && new Date(m.muted_until).getTime() > now) {
+        if (m.user_id) mutedUsers.add(m.user_id);
+        if (m.visitor_id) mutedVisitors.add(m.visitor_id);
+      }
+    });
+
+    // topic ריק → הכל. אחרת: מנויים שסימנו את הנושא, או שלא סימנו נושאים (=הכל). מדלגים על מושתקים.
+    const targets = (subs || []).filter((s: { topics?: string[]; user_id?: string; visitor_id?: string }) => {
+      if (s.user_id && mutedUsers.has(s.user_id)) return false;
+      if (s.visitor_id && mutedVisitors.has(s.visitor_id)) return false;
+      return !topic || !Array.isArray(s.topics) || s.topics.length === 0 || s.topics.includes(topic);
+    });
 
     const payload = JSON.stringify({
       title: title || "סוד1820",

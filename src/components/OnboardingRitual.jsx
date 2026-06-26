@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { F } from "../theme.js";
 import { getVisitorId } from "../lib/tracking.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { ONBOARDING_GATES, ONBOARDING_INTENTS, gatesToTopics } from "../lib/notifications.js";
 import { storeTopics } from "../lib/feedRanking.js";
@@ -17,6 +18,7 @@ const SYNC_LINES = [
 ];
 
 export default function OnboardingRitual({ onDone }) {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [intent, setIntent] = useState(null);   // שלב 1 — בחירה רכה
   const [gates, setGates] = useState([]);        // שלב 2 — שערים שנבחרו
@@ -60,7 +62,9 @@ export default function OnboardingRitual({ onDone }) {
       storeTopics(topics);   // צילום מקומי לדירוג הפיד המיידי
       const mail = withEmail ? email.trim() : null;
       if (mail) { try { await subscribeEmail({ email: mail, source: "onboarding" }); } catch { /* noop */ } }
-      await saveNotificationPrefs({ visitorId: getVisitorId(), topics, channels: ["email"], email: mail });
+      // זהות נכונה: מחובר → user_id (אחרת RLS דוחה); אנונימי → visitor_id.
+      const id = user ? { userId: user.id } : { visitorId: getVisitorId() };
+      await saveNotificationPrefs({ ...id, topics, channels: ["email"], email: mail });
       setFinished(true);
     } catch {
       setErr("משהו השתבש — נסו שוב");

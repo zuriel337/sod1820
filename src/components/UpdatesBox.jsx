@@ -3,6 +3,7 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import { getVisitorId } from "../lib/tracking.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { mergeStoredTopics } from "../lib/feedRanking.js";
 
@@ -34,6 +35,7 @@ export default function UpdatesBox({
   const [err, setErr] = useState("");
   const [topics, setTopics] = useState([]);
   const { markSubscribed } = useSubscribed();
+  const { user } = useAuth();
 
   const toggleTopic = (k) => setTopics(t => t.includes(k) ? t.filter(x => x !== k) : [...t, k]);
 
@@ -50,8 +52,9 @@ export default function UpdatesBox({
       // עץ אחד: המייל ל-subscribers, תחומי העניין ל-notification_prefs (לפי visitor_id).
       if (withTopics) {
         try {
+          const id = user ? { userId: user.id } : { visitorId: getVisitorId() };
           await saveNotificationPrefs({
-            visitorId: getVisitorId(), topics, channels: ["email"], email: email.trim(),
+            ...id, topics, channels: ["email"], email: email.trim(),
           });
           mergeStoredTopics(topics);   // לעדכן את דירוג הפיד המקומי
 

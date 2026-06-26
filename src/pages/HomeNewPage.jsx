@@ -368,15 +368,14 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== סקשן סיום — שער כניסה יחיד (Single Conversion Spine) ===== */}
+      {/* ===== סקשן סיום — ברכה פשוטה (בלי דחיפה לטקס; הטקס פרוק וזמין ב-/enter) ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "8px 18px 64px" }}>
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 800, marginBottom: 8 }}>
-          🤍 ברוכים הבאים לבית החדש שלנו
+          🤍 ברוכים הבאים לבית של סוד 1820
         </div>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 460, margin: "0 auto 22px" }}>
-          מערכת חיה של קריאת מציאות דרך רמזים, מספרים ותודעה. כוונו את הזרם שלכם — והמערכת תיפתח בהתאמה אישית.
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 460, margin: "0 auto" }}>
+          גימטריה, רמזים ומספרים — חכמת הקשרים שמחברת הכול. שוטטו, חפשו, וגלו.
         </p>
-        <Link to="/enter" className="hn-cta hn-cta-big">✨ להיכנס לשער</Link>
       </section>
     </div>
   );

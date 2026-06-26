@@ -154,8 +154,8 @@ export default function Footer() {
 
       {/* אזור ללא-הרשמה: קישור ניהול עדין בלבד (Single Conversion Spine — השער הוא /enter) */}
       <div style={{ textAlign: "center", padding: "14px 0 6px" }}>
-        <Link to={user ? "/profile" : "/enter"} style={{ color: cc.linkMuted || cc.muted || "#8b90a8", fontFamily: F.heading, fontSize: 13, textDecoration: "none", opacity: 0.85 }}>
-          📩 ניהול עדכונים
+        <Link to={user ? "/profile#notifications" : "/enter"} style={{ color: cc.linkMuted || cc.muted || "#8b90a8", fontFamily: F.heading, fontSize: 13, textDecoration: "none", opacity: 0.85 }}>
+          🌊 הזרם שלך
         </Link>
       </div>
 

@@ -82,22 +82,10 @@ function RouteEffects() {
 
 // טקס הכניסה — אוטומטי למבקר חדש (פעם אחת) בעמוד הבית בלבד (לא חוטף דיפ-לינקים).
 // תמיד נגיש דרך /enter וכפתור "כאן מתחילים".
-function OnboardingGate() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const [show, setShow] = React.useState(false);
-  useEffect(() => {
-    if (pathname !== "/") return;
-    try { if (localStorage.getItem("sod_onboarded")) return; } catch { return; }
-    setShow(true);
-  }, []);  // פעם אחת בעליית האפליקציה
-  if (!show) return null;
-  return (
-    <React.Suspense fallback={null}>
-      <OnboardingRitual onDone={() => { setShow(false); navigate("/"); }} />
-    </React.Suspense>
-  );
-}
+// PARKED — דף הפתיחה האוטומטי כבוי בכוונה: מוקדם מדי להעמיס מערכת על טראפיק קר.
+// הטקס נשאר נגיש ב-/enter (לא נכפה). להפעלה מחדש בעתיד (מסלולים יעודיים + פרסום):
+// ראה work_log 'PARKED: מערכת השערים' ו-git history.
+function OnboardingGate() { return null; }
 
 // עמוד /enter — טקס הכניסה כעמוד מלא (תמיד נגיש, גם למשתמש חוזר).
 function EnterRoute() {

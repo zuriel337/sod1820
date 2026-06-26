@@ -234,6 +234,43 @@ function Dropdown({ items, onNavigate }) {
   );
 }
 
+// תפריט המשתמש — chip עם אווטר, ובריחוף נפתח תפריט: פרופיל + ניהול עדכונים.
+function UserMenu({ user, profile, cc }) {
+  const [open, setOpen] = useState(false);
+  const item = {
+    display: "block", color: cc.goldDim, textDecoration: "none",
+    fontFamily: F.royal, fontSize: 14.5, padding: "10px 13px", borderRadius: 5,
+    whiteSpace: "nowrap", transition: "background 0.18s, color 0.18s",
+  };
+  const hov = e => { e.currentTarget.style.background = cc.surface; e.currentTarget.style.color = cc.goldBright; };
+  const out = e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = cc.goldDim; };
+  return (
+    <div style={{ position: "relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <Link to="/profile" title="הפרופיל שלי" style={{
+        display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+        padding: "3px 6px 3px 12px", border: `1px solid ${open ? cc.borderGold : cc.border}`, borderRadius: 22,
+        transition: "border-color .2s",
+      }}>
+        <span style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {profile?.display_name || profile?.username || "פרופיל"}
+        </span>
+        <Avatar profile={profile} user={user} size={28} />
+      </Link>
+      {open && (
+        <div style={{
+          position: "absolute", top: "100%", left: 0, minWidth: 190,
+          background: cc.dropBg, backdropFilter: "blur(14px)",
+          border: `1px solid ${cc.borderGold}`, borderRadius: 8, padding: 8, zIndex: 200,
+          boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+        }}>
+          <Link to="/profile" style={item} onMouseEnter={hov} onMouseLeave={out}>👤 הפרופיל שלי</Link>
+          <Link to="/profile#notifications" style={item} onMouseEnter={hov} onMouseLeave={out}>🌊 הזרם שלך</Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Brand() {
   const cc = chromeColors(useThemeMode());
   return (
@@ -319,15 +356,7 @@ export default function Navbar() {
           <UniversalSearch />
           <SurpriseButton />
           {user ? (
-            <Link to="/profile" title="הפרופיל שלי" style={{
-              display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
-              padding: "3px 6px 3px 12px", border: `1px solid ${cc.border}`, borderRadius: 22,
-            }}>
-              <span style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {profile?.display_name || profile?.username || "פרופיל"}
-              </span>
-              <Avatar profile={profile} user={user} size={28} />
-            </Link>
+            <UserMenu user={user} profile={profile} cc={cc} />
           ) : (
             <GoldButton to="/login" style={{ padding: "8px 16px", fontSize: 12.5, letterSpacing: 1, whiteSpace: "nowrap" }}>
               🔑 כניסה · הרשמה חינם
@@ -362,6 +391,12 @@ export default function Navbar() {
             {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
             {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
+          {user && (
+            <Link to="/profile#notifications" onClick={() => setDrawer(false)} style={{
+              display: "flex", alignItems: "center", gap: 10, color: cc.goldDim, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 14, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+            }}>🌊 הזרם שלך</Link>
+          )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">
             {MOBILE_TILES.map(t => (

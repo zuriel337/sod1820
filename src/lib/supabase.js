@@ -549,7 +549,7 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
 // מקור אחד לכל הערוצים. שורה לכל זהות: userId (מחובר) או visitorId (אנונימי).
 export async function getNotificationPrefs({ userId = null, visitorId = null } = {}) {
   if (!supabase) return null;
-  let q = supabase.from('notification_prefs').select('topics, channels, email');
+  let q = supabase.from('notification_prefs').select('topics, channels, email, intensity, muted_until');
   if (userId) q = q.eq('user_id', userId);
   else if (visitorId) q = q.eq('visitor_id', visitorId);
   else return null;
@@ -557,9 +557,11 @@ export async function getNotificationPrefs({ userId = null, visitorId = null } =
   return data || null;
 }
 
-export async function saveNotificationPrefs({ userId = null, visitorId = null, topics = [], channels = [], email = null }) {
+export async function saveNotificationPrefs({ userId = null, visitorId = null, topics = [], channels = [], email = null, intensity = undefined, mutedUntil = undefined }) {
   if (!supabase) return { ok: false };
   const row = { topics, channels, email: email || null, updated_at: new Date().toISOString() };
+  if (intensity !== undefined) row.intensity = intensity;
+  if (mutedUntil !== undefined) row.muted_until = mutedUntil;
   let res;
   if (userId) {
     row.user_id = userId;

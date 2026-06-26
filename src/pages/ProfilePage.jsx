@@ -39,6 +39,13 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
+  // גלילה ל"ניהול עדכונים" כשמגיעים עם #notifications (מהתפריט/פוטר)
+  useEffect(() => {
+    if (typeof window === "undefined" || window.location.hash !== "#notifications") return;
+    const t = setTimeout(() => document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+    return () => clearTimeout(t);
+  }, [user, profile]);
+
   if (!loading && !user) {
     return (
       <div style={{ background: P.pageBg, minHeight: "100vh" }}>
