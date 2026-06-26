@@ -96,6 +96,7 @@ export default function ArchivePage() {
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
   const [bulkType, setBulkType] = useState(null);
+  const [eventFilter, setEventFilter] = useState(false); // סינון: תמונות עם תאריך אירוע בלבד
 
   // drag-and-drop classification
   const dragIdsRef = useRef(new Set());
@@ -251,6 +252,7 @@ export default function ArchivePage() {
           : (filterMode === "AND" ? nums.every(n => hintNums(im).includes(n)) : nums.some(n => hintNums(im).includes(n)));
         if (!match) return false;
       }
+      if (eventFilter && !im.occurred_at) return false;
       if (yearFilter != null && eventYear(im) !== yearFilter) return false;
       if (qNum != null) { if (!hintNums(im).includes(qNum)) return false; }
       else if (q && !((im.name || "").toLowerCase().includes(q) || (im.description || "").toLowerCase().includes(q) || (ocrMatch?.imgs.has(im.id)))) return false;
@@ -261,7 +263,7 @@ export default function ArchivePage() {
       arr = [...arr].sort((a, b) => score(b) - score(a));
     }
     return arr;
-  }, [sortedImgs, showHidden, typeFilter, sourceFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
+  }, [sortedImgs, showHidden, typeFilter, sourceFilter, eventFilter, setNums, numFilters, filterMode, dominantOnly, yearFilter, q, qNum, sortMode, ocrMatch]);
 
   // אירועים מהציר שחולקים מספר עם הסט/המספר הפעיל
   const bridgeNums = activeSet ? activeSet.numbers : (numFilters.size > 0 ? [...numFilters] : null);
@@ -575,6 +577,8 @@ export default function ArchivePage() {
         background: rgba(20,15,12,0.82); border: 1px solid ${C.borderGold}; border-radius: 6px;
         width: 28px; height: 28px; font-size: 14px; cursor: pointer;
         display: flex; align-items: center; justify-content: center; padding: 0; }
+      .ar-mevent-badge { position: absolute; top: 6px; inset-inline-start: 6px; font-size: 11px; z-index: 2;
+        background: rgba(30,80,160,0.75); border-radius: 4px; padding: 1px 4px; color: #aad4ff; }
       .ar-mdel { position: absolute; top: 7px; inset-inline-end: 7px; z-index: 3;
         background: rgba(120,20,20,0.82); border: 1px solid rgba(200,60,60,0.5); border-radius: 6px;
         width: 24px; height: 24px; font-size: 12px; cursor: pointer; opacity: 0; transition: opacity .15s;
@@ -690,23 +694,29 @@ export default function ArchivePage() {
                 [null,       '🖼 הכל',        imgs.filter(x => !x.curator_hidden).length],
                 ['hint',     '💡 רמזים',       imgs.filter(x => !x.curator_hidden && x.image_type === 'hint').length],
                 ['gematria', '🔢 גימטריה',     imgs.filter(x => !x.curator_hidden && x.image_type === 'gematria').length],
-                ['trail',    '📖 מסלולים',      imgs.filter(x => !x.curator_hidden && x.image_type === 'trail').length],
-                ['event',    '📰 אירועים',     imgs.filter(x => !x.curator_hidden && x.image_type === 'event').length],
-                ['gallery',  '🗂 כללי',        imgs.filter(x => !x.curator_hidden && x.image_type === 'gallery').length],
                 ['__none',   '❓ לא מסווג',    imgs.filter(x => !x.curator_hidden && x.image_type == null).length],
               ].map(([k, l, cnt]) => (
                 <button key={String(k)}
-                  className={`ar-type-btn${typeFilter === k ? ' active' : ''}${dragging && k !== null && k !== '__none' && dropTarget === k ? ' drop-hover' : ''}`}
+                  className={`ar-type-btn${typeFilter === k ? ' active' : ''}${dragging && (k === 'hint' || k === 'gematria') && dropTarget === k ? ' drop-hover' : ''}`}
                   onClick={() => setTypeFilter(prev => prev === k ? null : k)}
-                  onDragOver={isAdmin && k !== null && k !== '__none' ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropTarget(k); } : undefined}
-                  onDragLeave={isAdmin && k !== null && k !== '__none' ? () => setDropTarget(null) : undefined}
-                  onDrop={isAdmin && k !== null && k !== '__none' ? e => { e.preventDefault(); dropOnType(k); } : undefined}
+                  onDragOver={isAdmin && (k === 'hint' || k === 'gematria') ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropTarget(k); } : undefined}
+                  onDragLeave={isAdmin && (k === 'hint' || k === 'gematria') ? () => setDropTarget(null) : undefined}
+                  onDrop={isAdmin && (k === 'hint' || k === 'gematria') ? e => { e.preventDefault(); dropOnType(k); } : undefined}
                 >
                   <span>{l}</span>
                   <span className="ar-type-cnt">{cnt}</span>
-                  {dragging && k !== null && k !== '__none' && <span style={{fontSize:10,opacity:0.7,marginInlineStart:4}}>⬇</span>}
+                  {dragging && (k === 'hint' || k === 'gematria') && <span style={{fontSize:10,opacity:0.7,marginInlineStart:4}}>⬇</span>}
                 </button>
               ))}
+              {/* ── שכבה שנייה: אירועים (חוצה סוגים) ── */}
+              <button
+                className={`ar-type-btn${eventFilter ? ' active' : ''}`}
+                onClick={() => setEventFilter(v => !v)}
+                style={{ marginTop: 4, borderStyle: 'dashed' }}
+              >
+                <span>📅 עם תאריך</span>
+                <span className="ar-type-cnt">{imgs.filter(x => !x.curator_hidden && x.occurred_at).length}</span>
+              </button>
             </div>
 
             {/* ── מקור ── */}
@@ -1165,6 +1175,7 @@ export default function ArchivePage() {
                         )}
                         {im.image_type && <span className="ar-mtype">{TYPE_EMOJI[im.image_type] || ''}</span>}
                         {im.source === 'update' && <span className="ar-mstream-badge">🌊</span>}
+                        {im.occurred_at && im.source !== 'update' && <span className="ar-mevent-badge">📅</span>}
                         {isAdmin && !multiSelect && (
                           <button className="ar-medit" onClick={e => { e.stopPropagation(); setEditImg(im); }} title="ערוך">✏️</button>
                         )}
