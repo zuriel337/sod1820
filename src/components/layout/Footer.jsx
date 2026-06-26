@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
+import { useStream } from "../../lib/stream.js";
 import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
@@ -147,6 +148,9 @@ const FOOTER_CSS = (cc) => `
 
 export default function Footer() {
   const cc = chromeColors(useThemeMode());
+  const reality = useStream() === "reality";
+  const tagline = reality ? "קוד המציאות" : "כי לה' המלוכה";
+  const subline = reality ? "המספרים שמאחורי המציאות" : "אתר רמזי הגאולה הגדול בעולם";
   return (
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
@@ -166,11 +170,11 @@ export default function Footer() {
             {/* שתי שורות מקבילות לגובה הלוגו */}
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.18 }}>
               <span style={{ color: cc.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>סוד 1820</span>
-              <span style={{ color: cc.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>כי לה' המלוכה</span>
+              <span style={{ color: cc.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, letterSpacing: 1 }}>{tagline}</span>
             </div>
           </div>
           <div style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
-            אתר רמזי הגאולה הגדול בעולם
+            {subline}
           </div>
           <div style={{ fontSize: 12.5, color: cc.muted, fontFamily: F.heading, lineHeight: 1.8 }}>
             13 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
@@ -223,7 +227,7 @@ export default function Footer() {
         <span style={{ opacity: 0.85 }}>
           מוזיקה: "Strength of the Titans" — Kevin MacLeod (incompetech.com) · CC BY 4.0
         </span>
-        <span style={{ color: cc.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>כי לה' המלוכה</span>
+        <span style={{ color: cc.goldBright, fontFamily: F.royal, letterSpacing: 2 }}>{tagline}</span>
       </div>
     </footer>
   );

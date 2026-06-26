@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { C, F, GLOBAL_CSS } from "../../theme.js";
 import { PALETTES } from "../../lib/palette.js";
 import { useThemeMode } from "../../lib/themeMode.js";
+import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
 import LiveActivityBar from "./LiveActivityBar.jsx";
@@ -27,6 +28,7 @@ const LIGHT_ROUTES = [
 export default function Layout() {
   const { pathname } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
+  const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
   const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
   const mode = (supportsLight && globalMode === "light") ? "light" : "dark"; // אחרת — כהה בכוח
   const P = PALETTES[mode];
@@ -38,7 +40,7 @@ export default function Layout() {
   }, [dark]);
 
   return (
-    <div data-theme={mode} style={{ background: dark ? C.bg : P.pageBg, minHeight: "100vh", color: dark ? "#ede4d3" : P.ink, fontFamily: F.body, fontSize: 16, position: "relative" }}>
+    <div data-theme={mode} data-stream={stream || "none"} style={{ background: dark ? C.bg : P.pageBg, minHeight: "100vh", color: dark ? "#ede4d3" : P.ink, fontFamily: F.body, fontSize: 16, position: "relative" }}>
       <style>{GLOBAL_CSS}</style>
       {/* הקוסמוס הגלובלי — רק במצב כהה (במצב בהיר הרקע הוא קלף קרם נקי) */}
       {dark && <SpaceBackground />}

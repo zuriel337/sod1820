@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
+import { useStream } from "./lib/stream.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
@@ -39,6 +40,8 @@ const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
+const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
+const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
 const ThemePreviewPage = React.lazy(() => import("./pages/ThemePreviewPage.jsx"));
 const TimelinePage = React.lazy(() => import("./pages/TimelinePage.jsx"));
 const NumberSearchPage = React.lazy(() => import("./pages/NumberSearchPage.jsx"));
@@ -106,6 +109,13 @@ function GematriaToBeitMidrash() {
   return <Navigate to={`/beit-midrash?tab=calc${w ? `&w=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
+// דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
+// ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
+function HomeRoute() {
+  const stream = useStream();
+  return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -119,6 +129,8 @@ export default function App() {
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}
           <Route path="/enter" element={<EnterRoute />} />
+          {/* שער הזרם — מסך מלא, מגודר לאדמין (StreamGate מפנה ציבור ל-/) */}
+          <Route path="/stream" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05060A" }} />}><StreamGate /></React.Suspense>} />
           <Route path="/ניסיון" element={<ExperiencePage />} />
           <Route path="/experience" element={<ExperiencePage />} />
           <Route path="/חישוב" element={<GematriaRevealPage />} />
@@ -138,7 +150,8 @@ export default function App() {
           <Route path="/galaxy" element={<GalaxyRoom />} />
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           <Route element={<Layout />}>
-          <Route path="/" element={<HomeNewPage />} />
+          <Route path="/" element={<HomeRoute />} />
+          <Route path="/reality" element={<HomeReality />} />
           <Route path="/home-classic" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />

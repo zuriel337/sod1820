@@ -10,6 +10,8 @@ import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
+import { useStream, STREAMS } from "../../lib/stream.js";
+import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
 const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
@@ -273,6 +275,8 @@ function UserMenu({ user, profile, cc }) {
 
 function Brand() {
   const cc = chromeColors(useThemeMode());
+  const stream = useStream();
+  const tagline = stream === "reality" ? STREAMS.reality.label : "כי לה' המלוכה";
   return (
     <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
       <div className="nav-logo-wrap" style={{ position: "relative", display: "inline-flex" }}>
@@ -289,7 +293,7 @@ function Brand() {
       </div>
       <div style={{ textAlign: "right" }}>
         <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 400, lineHeight: 1.25 }}>
-          כי לה' המלוכה
+          {tagline}
         </div>
         <div style={{ color: cc.goldDim, fontFamily: F.heading, fontSize: 8.5, letterSpacing: 3, textTransform: "uppercase" }}>
           SOD1820
@@ -366,6 +370,9 @@ export default function Navbar() {
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
+
+        {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור) */}
+        <StreamSwitch />
 
         {/* מתג תמה גלובלי — גלוי בכל מסך */}
         <NavThemeToggle />

@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
 
 // ===== זרם המבקר — שתי דלתות-בית לאותו עץ אחד (root primitive) =====
-// "malchut" = לשם המלוכה (דתי/מאמין) · "code" = קוד המציאות (חילוני/סקרן).
-// "" = עוד לא בחר (מבקר חדש → מוצג שער הבחירה).
+// "kingdom" = לשם המלוכה (דתי/מאמין) · "reality" = קוד המציאות (חילוני/סקרן).
+// "" = עוד לא בחר (מבקר חדש → מקבל ברירת מחדל kingdom; השער מגודר לאדמין כרגע).
 // נשמר ב-localStorage, מסונכרן בין כל הרכיבים (useSyncExternalStore), וקובע
 // data-stream על <html> כדי שעיצוב/CSS יוכלו להגיב לזרם בלי prop-drilling.
 // השכבה הזו היא רק התשתית: היא לא מסגרת תוכן לפי ישות — זה שלב מאוחר יותר.
@@ -11,25 +11,25 @@ const KEY = "sod_stream";
 
 // מטא-דאטה של הזרמים — מקור אמת יחיד לתווית/route/אקסנט. כל שכבה מעליה קוראת מכאן.
 export const STREAMS = {
-  malchut: {
-    key: "malchut",
+  kingdom: {
+    key: "kingdom",
     label: "לשם המלוכה",
     tagline: "גאולה · מלכות שמים · שם ה׳ 1820",
     emoji: "👑",
     home: "/",          // דף הבית הדתי = הבית הקיים
     accent: "#e8c840",  // זהב מלכותי
   },
-  code: {
-    key: "code",
+  reality: {
+    key: "reality",
     label: "קוד המציאות",
     tagline: "המספרים שמאחורי המציאות",
     emoji: "🎬",
-    home: "/reality",   // דף הבית החילוני (משטח חדש — ייבנה בשכבה הבאה)
+    home: "/reality",   // דף הבית החילוני
     accent: "#7fc8ff",  // קולנועי/כחול
   },
 };
 
-export const isStream = (s) => s === "malchut" || s === "code";
+export const isStream = (s) => s === "kingdom" || s === "reality";
 
 const read = () => {
   try { const v = localStorage.getItem(KEY); return isStream(v) ? v : ""; }
