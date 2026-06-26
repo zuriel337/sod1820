@@ -6,6 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { ONBOARDING_GATES, gatesToTopics } from "../lib/notifications.js";
 import { getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush, disablePush } from "../lib/push.js";
+import { trackConversion } from "../lib/marketing.js";
 
 // "הזרם שלך" — עריכת השערים (אותה שפה כמו טקס הכניסה) + עוצמת זרם + מצב שקט.
 // אין תגיות טכניות למשתמש: שער = קבוצת topics (gatesToTopics). 7 התגיות פנימיות בלבד.
@@ -87,7 +88,7 @@ export default function NotificationCenter() {
     setMsg("");
     if (pushOn) { await disablePush(); setPushOn(false); return; }
     const r = await enablePush({ userId: user.id, topics: gatesToTopics(gates) });
-    if (r.ok) setPushOn(true);
+    if (r.ok) { setPushOn(true); trackConversion("push_enabled", { source: "notification-center" }); }
     else setMsg(r.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל התראות כרגע");
   }
 

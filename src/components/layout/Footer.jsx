@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
+import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
 const COLUMNS = [
@@ -150,14 +151,8 @@ export default function Footer() {
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
 
-      {/* תגית מותג עדינה — טון המערכת */}
-      <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
-        <span style={{ fontFamily: F.heading, fontSize: 13.5, letterSpacing: 1 }}>
-          <span style={{ color: cc.goldBright || cc.goldLight, fontWeight: 800 }}>SOD1820</span>
-          <span style={{ color: cc.muted, margin: "0 6px" }}>—</span>
-          <span style={{ color: cc.goldDim || cc.muted }}>קריאת מציאות בזמן אמת</span>
-        </span>
-      </div>
+      {/* הישאר מעודכן — שורה עדינה, בלי לחץ */}
+      <StayUpdatedCTA variant="footer" />
 
       <div className="foot-main">
         {/* מותג */}

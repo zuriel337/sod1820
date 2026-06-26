@@ -4,6 +4,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { subscribeEmail, getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
 import { resolveAuthor } from "../lib/authors.js";
+import { trackSubscribe, trackConversion } from "../lib/marketing.js";
 
 // מעקב בתוך הפוסט — הירשמו לעדכונים רק על הקטגוריה הזו / הכותב הזה.
 // מקור אחד (עץ אחד): מייל ל-subscribers, נושאים דינמיים (cat:* / author:*) ל-notification_prefs.
@@ -45,6 +46,8 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
         channels: existing?.channels?.length ? existing.channels : ["email"],
         email: mail || existing?.email || null,
       });
+      trackConversion("follow", { source: "post-follow" });
+      if (mail) trackSubscribe({ source: "post-follow" });
       setDone(true);
     } catch {
       setErr("משהו השתבש — נסו שוב בעוד רגע");

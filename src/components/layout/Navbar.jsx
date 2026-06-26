@@ -254,7 +254,7 @@ function UserMenu({ user, profile, cc }) {
         <span style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {profile?.display_name || profile?.username || "פרופיל"}
         </span>
-        <Avatar profile={profile} user={user} size={28} />
+        <Avatar profile={profile} user={user} size={28} onDark />
       </Link>
       {open && (
         <div style={{
@@ -388,7 +388,7 @@ export default function Navbar() {
             fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
             borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
           }}>
-            {user ? <Avatar profile={profile} user={user} size={26} /> : <span style={{ fontSize: 18 }}>🔑</span>}
+            {user ? <Avatar profile={profile} user={user} size={26} onDark /> : <span style={{ fontSize: 18 }}>🔑</span>}
             {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
           {user && (

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { setTheme } from "../lib/themeMode.js";
 import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates, getHomeSets } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
@@ -19,6 +18,7 @@ import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
+import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -53,11 +53,8 @@ export default function HomeNewPage() {
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
-  // בורר תמה לגולש חדש — מופיע פעם אחת (כשאין העדפה שמורה). ברירת המחדל כהה; כאן בוחרים.
-  const [showThemePick, setShowThemePick] = useState(false);
+  // ברירת המחדל כהה; מי שרוצה בהיר ימצא את ה-🌙/☀️ למעלה. (אין בורר-תמה כפוי למבקר חדש.)
   useEffect(() => { track("home"); }, []);
-  useEffect(() => { try { if (!localStorage.getItem("sod-theme")) setShowThemePick(true); } catch { /* ignore */ } }, []);
-  const pickTheme = m => { setTheme(m); setShowThemePick(false); };
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
@@ -152,19 +149,6 @@ export default function HomeNewPage() {
         @media (max-width:820px){ .hn-grid6{grid-template-columns:repeat(3,1fr)} .hn-postgrid{grid-template-columns:repeat(2,1fr)} }
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-postgrid{grid-template-columns:1fr 1fr} }
       `}</style>
-
-      {/* ===== בורר תמה לגולש חדש (פעם אחת) ===== */}
-      {showThemePick && (
-        <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap",
-          background: P.cardSoft, borderBottom: `1px solid ${P.border}`, padding: "9px 16px" }}>
-          <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14 }}>איך לראות את האתר?</span>
-          <button onClick={() => pickTheme("dark")} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent,
-            border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, padding: "7px 18px" }}>🌙 מצב לילה</button>
-          <button onClick={() => pickTheme("light")} style={{ cursor: "pointer", background: "transparent", color: P.accentText,
-            border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 13.5, padding: "7px 18px" }}>☀️ מצב יום</button>
-          <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>(תמיד אפשר לשנות עם 🌙/☀️ למעלה)</span>
-        </div>
-      )}
 
       {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
@@ -368,14 +352,9 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== סקשן סיום — ברכה פשוטה (בלי דחיפה לטקס; הטקס פרוק וזמין ב-/enter) ===== */}
-      <section className="hn-wrap" style={{ textAlign: "center", padding: "8px 18px 64px" }}>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 800, marginBottom: 8 }}>
-          🤍 ברוכים הבאים לבית של סוד 1820
-        </div>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 460, margin: "0 auto" }}>
-          גימטריה, רמזים ומספרים — חכמת הקשרים שמחברת הכול. שוטטו, חפשו, וגלו.
-        </p>
+      {/* ===== סקשן סיום — הקריאה הראשית להישאר מעודכן (מייל/פוש, בחירת המשתמש) ===== */}
+      <section className="hn-wrap" style={{ padding: "8px 18px 64px" }}>
+        <StayUpdatedCTA variant="home" />
       </section>
     </div>
   );

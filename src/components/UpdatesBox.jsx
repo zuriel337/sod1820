@@ -6,6 +6,7 @@ import { getVisitorId } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { mergeStoredTopics } from "../lib/feedRanking.js";
+import { trackSubscribe } from "../lib/marketing.js";
 
 // קישור הוואטסאפ — ניתן להחלפה לערוץ ייעודי דרך VITE_WHATSAPP_CHANNEL
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
@@ -49,6 +50,7 @@ export default function UpdatesBox({
     setBusy(true);
     try {
       await subscribeEmail({ email, source });
+      trackSubscribe({ source });   // GA4 + מטא (Lead)
       // עץ אחד: המייל ל-subscribers, תחומי העניין ל-notification_prefs (לפי visitor_id).
       if (withTopics) {
         try {

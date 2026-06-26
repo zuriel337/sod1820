@@ -187,19 +187,26 @@ export default function AuthPage() {
   );
 }
 
-export function Avatar({ profile, user, size = 36 }) {
+// onDark=true → סגנון כהה קבוע (לסרגל העליון שתמיד כהה, לא לפי תמת הדף).
+export function Avatar({ profile, user, size = 36, onDark = false }) {
   const P = usePalette();
+  const [imgErr, setImgErr] = useState(false);
   const url = profile?.avatar_url;
   const seed = (profile?.display_name || profile?.username || user?.email || "?").trim();
   const initial = seed.charAt(0).toUpperCase();
-  if (url) {
-    return <img src={url} alt={seed} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", border: `1px solid ${P.borderStrong}` }} />;
+  // פלטה: בסרגל הכהה — קבוע כהה; אחרת — לפי תמת הדף.
+  const softBg = onDark ? "rgba(8,5,2,0.55)" : P.cardSoft;
+  const ring = onDark ? C.gold : P.accent;
+  const txt = onDark ? C.goldBright : P.accentText;
+  // תמונה אמיתית בלבד; ריקה/שבורה → fallback אלגנטי (אות-זהב), לא עיגול לבן.
+  if (url && !imgErr) {
+    return <img src={url} alt={seed} onError={() => setImgErr(true)} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", border: `1px solid ${onDark ? C.gold : P.borderStrong}`, background: softBg }} />;
   }
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center",
-      background: `radial-gradient(circle, ${C.goldDark}, ${P.cardSoft})`, border: `1px solid ${P.accent}`,
-      color: P.accentText, fontFamily: F.regal, fontWeight: 700, fontSize: size * 0.42,
+      background: `radial-gradient(circle, ${C.goldDark}, ${softBg})`, border: `1px solid ${ring}`,
+      color: txt, fontFamily: F.regal, fontWeight: 700, fontSize: size * 0.42,
     }}>{initial}</div>
   );
 }

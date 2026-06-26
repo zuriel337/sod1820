@@ -3,6 +3,7 @@ import { F } from "../theme.js";
 import { getVisitorId } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
+import { trackSubscribe } from "../lib/marketing.js";
 import { ONBOARDING_GATES, ONBOARDING_INTENTS, gatesToTopics } from "../lib/notifications.js";
 import { storeTopics } from "../lib/feedRanking.js";
 
@@ -61,7 +62,7 @@ export default function OnboardingRitual({ onDone }) {
       const topics = gatesToTopics(gates.length ? gates : ONBOARDING_GATES.map(g => g.key));
       storeTopics(topics);   // צילום מקומי לדירוג הפיד המיידי
       const mail = withEmail ? email.trim() : null;
-      if (mail) { try { await subscribeEmail({ email: mail, source: "onboarding" }); } catch { /* noop */ } }
+      if (mail) { try { await subscribeEmail({ email: mail, source: "onboarding" }); trackSubscribe({ source: "onboarding" }); } catch { /* noop */ } }
       // זהות נכונה: מחובר → user_id (אחרת RLS דוחה); אנונימי → visitor_id.
       const id = user ? { userId: user.id } : { visitorId: getVisitorId() };
       await saveNotificationPrefs({ ...id, topics, channels: ["email"], email: mail });

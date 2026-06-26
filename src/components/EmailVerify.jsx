@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { C, F } from "../theme.js";
 import { requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { subscribeEmail } from "../lib/supabase.js";
+import { trackSubscribe } from "../lib/marketing.js";
 import { broadcastJoin } from "../lib/joinEvents.js";
 
 /**
@@ -39,6 +40,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
     try {
       await requestEmailOtp(email);
       subscribeEmail({ email, source }).catch(() => {}); // גם לרשימת התפוצה
+      trackSubscribe({ source });   // GA4 + מטא (Lead)
       setStep("code");
     } catch {
       setErr("לא הצלחנו לשלוח קוד כרגע — נסו שוב בעוד רגע");
