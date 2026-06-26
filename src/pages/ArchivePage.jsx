@@ -19,6 +19,7 @@ import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import RealityStream from "../components/RealityStream.jsx";
+import ShareToFacebookBtn from "../components/ShareToFacebookBtn.jsx";
 import { PALETTES } from "../lib/palette.js";
 import { hintNums } from "../lib/reality.js";
 
@@ -584,6 +585,7 @@ export default function ArchivePage() {
         width: 24px; height: 24px; font-size: 12px; cursor: pointer; opacity: 0; transition: opacity .15s;
         display: flex; align-items: center; justify-content: center; padding: 0; color: #ff9999; }
       .ar-mcard:hover .ar-mdel { opacity: 1; }
+      .ar-mcard:hover .ar-fb-btn { opacity: 1 !important; }
       .ar-mcap { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
       .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
         overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -1191,6 +1193,14 @@ export default function ArchivePage() {
                               display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
                             📦
                           </button>
+                        )}
+                        {isAdmin && !multiSelect && (
+                          <ShareToFacebookBtn
+                            type="image"
+                            id={im.id}
+                            style={{ position: "absolute", bottom: 7, insetInlineEnd: 7, zIndex: 3, opacity: 0 }}
+                            className="ar-fb-btn"
+                          />
                         )}
                         {isAdmin && !multiSelect && im.source !== 'update' && (
                           <button className="ar-mdel" onClick={e => { e.stopPropagation(); deleteImage(im); }} title="מחק לצמיתות">🗑</button>

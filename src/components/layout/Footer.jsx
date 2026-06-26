@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
@@ -148,6 +148,7 @@ const FOOTER_CSS = (cc) => `
 
 export default function Footer() {
   const cc = chromeColors(useThemeMode());
+  const { pathname } = useLocation();
   const reality = useStream() === "reality";
   const tagline = reality ? "קוד המציאות" : "כי לה' המלוכה";
   const subline = reality ? "המספרים שמאחורי המציאות" : "אתר רמזי הגאולה הגדול בעולם";
@@ -155,8 +156,8 @@ export default function Footer() {
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
 
-      {/* הישאר מעודכן — שורה עדינה, בלי לחץ */}
-      <StayUpdatedCTA variant="footer" />
+      {/* הרשמה במייל בפוטר — מוסתרת בעמוד הבית (שם יש כבר את הקריאה הראשית מעל) */}
+      {pathname !== "/" && <StayUpdatedCTA variant="footer" />}
 
       <div className="foot-main">
         {/* מותג */}
