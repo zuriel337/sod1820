@@ -5,6 +5,7 @@ import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
+import PostFollowBox from "../components/PostFollowBox.jsx";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
@@ -4574,6 +4575,9 @@ function PostPageBySlug({ onNav }) {
                 <PopularPrayersBox excludeWpId={post.wp_id} title="🙏 תפילות פופולריות נוספות" />
               </div>
             )}
+
+            {/* מעקב בתוך הפוסט — הרשמה לעדכונים לפי קטגוריה/כותב (עץ אחד: subscribers + notification_prefs) */}
+            <PostFollowBox categories={cats} author={author} pc={pc} />
 
             <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
             {/* ── COMMENTS ── */}

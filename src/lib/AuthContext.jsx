@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase, logActivity } from './supabase.js';
+import { supabase, logActivity, claimVisitorPrefs } from './supabase.js';
 import { fetchProfile, signOut as doSignOut } from './auth.js';
+import { getVisitorId } from './tracking.js';
 
 const AuthContext = createContext({
   user: null, profile: null, loading: true,
@@ -45,6 +46,12 @@ export function AuthProvider({ children }) {
       localStorage.setItem(key, '1');
     } catch { /* ignore storage errors */ }
     logActivity('visit', typeof window !== 'undefined' ? window.location.pathname : null);
+  }, [user]);
+
+  // תפר זהות: בעת התחברות, לקשר את העדפות ההתראות האנונימיות (visitor_id) לחשבון.
+  useEffect(() => {
+    if (!user) return;
+    try { claimVisitorPrefs(user.id, getVisitorId()); } catch { /* ignore */ }
   }, [user]);
 
   const value = {

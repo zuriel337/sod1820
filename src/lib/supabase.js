@@ -576,6 +576,18 @@ export async function saveNotificationPrefs({ userId = null, visitorId = null, t
   return { ok: true };
 }
 
+// תפר השדרוג (אנונימי → חשבון): כשמבקר מתחבר, "תובעים" את שורת ההעדפות שלו
+// (visitor_id) ומקשרים אותה ל-user_id. מריצים בשתיקה בעת התחברות.
+export async function claimVisitorPrefs(userId, visitorId) {
+  if (!supabase || !userId || !visitorId) return;
+  try {
+    await supabase.from('notification_prefs')
+      .update({ user_id: userId })
+      .eq('visitor_id', visitorId)
+      .is('user_id', null);
+  } catch { /* silent */ }
+}
+
 // ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
 export async function getShareCount(wpId) {
   if (!supabase || !wpId) return 0;

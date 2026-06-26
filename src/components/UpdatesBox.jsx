@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { C, F, LOGO_URL } from "../theme.js";
-import { subscribeEmail } from "../lib/supabase.js";
+import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
+import { getVisitorId } from "../lib/tracking.js";
+import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 
 // קישור הוואטסאפ — ניתן להחלפה לערוץ ייעודי דרך VITE_WHATSAPP_CHANNEL
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
@@ -22,13 +24,17 @@ export default function UpdatesBox({
   title = DEFAULT_TITLE,
   body = DEFAULT_BODY,
   cta = "אני בפנים →",
+  withTopics = false,   // הצגת בורר נושאים (מה מעניין אתכם) → נשמר ל-notification_prefs
   style = {},
 }) {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
+  const [topics, setTopics] = useState([]);
   const { markSubscribed } = useSubscribed();
+
+  const toggleTopic = (k) => setTopics(t => t.includes(k) ? t.filter(x => x !== k) : [...t, k]);
 
   async function submit(e) {
     e?.preventDefault?.();
@@ -40,6 +46,14 @@ export default function UpdatesBox({
     setBusy(true);
     try {
       await subscribeEmail({ email, source });
+      // עץ אחד: המייל ל-subscribers, תחומי העניין ל-notification_prefs (לפי visitor_id).
+      if (withTopics) {
+        try {
+          await saveNotificationPrefs({
+            visitorId: getVisitorId(), topics, channels: ["email"], email: email.trim(),
+          });
+        } catch { /* לא חוסם את ההרשמה */ }
+      }
       markSubscribed();
       setDone(true);
     } catch {
@@ -48,6 +62,27 @@ export default function UpdatesBox({
       setBusy(false);
     }
   }
+
+  // בורר נושאים — שבבים לבחירה (מוצג רק כש-withTopics ולפני הצלחה).
+  const topicPicker = withTopics && !done ? (
+    <div style={{ margin: "4px auto 18px", maxWidth: 520 }}>
+      <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, marginBottom: 8 }}>מה מעניין אתכם? (אפשר לבחור כמה)</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center" }}>
+        {NOTIFICATION_TOPICS.map(t => {
+          const on = topics.includes(t.key);
+          return (
+            <button key={t.key} type="button" onClick={() => toggleTopic(t.key)} style={{
+              cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 600,
+              padding: "6px 12px", borderRadius: 999,
+              border: `1px solid ${on ? C.gold : C.border}`,
+              background: on ? "rgba(212,175,55,0.15)" : C.surface,
+              color: on ? C.goldBright : C.muted,
+            }}>{t.emoji} {t.label}{on ? " ✓" : ""}</button>
+          );
+        })}
+      </div>
+    </div>
+  ) : null;
 
   const input = (
     <input
@@ -128,6 +163,7 @@ export default function UpdatesBox({
         style={{ borderRadius: "50%", objectFit: "cover", marginBottom: 12, filter: "drop-shadow(0 0 14px rgba(232,200,74,0.5))" }} />
       <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, lineHeight: 1.4 }}>{title}</div>
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 480, margin: "10px auto 22px" }}>{body}</p>
+      {topicPicker}
       {done ? success : (
         <>
           <form onSubmit={submit} style={{ display: "flex", gap: 10, maxWidth: 460, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>

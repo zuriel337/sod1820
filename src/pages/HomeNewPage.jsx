@@ -17,6 +17,7 @@ import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import { track } from "../lib/tracking.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
@@ -354,6 +355,17 @@ export default function HomeNewPage() {
           })}
           {!cards.length && <Skeletons n={4} />}
         </div>
+      </section>
+
+      {/* ===== היה ראשון — הרשמה מוקדמת מודעת-נושאים ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 48px" }}>
+        <UpdatesBox
+          withTopics
+          source="early"
+          title="הרבה דברים בדרך — היו הראשונים לדעת"
+          body="קורסים, רמזים חדשים, דילוגי אותיות והתכנסויות — בקרוב. סמנו מה מעניין אתכם, והעדכונים יגיעו אליכם קודם כל."
+          cta="שמרו לי מקום →"
+        />
       </section>
 
       {/* סיום חם — בלי לשכפל את «כאן מתחילים» (כבר בהירו) ואת המחשבון (כבר באריחים) */}
