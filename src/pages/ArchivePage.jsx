@@ -6,7 +6,7 @@ import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
   searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
-  getHintSets, saveHintSet, addHintSetMember,
+  getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -381,6 +381,18 @@ export default function ArchivePage() {
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
 
+  async function deleteImage(im) {
+    if (im.source === 'update') {
+      alert("לא ניתן למחוק תמונה מהזרם — ניתן להסתיר בלבד (curator_hidden).");
+      return;
+    }
+    if (!window.confirm(`למחוק לצמיתות את התמונה "${im.name || im.id}"?\nפעולה זו אינה הפיכה.`)) return;
+    try {
+      await deleteGalleryImage(im.id);
+      setImgs(prev => prev.filter(x => x.id !== im.id));
+    } catch (e) { alert("מחיקה נכשלה: " + (e.message || e)); }
+  }
+
   async function saveBuilder() {
     const nums = [...builder.numbers].sort((a, b) => a - b);
     if (!builder.name.trim() || !nums.length) return;
@@ -563,6 +575,11 @@ export default function ArchivePage() {
         background: rgba(20,15,12,0.82); border: 1px solid ${C.borderGold}; border-radius: 6px;
         width: 28px; height: 28px; font-size: 14px; cursor: pointer;
         display: flex; align-items: center; justify-content: center; padding: 0; }
+      .ar-mdel { position: absolute; top: 7px; inset-inline-end: 7px; z-index: 3;
+        background: rgba(120,20,20,0.82); border: 1px solid rgba(200,60,60,0.5); border-radius: 6px;
+        width: 24px; height: 24px; font-size: 12px; cursor: pointer; opacity: 0; transition: opacity .15s;
+        display: flex; align-items: center; justify-content: center; padding: 0; color: #ff9999; }
+      .ar-mcard:hover .ar-mdel { opacity: 1; }
       .ar-mcap { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
       .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
         overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -1163,6 +1180,9 @@ export default function ArchivePage() {
                               display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
                             📦
                           </button>
+                        )}
+                        {isAdmin && !multiSelect && im.source !== 'update' && (
+                          <button className="ar-mdel" onClick={e => { e.stopPropagation(); deleteImage(im); }} title="מחק לצמיתות">🗑</button>
                         )}
                       </div>
                       {(im.name || eventLabel(im)) && (
