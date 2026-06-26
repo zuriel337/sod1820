@@ -8,7 +8,6 @@ import { resolveAuthor } from "../lib/authors.js";
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import PrayerSharePopup from "../components/PrayerSharePopup.jsx";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
@@ -4394,13 +4393,7 @@ function PostPageBySlug({ onNav }) {
   return (
     // legacy-dark = נעול כהה (מכבד צבעים צרובים מ-WP). themed = מתחלף עם המתג.
     <div data-theme={themed ? P.mode : "dark"} style={{ direction: "rtl", background: pc.bg, minHeight: "100vh", color: pc.ink }}>
-      {post && !loading && PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
-        <PrayerSharePopup
-          url={`${SITE_URL}/${post.slug || slug}`}
-          title={title}
-          wpId={post.wp_id}
-        />
-      )}
+      {/* שיתוף מטופל גלובלית ע"י RoyalShareWidget — בוטל מנגנון השיתוף הכפול של התפילות */}
       {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
       {post && !loading && adsAllowed && <StickyAnchorAd />}
       {post && !loading && adsAllowed && <SideRailAd />}
