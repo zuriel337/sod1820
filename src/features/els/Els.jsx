@@ -148,9 +148,9 @@ function buildMatrixCanvas(letters, hit, title) {
   const g = cv.getContext("2d"); g.scale(scale, scale);
   g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
   g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Heebo', serif";
   g.fillText(title, W / 2, pad + headH / 2);
-  g.font = "bold 17px 'Frank Ruhl Libre', serif";
+  g.font = "bold 17px 'Heebo', serif";
   rows.forEach((row, r) => row.forEach((cl, c) => {
     const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
     if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
@@ -184,9 +184,9 @@ function buildAxisCanvas(letters, hit, title, contextRows = 14) {
   const g = cv.getContext("2d"); g.scale(scale, scale);
   g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
   g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillStyle = "#E8C84A"; g.font = "bold 16px 'Frank Ruhl Libre', serif";
+  g.fillStyle = "#E8C84A"; g.font = "bold 16px 'Heebo', serif";
   g.fillText(title, W / 2, pad + headH / 2);
-  g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  g.font = "bold 18px 'Heebo', serif";
   for (let i = from; i < to; i++) {
     const y = pad + headH + (i - from) * cellH;
     if (posSet.has(colIdx[i])) {

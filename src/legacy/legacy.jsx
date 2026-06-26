@@ -54,10 +54,10 @@ const C = {
 
 const F = {
   royal:   "'Heebo', sans-serif",
-  regal:   "'David Libre', serif",
+  regal:   "'Heebo', serif",
   cinzel:  "'Cinzel', serif",
   heading: "'Heebo', sans-serif",
-  body:    "'Frank Ruhl Libre', serif",
+  body:    "'Heebo', serif",
   mono:    "'Courier New', monospace",
 };
 
@@ -2532,7 +2532,7 @@ const THEMES_DATA = [
     id: "c", name: "תבנית ג — קלאסי",
     bg: "#000000", text: "#ffffff", heading: "#e8c040",
     accent: "#e8c040", surface: "#0d0d0d",
-    font: "'David Libre', serif",
+    font: "'Heebo', serif",
   },
 ];
 
@@ -3681,8 +3681,8 @@ function ContactPage() {
     finally { setSending(false); }
   }
 
-  const FD = "'Frank Ruhl Libre', 'David Libre', serif";
-  const FU = "'Assistant', 'Heebo', sans-serif";
+  const FD = "'Heebo', 'Heebo', serif";
+  const FU = "'Heebo', 'Heebo', sans-serif";
 
   const CHANNELS = [
     { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },

@@ -75,7 +75,7 @@ export function buildCrossCard(item) {
   divider(g, S / 2, 290, 300);
 
   // הביטוי הראשון
-  const fontBig = px => `700 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  const fontBig = px => `700 ${px}px 'Heebo', 'Heebo', serif`;
   fitFont(g, p1, S - 200, 60, fontBig, 26);
   g.fillStyle = "#ffe9a8"; g.fillText(p1, S / 2, 410);
 
@@ -96,13 +96,13 @@ export function buildCrossCard(item) {
   }
   // הערך הראשי
   if (headVal != null) {
-    g.fillStyle = "#cdb7e8"; g.font = "italic 600 30px 'Frank Ruhl Libre', serif";
+    g.fillStyle = "#cdb7e8"; g.font = "italic 600 30px 'Heebo', serif";
     g.fillText(`שניהם = ${headVal}`, S / 2, 766);
   }
 
   // שורה ויראלית
   const poetic = POETIC[(p1.length + p2.length) % POETIC.length];
-  fitFont(g, poetic, S - 200, 40, px => `italic 600 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`, 20);
+  fitFont(g, poetic, S - 200, 40, px => `italic 600 ${px}px 'Heebo', 'Heebo', serif`, 20);
   g.fillStyle = "#cdb7e8"; g.fillText(poetic, S / 2, 858);
 
   // פוטר

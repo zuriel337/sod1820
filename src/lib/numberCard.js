@@ -90,7 +90,7 @@ export function buildNumberCard(value, phrases = []) {
   drawDivider(g, S / 2, 292, 300);
 
   // המספר הענק — זהב בהיר וברור (צל רך, לא מטשטש)
-  const fontNum = px => `800 ${px}px 'Cinzel', 'Frank Ruhl Libre', serif`;
+  const fontNum = px => `800 ${px}px 'Cinzel', 'Heebo', serif`;
   const numPx = fitFont(g, String(value), S - 240, 330, fontNum, 110);
   g.save();
   g.shadowColor = "rgba(212,175,55,0.55)"; g.shadowBlur = 26; g.shadowOffsetY = 2;
@@ -99,7 +99,7 @@ export function buildNumberCard(value, phrases = []) {
   g.restore();
 
   // קו גימטריה — תמיד שורה אחת (מתכווץ אוטומטית), קרם בהיר וברור
-  const fontGem = px => `700 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  const fontGem = px => `700 ${px}px 'Heebo', 'Heebo', serif`;
   fitFont(g, gemLine, S - 150, 58, fontGem, 22);
   g.fillStyle = "#f3ead0";
   g.fillText(gemLine, S / 2, 730);
@@ -108,7 +108,7 @@ export function buildNumberCard(value, phrases = []) {
   drawDivider(g, S / 2, 800, 220);
 
   // שורה ויראלית — שורה אחת
-  const fontPo = px => `italic 600 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  const fontPo = px => `italic 600 ${px}px 'Heebo', 'Heebo', serif`;
   fitFont(g, poetic, S - 170, 44, fontPo, 22);
   g.fillStyle = "#cdb7e8";
   g.fillText(poetic, S / 2, 880);
