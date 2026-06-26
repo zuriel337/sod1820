@@ -87,16 +87,26 @@ export default function StayUpdatedCTA({ variant = "home" }) {
     </div>
   );
 
-  // ===== פוטר — שורה עדינה =====
+  // ===== פוטר — שדה מייל ישיר (בלי מודאל) =====
   if (variant === "footer") {
     return (
-      <div style={{ textAlign: "center", padding: "16px 0 6px", direction: "rtl" }}>
-        <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
-          <span style={{ color: "#1faa55" }}>●</span> מערכת חיה — מתעדכנת באופן שוטף
-        </div>
-        <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 12.5, margin: "4px 0 6px" }}>תכנים חדשים, חיפושים ותגליות מתווספים באופן קבוע.</div>
-        <button onClick={() => setOpen(true)} style={{ cursor: "pointer", background: "none", border: "none", color: cc.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>הישאר מעודכן ←</button>
-        {chooser}
+      <div style={{ textAlign: "center", padding: "18px 16px 8px", direction: "rtl" }}>
+        {done ? (
+          <div style={{ color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ אתם בפנים! תודה 🙏</div>
+        ) : (
+          <>
+            <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 9 }}>
+              📬 קבלו עדכון כשמתפרסמים תכנים חדשים
+            </div>
+            <form onSubmit={chooseEmail} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 420, margin: "0 auto" }}>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלך" dir="ltr"
+                style={{ flex: "1 1 200px", minWidth: 170, padding: "11px 14px", borderRadius: 10, background: cc.surface || "#0d0a0e", border: `1px solid ${cc.border}`, color: cc.goldLight, fontFamily: F.body, fontSize: 14.5, textAlign: "center", outline: "none" }} />
+              <button type="submit" disabled={busy} style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 10, padding: "11px 24px", background: cc.accentBtn || cc.goldBright, color: cc.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 14, whiteSpace: "nowrap" }}>{busy ? "רגע…" : "הצטרפו"}</button>
+            </form>
+            {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>{err}</div>}
+            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11, marginTop: 7 }}>חינם · אפשר לבטל בכל רגע</div>
+          </>
+        )}
       </div>
     );
   }
