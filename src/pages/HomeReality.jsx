@@ -6,6 +6,7 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import MatrixRain from "../components/MatrixRain.jsx";
+import Fx, { FX_LIST } from "../components/fx/Fx.jsx";
 import { LAB_ITEMS } from "../lib/labItems.js";
 
 // ===== בית-הקוד · עדשת «קוד המציאות» (/reality + root-swap) =====
@@ -139,8 +140,27 @@ export default function HomeReality() {
           </div>
         </section>
 
+        {/* גלריית אפקטים — 5 אופציות תלת-ממד לשימוש חוזר */}
+        <section style={{ marginTop: 56 }}>
+          <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", margin: "0 0 4px" }}>🌀 עוד אפקטים — בחר לאן לקחת</h2>
+          <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 16 }}>חמישה אפקטים תלת-ממדיים קלים. כל אחד רכיב לשימוש חוזר — אפשר לקחת לכל מקום באתר.</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 16 }}>
+            {FX_LIST.map(fx => (
+              <div key={fx.kind} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(127,200,255,0.2)", background: "#070b12" }}>
+                <div style={{ position: "relative", height: 150, background: "#070b12" }}>
+                  <Fx kind={fx.kind} color={ACCENT} />
+                </div>
+                <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(127,200,255,0.12)" }}>
+                  <div style={{ color: "#eaf2fa", fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{fx.label}</div>
+                  <div style={{ color: "#8aa0b3", fontSize: 12.5, lineHeight: 1.6, marginTop: 3 }}>{fx.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* גשר לעדשה השנייה */}
-        <div style={{ marginTop: 40, textAlign: "center" }}>
+        <div style={{ marginTop: 44, textAlign: "center" }}>
           <Link to="/post" style={{ color: ACCENT, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
             כל הפוסטים ←
           </Link>

@@ -13,7 +13,7 @@ const KEY = "sod_stream";
 export const STREAMS = {
   kingdom: {
     key: "kingdom",
-    label: "לשם המלוכה",
+    label: "כי לה' המלוכה",
     tagline: "גאולה · מלכות שמים · שם ה׳ 1820",
     emoji: "👑",
     home: "/",          // דף הבית הדתי = הבית הקיים
