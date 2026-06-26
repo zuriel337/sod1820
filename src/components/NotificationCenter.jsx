@@ -5,6 +5,7 @@ import { GoldButton } from "./ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { NOTIFICATION_TOPICS, NOTIFICATION_CHANNELS, DEFAULT_CHANNELS } from "../lib/notifications.js";
 import { getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
+import { PUSH_CONFIGURED, pushSupported, enablePush, disablePush } from "../lib/push.js";
 
 // מרכז התראות — המשתמש בוחר נושאים שמעניינים אותו + ערוצים. ערוץ-אגנוסטי:
 // בעתיד Push/וואטסאפ יקראו מאותו מקור. כרגע המייל הוא הערוץ הפעיל.
@@ -34,8 +35,30 @@ export default function NotificationCenter() {
     return () => { alive = false; };
   }, [user]);
 
+  // Push זמין רק אם הוגדר מפתח VAPID והדפדפן תומך.
+  const pushReady = PUSH_CONFIGURED && pushSupported();
+
   const toggleTopic = (k) => { setMsg(""); setTopics(t => t.includes(k) ? t.filter(x => x !== k) : [...t, k]); };
-  const toggleChannel = (k) => { setMsg(""); setChannels(c => c.includes(k) ? c.filter(x => x !== k) : [...c, k]); };
+
+  async function toggleChannel(k) {
+    setMsg("");
+    if (k === "push") {
+      if (channels.includes("push")) {
+        await disablePush();
+        setChannels(c => c.filter(x => x !== "push"));
+      } else {
+        const r = await enablePush({ userId: user.id, topics });
+        if (r.ok) setChannels(c => [...c, "push"]);
+        else setMsg(
+          r.reason === "denied" ? "הדפדפן חסם התראות — יש לאשר בהגדרות הדפדפן"
+          : r.reason === "unsupported" ? "הדפדפן לא תומך בהתראות Push"
+          : "לא ניתן להפעיל התראות כרגע"
+        );
+      }
+      return;
+    }
+    setChannels(c => c.includes(k) ? c.filter(x => x !== k) : [...c, k]);
+  }
 
   async function save() {
     if (!user) return;
@@ -45,6 +68,8 @@ export default function NotificationCenter() {
         userId: user.id, topics, channels,
         email: user.email || profile?.email || null,
       });
+      // אם Push פעיל — לסנכרן את נושאי המנוי לבחירה הנוכחית.
+      if (channels.includes("push") && pushReady) await enablePush({ userId: user.id, topics });
       setMsg("העדפות ההתראות נשמרו ✦");
     } catch {
       setMsg("שגיאה בשמירה");
@@ -94,7 +119,9 @@ export default function NotificationCenter() {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {NOTIFICATION_CHANNELS.map(ch => {
               const on = channels.includes(ch.key);
-              const disabled = !ch.available;
+              const available = ch.key === "push" ? pushReady : ch.available;
+              const disabled = !available;
+              const note = ch.key === "push" && !pushReady ? "בקרוב" : ch.note;
               return (
                 <button key={ch.key} onClick={() => !disabled && toggleChannel(ch.key)} disabled={disabled} style={{
                   cursor: disabled ? "not-allowed" : "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 600,
@@ -104,7 +131,7 @@ export default function NotificationCenter() {
                   color: disabled ? P.accentDim : (on ? P.accentText : P.accentDim),
                   opacity: disabled ? 0.55 : 1,
                 }}>
-                  {ch.emoji} {ch.label}{ch.note ? ` · ${ch.note}` : (on ? " ✓" : "")}
+                  {ch.emoji} {ch.label}{note ? ` · ${note}` : (on ? " ✓" : "")}
                 </button>
               );
             })}
