@@ -47,7 +47,7 @@ export default function StayUpdatedCTA({ variant = "home" }) {
   // ===== פוטר — מרכזי ונקי (כמו עמוד הבית), רספונסיבי בנייד =====
   if (variant === "footer") {
     return (
-      <div style={{ maxWidth: 560, margin: "0 auto", padding: "18px 16px 8px", textAlign: "center", direction: "rtl" }}>
+      <div style={{ maxWidth: 560, margin: "0 auto", padding: "18px 16px 30px", textAlign: "center", direction: "rtl" }}>
         {done ? (
           <div style={{ color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ {successMsg}</div>
         ) : (
