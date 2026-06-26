@@ -50,6 +50,9 @@ export const METHODS = [
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 
+// שם-תצוגה חיצוני בלבד (לא המפתח הפנימי): קדמי מוצג גם כ"משולש". המפתח "קדמי" נשאר ללוגיקה/DB.
+export const methodLabel = (key) => (key === "קדמי" ? "קדמי · משולש" : key);
+
 // מסתתר גדול (mistater_gadol_def): הפרשים מילה-מילה על ערכי גדול (סופיות 500-900). מלך=480
 const gv = c => FINAL[c] || GEM[c] || 0;
 export const mistaterGadol = w => String(w || "").split(/\s+/).reduce((tot, word) => {

@@ -5,7 +5,7 @@ import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate }
 import { useAuth } from "../lib/AuthContext.jsx";
 import { isAnon } from "../lib/privacy.js";
 import AnonToggle, { useAnon } from "./AnonToggle.jsx";
-import { METHODS, DEPTH_METHODS, LETTER_COLS, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -236,7 +236,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             <div style={cs.row}>
               <span style={cs.lbl}>שורה 1</span>
               <input value={q1} onChange={e => setQ1(e.target.value)} placeholder="ביטוי…" dir="rtl" style={{ ...cs.inp, ...(isMobile ? { flexBasis: "100%" } : {}) }} />
-              <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
+              <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{methodLabel(m.key)}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
               {heb(v1) && <span style={cs.heb}>{heb(v1)}</span>}
               <button onClick={() => { const t = fill1Text(); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
@@ -268,7 +268,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               <div style={{ ...cs.row, marginTop: 10 }}>
                 <span style={cs.lbl}>שורה 2</span>
                 <input value={q2} onChange={e => setQ2(e.target.value)} placeholder="ביטוי…" dir="rtl" style={{ ...cs.inp, ...(isMobile ? { flexBasis: "100%" } : {}) }} />
-                <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{m.key}</option>)}</select>
+                <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{methodLabel(m.key)}</option>)}</select>
                 <span style={cs.eq}>= {v2}</span>
                 {heb(v2) && <span style={cs.heb}>{heb(v2)}</span>}
                 <button onClick={() => { const t = methodResultText(m2, q2); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
@@ -331,7 +331,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
-              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.key}</div>
+              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
               <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
               {showHebNum && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
               <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>
@@ -364,7 +364,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
                 <thead>
                   <tr>
                     <th style={thS}>אות</th>
-                    {LETTER_COLS.map(m => <th key={m.key} style={thS}>{m.key}</th>)}
+                    {LETTER_COLS.map(m => <th key={m.key} style={thS}>{methodLabel(m.key)}</th>)}
                   </tr>
                 </thead>
                 <tbody>
