@@ -41,8 +41,13 @@ export const trackImageClick = (imageId, value) =>
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
 // ===== מעקב התקנות אפליקציה (PWA install) =====
-// האתר ניתן להתקנה בכרום (יש manifest). כאן סופרים כמה התקינו וכמה פותחים
-// דרך האפליקציה המותקנת. נשען על visitor_events הקיים — אין סכימה חדשה.
+// האתר ניתן להתקנה בכרום (יש manifest). כאן בונים משפך התקנה על visitor_events
+// הקיים (אין סכימה חדשה), עם פילוח דפדפן/מכשיר/מקור:
+//   offer   — ההצעה להתקין הוצגה (beforeinstallprompt).
+//   install — הושלמה התקנה (appinstalled).
+//   launch  — המשתמש פתח מהאפליקציה המותקנת (פעם אחת ל-session) = חזרה לשימוש.
+// הערה: "כמה לחצו התקן" (accept/dismiss) דורש כפתור התקנה מותאם שיחזיק את
+// ה-deferred prompt ויקרא userChoice — לא נכלל כאן (ראה תוכנית Notification Center).
 
 // האם רץ כאפליקציה מותקנת (standalone) ולא בכרטיסיית דפדפן רגילה.
 export function isStandalone() {
@@ -53,33 +58,77 @@ export function isStandalone() {
   return window.navigator?.standalone === true; // iOS Safari
 }
 
+// זיהוי דפדפן / מערכת-הפעלה / סוג-מכשיר מתוך ה-userAgent.
+function deviceInfo() {
+  const ua = window.navigator?.userAgent || "";
+  let browser = "אחר";
+  if (/edg\//i.test(ua)) browser = "Edge";
+  else if (/samsungbrowser/i.test(ua)) browser = "Samsung";
+  else if (/firefox|fxios/i.test(ua)) browser = "Firefox";
+  else if (/opr\/|opera/i.test(ua)) browser = "Opera";
+  else if (/crios|chrome/i.test(ua)) browser = "Chrome";
+  else if (/safari/i.test(ua)) browser = "Safari";
+  let os = "אחר";
+  if (/android/i.test(ua)) os = "Android";
+  else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+  else if (/windows/i.test(ua)) os = "Windows";
+  else if (/mac os|macintosh/i.test(ua)) os = "macOS";
+  else if (/linux/i.test(ua)) os = "Linux";
+  const device = /android|iphone|ipad|ipod|mobile/i.test(ua) ? "mobile" : "desktop";
+  return { browser, os, device };
+}
+
+// מקור ההגעה — utm_source אם קיים, אחרת זיהוי לפי referrer.
+function sourceInfo() {
+  try {
+    const utm = new URLSearchParams(window.location.search).get("utm_source");
+    if (utm) return utm;
+  } catch { /* noop */ }
+  const ref = (typeof document !== "undefined" && document.referrer) || "";
+  if (!ref) return "ישיר";
+  if (/facebook|fb\./i.test(ref)) return "facebook";
+  if (/whatsapp|wa\.me/i.test(ref)) return "whatsapp";
+  if (/t\.me|telegram/i.test(ref)) return "telegram";
+  if (/instagram/i.test(ref)) return "instagram";
+  if (/google/i.test(ref)) return "google";
+  try { return new URL(ref).hostname; } catch { return "אחר"; }
+}
+
+// meta אחיד לכל אירועי האפליקציה — פילוח לדשבורד.
+function appMeta() {
+  return { ...deviceInfo(), source: sourceInfo() };
+}
+
+// רישום פעם-אחת-ל-session (כדי לא לספור כל טעינת דף מחדש).
+function trackOncePerSession(flag, eventType, meta) {
+  try {
+    if (sessionStorage.getItem(flag)) return;
+    sessionStorage.setItem(flag, "1");
+  } catch { /* אם אין sessionStorage — נרשום בכל זאת */ }
+  track("app", null, eventType, meta);
+}
+
 let appInstallInited = false;
 
-// אתחול פעם אחת (בעליית האפליקציה). תופס:
-//  • appinstalled  → רישום התקנה (פנימי + Meta/CAPI דרך trackConversion).
-//  • פתיחה מהאפליקציה המותקנת → רישום launch פעם אחת ל-session.
+// אתחול פעם אחת (בעליית האפליקציה). תופס את כל שלבי משפך ההתקנה.
 export function initAppInstallTracking() {
   if (appInstallInited || typeof window === "undefined") return;
   appInstallInited = true;
 
-  const platform = window.navigator?.userAgentData?.platform
-    || window.navigator?.platform
-    || undefined;
-
-  window.addEventListener("appinstalled", () => {
-    track("app", null, "install", { platform, ua: window.navigator?.userAgent });
-    trackConversion("app_install", { platform });
+  // ההצעה להתקין זמינה (כרום/אדג'/אנדרואיד). לא חוסמים — נותנים לדפדפן להציג.
+  window.addEventListener("beforeinstallprompt", () => {
+    trackOncePerSession("sod_app_offer", "offer", appMeta());
   });
 
-  // ספירת משתמש פעיל מהאפליקציה — פעם אחת ל-session (לא בכל ניווט).
+  // הושלמה התקנה — פנימי + Meta/CAPI.
+  window.addEventListener("appinstalled", () => {
+    const m = appMeta();
+    track("app", null, "install", m);
+    trackConversion("app_install", m);
+  });
+
+  // פתיחה מהאפליקציה המותקנת = חזרה לשימוש (פעם אחת ל-session).
   if (isStandalone()) {
-    try {
-      if (!sessionStorage.getItem("sod_app_launched")) {
-        sessionStorage.setItem("sod_app_launched", "1");
-        track("app", null, "launch", { platform });
-      }
-    } catch {
-      track("app", null, "launch", { platform });
-    }
+    trackOncePerSession("sod_app_launched", "launch", appMeta());
   }
 }

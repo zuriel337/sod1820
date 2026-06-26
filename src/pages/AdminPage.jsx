@@ -1401,7 +1401,7 @@ function PopularityTab() {
   const [topImgs, setTopImgs] = useState([]);
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
-  const [appStats, setAppStats] = useState({ installs: 0, launchers: 0 });
+  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, launchers: 0, byBrowser: [], byDevice: [], bySource: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1441,11 +1441,18 @@ function PopularityTab() {
             // WhatsApp
             const waRows = rows.filter(r => r.event_type === "share" && r.meta?.platform === "whatsapp");
             setTopWa(agg(waRows, "slug").slice(0, 8));
-            // התקנות אפליקציה + משתמשים פעילים מהאפליקציה
+            // משפך התקנת אפליקציה: הצעה → התקנה → חזרה לשימוש + פילוח
             const appRows = rows.filter(r => r.section === "app");
-            const installs = appRows.filter(r => r.event_type === "install").length;
+            const offers = new Set(appRows.filter(r => r.event_type === "offer").map(r => r.visitor_id)).size;
+            const installRows = appRows.filter(r => r.event_type === "install");
+            const installs = installRows.length;
             const launchers = new Set(appRows.filter(r => r.event_type === "launch").map(r => r.visitor_id)).size;
-            setAppStats({ installs, launchers });
+            const breakdown = (key) => {
+              const c = {};
+              installRows.forEach(r => { const v = r.meta?.[key]; if (v) c[v] = (c[v] || 0) + 1; });
+              return Object.entries(c).sort((a, b) => b[1] - a[1]);
+            };
+            setAppStats({ offers, installs, launchers, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
             // גולשים ייחודיים
             setUniq(new Set(rows.map(r => r.visitor_id)).size);
           }).catch(() => {}),
@@ -1472,18 +1479,43 @@ function PopularityTab() {
       </div>
       {loading && <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 14, textAlign: "center" }}>טוען…</div>}
 
-      {/* התקנות אפליקציה (PWA) */}
-      <div style={{ ...card, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 30 }}>📲</div>
-          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 26, fontWeight: 800 }}>{appStats.installs}</div>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>התקנות אפליקציה</div>
+      {/* משפך התקנת אפליקציה (PWA) */}
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>📲 משפך התקנת האפליקציה</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14 }}>
+          {[
+            { emoji: "👀", n: appStats.offers, label: "ראו הצעת התקנה" },
+            { emoji: "📲", n: appStats.installs, label: "התקינו" },
+            { emoji: "👤", n: appStats.launchers, label: "חזרו להשתמש מהאפליקציה" },
+            { emoji: "📈", n: appStats.offers ? Math.round((appStats.installs / appStats.offers) * 100) + "%" : "—", label: "יחס המרה (התקנה/הצעה)" },
+          ].map((s, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 26 }}>{s.emoji}</div>
+              <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 24, fontWeight: 800 }}>{s.n}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 30 }}>👤</div>
-          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 26, fontWeight: 800 }}>{appStats.launchers}</div>
-          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>משתמשים פעילים מהאפליקציה</div>
-        </div>
+        {/* פילוח התקנות לפי דפדפן / מכשיר / מקור */}
+        {appStats.installs > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+            {[
+              { title: "דפדפן", data: appStats.byBrowser },
+              { title: "מכשיר", data: appStats.byDevice },
+              { title: "מקור", data: appStats.bySource },
+            ].map(col => col.data.length > 0 && (
+              <div key={col.title}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>{col.title}</div>
+                {col.data.map(([k, n]) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+                    <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>{k}</span>
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{n}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* TOP מדורים — bar chart */}
