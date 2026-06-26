@@ -45,7 +45,7 @@ export const METHODS = [
   { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
   { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
   { key: "אלבם", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
-  { key: "הנעלם", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
+  { key: "מילוי בלבד", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
   { key: "הכפלה", sub: "כל אות בריבוע (אות×עצמה)", soul: "העוצמה הפנימית — כל אות מוכפלת בעצמה", fn: w => sumBy(w, SQR), map: null },
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
@@ -89,7 +89,7 @@ export function methodLetters(key, word) {
     return { type: "diff", segs };
   }
   if (key === "גדול") return { type: "value", segs: Ls.map(c => ({ ch: c, val: FINAL[c] || GEM[c] || 0 })) };
-  if (key === "הנעלם") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (MILUI[c] || 0) - (GEM[c] || 0) })) };
+  if (key === "מילוי בלבד") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (MILUI[c] || 0) - (GEM[c] || 0) })) };
   if (key === "ריבוע" || key === "ריבוע גדול") {
     const vf = key === "ריבוע גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
     let run = 0;

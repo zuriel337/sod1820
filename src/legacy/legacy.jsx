@@ -2104,6 +2104,24 @@ const POST_CONTENT_CSS = `
     color: ${C.goldBright} !important;
   }
 
+  /* ── locked-dark posts (legacy-dark): the surface is always near-black, so
+       mid-dark grays / muted text become unreadable. Lift them to a readable
+       muted-light. Scoped to :not(.themed) so day/night (auto) posts are untouched. ── */
+  .sod-post-content:not(.themed) [style*="color:#444"],
+  .sod-post-content:not(.themed) [style*="color: #444"],
+  .sod-post-content:not(.themed) [style*="color:#555"],
+  .sod-post-content:not(.themed) [style*="color: #555"],
+  .sod-post-content:not(.themed) [style*="color:#666"],
+  .sod-post-content:not(.themed) [style*="color: #666"],
+  .sod-post-content:not(.themed) [style*="color:#777"],
+  .sod-post-content:not(.themed) [style*="color: #777"],
+  .sod-post-content:not(.themed) [style*="color:#888"],
+  .sod-post-content:not(.themed) [style*="color: #888"],
+  .sod-post-content:not(.themed) [style*="color:gray"],
+  .sod-post-content:not(.themed) [style*="color:grey"] {
+    color: #c9bda3 !important;
+  }
+
   /* ── videos (mp4 / shortcode / reels) ── */
   .sod-post-content video {
     max-width: min(100%, 360px) !important;

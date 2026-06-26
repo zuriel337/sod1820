@@ -767,7 +767,7 @@ function OcrTab() {
 // ===== 🔍 סורק נדירות — סורק מלא ביטויים/ערכים ומדרג לפי נדירות (אותו מנוע של «ההצלבה הנסתרת») =====
 // המנוע סופר בשבילך: לכל פריט — גודל משפחת-הערך (כמה ביטויים חולקים אותו) + בונוס תהודת-אפס.
 // משפחה קטנה = נדיר = ציון גבוה. אין חיפוש ידני — מדביקים רשימה / טווח, והכל מדורג אוטומטית.
-const SCAN_METHODS = ["רגיל", "מילוי", "מסתתר", "קדמי", "ריבוע", "סידורי", "אתבש", "אלבם", "הנעלם", "הכפלה"];
+const SCAN_METHODS = ["רגיל", "מילוי", "מסתתר", "קדמי", "ריבוע", "סידורי", "אתבש", "אלבם", "מילוי בלבד", "הכפלה"];
 
 function ScannerTab() {
   const [mode, setMode] = useState("phrases");        // phrases | values
@@ -838,7 +838,7 @@ function ScannerTab() {
   async function scanCorpus() {
     setBusy(true); setRows(null); setNote("מדרג את כל המאגר בשרת…");
     try {
-      const pick = (methods.length ? methods : ["רגיל"]).filter(k => k !== "הנעלם"); // הנעלם לא ב-bidim
+      const pick = (methods.length ? methods : ["רגיל"]).filter(k => k !== "מילוי בלבד"); // מילוי בלבד לא ב-bidim
       const mf = parseInt(maxFamily, 10);
       const mw = parseInt(maxWords, 10);
       const { data, error } = await supabase.rpc("scan_corpus_rarity", {
@@ -1018,7 +1018,7 @@ function ResearchTab() {
       const phrases = [...new Set((priv || []).map(r => (r.phrase || "").trim()).filter(Boolean))];
       if (!phrases.length) { setNote("עדיין אין פריטים — חקרו משהו במחשבון (נשמר אוטומטית לפרטי)."); setBusy(false); return; }
       const items = phrases.map(p => {
-        const ms = SCAN_METHODS.filter(k => k !== "הנעלם").map(k => {
+        const ms = SCAN_METHODS.filter(k => k !== "מילוי בלבד").map(k => {
           const m = METHODS.find(x => x.key === k); return m ? { label: k, value: m.fn(p) } : null;
         }).filter(m => m && m.value > 0);
         return { key: p, kind: "phrase", value: ms.find(m => m.label === "רגיל")?.value ?? ms[0]?.value ?? null, methods: ms };
