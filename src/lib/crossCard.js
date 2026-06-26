@@ -1,6 +1,8 @@
 // ===== מחולל "תמונת הצלבה" — כרטיס ויראלי לחידוש הצלבה (אהיה=ודאי וכו') =====
 // canvas צד-לקוח, 1080×1080, מתאים לוואטסאפ/אינסטגרם. שיתוף מקורי במובייל, וואטסאפ בדסקטופ.
 
+import { trackShare } from "./tracking.js";
+
 const POETIC = [
   "שתי דרכים. אותו סוד.",
   "המילים האלה לא נפגשות במקרה.",
@@ -126,12 +128,14 @@ export async function shareCross(item) {
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], fileName(item), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `cross/${item.id || ""}`);
       await navigator.share({ files: [file], title: "הצלבת גימטריה · סוד 1820", text: shareText(item) });
       return "image";
     }
   } catch (e) {
     if (e && e.name === "AbortError") return "cancel";
   }
+  trackShare("whatsapp", `cross/${item.id || ""}`);
   window.open(`https://wa.me/?text=${encodeURIComponent(shareText(item))}`, "_blank", "noopener,noreferrer");
   return "link";
 }

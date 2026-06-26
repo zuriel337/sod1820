@@ -4,6 +4,7 @@ import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
 import SubscribeGate from "../../components/SubscribeGate.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { trackShare } from "../../lib/tracking.js";
 
 const ELS_FREE_KEY = "els_free_used";    // מונה חיפושים חינם (אנונימי), נשמר מקומית
 const ELS_BONUS_KEY = "els_share_bonus"; // בונוס חיפושים על שיתוף
@@ -223,6 +224,7 @@ async function shareMatrixPNG(letters, hit, title, mode) {
     const file = new File([blob], matrixFileName(title), { type: "image/png" });
     const shareText = `${title} — הצופן התנ״כי · סוד 1820\nגלו עוד דילוגים: https://sod1820.co.il/code`;
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", "els-matrix");
       await navigator.share({ files: [file], title: "הצופן התנ״כי · סוד 1820", text: shareText });
     } else {
       // אין שיתוף קבצים (רוב הדפדפנים בדסקטופ) → מורידים את התמונה
@@ -576,9 +578,9 @@ export function ELSSection({ gated = false } = {}) {
     const url = "https://sod1820.co.il/code";
     const text = "מצאתי דברים מדהימים בצופן התנ״כי של סוד 1820 — חפשו גם אתם את השם שלכם בתורה:";
     try {
-      if (navigator.share) { await navigator.share({ title: "הצופן התנ״כי · סוד 1820", text, url }); grantShareBonus(); }
-      else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(`${text} ${url}`); grantShareBonus(); }
-      else { window.prompt("העתיקו ושתפו:", url); grantShareBonus(); }
+      if (navigator.share) { trackShare("native", "els-tool"); await navigator.share({ title: "הצופן התנ״כי · סוד 1820", text, url }); grantShareBonus(); }
+      else if (navigator.clipboard?.writeText) { trackShare("copy", "els-tool"); await navigator.clipboard.writeText(`${text} ${url}`); grantShareBonus(); }
+      else { trackShare("copy", "els-tool"); window.prompt("העתיקו ושתפו:", url); grantShareBonus(); }
     } catch (e) { if (e && e.name === "AbortError") return; /* ביטול — בלי בונוס */ }
   }
 

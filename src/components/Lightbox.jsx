@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
+import { trackShare } from "../lib/tracking.js";
 
 // onEdit(image) — אם מסופק, מציג כפתור ✏️ בראש ה-lightbox (למנהלים בלבד).
 export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit }) {
@@ -14,9 +15,12 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   async function handleShare(image) {
     const url = image?.image_url || window.location.href;
     const title = cleanName(image?.name) || 'SOD1820';
+    const slug = `gallery-${image?.id ?? domNum(image) ?? ""}`;
     if (navigator.share) {
+      trackShare("native", slug);
       try { await navigator.share({ title, url }); } catch {}
     } else {
+      trackShare("copy", slug);
       try { await navigator.clipboard.writeText(url); setShared(true); setTimeout(() => setShared(false), 2000); } catch {}
     }
   }

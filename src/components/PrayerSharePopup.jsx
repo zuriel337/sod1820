@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { getShareCount, incrementShareCount, subscribeShareCount } from "../lib/supabase.js";
+import { trackShare } from "../lib/tracking.js";
+
+const shareSlug = (url, wpId) => { try { return new URL(url).pathname.replace(/^\//, ""); } catch { return String(wpId || ""); } };
 
 // ── "העבירו את האור הלאה" — מערך שיתוף משולב לדפי תפילה/רפואה ──
 // שני אלמנטים שחולקים מונה אחד ופעולת שיתוף אחת:
@@ -67,10 +70,12 @@ export default function PrayerSharePopup({ url, title, wpId }) {
     incrementShareCount(wpId).then(n => { if (typeof n === "number") setCount(n); }).catch(() => {});
     const body = SHARE_TEXT + "\n" + url;
     if (typeof navigator !== "undefined" && navigator.share) {
+      trackShare("native", shareSlug(url, wpId));
       navigator.share({ title: title || "העבירו את האור הלאה", text: SHARE_TEXT, url })
         .then(() => setOpen(false))
         .catch(() => { /* ביטול — משאירים פתוח */ });
     } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      trackShare("copy", shareSlug(url, wpId));
       navigator.clipboard.writeText(url).then(() => {
         setCopied(true);
         setTimeout(() => { setCopied(false); setOpen(false); }, 1500);

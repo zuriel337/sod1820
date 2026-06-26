@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { getShareCount, incrementShareCount, subscribeShareCount } from "../lib/supabase.js";
+import { trackShare } from "../lib/tracking.js";
+
+// מזהה לשיתוף — ה-slug של הפוסט מתוך ה-url (נופל ל-wpId).
+const shareSlug = (url, wpId) => { try { return new URL(url).pathname.replace(/^\//, ""); } catch { return String(wpId || ""); } };
 
 // 👑 שיתוף מלכותי לכל פוסט — כפתור צף עם כתר ומונה חי, ובלחיצה חלון שיתוף מלכותי.
 export default function PostShareFab({ url, title, wpId }) {
@@ -23,17 +27,20 @@ export default function PostShareFab({ url, title, wpId }) {
     bump();
     const text = `${title || "סוד 1820"} 👑✨`;
     if (typeof navigator !== "undefined" && navigator.share) {
+      trackShare("native", shareSlug(url, wpId));
       navigator.share({ title: title || "סוד 1820", text, url }).then(() => setOpen(false)).catch(() => {});
     } else {
+      trackShare("whatsapp", shareSlug(url, wpId));
       window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank", "noopener");
     }
-  }, [bump, url, title]);
+  }, [bump, url, title, wpId]);
 
   const copyLink = useCallback(() => {
     bump();
+    trackShare("copy", shareSlug(url, wpId));
     try { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); }
     catch { window.prompt("העתיקו את הקישור:", url); }
-  }, [bump, url]);
+  }, [bump, url, wpId]);
 
   return (
     <>

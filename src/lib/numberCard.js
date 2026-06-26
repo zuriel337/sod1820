@@ -1,5 +1,6 @@
 import { C, calcGem } from "../theme.js";
 import { KEY_NUMBERS } from "../theme.js";
+import { trackShare } from "./tracking.js";
 
 // ===== מחולל "תמונת מספר" — מייצר תמונה ממותגת לכל מספר עם טקסט ויראלי בתוכה =====
 // צד-לקוח בלבד (canvas), ללא תלות חיצונית. מתאים לשיתוף בוואטסאפ/אינסטגרם (1080×1080).
@@ -156,6 +157,7 @@ export async function shareNumberCard(value, phrases) {
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `number/${value}`);
       await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return true;
     }
@@ -180,6 +182,7 @@ export async function shareNumberSmart(value, phrases) {
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `number/${value}`);
       await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return "image";
     }
@@ -187,6 +190,7 @@ export async function shareNumberSmart(value, phrases) {
     if (e && e.name === "AbortError") return "cancel";
   }
   // דסקטופ / אין שיתוף קבצים → וואטסאפ עם הקישור (תצוגת ה-OG מציגה תמונה)
+  trackShare("whatsapp", `number/${value}`);
   window.open(`https://wa.me/?text=${encodeURIComponent(shareText(value))}`, "_blank", "noopener,noreferrer");
   return "link";
 }
