@@ -17,7 +17,6 @@ import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
-import UpdatesBox from "../components/UpdatesBox.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 
@@ -369,23 +368,16 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* ===== היה ראשון — הרשמה מוקדמת מודעת-נושאים ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 48px" }}>
-        <UpdatesBox
-          withTopics
-          source="early"
-          title="הרבה דברים בדרך — היו הראשונים לדעת"
-          body="קורסים, רמזים חדשים, דילוגי אותיות והתכנסויות — בקרוב. סמנו מה מעניין אתכם, והעדכונים יגיעו אליכם קודם כל."
-          cta="שמרו לי מקום →"
-        />
-      </section>
-
-      {/* סיום חם — בלי לשכפל את «כאן מתחילים» (כבר בהירו) ואת המחשבון (כבר באריחים) */}
-      <div style={{ textAlign: "center", padding: "0 18px 56px" }}>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>
+      {/* ===== סקשן סיום — שער כניסה יחיד (Single Conversion Spine) ===== */}
+      <section className="hn-wrap" style={{ textAlign: "center", padding: "8px 18px 64px" }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 800, marginBottom: 8 }}>
           🤍 ברוכים הבאים לבית החדש שלנו
         </div>
-      </div>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 460, margin: "0 auto 22px" }}>
+          מערכת חיה של קריאת מציאות דרך רמזים, מספרים ותודעה. כוונו את הזרם שלכם — והמערכת תיפתח בהתאמה אישית.
+        </p>
+        <Link to="/enter" className="hn-cta hn-cta-big">✨ להיכנס לשער</Link>
+      </section>
     </div>
   );
 }

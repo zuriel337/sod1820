@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
-import UpdatesBox from "../components/UpdatesBox.jsx";
 import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 
 // "כאן מתחילים" — מסע התחלה קצר לפי מודל העץ האחד: שורש → לב → עדשות → הצטרפות.
@@ -97,14 +96,15 @@ export default function StartHerePage() {
         </Link>
       </div>
 
-      {/* 📨 לכידת איש קשר — שלא ילך לאיבוד, ויצטרף לאנשים שלנו */}
-      <div style={{ marginTop: 48 }}>
-        <UpdatesBox
-          variant="panel"
-          source="start-here"
-          title="📨 השאירו מייל — ואל תלכו לאיבוד"
-          body="כל התגלות חדשה, חידוש גימטריה או רמז גאולה — יגיע אליכם ראשונים. הצטרפו לאנשי סוד 1820."
-          cta="אני בפנים 👑" />
+      {/* שער כניסה יחיד — מפנים לטקס (/enter), בלי טופס נפרד (Single Conversion Spine) */}
+      <div style={{ marginTop: 48, textAlign: "center" }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+          מוכנים להיכנס?
+        </div>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 440, margin: "0 auto 18px" }}>
+          כוונו את הזרם שלכם ובחרו את השערים — והמערכת תיפתח בהתאמה אישית.
+        </p>
+        <GoldButton to="/enter">✨ להיכנס לשער</GoldButton>
       </div>
 
       {/* 👑 סיום — היכנסו לעולם החדש */}

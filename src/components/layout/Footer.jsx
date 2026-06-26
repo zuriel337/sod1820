@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
-import UpdatesBox from "../UpdatesBox.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
 const COLUMNS = [
@@ -147,11 +147,17 @@ const FOOTER_CSS = (cc) => `
 
 export default function Footer() {
   const cc = chromeColors(useThemeMode());
+  const { user } = useAuth();
   return (
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
 
-      <UpdatesBox variant="inline" source="footer" />
+      {/* אזור ללא-הרשמה: קישור ניהול עדין בלבד (Single Conversion Spine — השער הוא /enter) */}
+      <div style={{ textAlign: "center", padding: "14px 0 6px" }}>
+        <Link to={user ? "/profile" : "/enter"} style={{ color: cc.linkMuted || cc.muted || "#8b90a8", fontFamily: F.heading, fontSize: 13, textDecoration: "none", opacity: 0.85 }}>
+          📩 ניהול עדכונים
+        </Link>
+      </div>
 
       <div className="foot-main">
         {/* מותג */}
