@@ -64,7 +64,17 @@ export default function StayUpdatedCTA({ variant = "home" }) {
               <button type="submit" disabled={busy} style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 10, padding: "11px 26px", background: cc.accentBtn || cc.goldBright, color: cc.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 14, whiteSpace: "nowrap" }}>{busy ? "רגע…" : "הצטרפו"}</button>
             </form>
             {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>{err}</div>}
-            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11, marginTop: 8 }}>חינם · אפשר לבטל בכל רגע</div>
+            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11, marginTop: 8 }}>
+              חינם · אפשר לבטל בכל רגע
+              {pushReady && (
+                <>
+                  {" · "}
+                  <button onClick={choosePush} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "none", border: "none", padding: 0, color: "inherit", fontFamily: F.body, fontSize: 11, opacity: 0.85, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                    התראות בדפדפן
+                  </button>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>
