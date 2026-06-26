@@ -6,7 +6,8 @@ import React, { useRef, useEffect } from "react";
 
 const CHARS = "0123456789אבגדהוזחטיכלמנסעפצקרשת67·506·1820·424".split("");
 
-export default function MatrixRain({ color = "#7fc8ff", fontSize = 16 }) {
+// color = צבע השובל · featured = מספר-גיבור שנוזל מלמעלה (לדוגמה "506") · headColor = ראש הזרם
+export default function MatrixRain({ color = "#7fc8ff", fontSize = 16, featured = null, headColor = "#eaf6ff" }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -14,13 +15,16 @@ export default function MatrixRain({ color = "#7fc8ff", fontSize = 16 }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let w = 0, h = 0, cols = 0, drops = [], raf = 0, last = 0, hidden = false;
+    const feat = featured ? String(featured).split("") : null;
+    let w = 0, h = 0, cols = 0, drops = [], isFeat = [], raf = 0, last = 0, hidden = false;
 
     function resize() {
       w = canvas.width = canvas.offsetWidth;
       h = canvas.height = canvas.offsetHeight;
       cols = Math.max(1, Math.floor(w / fontSize));
       drops = Array.from({ length: cols }, () => Math.floor(Math.random() * (h / fontSize)));
+      // ~22% מהעמודות הן עמודות-גיבור: נוזלות את הספרות של featured ברצף אנכי
+      isFeat = Array.from({ length: cols }, () => !!feat && Math.random() < 0.22);
     }
     resize();
 
@@ -32,11 +36,12 @@ export default function MatrixRain({ color = "#7fc8ff", fontSize = 16 }) {
       ctx.fillRect(0, 0, w, h);
       ctx.font = `${fontSize}px monospace`;
       for (let i = 0; i < cols; i++) {
-        const ch = CHARS[(Math.random() * CHARS.length) | 0];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
-        // ראש הזרם בהיר, השובל בצבע האקסנט
-        ctx.fillStyle = Math.random() > 0.92 ? "#eaf6ff" : color;
+        const featCol = isFeat[i];
+        // עמודת-גיבור: הספרות של featured נקראות אנכית (5,0,6,5,0,6…) ובוהקות
+        const ch = featCol ? feat[((drops[i] % feat.length) + feat.length) % feat.length] : CHARS[(Math.random() * CHARS.length) | 0];
+        ctx.fillStyle = (featCol || Math.random() > 0.92) ? headColor : color;
         ctx.fillText(ch, x, y);
         if (y > h && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
