@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import UpdateBanner from "./components/UpdateBanner.jsx";
+import PushPrompt from "./components/PushPrompt.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
@@ -114,6 +115,7 @@ export default function App() {
         <OnboardingGate />
         <Analytics />
         <UpdateBanner />
+        <PushPrompt />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
