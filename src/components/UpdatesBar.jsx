@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { C, F } from "../theme.js";
-import { subscribeEmail } from "../lib/supabase.js";
-import { trackSubscribe } from "../lib/marketing.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
+import { trackConversion } from "../lib/marketing.js";
 
-// 🔔 פס עדכונים דק עליון — לא מפריע לקריאה.
-// מופיע רק אחרי שהמשתמש כבר ראה תוכן: גלילה > ~400px או 18ש'. דק, טקסט מינימלי.
-// בלחיצה על "הרשמה" נפתח שדה מייל אינליין. אחרי סגירה — לא חוזר שבוע; אחרי הרשמה — 90 יום.
+// 🔔 פס עדכונים דק עליון — התראות דפדפן בלבד (לא מייל). לא מפריע לקריאה.
+// מופיע רק אחרי 20 שניות (לא בגלילה). מוצג רק אם push נתמך+מוגדר.
+// סגירה → לא חוזר שבוע; הפעלת התראות → לא חוזר (כבר רשום).
 const KEY = "sod_updbar_until";
 const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy)/;
+const DELAY_MS = 20000;
 
 const suppressed = () => {
   try { const u = parseInt(localStorage.getItem(KEY) || "0", 10); return u && Date.now() < u; } catch { return false; }
@@ -17,56 +19,46 @@ const suppress = days => { try { localStorage.setItem(KEY, String(Date.now() + d
 
 export default function UpdatesBar() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const [show, setShow] = useState(false);
-  const [mode, setMode] = useState("cta");   // cta | form | done
-  const [email, setEmail] = useState("");
+  const [mode, setMode] = useState("cta");   // cta | done | denied
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+
+  const pushReady = PUSH_CONFIGURED && pushSupported();
 
   useEffect(() => {
-    if (suppressed() || HIDE.test(pathname)) return;
-    let fired = false;
-    const reveal = () => { if (!fired) { fired = true; setShow(true); cleanup(); } };
-    const onScroll = () => { if (window.scrollY > 400) reveal(); };
-    const timer = setTimeout(reveal, 18000);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    function cleanup() { clearTimeout(timer); window.removeEventListener("scroll", onScroll); }
-    return cleanup;
-  }, [pathname]);
+    if (!pushReady || suppressed() || HIDE.test(pathname)) return;
+    const t = setTimeout(() => setShow(true), DELAY_MS);   // אחרי 20 שניות בלבד
+    return () => clearTimeout(t);
+  }, [pathname, pushReady]);
 
   const close = useCallback(() => { setShow(false); suppress(7); }, []);
 
-  const submit = useCallback(async (e) => {
-    e?.preventDefault?.();
-    setErr("");
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("מייל לא תקין"); return; }
+  const enable = useCallback(async () => {
     setBusy(true);
-    try {
-      await subscribeEmail({ email: email.trim(), source: "topbar" });
-      trackSubscribe({ source: "topbar" });
-      setMode("done"); suppress(90);
-      setTimeout(() => setShow(false), 2600);
-    } catch { setErr("נסו שוב"); }
+    const r = await enablePush({ userId: user?.id || null, topics: [] });
     setBusy(false);
-  }, [email]);
+    if (r.ok) {
+      trackConversion("push_enabled", { source: "topbar" });
+      setMode("done"); suppress(365);
+      setTimeout(() => setShow(false), 2800);
+    } else {
+      setMode("denied"); suppress(r.reason === "denied" ? 30 : 1);
+    }
+  }, [user]);
 
-  if (!show || HIDE.test(pathname)) return null;
+  if (!show || !pushReady || HIDE.test(pathname)) return null;
 
   return (
-    <div className="upb" role="region" aria-label="הרשמה לעדכונים">
+    <div className="upb" role="region" aria-label="התראות בדפדפן">
       {mode === "done" ? (
-        <span className="upb-done">✓ תודה! נרשמתם לעדכונים 🙏</span>
-      ) : mode === "form" ? (
-        <form className="upb-form" onSubmit={submit}>
-          <span className="upb-bell">🔔</span>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="המייל שלכם" dir="ltr" autoFocus className="upb-input" />
-          <button type="submit" disabled={busy} className="upb-go">{busy ? "…" : "הרשמה"}</button>
-          {err && <span className="upb-err">{err}</span>}
-        </form>
+        <span className="upb-done">✓ ההתראות הופעלו! נעדכן אתכם כשיֵצא חדש 🔔</span>
+      ) : mode === "denied" ? (
+        <span className="upb-denied">🔔 הדפדפן חסם התראות — אפשר לאשר בהגדרות האתר</span>
       ) : (
         <>
-          <span className="upb-txt"><span className="upb-bell">🔔</span> אל תפספסו תכנים חדשים — הרשמו לעדכונים</span>
-          <button className="upb-cta" onClick={() => setMode("form")}>הרשמה לעדכונים</button>
+          <span className="upb-txt"><span className="upb-bell">🔔</span> אל תפספסו תכנים חדשים — קבלו התראות בדפדפן</span>
+          <button className="upb-cta" onClick={enable} disabled={busy}>{busy ? "מפעיל…" : "🔔 הפעלת התראות"}</button>
         </>
       )}
       <button className="upb-x" onClick={close} aria-label="סגירה">×</button>
@@ -85,21 +77,13 @@ export default function UpdatesBar() {
           padding: 5px 16px; background: linear-gradient(135deg, #f6e27a, #caa030); color: #1a0e00;
           font-family: ${F.heading}; font-weight: 800; font-size: 12.5px; white-space: nowrap; transition: transform .12s; }
         .upb-cta:hover { transform: translateY(-1px); }
-        .upb-form { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .upb-input { padding: 6px 12px; border-radius: 8px; background: ${C.surface}; border: 1px solid ${C.border};
-          color: ${C.goldLight}; font-family: ${F.body}; font-size: 13.5px; text-align: center; outline: none; width: 200px; max-width: 52vw; }
-        .upb-go { cursor: pointer; border: none; border-radius: 8px; padding: 6px 16px;
-          background: linear-gradient(135deg, #f6e27a, #caa030); color: #1a0e00; font-family: ${F.heading}; font-weight: 800; font-size: 12.5px; }
-        .upb-err { color: #e0857a; font-family: ${F.body}; font-size: 12px; }
         .upb-done { color: ${C.goldBright}; font-family: ${F.heading}; font-weight: 700; font-size: 14px; }
+        .upb-denied { color: ${C.goldLight}; font-family: ${F.heading}; font-weight: 600; font-size: 13px; }
         .upb-x { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none;
           color: ${C.goldDim}; font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px; }
         .upb-x:hover { color: ${C.goldBright}; }
         @keyframes upb-down { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @media (max-width: 560px) {
-          .upb-txt { font-size: 12px; }
-          .upb { gap: 9px; padding-right: 12px; }
-        }
+        @media (max-width: 560px) { .upb-txt { font-size: 12px; } .upb { gap: 9px; padding-right: 12px; } }
         @media (prefers-reduced-motion: reduce) { .upb { animation: none; } }
       `}</style>
     </div>
