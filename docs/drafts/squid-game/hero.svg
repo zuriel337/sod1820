@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" font-family="Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10070a"/>
+      <stop offset="0.5" stop-color="#1a0d12"/>
+      <stop offset="1" stop-color="#0b0d12"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6e27a"/>
+      <stop offset="1" stop-color="#d4af37"/>
+    </linearGradient>
+    <radialGradient id="pink" cx="0.5" cy="0.3" r="0.7">
+      <stop offset="0" stop-color="#e9376b" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e9376b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="760" height="430" rx="20" fill="url(#bg)"/>
+  <rect x="1" y="1" width="758" height="428" rx="19" fill="none" stroke="#3a1f2a" stroke-width="2"/>
+  <ellipse cx="380" cy="120" rx="360" ry="170" fill="url(#pink)"/>
+
+  <!-- shapes row -->
+  <g transform="translate(0,40)">
+    <circle cx="312" cy="20" r="17" fill="none" stroke="#e9376b" stroke-width="3"/>
+    <path d="M 360 36 L 380 2 L 400 36 Z" fill="none" stroke="#e9376b" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="431" y="3" width="34" height="34" rx="3" fill="none" stroke="#e9376b" stroke-width="3"/>
+  </g>
+
+  <text x="380" y="138" text-anchor="middle" fill="url(#gold)" font-size="40" font-weight="800">משחקי הדיונון 🦑</text>
+  <text x="380" y="172" text-anchor="middle" fill="#e7d9b4" font-size="18">הצופן בקולנוע · מפת גאולה נסתרת?</text>
+  <text x="380" y="200" text-anchor="middle" fill="#9b8a55" font-size="14">כשמקלפים את העלילה ופותחים את מנוע החישוב — המטריקס נחשף</text>
+
+  <!-- number cards -->
+  <g font-weight="800">
+    <!-- 456 -->
+    <rect x="48" y="236" width="158" height="150" rx="14" fill="rgba(212,175,55,0.06)" stroke="url(#gold)" stroke-width="2"/>
+    <text x="127" y="290" text-anchor="middle" fill="#f6e27a" font-size="40">456</text>
+    <text x="127" y="322" text-anchor="middle" fill="#f3e6c0" font-size="18">פרצוף</text>
+    <text x="127" y="348" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">שחקנים · פרס · זוכה</text>
+    <text x="127" y="368" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">המסכה שמוחקת פנים</text>
+
+    <!-- 067 -->
+    <rect x="222" y="236" width="158" height="150" rx="14" fill="rgba(233,55,107,0.08)" stroke="#e9376b" stroke-width="2"/>
+    <text x="301" y="290" text-anchor="middle" fill="#ff6f9c" font-size="40">067</text>
+    <text x="301" y="322" text-anchor="middle" fill="#f3e6c0" font-size="18">בינה = ניאו</text>
+    <text x="301" y="348" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">סה-ביוק · הנבחרת</text>
+    <text x="301" y="368" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">התודעה הערה</text>
+
+    <!-- 001 -->
+    <rect x="396" y="236" width="158" height="150" rx="14" fill="rgba(212,175,55,0.06)" stroke="url(#gold)" stroke-width="2"/>
+    <text x="475" y="290" text-anchor="middle" fill="#f6e27a" font-size="40">001</text>
+    <text x="475" y="322" text-anchor="middle" fill="#f3e6c0" font-size="18">א · האחד</text>
+    <text x="475" y="348" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">איל-נאם · הזקן</text>
+    <text x="475" y="368" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">בורא המשחק</text>
+
+    <!-- 218 -->
+    <rect x="570" y="236" width="158" height="150" rx="14" fill="rgba(212,175,55,0.06)" stroke="url(#gold)" stroke-width="2"/>
+    <text x="649" y="290" text-anchor="middle" fill="#f6e27a" font-size="40">218</text>
+    <text x="649" y="322" text-anchor="middle" fill="#f3e6c0" font-size="18">ירח = זוהר</text>
+    <text x="649" y="348" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">סנג-וו · מלכות דוד</text>
+    <text x="649" y="368" text-anchor="middle" fill="#cbb25e" font-size="13" font-weight="400">הנמשלת ללבנה</text>
+  </g>
+</svg>
