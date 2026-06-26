@@ -6,6 +6,7 @@ import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { initAppInstallTracking } from "./lib/tracking.js";
+import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -124,6 +125,7 @@ export default function App() {
         <OnboardingGate />
         <Analytics />
         <UpdateBanner />
+        <RoyalShareWidget />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
