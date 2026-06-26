@@ -24,19 +24,27 @@ const linkChip = (color) => ({
 
 export function AiVerifiedDisclaimer() {
   return (
-    <div style={{
+    <div className="ai-vdisc" style={{
       direction: "rtl",
       background: "linear-gradient(135deg, rgba(62,166,255,0.07), rgba(8,5,16,0.4))",
       border: `1px solid #3ea6ff55`, borderRadius: 14, padding: "14px 16px", margin: "0 auto 30px", maxWidth: 720,
     }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+      <style>{`
+        @media (max-width: 560px) {
+          .ai-vdisc { padding: 12px 13px !important; border-radius: 12px !important; }
+          .ai-vdisc .ai-vdisc-head { flex-direction: column !important; align-items: center !important; gap: 8px !important; text-align: center !important; }
+          .ai-vdisc .ai-vdisc-head p { text-align: center !important; flex-basis: auto !important; }
+          .ai-vdisc .ai-vdisc-chips a { flex: 1 1 100% !important; justify-content: center !important; }
+        }
+      `}</style>
+      <div className="ai-vdisc-head" style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <VerifiedBadge variant="ai" size={18} label="AI · מאומת" />
-        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: 0, flex: 1, textAlign: "right" }}>
+        <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: 0, flex: "1 1 220px", minWidth: 0, textAlign: "right" }}>
           {AI_DISCLAIMER}
         </p>
       </div>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-        <Link to="/beit-midrash?tab=ai" style={linkChip("#3ea6ff")}>🔵 חידושי AI בבית המדרש ←</Link>
+      <div className="ai-vdisc-chips" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+        <Link to="/cross" style={linkChip("#3ea6ff")}>🔗 הצלבות השיטות שמצא ה-AI ←</Link>
         <Link to="/verified" style={linkChip(C.gold)}>✓ פוסטים מאומתים באתר ←</Link>
       </div>
     </div>
