@@ -75,6 +75,7 @@ const META_STD = {
   members_signup: "CompleteRegistration", // הצטרפות לבני ההיכל
   contact: "Contact",
   // share — אין אירוע סטנדרטי במטא; יישלח כ-trackCustom "Share".
+  // app_install — אין אירוע סטנדרטי במטא; יישלח כ-trackCustom "app_install".
 };
 
 // labels של המרות Google Ads — ממלאים פר-אירוע כשמגדירים המרה בלוח Ads.

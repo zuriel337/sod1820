@@ -5,6 +5,7 @@ import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
+import { initAppInstallTracking } from "./lib/tracking.js";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -64,7 +65,7 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname } = useLocation();
-  useEffect(() => { initGA(); initMarketing(); }, []);
+  useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];

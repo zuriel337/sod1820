@@ -1391,7 +1391,7 @@ const SECTION_LABELS = {
   home: "דף הבית", number: "מספרים", convergence: "התכנסויות",
   post: "פוסטים", "reality-stream": "זרם המציאות",
   "beit-midrash": "בית המדרש", timeline: "ציר הזמן",
-  share: "שיתופים",
+  share: "שיתופים", app: "אפליקציה",
 };
 
 function PopularityTab() {
@@ -1401,6 +1401,7 @@ function PopularityTab() {
   const [topImgs, setTopImgs] = useState([]);
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
+  const [appStats, setAppStats] = useState({ installs: 0, launchers: 0 });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1440,6 +1441,11 @@ function PopularityTab() {
             // WhatsApp
             const waRows = rows.filter(r => r.event_type === "share" && r.meta?.platform === "whatsapp");
             setTopWa(agg(waRows, "slug").slice(0, 8));
+            // התקנות אפליקציה + משתמשים פעילים מהאפליקציה
+            const appRows = rows.filter(r => r.section === "app");
+            const installs = appRows.filter(r => r.event_type === "install").length;
+            const launchers = new Set(appRows.filter(r => r.event_type === "launch").map(r => r.visitor_id)).size;
+            setAppStats({ installs, launchers });
             // גולשים ייחודיים
             setUniq(new Set(rows.map(r => r.visitor_id)).size);
           }).catch(() => {}),
@@ -1465,6 +1471,20 @@ function PopularityTab() {
         {uniq != null && <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13, marginRight: "auto", alignSelf: "center" }}>גולשים ייחודיים: <b style={{ color: C.goldBright }}>{uniq}</b></span>}
       </div>
       {loading && <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 14, textAlign: "center" }}>טוען…</div>}
+
+      {/* התקנות אפליקציה (PWA) */}
+      <div style={{ ...card, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 30 }}>📲</div>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 26, fontWeight: 800 }}>{appStats.installs}</div>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>התקנות אפליקציה</div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 30 }}>👤</div>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 26, fontWeight: 800 }}>{appStats.launchers}</div>
+          <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12.5 }}>משתמשים פעילים מהאפליקציה</div>
+        </div>
+      </div>
 
       {/* TOP מדורים — bar chart */}
       {sections.length > 0 && (
