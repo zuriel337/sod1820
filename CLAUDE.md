@@ -57,6 +57,7 @@
 - פוסט נוצר ידנית: `insert into posts (id, wp_id, title, slug, content, excerpt, date, modified, categories, tags, source, image_url) overriding system value values (...)` — `id`/`wp_id` = מעל ה-max הקיים; `source='ai'` לפוסט שנכתב ב-AI.
 - **כותבים (`author`):** שדה ריק = מוצג **"המערכת"** (לוגו SOD1820). אשכול קטגוריית **`התחזקות`** = הכותב **"מזכה הרבים"**. מרשם הכותבים: `src/lib/authors.js`.
 - **תווית/אימות AI (`verified` / `ai_touched`):** מפעילים **רק** כשה-AI אימת ידיעה ממקור חדשות מפוקפק/לא אמין — **לא** סימון לכל פוסט שנכתב ב-AI (כתיבה ב-AI = `source='ai'` בלבד, בלי דגל אימות).
+- **`ai_gematria_verified_stamp_law` (חקוק):** פוסט/ריבוע גימטריה שה-AI **יצר או אימת במנוע** → **תמיד** `ai_touched=true` כדי לרנדר את חותמת «🔵 AI · מאומת» (AiVerifiedDisclaimer) בראש — כמו פוסט נסראללה (wp_id=34200). תנאי: כל ערך אומת במנוע הרשמי (`fn_ragil`/`fn_misratar`/`atbash_calc`/`kadmi_calc`…) לפני החותמת. אסור חותמת קטנה/כפולה בתוך התוכן — רק הריבוע הקנוני בראש. החוק המלא: `select description from nodes where rule_id='ai_gematria_verified_stamp_law';`.
 
 ## יומן העבודה — מקור האמת
 כשצוריאל מבקש "לפתוח את היומן" / "יומן" / "רשומות אחרונות" וכו' —
