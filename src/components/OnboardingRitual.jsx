@@ -3,6 +3,7 @@ import { F } from "../theme.js";
 import { getVisitorId } from "../lib/tracking.js";
 import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { ONBOARDING_GATES, ONBOARDING_INTENTS, gatesToTopics } from "../lib/notifications.js";
+import { storeTopics } from "../lib/feedRanking.js";
 
 // 👑 טקס כניסה — 3 שלבים לשער המציאות (סגנון אפליקציית AI עתידית).
 // השערים = עדשה מעל notification_prefs (עץ אחד). מייל נאסף בשלב 3 ("נעילת הזרם").
@@ -56,6 +57,7 @@ export default function OnboardingRitual({ onDone }) {
     setBusy(true);
     try {
       const topics = gatesToTopics(gates.length ? gates : ONBOARDING_GATES.map(g => g.key));
+      storeTopics(topics);   // צילום מקומי לדירוג הפיד המיידי
       const mail = withEmail ? email.trim() : null;
       if (mail) { try { await subscribeEmail({ email: mail, source: "onboarding" }); } catch { /* noop */ } }
       await saveNotificationPrefs({ visitorId: getVisitorId(), topics, channels: ["email"], email: mail });

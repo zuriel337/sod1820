@@ -4,6 +4,7 @@ import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
+import { mergeStoredTopics } from "../lib/feedRanking.js";
 
 // קישור הוואטסאפ — ניתן להחלפה לערוץ ייעודי דרך VITE_WHATSAPP_CHANNEL
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
@@ -52,6 +53,8 @@ export default function UpdatesBox({
           await saveNotificationPrefs({
             visitorId: getVisitorId(), topics, channels: ["email"], email: email.trim(),
           });
+          mergeStoredTopics(topics);   // לעדכן את דירוג הפיד המקומי
+
         } catch { /* לא חוסם את ההרשמה */ }
       }
       markSubscribed();

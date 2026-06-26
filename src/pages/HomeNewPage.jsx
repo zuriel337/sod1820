@@ -19,6 +19,7 @@ import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import { track } from "../lib/tracking.js";
+import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -90,6 +91,8 @@ export default function HomeNewPage() {
 
   // «עדכונים אחרונים» = פוסטים + גלריות מומלצות, ממוזגים לפי תאריך (החדש למעלה).
   // הרמזים עצמם מוצגים בנפרד בסקשן "זרם המציאות" — לא משכפלים כאן.
+  // הבדלה קלה לפי שערים: פיד אחד, אך פריט שקשור לשער של המשתמש מקבל boost עדין.
+  const myTopics = useMemo(() => getStoredTopics(), []);
   const updatesFeed = useMemo(() => {
     const ps = (posts || []).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     // גלריות רמזים מומלצות — תאריך/כריכה לפי הרמז העדכני ביותר שמתאים לסט
@@ -99,8 +102,16 @@ export default function HomeNewPage() {
       for (const h of (hints || [])) if (hintNums(h).some(n => ns.has(n))) { const d = effDate(h); if (d > date) { date = d; cover = h.image_url; } }
       return { kind: "set", date, data: { ...s, cover } };
     }).filter(x => x.date > 0);
-    return [...ps, ...ss].sort((a, b) => b.date - a.date).slice(0, 8);
-  }, [posts, hints, homeSets]);
+    const rankItem = (it) => {
+      const d = it.data || {};
+      const norm = it.kind === "post"
+        ? { text: `${stripHtml(d.title || "")} ${(d.categories || []).join(" ")} ${(d.tags || []).join(" ")}`, categories: d.categories || [], numbers: [] }
+        : { text: d.name || "", categories: [], numbers: d.numbers || [] };
+      const rel = isRelatedToTopics(norm, myTopics);
+      return { ...it, rel, sortKey: it.date + (rel ? RELATED_BOOST_MS : 0) };
+    };
+    return [...ps, ...ss].map(rankItem).sort((a, b) => b.sortKey - a.sortKey).slice(0, 8);
+  }, [posts, hints, homeSets, myTopics]);
   const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
   // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
@@ -217,6 +228,7 @@ export default function HomeNewPage() {
               <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
                 {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
                 {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
+                {item.rel && <span title="מותאם לשער שבחרת" style={{ position: "absolute", bottom: 8, insetInlineStart: 8, background: "rgba(91,140,255,0.92)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px" }}>✦ לפי השער שלך</span>}
               </div>
               <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
