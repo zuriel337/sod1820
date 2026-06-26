@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
-import { useAuth } from "../../lib/AuthContext.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
 const COLUMNS = [
@@ -147,16 +146,17 @@ const FOOTER_CSS = (cc) => `
 
 export default function Footer() {
   const cc = chromeColors(useThemeMode());
-  const { user } = useAuth();
   return (
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
 
-      {/* אזור ללא-הרשמה: קישור ניהול עדין בלבד (Single Conversion Spine — השער הוא /enter) */}
-      <div style={{ textAlign: "center", padding: "14px 0 6px" }}>
-        <Link to={user ? "/profile#notifications" : "/enter"} style={{ color: cc.linkMuted || cc.muted || "#8b90a8", fontFamily: F.heading, fontSize: 13, textDecoration: "none", opacity: 0.85 }}>
-          🌊 הזרם שלך
-        </Link>
+      {/* תגית מותג עדינה — טון המערכת */}
+      <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+        <span style={{ fontFamily: F.heading, fontSize: 13.5, letterSpacing: 1 }}>
+          <span style={{ color: cc.goldBright || cc.goldLight, fontWeight: 800 }}>SOD1820</span>
+          <span style={{ color: cc.muted, margin: "0 6px" }}>—</span>
+          <span style={{ color: cc.goldDim || cc.muted }}>קריאת מציאות בזמן אמת</span>
+        </span>
       </div>
 
       <div className="foot-main">

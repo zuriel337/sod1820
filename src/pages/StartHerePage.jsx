@@ -96,15 +96,15 @@ export default function StartHerePage() {
         </Link>
       </div>
 
-      {/* שער כניסה יחיד — מפנים לטקס (/enter), בלי טופס נפרד (Single Conversion Spine) */}
+      {/* כניסה לחקירה — אל עץ המספרים ("גוגל של המספרים") */}
       <div style={{ marginTop: 48, textAlign: "center" }}>
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-          מוכנים להיכנס?
+          מוכנים לצלול פנימה?
         </div>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 440, margin: "0 auto 18px" }}>
-          כוונו את הזרם שלכם ובחרו את השערים — והמערכת תיפתח בהתאמה אישית.
+          כל מספר הוא עולם שלם. חפשו מספר, שם או מילה — וגלו את הקשרים שמאחורי המציאות.
         </p>
-        <GoldButton to="/enter">✨ להיכנס לשער</GoldButton>
+        <GoldButton to="/numbers">🔢 לעץ המספרים</GoldButton>
       </div>
 
       {/* 👑 סיום — היכנסו לעולם החדש */}

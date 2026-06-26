@@ -171,7 +171,7 @@ export default function HomeNewPage() {
         <div className="hn-gate">
           <img src={HERO_IMG} alt="כי לה' המלוכה · סוד 1820 — שער המספר הגדול" className="hn-gate-img"
             fetchpriority="high" decoding="async" />
-          <Link to="/enter" className="hn-cta hn-cta-big hn-enter">✨ כאן מתחילים</Link>
+          <Link to="/start" className="hn-cta hn-cta-big hn-enter">✨ כאן מתחילים</Link>
         </div>
 
         {/* חיפוש גימטריה + כניסה משנית */}
