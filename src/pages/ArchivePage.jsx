@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { C, F } from "../theme.js";
@@ -96,6 +96,11 @@ export default function ArchivePage() {
   const [multiSelect, setMultiSelect] = useState(false);
   const [masonryView, setMasonryView] = useState(true);
   const [bulkType, setBulkType] = useState(null);
+
+  // drag-and-drop classification
+  const dragIdsRef = useRef(new Set());
+  const [dragging, setDragging] = useState(false);
+  const [dropTarget, setDropTarget] = useState(null); // type key being hovered
 
   // hint_sets
   const [hintSets, setHintSets] = useState([]);
@@ -353,6 +358,29 @@ export default function ArchivePage() {
       setActiveHintSet(s => ({ ...s, _memberCount: memberCount + 1 }));
     } catch (e) { alert("הוספה נכשלה: " + (e.message || e)); }
   }
+
+  // ── drag-and-drop classification ──
+  function handleDragStart(e, im) {
+    const ids = selectedIds.size > 0 && selectedIds.has(im.id) ? [...selectedIds] : [im.id];
+    dragIdsRef.current = new Set(ids);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', ids.join(','));
+    setDragging(true);
+  }
+  function handleDragEnd() { setDragging(false); setDropTarget(null); }
+  async function dropOnType(targetType) {
+    const ids = [...dragIdsRef.current];
+    if (!ids.length) return;
+    setDragging(false); setDropTarget(null);
+    try {
+      await Promise.all(ids.map(id => setImageCuration(id, { image_type: targetType })));
+      const captured = new Set(dragIdsRef.current);
+      setImgs(prev => prev.map(x => captured.has(x.id) ? { ...x, image_type: targetType } : x));
+      dragIdsRef.current = new Set();
+      setSelectedIds(new Set());
+    } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
   async function saveBuilder() {
     const nums = [...builder.numbers].sort((a, b) => a - b);
     if (!builder.name.trim() || !nums.length) return;
@@ -491,7 +519,11 @@ export default function ArchivePage() {
       .ar-type-btn:hover { border-color: ${C.gold}; }
       .ar-type-btn.active { background: linear-gradient(135deg,rgba(212,175,55,0.2),rgba(8,5,2,0.4)); border-color: ${C.gold}; color: ${C.goldBright}; }
       .ar-type-cnt { font-family: ${F.mono}; font-size: 11px; color: ${C.muted}; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 999px; flex-shrink: 0; }
-      .ar-type-btn.active .ar-type-cnt { color: ${C.goldDim}; }
+      .ar-type-btn.active .ar-type-cnt { color: rgba(10,5,0,0.85); background: rgba(212,175,55,0.55); }
+      .ar-type-btn.drop-hover { border-color: #fff; background: rgba(212,175,55,0.35); transform: scale(1.04); box-shadow: 0 0 0 2px rgba(212,175,55,0.6); }
+      .ar-mcard[draggable] { cursor: grab; }
+      .ar-mcard[draggable]:active { cursor: grabbing; }
+      .ar-mcard.ar-dragging { opacity: 0.5; }
 
       /* ── תצוגת מאגר (masonry) ── */
       .ar-masonry {
@@ -646,10 +678,16 @@ export default function ArchivePage() {
                 ['gallery',  '🗂 כללי',        imgs.filter(x => !x.curator_hidden && x.image_type === 'gallery').length],
                 ['__none',   '❓ לא מסווג',    imgs.filter(x => !x.curator_hidden && x.image_type == null).length],
               ].map(([k, l, cnt]) => (
-                <button key={String(k)} className={`ar-type-btn${typeFilter === k ? ' active' : ''}`}
-                  onClick={() => setTypeFilter(prev => prev === k ? null : k)}>
+                <button key={String(k)}
+                  className={`ar-type-btn${typeFilter === k ? ' active' : ''}${dragging && k !== null && k !== '__none' && dropTarget === k ? ' drop-hover' : ''}`}
+                  onClick={() => setTypeFilter(prev => prev === k ? null : k)}
+                  onDragOver={isAdmin && k !== null && k !== '__none' ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropTarget(k); } : undefined}
+                  onDragLeave={isAdmin && k !== null && k !== '__none' ? () => setDropTarget(null) : undefined}
+                  onDrop={isAdmin && k !== null && k !== '__none' ? e => { e.preventDefault(); dropOnType(k); } : undefined}
+                >
                   <span>{l}</span>
                   <span className="ar-type-cnt">{cnt}</span>
+                  {dragging && k !== null && k !== '__none' && <span style={{fontSize:10,opacity:0.7,marginInlineStart:4}}>⬇</span>}
                 </button>
               ))}
             </div>
@@ -1089,7 +1127,12 @@ export default function ArchivePage() {
                   const isSel = selectedIds.has(im.id);
                   const TYPE_EMOJI = { hint: '💡', gematria: '🔢', trail: '📖', event: '📰', gallery: '🗂' };
                   return (
-                    <div key={im.id} className={`ar-mcard${isSel ? ' ar-msel' : ''}`}>
+                    <div key={im.id}
+                      className={`ar-mcard${isSel ? ' ar-msel' : ''}${dragging && dragIdsRef.current.has(im.id) ? ' ar-dragging' : ''}`}
+                      draggable={isAdmin}
+                      onDragStart={isAdmin ? e => handleDragStart(e, im) : undefined}
+                      onDragEnd={isAdmin ? handleDragEnd : undefined}
+                    >
                       <div className="ar-mwrap"
                         onClick={() => multiSelect
                           ? toggleSelect(im.id)
