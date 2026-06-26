@@ -3,16 +3,17 @@
 // אילו נושאים מעניינים אותו — וכל ערוץ ישלח בעתיד רק את מה שסומן.
 // העדפות נשמרות ב-notification_prefs (לפי user_id / visitor_id).
 
+// רשימה רזה בכוונה — נושא רחב אחד לכל "עולם". אין צורך לפצל (התכנסות/הצלבה =
+// "חידושי בית המדרש" אחד); אפשר תמיד לשלוח מדויק יותר בצד השולח. רשימה ארוכה
+// = עומס החלטה = פחות הרשמות.
 export const NOTIFICATION_TOPICS = [
-  { key: "gematria",    label: "גימטריה",          emoji: "🔢" },
-  { key: "hints",       label: "רמזים",            emoji: "🔍" },
-  { key: "convergence", label: "התכנסויות",        emoji: "🔥" },
-  { key: "news",        label: "חדשות",            emoji: "🗞️" },
-  { key: "els",         label: "דילוגי אותיות",    emoji: "🧩" },
-  { key: "num_1820",    label: "מספר 1820",        emoji: "👑" },
-  { key: "num_73",      label: "מספר 73",          emoji: "✨" },
-  { key: "courses",     label: "קורסים ושיעורים",  emoji: "🎓" },
-  { key: "events",      label: "אירועים",          emoji: "📅" },
+  { key: "beit_midrash", label: "חידושי בית המדרש", emoji: "🔮" }, // התכנסויות + הצלבות + חידושי AI
+  { key: "gematria",     label: "גימטריה",          emoji: "🔢" },
+  { key: "hints",        label: "רמזים",            emoji: "🔍" },
+  { key: "news",         label: "חדשות ואירועים",   emoji: "🗞️" },
+  { key: "els",          label: "דילוגי אותיות",    emoji: "🧩" },
+  { key: "num_1820",     label: "מספר 1820",        emoji: "👑" },
+  { key: "courses",      label: "קורסים ושיעורים",  emoji: "🎓" },
 ];
 
 // ערוץ פעיל אחד (מייל) + שניים עתידיים שמוצגים מנוטרלים — שומר על החזון בלי לבלבל.

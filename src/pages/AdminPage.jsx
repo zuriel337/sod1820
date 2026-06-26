@@ -17,6 +17,7 @@ import {
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
+import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
@@ -39,6 +40,7 @@ const TABS = [
   { key: "ocr",      label: "🔤 OCR" },
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
+  { key: "push",     label: "🔔 שליחת התראה" },
   { key: "worklog",  label: "📝 יומן עבודה" },
   { key: "stream",   label: "🌊 זרם המציאות" },
 ];
@@ -110,6 +112,7 @@ export default function AdminPage() {
       {tab === "ocr" && <OcrTab />}
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
+      {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
       {tab === "stream" && <StreamAdminTab />}
     </div>
@@ -2767,6 +2770,115 @@ function ClassifyTab() {
             )}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ===== PushSendTab — שליחת התראת Push לפי נושא =====
+const SEND_PUSH_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/send-push";
+
+function PushSendTab() {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [url, setUrl] = useState("/");
+  const [topic, setTopic] = useState("all");   // all = לכל המנויים
+  const [adminKey, setAdminKey] = useState(() => { try { return sessionStorage.getItem("sod_push_key") || ""; } catch { return ""; } });
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState("");
+  const [counts, setCounts] = useState(null);   // { total, byTopic }
+
+  // ספירת מנויי Push (כללי + לפי נושא) — לאומדן הישג לפני שליחה.
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from("push_subscriptions").select("topics").then(({ data }) => {
+      const rows = data || [];
+      const byTopic = {};
+      rows.forEach(r => (Array.isArray(r.topics) ? r.topics : []).forEach(t => { byTopic[t] = (byTopic[t] || 0) + 1; }));
+      setCounts({ total: rows.length, byTopic });
+    }).catch(() => {});
+  }, []);
+
+  // אומדן יעד: topic=all → כולם; אחרת מי שסימן את הנושא + מי שלא סימן כלום (=הכל).
+  const reach = topic === "all" ? (counts?.total ?? 0) : (counts ? (counts.byTopic[topic] || 0) : 0);
+
+  async function send() {
+    setErr(""); setResult(null);
+    if (!adminKey.trim()) { setErr("נא להזין מפתח שליחה (PUSH_ADMIN_KEY)"); return; }
+    if (!title.trim() && !body.trim()) { setErr("נא למלא כותרת או תוכן"); return; }
+    try { sessionStorage.setItem("sod_push_key", adminKey.trim()); } catch { /* noop */ }
+    setBusy(true);
+    try {
+      const res = await fetch(SEND_PUSH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_key: adminKey.trim(),
+          title: title.trim() || undefined,
+          body: body.trim() || undefined,
+          url: url.trim() || "/",
+          topic: topic === "all" ? undefined : topic,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setErr(data?.error || `שגיאה (${res.status})`); }
+      else { setResult(data); }
+    } catch (e) {
+      setErr("השליחה נכשלה — בדקו שהפונקציה send-push פרוסה. " + String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const field = { width: "100%", padding: "10px 12px", background: C.surface, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, fontFamily: F.body, fontSize: 14, outline: "none", boxSizing: "border-box" };
+  const lbl = { color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, display: "block", margin: "14px 0 5px" };
+
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 620 }}>
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>🔔 שליחת התראת Push</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+          ההתראה נשלחת רק למנויי Push שסימנו את הנושא (ומי שלא סימן נושאים — מקבל הכל).
+          דורש פריסת הפונקציה <code>send-push</code> והגדרת מפתחות VAPID.
+        </div>
+
+        <label style={lbl}>נושא</label>
+        <select value={topic} onChange={e => setTopic(e.target.value)} style={field}>
+          <option value="all">📣 כל המנויים</option>
+          {NOTIFICATION_TOPICS.map(t => <option key={t.key} value={t.key}>{t.emoji} {t.label}</option>)}
+        </select>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginTop: 6 }}>
+          מנויי Push: <b style={{ color: C.goldBright }}>{counts ? counts.total : "…"}</b>
+          {topic !== "all" && counts ? <> · סימנו נושא זה: <b style={{ color: C.goldBright }}>{reach}</b></> : null}
+        </div>
+
+        <label style={lbl}>כותרת</label>
+        <input style={field} value={title} onChange={e => setTitle(e.target.value)} dir="rtl" placeholder="רמז חדש על 1820" />
+
+        <label style={lbl}>תוכן</label>
+        <input style={field} value={body} onChange={e => setBody(e.target.value)} dir="rtl" placeholder="התגלתה התכנסות חדשה — לחצו לצפייה" />
+
+        <label style={lbl}>קישור (url)</label>
+        <input style={field} value={url} onChange={e => setUrl(e.target.value)} dir="ltr" placeholder="/number/1820" />
+
+        <label style={lbl}>מפתח שליחה (PUSH_ADMIN_KEY)</label>
+        <input style={field} type="password" value={adminKey} onChange={e => setAdminKey(e.target.value)} dir="ltr" placeholder="••••••••" />
+
+        {err && <div style={{ color: C.danger, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{err}</div>}
+        {result && (
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, marginTop: 12 }}>
+            ✦ נשלח: {result.sent} · נכשל: {result.failed || 0} · מנויים מתים שנוקו: {result.gone || 0} (מתוך {result.total})
+          </div>
+        )}
+
+        <div style={{ marginTop: 18 }}>
+          <button onClick={send} disabled={busy} style={{
+            cursor: busy ? "wait" : "pointer", padding: "11px 26px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+            fontFamily: F.heading, fontSize: 15, fontWeight: 800,
+          }}>{busy ? "שולח…" : "שליחת התראה 🔔"}</button>
+        </div>
       </div>
     </div>
   );
