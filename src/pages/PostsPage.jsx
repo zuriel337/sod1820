@@ -3,6 +3,8 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import ShareToFacebookBtn from "../components/ShareToFacebookBtn.jsx";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
   getDistinctCategoriesAndTags, getGematriaByValue,
@@ -30,7 +32,7 @@ const isHebrew = s => /[א-ת]/.test(s);
 const isNumeric = s => /^\d+$/.test(s.trim());
 const shortDate = d => { try { return new Date(d).toLocaleDateString("he-IL"); } catch { return ""; } };
 
-function PostCard({ p, i, view, hot }) {
+function PostCard({ p, i, view, hot, isAdmin }) {
   const P = usePalette();
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
@@ -40,32 +42,40 @@ function PostCard({ p, i, view, hot }) {
   const wasUpdated = p.modified && p.modified !== p.date;
   const gem = calcGem(title);
   return (
-    <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
-      <div className="pp-thumb" style={{
-        background: image ? `center/cover no-repeat url(${image})` : P.cardGrad,
-      }}>
-        {!image && <span className="pp-thumb-mark">✦</span>}
-        <span className="pp-thumb-holo" />
-        {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
-        {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
-      </div>
-      <div className="pp-body">
-        <div className="pp-name">{title}</div>
-        {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
-        <div className="pp-meta">
-          <span className="pp-dates" title={`נוצר ${formatDateHe(p.date)} · עודכן ${formatDateHe(p.modified || p.date)}`}>
-            <span>📅 {created}</span>
-            <span style={{ color: wasUpdated ? P.accentText : P.inkSoft }}>· ✏️ {updated}</span>
-          </span>
-          <span aria-hidden>←</span>
+    <div style={{ position: "relative" }} className="pp-card-wrap">
+      <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
+        <div className="pp-thumb" style={{
+          background: image ? `center/cover no-repeat url(${image})` : P.cardGrad,
+        }}>
+          {!image && <span className="pp-thumb-mark">✦</span>}
+          <span className="pp-thumb-holo" />
+          {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
+          {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
         </div>
-      </div>
-    </Link>
+        <div className="pp-body">
+          <div className="pp-name">{title}</div>
+          {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
+          <div className="pp-meta">
+            <span className="pp-dates" title={`נוצר ${formatDateHe(p.date)} · עודכן ${formatDateHe(p.modified || p.date)}`}>
+              <span>📅 {created}</span>
+              <span style={{ color: wasUpdated ? P.accentText : P.inkSoft }}>· ✏️ {updated}</span>
+            </span>
+            <span aria-hidden>←</span>
+          </div>
+        </div>
+      </Link>
+      {isAdmin && (
+        <div style={{ position: "absolute", top: 8, insetInlineEnd: 8, zIndex: 4 }} className="pp-admin-fb">
+          <ShareToFacebookBtn type="post" id={String(p.id)} />
+        </div>
+      )}
+    </div>
   );
 }
 
 export default function PostsPage() {
   const P = usePalette();
+  const { isAdmin } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   // נתוני עזר
@@ -365,7 +375,7 @@ export default function PostsPage() {
       ) : (
         <>
           <div className={view === "grid" ? "pp-grid" : "pp-listcol"}>
-            {posts.map((p, i) => <PostCard key={`${p.slug}-${i}`} p={p} i={i} view={view} hot={hotSlugs.has(p.slug)} />)}
+            {posts.map((p, i) => <PostCard key={`${p.slug}-${i}`} p={p} i={i} view={view} hot={hotSlugs.has(p.slug)} isAdmin={isAdmin} />)}
           </div>
           {hasMore && (
             <div style={{ textAlign: "center", marginTop: 36 }}>
@@ -468,6 +478,9 @@ export default function PostsPage() {
           transition: border-color .18s, transform .18s, box-shadow .18s; animation: pp-in .5s ease both; }
         .pp-card:hover { border-color: ${P.accent}; transform: translateY(-3px);
           box-shadow: 0 14px 38px rgba(0,0,0,0.5), 0 0 22px ${P.glow}; }
+        .pp-card-wrap { position: relative; }
+        .pp-admin-fb { opacity: 0; transition: opacity .15s; }
+        .pp-card-wrap:hover .pp-admin-fb { opacity: 1; }
         .pp-thumb { position: relative; aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .pp-thumb-mark { color: ${P.accentDim}; font-size: 30px; opacity: .5; }
         .pp-thumb-holo { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(5,4,0,0.85)); }
