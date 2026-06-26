@@ -44,26 +44,32 @@ export default function StayUpdatedCTA({ variant = "home" }) {
 
   const successMsg = done === "push" ? "מעולה! תקבלו התראות כשיֵצא חדש 🔔" : "אתם בפנים! נעדכן אתכם כשיֵצא חדש 🙏";
 
-  // ===== פוטר — שדה מייל ישיר ועדין =====
+  // ===== פוטר — טקסט "מערכת חיה" מימין + שדה מייל משמאל =====
   if (variant === "footer") {
     return (
-      <div style={{ textAlign: "center", padding: "18px 16px 8px", direction: "rtl" }}>
+      <div style={{ maxWidth: 1040, margin: "0 auto", padding: "16px 16px 10px", direction: "rtl" }}>
         {done ? (
-          <div style={{ color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ {successMsg}</div>
+          <div style={{ textAlign: "center", color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ {successMsg}</div>
         ) : (
-          <>
-            <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 9 }}>
-              📬 קבלו עדכון כשמתפרסמים תכנים חדשים
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            {/* טקסט — צד ימין */}
+            <div style={{ textAlign: "right", minWidth: 220 }}>
+              <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+                <span style={{ color: "#1faa55" }}>●</span> מערכת חיה — מתעדכנת באופן שוטף
+              </div>
+              <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>
+                תכנים חדשים, חיפושים ותגליות מתווספים באופן קבוע.
+              </div>
             </div>
-            <form onSubmit={submitEmail} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 420, margin: "0 auto" }}>
+            {/* מייל — צד שמאל */}
+            <form onSubmit={submitEmail} style={{ display: "flex", gap: 8, marginInlineStart: "auto", flexWrap: "wrap", alignItems: "center" }}>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלך" dir="ltr"
-                style={{ flex: "1 1 200px", minWidth: 170, padding: "11px 14px", borderRadius: 10, background: cc.surface || "#0d0a0e", border: `1px solid ${cc.border}`, color: cc.goldLight, fontFamily: F.body, fontSize: 14.5, textAlign: "center", outline: "none" }} />
+                style={{ flex: "0 1 220px", minWidth: 180, padding: "11px 14px", borderRadius: 10, background: cc.surface || "#0d0a0e", border: `1px solid ${cc.border}`, color: cc.goldLight, fontFamily: F.body, fontSize: 14.5, textAlign: "center", outline: "none" }} />
               <button type="submit" disabled={busy} style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 10, padding: "11px 24px", background: cc.accentBtn || cc.goldBright, color: cc.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 14, whiteSpace: "nowrap" }}>{busy ? "רגע…" : "הצטרפו"}</button>
             </form>
-            {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>{err}</div>}
-            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11, marginTop: 7 }}>חינם · אפשר לבטל בכל רגע</div>
-          </>
+          </div>
         )}
+        {err && <div style={{ textAlign: "center", color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>{err}</div>}
       </div>
     );
   }
