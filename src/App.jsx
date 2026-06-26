@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import UpdateBanner from "./components/UpdateBanner.jsx";
+const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
 import HomeNewPage from "./pages/HomeNewPage.jsx";
@@ -79,6 +80,35 @@ function RouteEffects() {
   return null;
 }
 
+// טקס הכניסה — אוטומטי למבקר חדש (פעם אחת) בעמוד הבית בלבד (לא חוטף דיפ-לינקים).
+// תמיד נגיש דרך /enter וכפתור "כאן מתחילים".
+function OnboardingGate() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [show, setShow] = React.useState(false);
+  useEffect(() => {
+    if (pathname !== "/") return;
+    try { if (localStorage.getItem("sod_onboarded")) return; } catch { return; }
+    setShow(true);
+  }, []);  // פעם אחת בעליית האפליקציה
+  if (!show) return null;
+  return (
+    <React.Suspense fallback={null}>
+      <OnboardingRitual onDone={() => { setShow(false); navigate("/"); }} />
+    </React.Suspense>
+  );
+}
+
+// עמוד /enter — טקס הכניסה כעמוד מלא (תמיד נגיש, גם למשתמש חוזר).
+function EnterRoute() {
+  const navigate = useNavigate();
+  return (
+    <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05060A" }} />}>
+      <OnboardingRitual onDone={() => navigate("/")} />
+    </React.Suspense>
+  );
+}
+
 // מחשבון יחיד — /גימטריה ו-/gematria מובילים למחשבון הקנוני בבית המדרש (עץ אחד, בלי כפילות).
 // משמרים seed: /gematria?w=דוד → /beit-midrash?tab=calc&w=דוד
 function GematriaToBeitMidrash() {
@@ -93,11 +123,14 @@ export default function App() {
     <AuthProvider>
     <BrowserRouter>
         <RouteEffects />
+        <OnboardingGate />
         <Analytics />
         <UpdateBanner />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
+          {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}
+          <Route path="/enter" element={<EnterRoute />} />
           <Route path="/ניסיון" element={<ExperiencePage />} />
           <Route path="/experience" element={<ExperiencePage />} />
           <Route path="/חישוב" element={<GematriaRevealPage />} />

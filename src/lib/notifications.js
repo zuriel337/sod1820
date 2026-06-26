@@ -24,3 +24,25 @@ export const NOTIFICATION_CHANNELS = [
 ];
 
 export const DEFAULT_CHANNELS = ["email"];
+
+// ===== טקס הכניסה (Onboarding) — שערים = עדשה חווייתית מעל אותם topics =====
+// אין מערכת מקבילה: בחירת שער = בחירת קבוצת נושאים שנשמרת ל-notification_prefs.
+export const ONBOARDING_GATES = [
+  { key: "consciousness", emoji: "🔮", title: "שער התודעה", desc: "מחשבה, עומק, חיבורים בין רעיונות", topics: ["beit_midrash", "gematria"] },
+  { key: "signs",         emoji: "🔢", title: "שער הרמזים", desc: "גימטריה, מספרים, 1820, סימני מציאות", topics: ["hints", "num_1820", "gematria"] },
+  { key: "flow",          emoji: "🗞️", title: "שער הזרימה", desc: "חדשות, עדכונים, אירועים בזמן אמת", topics: ["news"] },
+];
+
+// שלב 1 (מה אתה מחפש) → רמז רך שמסמן מראש שער.
+export const ONBOARDING_INTENTS = [
+  { key: "consciousness", emoji: "🔍", label: "להבין עומק של המציאות" },
+  { key: "signs",         emoji: "🔢", label: "לזהות רמזים וסימנים" },
+  { key: "flow",          emoji: "⚡", label: "לקבל עדכונים חיים מהעולם" },
+];
+
+// קבוצת שערים → רשימת נושאים ייחודית (union).
+export function gatesToTopics(gateKeys = []) {
+  const set = new Set();
+  ONBOARDING_GATES.forEach(g => { if (gateKeys.includes(g.key)) g.topics.forEach(t => set.add(t)); });
+  return [...set];
+}
