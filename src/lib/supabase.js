@@ -545,6 +545,37 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
   return { ok: true, duplicate: !!error };
 }
 
+// ── מרכז התראות — העדפות נושאים/ערוצים (notification_prefs) ──
+// מקור אחד לכל הערוצים. שורה לכל זהות: userId (מחובר) או visitorId (אנונימי).
+export async function getNotificationPrefs({ userId = null, visitorId = null } = {}) {
+  if (!supabase) return null;
+  let q = supabase.from('notification_prefs').select('topics, channels, email');
+  if (userId) q = q.eq('user_id', userId);
+  else if (visitorId) q = q.eq('visitor_id', visitorId);
+  else return null;
+  const { data } = await q.maybeSingle();
+  return data || null;
+}
+
+export async function saveNotificationPrefs({ userId = null, visitorId = null, topics = [], channels = [], email = null }) {
+  if (!supabase) return { ok: false };
+  const row = { topics, channels, email: email || null, updated_at: new Date().toISOString() };
+  let res;
+  if (userId) {
+    row.user_id = userId;
+    res = await supabase.from('notification_prefs').upsert(row, { onConflict: 'user_id' });
+  } else if (visitorId) {
+    row.visitor_id = visitorId;
+    res = await supabase.from('notification_prefs').upsert(row, { onConflict: 'visitor_id' });
+  } else return { ok: false };
+  if (res.error) throw res.error;
+  // בחר ערוץ מייל ויש כתובת → לוודא שהוא ברשימת התפוצה הקיימת (בלי כפילות, בלי מערכת מקבילה).
+  if (channels.includes('email') && email) {
+    try { await subscribeEmail({ email, source: 'notification-center' }); } catch { /* noop */ }
+  }
+  return { ok: true };
+}
+
 // ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
 export async function getShareCount(wpId) {
   if (!supabase || !wpId) return 0;

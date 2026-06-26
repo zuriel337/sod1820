@@ -6,6 +6,7 @@ import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
+import NotificationCenter from "../components/NotificationCenter.jsx";
 
 export default function ProfilePage() {
   const P = usePalette();
@@ -98,6 +99,9 @@ export default function ProfilePage() {
           <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
         </div>
       </div>
+
+      <NotificationCenter />
+
       <div style={{ textAlign: "center", marginTop: 20 }}>
         <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>
       </div>
