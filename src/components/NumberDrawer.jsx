@@ -8,7 +8,7 @@ import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawe
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
 
-const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "הנעלם"].includes(m.key));
+const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "מילוי בלבד"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
