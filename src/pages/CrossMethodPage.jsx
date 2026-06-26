@@ -14,7 +14,7 @@ const METHOD_COLS = [
   { col: "ragil",    name: "רגיל",   sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", icon: "✦" },
   { col: "miluy",    name: "מילוי",  sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", icon: "🫧" },
   { col: "misratar", name: "מסתתר",  sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", icon: "🔍" },
-  { col: "kadmi",    name: "קדמי",   sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", icon: "🌱" },
+  { col: "kadmi",    name: "קדמי · משולש", sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", icon: "🌱" },
   { col: "gadol",    name: "גדול",   sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", icon: "🔥" },
   { col: "siduri",   name: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", icon: "🔢" },
   { col: "atbash",   name: "אתבש",   sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", icon: "🪞" },

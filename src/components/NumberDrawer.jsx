@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getEntityBundle, getTopicCards } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
-import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
 
 const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "מילוי בלבד"].includes(m.key));
@@ -180,7 +180,7 @@ export default function NumberDrawer() {
                 <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = P.borderStrong)} onMouseLeave={e => (e.currentTarget.style.borderColor = P.border)}
                   style={{ cursor: "pointer", textAlign: "center", background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, padding: "6px 4px", transition: "border-color .15s" }}>
-                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.key}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{methodLabel(t.key)}</div>
                   <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}><span style={{ color: P.accentDim, fontWeight: 700 }}>= </span>{t.v}</div>
                   {t.sub && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.3, marginTop: 2, opacity: 0.85 }}>{t.sub}</div>}
                 </button>
@@ -210,7 +210,7 @@ export default function NumberDrawer() {
                 <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = P.borderStrong)} onMouseLeave={e => (e.currentTarget.style.borderColor = P.border)}
                   style={{ cursor: "pointer", display: "flex", alignItems: "baseline", gap: 6, background: P.card, border: `1px solid ${P.border}`, borderRadius: 8, padding: "5px 9px", transition: "border-color .15s", textAlign: "right" }}>
-                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={t.key}>{t.key}</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={methodLabel(t.key)}>{methodLabel(t.key)}</span>
                   <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 15.5, fontWeight: 800, flexShrink: 0 }}>{t.v}</span>
                 </button>
               ))}
