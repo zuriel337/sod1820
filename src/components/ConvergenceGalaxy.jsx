@@ -130,12 +130,14 @@ function Scene({ cards, sel, setSel, level }) {
   );
 }
 
-export default function ConvergenceGalaxy({ level = 1 }) {
+export default function ConvergenceGalaxy({ level = 1, clean = false }) {
   const [cards, setCards] = useState(null);
   const [sel, setSel] = useState(null);
 
   useEffect(() => {
-    applySeo({ title: `גלקסיית ההתכנסות · גרסה ${level}`, description: "מפת תלת-מימד של צירי ההתכנסות החזקים — סוד 1820", path: `/sulamot${level > 1 ? level : ""}` });
+    applySeo(clean
+      ? { title: "עץ ההתכנסויות", description: "עץ ההתכנסויות — מפת תלת-מימד של כל צירי ההתכנסות החזקים בסוד 1820.", path: "/numbers" }
+      : { title: `גלקסיית ההתכנסות · גרסה ${level}`, description: "מפת תלת-מימד של צירי ההתכנסות החזקים — סוד 1820", path: `/sulamot${level > 1 ? level : ""}` });
     let live = true;
     getTopicCards({ approvedOnly: true }).then(cs => {
       if (!live) return;
@@ -150,8 +152,8 @@ export default function ConvergenceGalaxy({ level = 1 }) {
   return (
     <div style={{ position: "relative", width: "100%", height: "calc(100vh - 120px)", minHeight: 520, background: "radial-gradient(circle at 50% 40%, #0d0a04, #05030a)", direction: "rtl" }}>
       <div style={{ position: "absolute", top: 18, insetInlineStart: 0, insetInlineEnd: 0, textAlign: "center", zIndex: 2, pointerEvents: "none" }}>
-        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase" }}>סוד 1820 · ניסויים · גרסה {level}</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "4px 0 0", textShadow: `0 0 30px ${C.goldDeep}` }}>✦ גלקסיית ההתכנסות</h1>
+        {!clean && <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase" }}>סוד 1820 · ניסויים · גרסה {level}</div>}
+        <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "4px 0 0", textShadow: `0 0 30px ${C.goldDeep}` }}>✦ {clean ? "עץ ההתכנסויות" : "גלקסיית ההתכנסות"}</h1>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>הצירים החזקים · קווים = הצטלבות · לחצו כדור{level >= 2 ? " · כוכבי-לוויין = המספרים" : ""}</div>
       </div>
 
@@ -183,7 +185,8 @@ export default function ConvergenceGalaxy({ level = 1 }) {
         </div>
       )}
 
-      {/* ניווט בין הגרסאות */}
+      {/* ניווט בין הגרסאות — מוסתר במצב נקי (עץ ההתכנסויות ב-/numbers) */}
+      {!clean && (
       <div style={{ position: "absolute", bottom: 14, insetInlineStart: 0, insetInlineEnd: 0, display: "flex", gap: 8, justifyContent: "center", zIndex: 3 }}>
         {[1, 2, 3, 4].map(l => (
           <Link key={l} to={`/sulamot${l > 1 ? l : ""}`} style={{ textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
@@ -192,6 +195,7 @@ export default function ConvergenceGalaxy({ level = 1 }) {
             color: l === level ? C.goldBright : C.muted }}>גרסה {l}</Link>
         ))}
       </div>
+      )}
     </div>
   );
 }

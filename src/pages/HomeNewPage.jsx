@@ -28,7 +28,7 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
-  { icon: "🌳", label: "עץ המספרים", to: "/numbers" },
+  { icon: "🌳", label: "עץ ההתכנסויות", to: "/numbers" },
   { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
   { icon: "🖼️", label: "גלריות", to: "/archive" },
   { icon: "🌅", label: "ציר הזמן", to: "/timeline" },
@@ -276,14 +276,14 @@ export default function HomeNewPage() {
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
 
-      {/* ===== עץ המספרים — כניסה חיה ===== */}
+      {/* ===== עץ ההתכנסויות — כניסה חיה ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🕸️ עץ המספרים</h2>
+        <h2 className="hn-h2">🕸️ עץ ההתכנסויות</h2>
         <p className="hn-sub">כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד</p>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "26px 22px" }}>
           <div style={{ fontSize: 32, marginBottom: 10 }}>🕸️</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>סיור תלת-מימדי חי ברשת הקשרים של המספרים. לחצו על מספר וצללו פנימה.</div>
-          <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ המספרים</Link>
+          <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</Link>
         </div>
       </section>
 

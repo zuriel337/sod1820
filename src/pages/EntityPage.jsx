@@ -772,7 +772,7 @@ export default function EntityPage() {
           <NumberFamilies value={value} highlight={sp.get("method")} term={term} isNumber={isNumber} />
           <div style={{ marginTop: 14 }}>
             <Link to={`/numbers?n=${value}`} style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-              פתחו את {value} בעץ המספרים התלת-מימדי →
+              פתחו את {value} בעץ ההתכנסויות התלת-מימדי →
             </Link>
           </div>
         </Acc>
@@ -957,7 +957,7 @@ export default function EntityPage() {
             <section style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
               <Link to="/numbers" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                 <div style={{ fontSize: 26, marginBottom: 6 }}>🌳</div>
-                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>עץ המספרים התלת-מימדי</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>עץ ההתכנסויות התלת-מימדי</div>
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>{value} בגרף הקשרים</div>
               </Link>
               <Link to="/map" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>

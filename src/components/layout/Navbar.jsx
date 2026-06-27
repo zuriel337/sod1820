@@ -34,7 +34,7 @@ const MOBILE_TILES = [
   { e: "🏛", l: "מרכז הניווט", to: "/map" },
 ];
 const MOBILE_SOON = [
-  { e: "🌳", l: "עץ המספרים", to: "/numbers" },
+  { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
   { e: "🔍", l: 'הצופן התנ"כי', to: "/code" },
 ];
 
@@ -96,7 +96,7 @@ function UniversalSearch({ onDone, full }) {
   const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
     { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
-    { e: "🌳", l: "עץ המספרים", to: "/numbers" },
+    { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
     { e: "🔍", l: "דילוגי אותיות", to: "/code" },
     { e: "🖼", l: "גלריות", to: "/archive" },
   ];
