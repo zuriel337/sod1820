@@ -129,7 +129,7 @@ export default function App() {
         <UpdateBanner />
         <RoyalShareWidget />
         <UpdatesBar />
-        <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05030d" }} />}>
+        <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}

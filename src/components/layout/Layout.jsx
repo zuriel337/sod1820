@@ -36,7 +36,7 @@ export default function Layout() {
 
   // רקע ה-body (אזורי overscroll/גלילה) לפי המצב האפקטיבי
   useEffect(() => {
-    try { document.body.style.background = dark ? "#080500" : "#f6f1e6"; } catch { /* ignore */ }
+    try { document.body.style.background = dark ? "#0C0818" : "#f6f1e6"; } catch { /* ignore */ }
   }, [dark]);
 
   return (

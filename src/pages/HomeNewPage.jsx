@@ -124,6 +124,9 @@ export default function HomeNewPage() {
         .hn-cta { display:inline-block; text-decoration:none; background:${P.accentBtn}; color:${P.onAccent};
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px ${P.glow}; }
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
+        /* זוהר סגול-מלכותי רדיאלי מאחורי ההירו (מתחבר לרקע הסגול) */
+        .hn-gate::before { content:""; position:absolute; inset:-16% -10%; z-index:-1; pointer-events:none;
+          background: radial-gradient(closest-side, rgba(123,76,176,0.50), rgba(61,31,92,0.24) 52%, transparent 78%); }
         .hn-gate-img { width:100%; height:auto; display:block; border-radius:18px;
           aspect-ratio: 1536 / 1024; object-fit:cover; background:${P.cardSoft};
           border:1px solid ${P.borderStrong}; box-shadow:0 16px 46px rgba(0,0,0,.40); }
