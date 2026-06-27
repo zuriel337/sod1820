@@ -89,13 +89,14 @@ export default function LiveActivityBar() {
   );
 
   return (
-    <div style={{ direction: "rtl", position: "relative" }}>
+    <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
       <style>{`
         @keyframes lab-build-pulse { 0%,100% { opacity:.78; } 50% { opacity:1; } }
         @keyframes lt-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.45; transform:scale(.7); } }
 
         /* ===== רצועת טיקר חי — קבועה, לא-לחיצה, נגללת ===== */
         .lt-bar { display:flex; align-items:center; gap:9px; pointer-events:none;
+          overflow:hidden; max-width:100%; box-sizing:border-box;
           background: ${barBg}; border-bottom:1px solid rgba(212,175,55,0.28); padding:6px 12px; }
         .lt-badge { flex:none; display:inline-flex; align-items:center; gap:6px;
           color:#1a0e00; background:linear-gradient(135deg,#ffd86b,#d4a017);
@@ -103,7 +104,7 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-marquee { flex:1 1 auto; min-width:0; overflow:hidden;
+        .lt-marquee { flex:1 1 0%; min-width:0; overflow:hidden;
           -webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent);
           mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent); }
         .lt-track { display:flex; direction:ltr; width:max-content; animation: lab-ticker 52s linear infinite; }
@@ -158,11 +159,6 @@ export default function LiveActivityBar() {
           .lab-hot-item + .lab-hot-item { display:none; }
         }
       `}</style>
-
-      <div className="lab-build">
-        <span className="lab-build-cone" aria-hidden>🚧</span>
-        <span className="lab-build-txt">האתר בבנייה — מתנצלים על חוסר הנוחות בניווט · בקרוב יטופל 🙏</span>
-      </div>
 
       {ticker.length > 0 && (
         <div className="lt-bar" aria-label="עדכונים אחרונים באתר">
