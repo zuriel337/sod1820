@@ -282,7 +282,7 @@ export default function ProfilePage() {
     try {
       const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
       const path = `avatars/${user.id}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: true, contentType: f.type });
+      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: false, contentType: f.type });
       if (error) throw error;
       const url = supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
       setAvatarUrl(url);
