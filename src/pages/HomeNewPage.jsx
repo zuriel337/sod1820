@@ -285,6 +285,22 @@ export default function HomeNewPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>סיור תלת-מימדי חי ברשת הקשרים של המספרים. לחצו על מספר וצללו פנימה.</div>
           <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</Link>
         </div>
+
+        {/* ✨ הקונסטלציה — מפת הכוכבים של הגרף, מסבירה מה יש שם + שהיא בבנייה מתמדת */}
+        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "16px auto 0" }}>
+          <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(160deg, rgba(123,76,176,0.18), rgba(61,31,92,0.10), ${P.card})`, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "22px 22px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 22 }}>✨</span>
+              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>הקונסטלציה</span>
+              <span style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "3px 11px", background: P.cardSoft, whiteSpace: "nowrap" }}>🛠️ בבנייה מתמדת</span>
+            </div>
+            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, margin: 0 }}>
+              מפת הכוכבים של סוד 1820 — כל מספר הוא כוכב, וכל התכנסות היא חוט אור שמחבר ביניהם לציור אחד גדול.
+              ככל שמצטרפים רמזים, מספרים ופוסטים חדשים, הקונסטלציה גדלה ומתחברת מעצמה.{" "}
+              <b style={{ color: P.accentText }}>זהו אורגניזם חי בבנייה מתמדת</b> — ובכל ביקור תגלו בו עוד כוכבים וחוטים חדשים.
+            </p>
+          </div>
+        </Link>
       </section>
 
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
