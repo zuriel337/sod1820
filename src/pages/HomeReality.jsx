@@ -7,14 +7,13 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { setStream } from "../lib/stream.js";
 import MatrixRain from "../components/MatrixRain.jsx";
-import Fx, { FX_LIST } from "../components/fx/Fx.jsx";
-import { LAB_ITEMS } from "../lib/labItems.js";
 
 // ===== בית-הקוד · עדשת «קוד המציאות» (/reality + root-swap) =====
-// עץ אחד, עדשה שנייה: אותו API/DB כמו בית-המלוכה — רק מסגור (כהה/ניאון/טכנולוגי)
-// וסדרת הקולנוע מודגשת. לא משכפל data. שלב 1 (מעטפת); renderer פר-פוסט = פאזה 2.
+// עץ אחד, עדשה שנייה: אותו API/DB כמו בית-המלוכה — רק מסגור (כהה/ניאון/טכנולוגי).
+// "עדכונים" = פוסטי «מימד חמש» (שם פנימי — לא מוצג). שאר הפוסטים בקטן מתחת.
 
 const ACCENT = "#7fc8ff";
+const MIMAD_TAG = "מימד חמש";   // שם פנימי בלבד — לא מוצג בכותרת
 
 // רשתות "קוד המציאות" — ערוץ וואטסאפ · אינסטגרם · פייסבוק (אייקוני מותג simple-icons)
 const RC_ICONS = {
@@ -34,16 +33,17 @@ const card = {
   color: "#dfeaf3", transition: "border-color .2s, transform .2s",
 };
 
-function PostCard({ p, featured }) {
-  const excerpt = stripHtml(p.excerpt || p.content || "").slice(0, featured ? 180 : 96);
+// כרטיס מלא — לעדכונים הראשיים
+function PostCard({ p }) {
+  const excerpt = stripHtml(p.excerpt || p.content || "").slice(0, 150);
   return (
-    <Link to={`/${p.slug}`} style={{ ...card, ...(featured ? { borderColor: "rgba(127,200,255,0.45)", background: "rgba(127,200,255,0.08)" } : null) }}>
+    <Link to={`/${p.slug}`} style={{ ...card, borderColor: "rgba(127,200,255,0.45)", background: "rgba(127,200,255,0.08)" }}>
       {p.image_url && (
-        <div style={{ marginBottom: 12, borderRadius: 10, overflow: "hidden", maxHeight: featured ? 200 : 130 }}>
+        <div style={{ marginBottom: 12, borderRadius: 10, overflow: "hidden", maxHeight: 200 }}>
           <img src={p.image_url} alt="" style={{ width: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
         </div>
       )}
-      <div style={{ fontFamily: F.regal, fontSize: featured ? 19 : 16, fontWeight: 800, color: "#eaf2fa", lineHeight: 1.35, marginBottom: 6 }}>
+      <div style={{ fontFamily: F.regal, fontSize: 19, fontWeight: 800, color: "#eaf2fa", lineHeight: 1.35, marginBottom: 6 }}>
         {p.title}
       </div>
       {excerpt && <div style={{ fontSize: 13.5, color: "#9fb4c6", lineHeight: 1.7 }}>{excerpt}…</div>}
@@ -54,20 +54,38 @@ function PostCard({ p, featured }) {
   );
 }
 
+// כרטיס קומפקטי — לשאר הפוסטים (קטן ונחמד)
+function MiniCard({ p }) {
+  return (
+    <Link to={`/${p.slug}`} className="hr-mini" style={{ display: "flex", gap: 11, alignItems: "center", textDecoration: "none",
+      background: "rgba(127,200,255,0.04)", border: "1px solid rgba(127,200,255,0.16)", borderRadius: 11, padding: 9,
+      transition: "border-color .2s, background .2s" }}>
+      {p.image_url
+        ? <img src={p.image_url} alt="" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} loading="lazy" />
+        : <span style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0, background: "rgba(127,200,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🔢</span>}
+      <span style={{ color: "#bccedd", fontFamily: F.regal, fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{stripHtml(p.title)}</span>
+    </Link>
+  );
+}
+
 export default function HomeReality() {
   const nav = useNavigate();
-  const [posts, setPosts] = useState([]);
+  const [featured, setFeatured] = useState([]);   // «מימד חמש» — העדכונים הראשיים
+  const [minor, setMinor] = useState([]);          // שאר הפוסטים — קטן מתחת
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
   useEffect(() => {
     track("home_reality");
     applySeo({ title: "קוד המציאות — סוד 1820", description: "המספרים שמאחורי המציאות: דפוסים, צירופים והקוד שמתחת לפני השטח.", path: "/reality" });
-    getPostsFromSupabase({ limit: 9, orderBy: "modified" }).then(({ posts }) => setPosts(posts || [])).catch(() => {});
+    getPostsFromSupabase({ tag: MIMAD_TAG, limit: 9, orderBy: "modified" }).then(({ posts }) => setFeatured(posts || [])).catch(() => {});
+    getPostsFromSupabase({ limit: 16, orderBy: "modified" }).then(({ posts }) => {
+      setMinor((posts || []).filter(p => !(p.tags || []).includes(MIMAD_TAG)).slice(0, 8));
+    }).catch(() => {});
   }, []);
 
-  // מעבר ל«כי לה' המלוכה» (האתר הרגיל) — מתועד למדידת אחוז המעבר מול ההישארות.
-  // חד-כיווני בכוונה: אין כפתור חזרה מהאתר הרגיל לכאן (ניסוי נטישה).
+  // מעבר ל«כי לה' המלוכה» (האתר המלא) — מתועד למדידת אחוז המעבר מול ההישארות.
+  // חד-כיווני בכוונה: אין כפתור חזרה מהאתר המלא לכאן (ניסוי נטישה).
   const goKingdom = () => {
     track("stream_switch", "to-kingdom", "click", { from: "reality" });
     setStream("kingdom");
@@ -77,21 +95,16 @@ export default function HomeReality() {
   return (
     <div style={{ direction: "rtl", background: "#070b12", minHeight: "100vh", color: "#dfeaf3" }}>
       <style>{`
-        @keyframes hr-float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-7px) } }
-        .hr-exp-row { display:flex; gap:14px; overflow-x:auto; padding:6px 2px 16px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-        .hr-exp-row::-webkit-scrollbar { height:6px } .hr-exp-row::-webkit-scrollbar-thumb { background:rgba(127,200,255,0.3); border-radius:9px }
-        .hr-exp-card { scroll-snap-align:start; flex:0 0 200px; animation: hr-float 5s ease-in-out infinite; transition: transform .2s, border-color .2s, box-shadow .2s; }
-        .hr-exp-card:hover { transform: translateY(-10px) scale(1.03) !important; border-color:#7fc8ff !important; box-shadow:0 14px 36px rgba(127,200,255,0.25) }
         .hr-gate { transition: transform .18s, box-shadow .18s, border-color .18s; }
         .hr-gate::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(232,200,74,0.16), transparent 70%); pointer-events:none; }
         .hr-gate:hover { transform: translateY(-3px); border-color: rgba(232,200,74,0.8) !important;
           box-shadow: 0 20px 56px rgba(0,0,0,0.6), 0 0 36px rgba(232,200,74,0.22), inset 0 0 46px rgba(232,200,74,0.1) !important; }
+        .hr-mini:hover { border-color: rgba(127,200,255,0.4) !important; background: rgba(127,200,255,0.08) !important; }
       `}</style>
 
       {/* הירו — עם מטריקס-ריין מאחור */}
       <div style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid rgba(127,200,255,0.12)" }}>
         <MatrixRain color={ACCENT} />
-        {/* דהיית קריאוּת מעל הריין */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(7,11,18,0.45) 0%, rgba(7,11,18,0.82) 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "64px 16px 44px", maxWidth: 720, margin: "0 auto" }}>
           <div style={{ fontFamily: F.heading, fontSize: 12.5, letterSpacing: 6, color: ACCENT, textTransform: "uppercase", marginBottom: 12, opacity: 0.9 }}>
@@ -121,9 +134,7 @@ export default function HomeReality() {
                 <a key={s.k} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
                   style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
                     padding: "10px 18px", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14,
-                    color: "#fff", background: s.bg, boxShadow: "0 4px 18px rgba(0,0,0,0.45)", transition: "transform .15s" }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}>
+                    color: "#fff", background: s.bg, boxShadow: "0 4px 18px rgba(0,0,0,0.45)" }}>
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden><path d={RC_ICONS[s.k]} /></svg>
                   {s.label}
                 </a>
@@ -135,83 +146,43 @@ export default function HomeReality() {
 
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 18px 80px" }}>
 
-        {/* עדכונים נוספים */}
-        <section style={{ marginTop: 36 }}>
-          <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 16 }}>📡 עדכונים נוספים</h2>
-          {posts.length === 0 ? (
-            <div style={{ color: "#7f97ab", padding: 20 }}>טוען…</div>
+        {/* עדכונים — ממורכז (פוסטי «מימד חמש», בלי להציג את השם) */}
+        <section style={{ marginTop: 40 }}>
+          <h2 style={{ fontFamily: F.regal, fontSize: 26, fontWeight: 900, color: "#eaf2fa", textAlign: "center", margin: "0 0 22px" }}>עדכונים</h2>
+          {featured.length === 0 ? (
+            <div style={{ color: "#7f97ab", padding: 20, textAlign: "center" }}>טוען…</div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 16 }}>
-              {posts.map(p => <PostCard key={p.id || p.wp_id} p={p} />)}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
+              {featured.map(p => <PostCard key={p.id || p.wp_id} p={p} />)}
             </div>
           )}
         </section>
 
-        {/* מעבר לאתר הראשי — באנר מלכותי, חד-כיווני, מתועד */}
+        {/* שאר הפוסטים — קטן ונחמד */}
+        {minor.length > 0 && (
+          <section style={{ marginTop: 40 }}>
+            <h3 style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 2, color: "#6f8ea1", textAlign: "center", marginBottom: 16, textTransform: "uppercase" }}>עוד מהאתר</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 10 }}>
+              {minor.map(p => <MiniCard key={p.id || p.wp_id} p={p} />)}
+            </div>
+          </section>
+        )}
+
+        {/* מעבר לאתר המלא — באנר מלכותי, חד-כיווני, מתועד */}
         <div className="hr-gate" onClick={goKingdom} role="button" tabIndex={0}
           onKeyDown={e => { if (e.key === "Enter" || e.key === " ") goKingdom(); }}
-          style={{ margin: "52px auto", maxWidth: 540, cursor: "pointer", position: "relative", overflow: "hidden",
+          style={{ margin: "52px auto 0", maxWidth: 540, cursor: "pointer", position: "relative", overflow: "hidden",
             borderRadius: 22, padding: "32px 26px", textAlign: "center",
             background: "linear-gradient(135deg, rgba(58,44,8,0.92), rgba(18,14,5,0.96))",
             border: "1px solid rgba(232,200,74,0.45)",
             boxShadow: "0 16px 48px rgba(0,0,0,0.55), inset 0 0 46px rgba(232,200,74,0.07)" }}>
           <div style={{ fontSize: 40, marginBottom: 8, filter: "drop-shadow(0 0 16px rgba(232,200,74,0.5))" }}>👑</div>
           <div style={{ fontFamily: F.regal, fontWeight: 900, fontSize: 26, color: "#f6e27a", textShadow: "0 1px 16px rgba(232,200,74,0.3)", marginBottom: 7 }}>
-            מעבר לאתר הראשי
+            מעבר לאתר המלא
           </div>
           <div style={{ fontSize: 14, color: "#cbb87f", fontFamily: F.heading, letterSpacing: 1 }}>
             כי לה' המלוכה · עולם הגאולה והמלכות&nbsp;→
           </div>
-        </div>
-
-        {/* אזור הניסויים — רצועה זזה (מ-/lab, בלי שכפול) */}
-        <section style={{ marginTop: 52 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
-            <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", margin: 0 }}>🧪 אזור הניסויים</h2>
-            <Link to="/lab" style={{ color: ACCENT, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>כל החוויות ←</Link>
-          </div>
-          <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 14 }}>חוויות תלת-מימד — היכנס, תעוף, תגלה</div>
-          <div className="hr-exp-row">
-            {LAB_ITEMS.map(it => (
-              <Link key={it.to} to={it.to} className="hr-exp-card" style={{
-                textDecoration: "none", display: "block", padding: "16px 16px", borderRadius: 14,
-                background: it.hot ? "linear-gradient(150deg, rgba(155,123,255,0.16), rgba(7,11,18,0.6))" : "rgba(127,200,255,0.05)",
-                border: `1px solid ${it.hot ? "#9b7bff66" : "rgba(127,200,255,0.22)"}`,
-              }}>
-                {it.hot && <span style={{ float: "left", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#1a0e00", background: "linear-gradient(135deg,#c9a6ff,#ff8ad1)", borderRadius: 999, padding: "2px 8px" }}>חדש</span>}
-                <div style={{ fontSize: 30, marginBottom: 8 }}>{it.g}</div>
-                <div style={{ color: "#eaf2fa", fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>{it.t}</div>
-                <div style={{ color: "#8aa0b3", fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 4 }}>{it.d}</div>
-                <div style={{ color: it.hot ? "#c9a6ff" : ACCENT, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 12 }}>היכנס →</div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* גלריית אפקטים — 5 אופציות תלת-ממד לשימוש חוזר */}
-        <section style={{ marginTop: 56 }}>
-          <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", margin: "0 0 4px" }}>🌀 עוד אפקטים — בחר לאן לקחת</h2>
-          <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 16 }}>חמישה אפקטים תלת-ממדיים קלים. כל אחד רכיב לשימוש חוזר — אפשר לקחת לכל מקום באתר.</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 16 }}>
-            {FX_LIST.map(fx => (
-              <div key={fx.kind} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(127,200,255,0.2)", background: "#070b12" }}>
-                <div style={{ position: "relative", height: 150, background: "#070b12" }}>
-                  <Fx kind={fx.kind} color={ACCENT} />
-                </div>
-                <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(127,200,255,0.12)" }}>
-                  <div style={{ color: "#eaf2fa", fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{fx.label}</div>
-                  <div style={{ color: "#8aa0b3", fontSize: 12.5, lineHeight: 1.6, marginTop: 3 }}>{fx.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* גשר לעדשה השנייה */}
-        <div style={{ marginTop: 44, textAlign: "center" }}>
-          <Link to="/post" style={{ color: ACCENT, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
-            כל הפוסטים ←
-          </Link>
         </div>
       </div>
     </div>
