@@ -3689,7 +3689,7 @@ function ContactPage() {
     { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
     { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
     { icon: "👤", label: "פייסבוק — אישי", value: "צוריאל", href: "https://www.facebook.com/share/1ECyfiRu3e/" },
-    { icon: "✉️", label: "אימייל", value: "yosiviner7@gmail.com", href: "mailto:yosiviner7@gmail.com" },
+    { icon: "✉️", label: "אימייל", value: "zyz997@gmail.com", href: "mailto:zyz997@gmail.com" },
   ];
 
   const TESTIMONIALS = [
