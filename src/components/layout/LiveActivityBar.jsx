@@ -1,8 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday } from "../../lib/supabase.js";
+import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
+
+// 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
+const GEM_FACTS = [
+  "נחש = משיח = 358", "אהבה = אחד = 13", "הטבע = אלהים = 86",
+  "אריה = גבורה = 216", "יין = סוד = 70", "אדם = מה = 45",
+];
+
+// 🕯️ ברכת מועד (ערב/מוצאי שבת · ראש חודש) — null אם אין מועד מיוחד
+function moedGreeting() {
+  const d = new Date(), day = d.getDay(), h = d.getHours();
+  if (day === 5 && h >= 12) return "🕯️ שבת שלום ומבורך";          // ערב שבת
+  if (day === 6) return h < 20 ? "🕯️ שבת שלום" : "✨ שבוע טוב ומבורך"; // שבת / מוצ"ש
+  try {
+    const hd = new Intl.DateTimeFormat("he-u-ca-hebrew-nu-latn", { day: "numeric" }).format(d);
+    if (hd === "1" || hd === "30") return "🌑 חודש טוב";          // ראש חודש
+  } catch { /* ignore */ }
+  return null;
+}
 
 // האם תאריך הוא "היום" (לפי שעון מקומי)
 function isToday(d) {
@@ -64,12 +82,29 @@ function useLiveTicker() {
         const crosses = await getVerifiedCrossTitles(3);
         for (const c of crosses) out.push(`💎 הצלבה מאומתת: ${c}`);
       } catch { /* ignore */ }
+      // 🧩 ידעת? — שתי עובדות גימטריה (מסתובבות יומית כך שלא חוזרות תמיד)
+      const dayIdx = Math.floor(Date.now() / 864e5);
+      out.push(`🧩 ידעת? ${GEM_FACTS[dayIdx % GEM_FACTS.length]}`);
+      out.push(`🧩 ידעת? ${GEM_FACTS[(dayIdx + 3) % GEM_FACTS.length]}`);
+      // 🗓️ היום בהיסטוריה — אירוע מציר ההתגלות "לפני N שנים"
+      try {
+        const events = await getAxisEvents(40);
+        const yrs = (events || []).filter(e => +(e.metadata?.year) > 1900);
+        if (yrs.length) {
+          const e = yrs[dayIdx % yrs.length];
+          const n = new Date().getFullYear() - +e.metadata.year;
+          const label = stripHtml(e.label || "").slice(0, 60);
+          if (label) out.push(`🗓️ ${n <= 0 ? "השנה" : n === 1 ? "לפני שנה" : `לפני ${n} שנים`}: ${label}`);
+        }
+      } catch { /* ignore */ }
       if (total > 0 || convCount > 0) {
         const parts = [];
         if (total > 0) parts.push(`${total.toLocaleString("he-IL")} חיפושים`);
         if (convCount > 0) parts.push(`${convCount} התכנסויות`);
         out.push(`📊 במאגר: ${parts.join(" · ")}`);
       }
+      const moed = moedGreeting();
+      if (moed) out.push(moed);
       out.push(timeGreeting());
       // — מבקרים היום: רק אם ≥ 2500 —
       try {
