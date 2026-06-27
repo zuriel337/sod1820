@@ -4544,6 +4544,12 @@ function PostPageBySlug({ onNav }) {
             })()}
             <style>{POST_CONTENT_CSS}</style>
             {themed && <style>{themedPostContentCSS(P)}</style>}
+            {/* הערת לחיצוּת אוטומטית — בכל פוסט שיש בו מספרים (חוק number_click_hint_law) */}
+            {content && /[0-9]/.test(String(content)) && (
+              <div style={{ maxWidth: 640, margin: "0 auto 18px", padding: "9px 15px", border: `1px dashed ${pc.borderGold}`, borderRadius: 12, background: pc.bgGlow, textAlign: "center", fontSize: 13.5, color: pc.goldLight, fontFamily: F.body }}>
+                💡 כל <b style={{ color: pc.goldBright, borderBottom: `1px dotted ${pc.goldBright}` }}>מספר</b> (ומילה מודגשת) בפוסט לחיץ — לחצו ותיפתח חלונית המספר עם הגימטריה והקשרים, בלי לצאת מהדף.
+              </div>
+            )}
             <div className={themed ? "sod-post-content themed" : "sod-post-content"} ref={contentRef}>
               {/* מרקר גלריה: <div data-sod-gallery="N"></div> → קרוסלת רמזים (קומפוננטת React באותו עץ — קישורים/פלטה עובדים) */}
               {String(content).split(/<div data-sod-gallery="(\d+)"><\/div>/).map((seg, i) =>

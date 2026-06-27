@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getEntityBundle, getTopicCards } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getRecentSearchCount } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
+import NumberEngineLogo from "./NumberEngineLogo.jsx";
 
 const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "מילוי בלבד"].includes(m.key));
 
@@ -32,6 +33,7 @@ export default function NumberDrawer() {
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");           // שדה עריכה חי — מקלידים מילה/מספר ורואים בזמן אמת
   const [topics, setTopics] = useState([]); // כרטיסי התכנסות (גשר לציר ההתכנסות)
+  const [searchCount, setSearchCount] = useState(null); // מונה חיפושים ב-24ש' (מצב ריק)
   const [zoom, setZoom] = useState(null);
   const [thread, setThread] = useState(null);
   const [webs, setWebs] = useState([]);     // חוטים פנימיים: מהמספר אל כל גלריה במגירה
@@ -45,6 +47,9 @@ export default function NumberDrawer() {
 
   // כרטיסי התכנסות — נטענים פעם אחת (גשר לציר ההתכנסות של מרכז הנושאים)
   useEffect(() => { if (open && !topics.length) getTopicCards({ approvedOnly: true }).then(setTopics).catch(() => {}); }, [open]); // eslint-disable-line
+
+  // מונה חיפושים ב-24 שעות — נטען כשהמגירה נפתחת (למצב הריק)
+  useEffect(() => { if (open) getRecentSearchCount(24).then(setSearchCount).catch(() => {}); }, [open]);
 
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
@@ -262,16 +267,40 @@ export default function NumberDrawer() {
 
         <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "14px 15px 36px", position: "relative" }}>
           {!eff ? (
-            <div style={{ display: "grid", gap: 10 }}>
-              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.8, marginTop: 4 }}>הקלידו מספר או מילה למעלה, או היכנסו לאחד מהמרחבים:</p>
-              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🌳 כל המספרים (העץ) · 🔒 בקרוב</div>
+            <div style={{ display: "grid", gap: 9 }}>
+              {/* לוגו מנוע המספרים — קליק → הגוגל של המספרים */}
+              <div style={{ textAlign: "center", margin: "2px 0 4px" }}>
+                <NumberEngineLogo text="מנוע המספרים" size={28} to="/number" />
+              </div>
+              {/* מונה חי — כמה מילים נחקרו ב-24 שעות בבית המדרש */}
+              {searchCount != null && searchCount > 0 && (
+                <div style={{ textAlign: "center", margin: "0 0 2px" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, color: P.accentText }}>
+                    🔥 <b style={{ fontFamily: F.mono, fontSize: 15.5, fontWeight: 800 }}>{searchCount.toLocaleString("he-IL")}</b> מילים נחקרו היום במנוע
+                  </span>
+                </div>
+              )}
+              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.65, textAlign: "center", margin: "0 0 4px" }}>הקלידו מספר או מילה למעלה — או היכנסו למרחב:</p>
+              <button onClick={() => goTo("/number")} style={bigLink}>🔢 הגוגל של המספרים</button>
+              <button onClick={() => goTo("/beit-midrash")} style={bigLink}>📚 בית המדרש — מחשבון + הסברי השיטות</button>
+              <button onClick={() => goTo("/numbers")} style={bigLink}>🌳 עץ המספרים</button>
+              <button onClick={() => goTo("/cross")} style={bigLink}>🔗 הצלבת שיטות</button>
               <button onClick={() => goTo("/archive")} style={bigLink}>🖼 גלריית רמזי הגאולה</button>
-              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
+              {/* מספרי-מפתח — קליק פותח את המספר במגירה */}
+              <div style={{ marginTop: 6 }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7, textAlign: "center" }}>מספרי מפתח</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                  {["1820", "506", "67", "424", "45", "26"].map(n => (
+                    <button key={n} onClick={() => openNumberDrawer(n)} style={{ ...chip, fontFamily: F.mono, fontWeight: 800 }}>{n}</button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : b.tooSmall ? (
-            <div style={{ textAlign: "center", padding: "26px 8px" }}>
-              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9 }}>מספר יסוד (ספרה בודדת) — סולמות ההתגלות בקרוב.</p>
-              <div style={{ ...bigLink, opacity: 0.5, cursor: "default" }}>🪜 סולמות ההתגלות · 🔒 בקרוב</div>
+            <div style={{ display: "grid", gap: 10, padding: "10px 4px" }}>
+              <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, textAlign: "center" }}>מספר יסוד (ספרה בודדת). חקרו עוד:</p>
+              <button onClick={() => goTo("/beit-midrash")} style={bigLink}>📚 בית המדרש — הסברי השיטות</button>
+              <button onClick={() => goTo("/number")} style={bigLink}>🔢 הגוגל של המספרים</button>
             </div>
           ) : loading ? (
             <div style={{ color: P.inkSoft, textAlign: "center", padding: 28, fontFamily: F.body }}>טוען קשרים…</div>
