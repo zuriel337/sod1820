@@ -160,7 +160,11 @@ export default function RoyalShareWidget() {
         @keyframes rsw-fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes rsw-rise { from { opacity: 0; transform: translateY(-50%) scale(0.96); } to { opacity: 1; transform: translateY(-50%) scale(1); } }
         @media (max-width: 600px) { .rsw-panel { right: 50%; transform: translate(50%, -50%); }
-          @keyframes rsw-rise { from { opacity: 0; transform: translate(50%,-50%) scale(0.96); } to { opacity: 1; transform: translate(50%,-50%) scale(1); } } }
+          @keyframes rsw-rise { from { opacity: 0; transform: translate(50%,-50%) scale(0.96); } to { opacity: 1; transform: translate(50%,-50%) scale(1); } }
+          /* לשונית קטנה יותר בסלולר */
+          .rsw-tab { padding: 9px 5px; gap: 5px; border-radius: 11px 0 0 11px; }
+          .rsw-tab-logo { width: 21px; height: 21px; }
+          .rsw-tab-lbl { font-size: 13px; letter-spacing: 1px; } }
         @media (prefers-reduced-motion: reduce) { .rsw-tab, .rsw-panel, .rsw-scrim { animation: none !important; } }
       `}</style>
     </>

@@ -8,7 +8,7 @@ export default function SpaceBackground() {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden",
-      backgroundColor: "#05040d",
+      backgroundColor: "#0C0818",
       backgroundImage: "url(/cosmos-bg.svg)",
       backgroundSize: "cover",
       backgroundPosition: "center center",
