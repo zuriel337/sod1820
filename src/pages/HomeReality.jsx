@@ -14,7 +14,7 @@ import { LAB_ITEMS } from "../lib/labItems.js";
 // וסדרת הקולנוע מודגשת. לא משכפל data. שלב 1 (מעטפת); renderer פר-פוסט = פאזה 2.
 
 const ACCENT = "#7fc8ff";
-const CINEMA_CAT = "הצופן בקולנוע";
+const CINEMA_CAT = "הצופן בסרטים";
 
 const card = {
   display: "block", textDecoration: "none", background: "rgba(127,200,255,0.05)",
@@ -93,10 +93,10 @@ export default function HomeReality() {
 
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 18px 80px" }}>
 
-        {/* הצופן בקולנוע */}
+        {/* הצופן בסרטים */}
         {cinema.length > 0 && (
           <section style={{ marginTop: 30 }}>
-            <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 4 }}>🎬 הצופן בקולנוע</h2>
+            <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 4 }}>🎬 הצופן בסרטים</h2>
             <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 16 }}>הקוד שמסתתר בתוך הסרטים</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
               {cinema.map(p => <PostCard key={p.id || p.wp_id} p={p} featured />)}
