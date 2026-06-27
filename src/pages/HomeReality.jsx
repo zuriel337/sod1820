@@ -5,6 +5,7 @@ import { getPostsFromSupabase } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
+import { setStream } from "../lib/stream.js";
 import MatrixRain from "../components/MatrixRain.jsx";
 import Fx, { FX_LIST } from "../components/fx/Fx.jsx";
 import { LAB_ITEMS } from "../lib/labItems.js";
@@ -14,7 +15,8 @@ import { LAB_ITEMS } from "../lib/labItems.js";
 // וסדרת הקולנוע מודגשת. לא משכפל data. שלב 1 (מעטפת); renderer פר-פוסט = פאזה 2.
 
 const ACCENT = "#7fc8ff";
-const CINEMA_CAT = "הצופן בקולנוע";
+const MIMAD_TAG = "מימד חמש";              // התגית שמובלטת בעדכונים
+const IRAN_REELS = ["C11a_JQIn9U", "C11apKBNYcZ"];  // שני הרילים הוויראליים על איראן
 
 // רשתות "קוד המציאות" — ערוץ וואטסאפ · אינסטגרם · פייסבוק (אייקוני מותג simple-icons)
 const RC_ICONS = {
@@ -56,17 +58,27 @@ function PostCard({ p, featured }) {
 
 export default function HomeReality() {
   const nav = useNavigate();
-  const [cinema, setCinema] = useState([]);
-  const [recent, setRecent] = useState([]);
+  const [featured, setFeatured] = useState([]);   // פוסטי «מימד חמש» — מובלטים
+  const [minor, setMinor] = useState([]);          // שאר הפוסטים — זניחים
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
   useEffect(() => {
     track("home_reality");
     applySeo({ title: "קוד המציאות — סוד 1820", description: "המספרים שמאחורי המציאות: דפוסים, צירופים והקוד שמתחת לפני השטח.", path: "/reality" });
-    getPostsFromSupabase({ category: CINEMA_CAT, limit: 6, orderBy: "modified" }).then(({ posts }) => setCinema(posts || [])).catch(() => {});
-    getPostsFromSupabase({ limit: 9, orderBy: "modified" }).then(({ posts }) => setRecent(posts || [])).catch(() => {});
+    getPostsFromSupabase({ tag: MIMAD_TAG, limit: 8, orderBy: "modified" }).then(({ posts }) => setFeatured(posts || [])).catch(() => {});
+    getPostsFromSupabase({ limit: 16, orderBy: "modified" }).then(({ posts }) => {
+      setMinor((posts || []).filter(p => !(p.tags || []).includes(MIMAD_TAG)).slice(0, 8));
+    }).catch(() => {});
   }, []);
+
+  // מעבר ל«כי לה' המלוכה» (האתר הרגיל) — מתועד למדידת אחוז המעבר מול ההישארות.
+  // חד-כיווני בכוונה: אין כפתור חזרה מהאתר הרגיל לכאן (ניסוי נטישה).
+  const goKingdom = () => {
+    track("stream_switch", "to-kingdom", "click", { from: "reality" });
+    setStream("kingdom");
+    nav("/");
+  };
 
   return (
     <div style={{ direction: "rtl", background: "#070b12", minHeight: "100vh", color: "#dfeaf3" }}>
@@ -125,28 +137,58 @@ export default function HomeReality() {
 
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 18px 80px" }}>
 
-        {/* הצופן בקולנוע */}
-        {cinema.length > 0 && (
-          <section style={{ marginTop: 30 }}>
-            <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 4 }}>🎬 הצופן בקולנוע</h2>
-            <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 16 }}>הקוד שמסתתר בתוך הסרטים</div>
+        {/* סרטונים ויראליים — שני הרילים על איראן, מסך מלא כל אחד */}
+        <section style={{ marginTop: 30 }}>
+          <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 4 }}>🔥 סרטונים ויראליים</h2>
+          <div style={{ fontSize: 13.5, color: "#9fb4c6", marginBottom: 18 }}>סרטונים שהביאו מאות אלפי צפיות ושיתופים</div>
+          {IRAN_REELS.map(id => (
+            <div key={id} style={{ maxWidth: 460, margin: "0 auto 26px", borderRadius: 16, overflow: "hidden",
+              border: "1px solid rgba(127,200,255,0.28)", boxShadow: "0 14px 46px rgba(0,0,0,0.55)", background: "#000" }}>
+              <iframe title={`reel-${id}`} src={`https://www.instagram.com/reel/${id}/embed`}
+                style={{ width: "100%", height: 760, border: "none", display: "block" }}
+                scrolling="no" allow="encrypted-media; clipboard-write" loading="lazy" />
+            </div>
+          ))}
+        </section>
+
+        {/* מימד חמש — מובלט */}
+        {featured.length > 0 && (
+          <section style={{ marginTop: 46 }}>
+            <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 4 }}>🌀 מימד חמש</h2>
+            <div style={{ fontSize: 13, color: "#7f97ab", marginBottom: 16 }}>הפוסטים שמחברים את הקוד</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
-              {cinema.map(p => <PostCard key={p.id || p.wp_id} p={p} featured />)}
+              {featured.map(p => <PostCard key={p.id || p.wp_id} p={p} featured />)}
             </div>
           </section>
         )}
 
-        {/* עדכונים אחרונים */}
-        <section style={{ marginTop: 46 }}>
-          <h2 style={{ fontFamily: F.regal, fontSize: 22, fontWeight: 800, color: "#eaf2fa", marginBottom: 16 }}>📡 עדכונים אחרונים</h2>
-          {recent.length === 0 ? (
-            <div style={{ color: "#7f97ab", padding: 20 }}>טוען…</div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 16 }}>
-              {recent.map(p => <PostCard key={p.id || p.wp_id} p={p} />)}
+        {/* כפתור המעבר לאתר הרגיל — באמצע הדף, חד-כיווני, מתועד */}
+        <div style={{ margin: "50px auto", maxWidth: 560, textAlign: "center" }}>
+          <div style={{ fontSize: 13, color: "#7f97ab", fontFamily: F.heading, letterSpacing: 1, marginBottom: 12 }}>
+            מחפשים את עולם הגאולה והמלכות?
+          </div>
+          <button onClick={goKingdom} style={{
+            display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer",
+            padding: "14px 30px", borderRadius: 999, border: "1px solid rgba(232,200,74,0.55)",
+            background: "linear-gradient(135deg,#3a2c08,#1a1404)", color: "#f6e27a",
+            fontFamily: F.regal, fontWeight: 800, fontSize: 17, boxShadow: "0 8px 28px rgba(0,0,0,0.5)" }}>
+            👑 מעבר ל«כי לה' המלוכה» — האתר הרגיל →
+          </button>
+        </div>
+
+        {/* עוד עדכונים — זניח (קישורי טקסט בלבד) */}
+        {minor.length > 0 && (
+          <section style={{ marginTop: 18 }}>
+            <h3 style={{ fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 2, color: "#6f8ea1", marginBottom: 10, textTransform: "uppercase" }}>עוד באתר</h3>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
+              {minor.map(p => (
+                <Link key={p.id || p.wp_id} to={`/${p.slug}`} style={{ color: "#8aa0b3", textDecoration: "none", fontSize: 13, fontFamily: F.body, lineHeight: 1.9 }}>
+                  {stripHtml(p.title)}
+                </Link>
+              ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* אזור הניסויים — רצועה זזה (מ-/lab, בלי שכפול) */}
         <section style={{ marginTop: 52 }}>
