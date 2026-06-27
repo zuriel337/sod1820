@@ -79,8 +79,8 @@ function useLiveTicker() {
       const nod = numberOfDay();
       if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
       try {
-        const crosses = await getVerifiedCrossTitles(3);
-        for (const c of crosses) out.push(`💎 הצלבה מאומתת: ${c}`);
+        const crosses = await getVerifiedCrossTitles(1);
+        if (crosses[0]) out.push(`💎 הצלבה מאומתת: ${crosses[0]}`);
       } catch { /* ignore */ }
       // 🧩 ידעת? — שתי עובדות גימטריה (מסתובבות יומית כך שלא חוזרות תמיד)
       const dayIdx = Math.floor(Date.now() / 864e5);
