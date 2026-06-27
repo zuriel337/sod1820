@@ -6,7 +6,7 @@ import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
-import { supabase } from "../lib/supabase.js";
+import { supabase, getUserActivity } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 
 // 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + סך המנויים הכולל,
@@ -97,6 +97,125 @@ function PushStatusCard({ P, card, user }) {
       <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.7, marginTop: 14, opacity: 0.85 }}>
         💡 כל מכשיר/דפדפן נרשם בנפרד. הפעלה כאן מוסיפה למונה, ביטול מוריד.
         באייפון נדרש להוסיף את האתר למסך הבית לפני שאפשר להירשם.
+      </div>
+    </div>
+  );
+}
+
+// 🕒 פעילות אישית אחרונה — חיפושי גימטריה / פוסטים שנגלשו (פר-משתמש, RLS).
+function RecentActivity({ P, card, user }) {
+  const [searches, setSearches] = useState(null);
+  const [posts, setPosts] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    if (!user) return;
+    getUserActivity(["gematria"], 8).then(d => { if (alive) setSearches(d); });
+    getUserActivity(["post"], 6).then(d => { if (alive) setPosts(d); });
+    return () => { alive = false; };
+  }, [user]);
+
+  const chip = {
+    display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
+    background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 999,
+    padding: "6px 13px", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 600,
+  };
+  const row = {
+    display: "flex", alignItems: "center", gap: 10, textDecoration: "none",
+    padding: "9px 4px", borderBottom: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 14,
+  };
+
+  const hasSearch = searches && searches.length > 0;
+  const hasPosts = posts && posts.length > 0;
+
+  return (
+    <>
+      {/* חיפושי גימטריה אחרונים */}
+      <div style={{ ...card, marginTop: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <span style={{ fontSize: 24 }}>🔢</span>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>חיפושי הגימטריה האחרונים שלך</div>
+        </div>
+        {searches === null ? (
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13 }}>טוען…</div>
+        ) : hasSearch ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {searches.map((s, i) => (
+              <Link key={i} to={`/beit-midrash?w=${encodeURIComponent(s.ref)}`} style={chip}>
+                <span>{s.ref}</span>
+                {s.title ? <span style={{ color: P.accentDim, fontSize: 12 }}>= {s.title}</span> : null}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+            עוד לא חיפשת גימטריות. כל חיפוש ב<Link to="/beit-midrash" style={{ color: P.accentText }}>בית המדרש</Link> יופיע כאן.
+          </div>
+        )}
+      </div>
+
+      {/* פוסטים שגלשת בהם */}
+      <div style={{ ...card, marginTop: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <span style={{ fontSize: 24 }}>📜</span>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>פוסטים שגלשת בהם</div>
+        </div>
+        {posts === null ? (
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13 }}>טוען…</div>
+        ) : hasPosts ? (
+          <div>
+            {posts.map((p, i) => (
+              <Link key={i} to={`/${p.ref}`} style={row}>
+                <span style={{ fontSize: 15 }}>›</span>
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title || p.ref}</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+            הפוסטים שתקרא יופיעו כאן, כדי שתוכל לחזור אליהם בקלות.
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// 🔒 פיצ'רים בפיתוח — כרטיסים נעולים "בקרוב".
+function ComingSoonGrid({ P, card }) {
+  const items = [
+    { e: "🔍", t: "דילוגי אותיות (ELS) שמורים", d: "החיפושים שלך בתורה — שמורים וזמינים לחזרה." },
+    { e: "🧭", t: "המסלולים שלי", d: "המסעות וההתכנסויות שאספת — אוסף אישי." },
+    { e: "⭐", t: "מועדפים", d: "מספרים, רמזים ופוסטים ששמרת לכוכב." },
+    { e: "🔔", t: "התראות לפי נושא", d: "בחירת נושאים שתרצה לקבל עליהם פוש בלבד." },
+    { e: "📊", t: "הסטטיסטיקה שלי", d: "כמה חיפשת, אילו מספרים ריתקו אותך, מגמות." },
+    { e: "🏅", t: "דרגת חוקר", d: "ניקוד אישי על חקירה, שיתופים ותגליות." },
+  ];
+  return (
+    <div style={{ ...card, marginTop: 22 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <span style={{ fontSize: 24 }}>✨</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>בקרוב באזור האישי</div>
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, marginBottom: 16 }}>
+        כלים אישיים שנפתח בהדרגה — שווה לחכות. 👑
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 12 }}>
+        {items.map((it, i) => (
+          <div key={i} style={{
+            position: "relative", background: P.cardSoft, border: `1px solid ${P.borderStrong}`,
+            borderRadius: 12, padding: "16px 14px", opacity: 0.92, overflow: "hidden",
+          }}>
+            <div style={{ fontSize: 26, marginBottom: 6, filter: "grayscale(0.2)" }}>{it.e}</div>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{it.t}</div>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6 }}>{it.d}</div>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 5, marginTop: 10,
+              background: "rgba(0,0,0,0.25)", border: `1px solid ${P.border}`, borderRadius: 999,
+              padding: "3px 10px", color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
+            }}>🔒 בקרוב</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -202,6 +321,10 @@ export default function ProfilePage() {
       </div>
 
       <PushStatusCard P={P} card={card} user={user} />
+
+      <RecentActivity P={P} card={card} user={user} />
+
+      <ComingSoonGrid P={P} card={card} />
 
       {/* "הזרם שלך" — נעול כרגע (הפתעות בדרך). id נשמר כדי שגלילת ה-#notifications תעבוד */}
       <div id="notifications" style={{ ...card, textAlign: "center", marginTop: 22, position: "relative", overflow: "hidden" }}>

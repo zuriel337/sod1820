@@ -1049,6 +1049,29 @@ export async function logSearch(term, value) {
     sessionStorage.setItem(key, '1');
   } catch { /* ignore */ }
   try { await supabase.from('search_log').insert({ term: t, value: Number.isFinite(value) ? value : null }); } catch { /* ignore */ }
+  // היסטוריה אישית (פר-משתמש) — לתצוגת "חיפושים אחרונים" בפרופיל. RLS דואג לבעלות.
+  try { logActivity('gematria', t, Number.isFinite(value) ? String(value) : null); } catch { /* ignore */ }
+}
+
+// 🕒 היסטוריית פעילות אישית (פר-משתמש, RLS) — חיפושים אחרונים / פוסטים שנגלשו.
+// kinds: מערך סוגים (למשל ['gematria'] או ['post']). מחזיר רשומות אחרונות, דדופ לפי ref.
+export async function getUserActivity(kinds = [], limit = 8) {
+  if (!supabase || !kinds.length) return [];
+  try {
+    const { data } = await supabase.from('user_activity')
+      .select('kind, ref, title, created_at')
+      .in('kind', kinds)
+      .order('created_at', { ascending: false })
+      .limit(120);
+    const seen = new Set(); const out = [];
+    for (const r of (data || [])) {
+      const k = (r.ref || '') + '|' + r.kind;
+      if (!r.ref || seen.has(k)) continue;
+      seen.add(k); out.push(r);
+      if (out.length >= limit) break;
+    }
+    return out;
+  } catch { return []; }
 }
 
 // 🚪 שער היום — נבחר דטרמיניסטית לפי היום בשנה מתוך חידושי ההצלבות המככבים (כולם רואים אותו שער).
