@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getGalleryImagesByIds, getAxisEvents, getGalleryUpdates, getHomeSets } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
@@ -39,6 +39,22 @@ const TILES = [
 
 function stars(q) { const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2))); return "★".repeat(n) + "☆".repeat(5 - n); }
 
+// רקע מעוצב לכרטיס התכנסות — גרדיאנט + אייקון לפי הנושא (אין תמונות נושאיות במאגר,
+// אז במקום צילומי-מסך אקראיים מציירים כיסוי תמטי. לפי מילות-מפתח בכותרת → נשאר נכון
+// גם כשההתכנסויות מתחלפות, עם נפילה לכיסוי מלכותי ברירת-מחדל).
+function convCover(c) {
+  const t = c.title || "";
+  const has = (...ks) => ks.some(k => t.includes(k));
+  if (has("אליהו")) return { bg: "linear-gradient(135deg,#7a2e00,#c2410c,#1a0e00)", emoji: "🔥" };
+  if (has("ירושלים", "שומרים", "מקדש", "כותל")) return { bg: "linear-gradient(135deg,#1e3a5f,#b8860b,#0a0a14)", emoji: "🏛️" };
+  if (has("זית", "הר ה")) return { bg: "linear-gradient(135deg,#2d4a1e,#6b8e23,#0e1408)", emoji: "🫒" };
+  if (has("בבוא", "השתקפ", "מראה", "ראי")) return { bg: "linear-gradient(135deg,#3b1f5c,#7b4cb0,#0a0a14)", emoji: "🪞" };
+  if (has("טראמפ", "אמריק")) return { bg: "linear-gradient(135deg,#0a3161,#b31942,#0a0a14)", emoji: "🦅" };
+  if (has("בראשית", "חלל", "ירח", "כוכב")) return { bg: "linear-gradient(135deg,#0b1a3a,#3a1f5c,#05030a)", emoji: "🌌" };
+  if (has("הודו", "יראה")) return { bg: "linear-gradient(135deg,#5a3d0a,#b8860b,#0a0a08)", emoji: "📿" };
+  return { bg: "linear-gradient(135deg,#3a2c0a,#b8860b,#0a0a08)", emoji: "✨" };
+}
+
 // כרטיסי שלד מהבהבים בזמן טעינה (במקום טקסט "טוען…")
 const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div key={i} className="hn-skel" aria-hidden />);
 
@@ -50,7 +66,6 @@ export default function HomeNewPage() {
   const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
-  const [imgMap, setImgMap] = useState({}); // id -> image_url לכרטיסי LIVE
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
@@ -63,10 +78,8 @@ export default function HomeNewPage() {
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getHomeSets().then(r => setHomeSets(r || [])).catch(() => {});
-    getTopicCards({ approvedOnly: true }).then(async c => {
+    getTopicCards({ approvedOnly: true }).then(c => {
       setCards(c || []);
-      const ids = [...new Set((c || []).map(x => (x.image_ids || [])[0]).filter(Boolean))];
-      if (ids.length) { try { const im = await getGalleryImagesByIds(ids); setImgMap(Object.fromEntries((im || []).map(x => [x.id, x.image_url]))); } catch { /* ignore */ } }
       markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
@@ -349,13 +362,17 @@ export default function HomeNewPage() {
         <p className="hn-sub">ארבע ההתכנסויות האחרונות — החדש מודגש</p>
         <div className="hn-postgrid">
           {liveCards.map(c => {
-            const img = imgMap[(c.image_ids || [])[0]];
             const fresh = isNewSince(c, convCutoff);
+            const cov = convCover(c);
+            const bigNum = (c.highlight_numbers || [])[0];
             return (
             <Link key={c.slug} to={`/topic/${encodeURIComponent(c.slug)}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: `0 0 0 1px #e0556a55` } : undefined}>
-              <div style={{ height: 110, background: img ? `center/cover no-repeat url(${img})` : P.cardGrad, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-                <span style={{ color: P.accent, fontSize: 11, letterSpacing: 1, background: P.cardSoft, borderRadius: 999, padding: "2px 9px", margin: 8 }}>{stars(c.quality)}</span>
-                {fresh && <span style={{ background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", margin: 8, animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
+              <div style={{ height: 110, position: "relative", overflow: "hidden", background: cov.bg, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                {/* מספר-העל כסימן-מים מרכזי + אייקון הנושא בפינה */}
+                {bigNum != null && <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.mono, fontSize: 50, fontWeight: 800, color: "rgba(255,255,255,0.16)", letterSpacing: 2, pointerEvents: "none" }}>{bigNum}</span>}
+                <span style={{ position: "absolute", top: 8, insetInlineEnd: 10, fontSize: 23, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.55))", pointerEvents: "none" }}>{cov.emoji}</span>
+                <span style={{ position: "relative", zIndex: 1, color: "#ffe9a8", fontSize: 11, letterSpacing: 1, background: "rgba(0,0,0,0.42)", borderRadius: 999, padding: "2px 9px", margin: 8 }}>{stars(c.quality)}</span>
+                {fresh && <span style={{ position: "relative", zIndex: 1, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", margin: 8, animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
               </div>
               <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>
