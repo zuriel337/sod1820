@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getLatestInsightTitle, getVisitorsToday } from "../../lib/supabase.js";
+import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // האם תאריך הוא "היום" (לפי שעון מקומי)
@@ -52,16 +52,17 @@ function useLiveTicker() {
       } catch { /* ignore */ }
       let total = 0;
       try {
-        const { words, total: t } = await getSearchStatsToday();
+        const { words, total: t, topNumber } = await getSearchStatsToday();
         total = t;
         if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
+        if (topNumber != null) out.push(`🔥 המספר הכי מבוקש היום: ${topNumber}`);
       } catch { /* ignore */ }
       // — עֵרים (תמיד) —
       const nod = numberOfDay();
       if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
       try {
-        const ins = await getLatestInsightTitle();
-        if (ins) out.push(`💎 רמז אחרון: ${ins}`);
+        const crosses = await getVerifiedCrossTitles(3);
+        for (const c of crosses) out.push(`💎 הצלבה מאומתת: ${c}`);
       } catch { /* ignore */ }
       if (total > 0 || convCount > 0) {
         const parts = [];

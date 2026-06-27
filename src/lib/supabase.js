@@ -448,28 +448,33 @@ export async function getSearchStatsToday() {
     const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", iso);
     searches = count || 0;
   } catch { /* ignore */ }
+  let topNumber = null;
   try {
-    const { data } = await supabase.from("search_log").select("term").gte("created_at", iso).limit(2000);
+    const { data } = await supabase.from("search_log").select("term,value").gte("created_at", iso).limit(2000);
     words = new Set((data || []).map(r => (r.term || "").trim()).filter(Boolean)).size;
+    const freq = {};
+    for (const r of (data || [])) if (r.value != null) freq[r.value] = (freq[r.value] || 0) + 1;
+    const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+    if (top && top[1] >= 2) topNumber = Number(top[0]);
   } catch { /* ignore */ }
   try {
     const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true });
     total = count || 0;
   } catch { /* ignore */ }
-  return { searches, words, total };
+  return { searches, words, total, topNumber };
 }
-// 💎 כותרת ההצלבה המאומתת האחרונה (לרצועת הטיקר). רק תוכן ציבורי-מאושר:
-// space='core' + verified=true — כך רמזי-גלם/מעבדה שלא אושרו לא דולפים לציבור.
-export async function getLatestInsightTitle() {
-  if (!supabase) return null;
+// 💎 כותרות הצלבות מאומתות-ציבוריות (לרצועת הטיקר). רק space='core' + verified=true —
+// כך רמזי-גלם/מעבדה שלא אושרו לא דולפים לציבור. מחזיר עד `limit` (לגיוון ברוטציה).
+export async function getVerifiedCrossTitles(limit = 3) {
+  if (!supabase) return [];
   try {
     const { data } = await supabase.from("insights")
       .select("title,created_at")
       .eq("is_active", true).eq("space", "core").eq("verified", true)
       .not("title", "is", null)
-      .order("created_at", { ascending: false }).limit(1);
-    return data?.[0]?.title || null;
-  } catch { return null; }
+      .order("created_at", { ascending: false }).limit(limit);
+    return (data || []).map(r => r.title).filter(Boolean);
+  } catch { return []; }
 }
 // 👣 ספירת כניסות היום (best-effort — אם RLS חוסם, מחזיר 0). מקור: site_visits.
 export async function getVisitorsToday() {
