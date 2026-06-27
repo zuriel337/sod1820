@@ -20,9 +20,11 @@
 //             { action:"delete", object_id, page_id? }
 //             { action:"publish_post",  page_id?, message, link? }
 //             { action:"publish_photo", page_id?, image_url, caption? }
+//             { action:"fb_album", page_id?, image_urls:[…], message?|caption?, link? }   // אלבום/קרוסלה בפוסט
 //             { action:"set_cover", page_id?, image_url? | image_b64? (+mime?) | photo_id?, offset_y?, no_feed_story? }
 //  אינסטגרם:  { action:"ig_media",   page_id?|ig_id?, limit?, after? }
 //             { action:"ig_publish", page_id?|ig_id?, image_url, caption? }
+//             { action:"ig_carousel", page_id?|ig_id?, image_urls:[…2–10], caption? }   // אלבום נגלל
 //             { action:"ig_delete_comment", comment_id }
 //             { action:"ig_media_insights", media_id, page_id?|ig_id?, metric? }   // צפיות/Reach/שיתופים/שמירות
 //             { action:"ig_insights", page_id?|ig_id?, demographic?, breakdown?, metric?, period? }  // קהל/דמוגרפיה
@@ -247,6 +249,40 @@ Deno.serve(async (req) => {
         if (!c.id) throw new Error("container creation failed");
         const pub = await graph(`${igId}/media_publish`, { method: "POST", token, params: { creation_id: c.id } });
         return json({ ok: true, ig_id: igId, ig_post_id: pub.id });
+      }
+      // ── אינסטגרם: קרוסלה (אלבום נגלל, 2–10 תמונות) ── //
+      case "ig_carousel": {
+        const { igId, token } = await resolveIg(body);
+        const urls: string[] = Array.isArray(body.image_urls) ? body.image_urls : [];
+        if (urls.length < 2) return json({ ok: false, error: "image_urls (2–10) required" }, 400);
+        const children: string[] = [];
+        for (const u of urls.slice(0, 10)) {
+          const c = await graph(`${igId}/media`, { method: "POST", token, params: { image_url: String(u), is_carousel_item: "true" } });
+          if (!c.id) throw new Error("carousel item container failed");
+          children.push(c.id);
+        }
+        const car = await graph(`${igId}/media`, { method: "POST", token, params: { media_type: "CAROUSEL", children: children.join(","), caption: String(body.caption || "") } });
+        if (!car.id) throw new Error("carousel container failed");
+        const pub = await graph(`${igId}/media_publish`, { method: "POST", token, params: { creation_id: car.id } });
+        return json({ ok: true, ig_id: igId, ig_post_id: pub.id, items: children.length });
+      }
+      // ── דף: אלבום תמונות בפוסט אחד (FB carousel) ── //
+      case "fb_album": {
+        const pid = await resolvePage(body);
+        const tok = await pageToken(pid);
+        const urls: string[] = Array.isArray(body.image_urls) ? body.image_urls : [];
+        if (!urls.length) return json({ ok: false, error: "image_urls required" }, 400);
+        const params: Record<string, string> = { message: String(body.message || body.caption || "") };
+        let i = 0;
+        for (const u of urls.slice(0, 10)) {
+          const ph = await graph(`${pid}/photos`, { method: "POST", token: tok, params: { url: String(u), published: "false" } });
+          if (!ph.id) throw new Error("photo upload failed");
+          params[`attached_media[${i}]`] = JSON.stringify({ media_fbid: ph.id });
+          i++;
+        }
+        if (body.link) params.link = String(body.link);
+        const d = await graph(`${pid}/feed`, { method: "POST", token: tok, params });
+        return json({ ok: true, page_id: pid, fb_post_id: d.id, items: i });
       }
       case "ig_delete_comment": {
         const id = String(body.comment_id || "").trim();
