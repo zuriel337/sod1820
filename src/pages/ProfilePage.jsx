@@ -231,6 +231,8 @@ export default function ProfilePage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [showUrl, setShowUrl] = useState(false);
 
   // סגנונות תלויי-תמה (יום/לילה)
   const card = {
@@ -268,6 +270,27 @@ export default function ProfilePage() {
         </div>
       </div>
     );
+  }
+
+  async function pickAvatar(e) {
+    const f = e.target.files?.[0];
+    e.target.value = "";   // לאפשר בחירה חוזרת של אותו קובץ
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { setErr("נא לבחור קובץ תמונה"); return; }
+    if (f.size > 5 * 1024 * 1024) { setErr("התמונה גדולה מדי (מקסימום 5MB)"); return; }
+    setErr(""); setMsg(""); setUploading(true);
+    try {
+      const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: true, contentType: f.type });
+      if (error) throw error;
+      const url = supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
+      setAvatarUrl(url);
+      setMsg("התמונה הועלתה — לחצו שמירה לעדכון ✦");
+    } catch (e2) {
+      setErr(e2?.message || "שגיאה בהעלאת התמונה");
+    }
+    setUploading(false);
   }
 
   async function save() {
@@ -308,8 +331,31 @@ export default function ProfilePage() {
         <label style={label}>שם תצוגה</label>
         <input style={field} value={displayName} onChange={e => setDisplayName(e.target.value)} dir="rtl" />
 
-        <label style={label}>קישור לתמונת פרופיל (URL)</label>
-        <input style={field} value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} dir="ltr" placeholder="https://…" />
+        <label style={label}>תמונת פרופיל</label>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <Avatar profile={{ ...profile, avatar_url: avatarUrl }} user={user} size={52} />
+          <label style={{
+            display: "inline-flex", alignItems: "center", gap: 8, cursor: uploading ? "wait" : "pointer",
+            background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 10,
+            padding: "10px 18px", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
+          }}>
+            {uploading ? "מעלה…" : "📷 העלאת תמונה מהמכשיר"}
+            <input type="file" accept="image/*" onChange={pickAvatar} disabled={uploading} style={{ display: "none" }} />
+          </label>
+          {avatarUrl && !uploading && (
+            <button onClick={() => { setAvatarUrl(""); setMsg(""); }} style={{
+              background: "none", border: "none", cursor: "pointer", color: P.accentDim,
+              fontFamily: F.heading, fontSize: 12.5, textDecoration: "underline", textUnderlineOffset: 2,
+            }}>הסר</button>
+          )}
+        </div>
+        <button onClick={() => setShowUrl(v => !v)} style={{
+          background: "none", border: "none", cursor: "pointer", color: P.accentDim,
+          fontFamily: F.heading, fontSize: 12, marginTop: 8, padding: 0, textDecoration: "underline", textUnderlineOffset: 2,
+        }}>{showUrl ? "הסתר" : "או הדבק קישור (URL)"}</button>
+        {showUrl && (
+          <input style={{ ...field, marginTop: 8 }} value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} dir="ltr" placeholder="https://…" />
+        )}
 
         {err && <div style={{ color: C.danger, fontSize: 13, marginTop: 12, fontFamily: F.heading }}>{err}</div>}
         {msg && <div style={{ color: P.accentText, fontSize: 13, marginTop: 12, fontFamily: F.heading }}>{msg}</div>}
