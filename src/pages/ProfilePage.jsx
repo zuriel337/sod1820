@@ -314,9 +314,20 @@ export default function ProfilePage() {
     setBusy(false);
   }
 
+  const lightMode = P.mode === "light";
+
   return (
-    <div style={{ background: P.pageBg, minHeight: "100vh" }}>
-    <div style={{ direction: "rtl", maxWidth: 520, margin: "0 auto", padding: "56px 24px 120px" }}>
+    <div style={{ background: lightMode ? "#f6f1e6" : P.pageBg, minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+      {/* רקע עיר מותאם ליום: בהיר ועדין (בלילה הרקע הגלובלי הכהה כבר קיים) */}
+      {lightMode && (
+        <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/city-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center", filter: "grayscale(0.45) brightness(1.55) contrast(0.85)", opacity: 0.14 }} />
+          <div style={{ position: "absolute", inset: 0, mixBlendMode: "multiply", background: "linear-gradient(180deg, rgba(184,134,11,0.07), rgba(123,76,176,0.06))" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 0%, rgba(246,241,230,0.55) 12%, #f6f1e6 30%, #f6f1e6 70%, rgba(246,241,230,0.55) 88%, transparent 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 40% at 50% 0%, rgba(184,134,11,0.10), transparent 60%)" }} />
+        </div>
+      )}
+    <div style={{ direction: "rtl", maxWidth: 520, margin: "0 auto", padding: "56px 24px 120px", position: "relative", zIndex: 1 }}>
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
           <Avatar profile={{ ...profile, avatar_url: avatarUrl }} user={user} size={64} />
