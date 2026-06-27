@@ -49,6 +49,7 @@ function convCover(c) {
   if (has("ירושלים", "שומרים", "מקדש", "כותל")) return { bg: "linear-gradient(135deg,#1e3a5f,#b8860b,#0a0a14)", emoji: "🏛️" };
   if (has("זית", "הר ה")) return { bg: "linear-gradient(135deg,#2d4a1e,#6b8e23,#0e1408)", emoji: "🫒" };
   if (has("בבוא", "השתקפ", "מראה", "ראי")) return { bg: "linear-gradient(135deg,#3b1f5c,#7b4cb0,#0a0a14)", emoji: "🪞" };
+  if (has("כריש", "חדרה", "לוויתן")) return { bg: "linear-gradient(135deg,#0a2a3f,#1a6b8e,#04141c)", emoji: "🦈" };
   if (has("טראמפ", "אמריק")) return { bg: "linear-gradient(135deg,#0a3161,#b31942,#0a0a14)", emoji: "🦅" };
   if (has("בראשית", "חלל", "ירח", "כוכב")) return { bg: "linear-gradient(135deg,#0b1a3a,#3a1f5c,#05030a)", emoji: "🌌" };
   if (has("הודו", "יראה")) return { bg: "linear-gradient(135deg,#5a3d0a,#b8860b,#0a0a08)", emoji: "📿" };
