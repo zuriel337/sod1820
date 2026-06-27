@@ -42,10 +42,11 @@ export default function RoyalShareWidget() {
       if (c != null) { setCount(parseInt(c, 10) || 0); return; }
     } catch { /* noop */ }
     if (!supabase) return;
-    supabase.from("visitor_events").select("id", { count: "exact", head: true })
-      .eq("event_type", "share")
-      .then(({ count: c }) => {
-        if (!alive || typeof c !== "number") return;
+    // RPC במקום SELECT ישיר — אנונימי חסום מ-visitor_events (היה מפיל שגיאות בלוג).
+    supabase.rpc("community_share_count")
+      .then(({ data }) => {
+        const c = typeof data === "number" ? data : parseInt(data, 10);
+        if (!alive || !Number.isFinite(c)) return;
         setCount(c);
         try { sessionStorage.setItem("sod_share_total", String(c)); } catch { /* noop */ }
       });
