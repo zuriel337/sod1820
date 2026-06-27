@@ -24,6 +24,8 @@
 //  אינסטגרם:  { action:"ig_media",   page_id?|ig_id?, limit?, after? }
 //             { action:"ig_publish", page_id?|ig_id?, image_url, caption? }
 //             { action:"ig_delete_comment", comment_id }
+//             { action:"ig_media_insights", media_id, page_id?|ig_id?, metric? }   // צפיות/Reach/שיתופים/שמירות
+//             { action:"ig_insights", page_id?|ig_id?, demographic?, breakdown?, metric?, period? }  // קהל/דמוגרפיה
 //  פרסום:     { action:"ads_accounts" }
 //             { action:"ads_campaigns", ad_account_id, limit? }
 //             { action:"ads_adsets",    ad_account_id?|campaign_id, limit? }
@@ -253,6 +255,40 @@ Deno.serve(async (req) => {
         const tok = pid ? await pageToken(pid) : SYS_TOKEN;
         const d = await graph(`${id}`, { method: "DELETE", token: tok });
         return json({ ok: true, deleted: id, result: d });
+      }
+      // ── אינסטגרם: תובנות פוסט/ריל (צפיות, Reach, שיתופים, שמירות, זמן צפייה) ── //
+      // דורש scope instagram_manage_insights בטוקן.
+      case "ig_media_insights": {
+        const id = String(body.media_id || "").trim();
+        if (!id) return json({ ok: false, error: "media_id required" }, 400);
+        const { token } = await resolveIg(body);
+        const metric = String(body.metric || "reach,likes,comments,saved,shares,total_interactions,views");
+        const d = await graph(`${id}/insights`, { token, params: { metric } });
+        return json({ ok: true, media_id: id, insights: d.data || [] });
+      }
+      // ── אינסטגרם: תובנות חשבון + דמוגרפיה של הקהל ── //
+      // demographic=true → follower_demographics (lifetime). אחרת מדדי תקופה (reach/views/engaged).
+      case "ig_insights": {
+        const { igId, token } = await resolveIg(body);
+        let params: Record<string, string>;
+        if (body.demographic) {
+          params = {
+            metric: String(body.metric || "follower_demographics"),
+            period: "lifetime",
+            metric_type: "total_value",
+            breakdown: String(body.breakdown || "country"),
+          };
+        } else {
+          params = {
+            metric: String(body.metric || "reach,views,profile_views,accounts_engaged,total_interactions"),
+            period: String(body.period || "day"),
+            metric_type: String(body.metric_type || "total_value"),
+          };
+          if (body.since) params.since = String(body.since);
+          if (body.until) params.until = String(body.until);
+        }
+        const d = await graph(`${igId}/insights`, { token, params });
+        return json({ ok: true, ig_id: igId, insights: d.data || [] });
       }
 
       // ── פרסום (Ads) ── //
