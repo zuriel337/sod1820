@@ -2786,7 +2786,7 @@ function PushSendTab() {
   const [body, setBody] = useState("");
   const [url, setUrl] = useState("/");
   const [topic, setTopic] = useState("all");   // all = לכל המנויים
-  const [adminKey, setAdminKey] = useState(() => { try { return sessionStorage.getItem("sod_push_key") || ""; } catch { return ""; } });
+  const [adminKey, setAdminKey] = useState(() => { try { return localStorage.getItem("sod_push_key") || sessionStorage.getItem("sod_push_key") || ""; } catch { return ""; } });
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [err, setErr] = useState("");
@@ -2810,7 +2810,7 @@ function PushSendTab() {
     setErr(""); setResult(null);
     if (!adminKey.trim()) { setErr("נא להזין מפתח שליחה (PUSH_ADMIN_KEY)"); return; }
     if (!title.trim() && !body.trim()) { setErr("נא למלא כותרת או תוכן"); return; }
-    try { sessionStorage.setItem("sod_push_key", adminKey.trim()); } catch { /* noop */ }
+    try { localStorage.setItem("sod_push_key", adminKey.trim()); } catch { /* noop */ }
     setBusy(true);
     try {
       const res = await fetch(SEND_PUSH_URL, {
