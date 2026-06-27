@@ -2448,8 +2448,8 @@ function PostPage({ post, onBack }) {
               dangerouslySetInnerHTML={{ __html: content }}
             />
 
-            {/* שיתוף */}
-            {(() => {
+            {/* שיתוף תחתון הוסר — מטופל גלובלית ע"י RoyalShareWidget הצף */}
+            {false && (() => {
               const slug = fullPost.slug || post?.slug || "";
               const shareUrl = `${SITE_URL}/${slug}`;
               const tags = fullPost.tags || [];
@@ -4572,8 +4572,8 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
 
-            {/* שיתוף תחתון — מוסתר בפוסטי התפילה (שם יש כפתור שיתוף צף יחיד עם מונה) */}
-            {!PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (() => {
+            {/* שיתוף תחתון הוסר — מטופל גלובלית ע"י RoyalShareWidget הצף */}
+            {false && !PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (() => {
               const shareUrl = `${SITE_URL}/${post.slug || slug}`;
               const isYenuka = (tags || []).some(t => YENUKA_TAGS.includes(t));
               return (

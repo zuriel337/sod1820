@@ -6,11 +6,11 @@
   "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#080500",
-  "theme_color": "#07050E",
+  "background_color": "#0C0818",
+  "theme_color": "#0C0818",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
