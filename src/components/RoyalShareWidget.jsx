@@ -70,25 +70,30 @@ export default function RoyalShareWidget() {
     { key: "email", label: "אימייל", href: `mailto:?subject=${enc(title)}&body=${enc(text + "\n" + url)}` },
   ];
 
-  const go = useCallback((platform, href) => {
-    trackShare(platform, slug);
-    window.open(href, "_blank", "noopener,noreferrer");
+  // מגדיל את מונה השיתופים הויזואלי של הפוסט (אם הדף הנוכחי הוא פוסט) — no-op אחרת.
+  const bumpPostShare = useCallback(() => {
+    try { supabase?.rpc("increment_post_share_by_slug", { p_slug: slug }); } catch { /* noop */ }
   }, [slug]);
 
+  const go = useCallback((platform, href) => {
+    trackShare(platform, slug); bumpPostShare();
+    window.open(href, "_blank", "noopener,noreferrer");
+  }, [slug, bumpPostShare]);
+
   const copyLink = useCallback(() => {
-    trackShare("copy", slug);
+    trackShare("copy", slug); bumpPostShare();
     try { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); }
     catch { window.prompt("העתיקו את הקישור:", url); }
-  }, [slug, url]);
+  }, [slug, url, bumpPostShare]);
 
   const shareImage = useCallback(() => {
     if (numberId) shareNumberSmart(Number(numberId), []); // numberCard מתעד trackShare בעצמו
   }, [numberId]);
 
   const nativeShare = useCallback(() => {
-    trackShare("native", slug);
+    trackShare("native", slug); bumpPostShare();
     try { navigator.share?.({ title, text, url }).catch(() => {}); } catch { /* noop */ }
-  }, [slug, title, text, url]);
+  }, [slug, title, text, url, bumpPostShare]);
 
   if (HIDE.test(pathname)) return null;
 
