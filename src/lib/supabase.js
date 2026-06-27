@@ -440,10 +440,10 @@ export async function getSearchCount(value) {
 // 🔎 סטטיסטיקת חיפושים של היום (לרצועת הטיקר): כמה חיפושים נעשו + כמה מילים ייחודיות נחקרו.
 // מקור: search_log. ספירת החיפושים = exact head count; המילים = distinct מדגם (עד 2000 שורות).
 export async function getSearchStatsToday() {
-  if (!supabase) return { searches: 0, words: 0 };
+  if (!supabase) return { searches: 0, words: 0, total: 0 };
   const start = new Date(); start.setHours(0, 0, 0, 0);
   const iso = start.toISOString();
-  let searches = 0, words = 0;
+  let searches = 0, words = 0, total = 0;
   try {
     const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", iso);
     searches = count || 0;
@@ -452,7 +452,30 @@ export async function getSearchStatsToday() {
     const { data } = await supabase.from("search_log").select("term").gte("created_at", iso).limit(2000);
     words = new Set((data || []).map(r => (r.term || "").trim()).filter(Boolean)).size;
   } catch { /* ignore */ }
-  return { searches, words };
+  try {
+    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true });
+    total = count || 0;
+  } catch { /* ignore */ }
+  return { searches, words, total };
+}
+// 💎 כותרת החידוש/הצלבה האחרון/ה (לרצועת הטיקר). מקור: insights פעיל עם כותרת.
+export async function getLatestInsightTitle() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.from("insights")
+      .select("title,created_at").eq("is_active", true).not("title", "is", null)
+      .order("created_at", { ascending: false }).limit(1);
+    return data?.[0]?.title || null;
+  } catch { return null; }
+}
+// 👣 ספירת כניסות היום (best-effort — אם RLS חוסם, מחזיר 0). מקור: site_visits.
+export async function getVisitorsToday() {
+  if (!supabase) return 0;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  try {
+    const { count } = await supabase.from("site_visits").select("*", { count: "exact", head: true }).gte("ts", start.toISOString());
+    return count || 0;
+  } catch { return 0; }
 }
 // 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
 export async function getViewCount(kind, ref, days = 7) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { F } from "../../theme.js";
+import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchStatsToday } from "../../lib/supabase.js";
+import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getLatestInsightTitle, getVisitorsToday } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // האם תאריך הוא "היום" (לפי שעון מקומי)
@@ -11,20 +11,37 @@ function isToday(d) {
   return x.getFullYear() === n.getFullYear() && x.getMonth() === n.getMonth() && x.getDate() === n.getDate();
 }
 
-// 📡 בונה הודעות טיקר חי מנתונים אמיתיים: התכנסות אחרונה · פוסט אחרון · חיפושי היום + מילים שנחקרו.
-// מתרענן כל דקה (רק כשהטאב גלוי).
+// 🗓 המספר של היום — אותה לוגיקה דטרמיניסטית כמו רכיב NumberOfDay (חוק העץ האחד).
+function numberOfDay() {
+  const keys = Object.keys(KEY_NUMBERS).map(Number).sort((a, b) => a - b);
+  if (!keys.length) return null;
+  const n = keys[Math.floor(Date.now() / 864e5) % keys.length];
+  return { n, meaning: KEY_NUMBERS[n] };
+}
+
+// 🕯️ ברכה לפי שעת היום (טהור, בלי נתונים)
+function timeGreeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "🌅 בוקר טוב — יום חדש בדרך לגאולה";
+  if (h >= 12 && h < 17) return "☀️ צהריים טובים — האור מאיר את המספרים";
+  if (h >= 17 && h < 21) return "🌇 ערב טוב — שעה טובה לחקור רמז";
+  return "🌙 לילה טוב — האור עולה מתוך החושך";
+}
+
+// 📡 בונה הודעות טיקר חי. קודם ה"טריים" (התכנסות/פוסט/מילים היום), ואז העֵרים שתמיד
+// מלאים (המספר של היום · רמז אחרון · גודל המאגר · ברכה) — כך הפס לעולם לא דליל.
+// "מבקרים היום" מתווסף רק אם ≥ 2500. מתרענן כל דקה (רק כשהטאב גלוי).
 function useLiveTicker() {
   const [msgs, setMsgs] = useState([]);
   useEffect(() => {
     let live = true;
     async function load() {
       const out = [];
-      try {
-        const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
-        const sorted = (cards || []).slice().sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
-        const latest = sorted[0];
-        if (latest) out.push(`✨ ${isToday(latest.created_at) ? "התכנסות חדשה עלתה היום" : "התכנסות אחרונה"} — «${latest.title}»`);
-      } catch { /* ignore */ }
+      const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
+      const convCount = (cards || []).length;
+      // — טריים —
+      const latest = (cards || []).slice().sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))[0];
+      if (latest) out.push(`✨ ${isToday(latest.created_at) ? "התכנסות חדשה עלתה היום" : "התכנסות אחרונה"} — «${latest.title}»`);
       try {
         const { posts } = await getPostsFromSupabase({ limit: 3, orderBy: "modified" });
         const p = (posts || [])[0];
@@ -33,10 +50,32 @@ function useLiveTicker() {
           out.push(`📰 ${(isToday(p.date) || isToday(p.modified)) ? "פוסט חדש עלה היום" : "פוסט אחרון"} — «${t}»`);
         }
       } catch { /* ignore */ }
+      let total = 0;
       try {
-        const { words } = await getSearchStatsToday();
+        const { words, total: t } = await getSearchStatsToday();
+        total = t;
         if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
       } catch { /* ignore */ }
+      // — עֵרים (תמיד) —
+      const nod = numberOfDay();
+      if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
+      try {
+        const ins = await getLatestInsightTitle();
+        if (ins) out.push(`💎 רמז אחרון: ${ins}`);
+      } catch { /* ignore */ }
+      if (total > 0 || convCount > 0) {
+        const parts = [];
+        if (total > 0) parts.push(`${total.toLocaleString("he-IL")} חיפושים`);
+        if (convCount > 0) parts.push(`${convCount} התכנסויות`);
+        out.push(`📊 במאגר: ${parts.join(" · ")}`);
+      }
+      out.push(timeGreeting());
+      // — מבקרים היום: רק אם ≥ 2500 —
+      try {
+        const v = await getVisitorsToday();
+        if (v >= 2500) out.push(`👣 ${v.toLocaleString("he-IL")} כניסות היום`);
+      } catch { /* ignore */ }
+
       if (live) setMsgs(out);
     }
     load();
