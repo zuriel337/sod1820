@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { LOGO_URL } from "../theme.js";
 import { trackShare } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
@@ -98,7 +97,7 @@ export default function RoyalShareWidget() {
       {/* לשונית סגורה — כתר למעלה, צמודה לקצה הימני */}
       {!open && (
         <button className="rsw-tab" onClick={() => setOpen(true)} aria-label="שתפו את העמוד">
-          <img className="rsw-tab-logo" src={LOGO_URL} alt="" aria-hidden />
+          <img className="rsw-tab-logo" src="/crown-icon.png" alt="" aria-hidden />
           <span className="rsw-tab-lbl">שתפו</span>
         </button>
       )}
@@ -109,7 +108,7 @@ export default function RoyalShareWidget() {
           <div className="rsw-scrim" onClick={() => setOpen(false)} />
           <div className="rsw-panel" role="dialog" aria-modal="true" aria-label="שיתוף">
             <button className="rsw-x" onClick={() => setOpen(false)} aria-label="סגירה">×</button>
-            <img className="rsw-logo" src={LOGO_URL} alt="" aria-hidden />
+            <img className="rsw-logo" src="/crown.png" alt="" aria-hidden />
             <h2 className="rsw-h2">הפיצו את האור</h2>
             <p className="rsw-sub">אם התוכן נגע בכם, שתפו אותו עם אחרים.</p>
             {count > 20 && <div className="rsw-cnt">✨ <b>{count.toLocaleString("he-IL")}</b> שיתופים בקהילה</div>}
