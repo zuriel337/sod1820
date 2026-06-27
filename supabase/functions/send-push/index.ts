@@ -24,15 +24,30 @@ if (VAPID_PUBLIC && VAPID_PRIVATE) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  // ללא הגדרת מפתחות — לא שולחים (ולא נשארים פתוחים לכולם).
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE || !ADMIN_KEY) {
-    return json({ error: "push not configured (missing VAPID/ADMIN secrets)" }, 503);
+  // ללא הגדרת VAPID — לא שולחים (ולא נשארים פתוחים לכולם).
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+    return json({ error: "push not configured (missing VAPID secrets)" }, 503);
   }
   try {
     const { title, body, url, topic, admin_key } = await req.json();
-    if (admin_key !== ADMIN_KEY) return json({ error: "unauthorized" }, 401);
 
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    // הרשאה: או מפתח אדמין סטטי (שרת/cron), או משתמש מחובר עם role=admin (JWT מהדפדפן).
+    // כך אדמין מחובר שולח בלי להזין מפתח — הדף ממילא נעול לאדמין.
+    let authorized = !!(ADMIN_KEY && admin_key === ADMIN_KEY);
+    if (!authorized) {
+      const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+      if (token) {
+        const { data: au } = await supabase.auth.getUser(token);
+        const uid = au?.user?.id;
+        if (uid) {
+          const { data: urow } = await supabase.from("users").select("role").eq("id", uid).maybeSingle();
+          if (urow?.role === "admin") authorized = true;
+        }
+      }
+    }
+    if (!authorized) return json({ error: "unauthorized" }, 401);
     const { data: subs } = await supabase
       .from("push_subscriptions")
       .select("endpoint, p256dh, auth, topics, user_id, visitor_id");

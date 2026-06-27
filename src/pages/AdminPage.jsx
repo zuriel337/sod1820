@@ -2779,14 +2779,11 @@ function ClassifyTab() {
 }
 
 // ===== PushSendTab — שליחת התראת Push לפי נושא =====
-const SEND_PUSH_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/send-push";
-
 function PushSendTab() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [url, setUrl] = useState("/");
   const [topic, setTopic] = useState("all");   // all = לכל המנויים
-  const [adminKey, setAdminKey] = useState(() => { try { return localStorage.getItem("sod_push_key") || sessionStorage.getItem("sod_push_key") || ""; } catch { return ""; } });
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [err, setErr] = useState("");
@@ -2808,24 +2805,20 @@ function PushSendTab() {
 
   async function send() {
     setErr(""); setResult(null);
-    if (!adminKey.trim()) { setErr("נא להזין מפתח שליחה (PUSH_ADMIN_KEY)"); return; }
     if (!title.trim() && !body.trim()) { setErr("נא למלא כותרת או תוכן"); return; }
-    try { localStorage.setItem("sod_push_key", adminKey.trim()); } catch { /* noop */ }
     setBusy(true);
     try {
-      const res = await fetch(SEND_PUSH_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          admin_key: adminKey.trim(),
+      // אימות לפי הסשן של האדמין (JWT) — בלי מפתח ידני. invoke מצרף את ה-Authorization אוטומטית.
+      const { data, error } = await supabase.functions.invoke("send-push", {
+        body: {
           title: title.trim() || undefined,
           body: body.trim() || undefined,
           url: url.trim() || "/",
           topic: topic === "all" ? undefined : topic,
-        }),
+        },
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setErr(data?.error || `שגיאה (${res.status})`); }
+      if (error) { setErr(data?.error || error.message || "השליחה נכשלה"); }
+      else if (data?.error) { setErr(data.error); }
       else { setResult(data); }
     } catch (e) {
       setErr("השליחה נכשלה — בדקו שהפונקציה send-push פרוסה. " + String(e));
@@ -2843,7 +2836,7 @@ function PushSendTab() {
         <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>🔔 שליחת התראת Push</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
           ההתראה נשלחת רק למנויי Push שסימנו את הנושא (ומי שלא סימן נושאים — מקבל הכל).
-          דורש פריסת הפונקציה <code>send-push</code> והגדרת מפתחות VAPID.
+          השליחה מאומתת אוטומטית לפי חשבון האדמין — אין צורך במפתח.
         </div>
 
         <label style={lbl}>נושא</label>
@@ -2864,9 +2857,6 @@ function PushSendTab() {
 
         <label style={lbl}>קישור (url)</label>
         <input style={field} value={url} onChange={e => setUrl(e.target.value)} dir="ltr" placeholder="/number/1820" />
-
-        <label style={lbl}>מפתח שליחה (PUSH_ADMIN_KEY)</label>
-        <input style={field} type="password" value={adminKey} onChange={e => setAdminKey(e.target.value)} dir="ltr" placeholder="••••••••" />
 
         {err && <div style={{ color: C.danger, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{err}</div>}
         {result && (

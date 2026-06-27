@@ -239,6 +239,7 @@ function Dropdown({ items, onNavigate }) {
 // תפריט המשתמש — chip עם אווטר, ובריחוף נפתח תפריט: פרופיל + ניהול עדכונים.
 function UserMenu({ user, profile, cc }) {
   const [open, setOpen] = useState(false);
+  const { isAdmin } = useAuth();
   const item = {
     display: "block", color: cc.goldDim, textDecoration: "none",
     fontFamily: F.royal, fontSize: 14.5, padding: "10px 13px", borderRadius: 5,
@@ -267,6 +268,9 @@ function UserMenu({ user, profile, cc }) {
         }}>
           <Link to="/profile" style={item} onMouseEnter={hov} onMouseLeave={out}>👤 הפרופיל שלי</Link>
           <Link to="/profile#notifications" style={item} onMouseEnter={hov} onMouseLeave={out}>🌊 הזרם שלך</Link>
+          {isAdmin && (
+            <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
+          )}
         </div>
       )}
     </div>
@@ -325,7 +329,7 @@ function GridIcon() {
 export default function Navbar() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
 
@@ -403,6 +407,12 @@ export default function Navbar() {
               display: "flex", alignItems: "center", gap: 10, color: cc.goldDim, textDecoration: "none",
               fontFamily: F.royal, fontSize: 14, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>🌊 הזרם שלך</Link>
+          )}
+          {isAdmin && (
+            <Link to="/admin" onClick={() => setDrawer(false)} style={{
+              display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+            }}>👑 דף ניהול</Link>
           )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">
