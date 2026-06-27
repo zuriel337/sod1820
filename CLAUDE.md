@@ -100,6 +100,24 @@
 פוסט היסוד: `wp_id=17` ("שם ה' בתורה 1820 פעם") מוצג בראש בית המדרש כ-«פוסט היסוד» (כבוד לסוד 1820).
 כשנוצר חידוש AI מפוסט/גלריה — הוא נשמר ב-`insights` (origin='ai'), מופיע בתיבת ה-AI בבית המדרש, ולחיצה מנווטת לפוסט/גלריה (`source_ref`).
 
+## 📣 פרסום לפייסבוק/אינסטגרם — דרך SQL, בלי מפתח (`social_publish_law`)
+> **כל סוכן יכול לפרסם לרשתות בלי לבקש מצוריאל את ה-`FB_ADMIN_KEY`.** המפתח שמור ב-Supabase **Vault** (`FB_ADMIN_KEY`) ומוזרק בצד השרת. אל תבקש את הקוד מצוריאל — פשוט הרץ את פונקציות ה-SQL.
+
+**איך מפרסמים (דרך MCP `execute_sql`, project `linswmnnkjxvweumprav`):**
+```sql
+select public.fb_publish_photo('<image_url>', '<caption>', '<page_id>');  -- פוסט-תמונה
+select public.fb_publish_post('<message>', '<link?>', '<page_id>');        -- פוסט טקסט+קישור
+select public.ig_publish('<image_url>', '<caption>', '<page_id|null>');    -- אינסטגרם (דורש דף עם IG מקושר)
+select public.fb_set_cover('<image_url>', '<page_id>');                    -- כריכת דף (דורש scope pages_manage_metadata)
+select public.social_admin('<action>', '<payload>'::jsonb);               -- גנרי: whoami/list/search/delete/ads_* וכו'
+```
+- **תמיד `select public.social_admin('whoami')` קודם** כדי לקבל את ה-page_id/ig_id הנכונים.
+- **הדפים (נכון ל-6.2026):** «כי לה' המלוכה» = `617996338259568` · «קוד המציאות» = `346556845479563` (IG `@realitycode1820`, ig_id `17841463554031717`). חשבון פרסום: «גאולה 2024» = `act_397316022648143`. טוקן: `sod1820-automation`.
+- מאחורי הקלעים: `public.social_admin` (SECURITY DEFINER) מושך את המפתח מ-Vault וקורא ל-Edge Function `facebook-admin` עם header `x-fb-admin-key`. הפונקציות **חסומות מהציבור** (anon/authenticated) — service_role/postgres בלבד.
+- **פורמט פוסט-תמונה מועדף (כבקשת צוריאל):** רוב התוכן *בתוך* ה-caption + קישור לאתר בסוף.
+- **אישור פרסום:** עדיין לשאול/לאשר מול צוריאל *מה* מפרסמים (פרסום = פעולה חיצונית). מה שהשתנה: לא צריך ממנו את המפתח.
+- אם `set_cover` מחזיר `(#283) pages_manage_metadata` — חסר scope בטוקן; צוריאל מוסיף אותו ב-Business Settings ומעדכן `META_SYSTEM_TOKEN`.
+
 ## 🚀 Meta Growth OS — תוכנית העל (24 שכבות)
 > **חזון:** Sod1820 הופך ממשהו שאנשים קוראים בו למשהו שאנשים חוזרים אליו כל יום — מערכת הפעלה של משמעות (SodOS).
 > הרשומה המלאה: `select what_we_did from work_log where topic='Meta Growth OS — תוכנית העל (24 שכבות)' order by created_at desc limit 1;`
