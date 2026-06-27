@@ -10,10 +10,10 @@
   "theme_color": "#0C0818",
   "icons": [
     {
-      "src": "/icon-royal.png",
+      "src": "/crown-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
