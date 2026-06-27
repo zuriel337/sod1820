@@ -458,12 +458,15 @@ export async function getSearchStatsToday() {
   } catch { /* ignore */ }
   return { searches, words, total };
 }
-// 💎 כותרת החידוש/הצלבה האחרון/ה (לרצועת הטיקר). מקור: insights פעיל עם כותרת.
+// 💎 כותרת ההצלבה המאומתת האחרונה (לרצועת הטיקר). רק תוכן ציבורי-מאושר:
+// space='core' + verified=true — כך רמזי-גלם/מעבדה שלא אושרו לא דולפים לציבור.
 export async function getLatestInsightTitle() {
   if (!supabase) return null;
   try {
     const { data } = await supabase.from("insights")
-      .select("title,created_at").eq("is_active", true).not("title", "is", null)
+      .select("title,created_at")
+      .eq("is_active", true).eq("space", "core").eq("verified", true)
+      .not("title", "is", null)
       .order("created_at", { ascending: false }).limit(1);
     return data?.[0]?.title || null;
   } catch { return null; }
