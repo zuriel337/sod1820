@@ -1108,6 +1108,18 @@ export async function getRecentSearches(limit = 6) {
   } catch { return []; }
 }
 
+// 🔢 מונה חיפושים — כמה חיפושי גימטריה נרשמו ב-N השעות האחרונות (למגירת המספר / בית המדרש).
+export async function getRecentSearchCount(hours = 24) {
+  if (!supabase) return 0;
+  try {
+    const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    const { count } = await supabase.from('search_log')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', since);
+    return count || 0;
+  } catch { return 0; }
+}
+
 // ✦ חידושי הצלבות — מהמנוע (origin=ai), החדשים ראשונים. למהבהב "כמה נוספו" ולקופסת הבית.
 export async function getRecentCrosses(limit = 12) {
   try {

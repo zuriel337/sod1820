@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getEntityBundle, getTopicCards } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getRecentSearchCount } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
@@ -33,6 +33,7 @@ export default function NumberDrawer() {
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");           // שדה עריכה חי — מקלידים מילה/מספר ורואים בזמן אמת
   const [topics, setTopics] = useState([]); // כרטיסי התכנסות (גשר לציר ההתכנסות)
+  const [searchCount, setSearchCount] = useState(null); // מונה חיפושים ב-24ש' (מצב ריק)
   const [zoom, setZoom] = useState(null);
   const [thread, setThread] = useState(null);
   const [webs, setWebs] = useState([]);     // חוטים פנימיים: מהמספר אל כל גלריה במגירה
@@ -46,6 +47,9 @@ export default function NumberDrawer() {
 
   // כרטיסי התכנסות — נטענים פעם אחת (גשר לציר ההתכנסות של מרכז הנושאים)
   useEffect(() => { if (open && !topics.length) getTopicCards({ approvedOnly: true }).then(setTopics).catch(() => {}); }, [open]); // eslint-disable-line
+
+  // מונה חיפושים ב-24 שעות — נטען כשהמגירה נפתחת (למצב הריק)
+  useEffect(() => { if (open) getRecentSearchCount(24).then(setSearchCount).catch(() => {}); }, [open]);
 
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
@@ -268,6 +272,14 @@ export default function NumberDrawer() {
               <div style={{ textAlign: "center", margin: "2px 0 4px" }}>
                 <NumberEngineLogo text="מנוע המספרים" size={28} to="/number" />
               </div>
+              {/* מונה חי — כמה מילים נחקרו ב-24 שעות בבית המדרש */}
+              {searchCount != null && searchCount > 0 && (
+                <div style={{ textAlign: "center", margin: "0 0 2px" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, color: P.accentText }}>
+                    🔥 <b style={{ fontFamily: F.mono, fontSize: 15.5, fontWeight: 800 }}>{searchCount.toLocaleString("he-IL")}</b> מילים נחקרו היום במנוע
+                  </span>
+                </div>
+              )}
               <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.65, textAlign: "center", margin: "0 0 4px" }}>הקלידו מספר או מילה למעלה — או היכנסו למרחב:</p>
               <button onClick={() => goTo("/number")} style={bigLink}>🔢 הגוגל של המספרים</button>
               <button onClick={() => goTo("/beit-midrash")} style={bigLink}>📚 בית המדרש — מחשבון + הסברי השיטות</button>
