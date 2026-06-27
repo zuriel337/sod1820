@@ -1,36 +1,35 @@
 import React from "react";
 
-// רקע גלובלי לכל הדפים הכהים (מרונדר ב-Layout): מעוף-ציפור סגול-מלכותי, עדין.
-// שכבות: בסיס סגול-שחור → תמונה אווירית (CC BY-SA, public/city-bg.jpg) בדואוטון
-// סגול כהה → כיסוי כהה במרכז (איפה שהטקסט) כך שהבניינים מציצים רק בצדדים → זוהר
-// זהב עדין למעלה. כך התוכן תמיד קריא והעיר מרחפת בשוליים.
-// קרדיט תמונה: "Nighttime Downtown Atlanta Aerial" · Wikimedia Commons · CC BY-SA 2.0.
+// רקע גלובלי מלכותי לכל הדפים הכהים (מרונדר ב-Layout): עיר סגולה-לילית עם כתר זהב
+// ומנדלה גיאומטרית (public/royal-bg.jpg). התמונה כבר בשפת המותג (סגול+זהב) — לכן
+// שומרים את הצבעים (בלי דואוטון/גרייסקייל), רק מחשיכים לעדינות ומחשיכים את המרכז
+// (טור התוכן) כדי שהטקסט יישאר קריא; הבניינים והכתר מציצים בשוליים.
 export default function SpaceBackground() {
   return (
     <div aria-hidden style={{
       position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden", isolation: "isolate",
       background: "radial-gradient(120% 80% at 50% -8%, #1A1230 0%, #0C0818 55%, #07050e 100%)",
     }}>
-      {/* תמונה אווירית, כהה מאוד */}
+      {/* התמונה — צבעים נשמרים, מוחשכת לרקע עדין */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "url(/city-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center",
-        filter: "grayscale(1) contrast(1.1) brightness(0.32)", opacity: 0.30,
+        backgroundImage: "url(/royal-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center",
+        filter: "brightness(0.58) saturate(1.05)", opacity: 0.55,
       }} />
-      {/* גוון סגול-מלכותי (דואוטון) */}
-      <div style={{
-        position: "absolute", inset: 0, mixBlendMode: "color",
-        background: "linear-gradient(180deg, #3a1f6e, #7b4cb0)", opacity: 0.5,
-      }} />
-      {/* כיסוי כהה במרכז (טור התוכן) — הבניינים מציצים רק בצדדים */}
+      {/* כיסוי כהה במרכז (טור התוכן) — קריאות; השוליים נשארים חשופים */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(90deg, transparent 0%, rgba(12,8,24,0.5) 10%, #0C0818 28%, #0C0818 72%, rgba(12,8,24,0.5) 90%, transparent 100%)",
+        background: "linear-gradient(90deg, transparent 0%, rgba(12,8,24,0.55) 9%, rgba(12,8,24,0.93) 25%, #0C0818 40%, #0C0818 60%, rgba(12,8,24,0.93) 75%, rgba(12,8,24,0.55) 91%, transparent 100%)",
       }} />
-      {/* זוהר זהב עדין למעלה */}
+      {/* עיגון עדין מלמעלה ומלמטה */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(70% 42% at 50% 0%, rgba(233,200,74,0.10), transparent 62%)",
+        background: "linear-gradient(180deg, rgba(7,5,14,0.55) 0%, transparent 20%, transparent 80%, rgba(7,5,14,0.6) 100%)",
+      }} />
+      {/* זוהר זהב עדין למעלה (המשך לכתר שבתמונה) */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "radial-gradient(60% 36% at 50% 0%, rgba(233,200,74,0.08), transparent 60%)",
       }} />
     </div>
   );
