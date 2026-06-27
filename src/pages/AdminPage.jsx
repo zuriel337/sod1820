@@ -2981,7 +2981,8 @@ function WorkLogTab() {
 
   function load() {
     if (!supabase) return;
-    supabase.from("work_log").select("*").order("created_at", { ascending: false }).limit(1000)
+    // RPC security-definer — עוקף RLS/הרשאות-טבלה (כמו דשבורד הויראליות שעובד)
+    supabase.rpc("get_work_log")
       .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
   }
   useEffect(load, []);
