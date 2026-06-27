@@ -10,6 +10,7 @@ import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
+import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
@@ -280,25 +281,21 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <h2 className="hn-h2">🕸️ עץ ההתכנסויות</h2>
         <p className="hn-sub">כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד</p>
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "26px 22px" }}>
-          <div style={{ fontSize: 32, marginBottom: 10 }}>🕸️</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>סיור תלת-מימדי חי ברשת הקשרים של המספרים. לחצו על מספר וצללו פנימה.</div>
-          <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</Link>
-        </div>
-
-        {/* ✨ הקונסטלציה — מפת הכוכבים של הגרף, מסבירה מה יש שם + שהיא בבנייה מתמדת */}
-        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "16px auto 0" }}>
-          <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(160deg, rgba(123,76,176,0.18), rgba(61,31,92,0.10), ${P.card})`, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "22px 22px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 22 }}>✨</span>
-              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>הקונסטלציה</span>
-              <span style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "3px 11px", background: P.cardSoft, whiteSpace: "nowrap" }}>🛠️ בבנייה מתמדת</span>
+        {/* ✨ הקונסטלציה — תצוגה מקדימה חיה (אותו אפקט מבית-הקוד): כוכבים שמתחברים בקווים,
+            כדי שיבינו מה יש בפנים בלי להיכנס. הכל מקושר ל-/numbers (העץ החי), בלי שכפול. */}
+        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
+          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", background: "#070b12", border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "34px 22px", boxShadow: "0 16px 46px rgba(0,0,0,0.35)" }}>
+            {/* האפקט החי — קנבס ברקע (position:absolute, aria-hidden) */}
+            <Fx kind="constellation" color="#d4af37" />
+            {/* דהיית קריאוּת מעל הקנבס */}
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(7,11,18,0.28), rgba(7,11,18,0.82) 78%)", pointerEvents: "none" }} />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div style={{ display: "inline-block", color: "#d4af37", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 2, border: "1px solid rgba(212,175,55,0.45)", borderRadius: 999, padding: "3px 12px", marginBottom: 14 }}>✨ קונסטלציה חיה</div>
+              <div style={{ color: "#eaf2fa", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 470, margin: "0 auto 20px" }}>
+                כל מספר הוא כוכב, וכל התכנסות חוט אור שמחבר ביניהם — רשת חיה שגדלה עם כל רמז חדש. כך זה נראה מבפנים.
+              </div>
+              <span className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</span>
             </div>
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, margin: 0 }}>
-              מפת הכוכבים של סוד 1820 — כל מספר הוא כוכב, וכל התכנסות היא חוט אור שמחבר ביניהם לציור אחד גדול.
-              ככל שמצטרפים רמזים, מספרים ופוסטים חדשים, הקונסטלציה גדלה ומתחברת מעצמה.{" "}
-              <b style={{ color: P.accentText }}>זהו אורגניזם חי בבנייה מתמדת</b> — ובכל ביקור תגלו בו עוד כוכבים וחוטים חדשים.
-            </p>
           </div>
         </Link>
       </section>
