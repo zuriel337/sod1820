@@ -8,8 +8,9 @@
 //   META_GRAPH_VERSION  = (אופציונלי) v21.0.
 //
 // הרשאות הטוקן (scopes): pages_show_list, pages_read_engagement, pages_read_user_content,
-//   pages_manage_posts, pages_manage_engagement, instagram_basic, instagram_content_publish,
-//   instagram_manage_comments, ads_read, ads_management, business_management, read_insights.
+//   pages_manage_posts, pages_manage_engagement, pages_manage_metadata, instagram_basic,
+//   instagram_content_publish, instagram_manage_comments, ads_read, ads_management,
+//   business_management, read_insights.
 //
 // ── פעולות (POST JSON, כולן עם header x-fb-admin-key) ──
 //  אבחון:     { action:"whoami" }                          → מגלה דפים + אינסטגרם + חשבונות פרסום
@@ -19,6 +20,7 @@
 //             { action:"delete", object_id, page_id? }
 //             { action:"publish_post",  page_id?, message, link? }
 //             { action:"publish_photo", page_id?, image_url, caption? }
+//             { action:"set_cover", page_id?, image_url? | image_b64? (+mime?) | photo_id?, offset_y?, no_feed_story? }
 //  אינסטגרם:  { action:"ig_media",   page_id?|ig_id?, limit?, after? }
 //             { action:"ig_publish", page_id?|ig_id?, image_url, caption? }
 //             { action:"ig_delete_comment", comment_id }
@@ -92,6 +94,28 @@ async function resolveIg(body: any): Promise<{ igId: string; token: string }> {
   const igId = p?.instagram_business_account?.id;
   if (!igId) throw new Error(`page ${pid} has no linked Instagram professional account`);
   return { igId, token: await pageToken(pid) };
+}
+
+// העלאת תמונה כ"לא-מפורסמת" (published=false) והחזרת photo_id.
+// תומך גם ב-URL ציבורי (image_url) וגם בבייטים ישירים (image_b64 → multipart) — בלי תלות ב-storage.
+async function uploadUnpublishedPhoto(pid: string, token: string, body: any): Promise<string> {
+  if (body.image_url) {
+    const d = await graph(`${pid}/photos`, { method: "POST", token, params: { url: String(body.image_url), published: "false" } });
+    return d.id;
+  }
+  if (body.image_b64) {
+    const b64 = String(body.image_b64).replace(/^data:[^;]+;base64,/, "");
+    const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const fd = new FormData();
+    fd.append("published", "false");
+    fd.append("access_token", token);
+    fd.append("source", new Blob([bin], { type: body.mime || "image/png" }), "cover.png");
+    const r = await fetch(`${BASE}/${pid}/photos`, { method: "POST", body: fd });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d?.error?.message || `Graph ${r.status}`);
+    return d.id;
+  }
+  throw new Error("image_url or image_b64 required");
 }
 
 const POST_FIELDS = "id,message,story,created_time,permalink_url,full_picture,attachments{media_type,type,title,url,media,subattachments}";
@@ -189,6 +213,21 @@ Deno.serve(async (req) => {
         if (!url) return json({ ok: false, error: "image_url required" }, 400);
         const d = await graph(`${pid}/photos`, { method: "POST", token: await pageToken(pid), params: { url, caption: String(body.caption || "") } });
         return json({ ok: true, page_id: pid, fb_post_id: d.id || d.post_id });
+      }
+      // ── דף: החלפת תמונת הכריכה (cover) ── //
+      // שלב 1: העלאת התמונה כ-unpublished → photo_id. שלב 2: POST /{page} עם cover=photo_id.
+      // דורש scope pages_manage_metadata בטוקן; אחרת מטא מחזירה (#283) — השגיאה המלאה מוחזרת.
+      case "set_cover": {
+        const pid = await resolvePage(body);
+        const tok = await pageToken(pid);
+        let photoId = String(body.photo_id || "").trim();
+        if (!photoId) photoId = await uploadUnpublishedPhoto(pid, tok, body);
+        if (!photoId) return json({ ok: false, error: "could not obtain photo_id" }, 400);
+        const params: Record<string, string> = { cover: photoId, no_feed_story: body.no_feed_story === false ? "false" : "true" };
+        if (body.offset_y != null) params.offset_y = String(body.offset_y);
+        if (body.offset_x != null) params.offset_x = String(body.offset_x);
+        const d = await graph(`${pid}`, { method: "POST", token: tok, params });
+        return json({ ok: true, page_id: pid, photo_id: photoId, result: d });
       }
 
       // ── אינסטגרם: מדיה / פרסום / מחיקת תגובה ── //

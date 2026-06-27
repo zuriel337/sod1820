@@ -59,6 +59,9 @@ export default function RoyalShareWidget() {
   const title = (rawTitle.split(/[|·–—-]/)[0] || "סוד 1820").trim();
   const text = `${title} 👑`;
   const slug = pathname.replace(/^\//, "") || "home";
+  // מונה השיתופים הקהילתי מוצג רק בדף הבית — לא על פוסטים/דפים אחרים
+  // (אחרת אותו מספר site-wide נראה כאילו הוא של הפוסט הנוכחי).
+  const isHome = pathname === "/" || pathname === "/home-new" || pathname === "/בית-חדש";
   const numberId = (pathname.match(/^\/number\/(\d+)/) || [])[1] || null;
   const enc = encodeURIComponent;
   const canNative = typeof navigator !== "undefined" && !!navigator.share;
@@ -117,7 +120,7 @@ export default function RoyalShareWidget() {
             <img className="rsw-logo" src="/crown.png" alt="" aria-hidden />
             <h2 className="rsw-h2">הפיצו את האור</h2>
             <p className="rsw-sub">אם התוכן נגע בכם, שתפו אותו עם אחרים.</p>
-            {count > 20 && <div className="rsw-cnt">✨ <b>{count.toLocaleString("he-IL")}</b> שיתופים בקהילה</div>}
+            {isHome && count > 20 && <div className="rsw-cnt">✨ <b>{count.toLocaleString("he-IL")}</b> שיתופים בקהילה</div>}
 
             {/* שורת מותגים — אייקונים אמיתיים */}
             <div className="rsw-strip">
