@@ -120,11 +120,17 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-msg { flex:0 1 auto; min-width:0; text-align:center; color:#ffe6ad;
+        /* דסקטופ: רוחב קבוע להודעה → הקבוצה הממורכזת לא משנה רוחב → התג לא זז לפי אורך הטיקר */
+        .lt-msg { flex:none; width:560px; max-width:72vw; text-align:center; color:#ffe6ad;
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
-        @media (max-width: 640px) { .lt-msg { font-size:11px; } .lt-badge { font-size:10px; } }
+        /* מובייל: התג מעוגן לימין תמיד (flex-start ב-RTL), ההודעה ממלאת את השאר */
+        @media (max-width: 640px) {
+          .lt-bar { justify-content:flex-start; }
+          .lt-msg { flex:1 1 auto; width:auto; max-width:none; min-width:0; font-size:11px; }
+          .lt-badge { font-size:10px; }
+        }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
 
