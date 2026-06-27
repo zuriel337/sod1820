@@ -1,5 +1,7 @@
 // Vercel Serverless Function — תובנות Google Analytics (GA4) חיות לדאשבורד.
-// מושך דרך GA4 Data API: סך הכל, זמן-אמת, ערוצים/מקורות, מדינות, מכשירים, דפים.
+// מושך דרך GA4 Data API מערך מלא: סך הכל + מעורבות, זמן-אמת (כולל מה צופים עכשיו),
+// מדינות *עם זמן שהייה*, ערים, ערוצים/מקורות/מדיום, מכשירים/מערכת/דפדפן/שפה,
+// דפים *עם זמן*, דפי נחיתה, חדשים-מול-חוזרים, מגמה יומית, ושעות היום.
 // אותו service account (GSC_SERVICE_ACCOUNT) + GA_PROPERTY_ID. אדמין בלבד.
 
 import crypto from 'crypto';
@@ -48,11 +50,7 @@ async function gaReport(token, pid, body, realtime = false) {
   return r.json();
 }
 
-// שורות → [{ key, value }]
-const rowsToList = data => (data.rows || []).map(row => ({
-  key: row.dimensionValues?.[0]?.value || '(לא ידוע)',
-  value: parseInt(row.metricValues?.[0]?.value, 10) || 0,
-}));
+const num = v => parseFloat(v) || 0;
 
 export default async function handler(req, res) {
   if (!(await verifyAdmin(req))) { res.status(401).json({ error: 'unauthorized' }); return; }
@@ -67,32 +65,75 @@ export default async function handler(req, res) {
     const range = [{ startDate: `${days}daysAgo`, endDate: 'today' }];
     const token = await getAccessToken(sa);
 
+    // דוח: ממד יחיד + מדד יחיד → [{key,value}]
     const rep = (dim, metric, limit) => gaReport(token, pid, {
       dateRanges: range, dimensions: [{ name: dim }], metrics: [{ name: metric }],
       orderBys: [{ metric: { metricName: metric }, desc: true }], limit,
     });
+    // דוח: ממד יחיד + כמה מדדים → [{key, m0, m1, ...}]
+    const repM = (dim, metrics, limit, ordered = true) => gaReport(token, pid, {
+      dateRanges: range, dimensions: [{ name: dim }], metrics: metrics.map(m => ({ name: m })),
+      orderBys: ordered ? [{ metric: { metricName: metrics[0] }, desc: true }] : undefined, limit,
+    });
+    const list = data => (data.rows || []).map(r => ({ key: r.dimensionValues?.[0]?.value || '(לא ידוע)', value: num(r.metricValues?.[0]?.value) }));
+    const listM = (data, keys) => (data.rows || []).map(r => {
+      const o = { key: r.dimensionValues?.[0]?.value || '(לא ידוע)' };
+      keys.forEach((k, i) => { o[k] = num(r.metricValues?.[i]?.value); });
+      return o;
+    });
 
-    const [totals, realtime, channels, sources, countries, devices, pages] = await Promise.all([
-      gaReport(token, pid, { dateRanges: range, metrics: [{ name: 'totalUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }] }),
+    // ── שלוש מנות (≤6 בקשות מקבילות כל אחת — מתחת למגבלת ה-concurrency של GA) ──
+    const [totals, realtime, realtimePages, countries, cities, channels] = await Promise.all([
+      gaReport(token, pid, { dateRanges: range, metrics: ['totalUsers', 'newUsers', 'sessions', 'screenPageViews', 'averageSessionDuration', 'engagementRate', 'bounceRate', 'screenPageViewsPerSession', 'engagedSessions'].map(n => ({ name: n })) }),
       gaReport(token, pid, { metrics: [{ name: 'activeUsers' }] }, true),
+      gaReport(token, pid, { dimensions: [{ name: 'unifiedScreenName' }], metrics: [{ name: 'activeUsers' }], orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }], limit: 8 }, true),
+      repM('country', ['activeUsers', 'averageSessionDuration', 'engagementRate'], 14),
+      rep('city', 'activeUsers', 12),
       rep('sessionDefaultChannelGroup', 'sessions', 8),
-      rep('sessionSource', 'sessions', 10),
-      rep('country', 'activeUsers', 10),
+    ]);
+
+    const [sources, mediums, devices, os, browsers, langs] = await Promise.all([
+      rep('sessionSource', 'sessions', 12),
+      rep('sessionMedium', 'sessions', 8),
       rep('deviceCategory', 'sessions', 4),
-      rep('pageTitle', 'screenPageViews', 12),
+      rep('operatingSystem', 'sessions', 8),
+      rep('browser', 'sessions', 8),
+      rep('language', 'activeUsers', 8),
+    ]);
+
+    const [pages, landing, daily, hours, newRet] = await Promise.all([
+      repM('pagePath', ['screenPageViews', 'averageSessionDuration'], 15),
+      rep('landingPage', 'sessions', 12),
+      repM('date', ['totalUsers'], 400, false),
+      repM('hour', ['activeUsers'], 24, false),
+      rep('newVsReturning', 'activeUsers', 4),
     ]);
 
     const t = totals.rows?.[0]?.metricValues || [];
     res.setHeader('Cache-Control', 'private, max-age=300');
     res.status(200).json({
       configured: true, days,
-      totals: { users: parseInt(t[0]?.value, 10) || 0, sessions: parseInt(t[1]?.value, 10) || 0, views: parseInt(t[2]?.value, 10) || 0 },
-      realtime: parseInt(realtime.rows?.[0]?.metricValues?.[0]?.value, 10) || 0,
-      channels: rowsToList(channels),
-      sources: rowsToList(sources),
-      countries: rowsToList(countries),
-      devices: rowsToList(devices),
-      pages: rowsToList(pages),
+      totals: {
+        users: num(t[0]?.value), newUsers: num(t[1]?.value), sessions: num(t[2]?.value),
+        views: num(t[3]?.value), avgEngagementSec: num(t[4]?.value), engagementRate: num(t[5]?.value),
+        bounceRate: num(t[6]?.value), viewsPerSession: num(t[7]?.value), engagedSessions: num(t[8]?.value),
+      },
+      realtime: num(realtime.rows?.[0]?.metricValues?.[0]?.value),
+      realtimePages: list(realtimePages),
+      channels: list(channels),
+      sources: list(sources),
+      mediums: list(mediums),
+      countries: listM(countries, ['users', 'avgSec', 'engRate']),
+      cities: list(cities),
+      devices: list(devices),
+      os: list(os),
+      browsers: list(browsers),
+      langs: list(langs),
+      pages: listM(pages, ['views', 'avgSec']),
+      landing: list(landing),
+      daily: listM(daily, ['users']).sort((a, b) => (a.key < b.key ? -1 : 1)),
+      hours: listM(hours, ['users']).sort((a, b) => Number(a.key) - Number(b.key)),
+      newReturning: list(newRet),
     });
   } catch (e) {
     res.status(200).json({ configured: true, error: String(e.message || e) });

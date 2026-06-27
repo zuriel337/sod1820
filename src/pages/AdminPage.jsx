@@ -4,6 +4,8 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
+import SearchesTab from "../components/SearchesTab.jsx";
+import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -42,6 +44,8 @@ const TABS = [
   { key: "ocr",      label: "🔤 OCR" },
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
+  { key: "searches", label: "🔍 חיפושי גולשים" },
+  { key: "utm",      label: "🔗 בונה קישורים" },
   { key: "push",     label: "🔔 שליחת התראה" },
   { key: "worklog",  label: "📝 יומן עבודה" },
   { key: "stream",   label: "🌊 זרם המציאות" },
@@ -115,6 +119,8 @@ export default function AdminPage() {
       {tab === "ocr" && <OcrTab />}
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
+      {tab === "searches" && <SearchesTab />}
+      {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
       {tab === "stream" && <StreamAdminTab />}
@@ -2185,10 +2191,15 @@ const GA_CHANNEL_HE = {
   "Organic Shopping": "קניות", "Affiliates": "שותפים", "Audio": "אודיו", "Video": "וידאו",
 };
 const GA_DEVICE_HE = { desktop: "מחשב 🖥️", mobile: "נייד 📱", tablet: "טאבלט", smart_tv: "טלוויזיה" };
+const GA_NEWRET_HE = { new: "🆕 חדשים", returning: "🔁 חוזרים", "(not set)": "לא ידוע" };
 const gaName = (s, map) => map[s] || s;
+// פורמט זמן שהייה (שניות → דק׳:שנ׳) ואחוז מעורבות
+const fmtDur = sec => { sec = Math.round(sec || 0); const m = Math.floor(sec / 60), s = sec % 60; return m ? `${m}:${String(s).padStart(2, "0")} דק׳` : `${s} ש׳`; };
+const fmtPct = r => `${Math.round((r || 0) * 100)}%`;
 
-function GaList({ title, items, fmt }) {
-  const max = Math.max(1, ...(items || []).map(i => i.value || 0));
+// items של [{key,value}] או רב-מדדים; valKey בוחר את שדה-הערך, note שורת-משנה אופציונלית
+function GaList({ title, items, fmt, valKey = "value", note, valFmt }) {
+  const max = Math.max(1, ...(items || []).map(i => i[valKey] || 0));
   return (
     <div style={{ minWidth: 0 }}>
       <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{title}</div>
@@ -2197,14 +2208,35 @@ function GaList({ title, items, fmt }) {
           <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 10 }}>
             <div style={{ minWidth: 0 }}>
               <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fmt ? fmt(it.key) : it.key}</div>
+              {note && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{note(it)}</div>}
               <div style={{ height: 4, background: C.border, borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.round((it.value / max) * 100)}%`, background: `linear-gradient(to left, ${C.goldDim}, ${C.goldBright})` }} />
+                <div style={{ height: "100%", width: `${Math.round(((it[valKey] || 0) / max) * 100)}%`, background: `linear-gradient(to left, ${C.goldDim}, ${C.goldBright})` }} />
               </div>
             </div>
-            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13 }}>{(it.value || 0).toLocaleString()}</div>
+            <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13 }}>{valFmt ? valFmt(it[valKey]) : (it[valKey] || 0).toLocaleString()}</div>
           </div>
         )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
       </div>
+    </div>
+  );
+}
+
+// גרף-עמודות זעיר (מגמה יומית / שעות היום)
+function GaBars({ title, items, fmtKey }) {
+  const vals = (items || []).map(i => i.users ?? i.value ?? 0);
+  const max = Math.max(1, ...vals);
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+      {(items || []).length ? (
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 64 }}>
+          {items.map((it, i) => {
+            const v = it.users ?? it.value ?? 0;
+            return <div key={i} title={`${fmtKey ? fmtKey(it.key) : it.key}: ${v.toLocaleString()}`}
+              style={{ flex: 1, minWidth: 2, height: `${Math.max(2, Math.round((v / max) * 100))}%`, background: "linear-gradient(to top, #B8860B, #E8C84A)", borderRadius: "2px 2px 0 0" }} />;
+          })}
+        </div>
+      ) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
     </div>
   );
 }
@@ -2232,7 +2264,7 @@ function GoogleAnalyticsPanel() {
         <span style={{ fontSize: 24 }}>📈</span>
         <div style={{ flex: 1, minWidth: 160 }}>
           <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>Google Analytics — נתונים חיים</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>תנועה, מקורות, מדינות, מכשירים, דפים</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>תנועה · זמן שהייה לפי מדינה · ערים · מקורות · טכנולוגיה · דפים · מגמות · זמן-אמת</div>
         </div>
         {d?.configured && !d.error && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#4caf50", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>
@@ -2247,6 +2279,11 @@ function GoogleAnalyticsPanel() {
         </div>
       </div>
 
+      {!CLARITY_CONFIGURED && (
+        <div style={{ background: "rgba(127,200,255,0.07)", border: "1px solid rgba(127,200,255,0.25)", borderRadius: 10, padding: "10px 13px", marginBottom: 12, color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+          💡 <b style={{ color: C.goldLight }}>הקלטות גולשים + מפות חום (Microsoft Clarity — חינם):</b> צרו פרויקט ב-<span style={{ fontFamily: F.mono }}>clarity.microsoft.com</span>, והוסיפו את ה-Project ID כמשתנה <span style={{ fontFamily: F.mono }}>VITE_CLARITY_ID</span> ב-Vercel. הקוד כבר מוכן — יופעל לבד.
+        </div>
+      )}
       {loading ? <Loading />
         : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
         : !d ? <Empty>צריך להיות מחובר כמנהל.</Empty>
@@ -2254,18 +2291,67 @@ function GoogleAnalyticsPanel() {
         : d.error ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 12.5, padding: 12, lineHeight: 1.7 }}>GA החזיר שגיאה:<br /><span style={{ fontFamily: F.mono, fontSize: 11.5, color: C.goldDim }}>{d.error}</span></div>
         : (
           <div style={{ display: "grid", gap: 18 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10 }}>
+            {/* סך הכל + מעורבות */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))", gap: 10 }}>
               {stat("🟢 כעת באתר", d.realtime, "#4caf50")}
               {stat("משתמשים", d.totals?.users)}
+              {stat("חדשים", d.totals?.newUsers)}
               {stat("הפעלות", d.totals?.sessions)}
               {stat("צפיות בדפים", d.totals?.views)}
+              <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 700 }}>{fmtDur(d.totals?.avgEngagementSec)}</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>⏱️ זמן שהייה ממוצע</div>
+              </div>
+              <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 700 }}>{fmtPct(d.totals?.engagementRate)}</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>🔥 שיעור מעורבות</div>
+              </div>
+              <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 700 }}>{fmtPct(d.totals?.bounceRate)}</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>↩️ שיעור נטישה</div>
+              </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+
+            {/* זמן-אמת: מה צופים עכשיו */}
+            {d.realtime > 0 && d.realtimePages?.length > 0 && (
+              <div style={{ background: "rgba(76,175,80,0.07)", border: "1px solid rgba(76,175,80,0.3)", borderRadius: 10, padding: "12px 14px" }}>
+                <GaList title="🟢 מה צופים עכשיו (זמן-אמת)" items={d.realtimePages} />
+              </div>
+            )}
+
+            {/* גיאוגרפיה — מדינות עם זמן שהייה (כולל ישראל) + ערים */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
+              <GaList title="🌍 מדינות · זמן שהייה" items={d.countries} valKey="users"
+                note={it => `⏱️ ${fmtDur(it.avgSec)} · מעורבות ${fmtPct(it.engRate)}`} />
+              <GaList title="🏙️ ערים" items={d.cities} />
+            </div>
+
+            {/* רכישה — מאיפה מגיעים */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18 }}>
               <GaList title="🔗 ערוצי תנועה" items={d.channels} fmt={k => gaName(k, GA_CHANNEL_HE)} />
               <GaList title="🌐 מקורות" items={d.sources} />
-              <GaList title="🌍 מדינות" items={d.countries} />
+              <GaList title="📨 מדיום" items={d.mediums} />
+            </div>
+
+            {/* טכנולוגיה */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18 }}>
               <GaList title="📱 מכשירים" items={d.devices} fmt={k => gaName(k, GA_DEVICE_HE)} />
-              <GaList title="📄 דפים נצפים" items={d.pages} />
+              <GaList title="💻 מערכת הפעלה" items={d.os} />
+              <GaList title="🌐 דפדפן" items={d.browsers} />
+              <GaList title="🗣️ שפה" items={d.langs} />
+            </div>
+
+            {/* תוכן — דפים עם זמן + נחיתה + חדשים/חוזרים */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
+              <GaList title="📄 דפים נצפים · זמן" items={d.pages} valKey="views" note={it => `⏱️ ${fmtDur(it.avgSec)}`} />
+              <GaList title="🛬 דפי נחיתה" items={d.landing} />
+              <GaList title="🆕 חדשים מול חוזרים" items={d.newReturning} fmt={k => gaName(k, GA_NEWRET_HE)} />
+            </div>
+
+            {/* מגמות */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
+              <GaBars title="📅 מגמה יומית (משתמשים)" items={d.daily} fmtKey={k => k && k.length === 8 ? `${k.slice(6, 8)}/${k.slice(4, 6)}` : k} />
+              <GaBars title="🕐 שעות היום (פעילות)" items={d.hours} fmtKey={k => `${k}:00`} />
             </div>
           </div>
         )}
@@ -2942,6 +3028,93 @@ function PushSubscribersList() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ===== 🔗 בונה קישורי UTM — לינקים ממותגים-מדידים לכל קמפיין =====
+const UTM_SOURCES = [
+  { k: "whatsapp", l: "וואטסאפ", m: "social" },
+  { k: "facebook", l: "פייסבוק", m: "social" },
+  { k: "instagram", l: "אינסטגרם", m: "social" },
+  { k: "telegram", l: "טלגרם", m: "social" },
+  { k: "x", l: "X / טוויטר", m: "social" },
+  { k: "newsletter", l: "ניוזלטר", m: "email" },
+  { k: "email", l: "אימייל", m: "email" },
+  { k: "youtube", l: "יוטיוב", m: "video" },
+];
+function UtmBuilderTab() {
+  const [base, setBase] = useState("https://sod1820.co.il/");
+  const [source, setSource] = useState("whatsapp");
+  const [medium, setMedium] = useState("social");
+  const [campaign, setCampaign] = useState("");
+  const [content, setContent] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const url = useMemo(() => {
+    let u;
+    try { u = new URL(base.trim()); } catch { return ""; }
+    const p = u.searchParams;
+    if (source.trim()) p.set("utm_source", source.trim());
+    if (medium.trim()) p.set("utm_medium", medium.trim());
+    if (campaign.trim()) p.set("utm_campaign", campaign.trim());
+    if (content.trim()) p.set("utm_content", content.trim());
+    return u.toString();
+  }, [base, source, medium, campaign, content]);
+
+  function copy() {
+    if (!url) return;
+    try { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    catch { window.prompt("העתיקו את הקישור:", url); }
+  }
+
+  const field = { width: "100%", padding: "10px 12px", background: C.surface, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, fontFamily: F.body, fontSize: 14, outline: "none", boxSizing: "border-box" };
+  const lbl = { color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, display: "block", margin: "14px 0 5px" };
+
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 640 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>🔗 בונה קישורי קמפיין (UTM)</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+          צרו קישור ממותג לכל מקור (וואטסאפ/פייסבוק/ניוזלטר…). כל כניסה דרכו תופיע ב-Google Analytics
+          תחת המקור/קמפיין שתבחרו — כך תדעו בדיוק מאיזה ערוץ הגיעו.
+        </div>
+
+        <label style={lbl}>כתובת היעד</label>
+        <input style={field} value={base} onChange={e => setBase(e.target.value)} dir="ltr" placeholder="https://sod1820.co.il/number/1820" />
+
+        <label style={lbl}>מקור (utm_source)</label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 8 }}>
+          {UTM_SOURCES.map(s => (
+            <button key={s.k} onClick={() => { setSource(s.k); setMedium(s.m); }}
+              style={{ cursor: "pointer", padding: "6px 12px", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700,
+                border: `1px solid ${source === s.k ? C.goldBright : C.border}`, background: source === s.k ? "rgba(184,134,11,0.18)" : "transparent", color: source === s.k ? C.goldBright : C.goldDim }}>
+              {s.l}
+            </button>
+          ))}
+        </div>
+        <input style={field} value={source} onChange={e => setSource(e.target.value)} dir="ltr" placeholder="whatsapp" />
+
+        <label style={lbl}>סוג (utm_medium)</label>
+        <input style={field} value={medium} onChange={e => setMedium(e.target.value)} dir="ltr" placeholder="social / email / referral" />
+
+        <label style={lbl}>שם קמפיין (utm_campaign)</label>
+        <input style={field} value={campaign} onChange={e => setCampaign(e.target.value)} dir="ltr" placeholder="purim-1820 / shaver-launch" />
+
+        <label style={lbl}>תוכן / וריאנט (utm_content) — אופציונלי</label>
+        <input style={field} value={content} onChange={e => setContent(e.target.value)} dir="ltr" placeholder="button-a / story-1" />
+
+        <label style={lbl}>הקישור המוכן</label>
+        <div style={{ ...field, minHeight: 44, wordBreak: "break-all", color: url ? C.goldBright : C.danger, fontFamily: F.mono, fontSize: 12.5, cursor: url ? "pointer" : "default" }} onClick={copy}>
+          {url || "כתובת יעד לא תקינה — בדקו את ה-URL"}
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <button onClick={copy} disabled={!url} style={{ cursor: url ? "pointer" : "default", padding: "10px 24px", borderRadius: 10, border: "none",
+            background: url ? `linear-gradient(135deg, ${C.gold}, ${C.goldLight})` : C.border, color: "#1a0e00", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+            {copied ? "הועתק ✓" : "העתק קישור 🔗"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
