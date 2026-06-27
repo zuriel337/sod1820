@@ -4,6 +4,8 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
+import SearchesTab from "../components/SearchesTab.jsx";
+import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -42,6 +44,8 @@ const TABS = [
   { key: "ocr",      label: "🔤 OCR" },
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
+  { key: "searches", label: "🔍 חיפושי גולשים" },
+  { key: "utm",      label: "🔗 בונה קישורים" },
   { key: "push",     label: "🔔 שליחת התראה" },
   { key: "worklog",  label: "📝 יומן עבודה" },
   { key: "stream",   label: "🌊 זרם המציאות" },
@@ -115,6 +119,8 @@ export default function AdminPage() {
       {tab === "ocr" && <OcrTab />}
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
+      {tab === "searches" && <SearchesTab />}
+      {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
       {tab === "stream" && <StreamAdminTab />}
@@ -2273,6 +2279,11 @@ function GoogleAnalyticsPanel() {
         </div>
       </div>
 
+      {!CLARITY_CONFIGURED && (
+        <div style={{ background: "rgba(127,200,255,0.07)", border: "1px solid rgba(127,200,255,0.25)", borderRadius: 10, padding: "10px 13px", marginBottom: 12, color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+          💡 <b style={{ color: C.goldLight }}>הקלטות גולשים + מפות חום (Microsoft Clarity — חינם):</b> צרו פרויקט ב-<span style={{ fontFamily: F.mono }}>clarity.microsoft.com</span>, והוסיפו את ה-Project ID כמשתנה <span style={{ fontFamily: F.mono }}>VITE_CLARITY_ID</span> ב-Vercel. הקוד כבר מוכן — יופעל לבד.
+        </div>
+      )}
       {loading ? <Loading />
         : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
         : !d ? <Empty>צריך להיות מחובר כמנהל.</Empty>
@@ -3017,6 +3028,93 @@ function PushSubscribersList() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ===== 🔗 בונה קישורי UTM — לינקים ממותגים-מדידים לכל קמפיין =====
+const UTM_SOURCES = [
+  { k: "whatsapp", l: "וואטסאפ", m: "social" },
+  { k: "facebook", l: "פייסבוק", m: "social" },
+  { k: "instagram", l: "אינסטגרם", m: "social" },
+  { k: "telegram", l: "טלגרם", m: "social" },
+  { k: "x", l: "X / טוויטר", m: "social" },
+  { k: "newsletter", l: "ניוזלטר", m: "email" },
+  { k: "email", l: "אימייל", m: "email" },
+  { k: "youtube", l: "יוטיוב", m: "video" },
+];
+function UtmBuilderTab() {
+  const [base, setBase] = useState("https://sod1820.co.il/");
+  const [source, setSource] = useState("whatsapp");
+  const [medium, setMedium] = useState("social");
+  const [campaign, setCampaign] = useState("");
+  const [content, setContent] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const url = useMemo(() => {
+    let u;
+    try { u = new URL(base.trim()); } catch { return ""; }
+    const p = u.searchParams;
+    if (source.trim()) p.set("utm_source", source.trim());
+    if (medium.trim()) p.set("utm_medium", medium.trim());
+    if (campaign.trim()) p.set("utm_campaign", campaign.trim());
+    if (content.trim()) p.set("utm_content", content.trim());
+    return u.toString();
+  }, [base, source, medium, campaign, content]);
+
+  function copy() {
+    if (!url) return;
+    try { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    catch { window.prompt("העתיקו את הקישור:", url); }
+  }
+
+  const field = { width: "100%", padding: "10px 12px", background: C.surface, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, fontFamily: F.body, fontSize: 14, outline: "none", boxSizing: "border-box" };
+  const lbl = { color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, display: "block", margin: "14px 0 5px" };
+
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 640 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>🔗 בונה קישורי קמפיין (UTM)</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+          צרו קישור ממותג לכל מקור (וואטסאפ/פייסבוק/ניוזלטר…). כל כניסה דרכו תופיע ב-Google Analytics
+          תחת המקור/קמפיין שתבחרו — כך תדעו בדיוק מאיזה ערוץ הגיעו.
+        </div>
+
+        <label style={lbl}>כתובת היעד</label>
+        <input style={field} value={base} onChange={e => setBase(e.target.value)} dir="ltr" placeholder="https://sod1820.co.il/number/1820" />
+
+        <label style={lbl}>מקור (utm_source)</label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 8 }}>
+          {UTM_SOURCES.map(s => (
+            <button key={s.k} onClick={() => { setSource(s.k); setMedium(s.m); }}
+              style={{ cursor: "pointer", padding: "6px 12px", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700,
+                border: `1px solid ${source === s.k ? C.goldBright : C.border}`, background: source === s.k ? "rgba(184,134,11,0.18)" : "transparent", color: source === s.k ? C.goldBright : C.goldDim }}>
+              {s.l}
+            </button>
+          ))}
+        </div>
+        <input style={field} value={source} onChange={e => setSource(e.target.value)} dir="ltr" placeholder="whatsapp" />
+
+        <label style={lbl}>סוג (utm_medium)</label>
+        <input style={field} value={medium} onChange={e => setMedium(e.target.value)} dir="ltr" placeholder="social / email / referral" />
+
+        <label style={lbl}>שם קמפיין (utm_campaign)</label>
+        <input style={field} value={campaign} onChange={e => setCampaign(e.target.value)} dir="ltr" placeholder="purim-1820 / shaver-launch" />
+
+        <label style={lbl}>תוכן / וריאנט (utm_content) — אופציונלי</label>
+        <input style={field} value={content} onChange={e => setContent(e.target.value)} dir="ltr" placeholder="button-a / story-1" />
+
+        <label style={lbl}>הקישור המוכן</label>
+        <div style={{ ...field, minHeight: 44, wordBreak: "break-all", color: url ? C.goldBright : C.danger, fontFamily: F.mono, fontSize: 12.5, cursor: url ? "pointer" : "default" }} onClick={copy}>
+          {url || "כתובת יעד לא תקינה — בדקו את ה-URL"}
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <button onClick={copy} disabled={!url} style={{ cursor: url ? "pointer" : "default", padding: "10px 24px", borderRadius: 10, border: "none",
+            background: url ? `linear-gradient(135deg, ${C.gold}, ${C.goldLight})` : C.border, color: "#1a0e00", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+            {copied ? "הועתק ✓" : "העתק קישור 🔗"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
