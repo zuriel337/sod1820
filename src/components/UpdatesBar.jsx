@@ -35,21 +35,29 @@ export default function UpdatesBar() {
     return () => window.removeEventListener("resize", onR);
   }, []);
 
-  // טריגר: גלילת 40% או 25 שניות (המוקדם מביניהם) — רק אחרי מעורבות
+  // טריגר: גלילת 40% או 25 שניות מתחילת הביקור (המוקדם מביניהם) — רק אחרי מעורבות.
+  // הטיימר מבוסס-סשן (sessionStorage), כך שניווט בין דפים לא מאפס אותו —
+  // משתמש פעיל שגולש בין כמה דפים עדיין יגיע לסף הזמן.
   useEffect(() => {
-    if (!pushReady || suppressed() || HIDE.test(pathname)) return;
+    if (!pushReady || suppressed()) return;
     let fired = false;
     const reveal = () => { if (!fired) { fired = true; setShow(true); cleanup(); } };
+    let start;
+    try {
+      start = parseInt(sessionStorage.getItem("sod_session_start") || "0", 10);
+      if (!start) { start = Date.now(); sessionStorage.setItem("sod_session_start", String(start)); }
+    } catch { start = Date.now(); }
+    const remaining = Math.max(0, DELAY_MS - (Date.now() - start));
     const onScroll = () => {
       const doc = document.documentElement;
       const pct = (window.scrollY + window.innerHeight) / (doc.scrollHeight || 1);
       if (pct >= 0.4) reveal();
     };
-    const t = setTimeout(reveal, DELAY_MS);
+    const t = setTimeout(reveal, remaining);
     window.addEventListener("scroll", onScroll, { passive: true });
     function cleanup() { clearTimeout(t); window.removeEventListener("scroll", onScroll); }
     return cleanup;
-  }, [pathname, pushReady]);
+  }, [pushReady]);
 
   const close = useCallback(() => { setShow(false); suppress(7); }, []);
 
