@@ -10,6 +10,7 @@ import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
+import MatrixRain from "../components/MatrixRain.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
@@ -248,14 +249,20 @@ export default function HomeNewPage() {
               הזרם המלא →
             </Link>
           </div>
-          <div style={{ textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18 }}>
-            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
-            <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
-              זרם המציאות — בבנייה
-            </div>
-            <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
-              הממשק מתעדכן לגרסה חדשה.<br />
-              הרמזים יחזרו בקרוב עם יכולות חדשות.
+          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18 }}>
+            {/* המספרים היורדים — אותו אפקט מבית-הקוד (MatrixRain), רקע קל (~18fps, עוצר כשהטאב מוסתר) */}
+            <MatrixRain color="#d4af37" featured="1820" />
+            {/* דהיית קריאוּת מעל המספרים */}
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(9,8,15,0.45), rgba(9,8,15,0.86) 80%)", pointerEvents: "none" }} />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
+              <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
+                זרם המציאות — בבנייה
+              </div>
+              <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
+                הממשק מתעדכן לגרסה חדשה.<br />
+                הרמזים יחזרו בקרוב עם יכולות חדשות.
+              </div>
             </div>
           </div>
         </div>
