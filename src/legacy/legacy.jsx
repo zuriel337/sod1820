@@ -4503,38 +4503,7 @@ function PostPageBySlug({ onNav }) {
             </div>
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
-            {(() => {
-              // רק מספרים "חמים" (מספרי ליבה) ובלי כפילויות — מספר קר/אקראי לא מוצג.
-              const seen = new Set();
-              const warm = (gematriaItems || []).filter(({ ragil }) => {
-                if (!KEY_NUMBERS[ragil] || seen.has(ragil)) return false;
-                seen.add(ragil);
-                return true;
-              });
-              if (!warm.length) return null;
-              // צבעי "מספרים קשורים" (סגול = מספרים) — תמה-מודע: גוונים קריאים על קרם במצב בהיר.
-              const lightUI = themed && P.mode === "light";
-              const pl = {
-                label: lightUI ? "#6d4aa3" : "#b39ddb",
-                bg:    lightUI ? "#efe7fb" : "#1a0a2e",
-                border:lightUI ? "rgba(124,58,237,0.32)" : "#7c3aed",
-                text:  lightUI ? "#5b3a8c" : "#c4b5fd",
-              };
-              return (
-                <div style={{ marginBottom: 40 }}>
-                  <div style={{ fontSize: 12, color: pl.label, letterSpacing: 3, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 8 }}>מספרים קשורים</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {warm.map(({ phrase, ragil }) => (
-                      <span key={phrase} className="sod-inflate" onClick={() => navigate('/number/' + encodeURIComponent(phrase))} style={{
-                        background: pl.bg, border: `1px solid ${pl.border}`,
-                        color: pl.text, fontSize: 12, padding: "4px 13px",
-                        fontFamily: F.heading, letterSpacing: 1, borderRadius: 1,
-                      }}>{phrase} | {ragil}</span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
+            {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}
             <style>{POST_CONTENT_CSS}</style>
             {themed && <style>{themedPostContentCSS(P)}</style>}
             {/* הערת לחיצוּת אוטומטית — בכל פוסט שיש בו מספרים (חוק number_click_hint_law) */}
