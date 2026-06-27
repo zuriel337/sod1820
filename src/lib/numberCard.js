@@ -1,5 +1,6 @@
 import { C, calcGem } from "../theme.js";
 import { KEY_NUMBERS } from "../theme.js";
+import { trackShare } from "./tracking.js";
 
 // ===== מחולל "תמונת מספר" — מייצר תמונה ממותגת לכל מספר עם טקסט ויראלי בתוכה =====
 // צד-לקוח בלבד (canvas), ללא תלות חיצונית. מתאים לשיתוף בוואטסאפ/אינסטגרם (1080×1080).
@@ -89,7 +90,7 @@ export function buildNumberCard(value, phrases = []) {
   drawDivider(g, S / 2, 292, 300);
 
   // המספר הענק — זהב בהיר וברור (צל רך, לא מטשטש)
-  const fontNum = px => `800 ${px}px 'Cinzel', 'Frank Ruhl Libre', serif`;
+  const fontNum = px => `800 ${px}px 'Cinzel', 'Heebo', serif`;
   const numPx = fitFont(g, String(value), S - 240, 330, fontNum, 110);
   g.save();
   g.shadowColor = "rgba(212,175,55,0.55)"; g.shadowBlur = 26; g.shadowOffsetY = 2;
@@ -98,7 +99,7 @@ export function buildNumberCard(value, phrases = []) {
   g.restore();
 
   // קו גימטריה — תמיד שורה אחת (מתכווץ אוטומטית), קרם בהיר וברור
-  const fontGem = px => `700 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  const fontGem = px => `700 ${px}px 'Heebo', 'Heebo', serif`;
   fitFont(g, gemLine, S - 150, 58, fontGem, 22);
   g.fillStyle = "#f3ead0";
   g.fillText(gemLine, S / 2, 730);
@@ -107,7 +108,7 @@ export function buildNumberCard(value, phrases = []) {
   drawDivider(g, S / 2, 800, 220);
 
   // שורה ויראלית — שורה אחת
-  const fontPo = px => `italic 600 ${px}px 'Frank Ruhl Libre', 'Heebo', serif`;
+  const fontPo = px => `italic 600 ${px}px 'Heebo', 'Heebo', serif`;
   fitFont(g, poetic, S - 170, 44, fontPo, 22);
   g.fillStyle = "#cdb7e8";
   g.fillText(poetic, S / 2, 880);
@@ -156,6 +157,7 @@ export async function shareNumberCard(value, phrases) {
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `number/${value}`);
       await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return true;
     }
@@ -180,6 +182,7 @@ export async function shareNumberSmart(value, phrases) {
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `number/${value}`);
       await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return "image";
     }
@@ -187,6 +190,7 @@ export async function shareNumberSmart(value, phrases) {
     if (e && e.name === "AbortError") return "cancel";
   }
   // דסקטופ / אין שיתוף קבצים → וואטסאפ עם הקישור (תצוגת ה-OG מציגה תמונה)
+  trackShare("whatsapp", `number/${value}`);
   window.open(`https://wa.me/?text=${encodeURIComponent(shareText(value))}`, "_blank", "noopener,noreferrer");
   return "link";
 }

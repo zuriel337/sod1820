@@ -4,6 +4,7 @@ import { C, F, calcGem, KEY_NUMBERS, isWarmNumber } from "../../theme.js";
 import { SectionHeader, GoldButton } from "../../components/ui.jsx";
 import SubscribeGate from "../../components/SubscribeGate.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { trackShare } from "../../lib/tracking.js";
 
 const ELS_FREE_KEY = "els_free_used";    // מונה חיפושים חינם (אנונימי), נשמר מקומית
 const ELS_BONUS_KEY = "els_share_bonus"; // בונוס חיפושים על שיתוף
@@ -147,9 +148,9 @@ function buildMatrixCanvas(letters, hit, title) {
   const g = cv.getContext("2d"); g.scale(scale, scale);
   g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
   g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  g.fillStyle = "#E8C84A"; g.font = "bold 18px 'Heebo', serif";
   g.fillText(title, W / 2, pad + headH / 2);
-  g.font = "bold 17px 'Frank Ruhl Libre', serif";
+  g.font = "bold 17px 'Heebo', serif";
   rows.forEach((row, r) => row.forEach((cl, c) => {
     const x = pad + (cols - 1 - c) * cell, y = pad + headH + r * cell; // RTL
     if (cl.hl) { g.fillStyle = "#7a1320"; g.fillRect(x + 1, y + 1, cell - 2, cell - 2); g.fillStyle = "#E8C84A"; }
@@ -183,9 +184,9 @@ function buildAxisCanvas(letters, hit, title, contextRows = 14) {
   const g = cv.getContext("2d"); g.scale(scale, scale);
   g.fillStyle = "#0a0700"; g.fillRect(0, 0, W, H);
   g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillStyle = "#E8C84A"; g.font = "bold 16px 'Frank Ruhl Libre', serif";
+  g.fillStyle = "#E8C84A"; g.font = "bold 16px 'Heebo', serif";
   g.fillText(title, W / 2, pad + headH / 2);
-  g.font = "bold 18px 'Frank Ruhl Libre', serif";
+  g.font = "bold 18px 'Heebo', serif";
   for (let i = from; i < to; i++) {
     const y = pad + headH + (i - from) * cellH;
     if (posSet.has(colIdx[i])) {
@@ -223,6 +224,7 @@ async function shareMatrixPNG(letters, hit, title, mode) {
     const file = new File([blob], matrixFileName(title), { type: "image/png" });
     const shareText = `${title} — הצופן התנ״כי · סוד 1820\nגלו עוד דילוגים: https://sod1820.co.il/code`;
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", "els-matrix");
       await navigator.share({ files: [file], title: "הצופן התנ״כי · סוד 1820", text: shareText });
     } else {
       // אין שיתוף קבצים (רוב הדפדפנים בדסקטופ) → מורידים את התמונה
@@ -576,9 +578,9 @@ export function ELSSection({ gated = false } = {}) {
     const url = "https://sod1820.co.il/code";
     const text = "מצאתי דברים מדהימים בצופן התנ״כי של סוד 1820 — חפשו גם אתם את השם שלכם בתורה:";
     try {
-      if (navigator.share) { await navigator.share({ title: "הצופן התנ״כי · סוד 1820", text, url }); grantShareBonus(); }
-      else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(`${text} ${url}`); grantShareBonus(); }
-      else { window.prompt("העתיקו ושתפו:", url); grantShareBonus(); }
+      if (navigator.share) { trackShare("native", "els-tool"); await navigator.share({ title: "הצופן התנ״כי · סוד 1820", text, url }); grantShareBonus(); }
+      else if (navigator.clipboard?.writeText) { trackShare("copy", "els-tool"); await navigator.clipboard.writeText(`${text} ${url}`); grantShareBonus(); }
+      else { trackShare("copy", "els-tool"); window.prompt("העתיקו ושתפו:", url); grantShareBonus(); }
     } catch (e) { if (e && e.name === "AbortError") return; /* ביטול — בלי בונוס */ }
   }
 

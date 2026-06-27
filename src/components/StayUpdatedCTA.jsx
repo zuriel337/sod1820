@@ -44,36 +44,53 @@ export default function StayUpdatedCTA({ variant = "home" }) {
 
   const successMsg = done === "push" ? "מעולה! תקבלו התראות כשיֵצא חדש 🔔" : "אתם בפנים! נעדכן אתכם כשיֵצא חדש 🙏";
 
-  // ===== פוטר — מרכזי ונקי (כמו עמוד הבית), רספונסיבי בנייד =====
+  // ===== פוטר — דסקטופ: פרוס על הרוחב (טקסט מימין, טופס משמאל) · נייד: ממורכז =====
   if (variant === "footer") {
     return (
-      <div style={{ maxWidth: 560, margin: "0 auto", padding: "18px 16px 8px", textAlign: "center", direction: "rtl" }}>
+      <div className="sucta-foot">
+        <style>{`
+          .sucta-foot { max-width: 1040px; margin: 0 auto; padding: 16px 28px 30px; direction: rtl;
+            display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+          .sucta-txt { text-align: right; flex: 1 1 320px; min-width: 0; }
+          .sucta-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+          .sucta-form { display: flex; gap: 8px; flex-wrap: wrap; }
+          @media (max-width: 760px) {
+            .sucta-foot { flex-direction: column; text-align: center; gap: 12px; padding: 16px 16px 30px; }
+            .sucta-txt { text-align: center; flex-basis: auto; }
+            .sucta-side { align-items: center; width: 100%; }
+            .sucta-form { justify-content: center; width: 100%; }
+          }
+        `}</style>
         {done ? (
-          <div style={{ color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ {successMsg}</div>
+          <div style={{ width: "100%", textAlign: "center", color: cc.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>✦ {successMsg}</div>
         ) : (
           <>
-            <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
-              <span style={{ color: "#1faa55" }}>●</span> מערכת חיה — מתעדכנת באופן שוטף
+            <div className="sucta-txt">
+              <div style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 15.5, fontWeight: 700 }}>
+                <span style={{ color: "#1faa55" }}>●</span> מערכת חיה — מתעדכנת באופן שוטף
+              </div>
+              <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>
+                תכנים חדשים, חיפושים ותגליות מתווספים באופן קבוע.
+              </div>
             </div>
-            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 12.5, margin: "4px 0 12px" }}>
-              תכנים חדשים, חיפושים ותגליות מתווספים באופן קבוע.
-            </div>
-            <form onSubmit={submitEmail} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 420, margin: "0 auto" }}>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלך" dir="ltr"
-                style={{ flex: "1 1 220px", minWidth: 180, padding: "11px 14px", borderRadius: 10, background: cc.surface || "#0d0a0e", border: `1px solid ${cc.border}`, color: cc.goldLight, fontFamily: F.body, fontSize: 14.5, textAlign: "center", outline: "none" }} />
-              <button type="submit" disabled={busy} style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 10, padding: "11px 26px", background: cc.accentBtn || cc.goldBright, color: cc.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 14, whiteSpace: "nowrap" }}>{busy ? "רגע…" : "הצטרפו"}</button>
-            </form>
-            {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>{err}</div>}
-            <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11, marginTop: 8 }}>
-              חינם · אפשר לבטל בכל רגע
-              {pushReady && (
-                <>
-                  {" · "}
-                  <button onClick={choosePush} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "none", border: "none", padding: 0, color: "inherit", fontFamily: F.body, fontSize: 11, opacity: 0.85, textDecoration: "underline", textUnderlineOffset: 2 }}>
-                    התראות בדפדפן
-                  </button>
-                </>
-              )}
+            <div className="sucta-side">
+              <form onSubmit={submitEmail} className="sucta-form">
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלך" dir="ltr"
+                  style={{ flex: "0 1 240px", minWidth: 180, padding: "11px 14px", borderRadius: 10, background: cc.surface || "#0d0a0e", border: `1px solid ${cc.border}`, color: cc.goldLight, fontFamily: F.body, fontSize: 14.5, textAlign: "center", outline: "none" }} />
+                <button type="submit" disabled={busy} style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 10, padding: "11px 28px", background: cc.accentBtn || cc.goldBright, color: cc.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 14, whiteSpace: "nowrap" }}>{busy ? "רגע…" : "הצטרפו"}</button>
+              </form>
+              {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5 }}>{err}</div>}
+              <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11 }}>
+                חינם · אפשר לבטל בכל רגע
+                {pushReady && (
+                  <>
+                    {" · "}
+                    <button onClick={choosePush} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "none", border: "none", padding: 0, color: "inherit", fontFamily: F.body, fontSize: 11, opacity: 0.85, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                      התראות בדפדפן
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </>
         )}

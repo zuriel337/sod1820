@@ -22,11 +22,13 @@ import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
+import ViralIntelTab from "../components/ViralIntelTab.jsx";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "popularity", label: "📈 פופולריות" },
+  { key: "viral",    label: "🔥 ויראליות" },
   { key: "research", label: "🧪 מעבדת צוריאל" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
@@ -99,6 +101,7 @@ export default function AdminPage() {
 
       {tab === "stats" && <StatsTab />}
       {tab === "popularity" && <PopularityTab />}
+      {tab === "viral" && <ViralIntelTab />}
       {tab === "research" && <ResearchTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}

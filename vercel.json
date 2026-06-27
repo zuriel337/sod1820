@@ -14,9 +14,26 @@
     { "source": "/wp-cron.php", "destination": "/api/honeypot" },
     { "source": "/wp-includes/(.*)", "destination": "/api/honeypot" },
     { "source": "/wp-content/(.*)", "destination": "/api/honeypot" },
+    { "source": "/wp-config.php", "destination": "/api/honeypot" },
     { "source": "/xmlrpc.php", "destination": "/api/honeypot" },
     { "source": "/.env", "destination": "/api/honeypot" },
+    { "source": "/.env.(.*)", "destination": "/api/honeypot" },
+    { "source": "/.git", "destination": "/api/honeypot" },
+    { "source": "/.git/(.*)", "destination": "/api/honeypot" },
+    { "source": "/.aws/(.*)", "destination": "/api/honeypot" },
+    { "source": "/.ssh/(.*)", "destination": "/api/honeypot" },
+    { "source": "/.vscode/(.*)", "destination": "/api/honeypot" },
+    { "source": "/.DS_Store", "destination": "/api/honeypot" },
     { "source": "/phpinfo.php", "destination": "/api/honeypot" },
+    { "source": "/phpmyadmin", "destination": "/api/honeypot" },
+    { "source": "/phpmyadmin/(.*)", "destination": "/api/honeypot" },
+    { "source": "/pma/(.*)", "destination": "/api/honeypot" },
+    { "source": "/vendor/(.*)", "destination": "/api/honeypot" },
+    { "source": "/cgi-bin/(.*)", "destination": "/api/honeypot" },
+    { "source": "/config.php", "destination": "/api/honeypot" },
+    { "source": "/configuration.php", "destination": "/api/honeypot" },
+    { "source": "/server-status", "destination": "/api/honeypot" },
+    { "source": "/actuator/(.*)", "destination": "/api/honeypot" },
     { "source": "/admin/(.*)", "destination": "/api/honeypot" },
     {
       "source": "/(.*)",
@@ -32,7 +49,14 @@
     },
     {
       "source": "/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
     }
   ]
 }

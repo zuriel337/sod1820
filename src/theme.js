@@ -2,8 +2,8 @@
 // פלטת זהב-כהה מלכותי. נשמרת מהאתר הקיים.
 
 export const C = {
-  bg:           "#07050E",
-  bgGlow:       "#110e1e",
+  bg:           "#0C0818",
+  bgGlow:       "#1A1230",
   gold:         "#d4af37",
   goldLight:    "#e8c840",
   goldBright:   "#f6e27a",
