@@ -214,7 +214,7 @@ export default function HomeNewPage() {
               <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
                 {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
                 {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
-                {item.rel && <span title="מותאם לשער שבחרת" style={{ position: "absolute", bottom: 8, insetInlineStart: 8, background: "rgba(91,140,255,0.92)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px" }}>✦ לפי השער שלך</span>}
+                {/* תגית «לפי השער שלך» הוסרה — מערכת השערים סגורה (parked), לא חושפים שער למשתמש */}
               </div>
               <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
