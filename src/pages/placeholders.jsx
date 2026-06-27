@@ -14,7 +14,7 @@ import { applySeo, SITE_URL } from "../lib/seo.js";
 export function ArchivePage() {
   return <UnderConstruction emoji="🖼" title="ארכיון ההתגלות"
     description="כל התמונות, הצפנים והממצאים במקום אחד — עם סינון לפי שנה, נושא, תגית, מספר, מלחמות, צפנים, משיח ותורה, מנוע OCR, וחיבור חי לעץ המספרים."
-    links={[{ to: "/numbers", label: "עץ המספרים" }, { to: "/code", label: "הצופן התנ\"כי" }]} />;
+    links={[{ to: "/numbers", label: "עץ ההתכנסויות" }, { to: "/code", label: "הצופן התנ\"כי" }]} />;
 }
 
 const MEMBER_PERKS = [
@@ -439,5 +439,5 @@ export function MethodPage() {
   const found = METHODS.find(m => m.to === `/beit-midrash/${method}`);
   return <UnderConstruction emoji="📚" title={found ? `בית המדרש · ${found.label}` : "בית המדרש"}
     description="הסבר השיטה, דוגמאות, מחשבון אינטראקטיבי, שאלות נפוצות וקישור לרמזים אמיתיים — בקרוב."
-    links={[{ to: "/beit-midrash", label: "כל השיטות" }, { to: "/numbers", label: "עץ המספרים" }]} />;
+    links={[{ to: "/beit-midrash", label: "כל השיטות" }, { to: "/numbers", label: "עץ ההתכנסויות" }]} />;
 }

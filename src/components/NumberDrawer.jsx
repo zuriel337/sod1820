@@ -283,7 +283,7 @@ export default function NumberDrawer() {
               <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.65, textAlign: "center", margin: "0 0 4px" }}>הקלידו מספר או מילה למעלה — או היכנסו למרחב:</p>
               <button onClick={() => goTo("/number")} style={bigLink}>🔢 הגוגל של המספרים</button>
               <button onClick={() => goTo("/beit-midrash")} style={bigLink}>📚 בית המדרש — מחשבון + הסברי השיטות</button>
-              <button onClick={() => goTo("/numbers")} style={bigLink}>🌳 עץ המספרים</button>
+              <button onClick={() => goTo("/numbers")} style={bigLink}>🌳 עץ ההתכנסויות</button>
               <button onClick={() => goTo("/cross")} style={bigLink}>🔗 הצלבת שיטות</button>
               <button onClick={() => goTo("/archive")} style={bigLink}>🖼 גלריית רמזי הגאולה</button>
               {/* מספרי-מפתח — קליק פותח את המספר במגירה */}

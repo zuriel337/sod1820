@@ -14,7 +14,7 @@ const COLUMNS = [
       { label: "בית המדרש", to: "/beit-midrash" },
       { label: "מחשבון הגימטריה", to: "/beit-midrash?tab=calc" },
       { label: "הצלבת שיטות", to: "/cross" },
-      { label: "עץ המספרים", to: "/numbers" },
+      { label: "עץ ההתכנסויות", to: "/numbers" },
       { label: "דף המספר 1820", to: "/number/1820" },
     ],
   },

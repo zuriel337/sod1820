@@ -96,7 +96,7 @@ export default function StartHerePage() {
         </Link>
       </div>
 
-      {/* כניסה לחקירה — אל עץ המספרים ("גוגל של המספרים") */}
+      {/* כניסה לחקירה — אל עץ ההתכנסויות ("גוגל של המספרים") */}
       <div style={{ marginTop: 48, textAlign: "center" }}>
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
           מוכנים לצלול פנימה?
@@ -104,7 +104,7 @@ export default function StartHerePage() {
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 440, margin: "0 auto 18px" }}>
           כל מספר הוא עולם שלם. חפשו מספר, שם או מילה — וגלו את הקשרים שמאחורי המציאות.
         </p>
-        <GoldButton to="/numbers">🔢 לעץ המספרים</GoldButton>
+        <GoldButton to="/numbers">🔢 לעץ ההתכנסויות</GoldButton>
       </div>
 
       {/* 👑 סיום — היכנסו לעולם החדש */}
