@@ -75,6 +75,22 @@ export async function enablePush({ userId = null, topics = [] } = {}) {
 }
 
 // ביטול הרשמה + מחיקת השורה.
+// בדיקת מצב הרשמה בדפדפן הנוכחי: האם יש מנוי Push פעיל כרגע.
+// מחזיר { supported, configured, permission, subscribed }.
+export async function getPushStatus() {
+  const supported = pushSupported();
+  const base = { supported, configured: PUSH_CONFIGURED, permission: pushPermission(), subscribed: false };
+  if (!supported || !PUSH_CONFIGURED) return base;
+  try {
+    const reg = await registerPushSW();
+    await navigator.serviceWorker.ready;
+    const sub = reg && await reg.pushManager.getSubscription();
+    return { ...base, subscribed: !!sub };
+  } catch {
+    return base;
+  }
+}
+
 export async function disablePush() {
   if (!pushSupported()) return { ok: true };
   try {

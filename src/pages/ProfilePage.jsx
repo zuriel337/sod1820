@@ -6,6 +6,101 @@ import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
+import { supabase } from "../lib/supabase.js";
+import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
+
+// 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + סך המנויים הכולל,
+// עם כפתור הפעלה/ביטול כדי שאפשר יהיה לאמת שהמספר עולה/יורד.
+function PushStatusCard({ P, card, user }) {
+  const [status, setStatus] = useState(null);   // { supported, configured, permission, subscribed }
+  const [total, setTotal] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+
+  const refreshCount = React.useCallback(async () => {
+    try {
+      const { data } = await supabase.rpc("push_sub_count");
+      if (data && typeof data.total === "number") setTotal(data.total);
+    } catch { /* noop */ }
+  }, []);
+
+  const refresh = React.useCallback(async () => {
+    try { setStatus(await getPushStatus()); } catch { /* noop */ }
+    refreshCount();
+  }, [refreshCount]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  async function toggle() {
+    setNote(""); setBusy(true);
+    try {
+      if (status?.subscribed) {
+        await disablePush();
+        setNote("ההרשמה בוטלה במכשיר זה.");
+      } else {
+        const r = await enablePush({ userId: user?.id || null, topics: [] });
+        if (!r.ok) {
+          setNote(r.reason === "denied" ? "הדפדפן חסם התראות — צריך לאשר בהגדרות האתר." :
+                  r.reason === "unsupported" ? "הדפדפן הזה לא תומך בהתראות." : "ההפעלה נכשלה.");
+        } else { setNote("נרשמת להתראות במכשיר זה ✦"); }
+      }
+    } catch { setNote("שגיאה — נסו שוב."); }
+    // המתנה קצרה כדי שה-DB יתעדכן לפני קריאת הספירה מחדש
+    await new Promise(r => setTimeout(r, 600));
+    await refresh();
+    setBusy(false);
+  }
+
+  if (!PUSH_CONFIGURED) return null;
+
+  const subscribed = !!status?.subscribed;
+  const unsupported = status && !status.supported;
+
+  return (
+    <div style={{ ...card, marginTop: 22 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontSize: 26 }}>🔔</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>התראות Push</div>
+      </div>
+
+      {/* מצב המכשיר הנוכחי */}
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 8, margin: "8px 0 4px",
+        background: P.cardSoft, border: `1px solid ${subscribed ? "#2e7d32" : P.borderStrong}`,
+        borderRadius: 999, padding: "6px 16px",
+        color: subscribed ? "#5bd16a" : P.accentDim, fontFamily: F.heading, fontWeight: 700, fontSize: 13.5,
+      }}>
+        {unsupported ? "⚠️ הדפדפן הזה לא תומך בהתראות"
+          : subscribed ? "✅ רשום להתראות במכשיר זה"
+          : "○ לא רשום במכשיר זה"}
+      </div>
+
+      {/* סך המנויים — לבדיקה שהמספר עולה/יורד */}
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginTop: 8 }}>
+        סך המנויים בקהילה: <b style={{ color: P.accentText, fontSize: 15 }}>{total ?? "…"}</b>
+        <button onClick={refresh} title="רענון" style={{
+          marginInlineStart: 8, background: "none", border: "none", cursor: "pointer",
+          color: P.accentDim, fontSize: 13, padding: 0,
+        }}>↻</button>
+      </div>
+
+      {!unsupported && (
+        <div style={{ marginTop: 16 }}>
+          <GoldButton onClick={toggle} disabled={busy} variant={subscribed ? "secondary" : "primary"}>
+            {busy ? "…" : subscribed ? "בטל הרשמה במכשיר זה" : "הפעל התראות במכשיר זה"}
+          </GoldButton>
+        </div>
+      )}
+
+      {note && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{note}</div>}
+
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.7, marginTop: 14, opacity: 0.85 }}>
+        💡 כל מכשיר/דפדפן נרשם בנפרד. הפעלה כאן מוסיפה למונה, ביטול מוריד.
+        באייפון נדרש להוסיף את האתר למסך הבית לפני שאפשר להירשם.
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const P = usePalette();
@@ -105,6 +200,8 @@ export default function ProfilePage() {
           <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
         </div>
       </div>
+
+      <PushStatusCard P={P} card={card} user={user} />
 
       {/* "הזרם שלך" — נעול כרגע (הפתעות בדרך). id נשמר כדי שגלילת ה-#notifications תעבוד */}
       <div id="notifications" style={{ ...card, textAlign: "center", marginTop: 22, position: "relative", overflow: "hidden" }}>

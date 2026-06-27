@@ -2789,14 +2789,11 @@ function PushSendTab() {
   const [err, setErr] = useState("");
   const [counts, setCounts] = useState(null);   // { total, byTopic }
 
-  // ספירת מנויי Push (כללי + לפי נושא) — לאומדן הישג לפני שליחה.
+  // ספירת מנויי Push האמיתית (כל המשתמשים) דרך RPC security-definer — RLS מסתיר מנויים של אחרים.
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("push_subscriptions").select("topics").then(({ data }) => {
-      const rows = data || [];
-      const byTopic = {};
-      rows.forEach(r => (Array.isArray(r.topics) ? r.topics : []).forEach(t => { byTopic[t] = (byTopic[t] || 0) + 1; }));
-      setCounts({ total: rows.length, byTopic });
+    supabase.rpc("push_sub_count").then(({ data }) => {
+      if (data && typeof data.total === "number") setCounts({ total: data.total, byTopic: data.by_topic || {} });
     }).catch(() => {});
   }, []);
 
