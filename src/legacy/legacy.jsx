@@ -953,12 +953,6 @@ function AboutPage({ onNav, pageContent, adminMode }) {
             style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)", color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "12px 22px", borderRadius: 999, boxShadow: "0 0 18px rgba(31,170,85,0.4)" }}>
             💬 הצטרפו לקבוצת הגימטריה בוואטסאפ
           </a>
-          <div style={{ marginTop: 12 }}>
-            <a href="https://wa.me/972556651237" target="_blank" rel="noopener noreferrer"
-              style={{ color: C.goldBright, textDecoration: "none", fontFamily: F.body, fontSize: 14 }}>
-              📞 וואטסאפ ישיר · 055-6651237
-            </a>
-          </div>
         </div>
       </div>
 
@@ -3684,7 +3678,6 @@ function ContactPage() {
   const FU = "'Heebo', 'Heebo', sans-serif";
 
   const CHANNELS = [
-    { icon: "🤝", label: "וואטסאפ · שיתופי פעולה", value: "055-6651237", href: "https://wa.me/972556651237" },
     { icon: "👥", label: "קבוצת הגימטריה", value: "הצטרפו לקבוצה", href: "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" },
     { icon: "📸", label: "אינסטגרם", value: "@zuriel7676", href: "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp" },
     { icon: "👍", label: "פייסבוק — הדף", value: "סוד 1820", href: "https://www.facebook.com/sod1820" },
