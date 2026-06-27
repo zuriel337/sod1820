@@ -10,7 +10,7 @@
   "theme_color": "#0C0818",
   "icons": [
     {
-      "src": "/crown-icon.png",
+      "src": "/crown-favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
