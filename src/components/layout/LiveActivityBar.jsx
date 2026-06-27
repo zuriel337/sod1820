@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchFeed } from "../../lib/supabase.js";
+import { getTopicCards, getPostsFromSupabase, getSearchStatsToday } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
-import { maskTerm } from "../../lib/nameMask.js";
 
 // האם תאריך הוא "היום" (לפי שעון מקומי)
 function isToday(d) {
@@ -36,10 +35,9 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       try {
-        const feed = await getSearchFeed("anon").catch(() => []);
-        const todays = (feed || []).filter(r => isToday(r.at));
-        const list = (todays.length ? todays : (feed || [])).slice(0, 5).map(r => maskTerm(r.term, false)).filter(Boolean);
-        if (list.length) out.push(`🔎 ${todays.length ? `היום חיפשו ${todays.length} ביטויים` : "חיפשו לאחרונה"}: ${list.join("  ·  ")}`);
+        const { searches, words } = await getSearchStatsToday();
+        if (searches > 0) out.push(`🔎 היום נעשו ${searches === 1 ? "חיפוש אחד" : `${searches} חיפושים`} במנוע`);
+        if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
       } catch { /* ignore */ }
       if (live) setMsgs(out);
     }
@@ -104,19 +102,13 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-marquee { flex:1 1 0%; min-width:0; overflow:hidden;
-          -webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent);
-          mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent); }
+        .lt-marquee { flex:1 1 0%; min-width:0; overflow:hidden; }
         .lt-track { display:flex; direction:ltr; width:max-content; animation: lab-ticker 52s linear infinite; }
         .lt-group { direction:rtl; white-space:nowrap; display:inline-flex; align-items:center; }
         .lt-item { color:#ffe6ad; font-family:${F.heading}; font-size:12.5px; font-weight:700; white-space:nowrap; }
         .lt-sep { display:inline-block; margin:0 34px; color:#d4af37; font-size:11px; vertical-align:1px; }
-        @media (max-width: 640px) { .lt-item { font-size:11px; } .lt-track { animation-duration: 38s; } }
-        @media (prefers-reduced-motion: reduce) {
-          .lt-track { animation:none; }
-          .lt-group + .lt-group { display:none; }
-          .lt-item { text-overflow:ellipsis; overflow:hidden; }
-        }
+        @media (max-width: 640px) { .lt-item { font-size:11px; } .lt-track { animation-duration: 34s; } }
+        @media (prefers-reduced-motion: reduce) { .lt-track { animation-duration: 90s; } }
 
         @keyframes lab-cone { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
         @keyframes lab-flame { 0%,100% { transform: scale(1) rotate(-4deg); opacity:.9; } 50% { transform: scale(1.18) rotate(4deg); opacity:1; } }

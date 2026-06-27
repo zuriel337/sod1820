@@ -437,6 +437,23 @@ export async function getSearchCount(value) {
   const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).eq("value", value);
   return count || 0;
 }
+// 🔎 סטטיסטיקת חיפושים של היום (לרצועת הטיקר): כמה חיפושים נעשו + כמה מילים ייחודיות נחקרו.
+// מקור: search_log. ספירת החיפושים = exact head count; המילים = distinct מדגם (עד 2000 שורות).
+export async function getSearchStatsToday() {
+  if (!supabase) return { searches: 0, words: 0 };
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const iso = start.toISOString();
+  let searches = 0, words = 0;
+  try {
+    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", iso);
+    searches = count || 0;
+  } catch { /* ignore */ }
+  try {
+    const { data } = await supabase.from("search_log").select("term").gte("created_at", iso).limit(2000);
+    words = new Set((data || []).map(r => (r.term || "").trim()).filter(Boolean)).size;
+  } catch { /* ignore */ }
+  return { searches, words };
+}
 // 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
 export async function getViewCount(kind, ref, days = 7) {
   if (!supabase || ref == null || ref === "") return 0;
