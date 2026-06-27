@@ -9,20 +9,21 @@ import { Avatar } from "./AuthPage.jsx";
 import { supabase, getUserActivity } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 
-// 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + סך המנויים הכולל,
-// עם כפתור הפעלה/ביטול כדי שאפשר יהיה לאמת שהמספר עולה/יורד.
-function PushStatusCard({ P, card, user }) {
+// 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + כפתור הפעלה/ביטול.
+// סך המנויים הכולל מוצג *רק לאדמין* (לבדיקה) — לא חושפים אותו לגולשים.
+function PushStatusCard({ P, card, user, isAdmin }) {
   const [status, setStatus] = useState(null);   // { supported, configured, permission, subscribed }
   const [total, setTotal] = useState(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
 
   const refreshCount = React.useCallback(async () => {
+    if (!isAdmin) return;   // המונה לאדמין בלבד
     try {
       const { data } = await supabase.rpc("push_sub_count");
       if (data && typeof data.total === "number") setTotal(data.total);
     } catch { /* noop */ }
-  }, []);
+  }, [isAdmin]);
 
   const refresh = React.useCallback(async () => {
     try { setStatus(await getPushStatus()); } catch { /* noop */ }
@@ -75,14 +76,16 @@ function PushStatusCard({ P, card, user }) {
           : "○ לא רשום במכשיר זה"}
       </div>
 
-      {/* סך המנויים — לבדיקה שהמספר עולה/יורד */}
-      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginTop: 8 }}>
-        סך המנויים בקהילה: <b style={{ color: P.accentText, fontSize: 15 }}>{total ?? "…"}</b>
-        <button onClick={refresh} title="רענון" style={{
-          marginInlineStart: 8, background: "none", border: "none", cursor: "pointer",
-          color: P.accentDim, fontSize: 13, padding: 0,
-        }}>↻</button>
-      </div>
+      {/* סך המנויים — לאדמין בלבד (לבדיקה). לא נחשף לגולשים. */}
+      {isAdmin && (
+        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginTop: 8 }}>
+          סך המנויים (אדמין): <b style={{ color: P.accentText, fontSize: 15 }}>{total ?? "…"}</b>
+          <button onClick={refresh} title="רענון" style={{
+            marginInlineStart: 8, background: "none", border: "none", cursor: "pointer",
+            color: P.accentDim, fontSize: 13, padding: 0,
+          }}>↻</button>
+        </div>
+      )}
 
       {!unsupported && (
         <div style={{ marginTop: 16 }}>
@@ -95,7 +98,7 @@ function PushStatusCard({ P, card, user }) {
       {note && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{note}</div>}
 
       <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.7, marginTop: 14, opacity: 0.85 }}>
-        💡 כל מכשיר/דפדפן נרשם בנפרד. הפעלה כאן מוסיפה למונה, ביטול מוריד.
+        💡 כל מכשיר/דפדפן נרשם בנפרד. הפעלה כאן רושמת את המכשיר, ביטול מסיר אותו.
         באייפון נדרש להוסיף את האתר למסך הבית לפני שאפשר להירשם.
       </div>
     </div>
@@ -223,7 +226,7 @@ function ComingSoonGrid({ P, card }) {
 
 export default function ProfilePage() {
   const P = usePalette();
-  const { user, profile, loading, signOut, refreshProfile } = useAuth();
+  const { user, profile, loading, isAdmin, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -366,7 +369,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <PushStatusCard P={P} card={card} user={user} />
+      <PushStatusCard P={P} card={card} user={user} isAdmin={isAdmin} />
 
       <RecentActivity P={P} card={card} user={user} />
 
