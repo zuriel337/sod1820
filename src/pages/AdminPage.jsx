@@ -2870,6 +2870,78 @@ function PushSendTab() {
           }}>{busy ? "שולח…" : "שליחת התראה 🔔"}</button>
         </div>
       </div>
+
+      <PushSubscribersList />
+    </div>
+  );
+}
+
+// תווית מכשיר קצרה מתוך user-agent (לתצוגת רשימת מנויי Push).
+function pushDeviceLabel(ua = "") {
+  const os = /Android/i.test(ua) ? "אנדרואיד"
+    : /iPhone|iPad|iPod|iOS/i.test(ua) ? "אייפון"
+    : /Windows/i.test(ua) ? "Windows"
+    : /Macintosh|Mac OS/i.test(ua) ? "Mac"
+    : /Linux/i.test(ua) ? "Linux" : "—";
+  const br = /Edg/i.test(ua) ? "Edge"
+    : /Chrome/i.test(ua) ? "Chrome"
+    : /Firefox/i.test(ua) ? "Firefox"
+    : /Safari/i.test(ua) ? "Safari" : "";
+  return br ? `${os} · ${br}` : os;
+}
+
+// 📋 רשימת מנויי Push (אדמין): מייל (אם מחובר), מכשיר, האם גם ברשימת התפוצה.
+function PushSubscribersList() {
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.rpc("push_sub_list").then(({ data, error }) => {
+      if (error) setErr(error.message || "שגיאה בטעינה");
+      else setRows(data || []);
+    }).catch(e => setErr(String(e)));
+  }, []);
+
+  const th = { textAlign: "right", color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "8px 10px", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" };
+  const td = { textAlign: "right", color: C.goldLight, fontFamily: F.body, fontSize: 12.5, padding: "9px 10px", borderBottom: `1px solid ${C.border}`, verticalAlign: "middle" };
+
+  return (
+    <div style={{ ...card }}>
+      <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
+        📋 מנויי Push {rows ? `(${rows.length})` : ""}
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginBottom: 12 }}>
+        מי שאישר התראות. מייל מוצג רק למשתמש מחובר; "אנונימי" = נרשם בלי חשבון.
+        העמודה האחרונה מציינת אם הוא גם ברשימת התפוצה (מייל).
+      </div>
+      {err && <div style={{ color: C.danger, fontFamily: F.heading, fontSize: 13 }}>{err}</div>}
+      {!err && rows === null && <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 13 }}>טוען…</div>}
+      {!err && rows && rows.length === 0 && <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13 }}>אין מנויים עדיין.</div>}
+      {!err && rows && rows.length > 0 && (
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 460 }}>
+            <thead>
+              <tr>
+                <th style={th}>מייל</th>
+                <th style={th}>מכשיר</th>
+                <th style={th}>נרשם</th>
+                <th style={th}>ברשימת תפוצה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={i}>
+                  <td style={td}>{r.anonymous ? <span style={{ color: C.muted }}>אנונימי</span> : <span dir="ltr">{r.email || "—"}</span>}</td>
+                  <td style={td} dir="ltr"><span style={{ color: C.goldDim }}>{pushDeviceLabel(r.user_agent)}</span></td>
+                  <td style={td} dir="ltr"><span style={{ color: C.goldDim }}>{r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}</span></td>
+                  <td style={td}>{r.is_email_subscriber ? <span style={{ color: "#5bd16a" }}>✅ כן</span> : <span style={{ color: C.muted }}>—</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
