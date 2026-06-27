@@ -6,7 +6,8 @@ import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } fro
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import RealityStream from "../components/RealityStream.jsx";
-import { track } from "../lib/tracking.js";
+import { track, trackShare } from "../lib/tracking.js";
+import { withRid } from "../lib/propagation.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
 // כאן נפגשים כל החוטים: מספרים, תמונות, חיבורים ורמזים — שער לעולם שלם של קשרים.
@@ -73,6 +74,24 @@ export default function TopicPage() {
           <span style={{ color: P.accent, fontSize: 15, letterSpacing: 2 }}>{stars(card.quality)}</span>
         </div>
         {card.subtitle && <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.7, margin: "10px 0 0" }}>{card.subtitle}</p>}
+        {/* שיתוף ההתכנסות — מחובר למעקב (trackShare → visitor_events, עם rid) */}
+        <button
+          onClick={() => {
+            const sid = `topic/${slug}`;
+            const url = withRid(`${typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il"}/topic/${slug}`);
+            const text = `${card.title} · התכנסות בסוד 1820 👑`;
+            if (typeof navigator !== "undefined" && navigator.share) {
+              trackShare("native", sid);
+              navigator.share({ title: card.title, text, url }).catch(() => {});
+            } else {
+              trackShare("whatsapp", sid);
+              window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank", "noopener,noreferrer");
+            }
+          }}
+          style={{ marginTop: 14, cursor: "pointer", border: `1px solid ${P.accent}`, borderRadius: 999,
+            background: P.glow, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14,
+            padding: "9px 22px", display: "inline-flex", alignItems: "center", gap: 8 }}
+        >📲 שתפו את ההתכנסות</button>
         {/* מספרים → עמוד מספר */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
           {nums.map(n => (
