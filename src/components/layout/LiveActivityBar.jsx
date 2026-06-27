@@ -34,8 +34,7 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       try {
-        const { searches, words } = await getSearchStatsToday();
-        if (searches > 0) out.push(`🔎 היום נעשו ${searches === 1 ? "חיפוש אחד" : `${searches} חיפושים`} במנוע`);
+        const { words } = await getSearchStatsToday();
         if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
       } catch { /* ignore */ }
       if (live) setMsgs(out);
@@ -73,7 +72,7 @@ export default function LiveActivityBar() {
         @keyframes lt-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.45; transform:scale(.7); } }
         @keyframes lt-fade { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 
-        .lt-bar { display:flex; align-items:center; gap:9px; pointer-events:none;
+        .lt-bar { display:flex; align-items:center; justify-content:center; gap:9px; pointer-events:none;
           overflow:hidden; max-width:100%; box-sizing:border-box;
           background:${barBg}; border-bottom:1px solid rgba(212,175,55,0.28); padding:7px 12px; }
         .lt-badge { flex:none; display:inline-flex; align-items:center; gap:6px;
@@ -82,7 +81,7 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-msg { flex:1 1 0%; min-width:0; color:#ffe6ad;
+        .lt-msg { flex:0 1 auto; min-width:0; text-align:center; color:#ffe6ad;
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
