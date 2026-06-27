@@ -4392,7 +4392,7 @@ function PostPageBySlug({ onNav }) {
 
   return (
     // legacy-dark = נעול כהה (מכבד צבעים צרובים מ-WP). themed = מתחלף עם המתג.
-    <div data-theme={themed ? P.mode : "dark"} style={{ direction: "rtl", background: pc.bg, minHeight: "100vh", color: pc.ink }}>
+    <div data-theme={themed ? P.mode : "dark"} style={{ direction: "rtl", background: (themed ? P.mode : "dark") === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
       {/* שיתוף מטופל גלובלית ע"י RoyalShareWidget — בוטל מנגנון השיתוף הכפול של התפילות */}
       {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
       {post && !loading && adsAllowed && <StickyAnchorAd />}

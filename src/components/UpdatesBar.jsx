@@ -73,7 +73,7 @@ export default function UpdatesBar() {
       /* ===== מובייל — פס עליון דק ===== */
       .upb { position: fixed; top: 0; left: 0; right: 0; z-index: 950; direction: rtl;
         display: flex; align-items: center; justify-content: center; gap: 12px;
-        min-height: 38px; padding: 6px 44px 6px 14px;
+        min-height: 64px; padding: 8px 44px 8px 14px;
         background: linear-gradient(90deg, ${C.royal}, ${C.surface} 55%, ${C.royal});
         border-bottom: 1px solid ${C.borderGold}; box-shadow: 0 4px 18px rgba(0,0,0,0.45);
         font-family: ${F.heading}; animation: upb-down .45s cubic-bezier(.2,.8,.2,1) both; }
