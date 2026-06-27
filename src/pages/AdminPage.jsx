@@ -2977,10 +2977,11 @@ function WorkLogTab() {
   const [form, setForm] = useState({ topic: "", what_we_did: "", status: "הושלם", open_threads: "" });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [query, setQuery] = useState("");
 
   function load() {
     if (!supabase) return;
-    supabase.from("work_log").select("*").order("created_at", { ascending: false }).limit(30)
+    supabase.from("work_log").select("*").order("created_at", { ascending: false }).limit(1000)
       .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
   }
   useEffect(load, []);
@@ -3015,25 +3016,39 @@ function WorkLogTab() {
           </div>
         </div>
       </div>
-      <div style={card}>
-        <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700, marginBottom:14 }}>📋 רשומות אחרונות</div>
-        {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
-          <div style={{ display:"grid", gap:16 }}>
-            {entries.map(e => (
-              <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
-                <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
-                  <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
-                  <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
-                  <span style={{ color:e.status==="הושלם"?"#7bbf7b":C.gold, fontFamily:F.heading, fontSize:11, marginRight:"auto" }}>{e.status}</span>
-                </div>
-                <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
-                {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+      {(() => {
+        const q = query.trim().toLowerCase();
+        const view = q
+          ? entries.filter(e => `${e.topic || ""} ${e.what_we_did || ""} ${e.open_threads || ""} ${e.status || ""}`.toLowerCase().includes(q))
+          : entries;
+        return (
+          <div style={card}>
+            <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:14, flexWrap:"wrap" }}>
+              <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700 }}>
+                📋 כל היומן {!loading && <span style={{ color:C.muted, fontWeight:400 }}>({view.length}{q ? ` / ${entries.length}` : ""})</span>}
               </div>
-            ))}
-            {!entries.length && <Empty>אין רשומות עדיין</Empty>}
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="🔍 חיפוש ביומן…" dir="rtl"
+                style={{ ...fld, marginRight:"auto", maxWidth:300, padding:"7px 12px" }} />
+            </div>
+            {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
+              <div style={{ display:"grid", gap:16, maxHeight:620, overflowY:"auto", paddingLeft:6 }}>
+                {view.map(e => (
+                  <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+                    <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
+                      <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
+                      <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
+                      <span style={{ color:e.status==="הושלם"?"#7bbf7b":C.gold, fontFamily:F.heading, fontSize:11, marginRight:"auto" }}>{e.status}</span>
+                    </div>
+                    <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
+                    {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+                  </div>
+                ))}
+                {!view.length && <Empty>{q ? "אין תוצאות לחיפוש" : "אין רשומות עדיין"}</Empty>}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
     </div>
   );
 }
