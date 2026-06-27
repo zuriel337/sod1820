@@ -11,6 +11,7 @@ import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
+import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
@@ -233,13 +234,18 @@ export default function HomeNewPage() {
 
       {/* ===== 🌊 זרם המציאות — Dark Island מלכותי ===== */}
       {/* רקע כהה קבוע (#09080f) ללא תלות במצב יום/לילה — forceDark. Hero = הרמז האחרון. */}
-      <section id="reality-home" style={{ background: "#09080f", colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
+      <section id="reality-home" style={{ position: "relative", overflow: "hidden", background: "#09080f", colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
         <style>{`
           #reality-home .rw-hero img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
           @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
           #reality-home .hn-h2, #reality-home h2 { color: #d4af37 !important; }
         `}</style>
-        <div style={{ maxWidth: 1360, margin: "0 auto" }}>
+        {/* המספרים היורדים — רקע מלא לכל המקטע (מקצה לקצה בדסקטופ). אפקט קל מבית-הקוד
+            (~18fps, מכבד reduced-motion, עוצר כשהטאב מוסתר). */}
+        <MatrixRain color="#d4af37" featured="1820" />
+        {/* דהיית קריאוּת מעל המספרים — שהטקסט יישאר חד */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(9,8,15,0.55), rgba(9,8,15,0.88) 85%)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1360, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
             <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
               🌊 זרם המציאות
@@ -249,20 +255,14 @@ export default function HomeNewPage() {
               הזרם המלא →
             </Link>
           </div>
-          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18 }}>
-            {/* המספרים היורדים — אותו אפקט מבית-הקוד (MatrixRain), רקע קל (~18fps, עוצר כשהטאב מוסתר) */}
-            <MatrixRain color="#d4af37" featured="1820" />
-            {/* דהיית קריאוּת מעל המספרים */}
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(9,8,15,0.45), rgba(9,8,15,0.86) 80%)", pointerEvents: "none" }} />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
-              <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
-                זרם המציאות — בבנייה
-              </div>
-              <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
-                הממשק מתעדכן לגרסה חדשה.<br />
-                הרמזים יחזרו בקרוב עם יכולות חדשות.
-              </div>
+          <div style={{ textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18, background: "rgba(9,8,15,0.25)" }}>
+            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
+            <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
+              זרם המציאות — בבנייה
+            </div>
+            <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
+              הממשק מתעדכן לגרסה חדשה.<br />
+              הרמזים יחזרו בקרוב עם יכולות חדשות.
             </div>
           </div>
         </div>
@@ -287,11 +287,21 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <h2 className="hn-h2">🕸️ עץ ההתכנסויות</h2>
         <p className="hn-sub">כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד</p>
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "26px 22px" }}>
-          <div style={{ fontSize: 32, marginBottom: 10 }}>🕸️</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginBottom: 18 }}>סיור תלת-מימדי חי ברשת הקשרים של המספרים. לחצו על מספר וצללו פנימה.</div>
-          <Link to="/numbers" className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</Link>
-        </div>
+        {/* ✨ קונסטלציה חיה — תצוגה מקדימה (אותו אפקט מבית-הקוד), מקושר ל-/numbers בלי שכפול */}
+        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
+          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", background: "#070b12", border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "34px 22px", boxShadow: "0 16px 46px rgba(0,0,0,0.35)" }}>
+            {/* האפקט החי — קנבס ברקע (position:absolute, aria-hidden, מכבד reduced-motion) */}
+            <Fx kind="constellation" color="#d4af37" />
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(7,11,18,0.28), rgba(7,11,18,0.82) 78%)", pointerEvents: "none" }} />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div style={{ display: "inline-block", color: "#d4af37", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 2, border: "1px solid rgba(212,175,55,0.45)", borderRadius: 999, padding: "3px 12px", marginBottom: 14 }}>✨ קונסטלציה חיה</div>
+              <div style={{ color: "#eaf2fa", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 470, margin: "0 auto 20px" }}>
+                כל מספר הוא כוכב, וכל התכנסות חוט אור שמחבר ביניהם — רשת חיה שגדלה עם כל רמז חדש.
+              </div>
+              <span className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</span>
+            </div>
+          </div>
+        </Link>
       </section>
 
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
