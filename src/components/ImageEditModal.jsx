@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { checkImageConnections, deleteGalleryImage, setImageCuration } from "../lib/supabase.js";
+import { checkImageConnections, deleteGalleryImage, setImageCuration, getGalleryImageFull } from "../lib/supabase.js";
 
 // ===== מודל עריכה מלא לתמונה =====
 // Props:
@@ -50,21 +50,43 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [deleteStep, setDeleteStep] = useState(null);
   const [connections, setConnections] = useState([]);
 
+  // עץ אחד: מושכים את כל השדות מה-DB לפי id (גם אם נפתח עם אובייקט חלקי בלי tags/all_values),
+  // כדי שתמיד יוצגו התגיות וההגדרות האמיתיות שכבר נקבעו בכל מקום באתר.
+  const baseRef = useRef(im);
+  useEffect(() => {
+    let alive = true;
+    getGalleryImageFull(im.id).then(full => {
+      if (!alive || !full) return;
+      baseRef.current = full;
+      setName(full.name || "");
+      setDescription((full.description || "").replace(/<[^>]+>/g, ""));
+      setOccurredAt(full.occurred_at ? full.occurred_at.slice(0, 10) : "");
+      setPrimaryValue(full.primary_value ?? "");
+      setAllValues((full.all_values || []).join(", "));
+      setImageType(full.image_type || "");
+      setImportance(full.importance ?? 3);
+      setCuratorHidden(!!full.curator_hidden);
+      setTags(full.tags || []);
+    });
+    return () => { alive = false; };
+  }, [im.id]);
+
   async function handleSave() {
     setSaving(true);
+    const b = baseRef.current;   // מקור-האמת (השורה המלאה מה-DB)
     const patch = {};
-    if (name !== (im.name || "")) patch.name = name || null;
-    if (description !== (im.description || "").replace(/<[^>]+>/g, "")) patch.description = description || null;
+    if (name !== (b.name || "")) patch.name = name || null;
+    if (description !== (b.description || "").replace(/<[^>]+>/g, "")) patch.description = description || null;
     const newOcc = occurredAt ? new Date(occurredAt).toISOString() : null;
-    if (occurredAt !== (im.occurred_at ? im.occurred_at.slice(0, 10) : "")) patch.occurred_at = newOcc;
+    if (occurredAt !== (b.occurred_at ? b.occurred_at.slice(0, 10) : "")) patch.occurred_at = newOcc;
     const pv = primaryValue !== "" ? Number(primaryValue) : null;
-    if (pv !== im.primary_value) patch.primary_value = pv;
+    if (pv !== b.primary_value) patch.primary_value = pv;
     const parsedAll = allValues.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
-    if (JSON.stringify(parsedAll) !== JSON.stringify(im.all_values || [])) patch.all_values = parsedAll;
-    if (imageType !== (im.image_type || "")) patch.image_type = imageType || null;
-    if (importance !== (im.importance ?? 3)) patch.importance = Number(importance);
-    if (curatorHidden !== !!im.curator_hidden) patch.curator_hidden = curatorHidden;
-    const origTags = JSON.stringify([...(im.tags || [])].sort());
+    if (JSON.stringify(parsedAll) !== JSON.stringify(b.all_values || [])) patch.all_values = parsedAll;
+    if (imageType !== (b.image_type || "")) patch.image_type = imageType || null;
+    if (importance !== (b.importance ?? 3)) patch.importance = Number(importance);
+    if (curatorHidden !== !!b.curator_hidden) patch.curator_hidden = curatorHidden;
+    const origTags = JSON.stringify([...(b.tags || [])].sort());
     if (JSON.stringify([...tags].sort()) !== origTags) patch.tags = tags;
     await onSave(patch);
     setSaving(false);
