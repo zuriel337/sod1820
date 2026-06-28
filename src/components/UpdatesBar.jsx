@@ -76,11 +76,12 @@ export default function UpdatesBar() {
   }, [user, isMobile]);
 
   if (!show || !pushReady || HIDE.test(pathname)) return null;
-  // קודם התקנה, פוש אחר כך:
+  // קודם התקנה, פוש אחר כך — בכל מכשיר. פוש לעולם לא לפני שהצענו התקנה:
   //  • iOS — פוש עובד רק כשהאפליקציה מותקנת; לא מבקשים לפני התקנה.
-  //  • מובייל — לא מתחרים בהצעת ההתקנה הפעילה (שיופיע קודם פס ההתקנה).
+  //  • כל מכשיר — כל עוד הצעת ההתקנה פעילה (ממתינה ולא נדחתה), הפוש ממתין.
+  //    אחרי שההצעה נדחתה/הותקנה — הפוש יופיע.
   if (isIOS() && !isStandalone()) return null;
-  if (isMobile && !isStandalone() && installOfferActive()) return null;
+  if (!isStandalone() && installOfferActive()) return null;
 
   const Style = (
     <style>{`
