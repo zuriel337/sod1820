@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -2024,6 +2024,9 @@ function LiveStatsView() {
             </div>
           </div>
 
+          {/* מקורות-הגעה מתויגים — אינסטגרם/פייסבוק (?src=ig …), אמין גם בלי referrer */}
+          <ArrivalSourcesPanel />
+
           {/* מכשירים */}
           {devices.length > 0 && (
             <div style={card}>
@@ -2064,6 +2067,101 @@ function LiveStatsView() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ===== ↗ מקורות-הגעה מתויגים (אינסטגרם / פייסבוק) =====
+// מודד מאיפה נכנסו דרך קישורים מתויגים (?src=ig …) — אמין גם כשה-referrer ריק
+// (אינסטגרם/פייסבוק מוחקים referrer בדפדפן הפנימי). מקור: visitor_events (section='arrival').
+// הערוצים הקנוניים שמפרסמים — תג, תווית-תצוגה ודף-נחיתה. עץ אחד: הקישור מפנה לדף קיים.
+const ARRIVAL_CHANNELS = [
+  { tag: "ig",        label: "📸 אינסטגרם · קוד המציאות",  path: "/reality" },
+  { tag: "fb-code",   label: "👍 פייסבוק · קוד המציאות",   path: "/reality" },
+  { tag: "fb-meluha", label: "👑 פייסבוק · כי לה׳ המלוכה", path: "/" },
+];
+function ArrivalSourcesPanel() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const [range, setRange] = useState("30");
+  const [copied, setCopied] = useState("");
+  const load = useCallback(() => {
+    setErr("");
+    const days = range === "all" ? 36500 : Number(range);
+    getArrivalSources(days).then(setD).catch(e => setErr(e.message || "שגיאה"));
+  }, [range]);
+  useEffect(() => { load(); }, [load]);
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
+  const linkFor = ch => `${origin}${ch.path}?src=${ch.tag}`;
+  const copy = ch => {
+    try { navigator.clipboard?.writeText(linkFor(ch)); setCopied(ch.tag); setTimeout(() => setCopied(""), 1600); } catch { /* noop */ }
+  };
+
+  const byTag = (d?.by_tag) || [];
+  const stat = tag => byTag.find(r => r.tag === tag) || { visitors: 0, today: 0, hits: 0 };
+  // תגים שנקלטו אך אינם ברשימת הערוצים הקנוניים (תיוגים נוספים / ניחושי referrer)
+  const known = new Set(ARRIVAL_CHANNELS.map(c => c.tag));
+  const others = byTag.filter(r => !known.has(r.tag));
+
+  return (
+    <div style={{ ...card, borderColor: "rgba(62,166,255,0.4)", background: "rgba(62,166,255,0.05)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+        <H>↗ מקורות-הגעה מתויגים</H>
+        <span style={{ flex: 1 }} />
+        <div style={segWrap}>
+          {RANGES.map(([k, l]) => <button key={k} onClick={() => setRange(k)} style={segBtn(range === k)}>{l}</button>)}
+        </div>
+        <button onClick={load} title="רענן" style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 12px", fontFamily: F.heading, fontSize: 12 }}>↻</button>
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, margin: "2px 0 14px", lineHeight: 1.7 }}>
+        כמה נכנסו דרך הקישורים שמפרסמים ברשתות — <b style={{ color: "#7cc0ff" }}>אמין גם כשאין referrer</b> (אינסטגרם/פייסבוק מוחקים אותו). העתיקו את הקישור המתויג לכל ערוץ ושימו אותו ב-bio / בפוסט.
+      </div>
+
+      {err && <Empty>{err}</Empty>}
+
+      <div style={{ display: "grid", gap: 10 }}>
+        {ARRIVAL_CHANNELS.map(ch => {
+          const s = stat(ch.tag);
+          return (
+            <div key={ch.tag} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", display: "grid", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{ch.label}</div>
+                <span style={{ flex: 1 }} />
+                <div style={{ display: "flex", gap: 14 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ color: "#7cc0ff", fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{(s.today || 0).toLocaleString()}</div>
+                    <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5 }}>היום</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{(s.visitors || 0).toLocaleString()}</div>
+                    <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5 }}>בטווח</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <code style={{ flex: 1, minWidth: 180, color: C.muted, fontFamily: F.mono, fontSize: 11.5, background: "rgba(0,0,0,0.25)", border: `1px solid ${C.faint}`, borderRadius: 8, padding: "6px 10px", overflowX: "auto", whiteSpace: "nowrap" }} dir="ltr">{linkFor(ch)}</code>
+                <button onClick={() => copy(ch)} style={{ cursor: "pointer", background: copied === ch.tag ? "rgba(95,191,106,0.15)" : "none", border: `1px solid ${copied === ch.tag ? "rgba(95,191,106,0.5)" : C.borderGold}`, color: copied === ch.tag ? "#7bd087" : C.goldLight, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+                  {copied === ch.tag ? "✓ הועתק" : "העתק קישור"}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {others.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <H>תגים נוספים שנקלטו</H>
+          <BarRow items={others.map(r => ({ label: `${r.tag}${r.tagged ? "" : " (נוחש)"}`, visitors: r.visitors }))} labelKey="label" valueKey="visitors" />
+        </div>
+      )}
+
+      {byTag.length === 0 && !err && (
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, textAlign: "center", padding: "10px 0", lineHeight: 1.7 }}>
+          עדיין אין כניסות מתויגות. ברגע שיפרסמו את הקישורים למעלה ויתחילו להיכנס דרכם — הספירה תופיע כאן (מצטבר קדימה מרגע הפרסום).
+        </div>
+      )}
     </div>
   );
 }

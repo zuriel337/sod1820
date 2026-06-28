@@ -83,23 +83,32 @@ function deviceInfo() {
   return { browser, os, device };
 }
 
-// תיוג-קמפיין מהכתובת — utm_source או הכינוי הקצר src (לקישורים ב-bio של אינסטגרם
-// וכו'). ממפה כינויים קצרים לשם מלא אחיד (ig→instagram) כדי שהפילוח לא יתפצל.
-function campaignParam() {
+// התג הגולמי מהכתובת — utm_source או הכינוי הקצר src (לקישורים ב-bio/פוסט).
+// מוחזר כפי-שהוא (lowercase) כדי לשמר פילוח ברמת ערוץ (fb-meluha מול fb-code).
+function campaignTag() {
   try {
     const q = new URLSearchParams(window.location.search);
     const raw = q.get("utm_source") || q.get("src");
-    if (!raw) return null;
-    const v = raw.trim().toLowerCase();
-    const alias = { ig: "instagram", insta: "instagram", fb: "facebook", wa: "whatsapp", tg: "telegram", yt: "youtube" };
-    return alias[v] || v;
+    return raw ? raw.trim().toLowerCase() : null;
   } catch { return null; }
+}
+
+// ממפה תג/מחרוזת לפלטפורמה אחידה לפי תחילית, כדי שהפילוח לא יתפצל
+// (ig, ig-bio → instagram · fb, fb-meluha, fb-code → facebook).
+function normalizeSource(raw) {
+  const v = (raw || "").toLowerCase();
+  if (/^(ig|insta|instagram)/.test(v)) return "instagram";
+  if (/^(fb|facebook)/.test(v)) return "facebook";
+  if (/^(wa|whatsapp)/.test(v)) return "whatsapp";
+  if (/^(tg|telegram)/.test(v)) return "telegram";
+  if (/^(yt|youtube)/.test(v)) return "youtube";
+  return v;
 }
 
 // מקור ההגעה — תיוג-קמפיין (utm_source/src) אם קיים, אחרת זיהוי לפי referrer.
 function sourceInfo() {
-  const tagged = campaignParam();
-  if (tagged) return tagged;
+  const tag = campaignTag();
+  if (tag) return normalizeSource(tag);
   const ref = (typeof document !== "undefined" && document.referrer) || "";
   if (!ref) return "ישיר";
   if (/facebook|fb\./i.test(ref)) return "facebook";
@@ -120,7 +129,8 @@ function appMeta() {
 // נראית "ישיר" ואי-אפשר למדוד. הפתרון: מתייגים את הקישורים שמפרסמים ברשת
 // ב-?src=ig (או ?utm_source=instagram), וכאן תופסים את התיוג *פעם אחת* בכניסה
 // ורושמים ל-visitor_events (section='arrival') — בלי סכמה חדשה (עץ אחד).
-//   meta.source  — המקור (instagram/facebook/google/ישיר…)
+//   meta.source  — הפלטפורמה האחידה (instagram/facebook/google/ישיר…)
+//   meta.tag     — התג הגולמי לפילוח ברמת ערוץ (fb-meluha / fb-code / ig…), null אם נוחש
 //   meta.tagged  — true אם הגיע מתיוג מפורש (אמין), false אם נוחש מ-referrer
 //   meta.landing — דף הנחיתה
 export function captureArrivalSource() {
@@ -129,10 +139,10 @@ export function captureArrivalSource() {
     if (sessionStorage.getItem("sod_src")) return; // כבר נרשם ל-session הזה
     sessionStorage.setItem("sod_src", "1");
   } catch { /* אם אין sessionStorage — נרשום בכל זאת */ }
-  const tagged = campaignParam();
-  const source = tagged || sourceInfo();
+  const tag = campaignTag();
+  const source = sourceInfo();
   const landing = window.location.pathname.replace(/^\//, "") || "home";
-  track("arrival", null, "source", { source, tagged: !!tagged, landing });
+  track("arrival", null, "source", { source, tag: tag || null, tagged: !!tag, landing });
 }
 
 // בונה קישור מתויג לשיתוף ברשת (להעתקה ל-bio/פוסט). דוגמה:

@@ -65,6 +65,16 @@ export async function getVisitDetail(gran, key) {
   return data;
 }
 
+// ── מקורות-הגעה מתויגים (?src=ig / utm_source) — פילוח ערוצים (אינסטגרם/פייסבוק…) ──
+// קורא visitor_events (section='arrival') דרך RPC מנהל. מודד מאיפה הגיעו גם כשה-referrer
+// ריק (אינסטגרם/פייסבוק מוחקים referrer בדפדפן הפנימי).
+export async function getArrivalSources(days = 30) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("arrival_sources", { p_days: days });
+  if (error) throw error;
+  return data;
+}
+
 // ── היסטוריית תנועה ארוכת-טווח: Jetpack (עבר) + חי (האתר החדש), קו רציף ──
 export async function getTrafficHistory(granularity = "month") {
   if (!supabase) return [];
