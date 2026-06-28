@@ -33,7 +33,7 @@ export const rwCss = (t = RW) => `
     display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
   .rw-av{width:42px;height:42px;border-radius:999px;background:linear-gradient(135deg,var(--acc),#e7c869);
     color:#1a0e00;display:flex;align-items:center;justify-content:center;font-weight:800}
-  .rw-grid{display:grid;grid-template-columns:330px 1fr 210px;gap:16px;padding:16px;align-items:start;max-width:1320px;margin:0 auto}
+  .rw-grid{display:grid;grid-template-columns:340px 1fr 220px;gap:18px;padding:18px clamp(16px,3vw,40px);align-items:start;max-width:1680px;margin:0 auto}
   .rw-rc{order:1;display:grid;gap:12px;position:sticky;top:74px}
   .rw-work{order:2;min-width:0}
   .rw-nav{order:3;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:9px;position:sticky;top:74px}
@@ -63,6 +63,24 @@ export const rwCss = (t = RW) => `
   .rw-qa button:active{transform:scale(.96)}
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
+  /* בית-הכלים — מסך פתיחה של סביבת המחקר */
+  .rw-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:13px}
+  .rw-tool{display:flex;flex-direction:column;gap:7px;text-align:right;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px 16px;min-height:128px;cursor:pointer;
+    transition:border-color .15s,transform .1s ease,box-shadow .15s}
+  .rw-tool:hover{border-color:var(--acc);box-shadow:0 6px 20px rgba(176,125,18,.13);transform:translateY(-2px)}
+  .rw-tool .ic{font-size:29px;line-height:1}
+  .rw-tool .tt{font-weight:800;font-size:15.5px}
+  .rw-tool .ds{color:var(--ink2);font-size:12.5px;line-height:1.5;flex:1}
+  .rw-tool .bg{align-self:flex-start;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 10px}
+  .rw-tool .bg.live{background:#e4f6ea;color:var(--good)}
+  .rw-tool .bg.open{background:var(--accS);color:var(--acc)}
+  .rw-tool .bg.soon{background:var(--chip);color:var(--ink3)}
+  .rw-tool.dis{cursor:default;opacity:.7}
+  .rw-tool.dis:hover{border-color:var(--line);box-shadow:none;transform:none}
+  .rw-back{background:none;border:none;color:var(--acc);font-weight:800;font-size:14.5px;cursor:pointer;padding:6px 2px;margin-bottom:6px}
+  .rw-h1{font-weight:800;font-size:22px;margin:2px 0 3px}
+  .rw-sub{color:var(--ink2);font-size:13.5px;line-height:1.6;margin-bottom:16px}
   /* בית-מגירה במובייל (ChatGPT) */
   .rw-fab{display:none}.rw-sheet,.rw-backdrop{display:none}
   @media (max-width:760px){
