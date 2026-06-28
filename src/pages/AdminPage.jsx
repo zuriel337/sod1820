@@ -1518,7 +1518,7 @@ function PopularityTab() {
   const [topImgs, setTopImgs] = useState([]);
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
-  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, byBrowser: [], byDevice: [], bySource: [] });
+  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, promptAccept: 0, promptDismiss: 0, byBrowser: [], byDevice: [], bySource: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1567,12 +1567,15 @@ function PopularityTab() {
             const installsReal = installRows.filter(r => !r.meta?.inferred).length;
             const installsInferred = installRows.filter(r => r.meta?.inferred).length;
             const launchers = new Set(appRows.filter(r => r.event_type === "launch").map(r => r.visitor_id)).size;
+            // כפתור ההתקנה המותאם — לחצו «התקן» מול ביטלו (accept/dismiss)
+            const promptAccept = appRows.filter(r => r.event_type === "prompt_accept").length;
+            const promptDismiss = appRows.filter(r => r.event_type === "prompt_dismiss").length;
             const breakdown = (key) => {
               const c = {};
               installRows.forEach(r => { const v = r.meta?.[key]; if (v) c[v] = (c[v] || 0) + 1; });
               return Object.entries(c).sort((a, b) => b[1] - a[1]);
             };
-            setAppStats({ offers, installs, installsReal, installsInferred, launchers, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
+            setAppStats({ offers, installs, installsReal, installsInferred, launchers, promptAccept, promptDismiss, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
             // גולשים ייחודיים
             setUniq(new Set(rows.map(r => r.visitor_id)).size);
           }).catch(() => {}),
@@ -1616,6 +1619,13 @@ function PopularityTab() {
             </div>
           ))}
         </div>
+        {/* כפתור ההתקנה המותאם — accept/dismiss */}
+        {(appStats.promptAccept > 0 || appStats.promptDismiss > 0) && (
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}`, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, textAlign: "center" }}>
+            📲 כפתור ההתקנה: <b style={{ color: C.goldBright }}>{appStats.promptAccept}</b> לחצו «התקן» · <b style={{ color: C.goldLight }}>{appStats.promptDismiss}</b> ביטלו
+            {appStats.promptAccept + appStats.promptDismiss > 0 && <> · המרה <b style={{ color: C.goldBright }}>{Math.round((appStats.promptAccept / (appStats.promptAccept + appStats.promptDismiss)) * 100)}%</b></>}
+          </div>
+        )}
         {/* פילוח התקנות לפי דפדפן / מכשיר / מקור */}
         {appStats.installs > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>

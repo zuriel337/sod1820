@@ -6,9 +6,11 @@ import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { initAppInstallTracking } from "./lib/tracking.js";
+import { initInstall } from "./lib/install.js";
 import { captureArrival } from "./lib/propagation.js";
 import { initClarity } from "./lib/clarity.js";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
+import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -73,7 +75,7 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname } = useLocation();
-  useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); captureArrival(); initClarity(); }, []);
+  useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); initClarity(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];
@@ -129,6 +131,7 @@ export default function App() {
         <Analytics />
         <UpdateBanner />
         <RoyalShareWidget />
+        <InstallPrompt />
         <UpdatesBar />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
