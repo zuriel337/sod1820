@@ -12,7 +12,7 @@ const BOTTOM = 22;
 const MIN_THUMB = 60;
 
 export default function ChatScrollRail() {
-  const [m, setM] = useState({ thumbH: MIN_THUMB, thumbTop: 0, visible: false });
+  const [m, setM] = useState({ thumbH: MIN_THUMB, thumbTop: 0, visible: false, atBottom: false });
   const drag = useRef({ on: false, moved: false, startY: 0, startScroll: 0 });
 
   const recompute = useCallback(() => {
@@ -25,7 +25,8 @@ export default function ChatScrollRail() {
     const thumbH = Math.max(MIN_THUMB, Math.min(trackH, trackH * (winH / docH)));
     const prog = window.scrollY / scrollable;             // 0..1
     const thumbTop = prog * (trackH - thumbH);
-    setM({ thumbH, thumbTop, visible: true });
+    const atBottom = window.scrollY >= scrollable - 140;  // קרוב לתחתית → אין צורך בתווית
+    setM({ thumbH, thumbTop, visible: true, atBottom });
   }, []);
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function ChatScrollRail() {
         title="גרור לגלילה · לחיצה אחת קופצת לתחתית"
         aria-label="גלילה — גרור או לחץ לקפיצה לתחתית"
       >
+        {!m.atBottom && <span className="sod-rail-tip">לחצו עליי ↓ קפיצה לסוף</span>}
         <span className="sod-rail-ic">↓</span>
       </button>
       <style>{`
@@ -114,11 +116,26 @@ export default function ChatScrollRail() {
         .sod-rail-thumb:active { cursor:grabbing; }
         .sod-rail-ic { font-size:21px; line-height:1; color:#3a2600; font-weight:900;
           filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)); }
+        /* תווית הסבר — מופיעה רק כשגוללים למעלה (יש לאן לקפוץ), לחיצה עליה גם קופצת. */
+        .sod-rail-tip { position:absolute; right:calc(100% + 14px); top:50%; transform:translateY(-50%);
+          white-space:nowrap; pointer-events:auto; cursor:pointer; font-weight:800; font-size:13px;
+          color:#ffe6ad; padding:7px 12px; border-radius:11px; border:1px solid rgba(255,216,107,.65);
+          background:linear-gradient(180deg, rgba(36,24,6,.96), rgba(22,14,3,.96));
+          box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 16px rgba(255,200,80,.4);
+          animation: sod-tip-pulse 2.4s ease-in-out infinite; }
+        .sod-rail-tip::after { content:""; position:absolute; right:-7px; top:50%; transform:translateY(-50%);
+          border:7px solid transparent; border-inline-start-color:rgba(255,216,107,.65); border-inline-end:0; }
+        @keyframes sod-tip-pulse {
+          0%,100% { box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 11px rgba(255,200,80,.3); }
+          50% { box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 24px rgba(255,200,80,.7); } }
         @media (max-width:640px) {
           .sod-rail { width:20px; right:4px; top:72px; }
           .sod-rail-ic { font-size:14px; }
+          .sod-rail-tip { font-size:11.5px; padding:6px 10px; }
         }
-        @media (prefers-reduced-motion: reduce) { .sod-rail-thumb { transition:none; } }
+        @media (prefers-reduced-motion: reduce) {
+          .sod-rail-thumb { transition:none; } .sod-rail-tip { animation:none; }
+        }
       `}</style>
     </div>
   );

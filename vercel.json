@@ -4,6 +4,7 @@
     { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
     { "source": "/דף-ראשי-2", "destination": "/", "permanent": true },
     { "source": "/דף-ראשי", "destination": "/", "permanent": true },
+    { "source": "/משיח-בשנת-התשעו", "destination": "/code", "permanent": true },
     { "source": "/(.+)/", "destination": "/$1", "permanent": true }
   ],
   "rewrites": [
