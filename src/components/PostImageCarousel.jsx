@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -228,13 +229,13 @@ export default function PostImageCarousel({ value, images }) {
         </div>
       )}
 
-      {/* לייטבוקס — מסך מלא, מדפדף תמונה-תמונה (כפתורים למטה · מקלדת · החלקה) */}
-      {lb && (
+      {/* לייטבוקס — מסך מלא (portal ל-body כדי לכסות את הניווט), מדפדף תמונה-תמונה */}
+      {lb && createPortal((
         <div
           onClick={() => setLbIdx(null)}
           onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
           onTouchEnd={e => { const dx = touchX.current == null ? 0 : e.changedTouches[0].clientX - touchX.current; touchX.current = null; if (Math.abs(dx) > 45) lbGo(dx > 0 ? -1 : 1); }}
-          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,3,10,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 12px", direction: "rtl" }}
+          style={{ position: "fixed", inset: 0, zIndex: 2147483600, background: "rgba(5,3,10,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 12px", direction: "rtl" }}
         >
           <img src={lb.image_url} alt={lbNm || ""} onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: lbNm || lb.description ? "64vh" : "80vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 10px 50px rgba(0,0,0,0.7)", cursor: "default" }} />
 
@@ -255,12 +256,12 @@ export default function PostImageCarousel({ value, images }) {
           )}
 
           <button onClick={(e) => { e.stopPropagation(); setLbIdx(null); }} aria-label="סגור"
-            style={{ position: "fixed", top: 14, insetInlineStart: 14, zIndex: 10000, width: 54, height: 54, borderRadius: "50%",
+            style={{ position: "fixed", top: "max(14px, env(safe-area-inset-top))", insetInlineStart: 14, zIndex: 2147483601, width: 54, height: 54, borderRadius: "50%",
               border: "2px solid rgba(255,255,255,0.55)", background: "rgba(0,0,0,0.7)", color: "#fff", fontSize: 30, lineHeight: 1,
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(3px)",
               boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>×</button>
         </div>
-      )}
+      ), document.body)}
 
       {/* 🛠 מודל עריכת תמונה — מנהל בלבד (אותו רכיב כמו בגלריה/זרם המציאות) */}
       {editImg && (

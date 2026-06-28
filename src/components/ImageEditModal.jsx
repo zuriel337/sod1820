@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { checkImageConnections, deleteGalleryImage, setImageCuration } from "../lib/supabase.js";
@@ -100,8 +101,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const typeLabel = { topic: "התכנסות", post: "פוסט", insight: "חידוש" };
   const inStream = im.source === "update";
 
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.76)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
+  return createPortal((
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 2147483600, background: "rgba(0,0,0,0.76)", display: "flex", alignItems: "center", justifyContent: "center", padding: "max(16px, env(safe-area-inset-top)) 16px 16px", overflowY: "auto" }}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#12101c", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 18, padding: "22px 26px", width: "100%", maxWidth: 540, direction: "rtl", display: "flex", flexDirection: "column", gap: 14, my: 20, maxHeight: "92vh", overflowY: "auto" }}>
 
         {/* Header — דביק למעלה כדי שכפתור הסגירה תמיד נגיש (קריטי במובייל בטופס ארוך) */}
@@ -297,7 +298,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
         )}
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 const section = { display: "flex", flexDirection: "column", gap: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "12px 14px" };

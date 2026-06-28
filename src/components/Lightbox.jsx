@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { cleanName } from "../lib/galleryName.js";
@@ -51,13 +52,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   const date = shortDate(h);
   const nums = [...new Set(hintNums(h || {}))].slice(0, 6);
 
-  return (
+  return createPortal((
     <div
       role="dialog"
       aria-modal
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 9999,
+        position: "fixed", inset: 0, zIndex: 2147483600,
         background: "rgba(2,1,6,0.97)",
         display: "flex", flexDirection: "column",
         direction: "rtl",
@@ -67,9 +68,9 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         @keyframes lb-fade { from { opacity: 0; transform: scale(.975); } to { opacity: 1; transform: scale(1); } }
       `}</style>
 
-      {/* Header */}
+      {/* Header — ריווח עליון לפי safe-area כדי שה-X לא ייכנס מתחת לנוץ'/שורת הסטטוס */}
       <div
-        style={{ display: "flex", alignItems: "center", padding: "10px 14px", gap: 10, flexShrink: 0 }}
+        style={{ display: "flex", alignItems: "center", padding: "max(12px, env(safe-area-inset-top)) 14px 10px", gap: 10, flexShrink: 0 }}
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} style={closeBtn} aria-label="סגור">✕</button>
@@ -245,7 +246,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         </div>
       )}
     </div>
-  );
+  ), document.body);
 }
 
 const closeBtn = {
