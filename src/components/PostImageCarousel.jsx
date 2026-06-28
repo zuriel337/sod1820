@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getImagesByPrimaryValue } from "../lib/supabase.js";
+import { getImagesByPrimaryValue, setImageCuration } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { cleanName } from "../lib/galleryName.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import ImageEditModal from "./ImageEditModal.jsx";
 
 // 🎞️ קרוסלת רמזים — תמונות לפי ערך, רצות אחת-אחרי-השנייה (לא רשת).
 // כל שקופית: תמונה שנפתחת בלייטבוקס · צ'יפ מספר → /number/:n · תאריך העלאה.
@@ -48,12 +50,23 @@ function imgNumbers(img) {
 
 export default function PostImageCarousel({ value, images }) {
   const P = usePalette();
+  const { isAdmin } = useAuth();                  // 🛠 שליטה אדמינית בכל תמונה (אותו עורך כמו בגלריה)
   const provided = Array.isArray(images);
   const [imgs, setImgs] = useState(provided ? images : null); // null=טוען
   const [idx, setIdx] = useState(0);
   const [lbIdx, setLbIdx] = useState(null); // אינדקס מסך-מלא (null=סגור)
   const [paused, setPaused] = useState(false);
+  const [editImg, setEditImg] = useState(null);  // תמונה בעריכה (אדמין)
   const touchX = useRef(null);
+
+  // שמירת עריכה — אותו מנגנון כמו בגלריה (setImageCuration). מעדכן מקומית בלי רענון.
+  const applyPatch = useCallback((id, patch) => {
+    setImgs(prev => {
+      if (!Array.isArray(prev)) return prev;
+      if (patch.curator_hidden === true) return prev.filter(g => g.id !== id);  // הוסתר → יורד מהתצוגה
+      return prev.map(g => g.id === id ? { ...g, ...patch } : g);
+    });
+  }, []);
 
   useEffect(() => {
     // תמונות מוכנות (עמוד המספר) — לא טוענים שוב; אחרת טוענים לפי ערך (בתוך פוסט).
@@ -88,6 +101,9 @@ export default function PostImageCarousel({ value, images }) {
     const id = setInterval(() => setIdx(i => (i + 1) % total), 4000);
     return () => clearInterval(id);
   }, [paused, lbIdx, total]);
+
+  // אם תמונה הוסתרה/נמחקה והאינדקס חרג — להחזיר לטווח (לא להשאיר שקופית ריקה).
+  useEffect(() => { if (total > 0 && idx >= total) setIdx(total - 1); }, [total, idx]);
 
   // מקלדת: במסך-מלא מנווט את המסך-מלא; אחרת את הקרוסלה. ESC סוגר.
   useEffect(() => {
@@ -155,6 +171,17 @@ export default function PostImageCarousel({ value, images }) {
               </button>
             ))}
           </div>
+          {/* 🛠 כפתור עריכה — מנהל בלבד. עורך את התמונה הנוכחית (אותו מודל כמו בגלריה). */}
+          {isAdmin && pics[idx] && (
+            <button onClick={e => { e.stopPropagation(); setEditImg(pics[idx]); }}
+              title="ערוך תמונה (מנהל) — תגיות, מספרים, הסתרה, מחיקה"
+              style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 5, width: 38, height: 38, borderRadius: 10,
+                border: "1px solid rgba(232,200,74,0.6)", background: "rgba(10,8,4,0.72)", color: "#f6e27a",
+                fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                backdropFilter: "blur(3px)" }}>
+              ✏️
+            </button>
+          )}
         </div>
       </div>
 
@@ -169,7 +196,8 @@ export default function PostImageCarousel({ value, images }) {
 
       {/* כיתוב השקופית: שם · תיאור (מה שנכתב מתחת לתמונה) · מספרים לחיצים · תאריך העלאה */}
       {(() => {
-        const cur = pics[idx];
+        const cur = pics[idx] || pics[0];
+        if (!cur) return null;
         const nums = imgNumbers(cur);
         const dt = uploadDate(cur);
         const nm = cleanName(cur.name);
@@ -228,6 +256,22 @@ export default function PostImageCarousel({ value, images }) {
 
           <button onClick={() => setLbIdx(null)} aria-label="סגור" style={{ position: "fixed", top: 16, left: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 22, cursor: "pointer" }}>×</button>
         </div>
+      )}
+
+      {/* 🛠 מודל עריכת תמונה — מנהל בלבד (אותו רכיב כמו בגלריה/זרם המציאות) */}
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onClose={() => setEditImg(null)}
+          onSave={async patch => {
+            if (Object.keys(patch).length) {
+              try { await setImageCuration(editImg.id, patch); applyPatch(editImg.id, patch); }
+              catch (e) { alert("שגיאה בשמירה: " + (e.message || e)); return; }
+            }
+            setEditImg(null);
+          }}
+          onDelete={id => { applyPatch(id, { curator_hidden: true }); setEditImg(null); }}
+        />
       )}
     </div>
   );
