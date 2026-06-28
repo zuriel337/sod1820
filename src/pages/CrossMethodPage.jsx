@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
+import DocActions from "../components/DocActions.jsx";
 
 // ===== הצלבת שיטות — "מסר מצטרף לפי מספר" =====
 // מזינים מספר. המערכת שולפת את כל הביטויים *המאומתים* שנופלים על המספר הזה בכל שיטה,
@@ -29,6 +30,7 @@ const SAMPLES = [1820, 313, 326, 322, 1234, 776, 86];
 
 export default function CrossMethodPage() {
   const P = usePalette();
+  const contentRef = useRef(null);   // מכל-התוכן להדפסה (DocActions)
   const btn = { cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 20px" };
   const chip = { cursor: "pointer", background: P.card, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.mono, fontSize: 14, padding: "7px 16px" };
   const chipOn = { borderColor: P.accent, color: P.accentText, background: P.cardSoft };
@@ -137,7 +139,7 @@ export default function CrossMethodPage() {
   function submit(e) { e.preventDefault(); go(input); }
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: P.inkSoft, background: P.pageBg }}>
+    <div ref={contentRef} style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: P.inkSoft, background: P.pageBg }}>
 
       {/* כותרת */}
       <header style={{ textAlign: "center", marginBottom: 18 }}>
@@ -145,6 +147,10 @@ export default function CrossMethodPage() {
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "6px 0 8px", textShadow: `0 0 40px ${P.glow}` }}>
           המסר המצטרף שמאחורי המספר
         </h1>
+        {/* 🖨️ הדפסה + 💾 שמירה פרטית לדף העבודה */}
+        <div style={{ marginTop: 10 }}>
+          <DocActions kind="cross" refId={num} title={`הצלבת שיטות · ${num}`} link={`/cross?n=${num}`} contentRef={contentRef} />
+        </div>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, maxWidth: 640, margin: "0 auto" }}>
           כל הביטויים <b style={{ color: P.ink }}>המאומתים</b> שנופלים על אותו מספר — בכל שיטה ושיטה.
           כשמספר אחד הוא נקודת מפגש של שיטות רבות, הביטויים סביבו נקראים יחד כמסר.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -6,6 +6,7 @@ import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } fro
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import RealityStream from "../components/RealityStream.jsx";
+import DocActions from "../components/DocActions.jsx";
 import { track, trackShare } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 
@@ -20,6 +21,7 @@ export default function TopicPage() {
   const P = usePalette();
   const box = { background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 20px" };
   const { slug } = useParams();
+  const contentRef = useRef(null);   // מכל-התוכן להדפסה (DocActions)
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
@@ -65,7 +67,7 @@ export default function TopicPage() {
   const nums = card.numbers || [];
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "40px 22px 90px", background: P.pageBg, color: P.inkSoft }}>
+    <div ref={contentRef} style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "40px 22px 90px", background: P.pageBg, color: P.inkSoft }}>
       {/* כותרת */}
       <div style={{ ...box, borderColor: P.borderStrong, marginBottom: 20 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>🧠 מרכז ההתכנסות</div>
@@ -92,6 +94,10 @@ export default function TopicPage() {
             background: P.glow, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14,
             padding: "9px 22px", display: "inline-flex", alignItems: "center", gap: 8 }}
         >📲 שתפו את ההתכנסות</button>
+        {/* 🖨️ הדפסה + 💾 שמירה פרטית לדף העבודה */}
+        <div style={{ marginTop: 12 }}>
+          <DocActions kind="convergence" refId={slug} title={`${card.title} — מרכז ההתכנסות`} link={`/topic/${slug}`} contentRef={contentRef} />
+        </div>
         {/* מספרים → עמוד מספר */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
           {nums.map(n => (

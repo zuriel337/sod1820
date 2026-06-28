@@ -476,6 +476,27 @@ export async function getVerifiedCrossTitles(limit = 3) {
     return (data || []).map(r => r.title).filter(Boolean);
   } catch { return []; }
 }
+// 📁 דף העבודה של המשתמש — שמירות פרטיות (הצלבות / צירי התכנסות). RLS: רק המשתמש עצמו.
+export async function saveUserItem({ kind, ref, title, link, note }) {
+  if (!supabase) return { error: "no-client" };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "auth" };
+  const { error } = await supabase.from("user_saved_items")
+    .insert({ user_id: user.id, kind, ref: ref != null ? String(ref) : null, title, link, note: note || null });
+  return { error };
+}
+export async function getUserItems() {
+  if (!supabase) return [];
+  const { data } = await supabase.from("user_saved_items")
+    .select("id,kind,ref,title,link,note,created_at").order("created_at", { ascending: false });
+  return data || [];
+}
+export async function deleteUserItem(id) {
+  if (!supabase) return { error: "no-client" };
+  const { error } = await supabase.from("user_saved_items").delete().eq("id", id);
+  return { error };
+}
+
 // 👣 ספירת כניסות היום (best-effort — אם RLS חוסם, מחזיר 0). מקור: site_visits.
 export async function getVisitorsToday() {
   if (!supabase) return 0;

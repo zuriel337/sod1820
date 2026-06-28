@@ -6,7 +6,7 @@ import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
-import { supabase, getUserActivity } from "../lib/supabase.js";
+import { supabase, getUserActivity, getUserItems, deleteUserItem } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 
 // 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + כפתור הפעלה/ביטול.
@@ -224,6 +224,57 @@ function ComingSoonGrid({ P, card }) {
   );
 }
 
+// 📁 דף העבודה שלי — שמירות פרטיות (הצלבות / צירי התכנסות). רק המשתמש רואה (RLS).
+const SAVED_KIND = {
+  cross: { ic: "⟡", label: "הצלבה" },
+  convergence: { ic: "🧩", label: "התכנסות" },
+};
+function SavedItemsBoard({ P, card, user }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    if (!user) { setItems([]); return undefined; }
+    getUserItems().then(d => { if (alive) setItems(d); });
+    return () => { alive = false; };
+  }, [user]);
+
+  async function remove(id) {
+    if (!window.confirm("למחוק מדף העבודה שלך?")) return;
+    const { error } = await deleteUserItem(id);
+    if (!error) setItems(it => (it || []).filter(x => x.id !== id));
+  }
+
+  return (
+    <div style={{ ...card, marginTop: 22 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>📁 דף העבודה שלי</div>
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5 }}>שמירות פרטיות — רק אתה רואה אותן</span>
+      </div>
+      {items === null ? (
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, padding: "8px 2px" }}>טוען…</div>
+      ) : items.length === 0 ? (
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, padding: "8px 2px" }}>
+          עדיין לא שמרת כלום. בכל <b style={{ color: P.accentText }}>הצלבה</b> או <b style={{ color: P.accentText }}>ציר התכנסות</b> לחץ «💾 שמור אצלי» — וזה יופיע כאן, פרטי לחלוטין.
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+          {items.map(it => {
+            const k = SAVED_KIND[it.kind] || { ic: "•", label: it.kind };
+            return (
+              <div key={it.id} style={{ position: "relative", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px", display: "flex", flexDirection: "column", gap: 6 }}>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1 }}>{k.ic} {k.label}</span>
+                <Link to={it.link || "/"} style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, textDecoration: "none", paddingInlineEnd: 20, lineHeight: 1.35 }}>{it.title}</Link>
+                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{it.created_at ? new Date(it.created_at).toLocaleDateString("he-IL") : ""}</span>
+                <button onClick={() => remove(it.id)} title="מחק מדף העבודה" style={{ position: "absolute", top: 6, insetInlineEnd: 6, cursor: "pointer", background: "transparent", border: "none", color: P.accentDim, fontSize: 13, lineHeight: 1, padding: 2 }}>🗑</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const P = usePalette();
   const { user, profile, loading, isAdmin, signOut, refreshProfile } = useAuth();
@@ -383,6 +434,8 @@ export default function ProfilePage() {
       <PushStatusCard P={P} card={card} user={user} isAdmin={isAdmin} />
 
       <RecentActivity P={P} card={card} user={user} />
+
+      <SavedItemsBoard P={P} card={card} user={user} />
 
       <ComingSoonGrid P={P} card={card} />
 
