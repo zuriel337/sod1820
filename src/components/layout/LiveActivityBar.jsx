@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
+import { getTopicCards, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
 const GEM_FACTS = [
   "נחש = משיח = 358", "אהבה = אחד = 13", "הטבע = אלהים = 86",
   "אריה = גבורה = 216", "יין = סוד = 70", "אדם = מה = 45",
+];
+
+// 📜 פסוקי גאולה ונחמה — רוטציה שצוריאל שולט בה (לא אוטומטי). 3 מתחלפים ביום
+// לפי dayIdx. לעריכה: הוסף/הסר שורות כאן. מוצגים עם גלישה (2 שורות) ולא נחתכים.
+const VERSES = [
+  "וְעַתָּה כֹּה אָמַר ה' בֹּרַאֲךָ יַעֲקֹב וְיֹצֶרְךָ יִשְׂרָאֵל — אַל תִּירָא כִּי גְאַלְתִּיךָ, קָרָאתִי בְשִׁמְךָ לִי אָתָּה (ישעיהו מ״ג, א׳)",
+  "אַל תִּירָא כִּי עִמְּךָ אָנִי, אַל תִּשְׁתָּע כִּי אֲנִי אֱלֹהֶיךָ (ישעיהו מ״א, י׳)",
+  "כִּי תַעֲבֹר בַּמַּיִם אִתְּךָ אָנִי וּבַנְּהָרוֹת לֹא יִשְׁטְפוּךָ (ישעיהו מ״ג, ב׳)",
+  "כִּי הֶהָרִים יָמוּשׁוּ וְהַגְּבָעוֹת תְּמוּטֶנָה — וְחַסְדִּי מֵאִתֵּךְ לֹא יָמוּשׁ (ישעיהו נ״ד, י׳)",
+  "קוּמִי אוֹרִי כִּי בָא אוֹרֵךְ וּכְבוֹד ה' עָלַיִךְ זָרָח (ישעיהו ס׳, א׳)",
+  "נַחֲמוּ נַחֲמוּ עַמִּי יֹאמַר אֱלֹהֵיכֶם (ישעיהו מ׳, א׳)",
+  "הֲתִשְׁכַּח אִשָּׁה עוּלָהּ... גַּם אֵלֶּה תִשְׁכַּחְנָה וְאָנֹכִי לֹא אֶשְׁכָּחֵךְ (ישעיהו מ״ט, ט״ו)",
+  "מַחְשְׁבוֹת שָׁלוֹם וְלֹא לְרָעָה, לָתֵת לָכֶם אַחֲרִית וְתִקְוָה (ירמיהו כ״ט, י״א)",
+  "וְשָׁבוּ בָנִים לִגְבוּלָם (ירמיהו ל״א, ט״ז)",
+  "ה' אֱלֹהַיִךְ בְּקִרְבֵּךְ גִּבּוֹר יוֹשִׁיעַ, יָשִׂישׂ עָלַיִךְ בְּשִׂמְחָה (צפניה ג׳, י״ז)",
+  "הִנֵּה לֹא יָנוּם וְלֹא יִישָׁן שׁוֹמֵר יִשְׂרָאֵל (תהילים קכ״א, ד׳)",
+  "וְשָׁב ה' אֱלֹהֶיךָ אֶת שְׁבוּתְךָ וְרִחֲמֶךָ, וְשָׁב וְקִבֶּצְךָ מִכָּל הָעַמִּים (דברים ל׳, ג׳)",
 ];
 
 // 🕯️ ברכת מועד (ערב/מוצאי שבת · ראש חודש) — null אם אין מועד מיוחד
@@ -55,6 +72,8 @@ function useLiveTicker() {
     let live = true;
     async function load() {
       const out = [];
+      const dayIdx = Math.floor(Date.now() / 864e5);
+      const verse = k => "📜 " + VERSES[(dayIdx + k) % VERSES.length];
       // 🌊 הרמז האחרון בזרם המציאות — מילה במילה, מופיע פעמיים (בקשת צוריאל)
       let hintMsg = null;
       try {
@@ -66,19 +85,12 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       if (hintMsg) out.push(hintMsg);
+      // 📜 פסוק (1/3) — רוטציית גאולה ונחמה
+      out.push(verse(0));
+      // ⛔ התכנסויות + פוסטים — הוסרו מההזרקה האוטומטית (בקשת צוריאל: יעלו לטיקר רק
+      // כשהוא מחליט, לא אוטומטית). עדיין מושכים ספירת התכנסויות לשורת «📊 במאגר».
       const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
       const convCount = (cards || []).length;
-      // — טריים —
-      const latest = (cards || []).slice().sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))[0];
-      if (latest) out.push(`✨ ${isToday(latest.created_at) ? "התכנסות חדשה עלתה היום" : "התכנסות אחרונה"} — «${latest.title}»`);
-      try {
-        const { posts } = await getPostsFromSupabase({ limit: 3, orderBy: "modified" });
-        const p = (posts || [])[0];
-        if (p) {
-          const t = stripHtml(p.title || "").slice(0, 70);
-          out.push(`📰 ${(isToday(p.date) || isToday(p.modified)) ? "פוסט חדש עלה היום" : "פוסט אחרון"} — «${t}»`);
-        }
-      } catch { /* ignore */ }
       let total = 0;
       try {
         const { words, total: t, topNumber } = await getSearchStatsToday();
@@ -89,12 +101,13 @@ function useLiveTicker() {
       // — עֵרים (תמיד) —
       const nod = numberOfDay();
       if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
+      // 📜 פסוק (2/3)
+      out.push(verse(4));
       try {
         const crosses = await getVerifiedCrossTitles(1);
         if (crosses[0]) out.push(`💎 הצלבה מאומתת: ${crosses[0]}`);
       } catch { /* ignore */ }
       // 🧩 ידעת? — שתי עובדות גימטריה (מסתובבות יומית כך שלא חוזרות תמיד)
-      const dayIdx = Math.floor(Date.now() / 864e5);
       out.push(`🧩 ידעת? ${GEM_FACTS[dayIdx % GEM_FACTS.length]}`);
       out.push(`🧩 ידעת? ${GEM_FACTS[(dayIdx + 3) % GEM_FACTS.length]}`);
       // 🗓️ היום בהיסטוריה — אירוע מציר ההתגלות "לפני N שנים"
@@ -108,6 +121,8 @@ function useLiveTicker() {
           if (label) out.push(`🗓️ ${n <= 0 ? "השנה" : n === 1 ? "לפני שנה" : `לפני ${n} שנים`}: ${label}`);
         }
       } catch { /* ignore */ }
+      // 📜 פסוק (3/3)
+      out.push(verse(8));
       if (total > 0 || convCount > 0) {
         const parts = [];
         if (total > 0) parts.push(`${total.toLocaleString("he-IL")} חיפושים`);
@@ -145,14 +160,17 @@ export default function LiveActivityBar() {
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
+  const idx = msgs.length ? i % msgs.length : 0;
+  const cur = msgs[idx] || "";
+  const isVerse = cur.startsWith("📜");
+  // פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
   useEffect(() => {
     if (msgs.length < 2) return;
-    const id = setInterval(() => { if (!document.hidden) setI(x => x + 1); }, 4200);
-    return () => clearInterval(id);
-  }, [msgs.length]);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 7000 : 4200);
+    return () => clearTimeout(id);
+  }, [i, msgs.length, isVerse]);
 
   if (!msgs.length) return null;
-  const idx = i % msgs.length;
 
   return (
     <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
@@ -177,18 +195,22 @@ export default function LiveActivityBar() {
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
+        /* 📜 פסוק — ארוך, לכן נגלל ל-2 שורות (לא נחתך), טון פרגמנט עדין. */
+        .lt-msg.verse { white-space:normal; text-overflow:clip; line-height:1.35; font-size:12px;
+          max-width:94%; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
         /* טלפון: «עכשיו באתר» מוסתר — ההודעה ממורכזת בכל הרוחב. בדסקטופ התג נשאר. */
         @media (max-width: 640px) {
           .lt-bar { padding:7px 16px; }
           .lt-badge { display:none; }
           .lt-msg { font-size:11px; }
+          .lt-msg.verse { font-size:10.5px; -webkit-line-clamp:3; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
 
       <div className="lt-bar" aria-label="עדכונים אחרונים באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-        <div className="lt-msg" key={idx}>{msgs[idx]}</div>
+        <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
       </div>
     </div>
   );
