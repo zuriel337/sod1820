@@ -8,7 +8,7 @@ export const TOOLS = [
   { id: "gematria", icon: "🧮", title: "מחשבון גימטריה", desc: "כל 17 השיטות, מאומת מול המנוע — רגיל · מילוי · אתב״ש · ריבוע ועוד.", status: "live" },
   { id: "els", icon: "🔡", title: "דילוגי אותיות (ELS)", desc: "חיפוש צפנים בתורה — דילוגים, חיפוש לפי ספר, תבניות מתקדמות.", status: "open", to: "/code" },
   { id: "number", icon: "🔢", title: "דף מספר", desc: "פתחו מספר וראו הכל — גימטריאות, הצלבות, התכנסויות, אירועים.", status: "open", to: "/numbers" },
-  { id: "midrash", icon: "📜", title: "בית המדרש", desc: "חידושים, שיטות הלימוד והצלבות — המקור הקנוני.", status: "open", to: "/beit-midrash" },
+  { id: "midrash", icon: "📜", title: "בית המדרש", desc: "חידושים, שיטות הלימוד והצלבות — נפתח כאן בתוך הסביבה.", status: "live" },
   { id: "verse", icon: "📖", title: "חיפוש בפסוקים", desc: "מצאו ביטוי או ערך גימטרי בתוך פסוקי התורה.", status: "soon" },
   { id: "cross", icon: "🧬", title: "מחולל הצלבות", desc: "חברו ביטויים בעלי אותו ערך — וגלו הצלבות חדשות.", status: "soon" },
   { id: "notarikon", icon: "🔠", title: "נוטריקון / ראשי-תיבות", desc: "בנו ופרקו ראשי-תיבות, וחשבו את ערכם.", status: "soon" },

@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
+
+// בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
+// (לא תלוי ב-Layout) ובהיר זהב-על-קרם → נכנס חלק בלי שכפול ובלי לשבור את /beit-midrash.
+const BeitMidrashPage = lazy(() => import("./BeitMidrashPage.jsx"));
 
 // 🔬 /research — סביבת המחקר (שלב 1). מסך פתיחה = בית-הכלים; בחירת כלי פותחת
 // אותו בתוך השלד. «הוסף למחקר» פולט Event → «המחקר הפעיל» מתעדכן חי (Research Bus).
@@ -38,6 +42,11 @@ export default function ResearchPage() {
         <>
           <button className="rw-back" onClick={() => setTool(null)}>← בית הכלים</button>
           {tool === "gematria" && <GematriaTool />}
+          {tool === "midrash" && (
+            <Suspense fallback={<div className="rw-card rw-muted">טוען את בית המדרש…</div>}>
+              <BeitMidrashPage />
+            </Suspense>
+          )}
         </>
       )}
     </ResearchShell>
