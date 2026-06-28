@@ -104,9 +104,10 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.76)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#12101c", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 18, padding: "22px 26px", width: "100%", maxWidth: 540, direction: "rtl", display: "flex", flexDirection: "column", gap: 14, my: 20, maxHeight: "92vh", overflowY: "auto" }}>
 
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {im.image_url && <img src={im.image_url} alt="" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 10, flexShrink: 0 }} />}
+        {/* Header — דביק למעלה כדי שכפתור הסגירה תמיד נגיש (קריטי במובייל בטופס ארוך) */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 3,
+          background: "#12101c", margin: "-22px -26px 0", padding: "16px 26px 12px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          {im.image_url && <img src={im.image_url} alt="" style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 10, flexShrink: 0 }} />}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ color: "#d4af37", fontFamily: F.heading, fontWeight: 800, fontSize: 13 }}>✏️ עריכת תמונה</div>
             <div style={{ color: "#ffffff55", fontFamily: F.heading, fontSize: 11, marginTop: 2 }}>
@@ -116,7 +117,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
               )}
             </div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#ffffff55", fontSize: 20, cursor: "pointer" }}>✕</button>
+          <button onClick={onClose} aria-label="סגור" style={{ flexShrink: 0, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", fontSize: 20, cursor: "pointer", width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         </div>
 
         {/* מסך מחיקה */}

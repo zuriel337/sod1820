@@ -254,7 +254,11 @@ export default function PostImageCarousel({ value, images }) {
             </div>
           )}
 
-          <button onClick={() => setLbIdx(null)} aria-label="סגור" style={{ position: "fixed", top: 16, left: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: 22, cursor: "pointer" }}>×</button>
+          <button onClick={(e) => { e.stopPropagation(); setLbIdx(null); }} aria-label="סגור"
+            style={{ position: "fixed", top: 14, insetInlineStart: 14, zIndex: 10000, width: 54, height: 54, borderRadius: "50%",
+              border: "2px solid rgba(255,255,255,0.55)", background: "rgba(0,0,0,0.7)", color: "#fff", fontSize: 30, lineHeight: 1,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(3px)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>×</button>
         </div>
       )}
 
