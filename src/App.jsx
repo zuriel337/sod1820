@@ -22,6 +22,8 @@ const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
 import HomeNewPage from "./pages/HomeNewPage.jsx";
+import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import ResearchPage from "./pages/ResearchPage.jsx";
 import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
@@ -140,6 +142,7 @@ export default function App() {
   return (
     <AuthProvider>
     <BrowserRouter>
+        <ResearchProvider>
         <RouteEffects />
         <LegacyRedirect />
         <OnboardingGate />
@@ -173,6 +176,8 @@ export default function App() {
           {/* גלקסיות — namespace מערכתי קבוע למסך-מלא (מדור לכל סלאג) */}
           <Route path="/galaxy" element={<GalaxyRoom />} />
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
+          {/* 🔬 סביבת המחקר — שלד חדש (שלב 1), מחוץ ל-Layout הקיים (סביבה בהירה נקייה) */}
+          <Route path="/research" element={<ResearchPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/reality" element={<HomeReality />} />
@@ -238,6 +243,7 @@ export default function App() {
         </Route>
         </Routes>
         </React.Suspense>
+        </ResearchProvider>
     </BrowserRouter>
     </AuthProvider>
   );
