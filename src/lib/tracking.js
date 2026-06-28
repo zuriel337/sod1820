@@ -83,12 +83,23 @@ function deviceInfo() {
   return { browser, os, device };
 }
 
-// מקור ההגעה — utm_source אם קיים, אחרת זיהוי לפי referrer.
-function sourceInfo() {
+// תיוג-קמפיין מהכתובת — utm_source או הכינוי הקצר src (לקישורים ב-bio של אינסטגרם
+// וכו'). ממפה כינויים קצרים לשם מלא אחיד (ig→instagram) כדי שהפילוח לא יתפצל.
+function campaignParam() {
   try {
-    const utm = new URLSearchParams(window.location.search).get("utm_source");
-    if (utm) return utm;
-  } catch { /* noop */ }
+    const q = new URLSearchParams(window.location.search);
+    const raw = q.get("utm_source") || q.get("src");
+    if (!raw) return null;
+    const v = raw.trim().toLowerCase();
+    const alias = { ig: "instagram", insta: "instagram", fb: "facebook", wa: "whatsapp", tg: "telegram", yt: "youtube" };
+    return alias[v] || v;
+  } catch { return null; }
+}
+
+// מקור ההגעה — תיוג-קמפיין (utm_source/src) אם קיים, אחרת זיהוי לפי referrer.
+function sourceInfo() {
+  const tagged = campaignParam();
+  if (tagged) return tagged;
   const ref = (typeof document !== "undefined" && document.referrer) || "";
   if (!ref) return "ישיר";
   if (/facebook|fb\./i.test(ref)) return "facebook";
@@ -102,6 +113,37 @@ function sourceInfo() {
 // meta אחיד לכל אירועי האפליקציה — פילוח לדשבורד.
 function appMeta() {
   return { ...deviceInfo(), source: sourceInfo() };
+}
+
+// ===== תפיסת מקור-הגעה (arrival source) — פעם אחת ל-session =====
+// אינסטגרם (ורשתות רבות) מוחקים את ה-referrer בדפדפן הפנימי שלהם → כניסה מהן
+// נראית "ישיר" ואי-אפשר למדוד. הפתרון: מתייגים את הקישורים שמפרסמים ברשת
+// ב-?src=ig (או ?utm_source=instagram), וכאן תופסים את התיוג *פעם אחת* בכניסה
+// ורושמים ל-visitor_events (section='arrival') — בלי סכמה חדשה (עץ אחד).
+//   meta.source  — המקור (instagram/facebook/google/ישיר…)
+//   meta.tagged  — true אם הגיע מתיוג מפורש (אמין), false אם נוחש מ-referrer
+//   meta.landing — דף הנחיתה
+export function captureArrivalSource() {
+  if (typeof window === "undefined" || !supabase) return;
+  try {
+    if (sessionStorage.getItem("sod_src")) return; // כבר נרשם ל-session הזה
+    sessionStorage.setItem("sod_src", "1");
+  } catch { /* אם אין sessionStorage — נרשום בכל זאת */ }
+  const tagged = campaignParam();
+  const source = tagged || sourceInfo();
+  const landing = window.location.pathname.replace(/^\//, "") || "home";
+  track("arrival", null, "source", { source, tagged: !!tagged, landing });
+}
+
+// בונה קישור מתויג לשיתוף ברשת (להעתקה ל-bio/פוסט). דוגמה:
+//   sourceUrl("/reality", "ig") → https://sod1820.co.il/reality?src=ig
+export function sourceUrl(path = "/", src = "ig") {
+  try {
+    const origin = (typeof window !== "undefined" && window.location.origin) || "https://sod1820.co.il";
+    const u = new URL(path, origin);
+    u.searchParams.set("src", src);
+    return u.toString();
+  } catch { return path; }
 }
 
 // רישום פעם-אחת-ל-session (כדי לא לספור כל טעינת דף מחדש).
