@@ -43,48 +43,86 @@ const ELS_HIT_CAP = 5000; // אוסף עד 5000 מופעים — מעשית לל
 // צבעים לכל מונח בחיפוש מונחים מרובים (האחראי=זהב)
 const ELS_TERM_COLORS = ["#E8C84A", "#a01f2e", "#6b3fa0", "#3a9b6e", "#c77d2e"];
 
-// חיפוש ELS: תומך בסבילות לשגיאות וממוין לפי מובהקות (דילוג קצר קודם)
-function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0) {
+// 📖 ספרי התורה — גבולות לפי ספירת-אותיות מסורתית (סה״כ 304,805). חיתוך לחיפוש בספר בודד.
+// אם קובץ-האותיות באורך שונה — נחתך/נקצץ לגבולות בפועל (clamp).
+const TORAH_BOOKS = [
+  { key: "all", label: "כל התורה", from: 0,      to: 304805 },
+  { key: "gen", label: "בראשית",   from: 0,      to: 78064 },
+  { key: "exo", label: "שמות",     from: 78064,  to: 141593 },
+  { key: "lev", label: "ויקרא",    from: 141593, to: 186383 },
+  { key: "num", label: "במדבר",    from: 186383, to: 249913 },
+  { key: "deu", label: "דברים",    from: 249913, to: 304805 },
+];
+
+// 🔢 תבנית הדילוגים שעליהם סורקים. null = טווח רציף (min..max, כמו קודם).
+// fib / fib−1 / ראשוניים / חזקות-2 — סורקים רק את ערכי-התבנית שבתוך [min,max].
+function buildSkipSet(pattern, min, max) {
+  if (!pattern || pattern === "range") return null;
+  const lo = Math.max(1, Math.floor(min) || 1), hi = Math.max(lo, Math.floor(max) || lo);
+  const out = [];
+  if (pattern === "pow2") {
+    for (let p = 1; p <= hi; p *= 2) if (p >= lo) out.push(p);
+  } else if (pattern === "fib" || pattern === "fib1") {
+    const adj = pattern === "fib1" ? 1 : 0;
+    let a = 1, b = 2; const seq = [1, 2];
+    while (b <= hi + adj && seq.length < 120) { const n = a + b; seq.push(n); a = b; b = n; }
+    for (const f of seq) { const v = f - adj; if (v >= lo && v <= hi) out.push(v); }
+  } else if (pattern === "prime") {
+    const cap = Math.min(hi, 500000);
+    const sieve = new Uint8Array(cap + 1);
+    for (let i = 2; i * i <= cap; i++) if (!sieve[i]) for (let j = i * i; j <= cap; j += i) sieve[j] = 1;
+    for (let n = Math.max(2, lo); n <= cap && out.length < 5000; n++) if (!sieve[n]) out.push(n);
+  }
+  return [...new Set(out)].filter(v => v >= 1).sort((a, b) => a - b);
+}
+
+// חיפוש ELS: תומך בסבילות לשגיאות וממוין לפי מובהקות (דילוג קצר קודם).
+// opts: { winFrom, winTo } — חלון אותיות (לחיפוש בספר בודד) · { skips } — מערך דילוגים
+// מפורש (תבנית פיבונאצ׳י/ראשוניים/חזקות-2); null = טווח רציף min..max.
+function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0, opts = {}) {
   const target = elsNormalize(targetRaw);
   const N = letters.length, L = target.length;
   const hits = [];
   if (L < 2 || N === 0) return { hits, N, target, capped: false };
   const dirs = dir === 'fwd' ? [1] : dir === 'back' ? [-1] : [1, -1];
+  const winFrom = Math.max(0, opts.winFrom ?? 0);
+  const winTo = Math.min(N, opts.winTo ?? N);
+  const skips = opts.skips || null;     // null = טווח רציף
   let capped = false;
 
-  for (let start = 0; start < N && !capped; start++) {
+  // בדיקת רצף יחיד (start,d,skip) → דחיפה לרשימה אם תואם בתוך החלון
+  function pushIfMatch(start, d, skip) {
+    const step = skip * d;
+    const end = start + step * (L - 1);
+    if (end < winFrom || end >= winTo) return;
+    let mm = 0;
+    for (let k = 0; k < L; k++) {
+      if (letters[start + step * k] !== target[k]) { if (++mm > maxMismatches) return; }
+    }
+    const positions = [];
+    for (let k = 0; k < L; k++) positions.push(start + step * k);
+    hits.push({ skip, dir: d, start, positions, mismatches: mm });
+    if (hits.length >= ELS_HIT_CAP) capped = true;
+  }
+
+  for (let start = winFrom; start < winTo && !capped; start++) {
     // קפיצה מהירה אפשרית רק בחיפוש מדויק (ללא סבילות)
     if (maxMismatches === 0 && letters[start] !== target[0]) continue;
     for (const d of dirs) {
-      for (let skip = skipMin; skip <= skipMax; skip++) {
-        const step = skip * d;
-        const end = start + step * (L - 1);
-        if (end < 0 || end >= N) continue;
-        let mm = 0, bad = false;
-        for (let k = 0; k < L; k++) {
-          if (letters[start + step * k] !== target[k]) {
-            if (++mm > maxMismatches) { bad = true; break; }
-          }
-        }
-        if (!bad) {
-          const positions = [];
-          for (let k = 0; k < L; k++) positions.push(start + step * k);
-          hits.push({ skip, dir: d, start, positions, mismatches: mm });
-          if (hits.length >= ELS_HIT_CAP) { capped = true; break; }
-        }
-      }
+      if (skips) { for (let i = 0; i < skips.length && !capped; i++) pushIfMatch(start, d, skips[i]); }
+      else { for (let skip = skipMin; skip <= skipMax && !capped; skip++) pushIfMatch(start, d, skip); }
       if (capped) break;
     }
   }
   // מיון מובהקות: התאמה מדויקת קודם, ואז דילוג קצר קודם
   hits.sort((a, b) => (a.mismatches - b.mismatches) || (Math.abs(a.skip) - Math.abs(b.skip)));
-  return { hits, N, target, capped };
+  return { hits, N: winTo - winFrom, target, capped };
 }
 
 // אשכול מונחים: מחפש כל מונח, בוחר עוגן (הנדיר ביותר), ומודד קרבה במטריצה
-function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches) {
+function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches, opts) {
   const perTerm = terms.map(t => {
-    const r = elsSearch(letters, t, skipMin, skipMax, dir, maxMismatches);
+    const r = elsSearch(letters, t, skipMin, skipMax, dir, maxMismatches, opts);
     return { term: r.target, hits: r.hits };
   });
   const missing = perTerm.filter(p => p.hits.length === 0).map(p => p.term);
@@ -489,6 +527,8 @@ export function ELSSection({ gated = false } = {}) {
   const [skipMax, setSkipMax] = useState(deepLink?.skipMax ?? 100);
   const [dir, setDir] = useState(deepLink?.dir ?? "both");
   const [maxMismatches, setMaxMismatches] = useState(deepLink?.mm ?? 0);
+  const [skipPattern, setSkipPattern] = useState("range");  // range | fib | fib1 | prime | pow2
+  const [book, setBook] = useState("all");                  // all | gen | exo | lev | num | deu
   const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -556,7 +596,8 @@ export function ELSSection({ gated = false } = {}) {
     const d = f.dir === 1 ? "fwd" : "back";
     setTarget(f.term);
     setSkipMin(f.skip); setSkipMax(f.skip); setDir(d); setMaxMismatches(0);
-    run(f.term, { lo: f.skip, hi: f.skip, dir: d, mm: 0 });
+    setSkipPattern("range"); setBook("all");
+    run(f.term, { lo: f.skip, hi: f.skip, dir: d, mm: 0, pat: "range", bk: "all" });
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -658,6 +699,13 @@ export function ELSSection({ gated = false } = {}) {
     const hi = opts?.hi ?? Math.max(lo, parseInt(skipMax) || lo);
     const mm = opts?.mm ?? Math.max(0, parseInt(maxMismatches) || 0);
     const dirUse = opts?.dir ?? dir;
+    const patUse = opts?.pat ?? skipPattern;
+    const bkUse = opts?.bk ?? book;
+    // חלון הספר (clamp לאורך הטקסט בפועל) + תבנית הדילוגים
+    const bk = TORAH_BOOKS.find(b => b.key === bkUse) || TORAH_BOOKS[0];
+    const winTo = Math.min(letters.length, bk.to);
+    const winFrom = Math.min(winTo, bk.from);
+    const searchOpts = { winFrom, winTo, skips: buildSkipSet(patUse, lo, hi) };
     // מספר מונחים מופרדים בפסיק → חיפוש אשכול
     const terms = src.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
     setAxisHit(null);
@@ -665,9 +713,9 @@ export function ELSSection({ gated = false } = {}) {
     // נותנים ל-UI להתעדכן לפני חישוב כבד
     setTimeout(() => {
       if (terms.length >= 2) {
-        setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dirUse, mm) });
+        setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dirUse, mm, searchOpts) });
       } else {
-        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dirUse, mm) });
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dirUse, mm, searchOpts) });
       }
       setSearching(false);
     }, 10);
@@ -762,6 +810,8 @@ export function ELSSection({ gated = false } = {}) {
                 ["🪪", "חיפוש שם אישי", "הקלידו שם פרטי ומצאו אותו בתורה (השער למעלה)."],
                 ["↔️", "כיוון חיפוש", "קדימה בלבד · אחורה בלבד · שני הכיוונים."],
                 ["📏", "טווח דילוג", "דילוג מינימלי עד מקסימלי — קצר = מובהק יותר."],
+                ["🧮", "תבנית דילוג", "סריקה לפי פיבונאצ׳י · פיבונאצ׳י−1 · מספרים ראשוניים · חזקות של 2 — לא רק טווח רציף."],
+                ["📖", "בחירת ספר", "חיפוש בכל התורה או בספר בודד: בראשית · שמות · ויקרא · במדבר · דברים."],
                 ["🎯", "סבילות לשגיאות", "התאמה מדויקת, או עד 1–2 אותיות שונות."],
                 ["🔢", "גימטריה", "ערך המילה מוצג; באדג' ✦ כשהדילוג שווה לגימטריה, ⭐ כשהוא מספר-מפתח."],
                 ["▦", "מטריצה / ציר אנכי", "שתי תצוגות למופע, כולל חיפוש פנימי בתוך הציר."],
@@ -817,6 +867,22 @@ export function ELSSection({ gated = false } = {}) {
                 <option value={0}>התאמה מדויקת</option>
                 <option value={1}>עד שגיאה אחת</option>
                 <option value={2}>עד 2 שגיאות</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>תבנית דילוג</label>
+              <select style={inputStyle} value={skipPattern} onChange={e => setSkipPattern(e.target.value)}>
+                <option value="range">טווח רציף (כל הדילוגים)</option>
+                <option value="fib">פיבונאצ׳י</option>
+                <option value="fib1">פיבונאצ׳י −1</option>
+                <option value="prime">מספרים ראשוניים</option>
+                <option value="pow2">חזקות של 2</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>ספר</label>
+              <select style={inputStyle} value={book} onChange={e => setBook(e.target.value)}>
+                {TORAH_BOOKS.map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
               </select>
             </div>
           </div>
