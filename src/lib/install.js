@@ -29,6 +29,21 @@ export function isIOS() {
 // האם יש הצעת התקנה ממתינה (כרום/אדג'/אנדרואיד)
 export function canInstall() { return !!deferredPrompt; }
 
+// ── snooze משותף להצעת ההתקנה (כדי שגם בקשת הפוש תדע אם ההתקנה "פעילה") ──
+const DISMISS_KEY = "sod_install_prompt_dismissed";
+const SNOOZE_DAYS = 14;
+export function installSnoozed() {
+  try { const t = +localStorage.getItem(DISMISS_KEY); return !!t && Date.now() - t < SNOOZE_DAYS * 86400000; }
+  catch { return false; }
+}
+export function snoozeInstall() { try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* noop */ } }
+
+// האם כרגע ראוי להציע התקנה: לא מותקן, לא נדחה לאחרונה, ויש דרך להתקין
+// (הצעה ממתינה באנדרואיד, או iOS שתמיד מתקינים בו ידנית). בקשת הפוש נדחית לזה.
+export function installOfferActive() {
+  return !isStandalone() && !installSnoozed() && (canInstall() || isIOS());
+}
+
 // מפעיל את ההצעה ומחזיר 'accepted' | 'dismissed' | 'unavailable'.
 // מודד את בחירת המשתמש — כך סוף-סוף יודעים כמה לחצו «התקן» מול «ביטול».
 export async function promptInstall() {

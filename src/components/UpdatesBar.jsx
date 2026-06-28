@@ -4,6 +4,7 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
+import { installOfferActive, isStandalone, isIOS } from "../lib/install.js";
 
 // 🔔 הפעלת התראות דפדפן — לא מייל, לא מפריע לקריאה.
 //   📱 מובייל  → פס עליון דק ("שם המשתמש רגיל לבקשות הרשאה").
@@ -75,6 +76,11 @@ export default function UpdatesBar() {
   }, [user, isMobile]);
 
   if (!show || !pushReady || HIDE.test(pathname)) return null;
+  // קודם התקנה, פוש אחר כך:
+  //  • iOS — פוש עובד רק כשהאפליקציה מותקנת; לא מבקשים לפני התקנה.
+  //  • מובייל — לא מתחרים בהצעת ההתקנה הפעילה (שיופיע קודם פס ההתקנה).
+  if (isIOS() && !isStandalone()) return null;
+  if (isMobile && !isStandalone() && installOfferActive()) return null;
 
   const Style = (
     <style>{`

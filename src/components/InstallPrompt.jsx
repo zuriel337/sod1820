@@ -2,19 +2,13 @@ import React, { useState, useEffect } from "react";
 import { F } from "../theme.js";
 import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
-import { canInstall, promptInstall, onInstallChange, isStandalone, isIOS } from "../lib/install.js";
+import { canInstall, promptInstall, onInstallChange, isStandalone, isIOS, installSnoozed, snoozeInstall } from "../lib/install.js";
 
-// כפתור התקנה מותאם — «📲 התקן את סוד1820». פס תחתון עדין.
+// כפתור התקנה מותאם — «📲 התקן את סוד1820». מובייל: פס עליון; דסקטופ: פס תחתון.
 // אנדרואיד/כרום: כפתור «התקן עכשיו» שמפעיל את ההצעה ומודד accept/dismiss.
 // iOS: אין beforeinstallprompt — מציג הנחיה ידנית («הוסף למסך הבית»).
 // לא מופיע אם כבר מותקן (standalone) או נדחה לאחרונה (snooze 14 יום).
-const KEY = "sod_install_prompt_dismissed";
-const SNOOZE_DAYS = 14;
-
-function snoozed() {
-  try { const t = +localStorage.getItem(KEY); return !!t && Date.now() - t < SNOOZE_DAYS * 86400000; }
-  catch { return false; }
-}
+// קודם התקנה, פוש אחר כך — בקשת הפוש (UpdatesBar) נדחית כל עוד זה פעיל.
 
 export default function InstallPrompt() {
   const cc = chromeColors(useThemeMode());
@@ -22,9 +16,16 @@ export default function InstallPrompt() {
   const [ios, setIos] = useState(false);
   const [iosHelp, setIosHelp] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 640);
 
   useEffect(() => {
-    if (isStandalone() || snoozed()) return;
+    const onR = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener("resize", onR);
+    return () => window.removeEventListener("resize", onR);
+  }, []);
+
+  useEffect(() => {
+    if (isStandalone() || installSnoozed()) return;
     if (isIOS()) {
       const t = setTimeout(() => { setIos(true); setShow(true); }, 8000); // אחרי קצת שהייה, לא על המסך הראשון
       return () => clearTimeout(t);
@@ -34,7 +35,7 @@ export default function InstallPrompt() {
     return onInstallChange(check);
   }, []);
 
-  const close = () => { try { localStorage.setItem(KEY, String(Date.now())); } catch { /* noop */ } setShow(false); };
+  const close = () => { snoozeInstall(); setShow(false); };
 
   async function install() {
     setBusy(true);
@@ -55,11 +56,16 @@ export default function InstallPrompt() {
     background: "transparent", color: cc.muted, fontFamily: F.heading, fontSize: 13.5, whiteSpace: "nowrap",
   };
 
+  // מובייל: פס עליון (כמו בקשת הפוש); דסקטופ: פס תחתון.
+  const bar = isMobile
+    ? { top: 0, borderBottom: `1px solid ${cc.borderGold}`, boxShadow: "0 6px 24px rgba(0,0,0,0.4)" }
+    : { bottom: 0, borderTop: `1px solid ${cc.borderGold}`, boxShadow: "0 -8px 30px rgba(0,0,0,0.35)" };
+
   return (
     <div style={{
-      position: "fixed", insetInline: 0, bottom: 0, zIndex: 300, direction: "rtl",
-      background: cc.bgScrolled || cc.bg, borderTop: `1px solid ${cc.borderGold}`,
-      backdropFilter: "blur(14px)", boxShadow: "0 -8px 30px rgba(0,0,0,0.35)", padding: "12px 16px",
+      position: "fixed", insetInline: 0, zIndex: 950, direction: "rtl",
+      background: cc.bgScrolled || cc.bg, backdropFilter: "blur(14px)", padding: "12px 16px",
+      ...bar,
     }}>
       <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
         <span style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700 }}>
