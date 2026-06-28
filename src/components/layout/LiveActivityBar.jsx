@@ -91,10 +91,8 @@ function useLiveTicker() {
       // כשהוא מחליט, לא אוטומטית). עדיין מושכים ספירת התכנסויות לשורת «📊 במאגר».
       const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
       const convCount = (cards || []).length;
-      let total = 0;
       try {
-        const { words, total: t, topNumber } = await getSearchStatsToday();
-        total = t;
+        const { words, topNumber } = await getSearchStatsToday();
         if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
         if (topNumber != null) out.push(`🔥 המספר הכי מבוקש היום: ${topNumber}`);
       } catch { /* ignore */ }
@@ -123,12 +121,9 @@ function useLiveTicker() {
       } catch { /* ignore */ }
       // 📜 פסוק (3/3)
       out.push(verse(8));
-      if (total > 0 || convCount > 0) {
-        const parts = [];
-        if (total > 0) parts.push(`${total.toLocaleString("he-IL")} חיפושים`);
-        if (convCount > 0) parts.push(`${convCount} התכנסויות`);
-        out.push(`📊 במאגר: ${parts.join(" · ")}`);
-      }
+      // ⛔ «כמה חיפושים יש באתר» (total כל-הזמן) הוסר (בקשת צוריאל — רק כמה חיפשו היום,
+      // שמוצג ב«📖 … נחקרו היום»). נשארת רק ספירת ההתכנסויות במאגר.
+      if (convCount > 0) out.push(`📊 ${convCount} התכנסויות במאגר`);
       const moed = moedGreeting();
       if (moed) out.push(moed);
       // 🌊 הרמז שוב — כך הוא מופיע פעמיים לאורך הסבב
