@@ -19,7 +19,7 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
   (categories || []).forEach(c => { if (c) opts.push({ key: `cat:${c}`, label: `📁 ${c}` }); });
   if (by.name && by.name !== "המערכת") opts.push({ key: `author:${by.name}`, label: `✍️ ${by.name}` });
 
-  const [picked, setPicked] = useState(() => opts.map(o => o.key)); // ברירת מחדל: הכל
+  const [picked, setPicked] = useState([]); // ריק — המשתמש בוחר נושא קודם, ורק אז נחשף שדה המייל
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -95,19 +95,34 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
         })}
       </div>
 
-      <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-        {!user && (
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr"
-            style={{ flex: "1 1 220px", minWidth: 200, padding: "11px 14px", borderRadius: 10,
-              background: co.bg || C.surface, border: `1px solid ${co.border || C.border}`, color: co.goldLight || C.goldLight,
-              fontFamily: F.body, fontSize: 15, textAlign: "center", outline: "none" }} />
-        )}
-        <button type="submit" disabled={busy} style={{
-          padding: "11px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
-          background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
-          fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
-        }}>{busy ? "רושם…" : "עדכנו אותי →"}</button>
-      </div>
+      {/* רק אחרי שבחרו נושא — נחשף שדה המייל וכפתור ההרשמה (חשיפה מדורגת) */}
+      {picked.length === 0 ? (
+        <div style={{ color: co.muted || C.muted, fontFamily: F.heading, fontSize: 13, opacity: 0.85 }}>
+          👆 בחרו נושא שמעניין אתכם — ואז תוכלו להשאיר מייל לעדכונים
+        </div>
+      ) : (
+        <div style={{ animation: "sodFollowReveal .35s ease" }}>
+          <style>{`@keyframes sodFollowReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
+          {!user && (
+            <div style={{ color: co.goldLight || C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 9 }}>
+              📧 לאן לשלוח את העדכונים?
+            </div>
+          )}
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            {!user && (
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr" autoFocus
+                style={{ flex: "1 1 220px", minWidth: 200, padding: "11px 14px", borderRadius: 10,
+                  background: co.bg || C.surface, border: `1px solid ${co.border || C.border}`, color: co.goldLight || C.goldLight,
+                  fontFamily: F.body, fontSize: 15, textAlign: "center", outline: "none" }} />
+            )}
+            <button type="submit" disabled={busy} style={{
+              padding: "11px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+              fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
+            }}>{busy ? "רושם…" : "עדכנו אותי →"}</button>
+          </div>
+        </div>
+      )}
       {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
     </form>
   );
