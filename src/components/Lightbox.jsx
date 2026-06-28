@@ -244,15 +244,16 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 }
 
 const closeBtn = {
-  background: "rgba(255,255,255,0.1)",
-  border: "1px solid rgba(255,255,255,0.45)",
+  background: "rgba(255,255,255,0.12)",
+  border: "1px solid rgba(255,255,255,0.5)",
   color: "#fff",
-  fontSize: 20,
+  fontSize: 22,
   cursor: "pointer",
-  borderRadius: 8,
-  width: 40, height: 40,
+  borderRadius: 10,
+  width: 44, height: 44,
   display: "flex", alignItems: "center", justifyContent: "center",
   lineHeight: 1,
+  flexShrink: 0,
 };
 
 const navBtnStyle = side => ({
