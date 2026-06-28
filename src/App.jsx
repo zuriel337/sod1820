@@ -122,11 +122,26 @@ function HomeRoute() {
   return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
 }
 
+// 🔀 הפניות צד-לקוח לסלאגים ישנים/שבורים (גוגל) → יעד חדש. מפענח מפורשות (decodeURIComponent)
+// כך שזה תופס גם כתובות עבריות מקודדות (%D7%…) — מה ש-Vercel redirects לא תמיד תופס.
+const LEGACY_REDIRECTS = {
+  "/משיח-בשנת-התשעו": "/code",
+};
+function LegacyRedirect() {
+  const { pathname } = useLocation();
+  let p = pathname;
+  try { p = decodeURIComponent(pathname); } catch { /* ignore */ }
+  p = p.replace(/\/+$/, "") || "/";
+  const dest = LEGACY_REDIRECTS[p];
+  return dest ? <Navigate to={dest} replace /> : null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
     <BrowserRouter>
         <RouteEffects />
+        <LegacyRedirect />
         <OnboardingGate />
         <Analytics />
         <UpdateBanner />
