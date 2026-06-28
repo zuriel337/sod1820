@@ -4,6 +4,7 @@ import QuickActions from "./QuickActions.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 import { METHODS, onlyHeb, hebrewNumeral } from "../lib/gematria.js";
+import { makeNameCard } from "../lib/research/nameCard.js";
 
 // 🪪 סיפור השם שלך — עדשה אישית: שלד מחקרי מדויק (מנוע הגימטריה + פסוקי התורה),
 // עור רגשי, שפה של גילוי-זהות. «זה אני» לא «זה המספר שלי». בלי ניחוש/עתידות —
@@ -73,6 +74,30 @@ export default function NameStory() {
   const refOf = r => `${verses.books[r[0]]} ${r[1]}:${r[2]}`;
   const entity = name ? entityFromPhrase(name, main) : null;
 
+  // 🖼️ כרטיס שיתוף — מנוע ההפצה (Canvas בצד-לקוח, עברית נכונה)
+  const [card, setCard] = useState(null);     // { blob, url }
+  const [busy, setBusy] = useState(false);
+  const makeCard = async () => {
+    setBusy(true);
+    const v = myVerses[0];
+    const { blob, url } = await makeNameCard({
+      name, value: main, hebNum: hebrewNumeral(main),
+      verseRef: v ? refOf(v) : "", verseText: v ? v[3] : "",
+    });
+    setCard({ blob, url }); setBusy(false);
+  };
+  const shareCard = async () => {
+    if (!card) return;
+    const file = new File([card.blob], `sod1820-${name}.png`, { type: "image/png" });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: `${name} = ${main}`, text: `סיפור השם שלי · sod1820.co.il/research` });
+        return;
+      }
+    } catch { /* בוטל ע״י המשתמש */ }
+    const a = document.createElement("a"); a.href = card.url; a.download = `sod1820-${name}.png`; a.click();
+  };
+
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
 
   // ----- מסך פתיחה -----
@@ -123,9 +148,23 @@ export default function NameStory() {
         {hebrewNumeral(main) && <div style={{ fontSize: 18, fontWeight: 700, color: C.acc, opacity: .8 }}>{hebrewNumeral(main)}</div>}
         <div style={{ marginTop: 14, display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
           <Link to={`/number/${main}?from=name`} style={{ textDecoration: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 20px" }}>✨ גלה הכל על {main} ←</Link>
+          <button onClick={makeCard} disabled={busy} style={{ cursor: "pointer", border: "none", background: "linear-gradient(135deg,#e9c84a,#b07d12)", color: "#1a0e00", fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 20px", fontFamily: "inherit" }}>{busy ? "מכין…" : "🖼️ כרטיס שם"}</button>
           {entity && <button onClick={() => addToResearch?.(entity)} style={{ cursor: "pointer", border: `1px solid ${C.acc}`, background: "var(--card)", color: C.acc, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 20px", fontFamily: "inherit" }}>➕ הוסף למחקר</button>}
         </div>
       </div>
+
+      {/* כרטיס שיתוף — תצוגה מקדימה + שיתוף/הורדה */}
+      {card && (
+        <div className="rw-card" style={{ marginTop: 12, textAlign: "center" }}>
+          <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>🖼️ הכרטיס שלך מוכן</div>
+          <div className="rw-muted" style={{ marginBottom: 12 }}>שתפו אותו בוואטסאפ · סטטוס · אינסטגרם — כל שיתוף מביא עוד אנשים לגלות את שמם.</div>
+          <img src={card.url} alt={`כרטיס השם ${name}`} style={{ maxWidth: 320, width: "100%", borderRadius: 16, boxShadow: "0 8px 30px rgba(0,0,0,.3)" }} />
+          <div style={{ marginTop: 14, display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={shareCard} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "12px 26px", fontFamily: "inherit" }}>🔗 שתף את הכרטיס</button>
+            <a href={card.url} download={`sod1820-${name}.png`} style={{ textDecoration: "none", border: `1px solid ${C.acc}`, color: C.acc, fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "12px 26px" }}>⬇️ הורד</a>
+          </div>
+        </div>
+      )}
 
       {/* מבנה האותיות */}
       <Section title="🔤 מבנה השם" sub="כל אות בשמך — והמשמעות המסורתית שבה">
