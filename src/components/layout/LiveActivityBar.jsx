@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
+import { getTopicCards, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
@@ -85,8 +85,8 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       if (hintMsg) out.push(hintMsg);
-      // 📜 פסוק (1/3) — רוטציית גאולה ונחמה
-      out.push(verse(0));
+      // 📜 4 פסוקי גאולה ברצף — בלי עצירה ביניהם (בקשת צוריאל). מתחלפים יומית.
+      for (let k = 0; k < 4; k++) out.push(verse(k));
       // ⛔ התכנסויות + פוסטים — הוסרו מההזרקה האוטומטית (בקשת צוריאל: יעלו לטיקר רק
       // כשהוא מחליט, לא אוטומטית). עדיין מושכים ספירת התכנסויות לשורת «📊 במאגר».
       const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
@@ -99,12 +99,7 @@ function useLiveTicker() {
       // — עֵרים (תמיד) —
       const nod = numberOfDay();
       if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
-      // 📜 פסוק (2/3)
-      out.push(verse(4));
-      try {
-        const crosses = await getVerifiedCrossTitles(1);
-        if (crosses[0]) out.push(`💎 הצלבה מאומתת: ${crosses[0]}`);
-      } catch { /* ignore */ }
+      // ⛔ הצלבות (כולל של חברים) הוסרו מהטיקר לגמרי (בקשת צוריאל).
       // 🧩 ידעת? — שתי עובדות גימטריה (מסתובבות יומית כך שלא חוזרות תמיד)
       out.push(`🧩 ידעת? ${GEM_FACTS[dayIdx % GEM_FACTS.length]}`);
       out.push(`🧩 ידעת? ${GEM_FACTS[(dayIdx + 3) % GEM_FACTS.length]}`);
@@ -119,8 +114,6 @@ function useLiveTicker() {
           if (label) out.push(`🗓️ ${n <= 0 ? "השנה" : n === 1 ? "לפני שנה" : `לפני ${n} שנים`}: ${label}`);
         }
       } catch { /* ignore */ }
-      // 📜 פסוק (3/3)
-      out.push(verse(8));
       // ⛔ «כמה חיפושים יש באתר» (total כל-הזמן) הוסר (בקשת צוריאל — רק כמה חיפשו היום,
       // שמוצג ב«📖 … נחקרו היום»). נשארת רק ספירת ההתכנסויות במאגר.
       if (convCount > 0) out.push(`📊 ${convCount} התכנסויות במאגר`);
@@ -158,10 +151,10 @@ export default function LiveActivityBar() {
   const idx = msgs.length ? i % msgs.length : 0;
   const cur = msgs[idx] || "";
   const isVerse = cur.startsWith("📜");
-  // פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
+  // קצב רגוע (בקשת צוריאל). פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
   useEffect(() => {
     if (msgs.length < 2) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 7000 : 4200);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 9500 : 6000);
     return () => clearTimeout(id);
   }, [i, msgs.length, isVerse]);
 
