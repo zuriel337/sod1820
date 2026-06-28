@@ -4,6 +4,7 @@ import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { PUSH_CONFIGURED, pushSupported, pushPermission, enablePush } from "../lib/push.js";
+import { installOfferActive } from "../lib/install.js";
 
 // הודעת Push פשוטה — "לקבל עדכונים מהאתר?" עם כן/לא. בלי שערים/נושאים (הרשמה כללית).
 // מופיע רק אם הוגדר VITE_VAPID_PUBLIC_KEY, הדפדפן תומך, הרשות עדיין 'default',
@@ -20,7 +21,15 @@ export default function PushPrompt() {
     if (!PUSH_CONFIGURED || !pushSupported()) return;
     if (pushPermission() !== "default") return;       // כבר אישר/חסם → לא מנדנדים
     try { if (localStorage.getItem(KEY)) return; } catch { return; }
-    const t = setTimeout(() => setShow(true), 6000);  // קצת אחרי הכניסה, לא על המסך הראשון
+    // תיאום עם הצעת ההתקנה (install.js): קודם התקנה, פוש אחר כך. כל עוד הצעת
+    // ההתקנה פעילה — דוחים את בקשת הפוש ובודקים שוב, לא קופצים במקביל.
+    let t;
+    const tryShow = () => {
+      if (pushPermission() !== "default") return;     // נפתר בינתיים
+      if (installOfferActive()) { t = setTimeout(tryShow, 8000); return; }
+      setShow(true);
+    };
+    t = setTimeout(tryShow, 6000);                     // קצת אחרי הכניסה, לא על המסך הראשון
     return () => clearTimeout(t);
   }, []);
 
