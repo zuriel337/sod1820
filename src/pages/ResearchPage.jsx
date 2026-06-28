@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy } from "react";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import VerseSearch from "../components/VerseSearch.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
@@ -42,6 +43,7 @@ export default function ResearchPage() {
         <>
           <button className="rw-back" onClick={() => setTool(null)}>← בית הכלים</button>
           {tool === "gematria" && <GematriaTool />}
+          {tool === "verse" && <VerseSearch />}
           {tool === "midrash" && (
             <Suspense fallback={<div className="rw-card rw-muted">טוען את בית המדרש…</div>}>
               <BeitMidrashPage />

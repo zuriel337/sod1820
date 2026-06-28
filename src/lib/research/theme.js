@@ -24,6 +24,8 @@ export const rwCss = (t = RW) => `
       --acc:${t.accent};--accS:${t.accentSoft};--chip:${t.chip};--r:${t.radius}px;
       background:var(--bg);color:var(--ink);font-family:${t.font};min-height:100vh}
   .rw *{box-sizing:border-box}
+  /* כפתורים/שדות לא יורשים font-family בדפדפן → כופים את Heebo על כל הסביבה (מעיף את גופן ברירת-המחדל המכוער) */
+  .rw button,.rw input,.rw select,.rw textarea{font-family:inherit}
   .rw-head{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
     display:flex;align-items:center;gap:12px;padding:11px 16px}
   .rw-logo{font-weight:800;font-size:19px}.rw-logo b{color:var(--acc)}
