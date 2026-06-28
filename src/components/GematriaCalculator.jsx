@@ -18,7 +18,7 @@ const L = {
 
 export default function GematriaCalculator({ seed, onResult, research = false }) {
   const { isAdmin } = useAuth();
-  const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : "גאולה");
+  const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : ""); // ריק כברירת מחדל — לא מחשב "גאולה" אוטומטית
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
   const anon = useAnon();   // 🕶️ מצב אנונימי — לרענון האפקט כשמשתנה
@@ -40,7 +40,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const advOpen = advLevel > 0;
   const twoRows = advLevel >= 2;
   const openAdvanced = () => {
-    const cur = q.trim(); setQ1(cur || "גאולה"); setQ(""); setAdvLevel(1);
+    const cur = q.trim(); setQ1(cur); setQ(""); setAdvLevel(1);
     let seen = false; try { seen = !!localStorage.getItem("gc-adv-seen"); } catch { /* ignore */ }
     if (!seen) { setAdvHelp(true); setAdvBlink(true); try { localStorage.setItem("gc-adv-seen", "1"); } catch { /* ignore */ } setTimeout(() => setAdvBlink(false), 7000); }
   };
