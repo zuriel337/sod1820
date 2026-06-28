@@ -12,6 +12,7 @@ import { initClarity } from "./lib/clarity.js";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
+import PushPrompt from "./components/PushPrompt.jsx";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -133,6 +134,7 @@ export default function App() {
         <RoyalShareWidget />
         <InstallPrompt />
         <UpdatesBar />
+        <PushPrompt />
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}

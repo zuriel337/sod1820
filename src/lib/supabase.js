@@ -1076,6 +1076,7 @@ export function adaptPost(row) {
     link: row.link,
     slug: row.slug,
     author: row.author ?? '',
+    source: row.source ?? null,
     _embedded: {
       'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
       'wp:term': [
