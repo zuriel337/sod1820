@@ -1,7 +1,8 @@
 // Microsoft Clarity — הקלטות סשן של גולשים אמיתיים + מפות חום (חינם לגמרי).
-// מופעל רק אם VITE_CLARITY_ID מוגדר ב-Vercel env. בלי ID — no-op מוחלט.
-// ליצירת ID: clarity.microsoft.com → New project → להעתיק את ה-Project ID.
-const CLARITY_ID = import.meta.env.VITE_CLARITY_ID;
+// פרויקט SOD1820. ה-Project ID הוא מזהה ציבורי (ממילא חשוף ב-JS בצד הלקוח),
+// ולכן בטוח להטמיעו כברירת מחדל בקוד — בלי תלות במשתנה סביבה ב-Vercel.
+// אפשר עדיין לעקוף אותו דרך VITE_CLARITY_ID אם רוצים פרויקט אחר.
+const CLARITY_ID = import.meta.env.VITE_CLARITY_ID || "xdwf0gps8h";
 export const CLARITY_CONFIGURED = !!CLARITY_ID;
 
 let started = false;
