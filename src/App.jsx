@@ -138,6 +138,14 @@ function LegacyRedirect() {
   return dest ? <Navigate to={dest} replace /> : null;
 }
 
+// 🔬 הצ'רום הצף הגלובלי (כפתור «שמע», פסי עדכון, באנרים) מוסתר בסביבת המחקר
+// (/research) כדי שהמסך יישאר נקי לגמרי. האפקטים (אנליטיקס/הפניות) ממשיכים לרוץ.
+function GlobalChrome({ children }) {
+  const { pathname } = useLocation();
+  if (pathname === "/research") return null;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -147,10 +155,12 @@ export default function App() {
         <LegacyRedirect />
         <OnboardingGate />
         <Analytics />
-        <UpdateBanner />
-        <RoyalShareWidget />
-        <InstallPrompt />
-        <UpdatesBar />
+        <GlobalChrome>
+          <UpdateBanner />
+          <RoyalShareWidget />
+          <InstallPrompt />
+          <UpdatesBar />
+        </GlobalChrome>
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}

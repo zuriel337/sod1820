@@ -85,13 +85,17 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   useEffect(() => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
     const t = setTimeout(async () => {
-      if (research) {
-        await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד
-      } else {
-        if (!isAnon()) await addWallWord(word, ragilVal);
-        logSearch(word, ragilVal);                     // ציבורי (logSearch מגן עצמית במצב אנונימי)
-      }
+      // onResult = חישוב טהור בצד הלקוח → פולטים מיד, לפני כל I/O (QuickActions תלוי בו;
+      // אסור שיהיה תלוי בשמירה ל-DB שעלולה להיכשל/להיתקע ברשת/הרשאות).
       if (onResult) onResult({ word, ragil: ragilVal });
+      try {
+        if (research) {
+          await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד
+        } else {
+          if (!isAnon()) await addWallWord(word, ragilVal);
+          logSearch(word, ragilVal);                     // ציבורי (logSearch מגן עצמית במצב אנונימי)
+        }
+      } catch { /* שמירה נכשלה — התוצאה כבר הוצגה */ }
     }, 900);
     return () => clearTimeout(t);
   }, [word, ragilVal, onResult, anon, research]);

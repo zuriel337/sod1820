@@ -1,38 +1,37 @@
 import React, { useState } from "react";
 import ResearchShell from "../components/ResearchShell.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
-import { calcGem } from "../theme.js";
 
-// 🔬 /research — דמו חי של סביבת המחקר (שלב 1): מחשבון-מיני בתוך השלד.
-// «הוסף למחקר» פולט Event → «המחקר הפעיל» בצד מתעדכן בזמן אמת (Research Bus).
-// כל הדפים הקיימים נשארים כשהיו — זה מסך חדש שמדגים את השלד.
+// 🔬 /research — סביבת המחקר (שלב 1): המחשבון האמיתי (כל 17 השיטות, מאומת מול
+// המנוע) בתוך השלד הקבוע. «הוסף למחקר» פולט Event → «המחקר הפעיל» מתעדכן חי
+// (Research Bus). מצב research=true → כל חיפוש נשמר אוטומטית לרשימה הפרטית בלבד.
+// כל הדפים הקיימים (/beit-midrash וכו') נשארים כשהיו — זה מסך חדש שעוטף אותם.
 export default function ResearchPage() {
-  const [term, setTerm] = useState("אלהים");
-  const val = calcGem(term) || 0;
-  const entity = entityFromPhrase(term.trim(), val);
+  const [result, setResult] = useState(null); // { word, ragil } מהמחשבון
+  const entity = result?.word ? entityFromPhrase(result.word, result.ragil) : null;
 
   return (
     <ResearchShell>
       <div className="rw-card">
-        <div className="rw-muted">ביטוי · גימטריה רגילה</div>
-        <input
-          value={term}
-          onChange={e => setTerm(e.target.value)}
-          dir="rtl"
-          aria-label="ביטוי לחישוב"
-          style={{ fontSize: 19, fontWeight: 800, border: "none", background: "transparent", outline: "none", width: "100%", color: "inherit", padding: "4px 0", fontFamily: "inherit" }}
-        />
-        <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -1, margin: "4px 0" }}>{val.toLocaleString("he")}</div>
-        <div className="rw-muted">לחצו «➕ הוסף למחקר» — והביטוי יצטרף ל«המחקר הפעיל» בצד (ויישאר גם כשתעברו כלי).</div>
-        <QuickActions entity={entity} />
+        <div className="rw-muted" style={{ marginBottom: 8, fontWeight: 700 }}>🧮 מחשבון גימטריה · כל 17 השיטות · מאומת במנוע</div>
+        <GematriaCalculator research onResult={setResult} />
+        {entity && (
+          <div style={{ marginTop: 12, borderTop: "1px solid var(--rw-line, #ece4d3)", paddingTop: 12 }}>
+            <div className="rw-muted" style={{ marginBottom: 6 }}>
+              «{entity.title}» = {result.ragil?.toLocaleString("he")} · לחצו «➕ הוסף למחקר» כדי לצרף ל«המחקר הפעיל» בצד (יישאר גם כשתעברו כלי).
+            </div>
+            <QuickActions entity={entity} />
+          </div>
+        )}
       </div>
 
       <div style={{ height: 12 }} />
       <div className="rw-card">
-        <div style={{ fontWeight: 800, fontSize: 15 }}>✨ סביבת המחקר — שלב 1 (דמו)</div>
+        <div style={{ fontWeight: 800, fontSize: 15 }}>✨ סביבת המחקר — שלב 1</div>
         <div className="rw-muted" style={{ marginTop: 4, lineHeight: 1.7 }}>
-          השלד הקבוע · מרכז המחקר (פאנלים) · QuickActions · Event Bus · Local-first. הכלים הקיימים (גימטריה/דילוגים) ייכנסו לכאן בלי לשבור — אותו תוכן, מבנה חדש מסביב.
+          השלד הקבוע · מרכז המחקר (פאנלים) · QuickActions · Event Bus · Local-first. זהו המחשבון האמיתי — אותו מנוע, אותן 17 שיטות — בתוך המבנה החדש. בהמשך ייכנסו גם הדילוגים (ELS) וההצלבות, באותו אופן: אותו תוכן, מבנה חדש מסביב.
         </div>
       </div>
     </ResearchShell>
