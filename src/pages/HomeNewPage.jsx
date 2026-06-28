@@ -101,8 +101,8 @@ export default function HomeNewPage() {
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
 
-  // «עדכונים אחרונים» = פוסטים + גלריות מומלצות, ממוזגים לפי תאריך (החדש למעלה).
-  // הרמזים עצמם מוצגים בנפרד בסקשן "זרם המציאות" — לא משכפלים כאן.
+  // «עדכונים אחרונים» = פוסטים + גלריות מומלצות + רמזים מזרם המציאות, ממוזגים לפי תאריך (החדש למעלה).
+  // כל רמז שעולה לזרם (source='update') נראה כאן ככרטיס-תמונה עם רצועת-מספר ממותגת.
   // הבדלה קלה לפי שערים: פיד אחד, אך פריט שקשור לשער של המשתמש מקבל boost עדין.
   const myTopics = useMemo(() => getStoredTopics(), []);
   const updatesFeed = useMemo(() => {
@@ -122,7 +122,10 @@ export default function HomeNewPage() {
       const rel = isRelatedToTopics(norm, myTopics);
       return { ...it, rel, sortKey: it.date + (rel ? RELATED_BOOST_MS : 0) };
     };
-    return [...ps, ...ss].map(rankItem).sort((a, b) => b.sortKey - a.sortKey).slice(0, 8);
+    // רמזים מזרם המציאות — כל רמז שעלה (source='update') מופיע גם כאן ככרטיס-תמונה,
+    // ממוזג עם הפוסטים לפי תאריך → "רואים שעכשיו עלה עדכון גלריה".
+    const hs = (hints || []).map(h => ({ kind: "hint", date: effDate(h), data: h })).filter(x => x.date > 0);
+    return [...ps, ...ss, ...hs].map(rankItem).sort((a, b) => b.sortKey - a.sortKey).slice(0, 12);
   }, [posts, hints, homeSets, myTopics]);
   const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
@@ -210,10 +213,15 @@ export default function HomeNewPage() {
               const v = domNum(h);
               const title = cleanName(h.name);
               return (
-                <button key={`h${h.id}`} onClick={goReality} className="hn-card" style={{ cursor: "pointer", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
-                  <div style={{ height: 120, position: "relative", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
+                <button key={`h${h.id}`} onClick={() => nav(v != null ? `/number/${v}` : "/reality")} className="hn-card" style={{ cursor: "pointer", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
+                  <div style={{ height: 120, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
                     <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
-                    {v != null && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(212,175,55,0.96)", color: "#1a0e00", fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{v}</span>}
+                    {/* רצועת מספר ממותגת — מאחדת את המראה (גם צילומי מסך נראים נקי) */}
+                    <div style={{ position: "absolute", insetInline: 0, bottom: 0, display: "flex", alignItems: "center", gap: 8, padding: "12px 10px 6px",
+                      background: "linear-gradient(0deg, rgba(18,12,3,0.94), rgba(18,12,3,0.55) 55%, rgba(18,12,3,0))" }}>
+                      {v != null && <span style={{ fontFamily: F.mono, fontWeight: 900, fontSize: 23, lineHeight: 1, color: "#f6e27a", textShadow: "0 1px 7px rgba(0,0,0,0.8)" }}>{v}</span>}
+                      <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#e8c84a", letterSpacing: 1.5, opacity: 0.92 }}>✦ סוד1820</span>
+                    </div>
                   </div>
                   <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז חדש בזרם המציאות"}</div>
