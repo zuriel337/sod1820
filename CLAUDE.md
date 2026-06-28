@@ -107,7 +107,16 @@
 ## 📣 פרסום לפייסבוק/אינסטגרם — דרך SQL, בלי מפתח (`social_publish_law`)
 > **כל סוכן יכול לפרסם לרשתות בלי לבקש מצוריאל את ה-`FB_ADMIN_KEY`.** המפתח שמור ב-Supabase **Vault** (`FB_ADMIN_KEY`) ומוזרק בצד השרת. אל תבקש את הקוד מצוריאל — פשוט הרץ את פונקציות ה-SQL.
 
-**איך מפרסמים (דרך MCP `execute_sql`, project `linswmnnkjxvweumprav`):**
+**✅ מומלץ — פרסום עם תיוג-מקור אוטומטי (`social_post`):** עוטף את פונקציות הליבה, **מוסיף אוטומטית קישור-אתר מתויג** (`?src=…`) לפי הערוץ, מנתב לדף הנכון ומתעד ל-`social_publish_log`. כך כל פוסט נעשה מדיד בדף האדמין («מקורות-הגעה מתויגים») בלי לזכור לתייג. ערוצים: `ig` (אינסטגרם קוד המציאות) · `fb-code` (פייסבוק קוד המציאות) · `fb-meluha` (פייסבוק כי לה' המלוכה).
+```sql
+-- p_dry_run=true → רואים את ה-caption/קישור שייווצרו בלי לפרסם (לאימות לפני שליחה אמיתית)
+select public.social_post('ig', '<image_url>', '<גוף הטקסט>', '/reality');          -- אינסטגרם, נחיתה /reality
+select public.social_post('fb-meluha', '<image_url>', '<גוף הטקסט>', '/');           -- פייסבוק כי לה' המלוכה
+select public.social_post('fb-code', '<image_url>', '<גוף הטקסט>', '/topic/1820', true, true);  -- dry-run
+```
+המפרסם מוסיף `🔗 https://sod1820.co.il<path>?src=<ערוץ>` בסוף ה-caption (אם אין כבר קישור-אתר בגוף). הקישור ב-bio של אינסטגרם הוא שמודד את `?src=ig` (קישור ב-caption של IG אינו לחיץ) — לכן לפרסום ב-IG עדיין חשוב שהקישור ב-bio יישא `?src=ig`.
+
+**פונקציות הליבה (אם צריך שליטה ידנית מלאה / בלי תיוג):**
 ```sql
 select public.fb_publish_photo('<image_url>', '<caption>', '<page_id>');  -- פוסט-תמונה
 select public.fb_publish_post('<message>', '<link?>', '<page_id>');        -- פוסט טקסט+קישור
