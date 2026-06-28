@@ -260,6 +260,15 @@ export default function PostImageCarousel({ value, images }) {
               border: "2px solid rgba(255,255,255,0.55)", background: "rgba(0,0,0,0.7)", color: "#fff", fontSize: 30, lineHeight: 1,
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(3px)",
               boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>×</button>
+
+          {/* פס סגירה תחתון — שחור, תמיד גלוי (גם בתמונה בלי כיתוב) */}
+          <button onClick={(e) => { e.stopPropagation(); setLbIdx(null); }} aria-label="סגור תמונה"
+            style={{ position: "fixed", left: "50%", transform: "translateX(-50%)",
+              bottom: "calc(14px + env(safe-area-inset-bottom))", zIndex: 2147483601,
+              background: "rgba(0,0,0,0.72)", border: "2px solid rgba(255,255,255,0.7)", color: "#fff",
+              fontFamily: F.heading, fontWeight: 800, fontSize: 15.5, borderRadius: 999, padding: "11px 34px",
+              cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 9,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.55)", backdropFilter: "blur(3px)" }}>✕ סגירה</button>
         </div>
       ), document.body)}
 

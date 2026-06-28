@@ -834,6 +834,17 @@ export async function setImageCuration(id, patch) {
   if (error) throw error;
   return data;
 }
+// השורה המלאה של תמונה לפי id — "עץ אחד": העורך מושך את כל השדות (תגיות/מספרים/הגדרות)
+// גם אם נפתח ממקור שמביא רק חלק מהשדות (קרוסלה/עדכונים/חיפוש).
+export async function getGalleryImageFull(id) {
+  if (!supabase || !id) return null;
+  try {
+    const { data } = await supabase.from('gallery_images')
+      .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers')
+      .eq('id', id).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
 export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();

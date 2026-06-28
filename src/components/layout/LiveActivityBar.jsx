@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents } from "../../lib/supabase.js";
+import { getTopicCards, getPostsFromSupabase, getSearchStatsToday, getVerifiedCrossTitles, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
@@ -55,6 +55,17 @@ function useLiveTicker() {
     let live = true;
     async function load() {
       const out = [];
+      // 🌊 הרמז האחרון בזרם המציאות — מילה במילה, מופיע פעמיים (בקשת צוריאל)
+      let hintMsg = null;
+      try {
+        const hints = await getGalleryUpdates(1);
+        const hint = (hints || [])[0];
+        if (hint?.name) {
+          const hv = hint.primary_value != null ? ` · ${hint.primary_value}` : "";
+          hintMsg = `🌊 רמז אחרון בזרם המציאות — ${hint.name}${hv}`;
+        }
+      } catch { /* ignore */ }
+      if (hintMsg) out.push(hintMsg);
       const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
       const convCount = (cards || []).length;
       // — טריים —
@@ -105,6 +116,8 @@ function useLiveTicker() {
       }
       const moed = moedGreeting();
       if (moed) out.push(moed);
+      // 🌊 הרמז שוב — כך הוא מופיע פעמיים לאורך הסבב
+      if (hintMsg) out.push(hintMsg);
       out.push(timeGreeting());
       // — מבקרים היום: רק אם ≥ 2500 —
       try {
@@ -147,24 +160,25 @@ export default function LiveActivityBar() {
         @keyframes lt-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.45; transform:scale(.7); } }
         @keyframes lt-fade { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 
-        .lt-bar { display:flex; align-items:center; justify-content:center; gap:9px; pointer-events:none;
-          overflow:hidden; max-width:100%; box-sizing:border-box;
+        /* הפס: התג «עכשיו באתר» מרחף בצד הימני (position:absolute) ולכן לא נכלל בחישוב המרכז —
+           ההודעה תמיד ממורכזת באמצע הפס המלא. כשההודעה ארוכה היא נמתחת על כל הרוחב. */
+        .lt-bar { position:relative; display:flex; align-items:center; justify-content:center; pointer-events:none;
+          overflow:hidden; max-width:100%; box-sizing:border-box; min-height:30px;
           background:${barBg}; border-bottom:1px solid rgba(212,175,55,0.28); padding:7px 12px; }
-        .lt-badge { flex:none; display:inline-flex; align-items:center; gap:6px;
+        .lt-badge { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%);
+          display:inline-flex; align-items:center; gap:6px;
           color:#1a0e00; background:linear-gradient(135deg,#ffd86b,#d4a017);
           font-family:${F.heading}; font-weight:900; font-size:10.5px; letter-spacing:.3px;
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        /* דסקטופ: רוחב קבוע להודעה → הקבוצה הממורכזת לא משנה רוחב → התג לא זז לפי אורך הטיקר */
-        .lt-msg { flex:none; width:560px; max-width:72vw; text-align:center; color:#ffe6ad;
+        /* ההודעה ממורכזת בכל רוחב הפס; ארוכה → נמתחת עד 92vw (על כל הזה). */
+        .lt-msg { max-width:min(620px, 92vw); margin:0 auto; text-align:center; color:#ffe6ad;
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
-        /* מובייל: התג מעוגן לימין תמיד (flex-start ב-RTL), ההודעה ממלאת את השאר */
         @media (max-width: 640px) {
-          .lt-bar { justify-content:flex-start; }
-          .lt-msg { flex:1 1 auto; width:auto; max-width:none; min-width:0; font-size:11px; }
+          .lt-msg { max-width:calc(100% - 12px); font-size:11px; }
           .lt-badge { font-size:10px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
