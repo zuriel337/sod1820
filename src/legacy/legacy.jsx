@@ -2076,9 +2076,11 @@ const POST_CONTENT_CSS = `
     opacity: 0.92;
   }
 
-  /* ── collapse Elementor spacers & excess whitespace ── */
-  .sod-post-content div[style*="height"] { height: auto !important; max-height: 24px !important; }
-  .sod-post-content div[style*="min-height"] { min-height: 0 !important; }
+  /* ── collapse Elementor spacers & excess whitespace ──
+     מוחל רק על תוכן וורדפרס ישן (:not(.clean)). פוסט נקי (source='ai') מקבל את הקלאס
+     .clean ומדלג על כל כללי ניקוי ה-WP — האתר כבר לא וורדפרס, תוכן חדש לא נוגע בהם. */
+  .sod-post-content:not(.clean) div[style*="height"] { height: auto !important; max-height: 24px !important; }
+  .sod-post-content:not(.clean) div[style*="min-height"] { min-height: 0 !important; }
   .sod-post-content .elementor-spacer,
   .sod-post-content .elementor-spacer-inner { height: 16px !important; }
 
@@ -2099,38 +2101,38 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
 
-  /* ── override dark inline colors from WordPress/Elementor ── */
-  .sod-post-content [style*="color:#000"],
-  .sod-post-content [style*="color: #000"],
-  .sod-post-content [style*="color:black"],
-  .sod-post-content [style*="color: black"],
-  .sod-post-content [style*="color:#111"],
-  .sod-post-content [style*="color:#222"],
-  .sod-post-content [style*="color:#333"] {
+  /* ── override dark inline colors from WordPress/Elementor (legacy בלבד) ── */
+  .sod-post-content:not(.clean) [style*="color:#000"],
+  .sod-post-content:not(.clean) [style*="color: #000"],
+  .sod-post-content:not(.clean) [style*="color:black"],
+  .sod-post-content:not(.clean) [style*="color: black"],
+  .sod-post-content:not(.clean) [style*="color:#111"],
+  .sod-post-content:not(.clean) [style*="color:#222"],
+  .sod-post-content:not(.clean) [style*="color:#333"] {
     color: #ede4d3 !important;
   }
-  .sod-post-content [style*="color:#0000ff"],
-  .sod-post-content [style*="color: #0000ff"],
-  .sod-post-content [style*="color:blue"],
-  .sod-post-content [style*="color: blue"] {
+  .sod-post-content:not(.clean) [style*="color:#0000ff"],
+  .sod-post-content:not(.clean) [style*="color: #0000ff"],
+  .sod-post-content:not(.clean) [style*="color:blue"],
+  .sod-post-content:not(.clean) [style*="color: blue"] {
     color: ${C.goldBright} !important;
   }
 
   /* ── locked-dark posts (legacy-dark): the surface is always near-black, so
        mid-dark grays / muted text become unreadable. Lift them to a readable
        muted-light. Scoped to :not(.themed) so day/night (auto) posts are untouched. ── */
-  .sod-post-content:not(.themed) [style*="color:#444"],
-  .sod-post-content:not(.themed) [style*="color: #444"],
-  .sod-post-content:not(.themed) [style*="color:#555"],
-  .sod-post-content:not(.themed) [style*="color: #555"],
-  .sod-post-content:not(.themed) [style*="color:#666"],
-  .sod-post-content:not(.themed) [style*="color: #666"],
-  .sod-post-content:not(.themed) [style*="color:#777"],
-  .sod-post-content:not(.themed) [style*="color: #777"],
-  .sod-post-content:not(.themed) [style*="color:#888"],
-  .sod-post-content:not(.themed) [style*="color: #888"],
-  .sod-post-content:not(.themed) [style*="color:gray"],
-  .sod-post-content:not(.themed) [style*="color:grey"] {
+  .sod-post-content:not(.themed):not(.clean) [style*="color:#444"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color: #444"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:#555"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color: #555"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:#666"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color: #666"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:#777"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color: #777"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:#888"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color: #888"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:gray"],
+  .sod-post-content:not(.themed):not(.clean) [style*="color:grey"] {
     color: #c9bda3 !important;
   }
 
@@ -2461,7 +2463,7 @@ function PostPage({ post, onBack }) {
 
             <style>{POST_CONTENT_CSS}</style>
             <div
-              className="sod-post-content"
+              className={`sod-post-content${post?.source === "ai" ? " clean" : ""}`}
               dangerouslySetInnerHTML={{ __html: content }}
             />
 
@@ -4535,7 +4537,7 @@ function PostPageBySlug({ onNav }) {
                 💡 כל <b style={{ color: pc.goldBright, borderBottom: `1px dotted ${pc.goldBright}` }}>מספר</b> (ומילה מודגשת) בפוסט לחיץ — לחצו ותיפתח חלונית המספר עם הגימטריה והקשרים, בלי לצאת מהדף.
               </div>
             )}
-            <div className={themed ? "sod-post-content themed" : "sod-post-content"} ref={contentRef}>
+            <div className={`sod-post-content${themed ? " themed" : ""}${post?.source === "ai" ? " clean" : ""}`} ref={contentRef}>
               {/* מרקר גלריה: <div data-sod-gallery="N"></div> → קרוסלת רמזים (קומפוננטת React באותו עץ — קישורים/פלטה עובדים) */}
               {String(content).split(/<div data-sod-gallery="(\d+)"><\/div>/).map((seg, i) =>
                 i % 2 === 1

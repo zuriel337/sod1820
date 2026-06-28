@@ -298,8 +298,8 @@ export const POST_CONTENT_CSS = `
     margin: 6px 0;
     opacity: 0.92;
   }
-  .sod-post-content div[style*="height"] { height: auto !important; max-height: 24px !important; }
-  .sod-post-content div[style*="min-height"] { min-height: 0 !important; }
+  .sod-post-content:not(.clean) div[style*="height"] { height: auto !important; max-height: 24px !important; }
+  .sod-post-content:not(.clean) div[style*="min-height"] { min-height: 0 !important; }
   .sod-post-content .elementor-spacer,
   .sod-post-content .elementor-spacer-inner { height: 16px !important; }
   /* ── ריבוע גימטריה קנוני (post_gematria_box_law) ──
@@ -319,19 +319,19 @@ export const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-rows > div:first-child { margin-top: 0; }
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
-  .sod-post-content [style*="color:#000"],
-  .sod-post-content [style*="color: #000"],
-  .sod-post-content [style*="color:black"],
-  .sod-post-content [style*="color: black"],
-  .sod-post-content [style*="color:#111"],
-  .sod-post-content [style*="color:#222"],
-  .sod-post-content [style*="color:#333"] {
+  .sod-post-content:not(.clean) [style*="color:#000"],
+  .sod-post-content:not(.clean) [style*="color: #000"],
+  .sod-post-content:not(.clean) [style*="color:black"],
+  .sod-post-content:not(.clean) [style*="color: black"],
+  .sod-post-content:not(.clean) [style*="color:#111"],
+  .sod-post-content:not(.clean) [style*="color:#222"],
+  .sod-post-content:not(.clean) [style*="color:#333"] {
     color: #ede4d3 !important;
   }
-  .sod-post-content [style*="color:#0000ff"],
-  .sod-post-content [style*="color: #0000ff"],
-  .sod-post-content [style*="color:blue"],
-  .sod-post-content [style*="color: blue"] {
+  .sod-post-content:not(.clean) [style*="color:#0000ff"],
+  .sod-post-content:not(.clean) [style*="color: #0000ff"],
+  .sod-post-content:not(.clean) [style*="color:blue"],
+  .sod-post-content:not(.clean) [style*="color: blue"] {
     color: ${C.goldBright} !important;
   }
   .sod-post-content video {
