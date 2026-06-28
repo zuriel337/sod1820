@@ -68,9 +68,11 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         @keyframes lb-fade { from { opacity: 0; transform: scale(.975); } to { opacity: 1; transform: scale(1); } }
       `}</style>
 
-      {/* Header — ריווח עליון לפי safe-area כדי שה-X לא ייכנס מתחת לנוץ'/שורת הסטטוס */}
+      {/* Header — ריווח עליון לפי safe-area + scrim שחור כדי שה-X תמיד בולט מעל כל תמונה */}
       <div
-        style={{ display: "flex", alignItems: "center", padding: "max(12px, env(safe-area-inset-top)) 14px 10px", gap: 10, flexShrink: 0 }}
+        style={{ display: "flex", alignItems: "center", padding: "max(12px, env(safe-area-inset-top)) 14px 12px", gap: 10, flexShrink: 0,
+          background: "linear-gradient(180deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0) 100%)",
+          position: "relative", zIndex: 3 }}
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} style={closeBtn} aria-label="סגור">✕</button>
@@ -245,21 +247,45 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
           ))}
         </div>
       )}
+
+      {/* פס סגירה תחתון — שחור, תמיד גלוי. כך תמיד יודעים איפה לסגור (גם בתמונה בלי כיתוב). */}
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          flexShrink: 0, display: "flex", justifyContent: "center",
+          padding: "10px 16px calc(12px + env(safe-area-inset-bottom))",
+          background: "linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0) 100%)",
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="סגור תמונה"
+          style={{
+            background: "rgba(0,0,0,0.72)", border: "2px solid rgba(255,255,255,0.7)",
+            color: "#fff", fontFamily: F.heading, fontWeight: 800, fontSize: 15.5,
+            borderRadius: 999, padding: "11px 34px", cursor: "pointer",
+            display: "inline-flex", alignItems: "center", gap: 9,
+            boxShadow: "0 4px 18px rgba(0,0,0,0.55)", backdropFilter: "blur(3px)",
+          }}
+        >✕ סגירה</button>
+      </div>
     </div>
   ), document.body);
 }
 
 const closeBtn = {
-  background: "rgba(255,255,255,0.12)",
-  border: "1px solid rgba(255,255,255,0.5)",
+  background: "rgba(0,0,0,0.6)",
+  border: "2px solid rgba(255,255,255,0.7)",
   color: "#fff",
   fontSize: 22,
   cursor: "pointer",
-  borderRadius: 10,
-  width: 44, height: 44,
+  borderRadius: 12,
+  width: 46, height: 46,
   display: "flex", alignItems: "center", justifyContent: "center",
   lineHeight: 1,
   flexShrink: 0,
+  backdropFilter: "blur(3px)",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
 };
 
 const navBtnStyle = side => ({
