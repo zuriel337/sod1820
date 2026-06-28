@@ -125,15 +125,33 @@ export function initAppInstallTracking() {
     trackOncePerSession("sod_app_offer", "offer", appMeta());
   });
 
-  // הושלמה התקנה — פנימי + Meta/CAPI.
+  // הושלמה התקנה (אנדרואיד/כרום) — פנימי + Meta/CAPI. מסמנים את המכשיר כמותקן
+  // כדי לא לספור שוב את אותה התקנה דרך האומדן שלמטה.
   window.addEventListener("appinstalled", () => {
     const m = appMeta();
-    track("app", null, "install", m);
-    trackConversion("app_install", m);
+    markInstalledOnce("real", m);
   });
 
   // פתיחה מהאפליקציה המותקנת = חזרה לשימוש (פעם אחת ל-session).
   if (isStandalone()) {
     trackOncePerSession("sod_app_launched", "launch", appMeta());
+    // אומדן התקנה: ב-iOS אין כלל אירוע appinstalled (מוסיפים למסך הבית ידנית),
+    // וגם באנדרואיד הוא לעיתים מתפספס. לכן בפתיחה הראשונה אי-פעם במצב מותקן
+    // (standalone) רושמים install משוער — פעם אחת לכל מכשיר, מסומן inferred=true.
+    markInstalledOnce("inferred", appMeta());
   }
+}
+
+// רישום התקנה פעם-אחת-לכל-מכשיר (localStorage). kind="real" (appinstalled) גובר על
+// "inferred" (אומדן standalone) — שניהם מסמנים את אותו דגל כדי שלא נספור כפול.
+function markInstalledOnce(kind, meta) {
+  try {
+    if (localStorage.getItem("sod_app_installed")) return; // כבר נספר במכשיר הזה
+    localStorage.setItem("sod_app_installed", "1");
+  } catch { /* אם אין localStorage — לא רושמים אומדן כדי לא לספור כפול בכל פתיחה */
+    if (kind === "inferred") return;
+  }
+  const m = { ...meta, ...(kind === "inferred" ? { inferred: true } : {}) };
+  track("app", null, "install", m);
+  trackConversion("app_install", m);
 }

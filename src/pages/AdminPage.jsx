@@ -1518,7 +1518,7 @@ function PopularityTab() {
   const [topImgs, setTopImgs] = useState([]);
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
-  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, launchers: 0, byBrowser: [], byDevice: [], bySource: [] });
+  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, byBrowser: [], byDevice: [], bySource: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1563,13 +1563,16 @@ function PopularityTab() {
             const offers = new Set(appRows.filter(r => r.event_type === "offer").map(r => r.visitor_id)).size;
             const installRows = appRows.filter(r => r.event_type === "install");
             const installs = installRows.length;
+            // התקנות אמיתיות (appinstalled) מול אומדן (פתיחה ראשונה ב-standalone, בעיקר iOS)
+            const installsReal = installRows.filter(r => !r.meta?.inferred).length;
+            const installsInferred = installRows.filter(r => r.meta?.inferred).length;
             const launchers = new Set(appRows.filter(r => r.event_type === "launch").map(r => r.visitor_id)).size;
             const breakdown = (key) => {
               const c = {};
               installRows.forEach(r => { const v = r.meta?.[key]; if (v) c[v] = (c[v] || 0) + 1; });
               return Object.entries(c).sort((a, b) => b[1] - a[1]);
             };
-            setAppStats({ offers, installs, launchers, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
+            setAppStats({ offers, installs, installsReal, installsInferred, launchers, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
             // גולשים ייחודיים
             setUniq(new Set(rows.map(r => r.visitor_id)).size);
           }).catch(() => {}),
@@ -1602,7 +1605,7 @@ function PopularityTab() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14 }}>
           {[
             { emoji: "👀", n: appStats.offers, label: "ראו הצעת התקנה" },
-            { emoji: "📲", n: appStats.installs, label: "התקינו" },
+            { emoji: "📲", n: appStats.installs, label: `התקינו${appStats.installsInferred ? ` (${appStats.installsReal} ודאי · ${appStats.installsInferred} אומדן iOS)` : ""}` },
             { emoji: "👤", n: appStats.launchers, label: "חזרו להשתמש מהאפליקציה" },
             { emoji: "📈", n: appStats.offers ? Math.round((appStats.installs / appStats.offers) * 100) + "%" : "—", label: "יחס המרה (התקנה/הצעה)" },
           ].map((s, i) => (
