@@ -74,10 +74,13 @@ export default function RevelationAxis() {
       .limit(12)
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
 
-    // עדכוני AI — פוסטים מסומנים ai_touched (הבהוב כחול בראש הציר)
+    // עדכוני AI — פוסטים מסומנים ai_touched (הבהוב כחול בראש הציר).
+    // לפי התוכנית: לציר ההתגלות נכנסים רק פוסטים בקטגוריית «רמזים חזקים» (של צוריאל),
+    // לא כל פוסט AI — ולכן מסננים גם לפי הקטגוריה.
     supabase.from("posts")
       .select("wp_id,title,slug,modified")
       .eq("ai_touched", true)
+      .contains("categories", ["רמזים חזקים"])
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(4)
       .then(({ data }) => setAiPosts(data || []));
