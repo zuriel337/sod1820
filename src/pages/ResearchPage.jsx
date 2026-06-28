@@ -3,6 +3,7 @@ import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
+import NameStory from "../components/NameStory.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
@@ -42,6 +43,7 @@ export default function ResearchPage() {
       ) : (
         <>
           <button className="rw-back" onClick={() => setTool(null)}>← בית הכלים</button>
+          {tool === "name" && <NameStory />}
           {tool === "gematria" && <GematriaTool />}
           {tool === "verse" && <VerseSearch />}
           {tool === "midrash" && (
