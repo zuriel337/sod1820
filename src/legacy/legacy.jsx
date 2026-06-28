@@ -11,6 +11,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
+import ChatScrollRail from "../components/ChatScrollRail.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import Lightbox from "../components/Lightbox.jsx";
@@ -4123,45 +4124,12 @@ function SpotimChatPage() {
 
   return (
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
+      {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail). */}
       <style>{`
-        html.sod-chat-scroll { scrollbar-width: auto; scrollbar-color: #ffd86b #14101f; }
-        html.sod-chat-scroll::-webkit-scrollbar { width: 18px; }
-        html.sod-chat-scroll::-webkit-scrollbar-track {
-          background: linear-gradient(90deg,#0a0814,#171228 45%,#0a0814);
-          box-shadow: inset 0 0 9px rgba(0,0,0,.85),
-                      inset 2px 0 0 rgba(150,110,255,.18), inset -2px 0 0 rgba(150,110,255,.18);
-          border-inline-start: 1px solid rgba(212,175,55,.18);
-        }
-        /* האגודל: גליל-זהב מתכתי תלת-מימדי — ברק עליון, צל תחתון, רכס מרכזי והילה. */
-        html.sod-chat-scroll::-webkit-scrollbar-thumb {
-          border-radius: 14px;
-          border: 1px solid rgba(120,80,10,.65);
-          background:
-            linear-gradient(90deg, transparent 46%, rgba(90,55,0,.45) 50%, transparent 54%),
-            linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0) 16%),
-            linear-gradient(90deg,#9c6b12 0%,#ffd86b 26%,#fff4c2 50%,#ffd86b 74%,#8a5e0f 100%);
-          box-shadow:
-            inset 0 2px 3px rgba(255,255,255,.65),
-            inset 0 -4px 7px rgba(70,40,0,.75),
-            inset 3px 0 5px rgba(255,255,255,.22),
-            inset -3px 0 7px rgba(70,40,0,.55),
-            0 0 10px rgba(255,200,80,.55), 0 0 22px rgba(255,170,40,.32);
-        }
-        html.sod-chat-scroll::-webkit-scrollbar-thumb:hover {
-          background:
-            linear-gradient(90deg, transparent 46%, rgba(90,55,0,.4) 50%, transparent 54%),
-            linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0) 18%),
-            linear-gradient(90deg,#b07d1a 0%,#ffe486 26%,#fffbe6 50%,#ffe486 74%,#9c6b12 100%);
-          box-shadow:
-            inset 0 2px 4px rgba(255,255,255,.75),
-            inset 0 -4px 8px rgba(70,40,0,.8),
-            0 0 16px rgba(255,210,90,.85), 0 0 36px rgba(255,180,50,.5);
-        }
-        html.sod-chat-scroll::-webkit-scrollbar-thumb:active {
-          box-shadow: inset 0 3px 6px rgba(70,40,0,.7), inset 0 2px 3px rgba(255,255,255,.5),
-                      0 0 20px rgba(255,210,90,.9);
-        }
+        html.sod-chat-scroll { scrollbar-width: none; }
+        html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
       `}</style>
+      <ChatScrollRail />
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט
