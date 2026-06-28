@@ -177,10 +177,11 @@ export default function LiveActivityBar() {
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
+        /* טלפון: «עכשיו באתר» מוסתר — ההודעה ממורכזת בכל הרוחב. בדסקטופ התג נשאר. */
         @media (max-width: 640px) {
-          .lt-bar { padding:7px 90px; }
+          .lt-bar { padding:7px 16px; }
+          .lt-badge { display:none; }
           .lt-msg { font-size:11px; }
-          .lt-badge { font-size:10px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
