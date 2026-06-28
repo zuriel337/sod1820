@@ -2,7 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration } from "../lib/supabase.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import Lightbox from "../components/Lightbox.jsx";
+import ImageEditModal from "../components/ImageEditModal.jsx";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
@@ -62,6 +65,9 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
+  const { isAdmin } = useAuth();
+  const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
+  const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
   const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
@@ -213,9 +219,11 @@ export default function HomeNewPage() {
               const v = domNum(h);
               const title = cleanName(h.name);
               return (
-                <button key={`h${h.id}`} onClick={() => nav(v != null ? `/number/${v}` : "/reality")} className="hn-card" style={{ cursor: "pointer", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
+                <button key={`h${h.id}`} onClick={() => setLbImg(h)} className="hn-card" style={{ cursor: "zoom-in", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
                   <div style={{ height: 120, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
                     <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
+                    {/* זמן עלייה — על התמונה, כמו בפוסטים */}
+                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🕒 {timeAgoHe(h.created_at || h.occurred_at)}</span>
                     {/* רצועת מספר ממותגת — מאחדת את המראה (גם צילומי מסך נראים נקי) */}
                     <div style={{ position: "absolute", insetInline: 0, bottom: 0, display: "flex", alignItems: "center", gap: 8, padding: "12px 10px 6px",
                       background: "linear-gradient(0deg, rgba(18,12,3,0.94), rgba(18,12,3,0.55) 55%, rgba(18,12,3,0))" }}>
@@ -224,8 +232,8 @@ export default function HomeNewPage() {
                     </div>
                   </div>
                   <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז חדש בזרם המציאות"}</div>
-                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🌊 לזרם המציאות{shortDate(h) ? ` · ${shortDate(h)}` : ""}</div>
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז חדש"}</div>
+                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, lineHeight: 1.5 }}>🌊 בקרוב בזרם המציאות · <span style={{ opacity: 0.85 }}>גלריות דוד המלך לשעבר</span></div>
                   </div>
                 </button>
               );
@@ -402,6 +410,24 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "8px 18px 64px" }}>
         <StayUpdatedCTA variant="home" />
       </section>
+
+      {/* רמז שנפתח כתמונה מלאה (זמני — עד שזרם המציאות יושק). מנהל יכול לערוך משם. */}
+      {lbImg && (
+        <Lightbox images={[lbImg]} onClose={() => setLbImg(null)}
+          note="🌊 בקרוב בזרם המציאות · גלריות דוד המלך לשעבר"
+          onEdit={isAdmin ? (im) => { setLbImg(null); setEditImg(im); } : null} />
+      )}
+      {editImg && (
+        <ImageEditModal image={editImg} onClose={() => setEditImg(null)}
+          onSave={async patch => {
+            if (Object.keys(patch).length) {
+              try { await setImageCuration(editImg.id, patch); setHints(prev => prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x)); }
+              catch (e) { alert("שגיאה בשמירה: " + (e.message || e)); return; }
+            }
+            setEditImg(null);
+          }}
+          onDelete={id => setHints(prev => prev.filter(x => x.id !== id))} />
+      )}
     </div>
   );
 }

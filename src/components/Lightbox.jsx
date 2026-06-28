@@ -6,7 +6,7 @@ import { shortDate, domNum, hintNums } from "../lib/reality.js";
 import { trackShare } from "../lib/tracking.js";
 
 // onEdit(image) — אם מסופק, מציג כפתור ✏️ בראש ה-lightbox (למנהלים בלבד).
-export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit }) {
+export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const [shared, setShared] = useState(false);
@@ -158,11 +158,16 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       </div>
 
       {/* Footer info */}
-      {(title || h?.name || date || h?.description || nums.length > 0 || onEdit) && (
+      {(title || h?.name || date || h?.description || nums.length > 0 || onEdit || note) && (
         <div
           style={{ padding: "10px 20px 14px", textAlign: "center", flexShrink: 0, maxWidth: 720, margin: "0 auto", width: "100%" }}
           onClick={e => e.stopPropagation()}
         >
+          {note && (
+            <div style={{ display: "inline-block", background: "rgba(62,166,255,0.14)", border: "1px solid rgba(62,166,255,0.5)", color: "#8fd0ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, borderRadius: 999, padding: "5px 14px", marginBottom: 10 }}>
+              {note}
+            </div>
+          )}
           {title
             ? <div style={{ color: "#fff", fontFamily: F.regal, fontSize: 16.5, fontWeight: 700, marginBottom: 4 }}>{title}</div>
             : h?.name
