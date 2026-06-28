@@ -2082,6 +2082,23 @@ const POST_CONTENT_CSS = `
   .sod-post-content .elementor-spacer,
   .sod-post-content .elementor-spacer-inner { height: 16px !important; }
 
+  /* ── ריבוע גימטריה קנוני (post_gematria_box_law) ──
+     פתרון שורש ל-legacy_content_protocol §1: כל הסגנון (כולל line-height) חי בקלאס,
+     כך שה-divים אינם מכילים "height" ב-inline ולא נתפסים בכלל הניקוי שמוחץ ל-24px.
+     ה-override (ספציפיות 0,3,1 > 0,2,1) הוא הגנה נוספת. שימוש: <div class="sod-gematria-box"> … </div>. */
+  .sod-post-content .sod-gematria-box {
+    max-width: 560px; margin: 30px auto; padding: 16px 18px; border-radius: 14px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.10), rgba(8,5,16,0.40));
+    border: 1px solid rgba(212,175,55,0.45); direction: rtl; text-align: right;
+  }
+  .sod-post-content .sod-gematria-box div[style*="height"] { max-height: none !important; height: auto !important; }
+  .sod-post-content .sod-gematria-box .gb-title { font-weight: 800; color: ${C.goldBright}; font-size: 1.02em; margin-bottom: 10px; }
+  .sod-post-content .sod-gematria-box .gb-rows { color: #e6e0d2; line-height: 1.95; }
+  .sod-post-content .sod-gematria-box .gb-rows > div { margin-top: 6px; }
+  .sod-post-content .sod-gematria-box .gb-rows > div:first-child { margin-top: 0; }
+  .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
+  .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
+
   /* ── override dark inline colors from WordPress/Elementor ── */
   .sod-post-content [style*="color:#000"],
   .sod-post-content [style*="color: #000"],
@@ -2205,6 +2222,12 @@ const themedPostContentCSS = (P) => `
   .sod-post-content.themed .elementor-tab-title a,
   .sod-post-content.themed .elementor-accordion-title { color: ${P.accentText} !important; }
   .sod-post-content.themed .elementor-button { background: ${P.accentBtn}; color: ${P.onAccent} !important; }
+  /* ריבוע גימטריה — ווריאנט יום (קריא על רקע בהיר) */
+  .sod-post-content.themed .sod-gematria-box { background: ${P.cardSoft}; border-color: ${P.border}; }
+  .sod-post-content.themed .sod-gematria-box .gb-rows,
+  .sod-post-content.themed .sod-gematria-box b { color: ${P.ink}; }
+  .sod-post-content.themed .sod-gematria-box .gb-title { color: ${P.accentText}; }
+  .sod-post-content.themed .sod-gematria-box .gb-note { color: ${P.inkSoft}; }
   /* טקסט שחור/כהה צרוב בתוכן — במצב בהיר נשאר קריא (דיו), לא הופך לזהב כמו בבסיס */
   .sod-post-content.themed [style*="color:#000"],
   .sod-post-content.themed [style*="color: #000"],
