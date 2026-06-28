@@ -8,9 +8,36 @@ import ShareToFacebookBtn from "../components/ShareToFacebookBtn.jsx";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
   getDistinctCategoriesAndTags, getGematriaByValue,
-  getTagCounts, getGalleryNumberTags,
+  getTagCounts, getGalleryNumberTags, getGalleryUpdates, setImageCuration,
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
+import { cleanName } from "../lib/galleryName.js";
+import Lightbox from "../components/Lightbox.jsx";
+import ImageEditModal from "../components/ImageEditModal.jsx";
+
+const REALITY_CAT = "🌊 זרם המציאות";   // קטגוריה-מדומה: מסננת לרמזי זרם המציאות (gallery_images)
+
+// כרטיס רמז (זרם המציאות) — תמונה + רצועת-מספר ממותגת + זמן עלייה. נפתח כתמונה מלאה.
+function RealityHintCard({ h, onOpen, P }) {
+  const v = h.primary_value ?? (h.all_values || [])[0] ?? null;
+  const title = cleanName(h.name);
+  return (
+    <button onClick={onOpen} style={{ cursor: "zoom-in", textAlign: "right", padding: 0, font: "inherit", border: "1px solid #d4af3766", borderRadius: 14, overflow: "hidden", background: P.card, display: "flex", flexDirection: "column" }}>
+      <div style={{ height: 160, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
+        <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
+        <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🕒 {timeAgoHe(h.created_at || h.occurred_at)}</span>
+        <div style={{ position: "absolute", insetInline: 0, bottom: 0, display: "flex", alignItems: "center", gap: 8, padding: "14px 10px 6px", background: "linear-gradient(0deg, rgba(18,12,3,0.94), rgba(18,12,3,0))" }}>
+          {v != null && <span style={{ fontFamily: F.mono, fontWeight: 900, fontSize: 24, lineHeight: 1, color: "#f6e27a", textShadow: "0 1px 7px rgba(0,0,0,0.8)" }}>{v}</span>}
+          <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#e8c84a", letterSpacing: 1.5 }}>✦ סוד1820</span>
+        </div>
+      </div>
+      <div style={{ padding: "10px 12px" }}>
+        <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז"}</div>
+        <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5 }}>🌊 בקרוב בזרם המציאות · גלריות דוד המלך לשעבר</div>
+      </div>
+    </button>
+  );
+}
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
@@ -109,8 +136,13 @@ export default function PostsPage() {
   const searchInput = useRef(null);
   const debounce = useRef(null);
 
+  const realityMode = filterCat === REALITY_CAT;
+  const [rHints, setRHints] = useState([]);   // רמזי זרם המציאות (במצב הפילטר)
+  const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה
+  const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
+
   const q = query.trim();
-  const searching = q.length > 0;
+  const searching = q.length > 0 && !realityMode;
   const gemValue = isNumeric(q) ? parseInt(q, 10) : (isHebrew(q) ? calcGem(q) : null);
   const sortDef = SORTS.find(s => s.key === sort) || SORTS[0];
 
@@ -149,11 +181,18 @@ export default function PostsPage() {
   // איפוס עמוד כשמשתנים פילטר/מיון (במצב גלישה)
   useEffect(() => { if (!searching) setPage(1); }, [sort, filterCat, filterTag, filterYear, filterAuthor, searching]);
 
-  // אפקט גלישה
+  // אפקט גלישה (מדלג במצב זרם המציאות)
   useEffect(() => {
-    if (searching) return;
+    if (searching || realityMode) return;
     loadBrowse(page);
-  }, [searching, page, loadBrowse]);
+  }, [searching, realityMode, page, loadBrowse]);
+
+  // טעינת רמזי זרם המציאות כשהפילטר פעיל
+  useEffect(() => {
+    if (!realityMode) return;
+    setLoading(true); setError("");
+    getGalleryUpdates(60).then(h => { setRHints(h || []); setLoading(false); }).catch(() => { setRHints([]); setLoading(false); });
+  }, [realityMode]);
 
   // אפקט חיפוש (debounce)
   useEffect(() => {
@@ -187,7 +226,7 @@ export default function PostsPage() {
   function toggleYear(y) { setFilterYear(prev => prev === y ? null : y); }
 
   const hasFilter = q || filterCat || filterTag || filterYear;
-  const hasMore = !searching && posts.length < total;
+  const hasMore = !searching && !realityMode && posts.length < total;
   // תגית-מספר פעילה? (למשל "16" או "14 = דוד") — גשר אל הגלריה/מגירת המספר
   const tagNum = filterTag && /^\d+/.test(filterTag) ? parseInt(filterTag.match(/^\d+/)[0], 10) : null;
   const tagGallery = tagNum != null ? galleryNums.find(g => g.n === tagNum) : null;
@@ -279,8 +318,10 @@ export default function PostsPage() {
 
         {showFilters && (<>
         {/* גלולות קטגוריה */}
-        {cats.length > 0 && (
-          <div className="pp-row pp-pills">
+        <div className="pp-row pp-pills">
+            {/* זרם המציאות — קטגוריה-מדומה (רמזי גלריה), תמיד ראשונה */}
+            <button className={`pp-pill${realityMode ? " active" : ""}`} onClick={() => toggleCat(REALITY_CAT)}
+              style={{ borderColor: "#3ea6ff", color: realityMode ? undefined : "#3ea6ff" }}>🌊 זרם המציאות</button>
             {shownCats.map(c => (
               <button key={c} className={`pp-pill${filterCat === c ? " active" : ""}`} onClick={() => toggleCat(c)}>{c}</button>
             ))}
@@ -290,7 +331,6 @@ export default function PostsPage() {
               </button>
             )}
           </div>
-        )}
 
         {/* שנים */}
         <div className="pp-row pp-pills pp-years">
@@ -359,7 +399,9 @@ export default function PostsPage() {
       {/* מצב/סטטוס */}
       {!loading && !error && (
         <div className="pp-status">
-          {searching
+          {realityMode
+            ? `${rHints.length.toLocaleString()} רמזים · בקרוב בזרם המציאות`
+            : searching
             ? `${posts.length.toLocaleString()} תוצאות${posts.length >= 48 ? "+" : ""}`
             : total > 0 ? `${total.toLocaleString()} פוסטים` : ""}
         </div>
@@ -367,8 +409,18 @@ export default function PostsPage() {
 
       {error && <div style={{ textAlign: "center", color: C.crimsonLight, fontFamily: F.body, padding: 20 }}>{error}</div>}
 
-      {/* תוצאות */}
-      {posts.length === 0 && loading ? (
+      {/* תוצאות — מצב זרם המציאות (רמזים) */}
+      {realityMode ? (
+        rHints.length === 0 && loading ? (
+          <div className="pp-empty">טוען רמזים…</div>
+        ) : rHints.length === 0 ? (
+          <div className="pp-empty">אין רמזים עדיין בזרם המציאות.</div>
+        ) : (
+          <div className="pp-grid">
+            {rHints.map(h => <RealityHintCard key={h.id} h={h} P={P} onOpen={() => setLbImg(h)} />)}
+          </div>
+        )
+      ) : posts.length === 0 && loading ? (
         <div className="pp-empty">טוען פוסטים…</div>
       ) : posts.length === 0 ? (
         <div className="pp-empty">לא נמצאו פוסטים{hasFilter ? " — נסו לשנות את החיפוש או הפילטרים" : ""}.</div>
@@ -515,6 +567,24 @@ export default function PostsPage() {
         @keyframes pp-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (prefers-reduced-motion: reduce) { .pp-card { animation: none; } }
       `}</style>
+
+      {/* רמז זרם המציאות שנפתח כתמונה מלאה (זמני) + עריכת מנהל */}
+      {lbImg && (
+        <Lightbox images={[lbImg]} onClose={() => setLbImg(null)}
+          note="🌊 בקרוב בזרם המציאות · גלריות דוד המלך לשעבר"
+          onEdit={isAdmin ? (im) => { setLbImg(null); setEditImg(im); } : null} />
+      )}
+      {editImg && (
+        <ImageEditModal image={editImg} onClose={() => setEditImg(null)}
+          onSave={async patch => {
+            if (Object.keys(patch).length) {
+              try { await setImageCuration(editImg.id, patch); setRHints(prev => prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x)); }
+              catch (e) { alert("שגיאה בשמירה: " + (e.message || e)); return; }
+            }
+            setEditImg(null);
+          }}
+          onDelete={id => setRHints(prev => prev.filter(x => x.id !== id))} />
+      )}
     </div>
   );
 }
