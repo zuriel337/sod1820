@@ -25,10 +25,15 @@ import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from ".
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import ViralIntelTab from "../components/ViralIntelTab.jsx";
+import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
+import NumberHeatGrid from "../components/NumberHeatGrid.jsx";
+import { computePulse } from "../lib/reality.js";
+import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "../lib/heatmap.js";
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
   { key: "viral",    label: "🔥 ויראליות" },
   { key: "research", label: "🧪 מעבדת צוריאל" },
@@ -104,6 +109,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
       {tab === "viral" && <ViralIntelTab />}
       {tab === "research" && <ResearchTab />}
@@ -1399,6 +1405,105 @@ const WINDOWS = [
   { label: "30 ימים", days: 30 },
   { label: "הכל", days: 0 },
 ];
+
+// ===== HeatmapTab — מרכז מפות החום (עדשה אחת על העץ) =====
+// שלוש מפות חום מעל אותם נתונים + סטטוס מפת החום ההתנהגותית (Microsoft Clarity).
+//   1. חום מספרים  — gallery_images (דופק מציאות) + visitor_events (צפיות) → /number/:n
+//   2. חום קלנדרי  — מתי הועלו רמזים (occurred_at) בסגנון GitHub
+//   3. חום מדורים  — אילו אזורי-אתר נצפים הכי הרבה
+function HeatmapTab() {
+  const [hints, setHints] = useState([]);
+  const [views, setViews] = useState({});
+  const [sectionCounts, setSectionCounts] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const [hintsData] = await Promise.all([getRealityHints(1000)]);
+        // צפיות בדפי מספר + ספירת מדורים מתוך visitor_events (2000 אחרונות)
+        let viewMap = {}, secMap = {};
+        if (supabase) {
+          const { data } = await supabase.from("visitor_events")
+            .select("section, slug")
+            .order("created_at", { ascending: false })
+            .limit(2000);
+          for (const r of data || []) {
+            if (r.section) secMap[r.section] = (secMap[r.section] || 0) + 1;
+            if (r.section === "number" && r.slug != null) {
+              const n = Number(r.slug);
+              if (Number.isFinite(n)) viewMap[n] = (viewMap[n] || 0) + 1;
+            }
+          }
+        }
+        if (!alive) return;
+        setHints(hintsData || []);
+        setViews(viewMap);
+        setSectionCounts(secMap);
+      } catch { /* noop */ }
+      finally { if (alive) setLoading(false); }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const numberHeat = useMemo(() => {
+    const pulse = computePulse(hints);
+    return computeNumberHeat(pulse.rows, views);
+  }, [hints, views]);
+  const sectionHeat = useMemo(() => computeSectionHeat(sectionCounts), [sectionCounts]);
+
+  if (loading) return <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 14, textAlign: "center", padding: 30 }}>טוען מפות חום…</div>;
+
+  return (
+    <div style={{ display: "grid", gap: 22 }}>
+      {/* 1 — מפת חום התנהגותית (Microsoft Clarity) */}
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 8 }}>🖱 מפת חום התנהגותית — קליקים · גלילה · עכבר</div>
+        {CLARITY_CONFIGURED ? (
+          <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+            ✅ Microsoft Clarity מחובר ופעיל. מפות החום, הקלטות הסשנים ומפות הגלילה זמינות בלוח של Clarity (לא משתכפלות כאן — מקור אחד).
+            <div style={{ marginTop: 8 }}>
+              <a href="https://clarity.microsoft.com" target="_blank" rel="noreferrer" style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 700 }}>פתח את לוח Clarity →</a>
+            </div>
+          </div>
+        ) : (
+          <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+            ⚠️ הקוד מחובר אבל חסר מזהה. מפות החום ההתנהגותיות (קליקים/גלילה/עכבר) ייפתחו ברגע שיוגדר משתנה הסביבה.
+            <ol style={{ margin: "8px 0 0", paddingInlineStart: 20, color: C.muted, fontSize: 13 }}>
+              <li>היכנס ל-<a href="https://clarity.microsoft.com" target="_blank" rel="noreferrer" style={{ color: C.goldBright }}>clarity.microsoft.com</a> → New project → העתק את ה-Project ID.</li>
+              <li>ב-Vercel → Settings → Environment Variables → הוסף <code style={{ color: C.goldBright }}>VITE_CLARITY_ID</code> עם ה-ID.</li>
+              <li>Redeploy — והמפות ההתנהגותיות יתחילו להיאסף.</li>
+            </ol>
+          </div>
+        )}
+      </div>
+
+      {/* 2 — מפת חום של נתונים: המספרים החמים → /number/:n */}
+      <NumberHeatGrid rows={numberHeat} limit={60} />
+
+      {/* 3 — מפת חום קלנדרית: מתי הועלו רמזים */}
+      <CalendarHeatmap items={hints} days={364} title="🔥 מפת חום קלנדרית — רמזי המציאות לאורך זמן" />
+
+      {/* 4 — מפת חום של מדורי האתר */}
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 12 }}>🔥 מפת חום — אזורי האתר הנצפים ביותר</div>
+        <div style={{ display: "grid", gap: 6 }}>
+          {sectionHeat.map(r => (
+            <div key={r.section} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 110, color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, textAlign: "left", flex: "0 0 auto" }}>{sectionLabel(r.section)}</span>
+              <div style={{ flex: 1, height: 16, borderRadius: 6, background: "rgba(212,175,55,0.06)", overflow: "hidden" }}>
+                <div style={{ width: `${Math.max(3, r.heat * 100)}%`, height: "100%", background: heatColor(r.heat), borderRadius: 6 }} />
+              </div>
+              <span style={{ width: 48, color: C.goldDim, fontFamily: F.mono, fontSize: 12, textAlign: "right", flex: "0 0 auto" }}>{r.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 const SECTION_LABELS = {
   home: "דף הבית", number: "מספרים", convergence: "התכנסויות",
   post: "פוסטים", "reality-stream": "זרם המציאות",
