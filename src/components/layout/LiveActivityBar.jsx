@@ -154,7 +154,7 @@ export default function LiveActivityBar() {
   // קצב רגוע (בקשת צוריאל). פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
   useEffect(() => {
     if (msgs.length < 2) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 9500 : 6000);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 12000 : 7500);
     return () => clearTimeout(id);
   }, [i, msgs.length, isVerse]);
 
