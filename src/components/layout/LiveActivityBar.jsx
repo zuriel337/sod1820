@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates } from "../../lib/supabase.js";
+import { getTopicCards, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
@@ -74,6 +74,10 @@ function useLiveTicker() {
       const out = [];
       const dayIdx = Math.floor(Date.now() / 864e5);
       const verse = k => "📜 " + VERSES[(dayIdx + k) % VERSES.length];
+      // 📌 הודעות-טיקר ידניות (צוריאל שולט) — ראשונות, ומופיעות שוב באמצע הסבב
+      let featured = [];
+      try { featured = await getTickerMessages(); } catch { /* ignore */ }
+      for (const f of featured) out.push(f);
       // 🌊 הרמז האחרון בזרם המציאות — מילה במילה, מופיע פעמיים (בקשת צוריאל)
       let hintMsg = null;
       try {

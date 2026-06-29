@@ -494,6 +494,18 @@ export async function getVerifiedCrossTitles(limit = 3) {
     return (data || []).map(r => r.title).filter(Boolean);
   } catch { return []; }
 }
+// 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
+// להוסיף: insert into ticker_messages(text,priority) · להסיר: update ... set is_active=false.
+export async function getTickerMessages() {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("ticker_messages")
+      .select("text").eq("is_active", true)
+      .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(10);
+    return (data || []).map(r => r.text).filter(Boolean);
+  } catch { return []; }
+}
+
 // 📁 דף העבודה של המשתמש — שמירות פרטיות (הצלבות / צירי התכנסות). RLS: רק המשתמש עצמו.
 export async function saveUserItem({ kind, ref, title, link, note }) {
   if (!supabase) return { error: "no-client" };
