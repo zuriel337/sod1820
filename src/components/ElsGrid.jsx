@@ -129,19 +129,27 @@ export default function ElsGrid({ seed }) {
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
     if (subFocus) subFocus.hit.positions.forEach(p => colorMap.set(p, 1)); // המונח-המשני בצבע נפרד
-    const W = Math.abs(anchorHit.skip), L = anchorHit.positions.length;
-    const termRow = Math.floor(anchorHit.start / W), termCol = anchorHit.start % W;
-    const colWin = Math.min(W, 21), colStart = W <= 21 ? 0 : Math.max(0, Math.min(W - colWin, termCol - Math.floor(colWin / 2)));
-    const ROWS = L + 10, rowStart = termRow - 4, rows = [];
-    for (let r = 0; r < ROWS; r++) {
-      const mRow = rowStart + r, cells = [];
+    // 🔲 רוחב-תצוגה שממלא את הדף: דילוג קטן → כפולה שלו הקרובה ל-TARGET (לא «טור של 2»);
+    // דילוג גדול → רוחב=דילוג עם חלון ממורכז. כך המטריצה תמיד נפתחת רחב.
+    const s = Math.abs(anchorHit.skip), TARGET = 28;
+    const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
+    // ממסגרים סביב המילה/האשכול (מיקומים קרובים), לא סביב הצבעים החיצוניים
+    const framePos = res.mode === "single" ? anchorHit.positions
+      : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
+    const minP = Math.min(...framePos), maxP = Math.max(...framePos);
+    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+    let colWin = W2, colStart = 0;
+    if (W2 > 34) { colWin = 29; const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - 14)); }
+    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 90), rows = [];
+    for (let r = rowStart; r <= rowEnd; r++) {
+      const cells = [];
       for (let c = 0; c < colWin; c++) {
-        const i = mRow * W + (colStart + c);
-        cells.push(mRow >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, idx: i } : { ch: "", ci: -1, idx: -1 });
+        const i = r * W2 + (colStart + c);
+        cells.push(r >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, idx: i } : { ch: "", ci: -1, idx: -1 });
       }
       rows.push(cells);
     }
-    return { rows, W };
+    return { rows, W: W2, skip: s };
   }, [res, anchorHit, clusterIdx, letters, subFocus]);
 
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
@@ -256,7 +264,7 @@ export default function ElsGrid({ seed }) {
     <div>
       <style>{ELS_CSS}</style>
       <div className="rw-h1">🔡 דילוגי אותיות</div>
-      <div className="rw-sub">מונח אחד → עמודה אנכית. כמה מונחים (משפחה, מופרדים בפסיק) → המערכת מוצאת אותם ב<b>קרבה</b> במטריצה אחת. «כולל קרובים» מאתר גם התאמות עם אות אחת שונה. <b>משמעות = חקירה, לא הוכחה.</b></div>
+      <div className="rw-sub"><b>שני מונחים יחד</b> (מופרדים בפסיק — «דוד, שלמה») → המערכת מוצאת אותם ב<b>קרבה</b> ומציגה את <b>התוצאה הכי טובה</b> במטריצה אחת. מונח אחד → המילה מודגשת לאורך הדילוג. «כולל קרובים» מאתר גם התאמה עם אות שונה. <b>משמעות = חקירה, לא הוכחה.</b></div>
 
       <div className="rw-card">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -299,7 +307,7 @@ export default function ElsGrid({ seed }) {
         : cluster0
           ? <div className="rw-card" style={{ marginTop: 12 }}>
               <div style={{ fontWeight: 800, marginBottom: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <span>✦ אשכול — כל המונחים בטווח <b style={{ color: C.acc }}>{cluster0.span.toLocaleString("he")}</b> אותיות · 📍 {locOf(cluster0.picks[0].hit.start).label}</span>
+                <span>✦ התוצאה הכי טובה — {terms.length} מונחים בטווח <b style={{ color: C.acc }}>{cluster0.span.toLocaleString("he")}</b> אותיות · 📍 {locOf(cluster0.picks[0].hit.start).label}{res.clusters.length > 1 ? ` · מתוך ${res.clusters.length} אשכולות` : ""}</span>
                 <button onClick={() => setFull(true)} style={{ ...chip, marginInlineStart: "auto", cursor: "pointer" }}>⛶ מסך מלא</button>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -371,7 +379,7 @@ export default function ElsGrid({ seed }) {
 
       {/* ===== המטריצה + רשימה ===== */}
       {grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
-      {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב הדילוג ({grid.W}) — {isCluster ? "כל מונח בצבע משלו" : "המונח עומד בעמודה האנכית"}.</div>}
+      {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
 
       {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={TORAH_BOOKS} total={res.hits.length} capped={res.capped} />}
 

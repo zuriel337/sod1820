@@ -97,7 +97,11 @@ export const rwCss = (t = RW) => `
   .rw-adv{margin-inline-start:auto;font-size:10.5px;font-weight:800;background:var(--accS);color:var(--acc);border-radius:999px;padding:2px 9px}
   .rw-exp{color:var(--ink3);font-size:11.5px;font-weight:600;line-height:1.5;padding:0 13px 8px;border-bottom:1px solid var(--line)}
   .rw-exp b{color:var(--acc)}
-  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 5px 18px -12px rgba(60,46,16,.20),0 1px 2px rgba(60,46,16,.05)}
+  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 9px 26px -12px rgba(60,46,16,.26),0 2px 5px -2px rgba(60,46,16,.10)}
+  /* צללית-כיוון גם כשהצדדים פתוחים — הפאנלים «מטילים» צל אל התוכן (כמו המסילה הסגורה) */
+  .rw-pwrap:not(.left) .rw-panel{box-shadow:-9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
+  .rw-pwrap.left .rw-panel{box-shadow:9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
+  .rw-pwrap.left .rw-tabbar{box-shadow:9px 8px 24px -14px rgba(60,46,16,.26)}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}
