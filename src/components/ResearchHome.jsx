@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { isToolReady } from "../lib/hub/ready.js";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
 // כל כלי = כרטיס. live = נפתח בתוך השלד · open = דף קיים (פתיחה חוצה) · soon = בקרוב.
@@ -23,20 +24,22 @@ export const TOOLS = [
 ];
 
 function ToolCard({ t, onOpen }) {
-  const badge = t.status === "live" ? <span className="bg live">● פעיל</span>
+  // בתקופת השדרוג: רק כלים מוכנים (מספר/מחשבון) פתוחים. השאר — «בשדרוג».
+  const ready = isToolReady(t.id);
+  const badge = !ready ? <span className="bg soon">🔒 בשדרוג</span>
     : t.status === "open" ? <span className="bg open">פתח »</span>
-    : <span className="bg soon">בקרוב</span>;
+    : <span className="bg live">● פעיל</span>;
   const inner = (
     <>
-      <div className="ic">{t.icon}</div>
+      <div className="ic">{ready ? t.icon : "🔒"}</div>
       <div className="tt">{t.title}</div>
       <div className="ds">{t.desc}</div>
       {badge}
     </>
   );
-  if (t.status === "live") return <button className="rw-tool" onClick={() => onOpen(t.id)}>{inner}</button>;
+  if (!ready) return <div className="rw-tool dis" title="בשדרוג — ייפתח בקרוב">{inner}</div>;
   if (t.status === "open") return <Link className="rw-tool" to={t.to}>{inner}</Link>;
-  return <div className="rw-tool dis">{inner}</div>;
+  return <button className="rw-tool" onClick={() => onOpen(t.id)}>{inner}</button>;
 }
 
 export default function ResearchHome({ onOpen }) {

@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
+import { isToolReady } from "../lib/hub/ready.js";
 import QuickActions from "../components/QuickActions.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
@@ -60,13 +61,29 @@ export default function ResearchPage() {
       {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
       <div className="rw-toolbar">
         <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
-        {LAB_TOOLS.map(t => (
-          <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}>{t.icon} {t.title}</button>
-        ))}
+        {LAB_TOOLS.map(t => {
+          const locked = !isToolReady(t.id);
+          return (
+            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}
+              title={locked ? "בשדרוג — בקרוב" : t.title} style={locked ? { opacity: 0.6 } : undefined}>
+              {locked ? "🔒" : t.icon} {t.title}
+            </button>
+          );
+        })}
       </div>
 
       {!tool ? (
         <ResearchHome onOpen={setTool} />
+      ) : !isToolReady(tool) ? (
+        <div className="rw-card" style={{ textAlign: "center", padding: "44px 20px" }}>
+          <div style={{ fontSize: 46, marginBottom: 14 }}>🔬</div>
+          <div style={{ fontFamily: "inherit", fontSize: 20, fontWeight: 800, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>הכלי בשדרוג</div>
+          <div className="rw-muted" style={{ fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 18px" }}>
+            המעבדה עוברת שדרוג מסיבי — הכלי הזה ייפתח בקרוב לכל החוקרים.<br />כרגע פתוחים: <b>המחשבון</b> ו<b>דף המספר</b>.
+          </div>
+          <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
+          <button className="rw-tchip" onClick={() => setTool(null)}>← מרכז הגילוי</button>
+        </div>
       ) : (
         <>
           {tool === "journey" && <SearchJourney onOpenTool={openTool} />}

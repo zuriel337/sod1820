@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { isToolReady, UPGRADE_MSG } from "../../lib/hub/ready.js";
 
 // 🧪 LabDock — דוק-כלים תחתון קבוע (Research OS · Shell גלובלי).
 // «אותם דפים, מעטפת אחת»: הדוק חי מחוץ לראוטים → לא קופץ במעבר בין כלים.
@@ -16,9 +17,13 @@ const TOOLS = [
 // היכן הדוק מופיע — דפי-כלים/ישויות (לא בית/פוסטים). מעטפת המעבדה מעל אותם דפים.
 const SHOW = /^\/(number|numbers|research|beit-midrash|archive|verse|name|gematria|חישוב|reveal)/;
 
+// כלים פתוחים בדוק: מוכנים (מספר/מחשבון) + «עוד» (תפריט המעבדה). השאר — נעולים.
+const dockReady = (id) => id === "more" || isToolReady(id);
+
 export default function LabDock() {
   const { pathname, search } = useLocation();
   const nav = useNavigate();
+  const [msg, setMsg] = useState("");
   if (!SHOW.test(pathname)) return null;
 
   const tool = new URLSearchParams(search).get("tool");
@@ -28,16 +33,25 @@ export default function LabDock() {
     : pathname.startsWith("/beit-midrash") ? "midrash"
     : null;
 
+  const onPick = (t) => {
+    if (!dockReady(t.id)) { setMsg(UPGRADE_MSG); setTimeout(() => setMsg(""), 2600); return; }
+    nav(t.to);
+  };
+
   return (
     <nav className="labdock" aria-label="כלי המעבדה">
       <style>{DOCK_CSS}</style>
-      {TOOLS.map(t => (
-        <button key={t.id} className={`ld-item${activeId === t.id ? " on" : ""}`}
-          onClick={() => nav(t.to)} title={t.label}>
-          <span className="ld-i">{t.icon}</span>
-          <span className="ld-l">{t.label}</span>
-        </button>
-      ))}
+      {msg && <div className="ld-toast">{msg}</div>}
+      {TOOLS.map(t => {
+        const locked = !dockReady(t.id);
+        return (
+          <button key={t.id} className={`ld-item${activeId === t.id ? " on" : ""}${locked ? " locked" : ""}`}
+            onClick={() => onPick(t)} title={locked ? "בשדרוג — בקרוב" : t.label}>
+            <span className="ld-i">{locked ? "🔒" : t.icon}</span>
+            <span className="ld-l">{t.label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
@@ -56,6 +70,12 @@ const DOCK_CSS = `
 .ld-item.on{background:linear-gradient(135deg,#f6dd92,#d4af37);color:#1a0e00}
 .ld-i{font-size:19px;line-height:1}
 .ld-l{font-size:11px;font-weight:800}
+.ld-item.locked{opacity:.62}
+.ld-item.locked:hover{background:rgba(255,255,255,.05);color:#c8b78a}
+.ld-toast{position:absolute;top:-46px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:rgba(10,7,3,.97);border:1px solid rgba(212,175,55,.5);color:#f6e27a;
+  font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5)}
 @media (max-width:560px){
   .labdock{left:8px;right:8px;transform:none;justify-content:space-between;gap:2px;padding:5px}
   .ld-item{padding:6px 6px;min-width:0;flex:1}
