@@ -10,6 +10,7 @@ import ElsGrid from "../components/ElsGrid.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
+import SearchJourney from "../components/SearchJourney.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
@@ -19,13 +20,13 @@ const BeitMidrashPage = lazy(() => import("./BeitMidrashPage.jsx"));
 // 🔬 /research — סביבת המחקר (שלב 1). מסך פתיחה = בית-הכלים; בחירת כלי פותחת
 // אותו בתוך השלד. «הוסף למחקר» פולט Event → «המחקר הפעיל» מתעדכן חי (Research Bus).
 // כל הדפים הקיימים נשארים כשהיו — זה מסך חדש שעוטף אותם.
-function GematriaTool() {
+function GematriaTool({ seed }) {
   const [result, setResult] = useState(null); // { word, ragil } מהמחשבון
   const entity = result?.word ? entityFromPhrase(result.word, result.ragil) : null;
   return (
     <div className="rw-card">
       <div className="rw-muted" style={{ marginBottom: 8, fontWeight: 700 }}>🧮 מחשבון גימטריה · כל 17 השיטות · מאומת במנוע</div>
-      <GematriaCalculator research onResult={setResult} />
+      <GematriaCalculator research seed={seed} onResult={setResult} />
       {entity && (
         <div style={{ marginTop: 12, borderTop: "1px solid var(--rw-line, #ece4d3)", paddingTop: 12 }}>
           <div className="rw-muted" style={{ marginBottom: 6 }}>
@@ -46,9 +47,12 @@ export default function ResearchPage() {
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
 
-  // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי
+  // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
+  const seed = sp.get("q") || "";
   const setTool = t => setSp(t ? { tool: t } : {});
+  // 🔗 «תחבר הכל»: מסע-חיפוש פותח כל מנוע עם המונח טעון מראש (els/gematria/verse…)
+  const openTool = (t, q) => setSp(q ? { tool: t, q } : { tool: t });
 
   return (
     <ResearchShell>
@@ -64,12 +68,13 @@ export default function ResearchPage() {
         <ResearchHome onOpen={setTool} />
       ) : (
         <>
+          {tool === "journey" && <SearchJourney onOpenTool={openTool} />}
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
-          {tool === "els" && <ElsGrid />}
+          {tool === "els" && <ElsGrid seed={seed} />}
           {tool === "life" && <LifeProfile />}
-          {tool === "gematria" && <GematriaTool />}
-          {tool === "verse" && <VerseSearch />}
+          {tool === "gematria" && <GematriaTool seed={seed} />}
+          {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (
             <Suspense fallback={<div className="rw-card rw-muted">טוען את בית המדרש…</div>}>

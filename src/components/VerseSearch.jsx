@@ -9,17 +9,20 @@ import { calcGem } from "../theme.js";
 // כבר מחושב מראש (רגיל, סופיות=בסיס) → תואם את מנוע האתר. כל פסוק = ישות בגרף.
 const isNum = s => /^\d+$/.test(s.trim());
 
-export default function VerseSearch() {
+export default function VerseSearch({ seed }) {
   const [data, setData] = useState(null);   // { books, verses:[[b,c,v,t,g]] }
   const [err, setErr] = useState(false);
   const [mode, setMode] = useState("text"); // text | gematria
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(seed || "");
 
   useEffect(() => {
     let live = true;
     fetch("/torah-verses.json").then(r => r.json()).then(j => { if (live) setData(j); }).catch(() => live && setErr(true));
     return () => { live = false; };
   }, []);
+
+  // זריעה ממסע-החיפוש
+  useEffect(() => { if (seed) setQ(seed); }, [seed]);
 
   const term = q.trim();
   const target = mode === "gematria" ? (isNum(term) ? parseInt(term, 10) : calcGem(term)) : 0;

@@ -10,10 +10,10 @@ const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
-export default function ElsGrid() {
+export default function ElsGrid({ seed }) {
   const [letters, setLetters] = useState("");
   const [err, setErr] = useState(false);
-  const [raw, setRaw] = useState("ישראל");
+  const [raw, setRaw] = useState(seed || "ישראל");
   const [book, setBook] = useState("all");
   const [skipMax, setSkipMax] = useState(1000);
   const [pattern, setPattern] = useState("range");
@@ -22,7 +22,10 @@ export default function ElsGrid() {
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
   const [full, setFull] = useState(false);
-  const [q, setQ] = useState({ raw: "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+
+  // זריעה ממסע-החיפוש: מונח חדש ב-URL → טוען ומריץ אוטומטית
+  useEffect(() => { if (seed) { setRaw(seed); setHitIdx(0); setClusterIdx(0); setQ(p => ({ ...p, raw: seed })); } }, [seed]);
 
   useEffect(() => {
     let ok = true;
