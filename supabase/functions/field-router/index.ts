@@ -48,10 +48,20 @@ const OUTPUT_SHAPE = `{
   "insight_level": "low | medium | high"
 }`;
 
+// 🧭 שכבת-פרשנות ל«מסע חיפוש» — צורה פשוטה: סיכום + קשרים + שאלות-המשך. עובדה ≠ הוכחה.
+const JOURNEY_SHAPE = `{
+  "summary": "",
+  "connections": ["קשר/דפוס מהעובדות בלבד"],
+  "questions": ["שאלת-המשך לחקירה"],
+  "confidence": "low | medium | high"
+}`;
+
 const LENSES: Record<string, string> = {
   narrative: "נתח כסיפור-חיים ודפוסים רגשיים, אך תרגם הכל למבנה הפלט האחיד.",
   structure: "נתח מבנה בלבד — צירים, אשכולות, צפיפות-זמן וקשרים. בלי סיפור.",
+  journey: "אתה שכבת-פרשנות לתוצאות חיפוש בתורה (גימטריה/דילוגים/פסוקים). סכם מה נמצא, הצע קשרים מהעובדות בלבד, והצע שאלות-המשך. אל תכריע משמעות — חקירה, לא הוכחה.",
 };
+const SHAPE_FOR = (lens: string) => (lens === "journey" ? JOURNEY_SHAPE : OUTPUT_SHAPE);
 
 function parseJsonLoose(text: string): unknown {
   let s = (text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
@@ -64,8 +74,8 @@ async function callClaude(input: unknown, core: unknown, lens: string): Promise<
   const sys =
     `אתה מנוע ב«מרכז מחקר זהות». ${LENSES[lens] || ""}\n` +
     `⚠️ מנוע הליבה כבר חישב את כל ערכי הגימטריה — הם תחת "core_values". אסור לחשב/לשנות מספרים, רק לפרש.\n` +
-    `החזר אך ורק JSON תקין בפורמט האחיד (בלי טקסט/Markdown):\n${OUTPUT_SHAPE}\n` +
-    `כללים: בלי ניחוש/עתידות/מיסטיקה — רק דפוסים מהנתונים. כל פריט = node/edge, ומתחבר לציר הראשי (השם).`;
+    `החזר אך ורק JSON תקין בפורמט האחיד (בלי טקסט/Markdown):\n${SHAPE_FOR(lens)}\n` +
+    `כללים: בלי ניחוש/עתידות/מיסטיקה — רק דפוסים מהנתונים. חקירה, לא הוכחה.`;
   const user = `קלט:\n${JSON.stringify(input)}\n\ncore_values:\n${JSON.stringify(core)}`;
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",

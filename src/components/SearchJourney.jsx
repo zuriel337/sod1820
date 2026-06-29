@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { computeEntity } from "../lib/research/coreEngine.js";
 import { elsSearch } from "../features/els/Els.jsx";
 import { getTorahLetters, getTorahVerses, heNorm, verseRef } from "../lib/research/torah.js";
-import { getGematriaByValues } from "../lib/supabase.js";
+import { getGematriaByValues, supabase } from "../lib/supabase.js";
 import { entityFromPhrase } from "../lib/research/entity.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "./QuickActions.jsx";
 
 // 🧭 מסע חיפוש — כלי-הדגל. קלט אחד → כל המנועים רצים במקביל → דוח-מחקר אחד.
@@ -14,15 +15,35 @@ import QuickActions from "./QuickActions.jsx";
 const METHOD_SHOW = ["רגיל", "מילוי", "מסתתר", "סידורי", "אתבש", "ריבוע", "קדמי"];
 
 export default function SearchJourney({ onOpenTool }) {
+  const { isAdmin } = useAuth();
   const [raw, setRaw] = useState("");
   const [busy, setBusy] = useState(false);
   const [rep, setRep] = useState(null);
   const [err, setErr] = useState("");
+  const [ai, setAi] = useState(null);       // { loading, out, msg }
+
+  // 🤖 ניתוח AI — אדמין בלבד (החלטת צוריאל). שולח את העובדות שכבר חושבו (לא מחשב),
+  // מקבל פרשנות בצורת journey (summary/connections/questions). שכבת-פרשנות מעל העובדות.
+  const runAi = useCallback(async r => {
+    setAi({ loading: true });
+    try {
+      const input = {
+        term: r.term, ragil: r.ent.primary,
+        els: r.els ? { min_skip: r.els.skip, occurrences: r.els.count, plain_in_text: r.plain } : null,
+        verse_occurrences: r.occ.length, verse_refs: r.occ.slice(0, 5).map(v => verseRef(r.vdata, v)),
+        same_value_verses: r.sameVal.length, related_same_value: r.related || [],
+      };
+      const { data, error } = await supabase.functions.invoke("field-router", { body: { input, core_values: r.ent.values, lenses: ["journey"] } });
+      if (error) throw error;
+      if (data?.gated) setAi({ msg: data.reason === "rate" ? "הגעת למכסת ההרצות היומית." : "אין הרשאה כרגע (התחבר כאדמין)." });
+      else { const o = (data?.outputs || []).find(x => x.out)?.out; o ? setAi({ out: o }) : setAi({ msg: "המודל לא החזיר פלט תקין." }); }
+    } catch (e) { setAi({ msg: "שגיאה: " + (e?.message || String(e)).slice(0, 80) }); }
+  }, []);
 
   const run = useCallback(async term => {
     const t = String(term || "").trim();
     if (heNorm(t).length < 2) { setErr("הקלידו שם או ביטוי (לפחות 2 אותיות בעברית)."); return; }
-    setBusy(true); setErr(""); setRep(null);
+    setBusy(true); setErr(""); setRep(null); setAi(null);
     try {
       const ent = computeEntity(t);          // 🧮 ליבת הגימטריה — מקור-אמת יחיד
       const norm = heNorm(t);
@@ -140,6 +161,28 @@ export default function SearchJourney({ onOpenTool }) {
               {rep.els && <li>«{rep.term}» מופיע כדילוג בתורה (מינימלי {rep.els.skip.toLocaleString("he")}). <b>דילוג קצר ≠ הוכחה</b> — אפשר למצוא דילוגים בכל טקסט גדול; זו עדשת-חקירה.</li>}
               <li>צעד-המשך: פתחו את דף-המספר {rep.ent.primary.toLocaleString("he")} לראות אילו אירועים · התכנסויות · פוסטים מחוברים אליו.</li>
             </ul>
+
+            {/* 🤖 ניתוח AI — אדמין בלבד */}
+            {isAdmin && (
+              <div className="sj-ai">
+                {!ai && <button className="sj-ai-btn" onClick={() => runAi(rep)}>🤖 נתח ב-AI</button>}
+                {ai?.loading && <div className="rw-muted">ה-AI מנתח את הממצאים…</div>}
+                {ai?.msg && <div className="sj-ai-msg">{ai.msg} <button className="sj-ai-retry" onClick={() => runAi(rep)}>נסה שוב</button></div>}
+                {ai?.out && (
+                  <div className="sj-ai-out">
+                    <div className="sj-ai-h">🔵 ניתוח AI {ai.out.confidence && <span className="sj-ai-conf">ביטחון: {({ low: "נמוך", medium: "בינוני", high: "גבוה" })[ai.out.confidence] || ai.out.confidence}</span>}</div>
+                    {ai.out.summary && <p className="sj-ai-sum">{ai.out.summary}</p>}
+                    {Array.isArray(ai.out.connections) && ai.out.connections.length > 0 && <>
+                      <div className="sj-ai-t">קשרים אפשריים</div>
+                      <ul className="sj-interp-list">{ai.out.connections.map((c, i) => <li key={i}>{c}</li>)}</ul></>}
+                    {Array.isArray(ai.out.questions) && ai.out.questions.length > 0 && <>
+                      <div className="sj-ai-t">שאלות להמשך</div>
+                      <ul className="sj-interp-list">{ai.out.questions.map((c, i) => <li key={i}>{c}</li>)}</ul></>}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="sj-note">⚖️ הפרדה: למעלה — ממצאים מחושבים במנוע הרשמי. כאן — פרשנות שהמשתמש מחליט עליה. המערכת מציגה, לא מכריעה.</div>
           </Section>
         </>
@@ -191,4 +234,13 @@ const SJ_CSS = `
 .sj-interp-list{margin:0;padding-inline-start:18px}
 .sj-interp-list li{margin:5px 0;color:var(--ink);font-size:14px}
 .sj-note{margin-top:10px;font-size:12.5px;color:var(--ink2);background:var(--bg);border-radius:9px;padding:9px 12px}
+.sj-ai{margin:12px 0 4px}
+.sj-ai-btn{border:none;background:#1f6feb;color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:9px 20px;cursor:pointer;font-family:inherit}
+.sj-ai-msg{font-size:13px;color:#b4453a}
+.sj-ai-retry{margin-inline-start:8px;border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:3px 10px;cursor:pointer;font-family:inherit;color:var(--ink2)}
+.sj-ai-out{background:#eef5ff;border:1px solid #d6e4ff;border-radius:11px;padding:13px 16px;margin-top:6px}
+.sj-ai-h{font-weight:800;color:#1f6feb;font-size:14px;display:flex;align-items:center;gap:10px}
+.sj-ai-conf{font-size:11px;font-weight:700;color:#1f6feb;background:#dbe9ff;border-radius:999px;padding:2px 9px}
+.sj-ai-sum{margin:8px 0;color:var(--ink);font-size:14.5px;line-height:1.55}
+.sj-ai-t{font-weight:800;font-size:12.5px;color:var(--ink2);margin-top:8px}
 `;
