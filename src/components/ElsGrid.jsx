@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TORAH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
+import ElsAnalysis from "./ElsAnalysis.jsx";
 
 // 🔡 מסך הדילוגים — בהיר, מתאים לסביבה. רוכב על מנוע ה-ELS הקיים (לא מחשב מחדש).
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
@@ -231,6 +232,8 @@ export default function ElsGrid({ seed }) {
       {/* ===== המטריצה + רשימה ===== */}
       {grid && <div className="rw-card" style={{ marginTop: 12 }}><Matrix big={false} /></div>}
       {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב הדילוג ({grid.W}) — {isCluster ? "כל מונח בצבע משלו" : "המונח עומד בעמודה האנכית"}.</div>}
+
+      {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={TORAH_BOOKS} total={res.hits.length} capped={res.capped} />}
 
       {res && <div className="rw-card" style={{ marginTop: 12 }}><ResultsList /></div>}
 
