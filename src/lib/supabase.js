@@ -114,6 +114,24 @@ export async function getGematriaByValue(value) {
   return data ?? [];
 }
 
+// הצלבה-המונית: לכל ערך ברשימה — אילו ביטויים במאגר האתר שווים לו (לכלי «ניתוח קובץ»).
+// מחזיר Map: value → [phrases]. שאילתה אחת (IN) במקום בקשה לכל ערך.
+export async function getGematriaByValues(values) {
+  const uniq = [...new Set((values || []).filter(v => Number.isFinite(v) && v > 0))];
+  const out = new Map();
+  if (!supabase || !uniq.length) return out;
+  const { data } = await supabase
+    .from('gematria_words')
+    .select('phrase, ragil')
+    .in('ragil', uniq)
+    .limit(2000);
+  for (const r of data ?? []) {
+    if (!out.has(r.ragil)) out.set(r.ragil, []);
+    out.get(r.ragil).push(r.phrase);
+  }
+  return out;
+}
+
 // ✦ מילים חדשות מהקהילה — N הביטויים האחרונים שנוספו למאגר (מאומתים), עם זמן.
 export async function getRecentCommunityWords(limit = 4) {
   if (!supabase) return [];
