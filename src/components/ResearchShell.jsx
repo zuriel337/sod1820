@@ -13,7 +13,7 @@ const ICONS = { tools: ["🔧", "🤖"], context: ["👤", "🧠", "📂", "🗺
 // ארגז-הכלים ההקשרי של כל מודול (מנועי המחקר). ניתן להרחבה — מודול חדש = שורה.
 const TOOL_ENGINES = {
   journey: { title: "מסע חיפוש", items: ["גימטריה (ליבה)", "דילוגי אותיות", "פסוקים (פרק:פסוק)", "מאותו ערך במאגר", "מספרים קשורים", "עובדה ⇄ פרשנות", "פתח כל מנוע בנפרד"] },
-  els: { title: "דילוגי אותיות", items: ["חיפוש שם", "כמה מונחים יחד", "כולל קרובים", "מרחקי דילוג", "כיוון", "ספר", "תבניות דילוג", "רשימת תוצאות + מיקום", "צפיפות + גרף מרחקים", "מסך מלא"] },
+  els: { title: "דילוגי אותיות", items: ["חיפוש שם", "כמה מונחים יחד", "חיפוש בתוך חיפוש (קרבה)", "כולל קרובים", "מרחקי דילוג", "כיוון", "ספר", "רשימת תוצאות + מיקום", "צפיפות + גרף מרחקים", "מסך מלא"] },
   name: { title: "תורת השם", items: ["17 שיטות", "פסוק לשם", "התכנסויות", "בני משפחה", "כרטיס שיתוף", "ניתוח AI"] },
   midrash: { title: "בית המדרש", items: ["שיטות הצלבה", "מפרשים", "פסוקים קשורים", "גימטריה · מילוי · אתב״ש", "השוואות"] },
   life: { title: "ניתוח חיים · מפת שדה", items: ["צירי זמן", "אשכולות", "קשרים", "פילטרים", "השוואת מפות", "Insight", "Story"] },
@@ -64,8 +64,8 @@ export default function ResearchShell({ children }) {
     return <button className="rw-grip" title="גרור לשינוי רוחב" onPointerDown={down} onPointerMove={move} onPointerUp={up}><b>⋮⋮</b></button>;
   };
   // מסילה מקופלת: אייקון-פאנל פותח · אייקוני-תוכן הם קיצורים. בשמאל כל אייקון פותח לטאב שלו.
-  const Rail = ({ icons, tabs, onOpen, onPick, dot }) => (
-    <div className="rw-rail">
+  const Rail = ({ icons, tabs, onOpen, onPick, dot, side }) => (
+    <div className={"rw-rail " + (side === "left" ? "l" : "r")}>
       {dot && <span className="rw-rail-dot" />}
       <button className="rw-rail-toggle" onClick={onOpen} title="פתח סרגל"><PanelIcon size={20} /></button>
       <div className="rw-rail-icons">
@@ -103,7 +103,7 @@ export default function ResearchShell({ children }) {
       </header>
 
       <div className={"rw-stage" + (!rightOpen && !leftOpen ? " wide" : "")}>
-        {rightOpen ? <><RightPanel /><Grip side="right" /></> : <Rail icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
+        {rightOpen ? <><RightPanel /><Grip side="right" /></> : <Rail side="right" icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
 
         <main className="rw-work">{children}</main>
 
@@ -113,7 +113,7 @@ export default function ResearchShell({ children }) {
                 <div className="rw-phead"><span>עולם המשתמש</span><button onClick={() => setLeftOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
                 <ResearchCenter variant="context" tabbed activeTab={leftTab} onTab={setLeftTab} />
               </aside></>
-          : <Rail tabs={LEFT_TABS} dot={leftDot} onPick={openLeftTo} onOpen={() => setLeftOpen(true)} />}
+          : <Rail side="left" tabs={LEFT_TABS} dot={leftDot} onPick={openLeftTo} onOpen={() => setLeftOpen(true)} />}
       </div>
 
       <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ▲</button>

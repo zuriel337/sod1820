@@ -46,9 +46,14 @@ export const rwCss = (t = RW) => `
   .rw-grip:hover{color:var(--acc)}
   .rw-grip b{writing-mode:vertical-rl;font-size:14px;letter-spacing:-2px;line-height:.6;user-select:none}
   /* סרגל-סגול נקי בסגנון ChatGPT: אייקון-פאנל למעלה (פתיחה) + אייקוני התוכן */
-  .rw-rail{flex:0 0 50px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:16px;
-    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 0;position:relative;font-family:inherit}
-  .rw-rail:hover{background:var(--accS);border-color:var(--acc)}
+  /* מסילה צפה בסגנון אפליקציית-בנק (דיסקונט/ChatGPT): צללית-עומק רכה + הילה, פתוח וסגור */
+  .rw-rail{flex:0 0 52px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:18px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;position:relative;font-family:inherit;
+    box-shadow:0 8px 28px -10px rgba(60,46,16,.26),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55);transition:box-shadow .18s,transform .18s,background .18s,border-color .18s}
+  .rw-rail:hover{background:var(--accS);border-color:var(--acc);box-shadow:0 14px 36px -10px rgba(60,46,16,.34),0 3px 8px -2px rgba(60,46,16,.16);transform:translateY(-1px)}
+  /* צללית-כיוון: המסילה «מטילה» צל אל תוך התוכן (ימין→שמאל · שמאל→ימין) — האפקט שאהבת */
+  .rw-rail.r{box-shadow:-10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
+  .rw-rail.l{box-shadow:10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
   .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg);border:1px solid var(--line);cursor:pointer;font-family:inherit}
   .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
   .rw-rail-icons{display:flex;flex-direction:column;gap:8px;font-size:18px;opacity:.92}
@@ -92,7 +97,7 @@ export const rwCss = (t = RW) => `
   .rw-adv{margin-inline-start:auto;font-size:10.5px;font-weight:800;background:var(--accS);color:var(--acc);border-radius:999px;padding:2px 9px}
   .rw-exp{color:var(--ink3);font-size:11.5px;font-weight:600;line-height:1.5;padding:0 13px 8px;border-bottom:1px solid var(--line)}
   .rw-exp b{color:var(--acc)}
-  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 5px 18px -12px rgba(60,46,16,.20),0 1px 2px rgba(60,46,16,.05)}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}

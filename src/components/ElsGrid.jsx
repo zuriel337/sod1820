@@ -23,6 +23,9 @@ export default function ElsGrid({ seed }) {
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
   const [full, setFull] = useState(false);
+  const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
+  const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
+  const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
   const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
 
   // זריעה ממסע-החיפוש: מונח חדש ב-URL → טוען ומריץ אוטומטית
@@ -56,7 +59,8 @@ export default function ElsGrid({ seed }) {
     return { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  const subSearch = () => { setSubIdx(0); setSubTerm(subRaw.trim()); };
 
   const locOf = useCallback(idx => {
     const b = TORAH_BOOKS.slice(1).find(b => idx >= b.from && idx < b.to);
@@ -72,6 +76,25 @@ export default function ElsGrid({ seed }) {
     return cl ? cl.picks[0].hit : null;
   }, [res, hitIdx, clusterIdx]);
 
+  const centerOf = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
+
+  // ---- חיפוש בתוך חיפוש — מציאת מונח-משני הקרוב ביותר לעוגן הפעיל ----
+  const subRes = useMemo(() => {
+    if (!letters || !anchorHit) return null;
+    const norm = elsNormalize(subTerm);
+    if (norm.length < 2) return null;
+    const bk = TORAH_BOOKS.find(b => b.key === q.book) || TORAH_BOOKS[0];
+    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
+    const r = elsSearch(letters, norm, 2, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+    const aC = centerOf(anchorHit);
+    const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
+    const within = d => list.filter(x => x.dist <= d).length;
+    const avg = list.length ? Math.round(list.reduce((s, x) => s + x.dist, 0) / list.length) : 0;
+    return { norm, list, count: r.hits.length, capped: r.capped, within, avg };
+  }, [letters, subTerm, q, anchorHit]);
+
+  const subFocus = subRes?.list[Math.min(subIdx, (subRes.list.length || 1) - 1)] || null;
+
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
@@ -81,6 +104,7 @@ export default function ElsGrid({ seed }) {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
+    if (subFocus) subFocus.hit.positions.forEach(p => colorMap.set(p, 1)); // המונח-המשני בצבע נפרד
     const W = Math.abs(anchorHit.skip), L = anchorHit.positions.length;
     const termRow = Math.floor(anchorHit.start / W), termCol = anchorHit.start % W;
     const colWin = Math.min(W, 21), colStart = W <= 21 ? 0 : Math.max(0, Math.min(W - colWin, termCol - Math.floor(colWin / 2)));
@@ -94,7 +118,7 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W };
-  }, [res, anchorHit, clusterIdx, letters]);
+  }, [res, anchorHit, clusterIdx, letters, subFocus]);
 
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
   const ctl = { fontSize: 15, fontWeight: 700, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: C.bg, color: C.ink, outline: "none", fontFamily: "inherit" };
@@ -229,6 +253,50 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
+      {/* ===== חיפוש בתוך חיפוש ===== */}
+      {res?.mode === "single" && res.hits?.length > 0 && (
+        <div className="rw-card els-sub" style={{ marginTop: 12 }}>
+          <div className="els-sub-bar">
+            <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
+            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && subSearch()}
+              placeholder={`מונח נוסף — נמצא את הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
+            <button className="els-sub-btn" onClick={subSearch} disabled={elsNormalize(subRaw).length < 2}>מצא קרוב</button>
+            {subTerm && <button className="els-sub-clear" onClick={() => { setSubTerm(""); setSubRaw(""); }}>נקה</button>}
+          </div>
+          {subRes && (subRes.list.length ? (
+            <>
+              <div className="els-sub-stats">
+                <span style={chip}>«{subRes.norm}» הקרוב ביותר: <b style={{ color: TERM_COLORS[1] }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
+                <span style={chip}>📍 {locOf(subFocus.hit.start).label} · אות {locOf(subFocus.hit.start).off.toLocaleString("he")}</span>
+                <span style={chip}>דילוג {Math.abs(subFocus.hit.skip).toLocaleString("he")}</span>
+                <span style={chip}>סך מופעים <b>{subRes.count.toLocaleString("he")}{subRes.capped ? "+" : ""}</b></span>
+                <span style={chip}>בתוך 1,000 אות <b>{subRes.within(1000).toLocaleString("he")}</b></span>
+                <span style={chip}>בתוך 5,000 <b>{subRes.within(5000).toLocaleString("he")}</b></span>
+                <span style={chip}>מרחק ממוצע <b>{subRes.avg.toLocaleString("he")}</b></span>
+              </div>
+              <div className="els-sub-note">המונח-המשני מודגש במטריצה (אם בטווח) בצבע שני. ככל שהמרחק קטן יותר — הקרבה גדולה. עובדה מדידה, לא הוכחה.</div>
+              <div className="els-list" style={{ marginTop: 10 }}>
+                <div className="els-list-h">📋 {subRes.list.length} מופעים של «{subRes.norm}» — ממוין לפי קרבה</div>
+                <div className="els-list-body">
+                  {subRes.list.slice(0, 60).map((x, i) => {
+                    const l = locOf(x.hit.start);
+                    return (
+                      <button key={i} className={"els-row" + (i === Math.min(subIdx, subRes.list.length - 1) ? " on" : "")} onClick={() => setSubIdx(i)}>
+                        <span className="els-rk">{i + 1}</span>
+                        <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
+                        <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
+                        <span className="els-rc">{l.label}</span>
+                        <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~קרוב" : ""}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          ) : <div className="rw-muted" style={{ marginTop: 10 }}>«{subRes.norm}» לא נמצא כדילוג עד {q.skipMax}. הגדילו דילוג או סמנו «כולל קרובים».</div>)}
+        </div>
+      )}
+
       {/* ===== המטריצה + רשימה ===== */}
       {grid && <div className="rw-card" style={{ marginTop: 12 }}><Matrix big={false} /></div>}
       {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב הדילוג ({grid.W}) — {isCluster ? "כל מונח בצבע משלו" : "המונח עומד בעמודה האנכית"}.</div>}
@@ -257,6 +325,14 @@ export default function ElsGrid({ seed }) {
 
 const ELS_CSS = `
 .els-chk{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer}
+.els-sub-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.els-sub-t{font-weight:800;font-size:14px;color:var(--ink)}
+.els-sub-in{flex:1 1 200px;text-align:center;font-size:15px;font-weight:700;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-family:inherit;outline:none}
+.els-sub-btn{border:none;background:var(--acc);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:9px 18px;cursor:pointer;font-family:inherit}
+.els-sub-btn:disabled{opacity:.5;cursor:default}
+.els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
+.els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
 .els-list-h{font-weight:800;font-size:13px;color:var(--ink2);margin-bottom:8px}
 .els-list-body{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow:auto}
 .els-row{display:flex;align-items:center;gap:9px;width:100%;text-align:start;background:var(--bg);border:1px solid var(--line);
