@@ -48,37 +48,39 @@ export default function EntityHubRails({ entity, left, right }) {
   ), document.body);
 }
 
+// פלטה בהירה נקייה (research_workspace_law) — «כמו Claude, לא GPT»: קרם/לבן, קווים דקים,
+// טקסט כהה, נגיעת-זהב עדינה. לא דארק-מוד. שקט, אוורירי, מודרני.
 const RAILS_CSS = `
 /* דסקטופ בלבד בשלב זה — מובייל נשאר מרכז-נקי (Bottom-Sheet בהמשך) */
-.ehr{display:none}
+.ehr{display:none;font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
 @media (min-width:1024px){ .ehr{display:block;position:fixed;top:0;bottom:0;z-index:46;pointer-events:none} }
 .ehr-right{inset-inline-end:0}
 .ehr-left{inset-inline-start:0}
-/* לשונית סגורה — פתיתה דקה אנכית באמצע הקצה */
+/* לשונית סגורה — כפתור עדין נקי באמצע הקצה */
 .ehr-tab{pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);
   display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
-  background:linear-gradient(160deg,rgba(28,20,11,.92),rgba(8,5,2,.92));
-  border:1px solid rgba(212,175,55,.45);color:#e8c840;font-family:inherit;
-  padding:14px 7px;box-shadow:0 6px 22px rgba(0,0,0,.5)}
+  background:#fffdf8;border:1px solid #ece4d3;color:#6b6150;font-family:inherit;
+  padding:15px 8px;box-shadow:0 8px 26px -10px rgba(60,46,16,.22),0 2px 6px -2px rgba(60,46,16,.10);
+  transition:color .15s,border-color .15s,box-shadow .15s,background .15s}
 .ehr-right .ehr-tab{inset-inline-end:0;border-inline-end:none;border-radius:14px 0 0 14px}
 .ehr-left .ehr-tab{inset-inline-start:0;border-inline-start:none;border-radius:0 14px 14px 0}
-/* באתר רחב — לפנות מקום לציר-ההתגלות (left:86) */
-@media (min-width:1380px){ .ehr-left .ehr-tab{inset-inline-start:90px} }
-.ehr-tab:hover{color:#f6e27a;border-color:#d4af37}
+.ehr-tab:hover{color:#b07d12;border-color:#e3cf94;background:#fff;
+  box-shadow:0 12px 32px -10px rgba(60,46,16,.30),0 3px 8px -2px rgba(60,46,16,.14)}
 .ehr-tab-i{font-size:17px}
 .ehr-tab-t{writing-mode:vertical-rl;font-size:12.5px;font-weight:800;letter-spacing:1px}
-/* פאנל פתוח */
+/* פאנל פתוח — לבן נקי, קו-זהב דק */
 .ehr-panel{pointer-events:auto;position:absolute;top:0;bottom:0;width:min(330px,86vw);
-  display:flex;flex-direction:column;background:linear-gradient(180deg,#14100a,#0a0703);
-  box-shadow:0 0 40px rgba(0,0,0,.6);animation:ehr-in .22s ease}
-.ehr-right .ehr-panel{inset-inline-end:0;border-inline-start:1px solid rgba(212,175,55,.3)}
-.ehr-left .ehr-panel{inset-inline-start:0;border-inline-end:1px solid rgba(212,175,55,.3)}
+  display:flex;flex-direction:column;background:#fffdf8;
+  box-shadow:0 0 50px -8px rgba(60,46,16,.22);animation:ehr-in .22s ease}
+.ehr-right .ehr-panel{inset-inline-end:0;border-inline-start:1px solid #ece4d3}
+.ehr-left .ehr-panel{inset-inline-start:0;border-inline-end:1px solid #ece4d3}
 @keyframes ehr-in{from{opacity:0;transform:translateX(var(--d,12px))}to{opacity:1;transform:none}}
 .ehr-left .ehr-panel{--d:-12px}
-.ehr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;
-  border-bottom:1px solid rgba(212,175,55,.2);color:#f6e27a;font-family:inherit;font-size:15px;font-weight:800}
-.ehr-x{cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.4);color:#e8c840;
-  width:34px;height:34px;border-radius:9px;font-size:15px}
+.ehr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 16px;
+  border-bottom:1px solid #ece4d3;color:#221d12;font-family:inherit;font-size:15px;font-weight:800}
+.ehr-x{cursor:pointer;background:#f4eede;border:1px solid #ece4d3;color:#6b6150;
+  width:34px;height:34px;border-radius:9px;font-size:15px;transition:color .15s,background .15s}
+.ehr-x:hover{color:#b07d12;background:#f3e6c2}
 .ehr-body{flex:1;overflow-y:auto;padding:14px 16px;direction:rtl}
-.ehr-empty{color:#a89060;font-family:inherit;font-size:13px;line-height:1.7}
+.ehr-empty{color:#9a8f78;font-family:inherit;font-size:13px;line-height:1.7}
 `;

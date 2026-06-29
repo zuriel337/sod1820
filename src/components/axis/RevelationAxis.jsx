@@ -94,6 +94,8 @@ export default function RevelationAxis() {
 
   // לא מציגים בעמודי עיצוב/ניהול — ובעמוד הציר המלא הציר הוא התוכן עצמו
   if (pathname.startsWith("/theme-preview") || pathname.startsWith("/admin")) return null;
+  // בעמודי-המעבדה (קירות המחקר) — הציר לא מופיע ולא «זז»: הקירות מקבלים שקט נקי.
+  if (/^\/(number|numbers|research|beit-midrash)/.test(pathname)) return null;
   if (!events.length && !aiPosts.length) return null;
 
   return (

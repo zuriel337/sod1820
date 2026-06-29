@@ -1,6 +1,18 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { ENTITY_ICON } from "../lib/research/entity.js";
+
+// פריט-ישות לחיץ — מנווט ליעד (e.link) אם קיים; אחרת צ'יפ פשוט. כפתור-פעולה בצד.
+function EntityRow({ e, onRemove, removeIcon = "✕" }) {
+  const label = <>{ENTITY_ICON[e.type] || "•"} <span className="rw-er-t">{e.title}</span></>;
+  return (
+    <div className="rw-er">
+      {e.link ? <Link to={e.link} className="rw-er-lk">{label}</Link> : <span className="rw-er-lk">{label}</span>}
+      {onRemove && <button className="rw-er-x" title="הסר" onClick={() => onRemove(e)}>{removeIcon}</button>}
+    </div>
+  );
+}
 
 // פאנל בודד — מודול עצמאי (Panel Registry).
 function Panel({ icon, title, extra, children, bare }) {
@@ -18,7 +30,7 @@ function Panel({ icon, title, extra, children, bare }) {
 // tabbed: השמאל כטאבים — פשוט וברור (טאב אחד פעיל) אך משוכלל (badge · נשמר · נפתח לטאב מהמסילה).
 // כשטאבים — activeTab/onTab מנוהלים מבחוץ (השלד) כדי שהמסילה תפתח ישר לטאב.
 export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
-  const { cart = [], saved = [], removeFromResearch } = useResearch();
+  const { cart = [], saved = [], pinned = [], removeFromResearch, removeSaved, togglePin } = useResearch();
   const [localTab, setLocalTab] = useState("me");
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
@@ -32,19 +44,19 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
         </div>
       </Panel>
     ) },
-    { id: "active", icon: "🧠", label: "מחקר", badge: () => cart.length, render: bare => (
-      <Panel icon="🧠" title="המחקר הפעיל" extra={cart.length || null} bare={bare}>
-        {cart.length === 0
-          ? <div className="rw-empty">לחצו «➕ הוסף למחקר» על מספר · ביטוי · פוסט — והם יצטברו כאן, ויישארו גם כשתעברו כלי.</div>
+    { id: "active", icon: "🧠", label: "מחקר", badge: () => cart.length + pinned.length, render: bare => (
+      <Panel icon="🧠" title="המחקר הפעיל" extra={(cart.length + pinned.length) || null} bare={bare}>
+        {cart.length === 0 && pinned.length === 0
+          ? <div className="rw-empty">לחצו «➕ הוסף למחקר» או «📌 הצמד» על מספר · ביטוי · פוסט — והם יצטברו כאן, ויישארו גם כשתעברו כלי.</div>
           : <>
-              {cart.map((e, i) => (
-                <React.Fragment key={e.id}>
-                  {i > 0 && <div className="rw-arrow">↓</div>}
-                  <span className="rw-chip" title="הסר מהמחקר" style={{ cursor: "pointer" }} onClick={() => removeFromResearch?.(e.id)}>
-                    {ENTITY_ICON[e.type] || "•"} {e.title}
-                  </span>
-                </React.Fragment>
-              ))}
+              {pinned.length > 0 && <>
+                <div className="rw-sec-t">📌 מוצמדים</div>
+                {pinned.map(e => <EntityRow key={e.id} e={e} onRemove={x => togglePin?.(x)} removeIcon="📌" />)}
+              </>}
+              {cart.length > 0 && <>
+                <div className="rw-sec-t" style={{ marginTop: pinned.length ? 10 : 0 }}>🔬 במחקר עכשיו</div>
+                {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
+              </>}
               <div className="rw-cta"><button className="b1">🤖 נתח</button><button className="b2">✦ הצלב</button></div>
             </>}
       </Panel>
@@ -53,7 +65,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
       <Panel icon="📂" title="שמורים" extra={saved.length || null} bare={bare}>
         {saved.length === 0
           ? <div className="rw-empty">השמורים שלך יופיעו כאן — לחצו ⭐ על כל ישות.</div>
-          : saved.slice(0, 8).map(e => <div className="rw-savei" key={e.id}>{ENTITY_ICON[e.type] || "•"} <span>{e.title}</span></div>)}
+          : saved.slice(0, 12).map(e => <EntityRow key={e.id} e={e} onRemove={x => removeSaved?.(x.id)} />)}
       </Panel>
     ) },
     { id: "whatsnew", icon: "🔔", label: "חדש", render: bare => (

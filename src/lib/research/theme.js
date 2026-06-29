@@ -119,6 +119,17 @@ export const rwCss = (t = RW) => `
   .rw-qa button:active{transform:scale(.96)}
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
+  /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
+  .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
+  .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}
+  .rw-er-lk{flex:1;display:flex;align-items:center;gap:7px;min-width:0;text-decoration:none;color:var(--ink);
+    background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:13.5px;font-weight:700;
+    transition:border-color .15s,background .15s}
+  a.rw-er-lk:hover{border-color:var(--acc);background:var(--accS)}
+  .rw-er-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rw-er-x{flex:none;border:none;background:none;cursor:pointer;color:var(--ink3);font-size:14px;
+    width:30px;height:30px;border-radius:9px;transition:background .15s,color .15s}
+  .rw-er-x:hover{background:var(--chip);color:var(--acc)}
   /* בית-הכלים — מסך פתיחה של סביבת המחקר */
   .rw-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:13px}
   .rw-tool{display:flex;flex-direction:column;gap:7px;text-align:right;text-decoration:none;color:inherit;
