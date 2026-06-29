@@ -620,7 +620,7 @@ export default function ArchivePage() {
         box-shadow: 0 14px 32px rgba(0,0,0,0.55), 0 0 26px rgba(212,175,55,0.22); }
       .ar-mcard.ar-dragging:hover { transform: none; }
       .ar-msel { border-color: ${C.gold} !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.45), 0 0 22px rgba(212,175,55,0.3); }
-      .ar-mwrap { position: relative; cursor: pointer; min-height: 80px; }
+      .ar-mwrap { position: relative; cursor: pointer; min-height: 80px; overflow: hidden; }
       .ar-mwrap img { display: block; width: 100%; height: auto; transition: transform .35s ease; }
       .ar-mcard:hover .ar-mwrap img { transform: scale(1.045); }
       .ar-mshade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 46%, rgba(5,4,0,0.86)); pointer-events: none; }
