@@ -21,6 +21,8 @@ export const EVENTS = {
   ITEM_SAVE: "item:save",
   ITEM_SHARE: "item:share",
   ITEM_COPY: "item:copy",
+  PIN_ADD: "pin:add",         // 📌 ישות הוצמדה למחקר
+  PIN_REMOVE: "pin:remove",
   SEARCH_GEMATRIA: "search:gematria",
   PAGE_NUMBER_OPEN: "page:number:open",
   AI_ANALYZE: "ai:analyze",

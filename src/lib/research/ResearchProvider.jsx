@@ -16,10 +16,11 @@ export default function ResearchProvider({ children }) {
   const init = load();
   const [cart, setCart] = useState(() => init.cart || []);     // המחקר הפעיל
   const [saved, setSaved] = useState(() => init.saved || []);  // שמורים (מקומי)
+  const [pinned, setPinned] = useState(() => init.pinned || []); // 📌 מוצמדים — נשארים זמינים בכל Hub
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved })); } catch { /* noop */ }
-  }, [cart, saved]);
+    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned })); } catch { /* noop */ }
+  }, [cart, saved, pinned]);
 
   const addToResearch = useCallback((entity) => {
     setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
@@ -34,6 +35,17 @@ export default function ResearchProvider({ children }) {
   }, []);
   const removeSaved = useCallback((id) => setSaved(s => s.filter(e => e.id !== id)), []);
 
-  const value = { cart, saved, addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved };
+  // 📌 Pin — ישות שהוצמדה נשארת זמינה בכל המעבדה (Workspace = pin + הוסף-למחקר).
+  const togglePin = useCallback((entity) => {
+    setPinned(p => {
+      const on = p.some(e => e.id === entity.id);
+      const next = on ? p.filter(e => e.id !== entity.id) : [entity, ...p];
+      emit(on ? EVENTS.PIN_REMOVE : EVENTS.PIN_ADD, entity);
+      return next;
+    });
+  }, []);
+  const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
+
+  const value = { cart, saved, pinned, addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
