@@ -6,7 +6,7 @@ import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGall
 import ImageEditModal from "./ImageEditModal.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
-import { computePulse, filterHints, hintNums, domNum, shortDate } from "../lib/reality.js";
+import { computePulse, filterHints, hintNums, domNum, shortDate, effDate } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import RealityPulse from "./RealityPulse.jsx";
 import RealityStream from "./RealityStream.jsx";
@@ -47,7 +47,20 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const pulse = useMemo(() => computePulse(hints || []), [hints]);
 
   // 🫧 בועות המספרים החיים — לפי הערך-הראשי בזרם (14+45 כבועה אחת). מפנות לארכיון.
-  const bubbles = useMemo(() => computeBubbles((hints || []).map(h => h.primary_value), { limit: 12 }), [hints]);
+  // הבהוב אוטומטי = «טרי»: מספר שעלתה לו תמונה ב-21 הימים הקרובים לתמונה האחרונה.
+  const bubbles = useMemo(() => {
+    const hs = hints || [];
+    const base = computeBubbles(hs.map(h => h.primary_value), { limit: 12 });
+    const times = hs.map(h => { const d = effDate(h); return d ? new Date(d).getTime() : 0; }).filter(Boolean);
+    const newest = times.length ? Math.max(...times) : 0;
+    const fresh = new Set();
+    if (newest) for (const h of hs) {
+      const d = effDate(h); const t = d ? new Date(d).getTime() : 0;
+      if (t && newest - t <= 21 * 86400000) { const pv = Number(h.primary_value); if (pv) fresh.add(pv); }
+    }
+    // הבהוב = טריות (לא ליבה) — «מה עלה לאחרונה»
+    return base.map(b => ({ ...b, hot: b.nums.some(n => fresh.has(n)) }));
+  }, [hints]);
 
   // מספרים נפוצים בזרם — הצעות לבונה גלריות הרמזים
   const numOptions = useMemo(() => {
@@ -136,7 +149,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         <div style={{ marginBottom: 18, padding: "15px 16px 16px", borderRadius: 16, border: `1px solid ${P.borderStrong}`, background: P.cardSoft }}>
           <NumberBubbles
             data={bubbles}
-            title="🫧 המספרים החיים — לחצו בועה לצלילה לכל התמונות בארכיון"
+            title="🫧 המספרים החיים — מהבהב = פעיל עכשיו · לחצו בועה לכל התמונות בארכיון"
             hrefFor={b => `/archive?tab=pool&nums=${b.nums.join(",")}`}
           />
         </div>
