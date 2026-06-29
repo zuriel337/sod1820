@@ -9,6 +9,7 @@ import {
   getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import { bubbleKeyFor, CORE_BUBBLE } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
@@ -42,17 +43,6 @@ function descDate(desc) {
 const eventDate = im => im.occurred_at ? new Date(im.occurred_at) : (descDate(im.description) || new Date(0));
 const eventYear = im => { const d = eventDate(im); return d ? d.getFullYear() : null; };
 
-// 🔗 זוגות-בועה «כרוכים» — מספרים שתמיד באים יחד מוצגים כבועה אחת.
-// 14(דוד)+45(גאולה) = חידוש הליבה של צוריאל (תמיד יחד). מספר בזוג → מסונן עם בן-זוגו.
-const BUBBLE_PAIRS = [[14, 45]];
-const PAIR_OF = (() => { const m = new Map(); for (const p of BUBBLE_PAIRS) for (const n of p) m.set(n, p); return m; })();
-function bubbleKeyFor(pv) {
-  const pair = PAIR_OF.get(pv);
-  if (pair) return { key: pair.join("+"), label: pair.join("+"), nums: pair };
-  return { key: String(pv), label: String(pv), nums: [pv] };
-}
-// 🔥 מספרי-ליבה — בועה שלהם מקבלת הילת-חום מיוחדת.
-const CORE_BUBBLE = new Set([1820, 358, 26, 14, 45, 1237, 541, 776]);
 function eventLabel(im) {
   if (im.occurred_at) { const d = new Date(im.occurred_at); return `${HE_MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
   const d = descDate(im.description);
@@ -157,6 +147,20 @@ export default function ArchivePage() {
     const found = gals.find(g => g.seq === Number(gp));
     if (found) { setTab("galleries"); setSel(found); galDeepLinked.current = true; }
   }, [loc.search, gals]);
+
+  // deep-link מבועות (זרם המציאות / דף הבית): /archive?tab=pool&nums=14,45 → טאב מאגר + סינון מספרים.
+  const numDeepLinked = useRef(false);
+  useEffect(() => {
+    const sp = new URLSearchParams(loc.search);
+    const raw = sp.get("nums") || sp.get("num");
+    if (!raw || numDeepLinked.current) return;
+    const nums = raw.split(/[,\s]+/).map(n => parseInt(n, 10)).filter(n => n > 0);
+    if (!nums.length) return;
+    setTab("pool"); setViewMode("images");
+    setNumFilters(new Set(nums));
+    if (nums.length > 1) setFilterMode("OR");
+    numDeepLinked.current = true;
+  }, [loc.search]);
 
   const imgDate = occ => { if (!occ) return null; try { return new Date(occ).toLocaleDateString("he-IL", { year: "numeric", month: "long" }); } catch { return null; } };
 

@@ -10,6 +10,8 @@ import { computePulse, filterHints, hintNums, domNum, shortDate } from "../lib/r
 import { cleanName } from "../lib/galleryName.js";
 import RealityPulse from "./RealityPulse.jsx";
 import RealityStream from "./RealityStream.jsx";
+import NumberBubbles from "./NumberBubbles.jsx";
+import { computeBubbles } from "../lib/bubbles.js";
 import Lightbox from "./Lightbox.jsx";
 
 // ===== «עולם המציאות» — דופק + גלריות-רמזים שמורות + סינון דינמי + קיר חי =====
@@ -43,6 +45,9 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   async function reloadSets() { try { setSets(await getNumberSets()); } catch { /* ignore */ } }
 
   const pulse = useMemo(() => computePulse(hints || []), [hints]);
+
+  // 🫧 בועות המספרים החיים — לפי הערך-הראשי בזרם (14+45 כבועה אחת). מפנות לארכיון.
+  const bubbles = useMemo(() => computeBubbles((hints || []).map(h => h.primary_value), { limit: 12 }), [hints]);
 
   // מספרים נפוצים בזרם — הצעות לבונה גלריות הרמזים
   const numOptions = useMemo(() => {
@@ -125,6 +130,17 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
     <div style={{ direction: "rtl" }}>
       <h2 className="hn-h2">🌊 זרם המציאות</h2>
       <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
+
+      {/* 🫧 בועות המספרים החיים — כל בועה מפנה לכל התמונות של אותו מספר בארכיון (עץ אחד) */}
+      {bubbles.length > 0 && (
+        <div style={{ marginBottom: 18, padding: "15px 16px 16px", borderRadius: 16, border: `1px solid ${P.borderStrong}`, background: P.cardSoft }}>
+          <NumberBubbles
+            data={bubbles}
+            title="🫧 המספרים החיים — לחצו בועה לצלילה לכל התמונות בארכיון"
+            hrefFor={b => `/archive?tab=pool&nums=${b.nums.join(",")}`}
+          />
+        </div>
+      )}
 
       <RealityPulse pulse={pulse} period={pulsePeriod} onPeriod={setPulsePeriod} activeValue={value} onPick={setValue} max={compact ? 5 : 8} palette={P} />
 
