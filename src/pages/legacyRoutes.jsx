@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import {
   BlogPage, PostPageBySlug, CategoryPage, TagPage, GematriaPhrasePage,
-  AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
+  AboutPage, LoginPage, ChatPage, SpotimChatPage,
   AdminPage, TrafficDashboardPage, NumbersReportPage, ThemePreviewPage,
   PAGE_CONTENT_DEFAULTS, PAGE_CONTENT_STORE_KEY,
 } from "../legacy/legacy.jsx";
+import ContactPage from "./ContactPage.jsx";
 
 // עמודי תוכן קיימים שנשמרים כפי שהם — עטופים במתאם הניווט החדש.
 
