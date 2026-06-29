@@ -51,6 +51,12 @@ export const rwCss = (t = RW) => `
   .rw-rail:hover{background:var(--accS)}
   .rw-rail .ic{writing-mode:horizontal-tb;font-size:20px}
   .rw-ic.on{background:var(--accS);border-color:var(--acc);color:var(--acc)}
+  /* שורת-כלים אופקית — תפריט-המשנה של המעבדה (לחיצה נכנסת ישר לכלי) */
+  .rw-toolbar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
+  .rw-tchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
+    padding:8px 15px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:40px}
+  .rw-tchip:hover{border-color:var(--acc);color:var(--acc)}
+  .rw-tchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-rc{order:1;display:grid;gap:12px;position:sticky;top:74px}
   .rw-nav{order:3;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:9px;position:sticky;top:74px}
   .rw-nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:var(--ink2);

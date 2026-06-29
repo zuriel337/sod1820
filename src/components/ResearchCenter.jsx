@@ -63,9 +63,9 @@ export default function ResearchCenter({ variant }) {
     ) },
   ];
 
-  // אזור עבודה (ימין) = הקשרי למדור · אזור אישי (שמאל) = שלי · ללא variant = הכל (מובייל)
-  const ids = variant === "work" ? ["active", "whatsnew", "ai"]
-    : variant === "personal" ? ["me", "saved"]
+  // שמאל=context (העולם שלי: אני·המחקר הפעיל·שמורים) · ימין=tools (מנועים: AI·מה חדש)
+  const ids = variant === "tools" ? ["ai", "whatsnew"]
+    : variant === "context" ? ["me", "active", "saved"]
     : PANELS.map(p => p.id);
   return <>{PANELS.filter(p => ids.includes(p.id)).map(p => <React.Fragment key={p.id}>{p.render()}</React.Fragment>)}</>;
 }

@@ -1,6 +1,7 @@
 import React, { useState, Suspense, lazy } from "react";
+import { useSearchParams } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
-import ResearchHome from "../components/ResearchHome.jsx";
+import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
@@ -37,16 +38,29 @@ function GematriaTool() {
   );
 }
 
+// כלי-המעבדה לשורה האופקית (deep-linkable: /research?tool=els)
+const LAB_TOOLS = TOOLS.filter(t => t.status === "live");
+
 export default function ResearchPage() {
-  const [tool, setTool] = useState(null); // null = בית-הכלים · 'gematria' = מחשבון
+  // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link מהתפריט הראשי נכנס ישר לכלי
+  const [sp, setSp] = useSearchParams();
+  const tool = sp.get("tool");
+  const setTool = t => setSp(t ? { tool: t } : {});
 
   return (
     <ResearchShell>
-      {tool === null ? (
+      {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
+      <div className="rw-toolbar">
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏠 בית הכלים</button>
+        {LAB_TOOLS.map(t => (
+          <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}>{t.icon} {t.title}</button>
+        ))}
+      </div>
+
+      {!tool ? (
         <ResearchHome onOpen={setTool} />
       ) : (
         <>
-          <button className="rw-back" onClick={() => setTool(null)}>← בית הכלים</button>
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
           {tool === "els" && <ELSSection gated={false} />}
