@@ -6,6 +6,7 @@ import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import ElsGrid from "../components/ElsGrid.jsx";
+import { ELSSection } from "../features/els/Els.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
@@ -48,7 +49,7 @@ export default function ResearchPage() {
           <button className="rw-back" onClick={() => setTool(null)}>← בית הכלים</button>
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
-          {tool === "els" && <ElsGrid />}
+          {tool === "els" && <ELSSection gated={false} />}
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool />}
           {tool === "verse" && <VerseSearch />}
