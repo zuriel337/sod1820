@@ -158,8 +158,9 @@ export default function App() {
         <GlobalChrome>
           <UpdateBanner />
           <RoyalShareWidget />
-          <InstallPrompt />
-          <UpdatesBar />
+          {/* הוסר לבקשת צוריאל — בלי קופץ «התקן אפליקציה» ובלי בועת «הירשם לעדכונים» (ימין/דסקטופ) */}
+          {/* <InstallPrompt /> */}
+          {/* <UpdatesBar /> */}
         </GlobalChrome>
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
