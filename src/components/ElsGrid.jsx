@@ -5,6 +5,7 @@ import { computeEntity } from "../lib/research/coreEngine.js";
 import ElsAnalysis from "./ElsAnalysis.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
+import { getTorahNiqqud } from "../lib/research/torah.js";
 
 // רקעי-מטריצה לבחירה (החלפת צבע לרקע האותיות). הצבע המודגש נשאר תמיד.
 const CELL_BGS = [
@@ -30,6 +31,13 @@ export default function ElsGrid({ seed }) {
   const [zoom, setZoom] = useState(1);       // זום למטריצה
   const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
   const [aiStruct, setAiStruct] = useState(null); // ניתוח-מבנה AI (אדמין)
+  const [niqqud, setNiqqud] = useState(false);   // ניקוד אופציונלי
+  const [nqData, setNqData] = useState(null);    // שכבת-הניקוד (נטענת בעצלתיים)
+  const [nqBusy, setNqBusy] = useState(false);
+  const toggleNiqqud = async () => {
+    if (!niqqud && !nqData) { setNqBusy(true); const d = await getTorahNiqqud(); setNqData(d); setNqBusy(false); if (!d) return; }
+    setNiqqud(v => !v);
+  };
   const [raw, setRaw] = useState(seed || "ישראל");
   const [book, setBook] = useState("all");
   const [skipMax, setSkipMax] = useState(1000);
@@ -129,7 +137,7 @@ export default function ElsGrid({ seed }) {
       const mRow = rowStart + r, cells = [];
       for (let c = 0; c < colWin; c++) {
         const i = mRow * W + (colStart + c);
-        cells.push(mRow >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1 } : { ch: "", ci: -1 });
+        cells.push(mRow >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, idx: i } : { ch: "", ci: -1, idx: -1 });
       }
       rows.push(cells);
     }
@@ -200,6 +208,8 @@ export default function ElsGrid({ seed }) {
       <span className="els-mt-sep" />
       <span className="els-mt-lb">רקע</span>
       {CELL_BGS.map((c, i) => <button key={i} className={"els-swatch" + (i === cellBgIdx ? " on" : "")} style={{ background: c.bg === "var(--bg)" ? "var(--bg)" : c.bg }} onClick={() => setCellBgIdx(i)} title={c.label} aria-label={c.label} />)}
+      <span className="els-mt-sep" />
+      <button className={"els-mt-nq" + (niqqud ? " on" : "")} onClick={toggleNiqqud} disabled={nqBusy} title="ניקוד אופציונלי">{nqBusy ? "טוען ניקוד…" : niqqud ? "ניקוד ✓" : "נַקֵּד"}</button>
     </div>
   );
   // ---- ציור המטריצה (משותף: רגיל + מסך-מלא) ----
@@ -213,9 +223,10 @@ export default function ElsGrid({ seed }) {
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
                 const col = cell.ci >= 0 ? TERM_COLORS[cell.ci % TERM_COLORS.length] : null;
+                const glyph = niqqud && nqData && cell.idx >= 0 ? cell.ch + (nqData[cell.idx] || "") : cell.ch;
                 return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: col ? 800 : 500, borderRadius: 6,
-                  color: col ? "#fff" : theme.fg, background: col || theme.bg, border: `1px solid ${col || (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{cell.ch}</div>;
+                  fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: col ? 800 : 500, borderRadius: 6, overflow: "visible",
+                  color: col ? "#fff" : theme.fg, background: col || theme.bg, border: `1px solid ${col || (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{glyph}</div>;
               })}
             </div>
           ))}
@@ -402,6 +413,10 @@ const ELS_CSS = `
 .els-mt-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
 .els-swatch{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);cursor:pointer;padding:0}
 .els-swatch.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--accS)}
+.els-mt-nq{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Frank Ruhl Libre',serif;font-size:14px;font-weight:700}
+.els-mt-nq:hover{border-color:var(--acc);color:var(--acc)}
+.els-mt-nq.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.els-mt-nq:disabled{opacity:.6;cursor:default}
 .els-ai{margin-top:10px}
 .els-ai-btn{border:none;background:#1f6feb;color:#fff;font-weight:800;font-size:13.5px;border-radius:999px;padding:8px 18px;cursor:pointer;font-family:inherit}
 .els-ai-msg{font-size:13px;color:#b4453a}

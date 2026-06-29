@@ -19,5 +19,15 @@ export function getTorahVerses() {
   return _verses;
 }
 
+// ניקוד אופציונלי — שכבת סימני-ניקוד מיושרת לרשת-האותיות (nq[i] = הסימנים לאות i).
+// נטען רק כשמדליקים את הניקוד (1.4MB → lazy). מקור: MAM (כתר ארם-צובא), מיושר לרשת הסטנדרטית.
+let _niqqud = null;
+export function getTorahNiqqud() {
+  if (!_niqqud) _niqqud = fetch("/torah-niqqud.json", { headers: { Accept: "application/json" } })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .catch(() => null);
+  return _niqqud;
+}
+
 export const heNorm = s => elsNormalize(s);
 export const verseRef = (v, r) => `${(v.books || [])[r[0]] || "?"} ${r[1]}:${r[2]}`;
