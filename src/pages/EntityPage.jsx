@@ -10,7 +10,6 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import QuickActions from "../components/QuickActions.jsx";
-import EntityLiveHeader from "../components/EntityLiveHeader.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track } from "../lib/tracking.js";
@@ -531,14 +530,6 @@ export default function EntityPage() {
 
   // 🧩 הישות (Reality Graph Law) — אותו אובייקט ל-Action Bar וה-Workspace.
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
-  // ❤️‍🔥 סטטיסטיקות חיות (Header) — נגזרות מ-entity_types.stats של «מספר».
-  const liveStats = [
-    { e: "🖼", n: d.galleriesCount, label: "מופעים" },
-    { e: "🌳", n: d.phrasesCount || d.phrases?.length, label: "מילים שוות" },
-    { e: "📖", n: d.postsCount, label: "פוסטים" },
-    { e: "🕰", n: d.eventsCount, label: "אירועים" },
-    { e: "🤖", n: d.insightsCount, label: "חידושי AI" },
-  ];
 
   // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
@@ -630,8 +621,6 @@ export default function EntityPage() {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          {/* ❤️‍🔥 Header חי — הישות מרגישה חיה (Reality Graph Law) */}
-          {!loading && <EntityLiveHeader stats={liveStats} />}
           {/* 💎 קופסת הזהות — למה המספר חשוב (וואו ב-3 שניות) */}
           {(() => {
             const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
