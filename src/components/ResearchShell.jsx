@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { rwCss } from "../lib/research/theme.js";
-import ResearchCenter from "./ResearchCenter.jsx";
+import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
@@ -40,9 +40,13 @@ export default function ResearchShell({ children }) {
   const [leftOpen, setLeftOpen] = useState(() => { try { return localStorage.getItem("rw_left_open") !== "0"; } catch { return true; } });
   const [rightW, setRightW] = useState(() => num("rw_right_w", 320));
   const [leftW, setLeftW] = useState(() => num("rw_left_w", 250));
+  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "me"; } catch { return "me"; } });
   const [leftSeen, setLeftSeen] = useState(cart.length);
   useEffect(() => { if (leftOpen) setLeftSeen(cart.length); }, [leftOpen, cart.length]);
+  useEffect(() => { try { localStorage.setItem("rw_left_tab", leftTab); } catch { /**/ } }, [leftTab]);
   const leftDot = !leftOpen && cart.length > leftSeen;
+  // פתיחת השמאל ישירות לטאב מבוקש (מהמסילה) — מהלך משוכלל: אייקון במסילה = קיצור לטאב
+  const openLeftTo = id => { if (id) setLeftTab(id); setLeftOpen(true); };
 
   useEffect(() => { document.title = "מעבדת המחקר · סוד 1820"; }, []);
   useEffect(() => { try { localStorage.setItem("rw_right_open", rightOpen ? "1" : "0"); localStorage.setItem("rw_right_w", String(rightW)); } catch { /**/ } }, [rightOpen, rightW]);
@@ -57,12 +61,17 @@ export default function ResearchShell({ children }) {
     const up = () => { drag.current = null; };
     return <button className="rw-grip" title="גרור לשינוי רוחב" onPointerDown={down} onPointerMove={move} onPointerUp={up}><b>⋮⋮</b></button>;
   };
-  const Rail = ({ icons, onOpen, dot }) => (
-    <button className="rw-rail" onClick={onOpen} title="פתח סרגל">
+  // מסילה מקופלת: אייקון-פאנל פותח · אייקוני-תוכן הם קיצורים. בשמאל כל אייקון פותח לטאב שלו.
+  const Rail = ({ icons, tabs, onOpen, onPick, dot }) => (
+    <div className="rw-rail">
       {dot && <span className="rw-rail-dot" />}
-      <span className="rw-rail-toggle"><PanelIcon size={20} /></span>
-      <span className="rw-rail-icons">{icons.map((i, k) => <span key={k}>{i}</span>)}</span>
-    </button>
+      <button className="rw-rail-toggle" onClick={onOpen} title="פתח סרגל"><PanelIcon size={20} /></button>
+      <div className="rw-rail-icons">
+        {tabs
+          ? tabs.map(t => <button key={t.id} className="rw-rail-i" onClick={() => onPick(t.id)} title="פתח">{t.icon}</button>)
+          : icons.map((i, k) => <button key={k} className="rw-rail-i" onClick={onOpen}>{i}</button>)}
+      </div>
+    </div>
   );
 
   // סרגל ימני — ארגז-הכלים ההקשרי של המודול הפעיל + AI
@@ -100,9 +109,9 @@ export default function ResearchShell({ children }) {
           ? <><Grip side="left" />
               <aside className="rw-pwrap left" style={{ width: leftW }}>
                 <div className="rw-phead"><span>עולם המשתמש</span><button onClick={() => setLeftOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
-                <ResearchCenter variant="context" />
+                <ResearchCenter variant="context" tabbed activeTab={leftTab} onTab={setLeftTab} />
               </aside></>
-          : <Rail icons={ICONS.context} dot={leftDot} onOpen={() => setLeftOpen(true)} />}
+          : <Rail tabs={LEFT_TABS} dot={leftDot} onPick={openLeftTo} onOpen={() => setLeftOpen(true)} />}
       </div>
 
       <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ▲</button>

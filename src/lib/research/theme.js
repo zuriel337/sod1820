@@ -49,10 +49,27 @@ export const rwCss = (t = RW) => `
   .rw-rail{flex:0 0 50px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:16px;
     cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 0;position:relative;font-family:inherit}
   .rw-rail:hover{background:var(--accS);border-color:var(--acc)}
-  .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg)}
+  .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg);border:1px solid var(--line);cursor:pointer;font-family:inherit}
   .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
-  .rw-rail-icons{display:flex;flex-direction:column;gap:13px;font-size:20px;opacity:.9}
-  .rw-rail-dot{position:absolute;top:8px;inset-inline-start:8px;width:10px;height:10px;border-radius:999px;background:#e0533a;box-shadow:0 0 0 2px var(--card)}
+  .rw-rail-icons{display:flex;flex-direction:column;gap:8px;font-size:18px;opacity:.92}
+  .rw-rail-i{width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;font-size:18px;
+    display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:1;transition:.12s}
+  .rw-rail-i:hover{background:var(--accS);border-color:var(--acc)}
+  .rw-rail-dot{position:absolute;top:8px;inset-inline-start:8px;width:10px;height:10px;border-radius:999px;background:#e0533a;box-shadow:0 0 0 2px var(--card);z-index:1}
+  /* טאבים בקיר השמאלי — פשוט (טאב פעיל אחד) ומשוכלל (badge חי) */
+  .rw-tabs{display:flex;flex-direction:column;gap:10px}
+  .rw-tabbar{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:4px}
+  .rw-tab{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border:none;background:none;
+    border-radius:10px;cursor:pointer;color:var(--ink3);font-family:inherit;transition:.12s}
+  .rw-tab:hover{background:var(--accS);color:var(--ink2)}
+  .rw-tab.on{background:var(--acc);color:#fff}
+  .rw-tab-ic{font-size:17px;line-height:1}
+  .rw-tab-lb{font-size:10.5px;font-weight:700}
+  .rw-tab-badge{position:absolute;top:3px;inset-inline-end:6px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;
+    background:#e0533a;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
+  .rw-tab.on .rw-tab-badge{background:#fff;color:var(--acc)}
+  .rw-tabbody{animation:rwFade .16s ease}
+  @keyframes rwFade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
   .rw-phead{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;color:var(--ink3);
     letter-spacing:1px;padding:0 2px 9px}
   .rw-phead button{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:9px;

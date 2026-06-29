@@ -56,6 +56,25 @@ function analyze(matrix, cfg) {
   return { items, convergences, matches };
 }
 
+// 🤖 תובנה מקומית — סיכום קצר בעברית (בלי רשת). חקירה, לא הוכחה.
+function buildInsight(data, cross) {
+  if (!data?.items.length) return null;
+  const lines = [];
+  const top = data.convergences[0];
+  if (top) lines.push(`ההתכנסות החזקה: ${top.phrases.length} ביטויים על הערך ${top.value.toLocaleString("he")} — ${top.phrases.join(" = ")}.`);
+  if (data.convergences.length > 1) lines.push(`בסך הכול ${data.convergences.length} התכנסויות פנימיות בקובץ.`);
+  if (data.matches.length) lines.push(`${data.matches.length} ביטויים תואמים בדיוק לערך שכתבתם בקובץ — אימות מול המנוע.`);
+  if (cross && cross.size) {
+    const strongest = [...cross.entries()].sort((a, b) => b[1].length - a[1].length)[0];
+    lines.push(`${cross.size} מהערכים שלכם נפגשים עם ביטויים במאגר האתר — החזק ביותר: ${strongest[0].toLocaleString("he")} (${strongest[1].slice(0, 4).join(" · ")}${strongest[1].length > 4 ? "…" : ""}).`);
+  } else if (cross) {
+    lines.push(`אף ערך עדיין לא נפגש עם המאגר — לחצו «🔗 הצלב מול האתר» לבדיקה עדכנית.`);
+  } else {
+    lines.push(`לחצו «🔗 הצלב מול האתר» כדי לראות מי עוד בכל עץ-הידע שווה לערכים שלכם.`);
+  }
+  return lines;
+}
+
 export default function FileAnalyzer() {
   const { addToResearch } = useResearch();
   const [raw, setRaw] = useState(null);     // מטריצת התאים הגולמית
@@ -132,6 +151,7 @@ export default function FileAnalyzer() {
   const hasGiven = !!data?.items.some(i => i.given != null);
   const sample = raw && (cfg.header ? raw[1] : raw[0]) || [];
   const crossCount = cross ? cross.size : 0;
+  const insight = useMemo(() => buildInsight(data, cross), [data, cross]);
 
   return (
     <div className="rw-card fa">
@@ -195,6 +215,14 @@ export default function FileAnalyzer() {
             <button className="fa-mini" onClick={addAll}>➕ צרף הכל למחקר</button>
             <button className="fa-mini" onClick={exportCsv}>⬇️ ייצוא CSV</button>
           </div>
+
+          {insight && (
+            <div className="fa-insight">
+              <div className="fa-insight-t">🤖 תובנה</div>
+              <ul>{insight.map((l, i) => <li key={i}>{l}</li>)}</ul>
+              <div className="fa-insight-n">משמעות = חקירה, לא הוכחה. כל ערך מאומת במנוע הרשמי.</div>
+            </div>
+          )}
 
           {data.convergences.length > 0 && (
             <div className="fa-convs">
@@ -274,6 +302,11 @@ const FA_CSS = `
 .fa-stat b{color:var(--rw-ink,#1b1d22);font-size:15px}
 .fa-stat.conv b{color:#6b3fa0}.fa-stat.match b{color:#1f7a4d}.fa-stat.cross b{color:#1f6feb}
 .fa-spacer{flex:1}
+.fa-insight{background:linear-gradient(180deg,#fbf9f2,#f6f2e6);border:1px solid #ece2c8;border-radius:12px;padding:13px 16px;margin:6px 0 14px}
+.fa-insight-t{font-weight:800;color:#9a6b00;margin-bottom:6px;font-size:14px}
+.fa-insight ul{margin:0;padding-inline-start:18px}
+.fa-insight li{color:var(--rw-ink,#1b1d22);margin:3px 0;font-size:14px}
+.fa-insight-n{margin-top:8px;font-size:12px;color:var(--rw-muted,#5b6472)}
 .fa-mini{background:#fff;border:1px solid var(--rw-line,#d9cfb8);border-radius:8px;padding:5px 10px;font-size:12.5px;cursor:pointer;color:var(--rw-ink,#1b1d22);font-weight:600}
 .fa-mini.pri{background:var(--acc,#2f6df6);color:#fff;border-color:transparent}
 .fa-mini:disabled{opacity:.6;cursor:default}
