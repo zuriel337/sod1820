@@ -324,11 +324,12 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
 }
 
 const section = { display: "flex", flexDirection: "column", gap: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "12px 14px" };
-const secTitle = { color: "#ffffff88", fontFamily: "var(--font-heading, sans-serif)", fontSize: 11.5, fontWeight: 700, marginBottom: 2 };
+const secTitle = { color: "#ffffff88", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 2 };
 const labelStyle = { display: "flex", flexDirection: "column", gap: 4 };
-const labelText = { color: "#ffffff88", fontFamily: "var(--font-heading, sans-serif)", fontSize: 11 };
-const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 12px", color: "#fff", fontFamily: "inherit", fontSize: 14, outline: "none", width: "100%", boxSizing: "border-box" };
-const secBtn = { cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffffaa", fontFamily: "var(--font-heading, sans-serif)", fontWeight: 700, fontSize: 12.5, borderRadius: 8, padding: "7px 14px" };
-const dangerBtn = { cursor: "pointer", background: "rgba(220,60,60,0.18)", border: "1px solid rgba(220,80,80,0.45)", color: "#f08080", fontFamily: "var(--font-heading, sans-serif)", fontWeight: 800, fontSize: 12.5, borderRadius: 8, padding: "7px 14px" };
-const saveBtn = { cursor: "pointer", background: "rgba(212,175,55,0.9)", color: "#1a0e00", border: "none", fontFamily: "var(--font-heading, sans-serif)", fontWeight: 800, fontSize: 13, borderRadius: 8, padding: "7px 22px", opacity: 1 };
-const typeBtn = (key, active) => ({ cursor: "pointer", border: `1px solid ${active === key ? "#ffffff88" : "rgba(255,255,255,0.15)"}`, borderRadius: 999, padding: "5px 12px", background: active === key ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", color: active === key ? "#fff" : "#ffffff66", fontFamily: "var(--font-heading, sans-serif)", fontWeight: 700, fontSize: 12 });
+const labelText = { color: "#ffffff88", fontFamily: F.heading, fontSize: 11 };
+// 🔤 שדות-הכתיבה: Heebo נקי (היה "inherit" → ברירת-המחדל של הדפדפן = פונט serif מעוטר שצוריאל לא אהב)
+const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 12px", color: "#fff", fontFamily: F.body, fontSize: 14, outline: "none", width: "100%", boxSizing: "border-box" };
+const secBtn = { cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffffaa", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5, borderRadius: 8, padding: "7px 14px" };
+const dangerBtn = { cursor: "pointer", background: "rgba(220,60,60,0.18)", border: "1px solid rgba(220,80,80,0.45)", color: "#f08080", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, borderRadius: 8, padding: "7px 14px" };
+const saveBtn = { cursor: "pointer", background: "rgba(212,175,55,0.9)", color: "#1a0e00", border: "none", fontFamily: F.heading, fontWeight: 800, fontSize: 13, borderRadius: 8, padding: "7px 22px", opacity: 1 };
+const typeBtn = (key, active) => ({ cursor: "pointer", border: `1px solid ${active === key ? "#ffffff88" : "rgba(255,255,255,0.15)"}`, borderRadius: 999, padding: "5px 12px", background: active === key ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", color: active === key ? "#fff" : "#ffffff66", fontFamily: F.heading, fontWeight: 700, fontSize: 12 });

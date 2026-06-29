@@ -6,7 +6,7 @@ import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
   searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
-  getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage,
+  getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -431,10 +431,22 @@ export default function ArchivePage() {
       alert("לא ניתן למחוק תמונה מהזרם — ניתן להסתיר בלבד (curator_hidden).");
       return;
     }
-    if (!window.confirm(`למחוק לצמיתות את התמונה "${im.name || im.id}"?\nפעולה זו אינה הפיכה.`)) return;
+    // התראה «לאיפה זה מחובר» לפני מחיקה (גם במחיר שבירת עץ — כבקשת צוריאל).
+    let warn = "";
+    try {
+      const refs = await checkImageConnections(im.id, im.image_url);
+      if (refs.length) {
+        const LBL = { topic: "התכנסות", post: "פוסט", insight: "חידוש" };
+        const lines = refs.slice(0, 12).map(c => `• ${LBL[c.type] || c.type}: ${c.label}`).join("\n");
+        warn = `\n\n⚠️ התמונה מחוברת ל-${refs.length} מקומות — המחיקה תשבור את הקישור:\n${lines}\n`;
+      }
+    } catch {}
+    if (!window.confirm(`למחוק לצמיתות את "${im.name || im.id}"?${warn}\nפעולה זו אינה הפיכה.`)) return;
     try {
       await deleteGalleryImage(im.id);
       setImgs(prev => prev.filter(x => x.id !== im.id));
+      setDetail(prev => Array.isArray(prev) ? prev.filter(x => x.id !== im.id) : prev);
+      setSel(prev => prev);  // השאר את המודאל פתוח; התמונה פשוט נעלמת מהרשימה
     } catch (e) { alert("מחיקה נכשלה: " + (e.message || e)); }
   }
 
@@ -1280,9 +1292,10 @@ export default function ArchivePage() {
         </div>
       )}
 
-      {/* מודאל גלריה (טאב גלריות) */}
-      {sel && (
-        <div onClick={() => setSel(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.94)", overflowY: "auto", padding: "40px 16px" }}>
+      {/* מודאל גלריה (טאב גלריות) — Portal ל-body + z גבוה כדי לכסות את הניווט הגלובלי
+          (היה z:200 inline → נלכד מתחת ל-Navbar sticky z:100, וה-× והכותרת הוסתרו). */}
+      {sel && createPortal((
+        <div onClick={() => setSel(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483500, background: "rgba(3,2,8,0.94)", overflowY: "auto", padding: "70px 16px 40px" }}>
           {/* × קבוע — תמיד נגיש (גם בגלילה ובמובייל), מעל הניווט הגלובלי */}
           <button onClick={(e) => { e.stopPropagation(); setSel(null); }} aria-label="סגור גלריה"
             style={{ position: "fixed", top: "max(12px, env(safe-area-inset-top))", insetInlineStart: "max(12px, env(safe-area-inset-left))",
@@ -1311,14 +1324,14 @@ export default function ArchivePage() {
                     <a href={im.image_url} target="_blank" rel="noopener noreferrer">
                       <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                     </a>
-                    <ImageMeta im={im} isAdmin={isAdmin} onEdit={() => setEditImg(im)} onJump={() => jumpToPool(im)} />
+                    <ImageMeta im={im} isAdmin={isAdmin} onEdit={() => setEditImg(im)} onJump={() => jumpToPool(im)} onDelete={() => deleteImage(im)} />
                   </div>
                 ))}
               </div>
             )}
           </div>
         </div>
-      )}
+      ), document.body)}
 
       {/* לייטבוקס תמונה (טאב מאגר) */}
       {editImg && (
@@ -1505,7 +1518,7 @@ function AddNumber({ onAdd }) {
   );
 }
 
-function ImageMeta({ im, isAdmin, onEdit, onJump }) {
+function ImageMeta({ im, isAdmin, onEdit, onJump, onDelete }) {
   return (
     <div style={{ padding: "12px 16px" }}>
       {im.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{im.name}</div>}
@@ -1535,6 +1548,14 @@ function ImageMeta({ im, isAdmin, onEdit, onJump }) {
               background: "rgba(8,5,2,0.5)", border: `1px solid ${C.borderGold}`, color: C.goldLight,
               borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
             ✏️ עריכה
+          </button>
+        )}
+        {isAdmin && im.source !== "update" && (
+          <button onClick={onDelete} title="מחק תמונה לצמיתות (עם התראת חיבורים)"
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+              background: "rgba(60,12,12,0.45)", border: "1px solid rgba(255,112,112,0.4)", color: "#ff8a8a",
+              borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+            🗑 מחיקה
           </button>
         )}
       </div>
