@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { loadProfile, saveProfile, emptyProfile, fieldEngine, cleanInput, promptFor, LENSES, EMOTIONS } from "../lib/research/lifeProfile.js";
+import { PRIMARY } from "../lib/research/coreEngine.js";
 
 // 🧬 ניתוח חיים — תקן השדה האחיד (v2). קלט אחיד → מנועים → אותו פלט אחיד → השוואה + עץ אחד.
 const card = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 16, padding: 16, marginTop: 12 };
@@ -122,6 +124,33 @@ export default function LifeProfile() {
           <div style={lbl}>core_axis</div>
           <div style={{ fontWeight: 800, fontSize: 16, color: "var(--acc)" }}>{out.core_axis}</div>
         </div>
+
+        {/* 🔵 מנוע הליבה — ערכי כל השיטות לציר הראשי (מקור-אמת יחיד) */}
+        {out.axis?.text && <div style={{ marginTop: 12 }}>
+          <div style={lbl}>🔵 מנוע הליבה · ערכי «{out.axis.text}» (כל השיטות)</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {Object.entries(out.axis.values).filter(([, v]) => v).map(([k, v]) => (
+              <Link key={k} to={`/number/${v}?from=life`} className="rw-chip" style={{ textDecoration: "none", color: "var(--ink)" }} title="פתח את דף המספר (חיבור לעולם/לגרף)">
+                {k} <b style={{ color: "var(--acc)" }}>{v.toLocaleString("he")}</b>
+              </Link>
+            ))}
+          </div>
+        </div>}
+
+        {/* 🌳 חיבור לציר הראשי */}
+        {out.axisLinks?.length > 0 && <div style={{ marginTop: 12 }}>
+          <div style={lbl}>🌳 מתחבר לציר הראשי «{out.axis.text}»</div>
+          <div style={{ display: "grid", gap: 5 }}>
+            {out.axisLinks.map((it, i) => (
+              <div key={i} style={{ fontSize: 13.5 }}>
+                <b>{it.kind}: {it.label}</b>{" "}
+                {it.links.slice(0, 2).map((l, j) => (
+                  <span key={j} className="rw-muted">{j > 0 && " · "}{l.entMethod}={l.axisMethod} <b style={{ color: "var(--acc)" }}>{l.value.toLocaleString("he")}</b></span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>}
 
         {out.clusters.length > 0 && <div style={{ marginTop: 12 }}>
           <div style={lbl}>clusters</div>

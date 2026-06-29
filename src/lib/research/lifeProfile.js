@@ -2,6 +2,7 @@
 // קלט אחיד אחד → כל מנוע (מובנה/AI) מחזיר אותו פלט אחיד → השוואה + «עץ אחד» (nodes+edges).
 // כלל הזהב: אין פיצ׳ר שלא הופך ל-node בגרף. גימטריה=עובדה; פרשנות AI=נפרדת.
 import { calcGem } from "../../theme.js";
+import { computeEntity, connectToAxis, PRIMARY } from "./coreEngine.js";
 
 export const LIFE_KEY = "sod_field_v2";
 
@@ -41,13 +42,24 @@ export const cleanInput = p => ({
 });
 
 // ===== ⚙️ מנוע «מפת השדה» — מחזיר את הפלט האחיד (מחושב, עובדה) =====
+// כל הערכים נשאבים ממנוע הליבה (coreEngine) — מקור-אמת יחיד. כאן רק מבנה ופרשנות-מבנית.
 export function fieldEngine(input) {
   const name = input.identity?.name || "";
+  const axis = computeEntity(name);                 // 🔵 הציר הראשי — ערכי כל השיטות
   const events = (input.timeline || []).filter(e => e.title || e.date).map(e => ({
-    title: e.title || "(ללא כותרת)", emotion: e.emotion || "neutral", date: e.date || "", year: yearOf(e.date), value: g(e.title),
+    title: e.title || "(ללא כותרת)", emotion: e.emotion || "neutral", date: e.date || "", year: yearOf(e.date),
+    core: computeEntity(e.title), get value() { return this.core.primary; },
   }));
   const themes = input.patterns?.life_themes || [];
   const people = input.entities?.people || [];
+
+  // 🌳 חיבור לציר הראשי — כל ישות שמתחברת לשם דרך ערך משותף (חוצה-שיטות)
+  const axisLinks = [];
+  if (axis.text) {
+    [...events.map(e => ({ kind: "אירוע", label: e.title, core: e.core })),
+     ...people.filter(p => p.name).map(p => ({ kind: "אדם", label: p.name, core: computeEntity(p.name) }))]
+      .forEach(it => { const ls = connectToAxis(axis, it.core); if (ls.length) axisLinks.push({ ...it, links: ls }); });
+  }
 
   // --- clusters: לפי נושאי-חיים (אם יש), אחרת לפי רגש ---
   let clusters = [];
@@ -71,10 +83,14 @@ export function fieldEngine(input) {
 
   // --- relationships_graph: nodes+edges (עץ אחד) ---
   const rel = [];
-  if (name) rel.push({ node_a: name, node_b: String(g(name)), relation: "ערך" });
+  if (name) rel.push({ node_a: name, node_b: String(axis.primary), relation: "ערך (ציר ראשי)" });
   people.forEach(pe => { if (pe.name) rel.push({ node_a: name || "אני", node_b: pe.name, relation: pe.status || "קשור" }); });
   events.forEach(e => { if (e.year) rel.push({ node_a: e.title, node_b: String(e.year), relation: "בשנת" }); });
-  // התכנסויות מספריות — עובדה
+  // 🌳 חיבור לציר הראשי — קצוות חזקים (ערך משותף עם השם, חוצה-שיטות) = עובדה
+  axisLinks.forEach(it => it.links.forEach(l => rel.push({
+    node_a: it.label, node_b: name, relation: `${l.entMethod}=${l.axisMethod} → ${l.value}`,
+  })));
+  // התכנסויות מספריות בין אירועים — עובדה
   for (let i = 0; i < events.length; i++)
     for (let j = i + 1; j < events.length; j++)
       if (events[i].value && events[i].value === events[j].value) rel.push({ node_a: events[i].title, node_b: events[j].title, relation: `התכנסות = ${events[i].value}` });
@@ -87,13 +103,15 @@ export function fieldEngine(input) {
   const years = events.map(e => e.year).filter(Boolean);
   const span = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : "—";
   const convs = rel.filter(r => r.relation.startsWith("התכנסות")).length;
-  const summary = `${events.length} אירועים · טווח ${span} · ${clusters.length} אשכולות · ${convs} התכנסויות מספריות · ${people.length} אנשים`;
+  const axisHits = axisLinks.reduce((s, it) => s + it.links.length, 0);
+  const summary = `${events.length} אירועים · טווח ${span} · ${clusters.length} אשכולות · ${convs} התכנסויות · ${axisHits} חיבורים לציר הראשי · ${people.length} אנשים`;
 
   // --- insight_level לפי עושר הקלט ---
   const score = (name ? 1 : 0) + events.length + themes.length + people.length + (input.patterns?.repeated_numbers?.length || 0);
   const insight_level = score >= 10 ? "high" : score >= 4 ? "medium" : "low";
 
-  return { core_axis, clusters, timeline_pressure, relationships_graph: rel, summary, insight_level };
+  // axis = הציר הראשי (ערכי כל השיטות) · axisLinks = החיבורים אליו · שניהם ממנוע הליבה
+  return { core_axis, axis, axisLinks, clusters, timeline_pressure, relationships_graph: rel, summary, insight_level };
 }
 
 // ===== 🤖 פרומפטים — כל מנוע AI חייב להחזיר את אותו פלט אחיד =====
@@ -105,10 +123,20 @@ const OUTPUT_SHAPE = `{
   "summary": "",
   "insight_level": "low | medium | high"
 }`;
-export const promptFor = (input, lens) =>
-  `אתה מנוע ב«מרכז מחקר זהות». נתון קלט-חיים (JSON). ${lens}\n` +
-  `החזר אך ורק JSON בפורמט האחיד הבא (בלי טקסט מסביב):\n${OUTPUT_SHAPE}\n\n` +
-  `כללים: בלי ניחוש/עתידות/מיסטיקה — רק דפוסים מהנתונים. כל פריט = node/edge בגרף.\n\nקלט:\n${JSON.stringify(input, null, 2)}`;
+export const promptFor = (input, lens) => {
+  // 🔵 ערכי מנוע הליבה — כבר מחושבים. ה-AI אסור לו לחשב גימטריה, רק לפרש.
+  const precomputed = {
+    axis: computeEntity(input.identity?.name || ""),
+    events: (input.timeline || []).filter(e => e.title).map(e => ({ title: e.title, values: computeEntity(e.title).values })),
+    people: (input.entities?.people || []).filter(p => p.name).map(p => ({ name: p.name, values: computeEntity(p.name).values })),
+  };
+  return `אתה מנוע ב«מרכז מחקר זהות». נתון קלט-חיים (JSON). ${lens}\n` +
+    `⚠️ מנוע הליבה (Single Source of Truth) כבר חישב את כל ערכי הגימטריה — הם מצורפים תחת "core_values". ` +
+    `אסור לך לחשב/לשנות מספרים. השתמש אך ורק בערכים שניתנו, ופרש את המבנה.\n` +
+    `החזר אך ורק JSON בפורמט האחיד הבא (בלי טקסט מסביב):\n${OUTPUT_SHAPE}\n\n` +
+    `כללים: בלי ניחוש/עתידות/מיסטיקה — רק דפוסים מהנתונים. כל פריט = node/edge בגרף, ומתחבר לציר הראשי (השם).\n\n` +
+    `קלט:\n${JSON.stringify(input, null, 2)}\n\ncore_values (ממנוע הליבה — אל תשנה):\n${JSON.stringify(precomputed, null, 2)}`;
+};
 
 export const LENSES = [
   { key: "narrative", title: "🧠 עדשת נרטיב (עומק)", lens: "נתח כסיפור-חיים ודפוסים רגשיים, אך תרגם הכל למבנה הפלט האחיד." },
