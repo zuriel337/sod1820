@@ -10,6 +10,7 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track } from "../lib/tracking.js";
@@ -609,6 +610,9 @@ export default function EntityPage() {
             ))}
           </div>
         )}
+
+        {/* 🧪 שלד ה-Hub — שני סרגלים מתקפלים (סגורים כברירת-מחדל). המרכז כמו היום. */}
+        {!loading && <EntityHubRails entity={entity} />}
 
         {/* ── הירו: מספר + משפט חם + שיתוף ── */}
         <div ref={heroRef} style={{ textAlign: "center", marginBottom: 26 }}>
