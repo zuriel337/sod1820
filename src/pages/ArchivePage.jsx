@@ -594,18 +594,20 @@ export default function ArchivePage() {
       .ar-mcard[draggable]:active { cursor: grabbing; }
       .ar-mcard.ar-dragging { opacity: 0.5; }
 
-      /* ── תצוגת מאגר (masonry) ── */
+      /* ── תצוגת מאגר (masonry) — כרטיס-רמז מלכותי ── */
       .ar-masonry {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+        gap: 13px;
         align-items: start;
       }
-      @media (max-width: 600px) { .ar-masonry { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 600px) { .ar-masonry { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
       .ar-mcard {
-        position: relative; border-radius: 10px; overflow: hidden;
-        background: rgba(8,5,2,0.8); border: 1px solid ${C.border};
-        transition: border-color .15s, transform .12s;
+        position: relative; border-radius: 14px; overflow: hidden;
+        background: linear-gradient(165deg, rgba(28,20,11,0.92), rgba(8,5,2,0.94));
+        border: 1px solid rgba(212,175,55,0.24);
+        box-shadow: 0 3px 14px rgba(0,0,0,0.45);
+        transition: border-color .18s, transform .18s, box-shadow .18s;
         break-inside: avoid;
       }
       .ar-jump-hi { animation: ar-jump-pulse 2.6s ease-out; }
@@ -614,20 +616,25 @@ export default function ArchivePage() {
         15%      { box-shadow: 0 0 0 4px rgba(212,175,55,0.85), 0 0 26px rgba(212,175,55,0.6); border-color: ${C.gold}; }
         60%      { box-shadow: 0 0 0 3px rgba(212,175,55,0.5), 0 0 18px rgba(212,175,55,0.35); border-color: ${C.gold}; }
       }
-      .ar-mcard:hover { border-color: ${C.gold}; }
-      .ar-msel { border-color: ${C.gold} !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.35); }
+      .ar-mcard:hover { border-color: ${C.gold}; transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(0,0,0,0.55), 0 0 26px rgba(212,175,55,0.22); }
+      .ar-mcard.ar-dragging:hover { transform: none; }
+      .ar-msel { border-color: ${C.gold} !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.45), 0 0 22px rgba(212,175,55,0.3); }
       .ar-mwrap { position: relative; cursor: pointer; min-height: 80px; }
-      .ar-mwrap img { display: block; width: 100%; height: auto; }
-      .ar-mshade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(5,4,0,0.82)); pointer-events: none; }
+      .ar-mwrap img { display: block; width: 100%; height: auto; transition: transform .35s ease; }
+      .ar-mcard:hover .ar-mwrap img { transform: scale(1.045); }
+      .ar-mshade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 46%, rgba(5,4,0,0.86)); pointer-events: none; }
       .ar-mchk { position: absolute; top: 6px; inset-inline-start: 6px; width: 22px; height: 22px; border-radius: 50%;
         border: 2px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.4);
         display: flex; align-items: center; justify-content: center;
         color: #fff; font-size: 12px; font-weight: 800; z-index: 2; }
       .ar-mchk.on { background: ${C.gold}; border-color: ${C.gold}; color: #1a0e00; }
-      .ar-mnum { position: absolute; top: 6px; inset-inline-end: 6px;
-        background: rgba(212,175,55,0.88); color: #1a0e00;
-        font-family: ${F.mono}; font-size: 11px; font-weight: 800;
-        padding: 2px 8px; border-radius: 999px; text-decoration: none; z-index: 2; }
+      .ar-mnum { position: absolute; top: 8px; inset-inline-end: 8px;
+        background: linear-gradient(135deg, #f6dd92, #d4af37); color: #1a0e00;
+        font-family: ${F.mono}; font-size: 11.5px; font-weight: 800; letter-spacing: .3px;
+        padding: 3px 11px 3px 9px; border-radius: 999px; text-decoration: none; z-index: 2;
+        box-shadow: 0 2px 9px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,244,210,0.4); }
+      .ar-mnum::before { content: "✦"; font-size: 8.5px; margin-inline-end: 4px; opacity: .82; vertical-align: 1px; }
       .ar-mtype { position: absolute; bottom: 8px; inset-inline-end: 8px; font-size: 14px; z-index: 2; }
       .ar-mstream-badge { position: absolute; top: 6px; inset-inline-start: 6px; font-size: 13px; z-index: 2; }
       .ar-medit { position: absolute; bottom: 8px; inset-inline-start: 8px; z-index: 3;
@@ -646,10 +653,12 @@ export default function ArchivePage() {
         display: flex; align-items: center; justify-content: center; padding: 0; color: #ff9999; }
       .ar-mcard:hover .ar-mdel { opacity: 1; }
       .ar-mcard:hover .ar-fb-btn { opacity: 1 !important; }
-      .ar-mcap { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 2px; }
-      .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700;
+      .ar-mcap { padding: 8px 11px 10px; display: flex; flex-direction: column; gap: 3px;
+        background: linear-gradient(180deg, rgba(212,175,55,0.05), transparent);
+        border-top: 1px solid rgba(212,175,55,0.12); }
+      .ar-mname { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; line-height: 1.45;
         overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-      .ar-mdate { color: ${C.muted}; font-family: ${F.heading}; font-size: 11px; }
+      .ar-mdate { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 10.5px; font-weight: 700; letter-spacing: .3px; }
       .hn-h2 { color: ${C.goldBright}; font-family: ${F.regal}; font-size: clamp(20px,3vw,27px); font-weight: 800; text-align: center; margin: 0 0 4px; }
       .hn-sub { color: ${C.muted}; font-family: ${F.body}; font-size: 14px; text-align: center; margin: 0 0 20px; }
       @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
@@ -1315,9 +1324,9 @@ export default function ArchivePage() {
             ) : (
               <div style={{ display: "grid", gap: 26 }}>
                 {(detail || []).map(im => (
-                  <div key={im.id} style={{ background: "rgba(20,15,12,0.5)", border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+                  <div key={im.id} style={{ background: "linear-gradient(165deg, rgba(28,20,11,0.78), rgba(10,6,2,0.7))", border: `1px solid rgba(212,175,55,0.26)`, borderRadius: 16, overflow: "hidden", boxShadow: "0 6px 22px rgba(0,0,0,0.45)" }}>
                     {imgDate(im.occurred_at) && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 14px", borderBottom: `1px solid ${C.border}`, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 14px", borderBottom: `1px solid rgba(212,175,55,0.14)`, color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
                         <span aria-hidden>🗓️</span>{imgDate(im.occurred_at)}
                       </div>
                     )}
