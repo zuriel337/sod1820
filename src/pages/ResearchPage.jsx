@@ -1,5 +1,6 @@
 import React, { useState, Suspense, lazy } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Navigate } from "react-router-dom";
+import { useAuth } from "../lib/AuthContext.jsx";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -42,8 +43,13 @@ function GematriaTool() {
 const LAB_TOOLS = TOOLS.filter(t => t.status === "live");
 
 export default function ResearchPage() {
-  // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link מהתפריט הראשי נכנס ישר לכלי
+  // 🔒 המעבדה סגורה לציבור — אדמין בלבד (בבנייה). מבקר רגיל → מופנה הביתה.
+  const { profile, loading } = useAuth();
   const [sp, setSp] = useSearchParams();
+  if (loading) return <div style={{ position: "fixed", inset: 0, background: "#f7f4ec" }} />;
+  if (profile?.role !== "admin") return <Navigate to="/" replace />;
+
+  // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי
   const tool = sp.get("tool");
   const setTool = t => setSp(t ? { tool: t } : {});
 

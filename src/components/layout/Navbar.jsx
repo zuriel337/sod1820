@@ -14,7 +14,7 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
-const CORE_KEYS = ["/", "/timeline", "/research", "/community"];
+const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const moreItems = [
   ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !["/start"].includes(i.to)),

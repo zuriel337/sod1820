@@ -7,7 +7,7 @@ export const NAV = [
   { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
   { label: "עץ ההתכנסויות", emoji: "🌳", to: "/numbers" },
-  { label: "המעבדה", emoji: "🔬", to: "/research" },
+  { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive?tab=galleries" },
@@ -26,7 +26,7 @@ export const NAV = [
 
 // פריטים שמוצגים בשורת התפריט הראשית (השאר נגישים דרך מרכז הניווט / המבורגר)
 export const PRIMARY_KEYS = [
-  "/", "/start", "/timeline", "/numbers", "/research", "/post",
+  "/", "/start", "/timeline", "/numbers", "/beit-midrash", "/post",
   "/code", "/community", "/members",
 ];
 
