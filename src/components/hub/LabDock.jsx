@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isToolReady, UPGRADE_MSG } from "../../lib/hub/ready.js";
 
@@ -38,7 +39,7 @@ export default function LabDock() {
     nav(t.to);
   };
 
-  return (
+  return createPortal((
     <nav className="labdock" aria-label="כלי המעבדה">
       <style>{DOCK_CSS}</style>
       {msg && <div className="ld-toast">{msg}</div>}
@@ -53,7 +54,7 @@ export default function LabDock() {
         );
       })}
     </nav>
-  );
+  ), document.body);
 }
 
 const DOCK_CSS = `
