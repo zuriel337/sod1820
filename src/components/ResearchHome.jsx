@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 // מוסיפים כלי עתידי בשורה אחת ב-TOOLS — בלי לגעת בשלד (registry).
 export const TOOLS = [
   { id: "name", icon: "🪪", title: "סיפור השם שלך", desc: "גלה את הערך, מבנה האותיות, הפסוק וההתכנסויות של שמך — או של כל שם יקר.", status: "live" },
+  { id: "family", icon: "👨‍👩‍👧", title: "הקשרים במשפחה", desc: "גלו את ההתכנסויות הנסתרות בין שמות בני המשפחה — עובדה מחושבת, לא ניחוש.", status: "live" },
   { id: "gematria", icon: "🧮", title: "מחשבון גימטריה", desc: "כל 17 השיטות, מאומת מול המנוע — רגיל · מילוי · אתב״ש · ריבוע ועוד.", status: "live" },
   { id: "els", icon: "🔡", title: "דילוגי אותיות (ELS)", desc: "חיפוש צפנים בתורה — דילוגים, חיפוש לפי ספר, תבניות מתקדמות.", status: "open", to: "/code" },
   { id: "number", icon: "🔢", title: "דף מספר", desc: "פתחו מספר וראו הכל — גימטריאות, הצלבות, התכנסויות, אירועים.", status: "open", to: "/numbers" },
