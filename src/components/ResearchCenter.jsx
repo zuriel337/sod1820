@@ -61,11 +61,21 @@ export default function ResearchCenter({ variant }) {
         <div className="rw-muted">{cart.length ? `המשך מהמקום שעצרת — מחקר עם ${cart.length} פריטים.` : "התחילו מחקר, ואעזור לחבר את הקשרים."}</div>
       </Panel>
     ) },
+    { id: "roadmap", render: () => (
+      <Panel icon="🗺️" title="לאן אפשר להגיע">
+        <div className="rw-future" style={{ marginTop: 0, borderTop: "none", paddingTop: 0 }}>
+          <div className="lk">🕸️ מפת הקשרים <span className="rw-adv">מתקדם</span></div>
+          <div className="rw-exp">רואים <b>איך כל מספר · פסוק · פוסט מחוברים</b> ברשת אחת. נפתח בשלב מתקדם.</div>
+          <div className="lk">⏱️ ציר הזמן שלי <span className="rw-adv">מתקדם</span></div>
+          <div className="rw-exp">כל מה שחקרת, <b>מסודר לפי זמן</b> — חוזרים בקלות לכל מחקר. (מתקדם)</div>
+        </div>
+      </Panel>
+    ) },
   ];
 
   // שמאל=context (העולם שלי: אני·המחקר הפעיל·שמורים) · ימין=tools (מנועים: AI·מה חדש)
   const ids = variant === "tools" ? ["ai", "whatsnew"]
-    : variant === "context" ? ["me", "active", "saved"]
+    : variant === "context" ? ["me", "active", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   return <>{PANELS.filter(p => ids.includes(p.id)).map(p => <React.Fragment key={p.id}>{p.render()}</React.Fragment>)}</>;
 }
