@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { loadProfile, saveProfile, emptyProfile, fieldEngine, cleanInput, promptFor, LENSES, EMOTIONS } from "../lib/research/lifeProfile.js";
+import { loadProfile, saveProfile, emptyProfile, fieldEngine, cleanInput, promptFor, coreValuesFor, LENSES, EMOTIONS } from "../lib/research/lifeProfile.js";
 import { PRIMARY } from "../lib/research/coreEngine.js";
 import { parseEngineOutput, mergeEngines } from "../lib/research/router.js";
+import { supabase } from "../lib/supabase.js";
 
 // 🧬 ניתוח חיים — תקן השדה האחיד (v2). קלט אחיד → מנועים → אותו פלט אחיד → השוואה + עץ אחד.
 const card = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 16, padding: 16, marginTop: 12 };
@@ -54,6 +55,24 @@ export default function LifeProfile() {
   const json = useMemo(() => JSON.stringify(input, null, 2), [input]);
   const outJson = useMemo(() => JSON.stringify(out, null, 2), [out]);
   const copy = (text, tag) => { try { navigator.clipboard?.writeText(text); setCopied(tag); setTimeout(() => setCopied(""), 1700); } catch { /* noop */ } };
+
+  // 🚀 הרצת מנועי AI אוטומטית דרך ה-Edge Dispatcher (גדור: משתמש מחובר + rate-limit)
+  const [running, setRunning] = useState(false);
+  const [aiMsg, setAiMsg] = useState("");
+  const runAI = async () => {
+    setRunning(true); setAiMsg("");
+    try {
+      const { data, error } = await supabase.functions.invoke("field-router", { body: { input, core_values: coreValuesFor(input) } });
+      if (error) throw error;
+      if (data?.gated) setAiMsg(data.reason === "auth" ? "להרצת AI צריך להתחבר (חינם)." : data.reason === "rate" ? "הגעת למכסת ההרצות היומית." : "אין הרשאה כרגע.");
+      else if (Array.isArray(data?.outputs)) {
+        const got = data.outputs.filter(o => o.out);
+        setP(prev => { const e = { ...prev._engines }; got.forEach(o => { e[o.lens] = JSON.stringify(o.out, null, 2); }); return { ...prev, _engines: e }; });
+        setAiMsg(got.length ? `✓ רצו ${got.length} עדשות — ה-Router הצליב אוטומטית` : "המודל לא החזיר פלט תקין.");
+      }
+    } catch (e) { setAiMsg("שגיאה: " + (e?.message || String(e)).slice(0, 80)); }
+    setRunning(false);
+  };
 
   const lvlColor = { low: "var(--ink3)", medium: "var(--acc)", high: "var(--good)" }[out.insight_level];
 
@@ -193,8 +212,12 @@ export default function LifeProfile() {
 
       {/* ===== 🤖 מנועי AI — אותו פלט אחיד ===== */}
       <div style={card}>
-        <div style={{ fontWeight: 800, fontSize: 16 }}>🤖 מנועי AI <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 9px", marginInlineStart: 6 }}>אותו תקן · השווה</span></div>
-        <div className="rw-sub" style={{ marginTop: 4 }}>כל פרומפט מבקש את <b>אותו פלט אחיד</b>. העתק לכל מודל → הדבק את ה-JSON בחזרה → השוואה.</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontWeight: 800, fontSize: 16 }}>🤖 מנועי AI <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 9px", marginInlineStart: 6 }}>אותו תקן · השווה</span></span>
+          <button onClick={runAI} disabled={running} style={{ ...btn(true), marginInlineStart: "auto" }}>{running ? "מריץ…" : "🚀 הרץ AI אוטומטית"}</button>
+        </div>
+        <div className="rw-sub" style={{ marginTop: 4 }}>«🚀 הרץ AI» = מריץ את Claude דרך ה-Dispatcher (גדור) → ממלא את העדשות → ה-Router מצליב. או ידנית: העתק פרומפט → הדבק JSON בחזרה.</div>
+        {aiMsg && <div style={{ marginTop: 6, fontSize: 13, fontWeight: 700, color: aiMsg.startsWith("✓") ? "var(--good)" : "var(--acc)" }}>{aiMsg}</div>}
         {LENSES.map(m => (
           <div key={m.key} style={{ marginTop: 12, border: "1px solid var(--line)", borderRadius: 12, padding: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

@@ -4,6 +4,33 @@
 // רוכב על ANTHROPIC_API_KEY הקיים (אותו סוד של gallery-ocr).
 const ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ROUTER_MODEL") || "claude-sonnet-4-6";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const DAILY_CAP = Number(Deno.env.get("ROUTER_DAILY_CAP") || "20");
+
+// 🔐 GATE — מאמת משתמש מחובר + rate-limit. ללא גישה → fallback בטוח (בלי קריאה ל-Claude, בלי עלות).
+async function gate(req: Request): Promise<{ ok: true; uid: string } | { ok: false; reason: string }> {
+  const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!token) return { ok: false, reason: "auth" };
+  // אימות ה-JWT של המשתמש מול Supabase Auth
+  const ures = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: ANON_KEY, Authorization: `Bearer ${token}` } });
+  if (!ures.ok) return { ok: false, reason: "auth" };
+  const user = await ures.json();
+  if (!user?.id) return { ok: false, reason: "auth" };
+  // tier — אם קיימת טבלת profiles, דרוש tier≥3 (לא חוסם אם אין טבלה/שורה)
+  try {
+    const pr = await fetch(`${SUPABASE_URL}/rest/v1/profiles?user_id=eq.${user.id}&select=tier`, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
+    if (pr.ok) { const rows = await pr.json(); if (Array.isArray(rows) && rows[0] && typeof rows[0].tier === "number" && rows[0].tier < 3) return { ok: false, reason: "tier" }; }
+  } catch { /* אין profiles → לא חוסם */ }
+  // rate-limit פר-משתמש ליום
+  const rl = await fetch(`${SUPABASE_URL}/rest/v1/rpc/router_rate_check`, {
+    method: "POST", headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_user: user.id, p_cap: DAILY_CAP }),
+  });
+  if (rl.ok) { const allowed = await rl.json(); if (allowed === false) return { ok: false, reason: "rate" }; }
+  return { ok: true, uid: user.id };
+}
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -57,6 +84,11 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY" }, 500);
+
+    // 🔐 שער — בלי גישה מחזירים gated (הלקוח נשאר עם מנוע-הליבה בלבד, בלי עלות)
+    const g = await gate(req);
+    if (!g.ok) return json({ gated: true, reason: g.reason, outputs: [] });
+
     const body = await req.json().catch(() => ({}));
     const { input, core_values, lenses = ["narrative", "structure"] } = body || {};
     if (!input) return json({ error: "missing input" }, 400);

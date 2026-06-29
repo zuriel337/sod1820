@@ -142,3 +142,10 @@ export const LENSES = [
   { key: "narrative", title: "🧠 עדשת נרטיב (עומק)", lens: "נתח כסיפור-חיים ודפוסים רגשיים, אך תרגם הכל למבנה הפלט האחיד." },
   { key: "structure", title: "🧭 עדשת מבנה (Field)", lens: "נתח מבנה בלבד — צירים, אשכולות, צפיפות-זמן וקשרים. בלי סיפור." },
 ];
+
+// ערכי מנוע-הליבה לכל הישויות — נשלחים ל-dispatcher כך שה-AI לא מחשב, רק מפרש
+export const coreValuesFor = input => ({
+  axis: computeEntity(input.identity?.name || ""),
+  events: (input.timeline || []).filter(e => e.title).map(e => ({ title: e.title, values: computeEntity(e.title).values })),
+  people: (input.entities?.people || []).filter(p => p.name).map(p => ({ name: p.name, values: computeEntity(p.name).values })),
+});
