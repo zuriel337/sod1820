@@ -1,34 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { rwCss } from "../lib/research/theme.js";
 import ResearchCenter from "./ResearchCenter.jsx";
 
-// 🏛️ ResearchShell — השלד הקבוע של «סביבת המחקר» (research_workspace_law).
-// Header קבוע · Workspace מתחלף (children) · מרכז המחקר גלובלי (ימין בדסקטופ /
-// Bottom-Sheet במובייל). מצב בהיר זהב-על-קרם, מובייל-ראשון. עוטף עמודים — לא מחליף.
-export default function ResearchShell({ children, navActive = "research" }) {
+// 🏛️ ResearchShell — שלד קבוע. שני סרגלים מתקפלים בצדדים (גרירה/לחיצה, סגנון IDE):
+// ימין = אזור עבודה (הקשרי למדור) · שמאל = אזור אישי (שלי). מרכז = הכלי, גמיש.
+// מובייל: Bottom-Sheet. מצב בהיר זהב-על-קרם.
+export default function ResearchShell({ children }) {
   const [sheet, setSheet] = useState(false);
-  // 🧱 פאנלים מתקפלים — לסגור/לפתוח ימין (מרכז המחקר) ושמאל (ניווט) → להרחיב את אזור הכלים
-  const [rcOpen, setRcOpen] = useState(() => { try { return localStorage.getItem("rw_rc_open") !== "0"; } catch { return true; } });
-  const [navOpen, setNavOpen] = useState(() => { try { return localStorage.getItem("rw_nav_open") !== "0"; } catch { return true; } });
+  const [workOpen, setWorkOpen] = useState(() => { try { return localStorage.getItem("rw_work_open") !== "0"; } catch { return true; } });
+  const [meOpen, setMeOpen] = useState(() => { try { return localStorage.getItem("rw_me_open") !== "0"; } catch { return true; } });
   useEffect(() => { document.title = "סביבת המחקר · סוד 1820"; }, []);
-  useEffect(() => { try { localStorage.setItem("rw_rc_open", rcOpen ? "1" : "0"); } catch { /* noop */ } }, [rcOpen]);
-  useEffect(() => { try { localStorage.setItem("rw_nav_open", navOpen ? "1" : "0"); } catch { /* noop */ } }, [navOpen]);
-  const full = !rcOpen && !navOpen;
-  const toggleFull = () => { const v = !full; setRcOpen(!v ? true : false); setNavOpen(!v ? true : false); };
+  useEffect(() => { try { localStorage.setItem("rw_work_open", workOpen ? "1" : "0"); } catch { /* noop */ } }, [workOpen]);
+  useEffect(() => { try { localStorage.setItem("rw_me_open", meOpen ? "1" : "0"); } catch { /* noop */ } }, [meOpen]);
 
-  const Nav = () => (
-    <nav className="rw-nav">
-      <a className={navActive === "research" ? "on" : undefined}>🧮 <span>מחקר</span></a>
-      <a>🏠 <span>תוכן</span></a>
-      <a>📂 <span>סביבת העבודה</span></a>
-      <a>👤 <span>אני</span></a>
-      <div className="rw-future">לאן אפשר להגיע →
-        <div className="lk">🕸️ מפת הקשרים <span className="rw-adv">מתקדם</span></div>
-        <div className="rw-exp">רואים <b>איך כל מספר · פסוק · פוסט מחוברים</b> זה לזה ברשת אחת. נפתח בשלב מתקדם.</div>
-        <div className="lk">⏱️ ציר הזמן שלי <span className="rw-adv">מתקדם</span></div>
-        <div className="rw-exp">כל מה שחקרת, <b>מסודר לפי זמן</b>. חוזרים בקלות לכל מחקר. (מתקדם)</div>
-      </div>
-    </nav>
+  // גרירה/לחיצה על הסרגל-מפריד: גרירה לכיוון הקצה (או לחיצה) מקפלת
+  const Grip = ({ side, onCollapse }) => {
+    const start = useRef(null);
+    const down = e => { start.current = { x: e.clientX }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* noop */ } };
+    const up = e => {
+      if (!start.current) return;
+      const dx = e.clientX - start.current.x; start.current = null;
+      // קליק (תזוזה קטנה) או גרירה לכיוון הקצה → קיפול. ימין: גרירה ימינה(dx>0). שמאל: שמאלה(dx<0)
+      if (Math.abs(dx) < 6 || (side === "right" ? dx > 30 : dx < -30)) onCollapse();
+    };
+    return <button className="rw-grip" title="גרור או לחץ — קפל לסרגל" onPointerDown={down} onPointerUp={up}><b>⋮⋮</b></button>;
+  };
+  const Rail = ({ label, icon, onClick }) => (
+    <button className="rw-rail" onClick={onClick} title="פתח"><span className="ic">{icon}</span>{label}</button>
   );
 
   return (
@@ -37,20 +35,25 @@ export default function ResearchShell({ children, navActive = "research" }) {
       <header className="rw-head">
         <div className="rw-logo">סוד <b>1820</b></div>
         <div className="rw-search">🔎 חפש מספר · ביטוי · פסוק · פוסט…</div>
-        <button className={"rw-ic rw-ptog" + (navOpen ? "" : " on")} title="ניווט שמאל" onClick={() => setNavOpen(o => !o)}>☰</button>
-        <button className={"rw-ic rw-ptog" + (rcOpen ? "" : " on")} title="מרכז המחקר (ימין)" onClick={() => setRcOpen(o => !o)}>🧠</button>
-        <button className={"rw-ic rw-ptog" + (full ? " on" : "")} title={full ? "צא ממסך מלא" : "מסך מלא לאזור הכלים"} onClick={toggleFull}>{full ? "✕" : "⛶"}</button>
         <div className="rw-ic" title="התראות">🔔</div>
         <div className="rw-av">א</div>
       </header>
 
-      <div className={"rw-grid" + (rcOpen ? "" : " rc-off") + (navOpen ? "" : " nav-off")}>
-        {rcOpen && <aside className="rw-rc"><ResearchCenter /></aside>}
+      <div className={"rw-stage" + (!workOpen && !meOpen ? " wide" : "")}>
+        {/* ימין — אזור עבודה */}
+        {workOpen
+          ? <><aside className="rw-pwrap"><ResearchCenter variant="work" /></aside><Grip side="right" onCollapse={() => setWorkOpen(false)} /></>
+          : <Rail label="אזור עבודה" icon="🧠" onClick={() => setWorkOpen(true)} />}
+
         <main className="rw-work">{children}</main>
-        {navOpen && <Nav />}
+
+        {/* שמאל — אזור אישי */}
+        {meOpen
+          ? <><Grip side="left" onCollapse={() => setMeOpen(false)} /><aside className="rw-pwrap left"><ResearchCenter variant="personal" /></aside></>
+          : <Rail label="אזור אישי" icon="👤" onClick={() => setMeOpen(true)} />}
       </div>
 
-      {/* מובייל — כפתור קבוע + Bottom Sheet (ChatGPT) */}
+      {/* מובייל — כפתור קבוע + Bottom Sheet */}
       <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ▲</button>
       <div className={"rw-backdrop" + (sheet ? " open" : "")} onClick={() => setSheet(false)} />
       <div className={"rw-sheet" + (sheet ? " open" : "")}>

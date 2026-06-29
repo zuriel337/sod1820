@@ -35,13 +35,23 @@ export const rwCss = (t = RW) => `
     display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
   .rw-av{width:42px;height:42px;border-radius:999px;background:linear-gradient(135deg,var(--acc),#e7c869);
     color:#1a0e00;display:flex;align-items:center;justify-content:center;font-weight:800}
-  .rw-grid{display:grid;grid-template-columns:340px minmax(0,1fr) 220px;gap:18px;padding:18px clamp(16px,3vw,40px);align-items:start;max-width:1680px;margin:0 auto}
-  .rw-grid.rc-off{grid-template-columns:minmax(0,1fr) 220px}
-  .rw-grid.nav-off{grid-template-columns:340px minmax(0,1fr)}
-  .rw-grid.rc-off.nav-off{grid-template-columns:minmax(0,1fr);max-width:none;padding-inline:clamp(12px,2vw,28px)}
+  /* במה: סרגלים מתקפלים בצדדים (גרירה/לחיצה), אזור-כלים גמיש במרכז (investing/IDE) */
+  .rw-stage{display:flex;align-items:flex-start;padding:18px clamp(14px,2.5vw,36px);max-width:1680px;margin:0 auto;gap:0}
+  .rw-stage.wide{max-width:none}
+  .rw-pwrap{flex:0 0 auto;width:330px;display:grid;gap:12px;position:sticky;top:74px}
+  .rw-pwrap.left{width:240px}
+  .rw-work{flex:1;min-width:0;padding:0 12px}
+  .rw-grip{flex:0 0 12px;align-self:stretch;min-height:60vh;cursor:col-resize;display:flex;align-items:center;justify-content:center;
+    color:var(--ink3);background:none;border:none;padding:0;touch-action:none}
+  .rw-grip:hover{color:var(--acc)}
+  .rw-grip b{writing-mode:vertical-rl;font-size:14px;letter-spacing:-2px;line-height:.6;user-select:none}
+  .rw-rail{flex:0 0 48px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    writing-mode:vertical-rl;font-weight:800;font-size:14px;color:var(--acc);font-family:inherit}
+  .rw-rail:hover{background:var(--accS)}
+  .rw-rail .ic{writing-mode:horizontal-tb;font-size:20px}
   .rw-ic.on{background:var(--accS);border-color:var(--acc);color:var(--acc)}
   .rw-rc{order:1;display:grid;gap:12px;position:sticky;top:74px}
-  .rw-work{order:2;min-width:0}
   .rw-nav{order:3;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:9px;position:sticky;top:74px}
   .rw-nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:var(--ink2);
     font-weight:700;font-size:15.5px;text-decoration:none;min-height:${t.tap}px;cursor:pointer}
@@ -90,8 +100,9 @@ export const rwCss = (t = RW) => `
   /* בית-מגירה במובייל (ChatGPT) */
   .rw-fab{display:none}.rw-sheet,.rw-backdrop{display:none}
   @media (max-width:760px){
-    .rw-grid{grid-template-columns:1fr!important;padding:12px;padding-bottom:90px}
-    .rw-nav,.rw-rc,.rw-ptog{display:none}
+    .rw-stage{padding:12px;padding-bottom:90px}
+    .rw-pwrap,.rw-grip,.rw-rail,.rw-nav,.rw-rc,.rw-ptog{display:none}
+    .rw-work{padding:0}
     .rw-fab{display:flex;position:fixed;bottom:14px;left:12px;right:12px;height:52px;border-radius:16px;
       background:var(--ink);color:var(--card);align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:16px;
       box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:40;border:none;cursor:pointer}

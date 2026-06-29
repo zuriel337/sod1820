@@ -14,7 +14,8 @@ function Panel({ icon, title, extra, children }) {
 
 // 🧠 ResearchCenter — מערכת פאנלים (registry). מוסיפים פאנל עתידי בשורה אחת,
 // בלי לגעת בשלד. כל הפאנלים קוראים את אותו ResearchProvider (Event Bus + Context).
-export default function ResearchCenter() {
+// variant: 'work' (אזור עבודה — ימין) · 'personal' (אזור אישי — שמאל) · undefined (הכל — מובייל)
+export default function ResearchCenter({ variant }) {
   const { cart = [], saved = [], removeFromResearch } = useResearch();
 
   const PANELS = [
@@ -62,5 +63,9 @@ export default function ResearchCenter() {
     ) },
   ];
 
-  return <>{PANELS.map(p => <React.Fragment key={p.id}>{p.render()}</React.Fragment>)}</>;
+  // אזור עבודה (ימין) = הקשרי למדור · אזור אישי (שמאל) = שלי · ללא variant = הכל (מובייל)
+  const ids = variant === "work" ? ["active", "whatsnew", "ai"]
+    : variant === "personal" ? ["me", "saved"]
+    : PANELS.map(p => p.id);
+  return <>{PANELS.filter(p => ids.includes(p.id)).map(p => <React.Fragment key={p.id}>{p.render()}</React.Fragment>)}</>;
 }
