@@ -9,6 +9,14 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 const num = (k, d) => { try { const v = parseInt(localStorage.getItem(k)); return Number.isFinite(v) ? v : d; } catch { return d; } };
 const ICONS = { tools: ["🤖", "🔔"], context: ["👤", "🧠", "📂", "🗺️"] };
 
+// אייקון-פאנל אוניברסלי (סגנון ChatGPT/VSCode) — כולם מזהים: «פתח/סגור סרגל»
+const PanelIcon = ({ size = 19 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="3" y="4" width="18" height="16" rx="2.5" />
+    <line x1="9" y1="4" x2="9" y2="20" />
+  </svg>
+);
+
 export default function ResearchShell({ children }) {
   const { cart = [] } = useResearch();
   const [sheet, setSheet] = useState(false);
@@ -41,23 +49,22 @@ export default function ResearchShell({ children }) {
     return <button className="rw-grip" title="גרור לשינוי רוחב" onPointerDown={down} onPointerMove={move} onPointerUp={up}><b>⋮⋮</b></button>;
   };
 
-  // פאנל פתוח עם כותרת + כפתור-קיפול ברור
-  const Panel = ({ side, title, variant, onClose, w, left }) => (
+  // פאנל פתוח — כותרת + כפתור אייקון-פאנל (קיפול), סגנון ChatGPT
+  const Panel = ({ title, variant, onClose, w, left }) => (
     <aside className={"rw-pwrap" + (left ? " left" : "")} style={{ width: w }}>
       <div className="rw-phead">
         <span>{title}</span>
-        <button onClick={onClose} title="קפל">{side === "right" ? "⟩" : "⟨"}</button>
+        <button onClick={onClose} title="קפל סרגל"><PanelIcon /></button>
       </div>
       <ResearchCenter variant={variant} />
     </aside>
   );
-  // סרגל סגור — אייקונים בפנים + נקודת-שינוי + פתיחה
-  const Rail = ({ label, icons, onOpen, dot, side }) => (
-    <button className="rw-rail" onClick={onOpen} title="פתח">
+  // סרגל סגור — אייקון-פאנל למעלה (פתיחה) + אייקוני התוכן + נקודת-שינוי
+  const Rail = ({ icons, onOpen, dot }) => (
+    <button className="rw-rail" onClick={onOpen} title="פתח סרגל">
       {dot && <span className="rw-rail-dot" />}
-      <span className="chev">{side === "right" ? "⟨" : "⟩"}</span>
+      <span className="rw-rail-toggle"><PanelIcon size={20} /></span>
       <span className="rw-rail-icons">{icons.map((i, k) => <span key={k}>{i}</span>)}</span>
-      <span className="lbl">{label}</span>
     </button>
   );
 
@@ -74,15 +81,15 @@ export default function ResearchShell({ children }) {
       <div className={"rw-stage" + (!rightOpen && !leftOpen ? " wide" : "")}>
         {/* ימין — מנועים */}
         {rightOpen
-          ? <><Panel side="right" title="מנועים · AI" variant="tools" w={rightW} onClose={() => setRightOpen(false)} /><Grip side="right" /></>
-          : <Rail label="מנועים" icons={ICONS.tools} side="right" onOpen={() => setRightOpen(true)} />}
+          ? <><Panel title="מנועים · AI" variant="tools" w={rightW} onClose={() => setRightOpen(false)} /><Grip side="right" /></>
+          : <Rail icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
 
         <main className="rw-work">{children}</main>
 
         {/* שמאל — העולם שלי */}
         {leftOpen
-          ? <><Grip side="left" /><Panel side="left" left title="העולם שלי" variant="context" w={leftW} onClose={() => setLeftOpen(false)} /></>
-          : <Rail label="העולם שלי" icons={ICONS.context} side="left" dot={leftDot} onOpen={() => setLeftOpen(true)} />}
+          ? <><Grip side="left" /><Panel left title="העולם שלי" variant="context" w={leftW} onClose={() => setLeftOpen(false)} /></>
+          : <Rail icons={ICONS.context} dot={leftDot} onOpen={() => setLeftOpen(true)} />}
       </div>
 
       {/* מובייל — Bottom Sheet */}

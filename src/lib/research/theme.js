@@ -45,20 +45,19 @@ export const rwCss = (t = RW) => `
     color:var(--ink3);background:none;border:none;padding:0;touch-action:none}
   .rw-grip:hover{color:var(--acc)}
   .rw-grip b{writing-mode:vertical-rl;font-size:14px;letter-spacing:-2px;line-height:.6;user-select:none}
-  .rw-rail{flex:0 0 52px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:14px;
-    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;position:relative;
-    writing-mode:vertical-rl;font-weight:800;font-size:13.5px;color:var(--acc);font-family:inherit}
+  /* סרגל-סגול נקי בסגנון ChatGPT: אייקון-פאנל למעלה (פתיחה) + אייקוני התוכן */
+  .rw-rail{flex:0 0 50px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 0;position:relative;font-family:inherit}
   .rw-rail:hover{background:var(--accS);border-color:var(--acc)}
-  .rw-rail .chev{writing-mode:horizontal-tb;font-size:14px;color:var(--ink3);border:1px solid var(--line);border-radius:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
-  .rw-rail:hover .chev{color:var(--acc);border-color:var(--acc)}
-  .rw-rail-icons{display:flex;flex-direction:column;gap:11px;writing-mode:horizontal-tb;font-size:19px;opacity:.85}
-  .rw-rail .lbl{margin-top:2px}
-  .rw-rail-dot{position:absolute;top:9px;inset-inline-start:9px;width:10px;height:10px;border-radius:999px;background:#e0533a;box-shadow:0 0 0 2px var(--card);writing-mode:horizontal-tb}
-  .rw-phead{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;font-weight:800;color:var(--ink3);
-    letter-spacing:1.5px;padding:0 4px 8px;text-transform:uppercase}
-  .rw-phead button{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:8px;
-    width:26px;height:26px;font-family:inherit;font-weight:800;font-size:14px;line-height:1}
-  .rw-phead button:hover{border-color:var(--acc);color:var(--acc)}
+  .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg)}
+  .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
+  .rw-rail-icons{display:flex;flex-direction:column;gap:13px;font-size:20px;opacity:.9}
+  .rw-rail-dot{position:absolute;top:8px;inset-inline-start:8px;width:10px;height:10px;border-radius:999px;background:#e0533a;box-shadow:0 0 0 2px var(--card)}
+  .rw-phead{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;color:var(--ink3);
+    letter-spacing:1px;padding:0 2px 9px}
+  .rw-phead button{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:9px;
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+  .rw-phead button:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
   .rw-ic.on{background:var(--accS);border-color:var(--acc);color:var(--acc)}
   /* שורת-כלים אופקית — תפריט-המשנה של המעבדה (לחיצה נכנסת ישר לכלי) */
   .rw-toolbar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
