@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount } from "../lib/supabase.js";
+import NumberBubbles from "../components/NumberBubbles.jsx";
+import { computeBubbles } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
@@ -70,6 +72,7 @@ export default function HomeNewPage() {
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
+  const [imgCount, setImgCount] = useState(0); // סך תמונות הארכיון — לבאנר האוצר
   const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
@@ -84,6 +87,7 @@ export default function HomeNewPage() {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    getGalleryImageCount().then(setImgCount).catch(() => {});
     getHomeSets().then(r => setHomeSets(r || [])).catch(() => {});
     getTopicCards({ approvedOnly: true }).then(c => {
       setCards(c || []);
@@ -106,6 +110,22 @@ export default function HomeNewPage() {
   const liveCards = useMemo(() => [...cards]
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
+
+  // 🖼️ התמונה האחרונה (הכי טרייה) — מוצגת בגדול תמיד, בלי צורך לפתוח.
+  const latestHint = useMemo(() => {
+    const hs = (hints || []).filter(h => h.image_url);
+    return hs.length ? [...hs].sort((a, b) => effDate(b) - effDate(a))[0] : null;
+  }, [hints]);
+  // 🫧 בועות חיות — מהבהב = פעיל לאחרונה. מפנות לארכיון התלת-מימד.
+  const homeBubbles = useMemo(() => {
+    const hs = hints || [];
+    const base = computeBubbles(hs.map(h => h.primary_value), { limit: 10 });
+    const times = hs.map(h => effDate(h)).filter(Boolean);
+    const newest = times.length ? Math.max(...times) : 0;
+    const fresh = new Set();
+    if (newest) for (const h of hs) { const t = effDate(h); if (t && newest - t <= 21 * 86400000) { const pv = Number(h.primary_value); if (pv) fresh.add(pv); } }
+    return base.map(b => ({ ...b, hot: b.nums.some(n => fresh.has(n)) }));
+  }, [hints]);
 
   // «עדכונים אחרונים» = פוסטים + גלריות מומלצות + רמזים מזרם המציאות, ממוזגים לפי תאריך (החדש למעלה).
   // כל רמז שעולה לזרם (source='update') נראה כאן ככרטיס-תמונה עם רצועת-מספר ממותגת.
@@ -266,9 +286,10 @@ export default function HomeNewPage() {
       {/* רקע כהה קבוע (#09080f) ללא תלות במצב יום/לילה — forceDark. Hero = הרמז האחרון. */}
       <section id="reality-home" style={{ position: "relative", overflow: "hidden", background: "#09080f", colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
         <style>{`
-          #reality-home .rw-hero img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
+          #reality-home .rw-hero img, #reality-home .rw-hero-img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
           @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
           #reality-home .hn-h2, #reality-home h2 { color: #d4af37 !important; }
+          @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
         `}</style>
         {/* המספרים היורדים — רקע מלא לכל המקטע (מקצה לקצה בדסקטופ). אפקט קל מבית-הקוד
             (~18fps, מכבד reduced-motion, עוצר כשהטאב מוסתר). */}
@@ -276,25 +297,52 @@ export default function HomeNewPage() {
         {/* דהיית קריאוּת מעל המספרים — שהטקסט יישאר חד */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(9,8,15,0.55), rgba(9,8,15,0.88) 85%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1360, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
             <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
-              🌊 זרם המציאות
+              🖼️ אחרונות מהמאגר
             </h2>
             <span style={{ flex: 1 }} />
             <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-              הזרם המלא →
+              לגלריה התלת-מימד →
             </Link>
           </div>
-          <div style={{ textAlign: "center", padding: "52px 16px 48px", border: "1px dashed rgba(212,175,55,0.3)", borderRadius: 18, background: "rgba(9,8,15,0.25)" }}>
-            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
-            <div style={{ color: "#d4af37", fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
-              זרם המציאות — בבנייה
+
+          {/* 🫧 בועות חיות — מי שרוצה יותר, גולש לגלריה */}
+          {homeBubbles.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <NumberBubbles data={homeBubbles}
+                title="🫧 המספרים החיים — מהבהב = פעיל עכשיו · לחצו בועה לכל התמונות בארכיון"
+                hrefFor={b => `/archive?tab=pool&nums=${b.nums.join(",")}`} />
             </div>
-            <div style={{ color: "#a89060", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9 }}>
-              הממשק מתעדכן לגרסה חדשה.<br />
-              הרמזים יחזרו בקרוב עם יכולות חדשות.
+          )}
+
+          {/* 🖼️ התמונה האחרונה — פתוחה בגדול תמיד (רואים בלי לפתוח) + כיתוב */}
+          {latestHint ? (
+            <div onClick={() => setLbImg(latestHint)} style={{ cursor: "zoom-in", position: "relative", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(212,175,55,0.32)", background: "#09080f", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
+              <img src={latestHint.image_url} alt={cleanName(latestHint.name) || ""} className="rw-hero-img"
+                style={{ width: "100%", maxHeight: "min(62vh, 580px)", objectFit: "contain", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 30%, transparent 55%, rgba(0,0,0,0.78) 100%)", pointerEvents: "none" }} />
+              {domNum(latestHint) != null && (
+                <Link to={`/number/${domNum(latestHint)}`} onClick={e => e.stopPropagation()}
+                  style={{ position: "absolute", top: 14, insetInlineStart: 14, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(26px,4vw,48px)", borderRadius: 12, padding: "3px 16px", textDecoration: "none", lineHeight: 1.1 }}>
+                  {domNum(latestHint)}
+                </Link>
+              )}
+              <span style={{ position: "absolute", top: 14, insetInlineEnd: 14, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "4px 12px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 האחרון שעלה</span>
+              <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "20px 22px", direction: "rtl" }}>
+                {cleanName(latestHint.name) && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(18px,2.6vw,26px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.85)", marginBottom: 5, lineHeight: 1.4 }}>{cleanName(latestHint.name)}</div>}
+                <div style={{ color: "rgba(255,255,255,0.7)", fontFamily: F.heading, fontSize: 13 }}>{shortDate(latestHint) ? `🗓️ ${shortDate(latestHint)} · ` : ""}לחצו להגדלה</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div style={{ textAlign: "center", color: "#a89060", fontFamily: F.body, fontSize: 14, padding: "30px 0" }}>טוען…</div>
+          )}
+
+          {/* 📸 באנר האוצר — כמות התמונות בארכיון */}
+          <Link to="/archive" style={{ display: "block", marginTop: 18, textAlign: "center", textDecoration: "none", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(122,19,32,0.16))", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 14, padding: "15px 18px" }}>
+            <span style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,22px)", fontWeight: 800 }}>📸 {imgCount ? imgCount.toLocaleString("he") : "אלפי"} תמונות בארכיון</span>
+            <span style={{ color: "#d8c89a", fontFamily: F.body, fontSize: 14, marginInlineStart: 10 }}>· 14 שנות תיעוד · צללו לגלריה התלת-מימד →</span>
+          </Link>
         </div>
       </section>
 

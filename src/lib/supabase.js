@@ -169,6 +169,15 @@ export async function getGalleriesOverview() {
   return { gals: gals || [], imgs };
 }
 
+// סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.
+export async function getGalleryImageCount() {
+  if (!supabase) return 0;
+  const { count } = await supabase.from('gallery_images')
+    .select('*', { count: 'exact', head: true })
+    .not('image_url', 'is', null).not('curator_hidden', 'is', true).eq('min_tier', 0);
+  return count || 0;
+}
+
 // מטא-דאטה של גלריות לפי wp_gallery_id — לרצועת «פתח את הגלריה המלאה» בפוסט ישן.
 // עץ אחד: הפוסט שומר את התמונות המוטמעות, וזה רק מפנה לעדשה העריכה (לא משכפל).
 export async function getGalleriesByWpIds(wpIds) {
