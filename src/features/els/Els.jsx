@@ -45,7 +45,7 @@ const ELS_TERM_COLORS = ["#E8C84A", "#a01f2e", "#6b3fa0", "#3a9b6e", "#c77d2e"];
 
 // 📖 ספרי התורה — גבולות לפי ספירת-אותיות מסורתית (סה״כ 304,805). חיתוך לחיפוש בספר בודד.
 // אם קובץ-האותיות באורך שונה — נחתך/נקצץ לגבולות בפועל (clamp).
-const TORAH_BOOKS = [
+export const TORAH_BOOKS = [
   { key: "all", label: "כל התורה", from: 0,      to: 304805 },
   { key: "gen", label: "בראשית",   from: 0,      to: 78064 },
   { key: "exo", label: "שמות",     from: 78064,  to: 141593 },
@@ -79,7 +79,7 @@ function buildSkipSet(pattern, min, max) {
 // חיפוש ELS: תומך בסבילות לשגיאות וממוין לפי מובהקות (דילוג קצר קודם).
 // opts: { winFrom, winTo } — חלון אותיות (לחיפוש בספר בודד) · { skips } — מערך דילוגים
 // מפורש (תבנית פיבונאצ׳י/ראשוניים/חזקות-2); null = טווח רציף min..max.
-function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0, opts = {}) {
+export function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0, opts = {}) {
   const target = elsNormalize(targetRaw);
   const N = letters.length, L = target.length;
   const hits = [];
@@ -120,7 +120,7 @@ function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatches = 0,
 }
 
 // אשכול מונחים: מחפש כל מונח, בוחר עוגן (הנדיר ביותר), ומודד קרבה במטריצה
-function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches, opts) {
+export function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches, opts) {
   const perTerm = terms.map(t => {
     const r = elsSearch(letters, t, skipMin, skipMax, dir, maxMismatches, opts);
     return { term: r.target, hits: r.hits };
