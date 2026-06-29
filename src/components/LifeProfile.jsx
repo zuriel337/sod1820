@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { loadProfile, saveProfile, emptyProfile, fieldEngine, cleanInput, promptFor, LENSES, EMOTIONS } from "../lib/research/lifeProfile.js";
 import { PRIMARY } from "../lib/research/coreEngine.js";
+import { parseEngineOutput, mergeEngines } from "../lib/research/router.js";
 
 // 🧬 ניתוח חיים — תקן השדה האחיד (v2). קלט אחיד → מנועים → אותו פלט אחיד → השוואה + עץ אחד.
 const card = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 16, padding: 16, marginTop: 12 };
@@ -44,6 +45,12 @@ export default function LifeProfile() {
 
   const input = useMemo(() => cleanInput(p), [p]);
   const out = useMemo(() => fieldEngine(p), [p]);
+  // 🧠 Router — מאחד את מנוע השדה (דטרמיניסטי) עם פלטי ה-AI שהודבקו (תקינים)
+  const consensus = useMemo(() => {
+    const engines = [{ name: "מפת השדה", out }];
+    LENSES.forEach(m => { const o = parseEngineOutput(p._engines?.[m.key]); if (o) engines.push({ name: m.title, out: o }); });
+    return mergeEngines(engines);
+  }, [out, p._engines]);
   const json = useMemo(() => JSON.stringify(input, null, 2), [input]);
   const outJson = useMemo(() => JSON.stringify(out, null, 2), [out]);
   const copy = (text, tag) => { try { navigator.clipboard?.writeText(text); setCopied(tag); setTimeout(() => setCopied(""), 1700); } catch { /* noop */ } };
@@ -198,6 +205,50 @@ export default function LifeProfile() {
           </div>
         ))}
         <div className="rw-sub" style={{ marginTop: 10 }}>↪ הפלט מ«מפת השדה» הוא קו-הבסיס. מה שחוזר גם אצל ה-AI = האות החזק ביותר (קונצנזוס).</div>
+      </div>
+
+      {/* ===== 🧠 Router — קונצנזוס בין מנועים ===== */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontWeight: 800, fontSize: 16 }}>🧠 Router · קונצנזוס</span>
+          <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 9px" }}>{consensus.engines} מנועים</span>
+          {consensus.agreement != null && <span style={{ fontSize: 12, fontWeight: 800, color: "var(--good)", marginInlineStart: "auto" }}>הסכמה {consensus.agreement}%</span>}
+        </div>
+        <div className="rw-sub" style={{ marginTop: 4 }}>מאחד את כל המנועים לפלט אחד. מה שחוזר בין מנועים = חזק (✓ הסכמה); מה שסותר = מסומן.</div>
+
+        {consensus.engines < 2 && <div className="rw-muted" style={{ marginTop: 8 }}>כרגע רץ רק מנוע השדה. הדבק פלט AI אחד או יותר למעלה → ה-Router יצליב וינקד הסכמה.</div>}
+
+        {consensus.clusters.length > 0 && <div style={{ marginTop: 12 }}>
+          <div style={lbl}>אשכולות מאוחדים</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {consensus.clusters.map((c, i) => <span key={i} className="rw-chip">{c.name} · {c.strength}{c.agree > 1 && <b style={{ color: "var(--good)" }}> ✓{c.agree}</b>}</span>)}
+          </div>
+        </div>}
+
+        {consensus.edges.length > 0 && <div style={{ marginTop: 12 }}>
+          <div style={lbl}>קצוות מאוחדים (עץ אחד)</div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {consensus.edges.slice(0, 12).map((e, i) => (
+              <div key={i} style={{ fontSize: 13, color: e.contradiction ? "#b4453a" : "var(--ink)" }}>
+                <b>{e.a}</b> <span style={{ color: "var(--ink3)" }}>—{e.relations.join(" / ")}→</span> <b>{e.b}</b>
+                {e.agree > 1 && <b style={{ color: "var(--good)" }}> ✓{e.agree}</b>}
+                {e.contradiction && <span style={{ color: "#b4453a", fontWeight: 800 }}> ⚠ סתירה</span>}
+              </div>
+            ))}
+          </div>
+        </div>}
+
+        {consensus.contradictions.length > 0 && <div style={{ marginTop: 12 }}>
+          <div style={{ ...lbl, color: "#b4453a" }}>⚠ סתירות בין מנועים ({consensus.contradictions.length})</div>
+          <div className="rw-muted" style={{ fontSize: 12.5 }}>{consensus.contradictions.slice(0, 5).map(c => `${c.a}⇄${c.b}: ${c.relations.join(" / ")}`).join(" · ")}</div>
+        </div>}
+
+        <div style={{ marginTop: 12 }}>
+          <div style={lbl}>summary</div>
+          <div className="rw-muted" style={{ fontSize: 13.5 }}>
+            {consensus.engines} מנועים · {consensus.clusters.length} אשכולות · {consensus.edges.length} קצוות · {consensus.contradictions.length} סתירות · insight: {consensus.insight_level}
+          </div>
+        </div>
       </div>
     </div>
   );
