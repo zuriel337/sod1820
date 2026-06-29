@@ -10,6 +10,7 @@ import { initInstall } from "./lib/install.js";
 import { captureArrival } from "./lib/propagation.js";
 import { initClarity } from "./lib/clarity.js";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
+import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import { Analytics } from "@vercel/analytics/react";
@@ -158,6 +159,7 @@ export default function App() {
         <GlobalChrome>
           <UpdateBanner />
           <RoyalShareWidget />
+          <LabDock />
           <InstallPrompt />
           {/* הוסר לבקשת צוריאל — בלי פוש «התראות דפדפן / הירשם לעדכונים» (בועת ימין בדסקטופ) */}
           {/* <UpdatesBar /> */}
