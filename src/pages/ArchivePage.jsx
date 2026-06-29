@@ -52,7 +52,7 @@ export default function ArchivePage() {
   useEffect(() => { track("reality-stream"); }, []); // eslint-disable-line
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(loc.search).get("tab");
-    return t === "galleries" ? "galleries" : t === "pool" ? "pool" : "reality";
+    return t === "galleries" ? "galleries" : t === "reality" ? "reality" : "pool";  // ברירת-מחדל: מאגר/סטים
   });
   // סנכרון טאב כשמנווטים עם ?tab= (אותו עמוד, לא מתבצע remount)
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function ArchivePage() {
   const [query, setQuery] = useState("");
   const [ocrMatch, setOcrMatch] = useState(null); // {imgs:Set, gals:Set} מחיפוש OCR בשרת
   const [sortMode, setSortMode] = useState("date");   // date (חדש→ישן, ברירת מחדל) | gallery | cross
-  const [viewMode, setViewMode] = useState("galleries"); // galleries (אקורדיון) | images (רשת תמונות)
+  const [viewMode, setViewMode] = useState("images"); // images (רשת תמונות, ברירת-מחדל) | galleries (אקורדיון)
   const [openGal, setOpenGal] = useState(null);          // גלריה פתוחה בפיד (האחרונה כברירת מחדל)
   const [showAllNums, setShowAllNums] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);   // פאנל סינון מתקפל (סגור כברירת מחדל)
@@ -650,16 +650,20 @@ export default function ArchivePage() {
       /* בועות מספרים לשנה הנבחרת */
       .ar-tl-bubbles { margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(212,175,55,0.2); }
       .ar-tl-bub-t { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; margin-bottom: 9px; }
-      .ar-tl-bub-row { display: flex; flex-wrap: wrap; gap: 9px; }
-      .ar-tl-bub { display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-        background: rgba(8,5,2,0.5); border: 1px solid ${C.borderGold}; border-radius: 999px; padding: 7px 9px 7px 15px;
-        transition: border-color .15s, background .15s, transform .12s; }
-      .ar-tl-bub:hover { border-color: ${C.gold}; transform: translateY(-1px); }
-      .ar-tl-bub-v { font-family: ${F.mono}; font-weight: 800; font-size: 17px; color: ${C.goldBright}; }
-      .ar-tl-bub-c { font-family: ${F.mono}; font-size: 12px; font-weight: 700; color: #e7dcc0; background: rgba(0,0,0,0.32); border-radius: 999px; padding: 2px 9px; }
-      .ar-tl-bub.on { background: linear-gradient(135deg, #f6dd92, ${C.gold}); border-color: ${C.gold}; box-shadow: 0 0 14px rgba(212,175,55,0.5); }
-      .ar-tl-bub.on .ar-tl-bub-v { color: #1a0e00; }
-      .ar-tl-bub.on .ar-tl-bub-c { color: #1a0e00; background: rgba(0,0,0,0.16); }
+      .ar-tl-bub-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 8px 2px 4px; }
+      /* בועות תלת-ממד — גודל ∝ כמות, ספירה זהובה זוהרת */
+      .ar-tl-bub { position: relative; border-radius: 50%; cursor: pointer; flex: 0 0 auto;
+        border: 1px solid rgba(212,175,55,0.55); color: #2a1c00; font-family: ${F.mono}; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        background: radial-gradient(circle at 36% 28%, #fff6d2 0%, #f0d36a 38%, ${C.gold} 62%, #6b4e10 100%);
+        box-shadow: 0 7px 18px rgba(0,0,0,0.55), inset 0 -7px 13px rgba(90,60,0,0.55), inset 0 5px 9px rgba(255,250,220,0.65);
+        transition: transform .15s ease, box-shadow .15s ease; padding: 0; }
+      .ar-tl-bub:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 13px 28px rgba(0,0,0,0.6), inset 0 -7px 13px rgba(90,60,0,0.55), inset 0 5px 9px rgba(255,250,220,0.7); }
+      .ar-tl-bub-v { line-height: 1; }
+      .ar-tl-bub-c { position: absolute; top: -5px; inset-inline-end: -5px; min-width: 19px; text-align: center;
+        background: #15100a; color: ${C.goldBright}; font-size: 11px; font-weight: 800; border-radius: 999px;
+        padding: 1px 6px; border: 1px solid rgba(212,175,55,0.55); box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+      .ar-tl-bub.on { border-color: #fff; box-shadow: 0 0 0 3px rgba(246,226,122,0.85), 0 11px 26px rgba(0,0,0,0.55), inset 0 -7px 13px rgba(90,60,0,0.5), inset 0 5px 9px rgba(255,250,220,0.7); }
 
       /* ── תצוגת מאגר (masonry) — כרטיס-רמז מלכותי ── */
       .ar-masonry {
@@ -741,7 +745,7 @@ export default function ArchivePage() {
       .ar-untag { color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; }
       .ar-untag strong { color: ${C.goldBright}; font-size: 13px; }
     `}</style>, document.head)}
-    <div style={{ direction: "rtl", maxWidth: tab === "pool" ? "none" : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 0 90px 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
+    <div style={{ direction: "rtl", maxWidth: tab === "pool" ? 1440 : 1280, margin: "0 auto", padding: tab === "pool" ? "32px 28px 90px" : "48px 16px 90px", position: "relative", zIndex: 1 }}>
       <StickyAnchorAd />
       <SideRailAd />
       <div style={{ textAlign: "center", marginBottom: 22 }}>
@@ -1630,18 +1634,25 @@ function TimelineScrubber({ data, active, onPick, topNums, numFilters, onToggleN
         <div className="ar-tl-bubbles">
           {bubbles.length > 0 ? (
             <>
-              <div className="ar-tl-bub-t">המספרים החזקים ב-{active} · בחרו בועה (או כמה) לסינון:</div>
+              <div className="ar-tl-bub-t">המספרים החזקים ב-{active} · גודל = כמות · בחרו בועה (או כמה) לסינון:</div>
               <div className="ar-tl-bub-row">
-                {bubbles.map(b => {
-                  const on = numFilters && numFilters.has(b.value);
-                  return (
-                    <button key={b.value} className={`ar-tl-bub${on ? " on" : ""}`}
-                      onClick={() => onToggleNum(b.value)} title={`${b.value} · ${b.count} תמונות ב-${active}`}>
-                      <span className="ar-tl-bub-v">{b.value}</span>
-                      <span className="ar-tl-bub-c">{b.count}</span>
-                    </button>
-                  );
-                })}
+                {(() => {
+                  const maxC = Math.max(...bubbles.map(b => b.count), 1);
+                  return bubbles.map(b => {
+                    const on = numFilters && numFilters.has(b.value);
+                    const t = b.count / maxC;                       // 0..1 — עוצמה יחסית
+                    const size = Math.round(48 + t * 46);           // 48..94px
+                    const fs = Math.round(15 + t * 12);             // 15..27px
+                    return (
+                      <button key={b.value} className={`ar-tl-bub${on ? " on" : ""}`}
+                        onClick={() => onToggleNum(b.value)} title={`${b.value} · ${b.count} תמונות ב-${active}`}
+                        style={{ width: size, height: size, fontSize: fs }}>
+                        <span className="ar-tl-bub-v">{b.value}</span>
+                        <span className="ar-tl-bub-c">{b.count}</span>
+                      </button>
+                    );
+                  });
+                })()}
               </div>
             </>
           ) : (
