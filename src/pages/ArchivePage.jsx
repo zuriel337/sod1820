@@ -135,6 +135,16 @@ export default function ArchivePage() {
     getHintSets().then(setHintSets).catch(() => {});
   }, []);
 
+  // deep-link מפוסט: /archive?tab=galleries&gal=<wp_gallery_id> → פותח את הגלריה הספציפית.
+  // (הגלריה «seq» = wp_gallery_id.) ה-ref מונע פתיחה חוזרת אחרי שהמשתמש סוגר.
+  const galDeepLinked = useRef(false);
+  useEffect(() => {
+    const gp = new URLSearchParams(loc.search).get("gal");
+    if (!gp || !gals || !gals.length || galDeepLinked.current) return;
+    const found = gals.find(g => g.seq === Number(gp));
+    if (found) { setTab("galleries"); setSel(found); galDeepLinked.current = true; }
+  }, [loc.search, gals]);
+
   const imgDate = occ => { if (!occ) return null; try { return new Date(occ).toLocaleDateString("he-IL", { year: "numeric", month: "long" }); } catch { return null; } };
 
   useEffect(() => {

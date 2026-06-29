@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getImagesByPrimaryValue, setImageCuration } from "../lib/supabase.js";
+import { getImagesByPrimaryValue, getImagesByGallery, setImageCuration } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { cleanName } from "../lib/galleryName.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -15,6 +15,8 @@ import ImageEditModal from "./ImageEditModal.jsx";
 //   • <PostImageCarousel value={n} /> — טוען לבד לפי primary_value (בתוך פוסט).
 //   • <PostImageCarousel value={n} images={[...]} /> — מקבל תמונות מוכנות (עמוד המספר:
 //     התאמת primary_value או all_values, בלי שאילתה נוספת — לא מאבדים הצלבות).
+//   • <PostImageCarousel gallery={wpGalleryId} /> — טוען גלריה שלמה (wp_gallery_id) לפי
+//     הסדר הידני שלה. כך פוסט ישן מציג את gallery_images העריך במקום HTML קפוא (עץ אחד).
 
 const HE_MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 
@@ -49,7 +51,7 @@ function imgNumbers(img) {
   return out;
 }
 
-export default function PostImageCarousel({ value, images }) {
+export default function PostImageCarousel({ value, images, gallery }) {
   const P = usePalette();
   const { isAdmin } = useAuth();                  // 🛠 שליטה אדמינית בכל תמונה (אותו עורך כמו בגלריה)
   const provided = Array.isArray(images);
@@ -74,13 +76,17 @@ export default function PostImageCarousel({ value, images }) {
     if (provided) { setImgs(images); setIdx(0); return; }
     let alive = true;
     setImgs(null); setIdx(0);
-    getImagesByPrimaryValue(value).then(d => { if (alive) setImgs(d); }).catch(() => alive && setImgs([]));
+    // מצב גלריה (wp_gallery_id) — טוען גלריה שלמה; אחרת לפי ערך-ראשי.
+    const load = gallery ? getImagesByGallery(gallery) : getImagesByPrimaryValue(value);
+    load.then(d => { if (alive) setImgs(d); }).catch(() => alive && setImgs([]));
     return () => { alive = false; };
-  }, [value, provided, images]);
+  }, [value, gallery, provided, images]);
 
   // מיון: מאוצר (⭐) → מספרי-רקע (2701) לסוף → דומיננטי (primary, ממוקד) → כרונולוגי.
   const pics = useMemo(() => {
     if (!imgs) return [];
+    // מצב גלריה — שומרים על סדר השאילתה (חשיבות↓ ואז הסדר הידני), לא ממיינים מחדש לפי ערך.
+    if (gallery) return imgs;
     const BG = new Set([2701]);                                      // מספרי-רקע נפוצים (בראשית ברא) — "תוספת"
     const addon = g => (!BG.has(Number(value)) && (g.all_values || []).some(v => BG.has(Number(v))) ? 1 : 0);
     const prim = g => (Number(g.primary_value) === Number(value) ? 0 : 1);
@@ -91,7 +97,7 @@ export default function PostImageCarousel({ value, images }) {
       || (prim(a) - prim(b))                                        // הערך = primary → דומיננטי
       || (focus(a) - focus(b))                                      // פחות ערכים = ממוקד יותר
       || (dateVal(b) - dateVal(a)));                                // ואז חדש→ישן
-  }, [imgs, value]);
+  }, [imgs, value, gallery]);
   const total = pics.length;
   const go = useCallback(d => setIdx(i => total ? (i + d + total) % total : 0), [total]);
   const lbGo = useCallback(d => setLbIdx(i => i == null || !total ? i : (i + d + total) % total), [total]);
@@ -165,7 +171,7 @@ export default function PostImageCarousel({ value, images }) {
                 style={{ flex: "0 0 100%", width: "100%", height: "100%", padding: 0, border: "none", background: "transparent", cursor: "zoom-in" }}
               >
                 <img
-                  src={img.image_url} alt={img.name || `רמז ${value}`}
+                  src={img.image_url} alt={img.name || (value ? `רמז ${value}` : "תמונת גלריה")}
                   loading={i <= 1 ? "eager" : "lazy"}
                   style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
                 />

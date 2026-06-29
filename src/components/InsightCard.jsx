@@ -33,7 +33,7 @@ function extHref(insight) {
 }
 // תוכן הפוסט לתצוגה אינליין — מסירים את מרקר הגלריה (מוצג מלא רק בעמוד הפוסט)
 function cleanContent(html) {
-  return String(html || "").replace(/<div data-sod-gallery="\d+"><\/div>/g, "");
+  return String(html || "").replace(/<div data-sod-gallery(?:-id)?="\d+"><\/div>/g, "");
 }
 
 export default function InsightCard({ insight, badgeVariant = "ai" }) {

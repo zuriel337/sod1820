@@ -14,6 +14,7 @@ import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
 import { POST_FX } from "../lib/postFx.js";
@@ -4558,13 +4559,28 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
             <div className={`sod-post-content${themed ? " themed" : ""}${post?.source === "ai" ? " clean" : ""}`} ref={contentRef}>
-              {/* מרקר גלריה: <div data-sod-gallery="N"></div> → קרוסלת רמזים (קומפוננטת React באותו עץ — קישורים/פלטה עובדים) */}
-              {String(content).split(/<div data-sod-gallery="(\d+)"><\/div>/).map((seg, i) =>
-                i % 2 === 1
-                  ? <PostImageCarousel key={"sodgal" + i} value={Number(seg)} />
-                  : (seg ? <div key={"html" + i} dangerouslySetInnerHTML={{ __html: seg }} /> : null)
-              )}
+              {/* מרקרי גלריה (קומפוננטת React באותו עץ — קישורים/פלטה עובדים):
+                  • <div data-sod-gallery="N"></div>     → קרוסלת רמזים לפי ערך-ראשי
+                  • <div data-sod-gallery-id="N"></div>  → גלריה שלמה לפי wp_gallery_id (gallery_images העריך) */}
+              {(() => {
+                // הפיצול לוכד 2 קבוצות לכל מרקר: דגל «-id» (או undefined) + המספר.
+                const parts = String(content).split(/<div data-sod-gallery(-id)?="(\d+)"><\/div>/);
+                const out = [];
+                for (let i = 0; i < parts.length; i += 3) {
+                  const html = parts[i];
+                  if (html) out.push(<div key={"html" + i} dangerouslySetInnerHTML={{ __html: html }} />);
+                  const flag = parts[i + 1], num = parts[i + 2];
+                  if (num != null) out.push(
+                    flag === "-id"
+                      ? <PostImageCarousel key={"sodgal" + i} gallery={Number(num)} />
+                      : <PostImageCarousel key={"sodgal" + i} value={Number(num)} />
+                  );
+                }
+                return out;
+              })()}
             </div>
+            {/* 🖼 רצועת גישה לגלריה העריכה — התמונות המוטמעות נשארות; זו רק הפניה (עץ אחד) */}
+            <PostGalleryLinks content={content} wpId={post?.wp_id} />
             {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>

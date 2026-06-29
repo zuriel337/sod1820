@@ -169,6 +169,17 @@ export async function getGalleriesOverview() {
   return { gals: gals || [], imgs };
 }
 
+// מטא-דאטה של גלריות לפי wp_gallery_id — לרצועת «פתח את הגלריה המלאה» בפוסט ישן.
+// עץ אחד: הפוסט שומר את התמונות המוטמעות, וזה רק מפנה לעדשה העריכה (לא משכפל).
+export async function getGalleriesByWpIds(wpIds) {
+  if (!supabase || !Array.isArray(wpIds) || !wpIds.length) return [];
+  const { data } = await supabase
+    .from('galleries')
+    .select('id,name,anchor_number,img_count,wp_gallery_id')
+    .in('wp_gallery_id', wpIds);
+  return data || [];
+}
+
 // ===== סטים של מספרים (number_sets) =====
 export async function getNumberSets() {
   if (!supabase) return [];
@@ -317,6 +328,24 @@ export async function getImagesByValue(value) {
     .order('importance', { ascending: false, nullsFirst: false })
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
+  return data || [];
+}
+
+// תמונות של גלריה אחת (wp_gallery_id) — לקרוסלה החיה בתוך פוסט (data-sod-gallery-id).
+// עץ אחד: הפוסט הישן מפסיק להציג HTML קפוא ומצביע ל-gallery_images העריך —
+// כך עריכת תאריך/חשיבות/הסתרה/מספר בגלריה משתקפת מיד בפוסט. ציבורי בלבד.
+// סדר: חשיבות↓ ואז הסדר הידני של הגלריה (ordering) — שומר על הסדר הישן של צוריאל.
+export async function getImagesByGallery(wpGalleryId) {
+  if (!supabase || !wpGalleryId) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,name,description,image_url,ordering,primary_value,all_values,occurred_at,created_at,importance')
+    .eq('wp_gallery_id', wpGalleryId)
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: פרימיום/מוסתר לא לציבור
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('ordering', { ascending: true, nullsFirst: false });
   return data || [];
 }
 
