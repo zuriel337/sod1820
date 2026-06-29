@@ -328,7 +328,7 @@ export default function HomeNewPage() {
             </h2>
             <span style={{ flex: 1 }} />
             <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-              גלרית דוד המלך — תלת מימד →
+              גלרית דוד המלך →
             </Link>
           </div>
 
@@ -395,7 +395,7 @@ export default function HomeNewPage() {
           {/* 📸 באנר האוצר — כמות התמונות בארכיון */}
           <Link to="/archive" style={{ display: "block", marginTop: 18, textAlign: "center", textDecoration: "none", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(122,19,32,0.16))", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 14, padding: "15px 18px" }}>
             <span style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,22px)", fontWeight: 800 }}>📸 {imgCount ? imgCount.toLocaleString("he") : "אלפי"} תמונות בארכיון</span>
-            <span style={{ color: "#d8c89a", fontFamily: F.body, fontSize: 14, marginInlineStart: 10 }}>· 14 שנות תיעוד · צללו לגלרית דוד המלך — תלת מימד →</span>
+            <span style={{ color: "#d8c89a", fontFamily: F.body, fontSize: 14, marginInlineStart: 10 }}>· 14 שנות תיעוד · צללו לגלרית דוד המלך →</span>
           </Link>
         </div>
       </section>
