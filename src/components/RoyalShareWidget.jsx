@@ -10,7 +10,8 @@ import { shareNumberSmart } from "../lib/numberCard.js";
 // שורת מותגים עם אייקוני SVG אמיתיים (וואטסאפ/טלגרם/פייסבוק/X/אימייל), פעולות
 // (העתק קישור / תמונה מעוצבת / שיתוף מערכת), ובקרוב (סרטון מפוסט / רשת תמונות).
 // מונה קהילתי מוצג רק מעל 20. כל שיתוף מתועד דרך trackShare.
-const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy)/;
+// /number — לדף המספר יש שיתוף-הירו עשיר משלו (תמונת-מספר), אז הצף מוסתר שם (בלי כפילות).
+const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number)/;
 
 // אייקוני מותג — נתיבי SVG (simple-icons), מרונדרים בצבע לבן על רקע המותג.
 const ICON_PATHS = {

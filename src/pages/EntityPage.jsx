@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
-import AnonToggle from "../components/AnonToggle.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -630,7 +629,6 @@ export default function EntityPage() {
                   {searched > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>· 🔎 חופש {searched} פעמים</span>}
                 </div>
                 <NumberPulse value={value} onExplore={() => { setOpen(o => ({ ...o, dna: true })); setTimeout(() => scrollTo("dna"), 80); }} />
-                <AnonToggle size="sm" />
               </div>
             );
           })()}
