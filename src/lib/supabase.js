@@ -1364,23 +1364,28 @@ export async function getValueFamilies(value, perMethod = 20) {
   try {
     const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2500);
     if (!data || !data.length) return [];
-    const phrases = [...new Set(data.map(r => r.phrase))];
-    const worldMap = {}, ragilMap = {};
-    for (let i = 0; i < phrases.length; i += 300) {
-      const chunk = phrases.slice(i, i + 300);
-      const { data: ents } = await supabase.from('nodes').select('label,metadata')
-        .eq('type', 'entity').in('label', chunk).limit(1000);
-      (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
-      const { data: gw } = await supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000);
-      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
-    }
+    // קבוצות לפי שיטה — סופרים הכל אבל שומרים רק את ה-top שמוצג (perMethod).
     const groups = {};
     for (const r of data) {
-      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, seen: new Set(), phrases: [] });
-      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null, ragil: ragilMap[r.phrase] ?? null }); }
+      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, all: new Set(), top: [] });
+      if (!g.all.has(r.phrase)) { g.all.add(r.phrase); if (g.top.length < perMethod) g.top.push(r.phrase); }
     }
+    // ⚡ מעשירים (עולם+ערך-רגיל) רק את הביטויים שמוצגים — לא את כל 2,500 — ובמקביל.
+    const shown = [...new Set(Object.values(groups).flatMap(g => g.top))];
+    const worldMap = {}, ragilMap = {};
+    const chunks = [];
+    for (let i = 0; i < shown.length; i += 300) chunks.push(shown.slice(i, i + 300));
+    await Promise.all(chunks.map(async chunk => {
+      const [{ data: ents }, { data: gw }] = await Promise.all([
+        supabase.from('nodes').select('label,metadata').eq('type', 'entity').in('label', chunk).limit(1000),
+        supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000),
+      ]);
+      (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
+      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
+    }));
     return Object.values(groups)
-      .map(g => ({ method: g.method, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
+      .map(g => ({ method: g.method, priority: g.priority, count: g.all.size,
+        phrases: g.top.map(p => ({ phrase: p, world: worldMap[p] || null, ragil: ragilMap[p] ?? null })) }))
       .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
