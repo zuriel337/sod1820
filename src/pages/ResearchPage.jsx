@@ -11,6 +11,7 @@ import LifeProfile from "../components/LifeProfile.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
+import CompareTwo from "../components/CompareTwo.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
@@ -71,6 +72,7 @@ export default function ResearchPage() {
           {tool === "journey" && <SearchJourney onOpenTool={openTool} />}
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
+          {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
           {tool === "els" && <ElsGrid seed={seed} />}
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool seed={seed} />}
