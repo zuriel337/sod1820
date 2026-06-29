@@ -6,6 +6,18 @@ import ElsAnalysis from "./ElsAnalysis.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 import { getTorahNiqqud } from "../lib/research/torah.js";
+import { emit, on, EVENTS } from "../lib/research/eventBus.js";
+
+// המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
+const hexA = (hex, a) => {
+  const n = hex.replace("#", ""); const r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+};
+
+// ℹ️ הסבר-מנוע מתקפל — מוצב במקומות מתאימים כדי שכל אחד יבין מה קורה
+const Help = ({ children, label = "ℹ️ מה זה? / איך זה עובד" }) => (
+  <details className="els-help"><summary>{label}</summary><div className="els-help-b">{children}</div></details>
+);
 
 // רקעי-מטריצה לבחירה (החלפת צבע לרקע האותיות). הצבע המודגש נשאר תמיד.
 const CELL_BGS = [
@@ -50,6 +62,8 @@ export default function ElsGrid({ seed }) {
   const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
   const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
   const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
+  const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
+  const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
   const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
 
   // זריעה ממסע-החיפוש: מונח חדש ב-URL → טוען ומריץ אוטומטית
@@ -86,6 +100,21 @@ export default function ElsGrid({ seed }) {
   const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
   const subSearch = () => { setSubIdx(0); setSubTerm(subRaw.trim()); };
 
+  // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
+  const saveCurrent = () => {
+    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0].join("|");
+    if (savedSearches.some(s => s.id === id)) return;
+    persistSaved([{ id, label: q.raw, q: { ...q } }, ...savedSearches].slice(0, 24));
+  };
+  const removeSaved = id => persistSaved(savedSearches.filter(s => s.id !== id));
+  const loadSaved = useCallback(sv => {
+    const c = sv?.q; if (!c) return;
+    setRaw(c.raw); setBook(c.book); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
+    setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ ...c });
+  }, []);
+  // הקיר הימני מבקש לטעון חיפוש שמור → מיישמים כאן
+  useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
+
   const locOf = useCallback(idx => {
     const b = TORAH_BOOKS.slice(1).find(b => idx >= b.from && idx < b.to);
     if (!b) return { label: "—", off: idx, pct: 0 };
@@ -119,16 +148,26 @@ export default function ElsGrid({ seed }) {
 
   const subFocus = subRes?.list[Math.min(subIdx, (subRes.list.length || 1) - 1)] || null;
 
+  // 🎨 שכבת המונח-המשני: כמה מופעים קרובים, בצבע שמתחלש ככל שמתרחקים מהעוגן.
+  // הקרוב ביותר/הממוקד = מלא; הרחוקים = דהויים. «2 חיפושים קרובים בצבע שמתחלש».
+  const subOverlay = useMemo(() => {
+    if (!subRes?.list.length) return [];
+    const top = subRes.list.slice(0, 8);
+    const maxD = top[top.length - 1].dist || 1;
+    return top.map((x, i) => ({ hit: x.hit, op: i === subIdx ? 1 : Math.max(0.3, 1 - (x.dist / (maxD || 1)) * 0.82) }));
+  }, [subRes, subIdx]);
+
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
-    const colorMap = new Map();
+    const colorMap = new Map(), opMap = new Map();
     if (res.mode === "single") anchorHit.positions.forEach(p => colorMap.set(p, 0));
     else {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
-    if (subFocus) subFocus.hit.positions.forEach(p => colorMap.set(p, 1)); // המונח-המשני בצבע נפרד
+    // המונח-המשני בצבע נפרד, עם שקיפות לפי קרבה (מתחלש ככל שמתרחק)
+    for (const o of subOverlay) o.hit.positions.forEach(p => { colorMap.set(p, 1); opMap.set(p, o.op); });
     // 🔲 רוחב-תצוגה שממלא את הדף: דילוג קטן → כפולה שלו הקרובה ל-TARGET (לא «טור של 2»);
     // דילוג גדול → רוחב=דילוג עם חלון ממורכז. כך המטריצה תמיד נפתחת רחב.
     const s = Math.abs(anchorHit.skip), TARGET = 28;
@@ -145,12 +184,12 @@ export default function ElsGrid({ seed }) {
       const cells = [];
       for (let c = 0; c < colWin; c++) {
         const i = r * W2 + (colStart + c);
-        cells.push(r >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, idx: i } : { ch: "", ci: -1, idx: -1 });
+        cells.push(r >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, op: opMap.has(i) ? opMap.get(i) : 1, idx: i } : { ch: "", ci: -1, op: 1, idx: -1 });
       }
       rows.push(cells);
     }
     return { rows, W: W2, skip: s };
-  }, [res, anchorHit, clusterIdx, letters, subFocus]);
+  }, [res, anchorHit, clusterIdx, letters, subOverlay]);
 
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
   const ctl = { fontSize: 15, fontWeight: 700, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: C.bg, color: C.ink, outline: "none", fontFamily: "inherit" };
@@ -231,10 +270,11 @@ export default function ElsGrid({ seed }) {
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
                 const col = cell.ci >= 0 ? TERM_COLORS[cell.ci % TERM_COLORS.length] : null;
+                const bg = col ? (cell.op < 1 ? hexA(col, cell.op) : col) : theme.bg; // צבע מתחלש לפי קרבה
                 const glyph = niqqud && nqData && cell.idx >= 0 ? cell.ch + (nqData[cell.idx] || "") : cell.ch;
                 return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: col ? 800 : 500, borderRadius: 6, overflow: "visible",
-                  color: col ? "#fff" : theme.fg, background: col || theme.bg, border: `1px solid ${col || (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{glyph}</div>;
+                  color: col ? (cell.op < 0.55 ? "#3a1418" : "#fff") : theme.fg, background: bg, border: `1px solid ${col ? hexA(col, cell.op) : (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{glyph}</div>;
               })}
             </div>
           ))}
@@ -244,6 +284,28 @@ export default function ElsGrid({ seed }) {
   };
 
   const cluster0 = res?.mode === "cluster" ? (res.clusters || [])[Math.min(clusterIdx, (res.clusters?.length || 1) - 1)] : null;
+
+  // 📡 מפרסמים את מצב התוצאות לקיר הימני (Event Bus) — שם רואים תוצאות-דילוג + חיפושים שמורים
+  const savedMeta = useMemo(() => savedSearches.map(s => ({ id: s.id, label: s.label })), [savedSearches]);
+  const elsSummary = useMemo(() => {
+    const base = { saved: savedMeta };
+    if (!res) return { ...base, has: false };
+    if (res.mode === "single") {
+      const h = anchorHit;
+      return {
+        ...base, has: true, mode: "single", term: elsNormalize(terms[0] || ""),
+        skip: h ? Math.abs(h.skip) : 0, dir: h ? h.dir : 1, count: res.hits.length, capped: res.capped,
+        loc: h ? locOf(h.start) : null,
+        hits: (res.hits || []).slice(0, 24).map(x => ({ skip: Math.abs(x.skip), dir: x.dir, ...locOf(x.start), mm: x.mismatches })),
+        sub: subRes ? { term: subRes.norm, count: subRes.count, nearest: subRes.list[0]?.dist ?? null, w1000: subRes.within(1000), w5000: subRes.within(5000), avg: subRes.avg,
+          list: subRes.list.slice(0, 16).map(x => ({ dist: x.dist, skip: Math.abs(x.hit.skip), ...locOf(x.hit.start) })) } : null,
+      };
+    }
+    return { ...base, has: true, mode: "cluster", terms,
+      clusters: (res.clusters || []).slice(0, 10).map(cl => ({ span: cl.span, ...locOf(cl.picks[0].hit.start), picks: cl.picks.map(p => ({ term: p.term, skip: Math.abs(p.hit.skip) })) })) };
+  }, [res, anchorHit, subRes, terms, savedMeta, locOf]);
+  useEffect(() => { emit(EVENTS.ELS_STATE, elsSummary); }, [elsSummary]);
+  useEffect(() => () => emit(EVENTS.ELS_STATE, null), []); // ניקוי בעת עזיבה
 
   // 🤖 ניתוח-מבנה האשכול ב-AI (אדמין בלבד) — בוחרים כמה מונחים, ה-AI מפרש את המבנה.
   // שולח עובדות שכבר חושבו (מונחים · דילוגים · טווח · מיקום) → פרשנות. לא מחשב, לא מכריע.
@@ -265,6 +327,9 @@ export default function ElsGrid({ seed }) {
       <style>{ELS_CSS}</style>
       <div className="rw-h1">🔡 דילוגי אותיות</div>
       <div className="rw-sub"><b>שני מונחים יחד</b> (מופרדים בפסיק — «דוד, שלמה») → המערכת מוצאת אותם ב<b>קרבה</b> ומציגה את <b>התוצאה הכי טובה</b> במטריצה אחת. מונח אחד → המילה מודגשת לאורך הדילוג. «כולל קרובים» מאתר גם התאמה עם אות שונה. <b>משמעות = חקירה, לא הוכחה.</b></div>
+      <Help>
+        <b>איך המנוע עובד:</b> קוראים את אותיות התורה ברצף קבוע — כל 2, כל 7, כל 50… — ובודקים אם נוצרת מילה. זה נקרא <b>דילוג שווה (ELS)</b>. ככל שהדילוג קצר יותר, המופע מובהק יותר. <b>חשוב ליושר:</b> אפשר למצוא דילוגים כמעט בכל טקסט גדול — לכן זו עדשת-חקירה, לא הוכחה.
+      </Help>
 
       <div className="rw-card">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -272,7 +337,19 @@ export default function ElsGrid({ seed }) {
             onChange={e => setRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
             placeholder="שם · או כמה שמות בפסיק: דוד, בת שבע, שלמה" aria-label="מונחים לחיפוש" />
           <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 22px", fontFamily: "inherit" }}>🔍 חפש</button>
+          <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
         </div>
+        {savedSearches.length > 0 && (
+          <div className="els-saved">
+            <span className="els-saved-lb">שמורים:</span>
+            {savedSearches.map(s => (
+              <span key={s.id} className="els-saved-chip">
+                <button className="els-saved-load" onClick={() => loadSaved(s)} title="טען חיפוש">{s.label}</button>
+                <button className="els-saved-x" onClick={() => removeSaved(s.id)} title="הסר">✕</button>
+              </span>
+            ))}
+          </div>
+        )}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
           <select style={{ ...ctl, cursor: "pointer" }} value={book} onChange={e => setBook(e.target.value)}>{TORAH_BOOKS.map(b => <option key={b.key} value={b.key}>{b.label}</option>)}</select>
           <select style={{ ...ctl, cursor: "pointer" }} value={pattern} onChange={e => setPattern(e.target.value)}>{PATTERNS.map(([k, l]) => <option key={k} value={k}>דילוג: {l}</option>)}</select>
@@ -343,6 +420,9 @@ export default function ElsGrid({ seed }) {
             <button className="els-sub-btn" onClick={subSearch} disabled={elsNormalize(subRaw).length < 2}>מצא קרוב</button>
             {subTerm && <button className="els-sub-clear" onClick={() => { setSubTerm(""); setSubRaw(""); }}>נקה</button>}
           </div>
+          <Help label="ℹ️ מה זה «חיפוש בתוך התוצאה»?">
+            מזינים מונח <b>שני</b>, והמנוע מוצא היכן הוא מופיע <b>הכי קרוב</b> למונח הראשון בטקסט. במטריצה הוא מודגש בצבע שני — <b>שמתחלש ככל שהמופע רחוק יותר</b> מהעוגן. הסטטיסטיקות (בתוך 1,000 / 5,000 אות · מרחק ממוצע) מודדות כמה «צמודים» השניים.
+          </Help>
           {subRes && (subRes.list.length ? (
             <>
               <div className="els-sub-stats">
@@ -354,14 +434,15 @@ export default function ElsGrid({ seed }) {
                 <span style={chip}>בתוך 5,000 <b>{subRes.within(5000).toLocaleString("he")}</b></span>
                 <span style={chip}>מרחק ממוצע <b>{subRes.avg.toLocaleString("he")}</b></span>
               </div>
-              <div className="els-sub-note">המונח-המשני מודגש במטריצה (אם בטווח) בצבע שני. ככל שהמרחק קטן יותר — הקרבה גדולה. עובדה מדידה, לא הוכחה.</div>
+              <div className="els-sub-note">המונח-המשני מודגש במטריצה ב<b>צבע שמתחלש ככל שהמופע מתרחק</b> מהעוגן (הקרוב = חזק, הרחוק = דהוי). עובדה מדידה, לא הוכחה.</div>
               <div className="els-list" style={{ marginTop: 10 }}>
                 <div className="els-list-h">📋 {subRes.list.length} מופעים של «{subRes.norm}» — ממוין לפי קרבה</div>
                 <div className="els-list-body">
                   {subRes.list.slice(0, 60).map((x, i) => {
                     const l = locOf(x.hit.start);
+                    const fade = i < 8 ? (i === subIdx ? 1 : Math.max(0.45, 1 - i * 0.09)) : 0.5; // דהייה ככל שמתרחק
                     return (
-                      <button key={i} className={"els-row" + (i === Math.min(subIdx, subRes.list.length - 1) ? " on" : "")} onClick={() => setSubIdx(i)}>
+                      <button key={i} style={{ opacity: fade }} className={"els-row" + (i === Math.min(subIdx, subRes.list.length - 1) ? " on" : "")} onClick={() => setSubIdx(i)}>
                         <span className="els-rk">{i + 1}</span>
                         <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
                         <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
@@ -380,6 +461,9 @@ export default function ElsGrid({ seed }) {
       {/* ===== המטריצה + רשימה ===== */}
       {grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
+      {grid && <Help label="ℹ️ איך קוראים את המטריצה?">
+        אותיות התורה נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
+      </Help>}
 
       {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={TORAH_BOOKS} total={res.hits.length} capped={res.capped} />}
 
@@ -413,6 +497,17 @@ const ELS_CSS = `
 .els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
 .els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
+.els-help{margin:8px 0 4px;background:var(--accS);border:1px solid var(--line);border-radius:10px;padding:2px 12px}
+.els-help summary{cursor:pointer;font-size:12.5px;font-weight:800;color:var(--acc);padding:7px 0;list-style:none}
+.els-help summary::-webkit-details-marker{display:none}
+.els-help-b{font-size:13px;color:var(--ink2);line-height:1.65;padding:0 0 10px}
+.els-saved{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+.els-saved-lb{font-size:12px;font-weight:800;color:var(--ink3)}
+.els-saved-chip{display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.els-saved-load{border:none;background:none;color:var(--ink2);font-weight:700;font-size:12.5px;padding:6px 11px;cursor:pointer;font-family:inherit}
+.els-saved-load:hover{color:var(--acc)}
+.els-saved-x{border:none;background:none;color:var(--ink3);cursor:pointer;font-size:11px;padding:6px 8px 6px 4px}
+.els-saved-x:hover{color:#b4453a}
 .els-mtools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .els-mt-lb{font-size:12px;font-weight:800;color:var(--ink3)}
 .els-mt-b{width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;line-height:1}

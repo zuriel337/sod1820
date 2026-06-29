@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import { rwCss } from "../lib/research/theme.js";
 import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { on, emit, EVENTS } from "../lib/research/eventBus.js";
+import ElsResultsPanel from "./ElsResultsPanel.jsx";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
 // ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
@@ -50,6 +52,11 @@ export default function ResearchShell({ children }) {
   // פתיחת השמאל ישירות לטאב מבוקש (מהמסילה) — מהלך משוכלל: אייקון במסילה = קיצור לטאב
   const openLeftTo = id => { if (id) setLeftTab(id); setLeftOpen(true); };
 
+  // תוצאות חיות מהכלי הפעיל (כרגע ELS) → מוצגות בקיר הימני (Event Bus)
+  const [elsState, setElsState] = useState(null);
+  useEffect(() => on(EVENTS.ELS_STATE, setElsState), []);
+  useEffect(() => { if (tool !== "els") setElsState(null); }, [tool]);
+
   useEffect(() => { document.title = "מעבדת המחקר · סוד 1820"; }, []);
   useEffect(() => { try { localStorage.setItem("rw_right_open", rightOpen ? "1" : "0"); localStorage.setItem("rw_right_w", String(rightW)); } catch { /**/ } }, [rightOpen, rightW]);
   useEffect(() => { try { localStorage.setItem("rw_left_open", leftOpen ? "1" : "0"); localStorage.setItem("rw_left_w", String(leftW)); } catch { /**/ } }, [leftOpen, leftW]);
@@ -76,17 +83,18 @@ export default function ResearchShell({ children }) {
     </div>
   );
 
-  // סרגל ימני — ארגז-הכלים ההקשרי של המודול הפעיל + AI
+  // סרגל ימני — ארגז-הכלים ההקשרי של המודול הפעיל + תוצאות חיות + AI
   const RightPanel = () => (
     <aside className="rw-pwrap" style={{ width: rightW }}>
       <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
+      {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
       {eng && (
-        <div className="rw-panel">
-          <div className="rw-ph"><span>🔧 {eng.title}</span></div>
+        <details className="rw-panel" open={!(tool === "els" && elsState?.has)}>
+          <summary className="rw-ph" style={{ cursor: "pointer", listStyle: "none" }}><span>🔧 {eng.title} — יכולות</span></summary>
           <div className="rw-pb" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {eng.items.map((it, i) => <span key={i} className="rw-chip" style={{ fontSize: 12.5 }}>{it}</span>)}
           </div>
-        </div>
+        </details>
       )}
       <ResearchCenter variant="tools" />
     </aside>
