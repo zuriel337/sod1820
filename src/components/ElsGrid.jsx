@@ -264,7 +264,7 @@ export default function ElsGrid({ seed }) {
     if (!grid) return null;
     const sz = Math.round((big ? 38 : 30) * zoom), h = Math.round((big ? 42 : 34) * zoom), fs = Math.round((big ? 25 : 20) * zoom);
     return (
-      <div style={{ overflow: "auto", display: "flex", justifyContent: "center" }}>
+      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "center" }}>
         <div style={{ display: "inline-grid", gap: 3, background: theme.bg, padding: 8, borderRadius: 10 }}>
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
