@@ -1,6 +1,5 @@
 import React, { useState, Suspense, lazy } from "react";
-import { useSearchParams, Navigate } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext.jsx";
+import { useSearchParams } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -8,9 +7,9 @@ import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import ElsGrid from "../components/ElsGrid.jsx";
-import { ELSSection } from "../features/els/Els.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
+import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
@@ -43,11 +42,9 @@ function GematriaTool() {
 const LAB_TOOLS = TOOLS.filter(t => t.status === "live");
 
 export default function ResearchPage() {
-  // 🔒 המעבדה סגורה לציבור — אדמין בלבד (בבנייה). מבקר רגיל → מופנה הביתה.
-  const { profile, loading } = useAuth();
+  // 🧪 טיוטה — המעבדה פתוחה (בלי שער הרשמה). אין קישור בתפריט הראשי, הכתובת /research
+  // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
-  if (loading) return <div style={{ position: "fixed", inset: 0, background: "#f7f4ec" }} />;
-  if (profile?.role !== "admin") return <Navigate to="/" replace />;
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי
   const tool = sp.get("tool");
@@ -73,6 +70,7 @@ export default function ResearchPage() {
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool />}
           {tool === "verse" && <VerseSearch />}
+          {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (
             <Suspense fallback={<div className="rw-card rw-muted">טוען את בית המדרש…</div>}>
               <BeitMidrashPage />
