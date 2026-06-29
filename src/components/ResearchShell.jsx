@@ -1,71 +1,83 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { rwCss } from "../lib/research/theme.js";
 import ResearchCenter from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
-// 🏛️ ResearchShell — שלד קבוע, סרגלים מקצועיים (investing/IDE):
-// כפתור-קיפול ברור בכותרת הפאנל · גרירה לשינוי-רוחב · סרגל-סגור מראה את האייקונים שבפנים
-// + נקודת-שינוי כשמשהו התעדכן בזמן שהיה סגור. שמאל = העולם שלי · ימין = מנועים · מרכז = המעבדה.
+// 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
+// ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
+// שמאל = «עולם המשתמש» (קבוע — אתה, לא הכלי). מרכז = ה-Canvas. עץ אחד, מודול מביא את כליו.
 const num = (k, d) => { try { const v = parseInt(localStorage.getItem(k)); return Number.isFinite(v) ? v : d; } catch { return d; } };
-const ICONS = { tools: ["🤖", "🔔"], context: ["👤", "🧠", "📂", "🗺️"] };
+const ICONS = { tools: ["🔧", "🤖"], context: ["👤", "🧠", "📂", "🗺️"] };
 
-// אייקון-פאנל אוניברסלי (סגנון ChatGPT/VSCode) — כולם מזהים: «פתח/סגור סרגל»
+// ארגז-הכלים ההקשרי של כל מודול (מנועי המחקר). ניתן להרחבה — מודול חדש = שורה.
+const TOOL_ENGINES = {
+  els: { title: "דילוגי אותיות", items: ["חיפוש שם", "מרחקי דילוג", "כיוון חיפוש", "ספר", "תבניות דילוג", "קרבת-משפחה", "ייצוא מטריצה"] },
+  name: { title: "תורת השם", items: ["17 שיטות", "פסוק לשם", "התכנסויות", "בני משפחה", "כרטיס שיתוף", "ניתוח AI"] },
+  midrash: { title: "בית המדרש", items: ["שיטות הצלבה", "מפרשים", "פסוקים קשורים", "גימטריה · מילוי · אתב״ש", "השוואות"] },
+  life: { title: "ניתוח חיים · מפת שדה", items: ["צירי זמן", "אשכולות", "קשרים", "פילטרים", "השוואת מפות", "Insight", "Story"] },
+  family: { title: "הקשרים במשפחה", items: ["שמות בני המשפחה", "התכנסויות", "חוצה-שיטות", "קישור לדף-המספר"] },
+  verse: { title: "חיפוש בפסוקים", items: ["לפי טקסט", "לפי גימטריה", "ספר", "הדגשה", "ישות לכל פסוק"] },
+  gematria: { title: "מחשבון גימטריה", items: ["17 שיטות", "חיפוש מורכב", "הצלבות", "אות-אות", "הוסף למחקר"] },
+};
+
 const PanelIcon = ({ size = 19 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="3" y="4" width="18" height="16" rx="2.5" />
-    <line x1="9" y1="4" x2="9" y2="20" />
+    <rect x="3" y="4" width="18" height="16" rx="2.5" /><line x1="9" y1="4" x2="9" y2="20" />
   </svg>
 );
 
 export default function ResearchShell({ children }) {
   const { cart = [] } = useResearch();
+  const [sp] = useSearchParams();
+  const tool = sp.get("tool");
+  const eng = tool && TOOL_ENGINES[tool];
+  const rightTitle = "מנועי המחקר" + (eng ? " · " + eng.title : "");
+
   const [sheet, setSheet] = useState(false);
   const [rightOpen, setRightOpen] = useState(() => { try { return localStorage.getItem("rw_right_open") !== "0"; } catch { return true; } });
   const [leftOpen, setLeftOpen] = useState(() => { try { return localStorage.getItem("rw_left_open") !== "0"; } catch { return true; } });
   const [rightW, setRightW] = useState(() => num("rw_right_w", 320));
   const [leftW, setLeftW] = useState(() => num("rw_left_w", 250));
-  // נקודת-שינוי: כמה פריטים נראו לאחרונה כשהאזור היה פתוח (העולם שלי מכיל את «המחקר הפעיל»)
   const [leftSeen, setLeftSeen] = useState(cart.length);
   useEffect(() => { if (leftOpen) setLeftSeen(cart.length); }, [leftOpen, cart.length]);
   const leftDot = !leftOpen && cart.length > leftSeen;
 
-  useEffect(() => { document.title = "סביבת המחקר · סוד 1820"; }, []);
+  useEffect(() => { document.title = "מעבדת המחקר · סוד 1820"; }, []);
   useEffect(() => { try { localStorage.setItem("rw_right_open", rightOpen ? "1" : "0"); localStorage.setItem("rw_right_w", String(rightW)); } catch { /**/ } }, [rightOpen, rightW]);
   useEffect(() => { try { localStorage.setItem("rw_left_open", leftOpen ? "1" : "0"); localStorage.setItem("rw_left_w", String(leftW)); } catch { /**/ } }, [leftOpen, leftW]);
 
-  // ✋ גרירה לשינוי-רוחב בלבד (הקיפול עובר לכפתור-הכותרת המפורש)
   const Grip = ({ side }) => {
     const drag = useRef(null);
     const startW = side === "right" ? rightW : leftW;
     const setW = side === "right" ? setRightW : setLeftW;
     const down = e => { drag.current = { x: e.clientX, w: startW }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /**/ } };
-    const move = e => {
-      if (!drag.current) return;
-      const dx = e.clientX - drag.current.x;
-      const w = side === "right" ? drag.current.w - dx : drag.current.w + dx;
-      setW(Math.max(150, Math.min(560, w)));
-    };
+    const move = e => { if (!drag.current) return; const dx = e.clientX - drag.current.x; const w = side === "right" ? drag.current.w - dx : drag.current.w + dx; setW(Math.max(150, Math.min(560, w))); };
     const up = () => { drag.current = null; };
     return <button className="rw-grip" title="גרור לשינוי רוחב" onPointerDown={down} onPointerMove={move} onPointerUp={up}><b>⋮⋮</b></button>;
   };
-
-  // פאנל פתוח — כותרת + כפתור אייקון-פאנל (קיפול), סגנון ChatGPT
-  const Panel = ({ title, variant, onClose, w, left }) => (
-    <aside className={"rw-pwrap" + (left ? " left" : "")} style={{ width: w }}>
-      <div className="rw-phead">
-        <span>{title}</span>
-        <button onClick={onClose} title="קפל סרגל"><PanelIcon /></button>
-      </div>
-      <ResearchCenter variant={variant} />
-    </aside>
-  );
-  // סרגל סגור — אייקון-פאנל למעלה (פתיחה) + אייקוני התוכן + נקודת-שינוי
   const Rail = ({ icons, onOpen, dot }) => (
     <button className="rw-rail" onClick={onOpen} title="פתח סרגל">
       {dot && <span className="rw-rail-dot" />}
       <span className="rw-rail-toggle"><PanelIcon size={20} /></span>
       <span className="rw-rail-icons">{icons.map((i, k) => <span key={k}>{i}</span>)}</span>
     </button>
+  );
+
+  // סרגל ימני — ארגז-הכלים ההקשרי של המודול הפעיל + AI
+  const RightPanel = () => (
+    <aside className="rw-pwrap" style={{ width: rightW }}>
+      <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
+      {eng && (
+        <div className="rw-panel">
+          <div className="rw-ph"><span>🔧 {eng.title}</span></div>
+          <div className="rw-pb" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {eng.items.map((it, i) => <span key={i} className="rw-chip" style={{ fontSize: 12.5 }}>{it}</span>)}
+          </div>
+        </div>
+      )}
+      <ResearchCenter variant="tools" />
+    </aside>
   );
 
   return (
@@ -79,20 +91,19 @@ export default function ResearchShell({ children }) {
       </header>
 
       <div className={"rw-stage" + (!rightOpen && !leftOpen ? " wide" : "")}>
-        {/* ימין — מנועים */}
-        {rightOpen
-          ? <><Panel title="מנועים · AI" variant="tools" w={rightW} onClose={() => setRightOpen(false)} /><Grip side="right" /></>
-          : <Rail icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
+        {rightOpen ? <><RightPanel /><Grip side="right" /></> : <Rail icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
 
         <main className="rw-work">{children}</main>
 
-        {/* שמאל — העולם שלי */}
         {leftOpen
-          ? <><Grip side="left" /><Panel left title="העולם שלי" variant="context" w={leftW} onClose={() => setLeftOpen(false)} /></>
+          ? <><Grip side="left" />
+              <aside className="rw-pwrap left" style={{ width: leftW }}>
+                <div className="rw-phead"><span>עולם המשתמש</span><button onClick={() => setLeftOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
+                <ResearchCenter variant="context" />
+              </aside></>
           : <Rail icons={ICONS.context} dot={leftDot} onOpen={() => setLeftOpen(true)} />}
       </div>
 
-      {/* מובייל — Bottom Sheet */}
       <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ▲</button>
       <div className={"rw-backdrop" + (sheet ? " open" : "")} onClick={() => setSheet(false)} />
       <div className={"rw-sheet" + (sheet ? " open" : "")}>

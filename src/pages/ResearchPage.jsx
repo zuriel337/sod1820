@@ -57,7 +57,7 @@ export default function ResearchPage() {
     <ResearchShell>
       {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
       <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏠 בית הכלים</button>
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
         {LAB_TOOLS.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}>{t.icon} {t.title}</button>
         ))}

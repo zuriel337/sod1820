@@ -39,7 +39,7 @@ function ToolCard({ t, onOpen }) {
 export default function ResearchHome({ onOpen }) {
   return (
     <div>
-      <div className="rw-h1">🧰 בית הכלים</div>
+      <div className="rw-h1">🧭 מרכז הגילוי</div>
       <div className="rw-sub">כל כלי המחקר במקום אחד. בחרו כלי — הוא נפתח כאן בתוך הסביבה, ומה שתאספו נשמר ב«המחקר הפעיל» בצד (גם כשתעברו בין כלים).</div>
       <div className="rw-tools">
         {TOOLS.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}
