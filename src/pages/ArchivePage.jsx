@@ -195,6 +195,18 @@ export default function ArchivePage() {
     return [...s].sort((a, b) => b - a);
   }, [imgs]);
 
+  // צפיפות לפי שנה — לסרגל-הזמן (ציר כרונולוגי). מסננים את שנת-האפס (תמונות בלי תאריך).
+  const yearData = useMemo(() => {
+    const m = new Map();
+    for (const im of imgs) {
+      if (im.curator_hidden) continue;
+      const y = eventYear(im);
+      if (!y || y < 2005) continue;
+      m.set(y, (m.get(y) || 0) + 1);
+    }
+    return [...m.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => a.year - b.year);
+  }, [imgs]);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setLimit(PER); }, [activeSet, numFilters.size, yearFilter, query, tab]);
 
@@ -593,6 +605,30 @@ export default function ArchivePage() {
       .ar-mcard[draggable] { cursor: grab; }
       .ar-mcard[draggable]:active { cursor: grabbing; }
       .ar-mcard.ar-dragging { opacity: 0.5; }
+
+      /* ── סרגל-הזמן (timeline scrubber) ── */
+      .ar-tl { margin: 0 0 16px; padding: 11px 14px 9px; border: 1px solid ${C.borderGold}; border-radius: 14px;
+        background: linear-gradient(165deg, rgba(28,20,11,0.6), rgba(8,5,2,0.5)); }
+      .ar-tl-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px;
+        color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; font-weight: 800; letter-spacing: .5px; }
+      .ar-tl-hint { color: ${C.muted}; font-weight: 700; font-size: 11px; }
+      .ar-tl-clear { background: none; border: 1px solid ${C.borderGold}; color: ${C.goldLight};
+        border-radius: 999px; padding: 3px 11px; font-family: ${F.heading}; font-size: 11px; font-weight: 700; cursor: pointer; }
+      .ar-tl-clear:hover { color: ${C.goldBright}; border-color: ${C.gold}; }
+      .ar-tl-track { display: flex; gap: 6px; align-items: flex-end; height: 78px; overflow-x: auto; direction: ltr; padding-bottom: 2px; }
+      .ar-tl-track::-webkit-scrollbar { height: 5px; }
+      .ar-tl-track::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.35); border-radius: 999px; }
+      .ar-tl-col { flex: 1 0 32px; min-width: 32px; height: 100%; display: flex; flex-direction: column;
+        align-items: center; justify-content: flex-end; gap: 4px; background: none; border: none; cursor: pointer; padding: 0; }
+      .ar-tl-cnt { font-family: ${F.mono}; font-size: 9.5px; color: ${C.muted}; }
+      .ar-tl-bar { width: 17px; min-height: 7px; border-radius: 5px 5px 0 0;
+        background: linear-gradient(180deg, ${C.gold}, ${C.goldDeep}); box-shadow: inset 0 0 0 1px rgba(255,240,200,0.18);
+        transition: filter .15s, box-shadow .15s; }
+      .ar-tl-col:hover .ar-tl-bar { filter: brightness(1.18); }
+      .ar-tl-col.on .ar-tl-bar { background: linear-gradient(180deg, #fff0b8, ${C.gold}); box-shadow: 0 0 12px rgba(212,175,55,0.6); }
+      .ar-tl-yr { font-family: ${F.mono}; font-size: 11px; font-weight: 800; color: ${C.goldDim}; }
+      .ar-tl-col:hover .ar-tl-yr { color: ${C.goldLight}; }
+      .ar-tl-col.on .ar-tl-yr, .ar-tl-col.on .ar-tl-cnt { color: ${C.goldBright}; }
 
       /* ── תצוגת מאגר (masonry) — כרטיס-רמז מלכותי ── */
       .ar-masonry {
@@ -1220,6 +1256,7 @@ export default function ArchivePage() {
                   )}
                 </div>
               )}
+              <TimelineScrubber data={yearData} active={yearFilter} onPick={setYearFilter} />
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
@@ -1527,6 +1564,34 @@ function AddNumber({ onAdd }) {
         onChange={e => setV(e.target.value)} onKeyDown={e => e.key === "Enter" && add()} />
       <button className="ar-pill ar-sm" onClick={add}>הוסף +</button>
     </span>
+  );
+}
+
+// 🕰️ סרגל-הזמן — ציר כרונולוגי של צפיפות הרמזים לפי שנה. כל עמודה = שנה (גובה ∝ כמות).
+// לחיצה מסננת לשנה (toggle). direction:ltr כדי שהזמן יזרום ישן→חדש כמו ציר רגיל.
+function TimelineScrubber({ data, active, onPick }) {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data.map(d => d.count), 1);
+  return (
+    <div className="ar-tl">
+      <div className="ar-tl-head">
+        <span>🕰️ ציר הזמן · {data.length} שנים</span>
+        {active != null
+          ? <button className="ar-tl-clear" onClick={() => onPick(null)}>הצג הכל ✕</button>
+          : <span className="ar-tl-hint">לחצו שנה לסינון →</span>}
+      </div>
+      <div className="ar-tl-track">
+        {data.map(d => (
+          <button key={d.year} className={`ar-tl-col${active === d.year ? " on" : ""}`}
+            onClick={() => onPick(active === d.year ? null : d.year)}
+            title={`${d.year} · ${d.count} תמונות`}>
+            <span className="ar-tl-cnt">{d.count}</span>
+            <span className="ar-tl-bar" style={{ height: `${Math.max(7, Math.round((d.count / max) * 100))}%` }} />
+            <span className="ar-tl-yr">{`'${String(d.year).slice(2)}`}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
