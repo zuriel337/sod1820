@@ -16,6 +16,20 @@ export function bubbleKeyFor(pv) {
   return { key: String(pv), label: String(pv), nums: [pv] };
 }
 
+// כמו computeBubbles אך מקבל ספירות מוכנות [{value,count}] (מאגרגציית-מסד) — מאחד זוגות.
+export function bubblesFromCounts(rows, { limit = 16 } = {}) {
+  const m = new Map();
+  for (const r of rows || []) {
+    const pv = Number(r.value); if (!pv) continue;
+    const bk = bubbleKeyFor(pv);
+    const e = m.get(bk.key) || { ...bk, count: 0 }; e.count += Number(r.count) || 0; m.set(bk.key, e);
+  }
+  return [...m.values()]
+    .map(e => ({ ...e, hot: e.nums.some(n => CORE_BUBBLE.has(n)) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
 // רשימת ערכי-ראשי → בועות מצרפיות ממוינות (גדול→קטן), עם דגל-חום.
 export function computeBubbles(primaryValues, { limit = 16 } = {}) {
   const m = new Map();

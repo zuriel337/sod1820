@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
-import { computeBubbles } from "../lib/bubbles.js";
+import { bubblesFromCounts } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
@@ -73,6 +73,7 @@ export default function HomeNewPage() {
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
   const [imgCount, setImgCount] = useState(0); // סך תמונות הארכיון — לבאנר האוצר
+  const [topNums, setTopNums] = useState([]);   // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל
   const [selHint, setSelHint] = useState(null); // התמונה הנבחרת בתצוגה הגדולה (ברירת מחדל: האחרונה)
   const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
@@ -89,6 +90,7 @@ export default function HomeNewPage() {
     getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getGalleryImageCount().then(setImgCount).catch(() => {});
+    getTopPrimaryValues(16).then(setTopNums).catch(() => {});
     getHomeSets().then(r => setHomeSets(r || [])).catch(() => {});
     getTopicCards({ approvedOnly: true }).then(c => {
       setCards(c || []);
@@ -119,16 +121,18 @@ export default function HomeNewPage() {
   }, [hints]);
   const latestHint = recentHints[0] || null;
   const sel = selHint && recentHints.some(h => h.id === selHint.id) ? selHint : latestHint;
-  // 🫧 בועות חיות — מהבהב = פעיל לאחרונה. מפנות לארכיון התלת-מימד.
+  // 🫧 בועות-העל — כל המאגר (אגרגציה). חום-כמות = גודל; חום-פעילות = הבהוב («מה חי»).
   const homeBubbles = useMemo(() => {
+    const base = bubblesFromCounts(topNums, { limit: 14 });
     const hs = hints || [];
-    const base = computeBubbles(hs.map(h => h.primary_value), { limit: 10 });
     const times = hs.map(h => effDate(h)).filter(Boolean);
     const newest = times.length ? Math.max(...times) : 0;
     const fresh = new Set();
     if (newest) for (const h of hs) { const t = effDate(h); if (t && newest - t <= 21 * 86400000) { const pv = Number(h.primary_value); if (pv) fresh.add(pv); } }
-    return base.map(b => ({ ...b, hot: b.nums.some(n => fresh.has(n)) }));
-  }, [hints]);
+    return base.map(b => ({ ...b, hot: b.nums.some(n => fresh.has(n)) }));   // הבהוב = פעיל לאחרונה
+  }, [topNums, hints]);
+  // 🔥 הכי חם (לפי כמות) — לשורת-הכותרת
+  const hottest = useMemo(() => homeBubbles.slice(0, 3).map(b => b.label), [homeBubbles]);
 
   // «עדכונים אחרונים» = פוסטים + גלריות מומלצות + רמזים מזרם המציאות, ממוזגים לפי תאריך (החדש למעלה).
   // כל רמז שעולה לזרם (source='update') נראה כאן ככרטיס-תמונה עם רצועת-מספר ממותגת.
@@ -296,17 +300,20 @@ export default function HomeNewPage() {
           /* master-detail: גדול מימין, רצועת-אחרונות משמאל (RTL) */
           .hn-latest { display: flex; gap: 14px; align-items: flex-start; direction: rtl; }
           .hn-latest-main { flex: 1; min-width: 0; }
-          .hn-latest-thumbs { width: 104px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px; max-height: 600px; overflow-y: auto; padding-bottom: 2px; }
-          .hn-thumb { position: relative; cursor: pointer; padding: 0; border: 2px solid rgba(212,175,55,0.22); border-radius: 11px; overflow: hidden; background: #09080f; aspect-ratio: 1; transition: border-color .15s, transform .12s; }
+          /* דסקטופ: 2 טורים שמנים × 3 = 6 תמונות גדולות */
+          .hn-latest-thumbs { width: 320px; flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-content: start; }
+          .hn-thumbs-lbl { grid-column: 1 / -1; }
+          .hn-thumb { position: relative; cursor: pointer; padding: 0; border: 2px solid rgba(212,175,55,0.22); border-radius: 13px; overflow: hidden; background: #09080f; aspect-ratio: 1; transition: border-color .15s, transform .12s; }
           .hn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
           .hn-thumb:hover { border-color: rgba(212,175,55,0.6); transform: translateY(-2px); }
           .hn-thumb.on { border-color: #f6e27a; box-shadow: 0 0 0 2px rgba(246,226,122,0.5), 0 0 16px rgba(212,175,55,0.4); }
-          .hn-thumb-n { position: absolute; bottom: 4px; inset-inline-start: 4px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 10px; font-weight: 800; border-radius: 999px; padding: 1px 6px; }
-          @media (max-width: 720px) {
+          .hn-thumb-n { position: absolute; bottom: 5px; inset-inline-start: 5px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 1px 8px; }
+          @media (max-width: 1024px) { .hn-latest-thumbs { width: 240px; } }
+          @media (max-width: 760px) {
             .hn-latest { flex-direction: column; }
-            .hn-latest-thumbs { width: 100%; flex-direction: row; max-height: none; overflow-x: auto; overflow-y: hidden; order: 2; }
-            .hn-latest-thumbs > div { display: none; }
-            .hn-thumb { width: 76px; flex: 0 0 auto; }
+            .hn-latest-thumbs { width: 100%; display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden; order: 2; }
+            .hn-thumbs-lbl { display: none; }
+            .hn-thumb { width: 92px; flex: 0 0 auto; }
           }
         `}</style>
         {/* המספרים היורדים — רקע מלא לכל המקטע (מקצה לקצה בדסקטופ). אפקט קל מבית-הקוד
@@ -321,15 +328,20 @@ export default function HomeNewPage() {
             </h2>
             <span style={{ flex: 1 }} />
             <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-              לגלריה התלת-מימד →
+              גלרית דוד המלך — תלת מימד →
             </Link>
           </div>
 
-          {/* 🫧 בועות חיות — מי שרוצה יותר, גולש לגלריה */}
+          {/* 🫧 בועות-העל מכל המאגר — מי שרוצה יותר, גולש לגלריה */}
           {homeBubbles.length > 0 && (
             <div style={{ marginBottom: 20 }}>
+              {hottest.length > 0 && (
+                <div style={{ color: "#f6e27a", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>
+                  🔥 הכי חם במאגר: {hottest.join(" · ")}
+                </div>
+              )}
               <NumberBubbles data={homeBubbles}
-                title="🫧 המספרים החיים — מהבהב = פעיל עכשיו · לחצו בועה לכל התמונות בארכיון"
+                title="🫧 כל המספרים החיים במאגר — גודל = כמות · מהבהב = פעיל עכשיו · לחצו לצלילה"
                 hrefFor={b => `/archive?tab=pool&nums=${b.nums.join(",")}`} />
             </div>
           )}
@@ -366,8 +378,8 @@ export default function HomeNewPage() {
               </div>
               {/* רצועת אחרונות (שמאל ב-RTL) */}
               <div className="hn-latest-thumbs">
-                <div style={{ color: "#a89060", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>📍 אחרונות</div>
-                {recentHints.map(h => (
+                <div className="hn-thumbs-lbl" style={{ color: "#a89060", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>📍 6 האחרונות</div>
+                {recentHints.slice(0, 6).map(h => (
                   <button key={h.id} onClick={() => setSelHint(h)} title={cleanName(h.name) || ""}
                     className={`hn-thumb${sel.id === h.id ? " on" : ""}`}>
                     <img src={h.image_url} alt="" loading="lazy" />
@@ -383,7 +395,7 @@ export default function HomeNewPage() {
           {/* 📸 באנר האוצר — כמות התמונות בארכיון */}
           <Link to="/archive" style={{ display: "block", marginTop: 18, textAlign: "center", textDecoration: "none", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(122,19,32,0.16))", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 14, padding: "15px 18px" }}>
             <span style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,22px)", fontWeight: 800 }}>📸 {imgCount ? imgCount.toLocaleString("he") : "אלפי"} תמונות בארכיון</span>
-            <span style={{ color: "#d8c89a", fontFamily: F.body, fontSize: 14, marginInlineStart: 10 }}>· 14 שנות תיעוד · צללו לגלריה התלת-מימד →</span>
+            <span style={{ color: "#d8c89a", fontFamily: F.body, fontSize: 14, marginInlineStart: 10 }}>· 14 שנות תיעוד · צללו לגלרית דוד המלך — תלת מימד →</span>
           </Link>
         </div>
       </section>

@@ -169,6 +169,14 @@ export async function getGalleriesOverview() {
   return { gals: gals || [], imgs };
 }
 
+// המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
+export async function getTopPrimaryValues(lim = 16) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('top_primary_values', { lim });
+  if (error || !data) return [];
+  return data.map(r => ({ value: Number(r.value), count: Number(r.cnt) }));
+}
+
 // סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.
 export async function getGalleryImageCount() {
   if (!supabase) return 0;
