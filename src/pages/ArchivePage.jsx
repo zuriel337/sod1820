@@ -41,6 +41,18 @@ function descDate(desc) {
 }
 const eventDate = im => im.occurred_at ? new Date(im.occurred_at) : (descDate(im.description) || new Date(0));
 const eventYear = im => { const d = eventDate(im); return d ? d.getFullYear() : null; };
+
+// 🔗 זוגות-בועה «כרוכים» — מספרים שתמיד באים יחד מוצגים כבועה אחת.
+// 14(דוד)+45(גאולה) = חידוש הליבה של צוריאל (תמיד יחד). מספר בזוג → מסונן עם בן-זוגו.
+const BUBBLE_PAIRS = [[14, 45]];
+const PAIR_OF = (() => { const m = new Map(); for (const p of BUBBLE_PAIRS) for (const n of p) m.set(n, p); return m; })();
+function bubbleKeyFor(pv) {
+  const pair = PAIR_OF.get(pv);
+  if (pair) return { key: pair.join("+"), label: pair.join("+"), nums: pair };
+  return { key: String(pv), label: String(pv), nums: [pv] };
+}
+// 🔥 מספרי-ליבה — בועה שלהם מקבלת הילת-חום מיוחדת.
+const CORE_BUBBLE = new Set([1820, 358, 26, 14, 45, 1237, 541, 776]);
 function eventLabel(im) {
   if (im.occurred_at) { const d = new Date(im.occurred_at); return `${HE_MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
   const d = descDate(im.description);
@@ -207,22 +219,44 @@ export default function ArchivePage() {
     return [...m.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => a.year - b.year);
   }, [imgs]);
 
-  // המספרים החזקים (primary_value) לכל שנה — לבועות שמתחת לשנה שנבחרה.
+  // המספרים החזקים לכל שנה — לבועות. זוגות כרוכים (14+45) נספרים כבועה אחת.
   const yearTopNums = useMemo(() => {
     const perYear = new Map();
     for (const im of imgs) {
       if (im.curator_hidden) continue;
       const y = eventYear(im); if (!y || y < 2005) continue;
       const pv = Number(im.primary_value); if (!pv) continue;
+      const bk = bubbleKeyFor(pv);
       if (!perYear.has(y)) perYear.set(y, new Map());
-      const ym = perYear.get(y); ym.set(pv, (ym.get(pv) || 0) + 1);
+      const ym = perYear.get(y);
+      const e = ym.get(bk.key) || { ...bk, count: 0 }; e.count++; ym.set(bk.key, e);
     }
     const out = new Map();
-    for (const [y, ym] of perYear) {
-      out.set(y, [...ym.entries()].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count).slice(0, 12));
-    }
+    for (const [y, ym] of perYear) out.set(y, [...ym.values()].sort((a, b) => b.count - a.count).slice(0, 12));
     return out;
   }, [imgs]);
+
+  // אגרגציה על כל השנים — לכפתור «כל השנים» בסרגל-הזמן.
+  const allTopNums = useMemo(() => {
+    const m = new Map();
+    for (const im of imgs) {
+      if (im.curator_hidden) continue;
+      const pv = Number(im.primary_value); if (!pv) continue;
+      const bk = bubbleKeyFor(pv);
+      const e = m.get(bk.key) || { ...bk, count: 0 }; e.count++; m.set(bk.key, e);
+    }
+    return [...m.values()].sort((a, b) => b.count - a.count).slice(0, 16);
+  }, [imgs]);
+
+  // החלפת קבוצת-מספרים בסינון (לבועה — כולל זוג 14+45 בבת-אחת).
+  const toggleNums = (nums) => {
+    setNumFilters(prev => {
+      const next = new Set(prev);
+      const allOn = nums.every(n => next.has(n));
+      nums.forEach(n => allOn ? next.delete(n) : next.add(n));
+      return next;
+    });
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setLimit(PER); }, [activeSet, numFilters.size, yearFilter, query, tab]);
@@ -632,6 +666,10 @@ export default function ArchivePage() {
       .ar-tl-clear { background: none; border: 1px solid ${C.borderGold}; color: ${C.goldLight};
         border-radius: 999px; padding: 4px 13px; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; cursor: pointer; }
       .ar-tl-clear:hover { color: ${C.goldBright}; border-color: ${C.gold}; }
+      .ar-tl-all { background: none; border: 1px solid ${C.borderGold}; color: ${C.goldLight};
+        border-radius: 999px; padding: 4px 13px; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+      .ar-tl-all:hover { color: ${C.goldBright}; border-color: ${C.gold}; }
+      .ar-tl-all.on { background: linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color: #1a0e00; border-color: ${C.gold}; }
       .ar-tl-track { display: flex; gap: 8px; align-items: flex-end; height: 96px; overflow-x: auto; direction: ltr; padding-bottom: 2px; }
       .ar-tl-track::-webkit-scrollbar { height: 6px; }
       .ar-tl-track::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.35); border-radius: 999px; }
@@ -664,6 +702,24 @@ export default function ArchivePage() {
         background: #15100a; color: ${C.goldBright}; font-size: 11px; font-weight: 800; border-radius: 999px;
         padding: 1px 6px; border: 1px solid rgba(212,175,55,0.55); box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
       .ar-tl-bub.on { border-color: #fff; box-shadow: 0 0 0 3px rgba(246,226,122,0.85), 0 11px 26px rgba(0,0,0,0.55), inset 0 -7px 13px rgba(90,60,0,0.5), inset 0 5px 9px rgba(255,250,220,0.7); }
+      /* 🔥 הילת-חום למספרי-ליבה */
+      .ar-tl-bub.hot { border-color: rgba(255,170,60,0.85); animation: ar-bub-hot 2.4s ease-in-out infinite; }
+      @keyframes ar-bub-hot {
+        0%, 100% { box-shadow: 0 7px 18px rgba(0,0,0,0.55), 0 0 12px rgba(255,140,30,0.45), inset 0 -7px 13px rgba(90,60,0,0.55), inset 0 5px 9px rgba(255,250,220,0.65); }
+        50%      { box-shadow: 0 7px 18px rgba(0,0,0,0.55), 0 0 24px rgba(255,150,40,0.75), 0 0 40px rgba(255,120,20,0.35), inset 0 -7px 13px rgba(90,60,0,0.55), inset 0 5px 9px rgba(255,250,220,0.7); }
+      }
+      .ar-tl-bub.hot.on { animation: none; }
+
+      /* ── מונה חי ── */
+      .ar-live-count { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 2px 14px;
+        color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13.5px; font-weight: 700; }
+      .ar-live-count b { color: ${C.goldBright}; font-family: ${F.mono}; font-size: 15px; }
+      .ar-lc-sep { color: ${C.goldDim}; font-weight: 700; }
+      .ar-lc-chip { background: rgba(212,175,55,0.14); border: 1px solid ${C.borderGold}; color: ${C.goldLight};
+        border-radius: 999px; padding: 2px 11px; font-size: 12.5px; font-family: ${F.mono}; font-weight: 700; }
+      .ar-lc-clear { background: none; border: 1px solid ${C.border}; color: ${C.muted}; border-radius: 999px;
+        padding: 3px 11px; font-family: ${F.heading}; font-size: 12px; font-weight: 700; cursor: pointer; }
+      .ar-lc-clear:hover { color: ${C.goldBright}; border-color: ${C.gold}; }
 
       /* ── תצוגת מאגר (masonry) — כרטיס-רמז מלכותי ── */
       .ar-masonry {
@@ -1293,7 +1349,21 @@ export default function ArchivePage() {
               )}
               <TimelineScrubber data={yearData} active={yearFilter} onPick={setYearFilter}
                 topNums={yearFilter != null ? yearTopNums.get(yearFilter) : null}
-                numFilters={numFilters} onToggleNum={toggleNum} />
+                allTopNums={allTopNums}
+                numFilters={numFilters} onToggleNums={toggleNums} />
+              <div className="ar-live-count">
+                <span>📊 מציג <b>{pool.length.toLocaleString("he")}</b> תמונות</span>
+                {(yearFilter != null || numFilters.size > 0 || activeSet || q) && (
+                  <>
+                    <span className="ar-lc-sep">· מסונן:</span>
+                    {activeSet && <span className="ar-lc-chip">סט: {activeSet.name}</span>}
+                    {yearFilter != null && <span className="ar-lc-chip">שנה {yearFilter}</span>}
+                    {[...numFilters].map(n => <span key={n} className="ar-lc-chip">{n}</span>)}
+                    {q && <span className="ar-lc-chip">"{q}"</span>}
+                    <button className="ar-lc-clear" onClick={() => { setYearFilter(null); setNumFilters(new Set()); setActiveSet(null); setQuery(""); }}>נקה הכל ✕</button>
+                  </>
+                )}
+              </div>
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
@@ -1607,22 +1677,27 @@ function AddNumber({ onAdd }) {
 // 🕰️ סרגל-הזמן — ציר כרונולוגי של צפיפות הרמזים לפי שנה. כל עמודה = שנה (גובה ∝ כמות).
 // לחיצה על שנה מסננת (toggle) + חושפת «בועות» של המספרים החזקים באותה שנה —
 // לחיצה על בועה (אחת/כמה) מוסיפה אותה לסינון המספרים. direction:ltr (ישן→חדש).
-function TimelineScrubber({ data, active, onPick, topNums, numFilters, onToggleNum }) {
+function TimelineScrubber({ data, active, onPick, topNums, allTopNums, numFilters, onToggleNums }) {
+  const [allMode, setAllMode] = useState(false);
   if (!data || data.length < 2) return null;
   const max = Math.max(...data.map(d => d.count), 1);
-  const bubbles = active != null ? (topNums || []) : [];
+  const bubbles = allMode ? (allTopNums || []) : (active != null ? (topNums || []) : []);
+  const showBubbles = allMode || active != null;
+  const pickYear = y => { setAllMode(false); onPick(active === y ? null : y); };
   return (
     <div className="ar-tl">
       <div className="ar-tl-head">
         <span>🕰️ ציר הזמן · {data.length} שנים</span>
-        {active != null
-          ? <button className="ar-tl-clear" onClick={() => onPick(null)}>הצג הכל ✕</button>
-          : <span className="ar-tl-hint">לחצו שנה לסינון →</span>}
+        <span style={{ display: "flex", gap: 7, alignItems: "center" }}>
+          <button className={`ar-tl-all${allMode ? " on" : ""}`} onClick={() => { setAllMode(m => !m); onPick(null); }}>🌐 כל השנים</button>
+          {active != null && <button className="ar-tl-clear" onClick={() => onPick(null)}>נקה שנה ✕</button>}
+          {!showBubbles && <span className="ar-tl-hint">לחצו שנה →</span>}
+        </span>
       </div>
       <div className="ar-tl-track">
         {data.map(d => (
           <button key={d.year} className={`ar-tl-col${active === d.year ? " on" : ""}`}
-            onClick={() => onPick(active === d.year ? null : d.year)}
+            onClick={() => pickYear(d.year)}
             title={`${d.year} · ${d.count} תמונות`}>
             <span className="ar-tl-cnt">{d.count}</span>
             <span className="ar-tl-bar" style={{ height: `${Math.max(7, Math.round((d.count / max) * 100))}%` }} />
@@ -1630,24 +1705,25 @@ function TimelineScrubber({ data, active, onPick, topNums, numFilters, onToggleN
           </button>
         ))}
       </div>
-      {active != null && (
+      {showBubbles && (
         <div className="ar-tl-bubbles">
           {bubbles.length > 0 ? (
             <>
-              <div className="ar-tl-bub-t">המספרים החזקים ב-{active} · גודל = כמות · בחרו בועה (או כמה) לסינון:</div>
+              <div className="ar-tl-bub-t">המספרים החזקים {allMode ? "בכל השנים" : `ב-${active}`} · גודל = כמות · בחרו בועה (או כמה) לסינון:</div>
               <div className="ar-tl-bub-row">
                 {(() => {
                   const maxC = Math.max(...bubbles.map(b => b.count), 1);
                   return bubbles.map(b => {
-                    const on = numFilters && numFilters.has(b.value);
+                    const on = numFilters && b.nums.every(n => numFilters.has(n));
+                    const hot = b.nums.some(n => CORE_BUBBLE.has(n));
                     const t = b.count / maxC;                       // 0..1 — עוצמה יחסית
-                    const size = Math.round(48 + t * 46);           // 48..94px
-                    const fs = Math.round(15 + t * 12);             // 15..27px
+                    const size = Math.round(50 + t * 48);           // 50..98px
+                    const fs = Math.round(15 + t * 11 - (b.label.length > 3 ? 4 : 0)); // טקסט ארוך (14+45) קטן יותר
                     return (
-                      <button key={b.value} className={`ar-tl-bub${on ? " on" : ""}`}
-                        onClick={() => onToggleNum(b.value)} title={`${b.value} · ${b.count} תמונות ב-${active}`}
+                      <button key={b.key} className={`ar-tl-bub${on ? " on" : ""}${hot ? " hot" : ""}`}
+                        onClick={() => onToggleNums(b.nums)} title={`${b.label} · ${b.count} תמונות`}
                         style={{ width: size, height: size, fontSize: fs }}>
-                        <span className="ar-tl-bub-v">{b.value}</span>
+                        <span className="ar-tl-bub-v">{b.label}</span>
                         <span className="ar-tl-bub-c">{b.count}</span>
                       </button>
                     );
@@ -1656,7 +1732,7 @@ function TimelineScrubber({ data, active, onPick, topNums, numFilters, onToggleN
               </div>
             </>
           ) : (
-            <div className="ar-tl-bub-t">אין מספרים דומיננטיים מתויגים בשנה זו.</div>
+            <div className="ar-tl-bub-t">אין מספרים דומיננטיים מתויגים {allMode ? "" : "בשנה זו"}.</div>
           )}
         </div>
       )}
