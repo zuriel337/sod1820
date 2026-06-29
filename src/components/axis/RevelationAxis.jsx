@@ -32,6 +32,11 @@ const AXIS_CSS = `
   }
   .rev-ai-dot { animation: rev-ai-blink 1.5s ease-in-out infinite; }
   .rev-ai-dot:hover { animation-play-state: paused; }
+  @keyframes rev-thread-ai-glow {
+    0%, 100% { box-shadow: 0 0 14px #8458ff66; }
+    50%      { box-shadow: 0 0 16px #8458ff66, 0 0 12px #3ea6ff99, 0 0 30px #3ea6ff55; }
+  }
+  .rev-thread-ai { animation: rev-thread-ai-glow 1.9s ease-in-out infinite; }
 `;
 
 const AI_BLUE = "#3ea6ff";
@@ -74,15 +79,16 @@ export default function RevelationAxis() {
       .limit(12)
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
 
-    // עדכוני AI — פוסטים מסומנים ai_touched (הבהוב כחול בראש הציר).
-    // לפי התוכנית: לציר ההתגלות נכנסים רק פוסטים בקטגוריית «רמזים חזקים» (של צוריאל),
-    // לא כל פוסט AI — ולכן מסננים גם לפי הקטגוריה.
+    // עדכוני AI — הבהוב כחול בראש הציר. מערכתי: פוסט נכנס לציר אם הוא נושא
+    // «חותמת-AI מאומת» — כלומר בקטגוריית «רמזים חזקים» (של צוריאל) *או* בתוכנו יש
+    // את הסימן «מאומת על ידי AI» (עדכון-גימטריה מאומת, כמו ai_post_update_law).
+    // כך כל עדכון מאומת מופיע אוטומטית, בלי תלות בקטגוריה — ובלי להציף בכל פוסט AI.
     supabase.from("posts")
       .select("wp_id,title,slug,modified")
       .eq("ai_touched", true)
-      .contains("categories", ["רמזים חזקים"])
+      .or("categories.cs.{רמזים חזקים},content.ilike.*מאומת על ידי AI*")
       .order("modified", { ascending: false, nullsFirst: false })
-      .limit(4)
+      .limit(5)
       .then(({ data }) => setAiPosts(data || []));
   }, []);
 
@@ -98,8 +104,8 @@ export default function RevelationAxis() {
     }}>
       <style>{AXIS_CSS}</style>
 
-      {/* חוט האור */}
-      <div style={{
+      {/* חוט האור — מבליח כחול כשיש עדכון-AI טרי */}
+      <div className={aiPosts.length ? "rev-thread-ai" : ""} style={{
         position: "absolute", top: "6%", bottom: "6%", left: 42, width: 2,
         background: `linear-gradient(180deg, transparent, ${P.accent}66 12%, ${VIOLET}88 50%, ${P.accent}66 88%, transparent)`,
         boxShadow: `0 0 14px ${VIOLET}66`,
