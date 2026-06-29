@@ -458,6 +458,27 @@ export default function ArchivePage() {
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
   }
 
+  // 🎯 צור סט (אוסף-תמונות) מהבחירה הנוכחית — כל התמונות המסומנות הופכות לסט שמור.
+  async function createSetFromSelection() {
+    if (!selectedIds.size) return;
+    const ids = [...selectedIds];
+    const name = window.prompt(`שם לסט החדש (${ids.length} תמונות):`, "");
+    if (!name || !name.trim()) return;
+    if (ids.length > 200 && !window.confirm(`ליצור סט עם ${ids.length} תמונות? זה עשוי לקחת כמה שניות.`)) return;
+    try {
+      const created = await saveHintSet({ name: name.trim(), visibility: 'public', importance: 3 });
+      // הוספה במנות כדי לא להציף את ה-API
+      for (let i = 0; i < ids.length; i += 25) {
+        await Promise.all(ids.slice(i, i + 25).map((id, j) => addHintSetMember(created.id, 'image', id, i + j)));
+      }
+      await reloadHintSets();
+      setActiveHintSet({ ...created, _memberCount: ids.length });
+      setSelectedIds(new Set());
+      setMultiSelect(false);
+      alert(`נוצר סט «${name.trim()}» עם ${ids.length} תמונות ✓`);
+    } catch (e) { alert("יצירת הסט נכשלה: " + (e.message || e)); }
+  }
+
   async function addToHintSet(im) {
     if (!activeHintSet) return;
     const memberCount = activeHintSet._memberCount ?? 0;
@@ -1315,14 +1336,17 @@ export default function ArchivePage() {
                     >✓ בחירה מרובה</button>
                     {multiSelect && (
                       <>
-                        <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set(pool.slice(0, limit).map(im => im.id)))}>
-                          בחר הכל ({Math.min(pool.length, limit)})
+                        <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set(pool.map(im => im.id)))} title="בוחר את כל התמונות המסוננות (כל השנה/המספר)">
+                          בחר הכל המסונן ({pool.length.toLocaleString()})
                         </button>
                         {selectedIds.size > 0 && (
                           <button className="ar-pill ar-sm" onClick={() => setSelectedIds(new Set())}>בטל הכל</button>
                         )}
                         {selectedIds.size > 0 && (
                           <span className="ar-label" style={{ color: C.gold, fontWeight: 700 }}>{selectedIds.size} נבחרו</span>
+                        )}
+                        {selectedIds.size > 0 && (
+                          <button className="ar-save ar-sm" style={{ padding: "5px 14px" }} onClick={createSetFromSelection}>🎯 צור סט מהנבחרים</button>
                         )}
                       </>
                     )}
