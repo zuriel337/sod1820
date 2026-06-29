@@ -29,17 +29,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
 
-  // 🕘 חיפושים אחרונים — מקומי למכשיר (פרטי). מציגים 6 למעלה, לחיצה טוענת מחדש.
-  const [recents, setRecents] = useState(() => { try { return JSON.parse(localStorage.getItem("gc-recents") || "[]"); } catch { return []; } });
-  function pushRecent(w, v) {
-    const norm = s => String(s).replace(/\s+/g, " ").trim();
-    setRecents(prev => {
-      const next = [{ word: w, value: v }, ...prev.filter(r => norm(r.word) !== norm(w))].slice(0, 12);
-      try { localStorage.setItem("gc-recents", JSON.stringify(next)); } catch { /* ignore */ }
-      return next;
-    });
-  }
-
   // חיפוש מורכב — רמות: 0=סגור · 1=שורה אחת · 2=שתי שורות. השורה העליונה (q) עצמאית = "צופה 17 השיטות".
   const [m1, setM1] = useState("רגיל");
   const [advLevel, setAdvLevel] = useState(0);
@@ -99,7 +88,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
       // onResult = חישוב טהור בצד הלקוח → פולטים מיד, לפני כל I/O (QuickActions תלוי בו;
       // אסור שיהיה תלוי בשמירה ל-DB שעלולה להיכשל/להיתקע ברשת/הרשאות).
       if (onResult) onResult({ word, ragil: ragilVal });
-      pushRecent(word, ragilVal);                      // 🕘 היסטוריה מקומית (גם במצב אנונימי — לא ציבורי)
       try {
         if (research) {
           await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד
@@ -116,7 +104,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [privSaved, setPrivSaved] = useState("");
   const [privList, setPrivList] = useState([]);
   const [privOpen, setPrivOpen] = useState(false);
-  const loadPriv = () => { if (research || isAdmin) getWallPrivate(40).then(setPrivList).catch(() => {}); };
+  const loadPriv = () => { if (research || isAdmin) getWallPrivate(6).then(setPrivList).catch(() => {}); };   // 6 חיפושים אחרונים בלבד
   useEffect(() => { loadPriv(); }, [research, isAdmin]); // eslint-disable-line
   const savePrivate = async () => {
     if (!word || onlyHeb(word).length < 2 || !ragilVal) return;
@@ -185,20 +173,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
       <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-        {/* 🕘 6 החיפושים האחרונים — לחיצה טוענת מחדש */}
-        {recents.length > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
-            <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 800, letterSpacing: .5 }}>🕘 אחרונים</span>
-            {recents.slice(0, 6).map((r, i) => (
-              <button key={i} onClick={() => setQ(r.word)} title={`טען «${r.word}» = ${r.value}`}
-                style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999,
-                  padding: "4px 11px", color: L.ink, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700,
-                  display: "inline-flex", alignItems: "center", gap: 6 }}>
-                {r.word}<span style={{ color: L.gold, fontFamily: F.mono, fontSize: 11, fontWeight: 800 }}>{r.value}</span>
-              </button>
-            ))}
-          </div>
-        )}
         <input value={q} onChange={e => setQ(e.target.value)} placeholder={advOpen ? "התוצאה תופיע כאן — או הקלידו (17 שיטות)…" : "הקלידו מילה או ביטוי…"} dir="rtl" style={{
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
