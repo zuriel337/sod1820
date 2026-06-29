@@ -1330,9 +1330,12 @@ export default function ArchivePage() {
                         <span aria-hidden>🗓️</span>{imgDate(im.occurred_at)}
                       </div>
                     )}
-                    <a href={im.image_url} target="_blank" rel="noopener noreferrer">
+                    {/* לחיצה על תמונת הגלריה → לייטבוקס מועשר (עם כל המספרים/תיאור/תגיות) */}
+                    <button onClick={() => { const i = (detail || []).findIndex(x => x.id === im.id); setLbImages(detail || []); setLbStart(Math.max(0, i)); }}
+                      style={{ display: "block", width: "100%", padding: 0, border: "none", background: "transparent", cursor: "zoom-in" }}
+                      title="הגדל — עם כל ההקשרים">
                       <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
-                    </a>
+                    </button>
                     <ImageMeta im={im} isAdmin={isAdmin} onEdit={() => setEditImg(im)} onJump={() => jumpToPool(im)} onDelete={() => deleteImage(im)} />
                   </div>
                 ))}
