@@ -73,6 +73,7 @@ export default function HomeNewPage() {
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
   const [imgCount, setImgCount] = useState(0); // סך תמונות הארכיון — לבאנר האוצר
+  const [selHint, setSelHint] = useState(null); // התמונה הנבחרת בתצוגה הגדולה (ברירת מחדל: האחרונה)
   const [homeSets, setHomeSets] = useState([]); // גלריות רמזים מומלצות (show_on_home)
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
@@ -111,11 +112,13 @@ export default function HomeNewPage() {
     .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
     .slice(0, 4), [cards]);
 
-  // 🖼️ התמונה האחרונה (הכי טרייה) — מוצגת בגדול תמיד, בלי צורך לפתוח.
-  const latestHint = useMemo(() => {
+  // 🖼️ התמונות האחרונות — רצועה משמאל, הנבחרת בגדול מימין.
+  const recentHints = useMemo(() => {
     const hs = (hints || []).filter(h => h.image_url);
-    return hs.length ? [...hs].sort((a, b) => effDate(b) - effDate(a))[0] : null;
+    return [...hs].sort((a, b) => effDate(b) - effDate(a)).slice(0, 8);
   }, [hints]);
+  const latestHint = recentHints[0] || null;
+  const sel = selHint && recentHints.some(h => h.id === selHint.id) ? selHint : latestHint;
   // 🫧 בועות חיות — מהבהב = פעיל לאחרונה. מפנות לארכיון התלת-מימד.
   const homeBubbles = useMemo(() => {
     const hs = hints || [];
@@ -290,6 +293,21 @@ export default function HomeNewPage() {
           @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
           #reality-home .hn-h2, #reality-home h2 { color: #d4af37 !important; }
           @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+          /* master-detail: גדול מימין, רצועת-אחרונות משמאל (RTL) */
+          .hn-latest { display: flex; gap: 14px; align-items: flex-start; direction: rtl; }
+          .hn-latest-main { flex: 1; min-width: 0; }
+          .hn-latest-thumbs { width: 104px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px; max-height: 600px; overflow-y: auto; padding-bottom: 2px; }
+          .hn-thumb { position: relative; cursor: pointer; padding: 0; border: 2px solid rgba(212,175,55,0.22); border-radius: 11px; overflow: hidden; background: #09080f; aspect-ratio: 1; transition: border-color .15s, transform .12s; }
+          .hn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+          .hn-thumb:hover { border-color: rgba(212,175,55,0.6); transform: translateY(-2px); }
+          .hn-thumb.on { border-color: #f6e27a; box-shadow: 0 0 0 2px rgba(246,226,122,0.5), 0 0 16px rgba(212,175,55,0.4); }
+          .hn-thumb-n { position: absolute; bottom: 4px; inset-inline-start: 4px; background: rgba(212,175,55,0.92); color: #1a0e00; font-family: ${F.mono}; font-size: 10px; font-weight: 800; border-radius: 999px; padding: 1px 6px; }
+          @media (max-width: 720px) {
+            .hn-latest { flex-direction: column; }
+            .hn-latest-thumbs { width: 100%; flex-direction: row; max-height: none; overflow-x: auto; overflow-y: hidden; order: 2; }
+            .hn-latest-thumbs > div { display: none; }
+            .hn-thumb { width: 76px; flex: 0 0 auto; }
+          }
         `}</style>
         {/* המספרים היורדים — רקע מלא לכל המקטע (מקצה לקצה בדסקטופ). אפקט קל מבית-הקוד
             (~18fps, מכבד reduced-motion, עוצר כשהטאב מוסתר). */}
@@ -316,22 +334,46 @@ export default function HomeNewPage() {
             </div>
           )}
 
-          {/* 🖼️ התמונה האחרונה — פתוחה בגדול תמיד (רואים בלי לפתוח) + כיתוב */}
-          {latestHint ? (
-            <div onClick={() => setLbImg(latestHint)} style={{ cursor: "zoom-in", position: "relative", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(212,175,55,0.32)", background: "#09080f", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
-              <img src={latestHint.image_url} alt={cleanName(latestHint.name) || ""} className="rw-hero-img"
-                style={{ width: "100%", maxHeight: "min(62vh, 580px)", objectFit: "contain", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 30%, transparent 55%, rgba(0,0,0,0.78) 100%)", pointerEvents: "none" }} />
-              {domNum(latestHint) != null && (
-                <Link to={`/number/${domNum(latestHint)}`} onClick={e => e.stopPropagation()}
-                  style={{ position: "absolute", top: 14, insetInlineStart: 14, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(26px,4vw,48px)", borderRadius: 12, padding: "3px 16px", textDecoration: "none", lineHeight: 1.1 }}>
-                  {domNum(latestHint)}
-                </Link>
-              )}
-              <span style={{ position: "absolute", top: 14, insetInlineEnd: 14, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "4px 12px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 האחרון שעלה</span>
-              <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "20px 22px", direction: "rtl" }}>
-                {cleanName(latestHint.name) && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(18px,2.6vw,26px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.85)", marginBottom: 5, lineHeight: 1.4 }}>{cleanName(latestHint.name)}</div>}
-                <div style={{ color: "rgba(255,255,255,0.7)", fontFamily: F.heading, fontSize: 13 }}>{shortDate(latestHint) ? `🗓️ ${shortDate(latestHint)} · ` : ""}לחצו להגדלה</div>
+          {/* 🖼️ רצועת אחרונות משמאל · הנבחרת בגדול מימין + כיתוב יפה */}
+          {sel ? (
+            <div className="hn-latest">
+              {/* גדול (ימין ב-RTL) */}
+              <div className="hn-latest-main">
+                <div onClick={() => setLbImg(sel)} style={{ cursor: "zoom-in", position: "relative", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(212,175,55,0.32)", background: "#09080f", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
+                  <img key={sel.id} src={sel.image_url} alt={cleanName(sel.name) || ""} className="rw-hero-img"
+                    style={{ width: "100%", maxHeight: "min(56vh, 540px)", objectFit: "contain", display: "block" }} />
+                  {domNum(sel) != null && (
+                    <Link to={`/number/${domNum(sel)}`} onClick={e => e.stopPropagation()}
+                      style={{ position: "absolute", top: 12, insetInlineStart: 12, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(24px,3.6vw,42px)", borderRadius: 12, padding: "3px 15px", textDecoration: "none", lineHeight: 1.1 }}>
+                      {domNum(sel)}
+                    </Link>
+                  )}
+                  {sel.id === latestHint?.id && (
+                    <span style={{ position: "absolute", top: 12, insetInlineEnd: 12, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "4px 12px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 האחרון שעלה</span>
+                  )}
+                </div>
+                {/* כיתוב יפה מתחת */}
+                <div style={{ marginTop: 12, padding: "13px 17px", borderRadius: 12, background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.22)" }}>
+                  {cleanName(sel.name) && <div style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: "clamp(17px,2.3vw,23px)", fontWeight: 800, lineHeight: 1.45, marginBottom: 6 }}>{cleanName(sel.name)}</div>}
+                  {sel.description && <div style={{ color: "#cdbf9c", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(sel.description)}</div>}
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    {hintNums(sel).slice(0, 6).map(n => (
+                      <Link key={n} to={`/archive?tab=pool&nums=${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, color: "#1a0e00", background: "linear-gradient(135deg,#f6dd92,#d4af37)", borderRadius: 999, padding: "3px 12px" }}>{n} →</Link>
+                    ))}
+                    {shortDate(sel) && <span style={{ color: "#a89060", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>🗓️ {shortDate(sel)}</span>}
+                  </div>
+                </div>
+              </div>
+              {/* רצועת אחרונות (שמאל ב-RTL) */}
+              <div className="hn-latest-thumbs">
+                <div style={{ color: "#a89060", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>📍 אחרונות</div>
+                {recentHints.map(h => (
+                  <button key={h.id} onClick={() => setSelHint(h)} title={cleanName(h.name) || ""}
+                    className={`hn-thumb${sel.id === h.id ? " on" : ""}`}>
+                    <img src={h.image_url} alt="" loading="lazy" />
+                    {domNum(h) != null && <span className="hn-thumb-n">{domNum(h)}</span>}
+                  </button>
+                ))}
               </div>
             </div>
           ) : (
