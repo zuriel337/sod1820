@@ -69,7 +69,7 @@ export default function ResearchPage() {
         <>
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
-          {tool === "els" && <ELSSection gated={false} />}
+          {tool === "els" && <ElsGrid />}
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool />}
           {tool === "verse" && <VerseSearch />}

@@ -56,7 +56,7 @@ export const TORAH_BOOKS = [
 
 // 🔢 תבנית הדילוגים שעליהם סורקים. null = טווח רציף (min..max, כמו קודם).
 // fib / fib−1 / ראשוניים / חזקות-2 — סורקים רק את ערכי-התבנית שבתוך [min,max].
-function buildSkipSet(pattern, min, max) {
+export function buildSkipSet(pattern, min, max) {
   if (!pattern || pattern === "range") return null;
   const lo = Math.max(1, Math.floor(min) || 1), hi = Math.max(lo, Math.floor(max) || lo);
   const out = [];
