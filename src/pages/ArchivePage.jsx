@@ -207,6 +207,23 @@ export default function ArchivePage() {
     return [...m.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => a.year - b.year);
   }, [imgs]);
 
+  // המספרים החזקים (primary_value) לכל שנה — לבועות שמתחת לשנה שנבחרה.
+  const yearTopNums = useMemo(() => {
+    const perYear = new Map();
+    for (const im of imgs) {
+      if (im.curator_hidden) continue;
+      const y = eventYear(im); if (!y || y < 2005) continue;
+      const pv = Number(im.primary_value); if (!pv) continue;
+      if (!perYear.has(y)) perYear.set(y, new Map());
+      const ym = perYear.get(y); ym.set(pv, (ym.get(pv) || 0) + 1);
+    }
+    const out = new Map();
+    for (const [y, ym] of perYear) {
+      out.set(y, [...ym.entries()].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count).slice(0, 12));
+    }
+    return out;
+  }, [imgs]);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setLimit(PER); }, [activeSet, numFilters.size, yearFilter, query, tab]);
 
@@ -607,28 +624,42 @@ export default function ArchivePage() {
       .ar-mcard.ar-dragging { opacity: 0.5; }
 
       /* ── סרגל-הזמן (timeline scrubber) ── */
-      .ar-tl { margin: 0 0 16px; padding: 11px 14px 9px; border: 1px solid ${C.borderGold}; border-radius: 14px;
+      .ar-tl { margin: 0 0 16px; padding: 13px 16px 11px; border: 1px solid ${C.borderGold}; border-radius: 14px;
         background: linear-gradient(165deg, rgba(28,20,11,0.6), rgba(8,5,2,0.5)); }
-      .ar-tl-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px;
-        color: ${C.goldDim}; font-family: ${F.heading}; font-size: 12px; font-weight: 800; letter-spacing: .5px; }
-      .ar-tl-hint { color: ${C.muted}; font-weight: 700; font-size: 11px; }
+      .ar-tl-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 11px;
+        color: ${C.goldLight}; font-family: ${F.heading}; font-size: 14px; font-weight: 800; letter-spacing: .3px; }
+      .ar-tl-hint { color: ${C.goldDim}; font-weight: 700; font-size: 12.5px; }
       .ar-tl-clear { background: none; border: 1px solid ${C.borderGold}; color: ${C.goldLight};
-        border-radius: 999px; padding: 3px 11px; font-family: ${F.heading}; font-size: 11px; font-weight: 700; cursor: pointer; }
+        border-radius: 999px; padding: 4px 13px; font-family: ${F.heading}; font-size: 12.5px; font-weight: 700; cursor: pointer; }
       .ar-tl-clear:hover { color: ${C.goldBright}; border-color: ${C.gold}; }
-      .ar-tl-track { display: flex; gap: 6px; align-items: flex-end; height: 78px; overflow-x: auto; direction: ltr; padding-bottom: 2px; }
-      .ar-tl-track::-webkit-scrollbar { height: 5px; }
+      .ar-tl-track { display: flex; gap: 8px; align-items: flex-end; height: 96px; overflow-x: auto; direction: ltr; padding-bottom: 2px; }
+      .ar-tl-track::-webkit-scrollbar { height: 6px; }
       .ar-tl-track::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.35); border-radius: 999px; }
-      .ar-tl-col { flex: 1 0 32px; min-width: 32px; height: 100%; display: flex; flex-direction: column;
-        align-items: center; justify-content: flex-end; gap: 4px; background: none; border: none; cursor: pointer; padding: 0; }
-      .ar-tl-cnt { font-family: ${F.mono}; font-size: 9.5px; color: ${C.muted}; }
-      .ar-tl-bar { width: 17px; min-height: 7px; border-radius: 5px 5px 0 0;
-        background: linear-gradient(180deg, ${C.gold}, ${C.goldDeep}); box-shadow: inset 0 0 0 1px rgba(255,240,200,0.18);
+      .ar-tl-col { flex: 1 0 40px; min-width: 40px; height: 100%; display: flex; flex-direction: column;
+        align-items: center; justify-content: flex-end; gap: 5px; background: none; border: none; cursor: pointer; padding: 0; }
+      .ar-tl-cnt { font-family: ${F.mono}; font-size: 13px; font-weight: 700; color: #e7dcc0; }
+      .ar-tl-bar { width: 24px; min-height: 8px; border-radius: 6px 6px 0 0;
+        background: linear-gradient(180deg, ${C.gold}, #6b4e10); box-shadow: inset 0 0 0 1px rgba(255,240,200,0.2);
         transition: filter .15s, box-shadow .15s; }
       .ar-tl-col:hover .ar-tl-bar { filter: brightness(1.18); }
-      .ar-tl-col.on .ar-tl-bar { background: linear-gradient(180deg, #fff0b8, ${C.gold}); box-shadow: 0 0 12px rgba(212,175,55,0.6); }
-      .ar-tl-yr { font-family: ${F.mono}; font-size: 11px; font-weight: 800; color: ${C.goldDim}; }
-      .ar-tl-col:hover .ar-tl-yr { color: ${C.goldLight}; }
-      .ar-tl-col.on .ar-tl-yr, .ar-tl-col.on .ar-tl-cnt { color: ${C.goldBright}; }
+      .ar-tl-col.on .ar-tl-bar { background: linear-gradient(180deg, #fff0b8, ${C.gold}); box-shadow: 0 0 14px rgba(212,175,55,0.7); }
+      .ar-tl-yr { font-family: ${F.mono}; font-size: 14.5px; font-weight: 800; color: ${C.goldLight}; }
+      .ar-tl-col:hover .ar-tl-yr { color: ${C.goldBright}; }
+      .ar-tl-col.on .ar-tl-yr { color: ${C.goldBright}; }
+      .ar-tl-col.on .ar-tl-cnt { color: ${C.goldBright}; }
+      /* בועות מספרים לשנה הנבחרת */
+      .ar-tl-bubbles { margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(212,175,55,0.2); }
+      .ar-tl-bub-t { color: ${C.goldLight}; font-family: ${F.heading}; font-size: 13px; font-weight: 700; margin-bottom: 9px; }
+      .ar-tl-bub-row { display: flex; flex-wrap: wrap; gap: 9px; }
+      .ar-tl-bub { display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        background: rgba(8,5,2,0.5); border: 1px solid ${C.borderGold}; border-radius: 999px; padding: 7px 9px 7px 15px;
+        transition: border-color .15s, background .15s, transform .12s; }
+      .ar-tl-bub:hover { border-color: ${C.gold}; transform: translateY(-1px); }
+      .ar-tl-bub-v { font-family: ${F.mono}; font-weight: 800; font-size: 17px; color: ${C.goldBright}; }
+      .ar-tl-bub-c { font-family: ${F.mono}; font-size: 12px; font-weight: 700; color: #e7dcc0; background: rgba(0,0,0,0.32); border-radius: 999px; padding: 2px 9px; }
+      .ar-tl-bub.on { background: linear-gradient(135deg, #f6dd92, ${C.gold}); border-color: ${C.gold}; box-shadow: 0 0 14px rgba(212,175,55,0.5); }
+      .ar-tl-bub.on .ar-tl-bub-v { color: #1a0e00; }
+      .ar-tl-bub.on .ar-tl-bub-c { color: #1a0e00; background: rgba(0,0,0,0.16); }
 
       /* ── תצוגת מאגר (masonry) — כרטיס-רמז מלכותי ── */
       .ar-masonry {
@@ -1256,7 +1287,9 @@ export default function ArchivePage() {
                   )}
                 </div>
               )}
-              <TimelineScrubber data={yearData} active={yearFilter} onPick={setYearFilter} />
+              <TimelineScrubber data={yearData} active={yearFilter} onPick={setYearFilter}
+                topNums={yearFilter != null ? yearTopNums.get(yearFilter) : null}
+                numFilters={numFilters} onToggleNum={toggleNum} />
               <div className="ar-masonry">
                 {pool.slice(0, limit).map((im, idx) => {
                   const isSel = selectedIds.has(im.id);
@@ -1568,10 +1601,12 @@ function AddNumber({ onAdd }) {
 }
 
 // 🕰️ סרגל-הזמן — ציר כרונולוגי של צפיפות הרמזים לפי שנה. כל עמודה = שנה (גובה ∝ כמות).
-// לחיצה מסננת לשנה (toggle). direction:ltr כדי שהזמן יזרום ישן→חדש כמו ציר רגיל.
-function TimelineScrubber({ data, active, onPick }) {
+// לחיצה על שנה מסננת (toggle) + חושפת «בועות» של המספרים החזקים באותה שנה —
+// לחיצה על בועה (אחת/כמה) מוסיפה אותה לסינון המספרים. direction:ltr (ישן→חדש).
+function TimelineScrubber({ data, active, onPick, topNums, numFilters, onToggleNum }) {
   if (!data || data.length < 2) return null;
   const max = Math.max(...data.map(d => d.count), 1);
+  const bubbles = active != null ? (topNums || []) : [];
   return (
     <div className="ar-tl">
       <div className="ar-tl-head">
@@ -1591,6 +1626,29 @@ function TimelineScrubber({ data, active, onPick }) {
           </button>
         ))}
       </div>
+      {active != null && (
+        <div className="ar-tl-bubbles">
+          {bubbles.length > 0 ? (
+            <>
+              <div className="ar-tl-bub-t">המספרים החזקים ב-{active} · בחרו בועה (או כמה) לסינון:</div>
+              <div className="ar-tl-bub-row">
+                {bubbles.map(b => {
+                  const on = numFilters && numFilters.has(b.value);
+                  return (
+                    <button key={b.value} className={`ar-tl-bub${on ? " on" : ""}`}
+                      onClick={() => onToggleNum(b.value)} title={`${b.value} · ${b.count} תמונות ב-${active}`}>
+                      <span className="ar-tl-bub-v">{b.value}</span>
+                      <span className="ar-tl-bub-c">{b.count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="ar-tl-bub-t">אין מספרים דומיננטיים מתויגים בשנה זו.</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
