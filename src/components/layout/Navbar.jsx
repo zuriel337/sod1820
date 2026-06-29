@@ -271,6 +271,9 @@ function UserMenu({ user, profile, cc }) {
           {isAdmin && (
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
+          {isAdmin && (
+            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🔬 המעבדה</Link>
+          )}
         </div>
       )}
     </div>
@@ -413,6 +416,12 @@ export default function Navbar() {
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>👑 דף ניהול</Link>
+          )}
+          {isAdmin && (
+            <Link to="/research" onClick={() => setDrawer(false)} style={{
+              display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+            }}>🔬 המעבדה</Link>
           )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">
