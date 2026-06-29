@@ -86,6 +86,7 @@ export default function ArchivePage() {
   const [lbImages, setLbImages] = useState(null);   // מערך תמונות ללייטבוקס
   const [lbStart, setLbStart] = useState(0);         // אינדקס פתיחה
   const [editImg, setEditImg] = useState(null);
+  const [jumpTo, setJumpTo] = useState(null);         // id תמונה לקפיצה+גלילה בתצוגת המאגר
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set}
   const [curating, setCurating] = useState(false);    // מצב הבלטה/סידור ידני
   const [draftOrder, setDraftOrder] = useState([]);   // רשימת מזהי תמונות מובלטות (סדר)
@@ -307,8 +308,24 @@ export default function ArchivePage() {
     try {
       await setImageCuration(editImg.id, patch);
       setImgs(prev => prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x));
+      // עדכון גם במודאל הגלריה הפתוח (detail) כדי שהעריכה תשתקף מיד
+      setDetail(prev => Array.isArray(prev) ? prev.map(x => x.id === editImg.id ? { ...x, ...patch } : x) : prev);
       setEditImg(null);
     } catch (e) { alert("שמירה נכשלה: " + (e.message || e)); }
+  }
+
+  // 📍 קפיצה למקום התמונה בתצוגת המאגר המסוננת — כדי לראות מי לפניה/אחריה (לבניית סטים).
+  // מנקה סינונים, ממיין לפי גלריה (שכנים = בני אותה גלריה), עובר לטאב המאגר וגולל אל התמונה.
+  function jumpToPool(im) {
+    setSel(null);
+    setActiveSet(null);
+    setNumFilters(new Set());
+    setQuery("");
+    setYearFilter(null);
+    setSortMode("gallery");
+    setViewMode("images");
+    setTab("pool");
+    setJumpTo(im.id);
   }
 
   async function handleRemoveFromStream() {
@@ -328,6 +345,21 @@ export default function ArchivePage() {
   const hiSet = useMemo(() => new Set(highlighted.map(im => im.id)), [highlighted]);
   const rest = useMemo(() => pool.filter(im => !hiSet.has(im.id)), [pool, hiSet]);
   const curated = activeSet && (highlighted.length > 0 || curating);
+
+  // גלילה אל היעד אחרי קפיצה מהמודאל — מרחיב את ה-limit עד שהתמונה בטווח, ואז מבליט.
+  useEffect(() => {
+    if (!jumpTo || tab !== "pool" || viewMode !== "images") return;
+    const idx = pool.findIndex(im => im.id === jumpTo);
+    if (idx < 0) { setJumpTo(null); return; }
+    if (idx >= limit) { setLimit(Math.ceil((idx + 1) / PER) * PER); return; }
+    const el = document.getElementById(`pool-${jumpTo}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ar-jump-hi");
+      setTimeout(() => el.classList.remove("ar-jump-hi"), 2600);
+      setJumpTo(null);
+    }
+  }, [jumpTo, tab, viewMode, pool, limit]);
 
   function startCurate() { setDraftOrder([...(activeSet.image_order || [])]); setCurating(true); }
   function toggleHi(id) { setDraftOrder(o => o.includes(id) ? o.filter(x => x !== id) : [...o, id]); }
@@ -563,6 +595,12 @@ export default function ArchivePage() {
         background: rgba(8,5,2,0.8); border: 1px solid ${C.border};
         transition: border-color .15s, transform .12s;
         break-inside: avoid;
+      }
+      .ar-jump-hi { animation: ar-jump-pulse 2.6s ease-out; }
+      @keyframes ar-jump-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); border-color: ${C.border}; }
+        15%      { box-shadow: 0 0 0 4px rgba(212,175,55,0.85), 0 0 26px rgba(212,175,55,0.6); border-color: ${C.gold}; }
+        60%      { box-shadow: 0 0 0 3px rgba(212,175,55,0.5), 0 0 18px rgba(212,175,55,0.35); border-color: ${C.gold}; }
       }
       .ar-mcard:hover { border-color: ${C.gold}; }
       .ar-msel { border-color: ${C.gold} !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.35); }
@@ -1167,6 +1205,7 @@ export default function ArchivePage() {
                   const TYPE_EMOJI = { hint: '💡', gematria: '🔢', trail: '📖', event: '📰', gallery: '🗂' };
                   return (
                     <div key={im.id}
+                      id={`pool-${im.id}`}
                       className={`ar-mcard${isSel ? ' ar-msel' : ''}${dragging && dragIdsRef.current.has(im.id) ? ' ar-dragging' : ''}`}
                       draggable={isAdmin}
                       onDragStart={isAdmin ? e => handleDragStart(e, im) : undefined}
@@ -1241,9 +1280,16 @@ export default function ArchivePage() {
         </div>
       )}
 
-      {/* מודאל גלריה (טאב גלריות) — ללא שינוי */}
+      {/* מודאל גלריה (טאב גלריות) */}
       {sel && (
         <div onClick={() => setSel(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.94)", overflowY: "auto", padding: "40px 16px" }}>
+          {/* × קבוע — תמיד נגיש (גם בגלילה ובמובייל), מעל הניווט הגלובלי */}
+          <button onClick={(e) => { e.stopPropagation(); setSel(null); }} aria-label="סגור גלריה"
+            style={{ position: "fixed", top: "max(12px, env(safe-area-inset-top))", insetInlineStart: "max(12px, env(safe-area-inset-left))",
+              zIndex: 2147483600, width: 52, height: 52, borderRadius: "50%", border: "2px solid rgba(232,200,74,0.65)",
+              background: "rgba(8,5,2,0.82)", color: "#f6e27a", fontSize: 28, lineHeight: 1, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)",
+              boxShadow: "0 4px 18px rgba(0,0,0,0.6)" }}>×</button>
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: 760, margin: "0 auto", direction: "rtl" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, position: "sticky", top: 0, background: "rgba(3,2,8,0.85)", backdropFilter: "blur(8px)", padding: "6px 0" }}>
               <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,28px)", fontWeight: 700, margin: 0, flex: 1 }}>
@@ -1265,7 +1311,7 @@ export default function ArchivePage() {
                     <a href={im.image_url} target="_blank" rel="noopener noreferrer">
                       <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                     </a>
-                    <ImageMeta im={im} onClose={() => setSel(null)} />
+                    <ImageMeta im={im} isAdmin={isAdmin} onEdit={() => setEditImg(im)} onJump={() => jumpToPool(im)} />
                   </div>
                 ))}
               </div>
@@ -1459,7 +1505,7 @@ function AddNumber({ onAdd }) {
   );
 }
 
-function ImageMeta({ im, onClose }) {
+function ImageMeta({ im, isAdmin, onEdit, onJump }) {
   return (
     <div style={{ padding: "12px 16px" }}>
       {im.name && <div style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{im.name}</div>}
@@ -1474,6 +1520,23 @@ function ImageMeta({ im, onClose }) {
             border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.mono, fontSize: 12, fontWeight: 700,
           }}>{v}</button>
         ))}
+      </div>
+      {/* פעולות תמונה: קפיצה למאגר המסונן (מי לפניה/אחריה → סטים) + עריכה למנהל */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+        <button onClick={onJump} title="ראה את התמונה במאגר — מי לפניה ומי אחריה (לבניית סטים)"
+          style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+            background: "rgba(8,5,2,0.5)", border: `1px solid ${C.borderGold}`, color: C.goldLight,
+            borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+          📍 מקומה במאגר
+        </button>
+        {isAdmin && (
+          <button onClick={onEdit} title="ערוך תמונה (מנהל)"
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+              background: "rgba(8,5,2,0.5)", border: `1px solid ${C.borderGold}`, color: C.goldLight,
+              borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+            ✏️ עריכה
+          </button>
+        )}
       </div>
     </div>
   );
