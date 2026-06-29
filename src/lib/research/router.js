@@ -68,5 +68,14 @@ export function mergeEngines(engines) {
   const agreed = clusters.filter(c => c.agree > 1).length + timeline_pressure.filter(t => t.agree > 1).length + edges.filter(e => e.agree > 1).length;
   const agreement = n > 1 && total ? Math.round((agreed / total) * 100) : null;
 
-  return { engines: n, core_axis, clusters, timeline_pressure, edges, contradictions, insight_level, agreement };
+  // 🟢 הרחבת הסכמה המינימלית (לא מחליפה תקן — מוסיפה): confidence · conflicts · modelContributions
+  const confidence = n > 1 ? (agreement ?? 0) : ({ low: 40, medium: 60, high: 80 }[insight_level] || 40);
+  const conflicts = contradictions.map(c => ({ pair: [c.a, c.b], versions: c.relations }));
+  const contrib = engines.map(e => ({ model: e.name, elements: (e.out.clusters?.length || 0) + (e.out.timeline_pressure?.length || 0) + (e.out.relationships_graph?.length || 0) }));
+  const sumEls = contrib.reduce((s, c) => s + c.elements, 0) || 1;
+  const modelContributions = contrib.map(c => ({ model: c.model, elements: c.elements, weight: Math.round((c.elements / sumEls) * 100) / 100 }));
+  // פריטים tentative — מופיעים אצל מנוע אחד בלבד כשיש כמה מנועים (confidence נמוך)
+  const tentative = n > 1;
+
+  return { engines: n, core_axis, clusters, timeline_pressure, edges, contradictions, insight_level, agreement, confidence, conflicts, modelContributions, tentative };
 }

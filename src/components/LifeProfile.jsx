@@ -212,6 +212,7 @@ export default function LifeProfile() {
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontWeight: 800, fontSize: 16 }}>🧠 Router · קונצנזוס</span>
           <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 9px" }}>{consensus.engines} מנועים</span>
+          <span style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 9px" }}>confidence {consensus.confidence}</span>
           {consensus.agreement != null && <span style={{ fontSize: 12, fontWeight: 800, color: "var(--good)", marginInlineStart: "auto" }}>הסכמה {consensus.agreement}%</span>}
         </div>
         <div className="rw-sub" style={{ marginTop: 4 }}>מאחד את כל המנועים לפלט אחד. מה שחוזר בין מנועים = חזק (✓ הסכמה); מה שסותר = מסומן.</div>
@@ -243,10 +244,15 @@ export default function LifeProfile() {
           <div className="rw-muted" style={{ fontSize: 12.5 }}>{consensus.contradictions.slice(0, 5).map(c => `${c.a}⇄${c.b}: ${c.relations.join(" / ")}`).join(" · ")}</div>
         </div>}
 
+        {consensus.modelContributions.length > 0 && <div style={{ marginTop: 12 }}>
+          <div style={lbl}>modelContributions (משקל כל מנוע)</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{consensus.modelContributions.map((m, i) => <span key={i} className="rw-chip">{m.model} · {m.elements} · w{m.weight}</span>)}</div>
+        </div>}
+
         <div style={{ marginTop: 12 }}>
           <div style={lbl}>summary</div>
           <div className="rw-muted" style={{ fontSize: 13.5 }}>
-            {consensus.engines} מנועים · {consensus.clusters.length} אשכולות · {consensus.edges.length} קצוות · {consensus.contradictions.length} סתירות · insight: {consensus.insight_level}
+            {consensus.engines} מנועים · confidence {consensus.confidence} · {consensus.clusters.length} אשכולות · {consensus.edges.length} קצוות · {consensus.conflicts.length} סתירות · insight: {consensus.insight_level}
           </div>
         </div>
       </div>
