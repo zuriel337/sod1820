@@ -3,6 +3,18 @@ import { Link } from "react-router-dom";
 import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TORAH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
 import ElsAnalysis from "./ElsAnalysis.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { supabase } from "../lib/supabase.js";
+
+// רקעי-מטריצה לבחירה (החלפת צבע לרקע האותיות). הצבע המודגש נשאר תמיד.
+const CELL_BGS = [
+  { bg: "var(--bg)", fg: "var(--ink2)", label: "רגיל" },
+  { bg: "#fffdf6", fg: "#3a2f12", label: "קרם" },
+  { bg: "#ffffff", fg: "#1b1d22", label: "לבן" },
+  { bg: "#10131a", fg: "#e8dcc0", label: "כהה" },
+  { bg: "#0a0700", fg: "#E8C84A", label: "מגילה" },
+  { bg: "#eef4ff", fg: "#243b6b", label: "תכלת" },
+];
 
 // 🔡 מסך הדילוגים — בהיר, מתאים לסביבה. רוכב על מנוע ה-ELS הקיים (לא מחשב מחדש).
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
@@ -12,8 +24,12 @@ const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"],
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
 export default function ElsGrid({ seed }) {
+  const { isAdmin } = useAuth();
   const [letters, setLetters] = useState("");
   const [err, setErr] = useState(false);
+  const [zoom, setZoom] = useState(1);       // זום למטריצה
+  const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
+  const [aiStruct, setAiStruct] = useState(null); // ניתוח-מבנה AI (אדמין)
   const [raw, setRaw] = useState(seed || "ישראל");
   const [book, setBook] = useState("all");
   const [skipMax, setSkipMax] = useState(1000);
@@ -59,7 +75,7 @@ export default function ElsGrid({ seed }) {
     return { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
   const subSearch = () => { setSubIdx(0); setSubTerm(subRaw.trim()); };
 
   const locOf = useCallback(idx => {
@@ -172,20 +188,34 @@ export default function ElsGrid({ seed }) {
     );
   };
 
+  const theme = CELL_BGS[cellBgIdx];
+  // סרגל-תצוגה: זום + בורר-רקע (משותף לרגיל ולמסך-מלא)
+  const MatrixTools = () => (
+    <div className="els-mtools">
+      <span className="els-mt-lb">זום</span>
+      <button className="els-mt-b" onClick={() => setZoom(z => Math.max(0.6, +(z - 0.15).toFixed(2)))} title="הקטן">−</button>
+      <span className="els-mt-z">{Math.round(zoom * 100)}%</span>
+      <button className="els-mt-b" onClick={() => setZoom(z => Math.min(2.2, +(z + 0.15).toFixed(2)))} title="הגדל">+</button>
+      {zoom !== 1 && <button className="els-mt-b" onClick={() => setZoom(1)} title="איפוס">⟳</button>}
+      <span className="els-mt-sep" />
+      <span className="els-mt-lb">רקע</span>
+      {CELL_BGS.map((c, i) => <button key={i} className={"els-swatch" + (i === cellBgIdx ? " on" : "")} style={{ background: c.bg === "var(--bg)" ? "var(--bg)" : c.bg }} onClick={() => setCellBgIdx(i)} title={c.label} aria-label={c.label} />)}
+    </div>
+  );
   // ---- ציור המטריצה (משותף: רגיל + מסך-מלא) ----
   const Matrix = ({ big }) => {
     if (!grid) return null;
-    const sz = big ? 38 : 30, h = big ? 42 : 34, fs = big ? 25 : 20;
+    const sz = Math.round((big ? 38 : 30) * zoom), h = Math.round((big ? 42 : 34) * zoom), fs = Math.round((big ? 25 : 20) * zoom);
     return (
       <div style={{ overflow: "auto", display: "flex", justifyContent: "center" }}>
-        <div style={{ display: "inline-grid", gap: 3 }}>
+        <div style={{ display: "inline-grid", gap: 3, background: theme.bg, padding: 8, borderRadius: 10 }}>
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
                 const col = cell.ci >= 0 ? TERM_COLORS[cell.ci % TERM_COLORS.length] : null;
                 return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: col ? 800 : 500, borderRadius: 6,
-                  color: col ? "#fff" : C.ink2, background: col || "var(--bg)", border: `1px solid ${col || C.line}` }}>{cell.ch}</div>;
+                  color: col ? "#fff" : theme.fg, background: col || theme.bg, border: `1px solid ${col || (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{cell.ch}</div>;
               })}
             </div>
           ))}
@@ -195,6 +225,21 @@ export default function ElsGrid({ seed }) {
   };
 
   const cluster0 = res?.mode === "cluster" ? (res.clusters || [])[Math.min(clusterIdx, (res.clusters?.length || 1) - 1)] : null;
+
+  // 🤖 ניתוח-מבנה האשכול ב-AI (אדמין בלבד) — בוחרים כמה מונחים, ה-AI מפרש את המבנה.
+  // שולח עובדות שכבר חושבו (מונחים · דילוגים · טווח · מיקום) → פרשנות. לא מחשב, לא מכריע.
+  const runStructAi = async () => {
+    if (!cluster0) return;
+    setAiStruct({ loading: true });
+    try {
+      const picks = cluster0.picks.map(p => ({ term: p.term, skip: Math.abs(p.hit.skip), dir: p.hit.dir > 0 ? "קדימה" : "אחורה", book: locOf(p.hit.start).label, letter: locOf(p.hit.start).off }));
+      const input = { type: "els_cluster", terms, span: cluster0.span, book: locOf(cluster0.picks[0].hit.start).label, picks };
+      const { data, error } = await supabase.functions.invoke("field-router", { body: { input, core_values: computeEntity(terms.join(" ")).values, lenses: ["journey"] } });
+      if (error) throw error;
+      if (data?.gated) setAiStruct({ msg: data.reason === "rate" ? "מכסת ההרצות היומית מוצתה." : "אין הרשאה (התחבר כאדמין)." });
+      else { const o = (data?.outputs || []).find(x => x.out)?.out; o ? setAiStruct({ out: o }) : setAiStruct({ msg: "המודל לא החזיר פלט תקין." }); }
+    } catch (e) { setAiStruct({ msg: "שגיאה: " + (e?.message || String(e)).slice(0, 80) }); }
+  };
 
   return (
     <div>
@@ -250,6 +295,22 @@ export default function ElsGrid({ seed }) {
                 {cluster0.picks.map((pk, i) => <span key={i} style={{ ...chip, borderColor: TERM_COLORS[i], color: TERM_COLORS[i] }}>{pk.term} · דילוג {Math.abs(pk.hit.skip).toLocaleString("he")}</span>)}
               </div>
               <div className="rw-sub" style={{ marginTop: 6 }}>«קרבה» = מרחק קטן בין המונחים בטקסט. עובדה מדידה — לא הוכחה (אפשר למצוא קרבות בכל טקסט גדול).</div>
+              {isAdmin && (
+                <div className="els-ai">
+                  {!aiStruct && <button className="els-ai-btn" onClick={runStructAi}>🤖 נתח מבנה ב-AI</button>}
+                  {aiStruct?.loading && <div className="rw-muted">ה-AI מנתח את מבנה האשכול…</div>}
+                  {aiStruct?.msg && <div className="els-ai-msg">{aiStruct.msg} <button className="els-ai-retry" onClick={runStructAi}>נסה שוב</button></div>}
+                  {aiStruct?.out && (
+                    <div className="els-ai-out">
+                      <div className="els-ai-h">🔵 ניתוח מבנה (AI){aiStruct.out.confidence ? ` · ביטחון ${({ low: "נמוך", medium: "בינוני", high: "גבוה" })[aiStruct.out.confidence] || aiStruct.out.confidence}` : ""}</div>
+                      {aiStruct.out.summary && <p className="els-ai-sum">{aiStruct.out.summary}</p>}
+                      {Array.isArray(aiStruct.out.connections) && aiStruct.out.connections.length > 0 && <ul className="els-ai-list">{aiStruct.out.connections.map((c, i) => <li key={i}>{c}</li>)}</ul>}
+                      {Array.isArray(aiStruct.out.questions) && aiStruct.out.questions.length > 0 && <><div className="els-ai-t">שאלות להמשך</div><ul className="els-ai-list">{aiStruct.out.questions.map((c, i) => <li key={i}>{c}</li>)}</ul></>}
+                      <div className="rw-sub" style={{ marginTop: 6 }}>פרשנות — לא הוכחה. העובדות (מונחים · דילוגים · מרחקים) למעלה.</div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
@@ -298,7 +359,7 @@ export default function ElsGrid({ seed }) {
       )}
 
       {/* ===== המטריצה + רשימה ===== */}
-      {grid && <div className="rw-card" style={{ marginTop: 12 }}><Matrix big={false} /></div>}
+      {grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב הדילוג ({grid.W}) — {isCluster ? "כל מונח בצבע משלו" : "המונח עומד בעמודה האנכית"}.</div>}
 
       {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={TORAH_BOOKS} total={res.hits.length} capped={res.capped} />}
@@ -314,7 +375,7 @@ export default function ElsGrid({ seed }) {
             <button className="els-x" onClick={() => setFull(false)}>✕ סגור (Esc)</button>
           </div>
           <div className="els-full-body">
-            <div className="els-full-grid"><Matrix big /></div>
+            <div className="els-full-grid"><div style={{ width: "100%" }}><MatrixTools /><Matrix big /></div></div>
             <div className="els-full-side"><ResultsList /></div>
           </div>
         </div>
@@ -333,6 +394,24 @@ const ELS_CSS = `
 .els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
 .els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
+.els-mtools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.els-mt-lb{font-size:12px;font-weight:800;color:var(--ink3)}
+.els-mt-b{width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;line-height:1}
+.els-mt-b:hover{border-color:var(--acc);color:var(--acc)}
+.els-mt-z{font-size:13px;font-weight:800;color:var(--ink2);min-width:42px;text-align:center}
+.els-mt-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.els-swatch{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);cursor:pointer;padding:0}
+.els-swatch.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--accS)}
+.els-ai{margin-top:10px}
+.els-ai-btn{border:none;background:#1f6feb;color:#fff;font-weight:800;font-size:13.5px;border-radius:999px;padding:8px 18px;cursor:pointer;font-family:inherit}
+.els-ai-msg{font-size:13px;color:#b4453a}
+.els-ai-retry{margin-inline-start:8px;border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:3px 10px;cursor:pointer;font-family:inherit;color:var(--ink2)}
+.els-ai-out{background:#eef5ff;border:1px solid #d6e4ff;border-radius:11px;padding:12px 15px;margin-top:6px}
+.els-ai-h{font-weight:800;color:#1f6feb;font-size:13.5px}
+.els-ai-sum{margin:7px 0;color:var(--ink);font-size:14px;line-height:1.55}
+.els-ai-t{font-weight:800;font-size:12.5px;color:var(--ink2);margin-top:6px}
+.els-ai-list{margin:4px 0;padding-inline-start:18px}
+.els-ai-list li{margin:3px 0;color:var(--ink);font-size:13.5px}
 .els-list-h{font-weight:800;font-size:13px;color:var(--ink2);margin-bottom:8px}
 .els-list-body{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow:auto}
 .els-row{display:flex;align-items:center;gap:9px;width:100%;text-align:start;background:var(--bg);border:1px solid var(--line);
