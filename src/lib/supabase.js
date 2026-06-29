@@ -213,6 +213,7 @@ export async function getGalleryUpdates(limit = 60) {
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד (פרימיום/מוסתר נחסם)
     .order('created_at', { ascending: false })
     .limit(limit);
   return data || [];
@@ -229,6 +230,35 @@ export async function getRealityHints(limit = 1000) {
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
+
+// ===== אוספים (gallery_collections) — גלריות/אוספים/מסלולים גמישים מעל הדרגות הקבועות =====
+// אוסף = כלל (filter jsonb) על gallery_images. הדרגה (image_type) לא משתנה; זו רק תצוגה.
+export async function getGalleryCollections() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('gallery_collections')
+    .select('id,slug,title,description,kind,filter,is_premium,cover_url,sort')
+    .eq('is_active', true).order('sort', { ascending: true });
+  return data || [];
+}
+
+// תמונות של אוסף לפי ה-filter שלו ({tag}/{primary_value}/{source}/{image_type}). נראות ציבורית בלבד.
+export async function getCollectionImages(filter, limit = 500) {
+  if (!supabase || !filter) return [];
+  let q = supabase.from('gallery_images')
+    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,tags')
+    .not('image_url', 'is', null).not('curator_hidden', 'is', true).eq('min_tier', 0);
+  if (filter.tag) q = q.contains('tags', [filter.tag]);
+  if (filter.primary_value) q = q.eq('primary_value', filter.primary_value);
+  if (filter.source) q = Array.isArray(filter.source) ? q.in('source', filter.source) : q.eq('source', filter.source);
+  if (filter.image_type) q = q.eq('image_type', filter.image_type);
+  const { data } = await q
     .order('importance', { ascending: false, nullsFirst: false })
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
@@ -252,6 +282,8 @@ export async function getGalleryDetail(galleryId) {
     .from('gallery_images')
     .select('id,name,description,image_url,ordering,primary_value,all_values,occurred_at')
     .eq('gallery_id', galleryId)
+    .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
     .order('ordering', { ascending: true });
   return data || [];
 }
@@ -265,6 +297,7 @@ export async function getImagesByPrimaryValue(value) {
     .eq('primary_value', value)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
+    .eq('min_tier', 0)                                               // נראות: פרימיום/מוסתר לא לציבור
     .order('importance', { ascending: false, nullsFirst: false })   // אצירה: המובחר ראשון
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
@@ -280,6 +313,7 @@ export async function getImagesByValue(value) {
     .or(`primary_value.eq.${value},all_values.cs.{${value}}`)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
     .order('importance', { ascending: false, nullsFirst: false })
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
@@ -338,7 +372,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
     isNumber ? (async () => {
       try {
         const cols = 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
-        const ord = q => q.not('curator_hidden', 'is', true)
+        const ord = q => q.not('curator_hidden', 'is', true).eq('min_tier', 0)
           .order('importance', { ascending: false, nullsFirst: false })
           .order('occurred_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false });
