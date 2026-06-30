@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { isToolReady } from "../lib/hub/ready.js";
+import Ico, { TOOL_ICON } from "../lib/research/icons.jsx";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
 // כל כלי = כרטיס. live = נפתח בתוך השלד · open = דף קיים (פתיחה חוצה) · soon = בקרוב.
@@ -31,7 +32,7 @@ function ToolCard({ t, onOpen }) {
     : <span className="bg live">● פעיל</span>;
   const inner = (
     <>
-      <div className="ic">{ready ? t.icon : "🔒"}</div>
+      <div className="ic"><Ico name={ready ? (TOOL_ICON[t.id] || "dot") : "lock"} size={24} /></div>
       <div className="tt">{t.title}</div>
       <div className="ds">{t.desc}</div>
       {badge}

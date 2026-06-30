@@ -57,9 +57,9 @@ export const rwCss = (t = RW) => `
   .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg);border:1px solid var(--line);cursor:pointer;font-family:inherit}
   .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
   .rw-rail-icons{display:flex;flex-direction:column;gap:8px;font-size:18px;opacity:.92}
-  .rw-rail-i{width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;font-size:18px;
-    display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:1;transition:.12s}
-  .rw-rail-i:hover{background:var(--accS);border-color:var(--acc)}
+  .rw-rail-i{width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;color:var(--ink2);
+    display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:0;transition:.12s}
+  .rw-rail-i:hover{background:var(--accS);border-color:var(--acc);color:var(--acc)}
   .rw-rail-dot{position:absolute;top:8px;inset-inline-start:8px;width:10px;height:10px;border-radius:999px;background:#e0533a;box-shadow:0 0 0 2px var(--card);z-index:1}
   /* טאבים בקיר השמאלי — פשוט (טאב פעיל אחד) ומשוכלל (badge חי) */
   .rw-tabs{display:flex;flex-direction:column;gap:10px}
@@ -68,7 +68,7 @@ export const rwCss = (t = RW) => `
     border-radius:10px;cursor:pointer;color:var(--ink3);font-family:inherit;transition:.12s}
   .rw-tab:hover{background:var(--accS);color:var(--ink2)}
   .rw-tab.on{background:var(--acc);color:#fff}
-  .rw-tab-ic{font-size:17px;line-height:1}
+  .rw-tab-ic{line-height:0;display:flex;align-items:center;justify-content:center}
   .rw-tab-lb{font-size:10.5px;font-weight:700}
   .rw-tab-badge{position:absolute;top:3px;inset-inline-end:6px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;
     background:#e0533a;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -83,7 +83,7 @@ export const rwCss = (t = RW) => `
   .rw-ic.on{background:var(--accS);border-color:var(--acc);color:var(--acc)}
   /* שורת-כלים אופקית — תפריט-המשנה של המעבדה (לחיצה נכנסת ישר לכלי) */
   .rw-toolbar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
-  .rw-tchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
+  .rw-tchip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
     padding:8px 15px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:40px}
   .rw-tchip:hover{border-color:var(--acc);color:var(--acc)}
   .rw-tchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -136,7 +136,8 @@ export const rwCss = (t = RW) => `
     background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px 16px;min-height:128px;cursor:pointer;
     transition:border-color .15s,transform .1s ease,box-shadow .15s}
   .rw-tool:hover{border-color:var(--acc);box-shadow:0 6px 20px rgba(176,125,18,.13);transform:translateY(-2px)}
-  .rw-tool .ic{font-size:29px;line-height:1}
+  .rw-tool .ic{color:var(--acc);line-height:0;display:flex}
+  .rw-tool.dis .ic{color:var(--ink3)}
   .rw-tool .tt{font-weight:800;font-size:15.5px}
   .rw-tool .ds{color:var(--ink2);font-size:12.5px;line-height:1.5;flex:1}
   .rw-tool .bg{align-self:flex-start;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 10px}
