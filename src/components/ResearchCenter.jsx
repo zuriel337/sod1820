@@ -1,32 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { ENTITY_ICON } from "../lib/research/entity.js";
+import { ENTITY_ICON, entityFromPhrase } from "../lib/research/entity.js";
+import { calcGem } from "../theme.js";
 
-// 📝 פנקס-מחקר — משטח כתיבה חופשי, נשמר מסשן-לסשן (localStorage) + הדפסה/PDF.
-// אנונימי = נשמר בדפדפן; סנכרון-ענן למחוברים = שדרוג עתידי (research_items).
+const heb = n => Number(n).toLocaleString("he");
+const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+// חלון-הדפסה נקי (RTL · Heebo) — משמש לפנקס ולייצוא-מחקר
+function printDoc(title, bodyText) {
+  const w = window.open("", "_blank", "width=720,height=900");
+  if (!w) return;
+  w.document.write(`<!doctype html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:'Heebo',Arial,sans-serif;padding:34px;line-height:1.85;color:#1b1d22;white-space:pre-wrap;font-size:15px}h1{font-size:18px;color:#9a7818;margin:0 0 16px}</style></head><body><h1>${esc(title)}</h1>${esc(bodyText) || "<i style='color:#999'>(ריק)</i>"}</body></html>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 250);
+}
+
+// 📝 פנקס-מחקר — משטח כתיבה חופשי נשמר מסשן-לסשן + הדפסה + פנקס-פעיל
+// (סימון טקסט → חישוב גימטריה · הוסף-למחקר · העתק). אנונימי=דפדפן; ענן=שדרוג עתידי.
 function NotesPanel() {
+  const { addToResearch } = useResearch();
+  const nav = useNavigate();
   const [text, setText] = useState(() => { try { return localStorage.getItem("sod_notes_v1") || ""; } catch { return ""; } });
   const [saved, setSaved] = useState(true);
+  const [sel, setSel] = useState("");
   useEffect(() => {
     setSaved(false);
     const t = setTimeout(() => { try { localStorage.setItem("sod_notes_v1", text); setSaved(true); } catch { /* noop */ } }, 500);
     return () => clearTimeout(t);
   }, [text]);
-  const printNotes = () => {
-    const w = window.open("", "_blank", "width=720,height=900");
-    if (!w) return;
-    const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-    w.document.write(`<!doctype html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>פנקס המחקר · סוד 1820</title><style>body{font-family:'Heebo',Arial,sans-serif;padding:34px;line-height:1.85;color:#1b1d22;white-space:pre-wrap;font-size:15px}h1{font-size:18px;color:#9a7818;margin:0 0 16px}</style></head><body><h1>📝 פנקס המחקר · סוד 1820</h1>${esc(text) || "<i style='color:#999'>(ריק)</i>"}</body></html>`);
-    w.document.close(); w.focus(); setTimeout(() => w.print(), 250);
+  const onSel = e => {
+    const ta = e.target;
+    const s = (ta.value.substring(ta.selectionStart, ta.selectionEnd) || "").trim();
+    setSel(s);
   };
+  const selVal = sel ? calcGem(sel) : 0;
+  const addSel = () => { if (sel) addToResearch(entityFromPhrase(sel, selVal)); };
+  const gemSel = () => { if (sel && selVal) nav(`/number/${selVal}?from=notes`); };
+  const copySel = () => { try { navigator.clipboard.writeText(sel); } catch { /* noop */ } };
   return (
     <div>
-      <textarea className="rw-notes" dir="rtl" value={text} onChange={e => setText(e.target.value)}
-        placeholder="כתוב כאן מחשבות · רמזים · חישובים · שאלות מחקר… נשמר אוטומטית מסשן לסשן." />
+      <textarea className="rw-notes" dir="rtl" value={text}
+        onChange={e => setText(e.target.value)} onSelect={onSel} onMouseUp={onSel} onKeyUp={onSel}
+        placeholder="כתוב כאן מחשבות · רמזים · חישובים · שאלות מחקר… נשמר אוטומטית מסשן לסשן. סמן ביטוי כדי לחשב/להוסיף." />
+      {sel && (
+        <div className="rw-notes-sel">
+          <span className="rw-muted" style={{ fontSize: 11.5 }}>«{sel.slice(0, 16)}{sel.length > 16 ? "…" : ""}» = <b style={{ color: "var(--acc)" }}>{heb(selVal)}</b></span>
+          <span style={{ display: "flex", gap: 5 }}>
+            <button className="rw-mini" onClick={gemSel} title="לדף המספר">🧮</button>
+            <button className="rw-mini" onClick={addSel} title="הוסף למחקר">➕</button>
+            <button className="rw-mini" onClick={copySel} title="העתק">📋</button>
+          </span>
+        </div>
+      )}
       <div className="rw-notes-bar">
         <span className="rw-muted" style={{ fontSize: 11.5 }}>{saved ? "✓ נשמר" : "שומר…"} · {text.trim().length} תווים</span>
-        <button className="rw-notes-print" onClick={printNotes} title="הדפס / שמור PDF">🖨 הדפס</button>
+        <button className="rw-notes-print" onClick={() => printDoc("פנקס המחקר · סוד 1820", text)} title="הדפס / שמור PDF">🖨 הדפס</button>
       </div>
     </div>
   );
@@ -39,6 +66,21 @@ function EntityRow({ e, onRemove, removeIcon = "✕" }) {
     <div className="rw-er">
       {e.link ? <Link to={e.link} className="rw-er-lk">{label}</Link> : <span className="rw-er-lk">{label}</span>}
       {onRemove && <button className="rw-er-x" title="הסר" onClick={() => onRemove(e)}>{removeIcon}</button>}
+    </div>
+  );
+}
+
+// שורת-שמור עם בורר-אוסף (📁) — לקיבוץ שמורים לתיקיות.
+function SavedRow({ e, collections, onAssign, onRemove }) {
+  const label = <>{ENTITY_ICON[e.type] || "•"} <span className="rw-er-t">{e.title}</span></>;
+  return (
+    <div className="rw-er">
+      {e.link ? <Link to={e.link} className="rw-er-lk">{label}</Link> : <span className="rw-er-lk">{label}</span>}
+      <select className="rw-er-sel" title="העבר לאוסף" value={e.coll || ""} onChange={ev => onAssign(e.id, ev.target.value)}>
+        <option value="">📁 ללא</option>
+        {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <button className="rw-er-x" title="הסר" onClick={() => onRemove(e)}>✕</button>
     </div>
   );
 }
@@ -56,13 +98,27 @@ function Panel({ icon, title, extra, children, bare }) {
 
 // 🧠 ResearchCenter — מערכת פאנלים (registry). מוסיפים פאנל עתידי בשורה אחת.
 // variant: 'tools' (ימין) · 'context' (שמאל) · undefined (הכל — מובייל)
-// tabbed: השמאל כטאבים — פשוט וברור (טאב אחד פעיל) אך משוכלל (badge · נשמר · נפתח לטאב מהמסילה).
-// כשטאבים — activeTab/onTab מנוהלים מבחוץ (השלד) כדי שהמסילה תפתח ישר לטאב.
 export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
-  const { cart = [], saved = [], pinned = [], removeFromResearch, removeSaved, togglePin } = useResearch();
+  const {
+    cart = [], saved = [], pinned = [], history = [], collections = [],
+    removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, removeCollection, assignCollection,
+  } = useResearch();
   const [localTab, setLocalTab] = useState("me");
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
+
+  // 📤 ייצוא/שיתוף מחקר — מקבץ מוצמדים + מחקר-פעיל + פנקס לטקסט אחד → העתק + הדפס/PDF
+  const exportResearch = () => {
+    const L = ["המחקר שלי · סוד 1820", ""];
+    if (pinned.length) { L.push("📌 מוצמדים:"); pinned.forEach(e => L.push(`• ${e.title}${e.link ? `  https://sod1820.co.il${e.link}` : ""}`)); L.push(""); }
+    if (cart.length) { L.push("🔬 במחקר עכשיו:"); cart.forEach(e => L.push(`• ${e.title}${e.link ? `  https://sod1820.co.il${e.link}` : ""}`)); L.push(""); }
+    let notes = ""; try { notes = localStorage.getItem("sod_notes_v1") || ""; } catch { /* noop */ }
+    if (notes.trim()) { L.push("📝 פנקס:"); L.push(notes); }
+    const txt = L.join("\n");
+    try { navigator.clipboard.writeText(txt); } catch { /* noop */ }
+    printDoc("המחקר שלי · סוד 1820", txt);
+  };
+  const newCollection = () => { const n = (typeof prompt === "function") ? prompt("שם האוסף:") : null; if (n && n.trim()) addCollection(n.trim()); };
 
   const PANELS = [
     { id: "me", icon: "👤", label: "אני", render: bare => (
@@ -74,9 +130,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
       </Panel>
     ) },
     { id: "notes", icon: "📝", label: "פנקס", render: bare => (
-      <Panel icon="📝" title="פנקס מחקר" bare={bare}>
-        <NotesPanel />
-      </Panel>
+      <Panel icon="📝" title="פנקס מחקר" bare={bare}><NotesPanel /></Panel>
     ) },
     { id: "active", icon: "🧠", label: "מחקר", badge: () => cart.length + pinned.length, render: bare => (
       <Panel icon="🧠" title="המחקר הפעיל" extra={(cart.length + pinned.length) || null} bare={bare}>
@@ -91,17 +145,51 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 <div className="rw-sec-t" style={{ marginTop: pinned.length ? 10 : 0 }}>🔬 במחקר עכשיו</div>
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
-              <div className="rw-cta"><button className="b1">🤖 נתח</button><button className="b2">✦ הצלב</button></div>
+              <div className="rw-cta">
+                <button className="b1">🤖 נתח</button>
+                <button className="b2" onClick={exportResearch} title="העתק + הדפס/PDF">📤 ייצוא</button>
+              </div>
             </>}
       </Panel>
     ) },
-    { id: "saved", icon: "📂", label: "שמורים", badge: () => saved.length, render: bare => (
-      <Panel icon="📂" title="שמורים" extra={saved.length || null} bare={bare}>
-        {saved.length === 0
-          ? <div className="rw-empty">השמורים שלך יופיעו כאן — לחצו ⭐ על כל ישות.</div>
-          : saved.slice(0, 12).map(e => <EntityRow key={e.id} e={e} onRemove={x => removeSaved?.(x.id)} />)}
+    { id: "history", icon: "🕘", label: "לוג", badge: () => history.length, render: bare => (
+      <Panel icon="🕘" title="היסטוריית מחקר" extra={history.length || null} bare={bare}>
+        {history.length === 0
+          ? <div className="rw-empty">כאן יופיע מה שחקרת לאחרונה — «המשך מהמקום שעצרת».</div>
+          : <>
+              <div className="rw-sec-t">🕘 לאחרונה</div>
+              {history.slice(0, 14).map(e => <EntityRow key={e.id} e={e} />)}
+              <div className="rw-cta"><button className="b2" onClick={() => clearHistory?.()}>נקה היסטוריה</button></div>
+            </>}
       </Panel>
     ) },
+    { id: "saved", icon: "📂", label: "שמור", badge: () => saved.length, render: bare => {
+      const inColl = id => saved.filter(e => (e.coll || "") === id);
+      const loose = inColl("");
+      return (
+        <Panel icon="📂" title="שמורים" extra={saved.length || null} bare={bare}>
+          {saved.length === 0
+            ? <div className="rw-empty">השמורים שלך יופיעו כאן — לחצו ⭐ על כל ישות.</div>
+            : <>
+                {loose.map(e => <SavedRow key={e.id} e={e} collections={collections} onAssign={assignCollection} onRemove={x => removeSaved?.(x.id)} />)}
+                {collections.map(c => {
+                  const items = inColl(c.id);
+                  return (
+                    <div key={c.id} style={{ marginTop: 8 }}>
+                      <div className="rw-sec-t" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span>📁 {c.name} · {items.length}</span>
+                        <button className="rw-mini" title="מחק אוסף" onClick={() => removeCollection?.(c.id)}>🗑</button>
+                      </div>
+                      {items.length === 0 ? <div className="rw-empty" style={{ padding: "2px 2px 4px" }}>ריק — בחרו «{c.name}» בשורת-שמור.</div>
+                        : items.map(e => <SavedRow key={e.id} e={e} collections={collections} onAssign={assignCollection} onRemove={x => removeSaved?.(x.id)} />)}
+                    </div>
+                  );
+                })}
+                <button className="rw-mini" style={{ marginTop: 9 }} onClick={newCollection}>➕ אוסף חדש</button>
+              </>}
+        </Panel>
+      );
+    } },
     { id: "whatsnew", icon: "🔔", label: "חדש", render: bare => (
       <Panel icon="🔔" title="מה מחפשים עכשיו" bare={bare}>
         <div className="rw-hot">🔥 הכי מחופש היום: 86</div>
@@ -117,19 +205,18 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
         <div className="rw-future" style={{ marginTop: 0, borderTop: "none", paddingTop: 0 }}>
           <div className="lk">🕸️ מפת הקשרים <span className="rw-adv">מתקדם</span></div>
           <div className="rw-exp">רואים <b>איך כל מספר · פסוק · פוסט מחוברים</b> ברשת אחת. נפתח בשלב מתקדם.</div>
-          <div className="lk">⏱️ ציר הזמן שלי <span className="rw-adv">מתקדם</span></div>
-          <div className="rw-exp">כל מה שחקרת, <b>מסודר לפי זמן</b> — חוזרים בקלות לכל מחקר. (מתקדם)</div>
+          <div className="lk">☁️ סנכרון-ענן <span className="rw-adv">בקרוב</span></div>
+          <div className="rw-exp">התחברות → הפנקס והשמורים <b>מסתנכרנים בין המכשירים</b>. (בקרוב)</div>
         </div>
       </Panel>
     ) },
   ];
 
   const ids = variant === "tools" ? ["ai", "whatsnew"]
-    : variant === "context" ? ["me", "notes", "active", "saved", "roadmap"]
+    : variant === "context" ? ["me", "notes", "active", "history", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
-  // טאבים — שורת-טאבים (פשוט) + גוף הטאב הפעיל (משוכלל: badge חי, נשמר מבחוץ)
   if (tabbed) {
     const cur = list.find(p => p.id === tab) || list[0];
     return (
@@ -156,5 +243,6 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
 export const LEFT_TABS = [
-  { id: "me", icon: "👤" }, { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
+  { id: "me", icon: "👤" }, { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
+  { id: "history", icon: "🕘" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];

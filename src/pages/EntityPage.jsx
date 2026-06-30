@@ -12,6 +12,7 @@ import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track } from "../lib/tracking.js";
 
@@ -531,6 +532,10 @@ export default function EntityPage() {
 
   // 🧩 הישות (Reality Graph Law) — אותו אובייקט ל-Action Bar וה-Workspace.
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
+
+  // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
+  const { logHistory } = useResearch();
+  useEffect(() => { if (!loading && entity?.id) logHistory?.(entity); }, [loading, entity?.id]); // eslint-disable-line
 
   // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });

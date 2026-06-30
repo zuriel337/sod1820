@@ -129,6 +129,16 @@ export const rwCss = (t = RW) => `
   .rw-notes-print{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
     padding:7px 14px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;min-height:34px}
   .rw-notes-print:hover{border-color:var(--acc);color:var(--acc)}
+  /* פנקס-פעיל — שורת-פעולה שמופיעה כשמסמנים טקסט */
+  .rw-notes-sel{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;
+    background:var(--accS);border:1px solid var(--line);border-radius:10px;padding:6px 9px}
+  .rw-mini{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:8px;
+    min-width:30px;height:30px;padding:0 8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+  .rw-mini:hover{border-color:var(--acc);color:var(--acc)}
+  /* בורר-אוסף בשורת-שמור */
+  .rw-er-sel{flex:none;max-width:92px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+    border-radius:8px;font-size:11.5px;font-weight:700;font-family:inherit;padding:5px 6px;cursor:pointer}
+  .rw-er-sel:hover{border-color:var(--acc)}
   /* רשימת-יכולות (לא כפתורים) — צ'קליסט מידע ברור */
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
