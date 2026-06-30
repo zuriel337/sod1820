@@ -119,6 +119,45 @@ export function elsSearch(letters, targetRaw, skipMin, skipMax, dir, maxMismatch
   return { hits, N: winTo - winFrom, target, capped };
 }
 
+// 📊 ציפייה-במקרה (יושר סטטיסטי · «עדות ולא ניבוי»): כמה מופעי-דילוג צפויים *אקראית*
+// עבור המונח, בתוך אותו טווח/חלון של החיפוש. כך המשתמש רואה אם ממצא חריג או שגרתי.
+// המודל: P(התאמה במיקום בודד) = מכפלת תדירויות-האותיות *בפועל* בחלון (לא אחיד);
+// מספר-המיקומים ≈ Σ על כל דילוג×כיוון של max(0, M − skip·(L−1)); E = P × מיקומים.
+export function elsExpectedCount(letters, targetRaw, skipMin, skipMax, dir, opts = {}) {
+  const target = elsNormalize(targetRaw);
+  const N = letters.length, L = target.length;
+  if (L < 2 || N === 0) return 0;
+  const winFrom = Math.max(0, opts.winFrom ?? 0);
+  const winTo = Math.min(N, opts.winTo ?? N);
+  const M = winTo - winFrom;
+  if (M <= 0) return 0;
+  const freq = new Map();
+  for (let i = winFrom; i < winTo; i++) freq.set(letters[i], (freq.get(letters[i]) || 0) + 1);
+  let pMatch = 1;
+  for (let k = 0; k < L; k++) { const f = (freq.get(target[k]) || 0) / M; if (f === 0) return 0; pMatch *= f; }
+  const dirs = dir === "both" ? 2 : 1;
+  const span = L - 1;
+  let placements = 0;
+  const skips = opts.skips || null;
+  if (skips) { for (const s of skips) { const p = M - s * span; if (p > 0) placements += p; } }
+  else { for (let s = Math.max(1, Math.floor(skipMin) || 1); s <= skipMax; s++) { const p = M - s * span; if (p > 0) placements += p; } }
+  return pMatch * placements * dirs;
+}
+
+// תצוגת ה-ציפייה + נדירות (יושר): מספר עגול קריא + הערה כשהממצא נדיר/שגרתי.
+export function elsRarity(found, expected) {
+  if (expected == null || !isFinite(expected)) return null;
+  const e = expected;
+  const eText = e >= 100 ? Math.round(e).toLocaleString("he")
+    : e >= 1 ? (Math.round(e * 10) / 10).toLocaleString("he")
+    : e > 0 ? "פחות מ-1" : "0";
+  let note = null, rare = false;
+  if (e < 1 && found >= 1) { note = "נדיר — פחות ממופע אחד צפוי במקרה"; rare = true; }
+  else if (found > e * 1.8 && found >= 3) { note = `יותר מהצפוי (×${(found / e).toFixed(1)})`; rare = true; }
+  else if (found > 0) { note = "בטווח הצפוי במקרה"; }
+  return { eText, note, rare };
+}
+
 // אשכול מונחים: מחפש כל מונח, בוחר עוגן (הנדיר ביותר), ומודד קרבה במטריצה
 export function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches, opts) {
   const perTerm = terms.map(t => {
@@ -668,9 +707,9 @@ export function ELSSection({ gated = false } = {}) {
       const mm = Math.max(0, parseInt(maxMismatches) || 0);
       const terms = deepLink.terms.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2);
       if (terms.length >= 2) setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dir, mm) });
-      else setResult({ mode: "single", ...elsSearch(letters, terms[0] || deepLink.terms, lo, hi, dir, mm) });
+      else setResult({ mode: "single", ...elsSearch(letters, terms[0] || deepLink.terms, lo, hi, dir, mm), expected: elsExpectedCount(letters, terms[0] || deepLink.terms, lo, hi, dir) });
     } else {
-      setResult({ mode: "single", ...elsSearch(letters, "אור", 1, 100, "both", 0) });
+      setResult({ mode: "single", ...elsSearch(letters, "אור", 1, 100, "both", 0), expected: elsExpectedCount(letters, "אור", 1, 100, "both") });
     }
   }, [letters]);
 
@@ -716,7 +755,7 @@ export function ELSSection({ gated = false } = {}) {
       if (terms.length >= 2) {
         setResult({ mode: "cluster", ...elsClusters(letters, terms, lo, hi, dirUse, mm, searchOpts) });
       } else {
-        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dirUse, mm, searchOpts) });
+        setResult({ mode: "single", ...elsSearch(letters, terms[0] || src, lo, hi, dirUse, mm, searchOpts), expected: elsExpectedCount(letters, terms[0] || src, lo, hi, dirUse, searchOpts) });
       }
       setSearching(false);
     }, 10);
@@ -998,6 +1037,18 @@ export function ELSSection({ gated = false } = {}) {
                 נמצאו <b style={{ color: C.goldBright }}>{(result?.hits.length ?? 0).toLocaleString("he")}{result?.capped ? "+" : ""}</b> מופעים
                 {(result?.hits.length ?? 0) > 0 && <span> · ממוין לפי מובהקות</span>}
               </div>
+              {/* 📊 מובהקות סטטיסטית (יושר) — כמה צפוי במקרה, ואם הממצא חריג */}
+              {result?.mode === "single" && result.expected != null && (result.hits?.length ?? 0) > 0 && (() => {
+                const r = elsRarity(result.hits.length, result.expected);
+                if (!r) return null;
+                return (
+                  <div style={{ color: r.rare ? C.goldBright : C.muted, fontSize: 12.5, marginTop: -8, marginBottom: 14, fontFamily: F.royal }}>
+                    📊 צפוי במקרה ~<b style={{ color: C.goldLight }}>{r.eText}</b> מופעים
+                    {r.note && <span> · {r.rare ? "✦ " : ""}{r.note}</span>}
+                    <span style={{ color: C.goldDim }}> · עובדה, לא ניבוי</span>
+                  </div>
+                );
+              })()}
               {!result || result.hits.length === 0 ? (
                 <div style={{ color: C.muted, textAlign: "center", padding: 24, fontSize: 14 }}>
                   לא נמצאו מופעים. נסה להרחיב את טווח הדילוג, להעלות סבילות לשגיאות, או מילה קצרה יותר.
