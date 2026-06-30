@@ -209,6 +209,12 @@ export const rwCss = (t = RW) => `
     display:flex;align-items:center;gap:9px}
   .rw-grp:after{content:"";flex:1;height:1px;background:var(--line)}
   .rw-back{background:none;border:none;color:var(--acc);font-weight:800;font-size:14.5px;cursor:pointer;padding:6px 2px;margin-bottom:6px}
+  /* קטגוריות הלנדינג — היררכיה: מנוע/כלי/בית-מדרש/מאגר */
+  .rw-cat{margin-top:24px}
+  .rw-cat-h{display:flex;align-items:center;gap:9px;font-size:15.5px;font-weight:800;color:var(--ink);margin:0 2px 12px;flex-wrap:wrap}
+  .rw-cat-ic{font-size:18px}
+  .rw-cat-n{background:var(--chip);border:1px solid var(--line);color:var(--ink2);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800}
+  .rw-cat-sub{font-size:12px;font-weight:600;color:var(--ink3)}
   .rw-h1{font-weight:800;font-size:22px;margin:2px 0 3px}
   .rw-sub{color:var(--ink2);font-size:13.5px;line-height:1.6;margin-bottom:16px}
   /* בית-מגירה במובייל (ChatGPT) */

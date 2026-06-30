@@ -63,7 +63,7 @@ export default function ResearchPage() {
   const subnav = (
     <div className="rw-subnav">
       <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛 מרכז המחקר</button>
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🔭 מרכז המחקר</button>
         {/* כלים שעובדים */}
         {READY_LAB.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>

@@ -14,7 +14,7 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
-// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🏛 מרכז המחקר» הבולט (בית-המדרש חי בתוך המעבדה).
+// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 מרכז המחקר» הבולט (בית-המדרש חי בתוך המעבדה).
 const CORE_KEYS = ["/", "/timeline", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const moreItems = [
@@ -27,7 +27,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛", l: "מרכז המחקר", to: "/research" },
+  { e: "🔭", l: "מרכז המחקר", to: "/research" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -273,7 +273,7 @@ function UserMenu({ user, profile, cc }) {
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
           {isAdmin && (
-            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🏛 מרכז המחקר</Link>
+            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🔭 מרכז המחקר</Link>
           )}
         </div>
       )}
@@ -364,7 +364,7 @@ export default function Navbar() {
           fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
           padding: "9px 20px", borderRadius: 12, whiteSpace: "nowrap",
           boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-        }}>🏛 מרכז המחקר</Link>
+        }}>🔭 מרכז המחקר</Link>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -431,7 +431,7 @@ export default function Navbar() {
             <Link to="/research" onClick={() => setDrawer(false)} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
-            }}>🏛 מרכז המחקר</Link>
+            }}>🔭 מרכז המחקר</Link>
           )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">
