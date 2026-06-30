@@ -82,7 +82,7 @@ export default function ResearchHome({ onOpen }) {
     const v = gateQ.trim();
     if (!v) return;
     if (/^\d+$/.test(v)) navigate(`/research?tool=number&n=${v}`);
-    else navigate(`/research?tool=gematria&q=${encodeURIComponent(v)}`);
+    else navigate(`/research?tool=midrash&tab=calc&w=${encodeURIComponent(v)}`);
   };
   return (
     <div>
