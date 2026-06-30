@@ -16,9 +16,12 @@ export default function VerseSearch({ seed }) {
   const [data, setData] = useState(null);   // { books, verses:[[b,c,v,t,g]] }
   const [err, setErr] = useState(false);
   const [mode, setMode] = useState("text"); // text | gematria
-  const [gmode, setGmode] = useState("word"); // word | span | total
+  const [gmode, setGmode] = useState("word"); // word | span | total | range
   const [method, setMethod] = useState("רגיל"); // שיטת-גימטריה (METHODS)
   const [q, setQ] = useState(seed || "");
+  const [book, setBook] = useState(null); // null=כל החומשים · 0..4=חומש מסוים
+  const [rmin, setRmin] = useState(""); // טווח-ערכים — מ
+  const [rmax, setRmax] = useState(""); // טווח-ערכים — עד
 
   useEffect(() => {
     let live = true;
@@ -44,15 +47,33 @@ export default function VerseSearch({ seed }) {
     });
   }, [data, methodFn]);
 
+  const rangeLo = rmin === "" ? null : parseInt(rmin, 10);
+  const rangeHi = rmax === "" ? null : parseInt(rmax, 10);
+
   // ביצוע החיפוש. מחזיר { k, span?:[i,j] } — k=אינדקס הפסוק, span לסימון רצף/מילה.
   const results = useMemo(() => {
-    if (!data || !term) return [];
+    if (!data) return [];
     const out = [];
     const cap = 400;
+    const bookOk = k => book == null || data.verses[k][0] === book; // סינון-חומש לכל המצבים
+
+    // 🔢 טווח-ערכים — פסוקים שסך-כולם בין מ ל-עד (לא תלוי במונח שהוקלד)
+    if (mode === "gematria" && gmode === "range") {
+      if (!wordIndex || (rangeLo == null && rangeHi == null)) return [];
+      const lo = rangeLo == null ? -Infinity : rangeLo;
+      const hi = rangeHi == null ? Infinity : rangeHi;
+      for (let k = 0; k < data.verses.length && out.length < cap; k++) {
+        if (bookOk(k) && wordIndex[k].total >= lo && wordIndex[k].total <= hi) out.push({ k });
+      }
+      out.sort((a, b) => wordIndex[a.k].total - wordIndex[b.k].total);
+      return out;
+    }
+
+    if (!term) return [];
 
     if (mode === "text") {
       for (let k = 0; k < data.verses.length && out.length < cap; k++) {
-        if (data.verses[k][3].includes(term)) out.push({ k });
+        if (bookOk(k) && data.verses[k][3].includes(term)) out.push({ k });
       }
       return out;
     }
@@ -61,12 +82,13 @@ export default function VerseSearch({ seed }) {
 
     if (gmode === "total") {
       for (let k = 0; k < data.verses.length && out.length < cap; k++) {
-        if (wordIndex[k].total === target) out.push({ k });
+        if (bookOk(k) && wordIndex[k].total === target) out.push({ k });
       }
       return out;
     }
 
     for (let k = 0; k < data.verses.length && out.length < cap; k++) {
+      if (!bookOk(k)) continue;
       const { vals } = wordIndex[k];
       if (gmode === "word") {
         const i = vals.findIndex(v => v === target);
@@ -86,7 +108,7 @@ export default function VerseSearch({ seed }) {
     }
     if (gmode === "span") out.sort((a, b) => (a.span[1] - a.span[0]) - (b.span[1] - b.span[0]));
     return out;
-  }, [data, wordIndex, term, mode, gmode, target]);
+  }, [data, wordIndex, term, mode, gmode, target, book, rangeLo, rangeHi]);
 
   const refOf = r => `${data.books[r[0]]} ${r[1]}:${r[2]}`;
   const MARK = { background: "var(--accS)", color: "inherit", borderRadius: 4, padding: "0 2px" };
@@ -117,7 +139,8 @@ export default function VerseSearch({ seed }) {
     ));
   };
 
-  const GLABEL = { word: "מילה", span: "רצף מילים", total: "פסוק שלם" };
+  const GLABEL = { word: "מילה", span: "רצף מילים", total: "פסוק שלם", range: "טווח ערכים" };
+  const inRange = mode === "gematria" && gmode === "range"; // מצב טווח → שני שדות-מספר במקום מונח
 
   return (
     <div className="rw-card">
@@ -127,6 +150,16 @@ export default function VerseSearch({ seed }) {
         <button className={mode === "text" ? "pri" : ""} onClick={() => setMode("text")}>📖 לפי טקסט</button>
         <button className={mode === "gematria" ? "pri" : ""} onClick={() => setMode("gematria")}>🔢 לפי גימטריה</button>
       </div>
+
+      {/* 📚 סינון-חומש — חל על כל המצבים */}
+      {data && (
+        <div className="vs-books">
+          <button className={"vs-bchip" + (book == null ? " on" : "")} onClick={() => setBook(null)}>כל החומשים</button>
+          {data.books.map((b, i) => (
+            <button key={b} className={"vs-bchip" + (book === i ? " on" : "")} onClick={() => setBook(i)}>{b}</button>
+          ))}
+        </div>
+      )}
 
       {mode === "gematria" && (
         <>
@@ -139,22 +172,38 @@ export default function VerseSearch({ seed }) {
           </div>
           {/* תת-מצב */}
           <div className="rw-qa" style={{ marginTop: 0, marginBottom: 10 }}>
-            {["word", "span", "total"].map(g => (
+            {["word", "span", "total", "range"].map(g => (
               <button key={g} className={gmode === g ? "pri" : ""} onClick={() => setGmode(g)} style={{ fontSize: 13 }}>{GLABEL[g]}</button>
             ))}
           </div>
         </>
       )}
 
-      <input
-        value={q} onChange={e => setQ(e.target.value)} dir="rtl"
-        aria-label={mode === "text" ? "חיפוש מילה בפסוקים" : "חיפוש לפי ערך גימטרי"}
-        placeholder={mode === "text" ? "הקלידו מילה / ביטוי…" : "ערך מספרי או ביטוי (יחושב)…"}
-        style={{ width: "100%", boxSizing: "border-box", fontSize: 18, fontWeight: 700, padding: "11px 14px",
-          border: "1px solid var(--acc)", borderRadius: 10, background: "var(--bg)", color: "var(--ink)", outline: "none", textAlign: "center" }}
-      />
+      {inRange ? (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
+          <input value={rmin} onChange={e => setRmin(e.target.value.replace(/[^\d]/g, ""))} inputMode="numeric" dir="ltr"
+            aria-label="ערך מינימום" placeholder="מ…" style={{ width: 120, fontSize: 17, fontWeight: 700, padding: "11px 12px", textAlign: "center", border: "1px solid var(--acc)", borderRadius: 10, background: "var(--bg)", color: "var(--ink)", outline: "none" }} />
+          <span className="rw-muted" style={{ fontWeight: 800 }}>—</span>
+          <input value={rmax} onChange={e => setRmax(e.target.value.replace(/[^\d]/g, ""))} inputMode="numeric" dir="ltr"
+            aria-label="ערך מקסימום" placeholder="עד…" style={{ width: 120, fontSize: 17, fontWeight: 700, padding: "11px 12px", textAlign: "center", border: "1px solid var(--acc)", borderRadius: 10, background: "var(--bg)", color: "var(--ink)", outline: "none" }} />
+        </div>
+      ) : (
+        <input
+          value={q} onChange={e => setQ(e.target.value)} dir="rtl"
+          aria-label={mode === "text" ? "חיפוש מילה בפסוקים" : "חיפוש לפי ערך גימטרי"}
+          placeholder={mode === "text" ? "הקלידו מילה / ביטוי…" : "ערך מספרי או ביטוי (יחושב)…"}
+          style={{ width: "100%", boxSizing: "border-box", fontSize: 18, fontWeight: 700, padding: "11px 14px",
+            border: "1px solid var(--acc)", borderRadius: 10, background: "var(--bg)", color: "var(--ink)", outline: "none", textAlign: "center" }}
+        />
+      )}
 
-      {mode === "gematria" && term !== "" && (
+      {inRange && (rmin !== "" || rmax !== "") && (
+        <div className="rw-muted" style={{ marginTop: 7, textAlign: "center", lineHeight: 1.7 }}>
+          פסוקים ש<b>סך כולם</b> ({methodLabel(method)}) בין <b style={{ color: "var(--acc)" }}>{heb(rangeLo ?? 0)}</b> ל-<b style={{ color: "var(--acc)" }}>{rangeHi == null ? "∞" : heb(rangeHi)}</b>
+        </div>
+      )}
+
+      {mode === "gematria" && !inRange && term !== "" && (
         <div className="rw-muted" style={{ marginTop: 7, textAlign: "center", lineHeight: 1.7 }}>
           {!isNum(term) && <>«{term}» ({methodLabel(method)}) = <b style={{ color: "var(--acc)" }}>{heb(target)}</b> · </>}
           {gmode === "word" && <>פסוקים שיש בהם <b>מילה</b> ששווה {heb(target)}</>}
@@ -167,9 +216,10 @@ export default function VerseSearch({ seed }) {
       {!data && !err && <div className="rw-muted" style={{ marginTop: 14 }}>טוען את פסוקי התורה…</div>}
       {err && <div className="rw-muted" style={{ marginTop: 14, color: "#b4453a" }}>שגיאה בטעינת הפסוקים. נסו לרענן.</div>}
 
-      {data && term && (
+      {data && (term || (inRange && (rmin !== "" || rmax !== ""))) && (
         <div className="rw-muted" style={{ marginTop: 14, marginBottom: 6, fontWeight: 700 }}>
           {results.length === 0 ? "לא נמצאו פסוקים." : `נמצאו ${results.length}${results.length >= 400 ? "+" : ""} פסוקים`}
+          {book != null && <span style={{ fontWeight: 600 }}> · {data.books[book]}</span>}
           {mode === "gematria" && results.length > 0 && <span style={{ fontWeight: 600 }}> · {methodLabel(method)}, על הכתיב</span>}
         </div>
       )}

@@ -182,6 +182,12 @@ export const rwCss = (t = RW) => `
     padding:6px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.12s}
   .vs-mchip:hover{border-color:var(--acc);color:var(--acc)}
   .vs-mchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  /* סינון-חומש בחיפוש-פסוקים */
+  .vs-books{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .vs-bchip{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:8px;
+    padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .vs-bchip:hover{border-color:var(--acc);color:var(--acc)}
+  .vs-bchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
   .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
   .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}
