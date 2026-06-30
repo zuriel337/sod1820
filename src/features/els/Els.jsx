@@ -204,7 +204,7 @@ export function elsClusters(letters, terms, skipMin, skipMax, dir, maxMismatches
     clusters.push({ picks, span, anchorHit: aHit });
   }
   clusters.sort((a, b) => a.span - b.span);
-  return { clusters: clusters.slice(0, 12), terms: allTerms, anchorTerm: anchor.term };
+  return { clusters: clusters.slice(0, 20), terms: allTerms, anchorTerm: anchor.term };
 }
 
 // בניית קנבס המטריצה (משותף להורדה ולשיתוף) — ללא תלות חיצונית
