@@ -36,7 +36,7 @@ export const rwCss = (t = RW) => `
   .rw-av{width:42px;height:42px;border-radius:999px;background:linear-gradient(135deg,var(--acc),#e7c869);
     color:#1a0e00;display:flex;align-items:center;justify-content:center;font-weight:800}
   /* במה: סרגלים מתקפלים בצדדים (גרירה/לחיצה), אזור-כלים גמיש במרכז (investing/IDE) */
-  .rw-stage{display:flex;align-items:flex-start;padding:18px clamp(14px,2.5vw,36px);max-width:1680px;margin:0 auto;gap:0}
+  .rw-stage{display:flex;align-items:flex-start;padding:0;max-width:none;margin:0;gap:0}
   .rw-stage.wide{max-width:none}
   .rw-pwrap{flex:0 0 auto;width:330px;display:grid;gap:12px;position:sticky;top:74px}
   .rw-pwrap.left{width:240px}
