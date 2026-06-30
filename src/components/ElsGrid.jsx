@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TANAKH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
@@ -53,6 +53,8 @@ export default function ElsGrid({ seed }) {
   const [tanakhBusy, setTanakhBusy] = useState(false);
   const [err, setErr] = useState(false);
   const [zoom, setZoom] = useState(1);       // זום למטריצה
+  const [gridWide, setGridWide] = useState(true); // רשת רחבה (כפולה) לדילוג גדול — נגררת ימין/שמאל
+  const matrixDrag = useRef(null);           // גרירת-עכבר לתזוזה אופקית במטריצה
   const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
   const [aiStruct, setAiStruct] = useState(null); // ניתוח-מבנה AI (אדמין)
   const [niqqud, setNiqqud] = useState(false);   // ניקוד אופציונלי
@@ -237,7 +239,8 @@ export default function ElsGrid({ seed }) {
     const minP = Math.min(...framePos), maxP = Math.max(...framePos);
     const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
     let colWin = W2, colStart = 0;
-    if (W2 > 34) { colWin = 29; const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - 14)); }
+    // דילוג גדול: חלון-עמודות ממורכז על העוגן. «רשת רחבה» = כפול (~70) → נגררת ימין/שמאל לראות הצלבות.
+    if (W2 > 34) { colWin = Math.min(W2, gridWide ? 70 : 29); const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - Math.floor(colWin / 2))); }
     const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 170), rows = [];
     for (let r = rowStart; r <= rowEnd; r++) {
       const cells = [];
@@ -248,7 +251,12 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W: W2, skip: s };
-  }, [res, anchorHit, clusterIdx, letters, overlayData]);
+  }, [res, anchorHit, clusterIdx, letters, overlayData, gridWide]);
+
+  // גרירת-עכבר לתזוזה אופקית (pan) על המטריצה
+  const onMatrixDown = e => { const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; el.style.cursor = "grabbing"; };
+  const onMatrixMove = e => { if (!matrixDrag.current) return; e.preventDefault(); e.currentTarget.scrollLeft = matrixDrag.current.left - (e.pageX - matrixDrag.current.x); };
+  const onMatrixUp = e => { matrixDrag.current = null; e.currentTarget.style.cursor = "grab"; };
 
   // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
   // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
@@ -342,6 +350,9 @@ export default function ElsGrid({ seed }) {
       <button className="els-mt-b" onClick={() => setZoom(z => Math.min(3.5, +(z + 0.15).toFixed(2)))} title="התקרב (זום אין)">+</button>
       {zoom !== 1 && <button className="els-mt-b" onClick={() => setZoom(1)} title="איפוס">⟳</button>}
       <span className="els-mt-sep" />
+      <span className="els-mt-lb">רוחב</span>
+      <button className={"els-mt-nq" + (gridWide ? " on" : "")} onClick={() => setGridWide(w => !w)} title="רשת רחבה (כפולה) — גוררים ימין/שמאל בעכבר">{gridWide ? "כפול ✓" : "רגיל"}</button>
+      <span className="els-mt-sep" />
       <span className="els-mt-lb">רקע</span>
       {CELL_BGS.map((c, i) => <button key={i} className={"els-swatch" + (i === cellBgIdx ? " on" : "")} style={{ background: c.bg === "var(--bg)" ? "var(--bg)" : c.bg }} onClick={() => setCellBgIdx(i)} title={c.label} aria-label={c.label} />)}
       <span className="els-mt-sep" />
@@ -353,7 +364,8 @@ export default function ElsGrid({ seed }) {
     if (!grid) return null;
     const sz = Math.round((big ? 38 : 30) * zoom), h = Math.round((big ? 42 : 34) * zoom), fs = Math.round((big ? 25 : 20) * zoom);
     return (
-      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "center" }}>
+      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "safe center", cursor: "grab" }}
+        onMouseDown={onMatrixDown} onMouseMove={onMatrixMove} onMouseUp={onMatrixUp} onMouseLeave={onMatrixUp}>
         <div style={{ display: "inline-grid", gap: 3, background: theme.bg, padding: 8, borderRadius: 10 }}>
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
@@ -428,6 +440,17 @@ export default function ElsGrid({ seed }) {
             placeholder="שם · או כמה שמות בפסיק: דוד, בת שבע, שלמה" aria-label="מונחים לחיפוש" />
           <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 22px", fontFamily: "inherit" }}>🔍 חפש</button>
           <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
+          {/* 🔗 חיפוש שני להצלבה — לצד הראשון (לא מתחתיו). מופיע אחרי שמצאנו תוצאה יחידה. */}
+          {res?.mode === "single" && res.hits?.length > 0 && (
+            <>
+              <span style={{ width: 1, alignSelf: "stretch", background: C.line, margin: "2px 2px" }} />
+              <input style={{ ...ctl, flex: "1 1 170px", textAlign: "center" }} dir="rtl" value={subRaw}
+                onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
+                placeholder="מונח שני להצלבה…" aria-label="מונח שני להצלבה" />
+              <button onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}
+                style={{ cursor: "pointer", border: `1px solid ${C.acc}`, background: "var(--accS)", color: C.acc, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 18px", fontFamily: "inherit", opacity: elsNormalize(subRaw).length < 2 ? 0.5 : 1 }}>➕ הצלב</button>
+            </>
+          )}
         </div>
         {savedSearches.length > 0 && (
           <div className="els-saved">
@@ -520,26 +543,21 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
-      {/* ===== שכבות-חיפוש — מכווץ כברירת-מחדל; נפתח כשרוצים חיפוש-משולב ===== */}
-      {res?.mode === "single" && res.hits?.length > 0 && !layersOpen && (
+      {/* ===== שכבות · הצלבות · ממצאים — נפתח כשמוסיפים מונח שני (מהשורה למעלה) או בלחיצה ===== */}
+      {res?.mode === "single" && res.hits?.length > 0 && overlays.length === 0 && !layersOpen && (
         <button className="els-combine-btn" onClick={() => setLayersOpen(true)}>
-          🔢 חיפוש משולב — הוסיפו מונחים נוספים על המטריצה ▾
+          📌 שכבות · הצלבות · הממצאים שלי ▾
         </button>
       )}
-      {res?.mode === "single" && res.hits?.length > 0 && layersOpen && (
+      {res?.mode === "single" && res.hits?.length > 0 && (overlays.length > 0 || layersOpen) && (
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
-            <span className="els-sub-t">🔢 שכבות חיפוש</span>
-            <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ">▴ כווץ</button>
-            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
-              placeholder={`מונח נוסף על המטריצה — הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
-            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+            <span className="els-sub-t">🔢 שכבות · הצלבות</span>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
+            <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ" style={{ marginInlineStart: "auto" }}>▴ כווץ</button>
           </div>
-          <Help label="ℹ️ איך עובדות שכבות-חיפוש?">
-            המונח הראשון הוא <b>העוגן</b>. כל מונח שתוסיפו = <b>שכבה</b> חדשה: המנוע מוצא את המופע <b>הקרוב ביותר</b> לעוגן וצובע אותו במטריצה בצבע משלו. אפשר להוסיף שני · שלישי · רביעי… כל אחד ריבוע בטבלה למטה. 🎨 לחיצה על נקודת-הצבע = שינוי צבע. 💾 «שמור מטריצה» שומר את כל הצירוף.
-          </Help>
+          <div className="rw-sub" style={{ marginBottom: 4 }}>הוסיפו מונח שני בשורת-החיפוש למעלה («➕ הצלב») — כל מונח = שכבה צבעונית על המטריצה, עם רשימת ההצלבות הקרובות. 🎨 לחיצה על נקודת-צבע = שינוי צבע.</div>
           {/* טבלת השכבות — ריבוע לכל מונח */}
           <div className="els-layers">
             <span className="els-layer anchor" style={{ borderColor: colorAt(0) }}>
@@ -557,9 +575,28 @@ export default function ElsGrid({ seed }) {
               </span>
             ))}
           </div>
-          {overlays.length === 0
-            ? <div className="rw-sub" style={{ marginTop: 8 }}>הקלידו מונח ו«➕ הוסף» — הוא יופיע כאן כריבוע צבעוני וייצבע על המטריצה. הוסיפו כמה שתרצו (שני · שלישי · רביעי…), ושמרו את הצירוף ב«💾 שמור מטריצה».</div>
-            : <div className="els-sub-note">כל שכבה = המופע הקרוב-ביותר לעוגן, בצבעה · 💾 = שמירה לטבלת-הממצאים. «קרוב» = מרחק באותיות. עובדה מדידה — לא הוכחה.</div>}
+
+          {/* 🔗 רשימת הצלבות — הקרובים ביותר של כל מונח-שכבה לעוגן */}
+          {overlayData.filter(o => o.list.length).map(o => (
+            <div key={o.term} className="els-list" style={{ marginTop: 12 }}>
+              <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.list.length} הצלבות (ממוין לפי קרבה)</div>
+              <div className="els-list-body">
+                {o.list.slice(0, 30).map((x, i) => {
+                  const l = locOf(x.hit.start);
+                  return (
+                    <div key={i} className="els-row">
+                      <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
+                      <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
+                      <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
+                      <span className="els-rc">{l.label}</span>
+                      <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~" : ""}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+          {overlays.length === 0 && <div className="rw-sub" style={{ marginTop: 8 }}>הוסיפו מונח שני למעלה («➕ הצלב») — תקבלו אותו צבוע על המטריצה + רשימת ההצלבות הקרובות אליו.</div>}
 
           {/* 📌 הממצאים שלי — טבלה אישית: הוספה/מחיקה ידנית, נשמר אצלך */}
           <div className="els-findings">
