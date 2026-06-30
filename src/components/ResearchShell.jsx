@@ -86,7 +86,8 @@ export default function ResearchShell({ children, subnav }) {
   const [leftOpen, setLeftOpen] = useState(() => { try { return localStorage.getItem("rw_left_open") !== "0"; } catch { return true; } });
   const [rightW, setRightW] = useState(() => num("rw_right_w", 320));
   const [leftW, setLeftW] = useState(() => num("rw_left_w", 250));
-  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "me"; } catch { return "me"; } });
+  // כניסה ראשונה לעולם-המשתמש → נוחתים על הפנקס (גדול); אחר-כך נזכרת בחירת המשתמש.
+  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } });
   const [leftSeen, setLeftSeen] = useState(cart.length);
   useEffect(() => { if (leftOpen) setLeftSeen(cart.length); }, [leftOpen, cart.length]);
   useEffect(() => { try { localStorage.setItem("rw_left_tab", leftTab); } catch { /**/ } }, [leftTab]);
