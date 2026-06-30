@@ -2153,6 +2153,10 @@ const ARRIVAL_CHANNELS = [
   { tag: "ig",        label: "📸 אינסטגרם · קוד המציאות",  path: "/reality" },
   { tag: "fb-code",   label: "👍 פייסבוק · קוד המציאות",   path: "/reality" },
   { tag: "fb-meluha", label: "👑 פייסבוק · כי לה׳ המלוכה", path: "/" },
+  // 🔗 לינקים פרטיים מתויגים — להפצה אישית (וואטסאפ/טלגרם). כך יודעים כמה נכנסו דרך כל לינק.
+  { tag: "bm",        label: "📖 בית המדרש · לינק פרטי",   path: "/beit-midrash" },
+  { tag: "heichal",   label: "🏛️ היכל הגילוי · לינק פרטי", path: "/research" },
+  { tag: "code",      label: "🔍 הצופן התנ״כי · לינק פרטי", path: "/code" },
 ];
 function ArrivalSourcesPanel() {
   const [d, setD] = useState(null);
