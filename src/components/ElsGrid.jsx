@@ -83,15 +83,59 @@ const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c",
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
+// 🔭 מילון-סריקה — מונחים משמעותיים שהמנוע מחפש לבד בתוך המטריצה ומסמן היכן הם **נחתכים**
+// עם התוצאה (חולקים תא, בכל כיוון/דילוג). יושר: רשימה קבועה, מסומן רק חיתוך ממשי — לא ניחוש,
+// לא יצירת-מונחים. מונח רב-מילים מנורמל לרצף-אותיות (כמו כל חיפוש דילוג). אפשר להרחיב בעתיד מ-DB.
+const ELS_DICT = [
+  // שמות וכינויים
+  "יהוה", "אלהים", "אדני", "אהיה", "אל שדי", "שדי", "צבאות", "אל", "יה", "אלוה", "רחום", "חנון", "הקדוש ברוך הוא",
+  // גאולה ומשיח
+  "משיח", "משיח בן דוד", "משיח בן יוסף", "בן דוד", "גאולה", "גואל", "גאל ישראל", "קץ", "קץ הימים", "ביאת המשיח",
+  "ימות המשיח", "מלך המשיח", "תחית המתים", "יום הדין", "אחרית הימים", "עולם הבא", "הגאולה השלמה",
+  // מקדש וירושלים
+  "בית המקדש", "המקדש", "מקדש", "ירושלים", "ציון", "הר הבית", "שכינה", "ארון הברית", "כהן גדול",
+  // ספירות
+  "כתר", "חכמה", "בינה", "דעת", "חסד", "גבורה", "תפארת", "נצח", "הוד", "יסוד", "מלכות",
+  // תורה וקדושה
+  "תורה", "תורת אמת", "תורה קדשה", "התורה אמיתית", "אמת", "אמת ויציב", "קדוש", "קדושה", "אור", "אור הגנוז",
+  "נשמה", "נשמה יתירה", "אמונה", "תשובה", "אהבה", "יראה", "רחמים", "צדק", "משפט", "שלום", "חיים", "ברכה", "אחד", "יחוד", "אין סוף",
+  // דמויות
+  "אברהם", "יצחק", "יעקב", "משה", "אהרן", "דוד", "שלמה", "אליהו", "אליהו הנביא", "נח", "יוסף", "אדם", "חוה",
+  "שרה", "רבקה", "רחל", "לאה", "מרים", "פנחס", "יהושע", "כלב", "שמואל", "ישעיהו", "ירמיהו", "יחזקאל", "דניאל",
+  // יריבים
+  "בלעם", "בלק", "עמלק", "פרעה", "המן", "נמרוד", "עשו", "קרח", "סנחריב", "נבוכדנצר",
+  // עם ישראל ומועדים
+  "ישראל", "עם ישראל", "יהודי", "שבת", "ראש השנה", "יום כפור", "פסח", "שבועות", "סוכות", "חנוכה", "פורים",
+  "כהן", "לוי", "מלך", "נביא", "חכם", "צדיק", "גלות", "ארץ ישראל",
+];
+// מחזיר את כל מופעי `target` שעוברים דרך התא p (בכל דילוג/כיוון נתון) → חיתוך ממשי עם העוגן.
+function termPassesThrough(letters, target, p, skips, dirs, N) {
+  const L = target.length, out = [];
+  if (L < 2) return out;
+  for (const s of skips) for (const d of dirs) {
+    const step = s * d;
+    for (let j = 0; j < L; j++) { // p הוא האות ה-j של המונח → start = p - j·step
+      const start = p - j * step, end = start + step * (L - 1);
+      if (start < 0 || end < 0 || start >= N || end >= N) continue;
+      let ok = true; const pos = [];
+      for (let k = 0; k < L; k++) { const idx = start + step * k; if (letters[idx] !== target[k]) { ok = false; break; } pos.push(idx); }
+      if (ok) out.push({ skip: s, dir: d, start, positions: pos });
+    }
+  }
+  return out;
+}
+
 // ✦ ממצאים נבחרים — «פלאות» שצוריאל ביקש שכל מי שנכנס לתוכנה יראה. נשמרים כאן (אפשר בעתיד מ-DB),
 // ולחיצה פותחת אותם במנוע (חיפוש מוצלב), כך שכל אחד יראה את הצופן המקביל במו עיניו.
 const FEATURED_FINDINGS = [
   {
-    title: "תורה קדשה ⟂ התורה אמיתית",
-    terms: ["תורה קדשה", "התורה אמיתית"],
-    wonder: "חיפוש «תורה קדשה» חושף לידו, במקביל ומדויק, את «התורה אמיתית» — שני צפנים שנפגשים על אותה רשת.",
-    facts: "«תורה קדשה» = 1020 · «התורה אמיתית» = 1477 (רגיל). בשני הביטויים אין אותיות סופיות — לכן הגדול שווה לרגיל.",
-    by: "ממצא של חבר · אומת במנוע",
+    mode: "single",
+    title: "תורה קדשה — דילוג נדיר בתורה",
+    terms: ["תורה קדשה"],
+    skipMax: 10100,
+    wonder: "«תורה קדשה» מופיע בכל התורה כדילוג שוות-מרחק פעם אחת בלבד (דילוג 10,065) — נדירות אמיתית. פִּתחו, ואז «🔭 סרוק מילון» כדי לראות מי מהמילון נחתך איתו.",
+    facts: "«תורה קדשה» = 1020 (רגיל) = השגחה פרטית = נשמה יתירה = גילוי השכינה לישראל. אין אותיות סופיות — לכן הגדול שווה לרגיל.",
+    by: "נדיר: מופע יחיד בתורה · אומת במנוע",
   },
 ];
 
@@ -228,11 +272,14 @@ export default function ElsGrid({ seed }) {
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
   // ✦ פתיחת ממצא-נבחר במנוע — טוען את המונחים כחיפוש מוצלב בתורה ומריץ מיד (q מפעיל את אפקט-החיפוש)
   const openFinding = (f) => {
-    setMode("cross"); setBook("torah");
-    setRaw(f.terms[0]); setCrossExtra(f.terms.slice(1).length ? f.terms.slice(1) : [""]);
+    const single = f.mode === "single" || f.terms.length < 2;
+    setMode(single ? "torah" : "cross"); setBook("torah");
+    setRaw(f.terms[0]); setCrossExtra(single ? [""] : f.terms.slice(1));
     setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
     setEntered(false); setShowAll(false);
-    setQ({ raw: f.terms.join(", "), book: "torah", skipMax: Math.max(2000, parseInt(skipMax) || 2000), pattern, dir, fuzzy });
+    const smax = Math.max(2000, f.skipMax || 2000);
+    setSkipMax(String(smax));
+    setQ({ raw: single ? f.terms[0] : f.terms.join(", "), book: "torah", skipMax: smax, pattern, dir, fuzzy });
     try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /**/ }
   };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
@@ -374,6 +421,48 @@ export default function ElsGrid({ seed }) {
     const add = words.filter(w => !overlays.includes(w));
     if (add.length) { setOverlays(o => [...o, ...add]); setLayersOpen(true); }
   };
+  // 🔭 סריקת-מילון — המנוע עובר על מילון-המונחים ובודק לבד מי מהם **נחתך** עם התוצאה (עובר דרך
+  // אחת מאותיותיה, בכל כיוון/דילוג). מחזיר רשימה מדורגת לפי קרבה. זהו ה«אוטו-הצלבה» המלא:
+  // לא רק מילות-החיפוש, אלא מילון שלם → המנוע מגלה לבד צפנים-נחתכים כמו «בלעם».
+  const [dictScan, setDictScan] = useState(null); // null | {running:true} | {results:[...]}
+  const scanDict = () => {
+    if (!letters || !anchorHit || res?.mode !== "single") return;
+    setDictScan({ running: true });
+    setTimeout(() => {
+      const N = letters.length;
+      const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+      const aSkip = Math.abs(anchorHit.skip);
+      const skips = [...new Set([1, 2, 3, 4, 5, 7, aSkip].filter(s => s >= 1))];
+      const dirs = [1, -1];
+      const aC = centerOf(anchorHit);
+      const aSet = new Set(anchorHit.positions); // לסינון הכלה-טריוויאלית (תת-מחרוזת של העוגן עצמו)
+      const skip0 = new Set(overlays); skip0.add(elsNormalize(terms[0] || ""));
+      const found = [];
+      for (const rawT of ELS_DICT) {
+        const t = elsNormalize(rawT);
+        if (t.length < 2 || skip0.has(t)) continue;
+        let best = null;
+        for (const p of anchorHit.positions) {
+          const occ = termPassesThrough(letters, t, p, skips, dirs, N);
+          for (const o of occ) {
+            if (o.start < bk.from || o.start >= bk.to) continue;
+            if (o.positions.every(pos => aSet.has(pos))) continue; // קולינארי לעוגן (חופף לגמרי) — לא חיתוך אמיתי
+            const d = Math.abs(centerOf(o) - aC);
+            if (!best || d < best.dist) best = { occ: o, dist: d };
+          }
+        }
+        if (best) found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist });
+      }
+      found.sort((a, b) => a.dist - b.dist || a.term.localeCompare(b.term));
+      setDictScan({ results: found });
+    }, 30);
+  };
+  // 🎨 צובע את כל המונחים-הנחתכים על המטריצה (מוסיף כשכבות — נכנסים לרשימת-ההצלבות עם דגל ⚡)
+  const colorAllCrossings = () => {
+    const add = (dictScan?.results || []).slice(0, 8).map(r => r.term).filter(t => !overlays.includes(t));
+    if (add.length) { setOverlays(o => [...o, ...add].slice(0, 14)); setLayersOpen(true); }
+  };
+  useEffect(() => { setDictScan(null); }, [hitIdx, q]); // איפוס סריקה כשעוברים תוצאה/חיפוש (לא בעת הוספת שכבה)
 
   // גרירת-עכבר לתזוזה אופקית (pan) — מושבתת במצב-בחירה (אז קליק = בחירת אות)
   const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
@@ -787,10 +876,41 @@ export default function ElsGrid({ seed }) {
               placeholder={`מונח נוסף שמופיע ליד «${elsNormalize(terms[0] || "")}» על המטריצה…`} />
             <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
             <button className="els-sub-btn" onClick={autoCross} title="המנוע מחפש לבד את מילות-התוצאה בתוך המטריצה (כולל טקסט-רגיל) ומסמן חיתוכים אמיתיים" style={{ background: "#fff7e6", color: "var(--acc)", border: "1px solid var(--acc)" }}>⚡ אוטו-הצלבה</button>
+            <button className="els-sub-btn" onClick={scanDict} disabled={dictScan?.running} title="המנוע עובר על מילון מונחים שלם ומגלה לבד מי מהם נחתך עם התוצאה" style={{ background: "#eef5ff", color: "#1f6feb", border: "1px solid #1f6feb" }}>{dictScan?.running ? "🔭 סורק…" : "🔭 סרוק מילון"}</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
-          <div className="rw-sub" style={{ marginBottom: 4 }}>מחפש <b>רק בתוך המטריצה</b> (ליד התוצאה) — מהיר, בלי להפעיל מנוע על כל הטקסט. כל מונח = שכבה צבעונית. 🎨 לחיצה על נקודת-צבע = שינוי צבע.</div>
+          <div className="rw-sub" style={{ marginBottom: 4 }}>מחפש <b>רק בתוך המטריצה</b> (ליד התוצאה) — מהיר, בלי להפעיל מנוע על כל הטקסט. כל מונח = שכבה צבעונית. 🎨 לחיצה על נקודת-צבע = שינוי צבע. <b>🔭 סרוק מילון</b> = המנוע מגלה לבד צפנים-נחתכים.</div>
+
+          {/* 🔭 תוצאות סריקת-המילון — מונחים שהמנוע מצא לבד שנחתכים עם התוצאה */}
+          {dictScan?.results && (
+            <div className="els-dict">
+              {dictScan.results.length === 0
+                ? <div className="rw-sub">🔭 לא נמצא מונח מהמילון שנחתך עם «{elsNormalize(terms[0])}» כאן. נסו מופע אחר מהרשימה למטה, או הגדילו «גודל-רשת».</div>
+                : <>
+                    <div className="els-dict-h">🔭 המנוע מצא לבד <b>{dictScan.results.length}</b> מונחים מהמילון שנחתכים עם «{elsNormalize(terms[0])}» — ממוין לפי קרבה
+                      <button className="els-dict-all" onClick={colorAllCrossings}>🎨 צבע את ה-{Math.min(8, dictScan.results.length)} הקרובים</button>
+                    </div>
+                    <div className="els-dict-body">
+                      {dictScan.results.slice(0, 24).map((r, i) => {
+                        const l = locOf(r.start);
+                        return (
+                          <button key={r.term} className="els-dict-row" onClick={() => addOverlay(r.term)} title="הוסף כשכבה צבועה על המטריצה">
+                            <span className="els-rk" style={{ background: "#eef5ff", color: "#1f6feb" }}>{i + 1}</span>
+                            <span className="els-dict-term">{r.raw}</span>
+                            <span className="els-rc">דילוג <b>{r.skip.toLocaleString("he")}</b></span>
+                            <span className="els-rc">{r.dir > 0 ? "→" : "←"}</span>
+                            <span className="els-rc">{l.label}</span>
+                            <span className="els-rc muted">מרחק {r.dist.toLocaleString("he")}</span>
+                            <span className="els-dict-add">➕ צבע</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="rw-sub" style={{ marginTop: 6 }}>חיתוך = המונח עובר דרך אות מהתוצאה (עובדה גאומטרית). קרבה גדולה אינה הוכחה — בטקסט גדול נוצרים חיתוכים גם במקרה. לחיצה צובעת על המטריצה.</div>
+                  </>}
+            </div>
+          )}
           {/* טבלת השכבות — ריבוע לכל מונח */}
           <div className="els-layers">
             <span className="els-layer anchor" style={{ borderColor: colorAt(0) }}>
@@ -1001,6 +1121,16 @@ const ELS_CSS = `
 .els-row:hover{border-color:var(--acc);background:var(--accS)}
 .els-row.on{border-color:var(--acc);background:var(--accS);box-shadow:inset 3px 0 0 var(--acc)}
 .els-row.cross{border-color:#fb923c;background:#fff7ed;box-shadow:inset 3px 0 0 #ea580c}
+/* 🔭 סריקת-מילון */
+.els-dict{margin:10px 0 4px;background:#f5f9ff;border:1px solid #d6e4ff;border-radius:13px;padding:11px 13px}
+.els-dict-h{font-weight:800;font-size:13px;color:#1b4fb0;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.els-dict-all{border:1px solid #1f6feb;background:#fff;color:#1f6feb;border-radius:999px;padding:4px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
+.els-dict-all:hover{background:#1f6feb;color:#fff}
+.els-dict-body{display:flex;flex-direction:column;gap:5px;max-height:360px;overflow:auto}
+.els-dict-row{display:flex;align-items:center;gap:9px;width:100%;text-align:start;background:#fff;border:1px solid #dbe7fb;border-radius:10px;padding:8px 11px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2);transition:.1s}
+.els-dict-row:hover{border-color:#1f6feb;background:#eef5ff}
+.els-dict-term{font-weight:800;color:#1b4fb0;font-size:14px;font-family:'Frank Ruhl Libre',serif}
+.els-dict-add{margin-inline-start:auto;font-weight:800;color:#1f6feb;white-space:nowrap}
 .els-rk{min-width:22px;height:22px;border-radius:6px;background:var(--accS);color:var(--acc);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
 .els-rc b{color:var(--acc)}
 .els-rc.muted{color:var(--ink3);margin-inline-start:auto}
