@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
-import EntityPage, { NumHrefCtx } from "../pages/EntityPage.jsx";
+import { NumHrefCtx } from "../lib/numHrefCtx.js";
 
 // 🔢 כלי «דף מספר» בתוך המעבדה — מטמיע את דף-המספר הקנוני (EntityPage) *בתוך* השלד,
 // כך שהמטייל בין מספרים נשאר במעבדה. ה-NumHrefCtx גורם לכל הקישורים הפנימיים
 // (מספרים-קרובים · תהודה · הצלבות) להישאר ב-/research?tool=number&n=… במקום לצאת ל-/number.
+// EntityPage נטען בעצלתיים (lazy) → קוד דף-המספר לא נגרר לבאנדל-הראשי של המעבדה,
+// אלא רק כשבאמת פותחים מספר. חוסך נתח גדול מהטעינה הראשונית.
+const EntityPage = lazy(() => import("../pages/EntityPage.jsx"));
 const KEY_NUMS = [1820, 358, 26, 86, 541, 1776, 14, 45];
 const labHref = n => `/research?tool=number&n=${n}`;
 
@@ -23,7 +26,9 @@ export default function NumberTool() {
       <div>
         <button className="rw-tchip" onClick={() => setSp({ tool: "number" })} style={{ marginBottom: 12 }}>← מספר אחר</button>
         <NumHrefCtx.Provider value={labHref}>
-          <EntityPage embedPhrase={n} />
+          <Suspense fallback={<div className="rw-card rw-muted">טוען דף מספר…</div>}>
+            <EntityPage embedPhrase={n} />
+          </Suspense>
         </NumHrefCtx.Provider>
       </div>
     );

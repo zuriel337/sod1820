@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useContext, createContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 
-// 🔗 כתובת-מספר תלוית-הקשר: בעמוד עצמאי → /number/:n; בתוך המעבדה → נשארים במעבדה.
-// המעבדה עוטפת את EntityPage ב-Provider עם כתובת-מעבדה → כל הקישורים הפנימיים נשארים בפנים.
-export const NumHrefCtx = createContext((n) => `/number/${n}`);
-const useNumHref = () => useContext(NumHrefCtx);
+// 🔗 כתובת-מספר תלוית-הקשר — חי במודול זעיר נפרד (lib/numHrefCtx) כדי ש-NumberTool
+// יוכל לייבא אותו בלי לגרור את כל EntityPage. כאן רק שימוש + re-export לתאימות.
+import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
+export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
