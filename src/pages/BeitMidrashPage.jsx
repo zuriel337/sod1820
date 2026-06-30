@@ -7,6 +7,8 @@ import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCar
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { entityFromInsight } from "../lib/research/entity.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -64,6 +66,22 @@ function ShareRow({ text, url }) {
   );
 }
 
+// 💾 שמירה למרחב-המחקר — ⭐ שמור · ➕ הוסף-למחקר. מזין את «עולם המשתמש» (מסונכרן בענן למחובר).
+// מעוצב בשפת בית-המדרש (זהב-על-קרם) אך משתמש באותו useResearch כמו המעבדה — עץ אחד.
+function SaveActions({ entity }) {
+  const { saveItem, addToResearch } = useResearch();
+  const [s, setS] = useState(false);
+  const [a, setA] = useState(false);
+  const base = { cursor: "pointer", borderRadius: 999, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 11px", border: `1px solid ${L.line}`, background: L.soft, color: L.goldDeep, display: "inline-flex", alignItems: "center", gap: 4 };
+  const on = { ...base, background: "#fbf3da", borderColor: L.gold };
+  return (
+    <>
+      <button style={a ? on : base} title="הוסף למחקר הפעיל" onClick={() => { addToResearch(entity); setA(true); }}>➕ {a ? "במחקר" : "למחקר"}</button>
+      <button style={s ? on : base} title="שמור (מסונכרן בענן אם מחובר)" onClick={() => { saveItem(entity); setS(true); }}>⭐ {s ? "נשמר" : "שמור"}</button>
+    </>
+  );
+}
+
 // כרטיס חידוש בהיר (נפתח)
 function StudyCard({ item, ai }) {
   const [open, setOpen] = useState(false);
@@ -83,7 +101,12 @@ function StudyCard({ item, ai }) {
           {item.proof && <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: 0 }}><b style={{ color: L.goldDeep }}>הוכחה: </b>{item.proof}</p>}
         </div>
       )}
-      <ShareRow text={item.title} />
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${L.line}` }}>
+        <SaveActions entity={entityFromInsight(item)} />
+        <span style={{ marginInlineStart: "auto", display: "inline-flex", gap: 7 }}>
+          <a href={`https://wa.me/?text=${encodeURIComponent(item.title)}`} target="_blank" rel="noopener noreferrer" style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 11px", textDecoration: "none" }}>🟢 שתף</a>
+        </span>
+      </div>
     </div>
   );
 }
@@ -299,7 +322,8 @@ function CrossCard({ item }) {
         <button onClick={() => setOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>
           {open ? "▴ הסתר את ההסבר" : "▾ קרא את ההסבר המלא"}
         </button>
-        <div style={{ marginInlineStart: "auto", display: "flex", gap: 7 }}>
+        <div style={{ marginInlineStart: "auto", display: "flex", gap: 7, flexWrap: "wrap" }}>
+          <SaveActions entity={entityFromInsight(item)} />
           <button onClick={showPreview} disabled={pvBusy} title="תצוגה מקדימה — איך התמונה תיראה" style={{ cursor: pvBusy ? "wait" : "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 13px" }}>👁 תצוגה מקדימה</button>
           <button onClick={() => shareCross(item)} title="שתפו כתמונה" style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 16px" }}>✦ שתפו</button>
           <button onClick={() => downloadCrossCard(item)} title="הורידו תמונה" aria-label="הורידו תמונה" style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, width: 34, height: 34, fontSize: 14 }}>🖼</button>
