@@ -2,15 +2,15 @@
 // scoped לסביבת-המחקר בלבד (לא דורסת canonical_colors_law — דף הבית נשאר זהב-מלכותי).
 // מצב לילה (לבן על סגול) = שלב מאוחר (toggle).
 export const RW = {
-  bg: "#f7f4ec",        // קרם (לא לבן-לבן)
-  card: "#fffdf8",
-  line: "#ece4d3",
-  ink: "#221d12",
-  ink2: "#6b6150",
+  bg: "#f4f1e8",        // קרם בית-המדרש (שקט, לא לבן-בוהק)
+  card: "#ffffff",      // לבן נקי — הקרם מגיע מהרקע מאחור
+  line: "#e7dfcc",      // קו זהוב-עדין כמו בית-המדרש
+  ink: "#23201a",
+  ink2: "#6f685a",
   ink3: "#9a8f78",
-  accent: "#b07d12",    // זהב עמוק (ניגודיות טובה לכפתורים)
-  accentSoft: "#f3e6c2",
-  chip: "#f4eede",
+  accent: "#9a7818",    // זהב שקט-עמוק (כמו בית-המדרש, פחות צעקני)
+  accentSoft: "#f3e6bd",
+  chip: "#faf8f2",      // קרם-רך לצ'יפים/שדות
   good: "#1f9d57",
   radius: 16,
   tap: 44,              // יעד-מגע מינימלי (iOS)
@@ -49,11 +49,11 @@ export const rwCss = (t = RW) => `
   /* מסילה צפה בסגנון אפליקציית-בנק (דיסקונט/ChatGPT): צללית-עומק רכה + הילה, פתוח וסגור */
   .rw-rail{flex:0 0 52px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:18px;
     cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;position:relative;font-family:inherit;
-    box-shadow:0 8px 28px -10px rgba(60,46,16,.26),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55);transition:box-shadow .18s,transform .18s,background .18s,border-color .18s}
-  .rw-rail:hover{background:var(--accS);border-color:var(--acc);box-shadow:0 14px 36px -10px rgba(60,46,16,.34),0 3px 8px -2px rgba(60,46,16,.16);transform:translateY(-1px)}
-  /* צללית-כיוון: המסילה «מטילה» צל אל תוך התוכן (ימין→שמאל · שמאל→ימין) — האפקט שאהבת */
-  .rw-rail.r{box-shadow:-10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
-  .rw-rail.l{box-shadow:10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
+    box-shadow:0 10px 26px -18px rgba(60,46,16,.20),0 1px 3px rgba(60,46,16,.05);transition:box-shadow .18s,transform .18s,background .18s,border-color .18s}
+  .rw-rail:hover{background:var(--accS);border-color:var(--acc);box-shadow:0 12px 30px -16px rgba(60,46,16,.26),0 2px 5px -2px rgba(60,46,16,.08);transform:translateY(-1px)}
+  /* צל רך אחיד — שקט, נותן תחושת «פתוח» בלי כיווניות צעקנית */
+  .rw-rail.r{box-shadow:0 10px 26px -18px rgba(60,46,16,.20),0 1px 3px rgba(60,46,16,.05)}
+  .rw-rail.l{box-shadow:0 10px 26px -18px rgba(60,46,16,.20),0 1px 3px rgba(60,46,16,.05)}
   .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg);border:1px solid var(--line);cursor:pointer;font-family:inherit}
   .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
   .rw-rail-icons{display:flex;flex-direction:column;gap:8px;font-size:18px;opacity:.92}
@@ -97,11 +97,11 @@ export const rwCss = (t = RW) => `
   .rw-adv{margin-inline-start:auto;font-size:10.5px;font-weight:800;background:var(--accS);color:var(--acc);border-radius:999px;padding:2px 9px}
   .rw-exp{color:var(--ink3);font-size:11.5px;font-weight:600;line-height:1.5;padding:0 13px 8px;border-bottom:1px solid var(--line)}
   .rw-exp b{color:var(--acc)}
-  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 9px 26px -12px rgba(60,46,16,.26),0 2px 5px -2px rgba(60,46,16,.10)}
-  /* צללית-כיוון גם כשהצדדים פתוחים — הפאנלים «מטילים» צל אל התוכן (כמו המסילה הסגורה) */
-  .rw-pwrap:not(.left) .rw-panel{box-shadow:-9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
-  .rw-pwrap.left .rw-panel{box-shadow:9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
-  .rw-pwrap.left .rw-tabbar{box-shadow:9px 8px 24px -14px rgba(60,46,16,.26)}
+  /* צל רך ושקט — נותן עומק («פתוח/צף») בלי רעש, בסגנון בית-המדרש */
+  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 10px 26px -18px rgba(60,46,16,.22),0 1px 3px rgba(60,46,16,.05)}
+  .rw-pwrap:not(.left) .rw-panel{box-shadow:0 10px 26px -18px rgba(60,46,16,.22),0 1px 3px rgba(60,46,16,.05)}
+  .rw-pwrap.left .rw-panel{box-shadow:0 10px 26px -18px rgba(60,46,16,.22),0 1px 3px rgba(60,46,16,.05)}
+  .rw-pwrap.left .rw-tabbar{box-shadow:0 8px 22px -16px rgba(60,46,16,.20)}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}
