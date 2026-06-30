@@ -33,6 +33,8 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
+// 🎨 לוח-צבעים לבחירת המשתמש — צובעים כל מונח/דילוג בצבע משלו על המטריצה.
+const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c", "#d6336c", "#0c8599", "#f08c00", "#343a40"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
@@ -62,6 +64,8 @@ export default function ElsGrid({ seed }) {
   const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
   const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
   const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
+  const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
+  const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
   const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
@@ -191,6 +195,36 @@ export default function ElsGrid({ seed }) {
     return { rows, W: W2, skip: s };
   }, [res, anchorHit, clusterIdx, letters, subOverlay]);
 
+  // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
+  // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
+  const cluster0c = res?.mode === "cluster" ? (res.clusters || [])[Math.min(clusterIdx, (res.clusters?.length || 1) - 1)] : null;
+  const layerColors = useMemo(() => {
+    if (res?.mode === "cluster" && cluster0c) {
+      return cluster0c.picks.map((pk, i) => paint[pk.term] || TERM_COLORS[i % TERM_COLORS.length]);
+    }
+    return [paint[terms[0]] || TERM_COLORS[0], paint[subTerm] || TERM_COLORS[1]];
+  }, [res, cluster0c, terms, subTerm, paint]);
+  const colorAt = ci => layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length];
+
+  // נקודת-צבע לחיצה → לוח-צבעים קטן לבחירת צבע למונח (term)
+  const paintDot = (term, color) => (
+    <span style={{ position: "relative", display: "inline-flex", verticalAlign: "middle" }}>
+      <button onClick={() => setPaintOpen(o => o === term ? null : term)} title="בחר צבע למונח" aria-label="בחר צבע"
+        style={{ width: 15, height: 15, borderRadius: "50%", background: color, border: "2px solid #fff", boxShadow: `0 0 0 1.5px ${color}`, cursor: "pointer", padding: 0 }} />
+      {paintOpen === term && (
+        <>
+          <span onClick={() => setPaintOpen(null)} style={{ position: "fixed", inset: 0, zIndex: 39 }} />
+          <span style={{ position: "absolute", top: "150%", insetInlineStart: 0, zIndex: 40, display: "flex", flexWrap: "wrap", gap: 5, width: 142, padding: 7, background: "var(--card,#fff)", border: "1px solid var(--line,#e6dcc6)", borderRadius: 11, boxShadow: "0 10px 26px rgba(40,30,8,.28)" }}>
+            {PAINT.map(c => (
+              <button key={c} onClick={() => { setPaint(p => ({ ...p, [term]: c })); setPaintOpen(null); }} title={c}
+                style={{ width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer", border: c === color ? "2.5px solid #111" : "2px solid #fff", boxShadow: `0 0 0 1px ${c}` }} />
+            ))}
+          </span>
+        </>
+      )}
+    </span>
+  );
+
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
   const ctl = { fontSize: 15, fontWeight: 700, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: C.bg, color: C.ink, outline: "none", fontFamily: "inherit" };
   const chip = { display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 700, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.line}`, background: C.bg, color: C.ink2 };
@@ -269,7 +303,7 @@ export default function ElsGrid({ seed }) {
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
-                const col = cell.ci >= 0 ? TERM_COLORS[cell.ci % TERM_COLORS.length] : null;
+                const col = cell.ci >= 0 ? colorAt(cell.ci) : null;
                 const bg = col ? (cell.op < 1 ? hexA(col, cell.op) : col) : theme.bg; // צבע מתחלש לפי קרבה
                 const glyph = niqqud && nqData && cell.idx >= 0 ? cell.ch + (nqData[cell.idx] || "") : cell.ch;
                 return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
@@ -369,6 +403,7 @@ export default function ElsGrid({ seed }) {
       {res?.mode === "single" && (res.hits?.length ? (() => {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
         return <div className="rw-card" style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ ...chip, gap: 7, borderColor: colorAt(0), color: colorAt(0) }}>{paintDot(terms[0], colorAt(0))} «{elsNormalize(terms[0])}»</span>
           <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
           <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
           <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
@@ -388,9 +423,9 @@ export default function ElsGrid({ seed }) {
                 <button onClick={() => setFull(true)} style={{ ...chip, marginInlineStart: "auto", cursor: "pointer" }}>⛶ מסך מלא</button>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {cluster0.picks.map((pk, i) => <span key={i} style={{ ...chip, borderColor: TERM_COLORS[i], color: TERM_COLORS[i] }}>{pk.term} · דילוג {Math.abs(pk.hit.skip).toLocaleString("he")}</span>)}
+                {cluster0.picks.map((pk, i) => <span key={i} style={{ ...chip, gap: 7, borderColor: colorAt(i), color: colorAt(i) }}>{paintDot(pk.term, colorAt(i))} {pk.term} · דילוג {Math.abs(pk.hit.skip).toLocaleString("he")}</span>)}
               </div>
-              <div className="rw-sub" style={{ marginTop: 6 }}>«קרבה» = מרחק קטן בין המונחים בטקסט. עובדה מדידה — לא הוכחה (אפשר למצוא קרבות בכל טקסט גדול).</div>
+              <div className="rw-sub" style={{ marginTop: 6 }}>🎨 לחצו על נקודת-הצבע שליד כל מונח כדי לצבוע אותו במטריצה. «קרבה» = מרחק קטן בין המונחים בטקסט. עובדה מדידה — לא הוכחה (אפשר למצוא קרבות בכל טקסט גדול).</div>
               {isAdmin && (
                 <div className="els-ai">
                   {!aiStruct && <button className="els-ai-btn" onClick={runStructAi}>🤖 נתח מבנה ב-AI</button>}
@@ -426,7 +461,7 @@ export default function ElsGrid({ seed }) {
           {subRes && (subRes.list.length ? (
             <>
               <div className="els-sub-stats">
-                <span style={chip}>«{subRes.norm}» הקרוב ביותר: <b style={{ color: TERM_COLORS[1] }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
+                <span style={{ ...chip, gap: 7 }}>{paintDot(subTerm, colorAt(1))} «{subRes.norm}» הקרוב ביותר: <b style={{ color: colorAt(1) }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
                 <span style={chip}>📍 {locOf(subFocus.hit.start).label} · אות {locOf(subFocus.hit.start).off.toLocaleString("he")}</span>
                 <span style={chip}>דילוג {Math.abs(subFocus.hit.skip).toLocaleString("he")}</span>
                 <span style={chip}>סך מופעים <b>{subRes.count.toLocaleString("he")}{subRes.capped ? "+" : ""}</b></span>
