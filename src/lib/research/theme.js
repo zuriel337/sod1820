@@ -120,6 +120,17 @@ export const rwCss = (t = RW) => `
   .rw-pwrap.left .rw-tabbody{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:4px 2px;
     overflow:hidden;box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
   .rw-pb{min-width:0;overflow-wrap:anywhere}
+  /* ❓ הדרכת-כלי אחידה «איך משתמשים» */
+  .rw-guide{margin:0 0 14px;background:linear-gradient(160deg,var(--accS),var(--card));border:1px solid var(--acc);border-radius:13px;padding:2px 14px}
+  .rw-guide>summary{cursor:pointer;font-size:13.5px;font-weight:800;color:var(--acc);padding:11px 0;list-style:none}
+  .rw-guide>summary::-webkit-details-marker{display:none}
+  .rw-guide>summary::before{content:"▸ ";font-size:11px}
+  .rw-guide[open]>summary::before{content:"▾ "}
+  .rw-guide-b{padding:0 0 12px}
+  .rw-guide-intro{font-size:13.5px;color:var(--ink2);line-height:1.7;margin:0 0 9px}
+  .rw-guide-steps{margin:0;padding-inline-start:20px;display:grid;gap:6px}
+  .rw-guide-steps li{font-size:13px;color:var(--ink);line-height:1.65}
+  .rw-guide-tip{margin-top:10px;font-size:12.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px;line-height:1.6}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}

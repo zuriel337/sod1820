@@ -6,6 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
+import { LOGO_URL } from "../theme.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -32,6 +33,12 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
+// ✦ משפטים מתחלפים בזמן החיפוש — מתחת ללוגו המהבהב
+const ELS_PHRASES = [
+  "מצרף את אותיות התורה…", "סורק את הצופן הנסתר…", "כל אות במקומה — רגע…",
+  "מודד מרחקים בין המילים…", "1820 — הכל מחובר…", "התורה מדברת במספרים…",
+  "מחפש את הרמז שמסתתר…", "פותח את שערי הצופן…",
+];
 // 🎨 לוח-צבעים לבחירת המשתמש — צובעים כל מונח/דילוג בצבע משלו על המטריצה.
 const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c", "#d6336c", "#0c8599", "#f08c00", "#343a40"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
@@ -39,7 +46,11 @@ const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"]
 
 export default function ElsGrid({ seed }) {
   const { isAdmin } = useAuth();
-  const [letters, setLetters] = useState("");
+  // ⚡ ביצועים: התורה (304,805 · 600KB) נטענת תמיד ומהר. התנ״ך המלא (1.2M · 2.4MB)
+  // נטען בעצלתיים — *רק* כשבוחרים היקף שמעבר לתורה (נביאים/כתובים/כל-התנ״ך).
+  const [torahLetters, setTorahLetters] = useState("");
+  const [tanakhLetters, setTanakhLetters] = useState("");
+  const [tanakhBusy, setTanakhBusy] = useState(false);
   const [err, setErr] = useState(false);
   const [zoom, setZoom] = useState(1);       // זום למטריצה
   const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
@@ -52,34 +63,56 @@ export default function ElsGrid({ seed }) {
     setNiqqud(v => !v);
   };
   const [raw, setRaw] = useState(seed || "ישראל");
-  const [book, setBook] = useState("all");
-  const [skipMax, setSkipMax] = useState(1000);
+  const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
+  const [skipMax, setSkipMax] = useState(2000);
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
   const [fuzzy, setFuzzy] = useState(false);
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
   const [full, setFull] = useState(false);
-  const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
-  const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
-  const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
+  const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
+  const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
+  const [layersOpen, setLayersOpen] = useState(false); // פאנל-השכבות מכווץ כברירת-מחדל; נפתח לחיפוש-משולב
+  // 📌 הממצאים שלי — טבלה אישית: מוסיפים/מוחקים ידנית ממצאים (אותיות/ביטויים), נשמר ב-localStorage
+  const [findings, setFindings] = useState(() => { try { return JSON.parse(localStorage.getItem("els_findings") || "[]"); } catch { return []; } });
+  const [findRaw, setFindRaw] = useState("");
+  const persistFindings = arr => { setFindings(arr); try { localStorage.setItem("els_findings", JSON.stringify(arr)); } catch { /**/ } };
+  const addFinding = (txt) => { const t = (txt ?? findRaw).trim(); if (t && !findings.includes(t)) { persistFindings([t, ...findings].slice(0, 60)); setFindRaw(""); } };
+  const removeFinding = t => persistFindings(findings.filter(x => x !== t));
   const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
+
+  // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
+  const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
+  const letters = needTanakh ? tanakhLetters : torahLetters;
 
   // זריעה ממסע-החיפוש: מונח חדש ב-URL → טוען ומריץ אוטומטית
   useEffect(() => { if (seed) { setRaw(seed); setHitIdx(0); setClusterIdx(0); setQ(p => ({ ...p, raw: seed })); } }, [seed]);
 
+  // טעינת התורה — תמיד, בכניסה (קטן ומהיר)
   useEffect(() => {
     let ok = true;
-    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
-      .then(t => { if (!ok) return; const c = elsNormalize(t); c.length > 1000 ? setLetters(c) : setErr(true); })
+      .then(t => { if (!ok) return; const c = elsNormalize(t); c.length > 1000 ? setTorahLetters(c) : setErr(true); })
       .catch(() => ok && setErr(true));
     return () => { ok = false; };
   }, []);
+
+  // טעינת התנ״ך המלא — בעצלתיים, רק כשנדרש (פעם אחת)
+  useEffect(() => {
+    if (!needTanakh || tanakhLetters || tanakhBusy) return;
+    let ok = true; setTanakhBusy(true);
+    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(t => { if (!ok) return; const c = elsNormalize(t); if (c.length > 1000) setTanakhLetters(c); else setErr(true); setTanakhBusy(false); })
+      .catch(() => { if (ok) { setErr(true); setTanakhBusy(false); } });
+    return () => { ok = false; };
+  }, [needTanakh, tanakhLetters, tanakhBusy]);
 
   // ESC סוגר מסך-מלא
   useEffect(() => {
@@ -91,29 +124,45 @@ export default function ElsGrid({ seed }) {
   const terms = useMemo(() => q.raw.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2), [q.raw]);
   const isCluster = terms.length >= 2;
 
-  const res = useMemo(() => {
-    if (!letters || !terms.length) return null;
-    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const mm = q.fuzzy ? 1 : 0;
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
-    if (isCluster) return { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
-    return { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
+  // 🔎 חיפוש דחוי (א-סינכרוני) — מציגים לוּדר עם הלוגו המהבהב לפני החישוב הכבד, ומחשבים בטיק הבא.
+  const [res, setRes] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  useEffect(() => {
+    if (!letters || !terms.length) { setRes(null); setSearching(false); return; }
+    setSearching(true);
+    setPhraseIdx(i => (i + 1) % ELS_PHRASES.length);
+    const id = setTimeout(() => {
+      const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+      const mm = q.fuzzy ? 1 : 0;
+      const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
+      const r = isCluster
+        ? { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) }
+        : { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
+      setRes(r); setSearching(false);
+    }, 40);
+    return () => clearTimeout(id);
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
-  const subSearch = () => { setSubIdx(0); setSubTerm(subRaw.trim()); };
+  const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
+  const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
+  const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
 
   // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
   const saveCurrent = () => {
-    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0].join("|");
+    // 💾 שומר את כל המטריצה — החיפוש + שכבות-החיפוש שהוספת (overlays)
+    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0, overlays.join("+")].join("|");
     if (savedSearches.some(s => s.id === id)) return;
-    persistSaved([{ id, label: q.raw, q: { ...q } }, ...savedSearches].slice(0, 24));
+    const label = q.raw + (overlays.length ? ` +${overlays.length}` : "");
+    persistSaved([{ id, label, q: { ...q }, overlays: [...overlays] }, ...savedSearches].slice(0, 24));
   };
   const removeSaved = id => persistSaved(savedSearches.filter(s => s.id !== id));
   const loadSaved = useCallback(sv => {
     const c = sv?.q; if (!c) return;
     setRaw(c.raw); setBook(c.book); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
-    setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ ...c });
+    const ov = Array.isArray(sv.overlays) ? sv.overlays : [];
+    setHitIdx(0); setClusterIdx(0); setOverlays(ov); setLayersOpen(ov.length > 0); setSubRaw(""); setAiStruct(null); setQ({ ...c });
   }, []);
   // הקיר הימני מבקש לטעון חיפוש שמור → מיישמים כאן
   useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
@@ -134,49 +183,56 @@ export default function ElsGrid({ seed }) {
 
   const centerOf = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
 
-  // ---- חיפוש בתוך חיפוש — מציאת מונח-משני הקרוב ביותר לעוגן הפעיל ----
-  const subRes = useMemo(() => {
-    if (!letters || !anchorHit) return null;
-    const norm = elsNormalize(subTerm);
-    if (norm.length < 2) return null;
+  // 🪟 חלון-המטריצה (טווח-אותיות הנראה) — לפי העוגן בלבד. חיפוש-שכבה מוגבל אליו + שוליים →
+  // לא סורק את כל הטקסט אלא רק את סביבת המטריצה → מהיר, וגם «קרוב» באמת = ליד מה שרואים.
+  const matrixWindow = useMemo(() => {
+    if (!anchorHit) return null;
+    const s = Math.abs(anchorHit.skip), TARGET = 28;
+    const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
+    const minP = Math.min(...anchorHit.positions), maxP = Math.max(...anchorHit.positions);
+    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 170);
+    const margin = W2 * 12; // טיפה יותר בצדדים
+    return { from: Math.max(0, rowStart * W2 - margin), to: (rowEnd + 1) * W2 + margin };
+  }, [anchorHit]);
+
+  // ---- שכבות-חיפוש — לכל מונח-שכבה מוצאים את המופע הקרוב-ביותר לעוגן, וצובעים על המטריצה ----
+  // ⭐ מתחיל מ-skip 1 (כולל טקסט-רצוף) → מונח «צמוד» בכתב המקור (כמו «חג שבעת» ליד «יום משיח בא») נמצא.
+  // 🪟 מוגבל לחלון-המטריצה (+שוליים) → לא לוקח זמן, ומחזיר רק את מה שבאמת ליד.
+  const overlayData = useMemo(() => {
+    if (!letters || !anchorHit || res?.mode !== "single" || !overlays.length) return [];
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
-    const r = elsSearch(letters, norm, 2, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+    const winFrom = matrixWindow ? Math.max(bk.from, matrixWindow.from) : bk.from;
+    const winTo = matrixWindow ? Math.min(letters.length, bk.to, matrixWindow.to) : Math.min(letters.length, bk.to);
+    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, 1, q.skipMax) };
     const aC = centerOf(anchorHit);
-    const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
-    const within = d => list.filter(x => x.dist <= d).length;
-    const avg = list.length ? Math.round(list.reduce((s, x) => s + x.dist, 0) / list.length) : 0;
-    return { norm, list, count: r.hits.length, capped: r.capped, within, avg };
-  }, [letters, subTerm, q, anchorHit]);
-
-  const subFocus = subRes?.list[Math.min(subIdx, (subRes.list.length || 1) - 1)] || null;
-
-  // 🎨 שכבת המונח-המשני: כמה מופעים קרובים, בצבע שמתחלש ככל שמתרחקים מהעוגן.
-  // הקרוב ביותר/הממוקד = מלא; הרחוקים = דהויים. «2 חיפושים קרובים בצבע שמתחלש».
-  const subOverlay = useMemo(() => {
-    if (!subRes?.list.length) return [];
-    const top = subRes.list.slice(0, 8);
-    const maxD = top[top.length - 1].dist || 1;
-    return top.map((x, i) => ({ hit: x.hit, op: i === subIdx ? 1 : Math.max(0.3, 1 - (x.dist / (maxD || 1)) * 0.82) }));
-  }, [subRes, subIdx]);
+    return overlays.map((term, j) => {
+      const r = elsSearch(letters, term, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+      const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
+      return { term, ci: j + 1, list, nearest: list[0] || null, count: r.hits.length, capped: r.capped,
+        within: d => list.filter(x => x.dist <= d).length };
+    });
+  }, [letters, overlays, q, anchorHit, res, matrixWindow]);
 
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
     const colorMap = new Map(), opMap = new Map();
-    if (res.mode === "single") anchorHit.positions.forEach(p => colorMap.set(p, 0));
-    else {
+    if (res.mode === "single") {
+      anchorHit.positions.forEach(p => colorMap.set(p, 0));
+      // כל שכבה — המופע הקרוב-ביותר לעוגן, בצבע השכבה (ci)
+      overlayData.forEach(o => { if (o.nearest) o.nearest.hit.positions.forEach(p => colorMap.set(p, o.ci)); });
+    } else {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
-    // המונח-המשני בצבע נפרד, עם שקיפות לפי קרבה (מתחלש ככל שמתרחק)
-    for (const o of subOverlay) o.hit.positions.forEach(p => { colorMap.set(p, 1); opMap.set(p, o.op); });
     // 🔲 רוחב-תצוגה שממלא את הדף: דילוג קטן → כפולה שלו הקרובה ל-TARGET (לא «טור של 2»);
     // דילוג גדול → רוחב=דילוג עם חלון ממורכז. כך המטריצה תמיד נפתחת רחב.
     const s = Math.abs(anchorHit.skip), TARGET = 28;
     const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
-    // ממסגרים סביב המילה/האשכול (מיקומים קרובים), לא סביב הצבעים החיצוניים
-    const framePos = res.mode === "single" ? anchorHit.positions
+    // ממסגרים סביב העוגן + השכבות הקרובות (כדי שהן ייכנסו לתצוגה), לא סביב צבעים רחוקים
+    const framePos = res.mode === "single"
+      ? [...anchorHit.positions, ...overlayData.flatMap(o => o.nearest ? o.nearest.hit.positions : [])]
       : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
     const minP = Math.min(...framePos), maxP = Math.max(...framePos);
     const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
@@ -192,7 +248,7 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W: W2, skip: s };
-  }, [res, anchorHit, clusterIdx, letters, subOverlay]);
+  }, [res, anchorHit, clusterIdx, letters, overlayData]);
 
   // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
   // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
@@ -201,8 +257,8 @@ export default function ElsGrid({ seed }) {
     if (res?.mode === "cluster" && cluster0c) {
       return cluster0c.picks.map((pk, i) => paint[pk.term] || TERM_COLORS[i % TERM_COLORS.length]);
     }
-    return [paint[terms[0]] || TERM_COLORS[0], paint[subTerm] || TERM_COLORS[1]];
-  }, [res, cluster0c, terms, subTerm, paint]);
+    return [paint[terms[0]] || TERM_COLORS[0], ...overlays.map((t, j) => paint[t] || PAINT[j % PAINT.length])];
+  }, [res, cluster0c, terms, overlays, paint]);
   const colorAt = ci => layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length];
 
   // נקודת-צבע לחיצה → לוח-צבעים קטן לבחירת צבע למונח (term)
@@ -330,13 +386,14 @@ export default function ElsGrid({ seed }) {
         skip: h ? Math.abs(h.skip) : 0, dir: h ? h.dir : 1, count: res.hits.length, capped: res.capped,
         loc: h ? locOf(h.start) : null,
         hits: (res.hits || []).slice(0, 24).map(x => ({ skip: Math.abs(x.skip), dir: x.dir, ...locOf(x.start), mm: x.mismatches })),
-        sub: subRes ? { term: subRes.norm, count: subRes.count, nearest: subRes.list[0]?.dist ?? null, w1000: subRes.within(1000), w5000: subRes.within(5000), avg: subRes.avg,
-          list: subRes.list.slice(0, 16).map(x => ({ dist: x.dist, skip: Math.abs(x.hit.skip), ...locOf(x.hit.start) })) } : null,
+        sub: overlayData[0] ? { term: overlayData[0].term, count: overlayData[0].count, nearest: overlayData[0].nearest?.dist ?? null, w1000: overlayData[0].within(1000), w5000: overlayData[0].within(5000),
+          list: overlayData[0].list.slice(0, 16).map(x => ({ dist: x.dist, skip: Math.abs(x.hit.skip), ...locOf(x.hit.start) })) } : null,
+        overlays: overlayData.map(o => ({ term: o.term, nearest: o.nearest?.dist ?? null, count: o.count })),
       };
     }
     return { ...base, has: true, mode: "cluster", terms,
       clusters: (res.clusters || []).slice(0, 10).map(cl => ({ span: cl.span, ...locOf(cl.picks[0].hit.start), picks: cl.picks.map(p => ({ term: p.term, skip: Math.abs(p.hit.skip) })) })) };
-  }, [res, anchorHit, subRes, terms, savedMeta, locOf]);
+  }, [res, anchorHit, overlayData, terms, savedMeta, locOf]);
   useEffect(() => { emit(EVENTS.ELS_STATE, elsSummary); }, [elsSummary]);
   useEffect(() => () => emit(EVENTS.ELS_STATE, null), []); // ניקוי בעת עזיבה
 
@@ -402,18 +459,30 @@ export default function ElsGrid({ seed }) {
         </div>
       </div>
 
-      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>טוען את אותיות התנ״ך…</div>}
+      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
+
+      {/* ⏳ לוּדר חיפוש — עיגול עם הלוגו המהבהב + משפט מתחלף */}
+      {searching && (
+        <div className="rw-card els-loading">
+          <div className="els-loading-ring"><img src={LOGO_URL} alt="" className="els-loading-logo" /></div>
+          <div className="els-loading-msg">{ELS_PHRASES[phraseIdx]}</div>
+          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}…</div>
+        </div>
+      )}
 
       {/* ===== עובדות ===== */}
       {res?.mode === "single" && (res.hits?.length ? (() => {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
         return <div className="rw-card" style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ ...chip, gap: 7, borderColor: colorAt(0), color: colorAt(0) }}>{paintDot(terms[0], colorAt(0))} «{elsNormalize(terms[0])}»</span>
-          <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
-          <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
-          <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
-          <span style={chip}>מופעים <b style={{ color: C.acc }}>{res.hits.length}{res.capped ? "+" : ""}</b></span>
+          {/* דילוג · כיוון · מיקום · מופעים — מוצגים בקיר-הימני «תוצאות דילוג» (דסקטופ); כאן רק במובייל (אין קיר) */}
+          <span className="els-dup">
+            <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
+            <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
+            <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
+            <span style={chip}>מופעים <b style={{ color: C.acc }}>{res.hits.length}{res.capped ? "+" : ""}</b></span>
+          </span>
           {hit.mismatches > 0 && <span style={{ ...chip, color: "#b4453a", borderColor: "#e0b4b0" }}>~ התאמה קרובה</span>}
           <span style={chip}>גימטריה <Link to={`/number/${gem}?from=els`} style={{ color: C.acc, textDecoration: "none", fontWeight: 800 }}>{gem.toLocaleString("he")}</Link></span>
           <button onClick={() => setFull(true)} style={{ ...chip, marginInlineStart: "auto", cursor: "pointer" }}>⛶ מסך מלא</button>
@@ -451,51 +520,66 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
-      {/* ===== חיפוש בתוך חיפוש ===== */}
-      {res?.mode === "single" && res.hits?.length > 0 && (
+      {/* ===== שכבות-חיפוש — מכווץ כברירת-מחדל; נפתח כשרוצים חיפוש-משולב ===== */}
+      {res?.mode === "single" && res.hits?.length > 0 && !layersOpen && (
+        <button className="els-combine-btn" onClick={() => setLayersOpen(true)}>
+          🔢 חיפוש משולב — הוסיפו מונחים נוספים על המטריצה ▾
+        </button>
+      )}
+      {res?.mode === "single" && res.hits?.length > 0 && layersOpen && (
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
-            <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
-            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && subSearch()}
-              placeholder={`מונח נוסף — נמצא את הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
-            <button className="els-sub-btn" onClick={subSearch} disabled={elsNormalize(subRaw).length < 2}>מצא קרוב</button>
-            {subTerm && <button className="els-sub-clear" onClick={() => { setSubTerm(""); setSubRaw(""); }}>נקה</button>}
+            <span className="els-sub-t">🔢 שכבות חיפוש</span>
+            <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ">▴ כווץ</button>
+            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
+              placeholder={`מונח נוסף על המטריצה — הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
+            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+            <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
+            {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
-          <Help label="ℹ️ מה זה «חיפוש בתוך התוצאה»?">
-            מזינים מונח <b>שני</b>, והמנוע מוצא היכן הוא מופיע <b>הכי קרוב</b> למונח הראשון בטקסט. במטריצה הוא מודגש בצבע שני — <b>שמתחלש ככל שהמופע רחוק יותר</b> מהעוגן. הסטטיסטיקות (בתוך 1,000 / 5,000 אות · מרחק ממוצע) מודדות כמה «צמודים» השניים.
+          <Help label="ℹ️ איך עובדות שכבות-חיפוש?">
+            המונח הראשון הוא <b>העוגן</b>. כל מונח שתוסיפו = <b>שכבה</b> חדשה: המנוע מוצא את המופע <b>הקרוב ביותר</b> לעוגן וצובע אותו במטריצה בצבע משלו. אפשר להוסיף שני · שלישי · רביעי… כל אחד ריבוע בטבלה למטה. 🎨 לחיצה על נקודת-הצבע = שינוי צבע. 💾 «שמור מטריצה» שומר את כל הצירוף.
           </Help>
-          {subRes && (subRes.list.length ? (
-            <>
-              <div className="els-sub-stats">
-                <span style={{ ...chip, gap: 7 }}>{paintDot(subTerm, colorAt(1))} «{subRes.norm}» הקרוב ביותר: <b style={{ color: colorAt(1) }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
-                <span style={chip}>📍 {locOf(subFocus.hit.start).label} · אות {locOf(subFocus.hit.start).off.toLocaleString("he")}</span>
-                <span style={chip}>דילוג {Math.abs(subFocus.hit.skip).toLocaleString("he")}</span>
-                <span style={chip}>סך מופעים <b>{subRes.count.toLocaleString("he")}{subRes.capped ? "+" : ""}</b></span>
-                <span style={chip}>בתוך 1,000 אות <b>{subRes.within(1000).toLocaleString("he")}</b></span>
-                <span style={chip}>בתוך 5,000 <b>{subRes.within(5000).toLocaleString("he")}</b></span>
-                <span style={chip}>מרחק ממוצע <b>{subRes.avg.toLocaleString("he")}</b></span>
-              </div>
-              <div className="els-sub-note">המונח-המשני מודגש במטריצה ב<b>צבע שמתחלש ככל שהמופע מתרחק</b> מהעוגן (הקרוב = חזק, הרחוק = דהוי). עובדה מדידה, לא הוכחה.</div>
-              <div className="els-list" style={{ marginTop: 10 }}>
-                <div className="els-list-h">📋 {subRes.list.length} מופעים של «{subRes.norm}» — ממוין לפי קרבה</div>
-                <div className="els-list-body">
-                  {subRes.list.slice(0, 60).map((x, i) => {
-                    const l = locOf(x.hit.start);
-                    const fade = i < 8 ? (i === subIdx ? 1 : Math.max(0.45, 1 - i * 0.09)) : 0.5; // דהייה ככל שמתרחק
-                    return (
-                      <button key={i} style={{ opacity: fade }} className={"els-row" + (i === Math.min(subIdx, subRes.list.length - 1) ? " on" : "")} onClick={() => setSubIdx(i)}>
-                        <span className="els-rk">{i + 1}</span>
-                        <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
-                        <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
-                        <span className="els-rc">{l.label}</span>
-                        <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~קרוב" : ""}</span>
-                      </button>
-                    );
-                  })}
+          {/* טבלת השכבות — ריבוע לכל מונח */}
+          <div className="els-layers">
+            <span className="els-layer anchor" style={{ borderColor: colorAt(0) }}>
+              {paintDot(elsNormalize(terms[0]), colorAt(0))} <b style={{ color: colorAt(0) }}>{elsNormalize(terms[0])}</b>
+              <span className="els-layer-meta">עוגן · דילוג {Math.abs(anchorHit.skip).toLocaleString("he")}</span>
+            </span>
+            {overlayData.map(o => (
+              <span key={o.term} className="els-layer" style={{ borderColor: colorAt(o.ci) }}>
+                {paintDot(o.term, colorAt(o.ci))} <b style={{ color: colorAt(o.ci) }}>{o.term}</b>
+                <span className="els-layer-meta">
+                  {o.nearest ? <>קרוב <b>{o.nearest.dist.toLocaleString("he")}</b> · דילוג {Math.abs(o.nearest.hit.skip).toLocaleString("he")} · {locOf(o.nearest.hit.start).label}</> : "לא נמצא בטווח"}
+                </span>
+                <button className="els-layer-x" onClick={() => addFinding(o.term)} title="שמור לטבלת הממצאים שלי" style={{ color: "var(--acc)" }}>💾</button>
+                <button className="els-layer-x" onClick={() => removeOverlay(o.term)} title="הסר שכבה">✕</button>
+              </span>
+            ))}
+          </div>
+          {overlays.length === 0
+            ? <div className="rw-sub" style={{ marginTop: 8 }}>הקלידו מונח ו«➕ הוסף» — הוא יופיע כאן כריבוע צבעוני וייצבע על המטריצה. הוסיפו כמה שתרצו (שני · שלישי · רביעי…), ושמרו את הצירוף ב«💾 שמור מטריצה».</div>
+            : <div className="els-sub-note">כל שכבה = המופע הקרוב-ביותר לעוגן, בצבעה · 💾 = שמירה לטבלת-הממצאים. «קרוב» = מרחק באותיות. עובדה מדידה — לא הוכחה.</div>}
+
+          {/* 📌 הממצאים שלי — טבלה אישית: הוספה/מחיקה ידנית, נשמר אצלך */}
+          <div className="els-findings">
+            <div className="els-find-bar">
+              <span className="els-sub-t" style={{ fontSize: 13.5 }}>📌 הממצאים שלי</span>
+              <input className="els-sub-in" dir="rtl" value={findRaw} onChange={e => setFindRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addFinding()}
+                placeholder="הוסף ממצא ידני (אותיות/ביטוי שמצאת)…" />
+              <button className="els-sub-btn" onClick={() => addFinding()} disabled={!findRaw.trim()}>➕ שמור ממצא</button>
+            </div>
+            {findings.length > 0
+              ? <div className="els-find-list">
+                  {findings.map(f => (
+                    <span key={f} className="els-find-chip">
+                      <button className="els-find-go" onClick={() => addOverlay(f)} title="חפש כשכבה על המטריצה">{f}</button>
+                      <button className="els-find-x" onClick={() => removeFinding(f)} title="מחק מהטבלה">✕</button>
+                    </span>
+                  ))}
                 </div>
-              </div>
-            </>
-          ) : <div className="rw-muted" style={{ marginTop: 10 }}>«{subRes.norm}» לא נמצא כדילוג עד {q.skipMax}. הגדילו דילוג או סמנו «כולל קרובים».</div>)}
+              : <div className="rw-sub" style={{ marginTop: 6 }}>טבלה אישית — מוסיפים אותיות/ביטויים שמצאתם (ידנית או דרך 💾 שעל שכבה), והם נשמרים כאן. לחיצה על ממצא = חיפוש שלו על המטריצה.</div>}
+          </div>
         </div>
       )}
 
@@ -534,6 +618,39 @@ const ELS_CSS = `
 .els-sub-btn{border:none;background:var(--acc);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:9px 18px;cursor:pointer;font-family:inherit}
 .els-sub-btn:disabled{opacity:.5;cursor:default}
 .els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
+/* ⏳ לוּדר חיפוש — לוגו מהבהב בעיגול */
+.els-loading{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:12px;padding:30px 20px;text-align:center}
+.els-loading-ring{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,var(--accS),transparent 72%);animation:els-pulse 1.25s ease-in-out infinite}
+.els-loading-logo{width:60px;height:60px;object-fit:contain;border-radius:50%;animation:els-blink 1.25s ease-in-out infinite}
+@keyframes els-pulse{0%,100%{box-shadow:0 0 0 0 var(--acc);transform:scale(1)}50%{box-shadow:0 0 0 16px transparent;transform:scale(1.07)}}
+@keyframes els-blink{0%,100%{opacity:1;filter:drop-shadow(0 0 5px var(--acc))}50%{opacity:.5;filter:drop-shadow(0 0 16px var(--acc))}}
+.els-loading-msg{font-size:16.5px;font-weight:800;color:var(--ink);animation:els-fade 1.25s ease-in-out infinite}
+@keyframes els-fade{0%,100%{opacity:1}50%{opacity:.6}}
+.els-loading-sub{font-size:12.5px;color:var(--ink2)}
+@media(prefers-reduced-motion:reduce){.els-loading-ring,.els-loading-logo,.els-loading-msg{animation:none}}
+/* כפילות עם «תוצאות דילוג» בקיר-הימני: מוצג רק במובייל (≤760, אז אין קיר), מוסתר בדסקטופ */
+.els-dup{display:contents}
+@media(min-width:761px){.els-dup{display:none}}
+/* כפתור פתיחת חיפוש-משולב (פאנל-השכבות מכווץ) */
+.els-combine-btn{display:block;width:100%;margin-top:12px;padding:12px 16px;border:1.5px dashed var(--acc);background:var(--accS);
+  color:var(--acc);border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.12s}
+.els-combine-btn:hover{background:var(--acc);color:#fff;border-style:solid}
+.els-layers{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.els-layer{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13.5px;font-weight:700}
+.els-layer.anchor{background:var(--accS)}
+.els-layer-meta{font-size:11.5px;font-weight:600;color:var(--ink2)}
+.els-layer-x{border:none;background:none;cursor:pointer;color:var(--ink3);font-size:13px;padding:0 0 0 2px;line-height:1}
+.els-layer-x:hover{color:#b4453a}
+/* 📌 הממצאים שלי */
+.els-findings{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.els-find-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.els-find-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.els-find-chip{display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.els-find-go{border:none;background:none;color:var(--ink);font-weight:700;font-size:13px;padding:6px 12px;cursor:pointer;font-family:inherit}
+.els-find-go:hover{color:var(--acc);background:var(--accS)}
+.els-find-x{border:none;background:none;color:var(--ink3);cursor:pointer;font-size:11px;padding:6px 9px 6px 5px}
+.els-find-x:hover{color:#b4453a}
 .els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
 .els-help{margin:8px 0 4px;background:var(--accS);border:1px solid var(--line);border-radius:10px;padding:2px 12px}

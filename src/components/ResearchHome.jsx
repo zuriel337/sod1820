@@ -75,14 +75,14 @@ export default function ResearchHome({ onOpen }) {
   // 💡 פאנל-הסבר: פתוח בכניסה ראשונה, נסגר ונזכר, ניתן לפתיחה חוזרת ב-«❓ הסבר».
   const [explainOpen, setExplainOpen] = useState(() => { try { return localStorage.getItem("rw_explain_seen") !== "1"; } catch { return true; } });
   const closeExplain = () => { setExplainOpen(false); try { localStorage.setItem("rw_explain_seen", "1"); } catch { /* noop */ } };
-  // 🔎 שדה-חיפוש חופשי בשער: מספר → דף-המספר · טקסט → מחשבון הגימטריה (טעון מראש).
+  // 🔎 שדה-חיפוש חופשי בשער — «הגוגל של המספרים»: מספר *או* מילה/משפט → דף-המספר,
+  // שם רואים את כל הגימטריות ברשימה + ההצלבות וההתכנסויות. EntityPage פותר אוטומטית.
   const [gateQ, setGateQ] = useState("");
   const gateGo = e => {
     e.preventDefault();
     const v = gateQ.trim();
     if (!v) return;
-    if (/^\d+$/.test(v)) navigate(`/research?tool=number&n=${v}`);
-    else navigate(`/research?tool=midrash&tab=calc&w=${encodeURIComponent(v)}`);
+    navigate(`/research?tool=number&n=${encodeURIComponent(v)}`);
   };
   return (
     <div>
