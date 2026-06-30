@@ -77,6 +77,27 @@ export default function ResearchHome({ onOpen }) {
       <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
       {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
 
+      {/* ✅ עובד עכשיו — רצועת-זינוק לכלים הפעילים, בולטת למעלה. המפה המלאה (הפילוח לעתיד) נשארת מתחת. */}
+      {(() => {
+        const working = TOOLS
+          .filter(t => isToolReady(t.id, isAdmin))
+          .sort((a, b) => (FLAGSHIP_TOOLS.includes(a.id) ? 0 : 1) - (FLAGSHIP_TOOLS.includes(b.id) ? 0 : 1));
+        if (!working.length) return null;
+        return (
+          <div className="rw-quick">
+            <div className="rw-quick-h">✅ עובד עכשיו · התחילו כאן</div>
+            <div className="rw-quick-row">
+              {working.map(t => (
+                <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}>
+                  <span className="qc-ic">{t.icon}</span> {t.title}
+                  {FLAGSHIP_TOOLS.includes(t.id) && <span className="qc-flag">👑</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {CATS.map(c => {
         const items = TOOLS.filter(t => t.cat === c.key).sort((a, b) => catRank(a, isAdmin) - catRank(b, isAdmin));
         if (!items.length) return null;
