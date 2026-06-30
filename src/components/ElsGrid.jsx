@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase.js";
 import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 import { LOGO_URL } from "../theme.js";
+import { tokenLabel } from "../lib/els/tokens.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -53,8 +54,11 @@ export default function ElsGrid({ seed }) {
   const [tanakhBusy, setTanakhBusy] = useState(false);
   const [err, setErr] = useState(false);
   const [zoom, setZoom] = useState(1);       // זום למטריצה
-  const [gridWide, setGridWide] = useState(true); // רשת רחבה (כפולה) לדילוג גדול — נגררת ימין/שמאל
+  const [gridSize, setGridSize] = useState(2); // גודל-הרשת ×1/×2/×3 — כמה שורות/עמודות מציגים
   const matrixDrag = useRef(null);           // גרירת-עכבר לתזוזה אופקית במטריצה
+  const dragMoved = useRef(false);           // האם זזנו (כדי להבדיל גרירה מקליק)
+  const [selectMode, setSelectMode] = useState(false); // מצב בחירה-ידנית של אותיות
+  const [selCells, setSelCells] = useState([]);        // אינדקסי-אותיות שנבחרו (לפי סדר לחיצה)
   const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
   const [aiStruct, setAiStruct] = useState(null); // ניתוח-מבנה AI (אדמין)
   const [niqqud, setNiqqud] = useState(false);   // ניקוד אופציונלי
@@ -65,6 +69,11 @@ export default function ElsGrid({ seed }) {
     setNiqqud(v => !v);
   };
   const [raw, setRaw] = useState(seed || "ישראל");
+  const [raw2, setRaw2] = useState("");        // מונח שני (מצב מוצלב)
+  const [mode, setMode] = useState("torah");   // torah · tanakh · cross — שער-הכניסה
+  const [entered, setEntered] = useState(false); // false=מסך-תוצאות פשוט · true=סביבת-המטריצה
+  const [showAll, setShowAll] = useState(false); // הצג את כל התוצאות (לא רק ה-7 הראשונות)
+  const [advOpen, setAdvOpen] = useState(false); // הגדרות מתקדמות (דילוג/כיוון/ספר) — מקופל
   const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
   const [skipMax, setSkipMax] = useState(2000);
   const [pattern, setPattern] = useState("range");
@@ -146,7 +155,16 @@ export default function ElsGrid({ seed }) {
     return () => clearTimeout(id);
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  // החיפוש מתחשב במצב: רגיל = מונח אחד · מוצלב = שני מונחים יחד (אשכול-קרבה)
+  const search = () => {
+    const qraw = mode === "cross" ? [raw, raw2].map(s => s.trim()).filter(Boolean).join(", ") : raw;
+    const bk = mode === "tanakh" ? (book === "torah" ? "all" : book) : (mode === "torah" && book !== "torah" && (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805 ? "torah" : book);
+    setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
+    setEntered(false); setShowAll(false);
+    setQ({ raw: qraw, book: bk, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy });
+  };
+  // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
+  const switchMode = m => { setMode(m); setEntered(false); if (m === "torah") setBook("torah"); else if (m === "tanakh") setBook("all"); };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
   const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
@@ -219,44 +237,55 @@ export default function ElsGrid({ seed }) {
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
-    const colorMap = new Map(), opMap = new Map();
+    const s = Math.abs(anchorHit.skip), TARGET = 28;
+    const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
+    const framePos = res.mode === "single"
+      ? anchorHit.positions
+      : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
+    const minP = Math.min(...framePos), maxP = Math.max(...framePos);
+    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+    // 🔲 גודל-רשת ×gridSize: יותר עמודות (לדילוג גדול) ויותר שורות → אפשר להרחיב פי 2/3.
+    let colWin = W2, colStart = 0;
+    if (W2 > 34) { colWin = Math.min(W2, 34 * gridSize); const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - Math.floor(colWin / 2))); }
+    const padRows = 6 * gridSize;
+    const rowStart = firstRow - padRows, rowEnd = Math.min(lastRow + padRows, firstRow + 56 * gridSize);
+    // אוסף האינדקסים שבאמת נראים על המטריצה (לשימוש בסינון רשימת-ההצלבות לפי «מה גלוי»)
+    const visible = new Set();
+    for (let r = rowStart; r <= rowEnd; r++) for (let c = 0; c < colWin; c++) { const i = r * W2 + (colStart + c); if (r >= 0 && i >= 0 && i < letters.length) visible.add(i); }
+    // צביעה: עוגן=0; וכל מופע-שכבה ש**כולו גלוי** במטריצה → בצבע השכבה (ci). כך רואים את כל ההצלבות שעל המסך.
+    const colorMap = new Map();
     if (res.mode === "single") {
       anchorHit.positions.forEach(p => colorMap.set(p, 0));
-      // כל שכבה — המופע הקרוב-ביותר לעוגן, בצבע השכבה (ci)
-      overlayData.forEach(o => { if (o.nearest) o.nearest.hit.positions.forEach(p => colorMap.set(p, o.ci)); });
+      overlayData.forEach(o => o.list.forEach(x => { if (x.hit.positions.every(p => visible.has(p))) x.hit.positions.forEach(p => colorMap.set(p, o.ci)); }));
     } else {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
-    // 🔲 רוחב-תצוגה שממלא את הדף: דילוג קטן → כפולה שלו הקרובה ל-TARGET (לא «טור של 2»);
-    // דילוג גדול → רוחב=דילוג עם חלון ממורכז. כך המטריצה תמיד נפתחת רחב.
-    const s = Math.abs(anchorHit.skip), TARGET = 28;
-    const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
-    // ממסגרים סביב העוגן + השכבות הקרובות (כדי שהן ייכנסו לתצוגה), לא סביב צבעים רחוקים
-    const framePos = res.mode === "single"
-      ? [...anchorHit.positions, ...overlayData.flatMap(o => o.nearest ? o.nearest.hit.positions : [])]
-      : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
-    const minP = Math.min(...framePos), maxP = Math.max(...framePos);
-    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
-    let colWin = W2, colStart = 0;
-    // דילוג גדול: חלון-עמודות ממורכז על העוגן. «רשת רחבה» = כפול (~70) → נגררת ימין/שמאל לראות הצלבות.
-    if (W2 > 34) { colWin = Math.min(W2, gridWide ? 70 : 29); const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - Math.floor(colWin / 2))); }
-    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 170), rows = [];
+    const rows = [];
     for (let r = rowStart; r <= rowEnd; r++) {
       const cells = [];
       for (let c = 0; c < colWin; c++) {
         const i = r * W2 + (colStart + c);
-        cells.push(r >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, op: opMap.has(i) ? opMap.get(i) : 1, idx: i } : { ch: "", ci: -1, op: 1, idx: -1 });
+        cells.push(r >= 0 && i >= 0 && i < letters.length ? { ch: letters[i], ci: colorMap.has(i) ? colorMap.get(i) : -1, op: 1, idx: i } : { ch: "", ci: -1, op: 1, idx: -1 });
       }
       rows.push(cells);
     }
-    return { rows, W: W2, skip: s };
-  }, [res, anchorHit, clusterIdx, letters, overlayData, gridWide]);
+    return { rows, W: W2, skip: s, visible };
+  }, [res, anchorHit, clusterIdx, letters, overlayData, gridSize]);
 
-  // גרירת-עכבר לתזוזה אופקית (pan) על המטריצה
-  const onMatrixDown = e => { const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; el.style.cursor = "grabbing"; };
-  const onMatrixMove = e => { if (!matrixDrag.current) return; e.preventDefault(); e.currentTarget.scrollLeft = matrixDrag.current.left - (e.pageX - matrixDrag.current.x); };
-  const onMatrixUp = e => { matrixDrag.current = null; e.currentTarget.style.cursor = "grab"; };
+  // מופעי-השכבות שגלויים על המטריצה (לרשימת-ההצלבות — «רק מה שרואים»)
+  const overlayVisible = useMemo(() => {
+    if (!grid || res?.mode !== "single") return [];
+    return overlayData.map(o => ({ ...o, vis: o.list.filter(x => x.hit.positions.every(p => grid.visible.has(p))) }));
+  }, [grid, overlayData, res]);
+
+  // גרירת-עכבר לתזוזה אופקית (pan) — מושבתת במצב-בחירה (אז קליק = בחירת אות)
+  const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
+  const onMatrixMove = e => { if (!matrixDrag.current) return; if (Math.abs(e.pageX - matrixDrag.current.x) > 3) dragMoved.current = true; e.preventDefault(); e.currentTarget.scrollLeft = matrixDrag.current.left - (e.pageX - matrixDrag.current.x); };
+  const onMatrixUp = e => { matrixDrag.current = null; e.currentTarget.style.cursor = selectMode ? "crosshair" : "grab"; };
+  // קליק על אות במצב-בחירה → הוספה/הסרה מהבחירה (לפי סדר לחיצה)
+  const toggleCell = idx => { if (idx < 0) return; setSelCells(c => c.includes(idx) ? c.filter(x => x !== idx) : [...c, idx]); };
+  const selLetters = () => selCells.map(i => letters[i] || "").join("");
 
   // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
   // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
@@ -350,8 +379,15 @@ export default function ElsGrid({ seed }) {
       <button className="els-mt-b" onClick={() => setZoom(z => Math.min(3.5, +(z + 0.15).toFixed(2)))} title="התקרב (זום אין)">+</button>
       {zoom !== 1 && <button className="els-mt-b" onClick={() => setZoom(1)} title="איפוס">⟳</button>}
       <span className="els-mt-sep" />
-      <span className="els-mt-lb">רוחב</span>
-      <button className={"els-mt-nq" + (gridWide ? " on" : "")} onClick={() => setGridWide(w => !w)} title="רשת רחבה (כפולה) — גוררים ימין/שמאל בעכבר">{gridWide ? "כפול ✓" : "רגיל"}</button>
+      <span className="els-mt-lb">גודל-רשת</span>
+      {[1, 2, 3].map(n => <button key={n} className={"els-mt-nq" + (gridSize === n ? " on" : "")} onClick={() => setGridSize(n)} title={`רשת ×${n} — יותר שורות/עמודות`}>×{n}</button>)}
+      <span className="els-mt-sep" />
+      <button className={"els-mt-nq" + (selectMode ? " on" : "")} onClick={() => setSelectMode(m => !m)} title="בחירה ידנית: לוחצים על אותיות לסימון, ואז «שמור בחירה»">✋ בחירה</button>
+      {selectMode && selCells.length > 0 && <>
+        <span className="els-mt-z" dir="rtl" style={{ minWidth: 0, color: "#2f6df6", fontWeight: 800 }}>«{selLetters()}»</span>
+        <button className="els-mt-nq" onClick={() => { addFinding(selLetters()); setSelCells([]); }} title="שמור את הבחירה לטבלת-הממצאים">➕ שמור בחירה</button>
+        <button className="els-mt-b" onClick={() => setSelCells([])} title="נקה בחירה">✕</button>
+      </>}
       <span className="els-mt-sep" />
       <span className="els-mt-lb">רקע</span>
       {CELL_BGS.map((c, i) => <button key={i} className={"els-swatch" + (i === cellBgIdx ? " on" : "")} style={{ background: c.bg === "var(--bg)" ? "var(--bg)" : c.bg }} onClick={() => setCellBgIdx(i)} title={c.label} aria-label={c.label} />)}
@@ -364,18 +400,23 @@ export default function ElsGrid({ seed }) {
     if (!grid) return null;
     const sz = Math.round((big ? 38 : 30) * zoom), h = Math.round((big ? 42 : 34) * zoom), fs = Math.round((big ? 25 : 20) * zoom);
     return (
-      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "safe center", cursor: "grab" }}
+      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "safe center", cursor: selectMode ? "crosshair" : "grab" }}
         onMouseDown={onMatrixDown} onMouseMove={onMatrixMove} onMouseUp={onMatrixUp} onMouseLeave={onMatrixUp}>
         <div style={{ display: "inline-grid", gap: 3, background: theme.bg, padding: 8, borderRadius: 10 }}>
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
                 const col = cell.ci >= 0 ? colorAt(cell.ci) : null;
-                const bg = col ? (cell.op < 1 ? hexA(col, cell.op) : col) : theme.bg; // צבע מתחלש לפי קרבה
+                const sel = selectMode && cell.idx >= 0 && selCells.includes(cell.idx);
+                const bg = sel ? "#2f6df6" : col ? (cell.op < 1 ? hexA(col, cell.op) : col) : theme.bg;
                 const glyph = niqqud && nqData && cell.idx >= 0 ? cell.ch + (nqData[cell.idx] || "") : cell.ch;
-                return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: col ? 800 : 500, borderRadius: 6, overflow: "visible",
-                  color: col ? (cell.op < 0.55 ? "#3a1418" : "#fff") : theme.fg, background: bg, border: `1px solid ${col ? hexA(col, cell.op) : (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{glyph}</div>;
+                return <div key={c}
+                  onClick={selectMode ? (() => { if (!dragMoved.current) toggleCell(cell.idx); }) : undefined}
+                  style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "'Frank Ruhl Libre', serif", fontSize: fs, fontWeight: (col || sel) ? 800 : 500, borderRadius: 6, overflow: "visible",
+                  cursor: selectMode && cell.idx >= 0 ? "pointer" : "inherit",
+                  color: sel ? "#fff" : col ? (cell.op < 0.55 ? "#3a1418" : "#fff") : theme.fg,
+                  background: bg, border: sel ? "2px solid #1b4fd1" : `1px solid ${col ? hexA(col, cell.op) : (theme.bg === "var(--bg)" ? C.line : "transparent")}` }}>{glyph}</div>;
               })}
             </div>
           ))}
@@ -427,30 +468,42 @@ export default function ElsGrid({ seed }) {
   return (
     <div>
       <style>{ELS_CSS}</style>
-      <div className="rw-h1">🔡 דילוגי אותיות</div>
-      <div className="rw-sub"><b>שני מונחים יחד</b> (מופרדים בפסיק — «דוד, שלמה») → המערכת מוצאת אותם ב<b>קרבה</b> ומציגה את <b>התוצאה הכי טובה</b> במטריצה אחת. מונח אחד → המילה מודגשת לאורך הדילוג. «כולל קרובים» מאתר גם התאמה עם אות שונה. <b>משמעות = חקירה, לא הוכחה.</b></div>
-      <Help>
-        <b>איך המנוע עובד:</b> קוראים את אותיות התנ״ך ברצף קבוע — כל 2, כל 7, כל 50… — ובודקים אם נוצרת מילה. זה נקרא <b>דילוג שווה (ELS)</b>. ככל שהדילוג קצר יותר, המופע מובהק יותר. <b>חשוב ליושר:</b> אפשר למצוא דילוגים כמעט בכל טקסט גדול — לכן זו עדשת-חקירה, לא הוכחה.
-      </Help>
+      <div className="rw-h1">🔡 הצופן התנ״כי — דילוגי אותיות</div>
+
+      {/* 🚪 שער-כניסה — 3 אפשרויות ברורות (תורה חינם · תנ״ך/מוצלב = טוקנים) */}
+      <div className="els-modes">
+        {[
+          { k: "torah", e: "📖", t: "חיפוש בתורה", s: "אמיתי וידוע" },
+          { k: "tanakh", e: "📜", t: "חיפוש בכל התנ״ך", s: "רחב יותר" },
+          { k: "cross", e: "✦", t: "חיפוש מוצלב", s: "שניים יחד" },
+        ].map(m => (
+          <button key={m.k} className={"els-mode" + (mode === m.k ? " on" : "")} onClick={() => switchMode(m.k)}>
+            <span className="els-mode-e">{m.e}</span>
+            <span className="els-mode-t">{m.t}</span>
+            <span className="els-mode-s">{m.s}</span>
+            <span className="els-mode-tok">{tokenLabel(m.k, isAdmin)}</span>
+          </button>
+        ))}
+      </div>
+      <div className="rw-sub" style={{ marginBottom: 10 }}>
+        {mode === "torah" ? "חיפוש דילוגים בכל התורה (304,805 אותיות) — הטקסט הקבוע והמאומת."
+          : mode === "tanakh" ? "חיפוש בכל 24 ספרי התנ״ך — רחב יותר, אך פחות ודאי (לא תמיד יודעים את המילים)."
+          : "שני מונחים יחד (שם+משפחה · שני שמות) — המנוע מוצא את הקרבה המקסימלית ביניהם בטקסט."}
+      </div>
 
       <div className="rw-card">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input style={{ ...ctl, flex: "1 1 220px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
+          <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
             onChange={e => setRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
-            placeholder="שם · או כמה שמות בפסיק: דוד, בת שבע, שלמה" aria-label="מונחים לחיפוש" />
-          <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 22px", fontFamily: "inherit" }}>🔍 חפש</button>
+            placeholder={mode === "cross" ? "מונח ראשון (שם)…" : "מילה · שם · ביטוי…"} aria-label="מונח לחיפוש" />
+          {mode === "cross" && <>
+            <span style={{ color: C.acc, fontWeight: 800 }}>✦</span>
+            <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw2}
+              onChange={e => setRaw2(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
+              placeholder="מונח שני (משפחה)…" aria-label="מונח שני" />
+          </>}
+          <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 26px", fontFamily: "inherit" }}>🔍 חפש</button>
           <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
-          {/* 🔗 חיפוש שני להצלבה — לצד הראשון (לא מתחתיו). מופיע אחרי שמצאנו תוצאה יחידה. */}
-          {res?.mode === "single" && res.hits?.length > 0 && (
-            <>
-              <span style={{ width: 1, alignSelf: "stretch", background: C.line, margin: "2px 2px" }} />
-              <input style={{ ...ctl, flex: "1 1 170px", textAlign: "center" }} dir="rtl" value={subRaw}
-                onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
-                placeholder="מונח שני להצלבה…" aria-label="מונח שני להצלבה" />
-              <button onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}
-                style={{ cursor: "pointer", border: `1px solid ${C.acc}`, background: "var(--accS)", color: C.acc, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 18px", fontFamily: "inherit", opacity: elsNormalize(subRaw).length < 2 ? 0.5 : 1 }}>➕ הצלב</button>
-            </>
-          )}
         </div>
         {savedSearches.length > 0 && (
           <div className="els-saved">
@@ -463,23 +516,26 @@ export default function ElsGrid({ seed }) {
             ))}
           </div>
         )}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
-          <select style={{ ...ctl, cursor: "pointer" }} value={book} onChange={e => setBook(e.target.value)}>
-            {TANAKH_BOOKS.filter(b => !b.section).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
-            {["תורה", "נביאים", "כתובים"].map(sec => (
-              <optgroup key={sec} label={sec}>
-                {TANAKH_BOOKS.filter(b => b.section === sec).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
-              </optgroup>
-            ))}
-          </select>
-          <select style={{ ...ctl, cursor: "pointer" }} value={pattern} onChange={e => setPattern(e.target.value)}>{PATTERNS.map(([k, l]) => <option key={k} value={k}>דילוג: {l}</option>)}</select>
-          <select style={{ ...ctl, cursor: "pointer" }} value={dir} onChange={e => setDir(e.target.value)}>{DIRS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
-          <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center" }}>דילוג עד
-            <input style={{ ...ctl, width: 90, marginInlineStart: 6 }} type="number" min="2" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
-          <label className="els-chk" style={{ color: C.ink2 }}>
-            <input type="checkbox" checked={fuzzy} onChange={e => setFuzzy(e.target.checked)} /> כולל קרובים (±אות)
-          </label>
-        </div>
+        <button className="els-adv-toggle" onClick={() => setAdvOpen(o => !o)}>{advOpen ? "▾" : "▸"} הגדרות מתקדמות <span className="rw-muted" style={{ fontWeight: 600 }}>· דילוג · כיוון · ספר · תבנית</span></button>
+        {advOpen && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
+            <select style={{ ...ctl, cursor: "pointer" }} value={book} onChange={e => setBook(e.target.value)}>
+              {TANAKH_BOOKS.filter(b => !b.section).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+              {["תורה", "נביאים", "כתובים"].map(sec => (
+                <optgroup key={sec} label={sec}>
+                  {TANAKH_BOOKS.filter(b => b.section === sec).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+                </optgroup>
+              ))}
+            </select>
+            <select style={{ ...ctl, cursor: "pointer" }} value={pattern} onChange={e => setPattern(e.target.value)}>{PATTERNS.map(([k, l]) => <option key={k} value={k}>דילוג: {l}</option>)}</select>
+            <select style={{ ...ctl, cursor: "pointer" }} value={dir} onChange={e => setDir(e.target.value)}>{DIRS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+            <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center" }}>דילוג עד
+              <input style={{ ...ctl, width: 90, marginInlineStart: 6 }} type="number" min="2" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
+            <label className="els-chk" style={{ color: C.ink2 }}>
+              <input type="checkbox" checked={fuzzy} onChange={e => setFuzzy(e.target.checked)} /> כולל קרובים (±אות)
+            </label>
+          </div>
+        )}
       </div>
 
       {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
@@ -494,8 +550,57 @@ export default function ElsGrid({ seed }) {
         </div>
       )}
 
+      {/* ===== מסך-תוצאות פשוט — לפני כניסה למטריצה (לחיצה על תוצאה = כניסה) ===== */}
+      {res && !entered && !searching && (
+        <div className="rw-card" style={{ marginTop: 12 }}>
+          {res.mode === "single" ? (
+            !res.hits?.length
+              ? <div className="rw-muted">«{elsNormalize(terms[0] || "")}» לא נמצא כדילוג עד {q.skipMax}. נסו דילוג גדול יותר{!q.fuzzy ? ", או «כולל קרובים»" : ""}.</div>
+              : <>
+                  <div className="els-res-h">✦ נמצאו <b>{res.hits.length}{res.capped ? "+" : ""}</b> מופעים של «{elsNormalize(terms[0])}» — לחצו לפתיחת המטריצה</div>
+                  <div className="els-res-list">
+                    {res.hits.slice(0, showAll ? 60 : 7).map((h, i) => { const l = locOf(h.start); return (
+                      <button key={i} className="els-res-row" onClick={() => { setHitIdx(i); setEntered(true); }}>
+                        <span className="els-rk">{i + 1}</span>
+                        <span>דילוג <b>{Math.abs(h.skip).toLocaleString("he")}</b></span>
+                        <span>{h.dir > 0 ? "→" : "←"}</span>
+                        <span>{l.label}</span>
+                        <span className="rw-muted" style={{ marginInlineStart: "auto" }}>אות {l.off.toLocaleString("he")} · {l.pct}%{h.mismatches > 0 ? " · ~" : ""}</span>
+                        <span className="els-res-go">פתח ←</span>
+                      </button>
+                    ); })}
+                  </div>
+                  {res.hits.length > 7 && !showAll && <button className="els-combine-btn" onClick={() => setShowAll(true)}>פתח את כל ה-{res.hits.length} מופעים →</button>}
+                </>
+          ) : (
+            res.missing?.length
+              ? <div className="rw-muted">לא נמצאו כדילוג: {res.missing.join(" · ")}. הגדילו דילוג או «כולל קרובים».</div>
+              : !res.clusters?.length
+                ? <div className="rw-muted">המונחים נמצאו, אך לא בקרבה. הגדילו דילוג.</div>
+                : <>
+                    <div className="els-res-h">✦ {terms.join(" × ")} — <b>{res.clusters.length}</b> הצלבות (הכי קרוב קודם) · לחצו לפתיחה</div>
+                    <div className="els-res-list">
+                      {res.clusters.slice(0, showAll ? 60 : 7).map((cl, i) => { const l = locOf(cl.picks[0].hit.start); return (
+                        <button key={i} className="els-res-row" onClick={() => { setClusterIdx(i); setEntered(true); }}>
+                          <span className="els-rk">{i + 1}</span>
+                          <span>טווח <b>{cl.span.toLocaleString("he")}</b></span>
+                          <span>{l.label}</span>
+                          <span className="rw-muted" style={{ marginInlineStart: "auto" }}>{cl.picks.map(p => p.term).join(" · ")}</span>
+                          <span className="els-res-go">פתח ←</span>
+                        </button>
+                      ); })}
+                    </div>
+                    {res.clusters.length > 7 && !showAll && <button className="els-combine-btn" onClick={() => setShowAll(true)}>פתח את כל ה-{res.clusters.length} →</button>}
+                  </>
+          )}
+        </div>
+      )}
+
+      {/* כפתור-חזרה לתוצאות (בתוך סביבת-המטריצה) */}
+      {res && entered && <button className="els-back" onClick={() => setEntered(false)}>← חזרה לרשימת התוצאות</button>}
+
       {/* ===== עובדות ===== */}
-      {res?.mode === "single" && (res.hits?.length ? (() => {
+      {entered && res?.mode === "single" && (res.hits?.length ? (() => {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
         return <div className="rw-card" style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ ...chip, gap: 7, borderColor: colorAt(0), color: colorAt(0) }}>{paintDot(terms[0], colorAt(0))} «{elsNormalize(terms[0])}»</span>
@@ -512,7 +617,7 @@ export default function ElsGrid({ seed }) {
         </div>;
       })() : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>«{elsNormalize(terms[0] || "")}» לא נמצא כדילוג עד {q.skipMax}. נסו דילוג גדול יותר{!q.fuzzy ? ", או סמנו «כולל קרובים»" : ""}.</div>)}
 
-      {res?.mode === "cluster" && (res.missing?.length
+      {entered && res?.mode === "cluster" && (res.missing?.length
         ? <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>לא נמצאו כדילוג: {res.missing.join(" · ")}. הגדילו את הדילוג{!q.fuzzy ? " או סמנו «כולל קרובים»" : ""}.</div>
         : cluster0
           ? <div className="rw-card" style={{ marginTop: 12 }}>
@@ -543,21 +648,18 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
-      {/* ===== שכבות · הצלבות · ממצאים — נפתח כשמוסיפים מונח שני (מהשורה למעלה) או בלחיצה ===== */}
-      {res?.mode === "single" && res.hits?.length > 0 && overlays.length === 0 && !layersOpen && (
-        <button className="els-combine-btn" onClick={() => setLayersOpen(true)}>
-          📌 שכבות · הצלבות · הממצאים שלי ▾
-        </button>
-      )}
-      {res?.mode === "single" && res.hits?.length > 0 && (overlays.length > 0 || layersOpen) && (
+      {/* ===== חיפוש-בתוך-התוצאה (שורות דקות) + שכבות · הצלבות · ממצאים ===== */}
+      {entered && res?.mode === "single" && res.hits?.length > 0 && (
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
-            <span className="els-sub-t">🔢 שכבות · הצלבות</span>
+            <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
+            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
+              placeholder={`מונח נוסף שמופיע ליד «${elsNormalize(terms[0] || "")}» על המטריצה…`} />
+            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
-            <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ" style={{ marginInlineStart: "auto" }}>▴ כווץ</button>
           </div>
-          <div className="rw-sub" style={{ marginBottom: 4 }}>הוסיפו מונח שני בשורת-החיפוש למעלה («➕ הצלב») — כל מונח = שכבה צבעונית על המטריצה, עם רשימת ההצלבות הקרובות. 🎨 לחיצה על נקודת-צבע = שינוי צבע.</div>
+          <div className="rw-sub" style={{ marginBottom: 4 }}>מחפש <b>רק בתוך המטריצה</b> (ליד התוצאה) — מהיר, בלי להפעיל מנוע על כל הטקסט. כל מונח = שכבה צבעונית. 🎨 לחיצה על נקודת-צבע = שינוי צבע.</div>
           {/* טבלת השכבות — ריבוע לכל מונח */}
           <div className="els-layers">
             <span className="els-layer anchor" style={{ borderColor: colorAt(0) }}>
@@ -576,27 +678,31 @@ export default function ElsGrid({ seed }) {
             ))}
           </div>
 
-          {/* 🔗 רשימת הצלבות — הקרובים ביותר של כל מונח-שכבה לעוגן */}
-          {overlayData.filter(o => o.list.length).map(o => (
+          {/* 🔗 רשימת הצלבות — רק המופעים ש**גלויים על המטריצה** (לא כל רשימת-המרחקים) */}
+          {overlayVisible.map(o => (
             <div key={o.term} className="els-list" style={{ marginTop: 12 }}>
-              <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.list.length} הצלבות (ממוין לפי קרבה)</div>
-              <div className="els-list-body">
-                {o.list.slice(0, 30).map((x, i) => {
-                  const l = locOf(x.hit.start);
-                  return (
-                    <div key={i} className="els-row">
-                      <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
-                      <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
-                      <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
-                      <span className="els-rc">{l.label}</span>
-                      <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~" : ""}</span>
+              {o.vis.length === 0
+                ? <div className="rw-sub" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» — אין מופע גלוי על המטריצה. הגדילו «גודל-רשת» (×2/×3) או גררו, והוא יופיע.</div>
+                : <>
+                    <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.vis.length} {o.vis.length === 1 ? "הצלבה גלויה" : "הצלבות גלויות"}</div>
+                    <div className="els-list-body">
+                      {o.vis.map((x, i) => {
+                        const l = locOf(x.hit.start);
+                        return (
+                          <div key={i} className="els-row">
+                            <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
+                            <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
+                            <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
+                            <span className="els-rc">{l.label}</span>
+                            <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~" : ""}</span>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
+                  </>}
             </div>
           ))}
-          {overlays.length === 0 && <div className="rw-sub" style={{ marginTop: 8 }}>הוסיפו מונח שני למעלה («➕ הצלב») — תקבלו אותו צבוע על המטריצה + רשימת ההצלבות הקרובות אליו.</div>}
+          {overlays.length === 0 && <div className="rw-sub" style={{ marginTop: 8 }}>הוסיפו מונח שני למעלה («➕ הצלב») — הוא ייצבע על המטריצה, ותקבלו רשימה רק של ההצלבות ש<b>נראות</b> ברשת.</div>}
 
           {/* 📌 הממצאים שלי — טבלה אישית: הוספה/מחיקה ידנית, נשמר אצלך */}
           <div className="els-findings">
@@ -606,28 +712,28 @@ export default function ElsGrid({ seed }) {
                 placeholder="הוסף ממצא ידני (אותיות/ביטוי שמצאת)…" />
               <button className="els-sub-btn" onClick={() => addFinding()} disabled={!findRaw.trim()}>➕ שמור ממצא</button>
             </div>
-            {findings.length > 0
-              ? <div className="els-find-list">
-                  {findings.map(f => (
-                    <span key={f} className="els-find-chip">
-                      <button className="els-find-go" onClick={() => addOverlay(f)} title="חפש כשכבה על המטריצה">{f}</button>
-                      <button className="els-find-x" onClick={() => removeFinding(f)} title="מחק מהטבלה">✕</button>
-                    </span>
-                  ))}
-                </div>
-              : <div className="rw-sub" style={{ marginTop: 6 }}>טבלה אישית — מוסיפים אותיות/ביטויים שמצאתם (ידנית או דרך 💾 שעל שכבה), והם נשמרים כאן. לחיצה על ממצא = חיפוש שלו על המטריצה.</div>}
+            {findings.length > 0 && (
+              <div className="els-find-list">
+                {findings.map(f => (
+                  <span key={f} className="els-find-chip">
+                    <button className="els-find-go" onClick={() => addOverlay(f)} title="חפש כשכבה על המטריצה">{f}</button>
+                    <button className="els-find-x" onClick={() => removeFinding(f)} title="מחק מהטבלה">✕</button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* ===== המטריצה + רשימה ===== */}
-      {grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
-      {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
-      {grid && <Help label="ℹ️ איך קוראים את המטריצה?">
+      {entered && grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
+      {entered && grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
+      {entered && grid && <Help label="ℹ️ איך קוראים את המטריצה?">
         אותיות התנ״ך נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
       </Help>}
 
-      {res && <div className="rw-card" style={{ marginTop: 12 }}><ResultsList /></div>}
+      {entered && res && <div className="rw-card" style={{ marginTop: 12 }}><ResultsList /></div>}
 
       {/* ===== מסך מלא ===== */}
       {full && grid && (
@@ -673,6 +779,27 @@ const ELS_CSS = `
 .els-combine-btn{display:block;width:100%;margin-top:12px;padding:12px 16px;border:1.5px dashed var(--acc);background:var(--accS);
   color:var(--acc);border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.12s}
 .els-combine-btn:hover{background:var(--acc);color:#fff;border-style:solid}
+/* 🚪 שער-מצבים */
+.els-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.els-mode{display:flex;flex-direction:column;align-items:center;gap:3px;padding:13px 10px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;cursor:pointer;font-family:inherit;transition:.12s}
+.els-mode.on{border-color:var(--acc);background:var(--accS);box-shadow:0 6px 16px -10px rgba(60,46,16,.4)}
+.els-mode-e{font-size:22px;line-height:1}
+.els-mode-t{font-weight:800;font-size:14px;color:var(--ink)}
+.els-mode-s{font-size:11.5px;color:var(--ink3)}
+.els-mode-tok{font-size:11px;font-weight:800;color:var(--acc);margin-top:2px}
+@media(max-width:560px){.els-mode-s{display:none}.els-mode{padding:10px 6px}.els-mode-t{font-size:12.5px}}
+.els-adv-toggle{margin-top:9px;border:none;background:none;color:var(--ink2);font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;padding:2px 0}
+.els-adv-toggle:hover{color:var(--acc)}
+/* מסך-תוצאות פשוט */
+.els-res-h{font-weight:800;font-size:14px;color:var(--ink);margin-bottom:10px}
+.els-res-list{display:flex;flex-direction:column;gap:6px}
+.els-res-row{display:flex;align-items:center;gap:9px;width:100%;text-align:start;cursor:pointer;font-family:inherit;
+  background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 13px;font-size:13.5px;color:var(--ink2);transition:.12s}
+.els-res-row:hover{border-color:var(--acc);background:var(--accS)}
+.els-res-row b{color:var(--acc)}
+.els-res-go{font-weight:800;color:var(--acc);white-space:nowrap}
+.els-back{margin-top:12px;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+.els-back:hover{border-color:var(--acc);color:var(--acc)}
 .els-layers{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .els-layer{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13.5px;font-weight:700}
 .els-layer.anchor{background:var(--accS)}
