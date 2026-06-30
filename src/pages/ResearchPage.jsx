@@ -42,13 +42,15 @@ function GematriaTool({ seed }) {
   );
 }
 
-// כלי-המעבדה לשורה האופקית (deep-linkable: /research?tool=els)
-const LAB_TOOLS = TOOLS.filter(t => t.status === "live");
+// תפריט-המשנה: כלים שעובדים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
+const READY_LAB = TOOLS.filter(t => isToolReady(t.id));
+const FUTURE_LAB = TOOLS.filter(t => !isToolReady(t.id));
 
 export default function ResearchPage() {
   // 🧪 טיוטה — המעבדה פתוחה (בלי שער הרשמה). אין קישור בתפריט הראשי, הכתובת /research
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -60,17 +62,35 @@ export default function ResearchPage() {
   return (
     <ResearchShell>
       {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
-      <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
-        {LAB_TOOLS.map(t => {
-          const locked = !isToolReady(t.id);
-          return (
-            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}
-              title={locked ? "בשדרוג — בקרוב" : t.title} style={locked ? { opacity: 0.6 } : undefined}>
-              {locked ? "🔒" : t.icon} {t.title}
+      <div className="rw-subnav">
+        <div className="rw-toolbar">
+          <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
+          {/* כלים שעובדים */}
+          {READY_LAB.map(t => (
+            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
+              {t.icon} {t.title}
             </button>
-          );
-        })}
+          ))}
+        </div>
+        {/* כלים שיעבדו — תחת «עוד» (מחוץ לאזור-הגלילה כדי שלא ייחתך) */}
+        {FUTURE_LAB.length > 0 && (
+          <div className="rw-more-wrap">
+            <button className={"rw-tchip" + (FUTURE_LAB.some(t => t.id === tool) ? " on" : "")} onClick={() => setMoreOpen(o => !o)}>עוד ▾</button>
+            {moreOpen && (
+              <>
+                <div className="rw-more-back" onClick={() => setMoreOpen(false)} />
+                <div className="rw-more-pop">
+                  <div className="rw-more-h">בבנייה · ייפתחו בקרוב</div>
+                  {FUTURE_LAB.map(t => (
+                    <button key={t.id} className="rw-more-item" onClick={() => { setMoreOpen(false); setTool(t.id); }} title={t.desc}>
+                      🔒 {t.title}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {!tool ? (

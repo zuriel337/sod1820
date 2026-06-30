@@ -87,6 +87,18 @@ export const rwCss = (t = RW) => `
     padding:8px 15px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:40px}
   .rw-tchip:hover{border-color:var(--acc);color:var(--acc)}
   .rw-tchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  /* «עוד» — תפריט הכלים שיעבדו (בבנייה) */
+  .rw-subnav{display:flex;align-items:flex-start;gap:8px}
+  .rw-subnav .rw-toolbar{flex:1;min-width:0;margin-bottom:0}
+  .rw-more-wrap{position:relative;flex:none;padding-bottom:12px}
+  .rw-more-back{position:fixed;inset:0;z-index:40}
+  .rw-more-pop{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:41;min-width:210px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 14px 36px -12px rgba(60,46,16,.34),0 3px 8px -3px rgba(60,46,16,.14)}
+  .rw-more-h{font-size:10.5px;font-weight:800;color:var(--ink3);letter-spacing:.3px;padding:6px 9px 7px}
+  .rw-more-item{display:block;width:100%;text-align:right;border:none;background:none;color:var(--ink2);
+    border-radius:9px;padding:9px 10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .rw-more-item:hover{background:var(--chip);color:var(--acc)}
   .rw-rc{order:1;display:grid;gap:12px;position:sticky;top:74px}
   .rw-nav{order:3;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:9px;position:sticky;top:74px}
   .rw-nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:var(--ink2);

@@ -79,3 +79,17 @@ export async function saveCloudNotes(userId, content) {
     { onConflict: 'user_id' }
   );
 }
+
+// ── עולם-המשתמש בענן (user_research): cart · saved · pinned · history · collections ──
+export async function getCloudResearch(userId) {
+  if (!userId) return null;
+  const { data } = await supabase.from('user_research').select('data').eq('user_id', userId).maybeSingle();
+  return data?.data ?? null;
+}
+export async function saveCloudResearch(userId, data) {
+  if (!userId) return;
+  await supabase.from('user_research').upsert(
+    { user_id: userId, data: data || {}, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
+}

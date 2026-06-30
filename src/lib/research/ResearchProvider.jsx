@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { emit, EVENTS } from "./eventBus.js";
+import { useAuth } from "../AuthContext.jsx";
+import { getCloudResearch, saveCloudResearch } from "../auth.js";
 
 // 🧠 ResearchProvider — סביבת המחקר הגלובלית (Local-first). מחזיק את «המחקר הפעיל»
 // (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
@@ -23,6 +25,37 @@ export default function ResearchProvider({ children }) {
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections })); } catch { /* noop */ }
   }, [cart, saved, pinned, history, collections]);
+
+  // ☁️ סנכרון-ענן למשתמש מחובר — כל «עולם המשתמש» עובר בין מכשירים.
+  const { user } = useAuth();
+  const pulled = useRef(false);
+  // התחברות → משיכת המצב מהענן (ענן מנצח אם יש בו תוכן; אחרת דוחפים את המקומי למעלה)
+  useEffect(() => {
+    pulled.current = false;
+    if (!user) return;
+    let alive = true;
+    getCloudResearch(user.id).then(d => {
+      if (!alive) return;
+      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length));
+      if (has) {
+        if (Array.isArray(d.cart)) setCart(d.cart);
+        if (Array.isArray(d.saved)) setSaved(d.saved);
+        if (Array.isArray(d.pinned)) setPinned(d.pinned);
+        if (Array.isArray(d.history)) setHistory(d.history);
+        if (Array.isArray(d.collections)) setCollections(d.collections);
+      } else {
+        saveCloudResearch(user.id, { cart, saved, pinned, history, collections }).catch(() => {});
+      }
+      pulled.current = true;
+    }).catch(() => { pulled.current = true; });
+    return () => { alive = false; };
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  // שינוי מצב + מחובר + אחרי המשיכה → דחיפה לענן (debounce)
+  useEffect(() => {
+    if (!user || !pulled.current) return;
+    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections }).catch(() => {}); }, 700);
+    return () => clearTimeout(t);
+  }, [user, cart, saved, pinned, history, collections]);
 
   // 🕘 לוג-היסטוריה — «המשך מהמקום שעצרת». הכי-חדש למעלה, ללא כפילויות, מוגבל ל-50.
   const logHistory = useCallback((entity) => {
