@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TANAKH_BOOKS } from "../features/els/Els.jsx";
+import { elsNormalize, elsSearch, buildSkipSet, TANAKH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
@@ -44,7 +44,12 @@ async function elsSearchChunked(letters, targetRaw, skipMin, skipMax, dir, mm, o
   const dirs = dir === "fwd" ? [1] : dir === "back" ? [-1] : [1, -1];
   const winFrom = Math.max(0, opts.winFrom ?? 0), winTo = Math.min(N, opts.winTo ?? N);
   const skips = opts.skips || null;
-  let capped = false; const CAP = 5000, CHUNK = 14000;
+  // 🛟 גודל-מקטע מסתגל — מבטיח שאף מקטע לא חוסם את ה-thread יותר מדי (אחרת הדפדפן «נתקע»).
+  // ככל שטווח-הדילוג/האורך גדול → מקטע קטן יותר → נשימה תכופה יותר. mm>0 (מטושטש) = כבד יותר.
+  const span = skips ? skips.length : Math.max(1, skipMax - skipMin + 1);
+  const factor = mm > 0 ? 1 : 0.06;
+  const CHUNK = Math.max(700, Math.min(14000, Math.round(5_000_000 / (factor * span * dirs.length * L))));
+  let capped = false; const CAP = 5000;
   for (let start = winFrom; start < winTo && !capped;) {
     if (cancelRef.current) return { hits, N: winTo - winFrom, target, capped, canceled: true };
     const stop = Math.min(start + CHUNK, winTo);
@@ -70,6 +75,39 @@ async function elsSearchChunked(letters, targetRaw, skipMin, skipMax, dir, mm, o
   }
   hits.sort((a, b) => (a.mismatches - b.mismatches) || (Math.abs(a.skip) - Math.abs(b.skip)));
   return { hits, N: winTo - winFrom, target, capped };
+}
+
+// 🔗 אשכול-קרבה **לא-חוסם** — מחפש כל מונח דרך elsSearchChunked (מקטעים+נשימה+ביטול) ואז מרכיב
+// את האשכולות (הרכבה קלה). כך גם החיפוש המוצלב לא מקפיא את הדפדפן — תמיד יש לוּדר שניתן לעצור.
+async function elsClustersChunked(letters, termsRaw, skipMin, skipMax, dir, mm, opts, onProgress, cancelRef) {
+  const norm = termsRaw.map(elsNormalize).filter(t => t.length >= 2);
+  const perTerm = [];
+  for (let i = 0; i < norm.length; i++) {
+    const r = await elsSearchChunked(letters, norm[i], skipMin, skipMax, dir, mm, opts,
+      p => onProgress(Math.round((i * 100 + p) / Math.max(1, norm.length))), cancelRef);
+    if (cancelRef.current) return { clusters: [], terms: norm, canceled: true };
+    perTerm.push({ term: r.target, hits: r.hits });
+  }
+  const missing = perTerm.filter(p => p.hits.length === 0).map(p => p.term);
+  const allTerms = perTerm.map(p => p.term);
+  if (missing.length) return { clusters: [], missing, terms: allTerms };
+  const sorted = [...perTerm].sort((a, b) => a.hits.length - b.hits.length);
+  const anchor = sorted[0], others = sorted.slice(1);
+  const center = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
+  const clusters = [];
+  for (const aHit of anchor.hits.slice(0, 200)) {
+    const aC = center(aHit); const picks = [{ term: anchor.term, hit: aHit }]; let ok = true;
+    for (const o of others) {
+      let best = null, bestD = Infinity;
+      for (const h of o.hits) { const d = Math.abs(center(h) - aC); if (d < bestD) { bestD = d; best = h; } }
+      if (!best) { ok = false; break; } picks.push({ term: o.term, hit: best });
+    }
+    if (!ok) continue;
+    const allPos = picks.flatMap(p => p.hit.positions);
+    clusters.push({ picks, span: Math.max(...allPos) - Math.min(...allPos), anchorHit: aHit });
+  }
+  clusters.sort((a, b) => a.span - b.span);
+  return { clusters: clusters.slice(0, 20), terms: allTerms, anchorTerm: anchor.term };
 }
 
 // ✦ משפטים מתחלפים בזמן החיפוש — מתחת ללוגו המהבהב
@@ -132,8 +170,8 @@ const FEATURED_FINDINGS = [
     mode: "single",
     title: "תורה קדשה — דילוג נדיר בתורה",
     terms: ["תורה קדשה"],
-    skipMax: 10100,
-    wonder: "«תורה קדשה» מופיע בכל התורה כדילוג שוות-מרחק פעם אחת בלבד (דילוג 10,065) — נדירות אמיתית. פִּתחו, ואז «🔭 סרוק מילון» כדי לראות מי מהמילון נחתך איתו.",
+    skipMin: 10065, skipMax: 10065, autoEnter: true, // ההגדרות שמורות → נפתח מיידית למטריצה
+    wonder: "«תורה קדשה» מופיע בכל התורה כדילוג שוות-מרחק פעם אחת בלבד (דילוג 10,065) — נדירות אמיתית. לחיצה פותחת ישר את המטריצה; ואז «🔭 סרוק מילון» מראה מי נחתך איתו.",
     facts: "«תורה קדשה» = 1020 (רגיל) = השגחה פרטית = נשמה יתירה = גילוי השכינה לישראל. אין אותיות סופיות — לכן הגדול שווה לרגיל.",
     by: "נדיר: מופע יחיד בתורה · אומת במנוע",
   },
@@ -169,6 +207,7 @@ export default function ElsGrid({ seed }) {
   const [showAll, setShowAll] = useState(false); // הצג את כל התוצאות (לא רק ה-7 הראשונות)
   const [advOpen, setAdvOpen] = useState(false); // הגדרות מתקדמות (דילוג/כיוון/ספר) — מקופל
   const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
+  const [skipMin, setSkipMin] = useState(1);
   const [skipMax, setSkipMax] = useState(2000);
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
@@ -189,7 +228,7 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
 
   // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
   const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
@@ -244,18 +283,16 @@ export default function ElsGrid({ seed }) {
     let alive = true;
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
     const mm = q.fuzzy ? 1 : 0;
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, isCluster ? 1 : 2, q.skipMax) };
+    const sMin = Math.max(1, q.skipMin ?? 1), sMax = Math.max(sMin, Math.max(3, q.skipMax));
+    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, sMin, sMax) };
     if (isCluster) {
-      // מוצלב: אשכול-קרבה (כולל skip 1 → מוצא גם טקסט-רצוף). יְדידוּת-לוּדר: yield קצר ואז חישוב.
-      const id = setTimeout(() => {
-        if (!alive || cancelRef.current) return;
-        setRes({ mode: "cluster", ...elsClusters(letters, terms, 1, Math.max(3, q.skipMax), q.dir, mm, opts) });
-        setSearching(false);
-      }, 40);
-      return () => { alive = false; cancelRef.current = true; clearTimeout(id); };
+      // מוצלב: אשכול-קרבה **לא-חוסם** (מקטעים+נשימה+ביטול) → הדפדפן לא נתקע, ויש לוּדר עם אחוזים ועצירה.
+      elsClustersChunked(letters, terms, sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
+        .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "cluster", ...r }); setSearching(false); });
+      return () => { alive = false; cancelRef.current = true; };
     }
     // יחיד: חיפוש מנותח-למקטעים → אחוזים + עצירה
-    elsSearchChunked(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
+    elsSearchChunked(letters, terms[0], sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
       .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "single", ...r }); setSearching(false); });
     return () => { alive = false; cancelRef.current = true; };
   }, [letters, q, terms, isCluster]);
@@ -266,20 +303,23 @@ export default function ElsGrid({ seed }) {
     const bk = mode === "tanakh" ? (book === "torah" ? "all" : book) : (mode === "torah" && book !== "torah" && (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805 ? "torah" : book);
     setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
     setEntered(false); setShowAll(false);
-    setQ({ raw: qraw, book: bk, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy });
+    const sMin = Math.max(1, parseInt(skipMin) || 1);
+    const sMax = Math.max(sMin, parseInt(skipMax) || 100);
+    setQ({ raw: qraw, book: bk, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy });
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
   // ✦ פתיחת ממצא-נבחר במנוע — טוען את המונחים כחיפוש מוצלב בתורה ומריץ מיד (q מפעיל את אפקט-החיפוש)
   const openFinding = (f) => {
     const single = f.mode === "single" || f.terms.length < 2;
-    setMode(single ? "torah" : "cross"); setBook("torah");
+    setMode(single ? "torah" : "cross"); setBook(f.book || "torah");
     setRaw(f.terms[0]); setCrossExtra(single ? [""] : f.terms.slice(1));
-    setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
-    setEntered(false); setShowAll(false);
-    const smax = Math.max(2000, f.skipMax || 2000);
-    setSkipMax(String(smax));
-    setQ({ raw: single ? f.terms[0] : f.terms.join(", "), book: "torah", skipMax: smax, pattern, dir, fuzzy });
+    setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null); setShowAll(false);
+    // 🎯 ההגדרות שמורות בתוך הממצא — טווח-דילוג מדויק (מ-…עד-…) → החיפוש מיידי, בלי לכוונן שוב.
+    const sMin = Math.max(1, f.skipMin || 1), sMax = Math.max(sMin, f.skipMax || 2000);
+    setSkipMin(String(sMin)); setSkipMax(String(sMax));
+    setEntered(!!f.autoEnter); // אם שמור — נכנסים ישר למטריצה, לא למסך-תוצאות
+    setQ({ raw: single ? f.terms[0] : f.terms.join(", "), book: f.book || "torah", skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy });
     try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /**/ }
   };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
@@ -289,17 +329,20 @@ export default function ElsGrid({ seed }) {
   // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
   const saveCurrent = () => {
     // 💾 שומר את כל המטריצה — החיפוש + שכבות-החיפוש שהוספת (overlays)
-    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0, overlays.join("+")].join("|");
+    const id = [q.raw, q.skipMin, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0, overlays.join("+")].join("|");
     if (savedSearches.some(s => s.id === id)) return;
     const label = q.raw + (overlays.length ? ` +${overlays.length}` : "");
+    // 💾 שומר את **כל** ההגדרות (כולל טווח-דילוג) + השכבות → טעינה פותחת ישר את הממצא, בלי לכוונן שוב
     persistSaved([{ id, label, q: { ...q }, overlays: [...overlays] }, ...savedSearches].slice(0, 24));
   };
   const removeSaved = id => persistSaved(savedSearches.filter(s => s.id !== id));
   const loadSaved = useCallback(sv => {
     const c = sv?.q; if (!c) return;
-    setRaw(c.raw); setBook(c.book); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
+    setRaw(c.raw); setBook(c.book); setSkipMin(c.skipMin ?? 1); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
     const ov = Array.isArray(sv.overlays) ? sv.overlays : [];
-    setHitIdx(0); setClusterIdx(0); setOverlays(ov); setLayersOpen(ov.length > 0); setSubRaw(""); setAiStruct(null); setQ({ ...c });
+    setHitIdx(0); setClusterIdx(0); setOverlays(ov); setLayersOpen(ov.length > 0); setSubRaw(""); setAiStruct(null);
+    setEntered(true); // טעינת ממצא שמור → ישר למטריצה (ההגדרות כבר בפנים)
+    setQ({ raw: c.raw, book: c.book, skipMin: c.skipMin ?? 1, skipMax: c.skipMax, pattern: c.pattern, dir: c.dir, fuzzy: !!c.fuzzy });
   }, []);
   // הקיר הימני מבקש לטעון חיפוש שמור → מיישמים כאן
   useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
@@ -339,12 +382,16 @@ export default function ElsGrid({ seed }) {
   const overlayData = useMemo(() => {
     if (!letters || !anchorHit || res?.mode !== "single" || !overlays.length) return [];
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const winFrom = matrixWindow ? Math.max(bk.from, matrixWindow.from) : bk.from;
-    const winTo = matrixWindow ? Math.min(letters.length, bk.to, matrixWindow.to) : Math.min(letters.length, bk.to);
-    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, 1, q.skipMax) };
+    // 🛟 חיפוש-השכבות סינכרוני → חוסמים אותו בקשיחות כדי שלעולם לא יתקע: חלון ≤280K סביב העוגן,
+    // ותקרת-דילוג 2000 (שכבות = מונחים «קרובים» על המטריצה; דילוג ענק = תפקיד החיפוש המוצלב).
+    const aMid = Math.round(centerOf(anchorHit));
+    const winFrom = Math.max(bk.from, matrixWindow ? matrixWindow.from : bk.from, aMid - 140000);
+    const winTo = Math.min(letters.length, bk.to, matrixWindow ? matrixWindow.to : letters.length, aMid + 140000);
+    const oMax = Math.min(Math.max(3, q.skipMax), 2000);
+    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, 1, oMax) };
     const aC = centerOf(anchorHit);
     return overlays.map((term, j) => {
-      const r = elsSearch(letters, term, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+      const r = elsSearch(letters, term, 1, oMax, q.dir, q.fuzzy ? 1 : 0, opts);
       const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
       return { term, ci: j + 1, list, nearest: list[0] || null, count: r.hits.length, capped: r.capped,
         within: d => list.filter(x => x.dist <= d).length };
@@ -741,8 +788,10 @@ export default function ElsGrid({ seed }) {
             </select>
             <select style={{ ...ctl, cursor: "pointer" }} value={pattern} onChange={e => setPattern(e.target.value)}>{PATTERNS.map(([k, l]) => <option key={k} value={k}>דילוג: {l}</option>)}</select>
             <select style={{ ...ctl, cursor: "pointer" }} value={dir} onChange={e => setDir(e.target.value)}>{DIRS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
-            <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center" }}>דילוג עד
-              <input style={{ ...ctl, width: 90, marginInlineStart: 6 }} type="number" min="2" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
+            <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center", gap: 4 }} title="טווח-דילוג: מ-X עד Y. לקיבוע מרחק מדויק — הזינו אותו מספר בשני השדות (למשל 10065–10065).">דילוג מ-
+              <input style={{ ...ctl, width: 78 }} type="number" min="1" value={skipMin} onChange={e => setSkipMin(e.target.value)} />
+              עד
+              <input style={{ ...ctl, width: 90 }} type="number" min="1" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
             <label className="els-chk" style={{ color: C.ink2 }}>
               <input type="checkbox" checked={fuzzy} onChange={e => setFuzzy(e.target.checked)} /> כולל קרובים (±אות)
             </label>
@@ -758,8 +807,8 @@ export default function ElsGrid({ seed }) {
         <div className="rw-card els-loading">
           <div className="els-loading-ring"><img src={LOGO_URL} alt="" className="els-loading-logo" /></div>
           <div className="els-loading-msg">{ELS_PHRASES[phraseIdx]}</div>
-          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}…{isCluster ? "" : ` ${progress}%`}</div>
-          {!isCluster && <div className="els-loading-bar"><span style={{ width: `${progress}%` }} /></div>}
+          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}… {progress}%</div>
+          <div className="els-loading-bar"><span style={{ width: `${progress}%` }} /></div>
           <button className="els-back" style={{ marginTop: 4 }} onClick={stopSearch}>✕ עצור חיפוש</button>
         </div>
       )}
