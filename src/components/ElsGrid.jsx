@@ -214,6 +214,7 @@ export default function ElsGrid({ seed }) {
   const [fuzzy, setFuzzy] = useState(false);
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
+  const [focusHit, setFocusHit] = useState(null); // 🎯 «הצג במטריצה» — ממקד את הרשת על מופע נבחר (לא העוגן)
   const [full, setFull] = useState(false);
   const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
   const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
@@ -401,20 +402,21 @@ export default function ElsGrid({ seed }) {
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
-    const s = Math.abs(anchorHit.skip), TARGET = 28;
+    // 🎯 view = העוגן, אלא אם המשתמש לחץ «הצג» על מופע מסוים → אז ממקדים את הרשת עליו (כדי שיראה אותו ממש).
+    const view = (res.mode === "single" && focusHit) ? focusHit : anchorHit;
+    const s = Math.abs(view.skip), TARGET = 28;
     const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
     const cl0 = res.mode === "cluster" ? res.clusters[Math.min(clusterIdx, res.clusters.length - 1)] : null;
     const padRows = Math.max(5, 6 * gridSize);
     const colMargin = Math.max(6, 5 * gridSize);
-    // 🎯 framePos = אותיות-התוצאה. ביחיד: העוגן + **המופע-הקרוב של כל שכבה אם הוא קרוב מספיק** →
-    // המטריצה מתרחבת לבד כדי להראות את מה שחיפשת, בלי שתצטרך לגעת ב«גודל-רשת». רחוק מדי → לא מצורף (יושר).
-    // העוגן תמיד נשאר במרכז (אופקית ואנכית). במוצלב: מסגור על כל המונחים (bbox).
+    // 🎯 framePos = אותיות-התוצאה (או המופע הממוקד). ביחיד: + **המופע-הקרוב של כל שכבה אם קרוב מספיק** →
+    // המטריצה מתרחבת לבד כדי להראות את מה שחיפשת. העוגן/המוקד תמיד במרכז. במוצלב: מסגור על כל המונחים.
     let framePos, colCenter, colWin, rowStart, rowEnd;
     if (res.mode === "single") {
-      framePos = [...anchorHit.positions];
-      const aCols = anchorHit.positions.map(p => ((p % W2) + W2) % W2);
+      framePos = [...view.positions];
+      const aCols = view.positions.map(p => ((p % W2) + W2) % W2);
       const aColMid = aCols.reduce((a, b) => a + b, 0) / aCols.length;
-      const aRowMid = centerOf(anchorHit) / W2;
+      const aRowMid = centerOf(view) / W2;
       const AUTO_MAXC = 28, AUTO_MAXR = 24; // תקרת-קרבה להצגה משותפת (עמודות/שורות) — קריא
       for (const o of overlayData) {
         const occ = o.nearest?.hit; if (!occ) continue;
@@ -466,7 +468,7 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W: W2, skip: s, visible };
-  }, [res, anchorHit, clusterIdx, letters, overlayData, gridSize]);
+  }, [res, anchorHit, focusHit, clusterIdx, letters, overlayData, gridSize]);
 
   // קבוצת-אותיות העוגן (לזיהוי «חיתוך אמיתי» — מופע שחולק תא עם התוצאה, כמו «בלעם» שנגע ב-ב)
   const anchorSet = useMemo(() => new Set(anchorHit?.positions || []), [anchorHit]);
@@ -547,7 +549,7 @@ export default function ElsGrid({ seed }) {
     const add = (dictScan?.results || []).slice(0, 8).map(r => r.term).filter(t => !overlays.includes(t));
     if (add.length) { setOverlays(o => [...o, ...add].slice(0, 14)); setLayersOpen(true); }
   };
-  useEffect(() => { setDictScan(null); }, [hitIdx, q]); // איפוס סריקה כשעוברים תוצאה/חיפוש (לא בעת הוספת שכבה)
+  useEffect(() => { setDictScan(null); setFocusHit(null); }, [hitIdx, q]); // איפוס סריקה+מיקוד כשעוברים תוצאה/חיפוש
 
   // גרירת-עכבר לתזוזה אופקית (pan) — מושבתת במצב-בחירה (אז קליק = בחירת אות)
   const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
@@ -1034,15 +1036,17 @@ export default function ElsGrid({ seed }) {
                     <div className="els-list-body">
                       {o.near.map((x, i) => {
                         const l = locOf(x.hit.start);
+                        const isFocus = focusHit && focusHit.start === x.hit.start && focusHit.skip === x.hit.skip;
                         return (
-                          <div key={i} className={"els-row" + (x.crosses ? " cross" : "")}>
+                          <div key={i} className={"els-row" + (x.crosses ? " cross" : "") + (isFocus ? " on" : "")}>
                             <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
                             {x.crosses ? <span className="els-rc" style={{ color: "#c2410c", fontWeight: 800 }} title="המופע נוגע באות מהתוצאה — חיתוך ממשי">⚡ נחתך</span>
-                              : <span className="els-rc" style={{ color: x.onScreen ? "#1f7a4d" : "#9a8a5e", fontWeight: 700 }} title={x.onScreen ? "גלוי על המטריצה" : "נמצא — אך מחוץ לחלון הנראה (גרור/הגדל רשת)"}>{x.onScreen ? "👁 על המסך" : "מחוץ למסך"}</span>}
+                              : <span className="els-rc" style={{ color: x.onScreen ? "#1f7a4d" : "#9a8a5e", fontWeight: 700 }} title={x.onScreen ? "גלוי על המטריצה" : "נמצא — אך מחוץ לחלון הנראה"}>{x.onScreen ? "👁 על המסך" : "מחוץ למסך"}</span>}
                             <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
                             <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")} {x.hit.dir > 0 ? "→" : "←"}</span>
                             <span className="els-rc">{l.label}</span>
                             <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~" : ""}</span>
+                            <button className="els-row-show" onClick={() => setFocusHit(isFocus ? null : { ...x.hit, term: o.term })} title="הצג את המופע הזה במטריצה (ממקד אליו)">{isFocus ? "✓ מוצג" : "🎯 הצג"}</button>
                           </div>
                         );
                       })}
@@ -1075,6 +1079,12 @@ export default function ElsGrid({ seed }) {
       )}
 
       {/* ===== המטריצה + רשימה ===== */}
+      {entered && grid && focusHit && (
+        <div className="els-focus-bar">
+          🎯 מוצג מופע ממוקד: <b>«{elsNormalize(focusHit.term || subRaw || "")}»</b> דילוג {Math.abs(focusHit.skip).toLocaleString("he")} · {locOf(focusHit.start).label} · אות {locOf(focusHit.start).off.toLocaleString("he")}
+          <button className="els-focus-back" onClick={() => setFocusHit(null)}>← חזרה ל«{elsNormalize(terms[0] || "")}»</button>
+        </div>
+      )}
       {entered && grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {entered && grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
       {entered && grid && <Help label="ℹ️ איך קוראים את המטריצה?">
@@ -1217,6 +1227,11 @@ const ELS_CSS = `
 .els-row:hover{border-color:var(--acc);background:var(--accS)}
 .els-row.on{border-color:var(--acc);background:var(--accS);box-shadow:inset 3px 0 0 var(--acc)}
 .els-row.cross{border-color:#fb923c;background:#fff7ed;box-shadow:inset 3px 0 0 #ea580c}
+.els-row-show{margin-inline-start:auto;border:1px solid var(--acc);background:var(--accS);color:var(--acc);border-radius:999px;padding:3px 11px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.els-row-show:hover{background:var(--acc);color:#fff}
+.els-focus-bar{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7ed;border:1.5px solid #fb923c;border-radius:12px;padding:10px 14px;font-size:13.5px;color:#7c2d12;font-weight:700}
+.els-focus-back{margin-inline-start:auto;border:1px solid #ea580c;background:#fff;color:#ea580c;border-radius:999px;padding:5px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+.els-focus-back:hover{background:#ea580c;color:#fff}
 /* 🔭 סריקת-מילון */
 .els-dict{margin:10px 0 4px;background:#f5f9ff;border:1px solid #d6e4ff;border-radius:13px;padding:11px 13px}
 .els-dict-h{font-weight:800;font-size:13px;color:#1b4fb0;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
