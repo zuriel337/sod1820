@@ -965,6 +965,14 @@ export async function setImageCuration(id, patch) {
   if (error) throw error;
   return data;
 }
+// הסתרה/הצגה מרובה (אדמין) — עדכון curator_hidden לרשימת מזהים בבת אחת
+export async function bulkSetCuratorHidden(ids, hidden) {
+  if (!supabase || !ids?.length) return [];
+  const { data, error } = await supabase.from('gallery_images')
+    .update({ curator_hidden: !!hidden }).in('id', ids).select('id');
+  if (error) throw error;
+  return data || [];
+}
 // השורה המלאה של תמונה לפי id — "עץ אחד": העורך מושך את כל השדות (תגיות/מספרים/הגדרות)
 // גם אם נפתח ממקור שמביא רק חלק מהשדות (קרוסלה/עדכונים/חיפוש).
 export async function getGalleryImageFull(id) {

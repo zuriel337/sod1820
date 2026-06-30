@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F, C } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getGalleryPage, setImageCuration } from "../lib/supabase.js";
+import { getGalleryPage, setImageCuration, bulkSetCuratorHidden } from "../lib/supabase.js";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import { cleanName } from "../lib/galleryName.js";
@@ -35,6 +35,9 @@ export default function GalleryPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [lbIdx, setLbIdx] = useState(null);
   const [editImg, setEditImg] = useState(null);
+  const [selectMode, setSelectMode] = useState(false);   // אדמין: מצב בחירה מרובה
+  const [selected, setSelected] = useState(() => new Set()); // מזהי תמונות נבחרות
+  const [bulkBusy, setBulkBusy] = useState(false);
   const sentinel = useRef(null);
   const debounceRef = useRef(null);
 
@@ -109,6 +112,39 @@ export default function GalleryPage() {
       .catch(err => alert("שגיאה: " + err.message));
   }
 
+  // ===== בחירה מרובה (אדמין) =====
+  function toggleSelect(id) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+  function clearSelection() { setSelected(new Set()); }
+  function selectAllLoaded() { setSelected(new Set(images.map(i => i.id))); }
+  function exitSelectMode() { setSelectMode(false); clearSelection(); }
+
+  async function bulkApply(hide) {
+    const ids = [...selected];
+    if (!ids.length) return;
+    setBulkBusy(true);
+    try {
+      await bulkSetCuratorHidden(ids, hide);
+      const idSet = new Set(ids);
+      // אם המצב הנוכחי לא אמור להציג את התוצאה — מסירים מהרשימה; אחרת מסמנים
+      if ((hidden === "no" && hide) || (hidden === "only" && !hide)) {
+        setImages(prev => prev.filter(i => !idSet.has(i.id)));
+        setTotal(t => Math.max(0, t - ids.length));
+      } else {
+        setImages(prev => prev.map(i => idSet.has(i.id) ? { ...i, curator_hidden: hide } : i));
+      }
+      clearSelection();
+    } catch (err) {
+      alert("שגיאה בעדכון מרובה: " + err.message);
+    }
+    setBulkBusy(false);
+  }
+
   return (
     <div style={{ direction: "rtl", maxWidth: "100%", padding: "clamp(16px,3vw,48px) clamp(12px,3vw,56px) 80px", boxSizing: "border-box" }}>
       <style>{`
@@ -137,6 +173,15 @@ export default function GalleryPage() {
           border:1px solid rgba(212,175,55,0.6); border-radius:999px; padding:3px 9px; font-size:10.5px; font-family:${F.heading}; font-weight:700;
           cursor:pointer; opacity:0; transition:opacity .2s; }
         .gl-card:hover .gl-hidetoggle { opacity:1; }
+        /* בחירה מרובה */
+        .gl-card.selmode .gl-imgwrap { cursor:pointer; }
+        .gl-card.selmode .gl-num, .gl-card.selmode .gl-edit, .gl-card.selmode .gl-hidetoggle, .gl-card.selmode .gl-type-badge { pointer-events:none; }
+        .gl-card.selmode .gl-edit, .gl-card.selmode .gl-hidetoggle { display:none; }
+        .gl-card.selected { border-color:${C.gold}; box-shadow:0 0 0 2px ${C.gold}, 0 14px 36px rgba(0,0,0,0.5); }
+        .gl-check { position:absolute; top:8px; inset-inline-end:8px; z-index:4; width:26px; height:26px; border-radius:50%;
+          border:2px solid ${C.gold}; background:rgba(0,0,0,0.45); color:#1a0e00; font-weight:900; font-size:15px;
+          display:flex; align-items:center; justify-content:center; line-height:1; }
+        .gl-card.selected .gl-check { background:${C.gold}; }
         .gl-body { padding:9px 11px; }
         .gl-title { color:${C.goldLight}; font-family:${F.regal}; font-size:13.5px; font-weight:700; line-height:1.4;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -181,6 +226,14 @@ export default function GalleryPage() {
             ))}
           </div>
         )}
+        {isAdmin && (
+          <button onClick={() => selectMode ? exitSelectMode() : setSelectMode(true)} style={{
+            cursor: "pointer", borderRadius: 999, padding: "7px 14px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5,
+            border: `1px solid ${selectMode ? C.gold : C.border}`,
+            background: selectMode ? "rgba(212,175,55,0.22)" : "transparent",
+            color: selectMode ? C.goldBright : C.muted,
+          }}>{selectMode ? "✕ סיים בחירה" : "☑️ בחירה מרובה"}</button>
+        )}
         <input
           value={search} onChange={e => setSearch(e.target.value)}
           placeholder="🔍 חיפוש..."
@@ -201,10 +254,11 @@ export default function GalleryPage() {
             const date = img.occurred_at ? new Date(img.occurred_at).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
             const typeBadge = { hint: "💡", gematria: "🔢", method: "📐", event: "📰", gallery: "🖼" }[img.image_type];
             return (
-              <div key={img.id} className="gl-card">
-                <div className="gl-imgwrap" onClick={() => setLbIdx(idx)}>
+              <div key={img.id} className={"gl-card" + (selectMode ? " selmode" : "") + (selected.has(img.id) ? " selected" : "")}>
+                <div className="gl-imgwrap" onClick={() => selectMode ? toggleSelect(img.id) : setLbIdx(idx)}>
                   <img src={img.image_url} alt={title || ""} loading="lazy" onError={e => { e.target.style.display = "none"; }} />
                   <div className="gl-shade" />
+                  {isAdmin && selectMode && <span className="gl-check">{selected.has(img.id) ? "✓" : ""}</span>}
                   {img.primary_value != null && (
                     <Link to={`/number/${img.primary_value}`} onClick={e => e.stopPropagation()} className="gl-num">{img.primary_value}</Link>
                   )}
@@ -236,6 +290,25 @@ export default function GalleryPage() {
       {images.length < total && <div ref={sentinel} style={{ height: 1, marginTop: 20 }} />}
       {loadingMore && <div style={{ textAlign: "center", color: C.muted, fontFamily: F.heading, padding: 20 }}>טוען עוד...</div>}
 
+      {/* סרגל בחירה מרובה (אדמין) */}
+      {isAdmin && selectMode && (
+        <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: "max(16px, env(safe-area-inset-bottom))",
+          zIndex: 2147483000, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "center",
+          background: "rgba(10,7,3,0.96)", border: `1px solid ${C.gold}`, borderRadius: 14, padding: "10px 14px",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.6)", maxWidth: "calc(100vw - 24px)", direction: "rtl" }}>
+          <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 14, minWidth: 64 }}>
+            {selected.size} נבחרו
+          </span>
+          <button onClick={selectAllLoaded} style={bulkBtn(C, F)}>בחר הכל ({images.length})</button>
+          <button onClick={clearSelection} disabled={!selected.size} style={bulkBtn(C, F)}>נקה</button>
+          <button onClick={() => bulkApply(true)} disabled={!selected.size || bulkBusy}
+            style={{ ...bulkBtn(C, F), borderColor: "#c8553d", color: "#e0856a" }}>🕓 הסתר נבחרות</button>
+          <button onClick={() => bulkApply(false)} disabled={!selected.size || bulkBusy}
+            style={{ ...bulkBtn(C, F), borderColor: "#3f9d6d", color: "#6fcf9c" }}>↩︎ הצג נבחרות</button>
+          <button onClick={exitSelectMode} style={{ ...bulkBtn(C, F), color: C.muted }}>✕ סיום</button>
+        </div>
+      )}
+
       {/* Lightbox */}
       {lbIdx != null && (
         <Lightbox images={images} initialIndex={lbIdx} onClose={() => setLbIdx(null)}
@@ -258,4 +331,12 @@ export default function GalleryPage() {
       )}
     </div>
   );
+}
+
+// כפתור בסרגל הבחירה המרובה
+function bulkBtn(C, F) {
+  return {
+    cursor: "pointer", borderRadius: 999, padding: "7px 13px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5,
+    border: `1px solid ${C.border}`, background: "rgba(0,0,0,0.3)", color: C.goldLight, whiteSpace: "nowrap",
+  };
 }
