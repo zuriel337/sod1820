@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
@@ -71,17 +71,51 @@ const catRank = (t, isAdmin) => (isToolReady(t.id, isAdmin) ? 0 : 1);
 export default function ResearchHome({ onOpen }) {
   // 🔑 מנהל רואה את כל הכלים הממומשים כפתוחים (לבדיקות); לציבור נשאר הגיטינג הרגיל.
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   // 💡 פאנל-הסבר: פתוח בכניסה ראשונה, נסגר ונזכר, ניתן לפתיחה חוזרת ב-«❓ הסבר».
   const [explainOpen, setExplainOpen] = useState(() => { try { return localStorage.getItem("rw_explain_seen") !== "1"; } catch { return true; } });
   const closeExplain = () => { setExplainOpen(false); try { localStorage.setItem("rw_explain_seen", "1"); } catch { /* noop */ } };
+  // 🔎 שדה-חיפוש חופשי בשער: מספר → דף-המספר · טקסט → מחשבון הגימטריה (טעון מראש).
+  const [gateQ, setGateQ] = useState("");
+  const gateGo = e => {
+    e.preventDefault();
+    const v = gateQ.trim();
+    if (!v) return;
+    if (/^\d+$/.test(v)) navigate(`/research?tool=number&n=${v}`);
+    else navigate(`/research?tool=gematria&q=${encodeURIComponent(v)}`);
+  };
   return (
     <div>
       <div className="rw-h1-row">
         <div className="rw-h1">🏛️ היכל הגילוי</div>
         {!explainOpen && <button className="rw-explain-reopen" onClick={() => setExplainOpen(true)} title="מה זה היכל הגילוי?">❓ הסבר</button>}
       </div>
-      <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
+      <div className="rw-sub">שני שערים אל אותו גרף-ידע אחד: <b>בית המדרש</b> — להבין את התורה במספר ובטקסט · <b>חקר עצמי</b> — המסע האישי שלך (בקרוב). או פשוט חפשו למטה.</div>
       {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
+
+      {/* 🚪 שער הכניסה — שתי דלתות + שדה-חיפוש. בית המדרש פתוח (ללא שינוי); חקר עצמי אטום (בקרוב). */}
+      <div className="rw-gate">
+        <div className="rw-doors">
+          <button className="rw-door open" onClick={() => onOpen("midrash")}>
+            <div className="rw-door-ic">📖</div>
+            <div className="rw-door-t">בית המדרש</div>
+            <div className="rw-door-d">להבין את התורה — במספר ובטקסט. כל שיטות הגימטריה, מוסברות ומודגמות. כאן לומדים.</div>
+            <div className="rw-door-cta">היכנסו ←</div>
+          </button>
+          <div className="rw-door locked" aria-disabled="true">
+            <span className="rw-door-lock">🔒</span>
+            <div className="rw-door-ic">🪞</div>
+            <div className="rw-door-t">חקר עצמי</div>
+            <div className="rw-door-d">המסע האישי שלך במספרים — שם · חיים · משפחה. דלת זו עוד אטומה.</div>
+            <div className="rw-door-cta soon">בקרוב</div>
+          </div>
+        </div>
+        <form className="rw-gate-search" onSubmit={gateGo}>
+          <input value={gateQ} onChange={e => setGateQ(e.target.value)}
+            placeholder="🔎 מה אתה רוצה לגלות? מספר, שם או ביטוי…" aria-label="חיפוש חופשי" />
+          <button type="submit" disabled={!gateQ.trim()} style={!gateQ.trim() ? { opacity: 0.5 } : undefined}>גלו ←</button>
+        </form>
+      </div>
 
       {/* 💡 פאנל-הסבר מתקפל — «מה זה המעבדה ואיך מתחילים» (research_workspace_law: הסבר אינטראקטיבי) */}
       {explainOpen && (

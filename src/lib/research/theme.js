@@ -181,6 +181,27 @@ export const rwCss = (t = RW) => `
   .rw-estep b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:2px}
   .rw-estep span{font-size:12px;color:var(--ink2);line-height:1.5}
   .rw-explain-foot{margin-top:12px;font-size:12px;color:var(--ink3);line-height:1.6}
+  /* 🚪 שער הכניסה — שתי דלתות + שדה-חיפוש */
+  .rw-gate{margin:6px 0 22px}
+  .rw-doors{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .rw-door{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;border-radius:18px;padding:26px 20px 22px;font-family:inherit;cursor:pointer;transition:.16s;min-height:188px}
+  .rw-door.open{background:linear-gradient(165deg,var(--accS),var(--card));border:1.5px solid var(--acc);color:var(--ink);box-shadow:0 16px 36px -20px rgba(60,46,16,.40)}
+  .rw-door.open:hover{transform:translateY(-3px);box-shadow:0 22px 44px -20px rgba(60,46,16,.50);border-color:var(--acc)}
+  .rw-door.locked{background:var(--bg);border:1.5px dashed var(--line);color:var(--ink3);cursor:default;opacity:.92}
+  .rw-door-lock{position:absolute;inset-inline-start:14px;top:13px;font-size:15px;opacity:.6}
+  .rw-door-ic{font-size:40px;line-height:1}
+  .rw-door.locked .rw-door-ic{filter:grayscale(1);opacity:.55}
+  .rw-door-t{font-size:19px;font-weight:800}
+  .rw-door-d{font-size:13px;line-height:1.65;color:var(--ink2);max-width:240px}
+  .rw-door.locked .rw-door-d{color:var(--ink3)}
+  .rw-door-cta{margin-top:auto;padding-top:6px;font-weight:800;font-size:14px;color:var(--acc)}
+  .rw-door-cta.soon{color:var(--ink3);font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:4px 14px}
+  .rw-gate-search{display:flex;gap:8px;margin-top:14px}
+  .rw-gate-search input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:13px 18px;font-size:16px;font-family:inherit;transition:.12s}
+  .rw-gate-search input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+  .rw-gate-search button{flex:0 0 auto;border:none;background:var(--acc);color:var(--onAcc,#1a0e00);border-radius:999px;padding:13px 22px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-gate-search button:not(:disabled):hover{filter:brightness(1.06)}
+  @media(max-width:560px){.rw-doors{grid-template-columns:1fr}.rw-door{min-height:0;padding:20px 18px}}
   /* ✅ רצועת «עובד עכשיו» בראש מרכז-המחקר */
   .rw-quick{background:var(--card);border:1px solid var(--acc);border-radius:14px;padding:13px 15px;margin-bottom:20px;box-shadow:0 10px 26px -14px rgba(60,46,16,.28)}
   .rw-quick-h{font-weight:800;font-size:12.5px;color:var(--acc);letter-spacing:.5px;margin-bottom:10px}
