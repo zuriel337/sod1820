@@ -147,8 +147,17 @@ export async function getRecentCommunityWords(limit = 4) {
 
 // ===== ארכיון הגלריות ("גלריית רמזי הגאולה") =====
 // סקירה: רשימת גלריות + תמונות קלות (לכריכה+ספירה).
-export async function getGalleriesOverview() {
+// מטמון פר-סשן לסקירת הארכיון — מונע משיכה חוזרת של כל ~2,500 השורות בכל כניסה/חזרה ל-/archive.
+// מתאפס אוטומטית בכל כתיבה לתמונה (invalidateGalleriesOverview) וגם אחרי TTL קצר.
+let _overviewCache = null;            // { ts, gals, imgs }
+const OVERVIEW_TTL = 120000;          // 2 דקות — טרי מספיק, חוסך טעינות חוזרות
+export function invalidateGalleriesOverview() { _overviewCache = null; }
+
+export async function getGalleriesOverview({ force = false } = {}) {
   if (!supabase) return { gals: [], imgs: [] };
+  if (!force && _overviewCache && Date.now() - _overviewCache.ts < OVERVIEW_TTL) {
+    return { gals: _overviewCache.gals, imgs: _overviewCache.imgs };
+  }
   const { data: gals } = await supabase
     .from('galleries')
     .select('id,name,anchor_number,img_count,wp_gallery_id');
@@ -166,6 +175,7 @@ export async function getGalleriesOverview() {
     if (data.length < 1000) break;
     from += 1000;
   }
+  _overviewCache = { ts: Date.now(), gals: gals || [], imgs };
   return { gals: gals || [], imgs };
 }
 
@@ -963,6 +973,7 @@ export async function setImageCuration(id, patch) {
   const { data, error } = await supabase.from('gallery_images')
     .update(patch).eq('id', id).select('id,importance,curator_hidden,source').maybeSingle();
   if (error) throw error;
+  invalidateGalleriesOverview();
   return data;
 }
 // הסתרה/הצגה מרובה (אדמין) — עדכון curator_hidden לרשימת מזהים בבת אחת
@@ -971,6 +982,7 @@ export async function bulkSetCuratorHidden(ids, hidden) {
   const { data, error } = await supabase.from('gallery_images')
     .update({ curator_hidden: !!hidden }).in('id', ids).select('id');
   if (error) throw error;
+  invalidateGalleriesOverview();
   return data || [];
 }
 // השורה המלאה של תמונה לפי id — "עץ אחד": העורך מושך את כל השדות (תגיות/מספרים/הגדרות)
@@ -1115,6 +1127,7 @@ export async function deleteGalleryImage(id) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('gallery_images').delete().eq('id', id);
   if (error) throw error;
+  invalidateGalleriesOverview();
 }
 
 export async function addImageToRealityStream(id, occurredAt = null) {
