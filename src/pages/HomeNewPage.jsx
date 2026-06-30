@@ -11,6 +11,7 @@ import ImageEditModal from "../components/ImageEditModal.jsx";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
+import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
@@ -231,7 +232,7 @@ export default function HomeNewPage() {
               const s = item.data;
               return (
                 <Link key={`s${s.id}`} to={`/archive?tab=reality&set=${s.id}`} className="hn-card" style={{ borderColor: "#d4af3766" }}>
-                  <div style={{ height: 120, position: "relative", background: s.cover ? `center/cover no-repeat url(${s.cover})` : P.cardGrad }}>
+                  <div style={{ height: 120, position: "relative", background: s.cover ? `center/cover no-repeat url(${thumb(s.cover, 360)})` : P.cardGrad }}>
                     <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(212,175,55,0.96)", color: "#1a0e00", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🗂️ גלריית רמזים</span>
                   </div>
                   <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
@@ -247,7 +248,7 @@ export default function HomeNewPage() {
               const title = cleanName(h.name);
               return (
                 <button key={`h${h.id}`} onClick={() => setLbImg(h)} className="hn-card" style={{ cursor: "zoom-in", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
-                  <div style={{ height: 120, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${h.image_url})` : P.cardGrad }}>
+                  <div style={{ height: 120, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${thumb(h.image_url, 360)})` : P.cardGrad }}>
                     <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
                     {/* זמן עלייה — על התמונה, כמו בפוסטים */}
                     <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🕒 {timeAgoHe(h.created_at || h.occurred_at)}</span>
@@ -270,7 +271,7 @@ export default function HomeNewPage() {
             const hot = hotSlugs.has(p.slug);
             return (
             <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: "0 0 0 1px #e0556a55" } : undefined}>
-              <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${p.image_url})` : P.cardGrad }}>
+              <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${thumb(p.image_url, 360)})` : P.cardGrad }}>
                 {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
                 {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
                 {/* תגית «לפי השער שלך» הוסרה — מערכת השערים סגורה (parked), לא חושפים שער למשתמש */}
@@ -352,7 +353,7 @@ export default function HomeNewPage() {
               {/* גדול (ימין ב-RTL) */}
               <div className="hn-latest-main">
                 <div onClick={() => setLbImg(sel)} style={{ cursor: "zoom-in", position: "relative", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(212,175,55,0.32)", background: "#09080f", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
-                  <img key={sel.id} src={sel.image_url} alt={cleanName(sel.name) || ""} className="rw-hero-img"
+                  <img key={sel.id} src={thumb(sel.image_url, 900)} alt={cleanName(sel.name) || ""} className="rw-hero-img"
                     style={{ width: "100%", maxHeight: "min(56vh, 540px)", objectFit: "contain", display: "block" }} />
                   {domNum(sel) != null && (
                     <Link to={`/number/${domNum(sel)}`} onClick={e => e.stopPropagation()}
@@ -382,7 +383,7 @@ export default function HomeNewPage() {
                 {recentHints.slice(0, 6).map(h => (
                   <button key={h.id} onClick={() => setSelHint(h)} title={cleanName(h.name) || ""}
                     className={`hn-thumb${sel.id === h.id ? " on" : ""}`}>
-                    <img src={h.image_url} alt="" loading="lazy" />
+                    <img src={thumb(h.image_url, 240)} alt="" loading="lazy" />
                     {domNum(h) != null && <span className="hn-thumb-n">{domNum(h)}</span>}
                   </button>
                 ))}

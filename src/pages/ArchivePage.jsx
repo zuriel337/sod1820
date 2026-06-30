@@ -9,6 +9,7 @@ import {
   getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
 } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
+import { thumb } from "../lib/img.js";
 import { bubbleKeyFor, CORE_BUBBLE } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
@@ -890,7 +891,7 @@ export default function ArchivePage() {
                 position: "relative", cursor: "pointer", textAlign: "right", padding: 0, overflow: "hidden",
                 border: `1px solid ${C.border}`, borderRadius: 14, background: "#000", aspectRatio: "4/3",
               }} className="arch-card">
-                {g.cover && <img src={g.cover} alt={g.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0.85 }} />}
+                {g.cover && <img src={thumb(g.cover, 480)} alt={g.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0.85 }} />}
                 <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 35%, rgba(5,4,0,0.92))" }} />
                 {g.anchor != null && (
                   <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(212,175,55,0.92)", color: "#1a0e00", fontFamily: F.mono, fontSize: 13, fontWeight: 800, padding: "2px 9px", borderRadius: 999 }}>{g.anchor}</span>
@@ -1258,7 +1259,7 @@ export default function ArchivePage() {
                                 onClick={() => { setLbImages(gimgs); setLbStart(imIdx); }}
                                 style={{ display: "block", width: "100%", background: "none", border: "none", padding: 0, cursor: "zoom-in" }}
                               >
-                                <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ display: "block" }} />
+                                <img src={thumb(im.image_url, 520)} alt={im.name || ""} loading="lazy" style={{ display: "block" }} />
                               </button>
                               {(im.name || im.description || (im.all_values || []).length > 0) && (
                                 <figcaption className="ar-feed-cap">
@@ -1293,7 +1294,7 @@ export default function ArchivePage() {
                     {highlighted.map((im, idx) => (
                       <div key={im.id} className="ar-imgwrap">
                         <button onClick={() => curating ? toggleHi(im.id) : (setLbImages([...highlighted, ...rest]), setLbStart(idx))} className={`arch-card ar-imgcard${curating ? " ar-on" : ""}`}>
-                          <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                          <img src={thumb(im.image_url, 520)} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                           <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
                           <span className="ar-pos">{idx + 1}</span>
                           {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
@@ -1315,7 +1316,7 @@ export default function ArchivePage() {
               <div className="ar-grid">
                 {rest.slice(0, limit).map((im, idx) => (
                   <button key={im.id} onClick={() => curating ? toggleHi(im.id) : (setLbImages([...highlighted, ...rest]), setLbStart(highlighted.length + idx))} className="arch-card ar-imgcard">
-                    <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <img src={thumb(im.image_url, 520)} alt={im.name || ""} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
                     {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
                     {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
@@ -1410,7 +1411,7 @@ export default function ArchivePage() {
                           : (setLbImages(pool), setLbStart(idx))
                         }
                       >
-                        <img src={im.image_url} alt={im.name || ''} loading="lazy"
+                        <img src={thumb(im.image_url, 520)} alt={im.name || ''} loading="lazy"
                           onError={e => { e.target.style.display = 'none'; }} />
                         <div className="ar-mshade" />
                         {multiSelect && <div className={`ar-mchk${isSel ? ' on' : ''}`}>{isSel ? '✓' : ''}</div>}
@@ -1506,7 +1507,7 @@ export default function ArchivePage() {
                     <button onClick={() => { const i = (detail || []).findIndex(x => x.id === im.id); setLbImages(detail || []); setLbStart(Math.max(0, i)); }}
                       style={{ display: "block", width: "100%", padding: 0, border: "none", background: "transparent", cursor: "zoom-in" }}
                       title="הגדל — עם כל ההקשרים">
-                      <img src={im.image_url} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
+                      <img src={thumb(im.image_url, 640)} alt={im.name || ""} loading="lazy" style={{ width: "100%", display: "block" }} />
                     </button>
                     <ImageMeta im={im} isAdmin={isAdmin} onEdit={() => setEditImg(im)} onJump={() => jumpToPool(im)} onDelete={() => deleteImage(im)} />
                   </div>
