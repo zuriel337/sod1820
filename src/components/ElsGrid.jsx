@@ -39,7 +39,11 @@ const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"]
 
 export default function ElsGrid({ seed }) {
   const { isAdmin } = useAuth();
-  const [letters, setLetters] = useState("");
+  // ⚡ ביצועים: התורה (304,805 · 600KB) נטענת תמיד ומהר. התנ״ך המלא (1.2M · 2.4MB)
+  // נטען בעצלתיים — *רק* כשבוחרים היקף שמעבר לתורה (נביאים/כתובים/כל-התנ״ך).
+  const [torahLetters, setTorahLetters] = useState("");
+  const [tanakhLetters, setTanakhLetters] = useState("");
+  const [tanakhBusy, setTanakhBusy] = useState(false);
   const [err, setErr] = useState(false);
   const [zoom, setZoom] = useState(1);       // זום למטריצה
   const [cellBgIdx, setCellBgIdx] = useState(0); // רקע האותיות
@@ -52,7 +56,7 @@ export default function ElsGrid({ seed }) {
     setNiqqud(v => !v);
   };
   const [raw, setRaw] = useState(seed || "ישראל");
-  const [book, setBook] = useState("all");
+  const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
   const [skipMax, setSkipMax] = useState(1000);
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
@@ -67,19 +71,35 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+
+  // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
+  const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
+  const letters = needTanakh ? tanakhLetters : torahLetters;
 
   // זריעה ממסע-החיפוש: מונח חדש ב-URL → טוען ומריץ אוטומטית
   useEffect(() => { if (seed) { setRaw(seed); setHitIdx(0); setClusterIdx(0); setQ(p => ({ ...p, raw: seed })); } }, [seed]);
 
+  // טעינת התורה — תמיד, בכניסה (קטן ומהיר)
   useEffect(() => {
     let ok = true;
-    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
-      .then(t => { if (!ok) return; const c = elsNormalize(t); c.length > 1000 ? setLetters(c) : setErr(true); })
+      .then(t => { if (!ok) return; const c = elsNormalize(t); c.length > 1000 ? setTorahLetters(c) : setErr(true); })
       .catch(() => ok && setErr(true));
     return () => { ok = false; };
   }, []);
+
+  // טעינת התנ״ך המלא — בעצלתיים, רק כשנדרש (פעם אחת)
+  useEffect(() => {
+    if (!needTanakh || tanakhLetters || tanakhBusy) return;
+    let ok = true; setTanakhBusy(true);
+    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(t => { if (!ok) return; const c = elsNormalize(t); if (c.length > 1000) setTanakhLetters(c); else setErr(true); setTanakhBusy(false); })
+      .catch(() => { if (ok) { setErr(true); setTanakhBusy(false); } });
+    return () => { ok = false; };
+  }, [needTanakh, tanakhLetters, tanakhBusy]);
 
   // ESC סוגר מסך-מלא
   useEffect(() => {
@@ -140,8 +160,10 @@ export default function ElsGrid({ seed }) {
     const norm = elsNormalize(subTerm);
     if (norm.length < 2) return null;
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
-    const r = elsSearch(letters, norm, 2, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+    // ⭐ הסאב-סרץ' מתחיל מ-skip 1 (כולל טקסט-רצוף) — כך מונח שמופיע «צמוד» בכתב המקור
+    // (כמו «חג שבעת» ליד «יום משיח בא») נמצא, ולא מוחמץ כמו בחיפוש-הראשי (שמתחיל מ-2).
+    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 1, q.skipMax) };
+    const r = elsSearch(letters, norm, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
     const aC = centerOf(anchorHit);
     const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
     const within = d => list.filter(x => x.dist <= d).length;
@@ -402,7 +424,7 @@ export default function ElsGrid({ seed }) {
         </div>
       </div>
 
-      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>טוען את אותיות התנ״ך…</div>}
+      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
 
       {/* ===== עובדות ===== */}
