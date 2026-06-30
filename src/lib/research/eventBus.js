@@ -28,4 +28,5 @@ export const EVENTS = {
   AI_ANALYZE: "ai:analyze",
   ELS_STATE: "els:state",   // ElsGrid מפרסם את תוצאותיו → הקיר הימני מציג
   ELS_LOAD: "els:load",     // הקיר הימני מבקש לטעון חיפוש שמור → ElsGrid מיישם
+  MIDRASH_NAV: "midrash:nav", // הקיר הימני מבקש מבית-המדרש לעבור מדור/שיטה → BeitMidrashPage מיישם
 };

@@ -36,8 +36,7 @@ const SECTIONS = [
   { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
   { key: "community", icon: "👥", label: "חידושי גולשים" },
   { key: "submit", icon: "✍️", label: "הגשת חידוש" },
-  // 🧮 «מחשבון גימטריה» הוסר מכאן — מחשבון אחד בלבד, בכלי 🧮 שבמעבדה (עץ אחד, בלי דלת כפולה).
-  // קישורי «נסה במחשבון» מובילים ל-/research?tool=gematria. בית-המדרש = לימוד השיטות.
+  { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
   { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
@@ -240,7 +239,7 @@ function CrossChip({ p }) {
   const lines = methodLines(p);
   const extra = p.ref || p.note || "";
   return (
-    <Link to={`/research?tool=gematria&q=${encodeURIComponent(p.phrase)}`} title={`פתח את «${p.phrase}» במחשבון`}
+    <Link to={`/research?tool=midrash&tab=calc&w=${encodeURIComponent(p.phrase)}`} title={`פתח את «${p.phrase}» במחשבון`}
       style={{ display: "flex", alignItems: "baseline", gap: 9, textDecoration: "none", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 9, padding: "6px 11px" }}>
       <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14 }}>
         {p.phrase}{extra && <span style={{ color: L.sub, fontSize: 11.5 }}> · {extra}</span>}
@@ -990,7 +989,7 @@ function MethodsTab() {
               <MethodAnim m={m} />
               {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
               {/* לומדים↔עושים — מהשיעור ישר אל המחשבון עם מילה לחישוב */}
-              <Link to={`/research?tool=gematria&q=${encodeURIComponent(SAMPLE)}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 11, color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "none", borderTop: `1px solid ${L.line}`, paddingTop: 10, width: "100%" }}>🧮 נסה את השיטה במחשבון ←</Link>
+              <Link to={`/research?tool=midrash&tab=calc&w=${encodeURIComponent(SAMPLE)}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 11, color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "none", borderTop: `1px solid ${L.line}`, paddingTop: 10, width: "100%" }}>🧮 נסה את השיטה במחשבון ←</Link>
             </div>
           );
         })}
@@ -1126,9 +1125,11 @@ function ConvergenceSection() {
 export default function BeitMidrashPage() {
   const loc = useLocation();
   const params = new URLSearchParams(loc.search);
+  const nParam = Number(params.get("n")) || null;
+  const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
-  // המחשבון הוסר מבית-המדרש (מחשבון אחד במעבדה) → ברירת-מחדל = «שיטות» (הלימוד) / מדור תקף מה-URL.
-  const [tab, setTab] = useState(SECTIONS.some(s => s.key === tabParam) ? tabParam : "methods");
+  // ברירת-מחדל: כוונת-מחשבון (w/n) → טאב המחשבון; אחרת מדור תקף מה-URL / «הצלבות».
+  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "crosses"));
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // מנורת עדכונים (ציר התכנסות) — per-user (whats_new_law): נדלקת רק על ציר שנוסף מאז ביקורך.
@@ -1269,6 +1270,7 @@ export default function BeitMidrashPage() {
             </div>
 
             {tab === "searches" && <SearchesTab />}
+            {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}
             {tab === "convergence" && <ConvergenceSection />}

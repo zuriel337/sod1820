@@ -124,9 +124,12 @@ function BeitMidrashToLab() {
   const { search } = useLocation();
   const p = new URLSearchParams(search);
   const w = p.get("w") || p.get("calc");
+  const n = p.get("n");
   const tab = p.get("tab");
-  if (tab === "calc" || w || p.get("n")) {
-    return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
+  // כוונת-מחשבון (tab=calc / w / n) → המחשבון של בית-המדרש (בתוך המעבדה), עם שימור המילה.
+  if (tab === "calc" || w || n) {
+    const qs = [w ? `w=${encodeURIComponent(w)}` : "", n ? `n=${encodeURIComponent(n)}` : ""].filter(Boolean).join("&");
+    return <Navigate to={`/research?tool=midrash&tab=calc${qs ? `&${qs}` : ""}`} replace />;
   }
   const valid = ["searches", "convergence", "crosses", "community", "submit", "methods", "verified", "sod1820"];
   return <Navigate to={`/research?tool=midrash${tab && valid.includes(tab) ? `&tab=${tab}` : ""}`} replace />;
