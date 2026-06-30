@@ -145,13 +145,15 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     { id: "me", icon: "👤", label: "אני", render: bare => (
       <Panel icon="👤" title="אני" extra={user ? "☁️ מחובר" : "מקומי"} bare={bare}>
         {user ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div className="rw-av" style={{ width: 38, height: 38 }}>{((profile?.display_name || profile?.username || user.email || "א")[0] || "א").toUpperCase()}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile?.display_name || profile?.username || "מחובר"}</div>
-              <div className="rw-muted" style={{ fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email} · מסונכרן בענן</div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
+              <div className="rw-av" style={{ width: 38, height: 38, flex: "none" }}>{((profile?.display_name || profile?.username || user.email || "א")[0] || "א").toUpperCase()}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile?.display_name || profile?.username || "מחובר"}</div>
+                <div className="rw-muted" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>☁️ {user.email}</div>
+              </div>
             </div>
-            <button className="rw-mini" onClick={() => signOut?.()} title="התנתק">יציאה</button>
+            <button className="rw-mini" style={{ width: "100%" }} onClick={() => signOut?.()} title="התנתק">יציאה מהחשבון</button>
           </div>
         ) : (
           <div>

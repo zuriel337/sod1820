@@ -13,6 +13,7 @@ import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
+import NumberTool from "../components/NumberTool.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
@@ -93,6 +94,7 @@ export default function ResearchPage() {
           {tool === "els" && <ElsGrid seed={seed} />}
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool seed={seed} />}
+          {tool === "number" && <NumberTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (

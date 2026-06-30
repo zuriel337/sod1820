@@ -145,6 +145,9 @@ export const rwCss = (t = RW) => `
     padding:11px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;min-height:42px}
   .rw-login:hover{background:var(--acc);color:#fff}
   .rw-soon{background:var(--chip);border:1px dashed var(--line);border-radius:12px;padding:11px 12px;font-weight:700;font-size:13px;color:var(--ink2);line-height:1.6}
+  /* כלי-מספר — שדה הקלדה גדול */
+  .rw-num-in{flex:1;min-width:0;font-size:20px;font-weight:800;text-align:center;border:1px solid var(--acc);
+    border-radius:10px;background:var(--bg);color:var(--ink);padding:11px 14px;outline:none;font-family:inherit}
   /* רשימת-יכולות (לא כפתורים) — צ'קליסט מידע ברור */
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}

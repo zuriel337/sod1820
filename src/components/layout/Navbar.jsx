@@ -14,7 +14,8 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
-const CORE_KEYS = ["/", "/timeline", "/beit-midrash", "/community"];
+// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔬 המעבדה» הבולט (בית-המדרש חי בתוך המעבדה).
+const CORE_KEYS = ["/", "/timeline", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const moreItems = [
   ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !["/start"].includes(i.to)),
@@ -26,7 +27,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "📚", l: "בית המדרש", to: "/beit-midrash" },
+  { e: "🔬", l: "המעבדה", to: "/research" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -355,6 +356,15 @@ export default function Navbar() {
         <Brand />
 
         {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
+
+        {/* כפתור-העל «המעבדה» — גדול ובולט, מחליף את בית-המדרש */}
+        <Link to="/research" className="sod-nav-desktop" aria-label="המעבדה" style={{
+          display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+          background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
+          fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
+          padding: "9px 20px", borderRadius: 12, whiteSpace: "nowrap",
+          boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
+        }}>🔬 המעבדה</Link>
 
         {/* ליבה + עוד */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>

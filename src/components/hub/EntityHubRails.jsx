@@ -20,6 +20,7 @@ const RW_VARS = {
 
 export default function EntityHubRails({ entity }) {
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
+  const [ltab, setLtab] = useState("me"); // טאב «עולם המשתמש» — כמו במעבדה
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
     try { localStorage.setItem(KEY, JSON.stringify(n)); } catch { /* noop */ }
@@ -51,7 +52,7 @@ export default function EntityHubRails({ entity }) {
     <>
       <style>{RAILS_CSS}</style>
       <style>{rwCss()}</style>
-      {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" />)}
+      {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />)}
       {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)}
     </>
   ), document.body);
@@ -62,7 +63,8 @@ export default function EntityHubRails({ entity }) {
 const RAILS_CSS = `
 /* דסקטופ בלבד בשלב זה — מובייל נשאר מרכז-נקי (Bottom-Sheet בהמשך) */
 .ehr{display:none;font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
-@media (min-width:1024px){ .ehr{display:block;position:fixed;top:0;bottom:0;z-index:46;pointer-events:none} }
+/* מתחת לסרגל-העליון (Navbar=64px) — לא לדרוס אותו */
+@media (min-width:1024px){ .ehr{display:block;position:fixed;top:64px;bottom:0;z-index:46;pointer-events:none} }
 .ehr-right{inset-inline-end:0}
 .ehr-left{inset-inline-start:0}
 /* לשונית סגורה — כפתור עדין נקי באמצע הקצה */
