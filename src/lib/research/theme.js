@@ -118,7 +118,8 @@ export const rwCss = (t = RW) => `
   /* קיר-שמאל (טאבים): גם המסילה-עליונה וגם גוף-הטאב מקבלים כרטיס+צל כמו ימין */
   .rw-pwrap.left .rw-tabbar{box-shadow:0 8px 20px -14px rgba(60,46,16,.24)}
   .rw-pwrap.left .rw-tabbody{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:4px 2px;
-    box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
+    overflow:hidden;box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
+  .rw-pb{min-width:0;overflow-wrap:anywhere}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}
@@ -237,12 +238,12 @@ export const rwCss = (t = RW) => `
   .vs-bsec:not(:first-child){border-inline-start:1px solid var(--line);padding-inline-start:10px;margin-inline-start:6px}
   /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
   .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
-  .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}
+  .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0;min-width:0;max-width:100%;overflow:hidden}
   .rw-er-lk{flex:1;display:flex;align-items:center;gap:7px;min-width:0;text-decoration:none;color:var(--ink);
     background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:13.5px;font-weight:700;
     transition:border-color .15s,background .15s}
   a.rw-er-lk:hover{border-color:var(--acc);background:var(--accS)}
-  .rw-er-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rw-er-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rw-er-x{flex:none;border:none;background:none;cursor:pointer;color:var(--ink3);font-size:14px;
     width:30px;height:30px;border-radius:9px;transition:background .15s,color .15s}
   .rw-er-x:hover{background:var(--chip);color:var(--acc)}
