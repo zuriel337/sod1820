@@ -29,7 +29,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛️", l: "היכל הגילוי", to: "/research" },
+  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -298,13 +298,18 @@ function LabMenu() {
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" aria-label="היכל הגילוי" style={{
+      <Link to="/research" aria-label="היכל הגילוי · בבנייה" style={{
         display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ היכל הגילוי <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
+      }}>🏛️ היכל הגילוי
+        <span style={{
+          fontSize: 9.5, fontWeight: 900, letterSpacing: 0.3, lineHeight: 1,
+          background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2.5px 6px",
+        }}>🚧 בבנייה</span>
+        <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
       {open && <Dropdown items={items} onNavigate={() => setOpen(false)} />}
     </div>
   );
@@ -463,6 +468,7 @@ export default function Navbar() {
                 style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
                 <span className="sod-tile-e">{t.e}</span>
                 <span className="sod-tile-l">{t.l}</span>
+                {t.soon && <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>{t.soon}</span>}
               </Link>
             ))}
           </div>
