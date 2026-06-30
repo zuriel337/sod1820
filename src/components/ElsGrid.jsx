@@ -331,6 +331,24 @@ export default function ElsGrid({ seed }) {
   };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
   const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
+  // 🔍 חפש-והצג — מוסיף שכבה **וגם** ממקד מיד את המטריצה על המופע הקרוב, כדי שרואים את המילה תכף ומיד
+  // (במקום רשימה של «מחוץ למסך»). מחושב סינכרונית בתוך חלון-המטריצה החסום → מהיר ובטוח.
+  const searchAndShow = () => {
+    const t = elsNormalize(subRaw);
+    if (t.length < 2 || !letters || !anchorHit) return;
+    if (!overlays.includes(t)) setOverlays(o => [...o, t]);
+    setLayersOpen(true); setSubRaw("");
+    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+    const aMid = Math.round(centerOf(anchorHit)), aC = centerOf(anchorHit);
+    const winFrom = Math.max(bk.from, matrixWindow ? matrixWindow.from : bk.from, aMid - 140000);
+    const winTo = Math.min(letters.length, bk.to, matrixWindow ? matrixWindow.to : letters.length, aMid + 140000);
+    const oMax = Math.min(Math.max(3, q.skipMax), 2000);
+    const r = elsSearch(letters, t, 1, oMax, q.dir, q.fuzzy ? 1 : 0, { winFrom, winTo, skips: buildSkipSet(q.pattern, 1, oMax) });
+    if (r.hits.length) {
+      const best = r.hits.map(h => ({ h, d: Math.abs(centerOf(h) - aC) })).sort((a, b) => a.d - b.d)[0];
+      setFocusHit({ ...best.h, term: t }); // → המטריצה תציג מיד את המופע הקרוב של המילה
+    }
+  };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
 
   // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
@@ -976,15 +994,15 @@ export default function ElsGrid({ seed }) {
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
             <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
-            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
+            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && searchAndShow()}
               placeholder={`הקלד מילה לחיפוש ליד «${elsNormalize(terms[0] || "")}»…`} />
-            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>🔍 חפש</button>
+            <button className="els-sub-btn" onClick={searchAndShow} disabled={elsNormalize(subRaw).length < 2}>🔍 חפש והצג</button>
             <button className="els-sub-btn" onClick={autoCross} title="המנוע מחפש לבד את מילות-התוצאה בתוך המטריצה (כולל טקסט-רגיל) ומסמן חיתוכים אמיתיים" style={{ background: "#fff7e6", color: "var(--acc)", border: "1px solid var(--acc)" }}>⚡ אוטו-הצלבה</button>
             <button className="els-sub-btn" onClick={scanDict} disabled={dictScan?.running} title="המנוע עובר על מילון מונחים שלם ומגלה לבד מי מהם נחתך עם התוצאה" style={{ background: "#eef5ff", color: "#1f6feb", border: "1px solid #1f6feb" }}>{dictScan?.running ? "🔭 סורק…" : "🔭 סרוק מילון"}</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
-          <div className="rw-sub" style={{ marginBottom: 4 }}>מחפש <b>רק בתוך המטריצה</b> (ליד התוצאה) — מהיר, בלי להפעיל מנוע על כל הטקסט. כל מונח = שכבה צבעונית. 🎨 לחיצה על נקודת-צבע = שינוי צבע. <b>🔭 סרוק מילון</b> = המנוע מגלה לבד צפנים-נחתכים.</div>
+          <div className="rw-sub" style={{ marginBottom: 4 }}><b>«🔍 חפש והצג»</b> = המנוע מוצא את המילה ליד התוצאה ו<b>ממקד אליה מיד את המטריצה</b> (רואים אותה!). בטבלה למטה — כל שאר המקומות, לחיצה על «🎯 הצג» קופצת לכל אחד. <b>🔭 סרוק מילון</b> = מגלה לבד צפנים-נחתכים.</div>
 
           {/* 🔭 תוצאות סריקת-המילון — מונחים שהמנוע מצא לבד שנחתכים עם התוצאה */}
           {dictScan?.results && (
