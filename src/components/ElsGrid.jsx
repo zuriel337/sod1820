@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TANAKH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
-import ElsAnalysis from "./ElsAnalysis.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 import { getTorahNiqqud } from "../lib/research/torah.js";
@@ -33,13 +32,6 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
-// ניתוח-פיזור ברמת חלקי-התנ״ך (קריא יותר מ-39 ספרים): כל-התנ״ך + 3 חלקים.
-const ANALYSIS_BOOKS = [
-  { key: "all", label: "כל התנ״ך", from: 0, to: 1204583 },
-  { key: "torah", label: "תורה", from: 0, to: 304805 },
-  { key: "neviim", label: "נביאים", from: 304805, to: 862680 },
-  { key: "ketuvim", label: "כתובים", from: 862680, to: 1204583 },
-];
 // 🎨 לוח-צבעים לבחירת המשתמש — צובעים כל מונח/דילוג בצבע משלו על המטריצה.
 const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c", "#d6336c", "#0c8599", "#f08c00", "#343a40"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
@@ -190,7 +182,7 @@ export default function ElsGrid({ seed }) {
     const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
     let colWin = W2, colStart = 0;
     if (W2 > 34) { colWin = 29; const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - 14)); }
-    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 90), rows = [];
+    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 170), rows = [];
     for (let r = rowStart; r <= rowEnd; r++) {
       const cells = [];
       for (let c = 0; c < colWin; c++) {
@@ -289,9 +281,9 @@ export default function ElsGrid({ seed }) {
   const MatrixTools = () => (
     <div className="els-mtools">
       <span className="els-mt-lb">זום</span>
-      <button className="els-mt-b" onClick={() => setZoom(z => Math.max(0.6, +(z - 0.15).toFixed(2)))} title="הקטן">−</button>
+      <button className="els-mt-b" onClick={() => setZoom(z => Math.max(0.25, +(z - 0.15).toFixed(2)))} title="הרחק (זום אאוט)">−</button>
       <span className="els-mt-z">{Math.round(zoom * 100)}%</span>
-      <button className="els-mt-b" onClick={() => setZoom(z => Math.min(2.2, +(z + 0.15).toFixed(2)))} title="הגדל">+</button>
+      <button className="els-mt-b" onClick={() => setZoom(z => Math.min(3.5, +(z + 0.15).toFixed(2)))} title="התקרב (זום אין)">+</button>
       {zoom !== 1 && <button className="els-mt-b" onClick={() => setZoom(1)} title="איפוס">⟳</button>}
       <span className="els-mt-sep" />
       <span className="els-mt-lb">רקע</span>
@@ -513,8 +505,6 @@ export default function ElsGrid({ seed }) {
       {grid && <Help label="ℹ️ איך קוראים את המטריצה?">
         אותיות התנ״ך נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
       </Help>}
-
-      {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={ANALYSIS_BOOKS} total={res.hits.length} capped={res.capped} />}
 
       {res && <div className="rw-card" style={{ marginTop: 12 }}><ResultsList /></div>}
 

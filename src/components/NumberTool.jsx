@@ -26,7 +26,7 @@ export default function NumberTool() {
       <div>
         <button className="rw-tchip" onClick={() => setSp({ tool: "number" })} style={{ marginBottom: 12 }}>← מספר אחר</button>
         <NumHrefCtx.Provider value={labHref}>
-          <Suspense fallback={<div className="rw-card rw-muted">טוען דף מספר…</div>}>
+          <Suspense fallback={<div className="rw-card rw-muted">טוען דף המספר…</div>}>
             <EntityPage embedPhrase={n} />
           </Suspense>
         </NumHrefCtx.Provider>
@@ -43,7 +43,7 @@ export default function NumberTool() {
           onChange={e => setQ(e.target.value.replace(/[^\d]/g, ""))}
           onKeyDown={e => e.key === "Enter" && open()}
           aria-label="הקלד מספר" placeholder="הקלד מספר…" />
-        <button className="rw-tchip on" onClick={() => open()} disabled={!q} style={!q ? { opacity: 0.5 } : undefined}>פתח דף מספר ←</button>
+        <button className="rw-tchip on" onClick={() => open()} disabled={!q} style={!q ? { opacity: 0.5 } : undefined}>פתח דף המספר ←</button>
       </div>
       <div className="rw-muted" style={{ margin: "16px 0 8px", fontSize: 12.5, fontWeight: 700 }}>מספרי-מפתח:</div>
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>

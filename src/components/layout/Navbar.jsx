@@ -285,7 +285,7 @@ function UserMenu({ user, profile, cc }) {
 // 🏛️ תפריט-מגה אופקי של «היכל הגילוי» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך)
 const LAB_MENU = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
-  { e: "🔢", l: "דף מספר", to: "/research?tool=number" },
+  { e: "🔢", l: "דף המספר", to: "/research?tool=number" },
   { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
   { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
   { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els" },
@@ -293,7 +293,8 @@ const LAB_MENU = [
 ];
 function LabMenu() {
   const [open, setOpen] = useState(false);
-  const cc = chromeColors(useThemeMode());
+  // תפריט-נפתח בסיסי במבנה של «עוד» (אותו רכיב Dropdown, רשימה אנכית) — לבקשת צוריאל.
+  const items = LAB_MENU.map(it => ({ to: it.to, label: it.l, emoji: it.e }));
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
@@ -303,23 +304,8 @@ function LabMenu() {
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ היכל הגילוי</Link>
-      {open && (
-        <div style={{
-          position: "absolute", top: "100%", insetInlineStart: 0, marginTop: 8, zIndex: 200,
-          display: "flex", flexWrap: "wrap", gap: 7, width: "max-content", maxWidth: 580,
-          background: cc.dropBg, border: `1px solid ${cc.borderGold}`, borderRadius: 14, padding: 11,
-          boxShadow: "0 16px 44px rgba(0,0,0,0.5)",
-        }}>
-          {LAB_MENU.map(it => (
-            <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
-              display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
-              color: cc.goldBright, background: cc.chipBg, border: `1px solid ${cc.border}`,
-              borderRadius: 999, padding: "8px 14px", fontFamily: F.heading, fontSize: 13, fontWeight: 700, whiteSpace: "nowrap",
-            }}>{it.e} {it.l}</Link>
-          ))}
-        </div>
-      )}
+      }}>🏛️ היכל הגילוי <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
+      {open && <Dropdown items={items} onNavigate={() => setOpen(false)} />}
     </div>
   );
 }
