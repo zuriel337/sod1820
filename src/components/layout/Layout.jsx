@@ -6,8 +6,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
-import LiveActivityBar from "./LiveActivityBar.jsx";
-import HeichalToolsStrip from "./HeichalToolsStrip.jsx";
+import LiveActivityBar from "./LiveActivityBar.jsx"; // eslint-disable-line no-unused-vars -- מכובה זמנית (ראו למטה)
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -48,8 +47,8 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        <LiveActivityBar />
-        <HeichalToolsStrip />
+        {/* ⏸️ הטיקר («עכשיו באתר») מכובה זמנית לבקשת צוריאל — להחזרה: <LiveActivityBar /> */}
+        {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>
