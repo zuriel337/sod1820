@@ -76,7 +76,12 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  // 🔬 פילוח-מעבדה: שומרים את הכלי הפעיל (?tool=) בנתיב הנמדד, כך שכל כלי-מעבדה
+  // נספר בנפרד ("/research?tool=midrash" · "…=els" · "…=gematria") ולא קורס ל-"/research" אחד.
+  // כך גם כשהכל עובר תחת המעבדה — לא מאבדים את הפילוח לפי כלי.
+  const labTool = pathname === "/research" ? new URLSearchParams(search).get("tool") : null;
+  const trackPath = labTool ? `/research?tool=${labTool}` : pathname;
   useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); captureArrivalSource(); initClarity(); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -85,9 +90,10 @@ function RouteEffects() {
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
     // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
     const t = setTimeout(() => { trackPageview(pathname); trackMarketingPageview(); }, 350);
-    trackVisit(pathname);   // מד-כניסות פנימי (SOD1820) — נאסף ישירות אלינו
     return () => clearTimeout(t);
   }, [pathname]);
+  // מד-הכניסות הפנימי — אפקט נפרד על trackPath, כדי שייספר גם מעבר-בין-כלים במעבדה (שינוי ?tool=).
+  useEffect(() => { trackVisit(trackPath); }, [trackPath]);
   return null;
 }
 
