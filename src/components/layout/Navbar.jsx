@@ -17,8 +17,10 @@ import StreamSwitch from "../StreamSwitch.jsx";
 // «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 היכל הגילוי» הבולט (בית-המדרש חי בתוך המעבדה).
 const CORE_KEYS = ["/", "/timeline", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
+// הוסרו מהתפריט (לפי בקשת צוריאל): הצופן התנ"כי (/code · חי בהיכל), בני ההיכל (/members), ניסויים (/lab).
+const MORE_HIDE = ["/start", "/code", "/members", "/lab"];
 const moreItems = [
-  ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !["/start"].includes(i.to)),
+  ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
@@ -36,7 +38,6 @@ const MOBILE_TILES = [
 ];
 const MOBILE_SOON = [
   { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
-  { e: "🔍", l: 'הצופן התנ"כי', to: "/code" },
 ];
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
@@ -98,7 +99,7 @@ function UniversalSearch({ onDone, full }) {
   const cats = [
     { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
     { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
-    { e: "🔍", l: "דילוגי אותיות", to: "/code" },
+    { e: "🏛️", l: "היכל הגילוי", to: "/research" },
     { e: "🖼", l: "גלריות", to: "/archive" },
   ];
 

@@ -89,7 +89,8 @@ export const rwCss = (t = RW) => `
   .rw-tchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   /* «עוד» — תפריט הכלים שיעבדו (בבנייה) */
   /* שורה 2 — סרגל כלי-המעבדה, ברוחב מלא מתחת לנאב */
-  .rw-subbar{background:var(--bg);border-bottom:1px solid var(--line);padding:9px clamp(12px,1.8vw,30px) 0}
+  /* סרגל-המדורים נשאר קבוע מתחת לנאב (top=גובה-הנאב 64px) כשגוללים — מדור פעיל מודגש (.on) */
+  .rw-subbar{position:sticky;top:64px;z-index:90;background:var(--bg);border-bottom:1px solid var(--line);padding:9px clamp(12px,1.8vw,30px) 0;box-shadow:0 6px 16px -12px rgba(60,46,16,.4)}
   .rw-subnav{display:flex;align-items:flex-start;gap:8px}
   .rw-subnav .rw-toolbar{flex:1;min-width:0;margin-bottom:0}
   .rw-more-wrap{position:relative;flex:none;padding-bottom:12px}
