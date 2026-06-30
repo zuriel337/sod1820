@@ -83,6 +83,18 @@ const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c",
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
+// ✦ ממצאים נבחרים — «פלאות» שצוריאל ביקש שכל מי שנכנס לתוכנה יראה. נשמרים כאן (אפשר בעתיד מ-DB),
+// ולחיצה פותחת אותם במנוע (חיפוש מוצלב), כך שכל אחד יראה את הצופן המקביל במו עיניו.
+const FEATURED_FINDINGS = [
+  {
+    title: "תורה קדשה ⟂ התורה אמיתית",
+    terms: ["תורה קדשה", "התורה אמיתית"],
+    wonder: "חיפוש «תורה קדשה» חושף לידו, במקביל ומדויק, את «התורה אמיתית» — שני צפנים שנפגשים על אותה רשת.",
+    facts: "«תורה קדשה» = 1020 · «התורה אמיתית» = 1477 (רגיל). בשני הביטויים אין אותיות סופיות — לכן הגדול שווה לרגיל.",
+    by: "ממצא של חבר · אומת במנוע",
+  },
+];
+
 export default function ElsGrid({ seed }) {
   const { isAdmin } = useAuth();
   // ⚡ ביצועים: התורה (304,805 · 600KB) נטענת תמיד ומהר. התנ״ך המלא (1.2M · 2.4MB)
@@ -214,6 +226,15 @@ export default function ElsGrid({ seed }) {
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
+  // ✦ פתיחת ממצא-נבחר במנוע — טוען את המונחים כחיפוש מוצלב בתורה ומריץ מיד (q מפעיל את אפקט-החיפוש)
+  const openFinding = (f) => {
+    setMode("cross"); setBook("torah");
+    setRaw(f.terms[0]); setCrossExtra(f.terms.slice(1).length ? f.terms.slice(1) : [""]);
+    setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
+    setEntered(false); setShowAll(false);
+    setQ({ raw: f.terms.join(", "), book: "torah", skipMax: Math.max(2000, parseInt(skipMax) || 2000), pattern, dir, fuzzy });
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /**/ }
+  };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
   const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
@@ -545,6 +566,24 @@ export default function ElsGrid({ seed }) {
       <style>{ELS_CSS}</style>
       <div className="rw-h1">🔡 הצופן התנ״כי — דילוגי אותיות</div>
 
+      {/* ✦ ממצא נבחר — כל מי שנכנס רואה את הפלא, ובלחיצה פותח אותו במנוע */}
+      {FEATURED_FINDINGS.length > 0 && (
+        <div className="els-featured">
+          {FEATURED_FINDINGS.map((f, i) => (
+            <div key={i} className="els-feat-card">
+              <div className="els-feat-badge">✦ פלא נבחר</div>
+              <div className="els-feat-title">{f.title}</div>
+              <div className="els-feat-wonder">{f.wonder}</div>
+              <div className="els-feat-facts">🔢 {f.facts}</div>
+              <div className="els-feat-row">
+                <button className="els-feat-go" onClick={() => openFinding(f)}>✦ פתח את הממצא במנוע ←</button>
+                {f.by && <span className="els-feat-by">{f.by}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 🚪 שער-כניסה — 3 אפשרויות ברורות (תורה חינם · תנ״ך/מוצלב = טוקנים) */}
       <div className="els-modes">
         {[
@@ -874,6 +913,16 @@ const ELS_CSS = `
 .els-combine-btn{display:block;width:100%;margin-top:12px;padding:12px 16px;border:1.5px dashed var(--acc);background:var(--accS);
   color:var(--acc);border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.12s}
 .els-combine-btn:hover{background:var(--acc);color:#fff;border-style:solid}
+/* ✦ ממצא נבחר — כרטיס-פלא שכולם רואים */
+.els-featured{margin:4px 0 14px}
+.els-feat-card{background:linear-gradient(135deg,#fff8e6,#fdf1cf);border:1.5px solid var(--acc);border-radius:16px;padding:14px 16px;box-shadow:0 8px 22px -14px rgba(60,46,16,.5)}
+.els-feat-badge{display:inline-block;background:var(--acc);color:#fff;font-weight:800;font-size:11.5px;border-radius:999px;padding:3px 12px;margin-bottom:7px}
+.els-feat-title{font-weight:800;font-size:18px;color:#5a4410}
+.els-feat-wonder{font-size:13.5px;color:#3a2f12;line-height:1.6;margin-top:5px}
+.els-feat-facts{font-size:12.5px;color:#7a5e12;margin-top:7px;background:rgba(255,255,255,.6);border-radius:9px;padding:6px 10px;font-weight:700}
+.els-feat-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px}
+.els-feat-go{border:none;background:linear-gradient(135deg,#e9c84a,#9a7818);color:#1a0e00;font-weight:800;font-size:13.5px;border-radius:999px;padding:9px 18px;cursor:pointer;font-family:inherit}
+.els-feat-by{font-size:11.5px;color:#8a7330;font-weight:700}
 /* 🚪 שער-מצבים */
 .els-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
 .els-mode{display:flex;flex-direction:column;align-items:center;gap:3px;padding:13px 10px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;cursor:pointer;font-family:inherit;transition:.12s}

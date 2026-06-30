@@ -5,7 +5,7 @@ import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate }
 import { useAuth } from "../lib/AuthContext.jsx";
 import { isAnon } from "../lib/privacy.js";
 import AnonToggle, { useAnon } from "./AnonToggle.jsx";
-import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -327,15 +327,20 @@ export default function GematriaCalculator({ seed, onResult, research = false })
         </label>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
           {res.map(r => {
+            // 🔒 חוק gadol_equals_ragil_when_no_sofiot: כשאין סופיות, שיטה-גדולה = הבסיס שלה.
+            // לא מציגים אותה כ«ממצא נפרד» — מסמנים «≡ זהה ל…» כדי שלא ייקרא כהפרש.
+            const sameAsBase = word && GADOL_BASE[r.key] && !hasSofiot(word);
             const inner = (
               <>
                 <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
-                <div style={{ color: word ? L.goldDeep : "#cabfa3", fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+                <div style={{ color: word ? (sameAsBase ? L.sub : L.goldDeep) : "#cabfa3", fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
                 {showHebNum && word && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
-                {word && <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>}
+                {sameAsBase
+                  ? <div title="אין אותיות סופיות בביטוי — הערך הגדול זהה לרגיל (חוק נעול)" style={{ color: "#9a8a5e", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, marginTop: 2 }}>≡ זהה ל{GADOL_BASE[r.key]}</div>
+                  : (word && <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>)}
               </>
             );
-            const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft };
+            const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft, ...(sameAsBase ? { opacity: 0.72 } : {}) };
             // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
             return word ? (
               <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
