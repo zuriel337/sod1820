@@ -90,9 +90,12 @@ export default function ResearchShell({ children }) {
       {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
       {eng && (
         <details className="rw-panel" open={!(tool === "els" && elsState?.has)}>
-          <summary className="rw-ph" style={{ cursor: "pointer", listStyle: "none" }}><span>🔧 {eng.title} — יכולות</span></summary>
-          <div className="rw-pb" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {eng.items.map((it, i) => <span key={i} className="rw-chip" style={{ fontSize: 12.5 }}>{it}</span>)}
+          <summary className="rw-ph" style={{ cursor: "pointer", listStyle: "none" }}><span>💡 מה הכלי «{eng.title}» יודע</span></summary>
+          <div className="rw-pb">
+            <div className="rw-muted" style={{ marginBottom: 9, fontSize: 12, lineHeight: 1.6 }}>
+              אלו היכולות של הכלי הפעיל — מפעילים אותן <b>בכלי עצמו</b> שבמרכז המסך (זו רשימת-מידע, לא כפתורים).
+            </div>
+            <ul className="rw-caps">{eng.items.map((it, i) => <li key={i}>{it}</li>)}</ul>
           </div>
         </details>
       )}

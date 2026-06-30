@@ -22,7 +22,8 @@ export const RW = {
 export const rwCss = (t = RW) => `
   .rw{--bg:${t.bg};--card:${t.card};--line:${t.line};--ink:${t.ink};--ink2:${t.ink2};--ink3:${t.ink3};
       --acc:${t.accent};--accS:${t.accentSoft};--chip:${t.chip};--r:${t.radius}px;
-      background:var(--bg);color:var(--ink);font-family:${t.font};min-height:100vh}
+      background:var(--bg);color:var(--ink);font-family:${t.font};
+      height:100vh;height:100dvh;overflow-y:auto;scrollbar-gutter:stable}
   .rw *{box-sizing:border-box}
   /* כפתורים/שדות לא יורשים font-family בדפדפן → כופים את Heebo על כל הסביבה (מעיף את גופן ברירת-המחדל המכוער) */
   .rw button,.rw input,.rw select,.rw textarea{font-family:inherit}
@@ -120,6 +121,10 @@ export const rwCss = (t = RW) => `
   .rw-qa button:active{transform:scale(.96)}
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
+  /* רשימת-יכולות (לא כפתורים) — צ'קליסט מידע ברור */
+  ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
+  .rw-caps li:before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:var(--acc);font-weight:800}
   /* בורר-שיטה בחיפוש-פסוקים — שורת צ'יפים גלילה */
   .vs-methods{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 9px;-webkit-overflow-scrolling:touch}
   .vs-mchip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
