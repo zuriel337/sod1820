@@ -139,6 +139,12 @@ export const rwCss = (t = RW) => `
   .rw-er-sel{flex:none;max-width:92px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
     border-radius:8px;font-size:11.5px;font-weight:700;font-family:inherit;padding:5px 6px;cursor:pointer}
   .rw-er-sel:hover{border-color:var(--acc)}
+  /* התחברות + מצב «בבנייה» */
+  .rw-cta button.off{opacity:.5;cursor:default}
+  .rw-login{width:100%;border:1px solid var(--acc);background:var(--accS);color:var(--acc);border-radius:12px;
+    padding:11px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;min-height:42px}
+  .rw-login:hover{background:var(--acc);color:#fff}
+  .rw-soon{background:var(--chip);border:1px dashed var(--line);border-radius:12px;padding:11px 12px;font-weight:700;font-size:13px;color:var(--ink2);line-height:1.6}
   /* רשימת-יכולות (לא כפתורים) — צ'קליסט מידע ברור */
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}

@@ -159,7 +159,7 @@ export default function App() {
         <GlobalChrome>
           <UpdateBanner />
           <RoyalShareWidget />
-          <LabDock />
+          {/* הוסר זמנית לבקשת צוריאל — נחזיר כשיחליט. <LabDock /> */}
           <InstallPrompt />
           {/* הוסר לבקשת צוריאל — בלי פוש «התראות דפדפן / הירשם לעדכונים» (בועת ימין בדסקטופ) */}
           {/* <UpdatesBar /> */}

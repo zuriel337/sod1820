@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, entityFromPhrase } from "../lib/research/entity.js";
 import { calcGem } from "../theme.js";
 
@@ -18,15 +20,32 @@ function printDoc(title, bodyText) {
 // (סימון טקסט → חישוב גימטריה · הוסף-למחקר · העתק). אנונימי=דפדפן; ענן=שדרוג עתידי.
 function NotesPanel() {
   const { addToResearch } = useResearch();
+  const { user } = useAuth();
   const nav = useNavigate();
   const [text, setText] = useState(() => { try { return localStorage.getItem("sod_notes_v1") || ""; } catch { return ""; } });
   const [saved, setSaved] = useState(true);
   const [sel, setSel] = useState("");
+  // התחברות → משיכת הפנקס מהענן (ענן מנצח אם יש בו תוכן; אחרת דוחפים את המקומי למעלה)
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    getCloudNotes(user.id).then(cloud => {
+      if (!alive) return;
+      if (cloud && cloud.trim()) setText(cloud);
+      else { let loc = ""; try { loc = localStorage.getItem("sod_notes_v1") || ""; } catch { /* noop */ } if (loc.trim()) saveCloudNotes(user.id, loc); }
+    }).catch(() => { /* noop */ });
+    return () => { alive = false; };
+  }, [user]);
+  // שמירה: localStorage תמיד; ענן אם מחובר (debounce)
   useEffect(() => {
     setSaved(false);
-    const t = setTimeout(() => { try { localStorage.setItem("sod_notes_v1", text); setSaved(true); } catch { /* noop */ } }, 500);
+    const t = setTimeout(() => {
+      try { localStorage.setItem("sod_notes_v1", text); } catch { /* noop */ }
+      if (user) saveCloudNotes(user.id, text).catch(() => { /* noop */ });
+      setSaved(true);
+    }, 600);
     return () => clearTimeout(t);
-  }, [text]);
+  }, [text, user]);
   const onSel = e => {
     const ta = e.target;
     const s = (ta.value.substring(ta.selectionStart, ta.selectionEnd) || "").trim();
@@ -52,7 +71,7 @@ function NotesPanel() {
         </div>
       )}
       <div className="rw-notes-bar">
-        <span className="rw-muted" style={{ fontSize: 11.5 }}>{saved ? "✓ נשמר" : "שומר…"} · {text.trim().length} תווים</span>
+        <span className="rw-muted" style={{ fontSize: 11.5 }}>{saved ? "✓ נשמר" : "שומר…"} · {user ? "☁️ ענן" : "💾 מקומי"} · {text.trim().length} תווים</span>
         <button className="rw-notes-print" onClick={() => printDoc("פנקס המחקר · סוד 1820", text)} title="הדפס / שמור PDF">🖨 הדפס</button>
       </div>
     </div>
@@ -103,6 +122,8 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     cart = [], saved = [], pinned = [], history = [], collections = [],
     removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, removeCollection, assignCollection,
   } = useResearch();
+  const { user, profile, signOut } = useAuth();
+  const nav = useNavigate();
   const [localTab, setLocalTab] = useState("me");
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
@@ -122,11 +143,25 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 
   const PANELS = [
     { id: "me", icon: "👤", label: "אני", render: bare => (
-      <Panel icon="👤" title="אני" extra="עובד מקומית" bare={bare}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="rw-av" style={{ width: 38, height: 38 }}>א</div>
-          <div><div style={{ fontWeight: 800 }}>שלום, אורח</div><div className="rw-muted">ללא הרשמה · נשמר בדפדפן</div></div>
-        </div>
+      <Panel icon="👤" title="אני" extra={user ? "☁️ מחובר" : "מקומי"} bare={bare}>
+        {user ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div className="rw-av" style={{ width: 38, height: 38 }}>{((profile?.display_name || profile?.username || user.email || "א")[0] || "א").toUpperCase()}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile?.display_name || profile?.username || "מחובר"}</div>
+              <div className="rw-muted" style={{ fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email} · מסונכרן בענן</div>
+            </div>
+            <button className="rw-mini" onClick={() => signOut?.()} title="התנתק">יציאה</button>
+          </div>
+        ) : (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 11 }}>
+              <div className="rw-av" style={{ width: 38, height: 38 }}>א</div>
+              <div><div style={{ fontWeight: 800 }}>שלום, אורח</div><div className="rw-muted">המחקר נשמר בדפדפן</div></div>
+            </div>
+            <button className="rw-login" onClick={() => nav("/login")}>🔐 התחבר / הירשם — לסנכרון בין מכשירים</button>
+          </div>
+        )}
       </Panel>
     ) },
     { id: "notes", icon: "📝", label: "פנקס", render: bare => (
@@ -146,7 +181,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
               <div className="rw-cta">
-                <button className="b1">🤖 נתח</button>
+                <button className="b1 off" disabled title="ניתוח AI — בבנייה, ייפתח בקרוב">🤖 נתח · בבנייה</button>
                 <button className="b2" onClick={exportResearch} title="העתק + הדפס/PDF">📤 ייצוא</button>
               </div>
             </>}
@@ -196,8 +231,8 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
       </Panel>
     ) },
     { id: "ai", icon: "🤖", label: "AI", render: bare => (
-      <Panel icon="🤖" title="AI" bare={bare}>
-        <div className="rw-muted">{cart.length ? `המשך מהמקום שעצרת — מחקר עם ${cart.length} פריטים.` : "התחילו מחקר, ואעזור לחבר את הקשרים."}</div>
+      <Panel icon="🤖" title="AI" extra="בבנייה" bare={bare}>
+        <div className="rw-soon">🔬 ניתוח AI — בבנייה, ייפתח בקרוב לכל החוקרים.</div>
       </Panel>
     ) },
     { id: "roadmap", icon: "🗺️", label: "מפה", render: bare => (

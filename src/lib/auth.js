@@ -65,3 +65,17 @@ export async function getSession() {
 export function signOut() {
   return supabase.auth.signOut();
 }
+
+// ── פנקס-מחקר בענן (user_notes) — סנכרון בין מכשירים למשתמש מחובר ──
+export async function getCloudNotes(userId) {
+  if (!userId) return null;
+  const { data } = await supabase.from('user_notes').select('content').eq('user_id', userId).maybeSingle();
+  return data?.content ?? null;
+}
+export async function saveCloudNotes(userId, content) {
+  if (!userId) return;
+  await supabase.from('user_notes').upsert(
+    { user_id: userId, content: content || '', updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
+}
