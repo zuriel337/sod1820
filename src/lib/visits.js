@@ -83,6 +83,20 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
+// ── 🧭 דשבורד המסעות (מנהל) — זמן+צפיות לכל דף/כלי-מעבדה + מסע-לכל-מבקר ──
+export async function getPageDwell(hours = 168) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_page_dwell", { p_hours: hours });
+  if (error) throw error;
+  return data;
+}
+export async function getVisitorJourneys(hours = 24, min = 4) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_visitor_journeys", { p_hours: hours, p_min: min });
+  if (error) throw error;
+  return data;
+}
+
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
   if (!supabase) return null;
