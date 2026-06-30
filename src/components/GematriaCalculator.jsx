@@ -68,15 +68,18 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const v2 = valOf(m2, q2);
   const isCross = v1 > 0 && v1 === v2;
 
-  // כמה ביטויים יש במערכת לכל שיטה (לפי הערך שלה) — מהמאגר המאומת
+  // כמה ביטויים יש במערכת לכל שיטה (לפי הערך שלה) — מהמאגר המאומת.
+  // ⏳ debounced: לא יורים 17 שאילתות בכל הקשה — רק אחרי שהמשתמש מפסיק להקליד.
   useEffect(() => {
     let live = true; setCounts({});
     if (!letters.length) return;
-    Promise.all(res.map(r =>
-      supabase.from("bidim").select("*", { count: "exact", head: true }).eq("method", r.key).eq("value", r.value)
-        .then(({ count }) => [r.key, count || 0]).catch(() => [r.key, 0])
-    )).then(pairs => { if (live) setCounts(Object.fromEntries(pairs)); });
-    return () => { live = false; };
+    const t = setTimeout(() => {
+      Promise.all(res.map(r =>
+        supabase.from("bidim").select("*", { count: "exact", head: true }).eq("method", r.key).eq("value", r.value)
+          .then(({ count }) => [r.key, count || 0]).catch(() => [r.key, 0])
+      )).then(pairs => { if (live) setCounts(Object.fromEntries(pairs)); });
+    }, 450);
+    return () => { live = false; clearTimeout(t); };
   }, [word]); // eslint-disable-line
 
   // שמירה + רישום חיפושים (עץ אחד).

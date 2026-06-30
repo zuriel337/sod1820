@@ -1,7 +1,17 @@
 // 🔒 שער-מוכנוּת — הכלים הפתוחים לציבור. השאר מציגים «בשדרוג — ייפתח בקרוב».
 // פתוחים לציבור: דף-המספר · מחשבון · חיפוש-פסוקים · בית-המדרש · ראשי/סופי-תיבות.
 // כשכלי מוכן לציבור — מוסיפים אותו ל-READY_TOOLS, בלי שינוי קוד אחר.
-export const READY_TOOLS = new Set(["number", "gematria", "verse", "midrash", "notarikon"]);
+
+// 🔓 דגל-מאסטר יחיד לפתיחת דילוגי-האותיות (ELS) לציבור.
+// כרגע false → ELS אדמין-בלבד: גם כלי-המעבדה (/research?tool=els) וגם העמוד /code.
+// היום למנהל הכל עובד ומסודר; ביום שתחליט — הופכים ל-true והשניים נפתחים לציבור
+// **בבת-אחת, בשורה אחת** (READY_TOOLS למעבדה + CodePage ל-/code קוראים את אותו דגל).
+export const ELS_PUBLIC = false;
+
+export const READY_TOOLS = new Set([
+  "number", "gematria", "verse", "midrash", "notarikon",
+  ...(ELS_PUBLIC ? ["els"] : []),
+]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי
 export const FLAGSHIP_TOOLS = ["number", "gematria"];

@@ -166,6 +166,21 @@ export const rwCss = (t = RW) => `
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
   .rw-caps li:before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:var(--acc);font-weight:800}
+  /* 💡 פאנל-הסבר בכניסה למעבדה (מתקפל) */
+  .rw-h1-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .rw-explain-reopen{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;padding:6px 13px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-explain-reopen:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
+  .rw-explain{position:relative;background:linear-gradient(160deg,var(--accS),var(--card));border:1px solid var(--acc);border-radius:16px;padding:16px 18px;margin:14px 0 20px;box-shadow:0 12px 30px -16px rgba(60,46,16,.30)}
+  .rw-explain-x{position:absolute;inset-inline-start:12px;top:12px;width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink3);font-size:13px;cursor:pointer;transition:.12s}
+  .rw-explain-x:hover{color:var(--acc);border-color:var(--acc)}
+  .rw-explain-h{font-family:inherit;font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px;padding-inline-end:34px}
+  .rw-explain-sub{font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:13px}
+  .rw-explain-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .rw-estep{display:flex;align-items:flex-start;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .rw-estep .ei{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+  .rw-estep b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:2px}
+  .rw-estep span{font-size:12px;color:var(--ink2);line-height:1.5}
+  .rw-explain-foot{margin-top:12px;font-size:12px;color:var(--ink3);line-height:1.6}
   /* ✅ רצועת «עובד עכשיו» בראש מרכז-המחקר */
   .rw-quick{background:var(--card);border:1px solid var(--acc);border-radius:14px;padding:13px 15px;margin-bottom:20px;box-shadow:0 10px 26px -14px rgba(60,46,16,.28)}
   .rw-quick-h{font-weight:800;font-size:12.5px;color:var(--acc);letter-spacing:.5px;margin-bottom:10px}
