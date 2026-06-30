@@ -36,7 +36,7 @@ const QA_CSS = `
 .rw-qa{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center}
 .rw-qa button{font-family:inherit;border:1px solid var(--line,rgba(196,154,46,.45));background:var(--card,rgba(196,154,46,.12));border-radius:999px;padding:9px 15px;font-size:13.5px;font-weight:700;color:var(--ink,inherit);min-height:44px;cursor:pointer;transition:transform .1s ease}
 .rw-qa button:active{transform:scale(.96)}
-.rw-qa .pri{background:var(--acc,#c79a2e);border-color:var(--acc,#c79a2e);color:#fff}
+.rw-qa .pri{background:var(--acc,#c79a2e);border-color:var(--acc,#c79a2e);color:var(--onAcc,#1a0e00);font-weight:800}
 .rw-qa button.on{background:var(--accS,rgba(196,154,46,.22));border-color:var(--acc,#c79a2e);color:var(--acc,#b8901f)}
 .rw-qa button.soon{opacity:.5;cursor:default}
 .rw-qa button.soon:active{transform:none}

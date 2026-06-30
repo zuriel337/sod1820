@@ -315,12 +315,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           </div>
         )}
 
-        {/* כל 17 השיטות — מוצג רק כשהשורה העליונה מלאה */}
-        {!word ? (
-          <div style={{ textAlign: "center", marginTop: 16, color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.85, padding: "16px 12px", border: `1px dashed ${L.line}`, borderRadius: 12 }}>
-            ✏️ השורה העליונה ריקה — הקלידו ביטוי, או לחצו <b style={{ color: L.goldDeep }}>⤴ למעלה</b> באחת השורות כדי לראות כאן את כל 17 השיטות.
-          </div>
-        ) : (
+        {/* כל 17 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
         <>
         {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
         <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
@@ -328,32 +323,47 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           הצג את הערך באותיות (מ״ה) · מתקדם
         </label>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
-          {res.map(r => (
-            <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
-              textDecoration: "none", textAlign: "center", borderRadius: 10, padding: "8px 6px",
-              border: `1px solid ${L.line}`, background: L.soft, transition: "border-color .15s, background .15s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
-              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
-              <div style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
-              {showHebNum && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
-              <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>
-            </Link>
-          ))}
+          {res.map(r => {
+            const inner = (
+              <>
+                <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
+                <div style={{ color: word ? L.goldDeep : "#cabfa3", fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+                {showHebNum && word && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
+                {word && <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>}
+              </>
+            );
+            const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft };
+            // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
+            return word ? (
+              <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
+                textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
+                {inner}
+              </Link>
+            ) : (
+              <div key={r.key} style={{ ...boxStyle, opacity: 0.92 }}>{inner}</div>
+            );
+          })}
         </div>
 
-        <div style={{ textAlign: "center", marginTop: 15 }}>
-          <Link to={`/number/${ragilVal}?from=calc`} style={{
-            display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
-            background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
-            fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
-            boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
-          }}>✨ גלה הכל על {ragilVal} ←</Link>
-        </div>
-        <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה</div>
-        </>
+        {word ? (
+          <>
+            <div style={{ textAlign: "center", marginTop: 15 }}>
+              <Link to={`/number/${ragilVal}?from=calc`} style={{
+                display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+                background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
+                fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
+                boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
+              }}>✨ גלה הכל על {ragilVal} ←</Link>
+            </div>
+            <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה</div>
+          </>
+        ) : (
+          <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 17 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
         )}
+        </>
       </div>
 
       {/* פירוט אות-אות */}

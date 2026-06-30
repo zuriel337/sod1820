@@ -31,16 +31,26 @@ const L = {
   blue: "#2563eb", blueBg: "#eef4ff", blueLine: "#cfe0ff",
 };
 
+// מקובצים ל-3 רמות ברורות (במקום 9 פריטים שטוחים): כלים → מחקר ותוכן → קהילה.
+// המחשבון ראשון (ברירת-מחדל). «בקרוב» (soon) יורד לתחתית, קטן ומעומעם.
 const SECTIONS = [
-  { key: "searches", icon: "🔎", label: "מה נחקר" },
-  { key: "convergence", icon: "🌐", label: "צירי התכנסות" },
-  { key: "crosses", icon: "✨", label: "חידושי הצלבות" },
-  { key: "community", icon: "👥", label: "חידושי גולשים" },
-  { key: "submit", icon: "✍️", label: "הגשת חידוש" },
-  { key: "calc", icon: "🧮", label: "מחשבון גימטריה" },
-  { key: "methods", icon: "📐", label: "שיטות הגימטריה" },
-  { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true },
-  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
+  // 🧮 כלים — מה שעובד, ראשי
+  { key: "calc", icon: "🧮", label: "מחשבון גימטריה", group: "tools" },
+  { key: "methods", icon: "📐", label: "שיטות הגימטריה", group: "tools" },
+  { key: "crosses", icon: "✨", label: "חידושי הצלבות", group: "tools" },
+  // 📚 מחקר ותוכן
+  { key: "convergence", icon: "🌐", label: "צירי התכנסות", group: "research" },
+  { key: "searches", icon: "🔎", label: "מה נחקר", group: "research" },
+  { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true, group: "research" },
+  { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות", group: "research" },
+  // 👥 קהילה
+  { key: "submit", icon: "✍️", label: "הגשת חידוש", group: "community" },
+  { key: "community", icon: "👥", label: "חידושי גולשים", group: "community", soon: true },
+];
+const BM_GROUPS = [
+  { key: "tools", label: "כלים" },
+  { key: "research", label: "מחקר ותוכן" },
+  { key: "community", label: "קהילה" },
 ];
 
 // תג AI כחול (בהיר)
@@ -1129,8 +1139,8 @@ export default function BeitMidrashPage() {
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
-  // ברירת-מחדל: כוונת-מחשבון (w/n) → טאב המחשבון; אחרת מדור תקף מה-URL / «הצלבות».
-  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "crosses"));
+  // ברירת-מחדל: מי שנכנס לבית-המדרש נוחת על «מחשבון הגימטריה» (הכלי המרכזי). מדור תקף מה-URL גובר.
+  const [tab, setTab] = useState(SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc");
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
@@ -1240,32 +1250,38 @@ export default function BeitMidrashPage() {
               <span>👈 החליקו לכל המדורים 👉</span>
             </div>
             <div ref={sideRef} className="bm-side-scroll" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {SECTIONS.map(s => {
-                const on = s.key === tab;
-                return (
-                  <button key={s.key} onClick={() => setTab(s.key)} style={{
-                    cursor: "pointer", textAlign: "right", display: "flex", alignItems: "center", gap: 9,
-                    border: "none", borderInlineStart: `3px solid ${on ? L.gold : "transparent"}`,
-                    background: on ? "#fff" : "transparent", color: on ? L.ink : L.sub,
-                    fontFamily: F.heading, fontSize: 15, fontWeight: 700, padding: "11px 14px", borderRadius: "0 8px 8px 0",
-                    boxShadow: on ? "0 1px 3px rgba(0,0,0,0.05)" : "none",
-                  }}>
-                    <span>{s.icon}</span>
-                    <span style={{ flex: 1 }}>{s.label}</span>
-                    {s.key === "crosses" && newCrosses > 0 && (
-                      <span title={`${newCrosses} הצלבות חדשות`} style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, minWidth: 18, textAlign: "center", padding: "0 6px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }}>{newCrosses}</span>
-                    )}
-                    {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
-                      <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                        <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
-                      </span>
-                    )}
-                    {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
-                    {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
-                  </button>
-                );
-              })}
+              {BM_GROUPS.map((g, gi) => (
+                <React.Fragment key={g.key}>
+                  <div className="bm-side-group" style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 1.5, color: L.gold, padding: gi === 0 ? "2px 14px 5px" : "14px 14px 5px", opacity: 0.8 }}>{g.label}</div>
+                  {SECTIONS.filter(s => s.group === g.key).map(s => {
+                    const on = s.key === tab;
+                    return (
+                      <button key={s.key} onClick={() => setTab(s.key)} style={{
+                        cursor: "pointer", textAlign: "right", display: "flex", alignItems: "center", gap: 9,
+                        border: "none", borderInlineStart: `3px solid ${on ? L.gold : "transparent"}`,
+                        background: on ? "#fff" : "transparent", color: on ? L.ink : L.sub,
+                        fontFamily: F.heading, fontSize: s.soon ? 13.5 : 15, fontWeight: 700, padding: s.soon ? "8px 14px" : "11px 14px", borderRadius: "0 8px 8px 0",
+                        boxShadow: on ? "0 1px 3px rgba(0,0,0,0.05)" : "none", opacity: s.soon && !on ? 0.5 : 1,
+                      }}>
+                        <span>{s.icon}</span>
+                        <span style={{ flex: 1 }}>{s.label}</span>
+                        {s.soon && <span title="בקרוב" style={{ fontSize: 11 }}>⏳</span>}
+                        {s.key === "crosses" && newCrosses > 0 && (
+                          <span title={`${newCrosses} הצלבות חדשות`} style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, minWidth: 18, textAlign: "center", padding: "0 6px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }}>{newCrosses}</span>
+                        )}
+                        {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
+                          <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
+                          </span>
+                        )}
+                        {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
+                        {GATED.has(s.key) && !subscribed && <span style={{ fontSize: 12 }}>🔒</span>}
+                      </button>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
             </div>
           </nav>
 
@@ -1317,6 +1333,7 @@ export default function BeitMidrashPage() {
           .bm-side button { border-inline-start: none !important; border-radius: 999px !important; white-space: nowrap;
             border: 1px solid ${L.line} !important; padding: 9px 14px !important; flex: 0 0 auto; scroll-snap-align: start; }
           .bm-side button > span:nth-child(2) { flex: 0 0 auto !important; }
+          .bm-side-group { display: none !important; }
         }
         @media (max-width: 700px) {
           .bm-wrap { padding: 22px 13px 70px !important; }

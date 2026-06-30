@@ -166,6 +166,14 @@ export const rwCss = (t = RW) => `
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
   .rw-caps li:before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:var(--acc);font-weight:800}
+  /* ✅ רצועת «עובד עכשיו» בראש מרכז-המחקר */
+  .rw-quick{background:var(--card);border:1px solid var(--acc);border-radius:14px;padding:13px 15px;margin-bottom:20px;box-shadow:0 10px 26px -14px rgba(60,46,16,.28)}
+  .rw-quick-h{font-weight:800;font-size:12.5px;color:var(--acc);letter-spacing:.5px;margin-bottom:10px}
+  .rw-quick-row{display:flex;flex-wrap:wrap;gap:8px}
+  .rw-quick-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-quick-chip:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
+  .rw-quick-chip .qc-ic{font-size:16px}
+  .rw-quick-chip .qc-flag{font-size:12px}
   /* ניווט-מדורים של בית-המדרש בקיר-הימני */
   .rw-mnav{display:grid;gap:6px}
   .rw-mnav-i{display:flex;align-items:center;gap:8px;width:100%;text-align:start;border:1px solid var(--line);
