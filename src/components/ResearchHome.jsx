@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -71,11 +71,32 @@ const catRank = (t, isAdmin) => (isToolReady(t.id, isAdmin) ? 0 : 1);
 export default function ResearchHome({ onOpen }) {
   // 🔑 מנהל רואה את כל הכלים הממומשים כפתוחים (לבדיקות); לציבור נשאר הגיטינג הרגיל.
   const { isAdmin } = useAuth();
+  // 💡 פאנל-הסבר: פתוח בכניסה ראשונה, נסגר ונזכר, ניתן לפתיחה חוזרת ב-«❓ הסבר».
+  const [explainOpen, setExplainOpen] = useState(() => { try { return localStorage.getItem("rw_explain_seen") !== "1"; } catch { return true; } });
+  const closeExplain = () => { setExplainOpen(false); try { localStorage.setItem("rw_explain_seen", "1"); } catch { /* noop */ } };
   return (
     <div>
-      <div className="rw-h1">🏛️ מרכז המחקר</div>
+      <div className="rw-h1-row">
+        <div className="rw-h1">🏛️ מרכז המחקר</div>
+        {!explainOpen && <button className="rw-explain-reopen" onClick={() => setExplainOpen(true)} title="מה זה מרכז המחקר?">❓ הסבר</button>}
+      </div>
       <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
       {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
+
+      {/* 💡 פאנל-הסבר מתקפל — «מה זה המעבדה ואיך מתחילים» (research_workspace_law: הסבר אינטראקטיבי) */}
+      {explainOpen && (
+        <div className="rw-explain">
+          <button className="rw-explain-x" onClick={closeExplain} aria-label="סגור הסבר">✕</button>
+          <div className="rw-explain-h">👋 ברוכים הבאים — זו סביבת-מחקר אחת, לא אוסף עמודים</div>
+          <div className="rw-explain-sub">כל כלי מזין את אותו «מחקר» שלך, והכל מחובר. בוחרים, חוקרים, ואוספים — וזה נשאר איתכם.</div>
+          <div className="rw-explain-steps">
+            <div className="rw-estep"><span className="ei">1</span><div><b>בוחרים כלי</b><span>מחשבון · דף-מספר · פסוקים · דילוגים · בית-המדרש</span></div></div>
+            <div className="rw-estep"><span className="ei">2</span><div><b>חוקרים לעומק</b><span>כל תוצאה מקושרת — לוחצים וממשיכים פנימה</span></div></div>
+            <div className="rw-estep"><span className="ei">3</span><div><b>אוספים</b><span>➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — נשאר בצד</span></div></div>
+          </div>
+          <div className="rw-explain-foot">💡 אפשר לסגור — וייפתח שוב ב-<b>❓ הסבר</b> למעלה מתי שתרצו.</div>
+        </div>
+      )}
 
       {/* ✅ עובד עכשיו — רצועת-זינוק לכלים הפעילים, בולטת למעלה. המפה המלאה (הפילוח לעתיד) נשארת מתחת. */}
       {(() => {
