@@ -188,6 +188,8 @@ export const rwCss = (t = RW) => `
     padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
   .vs-bchip:hover{border-color:var(--acc);color:var(--acc)}
   .vs-bchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .vs-bsec{display:inline-flex;align-items:center;font-size:11px;font-weight:800;color:var(--ink3);letter-spacing:1px;padding:0 4px;margin-inline-start:4px;opacity:.8}
+  .vs-bsec:not(:first-child){border-inline-start:1px solid var(--line);padding-inline-start:10px;margin-inline-start:6px}
   /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
   .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
   .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}

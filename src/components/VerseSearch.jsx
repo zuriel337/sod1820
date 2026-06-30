@@ -11,6 +11,12 @@ import { METHODS, methodLabel } from "../lib/gematria.js";
 // כל ערך = node בגרף → מפנה ל-/number/:n. עץ אחד: לא משכפל, מקשר.
 const isNum = s => /^\d+$/.test(s.trim());
 const heb = n => n.toLocaleString("he");
+// חלוקת 39 יחידות-הספר בקובץ-התנ״ך לשלושת חלקי המקרא (לסינון מקובץ)
+const TANAKH_SECTIONS = [
+  { label: "תורה", from: 0, to: 5 },
+  { label: "נביאים", from: 5, to: 26 },
+  { label: "כתובים", from: 26, to: 39 },
+];
 
 export default function VerseSearch({ seed }) {
   const [data, setData] = useState(null);   // { books, verses:[[b,c,v,t,g]] }
@@ -19,15 +25,19 @@ export default function VerseSearch({ seed }) {
   const [gmode, setGmode] = useState("word"); // word | span | total | range
   const [method, setMethod] = useState("רגיל"); // שיטת-גימטריה (METHODS)
   const [q, setQ] = useState(seed || "");
-  const [book, setBook] = useState(null); // null=כל החומשים · 0..4=חומש מסוים
+  const [book, setBook] = useState(null); // null=כל הספרים · אינדקס=ספר מסוים
   const [rmin, setRmin] = useState(""); // טווח-ערכים — מ
   const [rmax, setRmax] = useState(""); // טווח-ערכים — עד
+  const [scope, setScope] = useState("torah"); // torah (5 ספרים, מהיר) · tanakh (24 ספרים, 3MB lazy)
 
+  // טוענים את קובץ-הנתונים לפי ההיקף. תנ"ך-מלא נטען רק כשבוחרים בו (3MB) → ברירת-מחדל קלה.
   useEffect(() => {
     let live = true;
-    fetch("/torah-verses.json").then(r => r.json()).then(j => { if (live) setData(j); }).catch(() => live && setErr(true));
+    setData(null); setErr(false); setBook(null);
+    const file = scope === "tanakh" ? "/tanakh-verses.json" : "/torah-verses.json";
+    fetch(file).then(r => r.json()).then(j => { if (live) setData(j); }).catch(() => live && setErr(true));
     return () => { live = false; };
-  }, []);
+  }, [scope]);
 
   // זריעה ממסע-החיפוש
   useEffect(() => { if (seed) setQ(seed); }, [seed]);
@@ -144,20 +154,38 @@ export default function VerseSearch({ seed }) {
 
   return (
     <div className="rw-card">
-      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 10 }}>📖 חיפוש בפסוקים · חמשת חומשי התורה · 5,846 פסוקים</div>
+      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 10 }}>
+        📖 חיפוש בפסוקים · {scope === "tanakh" ? "כל התנ״ך · 24 ספרים" : "חמשת חומשי התורה"} · {(data?.verses.length ?? (scope === "tanakh" ? 23204 : 5846)).toLocaleString("he")} פסוקים
+      </div>
+
+      {/* 📚 היקף — תורה (מהיר) או כל התנ״ך (נטען לפי בקשה) */}
+      <div className="rw-qa" style={{ marginTop: 0, marginBottom: 10 }}>
+        <button className={scope === "torah" ? "pri" : ""} onClick={() => setScope("torah")}>📜 תורה</button>
+        <button className={scope === "tanakh" ? "pri" : ""} onClick={() => setScope("tanakh")}>📖 כל התנ״ך</button>
+      </div>
 
       <div className="rw-qa" style={{ marginTop: 0, marginBottom: 10 }}>
         <button className={mode === "text" ? "pri" : ""} onClick={() => setMode("text")}>📖 לפי טקסט</button>
         <button className={mode === "gematria" ? "pri" : ""} onClick={() => setMode("gematria")}>🔢 לפי גימטריה</button>
       </div>
 
-      {/* 📚 סינון-חומש — חל על כל המצבים */}
+      {/* 📚 סינון-ספר — חל על כל המצבים. בתנ״ך-מלא מקובץ לתורה·נביאים·כתובים */}
       {data && (
         <div className="vs-books">
-          <button className={"vs-bchip" + (book == null ? " on" : "")} onClick={() => setBook(null)}>כל החומשים</button>
-          {data.books.map((b, i) => (
-            <button key={b} className={"vs-bchip" + (book === i ? " on" : "")} onClick={() => setBook(i)}>{b}</button>
-          ))}
+          <button className={"vs-bchip" + (book == null ? " on" : "")} onClick={() => setBook(null)}>כל הספרים</button>
+          {scope === "tanakh"
+            ? TANAKH_SECTIONS.map(s => (
+                <React.Fragment key={s.label}>
+                  <span className="vs-bsec">{s.label}</span>
+                  {data.books.slice(s.from, s.to).map((b, k) => {
+                    const i = s.from + k;
+                    return <button key={b} className={"vs-bchip" + (book === i ? " on" : "")} onClick={() => setBook(i)}>{b}</button>;
+                  })}
+                </React.Fragment>
+              ))
+            : data.books.map((b, i) => (
+                <button key={b} className={"vs-bchip" + (book === i ? " on" : "")} onClick={() => setBook(i)}>{b}</button>
+              ))}
         </div>
       )}
 
