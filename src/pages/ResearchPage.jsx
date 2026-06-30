@@ -14,6 +14,7 @@ import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
+import NotarikonTool from "../components/NotarikonTool.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
@@ -117,6 +118,7 @@ export default function ResearchPage() {
           {tool === "life" && <LifeProfile />}
           {tool === "gematria" && <GematriaTool seed={seed} />}
           {tool === "number" && <NumberTool />}
+          {tool === "notarikon" && <NotarikonTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (

@@ -19,6 +19,7 @@ export const TOOLS = [
   { id: "verse", icon: "📜", cat: "tool", title: "חיפוש בפסוקים", desc: "מצאו ביטוי או ערך גימטרי בתוך 5,846 פסוקי התורה.", status: "live" },
   { id: "import", icon: "📊", cat: "tool", title: "ניתוח קובץ", desc: "העלו אקסל/CSV עם רשימת שמות או ביטויים — המנוע מחשב גימטריה לכולם ומוצא התכנסויות.", status: "live" },
   { id: "cross", icon: "✨", cat: "engine", title: "מחולל הצלבות", desc: "חברו ביטויים בעלי אותו ערך — וגלו הצלבות חדשות.", status: "soon" },
+  { id: "notarikon", icon: "🔠", cat: "tool", title: "ראשי / סופי תיבות", desc: "הקלידו ביטוי → ראשי-התיבות וסופי-התיבות שלו + הערך הגימטרי של כל אחד.", status: "live" },
   { id: "dates", icon: "📅", cat: "tool", title: "תאריכים עבריים", desc: "גימטריה של שנים ואירועים — חיבור ציר הזמן למספרים.", status: "soon" },
   { id: "ai", icon: "🤖", cat: "ai", title: "מנוע AI", desc: "נתחו את «המחקר הפעיל» — ה-AI מחבר את הקשרים בשבילכם.", status: "soon" },
 ];

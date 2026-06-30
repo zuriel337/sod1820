@@ -1,5 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext, createContext } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+
+// 🔗 כתובת-מספר תלוית-הקשר: בעמוד עצמאי → /number/:n; בתוך המעבדה → נשארים במעבדה.
+// המעבדה עוטפת את EntityPage ב-Provider עם כתובת-מעבדה → כל הקישורים הפנימיים נשארים בפנים.
+export const NumHrefCtx = createContext((n) => `/number/${n}`);
+const useNumHref = () => useContext(NumHrefCtx);
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
@@ -37,6 +42,7 @@ function CrossGallery({ value, images, P, label }) {
 // שכבות הגרף (מילים · גלריות · התכנסויות) בכל סקאלה — "משפחת-ערך", לא רק התאמת-ערך.
 function ResonanceRung({ r, P }) {
   const [open, setOpen] = useState(false);
+  const numHref = useNumHref();
   const bits = [];
   if (r.words.count) bits.push(`${r.words.count} מילים`);
   if (r.images.length) bits.push(`${r.images.length} גלריות`);
@@ -44,13 +50,13 @@ function ResonanceRung({ r, P }) {
   return (
     <div style={{ marginTop: 12, border: `1px solid ${P.border}`, borderRadius: 14, background: P.cardSoft, overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "11px 13px" }}>
-        <Link to={`/number/${r.v}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 7, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 16 }}>
+        <Link to={numHref(r.v)} style={{ textDecoration: "none", display: "inline-flex", alignItems: "baseline", gap: 7, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 16 }}>
           {r.v}
           <span style={{ color: P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 12, fontWeight: 700 }}>{r.label}</span>
         </Link>
         <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{bits.join(" · ")}</span>
         <span style={{ flex: 1 }} />
-        <Link to={`/number/${r.v}`} style={{ textDecoration: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>פתח →</Link>
+        <Link to={numHref(r.v)} style={{ textDecoration: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>פתח →</Link>
         {(r.words.sample.length || r.images.length) > 0 && (
           <button onClick={() => setOpen(o => !o)} title="הצצה" style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontSize: 13, padding: "0 2px" }}>{open ? "▴" : "▾"}</button>
         )}
@@ -60,7 +66,7 @@ function ResonanceRung({ r, P }) {
           {r.words.sample.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {r.words.sample.map((p, i) => (
-                <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.body, fontSize: 13 }}>{p}</Link>
+                <Link key={i} to={numHref(encodeURIComponent(p))} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 11px", fontFamily: F.body, fontSize: 13 }}>{p}</Link>
               ))}
             </div>
           )}
@@ -368,8 +374,12 @@ function SectionHead({ icon, title, count }) {
   );
 }
 
-export default function EntityPage() {
-  const { phrase } = useParams();
+export default function EntityPage({ embedPhrase } = {}) {
+  const params = useParams();
+  // embedPhrase מסופק כשהדף מוטמע בתוך המעבדה (נשארים במעבדה תוך כדי טיול במספרים)
+  const phrase = embedPhrase != null ? String(embedPhrase) : params.phrase;
+  const embedded = embedPhrase != null;
+  const numHref = embedded ? (n => `/research?tool=number&n=${n}`) : (n => `/number/${n}`);
   const nav = useNavigate();
   const P = usePalette();
   const [sp] = useSearchParams();
@@ -400,7 +410,7 @@ export default function EntityPage() {
     else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
     setTimeout(() => scrollTo(id), 70);
   };
-  const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(`/number/${encodeURIComponent(v)}`); } };
+  const goSearch = e => { e.preventDefault(); const v = q.trim(); if (v) { setQ(""); nav(numHref(encodeURIComponent(v))); } };
 
   // כרטיס מעוצב לפי התמה
   const card = {
@@ -617,7 +627,7 @@ export default function EntityPage() {
         )}
 
         {/* 🧪 שלד ה-Hub — שני סרגלים מתקפלים (סגורים כברירת-מחדל). המרכז כמו היום. */}
-        {!loading && <EntityHubRails entity={entity} />}
+        {!embedded && !loading && <EntityHubRails entity={entity} />}
 
         {/* ── הירו: מספר + משפט חם + שיתוף ── */}
         <div ref={heroRef} style={{ textAlign: "center", marginBottom: 26 }}>
@@ -743,7 +753,7 @@ export default function EntityPage() {
               <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
                 <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>קרובים ✦</span>
                 {near.map(n => (
-                  <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{n}</Link>
+                  <Link key={n} to={numHref(n)} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{n}</Link>
                 ))}
               </div>
             ) : null;
@@ -842,7 +852,7 @@ export default function EntityPage() {
             </p>
             <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
               {[1820, 358, 26, 86, 541].map(n => (
-                <Link key={n} to={`/number/${n}`}
+                <Link key={n} to={numHref(n)}
                   style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
                     borderRadius: 999, padding: "7px 16px", fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>
                   {n}
@@ -889,7 +899,7 @@ export default function EntityPage() {
                   {ALL14.map(m => {
                     const mv = m.fn(term);
                     return (
-                      <Link key={m.key} to={`/number/${mv}`} title={`פתח את ${mv}`} style={{ ...card, padding: "10px 12px" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+                      <Link key={m.key} to={numHref(mv)} title={`פתח את ${mv}`} style={{ ...card, padding: "10px 12px" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
                           <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.key}</span>
                           <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{mv} <span style={{ color: P.accentDim, fontSize: 11 }}>→</span></span>
