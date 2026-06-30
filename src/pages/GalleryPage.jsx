@@ -25,6 +25,7 @@ const LIMIT = 60;
 export default function GalleryPage() {
   const { isAdmin } = useAuth();
   const [type, setType] = useState(null);
+  const [hiddenMode, setHiddenMode] = useState("no"); // אדמין: no=גלוי · only=מוסתרים · all=הכל
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [images, setImages] = useState([]);
@@ -44,15 +45,18 @@ export default function GalleryPage() {
     return () => clearTimeout(debounceRef.current);
   }, [search]);
 
+  // אדמין בלבד — אם המשתמש אינו אדמין, תמיד מצב 'no'
+  const hidden = isAdmin ? hiddenMode : "no";
+
   // Reset and reload when filter changes
   useEffect(() => {
     setImages([]);
     setPage(0);
     setLoading(true);
-    getGalleryPage({ type, page: 0, limit: LIMIT, search: debouncedSearch })
+    getGalleryPage({ type, page: 0, limit: LIMIT, search: debouncedSearch, hidden })
       .then(({ data, count }) => { setImages(data); setTotal(count); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [type, debouncedSearch]);
+  }, [type, debouncedSearch, hidden]);
 
   // Infinite scroll
   useEffect(() => {
@@ -67,7 +71,7 @@ export default function GalleryPage() {
   async function loadMore() {
     setLoadingMore(true);
     const nextPage = page + 1;
-    const { data } = await getGalleryPage({ type, page: nextPage, limit: LIMIT, search: debouncedSearch });
+    const { data } = await getGalleryPage({ type, page: nextPage, limit: LIMIT, search: debouncedSearch, hidden });
     setImages(prev => [...prev, ...(data || [])]);
     setPage(nextPage);
     setLoadingMore(false);
@@ -83,6 +87,26 @@ export default function GalleryPage() {
   function handleDelete(id) {
     setImages(prev => prev.filter(i => i.id !== id));
     setTotal(t => t - 1);
+  }
+
+  // אדמין — החזרה/הסתרה מהירה ישירות מהכרטיס (בלי לפתוח את מודל העריכה)
+  function toggleHidden(img, e) {
+    e?.stopPropagation();
+    const next = !img.curator_hidden;
+    setImageCuration(img.id, { curator_hidden: next })
+      .then(() => {
+        // ב-'only' מציגים רק מוסתרות → אחרי החזרה התמונה יוצאת מהרשימה; ב-'all' רק מסמנים
+        if (hidden === "only" && !next) {
+          setImages(prev => prev.filter(i => i.id !== img.id));
+          setTotal(t => Math.max(0, t - 1));
+        } else if (hidden === "no" && next) {
+          setImages(prev => prev.filter(i => i.id !== img.id));
+          setTotal(t => Math.max(0, t - 1));
+        } else {
+          setImages(prev => prev.map(i => i.id === img.id ? { ...i, curator_hidden: next } : i));
+        }
+      })
+      .catch(err => alert("שגיאה: " + err.message));
   }
 
   return (
@@ -107,6 +131,12 @@ export default function GalleryPage() {
         .gl-edit { position:absolute; bottom:8px; inset-inline-end:8px; z-index:3; background:rgba(0,0,0,0.55); color:#fff;
           border:none; border-radius:999px; width:26px; height:26px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; }
         .gl-card:hover .gl-edit { opacity:1; }
+        .gl-hidden-badge { position:absolute; top:36px; inset-inline-start:8px; z-index:2; background:rgba(200,85,61,0.92); color:#fff;
+          font-family:${F.heading}; font-size:10px; font-weight:700; border-radius:999px; padding:2px 8px; }
+        .gl-hidetoggle { position:absolute; bottom:8px; inset-inline-end:40px; z-index:3; background:rgba(0,0,0,0.6); color:#fff;
+          border:1px solid rgba(212,175,55,0.6); border-radius:999px; padding:3px 9px; font-size:10.5px; font-family:${F.heading}; font-weight:700;
+          cursor:pointer; opacity:0; transition:opacity .2s; }
+        .gl-card:hover .gl-hidetoggle { opacity:1; }
         .gl-body { padding:9px 11px; }
         .gl-title { color:${C.goldLight}; font-family:${F.regal}; font-size:13.5px; font-weight:700; line-height:1.4;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -118,7 +148,10 @@ export default function GalleryPage() {
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>מאגר התמונות</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(24px,4vw,36px)", fontWeight: 700, margin: 0 }}>🖼 גלריית התמונות</h1>
         <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, marginTop: 8 }}>
-          {total ? `${total.toLocaleString()} תמונות` : "טוען..."} · כל מאגר gallery_images
+          {total ? `${total.toLocaleString()} תמונות` : "טוען..."} ·{" "}
+          {hidden === "only" ? <span style={{ color: "#e0856a" }}>🕓 מציג מוסתרים בלבד</span>
+            : hidden === "all" ? "כל המאגר כולל מוסתרים"
+            : "כל מאגר gallery_images"}
         </p>
       </div>
 
@@ -133,6 +166,21 @@ export default function GalleryPage() {
           }}>{t.label}</button>
         ))}
         <div style={{ flex: 1 }} />
+        {isAdmin && (
+          <div style={{ display: "flex", gap: 0, border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden" }}>
+            {[
+              { key: "no",   label: "גלוי" },
+              { key: "only", label: "🕓 מוסתרים" },
+              { key: "all",  label: "הכל" },
+            ].map(m => (
+              <button key={m.key} onClick={() => setHiddenMode(m.key)} style={{
+                cursor: "pointer", border: "none", padding: "7px 14px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5,
+                background: hiddenMode === m.key ? "rgba(212,175,55,0.22)" : "transparent",
+                color: hiddenMode === m.key ? C.goldBright : C.muted,
+              }}>{m.label}</button>
+            ))}
+          </div>
+        )}
         <input
           value={search} onChange={e => setSearch(e.target.value)}
           placeholder="🔍 חיפוש..."
@@ -161,8 +209,15 @@ export default function GalleryPage() {
                     <Link to={`/number/${img.primary_value}`} onClick={e => e.stopPropagation()} className="gl-num">{img.primary_value}</Link>
                   )}
                   {typeBadge && <span className="gl-type-badge">{typeBadge}</span>}
+                  {isAdmin && img.curator_hidden && <span className="gl-hidden-badge">🕓 מוסתר</span>}
                   {isAdmin && (
                     <button className="gl-edit" onClick={e => { e.stopPropagation(); setEditImg(img); }} title="ערוך">✏️</button>
+                  )}
+                  {isAdmin && (
+                    <button className="gl-hidetoggle" onClick={e => toggleHidden(img, e)}
+                      title={img.curator_hidden ? "החזר לגלריה" : "הסתר מהגלריה"}>
+                      {img.curator_hidden ? "↩︎ הצג" : "🕓 הסתר"}
+                    </button>
                   )}
                 </div>
                 {(title || date) && (

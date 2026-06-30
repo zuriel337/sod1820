@@ -1120,12 +1120,14 @@ export async function addImageToRealityStream(id, occurredAt = null) {
 }
 
 // גלריה ציבורית — כל התמונות עם פילטר סוג + חיפוש + פגינציה
-export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "" } = {}) {
+// hidden: 'no' = רק גלויות (ברירת מחדל) · 'only' = רק מוסתרות (אדמין) · 'all' = הכל (אדמין)
+export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "", hidden = "no" } = {}) {
   if (!supabase) return { data: [], count: 0 };
   let q = supabase.from('gallery_images')
     .select('id,name,description,image_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true);
+    .not('image_url', 'is', null);
+  if (hidden === 'only') q = q.eq('curator_hidden', true);
+  else if (hidden !== 'all') q = q.not('curator_hidden', 'is', true);
   if (type) q = q.eq('image_type', type);
   if (search.trim()) {
     const t = search.trim();
