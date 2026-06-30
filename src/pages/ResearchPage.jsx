@@ -67,7 +67,7 @@ export default function ResearchPage() {
   const subnav = (
     <div className="rw-subnav">
       <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ מרכז המחקר</button>
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל הגילוי</button>
         {/* כלים שעובדים */}
         {READY_LAB.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
@@ -109,7 +109,7 @@ export default function ResearchPage() {
             המעבדה עוברת שדרוג מסיבי — הכלי הזה ייפתח בקרוב לכל החוקרים.<br />כרגע פתוחים: <b>המחשבון</b> ו<b>דף המספר</b>.
           </div>
           <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
-          <button className="rw-tchip" onClick={() => setTool(null)}>← מרכז המחקר</button>
+          <button className="rw-tchip" onClick={() => setTool(null)}>← היכל הגילוי</button>
         </div>
       ) : (
         <>

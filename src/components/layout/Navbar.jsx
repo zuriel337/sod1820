@@ -14,7 +14,7 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
-// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 מרכז המחקר» הבולט (בית-המדרש חי בתוך המעבדה).
+// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 היכל הגילוי» הבולט (בית-המדרש חי בתוך המעבדה).
 const CORE_KEYS = ["/", "/timeline", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const moreItems = [
@@ -27,7 +27,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛️", l: "מרכז המחקר", to: "/research" },
+  { e: "🏛️", l: "היכל הגילוי", to: "/research" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -273,7 +273,7 @@ function UserMenu({ user, profile, cc }) {
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
           {isAdmin && (
-            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🔭 מרכז המחקר</Link>
+            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🔭 היכל הגילוי</Link>
           )}
         </div>
       )}
@@ -281,7 +281,7 @@ function UserMenu({ user, profile, cc }) {
   );
 }
 
-// 🏛️ תפריט-מגה אופקי של «מרכז המחקר» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך)
+// 🏛️ תפריט-מגה אופקי של «היכל הגילוי» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך)
 const LAB_MENU = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
   { e: "🔢", l: "דף מספר", to: "/research?tool=number" },
@@ -296,13 +296,13 @@ function LabMenu() {
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" aria-label="מרכז המחקר" style={{
+      <Link to="/research" aria-label="היכל הגילוי" style={{
         display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ מרכז המחקר</Link>
+      }}>🏛️ היכל הגילוי</Link>
       {open && (
         <div style={{
           position: "absolute", top: "100%", insetInlineStart: 0, marginTop: 8, zIndex: 200,
@@ -399,7 +399,7 @@ export default function Navbar() {
 
         {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
 
-        {/* כפתור-העל «מרכז המחקר» — תפריט-מגה אופקי עם כלי המעבדה */}
+        {/* כפתור-העל «היכל הגילוי» — תפריט-מגה אופקי עם כלי המעבדה */}
         <LabMenu />
 
         {/* ליבה + עוד */}
@@ -467,7 +467,7 @@ export default function Navbar() {
             <Link to="/research" onClick={() => setDrawer(false)} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
-            }}>🔭 מרכז המחקר</Link>
+            }}>🔭 היכל הגילוי</Link>
           )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">

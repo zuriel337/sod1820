@@ -77,8 +77,8 @@ export default function ResearchHome({ onOpen }) {
   return (
     <div>
       <div className="rw-h1-row">
-        <div className="rw-h1">🏛️ מרכז המחקר</div>
-        {!explainOpen && <button className="rw-explain-reopen" onClick={() => setExplainOpen(true)} title="מה זה מרכז המחקר?">❓ הסבר</button>}
+        <div className="rw-h1">🏛️ היכל הגילוי</div>
+        {!explainOpen && <button className="rw-explain-reopen" onClick={() => setExplainOpen(true)} title="מה זה היכל הגילוי?">❓ הסבר</button>}
       </div>
       <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
       {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
