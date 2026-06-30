@@ -579,10 +579,15 @@ export function ELSSection({ gated = false } = {}) {
   const [dir, setDir] = useState(deepLink?.dir ?? "both");
   const [maxMismatches, setMaxMismatches] = useState(deepLink?.mm ?? 0);
   const [skipPattern, setSkipPattern] = useState("range");  // range | fib | fib1 | prime | pow2
-  const [book, setBook] = useState("all");                  // all | gen | exo | lev | num | deu
-  const [letters, setLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
+  const [book, setBook] = useState("torah");                // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
+  // ⚡ ביצועים: התורה (600KB) נטענת תמיד ומהר; התנ״ך המלא (2.4MB) רק כשבוחרים היקף שמעבר לתורה.
+  const [torahLetters, setTorahLetters] = useState(ELS_SAMPLE); // עד שהתורה נטענת — קטע לדוגמה
+  const [tanakhLetters, setTanakhLetters] = useState("");
+  const [tanakhBusy, setTanakhBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const needTanakh = (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805;
+  const letters = needTanakh ? (tanakhLetters || ELS_SAMPLE) : torahLetters;
   const [searching, setSearching] = useState(false);
   const [result, setResult] = useState(null);
   const [axisHit, setAxisHit] = useState(null); // המופע שצירו האנכי פתוח
@@ -699,17 +704,28 @@ export function ELSSection({ gated = false } = {}) {
   useEffect(() => {
     let alive = true;
     setLoadError(false);
-    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
       .then(txt => {
         if (!alive) return;
         const clean = elsNormalize(txt);
-        if (clean.length > 1000) { setLetters(clean); setLoaded(true); setLoadError(false); }
+        if (clean.length > 1000) { setTorahLetters(clean); setLoaded(true); setLoadError(false); }
         else { setLoadError(true); }   // קיבלנו תוכן לא תקין (למשל דף HTML)
       })
       .catch(() => { if (alive) setLoadError(true); });
     return () => { alive = false; };
   }, [reloadKey]);
+
+  // התנ״ך המלא — בעצלתיים, רק כשנדרש (פעם אחת)
+  useEffect(() => {
+    if (!needTanakh || tanakhLetters || tanakhBusy) return;
+    let alive = true; setTanakhBusy(true);
+    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(txt => { if (!alive) return; const clean = elsNormalize(txt); if (clean.length > 1000) setTanakhLetters(clean); else setLoadError(true); setTanakhBusy(false); })
+      .catch(() => { if (alive) { setLoadError(true); setTanakhBusy(false); } });
+    return () => { alive = false; };
+  }, [needTanakh, tanakhLetters, tanakhBusy]);
 
   // חיפוש ראשוני / לפי קישור עמוק כשהטקסט מוכן
   useEffect(() => {
@@ -1222,8 +1238,12 @@ export function ELSSection({ gated = false } = {}) {
         </div>
 
         <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading, lineHeight: 1.9 }}>
-          {loaded
-            ? `טקסט המקור: התנ״ך המלא · 24 ספרים · ${letters.length.toLocaleString("he")} אותיות (נוסח מסורתי · התורה זהה לספירה הקדושה 304,805)`
+          {tanakhBusy
+            ? "טוען את התנ״ך המלא (פעם אחת)…  עד אז מוצגת התורה"
+            : loaded
+            ? (needTanakh
+                ? `טקסט המקור: התנ״ך המלא · 24 ספרים · ${letters.length.toLocaleString("he")} אותיות (נוסח מסורתי)`
+                : `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (התורה הקדושה · 304,805)`)
             : loadError
               ? (
                 <span style={{ color: C.crimsonLight }}>
