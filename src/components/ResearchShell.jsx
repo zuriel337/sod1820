@@ -39,7 +39,7 @@ export default function ResearchShell({ children, subnav }) {
   const [sp] = useSearchParams();
   const tool = sp.get("tool");
   const eng = tool && TOOL_ENGINES[tool];
-  const rightTitle = "מנועי המחקר" + (eng ? " · " + eng.title : "");
+  const rightTitle = eng ? eng.title : "ארגז הכלים";
 
   const [sheet, setSheet] = useState(false);
   const [rightOpen, setRightOpen] = useState(() => { try { return localStorage.getItem("rw_right_open") !== "0"; } catch { return true; } });

@@ -988,6 +988,8 @@ function MethodsTab() {
               <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, margin: "2px 0 6px" }}>דוגמה חיה · {SAMPLE}</div>
               <MethodAnim m={m} />
               {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
+              {/* לומדים↔עושים — מהשיעור ישר אל המחשבון עם מילה לחישוב */}
+              <Link to={`/beit-midrash?tab=calc&w=${encodeURIComponent(SAMPLE)}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 11, color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "none", borderTop: `1px solid ${L.line}`, paddingTop: 10, width: "100%" }}>🧮 נסה את השיטה במחשבון ←</Link>
             </div>
           );
         })}
