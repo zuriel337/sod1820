@@ -121,6 +121,14 @@ export const rwCss = (t = RW) => `
   .rw-qa button:active{transform:scale(.96)}
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
+  /* 📝 פנקס-מחקר — משטח כתיבה חופשי, נשמר מסשן-לסשן */
+  .rw-notes{width:100%;box-sizing:border-box;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+    background:var(--bg);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.7;padding:12px 13px;outline:none}
+  .rw-notes:focus{border-color:var(--acc)}
+  .rw-notes-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+  .rw-notes-print{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
+    padding:7px 14px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;min-height:34px}
+  .rw-notes-print:hover{border-color:var(--acc);color:var(--acc)}
   /* רשימת-יכולות (לא כפתורים) — צ'קליסט מידע ברור */
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}

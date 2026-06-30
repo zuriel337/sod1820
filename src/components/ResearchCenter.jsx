@@ -1,7 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { ENTITY_ICON } from "../lib/research/entity.js";
+
+// 📝 פנקס-מחקר — משטח כתיבה חופשי, נשמר מסשן-לסשן (localStorage) + הדפסה/PDF.
+// אנונימי = נשמר בדפדפן; סנכרון-ענן למחוברים = שדרוג עתידי (research_items).
+function NotesPanel() {
+  const [text, setText] = useState(() => { try { return localStorage.getItem("sod_notes_v1") || ""; } catch { return ""; } });
+  const [saved, setSaved] = useState(true);
+  useEffect(() => {
+    setSaved(false);
+    const t = setTimeout(() => { try { localStorage.setItem("sod_notes_v1", text); setSaved(true); } catch { /* noop */ } }, 500);
+    return () => clearTimeout(t);
+  }, [text]);
+  const printNotes = () => {
+    const w = window.open("", "_blank", "width=720,height=900");
+    if (!w) return;
+    const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    w.document.write(`<!doctype html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>פנקס המחקר · סוד 1820</title><style>body{font-family:'Heebo',Arial,sans-serif;padding:34px;line-height:1.85;color:#1b1d22;white-space:pre-wrap;font-size:15px}h1{font-size:18px;color:#9a7818;margin:0 0 16px}</style></head><body><h1>📝 פנקס המחקר · סוד 1820</h1>${esc(text) || "<i style='color:#999'>(ריק)</i>"}</body></html>`);
+    w.document.close(); w.focus(); setTimeout(() => w.print(), 250);
+  };
+  return (
+    <div>
+      <textarea className="rw-notes" dir="rtl" value={text} onChange={e => setText(e.target.value)}
+        placeholder="כתוב כאן מחשבות · רמזים · חישובים · שאלות מחקר… נשמר אוטומטית מסשן לסשן." />
+      <div className="rw-notes-bar">
+        <span className="rw-muted" style={{ fontSize: 11.5 }}>{saved ? "✓ נשמר" : "שומר…"} · {text.trim().length} תווים</span>
+        <button className="rw-notes-print" onClick={printNotes} title="הדפס / שמור PDF">🖨 הדפס</button>
+      </div>
+    </div>
+  );
+}
 
 // פריט-ישות לחיץ — מנווט ליעד (e.link) אם קיים; אחרת צ'יפ פשוט. כפתור-פעולה בצד.
 function EntityRow({ e, onRemove, removeIcon = "✕" }) {
@@ -42,6 +71,11 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
           <div className="rw-av" style={{ width: 38, height: 38 }}>א</div>
           <div><div style={{ fontWeight: 800 }}>שלום, אורח</div><div className="rw-muted">ללא הרשמה · נשמר בדפדפן</div></div>
         </div>
+      </Panel>
+    ) },
+    { id: "notes", icon: "📝", label: "פנקס", render: bare => (
+      <Panel icon="📝" title="פנקס מחקר" bare={bare}>
+        <NotesPanel />
       </Panel>
     ) },
     { id: "active", icon: "🧠", label: "מחקר", badge: () => cart.length + pinned.length, render: bare => (
@@ -91,7 +125,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   ];
 
   const ids = variant === "tools" ? ["ai", "whatsnew"]
-    : variant === "context" ? ["me", "active", "saved", "roadmap"]
+    : variant === "context" ? ["me", "notes", "active", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
@@ -122,5 +156,5 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
 export const LEFT_TABS = [
-  { id: "me", icon: "👤" }, { id: "active", icon: "🧠" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
+  { id: "me", icon: "👤" }, { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];
