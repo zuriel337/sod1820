@@ -111,7 +111,6 @@ export default function ResearchPage() {
   // 🧪 טיוטה — המעבדה פתוחה (בלי שער הרשמה). אין קישור בתפריט הראשי, הכתובת /research
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
-  const [moreOpen, setMoreOpen] = useState(false);
   // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
   const { isAdmin } = useAuth();
   const ready = id => isToolReady(id, isAdmin);
@@ -136,36 +135,25 @@ export default function ResearchPage() {
   }, [tool, seed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // שורה 2 — סרגל כלי-המעבדה (מתחת לנאב); נמסר ל-ResearchShell כשורה ברוחב מלא
+  // ⛔ היכל-הגילוי בבנייה: לציבור פתוח **רק בית המדרש**. שאר הכלים מוצגים «🔒 סגור · בבנייה» ולא-לחיצים.
+  // המנהל (אדמין) ממשיך לעבוד על כל הכלים הממומשים (READY_LAB כולל אותם דרך isToolReady).
   const subnav = (
     <div className="rw-subnav">
       <div className="rw-toolbar">
         <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל הגילוי</button>
-        {/* כלים שעובדים */}
+        {/* כלים פתוחים (לציבור: בית המדרש · למנהל: הכל) */}
         {READY_LAB.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-            {t.icon} {t.title}
+            {t.icon} {t.title}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
+          </button>
+        ))}
+        {/* כלים נעולים — מוצגים «סגור · בבנייה», לא לחיצים */}
+        {FUTURE_LAB.map(t => (
+          <button key={t.id} className="rw-tchip" disabled title="סגור · בבנייה" style={{ opacity: 0.5, cursor: "not-allowed" }}>
+            🔒 {t.icon} {t.title} · <span style={{ fontSize: 11, fontWeight: 800 }}>סגור · בבנייה</span>
           </button>
         ))}
       </div>
-      {/* כלים שיעבדו — תחת «עוד» (מחוץ לאזור-הגלילה כדי שלא ייחתך) */}
-      {FUTURE_LAB.length > 0 && (
-        <div className="rw-more-wrap">
-          <button className={"rw-tchip" + (FUTURE_LAB.some(t => t.id === tool) ? " on" : "")} onClick={() => setMoreOpen(o => !o)}>עוד ▾</button>
-          {moreOpen && (
-            <>
-              <div className="rw-more-back" onClick={() => setMoreOpen(false)} />
-              <div className="rw-more-pop">
-                <div className="rw-more-h">בבנייה · ייפתחו בקרוב</div>
-                {FUTURE_LAB.map(t => (
-                  <button key={t.id} className="rw-more-item" onClick={() => { setMoreOpen(false); setTool(t.id); }} title={t.desc}>
-                    🔒 {t.title}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 
