@@ -37,7 +37,7 @@ export default function NumberTool() {
   // מסך-פתיחה — הקלדת מספר
   return (
     <div className="rw-card">
-      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 12 }}>🔢 דף מספר · פתח כל מספר וראה הכל — גימטריאות · הצלבות · התכנסויות · אירועים. הטיול נשאר כאן במעבדה.</div>
+      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 12 }}>🔢 דף המספר · פתח כל מספר וראה הכל — גימטריאות · הצלבות · התכנסויות · אירועים. זהו דף-המספר הקבוע של האתר, מוטמע כאן — הטיול נשאר במעבדה.</div>
       <div style={{ display: "flex", gap: 8 }}>
         <input className="rw-num-in" inputMode="numeric" dir="ltr" value={q}
           onChange={e => setQ(e.target.value.replace(/[^\d]/g, ""))}
