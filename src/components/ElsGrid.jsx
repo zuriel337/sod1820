@@ -107,7 +107,7 @@ export default function ElsGrid({ seed }) {
     setNiqqud(v => !v);
   };
   const [raw, setRaw] = useState(seed || "ישראל");
-  const [raw2, setRaw2] = useState("");        // מונח שני (מצב מוצלב)
+  const [crossExtra, setCrossExtra] = useState([""]); // מונחים נוספים בחיפוש מוצלב (שני · שלישי · רביעי)
   const [mode, setMode] = useState("torah");   // torah · tanakh · cross — שער-הכניסה
   const [entered, setEntered] = useState(false); // false=מסך-תוצאות פשוט · true=סביבת-המטריצה
   const [showAll, setShowAll] = useState(false); // הצג את כל התוצאות (לא רק ה-7 הראשונות)
@@ -206,7 +206,7 @@ export default function ElsGrid({ seed }) {
 
   // החיפוש מתחשב במצב: רגיל = מונח אחד · מוצלב = שני מונחים יחד (אשכול-קרבה)
   const search = () => {
-    const qraw = mode === "cross" ? [raw, raw2].map(s => s.trim()).filter(Boolean).join(", ") : raw;
+    const qraw = mode === "cross" ? [raw, ...crossExtra].map(s => s.trim()).filter(Boolean).join(", ") : raw;
     const bk = mode === "tanakh" ? (book === "torah" ? "all" : book) : (mode === "torah" && book !== "torah" && (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805 ? "torah" : book);
     setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
     setEntered(false); setShowAll(false);
@@ -288,16 +288,26 @@ export default function ElsGrid({ seed }) {
     if (!res || !anchorHit) return null;
     const s = Math.abs(anchorHit.skip), TARGET = 28;
     const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
-    const framePos = res.mode === "single"
-      ? anchorHit.positions
-      : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
+    const cl0 = res.mode === "cluster" ? res.clusters[Math.min(clusterIdx, res.clusters.length - 1)] : null;
+    // framePos = כל אותיות-התוצאה (יחיד: העוגן · מוצלב: **כל** המונחים) → המסגור מכסה את כולם.
+    const framePos = res.mode === "single" ? anchorHit.positions : cl0.picks.flatMap(p => p.hit.positions);
     const minP = Math.min(...framePos), maxP = Math.max(...framePos);
     const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
-    // 🔲 גודל-רשת ×gridSize: יותר עמודות (לדילוג גדול) ויותר שורות → אפשר להרחיב פי 2/3.
-    let colWin = W2, colStart = 0;
-    if (W2 > 34) { colWin = Math.min(W2, 34 * gridSize); const wc = anchorHit.start % W2; colStart = Math.max(0, Math.min(W2 - colWin, wc - Math.floor(colWin / 2))); }
-    const padRows = 6 * gridSize;
-    const rowStart = firstRow - padRows, rowEnd = Math.min(lastRow + padRows, firstRow + 56 * gridSize);
+    // 📏 מרחב אנכי — תמיד שורות-ריפוד מעל ומתחת לתוצאה (בקשת «מרחב למעלה ולמטה»). התקרה נדיבה
+    // כדי שגם בהצלבה שני הקצוות ייכנסו, אך לא בלי-גבול עבור מונח-ענק יחיד.
+    const padRows = Math.max(5, 6 * gridSize);
+    const rowStart = firstRow - padRows;
+    const rowEnd = lastRow + padRows;
+    // 📐 חלון-עמודות ממורכז על התוצאה — מרחב מימין ומשמאל (בקשת «מרחב מימין ומשמאל»), ומכסה את
+    // **כל** אותיות-התוצאה כך שגם המונח השני/השלישי בהצלבה נכנס, ולא רק העוגן. היסט-קשיח: colStart
+    // יכול להיות שלילי (גולש לשורה שכנה) → התבנית נשמרת, רק זזה — והתוצאה ממורכזת ולא בקצה.
+    const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
+    let cLo = Math.min(...colsOf), cHi = Math.max(...colsOf);
+    if ((cHi - cLo) > W2 / 2) { cLo = 0; cHi = W2 - 1; } // טווח שנשבר סביב קצה-הרשת → כל הרוחב
+    const colMargin = Math.max(6, 5 * gridSize);
+    const colCenter = (cLo + cHi) / 2;
+    let colWin = Math.min(W2, (cHi - cLo) + colMargin * 2);
+    let colStart = Math.round(colCenter - colWin / 2);
     // אוסף האינדקסים שבאמת נראים על המטריצה (לשימוש בסינון רשימת-ההצלבות לפי «מה גלוי»)
     const visible = new Set();
     for (let r = rowStart; r <= rowEnd; r++) for (let c = 0; c < colWin; c++) { const i = r * W2 + (colStart + c); if (r >= 0 && i >= 0 && i < letters.length) visible.add(i); }
@@ -322,11 +332,27 @@ export default function ElsGrid({ seed }) {
     return { rows, W: W2, skip: s, visible };
   }, [res, anchorHit, clusterIdx, letters, overlayData, gridSize]);
 
-  // מופעי-השכבות שגלויים על המטריצה (לרשימת-ההצלבות — «רק מה שרואים»)
+  // קבוצת-אותיות העוגן (לזיהוי «חיתוך אמיתי» — מופע שחולק תא עם התוצאה, כמו «בלעם» שנגע ב-ב)
+  const anchorSet = useMemo(() => new Set(anchorHit?.positions || []), [anchorHit]);
+  // מופעי-השכבות שגלויים על המטריצה (לרשימת-ההצלבות — «רק מה שרואים»), עם דגל-חיתוך אוטומטי:
+  // ⚡ crosses = המופע חולק לפחות תא אחד עם התוצאה (חיתוך גאומטרי ממשי על המטריצה).
   const overlayVisible = useMemo(() => {
     if (!grid || res?.mode !== "single") return [];
-    return overlayData.map(o => ({ ...o, vis: o.list.filter(x => x.hit.positions.every(p => grid.visible.has(p))) }));
-  }, [grid, overlayData, res]);
+    return overlayData.map(o => ({
+      ...o,
+      vis: o.list.filter(x => x.hit.positions.every(p => grid.visible.has(p)))
+        .map(x => ({ ...x, crosses: x.hit.positions.some(p => anchorSet.has(p)) }))
+        .sort((a, b) => (b.crosses - a.crosses) || (a.dist - b.dist)),
+    }));
+  }, [grid, overlayData, res, anchorSet]);
+  // ⚡ אוטו-הצלבה: מוסיף את **מילות-התוצאה** (כשכבות) → המנוע מחפש אותן לבד בתוך המטריצה
+  // (כולל טקסט-רגיל, skip 1) ומסמן היכן שהן נחתכות עם התוצאה. כך מתגלה אוטומטית מה שצוריאל
+  // ראה בעין — «בלעם הרשע» בדילוג שנוגע ב«בלעם» הרגיל. יושר: מסומן רק חיתוך ממשי, לא ניחוש.
+  const autoCross = () => {
+    const words = (q.raw || "").split(/[\s,]+/).map(w => elsNormalize(w)).filter(w => w.length >= 2);
+    const add = words.filter(w => !overlays.includes(w));
+    if (add.length) { setOverlays(o => [...o, ...add]); setLayersOpen(true); }
+  };
 
   // גרירת-עכבר לתזוזה אופקית (pan) — מושבתת במצב-בחירה (אז קליק = בחירת אות)
   const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
@@ -545,12 +571,21 @@ export default function ElsGrid({ seed }) {
           <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
             onChange={e => setRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
             placeholder={mode === "cross" ? "מונח ראשון (שם)…" : "מילה · שם · ביטוי…"} aria-label="מונח לחיפוש" />
-          {mode === "cross" && <>
-            <span style={{ color: C.acc, fontWeight: 800 }}>✦</span>
-            <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw2}
-              onChange={e => setRaw2(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
-              placeholder="מונח שני (משפחה)…" aria-label="מונח שני" />
-          </>}
+          {mode === "cross" && crossExtra.map((val, i) => (
+            <React.Fragment key={i}>
+              <span style={{ color: C.acc, fontWeight: 800 }}>✦</span>
+              <input style={{ ...ctl, flex: "1 1 150px", textAlign: "center", fontSize: 17 }} dir="rtl" value={val}
+                onChange={e => setCrossExtra(a => a.map((x, j) => j === i ? e.target.value : x))}
+                onKeyDown={e => e.key === "Enter" && search()}
+                placeholder={["מונח שני…", "מונח שלישי…", "מונח רביעי…"][i] || "מונח נוסף…"} aria-label={`מונח ${i + 2}`} />
+              {crossExtra.length > 1 && <button onClick={() => setCrossExtra(a => a.filter((_, j) => j !== i))} title="הסר מונח"
+                style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, borderRadius: 999, width: 34, height: 34, fontWeight: 800, fontFamily: "inherit" }}>✕</button>}
+            </React.Fragment>
+          ))}
+          {mode === "cross" && crossExtra.length < 3 && (
+            <button onClick={() => setCrossExtra(a => [...a, ""])} title="הוסף מונח שלישי/רביעי לחיפוש המוצלב"
+              style={{ cursor: "pointer", border: `1.5px dashed ${C.acc}`, background: C.bg, color: C.acc, borderRadius: 999, padding: "9px 15px", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>➕ מונח</button>
+          )}
           <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 26px", fontFamily: "inherit" }}>🔍 חפש</button>
           <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
         </div>
@@ -712,6 +747,7 @@ export default function ElsGrid({ seed }) {
             <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
               placeholder={`מונח נוסף שמופיע ליד «${elsNormalize(terms[0] || "")}» על המטריצה…`} />
             <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+            <button className="els-sub-btn" onClick={autoCross} title="המנוע מחפש לבד את מילות-התוצאה בתוך המטריצה (כולל טקסט-רגיל) ומסמן חיתוכים אמיתיים" style={{ background: "#fff7e6", color: "var(--acc)", border: "1px solid var(--acc)" }}>⚡ אוטו-הצלבה</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
@@ -740,13 +776,14 @@ export default function ElsGrid({ seed }) {
               {o.vis.length === 0
                 ? <div className="rw-sub" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» — אין מופע גלוי על המטריצה. הגדילו «גודל-רשת» (×2/×3) או גררו, והוא יופיע.</div>
                 : <>
-                    <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.vis.length} {o.vis.length === 1 ? "הצלבה גלויה" : "הצלבות גלויות"}</div>
+                    <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.vis.length} {o.vis.length === 1 ? "הצלבה גלויה" : "הצלבות גלויות"}{o.vis.some(x => x.crosses) ? ` · ⚡ ${o.vis.filter(x => x.crosses).length} נחתכות ממש` : ""}</div>
                     <div className="els-list-body">
                       {o.vis.map((x, i) => {
                         const l = locOf(x.hit.start);
                         return (
-                          <div key={i} className="els-row">
+                          <div key={i} className={"els-row" + (x.crosses ? " cross" : "")}>
                             <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
+                            {x.crosses && <span className="els-rc" style={{ color: "#c2410c", fontWeight: 800 }} title="המופע נוגע באות מהתוצאה — חיתוך ממשי על המטריצה">⚡ נחתך</span>}
                             <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
                             <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
                             <span className="els-rc">{l.label}</span>
@@ -914,6 +951,7 @@ const ELS_CSS = `
   border-radius:9px;padding:7px 11px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2);transition:.1s}
 .els-row:hover{border-color:var(--acc);background:var(--accS)}
 .els-row.on{border-color:var(--acc);background:var(--accS);box-shadow:inset 3px 0 0 var(--acc)}
+.els-row.cross{border-color:#fb923c;background:#fff7ed;box-shadow:inset 3px 0 0 #ea580c}
 .els-rk{min-width:22px;height:22px;border-radius:6px;background:var(--accS);color:var(--acc);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
 .els-rc b{color:var(--acc)}
 .els-rc.muted{color:var(--ink3);margin-inline-start:auto}
