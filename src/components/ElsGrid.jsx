@@ -64,9 +64,8 @@ export default function ElsGrid({ seed }) {
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
   const [full, setFull] = useState(false);
-  const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
-  const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
-  const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
+  const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
+  const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
   const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
@@ -120,20 +119,24 @@ export default function ElsGrid({ seed }) {
     return { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
-  const subSearch = () => { setSubIdx(0); setSubTerm(subRaw.trim()); };
+  const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
+  const addOverlay = () => { const t = elsNormalize(subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); setSubRaw(""); } };
+  const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
 
   // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
   const saveCurrent = () => {
-    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0].join("|");
+    // 💾 שומר את כל המטריצה — החיפוש + שכבות-החיפוש שהוספת (overlays)
+    const id = [q.raw, q.skipMax, q.book, q.dir, q.pattern, q.fuzzy ? 1 : 0, overlays.join("+")].join("|");
     if (savedSearches.some(s => s.id === id)) return;
-    persistSaved([{ id, label: q.raw, q: { ...q } }, ...savedSearches].slice(0, 24));
+    const label = q.raw + (overlays.length ? ` +${overlays.length}` : "");
+    persistSaved([{ id, label, q: { ...q }, overlays: [...overlays] }, ...savedSearches].slice(0, 24));
   };
   const removeSaved = id => persistSaved(savedSearches.filter(s => s.id !== id));
   const loadSaved = useCallback(sv => {
     const c = sv?.q; if (!c) return;
     setRaw(c.raw); setBook(c.book); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
-    setHitIdx(0); setClusterIdx(0); setSubTerm(""); setSubRaw(""); setSubIdx(0); setAiStruct(null); setQ({ ...c });
+    setHitIdx(0); setClusterIdx(0); setOverlays(Array.isArray(sv.overlays) ? sv.overlays : []); setSubRaw(""); setAiStruct(null); setQ({ ...c });
   }, []);
   // הקיר הימני מבקש לטעון חיפוש שמור → מיישמים כאן
   useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
@@ -154,51 +157,40 @@ export default function ElsGrid({ seed }) {
 
   const centerOf = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
 
-  // ---- חיפוש בתוך חיפוש — מציאת מונח-משני הקרוב ביותר לעוגן הפעיל ----
-  const subRes = useMemo(() => {
-    if (!letters || !anchorHit) return null;
-    const norm = elsNormalize(subTerm);
-    if (norm.length < 2) return null;
+  // ---- שכבות-חיפוש — לכל מונח-שכבה מוצאים את המופע הקרוב-ביותר לעוגן, וצובעים על המטריצה ----
+  // ⭐ מתחיל מ-skip 1 (כולל טקסט-רצוף) → מונח «צמוד» בכתב המקור (כמו «חג שבעת» ליד «יום משיח בא») נמצא.
+  const overlayData = useMemo(() => {
+    if (!letters || !anchorHit || res?.mode !== "single" || !overlays.length) return [];
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    // ⭐ הסאב-סרץ' מתחיל מ-skip 1 (כולל טקסט-רצוף) — כך מונח שמופיע «צמוד» בכתב המקור
-    // (כמו «חג שבעת» ליד «יום משיח בא») נמצא, ולא מוחמץ כמו בחיפוש-הראשי (שמתחיל מ-2).
     const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 1, q.skipMax) };
-    const r = elsSearch(letters, norm, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
     const aC = centerOf(anchorHit);
-    const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
-    const within = d => list.filter(x => x.dist <= d).length;
-    const avg = list.length ? Math.round(list.reduce((s, x) => s + x.dist, 0) / list.length) : 0;
-    return { norm, list, count: r.hits.length, capped: r.capped, within, avg };
-  }, [letters, subTerm, q, anchorHit]);
-
-  const subFocus = subRes?.list[Math.min(subIdx, (subRes.list.length || 1) - 1)] || null;
-
-  // 🎨 שכבת המונח-המשני: כמה מופעים קרובים, בצבע שמתחלש ככל שמתרחקים מהעוגן.
-  // הקרוב ביותר/הממוקד = מלא; הרחוקים = דהויים. «2 חיפושים קרובים בצבע שמתחלש».
-  const subOverlay = useMemo(() => {
-    if (!subRes?.list.length) return [];
-    const top = subRes.list.slice(0, 8);
-    const maxD = top[top.length - 1].dist || 1;
-    return top.map((x, i) => ({ hit: x.hit, op: i === subIdx ? 1 : Math.max(0.3, 1 - (x.dist / (maxD || 1)) * 0.82) }));
-  }, [subRes, subIdx]);
+    return overlays.map((term, j) => {
+      const r = elsSearch(letters, term, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
+      const list = r.hits.map(h => ({ hit: h, dist: Math.round(Math.abs(centerOf(h) - aC)) })).sort((a, b) => a.dist - b.dist);
+      return { term, ci: j + 1, list, nearest: list[0] || null, count: r.hits.length, capped: r.capped,
+        within: d => list.filter(x => x.dist <= d).length };
+    });
+  }, [letters, overlays, q, anchorHit, res]);
 
   // ---- מטריצה ----
   const grid = useMemo(() => {
     if (!res || !anchorHit) return null;
     const colorMap = new Map(), opMap = new Map();
-    if (res.mode === "single") anchorHit.positions.forEach(p => colorMap.set(p, 0));
-    else {
+    if (res.mode === "single") {
+      anchorHit.positions.forEach(p => colorMap.set(p, 0));
+      // כל שכבה — המופע הקרוב-ביותר לעוגן, בצבע השכבה (ci)
+      overlayData.forEach(o => { if (o.nearest) o.nearest.hit.positions.forEach(p => colorMap.set(p, o.ci)); });
+    } else {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
     }
-    // המונח-המשני בצבע נפרד, עם שקיפות לפי קרבה (מתחלש ככל שמתרחק)
-    for (const o of subOverlay) o.hit.positions.forEach(p => { colorMap.set(p, 1); opMap.set(p, o.op); });
     // 🔲 רוחב-תצוגה שממלא את הדף: דילוג קטן → כפולה שלו הקרובה ל-TARGET (לא «טור של 2»);
     // דילוג גדול → רוחב=דילוג עם חלון ממורכז. כך המטריצה תמיד נפתחת רחב.
     const s = Math.abs(anchorHit.skip), TARGET = 28;
     const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
-    // ממסגרים סביב המילה/האשכול (מיקומים קרובים), לא סביב הצבעים החיצוניים
-    const framePos = res.mode === "single" ? anchorHit.positions
+    // ממסגרים סביב העוגן + השכבות הקרובות (כדי שהן ייכנסו לתצוגה), לא סביב צבעים רחוקים
+    const framePos = res.mode === "single"
+      ? [...anchorHit.positions, ...overlayData.flatMap(o => o.nearest ? o.nearest.hit.positions : [])]
       : (res.clusters[Math.min(clusterIdx, res.clusters.length - 1)].picks.flatMap(p => p.hit.positions));
     const minP = Math.min(...framePos), maxP = Math.max(...framePos);
     const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
@@ -214,7 +206,7 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W: W2, skip: s };
-  }, [res, anchorHit, clusterIdx, letters, subOverlay]);
+  }, [res, anchorHit, clusterIdx, letters, overlayData]);
 
   // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
   // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
@@ -223,8 +215,8 @@ export default function ElsGrid({ seed }) {
     if (res?.mode === "cluster" && cluster0c) {
       return cluster0c.picks.map((pk, i) => paint[pk.term] || TERM_COLORS[i % TERM_COLORS.length]);
     }
-    return [paint[terms[0]] || TERM_COLORS[0], paint[subTerm] || TERM_COLORS[1]];
-  }, [res, cluster0c, terms, subTerm, paint]);
+    return [paint[terms[0]] || TERM_COLORS[0], ...overlays.map((t, j) => paint[t] || PAINT[j % PAINT.length])];
+  }, [res, cluster0c, terms, overlays, paint]);
   const colorAt = ci => layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length];
 
   // נקודת-צבע לחיצה → לוח-צבעים קטן לבחירת צבע למונח (term)
@@ -352,13 +344,14 @@ export default function ElsGrid({ seed }) {
         skip: h ? Math.abs(h.skip) : 0, dir: h ? h.dir : 1, count: res.hits.length, capped: res.capped,
         loc: h ? locOf(h.start) : null,
         hits: (res.hits || []).slice(0, 24).map(x => ({ skip: Math.abs(x.skip), dir: x.dir, ...locOf(x.start), mm: x.mismatches })),
-        sub: subRes ? { term: subRes.norm, count: subRes.count, nearest: subRes.list[0]?.dist ?? null, w1000: subRes.within(1000), w5000: subRes.within(5000), avg: subRes.avg,
-          list: subRes.list.slice(0, 16).map(x => ({ dist: x.dist, skip: Math.abs(x.hit.skip), ...locOf(x.hit.start) })) } : null,
+        sub: overlayData[0] ? { term: overlayData[0].term, count: overlayData[0].count, nearest: overlayData[0].nearest?.dist ?? null, w1000: overlayData[0].within(1000), w5000: overlayData[0].within(5000),
+          list: overlayData[0].list.slice(0, 16).map(x => ({ dist: x.dist, skip: Math.abs(x.hit.skip), ...locOf(x.hit.start) })) } : null,
+        overlays: overlayData.map(o => ({ term: o.term, nearest: o.nearest?.dist ?? null, count: o.count })),
       };
     }
     return { ...base, has: true, mode: "cluster", terms,
       clusters: (res.clusters || []).slice(0, 10).map(cl => ({ span: cl.span, ...locOf(cl.picks[0].hit.start), picks: cl.picks.map(p => ({ term: p.term, skip: Math.abs(p.hit.skip) })) })) };
-  }, [res, anchorHit, subRes, terms, savedMeta, locOf]);
+  }, [res, anchorHit, overlayData, terms, savedMeta, locOf]);
   useEffect(() => { emit(EVENTS.ELS_STATE, elsSummary); }, [elsSummary]);
   useEffect(() => () => emit(EVENTS.ELS_STATE, null), []); // ניקוי בעת עזיבה
 
@@ -473,51 +466,39 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
-      {/* ===== חיפוש בתוך חיפוש ===== */}
+      {/* ===== שכבות-חיפוש — מוסיפים מונחים על אותה מטריצה, כל אחד ריבוע צבעוני ===== */}
       {res?.mode === "single" && res.hits?.length > 0 && (
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
-            <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
-            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && subSearch()}
-              placeholder={`מונח נוסף — נמצא את הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
-            <button className="els-sub-btn" onClick={subSearch} disabled={elsNormalize(subRaw).length < 2}>מצא קרוב</button>
-            {subTerm && <button className="els-sub-clear" onClick={() => { setSubTerm(""); setSubRaw(""); }}>נקה</button>}
+            <span className="els-sub-t">🔢 שכבות חיפוש</span>
+            <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
+              placeholder={`מונח נוסף על המטריצה — הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
+            <button className="els-sub-btn" onClick={addOverlay} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+            <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
+            {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
-          <Help label="ℹ️ מה זה «חיפוש בתוך התוצאה»?">
-            מזינים מונח <b>שני</b>, והמנוע מוצא היכן הוא מופיע <b>הכי קרוב</b> למונח הראשון בטקסט. במטריצה הוא מודגש בצבע שני — <b>שמתחלש ככל שהמופע רחוק יותר</b> מהעוגן. הסטטיסטיקות (בתוך 1,000 / 5,000 אות · מרחק ממוצע) מודדות כמה «צמודים» השניים.
+          <Help label="ℹ️ איך עובדות שכבות-חיפוש?">
+            המונח הראשון הוא <b>העוגן</b>. כל מונח שתוסיפו = <b>שכבה</b> חדשה: המנוע מוצא את המופע <b>הקרוב ביותר</b> לעוגן וצובע אותו במטריצה בצבע משלו. אפשר להוסיף שני · שלישי · רביעי… כל אחד ריבוע בטבלה למטה. 🎨 לחיצה על נקודת-הצבע = שינוי צבע. 💾 «שמור מטריצה» שומר את כל הצירוף.
           </Help>
-          {subRes && (subRes.list.length ? (
-            <>
-              <div className="els-sub-stats">
-                <span style={{ ...chip, gap: 7 }}>{paintDot(subTerm, colorAt(1))} «{subRes.norm}» הקרוב ביותר: <b style={{ color: colorAt(1) }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
-                <span style={chip}>📍 {locOf(subFocus.hit.start).label} · אות {locOf(subFocus.hit.start).off.toLocaleString("he")}</span>
-                <span style={chip}>דילוג {Math.abs(subFocus.hit.skip).toLocaleString("he")}</span>
-                <span style={chip}>סך מופעים <b>{subRes.count.toLocaleString("he")}{subRes.capped ? "+" : ""}</b></span>
-                <span style={chip}>בתוך 1,000 אות <b>{subRes.within(1000).toLocaleString("he")}</b></span>
-                <span style={chip}>בתוך 5,000 <b>{subRes.within(5000).toLocaleString("he")}</b></span>
-                <span style={chip}>מרחק ממוצע <b>{subRes.avg.toLocaleString("he")}</b></span>
-              </div>
-              <div className="els-sub-note">המונח-המשני מודגש במטריצה ב<b>צבע שמתחלש ככל שהמופע מתרחק</b> מהעוגן (הקרוב = חזק, הרחוק = דהוי). עובדה מדידה, לא הוכחה.</div>
-              <div className="els-list" style={{ marginTop: 10 }}>
-                <div className="els-list-h">📋 {subRes.list.length} מופעים של «{subRes.norm}» — ממוין לפי קרבה</div>
-                <div className="els-list-body">
-                  {subRes.list.slice(0, 60).map((x, i) => {
-                    const l = locOf(x.hit.start);
-                    const fade = i < 8 ? (i === subIdx ? 1 : Math.max(0.45, 1 - i * 0.09)) : 0.5; // דהייה ככל שמתרחק
-                    return (
-                      <button key={i} style={{ opacity: fade }} className={"els-row" + (i === Math.min(subIdx, subRes.list.length - 1) ? " on" : "")} onClick={() => setSubIdx(i)}>
-                        <span className="els-rk">{i + 1}</span>
-                        <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
-                        <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
-                        <span className="els-rc">{l.label}</span>
-                        <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~קרוב" : ""}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          ) : <div className="rw-muted" style={{ marginTop: 10 }}>«{subRes.norm}» לא נמצא כדילוג עד {q.skipMax}. הגדילו דילוג או סמנו «כולל קרובים».</div>)}
+          {/* טבלת השכבות — ריבוע לכל מונח */}
+          <div className="els-layers">
+            <span className="els-layer anchor" style={{ borderColor: colorAt(0) }}>
+              {paintDot(elsNormalize(terms[0]), colorAt(0))} <b style={{ color: colorAt(0) }}>{elsNormalize(terms[0])}</b>
+              <span className="els-layer-meta">עוגן · דילוג {Math.abs(anchorHit.skip).toLocaleString("he")}</span>
+            </span>
+            {overlayData.map(o => (
+              <span key={o.term} className="els-layer" style={{ borderColor: colorAt(o.ci) }}>
+                {paintDot(o.term, colorAt(o.ci))} <b style={{ color: colorAt(o.ci) }}>{o.term}</b>
+                <span className="els-layer-meta">
+                  {o.nearest ? <>קרוב <b>{o.nearest.dist.toLocaleString("he")}</b> · דילוג {Math.abs(o.nearest.hit.skip).toLocaleString("he")} · {locOf(o.nearest.hit.start).label}</> : "לא נמצא בטווח"}
+                </span>
+                <button className="els-layer-x" onClick={() => removeOverlay(o.term)} title="הסר שכבה">✕</button>
+              </span>
+            ))}
+          </div>
+          {overlays.length === 0
+            ? <div className="rw-sub" style={{ marginTop: 8 }}>הקלידו מונח ו«➕ הוסף» — הוא יופיע כאן כריבוע צבעוני וייצבע על המטריצה. הוסיפו כמה שתרצו (שני · שלישי · רביעי…), ושמרו את הצירוף ב«💾 שמור מטריצה».</div>
+            : <div className="els-sub-note">כל שכבה = המופע הקרוב-ביותר לעוגן, בצבעה. «קרוב» = מרחק באותיות. עובדה מדידה — לא הוכחה (בטקסט גדול נמצאות קרבות רבות).</div>}
         </div>
       )}
 
@@ -556,6 +537,12 @@ const ELS_CSS = `
 .els-sub-btn{border:none;background:var(--acc);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:9px 18px;cursor:pointer;font-family:inherit}
 .els-sub-btn:disabled{opacity:.5;cursor:default}
 .els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
+.els-layers{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.els-layer{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13.5px;font-weight:700}
+.els-layer.anchor{background:var(--accS)}
+.els-layer-meta{font-size:11.5px;font-weight:600;color:var(--ink2)}
+.els-layer-x{border:none;background:none;cursor:pointer;color:var(--ink3);font-size:13px;padding:0 0 0 2px;line-height:1}
+.els-layer-x:hover{color:#b4453a}
 .els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
 .els-help{margin:8px 0 4px;background:var(--accS);border:1px solid var(--line);border-radius:10px;padding:2px 12px}
