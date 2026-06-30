@@ -145,6 +145,12 @@ const ELS_DICT = [
   // עם ישראל ומועדים
   "ישראל", "עם ישראל", "יהודי", "שבת", "ראש השנה", "יום כפור", "פסח", "שבועות", "סוכות", "חנוכה", "פורים",
   "כהן", "לוי", "מלך", "נביא", "חכם", "צדיק", "גלות", "ארץ ישראל",
+  // 💎 מילים/ביטויים ארוכים (5+) — מועמדי-פלא אמיתיים (סיכוי-מקרה נמוך בהרבה ממילים קצרות)
+  "התורה", "הגאולה", "המשיח", "השכינה", "אלוהים", "האמת", "האמונה", "התשובה", "הקדושה", "ירושלם",
+  "אמיתית", "אמיתי", "נצחית", "נסתר", "הנסתר", "סודות", "הסוד", "צופן", "רמזים", "התגלות", "הגאולה השלמה",
+  "בית המקדש השלישי", "גאולת ישראל", "עם הנצח", "אור החיים", "תורת החיים", "חכמת הקבלה", "סוד העיבור",
+  "בן האלהים", "מלך מלכי המלכים", "ריבונו של עולם", "בורא עולם", "אדון הכל", "מלך העולם", "קץ הגאולה",
+  "אליהו הנביא", "משיח צדקנו", "פעמי משיח", "אתחלתא דגאולה", "ביאת הגואל", "תחיית המתים", "עולם הנצח",
 ];
 // מחזיר את כל מופעי `target` שעוברים דרך התא p (בכל דילוג/כיוון נתון) → חיתוך ממשי עם העוגן.
 function termPassesThrough(letters, target, p, skips, dirs, N) {
@@ -496,6 +502,7 @@ export default function ElsGrid({ seed }) {
   // אחת מאותיותיה, בכל כיוון/דילוג). מחזיר רשימה מדורגת לפי קרבה. זהו ה«אוטו-הצלבה» המלא:
   // לא רק מילות-החיפוש, אלא מילון שלם → המנוע מגלה לבד צפנים-נחתכים כמו «בלעם».
   const [dictScan, setDictScan] = useState(null); // null | {running:true} | {results:[...]}
+  const [showCommonDict, setShowCommonDict] = useState(false); // הצג גם מילים שכיחות (רעש) — כבוי כברירת-מחדל
   const scanDict = () => {
     if (!letters || !anchorHit || res?.mode !== "single") return;
     setDictScan({ running: true });
@@ -533,10 +540,13 @@ export default function ElsGrid({ seed }) {
           }
         }
         if (best) {
-          const exp = expectedOf(t);
-          // דרגת-פלא: כמה «מפתיע» שהמונח הזה בכלל קיים בספר (נדיר=פלא, שכיח=רעש)
-          const wonder = exp < 3 ? { r: 0, t: "🟢 נדיר", c: "#1f7a4d" } : exp < 200 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" } : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
-          found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist, exp: Math.round(exp), wonder });
+          const exp = expectedOf(t), len = t.length;
+          // דרגת-פלא: אורך + נדירות. מילים קצרות (≤3) = רעש (שכיח), לא מתרגשים. ארוכות+נדירות = פלא אמיתי.
+          const wonder = len <= 3 ? { r: 2, t: "⚪ קצר", c: "#9a8a5e" }
+            : (exp < 2 && len >= 5) ? { r: 0, t: "🟢 פלא נדיר", c: "#1f7a4d" }
+            : exp < 60 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" }
+            : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
+          found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist, exp: Math.round(exp), len, wonder });
         }
       }
       // מיון: קודם הנדירים (הפלא האמיתי), ואז לפי קרבה
@@ -546,7 +556,7 @@ export default function ElsGrid({ seed }) {
   };
   // 🎨 צובע את כל המונחים-הנחתכים על המטריצה (מוסיף כשכבות — נכנסים לרשימת-ההצלבות עם דגל ⚡)
   const colorAllCrossings = () => {
-    const add = (dictScan?.results || []).slice(0, 8).map(r => r.term).filter(t => !overlays.includes(t));
+    const add = (dictScan?.results || []).filter(r => r.wonder.r < 2).slice(0, 8).map(r => r.term).filter(t => !overlays.includes(t));
     if (add.length) { setOverlays(o => [...o, ...add].slice(0, 14)); setLayersOpen(true); }
   };
   useEffect(() => { setDictScan(null); setFocusHit(null); }, [hitIdx, q]); // איפוס סריקה+מיקוד כשעוברים תוצאה/חיפוש
@@ -979,14 +989,18 @@ export default function ElsGrid({ seed }) {
           {/* 🔭 תוצאות סריקת-המילון — מונחים שהמנוע מצא לבד שנחתכים עם התוצאה */}
           {dictScan?.results && (
             <div className="els-dict">
-              {dictScan.results.length === 0
-                ? <div className="rw-sub">🔭 לא נמצא מונח מהמילון שנחתך עם «{elsNormalize(terms[0])}» כאן. נסו מופע אחר מהרשימה למטה, או הגדילו «גודל-רשת».</div>
+              {(() => {
+                const wonders = dictScan.results.filter(r => r.wonder.r < 2);
+                const common = dictScan.results.filter(r => r.wonder.r === 2);
+                const shown = showCommonDict ? dictScan.results : wonders;
+                return dictScan.results.length === 0 || (wonders.length === 0 && !showCommonDict)
+                ? <div className="rw-sub">🔭 לא נמצא <b>פלא</b> (מילה ארוכה ונדירה) שנחתך עם «{elsNormalize(terms[0])}» כאן. {common.length > 0 && <button className="els-dict-toggle" onClick={() => setShowCommonDict(true)}>הצג בכל זאת {common.length} מילים שכיחות</button>}</div>
                 : <>
-                    <div className="els-dict-h">🔭 המנוע מצא לבד <b>{dictScan.results.length}</b> מונחים שנחתכים עם «{elsNormalize(terms[0])}» — ממוין לפי <b>מד-הפלא</b> (נדיר קודם)
-                      {dictScan.results.some(r => r.wonder.r === 0) && <button className="els-dict-all" onClick={colorAllCrossings}>🎨 צבע את ה-{Math.min(8, dictScan.results.length)} הראשונים</button>}
+                    <div className="els-dict-h">🔭 המנוע מצא לבד <b>{wonders.length}</b> {wonders.length === 1 ? "פלא" : "פלאים"} (ארוך+נדיר) שנחתכים עם «{elsNormalize(terms[0])}»
+                      {wonders.some(r => r.wonder.r === 0) && <button className="els-dict-all" onClick={colorAllCrossings}>🎨 צבע את הראשונים</button>}
                     </div>
                     <div className="els-dict-body">
-                      {dictScan.results.slice(0, 24).map((r, i) => {
+                      {shown.slice(0, 24).map((r, i) => {
                         const l = locOf(r.start);
                         return (
                           <button key={r.term} className="els-dict-row" onClick={() => addOverlay(r.term)} title={`הוסף כשכבה · צפוי-במקרה בספר ≈ ${r.exp.toLocaleString("he")} מופעים`}>
@@ -1001,8 +1015,12 @@ export default function ElsGrid({ seed }) {
                         );
                       })}
                     </div>
-                    <div className="rw-sub" style={{ marginTop: 6 }}>🟢 <b>נדיר</b> = המונח עצמו נדיר בספר → חיתוך מפתיע (פלא אמיתי). ⚪ <b>שכיח</b> = מונח נפוץ (כמו «אירן»/«אהב») שנחתך כמעט עם הכל במקרה — לא פלא. חיתוך = עובדה גאומטרית, לא הוכחה.</div>
-                  </>}
+                    <div className="rw-sub" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span>🟢 <b>פלא נדיר</b> = מילה ארוכה (5+) ונדירה → חיתוך מפתיע. ⚪ מילים קצרות/שכיחות = רעש (נחתכות עם הכל במקרה).</span>
+                      {common.length > 0 && <button className="els-dict-toggle" onClick={() => setShowCommonDict(v => !v)}>{showCommonDict ? "הסתר שכיחים" : `הצג גם ${common.length} שכיחים`}</button>}
+                    </div>
+                  </>;
+              })()}
             </div>
           )}
           {/* טבלת השכבות — ריבוע לכל מונח */}
@@ -1237,6 +1255,8 @@ const ELS_CSS = `
 .els-dict-h{font-weight:800;font-size:13px;color:#1b4fb0;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .els-dict-all{border:1px solid #1f6feb;background:#fff;color:#1f6feb;border-radius:999px;padding:4px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
 .els-dict-all:hover{background:#1f6feb;color:#fff}
+.els-dict-toggle{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:3px 11px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.els-dict-toggle:hover{border-color:#1f6feb;color:#1f6feb}
 .els-dict-body{display:flex;flex-direction:column;gap:5px;max-height:360px;overflow:auto}
 .els-dict-row{display:flex;align-items:center;gap:9px;width:100%;text-align:start;background:#fff;border:1px solid #dbe7fb;border-radius:10px;padding:8px 11px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2);transition:.1s}
 .els-dict-row:hover{border-color:#1f6feb;background:#eef5ff}
