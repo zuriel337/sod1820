@@ -404,24 +404,45 @@ export default function ElsGrid({ seed }) {
     const s = Math.abs(anchorHit.skip), TARGET = 28;
     const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
     const cl0 = res.mode === "cluster" ? res.clusters[Math.min(clusterIdx, res.clusters.length - 1)] : null;
-    // framePos = כל אותיות-התוצאה (יחיד: העוגן · מוצלב: **כל** המונחים) → המסגור מכסה את כולם.
-    const framePos = res.mode === "single" ? anchorHit.positions : cl0.picks.flatMap(p => p.hit.positions);
-    const minP = Math.min(...framePos), maxP = Math.max(...framePos);
-    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
-    // 📏 מרחב אנכי — תמיד שורות-ריפוד מעל ומתחת לתוצאה (בקשת «מרחב למעלה ולמטה»). התקרה נדיבה
-    // כדי שגם בהצלבה שני הקצוות ייכנסו, אך לא בלי-גבול עבור מונח-ענק יחיד.
     const padRows = Math.max(5, 6 * gridSize);
-    const rowStart = firstRow - padRows;
-    const rowEnd = lastRow + padRows;
-    // 📐 חלון-עמודות ממורכז על התוצאה — מרחב מימין ומשמאל (בקשת «מרחב מימין ומשמאל»), ומכסה את
-    // **כל** אותיות-התוצאה כך שגם המונח השני/השלישי בהצלבה נכנס, ולא רק העוגן. היסט-קשיח: colStart
-    // יכול להיות שלילי (גולש לשורה שכנה) → התבנית נשמרת, רק זזה — והתוצאה ממורכזת ולא בקצה.
-    const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
-    let cLo = Math.min(...colsOf), cHi = Math.max(...colsOf);
-    if ((cHi - cLo) > W2 / 2) { cLo = 0; cHi = W2 - 1; } // טווח שנשבר סביב קצה-הרשת → כל הרוחב
     const colMargin = Math.max(6, 5 * gridSize);
-    const colCenter = (cLo + cHi) / 2;
-    let colWin = Math.min(W2, (cHi - cLo) + colMargin * 2);
+    // 🎯 framePos = אותיות-התוצאה. ביחיד: העוגן + **המופע-הקרוב של כל שכבה אם הוא קרוב מספיק** →
+    // המטריצה מתרחבת לבד כדי להראות את מה שחיפשת, בלי שתצטרך לגעת ב«גודל-רשת». רחוק מדי → לא מצורף (יושר).
+    // העוגן תמיד נשאר במרכז (אופקית ואנכית). במוצלב: מסגור על כל המונחים (bbox).
+    let framePos, colCenter, colWin, rowStart, rowEnd;
+    if (res.mode === "single") {
+      framePos = [...anchorHit.positions];
+      const aCols = anchorHit.positions.map(p => ((p % W2) + W2) % W2);
+      const aColMid = aCols.reduce((a, b) => a + b, 0) / aCols.length;
+      const aRowMid = centerOf(anchorHit) / W2;
+      const AUTO_MAXC = 28, AUTO_MAXR = 24; // תקרת-קרבה להצגה משותפת (עמודות/שורות) — קריא
+      for (const o of overlayData) {
+        const occ = o.nearest?.hit; if (!occ) continue;
+        const oCols = occ.positions.map(p => ((p % W2) + W2) % W2);
+        const colSpread = Math.max(...oCols.map(c => Math.abs(c - aColMid)));
+        const oRowMid = centerOf(occ) / W2;
+        if (colSpread <= AUTO_MAXC && Math.abs(oRowMid - aRowMid) <= AUTO_MAXR) framePos.push(...occ.positions);
+      }
+      // עמודות — ממורכז על העוגן, מתרחב סימטרית כדי לכלול את מה שצורף
+      const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
+      const maxC = Math.max(colMargin, ...colsOf.map(c => Math.abs(c - aColMid)));
+      colCenter = aColMid;
+      colWin = Math.min(W2, 2 * (maxC + colMargin));
+      // שורות — ממורכז על העוגן, מתרחב סימטרית כדי לכלול את מה שצורף
+      const frameRows = framePos.map(p => p / W2);
+      const halfR = Math.max(padRows, Math.ceil(Math.max(aRowMid - Math.min(...frameRows), Math.max(...frameRows) - aRowMid)) + 1);
+      rowStart = Math.floor(aRowMid - halfR); rowEnd = Math.ceil(aRowMid + halfR);
+    } else {
+      framePos = cl0.picks.flatMap(p => p.hit.positions);
+      const minP = Math.min(...framePos), maxP = Math.max(...framePos);
+      const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+      rowStart = firstRow - padRows; rowEnd = lastRow + padRows;
+      const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
+      let cLo = Math.min(...colsOf), cHi = Math.max(...colsOf);
+      if ((cHi - cLo) > W2 / 2) { cLo = 0; cHi = W2 - 1; }
+      colCenter = (cLo + cHi) / 2;
+      colWin = Math.min(W2, (cHi - cLo) + colMargin * 2);
+    }
     let colStart = Math.round(colCenter - colWin / 2);
     // אוסף האינדקסים שבאמת נראים על המטריצה (לשימוש בסינון רשימת-ההצלבות לפי «מה גלוי»)
     const visible = new Set();
@@ -484,6 +505,16 @@ export default function ElsGrid({ seed }) {
       const aC = centerOf(anchorHit);
       const aSet = new Set(anchorHit.positions); // לסינון הכלה-טריוויאלית (תת-מחרוזת של העוגן עצמו)
       const skip0 = new Set(overlays); skip0.add(elsNormalize(terms[0] || ""));
+      // 📊 מד-הפלא (יושר): «צפוי-במקרה» לכל מונח לפי תדירות-האותיות בספר. מונח שכיח (אירן/אהב) צפוי
+      // ליד כל דבר → לא פלא. מונח נדיר שנחתך → פלא אמיתי. בונים מפת-תדירות פעם אחת.
+      const M = Math.max(1, bk.to - bk.from);
+      const freq = new Map();
+      for (let i = bk.from; i < bk.to; i++) freq.set(letters[i], (freq.get(letters[i]) || 0) + 1);
+      const expectedOf = (t) => {
+        let pm = 1; for (const c of t) { const f = (freq.get(c) || 0) / M; if (!f) return 0; pm *= f; }
+        let placements = 0; for (const s of skips) { const p = M - s * (t.length - 1); if (p > 0) placements += p; }
+        return pm * placements * dirs.length;
+      };
       const found = [];
       for (const rawT of ELS_DICT) {
         const t = elsNormalize(rawT);
@@ -498,9 +529,15 @@ export default function ElsGrid({ seed }) {
             if (!best || d < best.dist) best = { occ: o, dist: d };
           }
         }
-        if (best) found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist });
+        if (best) {
+          const exp = expectedOf(t);
+          // דרגת-פלא: כמה «מפתיע» שהמונח הזה בכלל קיים בספר (נדיר=פלא, שכיח=רעש)
+          const wonder = exp < 3 ? { r: 0, t: "🟢 נדיר", c: "#1f7a4d" } : exp < 200 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" } : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
+          found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist, exp: Math.round(exp), wonder });
+        }
       }
-      found.sort((a, b) => a.dist - b.dist || a.term.localeCompare(b.term));
+      // מיון: קודם הנדירים (הפלא האמיתי), ואז לפי קרבה
+      found.sort((a, b) => a.wonder.r - b.wonder.r || a.dist - b.dist || a.term.localeCompare(b.term));
       setDictScan({ results: found });
     }, 30);
   };
@@ -515,6 +552,10 @@ export default function ElsGrid({ seed }) {
   const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
   const onMatrixMove = e => { if (!matrixDrag.current) return; if (Math.abs(e.pageX - matrixDrag.current.x) > 3) dragMoved.current = true; e.preventDefault(); e.currentTarget.scrollLeft = matrixDrag.current.left - (e.pageX - matrixDrag.current.x); };
   const onMatrixUp = e => { matrixDrag.current = null; e.currentTarget.style.cursor = selectMode ? "crosshair" : "grab"; };
+  // 👆 גרירה-באצבע (מובייל) — הזזת הטבלה ימינה/שמאלה. touchAction:pan-y נותן לדף לגלול אנכית.
+  const onMatrixTouchStart = e => { if (selectMode || e.touches.length !== 1) return; matrixDrag.current = { x: e.touches[0].pageX, left: e.currentTarget.scrollLeft }; dragMoved.current = false; };
+  const onMatrixTouchMove = e => { if (!matrixDrag.current || e.touches.length !== 1) return; const dx = e.touches[0].pageX - matrixDrag.current.x; if (Math.abs(dx) > 3) dragMoved.current = true; e.currentTarget.scrollLeft = matrixDrag.current.left - dx; };
+  const onMatrixTouchEnd = () => { matrixDrag.current = null; };
   // קליק על אות במצב-בחירה → הוספה/הסרה מהבחירה (לפי סדר לחיצה)
   const toggleCell = idx => { if (idx < 0) return; setSelCells(c => c.includes(idx) ? c.filter(x => x !== idx) : [...c, idx]); };
   const selLetters = () => selCells.map(i => letters[i] || "").join("");
@@ -632,8 +673,9 @@ export default function ElsGrid({ seed }) {
     if (!grid) return null;
     const sz = Math.round((big ? 38 : 30) * zoom), h = Math.round((big ? 42 : 34) * zoom), fs = Math.round((big ? 25 : 20) * zoom);
     return (
-      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "safe center", cursor: selectMode ? "crosshair" : "grab" }}
-        onMouseDown={onMatrixDown} onMouseMove={onMatrixMove} onMouseUp={onMatrixUp} onMouseLeave={onMatrixUp}>
+      <div className="els-matrix" style={{ overflow: "auto", display: "flex", justifyContent: "safe center", cursor: selectMode ? "crosshair" : "grab", touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}
+        onMouseDown={onMatrixDown} onMouseMove={onMatrixMove} onMouseUp={onMatrixUp} onMouseLeave={onMatrixUp}
+        onTouchStart={onMatrixTouchStart} onTouchMove={onMatrixTouchMove} onTouchEnd={onMatrixTouchEnd}>
         <div style={{ display: "inline-grid", gap: 3, background: theme.bg, padding: 8, borderRadius: 10 }}>
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
@@ -937,18 +979,18 @@ export default function ElsGrid({ seed }) {
               {dictScan.results.length === 0
                 ? <div className="rw-sub">🔭 לא נמצא מונח מהמילון שנחתך עם «{elsNormalize(terms[0])}» כאן. נסו מופע אחר מהרשימה למטה, או הגדילו «גודל-רשת».</div>
                 : <>
-                    <div className="els-dict-h">🔭 המנוע מצא לבד <b>{dictScan.results.length}</b> מונחים מהמילון שנחתכים עם «{elsNormalize(terms[0])}» — ממוין לפי קרבה
-                      <button className="els-dict-all" onClick={colorAllCrossings}>🎨 צבע את ה-{Math.min(8, dictScan.results.length)} הקרובים</button>
+                    <div className="els-dict-h">🔭 המנוע מצא לבד <b>{dictScan.results.length}</b> מונחים שנחתכים עם «{elsNormalize(terms[0])}» — ממוין לפי <b>מד-הפלא</b> (נדיר קודם)
+                      {dictScan.results.some(r => r.wonder.r === 0) && <button className="els-dict-all" onClick={colorAllCrossings}>🎨 צבע את ה-{Math.min(8, dictScan.results.length)} הראשונים</button>}
                     </div>
                     <div className="els-dict-body">
                       {dictScan.results.slice(0, 24).map((r, i) => {
                         const l = locOf(r.start);
                         return (
-                          <button key={r.term} className="els-dict-row" onClick={() => addOverlay(r.term)} title="הוסף כשכבה צבועה על המטריצה">
+                          <button key={r.term} className="els-dict-row" onClick={() => addOverlay(r.term)} title={`הוסף כשכבה · צפוי-במקרה בספר ≈ ${r.exp.toLocaleString("he")} מופעים`}>
                             <span className="els-rk" style={{ background: "#eef5ff", color: "#1f6feb" }}>{i + 1}</span>
                             <span className="els-dict-term">{r.raw}</span>
-                            <span className="els-rc">דילוג <b>{r.skip.toLocaleString("he")}</b></span>
-                            <span className="els-rc">{r.dir > 0 ? "→" : "←"}</span>
+                            <span className="els-rc" style={{ color: r.wonder.c, fontWeight: 800, whiteSpace: "nowrap" }}>{r.wonder.t}</span>
+                            <span className="els-rc">דילוג <b>{r.skip.toLocaleString("he")}</b> {r.dir > 0 ? "→" : "←"}</span>
                             <span className="els-rc">{l.label}</span>
                             <span className="els-rc muted">מרחק {r.dist.toLocaleString("he")}</span>
                             <span className="els-dict-add">➕ צבע</span>
@@ -956,7 +998,7 @@ export default function ElsGrid({ seed }) {
                         );
                       })}
                     </div>
-                    <div className="rw-sub" style={{ marginTop: 6 }}>חיתוך = המונח עובר דרך אות מהתוצאה (עובדה גאומטרית). קרבה גדולה אינה הוכחה — בטקסט גדול נוצרים חיתוכים גם במקרה. לחיצה צובעת על המטריצה.</div>
+                    <div className="rw-sub" style={{ marginTop: 6 }}>🟢 <b>נדיר</b> = המונח עצמו נדיר בספר → חיתוך מפתיע (פלא אמיתי). ⚪ <b>שכיח</b> = מונח נפוץ (כמו «אירן»/«אהב») שנחתך כמעט עם הכל במקרה — לא פלא. חיתוך = עובדה גאומטרית, לא הוכחה.</div>
                   </>}
             </div>
           )}
