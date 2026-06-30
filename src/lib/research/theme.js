@@ -166,6 +166,16 @@ export const rwCss = (t = RW) => `
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
   .rw-caps li:before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:var(--acc);font-weight:800}
+  /* ניווט-מדורים של בית-המדרש בקיר-הימני */
+  .rw-mnav{display:grid;gap:6px}
+  .rw-mnav-i{display:flex;align-items:center;gap:8px;width:100%;text-align:start;border:1px solid var(--line);
+    background:var(--card);color:var(--ink);border-radius:10px;padding:9px 11px;font-weight:700;font-size:13px;
+    cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-mnav-i:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
+  .rw-mchips{display:flex;flex-wrap:wrap;gap:6px}
+  .rw-mchip{border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
+    padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-mchip:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
   /* בורר-שיטה בחיפוש-פסוקים — שורת צ'יפים גלילה */
   .vs-methods{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 9px;-webkit-overflow-scrolling:touch}
   .vs-mchip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;

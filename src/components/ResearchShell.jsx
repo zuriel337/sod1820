@@ -34,6 +34,45 @@ const PanelIcon = ({ size = 19 }) => (
   </svg>
 );
 
+// 📖 קיר-ימין הקשרי לבית-המדרש (workspace_layout_standard: «ימין = מה הכלי עושה»).
+// ניווט-מדורים + קפיצה-לשיטה דרך ה-Event Bus → אפס תלות בבית-המדרש (הוא מאזין).
+const MIDRASH_SECTIONS = [
+  { tab: "methods", icon: "📐", label: "שיטות הגימטריה" },
+  { tab: "calc", icon: "🧮", label: "מחשבון גימטריה" },
+  { tab: "crosses", icon: "✨", label: "חידושי הצלבות" },
+  { tab: "convergence", icon: "🌐", label: "צירי התכנסות" },
+  { tab: "community", icon: "👥", label: "חידושי גולשים" },
+  { tab: "verified", icon: "🔵", label: "פוסטים מאומתים" },
+  { tab: "searches", icon: "🔎", label: "מה נחקר" },
+  { tab: "submit", icon: "✍️", label: "הגשת חידוש" },
+  { tab: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
+];
+const MIDRASH_METHODS = ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם", "ריבוע", "הכפלה"];
+function MidrashNav() {
+  const go = (tab, method) => emit(EVENTS.MIDRASH_NAV, { tab, method });
+  return (
+    <div className="rw-panel" style={{ borderBottom: "1px solid var(--rw-line,#ece4d3)" }}>
+      <div className="rw-ph"><span>📂 מדורי בית-המדרש</span></div>
+      <div className="rw-pb">
+        <div className="rw-mnav">
+          {MIDRASH_SECTIONS.map(s => (
+            <button key={s.tab} className="rw-mnav-i" onClick={() => go(s.tab)} title={s.label}>
+              <span>{s.icon}</span> {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="rw-muted" style={{ margin: "14px 0 7px", fontSize: 12, fontWeight: 700 }}>📐 קפיצה לשיטה</div>
+        <div className="rw-mchips">
+          {MIDRASH_METHODS.map(m => (
+            <button key={m} className="rw-mchip" onClick={() => go("methods", m)} title={`לימוד שיטת ${m}`}>{m}</button>
+          ))}
+        </div>
+        <div className="rw-muted" style={{ marginTop: 9, fontSize: 11.5, lineHeight: 1.6 }}>לחיצה על שיטה → קופץ ללימוד שלה במרכז, עם דוגמה חיה.</div>
+      </div>
+    </div>
+  );
+}
+
 export default function ResearchShell({ children, subnav }) {
   const { cart = [] } = useResearch();
   const [sp] = useSearchParams();
@@ -94,7 +133,8 @@ export default function ResearchShell({ children, subnav }) {
     <aside className="rw-pwrap" style={{ width: rightW }}>
       <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
       {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
-      {eng && (
+      {tool === "midrash" && <MidrashNav />}
+      {eng && tool !== "midrash" && (
         <details className="rw-panel" open={!(tool === "els" && elsState?.has)}>
           <summary className="rw-ph" style={{ cursor: "pointer", listStyle: "none" }}><span>💡 מה הכלי «{eng.title}» יודע</span></summary>
           <div className="rw-pb">
