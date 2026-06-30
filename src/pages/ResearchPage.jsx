@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import { isToolReady } from "../lib/hub/ready.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
@@ -43,15 +44,17 @@ function GematriaTool({ seed }) {
   );
 }
 
-// תפריט-המשנה: כלים שעובדים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
-const READY_LAB = TOOLS.filter(t => isToolReady(t.id));
-const FUTURE_LAB = TOOLS.filter(t => !isToolReady(t.id));
-
 export default function ResearchPage() {
   // 🧪 טיוטה — המעבדה פתוחה (בלי שער הרשמה). אין קישור בתפריט הראשי, הכתובת /research
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
   const [moreOpen, setMoreOpen] = useState(false);
+  // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
+  const { isAdmin } = useAuth();
+  const ready = id => isToolReady(id, isAdmin);
+  // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
+  const READY_LAB = TOOLS.filter(t => ready(t.id));
+  const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -98,7 +101,7 @@ export default function ResearchPage() {
     <ResearchShell subnav={subnav}>
       {!tool ? (
         <ResearchHome onOpen={setTool} />
-      ) : !isToolReady(tool) ? (
+      ) : !ready(tool) ? (
         <div className="rw-card" style={{ textAlign: "center", padding: "44px 20px" }}>
           <div style={{ fontSize: 46, marginBottom: 14 }}>🔬</div>
           <div style={{ fontFamily: "inherit", fontSize: 20, fontWeight: 800, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>הכלי בשדרוג</div>

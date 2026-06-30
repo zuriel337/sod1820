@@ -25,7 +25,6 @@ const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.
 import HomeNewPage from "./pages/HomeNewPage.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
-import BeitMidrashPage from "./pages/BeitMidrashPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
@@ -109,13 +108,28 @@ function EnterRoute() {
   );
 }
 
-// מחשבון יחיד — /גימטריה ו-/gematria מובילים למחשבון הקנוני בבית המדרש (עץ אחד, בלי כפילות).
-// משמרים seed: /gematria?w=דוד → /beit-midrash?tab=calc&w=דוד
-function GematriaToBeitMidrash() {
+// מחשבון יחיד (עץ אחד) — כל הקיצורים מובילים למחשבון הקנוני *במעבדה* (כלי 🧮).
+// משמרים seed: /gematria?w=דוד → /research?tool=gematria&q=דוד
+function GematriaToLab() {
   const { search } = useLocation();
   const p = new URLSearchParams(search);
   const w = p.get("w") || p.get("calc");
-  return <Navigate to={`/beit-midrash?tab=calc${w ? `&w=${encodeURIComponent(w)}` : ""}`} replace />;
+  return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
+}
+
+// בית-המדרש חי *בתוך* המעבדה (workspace_layout_standard) → כל כניסה ל-/beit-midrash
+// נכנסת לשלד-המחקר. כוונת-מחשבון (tab=calc / w / n) → המחשבון האחד (כלי 🧮);
+// אחרת → כלי 📖 בית-המדרש, עם שימור טאב-המדור אם נמסר. /beit-midrash נשאר כ-alias.
+function BeitMidrashToLab() {
+  const { search } = useLocation();
+  const p = new URLSearchParams(search);
+  const w = p.get("w") || p.get("calc");
+  const tab = p.get("tab");
+  if (tab === "calc" || w || p.get("n")) {
+    return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
+  }
+  const valid = ["searches", "convergence", "crosses", "community", "submit", "methods", "verified", "sod1820"];
+  return <Navigate to={`/research?tool=midrash${tab && valid.includes(tab) ? `&tab=${tab}` : ""}`} replace />;
 }
 
 // דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
@@ -200,7 +214,7 @@ export default function App() {
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/numbers" element={<NumbersPage />} />
           <Route path="/code" element={<CodePage />} />
-          <Route path="/beit-midrash" element={<BeitMidrashPage />} />
+          <Route path="/beit-midrash" element={<BeitMidrashToLab />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
           <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
@@ -228,8 +242,8 @@ export default function App() {
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
-          <Route path="/gematria" element={<GematriaToBeitMidrash />} />
-          <Route path="/גימטריה" element={<GematriaToBeitMidrash />} />
+          <Route path="/gematria" element={<GematriaToLab />} />
+          <Route path="/גימטריה" element={<GematriaToLab />} />
           {/* תצוגה מקדימה — דף בית חדש (לא מחליף את הקיים) */}
           <Route path="/home-new" element={<HomeNewPage />} />
           <Route path="/בית-חדש" element={<HomeNewPage />} />

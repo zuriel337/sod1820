@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
 // כל כלי = כרטיס. live = נפתח בתוך השלד · open = דף קיים (פתיחה חוצה) · soon = בקרוב.
@@ -41,10 +42,12 @@ const CATS = [
   { key: "ai", icon: "🤖", label: "AI", sub: "ניתוח חכם" },
 ];
 
-function ToolCard({ t, onOpen }) {
-  const ready = isToolReady(t.id);
+function ToolCard({ t, onOpen, isAdmin }) {
+  const ready = isToolReady(t.id, isAdmin);
+  const adminOnly = isAdminOnlyTool(t.id, isAdmin); // פתוח רק בזכות הרשאת-מנהל
   const flag = FLAGSHIP_TOOLS.includes(t.id); // כלי-דגל — בולט
   const badge = !ready ? <span className="bg soon">🔒 בשדרוג</span>
+    : adminOnly ? <span className="bg flag">🔑 אדמין · בדיקה</span>
     : flag ? <span className="bg flag">👑 כלי מרכזי</span>
     : t.status === "open" ? <span className="bg open">פתח »</span>
     : <span className="bg live">● פעיל</span>;
@@ -63,22 +66,25 @@ function ToolCard({ t, onOpen }) {
 }
 
 // בתוך קטגוריה: מוכנים תחילה, נעולים אחריהם.
-const catRank = t => (isToolReady(t.id) ? 0 : 1);
+const catRank = (t, isAdmin) => (isToolReady(t.id, isAdmin) ? 0 : 1);
 
 export default function ResearchHome({ onOpen }) {
+  // 🔑 מנהל רואה את כל הכלים הממומשים כפתוחים (לבדיקות); לציבור נשאר הגיטינג הרגיל.
+  const { isAdmin } = useAuth();
   return (
     <div>
       <div className="rw-h1">🏛️ מרכז המחקר</div>
       <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
+      {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
 
       {CATS.map(c => {
-        const items = TOOLS.filter(t => t.cat === c.key).sort((a, b) => catRank(a) - catRank(b));
+        const items = TOOLS.filter(t => t.cat === c.key).sort((a, b) => catRank(a, isAdmin) - catRank(b, isAdmin));
         if (!items.length) return null;
         return (
           <div key={c.key} className="rw-cat">
             <div className="rw-cat-h"><span className="rw-cat-ic">{c.icon}</span> {c.label} <span className="rw-cat-n">{items.length}</span><span className="rw-cat-sub">{c.sub}</span></div>
             <div className="rw-tools">
-              {items.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}
+              {items.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} isAdmin={isAdmin} />)}
             </div>
           </div>
         );

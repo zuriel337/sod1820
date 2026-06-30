@@ -35,7 +35,6 @@ export default function CodePage() {
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  // 🔒 בבנייה — סגור לכולם (כולל אדמין) עד החלטת צוריאל. להחזרה: return isAdmin ? <ELSSection /> : <CodeClosed />;
-  void isAdmin;
-  return <CodeClosed />;
+  // 🔑 פתוח למנהל (role=admin) לבדיקות; לציבור — דף «ייפתח בקרוב» + הרשמה לעדכונים.
+  return isAdmin ? <ELSSection /> : <CodeClosed />;
 }
