@@ -34,6 +34,44 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
+// 🔎 חיפוש-דילוג מנותח-למקטעים — נותן (א) אחוזי-התקדמות (ב) עצירה אמצע (cancelRef) ע״י yield בין מקטעים.
+// אותה לוגיקה כמו elsSearch, אבל לא-חוסם: סורק ~14K מיקומים, נושם, מדווח %, בודק ביטול.
+async function elsSearchChunked(letters, targetRaw, skipMin, skipMax, dir, mm, opts, onProgress, cancelRef) {
+  const target = elsNormalize(targetRaw);
+  const N = letters.length, L = target.length;
+  const hits = [];
+  if (L < 2 || N === 0) return { hits, N, target, capped: false };
+  const dirs = dir === "fwd" ? [1] : dir === "back" ? [-1] : [1, -1];
+  const winFrom = Math.max(0, opts.winFrom ?? 0), winTo = Math.min(N, opts.winTo ?? N);
+  const skips = opts.skips || null;
+  let capped = false; const CAP = 5000, CHUNK = 14000;
+  for (let start = winFrom; start < winTo && !capped;) {
+    if (cancelRef.current) return { hits, N: winTo - winFrom, target, capped, canceled: true };
+    const stop = Math.min(start + CHUNK, winTo);
+    for (; start < stop && !capped; start++) {
+      if (mm === 0 && letters[start] !== target[0]) continue;
+      for (const d of dirs) {
+        const run = skip => {
+          const step = skip * d, end = start + step * (L - 1);
+          if (end < winFrom || end >= winTo) return;
+          let m = 0;
+          for (let k = 0; k < L; k++) { if (letters[start + step * k] !== target[k]) { if (++m > mm) return; } }
+          const positions = []; for (let k = 0; k < L; k++) positions.push(start + step * k);
+          hits.push({ skip, dir: d, start, positions, mismatches: m });
+          if (hits.length >= CAP) capped = true;
+        };
+        if (skips) { for (let i = 0; i < skips.length && !capped; i++) run(skips[i]); }
+        else { for (let skip = skipMin; skip <= skipMax && !capped; skip++) run(skip); }
+        if (capped) break;
+      }
+    }
+    onProgress(Math.min(99, Math.round((start - winFrom) / Math.max(1, winTo - winFrom) * 100)));
+    await new Promise(r => setTimeout(r, 0));
+  }
+  hits.sort((a, b) => (a.mismatches - b.mismatches) || (Math.abs(a.skip) - Math.abs(b.skip)));
+  return { hits, N: winTo - winFrom, target, capped };
+}
+
 // ✦ משפטים מתחלפים בזמן החיפוש — מתחת ללוגו המהבהב
 const ELS_PHRASES = [
   "מצרף את אותיות התורה…", "סורק את הצופן הנסתר…", "כל אות במקומה — רגע…",
@@ -54,7 +92,7 @@ export default function ElsGrid({ seed }) {
   const [tanakhBusy, setTanakhBusy] = useState(false);
   const [err, setErr] = useState(false);
   const [zoom, setZoom] = useState(1);       // זום למטריצה
-  const [gridSize, setGridSize] = useState(2); // גודל-הרשת ×1/×2/×3 — כמה שורות/עמודות מציגים
+  const [gridSize, setGridSize] = useState(1); // גודל-הרשת ×1/×2/×3 — קטן כברירת-מחדל; מרחיבים בלחיצה
   const matrixDrag = useRef(null);           // גרירת-עכבר לתזוזה אופקית במטריצה
   const dragMoved = useRef(false);           // האם זזנו (כדי להבדיל גרירה מקליק)
   const [selectMode, setSelectMode] = useState(false); // מצב בחירה-ידנית של אותיות
@@ -138,21 +176,32 @@ export default function ElsGrid({ seed }) {
   // 🔎 חיפוש דחוי (א-סינכרוני) — מציגים לוּדר עם הלוגו המהבהב לפני החישוב הכבד, ומחשבים בטיק הבא.
   const [res, setRes] = useState(null);
   const [searching, setSearching] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const cancelRef = useRef(false);
   const [phraseIdx, setPhraseIdx] = useState(0);
+  const stopSearch = () => { cancelRef.current = true; setSearching(false); };
   useEffect(() => {
     if (!letters || !terms.length) { setRes(null); setSearching(false); return; }
-    setSearching(true);
+    cancelRef.current = false;
+    setSearching(true); setProgress(0);
     setPhraseIdx(i => (i + 1) % ELS_PHRASES.length);
-    const id = setTimeout(() => {
-      const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-      const mm = q.fuzzy ? 1 : 0;
-      const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
-      const r = isCluster
-        ? { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) }
-        : { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
-      setRes(r); setSearching(false);
-    }, 40);
-    return () => clearTimeout(id);
+    let alive = true;
+    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+    const mm = q.fuzzy ? 1 : 0;
+    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, isCluster ? 1 : 2, q.skipMax) };
+    if (isCluster) {
+      // מוצלב: אשכול-קרבה (כולל skip 1 → מוצא גם טקסט-רצוף). יְדידוּת-לוּדר: yield קצר ואז חישוב.
+      const id = setTimeout(() => {
+        if (!alive || cancelRef.current) return;
+        setRes({ mode: "cluster", ...elsClusters(letters, terms, 1, Math.max(3, q.skipMax), q.dir, mm, opts) });
+        setSearching(false);
+      }, 40);
+      return () => { alive = false; cancelRef.current = true; clearTimeout(id); };
+    }
+    // יחיד: חיפוש מנותח-למקטעים → אחוזים + עצירה
+    elsSearchChunked(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
+      .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "single", ...r }); setSearching(false); });
+    return () => { alive = false; cancelRef.current = true; };
   }, [letters, q, terms, isCluster]);
 
   // החיפוש מתחשב במצב: רגיל = מונח אחד · מוצלב = שני מונחים יחד (אשכול-קרבה)
@@ -164,7 +213,7 @@ export default function ElsGrid({ seed }) {
     setQ({ raw: qraw, book: bk, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy });
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
-  const switchMode = m => { setMode(m); setEntered(false); if (m === "torah") setBook("torah"); else if (m === "tanakh") setBook("all"); };
+  const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
   const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
@@ -541,12 +590,14 @@ export default function ElsGrid({ seed }) {
       {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
 
-      {/* ⏳ לוּדר חיפוש — עיגול עם הלוגו המהבהב + משפט מתחלף */}
+      {/* ⏳ לוּדר חיפוש — לוגו מהבהב + אחוזים + עצירה */}
       {searching && (
         <div className="rw-card els-loading">
           <div className="els-loading-ring"><img src={LOGO_URL} alt="" className="els-loading-logo" /></div>
           <div className="els-loading-msg">{ELS_PHRASES[phraseIdx]}</div>
-          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}…</div>
+          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}…{isCluster ? "" : ` ${progress}%`}</div>
+          {!isCluster && <div className="els-loading-bar"><span style={{ width: `${progress}%` }} /></div>}
+          <button className="els-back" style={{ marginTop: 4 }} onClick={stopSearch}>✕ עצור חיפוש</button>
         </div>
       )}
 
@@ -578,19 +629,24 @@ export default function ElsGrid({ seed }) {
               : !res.clusters?.length
                 ? <div className="rw-muted">המונחים נמצאו, אך לא בקרבה. הגדילו דילוג.</div>
                 : <>
-                    <div className="els-res-h">✦ {terms.join(" × ")} — <b>{res.clusters.length}</b> הצלבות (הכי קרוב קודם) · לחצו לפתיחה</div>
+                    <div className="els-res-h">✦ {terms.join(" × ")} — <b>{res.clusters.length}</b> הצלבות, ממוין לפי קרבה · לחצו לפתיחה</div>
                     <div className="els-res-list">
-                      {res.clusters.slice(0, showAll ? 60 : 7).map((cl, i) => { const l = locOf(cl.picks[0].hit.start); return (
-                        <button key={i} className="els-res-row" onClick={() => { setClusterIdx(i); setEntered(true); }}>
-                          <span className="els-rk">{i + 1}</span>
-                          <span>טווח <b>{cl.span.toLocaleString("he")}</b></span>
-                          <span>{l.label}</span>
-                          <span className="rw-muted" style={{ marginInlineStart: "auto" }}>{cl.picks.map(p => p.term).join(" · ")}</span>
-                          <span className="els-res-go">פתח ←</span>
-                        </button>
-                      ); })}
+                      {res.clusters.slice(0, showAll ? 60 : 10).map((cl, i) => {
+                        const l = locOf(cl.picks[0].hit.start);
+                        const pct = Math.round(100 * Math.exp(-cl.span / 5000)); // קרבה: צמוד=גבוה
+                        const tag = pct >= 70 ? { t: "🟢 צמוד", c: "#1f7a4d" } : pct >= 30 ? { t: "🟡 קרוב", c: "#b07d12" } : { t: "⚪ רחוק", c: "#8a8a8a" };
+                        return (
+                          <button key={i} className="els-res-row" onClick={() => { setClusterIdx(i); setEntered(true); }}>
+                            <span className="els-rk">{i + 1}</span>
+                            <span style={{ color: tag.c, fontWeight: 800 }}>{tag.t} · <b>{pct}%</b></span>
+                            <span className="rw-muted">טווח {cl.span.toLocaleString("he")} · {l.label}</span>
+                            <span className="rw-muted" style={{ marginInlineStart: "auto" }}>{cl.picks.map(p => p.term).join(" · ")}</span>
+                            <span className="els-res-go">פתח ←</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                    {res.clusters.length > 7 && !showAll && <button className="els-combine-btn" onClick={() => setShowAll(true)}>פתח את כל ה-{res.clusters.length} →</button>}
+                    {res.clusters.length > 10 && !showAll && <button className="els-combine-btn" onClick={() => setShowAll(true)}>פתח את כל ה-{res.clusters.length} →</button>}
                   </>
           )}
         </div>
@@ -771,6 +827,8 @@ const ELS_CSS = `
 .els-loading-msg{font-size:16.5px;font-weight:800;color:var(--ink);animation:els-fade 1.25s ease-in-out infinite}
 @keyframes els-fade{0%,100%{opacity:1}50%{opacity:.6}}
 .els-loading-sub{font-size:12.5px;color:var(--ink2)}
+.els-loading-bar{width:min(280px,80%);height:7px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:2px}
+.els-loading-bar span{display:block;height:100%;background:var(--acc);border-radius:999px;transition:width .2s}
 @media(prefers-reduced-motion:reduce){.els-loading-ring,.els-loading-logo,.els-loading-msg{animation:none}}
 /* כפילות עם «תוצאות דילוג» בקיר-הימני: מוצג רק במובייל (≤760, אז אין קיר), מוסתר בדסקטופ */
 .els-dup{display:contents}
