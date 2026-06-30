@@ -285,7 +285,7 @@ function UserMenu({ user, profile, cc }) {
 // 🏛️ תפריט-מגה אופקי של «היכל הגילוי» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך)
 const LAB_MENU = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
-  { e: "🔢", l: "דף מספר", to: "/research?tool=number" },
+  { e: "🔢", l: "דף המספר", to: "/research?tool=number" },
   { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
   { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
   { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els" },
