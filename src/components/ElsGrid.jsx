@@ -73,6 +73,7 @@ export default function ElsGrid({ seed }) {
   const [full, setFull] = useState(false);
   const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
   const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
+  const [layersOpen, setLayersOpen] = useState(false); // פאנל-השכבות מכווץ כברירת-מחדל; נפתח לחיפוש-משולב
   const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
@@ -137,7 +138,7 @@ export default function ElsGrid({ seed }) {
     return () => clearTimeout(id);
   }, [letters, q, terms, isCluster]);
 
-  const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
+  const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
   const addOverlay = () => { const t = elsNormalize(subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); setSubRaw(""); } };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
@@ -154,7 +155,8 @@ export default function ElsGrid({ seed }) {
   const loadSaved = useCallback(sv => {
     const c = sv?.q; if (!c) return;
     setRaw(c.raw); setBook(c.book); setSkipMax(c.skipMax); setPattern(c.pattern); setDir(c.dir); setFuzzy(!!c.fuzzy);
-    setHitIdx(0); setClusterIdx(0); setOverlays(Array.isArray(sv.overlays) ? sv.overlays : []); setSubRaw(""); setAiStruct(null); setQ({ ...c });
+    const ov = Array.isArray(sv.overlays) ? sv.overlays : [];
+    setHitIdx(0); setClusterIdx(0); setOverlays(ov); setLayersOpen(ov.length > 0); setSubRaw(""); setAiStruct(null); setQ({ ...c });
   }, []);
   // הקיר הימני מבקש לטעון חיפוש שמור → מיישמים כאן
   useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
@@ -452,10 +454,13 @@ export default function ElsGrid({ seed }) {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
         return <div className="rw-card" style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ ...chip, gap: 7, borderColor: colorAt(0), color: colorAt(0) }}>{paintDot(terms[0], colorAt(0))} «{elsNormalize(terms[0])}»</span>
-          <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
-          <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
-          <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
-          <span style={chip}>מופעים <b style={{ color: C.acc }}>{res.hits.length}{res.capped ? "+" : ""}</b></span>
+          {/* דילוג · כיוון · מיקום · מופעים — מוצגים בקיר-הימני «תוצאות דילוג» (דסקטופ); כאן רק במובייל (אין קיר) */}
+          <span className="els-dup">
+            <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
+            <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
+            <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
+            <span style={chip}>מופעים <b style={{ color: C.acc }}>{res.hits.length}{res.capped ? "+" : ""}</b></span>
+          </span>
           {hit.mismatches > 0 && <span style={{ ...chip, color: "#b4453a", borderColor: "#e0b4b0" }}>~ התאמה קרובה</span>}
           <span style={chip}>גימטריה <Link to={`/number/${gem}?from=els`} style={{ color: C.acc, textDecoration: "none", fontWeight: 800 }}>{gem.toLocaleString("he")}</Link></span>
           <button onClick={() => setFull(true)} style={{ ...chip, marginInlineStart: "auto", cursor: "pointer" }}>⛶ מסך מלא</button>
@@ -493,11 +498,17 @@ export default function ElsGrid({ seed }) {
             </div>
           : <div className="rw-card rw-muted" style={{ marginTop: 12 }}>המונחים נמצאו, אך לא באשכול קרוב. הגדילו את הדילוג.</div>)}
 
-      {/* ===== שכבות-חיפוש — מוסיפים מונחים על אותה מטריצה, כל אחד ריבוע צבעוני ===== */}
-      {res?.mode === "single" && res.hits?.length > 0 && (
+      {/* ===== שכבות-חיפוש — מכווץ כברירת-מחדל; נפתח כשרוצים חיפוש-משולב ===== */}
+      {res?.mode === "single" && res.hits?.length > 0 && !layersOpen && (
+        <button className="els-combine-btn" onClick={() => setLayersOpen(true)}>
+          🔢 חיפוש משולב — הוסיפו מונחים נוספים על המטריצה ▾
+        </button>
+      )}
+      {res?.mode === "single" && res.hits?.length > 0 && layersOpen && (
         <div className="rw-card els-sub" style={{ marginTop: 12 }}>
           <div className="els-sub-bar">
             <span className="els-sub-t">🔢 שכבות חיפוש</span>
+            <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ">▴ כווץ</button>
             <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
               placeholder={`מונח נוסף על המטריצה — הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
             <button className="els-sub-btn" onClick={addOverlay} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
@@ -575,6 +586,13 @@ const ELS_CSS = `
 @keyframes els-fade{0%,100%{opacity:1}50%{opacity:.6}}
 .els-loading-sub{font-size:12.5px;color:var(--ink2)}
 @media(prefers-reduced-motion:reduce){.els-loading-ring,.els-loading-logo,.els-loading-msg{animation:none}}
+/* כפילות עם «תוצאות דילוג» בקיר-הימני: מוצג רק במובייל (≤760, אז אין קיר), מוסתר בדסקטופ */
+.els-dup{display:contents}
+@media(min-width:761px){.els-dup{display:none}}
+/* כפתור פתיחת חיפוש-משולב (פאנל-השכבות מכווץ) */
+.els-combine-btn{display:block;width:100%;margin-top:12px;padding:12px 16px;border:1.5px dashed var(--acc);background:var(--accS);
+  color:var(--acc);border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.12s}
+.els-combine-btn:hover{background:var(--acc);color:#fff;border-style:solid}
 .els-layers{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .els-layer{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13.5px;font-weight:700}
 .els-layer.anchor{background:var(--accS)}
