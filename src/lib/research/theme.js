@@ -120,6 +120,12 @@ export const rwCss = (t = RW) => `
   .rw-qa button:active{transform:scale(.96)}
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
+  /* בורר-שיטה בחיפוש-פסוקים — שורת צ'יפים גלילה */
+  .vs-methods{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 9px;-webkit-overflow-scrolling:touch}
+  .vs-mchip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
+    padding:6px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.12s}
+  .vs-mchip:hover{border-color:var(--acc);color:var(--acc)}
+  .vs-mchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
   .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
   .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}
