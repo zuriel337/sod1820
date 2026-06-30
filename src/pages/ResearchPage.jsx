@@ -14,7 +14,6 @@ import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
-import Ico, { TOOL_ICON } from "../lib/research/icons.jsx";
 
 // בית-המדרש האמיתי נטען בעצלתיים — נפתח בתוך השלד (לא קישור חוצה). הדף עצמאי
 // (לא תלוי ב-Layout) ובהיר זהב-על-קרם → נכנס חלק בלי שכפול ובלי לשבור את /beit-midrash.
@@ -61,13 +60,13 @@ export default function ResearchPage() {
     <ResearchShell>
       {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
       <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}><Ico name="compass" size={16} /> מרכז הגילוי</button>
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
         {LAB_TOOLS.map(t => {
           const locked = !isToolReady(t.id);
           return (
             <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)}
               title={locked ? "בשדרוג — בקרוב" : t.title} style={locked ? { opacity: 0.6 } : undefined}>
-              <Ico name={locked ? "lock" : (TOOL_ICON[t.id] || "dot")} size={16} /> {t.title}
+              {locked ? "🔒" : t.icon} {t.title}
             </button>
           );
         })}

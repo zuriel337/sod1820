@@ -5,13 +5,12 @@ import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import ElsResultsPanel from "./ElsResultsPanel.jsx";
-import Ico, { PANEL_ICON } from "../lib/research/icons.jsx";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
 // ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
 // שמאל = «עולם המשתמש» (קבוע — אתה, לא הכלי). מרכז = ה-Canvas. עץ אחד, מודול מביא את כליו.
 const num = (k, d) => { try { const v = parseInt(localStorage.getItem(k)); return Number.isFinite(v) ? v : d; } catch { return d; } };
-const ICONS = { tools: ["wrench", "bot"], context: ["user", "flask", "folder", "map"] };
+const ICONS = { tools: ["🔧", "🤖"], context: ["👤", "🧠", "📂", "🗺️"] };
 
 // ארגז-הכלים ההקשרי של כל מודול (מנועי המחקר). ניתן להרחבה — מודול חדש = שורה.
 const TOOL_ENGINES = {
@@ -78,8 +77,8 @@ export default function ResearchShell({ children }) {
       <button className="rw-rail-toggle" onClick={onOpen} title="פתח סרגל"><PanelIcon size={20} /></button>
       <div className="rw-rail-icons">
         {tabs
-          ? tabs.map(t => <button key={t.id} className="rw-rail-i" onClick={() => onPick(t.id)} title="פתח"><Ico name={PANEL_ICON[t.id] || "dot"} size={19} /></button>)
-          : icons.map((i, k) => <button key={k} className="rw-rail-i" onClick={onOpen}><Ico name={i} size={19} /></button>)}
+          ? tabs.map(t => <button key={t.id} className="rw-rail-i" onClick={() => onPick(t.id)} title="פתח">{t.icon}</button>)
+          : icons.map((i, k) => <button key={k} className="rw-rail-i" onClick={onOpen}>{i}</button>)}
       </div>
     </div>
   );
