@@ -8,6 +8,7 @@ import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { on, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromInsight } from "../lib/research/entity.js";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
@@ -978,7 +979,7 @@ function MethodsTab() {
         {[...METHODS, ...DEPTH_METHODS].map(m => {
           const info = METHOD_INFO[m.key] || {};
           return (
-            <div key={m.key} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div key={m.key} id={`bm-method-${m.key}`} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", scrollMarginTop: 80 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
                 <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, margin: 0 }}>{m.key}</h3>
                 {info.star && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>★ שיטת הבית</span>}
@@ -1132,6 +1133,12 @@ export default function BeitMidrashPage() {
   const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "crosses"));
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
+  // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
+  // אפס תלות: הקיר פולט midrash:nav, בית-המדרש מאזין ומחליף מדור (ולשיטה — גם גולל אליה).
+  useEffect(() => on(EVENTS.MIDRASH_NAV, ({ tab: t, method } = {}) => {
+    if (t) setTab(t);
+    if (method) setTimeout(() => document.getElementById(`bm-method-${method}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 160);
+  }), []);
   // מנורת עדכונים (ציר התכנסות) — per-user (whats_new_law): נדלקת רק על ציר שנוסף מאז ביקורך.
   const [hasUpdates, setHasUpdates] = useState(false);
   useEffect(() => {

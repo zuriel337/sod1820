@@ -23,9 +23,10 @@ const TOOL_ENGINES = {
   life: { title: "ניתוח חיים · מפת שדה", items: ["צירי זמן", "אשכולות", "קשרים", "פילטרים", "השוואת מפות", "Insight", "Story"] },
   family: { title: "הקשרים במשפחה", items: ["שמות בני המשפחה", "התכנסויות", "חוצה-שיטות", "קישור לדף-המספר"] },
   compare: { title: "השוואת שניים", items: ["שני ביטויים", "הצלבה חזקה (אותה שיטה)", "הצלבה עקיפה (חוצה-שיטות)", "טבלת כל השיטות", "סכום → דף-מספר"] },
-  verse: { title: "חיפוש בפסוקים", items: ["לפי טקסט", "לפי גימטריה", "ספר", "הדגשה", "ישות לכל פסוק"] },
+  verse: { title: "חיפוש בפסוקים", items: ["לפי טקסט (תת-מחרוזת)", "לפי גימטריה — 11 שיטות", "מילה · רצף-מילים · סך-הפסוק", "🆕 טווח-ערכים (מ–עד)", "🆕 סינון לפי חומש", "הדגשת המופע בפסוק", "ישות לכל פסוק (➕ הוסף · 🔗 שתף)", "קישור לדף-המספר לכל ערך"] },
   import: { title: "ניתוח קובץ", items: ["אקסל / CSV", "11 שיטות", "זיהוי התכנסויות", "אימות ערך-נתון", "צירוף-המוני למחקר", "ייצוא CSV"] },
   gematria: { title: "מחשבון גימטריה", items: ["17 שיטות", "חיפוש מורכב", "הצלבות", "אות-אות", "הוסף למחקר"] },
+  notarikon: { title: "ראשי / אמצעי / סופי תיבות", items: ["ראשי-תיבות + ערך", "🆕 אמצעי-תיבות", "סופי-תיבות + ערך", "🆕 השוואת-התכנסות (3 ערכים)", "🆕 חיפוש הפוך בתורה (ראשי/סופי)", "ישות לכל תוצאה", "קישור לדף-המספר"] },
 };
 
 const PanelIcon = ({ size = 19 }) => (
@@ -33,6 +34,45 @@ const PanelIcon = ({ size = 19 }) => (
     <rect x="3" y="4" width="18" height="16" rx="2.5" /><line x1="9" y1="4" x2="9" y2="20" />
   </svg>
 );
+
+// 📖 קיר-ימין הקשרי לבית-המדרש (workspace_layout_standard: «ימין = מה הכלי עושה»).
+// ניווט-מדורים + קפיצה-לשיטה דרך ה-Event Bus → אפס תלות בבית-המדרש (הוא מאזין).
+const MIDRASH_SECTIONS = [
+  { tab: "methods", icon: "📐", label: "שיטות הגימטריה" },
+  { tab: "calc", icon: "🧮", label: "מחשבון גימטריה" },
+  { tab: "crosses", icon: "✨", label: "חידושי הצלבות" },
+  { tab: "convergence", icon: "🌐", label: "צירי התכנסות" },
+  { tab: "community", icon: "👥", label: "חידושי גולשים" },
+  { tab: "verified", icon: "🔵", label: "פוסטים מאומתים" },
+  { tab: "searches", icon: "🔎", label: "מה נחקר" },
+  { tab: "submit", icon: "✍️", label: "הגשת חידוש" },
+  { tab: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
+];
+const MIDRASH_METHODS = ["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם", "ריבוע", "הכפלה"];
+function MidrashNav() {
+  const go = (tab, method) => emit(EVENTS.MIDRASH_NAV, { tab, method });
+  return (
+    <div className="rw-panel" style={{ borderBottom: "1px solid var(--rw-line,#ece4d3)" }}>
+      <div className="rw-ph"><span>📂 מדורי בית-המדרש</span></div>
+      <div className="rw-pb">
+        <div className="rw-mnav">
+          {MIDRASH_SECTIONS.map(s => (
+            <button key={s.tab} className="rw-mnav-i" onClick={() => go(s.tab)} title={s.label}>
+              <span>{s.icon}</span> {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="rw-muted" style={{ margin: "14px 0 7px", fontSize: 12, fontWeight: 700 }}>📐 קפיצה לשיטה</div>
+        <div className="rw-mchips">
+          {MIDRASH_METHODS.map(m => (
+            <button key={m} className="rw-mchip" onClick={() => go("methods", m)} title={`לימוד שיטת ${m}`}>{m}</button>
+          ))}
+        </div>
+        <div className="rw-muted" style={{ marginTop: 9, fontSize: 11.5, lineHeight: 1.6 }}>לחיצה על שיטה → קופץ ללימוד שלה במרכז, עם דוגמה חיה.</div>
+      </div>
+    </div>
+  );
+}
 
 export default function ResearchShell({ children, subnav }) {
   const { cart = [] } = useResearch();
@@ -46,7 +86,8 @@ export default function ResearchShell({ children, subnav }) {
   const [leftOpen, setLeftOpen] = useState(() => { try { return localStorage.getItem("rw_left_open") !== "0"; } catch { return true; } });
   const [rightW, setRightW] = useState(() => num("rw_right_w", 320));
   const [leftW, setLeftW] = useState(() => num("rw_left_w", 250));
-  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "me"; } catch { return "me"; } });
+  // כניסה ראשונה לעולם-המשתמש → נוחתים על הפנקס (גדול); אחר-כך נזכרת בחירת המשתמש.
+  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } });
   const [leftSeen, setLeftSeen] = useState(cart.length);
   useEffect(() => { if (leftOpen) setLeftSeen(cart.length); }, [leftOpen, cart.length]);
   useEffect(() => { try { localStorage.setItem("rw_left_tab", leftTab); } catch { /**/ } }, [leftTab]);
@@ -94,7 +135,8 @@ export default function ResearchShell({ children, subnav }) {
     <aside className="rw-pwrap" style={{ width: rightW }}>
       <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
       {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
-      {eng && (
+      {tool === "midrash" && <MidrashNav />}
+      {eng && tool !== "midrash" && (
         <details className="rw-panel" open={!(tool === "els" && elsState?.has)}>
           <summary className="rw-ph" style={{ cursor: "pointer", listStyle: "none" }}><span>💡 מה הכלי «{eng.title}» יודע</span></summary>
           <div className="rw-pb">

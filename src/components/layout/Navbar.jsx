@@ -302,7 +302,7 @@ function LabMenu() {
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ מרכז המחקר 🏛️</Link>
+      }}>🏛️ מרכז המחקר</Link>
       {open && (
         <div style={{
           position: "absolute", top: "100%", insetInlineStart: 0, marginTop: 8, zIndex: 200,

@@ -136,7 +136,7 @@ export const rwCss = (t = RW) => `
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
   /* 📝 פנקס-מחקר — משטח כתיבה חופשי, נשמר מסשן-לסשן */
-  .rw-notes{width:100%;box-sizing:border-box;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+  .rw-notes{width:100%;box-sizing:border-box;min-height:380px;resize:vertical;border:1px solid var(--line);border-radius:12px;
     background:var(--bg);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.7;padding:12px 13px;outline:none}
   .rw-notes:focus{border-color:var(--acc)}
   .rw-notes-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
@@ -166,12 +166,30 @@ export const rwCss = (t = RW) => `
   ul.rw-caps{list-style:none;margin:0;padding:0;display:grid;gap:7px}
   .rw-caps li{position:relative;padding-inline-start:21px;font-size:13px;color:var(--ink2);line-height:1.5;font-weight:600}
   .rw-caps li:before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:var(--acc);font-weight:800}
+  /* ניווט-מדורים של בית-המדרש בקיר-הימני */
+  .rw-mnav{display:grid;gap:6px}
+  .rw-mnav-i{display:flex;align-items:center;gap:8px;width:100%;text-align:start;border:1px solid var(--line);
+    background:var(--card);color:var(--ink);border-radius:10px;padding:9px 11px;font-weight:700;font-size:13px;
+    cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-mnav-i:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
+  .rw-mchips{display:flex;flex-wrap:wrap;gap:6px}
+  .rw-mchip{border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
+    padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-mchip:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
   /* בורר-שיטה בחיפוש-פסוקים — שורת צ'יפים גלילה */
   .vs-methods{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 9px;-webkit-overflow-scrolling:touch}
   .vs-mchip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
     padding:6px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.12s}
   .vs-mchip:hover{border-color:var(--acc);color:var(--acc)}
   .vs-mchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  /* סינון-חומש בחיפוש-פסוקים */
+  .vs-books{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .vs-bchip{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:8px;
+    padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.12s}
+  .vs-bchip:hover{border-color:var(--acc);color:var(--acc)}
+  .vs-bchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .vs-bsec{display:inline-flex;align-items:center;font-size:11px;font-weight:800;color:var(--ink3);letter-spacing:1px;padding:0 4px;margin-inline-start:4px;opacity:.8}
+  .vs-bsec:not(:first-child){border-inline-start:1px solid var(--line);padding-inline-start:10px;margin-inline-start:6px}
   /* פריט-ישות לחיץ (EntityRow) — שורה נקייה עם כפתור-הסרה */
   .rw-sec-t{font-size:11.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;margin:0 0 5px}
   .rw-er{display:flex;align-items:center;gap:6px;padding:2px 0}

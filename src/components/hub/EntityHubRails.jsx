@@ -20,7 +20,7 @@ const RW_VARS = {
 
 export default function EntityHubRails({ entity }) {
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
-  const [ltab, setLtab] = useState("me"); // טאב «עולם המשתמש» — כמו במעבדה
+  const [ltab, setLtab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } }); // כניסה ראשונה → פנקס
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
     try { localStorage.setItem(KEY, JSON.stringify(n)); } catch { /* noop */ }
