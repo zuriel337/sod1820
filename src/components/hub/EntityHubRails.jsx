@@ -53,7 +53,8 @@ export default function EntityHubRails({ entity }) {
       <style>{RAILS_CSS}</style>
       <style>{rwCss()}</style>
       {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />)}
-      {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)}
+      {/* הסרגל הימני (מנועי המחקר) מוסתר בדף-המספר העצמאי לבקשת צוריאל — רק קיר-המשתמש מוצג.
+         {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)} */}
     </>
   ), document.body);
 }
