@@ -36,7 +36,7 @@ export const rwCss = (t = RW) => `
   .rw-av{width:42px;height:42px;border-radius:999px;background:linear-gradient(135deg,var(--acc),#e7c869);
     color:#1a0e00;display:flex;align-items:center;justify-content:center;font-weight:800}
   /* במה: סרגלים מתקפלים בצדדים (גרירה/לחיצה), אזור-כלים גמיש במרכז (investing/IDE) */
-  .rw-stage{display:flex;align-items:flex-start;padding:0;max-width:none;margin:0;gap:0}
+  .rw-stage{display:flex;align-items:flex-start;padding:0 clamp(12px,1.8vw,30px);max-width:none;margin:0;gap:0}
   .rw-stage.wide{max-width:none}
   .rw-pwrap{flex:0 0 auto;width:330px;display:grid;gap:12px;position:sticky;top:74px}
   .rw-pwrap.left{width:240px}
@@ -49,11 +49,10 @@ export const rwCss = (t = RW) => `
   /* מסילה צפה בסגנון אפליקציית-בנק (דיסקונט/ChatGPT): צללית-עומק רכה + הילה, פתוח וסגור */
   .rw-rail{flex:0 0 52px;align-self:stretch;min-height:60vh;background:var(--card);border:1px solid var(--line);border-radius:18px;
     cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;position:relative;font-family:inherit;
-    box-shadow:0 8px 28px -10px rgba(60,46,16,.26),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55);transition:box-shadow .18s,transform .18s,background .18s,border-color .18s}
-  .rw-rail:hover{background:var(--accS);border-color:var(--acc);box-shadow:0 14px 36px -10px rgba(60,46,16,.34),0 3px 8px -2px rgba(60,46,16,.16);transform:translateY(-1px)}
-  /* צללית-כיוון: המסילה «מטילה» צל אל תוך התוכן (ימין→שמאל · שמאל→ימין) — האפקט שאהבת */
-  .rw-rail.r{box-shadow:-10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
-  .rw-rail.l{box-shadow:10px 8px 30px -12px rgba(60,46,16,.28),0 2px 6px -2px rgba(60,46,16,.12),inset 0 1px 0 rgba(255,255,255,.55)}
+    box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13),inset 0 1px 0 rgba(255,255,255,.55);transition:box-shadow .18s,transform .18s,background .18s,border-color .18s}
+  .rw-rail:hover{background:var(--accS);border-color:var(--acc);box-shadow:0 18px 38px -16px rgba(60,46,16,.36),0 5px 12px -5px rgba(60,46,16,.16);transform:translateY(-1px)}
+  /* צל אחיד מתחת — שמאל כמו ימין, פתוח וסגור */
+  .rw-rail.r,.rw-rail.l{box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13),inset 0 1px 0 rgba(255,255,255,.55)}
   .rw-rail-toggle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:var(--bg);border:1px solid var(--line);cursor:pointer;font-family:inherit}
   .rw-rail:hover .rw-rail-toggle{color:var(--acc);background:#fff}
   .rw-rail-icons{display:flex;flex-direction:column;gap:8px;font-size:18px;opacity:.92}
@@ -97,11 +96,13 @@ export const rwCss = (t = RW) => `
   .rw-adv{margin-inline-start:auto;font-size:10.5px;font-weight:800;background:var(--accS);color:var(--acc);border-radius:999px;padding:2px 9px}
   .rw-exp{color:var(--ink3);font-size:11.5px;font-weight:600;line-height:1.5;padding:0 13px 8px;border-bottom:1px solid var(--line)}
   .rw-exp b{color:var(--acc)}
-  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 9px 26px -12px rgba(60,46,16,.26),0 2px 5px -2px rgba(60,46,16,.10)}
-  /* צללית-כיוון גם כשהצדדים פתוחים — הפאנלים «מטילים» צל אל התוכן (כמו המסילה הסגורה) */
-  .rw-pwrap:not(.left) .rw-panel{box-shadow:-9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
-  .rw-pwrap.left .rw-panel{box-shadow:9px 10px 28px -14px rgba(60,46,16,.30),0 2px 5px -2px rgba(60,46,16,.10)}
-  .rw-pwrap.left .rw-tabbar{box-shadow:9px 8px 24px -14px rgba(60,46,16,.26)}
+  /* צל אחיד מתחת לשני הקירות הפתוחים (שמאל=ימין) */
+  .rw-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
+  .rw-pwrap:not(.left) .rw-panel,.rw-pwrap.left .rw-panel{box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
+  /* קיר-שמאל (טאבים): גם המסילה-עליונה וגם גוף-הטאב מקבלים כרטיס+צל כמו ימין */
+  .rw-pwrap.left .rw-tabbar{box-shadow:0 8px 20px -14px rgba(60,46,16,.24)}
+  .rw-pwrap.left .rw-tabbody{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:4px 2px;
+    box-shadow:0 14px 32px -16px rgba(60,46,16,.30),0 4px 10px -5px rgba(60,46,16,.13)}
   .rw-ph{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-weight:800;font-size:14.5px;border-bottom:1px solid var(--line)}
   .rw-pb{padding:12px 14px}
   .rw-muted{color:var(--ink2);font-size:13px}
@@ -145,6 +146,16 @@ export const rwCss = (t = RW) => `
   .rw-tool .bg.soon{background:var(--chip);color:var(--ink3)}
   .rw-tool.dis{cursor:default;opacity:.7}
   .rw-tool.dis:hover{border-color:var(--line);box-shadow:none;transform:none}
+  /* כלי-דגל — בולטים: מסגרת זהב, רקע זהוב-עדין, הילה */
+  .rw-tool.flag{border-color:var(--acc);background:linear-gradient(180deg,var(--accS),var(--card) 70%);
+    box-shadow:0 12px 30px -14px rgba(176,125,18,.34),0 3px 8px -3px rgba(176,125,18,.16)}
+  .rw-tool.flag:hover{box-shadow:0 16px 36px -14px rgba(176,125,18,.42),0 4px 10px -3px rgba(176,125,18,.2);transform:translateY(-2px)}
+  .rw-tool.flag .tt{color:var(--acc)}
+  .rw-tool .bg.flag{background:var(--acc);color:#fff}
+  /* תווית-קבוצה בין הפתוחים לנעולים */
+  .rw-grp{margin:20px 2px 11px;font-size:12.5px;font-weight:800;color:var(--ink3);letter-spacing:.3px;
+    display:flex;align-items:center;gap:9px}
+  .rw-grp:after{content:"";flex:1;height:1px;background:var(--line)}
   .rw-back{background:none;border:none;color:var(--acc);font-weight:800;font-size:14.5px;cursor:pointer;padding:6px 2px;margin-bottom:6px}
   .rw-h1{font-weight:800;font-size:22px;margin:2px 0 3px}
   .rw-sub{color:var(--ink2);font-size:13.5px;line-height:1.6;margin-bottom:16px}

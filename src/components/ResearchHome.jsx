@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { isToolReady } from "../lib/hub/ready.js";
+import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
 // כל כלי = כרטיס. live = נפתח בתוך השלד · open = דף קיים (פתיחה חוצה) · soon = בקרוב.
@@ -24,9 +24,10 @@ export const TOOLS = [
 ];
 
 function ToolCard({ t, onOpen }) {
-  // בתקופת השדרוג: רק כלים מוכנים (מספר/מחשבון) פתוחים. השאר — «בשדרוג».
   const ready = isToolReady(t.id);
+  const flag = FLAGSHIP_TOOLS.includes(t.id); // כלי-דגל — בולט
   const badge = !ready ? <span className="bg soon">🔒 בשדרוג</span>
+    : flag ? <span className="bg flag">👑 כלי מרכזי</span>
     : t.status === "open" ? <span className="bg open">פתח »</span>
     : <span className="bg live">● פעיל</span>;
   const inner = (
@@ -37,19 +38,32 @@ function ToolCard({ t, onOpen }) {
       {badge}
     </>
   );
+  const cls = "rw-tool" + (flag ? " flag" : "");
   if (!ready) return <div className="rw-tool dis" title="בשדרוג — ייפתח בקרוב">{inner}</div>;
-  if (t.status === "open") return <Link className="rw-tool" to={t.to}>{inner}</Link>;
-  return <button className="rw-tool" onClick={() => onOpen(t.id)}>{inner}</button>;
+  if (t.status === "open") return <Link className={cls} to={t.to}>{inner}</Link>;
+  return <button className={cls} onClick={() => onOpen(t.id)}>{inner}</button>;
 }
 
+// סדר: כלי-דגל (מספר · מחשבון · דילוגים) → פתוחים נוספים (פסוקים) → נעולים מתחת.
+const rankOf = t => { const fi = FLAGSHIP_TOOLS.indexOf(t.id); return fi >= 0 ? fi : (isToolReady(t.id) ? 10 : 20); };
+
 export default function ResearchHome({ onOpen }) {
+  const ordered = [...TOOLS].sort((a, b) => rankOf(a) - rankOf(b));
+  const open = ordered.filter(t => isToolReady(t.id));
+  const locked = ordered.filter(t => !isToolReady(t.id));
   return (
     <div>
       <div className="rw-h1">🧭 מרכז הגילוי</div>
-      <div className="rw-sub">כל כלי המחקר במקום אחד. בחרו כלי — הוא נפתח כאן בתוך הסביבה, ומה שתאספו נשמר ב«המחקר הפעיל» בצד (גם כשתעברו בין כלים).</div>
+      <div className="rw-sub">הכלים המרכזיים שלנו למעלה — בחרו כלי, הוא נפתח כאן בתוך הסביבה, ומה שתאספו נשמר ב«המחקר הפעיל» בצד (גם כשתעברו בין כלים).</div>
       <div className="rw-tools">
-        {TOOLS.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}
+        {open.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}
       </div>
+      {locked.length > 0 && <>
+        <div className="rw-grp">עוד כלים · בשדרוג, ייפתחו בקרוב</div>
+        <div className="rw-tools">
+          {locked.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}
+        </div>
+      </>}
     </div>
   );
 }
