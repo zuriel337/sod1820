@@ -5,16 +5,16 @@ import { emit, EVENTS } from "../lib/research/eventBus.js";
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // ➕ הוסף למחקר · ⭐ שמור · 📌 הצמד · 🔗 שתף · 📋 העתק · 🤖 AI — אותו מקום ועיצוב בכל Hub.
 // כל פעולה פולטת Event ל-Bus → הפאנלים מאזינים. עובד על כל type (לא תלוי-דף).
-export default function QuickActions({ entity, onShare, extra }) {
+export default function QuickActions({ entity, onShare, extra, style }) {
   const { addToResearch, saveItem, togglePin, isPinned } = useResearch();
   if (!entity) return null;
   const pinned = isPinned?.(entity.id);
   // onShare = שיתוף עשיר ספציפי-לסוג (למשל תמונת-מספר בדף המספר) → מונע כפילות שיתוף.
   const share = () => { emit(EVENTS.ITEM_SHARE, entity); if (onShare) return onShare(); try { navigator.share?.({ title: entity.title }); } catch { /* noop */ } };
   const copy = () => { emit(EVENTS.ITEM_COPY, entity); try { navigator.clipboard?.writeText(entity.title); } catch { /* noop */ } };
-  const ai = () => emit(EVENTS.AI_ANALYZE, entity);
+  // style = משתני-תמה מהדף (P) → צבעים נקראים נכון בבהיר ובכהה (לא נשענים על fallback מעומעם).
   return (
-    <div className="rw-qa">
+    <div className="rw-qa" style={style}>
       {/* סגנון עצמאי — עובד בכל דף (לא רק במעבדה). בתוך ה-Shell משתני-ה-CSS גוברים → המראה זהה. */}
       <style>{QA_CSS}</style>
       <button className="pri" onClick={() => addToResearch?.(entity)}>➕ הוסף למחקר</button>
@@ -24,7 +24,8 @@ export default function QuickActions({ entity, onShare, extra }) {
       </button>
       <button onClick={share}>🔗 שתף</button>
       <button onClick={copy}>📋 העתק</button>
-      <button onClick={ai}>🤖 AI</button>
+      {/* 🤖 מנוע ה-AI — בבנייה, ייפתח בקרוב. מושבת עד שנבנה (לא פולט Event לריק). */}
+      <button className="soon" disabled title="🤖 ניתוח AI — בבנייה, ייפתח בקרוב לכל החוקרים">🤖 AI · בבנייה</button>
       {extra}
     </div>
   );
@@ -37,4 +38,6 @@ const QA_CSS = `
 .rw-qa button:active{transform:scale(.96)}
 .rw-qa .pri{background:var(--acc,#c79a2e);border-color:var(--acc,#c79a2e);color:#fff}
 .rw-qa button.on{background:var(--accS,rgba(196,154,46,.22));border-color:var(--acc,#c79a2e);color:var(--acc,#b8901f)}
+.rw-qa button.soon{opacity:.5;cursor:default}
+.rw-qa button.soon:active{transform:none}
 `;

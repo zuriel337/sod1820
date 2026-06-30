@@ -670,6 +670,7 @@ export default function EntityPage({ embedPhrase } = {}) {
           <QuickActions
             entity={entity}
             onShare={() => shareNumberSmart(value, data?.phrases || [])}
+            style={{ "--ink": P.ink, "--card": P.cardSoft, "--line": P.border, "--acc": P.accentText, "--accS": P.glow }}
             extra={<>
               <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
