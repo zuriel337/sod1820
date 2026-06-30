@@ -6,6 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
+import { LOGO_URL } from "../theme.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -32,6 +33,12 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
+// ✦ משפטים מתחלפים בזמן החיפוש — מתחת ללוגו המהבהב
+const ELS_PHRASES = [
+  "מצרף את אותיות התורה…", "סורק את הצופן הנסתר…", "כל אות במקומה — רגע…",
+  "מודד מרחקים בין המילים…", "1820 — הכל מחובר…", "התורה מדברת במספרים…",
+  "מחפש את הרמז שמסתתר…", "פותח את שערי הצופן…",
+];
 // 🎨 לוח-צבעים לבחירת המשתמש — צובעים כל מונח/דילוג בצבע משלו על המטריצה.
 const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c", "#d6336c", "#0c8599", "#f08c00", "#343a40"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
@@ -57,7 +64,7 @@ export default function ElsGrid({ seed }) {
   };
   const [raw, setRaw] = useState(seed || "ישראל");
   const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
-  const [skipMax, setSkipMax] = useState(1000);
+  const [skipMax, setSkipMax] = useState(2000);
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
   const [fuzzy, setFuzzy] = useState(false);
@@ -70,7 +77,7 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
 
   // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
   const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
@@ -110,13 +117,24 @@ export default function ElsGrid({ seed }) {
   const terms = useMemo(() => q.raw.split(/[,\n]/).map(s => s.trim()).filter(s => elsNormalize(s).length >= 2), [q.raw]);
   const isCluster = terms.length >= 2;
 
-  const res = useMemo(() => {
-    if (!letters || !terms.length) return null;
-    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const mm = q.fuzzy ? 1 : 0;
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
-    if (isCluster) return { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
-    return { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
+  // 🔎 חיפוש דחוי (א-סינכרוני) — מציגים לוּדר עם הלוגו המהבהב לפני החישוב הכבד, ומחשבים בטיק הבא.
+  const [res, setRes] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  useEffect(() => {
+    if (!letters || !terms.length) { setRes(null); setSearching(false); return; }
+    setSearching(true);
+    setPhraseIdx(i => (i + 1) % ELS_PHRASES.length);
+    const id = setTimeout(() => {
+      const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+      const mm = q.fuzzy ? 1 : 0;
+      const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
+      const r = isCluster
+        ? { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) }
+        : { mode: "single", ...elsSearch(letters, terms[0], 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
+      setRes(r); setSearching(false);
+    }, 40);
+    return () => clearTimeout(id);
   }, [letters, q, terms, isCluster]);
 
   const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
@@ -420,6 +438,15 @@ export default function ElsGrid({ seed }) {
       {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
 
+      {/* ⏳ לוּדר חיפוש — עיגול עם הלוגו המהבהב + משפט מתחלף */}
+      {searching && (
+        <div className="rw-card els-loading">
+          <div className="els-loading-ring"><img src={LOGO_URL} alt="" className="els-loading-logo" /></div>
+          <div className="els-loading-msg">{ELS_PHRASES[phraseIdx]}</div>
+          <div className="els-loading-sub">סורק את אותיות {needTanakh ? "התנ״ך המלא" : "התורה"}…</div>
+        </div>
+      )}
+
       {/* ===== עובדות ===== */}
       {res?.mode === "single" && (res.hits?.length ? (() => {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
@@ -537,6 +564,17 @@ const ELS_CSS = `
 .els-sub-btn{border:none;background:var(--acc);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:9px 18px;cursor:pointer;font-family:inherit}
 .els-sub-btn:disabled{opacity:.5;cursor:default}
 .els-sub-clear{border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:999px;padding:9px 14px;cursor:pointer;font-family:inherit;font-weight:700}
+/* ⏳ לוּדר חיפוש — לוגו מהבהב בעיגול */
+.els-loading{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:12px;padding:30px 20px;text-align:center}
+.els-loading-ring{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,var(--accS),transparent 72%);animation:els-pulse 1.25s ease-in-out infinite}
+.els-loading-logo{width:60px;height:60px;object-fit:contain;border-radius:50%;animation:els-blink 1.25s ease-in-out infinite}
+@keyframes els-pulse{0%,100%{box-shadow:0 0 0 0 var(--acc);transform:scale(1)}50%{box-shadow:0 0 0 16px transparent;transform:scale(1.07)}}
+@keyframes els-blink{0%,100%{opacity:1;filter:drop-shadow(0 0 5px var(--acc))}50%{opacity:.5;filter:drop-shadow(0 0 16px var(--acc))}}
+.els-loading-msg{font-size:16.5px;font-weight:800;color:var(--ink);animation:els-fade 1.25s ease-in-out infinite}
+@keyframes els-fade{0%,100%{opacity:1}50%{opacity:.6}}
+.els-loading-sub{font-size:12.5px;color:var(--ink2)}
+@media(prefers-reduced-motion:reduce){.els-loading-ring,.els-loading-logo,.els-loading-msg{animation:none}}
 .els-layers{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .els-layer{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13.5px;font-weight:700}
 .els-layer.anchor{background:var(--accS)}
