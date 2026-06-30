@@ -4,6 +4,7 @@ import QuickActions from "./QuickActions.jsx";
 import { calcGem } from "../theme.js";
 import { onlyHeb } from "../lib/gematria.js";
 import { entityFromPhrase, entityFromVerse } from "../lib/research/entity.js";
+import ToolGuide from "./research/ToolGuide.jsx";
 
 // 🔠 ראשי / אמצעי / סופי תיבות (נוטריקון) — שני כיוונים:
 //   • מהביטוי → ראשי-התיבות · אמצעי-התיבות · סופי-התיבות + ערך כל אחד + השוואת-התכנסות.
@@ -158,6 +159,17 @@ export default function NotarikonTool() {
   return (
     <div className="rw-card">
       <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 12 }}>🔠 ראשי / אמצעי / סופי תיבות — מהביטוי לאותיות, או חיפוש הפוך בפסוקי התורה</div>
+      <ToolGuide
+        title="איך משתמשים בנוטריקון"
+        intro="נוטריקון = יצירת מילה מאותיות-הקצה של ביטוי. שני כיוונים — מביטוי לאותיות, או חיפוש הפוך בתורה."
+        steps={[
+          "✍️ «מהביטוי → אותיות»: הקלידו ביטוי בן כמה מילים. המנוע מרכיב 3 מילים — ראשי-תיבות (אות ראשונה בכל מילה), אמצעי-תיבות (אות אמצעית), וסופי-תיבות (אות אחרונה) — ומחשב את הגימטריה של כל אחת.",
+          "✦ אם שניים מהערכים שווים — מוצגת «התכנסות מחושבת» (עובדה, לא פרשנות).",
+          "🔎 «חיפוש הפוך בתורה»: בחרו ראשי-תיבות או סופי-תיבות, והקלידו רצף-אותיות (למשל «אהוה»). המנוע מוצא פסוקים שבהם רצף מילים סמוכות נותן בדיוק את האותיות האלה בקצותיהן.",
+          "🔢 כל ערך לחיץ → נפתח דף-המספר עם כל ההצלבות.",
+        ]}
+        tip="דוגמה מפורסמת: «את השמים ואת הארץ» → ראשי-תיבות «אהוה». נסו «רבי שמעון בר יוחאי»."
+      />
       <div className="rw-qa" style={{ marginTop: 0, marginBottom: 12 }}>
         <button className={dir === "fwd" ? "pri" : ""} onClick={() => setDir("fwd")}>✍️ מהביטוי → אותיות</button>
         <button className={dir === "rev" ? "pri" : ""} onClick={() => setDir("rev")}>🔎 חיפוש הפוך בתורה</button>
