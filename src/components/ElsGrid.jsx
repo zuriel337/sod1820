@@ -74,6 +74,12 @@ export default function ElsGrid({ seed }) {
   const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
   const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
   const [layersOpen, setLayersOpen] = useState(false); // פאנל-השכבות מכווץ כברירת-מחדל; נפתח לחיפוש-משולב
+  // 📌 הממצאים שלי — טבלה אישית: מוסיפים/מוחקים ידנית ממצאים (אותיות/ביטויים), נשמר ב-localStorage
+  const [findings, setFindings] = useState(() => { try { return JSON.parse(localStorage.getItem("els_findings") || "[]"); } catch { return []; } });
+  const [findRaw, setFindRaw] = useState("");
+  const persistFindings = arr => { setFindings(arr); try { localStorage.setItem("els_findings", JSON.stringify(arr)); } catch { /**/ } };
+  const addFinding = (txt) => { const t = (txt ?? findRaw).trim(); if (t && !findings.includes(t)) { persistFindings([t, ...findings].slice(0, 60)); setFindRaw(""); } };
+  const removeFinding = t => persistFindings(findings.filter(x => x !== t));
   const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
@@ -140,7 +146,7 @@ export default function ElsGrid({ seed }) {
 
   const search = () => { setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null); setQ({ raw, book, skipMax: Math.max(2, parseInt(skipMax) || 100), pattern, dir, fuzzy }); };
   // הוספת שכבה חדשה (מונח) למטריצה; הסרה; ניקוי
-  const addOverlay = () => { const t = elsNormalize(subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); setSubRaw(""); } };
+  const addOverlay = (raw) => { const t = elsNormalize(typeof raw === "string" ? raw : subRaw); if (t.length >= 2 && !overlays.includes(t)) { setOverlays(o => [...o, t]); if (typeof raw !== "string") setSubRaw(""); setLayersOpen(true); } };
   const removeOverlay = t => setOverlays(o => o.filter(x => x !== t));
 
   // 💾 שמירת חיפושים — כמה חיפושים שמורים (localStorage), נראים גם בקיר הימני
@@ -177,12 +183,28 @@ export default function ElsGrid({ seed }) {
 
   const centerOf = h => (Math.min(...h.positions) + Math.max(...h.positions)) / 2;
 
+  // 🪟 חלון-המטריצה (טווח-אותיות הנראה) — לפי העוגן בלבד. חיפוש-שכבה מוגבל אליו + שוליים →
+  // לא סורק את כל הטקסט אלא רק את סביבת המטריצה → מהיר, וגם «קרוב» באמת = ליד מה שרואים.
+  const matrixWindow = useMemo(() => {
+    if (!anchorHit) return null;
+    const s = Math.abs(anchorHit.skip), TARGET = 28;
+    const W2 = s <= TARGET ? s * Math.max(1, Math.round(TARGET / s)) : s;
+    const minP = Math.min(...anchorHit.positions), maxP = Math.max(...anchorHit.positions);
+    const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+    const rowStart = firstRow - 4, rowEnd = Math.min(lastRow + 4, firstRow + 170);
+    const margin = W2 * 12; // טיפה יותר בצדדים
+    return { from: Math.max(0, rowStart * W2 - margin), to: (rowEnd + 1) * W2 + margin };
+  }, [anchorHit]);
+
   // ---- שכבות-חיפוש — לכל מונח-שכבה מוצאים את המופע הקרוב-ביותר לעוגן, וצובעים על המטריצה ----
   // ⭐ מתחיל מ-skip 1 (כולל טקסט-רצוף) → מונח «צמוד» בכתב המקור (כמו «חג שבעת» ליד «יום משיח בא») נמצא.
+  // 🪟 מוגבל לחלון-המטריצה (+שוליים) → לא לוקח זמן, ומחזיר רק את מה שבאמת ליד.
   const overlayData = useMemo(() => {
     if (!letters || !anchorHit || res?.mode !== "single" || !overlays.length) return [];
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 1, q.skipMax) };
+    const winFrom = matrixWindow ? Math.max(bk.from, matrixWindow.from) : bk.from;
+    const winTo = matrixWindow ? Math.min(letters.length, bk.to, matrixWindow.to) : Math.min(letters.length, bk.to);
+    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, 1, q.skipMax) };
     const aC = centerOf(anchorHit);
     return overlays.map((term, j) => {
       const r = elsSearch(letters, term, 1, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
@@ -190,7 +212,7 @@ export default function ElsGrid({ seed }) {
       return { term, ci: j + 1, list, nearest: list[0] || null, count: r.hits.length, capped: r.capped,
         within: d => list.filter(x => x.dist <= d).length };
     });
-  }, [letters, overlays, q, anchorHit, res]);
+  }, [letters, overlays, q, anchorHit, res, matrixWindow]);
 
   // ---- מטריצה ----
   const grid = useMemo(() => {
@@ -511,7 +533,7 @@ export default function ElsGrid({ seed }) {
             <button className="els-sub-clear" onClick={() => setLayersOpen(false)} title="כווץ">▴ כווץ</button>
             <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
               placeholder={`מונח נוסף על המטריצה — הקרוב ביותר ל«${elsNormalize(terms[0] || "")}»`} />
-            <button className="els-sub-btn" onClick={addOverlay} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
@@ -530,13 +552,34 @@ export default function ElsGrid({ seed }) {
                 <span className="els-layer-meta">
                   {o.nearest ? <>קרוב <b>{o.nearest.dist.toLocaleString("he")}</b> · דילוג {Math.abs(o.nearest.hit.skip).toLocaleString("he")} · {locOf(o.nearest.hit.start).label}</> : "לא נמצא בטווח"}
                 </span>
+                <button className="els-layer-x" onClick={() => addFinding(o.term)} title="שמור לטבלת הממצאים שלי" style={{ color: "var(--acc)" }}>💾</button>
                 <button className="els-layer-x" onClick={() => removeOverlay(o.term)} title="הסר שכבה">✕</button>
               </span>
             ))}
           </div>
           {overlays.length === 0
             ? <div className="rw-sub" style={{ marginTop: 8 }}>הקלידו מונח ו«➕ הוסף» — הוא יופיע כאן כריבוע צבעוני וייצבע על המטריצה. הוסיפו כמה שתרצו (שני · שלישי · רביעי…), ושמרו את הצירוף ב«💾 שמור מטריצה».</div>
-            : <div className="els-sub-note">כל שכבה = המופע הקרוב-ביותר לעוגן, בצבעה. «קרוב» = מרחק באותיות. עובדה מדידה — לא הוכחה (בטקסט גדול נמצאות קרבות רבות).</div>}
+            : <div className="els-sub-note">כל שכבה = המופע הקרוב-ביותר לעוגן, בצבעה · 💾 = שמירה לטבלת-הממצאים. «קרוב» = מרחק באותיות. עובדה מדידה — לא הוכחה.</div>}
+
+          {/* 📌 הממצאים שלי — טבלה אישית: הוספה/מחיקה ידנית, נשמר אצלך */}
+          <div className="els-findings">
+            <div className="els-find-bar">
+              <span className="els-sub-t" style={{ fontSize: 13.5 }}>📌 הממצאים שלי</span>
+              <input className="els-sub-in" dir="rtl" value={findRaw} onChange={e => setFindRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addFinding()}
+                placeholder="הוסף ממצא ידני (אותיות/ביטוי שמצאת)…" />
+              <button className="els-sub-btn" onClick={() => addFinding()} disabled={!findRaw.trim()}>➕ שמור ממצא</button>
+            </div>
+            {findings.length > 0
+              ? <div className="els-find-list">
+                  {findings.map(f => (
+                    <span key={f} className="els-find-chip">
+                      <button className="els-find-go" onClick={() => addOverlay(f)} title="חפש כשכבה על המטריצה">{f}</button>
+                      <button className="els-find-x" onClick={() => removeFinding(f)} title="מחק מהטבלה">✕</button>
+                    </span>
+                  ))}
+                </div>
+              : <div className="rw-sub" style={{ marginTop: 6 }}>טבלה אישית — מוסיפים אותיות/ביטויים שמצאתם (ידנית או דרך 💾 שעל שכבה), והם נשמרים כאן. לחיצה על ממצא = חיפוש שלו על המטריצה.</div>}
+          </div>
         </div>
       )}
 
@@ -599,6 +642,15 @@ const ELS_CSS = `
 .els-layer-meta{font-size:11.5px;font-weight:600;color:var(--ink2)}
 .els-layer-x{border:none;background:none;cursor:pointer;color:var(--ink3);font-size:13px;padding:0 0 0 2px;line-height:1}
 .els-layer-x:hover{color:#b4453a}
+/* 📌 הממצאים שלי */
+.els-findings{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.els-find-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.els-find-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.els-find-chip{display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.els-find-go{border:none;background:none;color:var(--ink);font-weight:700;font-size:13px;padding:6px 12px;cursor:pointer;font-family:inherit}
+.els-find-go:hover{color:var(--acc);background:var(--accS)}
+.els-find-x{border:none;background:none;color:var(--ink3);cursor:pointer;font-size:11px;padding:6px 9px 6px 5px}
+.els-find-x:hover{color:#b4453a}
 .els-sub-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .els-sub-note{font-size:12.5px;color:var(--ink2);margin-top:7px}
 .els-help{margin:8px 0 4px;background:var(--accS);border:1px solid var(--line);border-radius:10px;padding:2px 12px}
