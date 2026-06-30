@@ -8,9 +8,11 @@
 // **בבת-אחת, בשורה אחת** (READY_TOOLS למעבדה + CodePage ל-/code קוראים את אותו דגל).
 export const ELS_PUBLIC = false;
 
+// ⛔ היכל-הגילוי בבנייה — לציבור פתוח **רק בית המדרש**. שאר הכלים מסומנים «סגור · בבנייה».
+// (החלטת צוריאל 7.2026). המנהל ממשיך לעבוד על הכל דרך IMPLEMENTED_TOOLS. כשנפתח לציבור —
+// מחזירים כלים לרשימה כאן (number/gematria/verse/notarikon/els) בשורה אחת.
 export const READY_TOOLS = new Set([
-  "number", "gematria", "verse", "midrash", "notarikon",
-  ...(ELS_PUBLIC ? ["els"] : []),
+  "midrash",
 ]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי

@@ -29,7 +29,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
+  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 סגור · בבנייה", locked: true },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -293,13 +293,16 @@ const LAB_MENU = [
 ];
 function LabMenu() {
   const [open, setOpen] = useState(false);
-  // תפריט-נפתח בסיסי במבנה של «עוד» (אותו רכיב Dropdown, רשימה אנכית) — לבקשת צוריאל.
-  const items = LAB_MENU.map(it => ({ to: it.to, label: it.l, emoji: it.e }));
+  const { isAdmin } = useAuth();
+  const cc = chromeColors(useThemeMode());
+  // ⛔ היכל-הגילוי בבנייה: הכפתור-הראשי לא מנווט (רק חושף את התפריט). פתוח לציבור — **רק בית המדרש**.
+  // שאר הכלים «🔒 סגור · בבנייה». המנהל (אדמין) ממשיך לעבוד על הכל.
+  const isLabOpen = it => isAdmin || it.to === "/research?tool=midrash";
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" aria-label="היכל הגילוי · בבנייה" style={{
-        display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",
+      <button type="button" onClick={() => setOpen(o => !o)} aria-label="היכל הגילוי · סגור · בבנייה" style={{
+        display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
@@ -308,9 +311,34 @@ function LabMenu() {
         <span style={{
           fontSize: 9.5, fontWeight: 900, letterSpacing: 0.3, lineHeight: 1,
           background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2.5px 6px",
-        }}>🚧 בבנייה</span>
-        <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
-      {open && <Dropdown items={items} onNavigate={() => setOpen(false)} />}
+        }}>🚧 סגור · בבנייה</span>
+        <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></button>
+      {open && (
+        <div style={{
+          position: "absolute", top: "100%", right: 0, minWidth: 240, background: cc.dropBg, backdropFilter: "blur(14px)",
+          border: `1px solid ${cc.borderGold}`, borderRadius: 8, padding: 8, zIndex: 200, boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+        }}>
+          {LAB_MENU.map(it => isLabOpen(it) ? (
+            <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: cc.goldBright, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 15, padding: "10px 13px", borderRadius: 5, whiteSpace: "nowrap",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = cc.surface; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}>
+              <span>{it.e} {it.l}</span>
+              {isAdmin && it.to !== "/research?tool=midrash" && <span style={{ fontSize: 10, color: cc.muted }}>🔑</span>}
+            </Link>
+          ) : (
+            <div key={it.to} aria-disabled="true" style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: cc.muted,
+              fontFamily: F.royal, fontSize: 15, padding: "10px 13px", borderRadius: 5, whiteSpace: "nowrap", opacity: 0.65, cursor: "not-allowed",
+            }}>
+              <span>{it.e} {it.l}</span>
+              <span style={{ fontSize: 9.5, fontWeight: 800, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 6px" }}>🔒 סגור · בבנייה</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -463,14 +491,25 @@ export default function Navbar() {
           )}
           {/* רשת אריחים — המדורים הראשיים */}
           <div className="sod-tiles">
-            {MOBILE_TILES.map(t => (
-              <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
-                style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
-                <span className="sod-tile-e">{t.e}</span>
-                <span className="sod-tile-l">{t.l}</span>
-                {t.soon && <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>{t.soon}</span>}
-              </Link>
-            ))}
+            {MOBILE_TILES.map(t => {
+              // ⛔ אריח נעול (היכל-הגילוי בבנייה) — לא לחיץ לציבור; המנהל מגיע דרך הקישור «🔭 היכל הגילוי» למעלה.
+              const locked = t.locked && !isAdmin;
+              const badge = t.soon && <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>{t.soon}</span>;
+              return locked ? (
+                <div key={t.to} className="sod-tile" aria-disabled="true" style={{ borderColor: cc.border, opacity: 0.6, cursor: "not-allowed" }}>
+                  <span className="sod-tile-e">{t.e}</span>
+                  <span className="sod-tile-l">{t.l}</span>
+                  {badge}
+                </div>
+              ) : (
+                <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
+                  style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
+                  <span className="sod-tile-e">{t.e}</span>
+                  <span className="sod-tile-l">{t.l}</span>
+                  {t.locked && isAdmin ? <span style={{ marginTop: 3, background: "#1f3a1f", color: "#9be29b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔑 אדמין</span> : badge}
+                </Link>
+              );
+            })}
           </div>
           {/* בקרוב — מעומעם */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "12px 6px 4px" }}>

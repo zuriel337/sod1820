@@ -476,8 +476,9 @@ export default function ElsGrid({ seed }) {
     if (!grid || res?.mode !== "single") return [];
     return overlayData.map(o => ({
       ...o,
-      vis: o.list.filter(x => x.hit.positions.every(p => grid.visible.has(p)))
-        .map(x => ({ ...x, crosses: x.hit.positions.some(p => anchorSet.has(p)) }))
+      // 📋 כל המופעים הקרובים (לא רק הגלויים) — כך תמיד רואים בטבלה שהמילה נמצאה, גם אם מחוץ למסך.
+      near: o.list.slice(0, 14)
+        .map(x => ({ ...x, crosses: x.hit.positions.some(p => anchorSet.has(p)), onScreen: x.hit.positions.every(p => grid.visible.has(p)) }))
         .sort((a, b) => (b.crosses - a.crosses) || (a.dist - b.dist)),
     }));
   }, [grid, overlayData, res, anchorSet]);
@@ -964,8 +965,8 @@ export default function ElsGrid({ seed }) {
           <div className="els-sub-bar">
             <span className="els-sub-t">🔍 חיפוש בתוך התוצאה</span>
             <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && addOverlay()}
-              placeholder={`מונח נוסף שמופיע ליד «${elsNormalize(terms[0] || "")}» על המטריצה…`} />
-            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>➕ הוסף</button>
+              placeholder={`הקלד מילה לחיפוש ליד «${elsNormalize(terms[0] || "")}»…`} />
+            <button className="els-sub-btn" onClick={() => addOverlay()} disabled={elsNormalize(subRaw).length < 2}>🔍 חפש</button>
             <button className="els-sub-btn" onClick={autoCross} title="המנוע מחפש לבד את מילות-התוצאה בתוך המטריצה (כולל טקסט-רגיל) ומסמן חיתוכים אמיתיים" style={{ background: "#fff7e6", color: "var(--acc)", border: "1px solid var(--acc)" }}>⚡ אוטו-הצלבה</button>
             <button className="els-sub-btn" onClick={scanDict} disabled={dictScan?.running} title="המנוע עובר על מילון מונחים שלם ומגלה לבד מי מהם נחתך עם התוצאה" style={{ background: "#eef5ff", color: "#1f6feb", border: "1px solid #1f6feb" }}>{dictScan?.running ? "🔭 סורק…" : "🔭 סרוק מילון"}</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
@@ -1020,22 +1021,26 @@ export default function ElsGrid({ seed }) {
             ))}
           </div>
 
-          {/* 🔗 רשימת הצלבות — רק המופעים ש**גלויים על המטריצה** (לא כל רשימת-המרחקים) */}
+          {/* 🔗 טבלת-תוצאות לכל מונח שחיפשת — **תמיד** מציגה איפה נמצא (גם אם מחוץ למסך), עם «➕ לאוסף» */}
           {overlayVisible.map(o => (
             <div key={o.term} className="els-list" style={{ marginTop: 12 }}>
-              {o.vis.length === 0
-                ? <div className="rw-sub" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» — אין מופע גלוי על המטריצה. הגדילו «גודל-רשת» (×2/×3) או גררו, והוא יופיע.</div>
+              {o.near.length === 0
+                ? <div className="rw-sub" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» — לא נמצא בטווח התוצאה. נסו דילוג גדול יותר או «כולל קרובים».</div>
                 : <>
-                    <div className="els-list-h" style={{ color: colorAt(o.ci) }}>🔗 «{o.term}» × «{elsNormalize(terms[0])}» — {o.vis.length} {o.vis.length === 1 ? "הצלבה גלויה" : "הצלבות גלויות"}{o.vis.some(x => x.crosses) ? ` · ⚡ ${o.vis.filter(x => x.crosses).length} נחתכות ממש` : ""}</div>
+                    <div className="els-list-h" style={{ color: colorAt(o.ci), display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span>🔗 «{o.term}» — {o.count}{o.capped ? "+" : ""} {o.count === 1 ? "מופע נמצא" : "מופעים נמצאו"} ליד התוצאה{o.near.some(x => x.crosses) ? ` · ⚡ ${o.near.filter(x => x.crosses).length} נחתכות` : ""}</span>
+                      <button className="els-dict-all" style={{ borderColor: colorAt(o.ci), color: colorAt(o.ci) }} onClick={() => addFinding(o.term)} title="הוסף את המונח לאוסף-הממצאים שלי">➕ לאוסף</button>
+                    </div>
                     <div className="els-list-body">
-                      {o.vis.map((x, i) => {
+                      {o.near.map((x, i) => {
                         const l = locOf(x.hit.start);
                         return (
                           <div key={i} className={"els-row" + (x.crosses ? " cross" : "")}>
                             <span className="els-rk" style={{ background: hexA(colorAt(o.ci), 0.18), color: colorAt(o.ci) }}>{i + 1}</span>
-                            {x.crosses && <span className="els-rc" style={{ color: "#c2410c", fontWeight: 800 }} title="המופע נוגע באות מהתוצאה — חיתוך ממשי על המטריצה">⚡ נחתך</span>}
+                            {x.crosses ? <span className="els-rc" style={{ color: "#c2410c", fontWeight: 800 }} title="המופע נוגע באות מהתוצאה — חיתוך ממשי">⚡ נחתך</span>
+                              : <span className="els-rc" style={{ color: x.onScreen ? "#1f7a4d" : "#9a8a5e", fontWeight: 700 }} title={x.onScreen ? "גלוי על המטריצה" : "נמצא — אך מחוץ לחלון הנראה (גרור/הגדל רשת)"}>{x.onScreen ? "👁 על המסך" : "מחוץ למסך"}</span>}
                             <span className="els-rc">מרחק <b>{x.dist.toLocaleString("he")}</b></span>
-                            <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")}</span>
+                            <span className="els-rc">דילוג {Math.abs(x.hit.skip).toLocaleString("he")} {x.hit.dir > 0 ? "→" : "←"}</span>
                             <span className="els-rc">{l.label}</span>
                             <span className="els-rc muted">אות {l.off.toLocaleString("he")}{x.hit.mismatches > 0 ? " · ~" : ""}</span>
                           </div>
@@ -1045,7 +1050,7 @@ export default function ElsGrid({ seed }) {
                   </>}
             </div>
           ))}
-          {overlays.length === 0 && <div className="rw-sub" style={{ marginTop: 8 }}>הוסיפו מונח שני למעלה («➕ הצלב») — הוא ייצבע על המטריצה, ותקבלו רשימה רק של ההצלבות ש<b>נראות</b> ברשת.</div>}
+          {overlays.length === 0 && <div className="rw-sub" style={{ marginTop: 8 }}>הקלידו מילה למעלה ולחצו <b>«🔍 חפש»</b> — תקבלו טבלה של כל המקומות שבהם היא נמצאת ליד התוצאה (גם אם מחוץ למסך), וכל מי שגלוי ייצבע על המטריצה.</div>}
 
           {/* 📌 הממצאים שלי — טבלה אישית: הוספה/מחיקה ידנית, נשמר אצלך */}
           <div className="els-findings">
