@@ -816,15 +816,26 @@ function CalcTab({ initial, seed }) {
           מחשבון גימטריה מלא — כל 17 השיטות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
         </p>
         <GematriaCalculator seed={seed} onResult={onResult} />
-        {/* ➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — אותו רכיב קנוני, בגופנים ובצבעים של בית-המדרש (בהיר) */}
-        {entity && (
-          <div style={{ marginTop: 14, fontFamily: F.heading }}>
-            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, textAlign: "center", marginBottom: 2 }}>
-              «{entity.title}» = {Number(num).toLocaleString("he")} — צרפו ל«המחקר הפעיל» כדי לחזור אליו בכל מקום במעבדה.
+        {/* ➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — תמיד גלוי (מעומעם כשהשדה ריק) כדי שיראו שאפשר לשמור */}
+        <div style={{ marginTop: 14, fontFamily: F.heading }}>
+          {entity ? (
+            <>
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, textAlign: "center", marginBottom: 2 }}>
+                «{entity.title}» = {Number(num).toLocaleString("he")} — צרפו ל«המחקר הפעיל» כדי לחזור אליו בכל מקום במעבדה.
+              </div>
+              <QuickActions entity={entity} style={{ "--ink": L.ink, "--card": L.soft, "--line": L.line, "--acc": L.gold, "--accS": "#fbf3da", "--onAcc": "#ffffff" }} />
+            </>
+          ) : (
+            <div style={{ textAlign: "center", opacity: 0.6 }}>
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginBottom: 7 }}>הקלידו מילה למעלה — ויופיעו כאן פעולות השמירה:</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                {["➕ הוסף למחקר", "⭐ שמור", "📌 הצמד", "🔗 שתף", "📋 העתק"].map(t => (
+                  <span key={t} style={{ border: `1px solid ${L.line}`, background: L.soft, color: L.sub, borderRadius: 999, padding: "9px 15px", fontSize: 13.5, fontWeight: 700, minHeight: 44, display: "inline-flex", alignItems: "center" }}>{t}</span>
+                ))}
+              </div>
             </div>
-            <QuickActions entity={entity} style={{ "--ink": L.ink, "--card": L.soft, "--line": L.line, "--acc": L.gold, "--accS": "#fbf3da", "--onAcc": "#ffffff" }} />
-          </div>
-        )}
+          )}
+        </div>
         <div style={{ marginTop: 18 }}><CommunityWordsBox light /></div>
         <div style={{ marginTop: 18 }}><NumberResults value={num} term={term} /></div>
       </div>
