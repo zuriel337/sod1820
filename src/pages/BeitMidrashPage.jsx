@@ -1129,8 +1129,8 @@ export default function BeitMidrashPage() {
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
-  // ברירת-מחדל: כוונת-מחשבון (w/n) → טאב המחשבון; אחרת מדור תקף מה-URL / «הצלבות».
-  const [tab, setTab] = useState((nParam || wParam) ? "calc" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "crosses"));
+  // ברירת-מחדל: מי שנכנס לבית-המדרש נוחת על «מחשבון הגימטריה» (הכלי המרכזי). מדור תקף מה-URL גובר.
+  const [tab, setTab] = useState(SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc");
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
