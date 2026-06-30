@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { emit, EVENTS } from "../../lib/research/eventBus.js";
+import ResearchCenter from "../ResearchCenter.jsx";
+import { rwCss, RW } from "../../lib/research/theme.js";
 
 // 🧪 EntityHub — שלד הסרגלים (Reality Graph Law · Reader→Research).
-// המרכז נשאר בדיוק כמו היום. שני סרגלים מתקפלים, **סגורים כברירת-מחדל**:
-//   • שמאל = כלי-המעבדה (מסע · מחשבון · ELS · ישויות)
-//   • ימין  = מחקר (התכנסויות · הצלבות · מספרים-קשורים · מחקרים-פעילים)
+// המרכז נשאר בדיוק כמו היום. שני סרגלים מתקפלים, **סגורים כברירת-מחדל**, ו**תואמים למעבדה**:
+//   • שמאל = עולם המשתמש (אני · המחקר הפעיל · שמורים · מפה) — בדיוק כמו במעבדה
+//   • ימין  = מנועי המחקר (AI · מה מחפשים) — בדיוק כמו במעבדה
 // «אדם תמים» רואה דף נקי; ברגע שפותח סרגל — הוא «במעבדה». הפתיחה נזכרת
-// (opened once = researcher). דסקטופ בלבד בשלב זה; מובייל = Bottom-Sheet בהמשך.
-// כאן רק השלד — התוכן (left/right) ממולא בצעדים הבאים.
+// (opened once = researcher). אותו תוכן (ResearchCenter) ואותה שפה בהירה כמו /research.
 const KEY = "hub_rails_v1";
+// משתני-הפלטה הבהירה של המעבדה (כדי שרכיבי rw-* יקבלו צבעים גם מחוץ ל-.rw)
+const RW_VARS = {
+  "--bg": RW.bg, "--card": RW.card, "--line": RW.line, "--ink": RW.ink, "--ink2": RW.ink2,
+  "--ink3": RW.ink3, "--acc": RW.accent, "--accS": RW.accentSoft, "--chip": RW.chip, "--r": `${RW.radius}px`,
+  fontFamily: RW.font,
+};
 
-export default function EntityHubRails({ entity, left, right }) {
+export default function EntityHubRails({ entity }) {
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
@@ -33,17 +40,19 @@ export default function EntityHubRails({ entity, left, right }) {
             <b>{icon} {label}</b>
             <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
           </div>
-          <div className="ehr-body">{content || <div className="ehr-empty">{hint}</div>}</div>
+          <div className="ehr-body" style={RW_VARS}>{content}</div>
         </div>
       )}
     </aside>
   );
 
+  // אותו תוכן כמו המעבדה (ResearchCenter) — עץ אחד. שמאל=עולם-המשתמש · ימין=מנועי-המחקר.
   return createPortal((
     <>
       <style>{RAILS_CSS}</style>
-      {rail("right", "🕸", "מחקר", right, "פאנלי-המחקר ייכנסו כאן — התכנסויות · הצלבות · מספרים-קשורים · מחקרים-פעילים.")}
-      {rail("left", "🧪", "כלים", left, "כלי-המעבדה ייכנסו כאן — מסע · מחשבון · צופן התורה · חיפוש ישויות.")}
+      <style>{rwCss()}</style>
+      {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" />)}
+      {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)}
     </>
   ), document.body);
 }
