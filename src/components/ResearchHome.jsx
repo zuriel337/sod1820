@@ -67,7 +67,7 @@ const catRank = t => (isToolReady(t.id) ? 0 : 1);
 export default function ResearchHome({ onOpen }) {
   return (
     <div>
-      <div className="rw-h1">🔭 מרכז המחקר</div>
+      <div className="rw-h1">🏛️ מרכז המחקר</div>
       <div className="rw-sub">כל יכולות המחקר, מסודרות לפי רמה: 🧠 מנוע (מערכת שמייצרת תוצאה) · 🧰 כלי (נקודתי) · 📖 בית המדרש (לימוד) · 📚 מאגר (נתונים).</div>
 
       {CATS.map(c => {
