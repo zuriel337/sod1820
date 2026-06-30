@@ -88,6 +88,8 @@ export const rwCss = (t = RW) => `
   .rw-tchip:hover{border-color:var(--acc);color:var(--acc)}
   .rw-tchip.on{background:var(--acc);border-color:var(--acc);color:#fff}
   /* «עוד» — תפריט הכלים שיעבדו (בבנייה) */
+  /* שורה 2 — סרגל כלי-המעבדה, ברוחב מלא מתחת לנאב */
+  .rw-subbar{background:var(--bg);border-bottom:1px solid var(--line);padding:9px clamp(12px,1.8vw,30px) 0}
   .rw-subnav{display:flex;align-items:flex-start;gap:8px}
   .rw-subnav .rw-toolbar{flex:1;min-width:0;margin-bottom:0}
   .rw-more-wrap{position:relative;flex:none;padding-bottom:12px}

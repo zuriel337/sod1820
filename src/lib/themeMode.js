@@ -9,14 +9,16 @@ const read = () => {
   try { return localStorage.getItem(KEY) === "light" ? "light" : "dark"; } catch { return "dark"; }
 };
 let mode = read();
+let forced = null;               // כפיית-מצב זמנית (המעבדה כופה «בהיר») — גובר על mode
 const subs = new Set();
+const effective = () => forced ?? mode;
 
 function emit() {
-  try { document.documentElement.setAttribute("data-theme", mode); } catch { /* ignore */ }
+  try { document.documentElement.setAttribute("data-theme", effective()); } catch { /* ignore */ }
   subs.forEach(f => f());
 }
 // קביעת ה-attribute כבר בטעינה (לפני React) כדי למנוע הבהוב
-if (typeof document !== "undefined") { try { document.documentElement.setAttribute("data-theme", mode); } catch { /* ignore */ } }
+if (typeof document !== "undefined") { try { document.documentElement.setAttribute("data-theme", effective()); } catch { /* ignore */ } }
 
 export function setTheme(m) {
   mode = m === "dark" ? "dark" : "light";
@@ -25,7 +27,14 @@ export function setTheme(m) {
 }
 export function toggleTheme() { setTheme(mode === "light" ? "dark" : "light"); }
 
+// כפיית-מצב (המעבדה: setForcedMode("light") בכניסה, setForcedMode(null) ביציאה).
+// לא נשמר ב-localStorage → לא משנה את העדפת המשתמש, רק את התצוגה הנוכחית.
+export function setForcedMode(m) {
+  forced = (m === "light" || m === "dark") ? m : null;
+  emit();
+}
+
 function subscribe(f) { subs.add(f); return () => subs.delete(f); }
 export function useThemeMode() {
-  return useSyncExternalStore(subscribe, () => mode, () => "dark");
+  return useSyncExternalStore(subscribe, effective, () => "dark");
 }

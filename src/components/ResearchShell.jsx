@@ -5,6 +5,8 @@ import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import ElsResultsPanel from "./ElsResultsPanel.jsx";
+import Navbar from "./layout/Navbar.jsx";
+import { setForcedMode } from "../lib/themeMode.js";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
 // ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
@@ -32,7 +34,7 @@ const PanelIcon = ({ size = 19 }) => (
   </svg>
 );
 
-export default function ResearchShell({ children }) {
+export default function ResearchShell({ children, subnav }) {
   const { cart = [] } = useResearch();
   const [sp] = useSearchParams();
   const tool = sp.get("tool");
@@ -57,7 +59,11 @@ export default function ResearchShell({ children }) {
   useEffect(() => on(EVENTS.ELS_STATE, setElsState), []);
   useEffect(() => { if (tool !== "els") setElsState(null); }, [tool]);
 
-  useEffect(() => { document.title = "מעבדת המחקר · סוד 1820"; }, []);
+  useEffect(() => { document.title = "מרכז המחקר · סוד 1820"; }, []);
+  // המעבדה תמיד «בצבע יום»: כופים בהיר *לפני* שהילדים (הנאב) מתרנדרים — useState-init רץ פעם אחת
+  // בתחילת הרינדור, לפני ה-children → הנאב נצבע בהיר כבר ברינדור הראשון. שחזור ביציאה.
+  useState(() => { setForcedMode("light"); });
+  useEffect(() => () => setForcedMode(null), []);
   useEffect(() => { try { localStorage.setItem("rw_right_open", rightOpen ? "1" : "0"); localStorage.setItem("rw_right_w", String(rightW)); } catch { /**/ } }, [rightOpen, rightW]);
   useEffect(() => { try { localStorage.setItem("rw_left_open", leftOpen ? "1" : "0"); localStorage.setItem("rw_left_w", String(leftW)); } catch { /**/ } }, [leftOpen, leftW]);
 
@@ -106,12 +112,9 @@ export default function ResearchShell({ children }) {
   return (
     <div className="rw" dir="rtl">
       <style>{rwCss()}</style>
-      <header className="rw-head">
-        <div className="rw-logo">סוד <b>1820</b></div>
-        <div className="rw-search">🔎 חפש מספר · ביטוי · פסוק · פוסט…</div>
-        <div className="rw-ic" title="התראות">🔔</div>
-        <div className="rw-av">א</div>
-      </header>
+      {/* שורה 1 — הנאב הרגיל של האתר (בצבע יום); שורה 2 (מתחת) — סרגל כלי-המעבדה */}
+      <Navbar />
+      {subnav && <div className="rw-subbar">{subnav}</div>}
 
       <div className={"rw-stage" + (!rightOpen && !leftOpen ? " wide" : "")}>
         {rightOpen ? <><RightPanel /><Grip side="right" /></> : <Rail side="right" icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}

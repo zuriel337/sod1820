@@ -53,7 +53,7 @@ export default function ResearchHome({ onOpen }) {
   const locked = ordered.filter(t => !isToolReady(t.id));
   return (
     <div>
-      <div className="rw-h1">🧭 מרכז הגילוי</div>
+      <div className="rw-h1">🏛 מרכז המחקר</div>
       <div className="rw-sub">הכלים המרכזיים שלנו למעלה — בחרו כלי, הוא נפתח כאן בתוך הסביבה, ומה שתאספו נשמר ב«המחקר הפעיל» בצד (גם כשתעברו בין כלים).</div>
       <div className="rw-tools">
         {open.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} />)}

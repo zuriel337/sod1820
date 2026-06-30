@@ -59,40 +59,42 @@ export default function ResearchPage() {
   // 🔗 «תחבר הכל»: מסע-חיפוש פותח כל מנוע עם המונח טעון מראש (els/gematria/verse…)
   const openTool = (t, q) => setSp(q ? { tool: t, q } : { tool: t });
 
-  return (
-    <ResearchShell>
-      {/* שורת-כלים אופקית קבועה — תפריט-המשנה של המעבדה */}
-      <div className="rw-subnav">
-        <div className="rw-toolbar">
-          <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🧭 מרכז הגילוי</button>
-          {/* כלים שעובדים */}
-          {READY_LAB.map(t => (
-            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-              {t.icon} {t.title}
-            </button>
-          ))}
-        </div>
-        {/* כלים שיעבדו — תחת «עוד» (מחוץ לאזור-הגלילה כדי שלא ייחתך) */}
-        {FUTURE_LAB.length > 0 && (
-          <div className="rw-more-wrap">
-            <button className={"rw-tchip" + (FUTURE_LAB.some(t => t.id === tool) ? " on" : "")} onClick={() => setMoreOpen(o => !o)}>עוד ▾</button>
-            {moreOpen && (
-              <>
-                <div className="rw-more-back" onClick={() => setMoreOpen(false)} />
-                <div className="rw-more-pop">
-                  <div className="rw-more-h">בבנייה · ייפתחו בקרוב</div>
-                  {FUTURE_LAB.map(t => (
-                    <button key={t.id} className="rw-more-item" onClick={() => { setMoreOpen(false); setTool(t.id); }} title={t.desc}>
-                      🔒 {t.title}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+  // שורה 2 — סרגל כלי-המעבדה (מתחת לנאב); נמסר ל-ResearchShell כשורה ברוחב מלא
+  const subnav = (
+    <div className="rw-subnav">
+      <div className="rw-toolbar">
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛 מרכז המחקר</button>
+        {/* כלים שעובדים */}
+        {READY_LAB.map(t => (
+          <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
+            {t.icon} {t.title}
+          </button>
+        ))}
       </div>
+      {/* כלים שיעבדו — תחת «עוד» (מחוץ לאזור-הגלילה כדי שלא ייחתך) */}
+      {FUTURE_LAB.length > 0 && (
+        <div className="rw-more-wrap">
+          <button className={"rw-tchip" + (FUTURE_LAB.some(t => t.id === tool) ? " on" : "")} onClick={() => setMoreOpen(o => !o)}>עוד ▾</button>
+          {moreOpen && (
+            <>
+              <div className="rw-more-back" onClick={() => setMoreOpen(false)} />
+              <div className="rw-more-pop">
+                <div className="rw-more-h">בבנייה · ייפתחו בקרוב</div>
+                {FUTURE_LAB.map(t => (
+                  <button key={t.id} className="rw-more-item" onClick={() => { setMoreOpen(false); setTool(t.id); }} title={t.desc}>
+                    🔒 {t.title}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
+  return (
+    <ResearchShell subnav={subnav}>
       {!tool ? (
         <ResearchHome onOpen={setTool} />
       ) : !isToolReady(tool) ? (
@@ -103,7 +105,7 @@ export default function ResearchPage() {
             המעבדה עוברת שדרוג מסיבי — הכלי הזה ייפתח בקרוב לכל החוקרים.<br />כרגע פתוחים: <b>המחשבון</b> ו<b>דף המספר</b>.
           </div>
           <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
-          <button className="rw-tchip" onClick={() => setTool(null)}>← מרכז הגילוי</button>
+          <button className="rw-tchip" onClick={() => setTool(null)}>← מרכז המחקר</button>
         </div>
       ) : (
         <>
