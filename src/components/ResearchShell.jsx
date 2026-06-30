@@ -100,7 +100,7 @@ export default function ResearchShell({ children, subnav }) {
   useEffect(() => on(EVENTS.ELS_STATE, setElsState), []);
   useEffect(() => { if (tool !== "els") setElsState(null); }, [tool]);
 
-  useEffect(() => { document.title = "מרכז המחקר · סוד 1820"; }, []);
+  useEffect(() => { document.title = "היכל הגילוי · סוד 1820"; }, []);
   // המעבדה תמיד «בצבע יום»: כופים בהיר *לפני* שהילדים (הנאב) מתרנדרים — useState-init רץ פעם אחת
   // בתחילת הרינדור, לפני ה-children → הנאב נצבע בהיר כבר ברינדור הראשון. שחזור ביציאה.
   useState(() => { setForcedMode("light"); });

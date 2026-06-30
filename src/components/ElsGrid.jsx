@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TORAH_BOOKS } from "../features/els/Els.jsx";
+import { elsNormalize, elsSearch, elsClusters, buildSkipSet, TANAKH_BOOKS } from "../features/els/Els.jsx";
 import { computeEntity } from "../lib/research/coreEngine.js";
 import ElsAnalysis from "./ElsAnalysis.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -33,6 +33,15 @@ const CELL_BGS = [
 // מונח אחד → עמודה אנכית · כמה מונחים → קרבה במטריצה אחת · «כולל קרובים» → סבילות-שגיאה.
 // רשימת-תוצאות עם מיקום (ספר+אות) + לחיצה ממקדת · מסך-מלא. יושר: מציאה=עובדה, משמעות=חקירה.
 const TERM_COLORS = ["#b07d12", "#a01f2e", "#6b3fa0", "#1f7a4d", "#c5631a"];
+// ניתוח-פיזור ברמת חלקי-התנ״ך (קריא יותר מ-39 ספרים): כל-התנ״ך + 3 חלקים.
+const ANALYSIS_BOOKS = [
+  { key: "all", label: "כל התנ״ך", from: 0, to: 1204583 },
+  { key: "torah", label: "תורה", from: 0, to: 304805 },
+  { key: "neviim", label: "נביאים", from: 304805, to: 862680 },
+  { key: "ketuvim", label: "כתובים", from: 862680, to: 1204583 },
+];
+// 🎨 לוח-צבעים לבחירת המשתמש — צובעים כל מונח/דילוג בצבע משלו על המטריצה.
+const PAINT = ["#e02424", "#E8C84A", "#2f6df6", "#2f9e44", "#7048e8", "#e8590c", "#d6336c", "#0c8599", "#f08c00", "#343a40"];
 const PATTERNS = [["range", "טווח רציף"], ["fib", "פיבונאצ׳י"], ["prime", "ראשוניים"], ["pow2", "חזקות 2"]];
 const DIRS = [["both", "↔ שני הכיוונים"], ["fwd", "→ קדימה"], ["back", "← אחורה"]];
 
@@ -62,6 +71,8 @@ export default function ElsGrid({ seed }) {
   const [subRaw, setSubRaw] = useState("");   // חיפוש-בתוך-חיפוש
   const [subTerm, setSubTerm] = useState(""); // המונח-המשני המאושר
   const [subIdx, setSubIdx] = useState(0);    // איזה מופע-משני ממוקד (0 = הקרוב ביותר)
+  const [paint, setPaint] = useState({});     // 🎨 צבע-לפי-מונח (term → hex); ריק = ברירת-מחדל
+  const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
   const [q, setQ] = useState({ raw: seed || "ישראל", book: "all", skipMax: 1000, pattern: "range", dir: "both", fuzzy: false });
@@ -71,7 +82,7 @@ export default function ElsGrid({ seed }) {
 
   useEffect(() => {
     let ok = true;
-    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
+    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
       .then(t => { if (!ok) return; const c = elsNormalize(t); c.length > 1000 ? setLetters(c) : setErr(true); })
       .catch(() => ok && setErr(true));
@@ -90,7 +101,7 @@ export default function ElsGrid({ seed }) {
 
   const res = useMemo(() => {
     if (!letters || !terms.length) return null;
-    const bk = TORAH_BOOKS.find(b => b.key === q.book) || TORAH_BOOKS[0];
+    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
     const mm = q.fuzzy ? 1 : 0;
     const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
     if (isCluster) return { mode: "cluster", ...elsClusters(letters, terms, 2, Math.max(3, q.skipMax), q.dir, mm, opts) };
@@ -116,7 +127,7 @@ export default function ElsGrid({ seed }) {
   useEffect(() => on(EVENTS.ELS_LOAD, loadSaved), [loadSaved]);
 
   const locOf = useCallback(idx => {
-    const b = TORAH_BOOKS.slice(1).find(b => idx >= b.from && idx < b.to);
+    const b = TANAKH_BOOKS.filter(x => x.section).find(b => idx >= b.from && idx < b.to);
     if (!b) return { label: "—", off: idx, pct: 0 };
     return { label: b.label, off: idx - b.from, pct: Math.round(((idx - b.from) / (b.to - b.from)) * 100) };
   }, []);
@@ -136,7 +147,7 @@ export default function ElsGrid({ seed }) {
     if (!letters || !anchorHit) return null;
     const norm = elsNormalize(subTerm);
     if (norm.length < 2) return null;
-    const bk = TORAH_BOOKS.find(b => b.key === q.book) || TORAH_BOOKS[0];
+    const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
     const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, 2, q.skipMax) };
     const r = elsSearch(letters, norm, 2, Math.max(3, q.skipMax), q.dir, q.fuzzy ? 1 : 0, opts);
     const aC = centerOf(anchorHit);
@@ -190,6 +201,36 @@ export default function ElsGrid({ seed }) {
     }
     return { rows, W: W2, skip: s };
   }, [res, anchorHit, clusterIdx, letters, subOverlay]);
+
+  // 🎨 צבע לכל שכבה לפי האינדקס (ci) שבמטריצה: single → 0=מונח ראשי · 1=מונח-משני;
+  // cluster → i=מונח ה-i. צבע-בחירה של המשתמש (paint[term]) גובר על ברירת-המחדל.
+  const cluster0c = res?.mode === "cluster" ? (res.clusters || [])[Math.min(clusterIdx, (res.clusters?.length || 1) - 1)] : null;
+  const layerColors = useMemo(() => {
+    if (res?.mode === "cluster" && cluster0c) {
+      return cluster0c.picks.map((pk, i) => paint[pk.term] || TERM_COLORS[i % TERM_COLORS.length]);
+    }
+    return [paint[terms[0]] || TERM_COLORS[0], paint[subTerm] || TERM_COLORS[1]];
+  }, [res, cluster0c, terms, subTerm, paint]);
+  const colorAt = ci => layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length];
+
+  // נקודת-צבע לחיצה → לוח-צבעים קטן לבחירת צבע למונח (term)
+  const paintDot = (term, color) => (
+    <span style={{ position: "relative", display: "inline-flex", verticalAlign: "middle" }}>
+      <button onClick={() => setPaintOpen(o => o === term ? null : term)} title="בחר צבע למונח" aria-label="בחר צבע"
+        style={{ width: 15, height: 15, borderRadius: "50%", background: color, border: "2px solid #fff", boxShadow: `0 0 0 1.5px ${color}`, cursor: "pointer", padding: 0 }} />
+      {paintOpen === term && (
+        <>
+          <span onClick={() => setPaintOpen(null)} style={{ position: "fixed", inset: 0, zIndex: 39 }} />
+          <span style={{ position: "absolute", top: "150%", insetInlineStart: 0, zIndex: 40, display: "flex", flexWrap: "wrap", gap: 5, width: 142, padding: 7, background: "var(--card,#fff)", border: "1px solid var(--line,#e6dcc6)", borderRadius: 11, boxShadow: "0 10px 26px rgba(40,30,8,.28)" }}>
+            {PAINT.map(c => (
+              <button key={c} onClick={() => { setPaint(p => ({ ...p, [term]: c })); setPaintOpen(null); }} title={c}
+                style={{ width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer", border: c === color ? "2.5px solid #111" : "2px solid #fff", boxShadow: `0 0 0 1px ${c}` }} />
+            ))}
+          </span>
+        </>
+      )}
+    </span>
+  );
 
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
   const ctl = { fontSize: 15, fontWeight: 700, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: C.bg, color: C.ink, outline: "none", fontFamily: "inherit" };
@@ -269,7 +310,7 @@ export default function ElsGrid({ seed }) {
           {grid.rows.map((row, r) => (
             <div key={r} dir="rtl" style={{ display: "flex", gap: 3 }}>
               {row.map((cell, c) => {
-                const col = cell.ci >= 0 ? TERM_COLORS[cell.ci % TERM_COLORS.length] : null;
+                const col = cell.ci >= 0 ? colorAt(cell.ci) : null;
                 const bg = col ? (cell.op < 1 ? hexA(col, cell.op) : col) : theme.bg; // צבע מתחלש לפי קרבה
                 const glyph = niqqud && nqData && cell.idx >= 0 ? cell.ch + (nqData[cell.idx] || "") : cell.ch;
                 return <div key={c} style={{ width: sz, height: h, display: "flex", alignItems: "center", justifyContent: "center",
@@ -328,7 +369,7 @@ export default function ElsGrid({ seed }) {
       <div className="rw-h1">🔡 דילוגי אותיות</div>
       <div className="rw-sub"><b>שני מונחים יחד</b> (מופרדים בפסיק — «דוד, שלמה») → המערכת מוצאת אותם ב<b>קרבה</b> ומציגה את <b>התוצאה הכי טובה</b> במטריצה אחת. מונח אחד → המילה מודגשת לאורך הדילוג. «כולל קרובים» מאתר גם התאמה עם אות שונה. <b>משמעות = חקירה, לא הוכחה.</b></div>
       <Help>
-        <b>איך המנוע עובד:</b> קוראים את אותיות התורה ברצף קבוע — כל 2, כל 7, כל 50… — ובודקים אם נוצרת מילה. זה נקרא <b>דילוג שווה (ELS)</b>. ככל שהדילוג קצר יותר, המופע מובהק יותר. <b>חשוב ליושר:</b> אפשר למצוא דילוגים כמעט בכל טקסט גדול — לכן זו עדשת-חקירה, לא הוכחה.
+        <b>איך המנוע עובד:</b> קוראים את אותיות התנ״ך ברצף קבוע — כל 2, כל 7, כל 50… — ובודקים אם נוצרת מילה. זה נקרא <b>דילוג שווה (ELS)</b>. ככל שהדילוג קצר יותר, המופע מובהק יותר. <b>חשוב ליושר:</b> אפשר למצוא דילוגים כמעט בכל טקסט גדול — לכן זו עדשת-חקירה, לא הוכחה.
       </Help>
 
       <div className="rw-card">
@@ -351,7 +392,14 @@ export default function ElsGrid({ seed }) {
           </div>
         )}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
-          <select style={{ ...ctl, cursor: "pointer" }} value={book} onChange={e => setBook(e.target.value)}>{TORAH_BOOKS.map(b => <option key={b.key} value={b.key}>{b.label}</option>)}</select>
+          <select style={{ ...ctl, cursor: "pointer" }} value={book} onChange={e => setBook(e.target.value)}>
+            {TANAKH_BOOKS.filter(b => !b.section).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+            {["תורה", "נביאים", "כתובים"].map(sec => (
+              <optgroup key={sec} label={sec}>
+                {TANAKH_BOOKS.filter(b => b.section === sec).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+              </optgroup>
+            ))}
+          </select>
           <select style={{ ...ctl, cursor: "pointer" }} value={pattern} onChange={e => setPattern(e.target.value)}>{PATTERNS.map(([k, l]) => <option key={k} value={k}>דילוג: {l}</option>)}</select>
           <select style={{ ...ctl, cursor: "pointer" }} value={dir} onChange={e => setDir(e.target.value)}>{DIRS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
           <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center" }}>דילוג עד
@@ -362,13 +410,14 @@ export default function ElsGrid({ seed }) {
         </div>
       </div>
 
-      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>טוען את אותיות התורה…</div>}
+      {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>טוען את אותיות התנ״ך…</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
 
       {/* ===== עובדות ===== */}
       {res?.mode === "single" && (res.hits?.length ? (() => {
         const hit = anchorHit; const l = locOf(hit.start); const gem = computeEntity(terms[0]).primary;
         return <div className="rw-card" style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ ...chip, gap: 7, borderColor: colorAt(0), color: colorAt(0) }}>{paintDot(terms[0], colorAt(0))} «{elsNormalize(terms[0])}»</span>
           <span style={chip}>דילוג <b style={{ color: C.acc }}>{Math.abs(hit.skip).toLocaleString("he")}</b></span>
           <span style={chip}>{hit.dir > 0 ? "→ קדימה" : "← אחורה"}</span>
           <span style={chip}>📍 {l.label} · אות {l.off.toLocaleString("he")}</span>
@@ -388,9 +437,9 @@ export default function ElsGrid({ seed }) {
                 <button onClick={() => setFull(true)} style={{ ...chip, marginInlineStart: "auto", cursor: "pointer" }}>⛶ מסך מלא</button>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {cluster0.picks.map((pk, i) => <span key={i} style={{ ...chip, borderColor: TERM_COLORS[i], color: TERM_COLORS[i] }}>{pk.term} · דילוג {Math.abs(pk.hit.skip).toLocaleString("he")}</span>)}
+                {cluster0.picks.map((pk, i) => <span key={i} style={{ ...chip, gap: 7, borderColor: colorAt(i), color: colorAt(i) }}>{paintDot(pk.term, colorAt(i))} {pk.term} · דילוג {Math.abs(pk.hit.skip).toLocaleString("he")}</span>)}
               </div>
-              <div className="rw-sub" style={{ marginTop: 6 }}>«קרבה» = מרחק קטן בין המונחים בטקסט. עובדה מדידה — לא הוכחה (אפשר למצוא קרבות בכל טקסט גדול).</div>
+              <div className="rw-sub" style={{ marginTop: 6 }}>🎨 לחצו על נקודת-הצבע שליד כל מונח כדי לצבוע אותו במטריצה. «קרבה» = מרחק קטן בין המונחים בטקסט. עובדה מדידה — לא הוכחה (אפשר למצוא קרבות בכל טקסט גדול).</div>
               {isAdmin && (
                 <div className="els-ai">
                   {!aiStruct && <button className="els-ai-btn" onClick={runStructAi}>🤖 נתח מבנה ב-AI</button>}
@@ -426,7 +475,7 @@ export default function ElsGrid({ seed }) {
           {subRes && (subRes.list.length ? (
             <>
               <div className="els-sub-stats">
-                <span style={chip}>«{subRes.norm}» הקרוב ביותר: <b style={{ color: TERM_COLORS[1] }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
+                <span style={{ ...chip, gap: 7 }}>{paintDot(subTerm, colorAt(1))} «{subRes.norm}» הקרוב ביותר: <b style={{ color: colorAt(1) }}>{subFocus.dist.toLocaleString("he")} אותיות</b></span>
                 <span style={chip}>📍 {locOf(subFocus.hit.start).label} · אות {locOf(subFocus.hit.start).off.toLocaleString("he")}</span>
                 <span style={chip}>דילוג {Math.abs(subFocus.hit.skip).toLocaleString("he")}</span>
                 <span style={chip}>סך מופעים <b>{subRes.count.toLocaleString("he")}{subRes.capped ? "+" : ""}</b></span>
@@ -462,10 +511,10 @@ export default function ElsGrid({ seed }) {
       {grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
       {grid && <Help label="ℹ️ איך קוראים את המטריצה?">
-        אותיות התורה נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
+        אותיות התנ״ך נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
       </Help>}
 
-      {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={TORAH_BOOKS} total={res.hits.length} capped={res.capped} />}
+      {res?.mode === "single" && res.hits?.length > 0 && <ElsAnalysis hits={res.hits} books={ANALYSIS_BOOKS} total={res.hits.length} capped={res.capped} />}
 
       {res && <div className="rw-card" style={{ marginTop: 12 }}><ResultsList /></div>}
 

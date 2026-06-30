@@ -54,6 +54,18 @@ export const TORAH_BOOKS = [
   { key: "deu", label: "דברים",    from: 249913, to: 304805 },
 ];
 
+// 📜 התנ״ך המלא — 39 ספרים (24 מסורתיים, עם פיצול שמואל/מלכים/דהי״ם ותרי-עשר).
+// הגבולות = היסט-אותיות בקובץ tanakh-letters.txt (1,204,583 אותיות; 304,805 הראשונות = התורה,
+// זהות לנוסח הקנוני — הספירה הקדושה נשמרת בדיוק). חיפוש דילוגים בכל ספר/חלק/בכל התנ״ך.
+const TANAKH_NAMES = ["בראשית","שמות","ויקרא","במדבר","דברים","יהושע","שופטים","שמואל א","שמואל ב","מלכים א","מלכים ב","ישעיהו","ירמיהו","יחזקאל","הושע","יואל","עמוס","עובדיה","יונה","מיכה","נחום","חבקוק","צפניה","חגי","זכריה","מלאכי","תהלים","משלי","איוב","שיר השירים","רות","איכה","קהלת","אסתר","דניאל","עזרא","נחמיה","דברי הימים א","דברי הימים ב"];
+const TANAKH_BOUNDS = [0,78064,141593,186383,249913,304805,344771,383908,435703,478375,529300,577486,644815,730599,805675,815108,818990,827062,828181,830884,836487,838765,841369,844375,846724,859223,862680,941956,968780,1000811,1005983,1010979,1017181,1028193,1040477,1065347,1081423,1104182,1149292,1204583];
+const TANAKH_SECTION = i => (i < 5 ? "תורה" : i < 26 ? "נביאים" : "כתובים"); // 0-4 תורה · 5-25 נביאים · 26-38 כתובים
+export const TANAKH_BOOKS = [
+  { key: "all",   label: "כל התנ״ך", from: 0, to: 1204583, section: "" },
+  { key: "torah", label: "כל התורה", from: 0, to: 304805,  section: "" },
+  ...TANAKH_NAMES.map((nm, i) => ({ key: "b" + i, label: nm, from: TANAKH_BOUNDS[i], to: TANAKH_BOUNDS[i + 1], section: TANAKH_SECTION(i) })),
+];
+
 // 🔢 תבנית הדילוגים שעליהם סורקים. null = טווח רציף (min..max, כמו קודם).
 // fib / fib−1 / ראשוניים / חזקות-2 — סורקים רק את ערכי-התבנית שבתוך [min,max].
 export function buildSkipSet(pattern, min, max) {
@@ -687,7 +699,7 @@ export function ELSSection({ gated = false } = {}) {
   useEffect(() => {
     let alive = true;
     setLoadError(false);
-    fetch("/torah-letters.txt", { headers: { Accept: "text/plain" } })
+    fetch("/tanakh-letters.txt", { headers: { Accept: "text/plain" } })
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
       .then(txt => {
         if (!alive) return;
@@ -742,7 +754,7 @@ export function ELSSection({ gated = false } = {}) {
     const patUse = opts?.pat ?? skipPattern;
     const bkUse = opts?.bk ?? book;
     // חלון הספר (clamp לאורך הטקסט בפועל) + תבנית הדילוגים
-    const bk = TORAH_BOOKS.find(b => b.key === bkUse) || TORAH_BOOKS[0];
+    const bk = TANAKH_BOOKS.find(b => b.key === bkUse) || TANAKH_BOOKS[0];
     const winTo = Math.min(letters.length, bk.to);
     const winFrom = Math.min(winTo, bk.from);
     const searchOpts = { winFrom, winTo, skips: buildSkipSet(patUse, lo, hi) };
@@ -817,7 +829,7 @@ export function ELSSection({ gated = false } = {}) {
         }}>
           <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🪪 חפשו את שִמכם בתורה</div>
           <div style={{ color: C.muted, fontFamily: F.royal, fontSize: 13.5, lineHeight: 1.7, marginBottom: 12 }}>
-            הקלידו שם פרטי — והמנוע יחפש אותו כדילוג אותיות בכל חמשת חומשי התורה, ממוין לפי מובהקות (הדילוג הקצר ביותר ראשון).
+            הקלידו שם פרטי — והמנוע יחפש אותו כדילוג אותיות בכל התנ״ך (או בספר נבחר), ממוין לפי מובהקות (הדילוג הקצר ביותר ראשון).
           </div>
           <form onSubmit={e => { e.preventDefault(); const n = myName.trim(); if (elsNormalize(n).length >= 2) { setTarget(n); run(n); } }}
             style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
@@ -845,13 +857,13 @@ export function ELSSection({ gated = false } = {}) {
           {showHelp && (
             <div style={{ border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", padding: "6px 16px 14px", background: "rgba(10,7,0,0.5)" }}>
               {[
-                ["🔍", "חיפוש מילה יחידה", "מאתר כל המופעים של מילה כדילוג אותיות בכל התורה."],
+                ["🔍", "חיפוש מילה יחידה", "מאתר כל המופעים של מילה כדילוג אותיות בכל התנ״ך."],
                 ["🧩", "חיפוש אשכול", "כמה מונחים מופרדים בפסיק — מוצא היכן הם נפגשים קרוב זה לזה במטריצה."],
                 ["🪪", "חיפוש שם אישי", "הקלידו שם פרטי ומצאו אותו בתורה (השער למעלה)."],
                 ["↔️", "כיוון חיפוש", "קדימה בלבד · אחורה בלבד · שני הכיוונים."],
                 ["📏", "טווח דילוג", "דילוג מינימלי עד מקסימלי — קצר = מובהק יותר."],
                 ["🧮", "תבנית דילוג", "סריקה לפי פיבונאצ׳י · פיבונאצ׳י−1 · מספרים ראשוניים · חזקות של 2 — לא רק טווח רציף."],
-                ["📖", "בחירת ספר", "חיפוש בכל התורה או בספר בודד: בראשית · שמות · ויקרא · במדבר · דברים."],
+                ["📖", "בחירת ספר", "חיפוש בכל התנ״ך · בכל התורה · או בספר בודד (תורה · נביאים · כתובים)."],
                 ["🎯", "סבילות לשגיאות", "התאמה מדויקת, או עד 1–2 אותיות שונות."],
                 ["🔢", "גימטריה", "ערך המילה מוצג; באדג' ✦ כשהדילוג שווה לגימטריה, ⭐ כשהוא מספר-מפתח."],
                 ["▦", "מטריצה / ציר אנכי", "שתי תצוגות למופע, כולל חיפוש פנימי בתוך הציר."],
@@ -976,7 +988,12 @@ export function ELSSection({ gated = false } = {}) {
               <div>
                 <label style={labelStyle}>ספר</label>
                 <select style={inputStyle} value={book} onChange={e => setBook(e.target.value)}>
-                  {TORAH_BOOKS.map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+                  {TANAKH_BOOKS.filter(b => !b.section).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+                  {["תורה", "נביאים", "כתובים"].map(sec => (
+                    <optgroup key={sec} label={sec}>
+                      {TANAKH_BOOKS.filter(b => b.section === sec).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
             </div>
@@ -1206,18 +1223,18 @@ export function ELSSection({ gated = false } = {}) {
 
         <div style={{ color: C.goldDim, fontSize: 11, textAlign: "center", marginTop: 24, fontFamily: F.heading, lineHeight: 1.9 }}>
           {loaded
-            ? `טקסט המקור: חמשת חומשי התורה · ${letters.length.toLocaleString("he")} אותיות (נוסח קורן המסורתי, נחלת הכלל)`
+            ? `טקסט המקור: התנ״ך המלא · 24 ספרים · ${letters.length.toLocaleString("he")} אותיות (נוסח מסורתי · התורה זהה לספירה הקדושה 304,805)`
             : loadError
               ? (
                 <span style={{ color: C.crimsonLight }}>
-                  ⚠ לא הצלחנו לטעון את טקסט התורה המלא — מוצג קטע דוגמה בלבד, ולכן רוב החיפושים לא יחזירו תוצאות.{" "}
+                  ⚠ לא הצלחנו לטעון את טקסט התנ״ך — מוצג קטע דוגמה בלבד, ולכן רוב החיפושים לא יחזירו תוצאות.{" "}
                   <button onClick={() => setReloadKey(k => k + 1)} style={{
                     background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright,
                     borderRadius: 6, padding: "3px 12px", cursor: "pointer", fontFamily: F.heading, fontSize: 11, marginInlineStart: 6,
                   }}>נסה שוב</button>
                 </span>
               )
-              : "טוען את טקסט התורה המלא…  בינתיים מוצג קטע מבראשית"}
+              : "טוען את טקסט התנ״ך המלא…  בינתיים מוצג קטע מבראשית"}
           <br />
           {gated
             ? <>חיפוש חינם · הרשמה פותחת ללא הגבלה · שיתוף מזכה בחיפושים נוספים ✦</>

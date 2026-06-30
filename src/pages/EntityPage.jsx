@@ -398,7 +398,8 @@ export default function EntityPage({ embedPhrase } = {}) {
   // מילים תמיד פתוחות; השאר דביק (זוכר מה הגולש פתח); ברירת מחדל ראשונה = מילים + שורשים.
   const [open, setOpen] = useState(() => {
     let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open2") || "null"); } catch { /* ignore */ }
-    const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: true };
+    // ברירת-מחדל מסודרת: רק מד-ההתכנסות פתוח; השאר מקופלים (עם הספירות בכותרת). משתמש חוזר — נשמרת בחירתו.
+    const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: false };
     return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots };
   });
   const persistOpen = m => { try { localStorage.setItem("np-open2", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };

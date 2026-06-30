@@ -7,6 +7,7 @@ import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
 import LiveActivityBar from "./LiveActivityBar.jsx";
+import HeichalToolsStrip from "./HeichalToolsStrip.jsx";
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -48,6 +49,7 @@ export default function Layout() {
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
         <LiveActivityBar />
+        <HeichalToolsStrip />
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -33,6 +33,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "journeys", label: "🧭 מסעות" },
   { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
   { key: "viral",    label: "🔥 ויראליות" },
@@ -109,6 +110,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "stats" && <StatsTab />}
+      {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
       {tab === "viral" && <ViralIntelTab />}
@@ -1701,6 +1703,78 @@ function PopularityTab() {
               <div key={slug} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${C.border}` }}>
                 <a href={`/${slug}`} style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, textDecoration: "none" }}>{slug}</a>
                 <span style={{ color: "#1faa55", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{cnt} 💬</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== 🧭 דשבורד המסעות — זמן/צפיות לכל דף-וכלי + מסע-לכל-מבקר =====
+function fmtDwell(s) {
+  if (s == null) return "—";
+  if (s < 60) return `${s}ש׳`;
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} דק׳`;
+}
+function JourneysTab() {
+  const [dwell, setDwell] = useState(null);
+  const [journeys, setJourneys] = useState(null);
+  const [err, setErr] = useState("");
+  const [hours, setHours] = useState(168);
+  useEffect(() => {
+    let live = true; setErr("");
+    getPageDwell(hours).then(d => live && setDwell(d || [])).catch(e => live && setErr(String(e?.message || e)));
+    getVisitorJourneys(24, 4).then(d => live && setJourneys(d || [])).catch(() => live && setJourneys([]));
+    return () => { live = false; };
+  }, [hours]);
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: 0 }}>⏱️ זמן וצפיות לכל דף / כלי-מעבדה</h3>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[[24, "24ש"], [72, "3 ימים"], [168, "שבוע"]].map(([h, lbl]) => (
+              <button key={h} onClick={() => setHours(h)} style={{ cursor: "pointer", border: `1px solid ${hours === h ? C.gold : C.border}`, background: hours === h ? "rgba(212,175,55,0.18)" : "transparent", color: hours === h ? C.goldBright : C.muted, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>שגיאה: {err}</div>}
+        {!dwell ? <div style={{ color: C.muted }}>טוען…</div> : dwell.length === 0 ? <div style={{ color: C.muted }}>אין נתונים בטווח.</div> : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr><th style={th}>דף / כלי</th><th style={th}>צפיות</th><th style={th}>ייחודיים</th><th style={th}>זמן ממוצע</th><th style={th}>חציון</th></tr></thead>
+              <tbody>
+                {dwell.map(r => (
+                  <tr key={r.page}>
+                    <td style={{ ...td, color: C.goldBright, fontWeight: 700 }}>{r.page}</td>
+                    <td style={td}>{r.visits?.toLocaleString("he")}</td>
+                    <td style={td}>{r.uniq?.toLocaleString("he")}</td>
+                    <td style={{ ...td, color: C.goldBright }}>{fmtDwell(r.avg_sec)}</td>
+                    <td style={td}>{fmtDwell(r.median_sec)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.6 }}>אומדן-שהייה = הזמן עד הצפייה הבאה של אותו מבקר (מוגבל ל-30 דק'). כלי-מעבדה נספרים בנפרד מאז עדכון המעקב; ביקורים ישנים מופיעים כ«מעבדה · בית».</div>
+      </div>
+
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🧭 מסעות מבקרים · 24 שעות</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>איפה כל אדם היה (4+ צפיות). 🏠בית · 🔢מספר · 📚מדרש · 🏛️מעבדה · 🧮חשב · 🔍דילוג · 📜פסוק · 💬קהילה</div>
+        {!journeys ? <div style={{ color: C.muted }}>טוען…</div> : journeys.length === 0 ? <div style={{ color: C.muted }}>אין מסעות בטווח.</div> : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {journeys.map((j, i) => (
+              <div key={j.visitor} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.35)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11 }}>#{i + 1}</span>
+                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{j.views} צפיות</span>
+                  <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 10 }}>{String(j.visitor).slice(0, 8)}</span>
+                </div>
+                <div dir="rtl" style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.9, wordBreak: "break-word" }}>{j.journey}</div>
               </div>
             ))}
           </div>

@@ -42,7 +42,7 @@ export default function ElsAnalysis({ hits, books, total, capped }) {
 
       {/* פיזור לאורך התורה */}
       <div className="els-an-sec">
-        <div className="els-an-t">פיזור לאורך התורה <span className="rw-muted">— כל קו = מופע · קווי-הפרדה = ספרים</span></div>
+        <div className="els-an-t">פיזור לאורך התנ״ך <span className="rw-muted">— כל קו = מופע · קווי-הפרדה = חלקים</span></div>
         <svg viewBox={`0 0 ${STRIP_W} ${STRIP_H}`} className="els-strip" preserveAspectRatio="none">
           <rect x="0" y="0" width={STRIP_W} height={STRIP_H} rx="5" fill="var(--bg)" stroke="var(--line)" />
           {books.slice(2).map((b, i) => { const x = (b.from / a.span) * STRIP_W; return <line key={i} x1={x} y1="0" x2={x} y2={STRIP_H} stroke="var(--line)" strokeDasharray="3 3" />; })}
@@ -54,7 +54,7 @@ export default function ElsAnalysis({ hits, books, total, capped }) {
       <div className="els-an-grid">
         {/* צפיפות לפי ספר */}
         <div className="els-an-sec">
-          <div className="els-an-t">צפיפות לפי ספר <span className="rw-muted">(ל-10,000 אות)</span></div>
+          <div className="els-an-t">צפיפות לפי חלק <span className="rw-muted">(ל-10,000 אות)</span></div>
           {a.byBook.map((b, i) => (
             <div key={i} className="els-bar-row">
               <span className="els-bar-lb">{b.label}</span>

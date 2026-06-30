@@ -9,7 +9,8 @@ import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, EVENTS } from "../lib/research/eventBus.js";
-import { entityFromInsight } from "../lib/research/entity.js";
+import { entityFromInsight, entityFromPhrase } from "../lib/research/entity.js";
+import QuickActions from "../components/QuickActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -764,17 +765,14 @@ function Sod1820Tab() {
   );
 }
 
-// פאנל תוצאות למספר נבחר — מילים שוות (מהמאגר) + מילים מהקהילה (community_words).
+// פאנל תוצאות למספר נבחר — מילים שוות מהמאגר.
 function NumberResults({ value, term }) {
   const [eq, setEq] = useState(null);
-  const [comm, setComm] = useState(null);
   const [pulse, setPulse] = useState(null);
   useEffect(() => {
-    let live = true; setEq(null); setComm(null); setPulse(null);
+    let live = true; setEq(null); setPulse(null);
     supabase.from("gematria_words").select("phrase").eq("ragil", value).limit(60)
       .then(({ data }) => { if (live) setEq([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
-    supabase.from("community_words").select("phrase,author").eq("value", value).order("created_at", { ascending: false }).limit(40)
-      .then(({ data }) => { if (live) setComm(data || []); });
     getEntityBundle({ term: String(value), value, isNumber: true })
       .then(b => { if (live && b) setPulse(pulseFromCounts({ posts: b.postsCount, galleries: b.galleriesCount, words: b.phrases?.length, events: b.eventsCount, ai: b.insightsCount, comm: b.commentsCount })); })
       .catch(() => {});
@@ -795,22 +793,6 @@ function NumberResults({ value, term }) {
       {eq === null ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>מחשב…</div> :
         eq.length === 0 ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>אין מילים בערך זה במאגר.</div> :
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{eq.map((p, i) => <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={chip}>{p}</Link>)}</div>}
-
-      <div style={{ color: L.blue, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1, margin: "16px 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
-        💬 מילים מהקהילה
-      </div>
-      {comm === null ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div> :
-        comm.length === 0 ? (
-          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
-            עדיין אין מילים מהקהילה לערך הזה. <span style={{ color: L.blue }}>היו הראשונים להוסיף — בקרוב.</span>
-          </div>
-        ) : (
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-            {comm.map((c, i) => (
-              <span key={i} title={c.author ? `מאת ${c.author}` : ""} style={{ ...chip, background: L.blueBg, borderColor: L.blueLine, color: L.blue }}>{c.phrase}</span>
-            ))}
-          </div>
-        )}
     </div>
   );
 }
@@ -822,8 +804,11 @@ const CORE = new Set([1820, 358, 1237, 26, 541, 776]); // מספרי ליבה �
 function CalcTab({ initial, seed }) {
   const [num, setNum] = useState(initial || 1820);
   const [term, setTerm] = useState("");   // הביטוי שהמשתמש סיים להקליד (לתצוגת התחתית)
+  const [entity, setEntity] = useState(null); // הישות לשורת-הפעולות (➕ הוסף למחקר)
   // משסיימו להקליד במחשבון (debounce של ~900ms) → התחתית עוברת לחיפוש שלו (לא נשארת על 1820)
-  const onResult = ({ word, ragil }) => { if (ragil) { setNum(ragil); setTerm(word || ""); } };
+  const onResult = ({ word, ragil }) => {
+    if (ragil) { setNum(ragil); setTerm(word || ""); setEntity(word ? entityFromPhrase(word, ragil) : null); }
+  };
   return (
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -831,6 +816,15 @@ function CalcTab({ initial, seed }) {
           מחשבון גימטריה מלא — כל 17 השיטות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
         </p>
         <GematriaCalculator seed={seed} onResult={onResult} />
+        {/* ➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — אותו רכיב קנוני, בגופנים ובצבעים של בית-המדרש (בהיר) */}
+        {entity && (
+          <div style={{ marginTop: 14, fontFamily: F.heading }}>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, textAlign: "center", marginBottom: 2 }}>
+              «{entity.title}» = {Number(num).toLocaleString("he")} — צרפו ל«המחקר הפעיל» כדי לחזור אליו בכל מקום במעבדה.
+            </div>
+            <QuickActions entity={entity} style={{ "--ink": L.ink, "--card": L.soft, "--line": L.line, "--acc": L.gold, "--accS": "#fbf3da", "--onAcc": "#ffffff" }} />
+          </div>
+        )}
         <div style={{ marginTop: 18 }}><CommunityWordsBox light /></div>
         <div style={{ marginTop: 18 }}><NumberResults value={num} term={term} /></div>
       </div>
