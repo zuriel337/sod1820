@@ -60,6 +60,7 @@ export default function LabDock() {
 const DOCK_CSS = `
 .labdock{position:fixed;z-index:48;left:50%;transform:translateX(-50%);
   bottom:calc(10px + env(safe-area-inset-bottom));
+  font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
   display:flex;gap:4px;padding:6px;border-radius:18px;direction:rtl;
   background:linear-gradient(180deg,rgba(24,17,9,.96),rgba(10,7,3,.96));
   border:1px solid rgba(212,175,55,.4);box-shadow:0 10px 34px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.3);
