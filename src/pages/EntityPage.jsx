@@ -545,7 +545,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
 
   // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
-  const { logHistory, mode, toggleMode } = useResearch();
+  const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode } = useResearch();
+  // 🔬 כניסה להיכל הגילוי + הוספה למחקר בפעולה אחת (רעיון-העל: כפתור אחד עושה שניים).
+  const enterDiscoveryWith = (sec) => { addToResearch?.(entity); enterDiscovery?.(); setSeeMore(true); if (sec) setTimeout(() => goChip(sec), 140); };
   useEffect(() => { if (!loading && entity?.id) logHistory?.(entity); }, [loading, entity?.id]); // eslint-disable-line
   // 🔬 מצב עבודה: reader = מעטפת נקייה (הירו · מסע · פעולות · תיבת AI · «ראו עוד»); discovery/היכל הגילוי = הכל פתוח.
   // הצגה בלבד (Show/Hide) — אותה לוגיקה, בלי כפילות. embedded (מגירת-מספר במעבדה) תמיד מלא.
@@ -675,25 +677,24 @@ export default function EntityPage({ embedPhrase } = {}) {
               ✦ הידעת? {msgs[1].text}
             </p>
           )}
-          {/* ⚡ פס-הפעולות האחיד (Reality Graph Law) — שיתוף = תמונת-המספר העשירה (בלי כפילות) */}
-          <QuickActions
+          {/* ⚡ פס-הפעולות האחיד (Reality Graph Law) — מוצג במצב מחקר; במצב קריאה יש שורת אייקונים עדינה */}
+          {showBody && <QuickActions
             entity={entity}
             onShare={() => shareNumberSmart(value, data?.phrases || [])}
             style={{ "--ink": P.ink, "--card": P.cardSoft, "--line": P.border, "--acc": P.accentText, "--accS": P.glow, "--onAcc": P.onAccent || "#1a0e00" }}
             extra={<>
               <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
-            </>} />
+            </>} />}
         </div>
 
-        {/* 🔬 מתג היכל הגילוי — מעטפת כל-האתר (reader ↔ discovery). מוסתר בשימוש מוטמע. */}
-        {!embedded && (
+        {/* 👁️ חזרה לקריאה — מוצג רק במצב מחקר (הכניסה נעשית מכפתור-העל בתחתית מצב הקריאה). */}
+        {!embedded && showBody && (
           <div style={{ textAlign: "center", marginBottom: 6 }}>
-            <button onClick={toggleMode} title="מעבר בין קריאה להיכל הגילוי"
-              style={{ cursor: "pointer", background: mode === "discovery" ? P.accentBtn : P.cardSoft,
-                color: mode === "discovery" ? P.onAccent : P.accentText, border: `1px solid ${P.border}`,
+            <button onClick={() => { setSeeMore(false); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }} title="חזרה למצב קריאה"
+              style={{ cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`,
                 borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 15px" }}>
-              🔬 {mode === "discovery" ? "היכל הגילוי · פעיל" : "כניסה להיכל הגילוי"}
+              👁️ חזרה לקריאה · 🔬 היכל הגילוי פעיל
             </button>
           </div>
         )}
@@ -716,13 +717,70 @@ export default function EntityPage({ embedPhrase } = {}) {
                 {d.insights[0].body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{stripHtml(d.insights[0].body).slice(0, 180)}</div>}
               </div>
             )}
-            <div style={{ textAlign: "center", margin: "18px auto 8px" }}>
-              <button onClick={() => setSeeMore(true)}
-                style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999,
-                  fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.glow}` }}>
-                🔬 ראו עוד — פתחו את היכל הגילוי
+            {/* ✨ פעולה ראשית אחת — המסע (גדול ובולט) */}
+            <div style={{ textAlign: "center", marginTop: 16 }}>
+              <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} style={{ textDecoration: "none" }}>
+                <span style={{ display: "inline-block", minWidth: 280, maxWidth: "92%", background: P.accentBtn, color: P.onAccent,
+                  borderRadius: 16, fontFamily: F.heading, fontWeight: 800, fontSize: 16.5, padding: "15px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                  ✨ המסע מתחיל כאן
+                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, opacity: 0.85, marginTop: 3 }}>צאו למסע בגרף מ-{value} →</span>
+                </span>
+              </Link>
+            </div>
+
+            {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋). ★ שמור נשמר לכוכבי-העוצמה בלבד */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 15 }}>
+              {[
+                { e: "📌", l: isPinned?.(entity.id) ? "מוצמד" : "הצמד", on: () => togglePin?.(entity) },
+                { e: "🔖", l: "שמור", on: () => saveItem?.(entity) },
+                { e: "🔗", l: "שתף", on: () => shareNumberSmart(value, d.phrases || []) },
+                { e: "📋", l: "העתק", on: () => { try { navigator.clipboard?.writeText(String(term ?? value)); } catch { /* noop */ } } },
+              ].map((a, i) => (
+                <button key={i} onClick={a.on}
+                  style={{ cursor: "pointer", background: "none", border: "none", display: "flex", flexDirection: "column",
+                    alignItems: "center", gap: 3, color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 700 }}>
+                  <span style={{ fontSize: 18 }}>{a.e}</span>{a.l}
+                </button>
+              ))}
+            </div>
+
+            {/* 3 מונים — לחיצה = הוסף-למחקר + פתיחת המקטע בהיכל הגילוי */}
+            <div style={{ display: "flex", gap: 9, maxWidth: 420, margin: "18px auto 0" }}>
+              {[
+                { n: d.phrasesCount || d.phrases?.length || 0, e: "🌳", l: "מילים שוות", id: "words" },
+                { n: d.galleriesCount || 0, e: "🖼️", l: "תמונות", id: "galleries" },
+                { n: d.postsCount || 0, e: "📚", l: "פוסטים", id: "posts" },
+              ].map(c => (
+                <button key={c.id} onClick={() => enterDiscoveryWith(c.id)}
+                  style={{ flex: 1, cursor: "pointer", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "11px 6px", textAlign: "center" }}>
+                  <span style={{ display: "block", color: P.heroNum, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{c.n}</span>
+                  <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>{c.e} {c.l}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* טעימה — 3-4 מילים שוות מיד (מייצר סקרנות ללחוץ «גלה עוד») */}
+            {d.phrases?.length > 0 && (
+              <div style={{ marginTop: 15, textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>טעימה — מילים שוות ל-{value}:</div>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
+                  {d.phrases.slice(0, 4).map((p, i) => (
+                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
+                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
+                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 🔬 כפתור-העל — הוסף למחקר ופתח את היכל הגילוי (פעולה אחת, שני דברים) */}
+            <div style={{ textAlign: "center", margin: "20px auto 8px" }}>
+              <button onClick={() => enterDiscoveryWith()}
+                style={{ cursor: "pointer", background: "transparent", color: P.accentText, border: `1.5px dashed ${P.accentText}`, borderRadius: 16,
+                  fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "14px 28px" }}>
+                🔬 הוסף למחקר ופתח את היכל הגילוי
               </button>
-              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>משפחות · גימטריות · הצלבות · DNA · אירועים</div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>משפחות · הצלבות · DNA · תמונות · פוסטים</div>
             </div>
           </>
         )}
