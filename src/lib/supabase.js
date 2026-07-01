@@ -1569,7 +1569,7 @@ export async function getTopicCardsByNumber(value, limit = 6) {
   if (!supabase || !value) return [];
   try {
     const { data } = await supabase.from('topic_cards')
-      .select('slug, title, numbers, quality')
+      .select('slug, title, subtitle, numbers, quality')
       .eq('status', 'approved')
       .contains('numbers', [value])
       .order('quality', { ascending: false })

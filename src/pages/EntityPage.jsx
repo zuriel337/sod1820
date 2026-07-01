@@ -778,6 +778,18 @@ export default function EntityPage({ embedPhrase } = {}) {
               </Link>
             </div>
 
+            {/* 🔮 הצלבה נסתרת — פתוחה כבר בשער, מתחת למסע (הכי חשוב: «וואו, הכל מתחבר») */}
+            {topics.length > 0 && (
+              <Link to={`/topic/${topics[0].slug}`}
+                style={{ textDecoration: "none", display: "block", maxWidth: 500, margin: "14px auto 0",
+                  background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
+                  borderRadius: 14, padding: "13px 16px", textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, marginBottom: 5 }}>🔮 הצלבה נסתרת</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, lineHeight: 1.4 }}>{topics[0].title}</div>
+                {topics[0].subtitle && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 6 }}>{topics[0].subtitle}</div>}
+              </Link>
+            )}
+
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋). ★ שמור נשמר לכוכבי-העוצמה בלבד */}
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 15 }}>
               {[
@@ -887,15 +899,17 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* הצלבה מעניינת — נושא מגרף הידע (topic_cards) שהמספר מופיע בו */}
-                {topics.length > 0 && (
+                {/* הצלבות נוספות — מהשנייה והלאה (הראשונה כבר פתוחה בשער) */}
+                {topics.length > 1 && (
                   <Reveal delay={60}>
                     <div style={{ marginTop: 20, textAlign: "center" }}>
-                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>🔗 הצלבה מעניינת:</div>
-                      <Link to={`/topic/${topics[0].slug}`} style={{ textDecoration: "none", display: "inline-block", maxWidth: 460,
-                        background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`, borderRadius: 12, padding: "13px 18px" }}>
-                        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>✦ {topics[0].title}</span>
-                      </Link>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>🔗 עוד הצלבות:</div>
+                      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
+                        {topics.slice(1, 4).map(t => (
+                          <Link key={t.slug} to={`/topic/${t.slug}`} style={{ textDecoration: "none", color: P.onAccent, background: P.accentBtn,
+                            borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>✦ {t.title}</Link>
+                        ))}
+                      </div>
                     </div>
                   </Reveal>
                 )}
