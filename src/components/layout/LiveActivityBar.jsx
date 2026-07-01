@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getTopicCards, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages } from "../../lib/supabase.js";
+import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
+// כל זוג אומת במנוע (fn_ragil) — סוד=יין=70 · לב=כבוד=32 · אני=אין=61 · אהבה=אחד=13 …
 const GEM_FACTS = [
   "נחש = משיח = 358", "אהבה = אחד = 13", "הטבע = אלהים = 86",
-  "אריה = גבורה = 216", "יין = סוד = 70", "אדם = מה = 45",
+  "אריה = גבורה = 216", "סוד = יין = 70", "אדם = מה = 45",
+  "לב = כבוד = 32", "אני = אין = 61",
 ];
 
 // 📜 פסוקי גאולה ונחמה — רוטציה שצוריאל שולט בה (לא אוטומטי). 3 מתחלפים ביום
@@ -131,10 +133,16 @@ function useLiveTicker() {
       // הפסוק מתחלף יומית (dayIdx) ומוסט לפי כמה כבר ראה היום → 2 פסוקים שונים ביום, לא חזרה.
       const seen = versesSeenToday();
       if (seen < VERSE_DAILY_CAP) out.push(verse(seen));
-      // ⛔ התכנסויות + פוסטים — הוסרו מההזרקה האוטומטית (בקשת צוריאל: יעלו לטיקר רק
-      // כשהוא מחליט, לא אוטומטית). עדיין מושכים ספירת התכנסויות לשורת «📊 במאגר».
-      const cards = await getTopicCards({ approvedOnly: true }).catch(() => []);
-      const convCount = (cards || []).length;
+      // 💡 החידושים האחרונים שנכנסו למערכת (insights · origin=ai) — תוכן טרי במקום חזרות.
+      // עד 2 חדשים, כותרת מקוצרת. הדה-דופ בסוף מונע כפילות אם אותו חידוש חוזר.
+      try {
+        const crosses = await getRecentCrosses(4);
+        for (const c of (crosses || []).slice(0, 2)) {
+          const title = stripHtml(c.title || "").trim().slice(0, 64);
+          if (title) out.push(`💡 חידוש אחרון: ${title}`);
+        }
+      } catch { /* ignore */ }
+      // ⛔ התכנסויות + פוסטים — לא בהזרקה האוטומטית. ⛔ ספירת «כמה התכנסויות במאגר» הוסרה (בקשת צוריאל).
       try {
         const { words, topNumber } = await getSearchStatsToday();
         if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
@@ -158,13 +166,9 @@ function useLiveTicker() {
           if (label) out.push(`🗓️ ${n <= 0 ? "השנה" : n === 1 ? "לפני שנה" : `לפני ${n} שנים`}: ${label}`);
         }
       } catch { /* ignore */ }
-      // ⛔ «כמה חיפושים יש באתר» (total כל-הזמן) הוסר (בקשת צוריאל — רק כמה חיפשו היום,
-      // שמוצג ב«📖 … נחקרו היום»). נשארת רק ספירת ההתכנסויות במאגר.
-      if (convCount > 0) out.push(`📊 ${convCount} התכנסויות במאגר`);
+      // ⛔ «כמה חיפושים יש באתר» (total כל-הזמן) הוסר. ⛔ ספירת ההתכנסויות במאגר הוסרה (בקשת צוריאל).
       const moed = moedGreeting();
       if (moed) out.push(moed);
-      // 🌊 הרמז שוב — כך הוא מופיע פעמיים לאורך הסבב
-      if (hintMsg) out.push(hintMsg);
       out.push(timeGreeting());
       // — מבקרים היום: רק אם ≥ 2500 —
       try {
@@ -172,7 +176,9 @@ function useLiveTicker() {
         if (v >= 2500) out.push(`👣 ${v.toLocaleString("he-IL")} כניסות היום`);
       } catch { /* ignore */ }
 
-      if (live) setMsgs(out);
+      // 🚫 בלי כפילויות (בקשת צוריאל) — כל הודעה מופיעה פעם אחת בלבד בסבב.
+      const uniq = [...new Set(out.filter(Boolean))];
+      if (live) setMsgs(uniq);
     }
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 60000);
