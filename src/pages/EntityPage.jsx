@@ -545,8 +545,13 @@ export default function EntityPage({ embedPhrase } = {}) {
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
 
   // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
-  const { logHistory } = useResearch();
+  const { logHistory, mode, toggleMode } = useResearch();
   useEffect(() => { if (!loading && entity?.id) logHistory?.(entity); }, [loading, entity?.id]); // eslint-disable-line
+  // 🔬 מצב עבודה: reader = מעטפת נקייה (הירו · מסע · פעולות · תיבת AI · «ראו עוד»); discovery/היכל הגילוי = הכל פתוח.
+  // הצגה בלבד (Show/Hide) — אותה לוגיקה, בלי כפילות. embedded (מגירת-מספר במעבדה) תמיד מלא.
+  const [seeMore, setSeeMore] = useState(false);
+  const showBody = embedded || mode === "discovery" || seeMore;
+  useEffect(() => { setSeeMore(false); }, [value, term]); // מספר חדש → חזרה למצב קריאה
 
   // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
@@ -603,7 +608,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         </div>
 
         {/* ── Sticky nav bar — מוצג כשגוללים מתחת להירו ── */}
-        {heroGone && (
+        {heroGone && showBody && (
           <div style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
             background: P.mode === "dark" ? "rgba(7,5,14,0.95)" : "rgba(246,241,230,0.95)",
@@ -678,6 +683,41 @@ export default function EntityPage({ embedPhrase } = {}) {
             </>} />
         </div>
 
+        {/* 🔬 מתג היכל הגילוי — מעטפת כל-האתר (reader ↔ discovery). מוסתר בשימוש מוטמע. */}
+        {!embedded && (
+          <div style={{ textAlign: "center", marginBottom: 6 }}>
+            <button onClick={toggleMode} title="מעבר בין קריאה להיכל הגילוי"
+              style={{ cursor: "pointer", background: mode === "discovery" ? P.accentBtn : P.cardSoft,
+                color: mode === "discovery" ? P.onAccent : P.accentText, border: `1px solid ${P.border}`,
+                borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 15px" }}>
+              🔬 {mode === "discovery" ? "היכל הגילוי · פעיל" : "כניסה להיכל הגילוי"}
+            </button>
+          </div>
+        )}
+
+        {/* 👤 מצב קריאה — תיבת AI אחת + «ראו עוד» → חשיפה מדורגת של גוף-המחקר */}
+        {!showBody && (
+          <>
+            {d.insights?.length > 0 && (
+              <div style={{ ...card, maxWidth: 560, margin: "0 auto 4px" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>🤖 חידוש AI</div>
+                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{stripHtml(d.insights[0].title || "חידוש")}</div>
+                {d.insights[0].body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{stripHtml(d.insights[0].body).slice(0, 180)}</div>}
+              </div>
+            )}
+            <div style={{ textAlign: "center", margin: "18px auto 8px" }}>
+              <button onClick={() => setSeeMore(true)}
+                style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999,
+                  fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.glow}` }}>
+                🔬 ראו עוד — פתחו את היכל הגילוי
+              </button>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>משפחות · גימטריות · הצלבות · DNA · אירועים</div>
+            </div>
+          </>
+        )}
+
+        {/* ── גוף היכל הגילוי (discovery / «ראו עוד») ── */}
+        {showBody && (<>
         {/* ── 🧭 ניווט מהיר — קפיצה לסקציה (chips) ── */}
         {chips.length > 0 && !loading && (
           <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", marginTop: 18, marginBottom: 4 }}>
@@ -992,6 +1032,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             </section>
           </div>
         </Acc>
+        </>)}{/* ── סוף גוף היכל הגילוי ── */}
 
         {/* פיד החיפושים הוסר מדף הביטוי — כאן רוצים עומק על המספר, לא פיד של אחרים.
             נשאר בדף הבית · מנוע המספרים · בית המדרש ("מה נחקר"). */}

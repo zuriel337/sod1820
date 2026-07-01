@@ -4,6 +4,7 @@ import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import { isToolReady } from "../lib/hub/ready.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
 import NameStory from "../components/NameStory.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
@@ -113,6 +114,9 @@ export default function ResearchPage() {
   const [sp, setSp] = useSearchParams();
   // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
   const { isAdmin } = useAuth();
+  // 🔬 כלל-הכניסה: כניסה להיכל הגילוי מדליקה מצב discovery לכל האתר — כל Hub שנפתח מכאן יורש אותו.
+  const { enterDiscovery } = useResearch();
+  useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const ready = id => isToolReady(id, isAdmin);
   // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
   const READY_LAB = TOOLS.filter(t => ready(t.id));

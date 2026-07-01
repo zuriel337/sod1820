@@ -21,10 +21,13 @@ export default function ResearchProvider({ children }) {
   const [pinned, setPinned] = useState(() => init.pinned || []); // 📌 מוצמדים — נשארים זמינים בכל Hub
   const [history, setHistory] = useState(() => init.history || []); // 🕘 היסטוריית מחקר (אחרונים)
   const [collections, setCollections] = useState(() => init.collections || []); // 📁 אוספים
+  // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
+  // דרך הכניסה קובעת: כניסה להיכל הגילוי → discovery; מגוגל/קישור → reader. נשמר מקומית, מעטפת אחת לכל האתר.
+  const [mode, setModeState] = useState(() => (init.mode === "discovery" ? "discovery" : "reader"));
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections })); } catch { /* noop */ }
-  }, [cart, saved, pinned, history, collections]);
+    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, mode })); } catch { /* noop */ }
+  }, [cart, saved, pinned, history, collections, mode]);
 
   // ☁️ סנכרון-ענן למשתמש מחובר — כל «עולם המשתמש» עובר בין מכשירים.
   const { user } = useAuth();
@@ -104,10 +107,16 @@ export default function ResearchProvider({ children }) {
     setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
   }, []);
 
+  // 🔬 מצב עבודה — setMode/enterDiscovery/toggleMode. enterDiscovery = "נכנסת להיכל הגילוי" (מהמעבדה).
+  const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
+  const enterDiscovery = useCallback(() => setModeState("discovery"), []);
+  const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
+
   const value = {
     cart, saved, pinned, history, collections,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
     logHistory, clearHistory, addCollection, removeCollection, assignCollection,
+    mode, setMode, enterDiscovery, toggleMode,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
