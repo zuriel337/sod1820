@@ -653,6 +653,7 @@ export default function EntityPage({ embedPhrase } = {}) {
           @media (max-width:560px){
             .ep-topsearch { order:-1; flex-basis:100%; margin-inline-start:0; margin-bottom:6px; }
             .ep-topsearch-inp { flex:1; width:auto; min-width:0; }
+            .ep-modeswitch { margin-inline-start:auto; }   /* מתג המצב → פינה שמאלית במובייל */
           }
           @keyframes silver-pulse{0%,100%{box-shadow:0 0 6px rgba(192,192,192,.35);border-color:rgba(192,192,192,.45)}50%{box-shadow:0 0 22px rgba(220,220,220,.85),0 0 8px rgba(192,192,192,.7);border-color:#c8c8c8}}
           .ep-silver-chip{animation:silver-pulse 1.8s ease-in-out infinite!important;border:1px solid rgba(192,192,192,.5)!important;}
@@ -673,7 +674,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               boxShadow: active ? `0 2px 8px ${P.glow}` : "none", transition: "background .18s ease, color .18s ease",
             });
             return (
-              <div role="group" aria-label="בחירת תצוגה" title="החליפו בין תצוגה פשוטה למחקר מלא"
+              <div role="group" aria-label="בחירת תצוגה" title="החליפו בין תצוגה פשוטה למחקר מלא" className="ep-modeswitch"
                 style={{ display: "inline-flex", gap: 3, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: 3 }}>
                 <button onClick={toReader} aria-pressed={!inResearch} title="תצוגה פשוטה — רק העיקר" style={seg(!inResearch)}>👁️ פשוט</button>
                 <button onClick={toResearch} aria-pressed={inResearch} title="הכול פתוח — מחקר מלא" style={seg(inResearch)}>🔬 מחקר</button>
