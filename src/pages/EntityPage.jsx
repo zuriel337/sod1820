@@ -892,12 +892,16 @@ export default function EntityPage({ embedPhrase } = {}) {
             {d.phrases?.length > tasteStart && (
               <div style={{ marginTop: 16, textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                   {d.phrases.slice(tasteStart, tasteStart + 6).map((p, i) => (
                     <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
                       style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                         borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
                   ))}
+                  {/* 🔬 קצה שמאל — קפיצה ישירה להיכל הגילוי (כל המילים + הכלים) */}
+                  <button onClick={() => enterDiscoveryWith("words")} title="פתחו את היכל הגילוי — כל המילים והכלים"
+                    style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
+                      borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🔬 עוד →</button>
                 </div>
               </div>
             )}
