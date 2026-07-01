@@ -805,7 +805,8 @@ export default function EntityPage({ embedPhrase } = {}) {
         {/* 👤 מצב קריאה — «מהות המספר» (עוגן מאומת) או תיבת AI · ואז «ראו עוד» */}
         {!showBody && (
           <>
-            {anchor ? (
+            {/* 👤 מהות המספר — עוגן מאומת בלבד. חידוש ה-AI ירד לשכבה 2 (שלב א' = גימטריה רגילה). */}
+            {anchor && (
               <div style={{ maxWidth: 580, margin: "6px auto 4px", padding: "18px 20px", borderRadius: 18,
                 background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`, textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 8 }}>✦ מהות המספר</div>
@@ -813,33 +814,17 @@ export default function EntityPage({ embedPhrase } = {}) {
                 {anchor.hint && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, marginTop: 10 }}>{anchor.hint}</div>}
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 10 }}>🔢 עובדה מאומתת במנוע</div>
               </div>
-            ) : d.insights?.length > 0 && (
-              <div style={{ ...card, maxWidth: 560, margin: "0 auto 4px" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>🤖 חידוש AI</div>
-                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{stripHtml(d.insights[0].title || "חידוש")}</div>
-                {d.insights[0].body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75 }}>{stripHtml(d.insights[0].body).slice(0, 180)}</div>}
-              </div>
             )}
-            {/* ✨ פעולה ראשית אחת — המסע (גדול ובולט) */}
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} style={{ textDecoration: "none" }}>
-                <span style={{ display: "inline-block", minWidth: 280, maxWidth: "92%", background: P.accentBtn, color: P.onAccent,
-                  borderRadius: 16, fontFamily: F.heading, fontWeight: 800, fontSize: 16.5, padding: "15px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                  ✨ המסע מתחיל כאן
-                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, opacity: 0.85, marginTop: 3 }}>צאו למסע בגרף מ-{value} →</span>
-                </span>
-              </Link>
-            </div>
 
-            {/* 🔮 הצלבה נסתרת — פתוחה כבר בשער, מתחת למסע (הכי חשוב: «וואו, הכל מתחבר») */}
+            {/* 🔮 הצלבה נסתרת — הריבוע במרכז (שלב א', הכי חשוב: «הכל מתחבר») */}
             {!isNumber ? (
               /* דף ביטוי → הכרטיס העשיר: הביטוי = מילה קדושה בכמה שיטות + מד-נדירות (אותו CrossFinder כמו במצב מחקר) */
-              <div style={{ maxWidth: 500, margin: "14px auto 0" }}>
+              <div style={{ maxWidth: 500, margin: "16px auto 0" }}>
                 <CrossFinder term={term} value={value} />
               </div>
             ) : topics.length > 0 ? (
               <Link to={`/topic/${topics[0].slug}`}
-                style={{ textDecoration: "none", display: "block", maxWidth: 500, margin: "14px auto 0",
+                style={{ textDecoration: "none", display: "block", maxWidth: 500, margin: "16px auto 0",
                   background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
                   borderRadius: 14, padding: "13px 16px", textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, marginBottom: 5 }}>🔮 הצלבה נסתרת</div>
@@ -848,7 +833,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               </Link>
             ) : crossFallback.length >= 2 && (
               /* פולבק — נגזר מהמילים השוות (כולם = הערך). קיים כמעט לכל מספר. */
-              <div style={{ maxWidth: 500, margin: "14px auto 0",
+              <div style={{ maxWidth: 500, margin: "16px auto 0",
                 background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
                 borderRadius: 14, padding: "13px 16px", textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, marginBottom: 7 }}>🔮 הצלבה נסתרת</div>
@@ -863,6 +848,31 @@ export default function EntityPage({ embedPhrase } = {}) {
                 <div style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5, marginTop: 7 }}>שונים למראה — <b style={{ color: P.accentText }}>כולם {value}</b>. אותו שורש נסתר.</div>
               </div>
             )}
+
+            {/* 🌳 מילים שוות — גימטריה רגילה, לפני היציאה למסע (שלב א' עשיר בגימטריה) */}
+            {d.phrases?.length > tasteStart && (
+              <div style={{ marginTop: 16, textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
+                  {d.phrases.slice(tasteStart, tasteStart + 6).map((p, i) => (
+                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
+                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
+                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ✨ פעולה ראשית — המסע (אחרי הגימטריה הרגילה של שלב א') */}
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} style={{ textDecoration: "none" }}>
+                <span style={{ display: "inline-block", minWidth: 280, maxWidth: "92%", background: P.accentBtn, color: P.onAccent,
+                  borderRadius: 16, fontFamily: F.heading, fontWeight: 800, fontSize: 16.5, padding: "15px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                  ✨ המסע מתחיל כאן
+                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, opacity: 0.85, marginTop: 3 }}>צאו למסע בגרף מ-{value} →</span>
+                </span>
+              </Link>
+            </div>
 
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋). ★ שמור נשמר לכוכבי-העוצמה בלבד */}
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 15 }}>
@@ -907,20 +917,6 @@ export default function EntityPage({ embedPhrase } = {}) {
               );
             })()}
 
-            {/* מילים שוות — 3-4 מיד. מדלג על אלו שכבר בהצלבה הנסתרת (פולבק) כדי לא לשכפל. */}
-            {d.phrases?.length > tasteStart && (
-              <div style={{ marginTop: 15, textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
-                  {d.phrases.slice(tasteStart, tasteStart + 4).map((p, i) => (
-                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
-                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
-                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* שכבה 1 · שער הגילוי — כפתור «גלה עוד» פותח את שכבה 2 (המשך גלילה, לא הכל בבת אחת) */}
             {layer === 1 && (
               <div style={{ textAlign: "center", margin: "20px auto 8px" }}>
@@ -936,13 +932,13 @@ export default function EntityPage({ embedPhrase } = {}) {
             {/* שכבה 2 · גלה עוד — המשך טבעי של הדף, כל בלוק נחשף בגלילה כתגמול. לא כל התוכן. */}
             {layer >= 2 && (
               <div id="layer2" style={{ marginTop: 22 }}>
-                {/* עוד מילים שוות — ממשיך אחרי מה שכבר בשער (הצלבה + טעימה), בלי כפילות */}
-                {d.phrases?.length > tasteStart + 4 && (
+                {/* עוד מילים שוות — ממשיך אחרי מה שכבר בשער (6 המילים של שלב א'), בלי כפילות */}
+                {d.phrases?.length > tasteStart + 6 && (
                   <Reveal>
                     <div style={{ marginTop: 6, textAlign: "center" }}>
                       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>עוד מילים שוות ל-{value}:</div>
                       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
-                        {d.phrases.slice(tasteStart + 4, tasteStart + 14).map((p, i) => (
+                        {d.phrases.slice(tasteStart + 6, tasteStart + 16).map((p, i) => (
                           <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
                             style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                               borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
