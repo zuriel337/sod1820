@@ -637,9 +637,9 @@ export default function EntityPage({ embedPhrase } = {}) {
     return { galleryMain: [...about, ...related], galleryIncidental: incidental };
   }, [d.galleries, value]);
 
-  // 🔮 הצלבה נסתרת — כרטיס-התכנסות אם יש; אחרת נגזרת מ-2-3 מילים שוות (כולם = הערך).
-  // כשמשתמשים בפולבק, הטעימה מתחילה מאוחר יותר כדי לא לשכפל את אותן מילים.
-  const crossFallback = (!topics.length && (d.phrases?.length || 0) >= 2) ? d.phrases.slice(0, 3).map(p => p.phrase) : [];
+  // 🔮 הצלבה נסתרת — בדף ביטוי מציגים את הכרטיס העשיר (CrossFinder). בדף מספר: כרטיס-התכנסות
+  // אם יש; אחרת נגזרת מ-2-3 מילים שוות (כולם = הערך). כשמשתמשים בפולבק, הטעימה מתחילה מאוחר יותר.
+  const crossFallback = (isNumber && !topics.length && (d.phrases?.length || 0) >= 2) ? d.phrases.slice(0, 3).map(p => p.phrase) : [];
   const tasteStart = crossFallback.length ? crossFallback.length : 0;
 
 
@@ -832,7 +832,12 @@ export default function EntityPage({ embedPhrase } = {}) {
             </div>
 
             {/* 🔮 הצלבה נסתרת — פתוחה כבר בשער, מתחת למסע (הכי חשוב: «וואו, הכל מתחבר») */}
-            {topics.length > 0 ? (
+            {!isNumber ? (
+              /* דף ביטוי → הכרטיס העשיר: הביטוי = מילה קדושה בכמה שיטות + מד-נדירות (אותו CrossFinder כמו במצב מחקר) */
+              <div style={{ maxWidth: 500, margin: "14px auto 0" }}>
+                <CrossFinder term={term} value={value} />
+              </div>
+            ) : topics.length > 0 ? (
               <Link to={`/topic/${topics[0].slug}`}
                 style={{ textDecoration: "none", display: "block", maxWidth: 500, margin: "14px auto 0",
                   background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
