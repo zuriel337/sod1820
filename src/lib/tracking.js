@@ -43,6 +43,12 @@ export const trackShare = (platform, slug) => {
 export const trackImageClick = (imageId, value) =>
   track("reality-stream", null, "image_click", { image_id: imageId, value });
 
+// 🤖 שימוש ב-AI — נקרא בכל כפתור/פעולה שמפעילים קריאת-AI (השוואה · נוטריקון · פסוק · פסוק-יומי ·
+// ניתוח-מחקר · מסר-מסע · מסר-עומק). מפולח לפי kind → דשבורד «שימוש ב-AI לפי כפתור».
+// where = היכן נלחץ (למשל 'research'/'number'/'journey') לפילוח נוסף.
+export const trackAi = (kind, where = null) =>
+  track("ai", kind, "use", { where });
+
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
 // ===== מעקב התקנות אפליקציה (PWA install) =====

@@ -5,6 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
 import { getAiAnalysis } from "../lib/supabase.js";
+import { trackAi } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
 
 const heb = n => Number(n).toLocaleString("he");
@@ -139,6 +140,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     if (aiState === "done") { setAiState("idle"); setAiText(null); return; }   // לחיצה שנייה = הסתר
     if (!analyzeItems.length) return;
     setAiState("busy");
+    trackAi("research", "personal");   // 📊 שימוש ב-AI — ניתוח המחקר האישי
     const facts = analyzeItems.map(e => {
       if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;
       if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;

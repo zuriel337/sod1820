@@ -103,6 +103,13 @@ export async function getJourneyShares(hours = 336) {
   if (error) throw error;
   return data;
 }
+// 🤖 שימוש ב-AI לפי כפתור — כמה לחצו על כל כפתור-AI (השוואה/נוטריקון/פסוק/מחקר/מסע…). מקור: visitor_events.
+export async function getAiUsage(hours = 720) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_ai_usage", { p_hours: hours });
+  if (error) throw error;
+  return data;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {

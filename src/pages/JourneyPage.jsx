@@ -4,7 +4,7 @@ import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage } from "../lib/supabase.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
-import { track } from "../lib/tracking.js";
+import { track, trackAi } from "../lib/tracking.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
@@ -155,6 +155,7 @@ export default function JourneyPage() {
     try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); return; } } catch { /* noop */ }
     setAiState("busy");
     logView("journey_ai_message", String(root));   // 📊 פאנל: מסר אישי נוצר
+    trackAi("journey_msg", "journey");              // 📊 שימוש ב-AI — מסר-מסע (ראשון)
     const msg = await getJourneyMessage({
       value: root,
       path: path.filter(s => !s.leap).map(s => s.phrase),
@@ -191,6 +192,7 @@ export default function JourneyPage() {
     const ck = "sod_jmsgdeep_" + root;
     try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
     setDeepState("busy");
+    trackAi("journey_deep", "journey");   // 📊 שימוש ב-AI — מסר-עומק (מסע)
     const msg = await getJourneyMessage({
       value: root,
       path: path.filter(s => !s.leap).map(s => s.phrase),

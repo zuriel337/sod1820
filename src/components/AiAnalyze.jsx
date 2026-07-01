@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getAiAnalysis } from "../lib/supabase.js";
+import { trackAi } from "../lib/tracking.js";
 
 // 🤖 «נתח ב-AI» — רכיב לשימוש-חוזר לכל כלי מחקר (השוואה · נוטריקון · פסוק · פסוק-יומי).
 // מקבל kind + subject + facts (עובדות מאומתות מהמנוע) → כפתור → קריאת AI אחת → כרטיס פרשנות.
@@ -15,6 +16,7 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
     if (state === "busy") return;
     if (state === "done") { setState("idle"); setText(null); return; } // לחיצה שנייה = הסתר
     setState("busy");
+    trackAi(kind);   // 📊 שימוש ב-AI לפי כפתור (השוואה/נוטריקון/פסוק/פסוק-יומי)
     const a = await getAiAnalysis({ kind, subject, facts });
     if (a) { setText(a); setState("done"); } else setState("off");
   };

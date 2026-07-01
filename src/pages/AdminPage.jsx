@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -1722,6 +1722,7 @@ function JourneysTab() {
   const [dwell, setDwell] = useState(null);
   const [journeys, setJourneys] = useState(null);
   const [shares, setShares] = useState(null);
+  const [ai, setAi] = useState(null);
   const [err, setErr] = useState("");
   const [hours, setHours] = useState(168);
   useEffect(() => {
@@ -1729,8 +1730,15 @@ function JourneysTab() {
     getPageDwell(hours).then(d => live && setDwell(d || [])).catch(e => live && setErr(String(e?.message || e)));
     getVisitorJourneys(24, 4).then(d => live && setJourneys(d || [])).catch(() => live && setJourneys([]));
     getJourneyShares(720).then(d => live && setShares(d || null)).catch(() => live && setShares(null));
+    getAiUsage(720).then(d => live && setAi(d || null)).catch(() => live && setAi(null));
     return () => { live = false; };
   }, [hours]);
+  // תוויות ידידותיות לכל כפתור-AI (kind → שם + היכן)
+  const AI_LABELS = {
+    compare: "🔀 השוואת מילים", notarikon: "🔠 ראשי/סופי תיבות", verse: "📜 חיפוש בפסוק",
+    daily_verse: "📅 פסוק יומי", research: "🧠 ניתוח המחקר שלי (אזור אישי)",
+    journey_msg: "🧭 מסר-מסע (ראשון)", journey_deep: "🔓 מסר-עומק (מסע)",
+  };
   return (
     <div style={{ display: "grid", gap: 18 }}>
       {/* 🔗 שיתופי-מסע + 🔓 פתיחות מסר-עומק (AI) — «מי שיתף» (30 יום). קשור ישירות לצריכת קרדיטי ה-AI. */}
@@ -1765,6 +1773,43 @@ function JourneysTab() {
                 </table>
               </div>
             )}
+          </>
+        )}
+      </div>
+
+      {/* 🤖 שימוש ב-AI לפי כפתור — על איזה כפתורי-AI לחצו הכי הרבה (30 יום). כל שורה = כפתור. */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🤖 שימוש ב-AI לפי כפתור · 30 יום</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>על איזה כפתורי-AI לחצו הכי הרבה. כל לחיצה = קריאת AI אחת (עלות קרדיטים).</div>
+        {!ai ? <div style={{ color: C.muted }}>טוען…</div> : (
+          <>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              {[["🤖 סה״כ קריאות AI", ai.total], ["👤 משתמשים ייחודיים", ai.unique_users]].map(([lbl, n]) => (
+                <div key={lbl} style={{ flex: "1 1 160px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>{Number(n || 0).toLocaleString("he")}</div>
+                  <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+                </div>
+              ))}
+            </div>
+            {(ai.by_button || []).length === 0 ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>עדיין אין שימוש ב-AI בטווח.</div> : (() => {
+              const max = Math.max(...ai.by_button.map(b => b.uses), 1);
+              return (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {ai.by_button.map((b, i) => (
+                    <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                        <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, flex: 1 }}>{AI_LABELS[b.kind] || b.kind}</span>
+                        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{Number(b.uses).toLocaleString("he")}</span>
+                        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11 }}>· {Number(b.users).toLocaleString("he")} משתמשים</span>
+                      </div>
+                      <div style={{ height: 6, background: "rgba(212,175,55,0.12)", borderRadius: 999, overflow: "hidden" }}>
+                        <div style={{ width: `${Math.round((b.uses / max) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#d4af37,#f0d878)" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>
