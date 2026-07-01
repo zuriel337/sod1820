@@ -179,6 +179,16 @@ export async function getGalleriesOverview({ force = false } = {}) {
   return { gals: gals || [], imgs };
 }
 
+// ✦ עוגן-המהות של מספר — «מהות המספר» (עובדה+רמז מאומתים) לדף המספר. null אם אין.
+export async function getNumberAnchor(value) {
+  if (!supabase || value == null) return null;
+  try {
+    const { data } = await supabase.from('number_anchors')
+      .select('value,category,fact,hint').eq('value', value).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
 export async function getTopPrimaryValues(lim = 16) {
   if (!supabase) return [];

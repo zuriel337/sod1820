@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -552,6 +552,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [seeMore, setSeeMore] = useState(false);
   const showBody = embedded || mode === "discovery" || seeMore;
   useEffect(() => { setSeeMore(false); }, [value, term]); // מספר חדש → חזרה למצב קריאה
+  // ✦ עוגן-המהות של המספר (number_anchors) — «מהות המספר» בראש מצב-הקריאה.
+  const [anchor, setAnchor] = useState(null);
+  useEffect(() => { let a = true; setAnchor(null); getNumberAnchor(value).then(r => { if (a) setAnchor(r); }); return () => { a = false; }; }, [value]);
 
   // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
@@ -695,10 +698,18 @@ export default function EntityPage({ embedPhrase } = {}) {
           </div>
         )}
 
-        {/* 👤 מצב קריאה — תיבת AI אחת + «ראו עוד» → חשיפה מדורגת של גוף-המחקר */}
+        {/* 👤 מצב קריאה — «מהות המספר» (עוגן מאומת) או תיבת AI · ואז «ראו עוד» */}
         {!showBody && (
           <>
-            {d.insights?.length > 0 && (
+            {anchor ? (
+              <div style={{ maxWidth: 580, margin: "6px auto 4px", padding: "18px 20px", borderRadius: 18,
+                background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`, textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 8 }}>✦ מהות המספר</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,24px)", fontWeight: 800, lineHeight: 1.4 }}>{anchor.fact}</div>
+                {anchor.hint && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, marginTop: 10 }}>{anchor.hint}</div>}
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 10 }}>🔢 עובדה מאומתת במנוע</div>
+              </div>
+            ) : d.insights?.length > 0 && (
               <div style={{ ...card, maxWidth: 560, margin: "0 auto 4px" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>🤖 חידוש AI</div>
                 <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{stripHtml(d.insights[0].title || "חידוש")}</div>
