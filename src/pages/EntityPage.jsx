@@ -656,6 +656,18 @@ export default function EntityPage({ embedPhrase } = {}) {
         <div className="ep-toprow">
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
           <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
+          {/* 🔬 מתג מצב — למעלה, פשוט: «מצב מחקר» / «מצב רגיל». מציג את המצב הנוכחי, לחיצה מחליפה. */}
+          {!embedded && (() => {
+            const inResearch = mode === "discovery" || layer >= 3;
+            return (
+              <button onClick={() => { if (inResearch) { setLayer(1); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); } else { enterDiscovery?.(); setLayer(3); } }}
+                title={inResearch ? "עבור למצב רגיל" : "עבור למצב מחקר"}
+                style={{ cursor: "pointer", background: inResearch ? P.accentBtn : P.cardSoft, color: inResearch ? P.onAccent : P.accentText,
+                  border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 14px", whiteSpace: "nowrap" }}>
+                {inResearch ? "🔬 מצב מחקר" : "👁️ מצב רגיל"}
+              </button>
+            );
+          })()}
           <form onSubmit={goSearch} className="ep-topsearch">
             <input value={q} onChange={e => setQ(e.target.value)} className="ep-topsearch-inp" placeholder="חפשו שם · מילה · מספר…" dir="rtl" style={{ background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "9px 18px", outline: "none", textAlign: "center" }} />
             <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "9px 18px", whiteSpace: "nowrap" }}>חפש ✦</button>
@@ -738,16 +750,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             </>} />}
         </div>
 
-        {/* 👁️ חזרה לקריאה — מוצג רק במצב מחקר (הכניסה נעשית מכפתור-העל בתחתית מצב הקריאה). */}
-        {!embedded && showBody && (
-          <div style={{ textAlign: "center", marginBottom: 6 }}>
-            <button onClick={() => { setLayer(1); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }} title="חזרה לשער הגילוי"
-              style={{ cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`,
-                borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 15px" }}>
-              👁️ חזרה לקריאה · 🔬 היכל הגילוי פעיל
-            </button>
-          </div>
-        )}
+        {/* מתג המצב עבר לשורה העליונה (ליד המחשבון) — «מצב מחקר / מצב רגיל». */}
 
         {/* 👤 מצב קריאה — «מהות המספר» (עוגן מאומת) או תיבת AI · ואז «ראו עוד» */}
         {!showBody && (
@@ -821,10 +824,10 @@ export default function EntityPage({ embedPhrase } = {}) {
               ))}
             </div>
 
-            {/* טעימה — 3-4 מילים שוות מיד (מייצר סקרנות ללחוץ «גלה עוד») */}
+            {/* מילים שוות — 3-4 מיד (מייצר סקרנות ללחוץ «גלה עוד») */}
             {d.phrases?.length > 0 && (
               <div style={{ marginTop: 15, textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>טעימה — מילים שוות ל-{value}:</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>מילים שוות ל-{value}</div>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
                   {d.phrases.slice(0, 4).map((p, i) => (
                     <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
