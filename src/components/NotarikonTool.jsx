@@ -5,6 +5,7 @@ import { calcGem } from "../theme.js";
 import { onlyHeb } from "../lib/gematria.js";
 import { entityFromPhrase, entityFromVerse } from "../lib/research/entity.js";
 import ToolGuide from "./research/ToolGuide.jsx";
+import AiAnalyze from "./AiAnalyze.jsx";
 
 // 🔠 ראשי / אמצעי / סופי תיבות (נוטריקון) — שני כיוונים:
 //   • מהביטוי → ראשי-התיבות · אמצעי-התיבות · סופי-התיבות + ערך כל אחד + השוואת-התכנסות.
@@ -69,6 +70,12 @@ function Forward() {
               ))}
             </div>
           )}
+          {/* 🤖 ניתוח AI — מפרש את ראשי/אמצעי/סופי התיבות (לא מחשב) */}
+          <AiAnalyze
+            kind="notarikon"
+            subject={q.trim()}
+            facts={`ביטוי: ${q.trim()}. ראשי-תיבות «${rashei}»=${calcGem(rashei)} · אמצעי-תיבות «${emtzaei}»=${calcGem(emtzaei)} · סופי-תיבות «${sofei}»=${calcGem(sofei)}.` + (conv ? " התכנסות מחושבת: " + conv.map(([a, b]) => `${a.k}-תיבות «${a.t}» = ${b.k}-תיבות «${b.t}» = ${a.v}`).join(" · ") : "")}
+          />
         </>
       ) : q.trim() ? <div className="rw-muted" style={{ marginTop: 12 }}>הקלידו לפחות שתי מילים (למשל «רבי שמעון בר יוחאי»).</div> : (
         <div className="rw-muted" style={{ marginTop: 12, lineHeight: 1.7 }}>דוגמה: «את השמים ואת הארץ» → ראשי-תיבות «אהוה», סופי-תיבות «תםתץ».</div>
