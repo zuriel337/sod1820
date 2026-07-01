@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
-import { ENTITY_ICON, entityFromPhrase } from "../lib/research/entity.js";
+import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
+import { getAiAnalysis } from "../lib/supabase.js";
 import { calcGem } from "../theme.js";
 
 const heb = n => Number(n).toLocaleString("he");
@@ -128,6 +129,25 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
 
+  // 🤖 ניתוח-AI של אוסף-המחקר (מוצמדים + פעיל) — Analyze(Collection). מוצא חוטים אמיתיים בין
+  // הישויות שאספת (ערכים משותפים · קשר תמטי · התכנסות), ביושר אם אין. הערכים = עובדה מהמנוע.
+  const [aiState, setAiState] = useState("idle"); // idle | busy | done | off
+  const [aiText, setAiText] = useState(null);
+  const analyzeItems = [...pinned, ...cart];
+  const runAnalyze = async () => {
+    if (aiState === "busy") return;
+    if (aiState === "done") { setAiState("idle"); setAiText(null); return; }   // לחיצה שנייה = הסתר
+    if (!analyzeItems.length) return;
+    setAiState("busy");
+    const facts = analyzeItems.map(e => {
+      if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;
+      if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;
+      return `• ${ENTITY_LABEL[e.type] || e.type}: ${e.title}`;
+    }).join("\n");
+    const a = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${analyzeItems.length} ישויות`, facts });
+    if (a) { setAiText(a); setAiState("done"); } else setAiState("off");
+  };
+
   // 📤 ייצוא/שיתוף מחקר — מקבץ מוצמדים + מחקר-פעיל + פנקס לטקסט אחד → העתק + הדפס/PDF
   const exportResearch = () => {
     const L = ["המחקר שלי · סוד 1820", ""];
@@ -183,9 +203,19 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
               <div className="rw-cta">
-                <button className="b1 off" disabled title="ניתוח AI — בבנייה, ייפתח בקרוב">🤖 נתח · בבנייה</button>
+                <button className="b1" onClick={runAnalyze} disabled={aiState === "busy"} title="ניתוח AI של אוסף המחקר — חוטים משותפים בין הישויות">
+                  {aiState === "busy" ? "✍️ מנתח…" : aiState === "done" ? "🤖 הסתר ניתוח" : "🤖 נתח ב-AI"}
+                </button>
                 <button className="b2" onClick={exportResearch} title="העתק + הדפס/PDF">📤 ייצוא</button>
               </div>
+              {aiState === "done" && aiText && (
+                <div className="rw-ai-box">
+                  <div className="rw-ai-h">🔵 ניתוח AI · פרשנות</div>
+                  <p className="rw-ai-t">{aiText}</p>
+                  <div className="rw-ai-note">הערכים עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).</div>
+                </div>
+              )}
+              {aiState === "off" && <div className="rw-empty" style={{ marginTop: 8 }}>הניתוח אינו זמין כרגע — נסו שוב מאוחר יותר.</div>}
             </>}
       </Panel>
     ) },

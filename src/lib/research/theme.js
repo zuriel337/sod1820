@@ -141,6 +141,12 @@ export const rwCss = (t = RW) => `
   .rw-cta{display:flex;gap:8px;margin-top:10px}
   .rw-cta button{flex:1;border-radius:12px;padding:11px;font-weight:800;font-size:14px;min-height:${t.tap}px;cursor:pointer;border:1px solid var(--acc)}
   .rw-cta .b1{background:var(--acc);color:#fff}.rw-cta .b2{background:var(--card);color:var(--acc)}
+  .rw-cta button:disabled{opacity:.5;cursor:default}
+  /* 🤖 ניתוח-AI לאוסף-המחקר — כרטיס פרשנות כחול (עובדה מהמנוע · פרשנות AI) */
+  .rw-ai-box{margin-top:10px;background:#eef4ff;border:1.5px solid #3ea6ff55;border-radius:13px;padding:12px 13px}
+  .rw-ai-h{color:#2f7fd0;font-weight:800;font-size:12.5px;margin-bottom:7px}
+  .rw-ai-t{margin:0;color:var(--ink);font-size:14px;line-height:1.85;white-space:pre-wrap}
+  .rw-ai-note{color:var(--ink3);font-size:10.5px;font-style:italic;margin-top:8px}
   .rw-savei{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}.rw-savei:first-child{border-top:none}
   .rw-hot{background:var(--accS);border-radius:12px;padding:11px 12px;font-weight:700;font-size:14px;color:var(--acc)}
   .rw-qa{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
