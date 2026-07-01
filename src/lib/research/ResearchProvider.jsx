@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { emit, EVENTS } from "./eventBus.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
+import { trackResearch } from "../tracking.js";
 
 // 🧠 ResearchProvider — סביבת המחקר הגלובלית (Local-first). מחזיק את «המחקר הפעיל»
 // (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
@@ -89,6 +90,7 @@ export default function ResearchProvider({ children }) {
     setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
     logHistory(entity);
     emit(EVENTS.RESEARCH_ADD, entity);
+    trackResearch("add", { type: entity.type });
   }, [logHistory]);
   const removeFromResearch = useCallback((id) => setCart(c => c.filter(e => e.id !== id)), []);
   const clearResearch = useCallback(() => { setCart([]); emit(EVENTS.RESEARCH_CLEAR); }, []);
@@ -97,6 +99,7 @@ export default function ResearchProvider({ children }) {
     setSaved(s => (s.some(e => e.id === entity.id) ? s : [entity, ...s]));
     logHistory(entity);
     emit(EVENTS.ITEM_SAVE, entity);
+    trackResearch("save", { type: entity.type });
   }, [logHistory]);
   const removeSaved = useCallback((id) => setSaved(s => s.filter(e => e.id !== id)), []);
 
@@ -130,6 +133,7 @@ export default function ResearchProvider({ children }) {
     if (!j || j.root == null) return;
     const rec = { id: "j" + j.root, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
     setJourneys(js => [rec, ...js.filter(x => x.root !== j.root)].slice(0, 30));
+    trackResearch("journey", { root: j.root });
   }, []);
   const removeJourney = useCallback((id) => setJourneys(js => js.filter(j => j.id !== id)), []);
   const clearJourneys = useCallback(() => setJourneys([]), []);

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { emit, EVENTS } from "../../lib/research/eventBus.js";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
+import { trackResearch } from "../../lib/tracking.js";
 
 // 🧪 EntityHub — שלד הסרגלים (Reality Graph Law · Reader→Research).
 // המרכז נשאר בדיוק כמו היום. שני סרגלים מתקפלים, **סגורים כברירת-מחדל**, ו**תואמים למעבדה**:
@@ -19,7 +20,7 @@ export default function EntityHubRails({ entity }) {
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
     try { localStorage.setItem(KEY, JSON.stringify(n)); } catch { /* noop */ }
-    if (v) emit(EVENTS.RESEARCH_ADD ? "hub:enter" : "hub:enter", { side, entity }); // נכנס למצב חוקר
+    if (v) { emit(EVENTS.RESEARCH_ADD ? "hub:enter" : "hub:enter", { side, entity }); trackResearch("open", { where: "rail" }); } // נכנס למצב חוקר
     return n;
   });
 
@@ -55,7 +56,7 @@ export default function EntityHubRails({ entity }) {
       {/* 📱 מובייל — כפתור צף «עולם המשתמש» → גיליון-תחתון עם אותם טאבים בדיוק */}
       <div className="ehr-mob">
         {!mobOpen && (
-          <button className="ehr-mob-btn" onClick={() => setMobOpen(true)}>👤 עולם המשתמש ▲</button>
+          <button className="ehr-mob-btn" onClick={() => { setMobOpen(true); trackResearch("open", { where: "mobile" }); }}>👤 עולם המשתמש ▲</button>
         )}
         {mobOpen && (
           <>

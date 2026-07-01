@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -1723,6 +1723,7 @@ function JourneysTab() {
   const [journeys, setJourneys] = useState(null);
   const [shares, setShares] = useState(null);
   const [ai, setAi] = useState(null);
+  const [rw, setRw] = useState(null);
   const [err, setErr] = useState("");
   const [hours, setHours] = useState(168);
   useEffect(() => {
@@ -1731,6 +1732,7 @@ function JourneysTab() {
     getVisitorJourneys(24, 4).then(d => live && setJourneys(d || [])).catch(() => live && setJourneys([]));
     getJourneyShares(720).then(d => live && setShares(d || null)).catch(() => live && setShares(null));
     getAiUsage(720).then(d => live && setAi(d || null)).catch(() => live && setAi(null));
+    getResearchUsage(48).then(d => live && setRw(d || null)).catch(() => live && setRw(null));
     return () => { live = false; };
   }, [hours]);
   // תוויות ידידותיות לכל כפתור-AI (kind → שם + היכן)
@@ -1775,6 +1777,23 @@ function JourneysTab() {
             )}
           </>
         )}
+      </div>
+
+      {/* 🧠 שימוש באזור-המשתמש — כמה נכנסו/שמרו/הוסיפו למחקר (כולל אנונימיים!) ב-48 שעות. */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🧠 אזור המשתמש — מי נכנס ושמר · 48 שעות</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כולל אנונימיים (visitor_id) — לא רק רשומים. «נכנסו» = פתחו את «עולם המשתמש»; «שמרו» = ⭐/🔖.</div>
+        {!rw ? <div style={{ color: C.muted }}>טוען…</div> : (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {[["👤 נכנסו לאזור", rw.openers], ["🔖 שמרו", rw.savers], ["➕ הוסיפו למחקר", rw.adders], ["🧭 שמרו מסע", rw.journeyers], ["Σ סה״כ שמירות", rw.total_saves]].map(([lbl, n]) => (
+              <div key={lbl} style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+                <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>{Number(n || 0).toLocaleString("he")}</div>
+                <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, marginTop: 10, fontStyle: "italic" }}>מספרים = מבקרים ייחודיים. שמירה מקומית (בלי לוגין) נספרת גם — עץ אחד, Local-first.</div>
       </div>
 
       {/* 🤖 שימוש ב-AI לפי כפתור — על איזה כפתורי-AI לחצו הכי הרבה (30 יום). כל שורה = כפתור. */}

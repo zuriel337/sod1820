@@ -49,6 +49,13 @@ export const trackImageClick = (imageId, value) =>
 export const trackAi = (kind, where = null) =>
   track("ai", kind, "use", { where });
 
+// 🧠 שימוש באזור-המשתמש (עולם המשתמש / המחקר) — תופס גם אנונימיים (visitor_id). מפולח לפי action:
+//   open  — נפתח «עולם המשתמש» (סרגל/גיליון/פרופיל)
+//   save  — 🔖/⭐ שמירת ישות · add — ➕ הוסף למחקר · journey — מסע נשמר
+// דשבורד: «כמה נכנסו/שמרו באזור המשתמש» (כולל לא-רשומים).
+export const trackResearch = (action, meta = null) =>
+  track("research", null, action, meta || undefined);
+
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
 // ===== מעקב התקנות אפליקציה (PWA install) =====

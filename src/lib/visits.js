@@ -110,6 +110,13 @@ export async function getAiUsage(hours = 720) {
   if (error) throw error;
   return data;
 }
+// 🧠 שימוש באזור-המשתמש — כמה נכנסו/שמרו/הוסיפו למחקר (כולל אנונימיים). מקור: visitor_events.
+export async function getResearchUsage(hours = 48) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_research_usage", { p_hours: hours });
+  if (error) throw error;
+  return data;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
