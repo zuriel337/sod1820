@@ -34,7 +34,6 @@ function engineMessage({ root, bases = [], stations = 0, dWorld }) {
 
 // 🔮 ריבוע פיתוחים עתידיים — מה שבדרך (כולל גרסה 2 של המסע)
 const FUTURE = [
-  { icon: "🤖", title: "מסר מהמנוע — אישי (AI)", note: "ההודעה תיכתב במיוחד עבורך לפי המסע שעשית", soon: true },
   { icon: "🧭", title: "מסע מודרך לפי שדה/עולם", note: "לבחור נושא — והמנוע בונה מסע סביבו" },
   { icon: "💾", title: "המסעות שלי", note: "היסטוריה אישית — לשמור ולחזור למסעות" },
   { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
@@ -138,20 +137,28 @@ export default function JourneyPage() {
   const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
   const leaped = bases.length > 1;
 
-  // 🤖 מסר אישי מהמנוע — קריאת AI אחת לפי נתוני המסע (בלחיצה, לא אוטומטי).
+  // 🤖 מסר אישי מהמנוע — אוטומטי כשמגיעים למסך הגילוי. **נצבר (cache) לפי מספר** →
+  // אותו מספר לא קורא ל-AI פעמיים (חוסך קרדיט; המסר נשמר במכשיר).
   async function fetchAiMessage() {
     if (aiState === "busy" || root == null) return;
+    const ck = "sod_jmsg_" + root;
+    try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); return; } } catch { /* noop */ }
     setAiState("busy");
-    logView("journey_ai_message", String(root));   // 📊 פאנל: ביקש מסר אישי
+    logView("journey_ai_message", String(root));   // 📊 פאנל: מסר אישי נוצר
     const msg = await getJourneyMessage({
       value: root,
       path: path.filter(s => !s.leap).map(s => s.phrase),
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
     });
-    if (msg) { setAiMsg(msg); setAiState("done"); }
+    if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
     else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
   }
+
+  // ▶️ מסר אוטומטי — ברגע שמגיעים למסך הגילוי (finished) ויש מספר-שורש.
+  useEffect(() => {
+    if (finished && root != null && aiState === "idle") fetchAiMessage();
+  }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function shareJourney() {
     if (busy || root == null) return;
@@ -238,20 +245,21 @@ export default function JourneyPage() {
               {aiState === "done" && aiMsg ? (
                 /* המסר האישי מהמנוע */
                 <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{aiMsg}</p>
+              ) : (aiState === "busy" || aiState === "idle") ? (
+                /* נכתב אוטומטית — מצב טעינה */
+                <div style={{ display: "flex", alignItems: "center", gap: 9, color: P.accentDim, fontFamily: F.body, fontSize: 14, fontStyle: "italic", padding: "4px 0" }}>
+                  <span style={{ animation: "jReveal 1s ease-in-out infinite" }}>✍️</span> המנוע כותב לך מסר אישי…
+                </div>
               ) : (
+                /* off — נפילה חיננית להודעת-התבנית + ניסיון חוזר */
                 <>
                   <div style={{ display: "grid", gap: 8 }}>
                     {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
                       <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
                     ))}
                   </div>
-                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <button onClick={fetchAiMessage} disabled={aiState === "busy"} style={{ cursor: aiState === "busy" ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "9px 20px", boxShadow: `0 0 20px ${P.glow}` }}>
-                      {aiState === "busy" ? "המנוע כותב לך…" : "🤖 קבל מסר אישי"}
-                    </button>
-                    {aiState === "off" && (
-                      <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontStyle: "italic" }}>המסר האישי עוד לא פעיל — זה מה שהמנוע רואה כרגע.</span>
-                    )}
+                  <div style={{ marginTop: 10, textAlign: "center" }}>
+                    <button onClick={() => setAiState("idle")} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 16px" }}>↻ נסה מסר אישי</button>
                   </div>
                 </>
               )}
