@@ -6,7 +6,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
-import LiveActivityBar from "./LiveActivityBar.jsx"; // eslint-disable-line no-unused-vars -- מכובה זמנית (ראו למטה)
+import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -47,7 +47,8 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        {/* ⏸️ הטיקר («עכשיו באתר») מכובה זמנית לבקשת צוריאל — להחזרה: <LiveActivityBar /> */}
+        {/* 📡 הטיקר («עכשיו באתר») — פעיל. שליטה ידנית דרך ticker_messages ב-DB. */}
+        <LiveActivityBar />
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
