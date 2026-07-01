@@ -14,6 +14,7 @@ import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
@@ -379,6 +380,31 @@ function NumberPulse({ value, onExplore }) {
   );
 }
 
+// 🔆 מנורה קטנה — טבעת-מד עם המספר הגולמי במרכז (קישוריות / נצפה). לצד «דופק המספר».
+// ה-value (0-100) מניע את מילוי הטבעת; raw = המספר האמיתי שמוצג (בלי לזייף).
+function MiniGauge({ value, raw, label, color, size = 62 }) {
+  const P = usePalette();
+  const p = Math.max(0, Math.min(100, Math.round(value)));
+  const stroke = Math.max(5, Math.round(size * 0.09));
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const off = c * (1 - p / 100);
+  return (
+    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
+      <div style={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 6px ${color}55)` }}>
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={P.border} strokeWidth={stroke} />
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
+            strokeDasharray={c} strokeDashoffset={off} style={{ transition: "stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)" }} />
+        </svg>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+          color: P.ink, fontFamily: F.mono, fontSize: Math.round(size * 0.28), fontWeight: 800 }}>{raw}</div>
+      </div>
+      <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>{label}</span>
+    </div>
+  );
+}
+
 function SectionHead({ icon, title, count }) {
   const P = usePalette();
   return (
@@ -726,18 +752,17 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          {/* 💎 זהות המספר — צ'יפים נקיים (בלי קופסה כבדה / עומס אימוג'ים) + פס-העוצמה */}
+          {/* 💎 זהות המספר — צ'יפים נקיים + דשבורד «דופק המספר» (לב) + 2 מנורות (קישוריות · נצפה) */}
           {(() => {
             const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
             const totalConn = (d.postsCount || 0) + (d.galleriesCount || 0) + (d.phrases?.length || 0) + (d.eventsCount || 0) + (d.insightsCount || 0) + (d.commentsCount || 0);
-            const chips = [
-              typeLabel,
-              hasGate && `${sigs.length} חתימות`,
-              totalConn > 0 && `מחובר ל-${totalConn}`,
-              searched > 0 && `נצפה ${searched}×`,
-            ].filter(Boolean);
+            // צ'יפים: רק סוג + חתימות. קישוריות/נצפה עברו למנורות (בלי כפילות).
+            const chips = [typeLabel, hasGate && `${sigs.length} חתימות`].filter(Boolean);
+            const pulse = pulseFromCounts({ posts: d.postsCount, galleries: d.galleriesCount, words: d.phrases?.length, events: d.eventsCount, ai: d.insightsCount, comm: d.commentsCount });
+            const core = !!(KEY_NUMBERS[value] || ANCHOR_SET.has(value));
+            const sat = (x, k) => x > 0 ? Math.round((x / (x + k)) * 100) : 0;   // עקומת-רוויה: ממפה ספירה גולמית ל-0-100 בלי תקרה מזויפת
             return (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 13, margin: "14px auto 0" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 15, margin: "14px auto 0" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
                   {chips.map((c, i) => (
                     <span key={i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
@@ -745,7 +770,12 @@ export default function EntityPage({ embedPhrase } = {}) {
                       fontFamily: F.heading, fontSize: 12.5, fontWeight: i === 0 ? 800 : 600 }}>{c}</span>
                   ))}
                 </div>
-                <NumberPulse value={value} onExplore={() => { setOpen(o => ({ ...o, dna: true })); setTimeout(() => scrollTo("dna"), 80); }} />
+                {/* ❤️ הדשבורד — הלב במרכז, מנורות-מד לצדדים (רק כשיש נתון אמיתי) */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+                  {searched > 0 && <MiniGauge value={sat(searched, 30)} raw={searched} label="נצפה" color={P.accent} />}
+                  <PulseRing value={pulse} size={98} core={core} />
+                  {totalConn > 0 && <MiniGauge value={sat(totalConn, 20)} raw={totalConn} label="קישוריות" color={P.accentText} />}
+                </div>
               </div>
             );
           })()}
