@@ -39,7 +39,8 @@ export const rwCss = (t = RW) => `
   /* במה: סרגלים מתקפלים בצדדים (גרירה/לחיצה), אזור-כלים גמיש במרכז (investing/IDE) */
   .rw-stage{display:flex;align-items:flex-start;padding:0 clamp(12px,1.8vw,30px);max-width:none;margin:0;gap:0}
   .rw-stage.wide{max-width:none}
-  .rw-pwrap{flex:0 0 auto;width:330px;display:grid;gap:12px;position:sticky;top:74px}
+  /* min-width:0 + grid-template-columns:minmax(0,1fr) → הרוחב קבוע; שם ארוך/בורר-תיקייה נחתך (ellipsis) ולא מרחיב את העמודה הצידה */
+  .rw-pwrap{flex:0 0 auto;width:330px;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;position:sticky;top:74px}
   .rw-pwrap.left{width:240px}
   .rw-work{flex:1;min-width:0;padding:0 12px}
   .rw-grip{flex:0 0 12px;align-self:stretch;min-height:60vh;cursor:col-resize;display:flex;align-items:center;justify-content:center;
