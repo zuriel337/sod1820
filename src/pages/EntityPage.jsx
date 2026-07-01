@@ -898,10 +898,17 @@ export default function EntityPage({ embedPhrase } = {}) {
                       style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                         borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
                   ))}
-                  {/* 🔬 קצה שמאל — קפיצה ישירה להיכל הגילוי (כל המילים + הכלים) */}
-                  <button onClick={() => enterDiscoveryWith("words")} title="פתחו את היכל הגילוי — כל המילים והכלים"
-                    style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
-                      borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🔬 עוד →</button>
+                  {/* 🔬 קצה שמאל — כמה עוד מילים יש, קפיצה ישירה להיכל הגילוי (כל המילים) */}
+                  {(() => {
+                    const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 6));
+                    return (
+                      <button onClick={() => enterDiscoveryWith("words")} title="פתחו את היכל הגילוי — כל המילים השוות"
+                        style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
+                          borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
+                        🔬 {more > 0 ? `עוד ${more.toLocaleString("he")} →` : "להיכל →"}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             )}
