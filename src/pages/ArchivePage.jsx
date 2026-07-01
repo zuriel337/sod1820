@@ -55,7 +55,8 @@ export default function ArchivePage() {
   useEffect(() => { track("reality-stream"); }, []); // eslint-disable-line
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(loc.search).get("tab");
-    return t === "galleries" ? "galleries" : t === "reality" ? "reality" : "pool";  // ברירת-מחדל: מאגר/סטים
+    // ברירת-מחדל: זרם המציאות (קליל) — reality_stream_law. גלריות/מאגר הכבדים רק בכניסה מפורשת.
+    return t === "galleries" ? "galleries" : t === "pool" ? "pool" : "reality";
   });
   // סנכרון טאב כשמנווטים עם ?tab= (אותו עמוד, לא מתבצע remount)
   useEffect(() => {
@@ -114,7 +115,14 @@ export default function ArchivePage() {
   const [hintSetDraft, setHintSetDraft] = useState(null); // {name, visibility, importance}
   const [wizardOpen, setWizardOpen] = useState(false);
 
+  // ⚡ טעינה כבדה (כל התמונות + סטים) — עצלה. רצה רק כשנכנסים לטאב «מאגר»/«גלריות»,
+  // לא בכניסה ל«זרם המציאות» (reality_stream_law) שמביא נתונים קלים משלו (RealityWorld).
+  // כך כניסת ברירת-המחדל אינה טוענת אלפי תמונות (מהיר + חוסך Image Transformations).
+  const overviewLoaded = useRef(false);
   useEffect(() => {
+    if (tab !== "pool" && tab !== "galleries") return;
+    if (overviewLoaded.current) return;
+    overviewLoaded.current = true;
     getGalleriesOverview().then(({ gals, imgs }) => {
       setImgs(imgs);
       const dateOf = im => {
@@ -137,7 +145,7 @@ export default function ArchivePage() {
     getNumberSets().then(rows => { setSets(rows); if (rows.length) setActiveSet(rows[0]); }).catch(() => {});
     getTederStations().then(setTeder).catch(() => {});
     getHintSets().then(setHintSets).catch(() => {});
-  }, []);
+  }, [tab]);
 
   // deep-link מפוסט: /archive?tab=galleries&gal=<wp_gallery_id> → פותח את הגלריה הספציפית.
   // (הגלריה «seq» = wp_gallery_id.) ה-ref מונע פתיחה חוזרת אחרי שהמשתמש סוגר.
