@@ -9,7 +9,6 @@ import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
-import { thumb } from "../lib/img.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
@@ -827,17 +826,11 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* 2 תמונות */}
-                {d.galleries?.length > 0 && (
+                {/* 🧬 מד ההתכנסות — הלב של «גלה עוד» (התמונות עברו לשכבה 3) */}
+                {value >= 10 && (
                   <Reveal delay={60}>
-                    <div style={{ marginTop: 20, textAlign: "center" }}>
-                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>🖼️ תמונות מהמאגר:</div>
-                      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                        {d.galleries.filter(g => g.image_url).slice(0, 2).map((g, i) => (
-                          <img key={i} src={thumb(g.image_url, 300, 60)} alt={g.name || String(value)} loading="lazy"
-                            style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 12, border: `1px solid ${P.border}` }} />
-                        ))}
-                      </div>
+                    <div style={{ maxWidth: 460, margin: "20px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
+                      <ConvergenceMeter value={value} />
                     </div>
                   </Reveal>
                 )}
