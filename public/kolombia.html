@@ -5,18 +5,17 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0%,#1a1206,#0a0700);font-family:'Heebo',system-ui,sans-serif;color:#e8dcc0;overflow:hidden;overscroll-behavior:none}
 .wrap{display:flex;flex-direction:column;height:100%;direction:rtl}
-.hdr{text-align:center;padding:9px 12px 4px}
+.hdr{text-align:center;padding:12px 12px 6px}
 .hdr .lib{color:#9a7818;font-weight:800;font-size:11px;letter-spacing:2px}
-.hdr h1{margin:2px 0 0;color:#E8C84A;font-size:19px;font-weight:900}
-.hdr .sub{color:#c9b98a;font-size:11.5px;margin-top:1px}
-.stars{font-size:14px;letter-spacing:2px;margin-top:1px}
-.story{color:#d8cba8;font-size:11.5px;margin:4px auto 0;max-width:340px;line-height:1.5;background:rgba(212,175,55,.06);border:1px solid #3a2c0e;border-radius:10px;padding:6px 10px}
-.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 8px 4px}
-.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800;border:1px solid #3a2c0e;background:#140d02;color:#d8cba8;cursor:pointer;user-select:none;transition:.15s}
-.chip .dot{width:10px;height:10px;border-radius:50%}
+.hdr h1{margin:3px 0 0;color:#E8C84A;font-size:22px;font-weight:900}
+.hdr .sub{color:#c9b98a;font-size:12.5px;margin-top:2px}
+.stars{font-size:15px;letter-spacing:2px;margin-top:2px}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px 8px 4px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:800;border:1px solid #3a2c0e;background:#140d02;color:#d8cba8;cursor:pointer;user-select:none;transition:.15s}
+.chip .dot{width:11px;height:11px;border-radius:50%}
 .chip.off{opacity:.34;text-decoration:line-through}
-.chip .d{color:#8a7a55;font-weight:600;font-size:10.5px}
-.stage{flex:1;position:relative;touch-action:none;min-height:120px}
+.chip .d{color:#8a7a55;font-weight:600;font-size:11px}
+.stage{flex:1;position:relative;touch-action:none;min-height:140px}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .tools{display:flex;gap:8px;justify-content:center;padding:8px 10px 12px}
 .btn{flex:0 0 auto;min-width:46px;height:44px;border-radius:12px;border:1px solid #3a2c0e;background:#140d02;color:#E8C84A;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
@@ -27,21 +26,20 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <body><div class="wrap">
   <div class="hdr">
     <div class="lib">📚 ספריית הדילוגים · SOD1820</div>
-    <h1>🚀 קולומביה · הצופן</h1>
+    <h1>קולומביה</h1>
     <div class="sub">דילוג 4,545 · מופע יחיד בתורה</div>
     <div class="stars">⭐⭐⭐⭐⭐</div>
-    <div class="story">החללית <b style="color:#E8C84A">קולומביה</b> — ובאותו דילוג 4545: <b style="color:#e07b2e">נָפַל</b> · <b style="color:#b5462e">בָּעַר</b> · <b style="color:#c9304a">אש</b> · <b style="color:#7a4fb0">אסון</b> · <b>מָוֶת</b>. הדליקו/כבו כל צופן 👇</div>
   </div>
   <div class="chips" id="chips"></div>
   <div class="stage" id="stage"><canvas id="cv"></canvas></div>
-  <div class="hint">👆 נגיעה במילה = הסרה/החזרה · 🤏 צביטה = זום · ✋ גרירה = הזזה</div>
+  <div class="hint">👆 נגיעה = הסרה/החזרה · 🤏 צביטה = זום · ✋ גרירה = הזזה</div>
   <div class="tools">
     <div class="btn" id="zin">＋</div><div class="btn" id="zout">－</div>
     <div class="btn" id="reset">⟳</div><div class="btn wide" id="dl">⬇️ הורד</div>
   </div>
 </div>
 <script>
-const DATA={"rows":["ואלבלקויאמרומאנבלעמהלכעמנוויספעודבלקשלחשרימרבימ","תשניהמאתאישישראלואתהאשהאלקבתהותעצרהמגפהמעלבנייש","אתוויקחאתיהושעויעמדהולפניאלעזרהכהנולפניכלהעדהוי","תרועהבידוויצבאועלמדינכאשרצוהיהוהאתמשהויהרגוכלזכ","תבמשהאתמוצאיהמלמסעיהמעלפייהוהואלהמסעיהמלמוצאיהמ","שובהרצחאלארצאחזתווהיואלהלכמלחקתמשפטלדרתיכמבכלמו","מלחמהמקרבהמחנהכאשרנשבעיהוהלהמוגמידיהוההיתהבמלהמ","הוהאלהיככייהוהאלהיכאשאכלההואאלקנאכיתולידבנימובנ","רצאשרנשבעלאבתינוויצונויהוהלעשותאתכלהחקימהאלהליר","וולאשמעתמבקלוממרימהייתמעמיהוהמיומדעתיאתכמואתנפל","מצוכרקבכלאותנפשכתזבחואכלתבשרכברכתיהוהאלהיכאשרנת","היכתתנלווזכרתכיעבדהייתבארצמצרימויפדכיהוהאלהיכעל","אתרעהוומתהואינוסאלאחתהערימהאלהוחיפנירדפגאלהדמאח","עמהאשהוהאשהובערתהרעמישראלכייהיהנערבתולהמארשהלאי","יכולביתכאתהוהלויוהגראשרבקרבככיתכלהלעשראתכלמעשרת"],"cols":47,"nrows":15,"highlights":[{"name":"קולומביה","dir":"↓ 4545 · גוף החללית","color":"#E8C84A","text":"#1a0e00","cells":[[5,29],[6,29],[7,29],[8,29],[9,29],[10,29],[11,29],[12,29]],"active":true},{"name":"אש אכלה","dir":"→ פשט · האש","color":"#c9304a","text":"#fff","cells":[[7,19],[7,20],[7,21],[7,22],[7,23],[7,24]],"active":true},{"name":"אסון","dir":"← צמוד לתחתית","color":"#7a4fb0","text":"#fff","cells":[[12,16],[12,15],[12,14],[12,13]],"active":true},{"name":"נָפַל","dir":"↓ 4545 · נפילה","color":"#e07b2e","text":"#1a0e00","cells":[[0,37],[1,37],[2,37]],"active":false},{"name":"בָּעַר","dir":"↓ 4545 · בעירה","color":"#b5462e","text":"#fff","cells":[[11,22],[12,22],[13,22]],"active":false},{"name":"מָוֶת","dir":"↘ 4544 · מוות","color":"#4a4a55","text":"#fff","cells":[[1,35],[2,34],[3,33]],"active":false}]};
+const DATA={"rows":["שראלואתהאשהאלקבתהותעצרהמגפהמעלבנייש","שעויעמדהולפניאלעזרהכהנולפניכלהעדהוי","באועלמדינכאשרצוהיהוהאתמשהויהרגוכלזכ","המלמסעיהמעלפייהוהואלהמסעיהמלמוצאיהמ","אחזתווהיואלהלכמלחקתמשפטלדרתיכמבכלמו","נהכאשרנשבעיהוהלהמוגמידיהוההיתהבמלהמ","והאלהיכאשאכלההואאלקנאכיתולידבנימובנ","תינוויצונויהוהלעשותאתכלהחקימהאלהליר","וממרימהייתמעמיהוהמיומדעתיאתכמואתנפל","נפשכתזבחואכלתבשרכברכתיהוהאלהיכאשרנת","תכיעבדהייתבארצמצרימויפדכיהוהאלהיכעל","ינוסאלאחתהערימהאלהוחיפנירדפגאלהדמאח","בערתהרעמישראלכייהיהנערבתולהמארשהלאי","הלויוהגראשרבקרבככיתכלהלעשראתכלמעשרת","לכואכלתפריבטנכבשרבניכובנתיכאשרנתנלכ"],"cols":35,"nrows":15,"highlights":[{"name":"קולומביה","dir":"↓ דילוג 4545 · מופע יחיד","color":"#E8C84A","text":"#1a0e00","cells":[[4,17],[5,17],[6,17],[7,17],[8,17],[9,17],[10,17],[11,17]],"active":true}]};
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const stage=document.getElementById('stage');
 let DPR=Math.min(window.devicePixelRatio||1,2.5);
@@ -49,7 +47,7 @@ const CELL=30,GAP=3,GRID=CELL+GAP;
 const gridW=DATA.cols*GRID,gridH=DATA.nrows*GRID;
 let scale=1,tx=0,ty=0,fitScale=1;
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;cv.width=w*DPR;cv.height=h*DPR;fitScale=Math.min(w/gridW,h/gridH)*0.98;draw();}
-function reset(){const w=stage.clientWidth,h=stage.clientHeight;scale=Math.max(fitScale,Math.min(w/gridW*1.7,1.4));tx=(w-gridW*scale)/2;ty=(h-gridH*scale)/2;draw();}
+function reset(){const w=stage.clientWidth,h=stage.clientHeight;scale=Math.max(fitScale,Math.min(w/gridW*1.7,1.5));tx=(w-gridW*scale)/2;ty=(h-gridH*scale)/2;draw();}
 function cellRect(r,c){return {x:c*GRID+GAP/2,y:r*GRID+GAP/2,w:CELL,h:CELL};}
 function hmapNow(){const m={};DATA.highlights.forEach(hl=>{if(hl.active)hl.cells.forEach(([r,c])=>{m[r+'_'+c]={bg:hl.color,fg:hl.text};});});return m;}
 function draw(){const w=cv.width,h=cv.height;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,w,h);
