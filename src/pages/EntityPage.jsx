@@ -605,6 +605,18 @@ export default function EntityPage({ embedPhrase } = {}) {
   // ✦ עוגן-המהות של המספר (number_anchors) — «מהות המספר» בראש מצב-הקריאה.
   const [anchor, setAnchor] = useState(null);
   useEffect(() => { let a = true; setAnchor(null); getNumberAnchor(value).then(r => { if (a) setAnchor(r); }); return () => { a = false; }; }, [value]);
+  // 🧬 מספר הישויות המתכנסות על הערך (בכל השיטות) — מד ההתכנסות. למונה «מתכנסות» בשער.
+  const [convCount, setConvCount] = useState(null);
+  useEffect(() => {
+    if (!value || value < 10 || !supabase) { setConvCount(null); return; }
+    let a = true; setConvCount(null);
+    supabase.rpc("convergence_meter", { p_n: value }).then(({ data }) => {
+      if (!a) return;
+      const layer = (data?.layers || []).find(l => l.name === "התכנסות מילים");
+      setConvCount(Array.isArray(layer?.evidence) ? layer.evidence.length : null);
+    }).catch(() => { if (a) setConvCount(null); });
+    return () => { a = false; };
+  }, [value]);
 
   // מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
@@ -894,8 +906,8 @@ export default function EntityPage({ embedPhrase } = {}) {
             {(() => {
               const content = [
                 { n: galleryMain.length, e: "🖼", l: "תמונות", id: "galleries" },
-                { n: d.postsCount || 0, e: "📚", l: "פוסטים", id: "posts" },
-                { n: topics.length, e: "🔗", l: "הצלבות", id: "dna" },
+                { n: convCount || 0, e: "🧬", l: "מתכנסות", id: "words" },
+                { n: topics.length, e: "🔗", l: "התכנסויות", id: "dna" },
               ].filter(c => c.n > 0);
               // 🔢 שורש הספרות — תמיד קיים, ייחודי (לא מוצג במקום אחר). ממלא כשדל.
               const dr = (() => { let x = Math.abs(Number(value) || 0); while (x >= 10) x = String(x).split("").reduce((a, dd) => a + (+dd), 0); return x; })();

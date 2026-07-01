@@ -149,9 +149,11 @@ export default function CrossFinder({ term }) {
       </div>
 
       {status === "idle" && (
-        <button onClick={find} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px" }}>
-          🔮 מצא לי הצלבה
-        </button>
+        <div style={{ textAlign: "center", marginTop: 4 }}>
+          <button onClick={find} style={{ cursor: "pointer", minWidth: 240, maxWidth: "92%", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "12px 28px", boxShadow: `0 6px 20px ${P.glow}` }}>
+            🔮 מצא לי הצלבה
+          </button>
+        </div>
       )}
 
       {status === "busy" && (
