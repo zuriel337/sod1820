@@ -1,0 +1,85 @@
+<!doctype html><html lang="he"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>דף הצופן · קולומביה 4545</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0%,#1a1206,#0a0700);font-family:'Heebo',system-ui,sans-serif;color:#e8dcc0;overflow:hidden;overscroll-behavior:none}
+.wrap{display:flex;flex-direction:column;height:100%;direction:rtl}
+.hdr{text-align:center;padding:9px 12px 4px}
+.hdr .lib{color:#9a7818;font-weight:800;font-size:11px;letter-spacing:2px}
+.hdr h1{margin:2px 0 0;color:#E8C84A;font-size:19px;font-weight:900}
+.hdr .sub{color:#c9b98a;font-size:11.5px;margin-top:1px}
+.stars{font-size:14px;letter-spacing:2px;margin-top:1px}
+.story{color:#d8cba8;font-size:11.5px;margin:4px auto 0;max-width:340px;line-height:1.5;background:rgba(212,175,55,.06);border:1px solid #3a2c0e;border-radius:10px;padding:6px 10px}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px 8px 4px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800;border:1px solid #3a2c0e;background:#140d02;color:#d8cba8;cursor:pointer;user-select:none;transition:.15s}
+.chip .dot{width:10px;height:10px;border-radius:50%}
+.chip.off{opacity:.34;text-decoration:line-through}
+.chip .d{color:#8a7a55;font-weight:600;font-size:10.5px}
+.stage{flex:1;position:relative;touch-action:none;min-height:120px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tools{display:flex;gap:8px;justify-content:center;padding:8px 10px 12px}
+.btn{flex:0 0 auto;min-width:46px;height:44px;border-radius:12px;border:1px solid #3a2c0e;background:#140d02;color:#E8C84A;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.btn:active{background:#241a08}
+.btn.wide{padding:0 15px;font-size:14px}
+.hint{text-align:center;color:#7a6c48;font-size:10.5px;padding-bottom:4px}
+</style></head>
+<body><div class="wrap">
+  <div class="hdr">
+    <div class="lib">📚 ספריית הדילוגים · SOD1820</div>
+    <h1>🚀 קולומביה · הצופן</h1>
+    <div class="sub">דילוג 4,545 · מופע יחיד בתורה</div>
+    <div class="stars">⭐⭐⭐⭐⭐</div>
+    <div class="story">החללית <b style="color:#E8C84A">קולומביה</b> — ובאותו דילוג 4545: <b style="color:#e07b2e">נָפַל</b> · <b style="color:#b5462e">בָּעַר</b> · <b style="color:#c9304a">אש</b> · <b style="color:#7a4fb0">אסון</b> · <b>מָוֶת</b>. הדליקו/כבו כל צופן 👇</div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="stage" id="stage"><canvas id="cv"></canvas></div>
+  <div class="hint">👆 נגיעה במילה = הסרה/החזרה · 🤏 צביטה = זום · ✋ גרירה = הזזה</div>
+  <div class="tools">
+    <div class="btn" id="zin">＋</div><div class="btn" id="zout">－</div>
+    <div class="btn" id="reset">⟳</div><div class="btn wide" id="dl">⬇️ הורד</div>
+  </div>
+</div>
+<script>
+const DATA={"rows":["ואלבלקויאמרומאנבלעמהלכעמנוויספעודבלקשלחשרימרבימ","תשניהמאתאישישראלואתהאשהאלקבתהותעצרהמגפהמעלבנייש","אתוויקחאתיהושעויעמדהולפניאלעזרהכהנולפניכלהעדהוי","תרועהבידוויצבאועלמדינכאשרצוהיהוהאתמשהויהרגוכלזכ","תבמשהאתמוצאיהמלמסעיהמעלפייהוהואלהמסעיהמלמוצאיהמ","שובהרצחאלארצאחזתווהיואלהלכמלחקתמשפטלדרתיכמבכלמו","מלחמהמקרבהמחנהכאשרנשבעיהוהלהמוגמידיהוההיתהבמלהמ","הוהאלהיככייהוהאלהיכאשאכלההואאלקנאכיתולידבנימובנ","רצאשרנשבעלאבתינוויצונויהוהלעשותאתכלהחקימהאלהליר","וולאשמעתמבקלוממרימהייתמעמיהוהמיומדעתיאתכמואתנפל","מצוכרקבכלאותנפשכתזבחואכלתבשרכברכתיהוהאלהיכאשרנת","היכתתנלווזכרתכיעבדהייתבארצמצרימויפדכיהוהאלהיכעל","אתרעהוומתהואינוסאלאחתהערימהאלהוחיפנירדפגאלהדמאח","עמהאשהוהאשהובערתהרעמישראלכייהיהנערבתולהמארשהלאי","יכולביתכאתהוהלויוהגראשרבקרבככיתכלהלעשראתכלמעשרת"],"cols":47,"nrows":15,"highlights":[{"name":"קולומביה","dir":"↓ 4545 · גוף החללית","color":"#E8C84A","text":"#1a0e00","cells":[[5,29],[6,29],[7,29],[8,29],[9,29],[10,29],[11,29],[12,29]],"active":true},{"name":"אש אכלה","dir":"→ פשט · האש","color":"#c9304a","text":"#fff","cells":[[7,19],[7,20],[7,21],[7,22],[7,23],[7,24]],"active":true},{"name":"אסון","dir":"← צמוד לתחתית","color":"#7a4fb0","text":"#fff","cells":[[12,16],[12,15],[12,14],[12,13]],"active":true},{"name":"נָפַל","dir":"↓ 4545 · נפילה","color":"#e07b2e","text":"#1a0e00","cells":[[0,37],[1,37],[2,37]],"active":false},{"name":"בָּעַר","dir":"↓ 4545 · בעירה","color":"#b5462e","text":"#fff","cells":[[11,22],[12,22],[13,22]],"active":false},{"name":"מָוֶת","dir":"↘ 4544 · מוות","color":"#4a4a55","text":"#fff","cells":[[1,35],[2,34],[3,33]],"active":false}]};
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const stage=document.getElementById('stage');
+let DPR=Math.min(window.devicePixelRatio||1,2.5);
+const CELL=30,GAP=3,GRID=CELL+GAP;
+const gridW=DATA.cols*GRID,gridH=DATA.nrows*GRID;
+let scale=1,tx=0,ty=0,fitScale=1;
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;cv.width=w*DPR;cv.height=h*DPR;fitScale=Math.min(w/gridW,h/gridH)*0.98;draw();}
+function reset(){const w=stage.clientWidth,h=stage.clientHeight;scale=Math.max(fitScale,Math.min(w/gridW*1.7,1.4));tx=(w-gridW*scale)/2;ty=(h-gridH*scale)/2;draw();}
+function cellRect(r,c){return {x:c*GRID+GAP/2,y:r*GRID+GAP/2,w:CELL,h:CELL};}
+function hmapNow(){const m={};DATA.highlights.forEach(hl=>{if(hl.active)hl.cells.forEach(([r,c])=>{m[r+'_'+c]={bg:hl.color,fg:hl.text};});});return m;}
+function draw(){const w=cv.width,h=cv.height;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,w,h);
+  ctx.setTransform(DPR*scale,0,0,DPR*scale,tx*DPR,ty*DPR);const hm=hmapNow();
+  for(let r=0;r<DATA.nrows;r++){const line=DATA.rows[r];for(let c=0;c<DATA.cols;c++){const ch=line[c]||'';const R=cellRect(r,c);const hit=hm[r+'_'+c];
+    ctx.fillStyle=hit?hit.bg:'#0d0900';roundRect(R.x,R.y,R.w,R.h,5);ctx.fill();
+    if(!hit){ctx.strokeStyle='#241a08';ctx.lineWidth=1;ctx.stroke();}
+    ctx.fillStyle=hit?hit.fg:'#6f6244';ctx.font=(hit?'800 ':'400 ')+'19px "Frank Ruhl Libre",serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ch,R.x+R.w/2,R.y+R.h/2+1);}}}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+const chipsEl=document.getElementById('chips');
+DATA.highlights.forEach((hl,i)=>{const el=document.createElement('div');el.className='chip'+(hl.active?'':' off');el.dataset.i=i;
+  el.innerHTML='<span class="dot" style="background:'+hl.color+'"></span>'+hl.name+' <span class="d">'+hl.dir+'</span>';
+  el.onclick=()=>{hl.active=!hl.active;el.classList.toggle('off',!hl.active);draw();};chipsEl.appendChild(el);});
+let pts=new Map(),last=null,startDist=0,startScale=1,midStart=null,moved=false,downTime=0;
+stage.addEventListener('pointerdown',e=>{stage.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false;downTime=Date.now();
+  if(pts.size===1)last={x:e.clientX,y:e.clientY};else if(pts.size===2){const a=[...pts.values()];startDist=dist(a[0],a[1]);startScale=scale;midStart=mid(a[0],a[1]);}});
+stage.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===1&&last){const dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;tx+=dx;ty+=dy;last={x:e.clientX,y:e.clientY};draw();}
+  else if(pts.size===2){const a=[...pts.values()];const d=dist(a[0],a[1]);let ns=Math.max(fitScale*0.6,Math.min(6,startScale*d/startDist));const rect=stage.getBoundingClientRect();const mx=midStart.x-rect.left,my=midStart.y-rect.top;tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;moved=true;draw();}});
+function up(e){const wasTap=!moved&&pts.size===1&&(Date.now()-downTime<300);if(wasTap)handleTap(e.clientX,e.clientY);pts.delete(e.pointerId);if(pts.size<2){const a=[...pts.values()];last=a[0]||null;}}
+stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
+function handleTap(cx,cy){const rect=stage.getBoundingClientRect();const px=(cx-rect.left-tx)/scale,py=(cy-rect.top-ty)/scale;const c=Math.floor(px/GRID),r=Math.floor(py/GRID);
+  for(const hl of DATA.highlights){if(hl.cells.some(([rr,cc])=>rr===r&&cc===c)){hl.active=!hl.active;document.querySelector('.chip[data-i="'+DATA.highlights.indexOf(hl)+'"]').classList.toggle('off',!hl.active);draw();return;}}}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}function mid(a,b){return {x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+document.getElementById('zin').onclick=()=>zoomBtn(1.25);document.getElementById('zout').onclick=()=>zoomBtn(0.8);
+function zoomBtn(f){const w=stage.clientWidth/2,h=stage.clientHeight/2;const ns=Math.max(fitScale*0.6,Math.min(6,scale*f));tx=w-(w-tx)*(ns/scale);ty=h-(h-ty)*(ns/scale);scale=ns;draw();}
+document.getElementById('reset').onclick=reset;
+document.getElementById('dl').onclick=()=>{const ex=document.createElement('canvas');const S=2;ex.width=gridW*S;ex.height=gridH*S;const g=ex.getContext('2d');g.fillStyle='#0a0700';g.fillRect(0,0,ex.width,ex.height);g.scale(S,S);const hm=hmapNow();
+  for(let r=0;r<DATA.nrows;r++)for(let c=0;c<DATA.cols;c++){const ch=DATA.rows[r][c]||'';const R=cellRect(r,c);const hit=hm[r+'_'+c];g.fillStyle=hit?hit.bg:'#0d0900';g.fillRect(R.x,R.y,R.w,R.h);if(!hit){g.strokeStyle='#241a08';g.strokeRect(R.x,R.y,R.w,R.h);}g.fillStyle=hit?hit.fg:'#6f6244';g.font=(hit?'800 ':'400 ')+'19px serif';g.textAlign='center';g.textBaseline='middle';g.fillText(ch,R.x+R.w/2,R.y+R.h/2+1);}
+  const a=document.createElement('a');a.download='kolombia-4545.png';a.href=ex.toDataURL('image/png');a.click();};
+window.addEventListener('resize',()=>{resize();reset();});
+resize();reset();
+</script></body></html>
