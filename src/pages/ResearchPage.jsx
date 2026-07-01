@@ -139,7 +139,7 @@ export default function ResearchPage() {
   }, [tool, seed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // שורה 2 — סרגל כלי-המעבדה (מתחת לנאב); נמסר ל-ResearchShell כשורה ברוחב מלא
-  // ⛔ היכל-הגילוי בבנייה: לציבור פתוח **רק בית המדרש**. שאר הכלים מוצגים «🔒 סגור · בבנייה» ולא-לחיצים.
+  // 🔓 היכל-הגילוי נפתח בהדרגה (READY_TOOLS). כלים פתוחים = לחיצים; השאר «🚧 בבנייה» ולא-לחיצים.
   // המנהל (אדמין) ממשיך לעבוד על כל הכלים הממומשים (READY_LAB כולל אותם דרך isToolReady).
   const subnav = (
     <div className="rw-subnav">
@@ -151,10 +151,10 @@ export default function ResearchPage() {
             {t.icon} {t.title}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
           </button>
         ))}
-        {/* כלים נעולים — מוצגים «סגור · בבנייה», לא לחיצים */}
+        {/* כלים בבנייה — מוצגים «בבנייה», לא לחיצים */}
         {FUTURE_LAB.map(t => (
-          <button key={t.id} className="rw-tchip" disabled title="סגור · בבנייה" style={{ opacity: 0.5, cursor: "not-allowed" }}>
-            🔒 {t.icon} {t.title} · <span style={{ fontSize: 11, fontWeight: 800 }}>סגור · בבנייה</span>
+          <button key={t.id} className="rw-tchip" disabled title="בבנייה" style={{ opacity: 0.5, cursor: "not-allowed" }}>
+            🚧 {t.icon} {t.title} · <span style={{ fontSize: 11, fontWeight: 800 }}>בבנייה</span>
           </button>
         ))}
       </div>
@@ -170,7 +170,7 @@ export default function ResearchPage() {
           <div style={{ fontSize: 46, marginBottom: 14 }}>🔬</div>
           <div style={{ fontFamily: "inherit", fontSize: 20, fontWeight: 800, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>הכלי בשדרוג</div>
           <div className="rw-muted" style={{ fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 18px" }}>
-            המעבדה עוברת שדרוג מסיבי — הכלי הזה ייפתח בקרוב לכל החוקרים.<br />כרגע פתוחים: <b>המחשבון</b> ו<b>דף המספר</b>.
+            הכלי הזה עדיין <b>בבנייה</b> — ייפתח בקרוב לכל החוקרים.<br />פתוחים עכשיו: מחשבון · דף המספר · בית המדרש · חיפוש בפסוקים · השוואת מילים · נוטריקון · ניתוח קובץ.
           </div>
           <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
           <button className="rw-tchip" onClick={() => setTool(null)}>← היכל הגילוי</button>

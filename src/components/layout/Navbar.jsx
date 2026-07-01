@@ -10,6 +10,7 @@ import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
+import { isToolReady } from "../../lib/hub/ready.js";
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
@@ -29,7 +30,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 סגור · בבנייה", locked: true },
+  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "📖", l: "פוסטים", to: "/post" },
@@ -286,22 +287,26 @@ function UserMenu({ user, profile, cc }) {
 const LAB_MENU = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
   { e: "🔢", l: "דף המספר", to: "/research?tool=number" },
-  { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
   { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
+  { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
+  { e: "🔀", l: "השוואת מילים", to: "/research?tool=compare" },
+  { e: "🔠", l: "ראשי / אמצעי / סופי תיבות", to: "/research?tool=notarikon" },
+  { e: "📊", l: "ניתוח קובץ", to: "/research?tool=import" },
   { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els" },
   { e: "🧭", l: "מסע חיפוש", to: "/research?tool=journey" },
 ];
+// מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
+const labToolId = to => (to.match(/tool=([a-z]+)/) || [])[1] || null;
 function LabMenu() {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useAuth();
   const cc = chromeColors(useThemeMode());
-  // ⛔ היכל-הגילוי בבנייה: הכפתור-הראשי לא מנווט (רק חושף את התפריט). פתוח לציבור — **רק בית המדרש**.
-  // שאר הכלים «🔒 סגור · בבנייה». המנהל (אדמין) ממשיך לעבוד על הכל.
-  const isLabOpen = it => isAdmin || it.to === "/research?tool=midrash";
+  // 🔓 נעילה מאוחדת: כלי פתוח אם isToolReady (READY_TOOLS) — מקור-אמת אחד עם המעבדה. אדמין רואה הכל.
+  const isLabOpen = it => { const id = labToolId(it.to); return id ? isToolReady(id, isAdmin) : true; };
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button type="button" onClick={() => setOpen(o => !o)} aria-label="היכל הגילוי · סגור · בבנייה" style={{
+      <button type="button" onClick={() => setOpen(o => !o)} aria-label="היכל הגילוי · בבנייה" style={{
         display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
@@ -311,7 +316,7 @@ function LabMenu() {
         <span style={{
           fontSize: 9.5, fontWeight: 900, letterSpacing: 0.3, lineHeight: 1,
           background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2.5px 6px",
-        }}>🚧 סגור · בבנייה</span>
+        }}>🚧 בבנייה</span>
         <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></button>
       {open && (
         <div style={{
@@ -334,7 +339,7 @@ function LabMenu() {
               fontFamily: F.royal, fontSize: 15, padding: "10px 13px", borderRadius: 5, whiteSpace: "nowrap", opacity: 0.65, cursor: "not-allowed",
             }}>
               <span>{it.e} {it.l}</span>
-              <span style={{ fontSize: 9.5, fontWeight: 800, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 6px" }}>🔒 סגור · בבנייה</span>
+              <span style={{ fontSize: 9.5, fontWeight: 800, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 6px" }}>🔒 בבנייה</span>
             </div>
           ))}
         </div>
