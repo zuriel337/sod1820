@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { computeEntity, connectToAxis } from "../lib/research/coreEngine.js";
 import { entityFromPhrase } from "../lib/research/entity.js";
 import QuickActions from "./QuickActions.jsx";
+import AiAnalyze from "./AiAnalyze.jsx";
 
 // 🔀 השוואת שניים — שני שמות/ביטויים זה מול זה. המנוע מוצא איפה הם נפגשים:
 // אותה שיטה (הצלבה חזקה) · חוצה-שיטות (הצלבה עקיפה). עובדה מחושבת — לא הוכחה.
@@ -106,6 +107,18 @@ export default function CompareTwo({ onOpenTool }) {
             {onOpenTool && <button className="c2-open" onClick={() => onOpenTool("journey", cmp.ta)}>מסע על «{cmp.ta}» →</button>}
           </div>
           <div className="rw-sub" style={{ marginTop: 8 }}>⚖️ «אותה שיטה» = שני הצדדים באותה דרך-חישוב (חזק). «חוצה-שיטות» = דרכים שונות שמצטלבות בערך (עקיף). המערכת מציגה עובדה — הפרשנות שלך.</div>
+
+          {/* 🤖 ניתוח AI — מפרש את ההצלבות שהמנוע מצא (לא מחשב) */}
+          <AiAnalyze
+            kind="compare"
+            subject={`${cmp.ta} מול ${cmp.tb}`}
+            facts={[
+              `${cmp.ta} = ${cmp.entA.primary} (רגיל). ${cmp.tb} = ${cmp.entB.primary} (רגיל).`,
+              cmp.same.length ? "הצלבות חזקות (אותה שיטה): " + cmp.same.map(l => `${l.value} — ${cmp.ta}·${l.axisMethod} = ${cmp.tb}·${l.entMethod}`).join(" · ") : "",
+              cmp.cross.length ? "הצלבות חוצות-שיטות: " + cmp.cross.slice(0, 4).map(l => `${l.value} — ${cmp.ta}·${l.axisMethod} = ${cmp.tb}·${l.entMethod}`).join(" · ") : "",
+              `סכום: ${cmp.ta} + ${cmp.tb} = ${cmp.sum}.`,
+            ].filter(Boolean).join("\n")}
+          />
         </>
       )}
     </div>

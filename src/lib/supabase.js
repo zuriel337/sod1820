@@ -203,6 +203,17 @@ export async function getJourneyMessage({ value, path, world, meaning }) {
   } catch { return null; }
 }
 
+// 🤖 ניתוח AI גנרי לכלי המחקר (השוואה · נוטריקון · פסוק · פסוק-יומי) — Edge Function ai-analyze.
+// facts = עובדות מאומתות מהמנוע (ערכים שכבר חושבו). ה-AI רק מפרש, לא מחשב. null בכשל/ללא מפתח.
+export async function getAiAnalysis({ kind, subject, facts }) {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts } });
+    if (error) return null;
+    return data?.analysis || null;
+  } catch { return null; }
+}
+
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
 export async function getTopPrimaryValues(lim = 16) {
   if (!supabase) return [];
