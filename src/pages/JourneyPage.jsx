@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // ===== «מסע ההתכנסות» — טיול בתוך הערך (value-as-trunk) =====
 // המסע מטייל בין ביטויים ששווים לאותו ערך גימטרי (משפחת-הערך מ-bidim). ערך-היעד נסתר עד השיא,
@@ -41,6 +42,7 @@ const FUTURE = [
 
 export default function JourneyPage() {
   const P = usePalette();
+  const { addJourney } = useResearch();
   const [sp] = useSearchParams();
   const startFrom = (sp.get("from") || "").trim();
   const [target, setTarget] = useState(null);     // ערך-היעד הנסתר (הסקאלה הפעילה)
@@ -159,6 +161,13 @@ export default function JourneyPage() {
   useEffect(() => {
     if (finished && root != null && aiState === "idle") fetchAiMessage();
   }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 🧭 «המסעות שלי» — רושם את המסע כשמסתיים (ומעדכן עם המסר כשהוא מגיע).
+  useEffect(() => {
+    if (finished && root != null) {
+      addJourney({ root, path: path.filter(s => !s.leap).map(s => s.phrase), world: dWorld || null, msg: aiMsg });
+    }
+  }, [finished, root, aiMsg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function shareJourney() {
     if (busy || root == null) return;

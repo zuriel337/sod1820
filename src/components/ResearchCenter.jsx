@@ -119,8 +119,8 @@ function Panel({ icon, title, extra, children, bare }) {
 // variant: 'tools' (ימין) · 'context' (שמאל) · undefined (הכל — מובייל)
 export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const {
-    cart = [], saved = [], pinned = [], history = [], collections = [],
-    removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, removeCollection, assignCollection,
+    cart = [], saved = [], pinned = [], history = [], collections = [], journeys = [],
+    removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, removeCollection, assignCollection, removeJourney,
   } = useResearch();
   const { user, profile, signOut } = useAuth();
   const nav = useNavigate();
@@ -227,6 +227,26 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
         </Panel>
       );
     } },
+    { id: "journeys", icon: "🧭", label: "מסעות", badge: () => journeys.length, render: bare => (
+      <Panel icon="🧭" title="המסעות שלי" extra={journeys.length || null} bare={bare}>
+        {journeys.length === 0
+          ? <div className="rw-empty">כל מסע שתסיים יישמר כאן אוטומטית — לחזור אליו, לקרוא שוב את המסר האישי, ולשתף.</div>
+          : <div style={{ display: "grid", gap: 8 }}>
+              {journeys.map(j => (
+                <div key={j.id} className="rw-er" style={{ alignItems: "stretch" }}>
+                  <Link to={`/journey?from=${j.root}`} className="rw-er-lk" style={{ flexDirection: "column", alignItems: "stretch", gap: 3 }}>
+                    <span style={{ display: "flex", alignItems: "baseline", gap: 8, minWidth: 0 }}>
+                      <b style={{ fontFamily: "'Courier New', monospace", fontSize: 16, flex: "none" }}>{j.root}</b>
+                      <span className="rw-er-t" style={{ fontSize: 12, fontWeight: 500, opacity: 0.85 }}>{(j.path || []).slice(0, 3).join(" · ")}</span>
+                    </span>
+                    {j.msg && <span className="rw-er-t" style={{ fontSize: 11.5, fontWeight: 400, opacity: 0.7 }}>🔵 {j.msg}</span>}
+                  </Link>
+                  <button className="rw-er-x" title="הסר מסע" onClick={() => removeJourney?.(j.id)}>✕</button>
+                </div>
+              ))}
+            </div>}
+      </Panel>
+    ) },
     { id: "whatsnew", icon: "🔔", label: "חדש", render: bare => (
       <Panel icon="🔔" title="מה מחפשים עכשיו" bare={bare}>
         <div className="rw-hot">🔥 הכי מחופש היום: 86</div>
@@ -250,7 +270,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   ];
 
   const ids = variant === "tools" ? ["ai", "whatsnew"]
-    : variant === "context" ? ["me", "notes", "active", "history", "saved", "roadmap"]
+    : variant === "context" ? ["me", "notes", "active", "history", "journeys", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
@@ -281,5 +301,5 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
 export const LEFT_TABS = [
   { id: "me", icon: "👤" }, { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
-  { id: "history", icon: "🕘" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
+  { id: "history", icon: "🕘" }, { id: "journeys", icon: "🧭" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];

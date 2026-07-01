@@ -37,13 +37,14 @@ export default function ResearchProvider({ children }) {
   const [pinned, setPinned] = useState(() => init.pinned || []); // 📌 מוצמדים — נשארים זמינים בכל Hub
   const [history, setHistory] = useState(() => init.history || []); // 🕘 היסטוריית מחקר (אחרונים)
   const [collections, setCollections] = useState(() => init.collections || []); // 📁 אוספים
+  const [journeys, setJourneys] = useState(() => init.journeys || []); // 🧭 «המסעות שלי» — מסעות שהושלמו
   // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
   // גלגול 7.2026: רק מבקר חוזר עובר למצב מחקר פעם אחת דרך initialMode; מבקר חדש נשאר על הנקי. נשמר מקומית.
   const [mode, setModeState] = useState(() => initialMode(init));
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, mode })); } catch { /* noop */ }
-  }, [cart, saved, pinned, history, collections, mode]);
+    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, mode })); } catch { /* noop */ }
+  }, [cart, saved, pinned, history, collections, journeys, mode]);
 
   // ☁️ סנכרון-ענן למשתמש מחובר — כל «עולם המשתמש» עובר בין מכשירים.
   const { user } = useAuth();
@@ -55,15 +56,16 @@ export default function ResearchProvider({ children }) {
     let alive = true;
     getCloudResearch(user.id).then(d => {
       if (!alive) return;
-      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length));
+      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length));
       if (has) {
         if (Array.isArray(d.cart)) setCart(d.cart);
         if (Array.isArray(d.saved)) setSaved(d.saved);
         if (Array.isArray(d.pinned)) setPinned(d.pinned);
         if (Array.isArray(d.history)) setHistory(d.history);
         if (Array.isArray(d.collections)) setCollections(d.collections);
+        if (Array.isArray(d.journeys)) setJourneys(d.journeys);
       } else {
-        saveCloudResearch(user.id, { cart, saved, pinned, history, collections }).catch(() => {});
+        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {});
       }
       pulled.current = true;
     }).catch(() => { pulled.current = true; });
@@ -72,9 +74,9 @@ export default function ResearchProvider({ children }) {
   // שינוי מצב + מחובר + אחרי המשיכה → דחיפה לענן (debounce)
   useEffect(() => {
     if (!user || !pulled.current) return;
-    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections }).catch(() => {}); }, 700);
+    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {}); }, 700);
     return () => clearTimeout(t);
-  }, [user, cart, saved, pinned, history, collections]);
+  }, [user, cart, saved, pinned, history, collections, journeys]);
 
   // 🕘 לוג-היסטוריה — «המשך מהמקום שעצרת». הכי-חדש למעלה, ללא כפילויות, מוגבל ל-50.
   const logHistory = useCallback((entity) => {
@@ -123,15 +125,25 @@ export default function ResearchProvider({ children }) {
     setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
   }, []);
 
+  // 🧭 «המסעות שלי» — רושם מסע שהושלם. dedupe לפי מספר-השורש (המסע האחרון מנצח), הכי-חדש למעלה, עד 30.
+  const addJourney = useCallback((j) => {
+    if (!j || j.root == null) return;
+    const rec = { id: "j" + j.root, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
+    setJourneys(js => [rec, ...js.filter(x => x.root !== j.root)].slice(0, 30));
+  }, []);
+  const removeJourney = useCallback((id) => setJourneys(js => js.filter(j => j.id !== id)), []);
+  const clearJourneys = useCallback(() => setJourneys([]), []);
+
   // 🔬 מצב עבודה — setMode/enterDiscovery/toggleMode. enterDiscovery = "נכנסת להיכל הגילוי" (מהמעבדה).
   const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
   const enterDiscovery = useCallback(() => setModeState("discovery"), []);
   const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
 
   const value = {
-    cart, saved, pinned, history, collections,
+    cart, saved, pinned, history, collections, journeys,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
     logHistory, clearHistory, addCollection, removeCollection, assignCollection,
+    addJourney, removeJourney, clearJourneys,
     mode, setMode, enterDiscovery, toggleMode,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
