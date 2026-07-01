@@ -13,6 +13,7 @@ export const ELS_PUBLIC = false;
 // מחזירים כלים לרשימה כאן (number/gematria/verse/notarikon/els) בשורה אחת.
 export const READY_TOOLS = new Set([
   "midrash",
+  "number",   // 🔓 דף המספר — נפתח לציבור במרכז הגילוי (מסע 3 השכבות)
 ]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי
