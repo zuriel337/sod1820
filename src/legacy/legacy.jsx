@@ -2102,6 +2102,15 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-rows > div:first-child { margin-top: 0; }
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
+  /* ai_box_theme_aware — מצב בהיר (יום): קופסה בהירה + טקסט כהה במקום ניווי כהה על קלף */
+  [data-theme="light"] .sod-post-content .sod-gematria-box {
+    background: linear-gradient(135deg, rgba(176,125,18,0.10), rgba(255,255,255,0.72));
+    border-color: rgba(176,125,18,0.5);
+  }
+  [data-theme="light"] .sod-post-content .sod-gematria-box .gb-title,
+  [data-theme="light"] .sod-post-content .sod-gematria-box b { color: #8a6410; }
+  [data-theme="light"] .sod-post-content .sod-gematria-box .gb-rows { color: #33301f; }
+  [data-theme="light"] .sod-post-content .sod-gematria-box .gb-note { color: #756a52; }
 
   /* ── override dark inline colors from WordPress/Elementor (legacy בלבד) ── */
   .sod-post-content:not(.clean) [style*="color:#000"],
