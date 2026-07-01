@@ -716,8 +716,8 @@ export default function EntityPage({ embedPhrase } = {}) {
           </>
         )}
 
-        {/* ── גוף היכל הגילוי (discovery / «ראו עוד») ── */}
-        {showBody && (<>
+        {/* ── גוף היכל הגילוי — תמיד ב-DOM (SEO: מנוע-חיפוש רואה הכל), מקופל ויזואלית במצב קריאה ── */}
+        <div style={{ display: showBody ? undefined : "none" }}>
         {/* ── 🧭 ניווט מהיר — קפיצה לסקציה (chips) ── */}
         {chips.length > 0 && !loading && (
           <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap", marginTop: 18, marginBottom: 4 }}>
@@ -1032,7 +1032,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             </section>
           </div>
         </Acc>
-        </>)}{/* ── סוף גוף היכל הגילוי ── */}
+        </div>{/* ── סוף גוף היכל הגילוי ── */}
 
         {/* פיד החיפושים הוסר מדף הביטוי — כאן רוצים עומק על המספר, לא פיד של אחרים.
             נשאר בדף הבית · מנוע המספרים · בית המדרש ("מה נחקר"). */}
