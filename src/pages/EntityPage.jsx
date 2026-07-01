@@ -648,7 +648,10 @@ export default function EntityPage({ embedPhrase } = {}) {
     };
     const about = [], related = [], incidental = [];
     for (const g of gs) { const c = classify(g); (c === "about" ? about : c === "related" ? related : incidental).push(g); }
-    return { galleryMain: [...about, ...related], galleryIncidental: incidental };
+    // 🧹 דף המספר נקי כמו /topic: הקרוסלה הראשית = רק תמונות שהמספר בהן דומיננטי («על המספר»).
+    // «אזכור משני» (המספר הוא ערך-משנה ב-all_values — צילומי-מסך/טבלאות עם הרבה מספרים) יורד
+    // לסקציה המקופלת «מוזכר דרך-אגב» — נשמר (לא מאבדים הצלבות), אבל לא מציף את הראשית.
+    return { galleryMain: about, galleryIncidental: [...related, ...incidental] };
   }, [d.galleries, value]);
 
   // 🔮 הצלבה נסתרת — בדף ביטוי מציגים את הכרטיס העשיר (CrossFinder). בדף מספר: כרטיס-התכנסות
