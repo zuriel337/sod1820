@@ -809,20 +809,32 @@ export default function EntityPage({ embedPhrase } = {}) {
               ))}
             </div>
 
-            {/* 3 מונים — לחיצה = הוסף-למחקר + פתיחת המקטע בהיכל הגילוי */}
-            <div style={{ display: "flex", gap: 9, maxWidth: 420, margin: "18px auto 0" }}>
-              {[
-                { n: d.phrasesCount || d.phrases?.length || 0, e: "🌳", l: "מילים שוות", id: "words" },
-                { n: d.galleriesCount || 0, e: "🖼️", l: "תמונות", id: "galleries" },
+            {/* מונים חכמים — קטנים, רק תיבות עם תוכן; מילוי ב«שורש הספרות» כשדל. בלי כפילות (מילים=בטעימה). */}
+            {(() => {
+              const content = [
+                { n: galleryMain.length, e: "🖼", l: "תמונות", id: "galleries" },
                 { n: d.postsCount || 0, e: "📚", l: "פוסטים", id: "posts" },
-              ].map(c => (
-                <button key={c.id} onClick={() => enterDiscoveryWith(c.id)}
-                  style={{ flex: 1, cursor: "pointer", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "11px 6px", textAlign: "center" }}>
-                  <span style={{ display: "block", color: P.heroNum, fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{c.n}</span>
-                  <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11 }}>{c.e} {c.l}</span>
-                </button>
-              ))}
-            </div>
+                { n: topics.length, e: "🔗", l: "הצלבות", id: "dna" },
+              ].filter(c => c.n > 0);
+              // 🔢 שורש הספרות — תמיד קיים, ייחודי (לא מוצג במקום אחר). ממלא כשדל.
+              const dr = (() => { let x = Math.abs(Number(value) || 0); while (x >= 10) x = String(x).split("").reduce((a, dd) => a + (+dd), 0); return x; })();
+              const boxes = content.slice(0, 4);
+              if (boxes.length < 4) boxes.push({ n: dr, e: "🔢", l: "שורש הספרות", id: null });
+              return (
+                <div style={{ display: "flex", gap: 7, maxWidth: 420, margin: "18px auto 0", justifyContent: "center" }}>
+                  {boxes.map((c, i) => {
+                    const inner = (<>
+                      <span style={{ display: "block", color: P.heroNum, fontFamily: F.mono, fontSize: 17, fontWeight: 800 }}>{c.n}</span>
+                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 10 }}>{c.e} {c.l}</span>
+                    </>);
+                    const st = { flex: 1, maxWidth: 100, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "8px 5px", textAlign: "center" };
+                    return c.id
+                      ? <button key={i} onClick={() => enterDiscoveryWith(c.id)} style={{ ...st, cursor: "pointer" }}>{inner}</button>
+                      : <div key={i} style={st}>{inner}</div>;
+                  })}
+                </div>
+              );
+            })()}
 
             {/* מילים שוות — 3-4 מיד (מייצר סקרנות ללחוץ «גלה עוד») */}
             {d.phrases?.length > 0 && (
