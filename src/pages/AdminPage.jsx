@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -1721,16 +1721,54 @@ function fmtDwell(s) {
 function JourneysTab() {
   const [dwell, setDwell] = useState(null);
   const [journeys, setJourneys] = useState(null);
+  const [shares, setShares] = useState(null);
   const [err, setErr] = useState("");
   const [hours, setHours] = useState(168);
   useEffect(() => {
     let live = true; setErr("");
     getPageDwell(hours).then(d => live && setDwell(d || [])).catch(e => live && setErr(String(e?.message || e)));
     getVisitorJourneys(24, 4).then(d => live && setJourneys(d || [])).catch(() => live && setJourneys([]));
+    getJourneyShares(720).then(d => live && setShares(d || null)).catch(() => live && setShares(null));
     return () => { live = false; };
   }, [hours]);
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      {/* 🔗 שיתופי-מסע + 🔓 פתיחות מסר-עומק (AI) — «מי שיתף» (30 יום). קשור ישירות לצריכת קרדיטי ה-AI. */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🔗 שיתופי מסע · 🔓 מסרי-עומק (AI) · 30 יום</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>מי שיתף מסע ומי פתח מסר-עומק (השכבה השנייה שנפתחת בזכות שיתוף). כל פתיחת-עומק = קריאת AI אחת.</div>
+        {!shares ? <div style={{ color: C.muted }}>טוען…</div> : (
+          <>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              {[["🔗 שיתופים", shares.total_shares], ["🔓 מסרי-עומק", shares.total_deep], ["👤 משתפים ייחודיים", shares.unique_sharers]].map(([lbl, n]) => (
+                <div key={lbl} style={{ flex: "1 1 150px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+                  <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 24, fontWeight: 800 }}>{Number(n || 0).toLocaleString("he")}</div>
+                  <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+                </div>
+              ))}
+            </div>
+            {(shares.recent || []).length === 0 ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>עדיין אין שיתופים בטווח.</div> : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead><tr><th style={th}>מתי</th><th style={th}>סוג</th><th style={th}>מספר</th><th style={th}>ערוץ</th><th style={th}>מבקר</th></tr></thead>
+                  <tbody>
+                    {(shares.recent || []).map((r, i) => (
+                      <tr key={i}>
+                        <td style={td}>{r.ts ? new Date(r.ts).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                        <td style={{ ...td, color: r.kind === "deep" ? "#3ea6ff" : C.goldBright, fontWeight: 700 }}>{r.kind === "deep" ? "🔓 עומק" : "🔗 שיתוף"}</td>
+                        <td style={{ ...td, fontFamily: F.mono }}>{r.number ? <Link to={`/number/${r.number}`} style={{ color: C.goldBright }}>{r.number}</Link> : "—"}</td>
+                        <td style={td}>{r.platform || "—"}</td>
+                        <td style={{ ...td, color: C.goldDim, fontFamily: F.mono, fontSize: 11 }}>{r.visitor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
           <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: 0 }}>⏱️ זמן וצפיות לכל דף / כלי-מעבדה</h3>

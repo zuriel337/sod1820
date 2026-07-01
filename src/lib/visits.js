@@ -96,6 +96,13 @@ export async function getVisitorJourneys(hours = 24, min = 4) {
   if (error) throw error;
   return data;
 }
+// 🔗 שיתופי-מסע + 🔓 פתיחות מסר-עומק (AI) — «מי שיתף» לדשבורד הקרדיטים. מקור: visitor_events.
+export async function getJourneyShares(hours = 336) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_journey_shares", { p_hours: hours });
+  if (error) throw error;
+  return data;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {

@@ -194,3 +194,29 @@ export async function shareNumberSmart(value, phrases) {
   window.open(`https://wa.me/?text=${encodeURIComponent(shareText(value))}`, "_blank", "noopener,noreferrer");
   return "link";
 }
+
+// ✨ שיתוף מסע — כיתוב ממותג שמספר על ההתכנסות (כל התחנות → מספר אחד). מזמין את הצופה
+// לגלות את המספר שלו. תיוג ?src=journey למדידה (מי הגיע דרך שיתוף-מסע). מתעד slug=journey/<root>
+// כדי שדשבורד הניהול יראה «מי שיתף מסע». התמונה = כרטיס-המספר הקיים (כרטיס-מסע מעוצב = בהמשך).
+const journeyShareText = (root, meaning) =>
+  `✨ יצאתי למסע בעץ המספרים של סוד1820.\nעברתי בין ביטויים שנראים שונים לגמרי — וכולם התכנסו אל מספר אחד: ${root}${meaning ? ` · ${meaning}` : ""}.\nגם לכם יש מספר שמחכה. גלו את שלכם 👇\nhttps://sod1820.co.il/number/${root}?src=journey`;
+
+export async function shareJourney(root, phrases, meaning) {
+  await ensureFonts();
+  const text = journeyShareText(root, meaning);
+  try {
+    const cv = buildNumberCard(root, phrases);
+    const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+    const file = new File([blob], cardFileName(root), { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      trackShare("native", `journey/${root}`);
+      await navigator.share({ files: [file], title: `המסע אל ${root} · סוד 1820`, text });
+      return "image";
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return "cancel";
+  }
+  trackShare("whatsapp", `journey/${root}`);
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  return "link";
+}

@@ -3,7 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage } from "../lib/supabase.js";
-import { shareNumberSmart } from "../lib/numberCard.js";
+import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
+import { track } from "../lib/tracking.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
@@ -55,6 +56,10 @@ export default function JourneyPage() {
   const [loading, setLoading] = useState(true);
   const [aiMsg, setAiMsg] = useState(null);        // מסר אישי מהמנוע (AI) — null עד שלוחצים
   const [aiState, setAiState] = useState("idle");  // idle | busy | done | off (לא פעיל/נכשל)
+  const [unlocked, setUnlocked] = useState(false); // 🔓 האם מסר-העומק נפתח (בזכות שיתוף)
+  const [deepMsg, setDeepMsg] = useState(null);    // מסר-העומק (שכבה שנייה) — נפתח בשיתוף
+  const [deepState, setDeepState] = useState("idle"); // idle | busy | done | off
+  const [shareBusy, setShareBusy] = useState(false);
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
@@ -62,6 +67,7 @@ export default function JourneyPage() {
   async function begin(fromParam) {
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle");
+    setUnlocked(false); setDeepMsg(null); setDeepState("idle");
     let value = null, startPhrase = null;
     if (isNumeric(fromParam)) {
       value = parseInt(fromParam, 10);
@@ -169,11 +175,48 @@ export default function JourneyPage() {
     }
   }, [finished, root, aiMsg]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function shareJourney() {
-    if (busy || root == null) return;
-    setBusy(true);
+  // 🔓 אם המספר כבר נפתח בעבר (שיתוף קודם) — משחזרים את מסר-העומק בלי לבקש שיתוף שוב.
+  useEffect(() => {
+    if (!finished || root == null) return;
+    try {
+      if (localStorage.getItem("sod_jdeep_" + root) === "1") { setUnlocked(true); if (deepState === "idle") fetchDeepMessage(); }
+    } catch { /* noop */ }
+  }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 🔓 מסר-העומק — נפתח *רק אחרי* שהמשתמש קיבל את המסר הראשון ואז שיתף. נשמר פתוח לפי מספר.
+  async function fetchDeepMessage() {
+    if (root == null) return;
+    const ck = "sod_jmsgdeep_" + root;
+    try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
+    setDeepState("busy");
+    const msg = await getJourneyMessage({
+      value: root,
+      path: path.filter(s => !s.leap).map(s => s.phrase),
+      world: dWorld || null,
+      meaning: KEY_NUMBERS[root] || null,
+      depth: "deep",
+    });
+    if (msg) { setDeepMsg(msg); setDeepState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
+    else setDeepState("off");
+  }
+
+  // ✨ שיתוף ממותג. שיתוף רגיל (כפתור «שתפו את המסע») — רק משתף+מתעד. אם fromUnlock=true, השיתוף
+  // הוא שער למסר-העומק: בהצלחה (לא ביטול) פותח את השכבה השנייה ומתעד «מי שיתף» לדשבורד.
+  async function shareJourney(fromUnlock = false) {
+    if (shareBusy || root == null) return;
+    setShareBusy(true);
     logView("journey_share", String(root));   // 📊 פאנל: שיתוף מסע
-    try { await shareNumberSmart(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase }))); } finally { setBusy(false); }
+    let res = "link";
+    try {
+      res = await shareJourneyCard(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase })), KEY_NUMBERS[root] || null);
+    } finally { setShareBusy(false); }
+    if (fromUnlock && res !== "cancel") {   // שיתוף בוצע (מובייל=image · דסקטופ=link) → פותח עומק
+      setUnlocked(true);
+      try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
+      track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק בשיתוף
+      fetchDeepMessage();
+    }
+    return res;
   }
 
   const cur = path[path.length - 1];
@@ -275,6 +318,43 @@ export default function JourneyPage() {
             </div>
           )}
 
+          {/* 🔓 מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"), בזכות שיתוף. שער עדין,
+              לא-חוסם: המשתמש כבר קיבל מתנה; זו הזמנה להעמיק תמורת הפצה. אחרי פתיחה — נשאר פתוח לתמיד. */}
+          {root != null && aiState === "done" && (
+            !unlocked ? (
+              <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                <div style={{ fontSize: 26, marginBottom: 4 }}>🔓</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
+                  שתפו את המסע עם מישהו שיאהב אותו — ובזכות ההפצה ייפתח לכם מסר-עומק שני, אישי ועשיר יותר, על מה שהמסע שלכם מגלה.
+                </div>
+                <button onClick={() => shareJourney(true)} disabled={shareBusy}
+                  style={{ cursor: shareBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                  {shareBusy ? "פותח…" : "שתפו כדי לפתוח 🔓"}
+                </button>
+              </div>
+            ) : (
+              <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
+                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>🔓 מסר עומק</span>
+                  <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>נפתח בזכות השיתוף · תודה 🙏</span>
+                </div>
+                {deepState === "done" && deepMsg ? (
+                  <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
+                ) : deepState === "off" ? (
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>מסר-העומק אינו זמין כרגע.</div>
+                    <button onClick={fetchDeepMessage} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 16px" }}>↻ נסו שוב</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", gap: 9, color: P.accentDim, fontFamily: F.body, fontSize: 14, fontStyle: "italic", padding: "4px 0" }}>
+                    <span style={{ animation: "jReveal 1s ease-in-out infinite" }}>✍️</span> נפתח מסר-עומק…
+                  </div>
+                )}
+              </div>
+            )
+          )}
+
           {/* 🔮 ריבוע פיתוחים עתידיים + גרסה 2 */}
           <div style={{ maxWidth: 520, margin: "0 auto 24px", textAlign: "right", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px" }}>
             <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>🔮 מה עוד בדרך</div>
@@ -310,8 +390,8 @@ export default function JourneyPage() {
               </Link>
             )}
             {root != null && (
-              <button onClick={shareJourney} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 22px" }}>
-                {busy ? "מכין…" : "שתפו את המסע ✦"}
+              <button onClick={() => shareJourney()} disabled={shareBusy} style={{ cursor: shareBusy ? "wait" : "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 22px" }}>
+                {shareBusy ? "מכין…" : "שתפו את המסע ✦"}
               </button>
             )}
             <button onClick={restart} style={{ cursor: "pointer", background: "none", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, padding: "13px 18px" }}>
