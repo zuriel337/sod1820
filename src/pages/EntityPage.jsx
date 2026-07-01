@@ -611,6 +611,11 @@ export default function EntityPage({ embedPhrase } = {}) {
     return { galleryMain: [...about, ...related], galleryIncidental: incidental };
   }, [d.galleries, value]);
 
+  // 🔮 הצלבה נסתרת — כרטיס-התכנסות אם יש; אחרת נגזרת מ-2-3 מילים שוות (כולם = הערך).
+  // כשמשתמשים בפולבק, הטעימה מתחילה מאוחר יותר כדי לא לשכפל את אותן מילים.
+  const crossFallback = (!topics.length && (d.phrases?.length || 0) >= 2) ? d.phrases.slice(0, 3).map(p => p.phrase) : [];
+  const tasteStart = crossFallback.length ? crossFallback.length : 0;
+
 
   // מספר ספרה-בודדת (1–9) → מספר יסוד; מפנים לסולמות במקום להציף תוצאות.
   if (isNumber && value < 10) {
@@ -782,7 +787,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             </div>
 
             {/* 🔮 הצלבה נסתרת — פתוחה כבר בשער, מתחת למסע (הכי חשוב: «וואו, הכל מתחבר») */}
-            {topics.length > 0 && (
+            {topics.length > 0 ? (
               <Link to={`/topic/${topics[0].slug}`}
                 style={{ textDecoration: "none", display: "block", maxWidth: 500, margin: "14px auto 0",
                   background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
@@ -791,6 +796,22 @@ export default function EntityPage({ embedPhrase } = {}) {
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, lineHeight: 1.4 }}>{topics[0].title}</div>
                 {topics[0].subtitle && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginTop: 6 }}>{topics[0].subtitle}</div>}
               </Link>
+            ) : crossFallback.length >= 2 && (
+              /* פולבק — נגזר מהמילים השוות (כולם = הערך). קיים כמעט לכל מספר. */
+              <div style={{ maxWidth: 500, margin: "14px auto 0",
+                background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`,
+                borderRadius: 14, padding: "13px 16px", textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, marginBottom: 7 }}>🔮 הצלבה נסתרת</div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+                  {crossFallback.map((p, i) => (
+                    <React.Fragment key={i}>
+                      {i > 0 && <span style={{ color: P.accentDim, fontSize: 13 }}>·</span>}
+                      <Link to={numHref(encodeURIComponent(p))} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>{p}</Link>
+                    </React.Fragment>
+                  ))}
+                </div>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5, marginTop: 7 }}>שונים למראה — <b style={{ color: P.accentText }}>כולם {value}</b>. אותו שורש נסתר.</div>
+              </div>
             )}
 
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋). ★ שמור נשמר לכוכבי-העוצמה בלבד */}
@@ -836,12 +857,12 @@ export default function EntityPage({ embedPhrase } = {}) {
               );
             })()}
 
-            {/* מילים שוות — 3-4 מיד (מייצר סקרנות ללחוץ «גלה עוד») */}
-            {d.phrases?.length > 0 && (
+            {/* מילים שוות — 3-4 מיד. מדלג על אלו שכבר בהצלבה הנסתרת (פולבק) כדי לא לשכפל. */}
+            {d.phrases?.length > tasteStart && (
               <div style={{ marginTop: 15, textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>מילים שוות ל-{value}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
-                  {d.phrases.slice(0, 4).map((p, i) => (
+                  {d.phrases.slice(tasteStart, tasteStart + 4).map((p, i) => (
                     <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
                       style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                         borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
@@ -865,13 +886,13 @@ export default function EntityPage({ embedPhrase } = {}) {
             {/* שכבה 2 · גלה עוד — המשך טבעי של הדף, כל בלוק נחשף בגלילה כתגמול. לא כל התוכן. */}
             {layer >= 2 && (
               <div id="layer2" style={{ marginTop: 22 }}>
-                {/* עוד מילים שוות */}
-                {d.phrases?.length > 4 && (
+                {/* עוד מילים שוות — ממשיך אחרי מה שכבר בשער (הצלבה + טעימה), בלי כפילות */}
+                {d.phrases?.length > tasteStart + 4 && (
                   <Reveal>
                     <div style={{ marginTop: 6, textAlign: "center" }}>
                       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>עוד מילים שוות ל-{value}:</div>
                       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
-                        {d.phrases.slice(4, 12).map((p, i) => (
+                        {d.phrases.slice(tasteStart + 4, tasteStart + 14).map((p, i) => (
                           <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
                             style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                               borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
