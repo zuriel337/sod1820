@@ -62,10 +62,10 @@ export default function EntityHubRails({ entity }) {
 // פלטה בהירה נקייה (research_workspace_law) — «כמו Claude, לא GPT»: קרם/לבן, קווים דקים,
 // טקסט כהה, נגיעת-זהב עדינה. לא דארק-מוד. שקט, אוורירי, מודרני.
 const RAILS_CSS = `
-/* דסקטופ בלבד בשלב זה — מובייל נשאר מרכז-נקי (Bottom-Sheet בהמשך) */
+/* דסקטופ/טאבלט-לרוחב — מובייל צר נשאר מרכז-נקי (Bottom-Sheet בהמשך) */
 .ehr{display:none;font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
-/* מתחת לסרגל-העליון (Navbar=64px) — לא לדרוס אותו */
-@media (min-width:1024px){ .ehr{display:block;position:fixed;top:64px;bottom:0;z-index:46;pointer-events:none} }
+/* מתחת לסרגל-העליון (Navbar=64px) — לא לדרוס אותו. סף מונמך ל-860 כדי שהאזור האישי ייראה גם בחלונות צרים יותר */
+@media (min-width:860px){ .ehr{display:block;position:fixed;top:64px;bottom:0;z-index:46;pointer-events:none} }
 .ehr-right{inset-inline-end:0}
 .ehr-left{inset-inline-start:0}
 /* לשונית סגורה — כפתור עדין נקי באמצע הקצה */

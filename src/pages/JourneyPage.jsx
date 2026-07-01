@@ -7,6 +7,7 @@ import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track } from "../lib/tracking.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { entityFromNumber } from "../lib/research/entity.js";
 
 // ===== «מסע ההתכנסות» — טיול בתוך הערך (value-as-trunk) =====
 // המסע מטייל בין ביטויים ששווים לאותו ערך גימטרי (משפחת-הערך מ-bidim). ערך-היעד נסתר עד השיא,
@@ -43,7 +44,7 @@ const FUTURE = [
 
 export default function JourneyPage() {
   const P = usePalette();
-  const { addJourney } = useResearch();
+  const { addJourney, saveItem } = useResearch();
   const [sp] = useSearchParams();
   const startFrom = (sp.get("from") || "").trim();
   const [target, setTarget] = useState(null);     // ערך-היעד הנסתר (הסקאלה הפעילה)
@@ -60,6 +61,7 @@ export default function JourneyPage() {
   const [deepMsg, setDeepMsg] = useState(null);    // מסר-העומק (שכבה שנייה) — נפתח בשיתוף
   const [deepState, setDeepState] = useState("idle"); // idle | busy | done | off
   const [shareBusy, setShareBusy] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false); // 🔖 משוב «נשמר»
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
@@ -200,23 +202,34 @@ export default function JourneyPage() {
     else setDeepState("off");
   }
 
-  // ✨ שיתוף ממותג. שיתוף רגיל (כפתור «שתפו את המסע») — רק משתף+מתעד. אם fromUnlock=true, השיתוף
-  // הוא שער למסר-העומק: בהצלחה (לא ביטול) פותח את השכבה השנייה ומתעד «מי שיתף» לדשבורד.
-  async function shareJourney(fromUnlock = false) {
+  // ✨ שיתוף ממותג (כפתור «שתפו את המסע») — משתף + מתעד. לא-חוסם.
+  async function shareJourney() {
     if (shareBusy || root == null) return;
     setShareBusy(true);
     logView("journey_share", String(root));   // 📊 פאנל: שיתוף מסע
-    let res = "link";
     try {
-      res = await shareJourneyCard(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase })), KEY_NUMBERS[root] || null);
+      await shareJourneyCard(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase })), KEY_NUMBERS[root] || null);
     } finally { setShareBusy(false); }
-    if (fromUnlock && res !== "cancel") {   // שיתוף בוצע (מובייל=image · דסקטופ=link) → פותח עומק
-      setUnlocked(true);
-      try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
-      track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק בשיתוף
-      fetchDeepMessage();
-    }
-    return res;
+  }
+
+  // 🔓 פתיחת מסר-העומק — אמין: פותח *מיד* את השכבה השנייה (התגמול לעולם לא «נתקע»), ומפעיל את
+  // השיתוף במקביל. כך גם אם המשתמש סוגר את גיליון-השיתוף (מק/סאפרי) — המסר עדיין נפתח.
+  function unlockDeep() {
+    if (root == null) return;
+    setUnlocked(true);
+    try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
+    track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק
+    fetchDeepMessage();
+    shareJourney();   // מזמין את השיתוף במקביל (לא חוסם את פתיחת המסר)
+  }
+
+  // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
+  function saveJourney() {
+    if (root == null) return;
+    addJourney({ root, path: path.filter(s => !s.leap).map(s => s.phrase), world: dWorld || null, msg: aiMsg });
+    saveItem?.(entityFromNumber(root, KEY_NUMBERS[root]));
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1800);
   }
 
   const cur = path[path.length - 1];
@@ -328,7 +341,7 @@ export default function JourneyPage() {
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
                   שתפו את המסע עם מישהו שיאהב אותו — ובזכות ההפצה ייפתח לכם מסר-עומק שני, אישי ועשיר יותר, על מה שהמסע שלכם מגלה.
                 </div>
-                <button onClick={() => shareJourney(true)} disabled={shareBusy}
+                <button onClick={unlockDeep} disabled={shareBusy}
                   style={{ cursor: shareBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
                   {shareBusy ? "פותח…" : "שתפו כדי לפתוח 🔓"}
                 </button>
@@ -388,6 +401,11 @@ export default function JourneyPage() {
               <Link to={`/number/${root}`} onClick={() => logView("journey_open", String(root))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
                 פתח את {root} →
               </Link>
+            )}
+            {root != null && (
+              <button onClick={saveJourney} style={{ cursor: "pointer", background: savedFlash ? P.accentBtn : P.card, color: savedFlash ? P.onAccent : P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 22px", transition: "all .2s" }}>
+                {savedFlash ? "✓ נשמר למסעות שלי" : "🔖 שמרו את המסע"}
+              </button>
             )}
             {root != null && (
               <button onClick={() => shareJourney()} disabled={shareBusy} style={{ cursor: shareBusy ? "wait" : "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 22px" }}>
