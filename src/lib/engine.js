@@ -27,19 +27,36 @@ export function resolve(input) {
   return { term, value: isNumber ? Number(term) : calcGem(term), isNumber, lang: "he" };
 }
 
+// מטמון פר-ערך (זיכרון, TTL) — מונע טעינה חוזרת של אותו מספר במעבר בין דפי-מספר.
+// אותו קלט → אותה תוצאה, רק בלי round-trip נוסף. TTL קצר שומר על טריות.
+const VALUE_TTL = 300000; // 5 דק'
+const _scoreCache = new Map();   // value -> { ts, val }
+const _bundleCache = new Map();  // key   -> { ts, promise }
+
 // ⭐ getScore — עוצמת התכנסות 0-100 (plugin: convergence_meter). מקור יחיד למד/כוכבים/דופק.
 export async function getScore(value) {
   if (!value || value < 10) return null;
+  const hit = _scoreCache.get(value);
+  if (hit && Date.now() - hit.ts < VALUE_TTL) return hit.val;
   try {
     const { data } = await supabase.rpc("convergence_meter", { p_n: value });
-    return typeof data?.score === "number" ? data.score : null;
+    const val = typeof data?.score === "number" ? data.score : null;
+    _scoreCache.set(value, { ts: Date.now(), val });
+    return val;
   } catch { return null; }
 }
 
 // 📦 getBundle — כל הישויות המחוברות לערך (plugin: getEntityBundle). מקבל קלט גולמי או resolved.
 export function getBundle(input) {
   const r = (input && typeof input === "object" && "value" in input) ? input : resolve(input);
-  return getEntityBundle(r);
+  const key = `${r.value}|${r.term}|${r.isNumber ? 1 : 0}`;
+  const hit = _bundleCache.get(key);
+  if (hit && Date.now() - hit.ts < VALUE_TTL) return hit.promise;
+  const promise = Promise.resolve()
+    .then(() => getEntityBundle(r))
+    .catch(e => { _bundleCache.delete(key); throw e; });  // אל תשמור כישלון במטמון
+  _bundleCache.set(key, { ts: Date.now(), promise });
+  return promise;
 }
 
 // 🌳 coreEngine / getTree — האורקסטרטור היחיד: קלט אחד → כל העץ (חיבורים + מסרים + עוצמה).
