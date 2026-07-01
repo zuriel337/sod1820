@@ -725,17 +725,24 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          {/* 💎 קופסת הזהות — למה המספר חשוב (וואו ב-3 שניות) */}
+          {/* 💎 זהות המספר — צ'יפים נקיים (בלי קופסה כבדה / עומס אימוג'ים) + פס-העוצמה */}
           {(() => {
             const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
             const totalConn = (d.postsCount || 0) + (d.galleriesCount || 0) + (d.phrases?.length || 0) + (d.eventsCount || 0) + (d.insightsCount || 0) + (d.commentsCount || 0);
+            const chips = [
+              typeLabel,
+              hasGate && `${sigs.length} חתימות`,
+              totalConn > 0 && `מחובר ל-${totalConn}`,
+              searched > 0 && `נצפה ${searched}×`,
+            ].filter(Boolean);
             return (
-              <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 8, margin: "14px auto 0", padding: "11px 22px", borderRadius: 16, background: P.cardSoft, border: `1px solid ${P.border}` }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", justifyContent: "center", alignItems: "center" }}>
-                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>👑 {typeLabel}</span>
-                  {hasGate && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 📜 {sigs.length} חתימות</span>}
-                  {totalConn > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>· 🌳 מחובר ל-{totalConn}</span>}
-                  {searched > 0 && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>· 🔎 חופש {searched} פעמים</span>}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 13, margin: "14px auto 0" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                  {chips.map((c, i) => (
+                    <span key={i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
+                      padding: "5px 12px", color: i === 0 ? P.accentText : P.inkSoft,
+                      fontFamily: F.heading, fontSize: 12.5, fontWeight: i === 0 ? 800 : 600 }}>{c}</span>
+                  ))}
                 </div>
                 <NumberPulse value={value} onExplore={() => { setOpen(o => ({ ...o, dna: true })); setTimeout(() => scrollTo("dna"), 80); }} />
               </div>
