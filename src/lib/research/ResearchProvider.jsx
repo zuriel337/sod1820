@@ -7,11 +7,26 @@ import { getCloudResearch, saveCloudResearch } from "../auth.js";
 // (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
 // (סנכרון-ענן למחוברים — שלב מאוחר.) כל פעולה פולטת Event ל-Bus → הפאנלים מאזינים.
 const KEY = "sod_research_v1";
+// 🔬 גלגול «מצב מחקר לכולם» (החלטת צוריאל 7.2026) — מצב מחקר = ברירת המחדל לכל מבקר.
+// דגל חד-פעמי: גם מבקר חוזר עם קאש ישן (mode:"reader" שמור) עובר למצב מחקר פעם אחת.
+// אחרי הגלגול — בחירה מפורשת של המשתמש (toggle לקורא) נשמרת ולא נדרסת שוב.
+const MODE_ROLLOUT_KEY = "sod_mode_rollout_v1";
 const Ctx = createContext(null);
 export const useResearch = () => useContext(Ctx) || {};
 
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+}
+
+// מצב-הפתיחה: גלגול חד-פעמי → discovery לכולם; לאחריו מכבדים בחירה שמורה; ברירת מחדל = discovery.
+function initialMode(init) {
+  try {
+    if (localStorage.getItem(MODE_ROLLOUT_KEY) !== "1") {
+      localStorage.setItem(MODE_ROLLOUT_KEY, "1");
+      return "discovery";   // מבקר חדש או חוזר — כולם נכנסים למצב מחקר פעם אחת
+    }
+  } catch { /* noop */ }
+  return init.mode === "reader" ? "reader" : "discovery";
 }
 
 export default function ResearchProvider({ children }) {
@@ -21,9 +36,9 @@ export default function ResearchProvider({ children }) {
   const [pinned, setPinned] = useState(() => init.pinned || []); // 📌 מוצמדים — נשארים זמינים בכל Hub
   const [history, setHistory] = useState(() => init.history || []); // 🕘 היסטוריית מחקר (אחרונים)
   const [collections, setCollections] = useState(() => init.collections || []); // 📁 אוספים
-  // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
-  // דרך הכניסה קובעת: כניסה להיכל הגילוי → discovery; מגוגל/קישור → reader. נשמר מקומית, מעטפת אחת לכל האתר.
-  const [mode, setModeState] = useState(() => (init.mode === "discovery" ? "discovery" : "reader"));
+  // 🔬 מצב עבודה גלובלי — discovery (ברירת מחדל לכולם, היכל הגילוי הפתוח) | reader (מעטפת נקייה).
+  // גלגול 7.2026: מצב מחקר = ברירת המחדל לכל מבקר (כולל חוזרים) דרך initialMode. נשמר מקומית, מעטפת אחת לכל האתר.
+  const [mode, setModeState] = useState(() => initialMode(init));
 
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, mode })); } catch { /* noop */ }
