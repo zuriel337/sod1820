@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 
@@ -52,12 +52,15 @@ export default function JourneyPage() {
   const [finished, setFinished] = useState(null);  // null | "complete" | "stopped"
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [aiMsg, setAiMsg] = useState(null);        // מסר אישי מהמנוע (AI) — null עד שלוחצים
+  const [aiState, setAiState] = useState("idle");  // idle | busy | done | off (לא פעיל/נכשל)
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
   // מאתחל מסע: בוחר ערך-יעד נסתר (משפחה עשירה) וטוען את משפחת-הערך לטייל בה.
   async function begin(fromParam) {
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
+    setAiMsg(null); setAiState("idle");
     let value = null, startPhrase = null;
     if (isNumeric(fromParam)) {
       value = parseInt(fromParam, 10);
@@ -135,6 +138,21 @@ export default function JourneyPage() {
   const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
   const leaped = bases.length > 1;
 
+  // 🤖 מסר אישי מהמנוע — קריאת AI אחת לפי נתוני המסע (בלחיצה, לא אוטומטי).
+  async function fetchAiMessage() {
+    if (aiState === "busy" || root == null) return;
+    setAiState("busy");
+    logView("journey_ai_message", String(root));   // 📊 פאנל: ביקש מסר אישי
+    const msg = await getJourneyMessage({
+      value: root,
+      path: path.filter(s => !s.leap).map(s => s.phrase),
+      world: dWorld || null,
+      meaning: KEY_NUMBERS[root] || null,
+    });
+    if (msg) { setAiMsg(msg); setAiState("done"); }
+    else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
+  }
+
   async function shareJourney() {
     if (busy || root == null) return;
     setBusy(true);
@@ -207,18 +225,36 @@ export default function JourneyPage() {
             </div>
           )}
 
-          {/* 🤖 מסר מהמנוע (בטא) — נגזר מנתוני המסע */}
+          {/* 🤖 מסר מהמנוע — תבנית נגזרת + מסר אישי (AI) בלחיצה */}
           {root != null && (
             <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px", boxShadow: `0 0 30px ${P.glow}` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
                 <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>🤖 מסר מהמנוע</span>
-                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px" }}>בטא · בפיתוח</span>
+                {aiState === "done"
+                  ? <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>🔵 נכתב עבורך</span>
+                  : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px" }}>בטא</span>}
               </div>
-              <div style={{ display: "grid", gap: 8 }}>
-                {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
-                  <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
-                ))}
-              </div>
+
+              {aiState === "done" && aiMsg ? (
+                /* המסר האישי מהמנוע */
+                <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{aiMsg}</p>
+              ) : (
+                <>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
+                      <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <button onClick={fetchAiMessage} disabled={aiState === "busy"} style={{ cursor: aiState === "busy" ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "9px 20px", boxShadow: `0 0 20px ${P.glow}` }}>
+                      {aiState === "busy" ? "המנוע כותב לך…" : "🤖 קבל מסר אישי"}
+                    </button>
+                    {aiState === "off" && (
+                      <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontStyle: "italic" }}>המסר האישי עוד לא פעיל — זה מה שהמנוע רואה כרגע.</span>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 

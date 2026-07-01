@@ -189,6 +189,20 @@ export async function getNumberAnchor(value) {
   } catch { return null; }
 }
 
+// 🤖 מסר-מסע אישי מהמנוע (AI) — Edge Function journey-message.
+// מקבל את המספר, מסלול הביטויים, העולם והמהות; מחזיר טקסט קצר בעברית או null.
+// נכשל בשקט (null) אם אין מפתח / שגיאה → הקורא נופל להודעת-התבנית הקיימת.
+export async function getJourneyMessage({ value, path, world, meaning }) {
+  if (!supabase || value == null) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('journey-message', {
+      body: { value, path, world, meaning },
+    });
+    if (error) return null;
+    return data?.message || null;
+  } catch { return null; }
+}
+
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
 export async function getTopPrimaryValues(lim = 16) {
   if (!supabase) return [];
