@@ -74,11 +74,14 @@ const RAILS_CSS = `
   background:#fffdf8;border:1px solid #ece4d3;color:#6b6150;font-family:inherit;
   padding:15px 8px;box-shadow:0 8px 26px -10px rgba(60,46,16,.22),0 2px 6px -2px rgba(60,46,16,.10);
   transition:color .15s,border-color .15s,box-shadow .15s,background .15s}
-.ehr-right .ehr-tab{inset-inline-end:0;border-inline-end:none;border-radius:14px 0 0 14px}
-.ehr-left .ehr-tab{inset-inline-start:0;border-inline-start:none;border-radius:0 14px 14px 0}
+/* border-radius לוגי → הפינה המעוגלת תמיד פונה פנימה (לא לקצה המסך), נכון גם ב-RTL */
+.ehr-right .ehr-tab{inset-inline-end:0;border-inline-end:none;
+  border-start-start-radius:14px;border-end-start-radius:14px;border-start-end-radius:0;border-end-end-radius:0}
+.ehr-left .ehr-tab{inset-inline-start:0;border-inline-start:none;
+  border-start-end-radius:14px;border-end-end-radius:14px;border-start-start-radius:0;border-end-start-radius:0}
 .ehr-tab:hover{color:#b07d12;border-color:#e3cf94;background:#fff;
   box-shadow:0 12px 32px -10px rgba(60,46,16,.30),0 3px 8px -2px rgba(60,46,16,.14)}
-.ehr-tab-i{font-size:17px}
+.ehr-tab-i{font-size:20px}
 .ehr-tab-t{writing-mode:vertical-rl;font-size:12.5px;font-weight:800;letter-spacing:1px}
 /* פאנל פתוח — לבן נקי, קו-זהב דק */
 .ehr-panel{pointer-events:auto;position:absolute;top:0;bottom:0;width:min(330px,86vw);
