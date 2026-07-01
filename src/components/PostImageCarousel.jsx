@@ -178,17 +178,27 @@ export default function PostImageCarousel({ value, images, gallery }) {
               </button>
             ))}
           </div>
-          {/* 🛠 כפתור עריכה — מנהל בלבד. עורך את התמונה הנוכחית (אותו מודל כמו בגלריה). */}
-          {isAdmin && pics[idx] && (
-            <button onClick={e => { e.stopPropagation(); setEditImg(pics[idx]); }}
-              title="ערוך תמונה (מנהל) — תגיות, מספרים, הסתרה, מחיקה"
-              style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 5, width: 38, height: 38, borderRadius: 10,
-                border: "1px solid rgba(232,200,74,0.6)", background: "rgba(10,8,4,0.72)", color: "#f6e27a",
-                fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(3px)" }}>
-              ✏️
-            </button>
-          )}
+          {/* 🛠 סרגל-אדמין — מנהל בלבד. «🙈 הסתר» בלחיצה אחת · «✏️» עריכה מלאה (אותו מודל כמו בגלריה). */}
+          {isAdmin && pics[idx] && (() => {
+            const abtn = { width: 38, height: 38, borderRadius: 10, fontSize: 17, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(3px)",
+              background: "rgba(10,8,4,0.72)", border: "1px solid rgba(232,200,74,0.6)", color: "#f6e27a" };
+            const hideCur = async e => {
+              e.stopPropagation();
+              const im = pics[idx]; if (!im) return;
+              if (!window.confirm("להסתיר את התמונה הזו מהמספר? (הפיך דרך העורך)")) return;
+              try { await setImageCuration(im.id, { curator_hidden: true }); applyPatch(im.id, { curator_hidden: true }); }
+              catch (err) { alert("שגיאה בהסתרה: " + (err.message || err)); }
+            };
+            return (
+              <div style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 5, display: "flex", gap: 6 }}>
+                <button onClick={hideCur} title="הסתר תמונה זו מהמספר (מנהל, הפיך)"
+                  style={{ ...abtn, color: "#ff9b9b", borderColor: "rgba(255,120,120,0.6)" }}>🙈</button>
+                <button onClick={e => { e.stopPropagation(); setEditImg(pics[idx]); }}
+                  title="ערוך תמונה (מנהל) — תגיות, מספרים, הבלטה, מחיקה" style={abtn}>✏️</button>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
