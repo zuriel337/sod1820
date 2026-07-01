@@ -8,6 +8,7 @@ import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 import { LOGO_URL } from "../theme.js";
 import { tokenLabel } from "../lib/els/tokens.js";
+import { makeExpected, wonderTier } from "../lib/els/score.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -541,14 +542,7 @@ export default function ElsGrid({ seed }) {
       const skip0 = new Set(overlays); skip0.add(elsNormalize(terms[0] || ""));
       // 📊 מד-הפלא (יושר): «צפוי-במקרה» לכל מונח לפי תדירות-האותיות בספר. מונח שכיח (אירן/אהב) צפוי
       // ליד כל דבר → לא פלא. מונח נדיר שנחתך → פלא אמיתי. בונים מפת-תדירות פעם אחת.
-      const M = Math.max(1, bk.to - bk.from);
-      const freq = new Map();
-      for (let i = bk.from; i < bk.to; i++) freq.set(letters[i], (freq.get(letters[i]) || 0) + 1);
-      const expectedOf = (t) => {
-        let pm = 1; for (const c of t) { const f = (freq.get(c) || 0) / M; if (!f) return 0; pm *= f; }
-        let placements = 0; for (const s of skips) { const p = M - s * (t.length - 1); if (p > 0) placements += p; }
-        return pm * placements * dirs.length;
-      };
+      const expected = makeExpected(letters, bk.from, bk.to); // מנוע-ניקוד אחיד
       const found = [];
       for (const rawT of ELS_DICT) {
         const t = elsNormalize(rawT);
@@ -564,12 +558,8 @@ export default function ElsGrid({ seed }) {
           }
         }
         if (best) {
-          const exp = expectedOf(t), len = t.length;
-          // דרגת-פלא: אורך + נדירות. מילים קצרות (≤3) = רעש (שכיח), לא מתרגשים. ארוכות+נדירות = פלא אמיתי.
-          const wonder = len <= 3 ? { r: 2, t: "⚪ קצר", c: "#9a8a5e" }
-            : (exp < 2 && len >= 5) ? { r: 0, t: "🟢 פלא נדיר", c: "#1f7a4d" }
-            : exp < 60 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" }
-            : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
+          const exp = expected(t, skips, dirs.length), len = t.length;
+          const wonder = wonderTier(exp, len);
           found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist, exp: Math.round(exp), len, wonder });
         }
       }
@@ -595,10 +585,7 @@ export default function ElsGrid({ seed }) {
       const aRowMin = Math.floor(Math.min(...anchorHit.positions) / W2), aRowMax = Math.floor(Math.max(...anchorHit.positions) / W2);
       const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
       const N = letters.length, winTo = Math.min(N, bk.to);
-      const M = Math.max(1, bk.to - bk.from);
-      const freq = new Map();
-      for (let i = bk.from; i < bk.to; i++) freq.set(letters[i], (freq.get(letters[i]) || 0) + 1);
-      const expectedOf = t => { let pm = 1; for (const c of t) { const f = (freq.get(c) || 0) / M; if (!f) return 0; pm *= f; } const pl = Math.max(0, M - S * (t.length - 1)); return pm * pl; };
+      const expected = makeExpected(letters, bk.from, bk.to); // אותו מנוע-ניקוד כמו בסריקת-המילון
       const anchorT = elsNormalize(terms[0] || ""), COLWIN = 22;
       const dirStr = aDir === 1 ? "fwd" : "back";
       const found = [];
@@ -616,8 +603,8 @@ export default function ElsGrid({ seed }) {
           if (!best || dcol < best.dcol) best = { hit: h, dcol };
         }
         if (best) {
-          const exp = expectedOf(t), len = t.length;
-          const wonder = (exp < 2 && len >= 5) ? { r: 0, t: "🟢 פלא נדיר", c: "#1f7a4d" } : exp < 60 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" } : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
+          const exp = expected(t, [S], 1), len = t.length;
+          const wonder = wonderTier(exp, len);
           found.push({ term: t, raw: rawT, hit: best.hit, dcol: best.dcol, exp: Math.round(exp), len, wonder });
         }
       }
