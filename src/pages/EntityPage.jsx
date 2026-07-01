@@ -766,25 +766,26 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          {/* 💎 זהות המספר — צ'יפים + כוכבי-עוצמה + 3 אריחים (דופק · חיבורים · נצפה) [אופציה B] */}
+          {/* 💎 זהות המספר — צ'יפים + לב-דופק אחד גדול (5 מצבים) + חיבורים + צפיות (החלטת צוריאל) */}
           {(() => {
             const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
             const totalConn = (d.postsCount || 0) + (d.galleriesCount || 0) + (d.phrases?.length || 0) + (d.eventsCount || 0) + (d.insightsCount || 0) + (d.commentsCount || 0);
             const chips = [typeLabel, hasGate && `${sigs.length} חתימות`].filter(Boolean);
-            const pulse = pulseFromCounts({ posts: d.postsCount, galleries: d.galleriesCount, words: d.phrases?.length, events: d.eventsCount, ai: d.insightsCount, comm: d.commentsCount });
-            // דופק כמילת-מצב + צבע (עובד בבהיר ובכהה): נדיר / חי / מתחזק.
             const isLight = P.mode === "light";
-            const pt = pulse >= 70 ? { w: "נדיר", c: isLight ? "#7c5cbf" : "#b9a3ff" }
-                     : pulse >= 35 ? { w: "חי",   c: isLight ? "#2f9e6b" : "#4bd07f" }
-                     :               { w: "מתחזק", c: isLight ? "#b8860b" : "#e8c840" };
-            const stars = convScore != null ? Math.max(1, Math.min(5, Math.round(convScore / 20))) : null;
-            const tiles = [
-              { e: "❤️", word: pt.w, wc: pt.c, l: "דופק" },
-              { e: "🔗", val: totalConn, l: "חיבורים" },
-              { e: "👁️", val: searched, l: "נצפה" },
-            ];
+            // ❤️ חמשת מצבי הלב לפי ציון ההתכנסות (0-100). צבע-מצב עובד בבהיר ובכהה.
+            const s = convScore;
+            const tier = s == null ? { e: "🤍", nm: "רדום",   c: isLight ? "#a89a7f" : "#d8d0c0" }
+                       : s >= 85  ? { e: "👑", nm: "מלכותי", c: isLight ? "#b8860b" : "#f6e27a" }
+                       : s >= 65  ? { e: "💜", nm: "ייחודי", c: isLight ? "#7a56c9" : "#a78bfa" }
+                       : s >= 45  ? { e: "💙", nm: "נדיר",   c: isLight ? "#2f7fd0" : "#3ea6ff" }
+                       : s >= 20  ? { e: "❤️", nm: "חי",     c: isLight ? "#d13048" : "#e0556a" }
+                       :            { e: "🤍", nm: "רדום",   c: isLight ? "#a89a7f" : "#d8d0c0" };
+            const SZ = 112, ST = 9, RAD = (SZ - ST) / 2, CIRC = 2 * Math.PI * RAD;
+            const off = CIRC * (1 - Math.max(0, Math.min(100, s || 0)) / 100);
+            const track = isLight ? "#ece0c2" : "rgba(255,255,255,0.10)";
+            const numC = isLight ? "#4a3a1a" : tier.c;
             return (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, margin: "14px auto 0", width: "100%", maxWidth: 420 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, margin: "14px auto 0" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
                   {chips.map((c, i) => (
                     <span key={i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
@@ -793,26 +794,30 @@ export default function EntityPage({ embedPhrase } = {}) {
                   ))}
                 </div>
 
-                {/* ⭐ עוצמה — כוכבים מציון ההתכנסות (רק כשיש התכנסות) */}
-                {stars != null && (
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 22, letterSpacing: 4, color: P.accentText, filter: `drop-shadow(0 0 6px ${P.glow})` }}>
-                      {[0, 1, 2, 3, 4].map(i => <span key={i} style={{ opacity: i < stars ? 1 : 0.25 }}>★</span>)}
+                {/* ❤️ לב-דופק אחד גדול — הטבעת מתמלאת לפי הציון, במרכז מצב-הלב + הציון */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                  <div style={{ position: "relative", width: SZ, height: SZ }}>
+                    <svg width={SZ} height={SZ} style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 9px ${tier.c}66)` }}>
+                      <circle cx={SZ / 2} cy={SZ / 2} r={RAD} fill="none" stroke={track} strokeWidth={ST} />
+                      <circle cx={SZ / 2} cy={SZ / 2} r={RAD} fill="none" stroke={tier.c} strokeWidth={ST} strokeLinecap="round"
+                        strokeDasharray={CIRC} strokeDashoffset={off} style={{ transition: "stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)" }} />
+                    </svg>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 33, lineHeight: 1 }}>{tier.e}</span>
+                      {s != null && <span style={{ color: numC, fontFamily: F.mono, fontSize: 21, fontWeight: 900, lineHeight: 1.05 }}>{s}</span>}
                     </div>
-                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800, letterSpacing: 3, marginTop: 3 }}>עוצמה</div>
                   </div>
-                )}
+                  <div style={{ color: tier.c, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>דופק · {tier.nm}</div>
+                </div>
 
-                {/* 📊 שלושה אריחים — דופק (מילת-מצב) · חיבורים · נצפה. ערכים בדיו כהה (קריא בבהיר). */}
-                <div style={{ display: "flex", gap: 9, width: "100%" }}>
-                  {tiles.map((t, i) => (
-                    <div key={i} style={{ flex: 1, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "12px 6px", textAlign: "center" }}>
-                      <div style={{ fontSize: 16, lineHeight: 1 }}>{t.e}</div>
-                      {t.word
-                        ? <div style={{ color: t.wc, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginTop: 4 }}>{t.word}</div>
-                        : <div style={{ color: P.ink, fontFamily: F.mono, fontSize: 19, fontWeight: 800, marginTop: 3 }}>{(t.val || 0).toLocaleString("he")}</div>}
-                      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 10, fontWeight: 600, marginTop: 2 }}>{t.l}</div>
-                    </div>
+                {/* 2 נתונים קטנים — חיבורים · צפיות (בדיו כהה, קריא בבהיר) */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                  {[{ e: "🔗", v: totalConn, l: "חיבורים" }, { e: "👁️", v: searched, l: "צפיות" }].map((x, i) => (
+                    <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                      <span style={{ fontSize: 13 }}>{x.e}</span>
+                      <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(x.v || 0).toLocaleString("he")}</span>
+                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>{x.l}</span>
+                    </span>
                   ))}
                 </div>
               </div>
