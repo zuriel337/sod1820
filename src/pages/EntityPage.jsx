@@ -661,16 +661,23 @@ export default function EntityPage({ embedPhrase } = {}) {
         <div className="ep-toprow">
           <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
           <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
-          {/* 🔬 מתג מצב — למעלה, פשוט: «מצב מחקר» / «מצב רגיל». מציג את המצב הנוכחי, לחיצה מחליפה. */}
+          {/* 🔬 מתג-מצב סגמנטד — שני המצבים גלויים תמיד, הפעיל מודגש (כמו מתג iOS). ברור מיידית. */}
           {!embedded && (() => {
             const inResearch = mode === "discovery" || layer >= 3;
+            const toReader = () => { setLayer(1); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); };
+            const toResearch = () => { enterDiscovery?.(); setLayer(3); };
+            const seg = (active) => ({
+              cursor: "pointer", border: "none", borderRadius: 999, fontFamily: F.heading,
+              fontSize: 12.5, fontWeight: 800, padding: "6px 13px", whiteSpace: "nowrap",
+              background: active ? P.accentBtn : "transparent", color: active ? P.onAccent : P.accentDim,
+              boxShadow: active ? `0 2px 8px ${P.glow}` : "none", transition: "background .18s ease, color .18s ease",
+            });
             return (
-              <button onClick={() => { if (inResearch) { setLayer(1); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); } else { enterDiscovery?.(); setLayer(3); } }}
-                title={inResearch ? "עבור למצב רגיל" : "עבור למצב מחקר"}
-                style={{ cursor: "pointer", background: inResearch ? P.accentBtn : P.cardSoft, color: inResearch ? P.onAccent : P.accentText,
-                  border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 14px", whiteSpace: "nowrap" }}>
-                {inResearch ? "🔬 מצב מחקר" : "👁️ מצב רגיל"}
-              </button>
+              <div role="group" aria-label="בחירת תצוגה" title="החליפו בין תצוגה פשוטה למחקר מלא"
+                style={{ display: "inline-flex", gap: 3, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: 3 }}>
+                <button onClick={toReader} aria-pressed={!inResearch} title="תצוגה פשוטה — רק העיקר" style={seg(!inResearch)}>👁️ פשוט</button>
+                <button onClick={toResearch} aria-pressed={inResearch} title="הכול פתוח — מחקר מלא" style={seg(inResearch)}>🔬 מחקר</button>
+              </div>
             );
           })()}
           <form onSubmit={goSearch} className="ep-topsearch">
