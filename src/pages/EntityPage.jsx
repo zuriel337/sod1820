@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 
 // 🔗 כתובת-מספר תלוית-הקשר — חי במודול זעיר נפרד (lib/numHrefCtx) כדי ש-NumberTool
@@ -583,6 +583,34 @@ export default function EntityPage({ embedPhrase } = {}) {
   // מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
 
+  // 🖼 סיווג הגלריה «תמונות מהמאגר» — «על המספר»+«אזכור משמעותי» = main · «מקרי/תאריך» = incidental.
+  // מחושב פעם אחת, משמש גם בשכבה 2 (גלה עוד) וגם בשכבה 3 (היכל הגילוי) — בלי כפילות לוגיקה.
+  const { galleryMain, galleryIncidental } = useMemo(() => {
+    const gs = d.galleries || [];
+    if (!gs.length) return { galleryMain: [], galleryIncidental: [] };
+    const n = Number(value);
+    const clockRe = (n >= 0 && n <= 59) ? new RegExp(`\\b\\d{1,2}:${String(n).padStart(2, "0")}\\b`) : null;
+    const dateArtifact = g => {
+      if (n < 1 || n > 31) return false;
+      const text = `${g.name || ""} ${g.description || ""}`;
+      const nn = String(n);
+      if (new RegExp(`(^|[^0-9./])${nn}(?![0-9./:])`).test(text)) return false;
+      return new RegExp(`(^|[^0-9])(${nn}[./]\\d{1,2}[./]\\d{2,4}|\\d{1,2}[./]${nn}[./]\\d{2,4})`).test(text);
+    };
+    const classify = g => {
+      if (dateArtifact(g)) return "incidental";
+      if (Number(g.primary_value) === n) return "about";
+      const av = (g.all_values || []).map(Number);
+      if (!av.includes(n)) return "about";
+      if (av.length > 12) return "incidental";
+      if (clockRe && clockRe.test(g.description || "")) return "incidental";
+      return "related";
+    };
+    const about = [], related = [], incidental = [];
+    for (const g of gs) { const c = classify(g); (c === "about" ? about : c === "related" ? related : incidental).push(g); }
+    return { galleryMain: [...about, ...related], galleryIncidental: incidental };
+  }, [d.galleries, value]);
+
 
   // מספר ספרה-בודדת (1–9) → מספר יסוד; מפנים לסולמות במקום להציף תוצאות.
   if (isNumber && value < 10) {
@@ -826,11 +854,21 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* 🧬 מד ההתכנסות — הלב של «גלה עוד» (התמונות עברו לשכבה 3) */}
+                {/* 🧬 מד ההתכנסות — הלב של «גלה עוד» */}
                 {value >= 10 && (
                   <Reveal delay={60}>
                     <div style={{ maxWidth: 460, margin: "20px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
                       <ConvergenceMeter value={value} />
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* 🖼 תמונות מהמאגר — הגלריה שסודרה (אותו סיווג כמו בהיכל הגילוי) */}
+                {galleryMain.length > 0 && (
+                  <Reveal delay={60}>
+                    <div style={{ marginTop: 20 }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8, textAlign: "center" }}>🖼 תמונות מהמאגר</div>
+                      <PostImageCarousel value={value} images={galleryMain} />
                     </div>
                   </Reveal>
                 )}
@@ -1032,49 +1070,20 @@ export default function EntityPage({ embedPhrase } = {}) {
           </div>
         </Acc>
 
-        {/* ── 🖼 גלריות — ממוקד: רק primary_value=הערך; הצלבות (ערך משני) מקופלות בנפרד ── */}
-        {d.galleries?.length > 0 && (() => {
-          // סיווג רלוונטיות: "על המספר" (primary) · "אזכור משמעותי" (related) · "אזכור מקרי" (incidental).
-          // מקרי = המספר קבור ברשימת ערכים ארוכה, או מופיע רק כדקות בשעון (HH:NN) — רעש.
-          const n = Number(value);
-          const clockRe = (n >= 0 && n <= 59) ? new RegExp(`\\b\\d{1,2}:${String(n).padStart(2, "0")}\\b`) : null;
-          // 📅 ארטיפקט-תאריך: n מופיע בתמונה רק כיום/חודש בתבנית DD.MM.YYYY (לא כמספר עצמאי).
-          // שמות-לוג של וורדפרס («עדכון 16.6.2017») הזריקו את היום כ-primary_value שגוי — רעש, לא ערך.
-          const dateArtifact = g => {
-            if (n < 1 || n > 31) return false;
-            const text = `${g.name || ""} ${g.description || ""}`;
-            const nn = String(n);
-            // אם n מופיע כמספר עצמאי (לא צמוד ל-/ . : שמסמנים תאריך/שעה) → ערך אמיתי, לא תאריך.
-            if (new RegExp(`(^|[^0-9./])${nn}(?![0-9./:])`).test(text)) return false;
-            // אחרת — האם הוא יום/חודש בתבנית תאריך?
-            return new RegExp(`(^|[^0-9])(${nn}[./]\\d{1,2}[./]\\d{2,4}|\\d{1,2}[./]${nn}[./]\\d{2,4})`).test(text);
-          };
-          const classify = g => {
-            if (dateArtifact(g)) return "incidental";                          // n רק מתאריך → רעש
-            if (Number(g.primary_value) === n) return "about";
-            const av = (g.all_values || []).map(Number);
-            if (!av.includes(n)) return "about"; // התאמת שם (לא-מספר) — נשאר ראשי
-            if (av.length > 12) return "incidental";                          // קבור ברשימה ארוכה
-            if (clockRe && clockRe.test(g.description || "")) return "incidental"; // דקות בשעון
-            return "related";                                                 // אזכור משמעותי
-          };
-          const about = [], related = [], incidental = [];
-          for (const g of d.galleries) { const c = classify(g); (c === "about" ? about : c === "related" ? related : incidental).push(g); }
-          const main = [...about, ...related];   // "על המספר" + אזכורים משמעותיים = מה שמתאים למספר
-          return (
-            <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={main.length || incidental.length} open={open} onToggle={toggleAcc} P={P}>
-              {main.length > 0 ? (
-                <PostImageCarousel value={value} images={main} />
-              ) : (
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, padding: "8px 4px" }}>
-                  אין עדיין תמונות שמוקדשות ל-<b style={{ color: P.accentText }}>{value}</b> — להלן אזכורים משניים בלבד.
-                </div>
-              )}
-              {incidental.length > 0 && <CrossGallery value={value} images={incidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${incidental.length})`} />}
-              {isNumber && <ZeroResonance value={value} P={P} />}
-            </Acc>
-          );
-        })()}
+        {/* ── 🖼 גלריות — ממוקד: main (על המספר + אזכור משמעותי) · מקרי מקופל בנפרד. סיווג משותף (galleryMain) ── */}
+        {d.galleries?.length > 0 && (
+          <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={galleryMain.length || galleryIncidental.length} open={open} onToggle={toggleAcc} P={P}>
+            {galleryMain.length > 0 ? (
+              <PostImageCarousel value={value} images={galleryMain} />
+            ) : (
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, padding: "8px 4px" }}>
+                אין עדיין תמונות שמוקדשות ל-<b style={{ color: P.accentText }}>{value}</b> — להלן אזכורים משניים בלבד.
+              </div>
+            )}
+            {galleryIncidental.length > 0 && <CrossGallery value={value} images={galleryIncidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${galleryIncidental.length})`} />}
+            {isNumber && <ZeroResonance value={value} P={P} />}
+          </Acc>
+        )}
 
         {loading && <ShimmerRow P={P} count={3} />}
         {!loading && chips.length === 0 && (
