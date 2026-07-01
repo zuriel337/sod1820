@@ -8,6 +8,7 @@ import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 import { LOGO_URL } from "../theme.js";
 import { tokenLabel } from "../lib/els/tokens.js";
+import { makeExpected, wonderTier } from "../lib/els/score.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -221,6 +222,8 @@ export default function ElsGrid({ seed }) {
   const [hitIdx, setHitIdx] = useState(0);
   const [clusterIdx, setClusterIdx] = useState(0);
   const [focusHit, setFocusHit] = useState(null); // 🎯 «הצג במטריצה» — ממקד את הרשת על מופע נבחר (לא העוגן)
+  const [parLayers, setParLayers] = useState([]); // 🔵 מקבילות שנצבעו על המטריצה (אותו דילוג, עמודה סמוכה)
+  const [parScan, setParScan] = useState(null);   // null | {running} | {results:[...]} — סריקת-מקבילות
   const [full, setFull] = useState(false);
   const [subRaw, setSubRaw] = useState("");   // קלט להוספת שכבה
   const [overlays, setOverlays] = useState([]); // 🔢 שכבות-חיפוש: מערך מונחים (מנורמלים) על אותה מטריצה
@@ -449,6 +452,8 @@ export default function ElsGrid({ seed }) {
         const oRowMid = centerOf(occ) / W2;
         if (colSpread <= AUTO_MAXC && Math.abs(oRowMid - aRowMid) <= AUTO_MAXR) framePos.push(...occ.positions);
       }
+      // 🔵 מקבילות (אותו דילוג) — מצורפות למסגור כדי שהמטריצה תתרחב ותציג אותן לצד התוצאה
+      if (!focusHit) for (const pl of parLayers) framePos.push(...pl.positions);
       // עמודות — ממורכז על העוגן, מתרחב סימטרית כדי לכלול את מה שצורף
       const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
       const maxC = Math.max(colMargin, ...colsOf.map(c => Math.abs(c - aColMid)));
@@ -478,6 +483,8 @@ export default function ElsGrid({ seed }) {
     if (res.mode === "single") {
       anchorHit.positions.forEach(p => colorMap.set(p, 0));
       overlayData.forEach(o => o.list.forEach(x => { if (x.hit.positions.every(p => visible.has(p))) x.hit.positions.forEach(p => colorMap.set(p, o.ci)); }));
+      // 🔵 מקבילות בצבע ייעודי (ci≥100) — נצבעות רק כשגלויות
+      if (!focusHit) parLayers.forEach((pl, i) => pl.positions.forEach(p => { if (visible.has(p) && !colorMap.has(p)) colorMap.set(p, 100 + i); }));
     } else {
       const cl = (res.clusters || [])[Math.min(clusterIdx, res.clusters.length - 1)];
       cl.picks.forEach((pk, i) => pk.hit.positions.forEach(p => colorMap.set(p, i)));
@@ -492,7 +499,7 @@ export default function ElsGrid({ seed }) {
       rows.push(cells);
     }
     return { rows, W: W2, skip: s, visible };
-  }, [res, anchorHit, focusHit, clusterIdx, letters, overlayData, gridSize]);
+  }, [res, anchorHit, focusHit, parLayers, clusterIdx, letters, overlayData, gridSize]);
 
   // קבוצת-אותיות העוגן (לזיהוי «חיתוך אמיתי» — מופע שחולק תא עם התוצאה, כמו «בלעם» שנגע ב-ב)
   const anchorSet = useMemo(() => new Set(anchorHit?.positions || []), [anchorHit]);
@@ -535,14 +542,7 @@ export default function ElsGrid({ seed }) {
       const skip0 = new Set(overlays); skip0.add(elsNormalize(terms[0] || ""));
       // 📊 מד-הפלא (יושר): «צפוי-במקרה» לכל מונח לפי תדירות-האותיות בספר. מונח שכיח (אירן/אהב) צפוי
       // ליד כל דבר → לא פלא. מונח נדיר שנחתך → פלא אמיתי. בונים מפת-תדירות פעם אחת.
-      const M = Math.max(1, bk.to - bk.from);
-      const freq = new Map();
-      for (let i = bk.from; i < bk.to; i++) freq.set(letters[i], (freq.get(letters[i]) || 0) + 1);
-      const expectedOf = (t) => {
-        let pm = 1; for (const c of t) { const f = (freq.get(c) || 0) / M; if (!f) return 0; pm *= f; }
-        let placements = 0; for (const s of skips) { const p = M - s * (t.length - 1); if (p > 0) placements += p; }
-        return pm * placements * dirs.length;
-      };
+      const expected = makeExpected(letters, bk.from, bk.to); // מנוע-ניקוד אחיד
       const found = [];
       for (const rawT of ELS_DICT) {
         const t = elsNormalize(rawT);
@@ -558,12 +558,8 @@ export default function ElsGrid({ seed }) {
           }
         }
         if (best) {
-          const exp = expectedOf(t), len = t.length;
-          // דרגת-פלא: אורך + נדירות. מילים קצרות (≤3) = רעש (שכיח), לא מתרגשים. ארוכות+נדירות = פלא אמיתי.
-          const wonder = len <= 3 ? { r: 2, t: "⚪ קצר", c: "#9a8a5e" }
-            : (exp < 2 && len >= 5) ? { r: 0, t: "🟢 פלא נדיר", c: "#1f7a4d" }
-            : exp < 60 ? { r: 1, t: "🟡 לא־שכיח", c: "#b07d12" }
-            : { r: 2, t: "⚪ שכיח", c: "#9a8a5e" };
+          const exp = expected(t, skips, dirs.length), len = t.length;
+          const wonder = wonderTier(exp, len);
           found.push({ term: t, raw: rawT, skip: Math.abs(best.occ.skip), dir: best.occ.dir, start: best.occ.start, dist: best.dist, exp: Math.round(exp), len, wonder });
         }
       }
@@ -577,7 +573,51 @@ export default function ElsGrid({ seed }) {
     const add = (dictScan?.results || []).filter(r => r.wonder.r < 2).slice(0, 8).map(r => r.term).filter(t => !overlays.includes(t));
     if (add.length) { setOverlays(o => [...o, ...add].slice(0, 14)); setLayersOpen(true); }
   };
-  useEffect(() => { setDictScan(null); setFocusHit(null); }, [hitIdx, q]); // איפוס סריקה+מיקוד כשעוברים תוצאה/חיפוש
+  // 🔵 סריקת-מקבילות — הלב של «הפלא»: מוצא מונחים שרצים **במקביל** לתוצאה — **אותו דילוג, אותו כיוון,
+  // עמודה סמוכה, שורות חופפות** → שתי שורות-צופן זו לצד זו על אותה רשת. פלא אמיתי רק כשארוך+נדיר.
+  const scanParallel = () => {
+    if (!letters || !anchorHit || res?.mode !== "single") return;
+    setParScan({ running: true });
+    setTimeout(() => {
+      const S = Math.abs(anchorHit.skip), aDir = anchorHit.dir;
+      const W2 = S <= 28 ? S * Math.max(1, Math.round(28 / S)) : S;
+      const aCol = ((Math.min(...anchorHit.positions) % W2) + W2) % W2;
+      const aRowMin = Math.floor(Math.min(...anchorHit.positions) / W2), aRowMax = Math.floor(Math.max(...anchorHit.positions) / W2);
+      const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
+      const N = letters.length, winTo = Math.min(N, bk.to);
+      const expected = makeExpected(letters, bk.from, bk.to); // אותו מנוע-ניקוד כמו בסריקת-המילון
+      const anchorT = elsNormalize(terms[0] || ""), COLWIN = 22;
+      const dirStr = aDir === 1 ? "fwd" : "back";
+      const found = [];
+      for (const rawT of ELS_DICT) {
+        const t = elsNormalize(rawT);
+        if (t.length < 4 || t === anchorT) continue; // רק מילים ארוכות (פלא) · לא העוגן עצמו
+        const r = elsSearch(letters, t, S, S, dirStr, 0, { winFrom: bk.from, winTo }); // בדיוק דילוג העוגן
+        let best = null;
+        for (const h of r.hits) {
+          const col = ((h.start % W2) + W2) % W2;
+          let dcol = Math.abs(col - aCol); dcol = Math.min(dcol, W2 - dcol);
+          if (dcol === 0 || dcol > COLWIN) continue; // אותה עמודה בדיוק (חופף) או רחוק מדי
+          const rMin = Math.floor(Math.min(...h.positions) / W2), rMax = Math.floor(Math.max(...h.positions) / W2);
+          if (Math.min(rMax, aRowMax) - Math.max(rMin, aRowMin) < 0) continue; // אין חפיפת-שורות → לא מקביל
+          if (!best || dcol < best.dcol) best = { hit: h, dcol };
+        }
+        if (best) {
+          const exp = expected(t, [S], 1), len = t.length;
+          const wonder = wonderTier(exp, len);
+          found.push({ term: t, raw: rawT, hit: best.hit, dcol: best.dcol, exp: Math.round(exp), len, wonder });
+        }
+      }
+      found.sort((a, b) => a.wonder.r - b.wonder.r || a.dcol - b.dcol);
+      setParScan({ results: found });
+    }, 30);
+  };
+  // 🔵 צביעת מקבילה על המטריצה (דילוג-העוגן → נצבעת כקו מקביל, נראית לצד התוצאה)
+  const addParallel = (p) => {
+    setParLayers(cur => cur.some(x => x.term === p.term) ? cur : [...cur, { term: p.term, positions: p.hit.positions, skip: Math.abs(p.hit.skip), dir: p.hit.dir }].slice(0, 8));
+  };
+  const removeParallel = term => setParLayers(cur => cur.filter(x => x.term !== term));
+  useEffect(() => { setDictScan(null); setFocusHit(null); setParLayers([]); setParScan(null); }, [hitIdx, q]); // איפוס כשעוברים תוצאה/חיפוש
 
   // גרירת-עכבר לתזוזה אופקית (pan) — מושבתת במצב-בחירה (אז קליק = בחירת אות)
   const onMatrixDown = e => { if (selectMode) return; const el = e.currentTarget; matrixDrag.current = { x: e.pageX, left: el.scrollLeft }; dragMoved.current = false; el.style.cursor = "grabbing"; };
@@ -600,7 +640,9 @@ export default function ElsGrid({ seed }) {
     }
     return [paint[terms[0]] || TERM_COLORS[0], ...overlays.map((t, j) => paint[t] || PAINT[j % PAINT.length])];
   }, [res, cluster0c, terms, overlays, paint]);
-  const colorAt = ci => layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length];
+  // ci≥100 = מקבילה → פלטת-כחול ייעודית (כדי שהמקבילות יבלטו כקווים כחולים לצד התוצאה)
+  const PAR_COLORS = ["#2563eb", "#0891b2", "#7c3aed", "#0d9488", "#4f46e5", "#0369a1"];
+  const colorAt = ci => ci >= 100 ? PAR_COLORS[(ci - 100) % PAR_COLORS.length] : (layerColors[ci] || TERM_COLORS[ci % TERM_COLORS.length]);
 
   // נקודת-צבע לחיצה → לוח-צבעים קטן לבחירת צבע למונח (term)
   const paintDot = (term, color) => (
@@ -999,6 +1041,7 @@ export default function ElsGrid({ seed }) {
             <button className="els-sub-btn" onClick={searchAndShow} disabled={elsNormalize(subRaw).length < 2}>🔍 חפש והצג</button>
             <button className="els-sub-btn" onClick={autoCross} title="המנוע מחפש לבד את מילות-התוצאה בתוך המטריצה (כולל טקסט-רגיל) ומסמן חיתוכים אמיתיים" style={{ background: "#fff7e6", color: "var(--acc)", border: "1px solid var(--acc)" }}>⚡ אוטו-הצלבה</button>
             <button className="els-sub-btn" onClick={scanDict} disabled={dictScan?.running} title="המנוע עובר על מילון מונחים שלם ומגלה לבד מי מהם נחתך עם התוצאה" style={{ background: "#eef5ff", color: "#1f6feb", border: "1px solid #1f6feb" }}>{dictScan?.running ? "🔭 סורק…" : "🔭 סרוק מילון"}</button>
+            <button className="els-sub-btn" onClick={scanParallel} disabled={parScan?.running} title="מוצא מונחים שרצים במקביל לתוצאה — אותו דילוג, עמודה סמוכה (הפלא של שני צפנים מקבילים)" style={{ background: "#eef2ff", color: "#4338ca", border: "1px solid #4338ca" }}>{parScan?.running ? "🔵 סורק…" : "🔵 מקבילות"}</button>
             <button className="els-sub-btn" onClick={saveCurrent} title="שמור את כל המטריצה (החיפוש + השכבות)" style={{ background: "var(--accS)", color: "var(--acc)", border: "1px solid var(--acc)" }}>💾 שמור מטריצה</button>
             {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה הכל</button>}
           </div>
@@ -1038,6 +1081,36 @@ export default function ElsGrid({ seed }) {
                       {common.length > 0 && <button className="els-dict-toggle" onClick={() => setShowCommonDict(v => !v)}>{showCommonDict ? "הסתר שכיחים" : `הצג גם ${common.length} שכיחים`}</button>}
                     </div>
                   </>;
+              })()}
+            </div>
+          )}
+
+          {/* 🔵 תוצאות סריקת-המקבילות — מונחים שרצים במקביל לתוצאה (אותו דילוג, עמודה סמוכה) */}
+          {parScan?.results && (
+            <div className="els-dict" style={{ background: "#f5f3ff", borderColor: "#ddd6fe" }}>
+              {(() => {
+                const wonders = parScan.results.filter(r => r.wonder.r < 2);
+                return wonders.length === 0
+                  ? <div className="rw-sub">🔵 לא נמצאה מקבילה ארוכה+נדירה לתוצאה כאן (אותו דילוג {Math.abs(anchorHit.skip).toLocaleString("he")}, עמודה סמוכה). זה נדיר — לרוב אין.</div>
+                  : <>
+                      <div className="els-dict-h" style={{ color: "#4338ca" }}>🔵 <b>{wonders.length}</b> {wonders.length === 1 ? "מקבילה" : "מקבילות"} לתוצאה — אותו דילוג ({Math.abs(anchorHit.skip).toLocaleString("he")}), עמודה סמוכה · <b>הפלא</b></div>
+                      <div className="els-dict-body">
+                        {wonders.slice(0, 20).map((r, i) => {
+                          const l = locOf(r.hit.start); const on = parLayers.some(x => x.term === r.term);
+                          return (
+                            <button key={r.term} className="els-dict-row" style={{ borderColor: on ? "#4338ca" : "#ddd6fe", background: on ? "#eef2ff" : "#fff" }} onClick={() => on ? removeParallel(r.term) : addParallel(r)} title="צבע את המקבילה על המטריצה (לצד התוצאה)">
+                              <span className="els-rk" style={{ background: "#eef2ff", color: "#4338ca" }}>{i + 1}</span>
+                              <span className="els-dict-term" style={{ color: "#4338ca" }}>{r.raw}</span>
+                              <span className="els-rc" style={{ color: r.wonder.c, fontWeight: 800, whiteSpace: "nowrap" }}>{r.wonder.t}</span>
+                              <span className="els-rc">{r.dcol} עמודות מהתוצאה</span>
+                              <span className="els-rc">{l.label}</span>
+                              <span className="els-dict-add" style={{ color: "#4338ca" }}>{on ? "✓ צבוע" : "🔵 צבע"}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="rw-sub" style={{ marginTop: 6 }}>🔵 <b>מקבילה</b> = מונח שרץ באותו דילוג וכיוון, בעמודה סמוכה, חופף בשורות → שני צפנים זה-לצד-זה. לחיצה צובעת אותו על המטריצה (כחול) ליד התוצאה.</div>
+                    </>;
               })()}
             </div>
           )}
