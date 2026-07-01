@@ -17,6 +17,14 @@ export const RW = {
   font: "'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
 };
 
+// משתני-הפלטה הבהירה כ-inline style — כדי שרכיבי rw-* יקבלו צבעים גם מחוץ למיכל .rw
+// (סרגל-המובייל, כרטיס-הפרופיל וכו'). מקור-אמת יחיד ל-RW → אין כפילות.
+export const RW_VARS = {
+  "--bg": RW.bg, "--card": RW.card, "--line": RW.line, "--ink": RW.ink, "--ink2": RW.ink2,
+  "--ink3": RW.ink3, "--acc": RW.accent, "--accS": RW.accentSoft, "--chip": RW.chip, "--r": `${RW.radius}px`,
+  fontFamily: RW.font,
+};
+
 // CSS של סביבת-המחקר (classes — מאפשר hover + media-queries + bottom-sheet במובייל).
 // מוזרק פעם אחת ע״י ResearchShell. כל הצבעים מתוך RW → קל להחליף ל-night-mode בעתיד.
 export const rwCss = (t = RW) => `

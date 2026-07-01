@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { emit, EVENTS } from "../../lib/research/eventBus.js";
 import ResearchCenter from "../ResearchCenter.jsx";
-import { rwCss, RW } from "../../lib/research/theme.js";
+import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 
 // 🧪 EntityHub — שלד הסרגלים (Reality Graph Law · Reader→Research).
 // המרכז נשאר בדיוק כמו היום. שני סרגלים מתקפלים, **סגורים כברירת-מחדל**, ו**תואמים למעבדה**:
@@ -11,16 +11,11 @@ import { rwCss, RW } from "../../lib/research/theme.js";
 // «אדם תמים» רואה דף נקי; ברגע שפותח סרגל — הוא «במעבדה». הפתיחה נזכרת
 // (opened once = researcher). אותו תוכן (ResearchCenter) ואותה שפה בהירה כמו /research.
 const KEY = "hub_rails_v1";
-// משתני-הפלטה הבהירה של המעבדה (כדי שרכיבי rw-* יקבלו צבעים גם מחוץ ל-.rw)
-const RW_VARS = {
-  "--bg": RW.bg, "--card": RW.card, "--line": RW.line, "--ink": RW.ink, "--ink2": RW.ink2,
-  "--ink3": RW.ink3, "--acc": RW.accent, "--accS": RW.accentSoft, "--chip": RW.chip, "--r": `${RW.radius}px`,
-  fontFamily: RW.font,
-};
 
 export default function EntityHubRails({ entity }) {
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
   const [ltab, setLtab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } }); // כניסה ראשונה → פנקס
+  const [mobOpen, setMobOpen] = useState(false);   // 📱 גיליון-תחתון למובייל (עולם המשתמש כטאבים)
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
     try { localStorage.setItem(KEY, JSON.stringify(n)); } catch { /* noop */ }
@@ -52,9 +47,32 @@ export default function EntityHubRails({ entity }) {
     <>
       <style>{RAILS_CSS}</style>
       <style>{rwCss()}</style>
+      {/* 🖥 דסקטופ/טאבלט — לשונית-צד «עולם המשתמש» */}
       {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />)}
       {/* הסרגל הימני (מנועי המחקר) מוסתר בדף-המספר העצמאי לבקשת צוריאל — רק קיר-המשתמש מוצג.
          {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)} */}
+
+      {/* 📱 מובייל — כפתור צף «עולם המשתמש» → גיליון-תחתון עם אותם טאבים בדיוק */}
+      <div className="ehr-mob">
+        {!mobOpen && (
+          <button className="ehr-mob-btn" onClick={() => setMobOpen(true)}>👤 עולם המשתמש ▲</button>
+        )}
+        {mobOpen && (
+          <>
+            <div className="ehr-sheet-back" onClick={() => setMobOpen(false)} />
+            <div className="ehr-sheet" style={RW_VARS}>
+              <div className="ehr-sheet-head">
+                <span className="ehr-grab" />
+                <b>👤 עולם המשתמש</b>
+                <button className="ehr-x" onClick={() => setMobOpen(false)} aria-label="סגור">✕</button>
+              </div>
+              <div className="ehr-sheet-body">
+                <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </>
   ), document.body);
 }
@@ -98,4 +116,24 @@ const RAILS_CSS = `
 .ehr-x:hover{color:#b07d12;background:#f3e6c2}
 .ehr-body{flex:1;overflow-y:auto;padding:14px 16px;direction:rtl}
 .ehr-empty{color:#9a8f78;font-family:inherit;font-size:13px;line-height:1.7}
+
+/* 📱 מובייל — כפתור צף + גיליון-תחתון (Bottom-Sheet) עם עולם-המשתמש כטאבים. מוצג רק מתחת ל-860 */
+.ehr-mob{display:none;font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
+@media (max-width:859px){ .ehr-mob{display:block} }
+.ehr-mob-btn{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;pointer-events:auto;
+  background:linear-gradient(135deg,#fffdf8,#f6ecd4);border:1px solid #e3cf94;color:#6b4e10;
+  font-family:inherit;font-weight:800;font-size:14px;border-radius:999px;padding:12px 22px;
+  box-shadow:0 10px 30px -8px rgba(60,46,16,.4),0 3px 10px -3px rgba(60,46,16,.24);cursor:pointer}
+.ehr-sheet-back{position:fixed;inset:0;z-index:60;background:rgba(20,15,5,.42);backdrop-filter:blur(2px);animation:ehr-fade .2s ease}
+@keyframes ehr-fade{from{opacity:0}to{opacity:1}}
+.ehr-sheet{position:fixed;inset-inline:0;bottom:0;z-index:61;display:flex;flex-direction:column;
+  max-height:86vh;max-height:86dvh;background:var(--card,#fffdf8);color:var(--ink,#221d12);
+  border-radius:20px 20px 0 0;box-shadow:0 -12px 40px -8px rgba(20,15,5,.4);
+  animation:ehr-up .26s cubic-bezier(.22,.61,.36,1);direction:rtl}
+@keyframes ehr-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ehr-sheet-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px 12px;border-bottom:1px solid var(--line,#ece4d3);font-family:inherit;font-size:16px;font-weight:800}
+.ehr-grab{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:38px;height:4px;border-radius:999px;background:#d9ccaa}
+.ehr-sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(20px + env(safe-area-inset-bottom));direction:rtl}
 `;

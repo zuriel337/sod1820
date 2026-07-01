@@ -8,6 +8,8 @@ import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
 import { supabase, getUserActivity, getUserItems, deleteUserItem } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
+import ResearchCenter from "../components/ResearchCenter.jsx";
+import { rwCss, RW_VARS } from "../lib/research/theme.js";
 
 // 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + כפתור הפעלה/ביטול.
 // סך המנויים הכולל מוצג *רק לאדמין* (לבדיקה) — לא חושפים אותו לגולשים.
@@ -275,6 +277,27 @@ function SavedItemsBoard({ P, card, user }) {
   );
 }
 
+// 🧠 עולם המשתמש בתוך הפרופיל — אותו ResearchCenter בדיוק (עץ אחד), כך שהמסעות · השמורים ·
+// המחקר הפעיל · הפנקס מעודכנים כאן בדיוק כמו בסרגל «עולם המשתמש». פלטה בהירה scoped בכרטיס.
+function MyResearchCard({ P, card }) {
+  const [tab, setTab] = useState("active");
+  return (
+    <div style={{ ...card, marginTop: 22, padding: 0, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "22px 26px 4px" }}>
+        <span style={{ fontSize: 24 }}>🧠</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>עולם המשתמש — המחקר שלי</div>
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, padding: "0 26px 10px" }}>
+        המסעות · השמורים · המחקר הפעיל · הפנקס — מסונכרנים עם «עולם המשתמש» שבדפי המספר.
+      </div>
+      <style>{rwCss()}</style>
+      <div style={{ ...RW_VARS, background: "#f7f4ec", padding: "10px 12px 16px", borderTop: `1px solid ${P.border}` }}>
+        <ResearchCenter variant="context" tabbed activeTab={tab} onTab={setTab} />
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const P = usePalette();
   const { user, profile, loading, isAdmin, signOut, refreshProfile } = useAuth();
@@ -430,6 +453,8 @@ export default function ProfilePage() {
           <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
         </div>
       </div>
+
+      <MyResearchCard P={P} card={card} />
 
       <PushStatusCard P={P} card={card} user={user} isAdmin={isAdmin} />
 
