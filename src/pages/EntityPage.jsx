@@ -607,14 +607,16 @@ export default function EntityPage({ embedPhrase } = {}) {
   useEffect(() => { let a = true; setAnchor(null); getNumberAnchor(value).then(r => { if (a) setAnchor(r); }); return () => { a = false; }; }, [value]);
   // 🧬 מספר הישויות המתכנסות על הערך (בכל השיטות) — מד ההתכנסות. למונה «מתכנסות» בשער.
   const [convCount, setConvCount] = useState(null);
+  const [convScore, setConvScore] = useState(null);   // ⭐ ציון ההתכנסות 0-100 → כוכבי-עוצמה
   useEffect(() => {
-    if (!value || value < 10 || !supabase) { setConvCount(null); return; }
-    let a = true; setConvCount(null);
+    if (!value || value < 10 || !supabase) { setConvCount(null); setConvScore(null); return; }
+    let a = true; setConvCount(null); setConvScore(null);
     supabase.rpc("convergence_meter", { p_n: value }).then(({ data }) => {
       if (!a) return;
       const layer = (data?.layers || []).find(l => l.name === "התכנסות מילים");
       setConvCount(Array.isArray(layer?.evidence) ? layer.evidence.length : null);
-    }).catch(() => { if (a) setConvCount(null); });
+      setConvScore(typeof data?.score === "number" ? data.score : null);
+    }).catch(() => { if (a) { setConvCount(null); setConvScore(null); } });
     return () => { a = false; };
   }, [value]);
 
@@ -764,17 +766,25 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(46px,9vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 40px ${P.glow}` }}>
             {value}
           </div>
-          {/* 💎 זהות המספר — צ'יפים נקיים + דשבורד «דופק המספר» (לב) + 2 מנורות (קישוריות · נצפה) */}
+          {/* 💎 זהות המספר — צ'יפים + כוכבי-עוצמה + 3 אריחים (דופק · חיבורים · נצפה) [אופציה B] */}
           {(() => {
             const typeLabel = hasGate ? "מספר חתימה" : (isNumber ? ((ANCHOR_SET.has(value) || KEY_NUMBERS[value]) ? "מספר יסוד" : "מספר חי") : "ביטוי חי");
             const totalConn = (d.postsCount || 0) + (d.galleriesCount || 0) + (d.phrases?.length || 0) + (d.eventsCount || 0) + (d.insightsCount || 0) + (d.commentsCount || 0);
-            // צ'יפים: רק סוג + חתימות. קישוריות/נצפה עברו למנורות (בלי כפילות).
             const chips = [typeLabel, hasGate && `${sigs.length} חתימות`].filter(Boolean);
             const pulse = pulseFromCounts({ posts: d.postsCount, galleries: d.galleriesCount, words: d.phrases?.length, events: d.eventsCount, ai: d.insightsCount, comm: d.commentsCount });
-            const core = !!(KEY_NUMBERS[value] || ANCHOR_SET.has(value));
-            const sat = (x, k) => x > 0 ? Math.round((x / (x + k)) * 100) : 0;   // עקומת-רוויה: ממפה ספירה גולמית ל-0-100 בלי תקרה מזויפת
+            // דופק כמילת-מצב + צבע (עובד בבהיר ובכהה): נדיר / חי / מתחזק.
+            const isLight = P.mode === "light";
+            const pt = pulse >= 70 ? { w: "נדיר", c: isLight ? "#7c5cbf" : "#b9a3ff" }
+                     : pulse >= 35 ? { w: "חי",   c: isLight ? "#2f9e6b" : "#4bd07f" }
+                     :               { w: "מתחזק", c: isLight ? "#b8860b" : "#e8c840" };
+            const stars = convScore != null ? Math.max(1, Math.min(5, Math.round(convScore / 20))) : null;
+            const tiles = [
+              { e: "❤️", word: pt.w, wc: pt.c, l: "דופק" },
+              { e: "🔗", val: totalConn, l: "חיבורים" },
+              { e: "👁️", val: searched, l: "נצפה" },
+            ];
             return (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 15, margin: "14px auto 0" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, margin: "14px auto 0", width: "100%", maxWidth: 420 }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
                   {chips.map((c, i) => (
                     <span key={i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999,
@@ -782,11 +792,28 @@ export default function EntityPage({ embedPhrase } = {}) {
                       fontFamily: F.heading, fontSize: 12.5, fontWeight: i === 0 ? 800 : 600 }}>{c}</span>
                   ))}
                 </div>
-                {/* ❤️ הדשבורד — הלב במרכז, מנורות-מד לצדדים (רק כשיש נתון אמיתי) */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
-                  {searched > 0 && <MiniGauge value={sat(searched, 30)} raw={searched} label="נצפה" color={P.accent} />}
-                  <PulseRing value={pulse} size={98} core={core} />
-                  {totalConn > 0 && <MiniGauge value={sat(totalConn, 20)} raw={totalConn} label="קישוריות" color={P.accentText} />}
+
+                {/* ⭐ עוצמה — כוכבים מציון ההתכנסות (רק כשיש התכנסות) */}
+                {stars != null && (
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 22, letterSpacing: 4, color: P.accentText, filter: `drop-shadow(0 0 6px ${P.glow})` }}>
+                      {[0, 1, 2, 3, 4].map(i => <span key={i} style={{ opacity: i < stars ? 1 : 0.25 }}>★</span>)}
+                    </div>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800, letterSpacing: 3, marginTop: 3 }}>עוצמה</div>
+                  </div>
+                )}
+
+                {/* 📊 שלושה אריחים — דופק (מילת-מצב) · חיבורים · נצפה. ערכים בדיו כהה (קריא בבהיר). */}
+                <div style={{ display: "flex", gap: 9, width: "100%" }}>
+                  {tiles.map((t, i) => (
+                    <div key={i} style={{ flex: 1, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "12px 6px", textAlign: "center" }}>
+                      <div style={{ fontSize: 16, lineHeight: 1 }}>{t.e}</div>
+                      {t.word
+                        ? <div style={{ color: t.wc, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginTop: 4 }}>{t.word}</div>
+                        : <div style={{ color: P.ink, fontFamily: F.mono, fontSize: 19, fontWeight: 800, marginTop: 3 }}>{(t.val || 0).toLocaleString("he")}</div>}
+                      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 10, fontWeight: 600, marginTop: 2 }}>{t.l}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             );
