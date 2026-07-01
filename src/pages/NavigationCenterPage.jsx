@@ -79,7 +79,7 @@ export default function NavigationCenterPage() {
   const P = usePalette();
   return (
     <div style={{ direction: "rtl", maxWidth: 1080, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
-      <SectionHeader eyebrow="מפת האתר החיה" title="🏛 מרכז הניווט" />
+      <SectionHeader eyebrow="מפת האתר החיה" title="🗺️ מרכז הניווט" />
       <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 16, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
         כל האתר הוא <span style={{ color: P.accentText }}>גרף ידע אחד</span>. מהשורש אל הלב, מהלב אל העדשות, ומהן אל התוכן —
         כל שכבה מובילה לבאה אחריה.
