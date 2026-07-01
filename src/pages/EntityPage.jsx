@@ -9,6 +9,7 @@ import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
+import { thumb } from "../lib/img.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
@@ -288,6 +289,28 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// 🎁 Reveal — חשיפה-בגלילה: כל בלוק של «שכבה 2» מופיע כתגמול כשגוללים אליו (IntersectionObserver).
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { setShown(true); return; }
+    const io = new IntersectionObserver((es) => {
+      es.forEach(e => { if (e.isIntersecting) { setShown(true); io.disconnect(); } });
+    }, { threshold: 0.12 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{ opacity: shown ? 1 : 0, transform: shown ? "none" : "translateY(18px)",
+      transition: `opacity .55s ease ${delay}ms, transform .55s ease ${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
 function ShimmerRow({ P, count = 3 }) {
   return (
     <>
@@ -546,19 +569,19 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
   const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode } = useResearch();
-  // 🔬 כניסה להיכל הגילוי + הוספה למחקר בפעולה אחת (רעיון-העל: כפתור אחד עושה שניים).
-  const enterDiscoveryWith = (sec) => { addToResearch?.(entity); enterDiscovery?.(); setSeeMore(true); if (sec) setTimeout(() => goChip(sec), 140); };
+  // 🪜 מסע 3 שכבות (discovery_journey): 1=שער הגילוי · 2=גלה עוד (המשך גלילה) · 3=היכל הגילוי (הכל).
+  // כל יכולת מחקר עתידית נכנסת רק להיכל הגילוי — דף המספר נשאר שער מהיר.
+  const [layer, setLayer] = useState(1);
+  const showBody = embedded || mode === "discovery" || layer >= 3;   // שכבה 3 = גוף מלא
+  useEffect(() => { setLayer(1); }, [value, term]);                  // מספר חדש → חזרה לשער
+  // 🔬 כניסה להיכל הגילוי (שכבה 3) + הוספה למחקר בפעולה אחת (רעיון-העל: כפתור אחד עושה שניים).
+  const enterDiscoveryWith = (sec) => { addToResearch?.(entity); enterDiscovery?.(); setLayer(3); if (sec) setTimeout(() => goChip(sec), 140); };
   useEffect(() => { if (!loading && entity?.id) logHistory?.(entity); }, [loading, entity?.id]); // eslint-disable-line
-  // 🔬 מצב עבודה: reader = מעטפת נקייה (הירו · מסע · פעולות · תיבת AI · «ראו עוד»); discovery/היכל הגילוי = הכל פתוח.
-  // הצגה בלבד (Show/Hide) — אותה לוגיקה, בלי כפילות. embedded (מגירת-מספר במעבדה) תמיד מלא.
-  const [seeMore, setSeeMore] = useState(false);
-  const showBody = embedded || mode === "discovery" || seeMore;
-  useEffect(() => { setSeeMore(false); }, [value, term]); // מספר חדש → חזרה למצב קריאה
   // ✦ עוגן-המהות של המספר (number_anchors) — «מהות המספר» בראש מצב-הקריאה.
   const [anchor, setAnchor] = useState(null);
   useEffect(() => { let a = true; setAnchor(null); getNumberAnchor(value).then(r => { if (a) setAnchor(r); }); return () => { a = false; }; }, [value]);
 
-  // שכבה 1 — מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
+  // מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
 
 
@@ -691,7 +714,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         {/* 👁️ חזרה לקריאה — מוצג רק במצב מחקר (הכניסה נעשית מכפתור-העל בתחתית מצב הקריאה). */}
         {!embedded && showBody && (
           <div style={{ textAlign: "center", marginBottom: 6 }}>
-            <button onClick={() => { setSeeMore(false); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }} title="חזרה למצב קריאה"
+            <button onClick={() => { setLayer(1); setMode?.("reader"); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }} title="חזרה לשער הגילוי"
               style={{ cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`,
                 borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 15px" }}>
               👁️ חזרה לקריאה · 🔬 היכל הגילוי פעיל
@@ -773,15 +796,121 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🔬 כפתור-העל — הוסף למחקר ופתח את היכל הגילוי (פעולה אחת, שני דברים) */}
-            <div style={{ textAlign: "center", margin: "20px auto 8px" }}>
-              <button onClick={() => enterDiscoveryWith()}
-                style={{ cursor: "pointer", background: "transparent", color: P.accentText, border: `1.5px dashed ${P.accentText}`, borderRadius: 16,
-                  fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "14px 28px" }}>
-                🔬 הוסף למחקר ופתח את היכל הגילוי
-              </button>
-              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>משפחות · הצלבות · DNA · תמונות · פוסטים</div>
-            </div>
+            {/* שכבה 1 · שער הגילוי — כפתור «גלה עוד» פותח את שכבה 2 (המשך גלילה, לא הכל בבת אחת) */}
+            {layer === 1 && (
+              <div style={{ textAlign: "center", margin: "20px auto 8px" }}>
+                <button onClick={() => { setLayer(2); setTimeout(() => scrollTo("layer2"), 90); }}
+                  style={{ cursor: "pointer", background: "transparent", color: P.accentText, border: `1.5px dashed ${P.accentText}`, borderRadius: 16,
+                    fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 30px" }}>
+                  🔬 גלה עוד
+                </button>
+                <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>עוד מילים · תמונות · פוסט · הצלבה · AI</div>
+              </div>
+            )}
+
+            {/* שכבה 2 · גלה עוד — המשך טבעי של הדף, כל בלוק נחשף בגלילה כתגמול. לא כל התוכן. */}
+            {layer >= 2 && (
+              <div id="layer2" style={{ marginTop: 22 }}>
+                {/* עוד מילים שוות */}
+                {d.phrases?.length > 4 && (
+                  <Reveal>
+                    <div style={{ marginTop: 6, textAlign: "center" }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>עוד מילים שוות ל-{value}:</div>
+                      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center" }}>
+                        {d.phrases.slice(4, 12).map((p, i) => (
+                          <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
+                            style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
+                              borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
+                        ))}
+                      </div>
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* 2 תמונות */}
+                {d.galleries?.length > 0 && (
+                  <Reveal delay={60}>
+                    <div style={{ marginTop: 20, textAlign: "center" }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>🖼️ תמונות מהמאגר:</div>
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                        {d.galleries.filter(g => g.image_url).slice(0, 2).map((g, i) => (
+                          <img key={i} src={thumb(g.image_url, 300, 60)} alt={g.name || String(value)} loading="lazy"
+                            style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 12, border: `1px solid ${P.border}` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* פוסט מחובר אחד */}
+                {d.posts?.length > 0 && (
+                  <Reveal delay={60}>
+                    <div style={{ marginTop: 20 }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8, textAlign: "center" }}>📚 פוסט מחובר:</div>
+                      <Link to={`/${d.posts[0].slug}`} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, maxWidth: 460, margin: "0 auto",
+                        background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
+                        <span style={{ flex: 1, color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700 }}>{stripHtml(d.posts[0].title || "פוסט")}</span>
+                        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>פתח →</span>
+                      </Link>
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* הצלבה מעניינת — נושא מגרף הידע (topic_cards) שהמספר מופיע בו */}
+                {topics.length > 0 && (
+                  <Reveal delay={60}>
+                    <div style={{ marginTop: 20, textAlign: "center" }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>🔗 הצלבה מעניינת:</div>
+                      <Link to={`/topic/${topics[0].slug}`} style={{ textDecoration: "none", display: "inline-block", maxWidth: 460,
+                        background: `linear-gradient(135deg, ${P.glow}22, ${P.cardSoft})`, border: `1px solid ${P.accentText}`, borderRadius: 12, padding: "13px 18px" }}>
+                        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>✦ {topics[0].title}</span>
+                      </Link>
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* AI קצר */}
+                {d.insights?.length > 0 && (
+                  <Reveal delay={60}>
+                    <div style={{ marginTop: 20, maxWidth: 500, margin: "20px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 16px" }}>
+                      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1.5, marginBottom: 5 }}>🤖 AI קצר</div>
+                      <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700, marginBottom: 3 }}>{stripHtml(d.insights[0].title || "חידוש")}</div>
+                      {d.insights[0].body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>{stripHtml(d.insights[0].body).slice(0, 150)}…</div>}
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* מספרים קרובים */}
+                {value >= 10 && (() => {
+                  const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
+                  return near.length ? (
+                    <Reveal delay={60}>
+                      <div style={{ marginTop: 20, textAlign: "center" }}>
+                        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>✦ מספרים קרובים:</div>
+                        <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap" }}>
+                          {near.map(n => (
+                            <Link key={n} to={numHref(n)} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+                              borderRadius: 999, padding: "5px 13px", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{n}</Link>
+                          ))}
+                        </div>
+                      </div>
+                    </Reveal>
+                  ) : null;
+                })()}
+
+                {/* 🔬 הכפתור הגדול — המשך להיכל הגילוי (שכבה 3) */}
+                <Reveal delay={80}>
+                  <div style={{ textAlign: "center", margin: "26px auto 8px" }}>
+                    <button onClick={() => enterDiscoveryWith()}
+                      style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 16,
+                        fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "15px 34px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                      🔬 המשך להיכל הגילוי
+                    </button>
+                    <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>כל המילים · תמונות · פוסטים · DNA · משפחות · הצלבות · כלים</div>
+                  </div>
+                </Reveal>
+              </div>
+            )}
           </>
         )}
 
