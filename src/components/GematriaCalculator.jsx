@@ -5,6 +5,8 @@ import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate }
 import { useAuth } from "../lib/AuthContext.jsx";
 import { isAnon } from "../lib/privacy.js";
 import AnonToggle, { useAnon } from "./AnonToggle.jsx";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
@@ -25,6 +27,16 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
   const [counts, setCounts] = useState({});
+  // ⭐ QuickActions — כוכב-מיקרו על כל אריח-שיטה: שומר בדיוק את המספר שנמצא (בלי לצאת מהמחשבון).
+  // המספר נשמר כ-Entity → מופיע ב«שמורים»/עולם המשתמש/פרופיל (עץ אחד). savedFlash = משוב «✓» רגעי.
+  const { saveItem } = useResearch();
+  const [savedFlash, setSavedFlash] = useState(null);
+  const saveNum = (r) => {
+    if (!r || !r.value) return;
+    saveItem?.(entityFromNumber(r.value, word ? `${word} · ${methodLabel(r.key)}` : null));
+    setSavedFlash(r.key);
+    setTimeout(() => setSavedFlash(f => (f === r.key ? null : f)), 1300);
+  };
   const [showLetters, setShowLetters] = useState(false);
   const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
@@ -344,10 +356,22 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
             return word ? (
               <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
-                textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
+                position: "relative", textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
               }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
+                {/* ⭐ שמור רק את המספר הזה — לא מנווט (עוצר את הלינק). משוב «✓» רגעי. */}
+                {!sameAsBase && (
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); saveNum(r); }}
+                    title={`שמור את ${r.value} (${methodLabel(r.key)}) ל⭐ שמורים`}
+                    aria-label={`שמור את ${r.value}`}
+                    style={{ position: "absolute", top: 2, insetInlineStart: 2, zIndex: 2, cursor: "pointer",
+                      background: "none", border: "none", padding: 2, lineHeight: 1, fontSize: 12.5,
+                      color: savedFlash === r.key ? "#1f9d57" : "#c9b678", opacity: savedFlash === r.key ? 1 : 0.7 }}>
+                    {savedFlash === r.key ? "✓" : "⭐"}
+                  </button>
+                )}
                 {inner}
               </Link>
             ) : (
@@ -366,7 +390,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
                 boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
               }}>✨ גלה הכל על {ragilVal} ←</Link>
             </div>
-            <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה</div>
+            <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה · ⭐ בפינת האריח שומר רק את המספר</div>
           </>
         ) : (
           <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 17 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
