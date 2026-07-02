@@ -5,7 +5,7 @@ import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
-import BrandTicker, { BRANDS, isVideoUrl } from "../components/BrandTicker.jsx";
+import BrandTicker, { BRANDS, isVideoUrl, shareUpdate } from "../components/BrandTicker.jsx";
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
@@ -38,8 +38,11 @@ function ChannelFeed({ channel, P }) {
               border: `1px solid ${P.border}`, borderInlineStart: `3px solid ${b.accent}`, borderRadius: 12, padding: "12px 14px" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{u.text}</p>
-                <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
-                  {u.credit ? <>✍️ מאת {u.credit} · </> : null}🕒 {timeAgoHe(u.created_at)}
+                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
+                  <span>{u.credit ? <>✍️ מאת {u.credit} · </> : null}🕒 {timeAgoHe(u.created_at)}</span>
+                  <button onClick={() => shareUpdate(u, b.title)} style={{ cursor: "pointer", background: "none",
+                    border: `1px solid ${b.accent}66`, color: b.accent, borderRadius: 999, fontFamily: F.heading,
+                    fontSize: 10.5, fontWeight: 800, padding: "2px 11px" }}>↗ שתפו</button>
                 </div>
               </div>
               {u.image_url && (

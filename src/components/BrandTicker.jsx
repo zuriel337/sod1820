@@ -2,9 +2,18 @@ import React, { useState, useEffect } from "react";
 import { F } from "../theme.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
+import { trackShare } from "../lib/tracking.js";
 
 // וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
 export const isVideoUrl = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
+
+// ↗ שיתוף עדכון ישירות מהאתר: Web Share (מובייל) → נפילה לוואטסאפ. נמדד ב-share tracking.
+export async function shareUpdate(u, brandTitle) {
+  const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}\n\n🔗 https://sod1820.co.il/broadcasts?src=share`;
+  try { trackShare("broadcast", "bc-" + u.id); } catch { /* ignore */ }
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch { return; }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+}
 
 // 📡 טיקר ממותג — רצועת עדכונים חיה לערוץ מסוים («אור הגאולה» / «קוד המציאות»).
 // אותו מקור נתונים של הטיקר הראשי (channel_updates, עדשה לפי channel — עץ אחד).
@@ -68,6 +77,13 @@ export default function BrandTicker({ channel }) {
           <div style={{ flex: 1, color: "#c9bb93", fontFamily: F.body, fontSize: 12, fontStyle: "italic" }}>
             העדכונים בדרך — הערוץ יתעורר בקרוב…
           </div>
+        )}
+        {/* ↗ שיתוף העדכון הנוכחי — ישירות מהרצועה (בקשת צוריאל) */}
+        {cur && (
+          <button onClick={() => shareUpdate(cur, b.title)} title="שתפו את העדכון"
+            style={{ flex: "0 0 auto", cursor: "pointer", background: "none", border: `1px solid ${b.accent}66`,
+              color: b.accent, borderRadius: 999, width: 26, height: 26, fontSize: 13, lineHeight: 1,
+              display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>↗</button>
         )}
         {items.length > 1 && (
           <span style={{ flex: "0 0 auto", color: "#c9bb93", fontFamily: F.mono, fontSize: 10.5 }}>
