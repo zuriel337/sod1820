@@ -38,11 +38,15 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
   const [i, setI] = useState(0);
   const [lb, setLb] = useState(null);
   const [peekItems, setPeekItems] = useState([]);
+  // בעמוד הבית (hidePostLinked): אם כל העדכונים מקושרי-פוסט וסוננו — מסתירים את הרצועה כולה
+  const [hadRaw, setHadRaw] = useState(false);
 
   useEffect(() => {
     let live = true;
     const load = () => getChannelUpdates(8, channel).then(r => {
-      if (live) setItems((r || []).filter(u => !(hidePostLinked && u.link_url)));
+      if (!live) return;
+      setHadRaw((r || []).length > 0);
+      setItems((r || []).filter(u => !(hidePostLinked && u.link_url)));
     }).catch(() => {});
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
@@ -62,6 +66,8 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
     const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 9000);
     return () => clearTimeout(id);
   }, [i, items.length]);
+
+  if (hidePostLinked && !items.length && hadRaw) return null;
 
   return (
     <div style={{ direction: "rtl", marginBottom: 10 }}>

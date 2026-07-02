@@ -330,7 +330,9 @@ export const POST_CONTENT_CSS = `
      טקסט רץ: לבן רך, משקל רגיל, נעים לעין. זהב שמור לערכים ולאקסנטים — לא הכל צהוב.
      גימטריה = data-gem → פותחת את מגירת המספר בתוך הדף (לא ניווט החוצה).
      ביטוי: בצבע הטקסט + קו-זהב מנוקד עדין · ערך מספרי: זהב. מצב בהיר: טקסט כהה, גימטריה אדומה. */
-  .sod-post-content.clean { color: #f2f0eb; }
+  .sod-post-content.clean { color: #ffffff; }
+  .sod-post-content.clean p { color: #ffffff; font-size: 16.5px; line-height: 2.1; font-weight: 400; }
+  [data-theme="light"] .sod-post-content.clean p { color: #1c1c1c; }
   .sod-post-content.clean .sod-gemlink { color: inherit !important; font-weight: 600; border-bottom: 1px dotted rgba(255,216,107,.6); }
   .sod-post-content.clean .sod-numlink { color: #ffd86b !important; font-weight: 700; }
   .sod-post-content.clean .sod-gematria-box .gb-rows { font-weight: 400; line-height: 2.05; }

@@ -2108,7 +2108,9 @@ const POST_CONTENT_CSS = `
      טקסט רץ: לבן רך, משקל רגיל, נעים לעין. זהב שמור לערכים ולאקסנטים — לא הכל צהוב.
      גימטריה = data-gem → פותחת את מגירת המספר בתוך הדף (לא ניווט החוצה).
      ביטוי: בצבע הטקסט + קו-זהב מנוקד עדין · ערך מספרי: זהב. מצב בהיר: טקסט כהה, גימטריה אדומה. */
-  .sod-post-content.clean { color: #f2f0eb; }
+  .sod-post-content.clean { color: #ffffff; }
+  .sod-post-content.clean p { color: #ffffff; font-size: 16.5px; line-height: 2.1; font-weight: 400; }
+  [data-theme="light"] .sod-post-content.clean p { color: #1c1c1c; }
   .sod-post-content.clean .sod-gemlink { color: inherit !important; font-weight: 600; border-bottom: 1px dotted rgba(255,216,107,.6); }
   .sod-post-content.clean .sod-numlink { color: #ffd86b !important; font-weight: 700; }
   .sod-post-content.clean .sod-gematria-box .gb-rows { font-weight: 400; line-height: 2.05; }
@@ -4290,7 +4292,8 @@ function PostPageBySlug({ onNav }) {
   // פוסט ישן (legacy-dark / source=wordpress) = נעול כהה — מכבד צבעים צרובים מ-WP.
   // themed = מתחלף עם מתג יום/לילה. ברירת מחדל ל-WordPress היא נעול-כהה (צבעים צרובים),
   // אבל פוסט שסומן במפורש theme='auto' יתחלף — גם פוסט ישן (opt-in דרך הניהול/DB).
-  const themed = post?.theme === "auto";
+  // themed (מנטרל צבעי-WP ליום/לילה) — לפוסטים ישנים בלבד; פוסט נקי מטופל ע"י post_text_colors_law
+  const themed = post?.theme === "auto" && post?.source !== "ai";
   const pc = themed
     ? { bg: P.mode === "light" ? P.pageBg : C.bg, bgGlow: P.cardSoft, border: P.border, borderGold: P.borderStrong, faint: P.cardSoft, gold: P.accent, goldBright: P.accentText, goldDark: P.accentDim, goldDeep: P.onAccent, goldDim: P.accentDim, goldLight: P.ink, muted: P.inkSoft, royalLight: C.royalLight, surface: P.card, ink: P.ink, sub: P.inkSoft }
     : { bg: C.bg, bgGlow: C.bgGlow, border: C.border, borderGold: C.borderGold, faint: C.faint, gold: C.gold, goldBright: C.goldBright, goldDark: C.goldDark, goldDeep: C.goldDeep, goldDim: C.goldDim, goldLight: C.goldLight, muted: C.muted, royalLight: C.royalLight, surface: C.surface, ink: "#ede4d3", sub: "#d4ccbf" };
