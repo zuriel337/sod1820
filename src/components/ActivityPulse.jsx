@@ -16,11 +16,20 @@ const TYPES = [
   { key: "research", dot: "#e0779b", e: "🔬", label: "מישהו לומד בהיכל הגילוי" },
 ];
 
+// 🔄 רוטציית מוני-החקירות (רעיון צוריאל) — שלוש עדשות-זמן על אותו נתון אמיתי, מתחלפות:
+// שעה אחרונה → היום → החודש האחרון. כל המספרים חיים מ-site_visits (יושר — אפס ניפוח).
+const ROTATION = [
+  { key: "events",       e: "⚡", txt: n => n === 1 ? "חקירה אחת בשעה האחרונה" : `${n.toLocaleString("he")} חקירות בשעה האחרונה` },
+  { key: "events_today", e: "🔍", txt: n => `${n.toLocaleString("he")} חקירות היום` },
+  { key: "events_month", e: "📚", txt: n => `${n.toLocaleString("he")} חקירות בחודש האחרון` },
+];
+
 export default function ActivityPulse({ light, title = "🟢 פעילות חיה עכשיו" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [pulse, setPulse] = useState(null);
   const [hi, setHi] = useState(0);   // הבועה המודגשת — מתחלפת כל 4ש'
+  const [rot, setRot] = useState(0); // מונה-החקירות המוצג — מתחלף כל 5ש'
 
   useEffect(() => {
     let live = true;
@@ -38,8 +47,17 @@ export default function ActivityPulse({ light, title = "🟢 פעילות חיה
     return () => clearInterval(id);
   }, [active.length]);
 
+  // רוטציית המונה — רק עדשות עם ערך אמיתי > 0
+  const rotItems = ROTATION.filter(r => (pulse?.[r.key] || 0) > 0);
+  useEffect(() => {
+    if (rotItems.length < 2) return;
+    const id = setInterval(() => setRot(r => r + 1), 5000);
+    return () => clearInterval(id);
+  }, [rotItems.length]);
+
   if (!pulse || (!pulse.active && !active.length)) return null;
   const hiKey = active.length ? active[hi % active.length].key : null;
+  const rotItem = rotItems.length ? rotItems[rot % rotItems.length] : null;
 
   return (
     <div style={{ background: pal.card, border: `1px solid ${pal.border}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>
@@ -59,11 +77,11 @@ export default function ActivityPulse({ light, title = "🟢 פעילות חיה
       `}</style>
       <div className="ap-head" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
         <span className="ap-title" style={{ color: pal.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
-        {/* «חקירות» ולא «חוקרים» (בקשת צוריאל + יושר): events = ספירת פעולות אמיתית מה-RPC */}
-        {(pulse.events ?? pulse.active) > 0 && (
-          <span className="ap-badge" style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800,
-            background: pal.glow, border: `1px solid ${pal.border}`, borderRadius: 999, padding: "3px 11px" }}>
-            ⚡ {(pulse.events ?? pulse.active) === 1 ? "חקירה אחת" : `${pulse.events ?? pulse.active} חקירות`} בשעה האחרונה
+        {/* 🔄 מונה-החקירות המתחלף (שעה → היום → חודש) — כל המספרים אמיתיים מ-site_visits */}
+        {rotItem && (
+          <span key={rotItem.key} className="ap-badge" style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800,
+            background: pal.glow, border: `1px solid ${pal.border}`, borderRadius: 999, padding: "3px 11px", animation: "ap-in .45s ease both" }}>
+            {rotItem.e} {rotItem.txt(pulse[rotItem.key])}
           </span>
         )}
       </div>
