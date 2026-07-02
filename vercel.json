@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "bash -c 'if [ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]; then exit 0; else exit 1; fi'",
   "redirects": [
     { "source": "/פוסטים-אחרונים-2", "destination": "/post", "permanent": true },
     { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
