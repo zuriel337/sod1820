@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
-import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream, setImageCuration } from "../lib/supabase.js";
+import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream, setImageCuration, swapStreamOrder } from "../lib/supabase.js";
 import ImageEditModal from "./ImageEditModal.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
@@ -319,6 +319,18 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         max={compact ? 8 : 20}
         onOpen={i => setLbIdx((showHero ? 1 : 0) + i)}
         onEdit={isAdmin ? h => setEditImg(h) : null}
+        onMove={isAdmin ? async (h, nb, dir) => {
+          // ⬆⬇ הזזה בזרם: החלפת חותמות stream_at עם השכן + מיון-מחדש מקומי (בלי שליפה)
+          try {
+            const times = await swapStreamOrder(h, nb, dir);
+            setHints(prev => {
+              if (!prev) return prev;
+              const next = prev.map(x => times[x.id] ? { ...x, stream_at: times[x.id] } : x);
+              const eff = x => new Date(x.stream_at || x.created_at || 0).getTime();
+              return [...next].sort((a, b) => eff(b) - eff(a));
+            });
+          } catch (e) { alert("שגיאה בהזזה: " + (e.message || e)); }
+        } : null}
       />
 
       {/* לייטבוקס מאוחד — hero strip + גריד */}

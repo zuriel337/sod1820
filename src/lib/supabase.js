@@ -1070,6 +1070,22 @@ export async function setImageCuration(id, patch) {
   invalidateGalleriesOverview();
   return data;
 }
+// 🌊 הזזת רמז בזרם (אדמין): מחליפים את חותמות-הזמן האפקטיביות של שני רמזים שכנים —
+// הסדר בזרם נקבע לפי stream_at (עם נפילה ל-created_at), אז החלפה = החלפת מיקום.
+// dir: 'up' | 'down' — אם החותמות שוות, מזיזים שנייה אחת כדי שההחלפה תיתפס.
+export async function swapStreamOrder(a, b, dir = 'up') {
+  if (!supabase) throw new Error('no supabase');
+  const eff = h => h.stream_at || h.created_at || new Date().toISOString();
+  let ta = eff(a), tb = eff(b);
+  if (ta === tb) ta = new Date(new Date(tb).getTime() + (dir === 'up' ? -1000 : 1000)).toISOString();
+  const { error: e1 } = await supabase.from('gallery_images').update({ stream_at: tb }).eq('id', a.id);
+  if (e1) throw e1;
+  const { error: e2 } = await supabase.from('gallery_images').update({ stream_at: ta }).eq('id', b.id);
+  if (e2) throw e2;
+  invalidateGalleriesOverview();
+  return { [a.id]: tb, [b.id]: ta };   // id → stream_at החדש (לעדכון מצב מקומי)
+}
+
 // הסתרה/הצגה מרובה (אדמין) — עדכון curator_hidden לרשימת מזהים בבת אחת
 export async function bulkSetCuratorHidden(ids, hidden) {
   if (!supabase || !ids?.length) return [];

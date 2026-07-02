@@ -29,7 +29,7 @@ function dayBucket(h, now = Date.now()) {
   return "מוקדם יותר";
 }
 
-export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, max = MAX_RIVER, windowed = false }) {
+export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, onMove, max = MAX_RIVER, windowed = false }) {
   const list = hints.slice(0, Math.min(max, MAX_RIVER));
   const [ratios, setRatios] = useState({});     // id → w/h (לזיהוי «גשר» מאוזן)
   const [passed, setPassed] = useState([]);     // רמזים שגללת מעבר להם — מוצגים במגירה למעלה
@@ -163,6 +163,12 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv-edit { position:absolute; bottom:8px; inset-inline-end:8px; z-index:3; background:rgba(0,0,0,.55); color:#fff;
           border:none; border-radius:999px; width:24px; height:24px; font-size:11px; cursor:pointer;
           display:flex; align-items:center; justify-content:center; }
+        /* ⬆⬇ הזזת רמז בזרם (אדמין) — בפינה הנגדית לכפתור העריכה */
+        .rv-move { position:absolute; bottom:8px; inset-inline-start:8px; z-index:3; display:flex; flex-direction:column; gap:4px; }
+        .rv-move button { background:rgba(0,0,0,.55); color:#f6e27a; border:1px solid ${gold}.4);
+          border-radius:999px; width:24px; height:24px; font-size:12px; cursor:pointer; line-height:1;
+          display:flex; align-items:center; justify-content:center; }
+        .rv-move button:disabled { opacity:.3; cursor:default; }
         /* מגירת-ההיסטוריה — מה שעברת מתכווץ לרצועה דביקה למעלה; לחיצה מחזירה */
         .rv-tray { position:sticky; top:66px; z-index:40; display:flex; gap:6px; align-items:center; overflow-x:auto;
           background:rgba(10,8,16,.92); backdrop-filter:blur(6px); border:1px solid ${gold}.35); border-radius:999px;
@@ -300,6 +306,13 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
             <span className="rv-frame">
               <img src={thumb(h.image_url, 900)} alt={title || ""} loading={i < 3 ? "eager" : "lazy"} onLoad={e => onImgLoad(h.id, e)} />
               {onEdit && <button className="rv-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(h); }}>✏️</button>}
+              {/* ⬆⬇ הזזה בזרם (אדמין) — מחליף מקום עם השכן המוצג */}
+              {onMove && (
+                <span className="rv-move" onClick={e => e.stopPropagation()}>
+                  <button title="הזז למעלה בזרם" disabled={i === 0} onClick={() => list[i - 1] && onMove(h, list[i - 1], "up")}>⬆</button>
+                  <button title="הזז למטה בזרם" disabled={i === list.length - 1} onClick={() => list[i + 1] && onMove(h, list[i + 1], "down")}>⬇</button>
+                </span>
+              )}
             </span>
           );
           const caption = (
