@@ -3749,6 +3749,7 @@ function BroadcastTab() {
   const [text, setText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [credit, setCredit] = useState("");
+  const [channel, setChannel] = useState("main");
   const [hours, setHours] = useState(24);
   const [busy, setBusy] = useState(false);
   const [rows, setRows] = useState([]);
@@ -3765,7 +3766,7 @@ function BroadcastTab() {
     setBusy(true); setMsg("");
     try {
       const { broadcastChannelUpdate } = await import("../lib/supabase.js");
-      await broadcastChannelUpdate({ text: text.trim(), imageUrl: imageUrl.trim() || null, hours: hours || null, credit: credit.trim() || null });
+      await broadcastChannelUpdate({ text: text.trim(), imageUrl: imageUrl.trim() || null, hours: hours || null, credit: credit.trim() || null, channel });
       setText(""); setImageUrl(""); setCredit(""); setMsg("✅ שודר! יופיע בטיקר ובעמוד הבית תוך דקה (רענון אצל הגולשים).");
       load();
     } catch (e) { setMsg("שגיאה: " + (e.message || e)); }
@@ -3794,6 +3795,12 @@ function BroadcastTab() {
             style={{ ...inp, flex: 1, minWidth: 220 }} />
           <input value={credit} onChange={e => setCredit(e.target.value)} placeholder="מאת… (למשל: שחר קנדרו · קוד המציאות)"
             style={{ ...inp, flex: 1, minWidth: 200 }} />
+          <select value={channel} onChange={e => setChannel(e.target.value)} style={{ ...inp, width: "auto", cursor: "pointer" }}>
+            <option value="main">📡 ראשי (טיקר האתר)</option>
+            <option value="reality-code">🎬 קוד המציאות (בית)</option>
+            <option value="or-geula">✨ אור הגאולה (צ'אט)</option>
+            <option value="sod-hachashmal">⚡ סוד החשמל</option>
+          </select>
           <select value={hours} onChange={e => setHours(Number(e.target.value))} style={{ ...inp, width: "auto", cursor: "pointer" }}>
             <option value={6}>יורד אחרי 6 שעות</option>
             <option value={24}>יורד אחרי 24 שעות</option>

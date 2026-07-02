@@ -28,7 +28,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
-import ChannelUpdateCard from "../components/ChannelUpdateCard.jsx";
+import BrandTicker from "../components/BrandTicker.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -226,8 +226,10 @@ export default function HomeNewPage() {
         </form>
       </section>
 
-      {/* ===== 📡 עדכון מהערוץ — השידור-החי האחרון (מוצג רק כשיש) ===== */}
-      <ChannelUpdateCard />
+      {/* ===== 🎬 טיקר «קוד המציאות» — עדכוני הערוץ בעמוד הבית (בקשת צוריאל: רק הערוץ הזה כאן) ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
+        <BrandTicker channel="reality-code" />
+      </section>
 
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>

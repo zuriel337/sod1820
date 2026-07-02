@@ -4,6 +4,7 @@ import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaBy
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import BrandTicker from "../components/BrandTicker.jsx";
 import { resolveAuthor } from "../lib/authors.js";
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
@@ -4140,6 +4141,8 @@ function SpotimChatPage() {
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
       `}</style>
       <ChatScrollRail />
+      {/* ✨ טיקר «אור הגאולה» — עדכוני הערוץ בדף הצ'אט (בקשת צוריאל) */}
+      <BrandTicker channel="or-geula" />
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט
