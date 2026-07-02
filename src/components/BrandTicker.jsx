@@ -148,6 +148,11 @@ export default function BrandTicker({ channel, peek = null }) {
             העדכונים בדרך — הערוץ יתעורר בקרוב…
           </div>
         )}
+        {/* שקיפות לגולשים (בקשת צוריאל): ערוץ אוטומטי + מערכת בהרצה */}
+        <div style={{ marginTop: 7, paddingTop: 6, borderTop: `1px solid ${b.accent}26`, color: "#a99a7c",
+          fontFamily: F.heading, fontSize: 9.5, letterSpacing: 0.3 }}>
+          🛠 ערוץ שידורים אוטומטי · המערכת בהרצה — ייתכנו שיפורים בימים הקרובים
+        </div>
       </div>
 
       {lb && (

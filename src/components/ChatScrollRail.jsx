@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 
 const TOP = 86;     // מתחת לסרגל העליון/ניווט
 const BOTTOM = 22;
-const MIN_THUMB = 60;
+const MIN_THUMB = 44;
 
 export default function ChatScrollRail() {
   const [m, setM] = useState({ thumbH: MIN_THUMB, thumbTop: 0, visible: false, atBottom: false });
@@ -84,17 +84,16 @@ export default function ChatScrollRail() {
         title="גרור לגלילה · לחיצה אחת קופצת לתחתית"
         aria-label="גלילה — גרור או לחץ לקפיצה לתחתית"
       >
-        {!m.atBottom && <span className="sod-rail-tip">לחצו עליי ↓ קפיצה לסוף</span>}
         <span className="sod-rail-ic">↓</span>
       </button>
       <style>{`
         .sod-rail { position:fixed; right:6px; top:${TOP}px; bottom:${BOTTOM}px;
-          width:30px; z-index:60; pointer-events:none; }
+          width:14px; z-index:60; pointer-events:none; }
         .sod-rail-track { position:absolute; inset:0; border-radius:999px; pointer-events:none;
           background:linear-gradient(90deg,#0a0814,#171228 48%,#0a0814);
           box-shadow: inset 0 0 12px rgba(0,0,0,.85), 0 0 0 1px rgba(150,110,255,.22),
                       inset 2px 0 0 rgba(150,110,255,.15), inset -2px 0 0 rgba(150,110,255,.15); }
-        .sod-rail-thumb { position:absolute; inset-inline:0; margin:0; padding:0 0 9px; border-radius:999px;
+        .sod-rail-thumb { position:absolute; inset-inline:0; margin:0; padding:0 0 5px; border-radius:999px;
           pointer-events:auto; cursor:grab; touch-action:none; -webkit-tap-highlight-color:transparent;
           display:flex; align-items:flex-end; justify-content:center;
           border:1px solid rgba(120,80,10,.75);
@@ -107,35 +106,20 @@ export default function ChatScrollRail() {
             inset 0 -7px 12px rgba(70,40,0,.72),
             inset 4px 0 6px rgba(255,255,255,.22),
             inset -4px 0 8px rgba(70,40,0,.5),
-            0 5px 16px rgba(0,0,0,.5),
-            0 0 16px rgba(255,200,80,.6), 0 0 36px rgba(255,170,40,.34);
+            0 3px 10px rgba(0,0,0,.45),
+            0 0 9px rgba(255,200,80,.4);
           transition: box-shadow .18s ease, filter .18s ease; }
         .sod-rail-thumb:hover { filter:brightness(1.06);
           box-shadow: inset 0 3px 6px rgba(255,255,255,.82), inset 0 -7px 13px rgba(70,40,0,.78),
                       0 5px 18px rgba(0,0,0,.5), 0 0 22px rgba(255,210,90,.85), 0 0 46px rgba(255,180,50,.5); }
         .sod-rail-thumb:active { cursor:grabbing; }
-        .sod-rail-ic { font-size:21px; line-height:1; color:#3a2600; font-weight:900;
+        .sod-rail-ic { font-size:11px; line-height:1; color:#3a2600; font-weight:900;
           filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)); }
-        /* תווית הסבר — מופיעה רק כשגוללים למעלה (יש לאן לקפוץ), לחיצה עליה גם קופצת. */
-        .sod-rail-tip { position:absolute; right:calc(100% + 14px); top:50%; transform:translateY(-50%);
-          white-space:nowrap; pointer-events:auto; cursor:pointer; font-weight:800; font-size:13px;
-          color:#ffe6ad; padding:7px 12px; border-radius:11px; border:1px solid rgba(255,216,107,.65);
-          background:linear-gradient(180deg, rgba(36,24,6,.96), rgba(22,14,3,.96));
-          box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 16px rgba(255,200,80,.4);
-          animation: sod-tip-pulse 2.4s ease-in-out infinite; }
-        .sod-rail-tip::after { content:""; position:absolute; right:-7px; top:50%; transform:translateY(-50%);
-          border:7px solid transparent; border-inline-start-color:rgba(255,216,107,.65); border-inline-end:0; }
-        @keyframes sod-tip-pulse {
-          0%,100% { box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 11px rgba(255,200,80,.3); }
-          50% { box-shadow:0 5px 16px rgba(0,0,0,.5), 0 0 24px rgba(255,200,80,.7); } }
         @media (max-width:640px) {
-          .sod-rail { width:20px; right:4px; top:72px; }
-          .sod-rail-ic { font-size:14px; }
-          .sod-rail-tip { font-size:11.5px; padding:6px 10px; }
+          .sod-rail { width:10px; right:3px; top:72px; }
+          .sod-rail-ic { font-size:9px; }
         }
-        @media (prefers-reduced-motion: reduce) {
-          .sod-rail-thumb { transition:none; } .sod-rail-tip { animation:none; }
-        }
+        @media (prefers-reduced-motion: reduce) { .sod-rail-thumb { transition:none; } }
       `}</style>
     </div>
   );
