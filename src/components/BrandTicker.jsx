@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
@@ -24,11 +25,14 @@ export const BRANDS = {
   "sod-hachashmal": { title: "סוד החשמל", emoji: "⚡", accent: "#5ec8ff", glow: "rgba(94,200,255,.32)", bg: "linear-gradient(90deg, rgba(8,38,58,.8), rgba(12,55,84,.9), rgba(8,38,58,.8))" },
 };
 
-export default function BrandTicker({ channel }) {
+// peek: {channel, to} — נקודת-הצצה לערוץ אחר: כשיש שם עדכונים חיים, מופיעה נקודה
+// נושמת בקצה הרצועה שמקשרת לדף שבו הערוץ ההוא חי (למשל אור-הגאולה → דף הצ'אט).
+export default function BrandTicker({ channel, peek = null }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
   const [lb, setLb] = useState(null);
+  const [peekCount, setPeekCount] = useState(0);
 
   useEffect(() => {
     let live = true;
@@ -37,6 +41,13 @@ export default function BrandTicker({ channel }) {
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
   }, [channel]);
+
+  useEffect(() => {
+    if (!peek?.channel) return;
+    let live = true;
+    getChannelUpdates(8, peek.channel).then(r => { if (live) setPeekCount((r || []).length); }).catch(() => {});
+    return () => { live = false; };
+  }, [peek?.channel]);
 
   const cur = items.length ? items[i % items.length] : null;
   useEffect(() => {
@@ -90,6 +101,21 @@ export default function BrandTicker({ channel }) {
             {(i % items.length) + 1}/{items.length}
           </span>
         )}
+        {/* 👁 נקודת-הצצה: יש עדכונים בערוץ האחר → נקודה נושמת שמובילה אליו (בקשת צוריאל) */}
+        {peek?.channel && peekCount > 0 && (() => {
+          const pb = BRANDS[peek.channel];
+          return (
+            <Link to={peek.to || "/broadcasts"} title={`יש ${peekCount} עדכונים חיים ב«${pb.title}» — לצפייה`}
+              style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
+                border: `1px solid ${pb.accent}66`, background: `${pb.accent}1f`, borderRadius: 999, padding: "2px 9px" }}>
+              <i style={{ width: 7, height: 7, borderRadius: "50%", background: pb.accent, boxShadow: `0 0 7px ${pb.accent}`,
+                animation: "bt-dot 1.6s infinite" }} />
+              <span style={{ color: pb.accent, fontFamily: F.heading, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap" }}>
+                {pb.emoji} {peekCount}
+              </span>
+            </Link>
+          );
+        })()}
       </div>
 
       {lb && (
