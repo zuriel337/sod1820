@@ -30,7 +30,9 @@ export const BRANDS = {
 
 // peek: {channel, to} — נקודת-הצצה לערוץ אחר: כשיש שם עדכונים חיים, מופיעה נקודה
 // נושמת בקצה הרצועה שמקשרת לדף שבו הערוץ ההוא חי (למשל אור-הגאולה → דף הצ'אט).
-export default function BrandTicker({ channel, peek = null }) {
+// hidePostLinked: בעמוד הבית עדכון שמקושר לפוסט מוסתר — הפוסט כבר מופיע ב«עדכונים אחרונים»
+// (כלל אפס-כפילות של broadcast_channels_law).
+export default function BrandTicker({ channel, peek = null, hidePostLinked = false }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -39,11 +41,13 @@ export default function BrandTicker({ channel, peek = null }) {
 
   useEffect(() => {
     let live = true;
-    const load = () => getChannelUpdates(8, channel).then(r => { if (live) setItems(r || []); }).catch(() => {});
+    const load = () => getChannelUpdates(8, channel).then(r => {
+      if (live) setItems((r || []).filter(u => !(hidePostLinked && u.link_url)));
+    }).catch(() => {});
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [channel]);
+  }, [channel, hidePostLinked]);
 
   useEffect(() => {
     if (!peek?.channel) return;
