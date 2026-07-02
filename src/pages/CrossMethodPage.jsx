@@ -4,6 +4,7 @@ import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import DocActions from "../components/DocActions.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ===== הצלבת שיטות — "מסר מצטרף לפי מספר" =====
 // מזינים מספר. המערכת שולפת את כל הביטויים *המאומתים* שנופלים על המספר הזה בכל שיטה,
@@ -30,6 +31,7 @@ const SAMPLES = [1820, 313, 326, 322, 1234, 776, 86];
 
 export default function CrossMethodPage() {
   const P = usePalette();
+  const { isAdmin } = useAuth();
   const contentRef = useRef(null);   // מכל-התוכן להדפסה (DocActions)
   const btn = { cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 20px" };
   const chip = { cursor: "pointer", background: P.card, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.mono, fontSize: 14, padding: "7px 16px" };
@@ -137,6 +139,24 @@ export default function CrossMethodPage() {
     if (n > 0) { setNum(n); setInput(String(n)); }
   }
   function submit(e) { e.preventDefault(); go(input); }
+
+  // 🚧 הדף סגור לציבור בזמן השדרוג הגדול (תוכנית «תעודת המספר») — אדמין ממשיך לעבוד רגיל
+  if (!isAdmin) return (
+    <div style={{ direction: "rtl", maxWidth: 560, margin: "0 auto", padding: "80px 20px 100px", textAlign: "center" }}>
+      <div style={{ background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "42px 26px", boxShadow: `0 10px 40px ${P.glow}` }}>
+        <div style={{ fontSize: 48, marginBottom: 12 }}>⟡</div>
+        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>הצלבת השיטות — בשדרוג</h1>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 420, margin: "0 auto 20px" }}>
+          המנוע עובר שדרוג עומק: במקום רשימות — <b style={{ color: P.ink }}>תעודת-מספר מוסברת</b> עם
+          מד-נדירות, שיטות בלתי-תלויות והמסר המצטרף. נפתח מחדש בקרוב.
+        </p>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link to="/number/1820" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "10px 24px", borderRadius: 999 }}>🔢 בינתיים — דף המספר ←</Link>
+          <Link to="/beit-midrash" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 24px", borderRadius: 999 }}>📚 בית המדרש</Link>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div ref={contentRef} style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: P.inkSoft, background: P.pageBg }}>
