@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { thumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate, streamLabel } from "../lib/reality.js";
@@ -134,7 +135,7 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
           {items.slice(0, idx).map((h, i) => (
             <button key={h.id} className="sw-mini" title={cleanName(h.name) || String(domNum(h) || "")}
               onClick={() => setIdx(i)}>
-              <img src={h.image_url} alt="" />
+              <img src={thumb(h.image_url, 360)} alt="" />
             </button>
           ))}
         </div>
@@ -164,7 +165,7 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
                   opacity: Math.max(0, 1 - ad * 0.34),
                   zIndex: 50 - Math.round(ad * 10),
                 }}>
-                  <img src={h.image_url} alt={i === idx ? (title || "") : ""} loading={ad < 1.5 ? "eager" : "lazy"} draggable={false} />
+                  <img src={thumb(h.image_url, 900)} alt={i === idx ? (title || "") : ""} loading={ad < 1.5 ? "eager" : "lazy"} draggable={false} />
                 </div>
               );
             })}

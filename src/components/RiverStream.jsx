@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { thumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { domNum, shortDate, streamLabel, effDate } from "../lib/reality.js";
 import { isNewSince } from "../lib/crossesNew.js";
@@ -134,7 +135,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           {passedHints.map(h => (
             <button key={h.id} className="rv-mini" title={cleanName(h.name) || String(domNum(h) || "")}
               onClick={() => refs.current[h.id]?.scrollIntoView({ behavior: "smooth", block: "center" })}>
-              <img src={h.image_url} alt="" />
+              <img src={thumb(h.image_url, 360)} alt="" />
             </button>
           ))}
         </div>
@@ -153,7 +154,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           // התמונה נקייה לגמרי (בלי שכבות שחוסמות תוכן); המספר/התגיות — בכיתוב שלידה
           const inner = (
             <>
-              <img src={h.image_url} alt={title || ""} loading={i < 3 ? "eager" : "lazy"} onLoad={e => onImgLoad(h.id, e)} />
+              <img src={thumb(h.image_url, 900)} alt={title || ""} loading={i < 3 ? "eager" : "lazy"} onLoad={e => onImgLoad(h.id, e)} />
               {onEdit && <button className="rv-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(h); }}>✏️</button>}
             </>
           );

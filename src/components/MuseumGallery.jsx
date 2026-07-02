@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { thumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate } from "../lib/reality.js";
@@ -112,7 +113,7 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
         <div className="mgal-heroBox">
           {/* התמונה נקייה — המספר בשלט-המוזיאון שלצדה, לא עליה (לא חוסמים תוכן) */}
           <div className="mgal-hero" key={hero.id} onClick={() => onOpen?.(heroIdx)}>
-            <img src={hero.image_url} alt={cleanName(hero.name) || ""} />
+            <img src={thumb(hero.image_url, 900)} alt={cleanName(hero.name) || ""} />
             {onEdit && <button className="mgal-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(hero); }}>✏️</button>}
           </div>
         </div>
@@ -129,7 +130,7 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
             return (
               <div key={h.id} className="mgal-f" onClick={() => onOpen?.(origIdx)}
                 style={{ width: `${w}%`, minWidth: 110, transform: `rotate(${i % 2 ? 1.6 : -1.6}deg) translateY(${(i % 3) * 6}px)`, zIndex: 8 - i }}>
-                <img src={h.image_url} alt="" loading="lazy" />
+                <img src={thumb(h.image_url, 360)} alt="" loading="lazy" />
                 {/* המספר מתחת לתמונה — לא עליה */}
                 {rv != null && (
                   <div style={{ textAlign: "center", marginTop: 5 }}>
@@ -163,7 +164,7 @@ export function CascadeContain({ hints = [], onOpen, onEdit }) {
       <div className="mgc-main">
         {/* התמונה נקייה — המספר בשלט שמתחתיה (לא חוסמים תוכן) */}
         <div className="mgal-hero" onClick={() => onOpen?.(0)} style={{ cursor: "zoom-in" }}>
-          <img src={hero.image_url} alt={cleanName(hero.name) || ""} style={{ margin: "0 auto" }} />
+          <img src={thumb(hero.image_url, 900)} alt={cleanName(hero.name) || ""} style={{ margin: "0 auto" }} />
           {onEdit && <button className="mgal-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(hero); }}>✏️</button>}
         </div>
         <Placard h={hero} side="under" />
@@ -177,7 +178,7 @@ export function CascadeContain({ hints = [], onOpen, onEdit }) {
               <div key={h.id} className="mgc-item" onClick={() => onOpen?.(i + 1)}
                 style={{ width: s.w, marginInlineStart: `${i * 7}%`, opacity: s.op,
                   transform: `rotateY(${s.rot}deg) translateZ(${s.z}px)` }}>
-                <img src={h.image_url} alt="" loading="lazy" style={{ border: "1px solid rgba(212,175,55,.3)" }} />
+                <img src={thumb(h.image_url, 360)} alt="" loading="lazy" style={{ border: "1px solid rgba(212,175,55,.3)" }} />
                 {/* המספר מתחת — לא על התמונה */}
                 {rv != null && i < 2 && (
                   <div style={{ textAlign: "center", marginTop: 4 }}>
