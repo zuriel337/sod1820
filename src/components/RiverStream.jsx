@@ -189,8 +189,11 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rvw .rv-hint, .rvw .rv-hint.l, .rvw .rv-hint.r { width:94%; margin:0 auto 16px; display:block; transform:none; text-align:center; }
         .rvw .rv-frame { display:inline-block; max-width:100%; }
         .rvw .rv-frame img { max-height:36vh; width:auto; max-width:100%; margin:0 auto; }
-        /* הכיתוב = גוש קומפקטי: כותרת+תאריך בשורה מלאה ממורכזת, ושני הצ'יפים יחד בשורה אחת מתחת */
-        .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; gap:6px 8px; }
+        /* הכיתוב = גוש קומפקטי: כותרת+תאריך בשורה מלאה ממורכזת, ושני הצ'יפים יחד בשורה אחת מתחת.
+           רקע כהה לכל הגוש — שלא יתנגש ויזואלית עם המוט/הנהר (בקשת צוריאל) */
+        .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; gap:6px 8px;
+          position:relative; z-index:2; background:rgba(10,8,14,.85); border:1px solid rgba(232,200,74,.18);
+          border-radius:14px; padding:10px 14px; }
         .rvw .rv-cap .rv-t { order:1; flex:1 1 100%; }
         .rvw .rv-cap .rv-t span { margin-top:2px; }
         .rvw .rv-num { order:2; }
