@@ -226,6 +226,17 @@ function EntityConvergence({ term, isNumber, ragil }) {
           {isNumber && KEY_NUMBERS[sel] && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 7, textAlign: "center", maxWidth: 130, lineHeight: 1.45 }}>{KEY_NUMBERS[sel]}</div>}
         </div>
       </div>
+      {/* 🗓 786 = תשפ"ו — הדגשת השנה הנוכחית (בקשת צוריאל) */}
+      {isNumber && sel === 786 && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "13px 16px",
+          background: "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(122,19,32,0.18))",
+          border: `1px solid ${P.accent}`, borderRadius: 12, margin: "10px 0 2px", textAlign: "center" }}>
+          <span style={{ fontSize: 22 }}>🗓</span>
+          <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(15px,2.4vw,19px)", fontWeight: 800, lineHeight: 1.5 }}>
+            786 = תשפ"ו — <span style={{ color: P.heroNum }}>השנה שלנו!</span> השנה העברית הנוכחית ה'תשפ"ו
+          </span>
+        </div>
+      )}
       <NumberDNA value={sel} />
       <style>{`
         .em-meterwrap .em-bignum { min-width: 96px; }

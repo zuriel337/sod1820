@@ -188,7 +188,7 @@ export default function Footer() {
             {subline}
           </div>
           <div style={{ fontSize: 12.5, color: cc.muted, fontFamily: F.heading, lineHeight: 1.8 }}>
-            13 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
+            14 שנות מחקר • כלים לקריאת המציאות בשפת המספרים
           </div>
 
           {/* קריאה לעקוב בטיקטוק */}

@@ -11,5 +11,6 @@ export function thumb(url, width = 480, quality = 62) {
   if (url.includes("/render/image/")) return url;    // כבר מותמר
   if (/\.(gif|svg)(\?|$)/i.test(url)) return url;    // אנימציה/וקטור → לא להתמיר
   const base = url.replace(OBJ_RE, "/storage/v1/render/image/public/");
-  return `${base}${base.includes("?") ? "&" : "?"}width=${width}&quality=${quality}`;
+  // resize=contain מפורש — לעולם לא לחתוך את התמונה בהקטנה (חוק אי-החיתוך)
+  return `${base}${base.includes("?") ? "&" : "?"}width=${width}&quality=${quality}&resize=contain`;
 }

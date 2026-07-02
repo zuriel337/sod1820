@@ -145,6 +145,15 @@ export async function getRecentCommunityWords(limit = 4) {
   return data ?? [];
 }
 
+// סך כל המילים במאגר — count מדויק בלי למשוך שורות (לפי האמת, לא מספר קבוע)
+export async function getGematriaWordsCount() {
+  if (!supabase) return 0;
+  const { count } = await supabase
+    .from('gematria_words')
+    .select('*', { count: 'exact', head: true });
+  return count || 0;
+}
+
 // ===== ארכיון הגלריות ("גלריית רמזי הגאולה") =====
 // סקירה: רשימת גלריות + תמונות קלות (לכריכה+ספירה).
 // מטמון פר-סשן לסקירת הארכיון — מונע משיכה חוזרת של כל ~2,500 השורות בכל כניסה/חזרה ל-/archive.

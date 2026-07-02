@@ -3,19 +3,21 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getRecentCommunityWords } from "../lib/supabase.js";
+import { getRecentCommunityWords, getGematriaWordsCount } from "../lib/supabase.js";
 
-// ✦ מילים חדשות מהקהילה — 4 הביטויים האחרונים שנוספו למאגר (עם הערך והזמן).
+// ✦ מילים חדשות שנוספו למאגר — הביטויים האחרונים (עם הערך והזמן) + סך המילים במאגר לפי האמת.
 // מקור אחד (gematria_words לפי created_at) — מוצג בבית המדרש (מתחת למחשבון) ובדף הבית.
 // props: light (override פלטה) · max · title.
-export default function CommunityWordsBox({ light, max = 4, title = "✦ מילים חדשות מהקהילה" }) {
+export default function CommunityWordsBox({ light, max = 4, title = "✦ מילים חדשות שנוספו למאגר" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [rows, setRows] = useState([]);
+  const [total, setTotal] = useState(0);   // סך המילים במאגר — count אמיתי מה-DB
 
   useEffect(() => {
     let live = true;
     getRecentCommunityWords(max).then(r => { if (live) setRows(r || []); }).catch(() => {});
+    getGematriaWordsCount().then(c => { if (live) setTotal(c || 0); }).catch(() => {});
     return () => { live = false; };
   }, [max]);
 
@@ -28,7 +30,9 @@ export default function CommunityWordsBox({ light, max = 4, title = "✦ מיל�
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#25d366", boxShadow: "0 0 7px #25d366", flex: "0 0 auto" }} />
         <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
-        <span style={{ marginInlineStart: "auto", color: L.dim, fontFamily: F.heading, fontSize: 11.5 }}>{rows.length} אחרונות</span>
+        <span style={{ marginInlineStart: "auto", color: L.dim, fontFamily: F.heading, fontSize: 11.5 }}>
+          {total > 0 ? `סך הכל ${total.toLocaleString("he")} מילים במאגר` : `${rows.length} אחרונות`}
+        </span>
       </div>
       <div style={{ display: "grid", gap: 8 }}>
         {rows.map((r, i) => (

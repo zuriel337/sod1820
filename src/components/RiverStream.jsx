@@ -38,10 +38,18 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
   const viewRef = useRef(null);
   const rodRef = useRef(null);
   const [rodRatio, setRodRatio] = useState(0);
+  const [activeId, setActiveId] = useState(null);   // הרמז שמול העין — ההסבר שלו מוצג בבועה שליד המוט
   const onViewScroll = () => {
     const el = viewRef.current;
     if (!el) return;
     setRodRatio(el.scrollTop / Math.max(1, el.scrollHeight - el.clientHeight));
+    // הרמז הפעיל = הראשון שעדיין נראה ברצועה העליונה של האשנב
+    const vr = el.getBoundingClientRect();
+    const band = vr.top + Math.min(220, vr.height * 0.3);
+    for (const h of list) {
+      const r = refs.current[h.id]?.getBoundingClientRect();
+      if (r && r.bottom > band) { setActiveId(h.id); break; }
+    }
   };
   const rodDrag = e => {
     const rod = rodRef.current, el = viewRef.current;
@@ -100,13 +108,12 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv-drop { position:relative; z-index:2; width:fit-content; margin:0 auto 16px; background:#0f0b1a;
           border:1px solid ${gold}.5); color:#e8c84a; font-family:${F.heading}; font-size:11px; font-weight:800;
           border-radius:999px; padding:3px 14px; box-shadow:0 0 12px ${gold}.22); }
-        .rv-hint { position:relative; width:46%; margin-bottom:28px; z-index:1; cursor:zoom-in; }
-        .rv-hint.r { margin-inline-start:2%; transform:rotate(-1.4deg); }
-        .rv-hint.l { margin-inline-start:52%; transform:rotate(1.4deg); }
-        .rv-hint::after { content:""; position:absolute; top:38px; width:8%; height:2px;
-          background:linear-gradient(90deg, ${gold}.55), transparent); }
-        .rv-hint.r::after { inset-inline-end:-8%; transform:scaleX(-1); }
-        .rv-hint.l::after { inset-inline-start:-8%; }
+        /* רמז = שורה מלאה: תמונה בצד אחד של הנהר, הטקסט המלא בצד השני — לסירוגין (בקשת צוריאל) */
+        .rv-hint { position:relative; width:96%; margin:0 auto 30px; display:flex; gap:6%; align-items:flex-start; z-index:1; cursor:zoom-in; }
+        .rv-hint.l { flex-direction:row-reverse; }
+        .rv-hint .rv-frame { flex:0 0 45%; min-width:0; }
+        .rv-hint.r .rv-frame { transform:rotate(-1.2deg); }
+        .rv-hint.l .rv-frame { transform:rotate(1.2deg); }
         /* «פספרטו» — העיגול/מסגרת על המעטפת (עם שוליים); פינות התמונה עצמה כמעט ישרות = אפס חיתוך */
         .rv-frame { display:block; position:relative; padding:8px; border-radius:16px;
           background:linear-gradient(150deg,#241b10,#0f0b07); border:1px solid ${gold}.3);
@@ -123,12 +130,13 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           text-decoration:none; box-shadow:0 2px 10px rgba(0,0,0,.4); }
         .rv-added { display:inline-block; background:rgba(224,85,106,.95); color:#fff;
           font-family:${F.heading}; font-size:9px; font-weight:800; border-radius:999px; padding:2px 8px; }
-        .rv-cap { margin-top:7px; color:${P?.ink || "#efe6d2"}; font-family:${F.body}; font-size:12.5px; font-weight:700; line-height:1.5;
-          display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
-        .rv-cap .rv-t span { display:block; color:${P?.inkSoft || "#a99a7c"}; font-size:10.5px; font-weight:400; margin-top:1px; }
+        .rv-cap { flex:1; min-width:0; margin-top:4px; color:${P?.ink || "#efe6d2"}; font-family:${F.body}; font-size:14px; font-weight:700; line-height:1.55;
+          display:flex; flex-wrap:wrap; align-content:flex-start; align-items:center; gap:7px; }
+        .rv-cap .rv-t { font-family:${F.regal}; font-size:16.5px; }
+        .rv-cap .rv-t span { display:block; color:${P?.inkSoft || "#a99a7c"}; font-family:${F.body}; font-size:11.5px; font-weight:400; margin-top:2px; }
         /* התיאור המלא של הרמז — אותיות גדולות ויפות (חצי מהרמז הוא הטקסט) */
-        .rv-desc { width:100%; color:#e6d9b8; font-family:${F.body}; font-size:14px; font-weight:400; line-height:1.9;
-          white-space:pre-wrap; max-height:180px; overflow-y:auto; }
+        .rv-desc { width:100%; color:#e6d9b8; font-family:${F.body}; font-size:15px; font-weight:400; line-height:1.95;
+          white-space:pre-wrap; }
         /* 🖼 שער-הסט — קישור תלת-מימדי מהבהב לגלריה המסוננת (סטטי, אפס-עומס על השרת) */
         .rv-gal { display:inline-flex; align-items:center; gap:5px; text-decoration:none; color:#e8c84a;
           background:linear-gradient(150deg, rgba(35,26,10,.95), rgba(14,10,5,.95)); border:1px solid ${gold}.55);
@@ -149,23 +157,27 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv-mini { flex:none; width:34px; height:34px; border-radius:8px; overflow:hidden; border:1px solid ${gold}.4);
           padding:0; cursor:pointer; background:#0a0710; }
         .rv-mini img { width:100%; height:100%; object-fit:cover; display:block; }
-        @media (max-width:560px) { .rv-hint { width:47.5%; } .rv-hint.l { margin-inline-start:50.5%; } .rv-tray { top:58px; } }
-        /* 🕹 מצב-חלון (הבית): אשנב שמראה ~3 רמזים ענקיים + מוט-ענק שגולל את הנהר */
-        .rvw-view { flex:1; min-width:0; height:clamp(620px,86vh,940px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; }
+        @media (max-width:560px) {
+          .rv-hint { gap:4.5%; }
+          .rv-hint .rv-frame { flex:0 0 48%; }
+          .rv-cap { font-size:12.5px; }
+          .rv-cap .rv-t { font-size:14px; }
+          .rv-desc { font-size:13px; line-height:1.8; }
+          .rv-tray { top:58px; } }
+        /* 🕹 מצב-חלון (הבית): אשנב גדול — רמז שלם נראה בלי לגלול את המסך, ה-2 האחרונים נכנסים יחד;
+           ההסבר של הרמז שמול העין חי ב«בועת-מוזיאון» ליד המוט (פורמט אוצרות-הגילוי) */
+        .rvw { position:relative; }
+        .rvw-view { flex:1; min-width:0; height:clamp(680px,88vh,1060px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; }
         .rvw-view::-webkit-scrollbar { display:none; }
         .rvw .rv-tray { top:8px; }
-        /* בבית: התמונה קטנה ב~25% (62%→46%) והטקסט המלא לצדה בגדול — רואים 2-3 רמזים בגלילה */
-        .rvw .rv-hint { width:96%; margin-inline-start:2%; display:flex; gap:22px; align-items:flex-start; }
-        .rvw .rv-hint.r { transform:rotate(-.6deg); }
-        .rvw .rv-hint.l { margin-inline-start:2%; flex-direction:row-reverse; transform:rotate(.6deg); }
-        .rvw .rv-hint .rv-frame { flex:0 0 46%; min-width:0; }
-        .rvw .rv-hint .rv-cap { flex:1; min-width:0; margin-top:4px; align-content:flex-start; font-size:15.5px; }
-        .rvw .rv-cap .rv-t { font-family:${F.regal}; font-size:18px; line-height:1.5; }
-        .rvw .rv-cap .rv-t span { font-size:12.5px; margin-top:4px; }
-        .rvw .rv-num { font-size:17px; padding:2px 14px; }
-        .rvw .rv-desc { font-size:16.5px; line-height:2; max-height:none; overflow:visible; margin-top:4px; }
+        /* התמונה קטנה וממורכזת — הגובה מוגבל כך שנכנסות שתיים שלמות באשנב */
+        .rvw .rv-hint, .rvw .rv-hint.l, .rvw .rv-hint.r { width:94%; margin:0 auto 24px; display:block; transform:none; text-align:center; }
+        .rvw .rv-frame { display:inline-block; max-width:100%; }
+        .rvw .rv-frame img { max-height:36vh; width:auto; max-width:100%; margin:0 auto; }
+        .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; }
+        .rvw .rv-desc { display:none; }   /* ההסבר עבר לבועה שליד המוט */
         .rvw .rv-hint::after { display:none; }
-        .rvw .rv-bridge { width:96%; }
+        .rvw .rv-bridge { width:94%; text-align:center; }
         .rvw-rod { flex:0 0 40px; position:relative; border-radius:999px; cursor:ns-resize; touch-action:none;
           background:linear-gradient(180deg, ${gold}.35), rgba(58,134,200,.25) 55%, ${gold}.15));
           box-shadow:inset 0 0 8px rgba(0,0,0,.6); }
@@ -174,12 +186,31 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           border:1px solid #6b4e10; box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.5);
           display:flex; align-items:center; justify-content:center; color:#3a2a06; font-size:20px; pointer-events:none;
           transition:top .15s linear; }
-        @media (max-width:640px) {
-          /* מובייל: תמונה מלאה למעלה, הטקסט הגדול מתחתיה */
-          .rvw .rv-hint, .rvw .rv-hint.l { flex-direction:column; gap:8px; width:94%; margin-inline-start:3%; transform:none; }
-          .rvw .rv-hint .rv-frame { flex:none; width:100%; }
-          .rvw .rv-desc { font-size:15px; }
-          .rvw-view { height:clamp(540px,78vh,820px); } }
+        /* 💬 בועת-המוזיאון — ההסבר המלא של הרמז הפעיל, בפורמט השלט של אוצרות-הגילוי, צמודה למוט */
+        .rvw-side { flex:0 0 min(320px,30%); min-width:0; }
+        .rvw-bubble { position:relative; background:linear-gradient(150deg, rgba(30,22,10,.97), rgba(14,10,5,.97));
+          border:1px solid rgba(212,175,55,.5); border-radius:16px; padding:16px 18px;
+          box-shadow:0 26px 60px -18px rgba(0,0,0,.85), 0 0 34px rgba(212,175,55,.08);
+          animation: rvb-in .35s ease both; }
+        .rvw-bubble::after { content:""; position:absolute; top:30px; inset-inline-start:-16px;
+          border:8px solid transparent; border-inline-end-color:rgba(212,175,55,.5); }
+        @keyframes rvb-in { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+        .rvb-num { display:inline-block; background:rgba(212,175,55,.16); border:1px solid rgba(212,175,55,.5); color:#e8c84a;
+          font-family:${F.mono}; font-weight:900; font-size:17px; border-radius:999px; padding:1px 13px;
+          text-decoration:none; margin-bottom:9px; }
+        .rvb-title { color:#f3e6c0; font-family:${F.regal}; font-size:clamp(16px,2vw,19px); font-weight:800; line-height:1.5; margin-bottom:8px; }
+        .rvb-desc { color:#d9cba6; font-family:${F.body}; font-size:14.5px; line-height:1.95; white-space:pre-wrap;
+          max-height:52vh; overflow-y:auto; }
+        .rvb-date { color:#a99a7c; font-family:${F.heading}; font-size:11.5px; margin-top:10px; }
+        @media (max-width:760px) {
+          /* מובייל: תיבת-ההסבר (החשובה ביותר) עוברת למעלה — רצועה מלאה מעל המוט והזרם */
+          .rvw { flex-wrap:wrap; }
+          .rvw-side { flex:1 1 100%; order:-1; }
+          .rvw-bubble::after { display:none; }
+          .rvb-desc { max-height:26vh; font-size:14px; }
+          .rvb-title { font-size:16px; }
+          .rvw .rv-frame img { max-height:44vh; }
+          .rvw-view { height:clamp(560px,80vh,880px); } }
       `}</style>
 
       {/* 🕹 מצב-חלון (הבית): מוט-ענק + אשנב פנימי; במצב רגיל — העטיפות שקופות */}
@@ -192,6 +223,26 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
             <div className="rvw-knob" style={{ top: `${8 + rodRatio * 84}%` }}>⇕</div>
           </div>
         )}
+        {/* 💬 בועת-המוזיאון ליד המוט — ההסבר המלא של הרמז שמול העין (מתעדכן עם הגלילה/המוט) */}
+        {windowed && (() => {
+          const a = list.find(h => h.id === activeId) || list[0];
+          if (!a) return null;
+          const bT = cleanName(a.name);
+          const bD = a.description ? stripHtml(a.description).trim() : "";
+          const bV = domNum(a);
+          const bDate = shortDate(a);
+          if (!bT && !bD && bV == null) return null;
+          return (
+            <div className="rvw-side">
+              <div className="rvw-bubble" key={a.id}>
+                {bV != null && <Link className="rvb-num" to={`/number/${bV}`}>{bV}</Link>}
+                {bT && <div className="rvb-title">{bT}</div>}
+                {bD && <div className="rvb-desc">{bD}</div>}
+                {bDate && <div className="rvb-date">🗓 {bDate}</div>}
+              </div>
+            </div>
+          );
+        })()}
         <div className={windowed ? "rvw-view" : undefined} ref={viewRef} onScroll={windowed ? onViewScroll : undefined}>
 
       {/* מגירת-הזיכרון — הרמזים שכבר עברת (קטנים, מסודרים למעלה). לחיצה = חזרה אליהם */}
