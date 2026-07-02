@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
-import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey } from "../lib/crossesNew.js";
+import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
 import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
@@ -305,7 +305,7 @@ function CrossCard({ item }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
           {item._isNew && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, animation: "bm-blink 1.3s ease-in-out infinite" }}>🆕 חדש</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>🆕 חדש</span>
           )}
           {item.created_at && (
             <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>📅 {crossDate(item.created_at)}</span>
@@ -865,7 +865,7 @@ function CalcTab({ initial, seed }) {
                   border: `2px solid ${L.gold}`, background: on ? L.gold : L.panel, color: on ? "#fff" : L.goldDeep,
                   boxShadow: on ? "0 0 0 4px #fbf3da, 0 2px 8px rgba(154,120,24,0.4)" : "0 1px 3px rgba(0,0,0,0.1)",
                   transition: "width .2s, height .2s, background .2s, color .2s",
-                  animation: on ? "axisPulse 1.9s ease-in-out infinite" : "axisBeadIn .45s ease both",
+                  animation: "axisBeadIn .45s ease both",
                   animationDelay: on ? "0s" : `${i * 45}ms`,
                 }}>{n}</button>
               </div>
@@ -1161,7 +1161,7 @@ export default function BeitMidrashPage() {
     const cutoff = seenCutoff("beit-convergence");
     getTopicCards({ approvedOnly: true }).then(cs => {
       if (!live) return;
-      const recent = (cs || []).some(c => (c.approved_at || c.created_at || "") > cutoff);
+      const recent = (cs || []).some(c => (c.approved_at || c.created_at || "") > cutoff && withinFresh(c.approved_at || c.created_at));
       setHasUpdates(recent);
     }).catch(() => {});
     return () => { live = false; };
@@ -1178,7 +1178,7 @@ export default function BeitMidrashPage() {
         if (!live || !data) return;
         const s = new Set();
         data.forEach(it => {
-          if ((it.tags || []).includes("חידושי גולשים")) s.add("community");
+          if ((it.tags || []).includes("חידושי גולשים") && withinFresh(it.updated_at || it.created_at)) s.add("community");
         });
         setInsightUpdates(s);
       }).catch(() => {});
@@ -1272,12 +1272,12 @@ export default function BeitMidrashPage() {
                         <span style={{ flex: 1 }}>{s.label}</span>
                         {s.soon && <span title="בקרוב" style={{ fontSize: 11 }}>⏳</span>}
                         {s.key === "crosses" && newCrosses > 0 && (
-                          <span title={`${newCrosses} הצלבות חדשות`} style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, minWidth: 18, textAlign: "center", padding: "0 6px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }}>{newCrosses}</span>
+                          <span title={`${newCrosses} הצלבות חדשות`} style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, minWidth: 18, textAlign: "center", padding: "0 6px", fontFamily: F.heading, fontSize: 11, fontWeight: 800, boxShadow: "0 0 7px #e8a200" }}>{newCrosses}</span>
                         )}
                         {((s.key === "convergence" && hasUpdates) || insightUpdates.has(s.key)) && (
                           <span title="עדכונים חדשים" style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                            <span style={{ fontSize: 13, animation: "bm-blink 1.3s ease-in-out infinite" }}>🔔</span>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }} />
+                            <span style={{ fontSize: 13 }}>🔔</span>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a200", boxShadow: "0 0 7px #e8a200" }} />
                           </span>
                         )}
                         {s.ai && <span style={{ width: 8, height: 8, borderRadius: "50%", background: L.blue }} />}
@@ -1322,7 +1322,7 @@ export default function BeitMidrashPage() {
           /* רמז "החליקו לעוד מדורים" — נייד בלבד, נעלם אחרי גלילה */
           .bm-swipe-hint { display: block; text-align: center; color: ${L.goldDeep};
             font-family: ${F.heading}; font-size: 11.5px; font-weight: 700; letter-spacing: .3px;
-            padding: 1px 0 7px; opacity: .92; animation: bm-hint-pulse 1.7s ease-in-out infinite;
+            padding: 1px 0 7px; opacity: .75;
             transition: opacity .4s, max-height .4s, padding .4s; max-height: 24px; overflow: hidden; }
           .bm-side.bm-scrolled .bm-swipe-hint { opacity: 0; max-height: 0; padding: 0; animation: none; }
           /* קצוות מעומעמים — מסמנים שיש עוד תוכן מעבר לקצה */

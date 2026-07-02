@@ -239,11 +239,11 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             {/* כותרת + הסבר + סגירה */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🔍 חיפוש מורכב</span>
-              <button onClick={() => { setAdvHelp(h => !h); setAdvBlink(false); }} title="הסבר על המצב המורחב" style={{ cursor: "pointer", background: advBlink ? L.active : "none", border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px", animation: advBlink ? "gc-glow 1.1s ease-in-out infinite" : "none" }}>{advHelp ? "▴ הסבר" : "❔ איך זה עובד?"}</button>
+              <button onClick={() => { setAdvHelp(h => !h); setAdvBlink(false); }} title="הסבר על המצב המורחב" style={{ cursor: "pointer", background: advBlink ? L.active : "none", border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px" }}>{advHelp ? "▴ הסבר" : "❔ איך זה עובד?"}</button>
               <button onClick={closeAdvanced} title="סגור מצב מתקדם" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 13px" }}>▲ סגור</button>
             </div>
             {advHelp && (
-              <div style={{ background: L.panel, border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 10, padding: "11px 13px", marginBottom: 11, color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.9, animation: advBlink ? "gc-glow 1.1s ease-in-out infinite" : "none" }}>
+              <div style={{ background: L.panel, border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 10, padding: "11px 13px", marginBottom: 11, color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.9 }}>
                 <b style={{ color: L.goldDeep }}>איך המצב המורחב עובד:</b><br />
                 • כל שורה = ביטוי + <b>שיטה משלה</b> (רגיל / אלב״ם / מילוי / אתב״ש…). מתחתיה רואים את <b>האותיות</b> של השיטה ואת הערך גם <b>באותיות עבריות</b> (231 = רל״א).<br />
                 • <b>⤴ למעלה</b> — לוקח את <b>תוצאת השיטה</b> ושם בשורה העליונה (מילוי=השם המלא · אתב״ש/אלב״ם=האותיות המוצפנות), וכל 17 השיטות מחושבות עליה. השורה העליונה עצמאית — שינוי בה לא נוגע בשורות.<br />

@@ -17,15 +17,24 @@ export function crossesCutoff() {
   return getCrossesSeen() || new Date(Date.now() - WINDOW_DAYS * 86400000).toISOString();
 }
 
-// כמה הצלבות נוספו מאז שנראו לאחרונה.
+// ⏳ תקרת-טריות (החלטת צוריאל): תג «חדש» חי מקסימום 48 שעות מהעלייה — גם אם טרם נראה.
+// ראה → נעלם מיד (markSeen). כך רק חדשות-ממש קופצות, והשאר חלק לגמרי (בלי הבהוב תמידי).
+export const FRESH_HOURS = 48;
+export function withinFresh(iso, hours = FRESH_HOURS) {
+  if (!iso) return false;
+  const t = new Date(iso).getTime();
+  return Number.isFinite(t) && (Date.now() - t) < hours * 3600000;
+}
+
+// כמה הצלבות נוספו מאז שנראו לאחרונה (ובתוך חלון ה-48 שעות).
 export function countNewCrosses(items) {
   if (!items || !items.length) return 0;
   const cutoff = crossesCutoff();
-  return items.filter(c => c.created_at && c.created_at > cutoff).length;
+  return items.filter(c => c.created_at && c.created_at > cutoff && withinFresh(c.created_at)).length;
 }
 
 export function isNewCross(item, cutoff) {
-  return !!(item && item.created_at && item.created_at > (cutoff || crossesCutoff()));
+  return !!(item && item.created_at && item.created_at > (cutoff || crossesCutoff()) && withinFresh(item.created_at));
 }
 
 // תאריך עברי קצר להצגה (dd.mm.yyyy)

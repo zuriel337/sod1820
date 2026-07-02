@@ -57,7 +57,7 @@ export default function BeitMidrashOverview() {
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 18, padding: isMobile ? "12px 14px" : "16px 18px", direction: "rtl", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: isMobile ? 9 : 14, flexWrap: "wrap" }}>
-        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e0533a", boxShadow: "0 0 7px #e0533a", animation: "bm-blink 1.4s ease-in-out infinite" }} />
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e0533a", boxShadow: "0 0 7px #e0533a" }} />
         <span style={{ color: L.ink, fontFamily: F.regal, fontSize: isMobile ? 15.5 : 18, fontWeight: 800 }}>מה מתרחש בבית המדרש</span>
         <span style={{ background: L.blueBg, color: L.blue, border: `1px solid ${L.blueLine}`, borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>חי</span>
       </div>
@@ -96,7 +96,7 @@ export default function BeitMidrashOverview() {
           <div style={{ minWidth: 0 }}>
             <div style={secTitle}>
               🔮 הצלבות המנוע
-              {newCount > 0 && <span style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "bm-blink 1.3s ease-in-out infinite" }}>🆕 {newCount}</span>}
+              {newCount > 0 && <span style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, boxShadow: "0 0 7px #e8a200" }}>🆕 {newCount}</span>}
               <Link to="/beit-midrash?tab=crosses" style={seeAll}>כל ההצלבות →</Link>
             </div>
             {cr.length === 0 ? (

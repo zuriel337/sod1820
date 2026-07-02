@@ -64,7 +64,7 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
           {isNew && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", letterSpacing: 0.5, animation: "ic-newpulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", letterSpacing: 0.5 }}>🆕 חדש</span>
           )}
           <VerifiedBadge variant={badgeVariant} size={15} />
           {badgeVariant === "ai" && (

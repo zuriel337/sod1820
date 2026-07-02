@@ -35,7 +35,7 @@ export default function CrossInsightsBox({ light = true, max = 3 }) {
         <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800 }}>הצלבות המנוע</span>
         <span style={{ background: light ? "#eef4ff" : "rgba(62,166,255,0.14)", color: "#3ea6ff", border: `1px solid ${light ? "#cfe0ff" : "rgba(62,166,255,0.3)"}`, borderRadius: 999, padding: "1px 8px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>AI · מאומת מנוע</span>
         {newCount > 0 && (
-          <span style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, boxShadow: "0 0 7px #e8a200", animation: "acc-blink 1.3s ease-in-out infinite" }}>🆕 {newCount} נוספו</span>
+          <span style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, boxShadow: "0 0 7px #e8a200" }}>🆕 {newCount} נוספו</span>
         )}
         <Link to="/beit-midrash?tab=crosses" style={{ marginInlineStart: "auto", textDecoration: "none", color: L.gold, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>כל ההצלבות →</Link>
       </div>
