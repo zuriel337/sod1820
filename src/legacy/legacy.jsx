@@ -4382,13 +4382,16 @@ function PostPageBySlug({ onNav }) {
   // מודעות מוצגות רק על פוסטים "ישנים" — לפחות שבוע מאז הפרסום (לא על תוכן עדכני).
   const postAgeDays = post?.date ? (Date.now() - new Date(post.date).getTime()) / 86400000 : 0;
   const adsAllowed = postAgeDays >= 7;
+  // 🟢 חוק התוכן הנקי: פוסט שנכתב אצלנו (source='ai') שומר על <style> מכוון (אנימציות/גרפיקה) —
+  // מחיקת <style> היא ניקוי-וורדפרס והיא חלה רק על פוסטים ישנים. וורדפרס לא נכנס לתחום הנקי.
+  const isCleanPost = post?.source === "ai";
   const content  = (post?.content ?? "")
     // strip injected full-HTML boilerplate (common from pasted AI-generated content)
     .replace(/<!DOCTYPE[^>]*>/gi, "")
     .replace(/<\/?html[^>]*>/gi, "")
     .replace(/<head[\s\S]*?<\/head>/gi, "")
     .replace(/<\/?body[^>]*>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(isCleanPost ? /$^/ : /<style[\s\S]*?<\/style>/gi, "")
     .replace(/<meta[^>]*>/gi, "")
     .replace(/<title[\s\S]*?<\/title>/gi, "")
     .replace(/<link[^>]*>/gi, "")
