@@ -61,71 +61,93 @@ export default function BrandTicker({ channel, peek = null }) {
     <div style={{ direction: "rtl", marginBottom: 10 }}>
       <style>{`@keyframes bt-fade { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:none;} }
         @keyframes bt-dot { 0%,100%{opacity:1;} 50%{opacity:.35;} }`}</style>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, background: b.bg, border: `1px solid ${b.accent}55`,
-        borderRadius: 12, padding: "8px 12px", minHeight: 40, boxShadow: `0 4px 18px ${b.glow}` }}>
-        {/* תג המותג */}
-        <span style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 6, background: b.accent,
-          color: "#191008", fontFamily: F.heading, fontWeight: 900, fontSize: 11, borderRadius: 999, padding: "3px 11px", whiteSpace: "nowrap" }}>
-          <i style={{ width: 6, height: 6, borderRadius: "50%", background: "#9c1322", animation: "bt-dot 1.4s infinite" }} />
-          {b.emoji} {b.title}
-        </span>
-        {/* שידעו: זה מגיע אוטומטית, לייב, מקבוצות/ערוצי הוואטסאפ. יש קישור-ערוץ? הצ'יפ = הצטרפות */}
-        {b.wa ? (
-          <a href={b.wa} target="_blank" rel="noopener noreferrer" title="הצטרפו לערוץ הוואטסאפ — העדכונים מגיעים משם לייב"
-            style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading,
-              fontSize: 9, fontWeight: 800, border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "1px 7px",
-              background: "rgba(37,211,102,.12)", whiteSpace: "nowrap", textDecoration: "none" }}>
-            💬 לייב מהוואטסאפ · הצטרפו +
-          </a>
-        ) : (
-          <span title="העדכונים מגיעים אוטומטית — לייב מקבוצות הוואטסאפ" style={{ flex: "0 0 auto", display: "inline-flex",
-            alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading, fontSize: 9, fontWeight: 800,
-            border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "1px 7px", background: "rgba(37,211,102,.12)", whiteSpace: "nowrap" }}>
-            💬 לייב מהוואטסאפ
+      {/* רצועה עבה בשתי קומות (בקשת צוריאל): שורת-כותרת למעלה, ההודעה המלאה (2-3 שורות) מתחת */}
+      <div style={{ background: b.bg, border: `1px solid ${b.accent}55`, borderRadius: 14, padding: "9px 12px 11px",
+        boxShadow: `0 4px 18px ${b.glow}` }}>
+        {/* ── קומה 1: המותג · לייב מהוואטסאפ · הצצה · מונה · שיתוף ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <span style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 6, background: b.accent,
+            color: "#191008", fontFamily: F.heading, fontWeight: 900, fontSize: 11, borderRadius: 999, padding: "3px 11px", whiteSpace: "nowrap" }}>
+            <i style={{ width: 6, height: 6, borderRadius: "50%", background: "#9c1322", animation: "bt-dot 1.4s infinite" }} />
+            {b.emoji} {b.title}
           </span>
-        )}
-        {/* ההודעה המתחלפת */}
+          {b.wa ? (
+            <a href={b.wa} target="_blank" rel="noopener noreferrer" title="הצטרפו לערוץ הוואטסאפ — העדכונים מגיעים משם לייב"
+              style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading,
+                fontSize: 9.5, fontWeight: 800, border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "2px 8px",
+                background: "rgba(37,211,102,.12)", whiteSpace: "nowrap", textDecoration: "none" }}>
+              💬 לייב מהוואטסאפ · הצטרפו +
+            </a>
+          ) : (
+            <span title="העדכונים מגיעים אוטומטית — לייב מקבוצות הוואטסאפ" style={{ flex: "0 0 auto", display: "inline-flex",
+              alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800,
+              border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "2px 8px", background: "rgba(37,211,102,.12)", whiteSpace: "nowrap" }}>
+              💬 לייב מהוואטסאפ
+            </span>
+          )}
+          <span style={{ flex: 1 }} />
+          {peek?.channel && peekCount > 0 && (() => {
+            const pb = BRANDS[peek.channel];
+            return (
+              <Link to={peek.to || "/broadcasts"} title={`יש ${peekCount} עדכונים חיים ב«${pb.title}» — לצפייה`}
+                style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
+                  border: `1px solid ${pb.accent}66`, background: `${pb.accent}1f`, borderRadius: 999, padding: "2px 9px" }}>
+                <i style={{ width: 7, height: 7, borderRadius: "50%", background: pb.accent, boxShadow: `0 0 7px ${pb.accent}`,
+                  animation: "bt-dot 1.6s infinite" }} />
+                <span style={{ color: pb.accent, fontFamily: F.heading, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap" }}>
+                  {pb.emoji} {peekCount}
+                </span>
+              </Link>
+            );
+          })()}
+          {items.length > 1 && (
+            <span style={{ flex: "0 0 auto", color: "#c9bb93", fontFamily: F.mono, fontSize: 10.5 }}>
+              {(i % items.length) + 1}/{items.length}
+            </span>
+          )}
+          {cur && (
+            <button onClick={() => shareUpdate(cur, b.title)} title="שתפו את העדכון"
+              style={{ flex: "0 0 auto", cursor: "pointer", background: "none", border: `1px solid ${b.accent}66`,
+                color: b.accent, borderRadius: 999, width: 26, height: 26, fontSize: 13, lineHeight: 1,
+                display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>↗</button>
+          )}
+        </div>
+        {/* ── קומה 2: ההודעה בגדול (עד 3 שורות) + תצוגה-מקדימה לתמונה/וידאו ── */}
         {cur ? (
-          <div key={cur.id + i} onClick={cur.image_url ? () => setLb(cur.image_url) : undefined}
-            style={{ flex: 1, minWidth: 0, color: "#f5ecd2", fontFamily: F.body, fontSize: 12.5, fontWeight: 600, lineHeight: 1.5,
-              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-              cursor: cur.image_url ? "pointer" : "default", animation: "bt-fade .5s ease" }}>
-            {cur.text}{cur.image_url ? (isVideoUrl(cur.image_url) ? " · 🎬" : " · 📷") : ""}
-            {cur.credit && <span style={{ color: b.accent, fontSize: 11, fontWeight: 800 }}> · מאת {cur.credit}</span>}
-            <span style={{ color: "#b9a877", fontSize: 10.5 }}> · {timeAgoHe(cur.created_at)}</span>
+          <div key={cur.id + i} style={{ display: "flex", gap: 10, alignItems: "flex-start", animation: "bt-fade .5s ease" }}>
+            {cur.image_url && (
+              <button onClick={() => setLb(cur.image_url)} title={isVideoUrl(cur.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
+                style={{ flex: "0 0 auto", position: "relative", padding: 0, cursor: "pointer", border: `1px solid ${b.accent}66`,
+                  borderRadius: 10, overflow: "hidden", background: "#0a0710", width: 64, height: 64 }}>
+                {isVideoUrl(cur.image_url) ? (
+                  <>
+                    {/* preload=metadata — מוריד רק את הפריים הראשון (קילו-בייטים), לא את הסרטון */}
+                    <video src={cur.image_url} preload="metadata" muted playsInline
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+                    <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                      background: "rgba(0,0,0,.25)", color: "#fff", fontSize: 20, textShadow: "0 1px 6px rgba(0,0,0,.8)" }}>▶</span>
+                  </>
+                ) : (
+                  <img src={cur.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                )}
+              </button>
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: "#f5ecd2", fontFamily: F.body, fontSize: 13.5, fontWeight: 600, lineHeight: 1.6, minHeight: 42,
+                display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                {cur.text}
+              </div>
+              <div style={{ marginTop: 3, color: "#b9a877", fontFamily: F.heading, fontSize: 10.5 }}>
+                {cur.credit && <span style={{ color: b.accent, fontWeight: 800 }}>מאת {cur.credit} · </span>}
+                {timeAgoHe(cur.created_at)}
+              </div>
+            </div>
           </div>
         ) : (
-          <div style={{ flex: 1, color: "#c9bb93", fontFamily: F.body, fontSize: 12, fontStyle: "italic" }}>
+          <div style={{ color: "#c9bb93", fontFamily: F.body, fontSize: 12.5, fontStyle: "italic", minHeight: 30 }}>
             העדכונים בדרך — הערוץ יתעורר בקרוב…
           </div>
         )}
-        {/* ↗ שיתוף העדכון הנוכחי — ישירות מהרצועה (בקשת צוריאל) */}
-        {cur && (
-          <button onClick={() => shareUpdate(cur, b.title)} title="שתפו את העדכון"
-            style={{ flex: "0 0 auto", cursor: "pointer", background: "none", border: `1px solid ${b.accent}66`,
-              color: b.accent, borderRadius: 999, width: 26, height: 26, fontSize: 13, lineHeight: 1,
-              display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>↗</button>
-        )}
-        {items.length > 1 && (
-          <span style={{ flex: "0 0 auto", color: "#c9bb93", fontFamily: F.mono, fontSize: 10.5 }}>
-            {(i % items.length) + 1}/{items.length}
-          </span>
-        )}
-        {/* 👁 נקודת-הצצה: יש עדכונים בערוץ האחר → נקודה נושמת שמובילה אליו (בקשת צוריאל) */}
-        {peek?.channel && peekCount > 0 && (() => {
-          const pb = BRANDS[peek.channel];
-          return (
-            <Link to={peek.to || "/broadcasts"} title={`יש ${peekCount} עדכונים חיים ב«${pb.title}» — לצפייה`}
-              style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
-                border: `1px solid ${pb.accent}66`, background: `${pb.accent}1f`, borderRadius: 999, padding: "2px 9px" }}>
-              <i style={{ width: 7, height: 7, borderRadius: "50%", background: pb.accent, boxShadow: `0 0 7px ${pb.accent}`,
-                animation: "bt-dot 1.6s infinite" }} />
-              <span style={{ color: pb.accent, fontFamily: F.heading, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap" }}>
-                {pb.emoji} {peekCount}
-              </span>
-            </Link>
-          );
-        })()}
       </div>
 
       {lb && (

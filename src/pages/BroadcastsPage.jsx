@@ -49,9 +49,17 @@ function ChannelFeed({ channel, P }) {
                 <button onClick={() => setLb(u.image_url)} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
                   style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
                   border: `1px solid ${P.borderStrong}`, borderRadius: 10, overflow: "hidden", background: "#0a0710" }}>
-                  {isVideoUrl(u.image_url)
-                    ? <span style={{ width: 74, height: 74, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>🎬</span>
-                    : <img src={thumb(u.image_url, 360)} alt="" loading="lazy" style={{ width: 74, height: 74, objectFit: "cover", display: "block" }} />}
+                  {isVideoUrl(u.image_url) ? (
+                    <span style={{ position: "relative", display: "block", width: 74, height: 74 }}>
+                      {/* preload=metadata — פריים ראשון בלבד, לא הסרטון */}
+                      <video src={u.image_url} preload="metadata" muted playsInline
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+                      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                        background: "rgba(0,0,0,.25)", color: "#fff", fontSize: 22, textShadow: "0 1px 6px rgba(0,0,0,.8)" }}>▶</span>
+                    </span>
+                  ) : (
+                    <img src={thumb(u.image_url, 360)} alt="" loading="lazy" style={{ width: 74, height: 74, objectFit: "cover", display: "block" }} />
+                  )}
                 </button>
               )}
             </div>
