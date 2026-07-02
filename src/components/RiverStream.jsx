@@ -63,10 +63,11 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
   // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log), בקצה הנהר
   const [hot, setHot] = useState([]);
   useEffect(() => {
+    if (windowed) return;   // בבית הבועות לא מוצגות — אין צורך בשאילתה
     let live = true;
     getHotNumbers(7, 10).then(h => { if (live) setHot(h || []); }).catch(() => {});
     return () => { live = false; };
-  }, []);
+  }, [windowed]);
 
   const onImgLoad = useCallback((id, e) => {
     const im = e.target;
@@ -316,24 +317,29 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         })}
       </div>
 
-      {/* קצה הנהר — הפניה לגלריות (מעבר ל-20) */}
-      <div style={{ textAlign: "center", margin: "6px 0 26px" }}>
-        <Link to="/archive?tab=pool" style={{ display: "inline-block", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#231603",
-          textDecoration: "none", fontFamily: F.heading, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "11px 28px",
-          boxShadow: "0 10px 28px -10px rgba(184,144,31,.6)" }}>
-          🔎 {overflow > 0 ? `עוד ${overflow.toLocaleString("he")} רמזים בגלריות ←` : "לכל הגלריות ←"}
-        </Link>
-      </div>
+      {/* קצה הנהר — הפניה לגלריות + המספרים החמים. ⛔ לא בתוך האשנב הנגלל של הבית
+          (בקשת צוריאל — בבית יש כבר באנר-ארכיון ומספרים-חמים ב«מה קורה באתר») */}
+      {!windowed && (
+        <>
+          <div style={{ textAlign: "center", margin: "6px 0 26px" }}>
+            <Link to="/archive?tab=pool" style={{ display: "inline-block", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#231603",
+              textDecoration: "none", fontFamily: F.heading, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "11px 28px",
+              boxShadow: "0 10px 28px -10px rgba(184,144,31,.6)" }}>
+              🔎 {overflow > 0 ? `עוד ${overflow.toLocaleString("he")} רמזים בגלריות ←` : "לכל הגלריות ←"}
+            </Link>
+          </div>
 
-      {/* 🔥 בסוף הנהר — המספרים החמים באתר, לפי מפת-החום האמיתית (חיפושים, 7 ימים) */}
-      {hot.length > 0 && (
-        <div style={{ border: `1px solid ${P?.borderStrong || "rgba(232,200,74,.35)"}`, borderRadius: 16, background: P?.cardSoft || "rgba(20,15,26,.6)", padding: "15px 16px" }}>
-          <NumberBubbles
-            data={hot.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
-            title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
-            hrefFor={b => `/number/${b.nums[0]}`}
-          />
-        </div>
+          {/* 🔥 בסוף הנהר — המספרים החמים באתר, לפי מפת-החום האמיתית (חיפושים, 7 ימים) */}
+          {hot.length > 0 && (
+            <div style={{ border: `1px solid ${P?.borderStrong || "rgba(232,200,74,.35)"}`, borderRadius: 16, background: P?.cardSoft || "rgba(20,15,26,.6)", padding: "15px 16px" }}>
+              <NumberBubbles
+                data={hot.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
+                title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
+                hrefFor={b => `/number/${b.nums[0]}`}
+              />
+            </div>
+          )}
+        </>
       )}
         </div>
       </div>

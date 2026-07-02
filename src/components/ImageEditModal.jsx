@@ -43,6 +43,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [importance, setImportance] = useState(im.importance ?? 3);
   const [curatorHidden, setCuratorHidden] = useState(!!im.curator_hidden);
   const [treasure, setTreasure] = useState(!!im.treasure);   // 👑 אוצרות הגילוי (ציר-הערך)
+  const [source, setSource] = useState(im.source ?? null);   // מקור-האמת מה-DB (רמזי הזרם מגיעים בלי source)
   const [tags, setTags] = useState(im.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -68,6 +69,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
       setImportance(full.importance ?? 3);
       setCuratorHidden(!!full.curator_hidden);
       setTreasure(!!full.treasure);
+      setSource(full.source ?? null);
       setTags(full.tags || []);
     });
     return () => { alive = false; };
@@ -99,7 +101,20 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     setSaving(true);
     try {
       await setImageCuration(im.id, { source: "update" });
+      setSource("update");
       onSave({ source: "update" });
+    } catch(e) { alert("שגיאה: " + e.message); }
+    setSaving(false);
+  }
+
+  // הוצא מהזרם — עצמאי: אם ההורה סיפק handler משתמשים בו, אחרת מעדכנים ישירות (source=manual)
+  async function handleRemoveFromStream() {
+    if (onRemoveFromStream) return onRemoveFromStream();
+    setSaving(true);
+    try {
+      await setImageCuration(im.id, { source: "manual" });
+      setSource("manual");
+      onSave({ source: "manual" });
     } catch(e) { alert("שגיאה: " + e.message); }
     setSaving(false);
   }
@@ -124,7 +139,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   }
 
   const typeLabel = { topic: "התכנסות", post: "פוסט", insight: "חידוש" };
-  const inStream = im.source === "update";
+  const inStream = source === "update";
 
   return createPortal((
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 2147483600, background: "rgba(0,0,0,0.76)", display: "flex", alignItems: "center", justifyContent: "center", padding: "max(16px, env(safe-area-inset-top)) 16px 16px", overflowY: "auto" }}>
@@ -309,8 +324,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
             {/* === כפתורי פעולה === */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
               <div style={{ display: "flex", gap: 7 }}>
-                {onRemoveFromStream && (
-                  <button onClick={() => onRemoveFromStream()} style={secBtn}>↩ הוצא מהזרם</button>
+                {inStream && (
+                  <button onClick={handleRemoveFromStream} disabled={saving} style={secBtn}>↩ הוצא מהזרם</button>
                 )}
                 {!inStream && (
                   <button onClick={handleAddToStream} disabled={saving} style={{ ...secBtn, color: "#7bbf7b", borderColor: "#7bbf7b55" }}>🌊 הכנס לזרם</button>
