@@ -416,53 +416,30 @@ function CommunityTab() {
   );
 }
 
-// ✍️ הגשת חידוש — טופס לגולשים רשומים, עם אימות גימטריה חי במנוע + מצא ביטוי שווה + תצוגה מקדימה. נשמר כ-pending.
-const METHOD_COL = { "רגיל": "ragil", "מסתתר": "misratar", "מילוי": "miluy", "קדמי": "kadmi", "גדול": "gadol", "סידורי": "siduri", "אתבש": "atbash", "אלבם": "albam" };
+// ✍️ הגשת חידוש — «דף חלק» (בקשת צוריאל): נייר ריק + שם + כפתור שלח. בלי תיבות מסורבלות.
+// הכותרת נגזרת אוטומטית מהשורה הראשונה · המייל מהחשבון המחובר · האימות במנוע נעשה באישור של צוריאל.
 function SubmitTab() {
-  const { user } = useAuth();
-  const [title, setTitle] = useState("");
-  const [method, setMethod] = useState("רגיל");
-  const [a, setA] = useState("");
-  const [b, setB] = useState("");
-  const [body, setBody] = useState("");
+  const { user, profile } = useAuth();
+  const [text, setText] = useState("");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [st, setSt] = useState("idle");
   const [err, setErr] = useState("");
-  const [sugg, setSugg] = useState(null);   // הצעות ביטוי שווה
-  const [showPrev, setShowPrev] = useState(false);
 
-  useEffect(() => { if (user?.email && !email) setEmail(user.email); }, [user]); // eslint-disable-line
+  useEffect(() => {
+    const n = profile?.display_name || profile?.username || "";
+    if (n) setName(prev => prev || n);
+  }, [profile]);
 
-  const m = METHODS.find(x => x.key === method) || METHODS[0];
-  const vA = a.trim() ? m.fn(a) : 0;
-  const vB = b.trim() ? m.fn(b) : 0;
-  const equal = vA > 0 && vA === vB;
-
-  const inp = { background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, color: L.ink, fontFamily: F.body, fontSize: 15, padding: "10px 12px", outline: "none", width: "100%", boxSizing: "border-box" };
-  const lbl = { color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 5 };
-
-  async function findEqual() {
-    const col = METHOD_COL[method];
-    if (!col || !vA) { setSugg([]); return; }
-    try {
-      const { data } = await supabase.from("gematria_words").select("phrase").eq(col, vA).neq("phrase", a.trim()).limit(10);
-      setSugg([...new Set((data || []).map(d => d.phrase).filter(Boolean))]);
-    } catch { setSugg([]); }
-  }
-
-  async function submit(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (!title.trim() || !a.trim() || !b.trim()) { setErr("מלאו רעיון ושני ביטויים"); return; }
-    if (!equal) { setErr("הגימטריות לא שוות — בדקו שהביטויים נופלים על אותו מספר בשיטה שבחרתם"); return; }
-    if (!name.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("מלאו שם ומייל תקין"); return; }
+  async function submit() {
+    const t = text.trim();
+    if (!t) { setErr("הדף עדיין ריק — כתבו את החידוש ואז שלחו"); return; }
     setSt("sending"); setErr("");
     try {
       const { error } = await supabase.from("chiddush_submissions").insert({
-        title: title.trim(), body: body.trim() || null, method,
-        phrase_a: a.trim(), value_a: vA, phrase_b: b.trim(), value_b: vB,
-        gematria_pairs: [{ phrase: a.trim(), value: vA }, { phrase: b.trim(), value: vB }],
-        author_name: name.trim(), author_email: email.trim(),
+        title: (t.split("\n")[0] || "חידוש").slice(0, 120),
+        body: t,
+        author_name: name.trim() || null,
+        author_email: user?.email || null,
       });
       if (error) throw error;
       setSt("done");
@@ -486,89 +463,33 @@ function SubmitTab() {
       <div style={{ fontSize: 46, marginBottom: 8 }}>✨</div>
       <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 8 }}>תודה! החידוש נשלח לבדיקה</div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>
-        הגימטריה תיבדק שוב במנוע הרשמי, ואם תאושר — החידוש יתפרסם במדור «חידושי גולשים» <b style={{ color: L.goldDeep }}>עם שמכם</b>.
+        הגימטריה תיבדק במנוע הרשמי, ואם תאושר — החידוש יתפרסם במדור «חידושי גולשים» <b style={{ color: L.goldDeep }}>עם שמכם</b>.
       </p>
     </div>
   );
 
   return (
-    <form onSubmit={submit} style={{ display: "grid", gap: 16, maxWidth: 620 }}>
-      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: 0, maxWidth: 580 }}>
-        מצאתם הצלבת גימטריה? שתפו אותה. הזינו שני ביטויים שנופלים על אותו מספר — המנוע יאמת בזמן אמת. לאחר אישור צוריאל, החידוש יתפרסם עם שמכם.
-      </p>
-
-      <div><div style={lbl}>💡 הרעיון / הכותרת</div>
-        <input style={inp} value={title} onChange={e => setTitle(e.target.value)} placeholder="למשל: היד של הבורא" /></div>
-
-      <div><div style={lbl}>📐 שיטת חישוב</div>
-        <select style={{ ...inp, cursor: "pointer" }} value={method} onChange={e => setMethod(e.target.value)}>
-          {METHODS.map(x => <option key={x.key} value={x.key}>{x.key} — {x.sub}</option>)}
-        </select></div>
-
-      <div style={{ display: "grid", gap: 10 }}>
-        <div style={lbl}>✡ הגימטריה — שני ביטויים שווים</div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <input style={{ ...inp, flex: 1, minWidth: 140 }} value={a} onChange={e => setA(e.target.value)} placeholder="ביטוי ראשון" dir="rtl" />
-          <span style={{ fontFamily: F.mono, fontWeight: 800, color: L.goldDeep, fontSize: 18, minWidth: 56, textAlign: "center" }}>{vA || "—"}</span>
-        </div>
-        <div style={{ textAlign: "center", color: L.goldDeep, fontFamily: F.mono, fontWeight: 800 }}>=</div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <input style={{ ...inp, flex: 1, minWidth: 140 }} value={b} onChange={e => setB(e.target.value)} placeholder="ביטוי שני (שווה ערך)" dir="rtl" />
-          <span style={{ fontFamily: F.mono, fontWeight: 800, color: L.goldDeep, fontSize: 18, minWidth: 56, textAlign: "center" }}>{vB || "—"}</span>
-        </div>
-        {(vA > 0 && vB > 0) && (
-          <div style={{ textAlign: "center", borderRadius: 10, padding: "8px 12px", fontFamily: F.heading, fontWeight: 800, fontSize: 14,
-            background: equal ? "#e7f7e9" : "#fdecec", color: equal ? "#1f7a35" : "#b03030", border: `1px solid ${equal ? "#9bd6a6" : "#e3a0a0"}` }}>
-            {equal ? `✓ מאומת! «${a.trim()}» = «${b.trim()}» = ${vA} (${method})` : `✗ לא שווה — ${vA} מול ${vB}`}
-          </div>
-        )}
-        {vA > 0 && METHOD_COL[method] && (
-          <div>
-            <button type="button" onClick={findEqual} style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 12.5, padding: "6px 14px" }}>🔍 מצא ביטוי שווה ל-{vA}</button>
-            {sugg && (sugg.length ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                {sugg.map((p, i) => (
-                  <button key={i} type="button" onClick={() => { setB(p); setSugg(null); }} style={{ cursor: "pointer", background: "#fbf3da", border: `1px solid ${L.line}`, color: L.ink, borderRadius: 999, fontFamily: F.body, fontSize: 13, padding: "5px 11px" }}>{p}</button>
-                ))}
-              </div>
-            ) : <div style={{ color: L.sub, fontSize: 12.5, marginTop: 6 }}>לא נמצאו ביטויים שווים במאגר לערך {vA} ({method}).</div>)}
-          </div>
-        )}
+    <div style={{ maxWidth: 680 }}>
+      {/* דף-הנייר — משטח כתיבה חלק אחד, בלי מסגרות פנימיות */}
+      <textarea autoFocus value={text} onChange={e => setText(e.target.value)}
+        placeholder={"כתבו כאן את החידוש שלכם — חופשי לגמרי.\nהשורה הראשונה תהיה הכותרת."}
+        style={{ width: "100%", boxSizing: "border-box", minHeight: "46vh", resize: "vertical",
+          background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, outline: "none",
+          color: L.ink, fontFamily: F.body, fontSize: 16.5, lineHeight: 2, padding: "26px 28px",
+          boxShadow: "0 10px 34px -18px rgba(0,0,0,.25)" }} />
+      {/* שורת-הסיום: שם + שלח — ותו לא */}
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="✍️ השם שלכם (יופיע ליד החידוש)"
+          style={{ flex: 1, minWidth: 180, background: "none", border: "none", borderBottom: `1.5px solid ${L.line}`,
+            outline: "none", color: L.ink, fontFamily: F.body, fontSize: 14.5, padding: "8px 4px" }} />
+        <button onClick={submit} disabled={st === "sending"} style={{ cursor: st === "sending" ? "wait" : "pointer",
+          background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", border: "none", borderRadius: 999,
+          fontFamily: F.heading, fontWeight: 800, fontSize: 15.5, padding: "12px 34px", boxShadow: "0 4px 16px rgba(154,120,24,0.3)" }}>
+          {st === "sending" ? "שולח…" : "✦ שלח"}
+        </button>
       </div>
-
-      <div><div style={lbl}>📜 ההסבר (אופציונלי)</div>
-        <textarea style={{ ...inp, minHeight: 90, resize: "vertical", fontFamily: F.body, lineHeight: 1.7 }} value={body} onChange={e => setBody(e.target.value)} placeholder="מה הרמז? מה זה מלמד?" /></div>
-
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ flex: 1, minWidth: 160 }}><div style={lbl}>✍️ השם שלכם</div>
-          <input style={inp} value={name} onChange={e => setName(e.target.value)} placeholder="ייכתב כ«מאת …»" /></div>
-        <div style={{ flex: 1, minWidth: 160 }}><div style={lbl}>📧 מייל</div>
-          <input style={inp} dir="ltr" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" /></div>
-      </div>
-
-      {equal && (
-        <div>
-          <button type="button" onClick={() => setShowPrev(v => !v)} style={{ cursor: "pointer", background: "none", border: "none", color: L.goldDeep, fontFamily: F.heading, fontWeight: 700, fontSize: 13, padding: 0 }}>
-            {showPrev ? "▴ הסתר תצוגה מקדימה" : "👁 תצוגה מקדימה — איך החידוש ייראה"}
-          </button>
-          {showPrev && (
-            <div style={{ marginTop: 10 }}>
-              <CrossCard item={{
-                id: "preview", title: title || "(כותרת החידוש)", body, related_numbers: [vA], method_tags: [method], verified: true,
-                panel_data: { author: name || "…", star: "big", type: "shared_value" },
-                gematria_pairs: { number: vA, type: "shared_value", members: [{ phrase: a.trim(), method, value: vA }, { phrase: b.trim(), method, value: vB }] },
-              }} />
-            </div>
-          )}
-        </div>
-      )}
-      {err && <div style={{ color: "#b03030", fontFamily: F.body, fontSize: 13.5 }}>{err}</div>}
-      <button type="submit" disabled={st === "sending"} style={{ cursor: st === "sending" ? "wait" : "pointer", justifySelf: "start",
-        background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", border: "none", borderRadius: 999,
-        fontFamily: F.heading, fontWeight: 800, fontSize: 15.5, padding: "12px 30px", boxShadow: "0 4px 16px rgba(154,120,24,0.3)" }}>
-        {st === "sending" ? "שולח…" : "✦ שלחו את החידוש לבדיקה"}
-      </button>
-    </form>
+      {err && <div style={{ color: "#b03030", fontFamily: F.body, fontSize: 13.5, marginTop: 8 }}>{err}</div>}
+    </div>
   );
 }
 
