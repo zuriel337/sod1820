@@ -23,6 +23,11 @@ export const C = {
   danger:       "#8B2020",
 };
 
+// 🖼 «אבן-לילה חמה» — הרקע הקבוע של הגלריות (זרם + אוצרות), גם במצב יום (בחירת צוריאל):
+// חום-אספרסו עמוק (לא שחור) + הילת-זהב עדינה למעלה. שקט, קטיפתי, לא מתחרה בתמונות.
+export const GALLERY_BG = "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.07), transparent 60%), linear-gradient(180deg, #16110c, #0d0a07 78%)";
+export const GALLERY_BG_BASE = "#0d0a07";
+
 export const F = {
   royal:   "'Heebo', sans-serif",
   regal:   "'Cinzel', 'Heebo', sans-serif",

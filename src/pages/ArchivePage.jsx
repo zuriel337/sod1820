@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { C, F, GALLERY_BG } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
@@ -874,7 +874,7 @@ export default function ArchivePage() {
 
       {/* ============ טאב זרם המציאות — הגלריה החיה והמתכווננת (מעל האוספים) ============ */}
       {tab === "reality" && (
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", background: GALLERY_BG, borderRadius: 22, padding: "26px clamp(12px,2.5vw,28px) 30px", border: "1px solid rgba(212,175,55,0.18)" }}>
           <RealityWorld forceDark presetSetId={new URLSearchParams(loc.search).get("set")} />
         </div>
       )}
@@ -1857,7 +1857,7 @@ function CascadeCompare({ isAdmin, onEdit }) {
   const gateList = hasTreasures ? treasures : hints;   // עד שיש אוצרות — טעימה מהזרם (שלא יהיה ריק)
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+    <div style={{ maxWidth: 1000, margin: "0 auto", background: GALLERY_BG, borderRadius: 22, padding: "26px clamp(12px,2.5vw,28px) 30px", border: "1px solid rgba(212,175,55,0.18)" }}>
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,26px)", fontWeight: 800, textShadow: "0 0 30px rgba(212,175,55,.3)" }}>👑 אוצרות הגילוי</div>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, maxWidth: 520, margin: "6px auto 0" }}>
@@ -1914,7 +1914,7 @@ function TrialGalleries({ onEdit }) {
   );
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+    <div style={{ maxWidth: 1000, margin: "0 auto", background: GALLERY_BG, borderRadius: 22, padding: "26px clamp(12px,2.5vw,28px) 30px", border: "1px solid rgba(212,175,55,0.18)" }}>
       <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, fontSize: 13, marginBottom: 26, lineHeight: 1.7 }}>
         🧪 זירת ניסוי (רק אתה רואה) — שתי גלריות «ללא-חיתוך» על תמונות הזרם. בחר את המנצחת לאוצרות.
       </div>

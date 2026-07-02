@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { F } from "../theme.js";
+import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
@@ -296,7 +296,7 @@ export default function HomeNewPage() {
 
       {/* ===== 🌊 זרם המציאות — Dark Island מלכותי ===== */}
       {/* רקע כהה קבוע (#09080f) ללא תלות במצב יום/לילה — forceDark. Hero = הרמז האחרון. */}
-      <section id="reality-home" style={{ position: "relative", overflow: "hidden", background: "#09080f", colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
+      <section id="reality-home" style={{ position: "relative", overflow: "hidden", background: GALLERY_BG, colorScheme: "dark", padding: "48px 18px 56px", scrollMarginTop: 74 }}>
         <style>{`
           #reality-home .rw-hero img, #reality-home .rw-hero-img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
           @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }

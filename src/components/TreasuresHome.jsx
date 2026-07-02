@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { F } from "../theme.js";
+import { F, GALLERY_BG } from "../theme.js";
 import { getTreasures } from "../lib/supabase.js";
 import MuseumGallery from "./MuseumGallery.jsx";
 import Lightbox from "./Lightbox.jsx";
@@ -27,7 +27,7 @@ export default function TreasuresHome() {
   if (!treasures || !treasures.length) return null;
 
   return (
-    <section style={{ position: "relative", overflow: "hidden", background: "#0f0b08", colorScheme: "dark", padding: "44px 18px 50px" }}>
+    <section style={{ position: "relative", overflow: "hidden", background: GALLERY_BG, colorScheme: "dark", padding: "44px 18px 50px" }}>
       {/* הילת-במה עדינה מאחורי התערוכה */}
       <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.09), transparent 65%)", pointerEvents: "none" }} />
       <div style={{ position: "relative", maxWidth: 1000, margin: "0 auto", direction: "rtl" }}>
