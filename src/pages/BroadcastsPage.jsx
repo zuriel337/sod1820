@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates } from "../lib/supabase.js";
@@ -57,6 +57,12 @@ function ChannelFeed({ channel, P, focusId }) {
                   <button onClick={() => shareUpdate(u, b.title)} style={{ cursor: "pointer", background: "none",
                     border: `1px solid ${b.accent}66`, color: b.accent, borderRadius: 999, fontFamily: F.heading,
                     fontSize: 10.5, fontWeight: 800, padding: "2px 11px" }}>↗ שתפו</button>
+                  {u.link_url && (
+                    <Link to={u.link_url} style={{ textDecoration: "none", background: b.accent, color: "#191008",
+                      fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, borderRadius: 999, padding: "3px 12px" }}>
+                      📖 לקריאת הפוסט המלא ←
+                    </Link>
+                  )}
                 </div>
               </div>
               {u.image_url && (

@@ -140,6 +140,12 @@ export default function BrandTicker({ channel, peek = null }) {
                 {cur.credit && <span style={{ color: b.accent, fontWeight: 800 }}>מאת {cur.credit} · </span>}
                 {timeAgoHe(cur.created_at)}
               </div>
+              {/* 🔗 קישור-עומק (למשל הפוסט המלא) — בקשת צוריאל: עדכון עם קישור לפוסט */}
+              {cur.link_url && (
+                <Link to={cur.link_url} style={{ display: "inline-block", marginTop: 5, textDecoration: "none",
+                  background: b.accent, color: "#191008", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900,
+                  borderRadius: 999, padding: "4px 14px" }}>📖 לקריאת הפוסט המלא ←</Link>
+              )}
             </div>
           </div>
         ) : (

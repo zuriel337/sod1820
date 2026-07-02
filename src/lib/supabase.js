@@ -154,7 +154,7 @@ export async function getRecentCommunityWords(limit = 4) {
 export async function getChannelUpdates(limit = 6, channel = null) {
   if (!supabase) return [];
   let q = supabase.from('channel_updates')
-    .select('id,text,image_url,credit,channel,is_urgent,created_at')
+    .select('id,text,image_url,credit,channel,is_urgent,created_at,link_url')
     .eq('status', 'live')
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .order('priority', { ascending: false })
