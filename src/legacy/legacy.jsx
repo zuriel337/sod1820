@@ -2104,14 +2104,24 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
 
-  /* post_text_colors_law (חקוק 2.7.2026): פוסט נקי — טקסט לבן; גימטריה זהובה ולחיצה
-     (ביטוי → /number/<ביטוי>, ערך → /number/<ערך>). במצב בהיר הטקסט מתהפך לכהה. */
-  .sod-post-content.clean { color: #ffffff; }
-  .sod-post-content.clean a[href^="/number/"] { color: #ffd86b; font-weight: 800; text-decoration: none; border-bottom: 1px dotted rgba(255,216,107,.55); }
-  .sod-post-content.clean a[href^="/number/"]:hover { background: rgba(255,216,107,.15); border-radius: 4px; }
-  .sod-post-content.clean .sod-gematria-box b, .sod-post-content.clean .sod-gematria-box a { color: #ffd86b; }
-  [data-theme="light"] .sod-post-content.clean { color: #1b1d22; }
-  [data-theme="light"] .sod-post-content.clean a[href^="/number/"] { color: #b07d12; border-bottom-color: rgba(176,125,18,.5); }
+  /* post_text_colors_law v3 (חקוק): עיצוב ברירת-המחדל של פוסט «של המציאות» — לא וורדפרס.
+     טקסט רץ: לבן רך, משקל רגיל, נעים לעין. זהב שמור לערכים ולאקסנטים — לא הכל צהוב.
+     גימטריה = data-gem → פותחת את מגירת המספר בתוך הדף (לא ניווט החוצה).
+     ביטוי: בצבע הטקסט + קו-זהב מנוקד עדין · ערך מספרי: זהב. מצב בהיר: טקסט כהה, גימטריה אדומה. */
+  .sod-post-content.clean { color: #f2f0eb; }
+  .sod-post-content.clean .sod-gemlink { color: inherit !important; font-weight: 600; border-bottom: 1px dotted rgba(255,216,107,.6); }
+  .sod-post-content.clean .sod-numlink { color: #ffd86b !important; font-weight: 700; }
+  .sod-post-content.clean .sod-gematria-box .gb-rows { font-weight: 400; line-height: 2.05; }
+  .sod-post-content.clean .sod-gematria-box .gb-rows b { color: #ffd86b; }
+  .sod-post-content.clean a[href^="/number/"] { color: #ffd86b !important; font-weight: 600; text-decoration: none !important; border-bottom: 1px dotted rgba(255,216,107,.55); display: inline; }
+  [data-theme="light"] .sod-post-content.clean { color: #1c1c1c; }
+  [data-theme="light"] .sod-post-content.clean .sod-gemlink { border-bottom-color: rgba(200,16,46,.55); }
+  [data-theme="light"] .sod-post-content.clean .sod-numlink { color: #c8102e !important; }
+  [data-theme="light"] .sod-post-content.clean .sod-gematria-box .gb-rows b { color: #c8102e; }
+  [data-theme="light"] .sod-post-content.clean a[href^="/number/"] { color: #c8102e !important; border-bottom-color: rgba(200,16,46,.5); }
+  /* איים כהים (sgx/sgl — רקע כהה קבוע): נשארים בעולם הזהב גם במצב בהיר */
+  [data-theme="light"] .sod-post-content.clean .sgx .sod-numlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-numlink { color: #ffd86b !important; }
+  [data-theme="light"] .sod-post-content.clean .sgx .sod-gemlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-gemlink { border-bottom-color: rgba(255,216,107,.55); }
 
   /* 🔤 ערכת «גרפיקת-קוד» קנונית (sgx) — אנימציות CSS לפוסטים גרפיים (ר"ת/ס"ת, אתב"ש, אנגרמות).
      חיה כאן כמו sod-gematria-box: הפוסט משתמש בקלאסים בלבד, בלי <style> משלו — פתרון מערכתי.
