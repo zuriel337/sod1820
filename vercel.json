@@ -1,5 +1,4 @@
 {
-  "ignoreCommand": "bash -c 'if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; else exit 0; fi'",
   "redirects": [
     { "source": "/פוסטים-אחרונים-2", "destination": "/post", "permanent": true },
     { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
