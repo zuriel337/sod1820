@@ -69,6 +69,19 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
     return () => { live = false; };
   }, [windowed]);
 
+  // 🚿 חימום-קאש עדין: אחרי שהדף נרגע, טוען ברקע את שאר תמונות הנהר (עד 20, גודל-תצוגה בלבד)
+  // → משיכת-מוט חדה תמיד פוגשת תמונה מוכנה, בלי "קפיצות". לא נוגע בגלריות הגדולות (שם lazy).
+  useEffect(() => {
+    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 900));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const id = idle(() => {
+      hints.slice(3, Math.min(max, MAX_RIVER)).forEach(h => {
+        if (h.image_url) { const im = new Image(); im.decoding = "async"; im.src = thumb(h.image_url, 900); }
+      });
+    });
+    return () => cancel(id);
+  }, [hints, max]);
+
   const onImgLoad = useCallback((id, e) => {
     const im = e.target;
     if (im.naturalWidth && im.naturalHeight) setRatios(r => ({ ...r, [id]: im.naturalWidth / im.naturalHeight }));
