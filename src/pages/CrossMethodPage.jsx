@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import DocActions from "../components/DocActions.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import CrossOnboarding, { shouldShowCrossOnboarding } from "../components/CrossOnboarding.jsx";
 
 // ===== הצלבת שיטות — "מסר מצטרף לפי מספר" =====
 // מזינים מספר. המערכת שולפת את כל הביטויים *המאומתים* שנופלים על המספר הזה בכל שיטה,
@@ -81,6 +82,7 @@ export default function CrossMethodPage() {
   const [cards, setCards] = useState([]);         // כרטיסי התכנסות שמכילים את המספר (גשר ל-/topic)
   const [entityPosts, setEntityPosts] = useState({}); // ישות → פוסטי-המקור מהגרף (edges: post mentions entity)
   const [expl, setExpl] = useState(null);          // המסביר האינטראקטיבי — איזה שלב פתוח
+  const [onboard, setOnboard] = useState(shouldShowCrossOnboarding); // 🎓 מסע הפתיחה — פעם אחת פר-משתמש
 
   // כרטיסי התכנסות שמכילים את המספר — הגשר לציר ההתכנסות
   useEffect(() => {
@@ -257,6 +259,9 @@ export default function CrossMethodPage() {
   return (
     <div ref={contentRef} style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "26px 16px 80px", color: P.inkSoft, background: P.pageBg }}>
 
+      {/* 🎓 מסע הפתיחה — שקופיות חד-פעמיות שבהן ההצלבה נבנית מול העיניים */}
+      <CrossOnboarding open={onboard} onClose={() => setOnboard(false)} phrases={allPhrases.length} methods={methodsHit} />
+
       {/* כותרת */}
       <header style={{ textAlign: "center", marginBottom: 18 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>הצלבת שיטות</div>
@@ -274,8 +279,15 @@ export default function CrossMethodPage() {
 
         {/* 🧭 מה זו הצלבה? — מסביר אינטראקטיבי: עיגולים שנפתחים לריבועי-הסבר עם דוגמה חיה */}
         <div style={{ maxWidth: 660, margin: "16px auto 0" }}>
-          <div style={{ color: P.accent, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1.5, marginBottom: 10 }}>
-            מה זו הצלבה? לחצו על כל שלב 👇
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
+            <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1.5 }}>
+              מה זו הצלבה? לחצו על כל שלב 👇
+            </span>
+            <button onClick={() => setOnboard(true)} title="הפעלה מחדש של מסע הפתיחה" style={{ cursor: "pointer",
+              background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim,
+              fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 12px" }}>
+              🎓 מסע הפתיחה ▶
+            </button>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "center", flexWrap: "wrap" }}>
             {EXPLAIN.map((s, i) => {
