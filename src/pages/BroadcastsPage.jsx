@@ -5,7 +5,7 @@ import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
-import BrandTicker, { BRANDS } from "../components/BrandTicker.jsx";
+import BrandTicker, { BRANDS, isVideoUrl } from "../components/BrandTicker.jsx";
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
@@ -43,9 +43,12 @@ function ChannelFeed({ channel, P }) {
                 </div>
               </div>
               {u.image_url && (
-                <button onClick={() => setLb(u.image_url)} title="פתח את התמונה" style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
+                <button onClick={() => setLb(u.image_url)} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
+                  style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
                   border: `1px solid ${P.borderStrong}`, borderRadius: 10, overflow: "hidden", background: "#0a0710" }}>
-                  <img src={thumb(u.image_url, 360)} alt="" loading="lazy" style={{ width: 74, height: 74, objectFit: "cover", display: "block" }} />
+                  {isVideoUrl(u.image_url)
+                    ? <span style={{ width: 74, height: 74, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>🎬</span>
+                    : <img src={thumb(u.image_url, 360)} alt="" loading="lazy" style={{ width: 74, height: 74, objectFit: "cover", display: "block" }} />}
                 </button>
               )}
             </div>
@@ -55,8 +58,13 @@ function ChannelFeed({ channel, P }) {
       {lb && (
         <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
           background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
-            border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          {isVideoUrl(lb) ? (
+            <video src={lb} controls autoPlay playsInline onClick={e => e.stopPropagation()}
+              style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          ) : (
+            <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
+              border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          )}
         </div>
       )}
     </section>

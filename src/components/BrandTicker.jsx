@@ -3,6 +3,9 @@ import { F } from "../theme.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 
+// וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
+export const isVideoUrl = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
+
 // 📡 טיקר ממותג — רצועת עדכונים חיה לערוץ מסוים («אור הגאולה» / «קוד המציאות»).
 // אותו מקור נתונים של הטיקר הראשי (channel_updates, עדשה לפי channel — עץ אחד).
 // עובד זהה במובייל ובדסקטופ: הודעה מתחלפת בדהייה, קרדיט ליד, תמונה נפתחת בהקשה.
@@ -57,7 +60,7 @@ export default function BrandTicker({ channel }) {
             style={{ flex: 1, minWidth: 0, color: "#f5ecd2", fontFamily: F.body, fontSize: 12.5, fontWeight: 600, lineHeight: 1.5,
               display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
               cursor: cur.image_url ? "pointer" : "default", animation: "bt-fade .5s ease" }}>
-            {cur.text}{cur.image_url ? " · 📷" : ""}
+            {cur.text}{cur.image_url ? (isVideoUrl(cur.image_url) ? " · 🎬" : " · 📷") : ""}
             {cur.credit && <span style={{ color: b.accent, fontSize: 11, fontWeight: 800 }}> · מאת {cur.credit}</span>}
             <span style={{ color: "#b9a877", fontSize: 10.5 }}> · {timeAgoHe(cur.created_at)}</span>
           </div>
@@ -76,8 +79,13 @@ export default function BrandTicker({ channel }) {
       {lb && (
         <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
           background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
-            border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          {isVideoUrl(lb) ? (
+            <video src={lb} controls autoPlay playsInline onClick={e => e.stopPropagation()}
+              style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          ) : (
+            <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
+              border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+          )}
         </div>
       )}
     </div>
