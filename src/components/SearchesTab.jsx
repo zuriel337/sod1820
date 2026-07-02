@@ -8,8 +8,9 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
+import ActivityPulse from "./ActivityPulse.jsx";
 
-// טאב מלא — כל החיפושים (דרגות לפי משתמש) + תגליות איכותיות + כפתור אדמין "➕ למאגר".
+// טאב מלא — 🔒 פרטיות: אדמין רואה את כל החיפושים; הציבור רואה «פעילות חיה» (סוגים בלבד) + תגליות איכותיות.
 const L = { card: "#ffffff", soft: "#faf8f2", ink: "#23201a", sub: "#6f685a", gold: "#7a5e12", line: "#e7dfcc", green: "#2f8f5b" };
 
 // מיפוי שיטות → עמודות מאגר (לחישוב הערכים מהמנוע לפני הוספה)
@@ -31,10 +32,11 @@ export default function SearchesTab() {
 
   useEffect(() => {
     let live = true;
-    getSearchFeed(tier).then(r => { if (live) setRows(r); }).catch(() => {});
+    // 🔒 פרטיות: תוכן-החיפושים לאדמין בלבד; הציבור מקבל «פעילות חיה» + התגליות האיכותיות
+    if (isAdmin) getSearchFeed(tier).then(r => { if (live) setRows(r); }).catch(() => {});
     getQualityDiscoveries(6).then(d => { if (live) setDisc(d); }).catch(() => {});
     return () => { live = false; };
-  }, [tier]);
+  }, [tier, isAdmin]);
 
   async function add(term) {
     if (added[term] === "busy" || added[term] === "added") return;
@@ -66,26 +68,30 @@ export default function SearchesTab() {
         </div>
       )}
 
-      <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 16, padding: "15px 18px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 11 }}>
-          <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🕒 כל החיפושים האחרונים</span>
-          {!isAdmin && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>· 🔒 שמות אישיים מוסתרים</span>}
-        </div>
-        {rows.length === 0 ? (
-          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div>
-        ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {rows.map((r, i) => (
-              <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: L.card, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
-                <Link to={safeSearchHref(r.term, r.value, isAdmin)} style={{ textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</Link>
-                {r.value != null && <span style={{ background: "#fbf3da", color: L.gold, fontFamily: "'Courier New', monospace", fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
-                {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
-                {isAdmin && <button onClick={() => add(r.term)} style={adminBtn(added[r.term])}>{addLabel(added[r.term])}</button>}
-              </div>
-            ))}
+      {/* 🔒 ציבור → «פעילות חיה» (סוגי פעילות בלבד) · אדמין → הרשימה המלאה */}
+      {!isAdmin ? (
+        <ActivityPulse light title="🟢 מי חוקר עכשיו" />
+      ) : (
+        <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 16, padding: "15px 18px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 11 }}>
+            <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🕒 כל החיפושים האחרונים</span>
           </div>
-        )}
-      </div>
+          {rows.length === 0 ? (
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען…</div>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {rows.map((r, i) => (
+                <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: L.card, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
+                  <Link to={safeSearchHref(r.term, r.value, isAdmin)} style={{ textDecoration: "none", color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</Link>
+                  {r.value != null && <span style={{ background: "#fbf3da", color: L.gold, fontFamily: "'Courier New', monospace", fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
+                  {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
+                  <button onClick={() => add(r.term)} style={adminBtn(added[r.term])}>{addLabel(added[r.term])}</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

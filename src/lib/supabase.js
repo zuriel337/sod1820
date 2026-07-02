@@ -621,6 +621,16 @@ export async function getVerifiedCrossTitles(limit = 3) {
 }
 // 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
 // להוסיף: insert into ticker_messages(text,priority) · להסיר: update ... set is_active=false.
+// 🫧 דופק-פעילות ציבורי (activity_pulse) — סוגי פעילות בשעה האחרונה, בלי תוכן (פרטיות).
+export async function getActivityPulse() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc("activity_pulse");
+    if (error) return null;
+    return data;
+  } catch { return null; }
+}
+
 export async function getTickerMessages() {
   if (!supabase) return [];
   try {

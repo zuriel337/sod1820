@@ -7,10 +7,11 @@ import { getSearchFeed } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
+import ActivityPulse from "./ActivityPulse.jsx";
 
-// 🕒 חיפושים אחרונים — מקור אחד (search_log) לכל האתר, דרגות לפי משתמש.
-// אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
-// props: max · seeAllTo · light (override; ברירת מחדל = פלטה גלובלית, מתחלף עם המתג).
+// 🕒 חיפושים אחרונים — מקור אחד (search_log). 🔒 פרטיות (החלטת צוריאל 7.2026):
+// הציבור לא רואה את *תוכן* החיפושים של אחרים — רק «פעילות חיה» לפי סוג (ActivityPulse).
+// רשימת החיפושים המלאה מוצגת לאדמין בלבד (וגם בטאב הניהול).
 export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
@@ -21,11 +22,15 @@ export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midra
   const tier = isAdmin ? "admin" : subscribed ? "sub" : user ? "user" : "anon";
 
   useEffect(() => {
+    if (!isAdmin) return;   // ציבור לא מושך תוכן-חיפושים בכלל
     let live = true;
     getSearchFeed(tier).then(r => { if (live) setRows(r); }).catch(() => {});
     const id = setInterval(() => { if (!document.hidden) getSearchFeed(tier).then(r => live && setRows(r)).catch(() => {}); }, 45000);
     return () => { live = false; clearInterval(id); };
-  }, [tier]);
+  }, [tier, isAdmin]);
+
+  // 🔒 לא-אדמין → «פעילות חיה» (סוגי פעילות בלבד, בלי תוכן)
+  if (!isAdmin) return <ActivityPulse light={light} />;
 
   if (!rows.length) return null;
   const shown = max > 0 ? rows.slice(0, max) : rows;

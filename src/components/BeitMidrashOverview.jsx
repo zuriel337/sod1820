@@ -7,6 +7,7 @@ import { countNewCrosses, crossDate } from "../lib/crossesNew.js";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
+import ActivityPulse from "./ActivityPulse.jsx";
 
 // ✦ רובריקה אחת לבית המדרש — מה נחקר + הצלבות המנוע, ללא תמונות (שורות בלבד).
 // דסקטופ: 11 חיפושים + 2 הצלבות. מובייל: רק 2 חיפושים בשורה אחת (בלי הצלבות).
@@ -35,11 +36,16 @@ export default function BeitMidrashOverview() {
 
   useEffect(() => {
     let live = true;
-    getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});
+    // 🔒 פרטיות: תוכן-חיפושים נמשך לאדמין בלבד; הציבור מקבל «פעילות חיה» (ActivityPulse)
+    if (isAdmin) {
+      getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});
+      const id = setInterval(() => getSearchFeed(tier).then(r => live && setSearches(r || [])).catch(() => {}), 45000);
+      getRecentCrosses(12).then(d => { if (live) setCrosses(d || []); }).catch(() => {});
+      return () => { live = false; clearInterval(id); };
+    }
     getRecentCrosses(12).then(d => { if (live) setCrosses(d || []); }).catch(() => {});
-    const id = setInterval(() => getSearchFeed(tier).then(r => live && setSearches(r || [])).catch(() => {}), 45000);
-    return () => { live = false; clearInterval(id); };
-  }, [tier]);
+    return () => { live = false; };
+  }, [tier, isAdmin]);
 
   const newCount = countNewCrosses(crosses);
   const sh = searches.slice(0, isMobile ? 2 : 11);   // מובייל: 2 · דסקטופ: 11
@@ -57,30 +63,31 @@ export default function BeitMidrashOverview() {
       </div>
 
       <div className="bmo-grid" style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
-        {/* מה נחקר */}
+        {/* מה נחקר — אדמין: רשימה מלאה · ציבור: 🫧 «פעילות חיה» (סוגי פעילות בלבד, פרטיות) */}
         <div style={{ minWidth: 0 }}>
-          <div style={secTitle}>
-            🔎 נחקר לאחרונה
-            <Link to="/beit-midrash?tab=searches" style={seeAll}>כל החיפושים →</Link>
-          </div>
-          {sh.length === 0 ? (
-            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
+          {isAdmin ? (
+            <>
+              <div style={secTitle}>
+                🔎 נחקר לאחרונה
+                <Link to="/beit-midrash?tab=searches" style={seeAll}>כל החיפושים →</Link>
+              </div>
+              {sh.length === 0 ? (
+                <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
+              ) : (
+                <div style={{ display: "flex", flexWrap: isMobile ? "nowrap" : "wrap", overflow: isMobile ? "hidden" : "visible", gap: 7, marginTop: 9 }}>
+                  {sh.map((r, i) => (
+                    <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={r.term}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "4px 6px 4px 11px", whiteSpace: "nowrap", flex: "0 0 auto" }}>
+                      <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
+                      {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{r.value}</span>}
+                      {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
-            <div style={{ display: "flex", flexWrap: isMobile ? "nowrap" : "wrap", overflow: isMobile ? "hidden" : "visible", gap: 7, marginTop: 9 }}>
-              {sh.map((r, i) => (
-                <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={isAdmin ? r.term : "חיפוש"}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "4px 6px 4px 11px", whiteSpace: "nowrap", flex: "0 0 auto" }}>
-                  <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
-                  {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{r.value}</span>}
-                  {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
-                </Link>
-              ))}
-            </div>
-          )}
-          {tier === "anon" && !isMobile && (
-            <div style={{ marginTop: 9, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>
-              🔓 <Link to="/login" style={{ color: L.gold, textDecoration: "none", fontWeight: 700 }}>הירשמו (חינם)</Link> כדי לראות עוד.
-            </div>
+            <ActivityPulse light title="🟢 מי חוקר עכשיו" />
           )}
         </div>
 
