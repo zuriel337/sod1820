@@ -122,7 +122,8 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv-bridge { position:relative; z-index:2; width:88%; margin:0 auto 28px; transform:rotate(-.5deg); cursor:zoom-in; }
         .rv-bridge .rv-frame { border-width:1.5px; border-color:${gold}.5);
           box-shadow:0 24px 60px -18px rgba(0,0,0,.9), 0 0 34px ${gold}.1); }
-        .rv-bridge .rv-btag { position:absolute; top:-10px; right:18px; background:#0f0b1a; border:1px solid ${gold}.5);
+        /* z-index:3 — התגית מעל המסגרת (ה-frame הוא position:relative ומאוחר יותר ב-DOM, בלעדיו הוא מכסה אותה) */
+        .rv-bridge .rv-btag { position:absolute; top:-10px; right:18px; z-index:3; background:#0f0b1a; border:1px solid ${gold}.5);
           color:#e8c84a; font-family:${F.heading}; font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 12px; }
         /* המספר ליד התמונה — לא עליה (חוק: לא חוסמים את התוכן שבתמונה) */
         .rv-num { display:inline-block; background:${gold}.96); color:#1a0e00;
@@ -282,7 +283,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           const caption = (
             <div className="rv-cap" onClick={e => e.stopPropagation()}>
               {v != null && <Link className="rv-num" to={`/number/${v}`}>{v}</Link>}
-              <span className="rv-t" style={{ flex: 1, minWidth: 0 }}>{title}
+              <span className="rv-t">{title}
                 <span>{shortDate(h) ? `🗓 ${shortDate(h)}` : ""}{fresh && added ? ` · 🆕 נוסף ${added}` : ""}</span>
               </span>
               {/* שער-הסט המהבהב — כל 14+45 / כל 358 בגלריה (קישור סטטי, אפס שאילתות) */}
