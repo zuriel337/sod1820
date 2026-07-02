@@ -44,7 +44,6 @@ const MIDRASH_SECTIONS = [
   { tab: "convergence", icon: "🌐", label: "צירי התכנסות" },
   { tab: "community", icon: "👥", label: "חידושי גולשים" },
   { tab: "verified", icon: "🔵", label: "פוסטים מאומתים" },
-  { tab: "searches", icon: "🔎", label: "מה נחקר" },
   { tab: "submit", icon: "✍️", label: "הגשת חידוש" },
   { tab: "sod1820", icon: "✦", label: "1820 · סוד הסודות" },
 ];

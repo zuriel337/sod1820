@@ -1061,6 +1061,9 @@ function ConvergenceSection() {
 
 export default function BeitMidrashPage() {
   const loc = useLocation();
+  const { isAdmin } = useAuth();
+  // 🔒 «מה נחקר» (חיפושי הגולשים) — לאדמין בלבד; לציבור המדור לא קיים כלל (פרטיות)
+  const sections = SECTIONS.filter(s => s.key !== "searches" || isAdmin);
   const params = new URLSearchParams(loc.search);
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
@@ -1071,6 +1074,7 @@ export default function BeitMidrashPage() {
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
   // אפס תלות: הקיר פולט midrash:nav, בית-המדרש מאזין ומחליף מדור (ולשיטה — גם גולל אליה).
+  useEffect(() => { if (tab === "searches" && !isAdmin) setTab("calc"); }, [tab, isAdmin]); // eslint-disable-line
   useEffect(() => on(EVENTS.MIDRASH_NAV, ({ tab: t, method } = {}) => {
     if (t) setTab(t);
     if (method) setTimeout(() => document.getElementById(`bm-method-${method}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 160);
@@ -1179,7 +1183,7 @@ export default function BeitMidrashPage() {
               {BM_GROUPS.map((g, gi) => (
                 <React.Fragment key={g.key}>
                   <div className="bm-side-group" style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 1.5, color: L.gold, padding: gi === 0 ? "2px 14px 5px" : "14px 14px 5px", opacity: 0.8 }}>{g.label}</div>
-                  {SECTIONS.filter(s => s.group === g.key).map(s => {
+                  {sections.filter(s => s.group === g.key).map(s => {
                     const on = s.key === tab;
                     return (
                       <button key={s.key} onClick={() => setTab(s.key)} style={{
@@ -1218,7 +1222,7 @@ export default function BeitMidrashPage() {
               {active.ai && <AiTag />}
             </div>
 
-            {tab === "searches" && <SearchesTab />}
+            {tab === "searches" && isAdmin && <SearchesTab />}
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}
