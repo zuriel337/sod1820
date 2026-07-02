@@ -76,7 +76,7 @@ export default function BrandTicker({ channel, peek = null }) {
               style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading,
                 fontSize: 9.5, fontWeight: 800, border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "2px 8px",
                 background: "rgba(37,211,102,.12)", whiteSpace: "nowrap", textDecoration: "none" }}>
-              💬 לייב מהוואטסאפ · הצטרפו +
+              💬 לייב מהוואטסאפ +
             </a>
           ) : (
             <span title="העדכונים מגיעים אוטומטית — לייב מקבוצות הוואטסאפ" style={{ flex: "0 0 auto", display: "inline-flex",
@@ -133,8 +133,12 @@ export default function BrandTicker({ channel, peek = null }) {
               </button>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ color: "#f5ecd2", fontFamily: F.body, fontSize: 13.5, fontWeight: 600, lineHeight: 1.6, minHeight: 42,
-                display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+              {/* גם האותיות לחיצות — פותחות את הידיעה, לא רק התמונה (בקשת צוריאל) */}
+              <div onClick={cur.image_url ? () => setLb(cur.image_url) : undefined}
+                title={cur.image_url ? (isVideoUrl(cur.image_url) ? "לחצו לצפייה בסרטון" : "לחצו לצפייה בתמונה") : undefined}
+                style={{ color: "#f5ecd2", fontFamily: F.body, fontSize: 13.5, fontWeight: 600, lineHeight: 1.6, minHeight: 42,
+                display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden",
+                cursor: cur.image_url ? "pointer" : "default" }}>
                 {cur.text}
               </div>
               <div style={{ marginTop: 3, color: "#b9a877", fontFamily: F.heading, fontSize: 10.5 }}>
