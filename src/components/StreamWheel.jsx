@@ -85,13 +85,15 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
           perspective:1050px; touch-action:pan-x; cursor:grab; user-select:none; overflow:hidden; }
         .sw-stage:active { cursor:grabbing; }
         .sw-item { position:absolute; top:50%; left:50%; width:min(86%,560px);
-          transition:transform .45s cubic-bezier(.2,.7,.3,1), opacity .45s; will-change:transform; }
+          transition:transform .45s cubic-bezier(.2,.7,.3,1), opacity .45s; will-change:transform;
+          padding:8px; border-radius:16px; background:linear-gradient(150deg,#241b10,#0f0b07); }
         .sw-stage.dragging .sw-item { transition:none; }
         .sw-item img { display:block; width:100%; max-height:clamp(300px,46vh,470px); object-fit:contain;
-          border-radius:16px; }
-        .sw-item.focus img { border:1.5px solid rgba(212,175,55,.6);
+          border-radius:2px; margin:0 auto; }
+        .sw-item.focus { border:1.5px solid rgba(212,175,55,.6);
           box-shadow:0 26px 60px -18px rgba(0,0,0,.9), 0 0 44px rgba(212,175,55,.14); }
-        .sw-item:not(.focus) img { border:1px solid rgba(212,175,55,.18); filter:brightness(.6); }
+        .sw-item:not(.focus) { border:1px solid rgba(212,175,55,.18); }
+        .sw-item:not(.focus) img { filter:brightness(.6); }
         /* ה«מוט» — מסילה + ידית זהב תלת-מימדית */
         .sw-rod { flex:0 0 40px; position:relative; border-radius:999px; cursor:ns-resize;
           background:linear-gradient(180deg, rgba(212,175,55,.35), rgba(58,134,200,.25) 55%, rgba(212,175,55,.15));

@@ -24,7 +24,6 @@ import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import TreasuresHome from "../components/TreasuresHome.jsx";
-import StreamWheel from "../components/StreamWheel.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
@@ -337,18 +336,9 @@ export default function HomeNewPage() {
 
           {/* ⛔ ריבוע-הבועות + «הכי חם» הוסרו מהבית (בקשת צוריאל — לא לבלבל; חיים בגלריה) */}
 
-          {/* 🎡 «גלגל הזרם» — תמונה אחת במוקד + מוט תלת-מימדי לנוע בזמן; הפירוט המלא בצד (בקשת צוריאל) */}
-          {recentHints.length ? (
-            <StreamWheel
-              hints={recentHints}
-              cutoff={postsCutoff}
-              max={10}
-              onOpen={i => setLbImg(recentHints[i])}
-              onEdit={isAdmin ? h => setEditImg(h) : null}
-            />
-          ) : (
-            <div style={{ textAlign: "center", color: "#a89060", fontFamily: F.body, fontSize: 14, padding: "30px 0" }}>טוען…</div>
-          )}
+          {/* 🌊 הזרם המלא — אחד-לאחד כמו טאב «זרם המציאות» בגלריה (בועות · גלריות-רמזים · סינון ·
+              הנהר · שערי-הסטים · בועות-החום), רק בתוך אשנב: ~3 רמזים ענקיים בכל רגע + מוט-ענק לגלילה. */}
+          <RealityWorld forceDark windowed hideHeader />
 
           {/* 📸 באנר האוצר — כמות התמונות בארכיון */}
           <Link to="/archive" style={{ display: "block", marginTop: 18, textAlign: "center", textDecoration: "none", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(122,19,32,0.16))", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 14, padding: "15px 18px" }}>

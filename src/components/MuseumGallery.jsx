@@ -41,9 +41,10 @@ const CSS = `
   /* ── במת ה-Hero: תמונה ביחס מלא + שלט צף ── */
   .mgal-stage { display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:30px; perspective:1100px; }
   .mgal-heroBox { position:relative; flex:1.6; min-width:min(100%,340px); display:flex; justify-content:center; }
-  .mgal-hero { position:relative; display:inline-block; cursor:zoom-in; animation: mgal-fade .8s ease both; }
-  .mgal-hero img { display:block; max-width:100%; max-height:70vh; width:auto; height:auto; border-radius:16px;
+  .mgal-hero { position:relative; display:inline-block; cursor:zoom-in; animation: mgal-fade .8s ease both;
+    padding:10px; border-radius:18px; background:linear-gradient(150deg,#241b10,#0f0b07);
     border:1.5px solid rgba(212,175,55,.55); box-shadow:0 30px 70px -20px rgba(0,0,0,.9), 0 0 50px rgba(212,175,55,.13); }
+  .mgal-hero img { display:block; max-width:100%; max-height:68vh; width:auto; height:auto; border-radius:2px; }
   @keyframes mgal-fade { from { opacity:0; transform:scale(.985);} to { opacity:1; transform:none;} }
   .mgal-heroNum { position:absolute; top:12px; inset-inline-start:12px; z-index:2; background:rgba(212,175,55,.96); color:#1a0e00;
     font-family:'Courier New',monospace; font-weight:900; font-size:clamp(22px,3.4vw,36px); border-radius:12px; padding:2px 15px;
@@ -72,7 +73,7 @@ const CSS = `
   .mgal-fan { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; align-items:flex-start; }
   .mgal-f { position:relative; cursor:zoom-in; transition:transform .2s; }
   .mgal-f:hover { transform:translateY(-5px) rotate(0deg) !important; z-index:9; }
-  .mgal-f img { display:block; width:100%; height:auto; border-radius:12px; border:1px solid rgba(212,175,55,.25);
+  .mgal-f img { display:block; width:100%; height:auto; border-radius:6px; border:1px solid rgba(212,175,55,.25);
     box-shadow:0 16px 36px -14px rgba(0,0,0,.8); }
   .mgal-fnum { position:absolute; top:7px; inset-inline-start:7px; background:rgba(212,175,55,.94); color:#1a0e00;
     font-family:'Courier New',monospace; font-weight:800; font-size:12px; border-radius:8px; padding:1px 8px; text-decoration:none; }
@@ -83,7 +84,7 @@ const CSS = `
   .mgc-side { flex:1; min-width:min(100%,220px); perspective:900px; display:flex; flex-direction:column; gap:12px; }
   .mgc-item { position:relative; cursor:zoom-in; transform-style:preserve-3d; transition:transform .3s, opacity .3s; }
   .mgc-item:hover { transform:none !important; opacity:1 !important; z-index:5; }
-  .mgc-item img { display:block; width:100%; height:auto; border-radius:12px; box-shadow:0 14px 34px -14px rgba(0,0,0,.8); }
+  .mgc-item img { display:block; width:100%; height:auto; border-radius:6px; box-shadow:0 14px 34px -14px rgba(0,0,0,.8); }
 `;
 
 // ═══ שער המניפה (ברירת-מחדל) ═══

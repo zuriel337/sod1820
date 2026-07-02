@@ -28,11 +28,27 @@ function dayBucket(h, now = Date.now()) {
   return "מוקדם יותר";
 }
 
-export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, max = MAX_RIVER }) {
+export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, max = MAX_RIVER, windowed = false }) {
   const list = hints.slice(0, Math.min(max, MAX_RIVER));
   const [ratios, setRatios] = useState({});     // id → w/h (לזיהוי «גשר» מאוזן)
   const [passed, setPassed] = useState([]);     // רמזים שגללת מעבר להם — מוצגים במגירה למעלה
   const refs = useRef({});
+  // 🕹 מצב-חלון (הבית): הנהר רץ בתוך אשנב שמראה ~3 בכל רגע + מוט-ענק שגולל אותו
+  const viewRef = useRef(null);
+  const rodRef = useRef(null);
+  const [rodRatio, setRodRatio] = useState(0);
+  const onViewScroll = () => {
+    const el = viewRef.current;
+    if (!el) return;
+    setRodRatio(el.scrollTop / Math.max(1, el.scrollHeight - el.clientHeight));
+  };
+  const rodDrag = e => {
+    const rod = rodRef.current, el = viewRef.current;
+    if (!rod || !el) return;
+    const r = rod.getBoundingClientRect();
+    const t = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+    el.scrollTop = t * (el.scrollHeight - el.clientHeight);
+  };
   const overflow = hints.length - list.length;
 
   // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log), בקצה הנהר
@@ -56,16 +72,17 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         let next = [...prev];
         for (const en of entries) {
           const id = en.target.dataset.hid;
-          const above = !en.isIntersecting && en.boundingClientRect.bottom < 120;
+          const topEdge = (en.rootBounds?.top ?? 0) + 90;
+          const above = !en.isIntersecting && en.boundingClientRect.bottom < topEdge + 40;
           if (above && !next.includes(id)) next.push(id);
           if (en.isIntersecting && next.includes(id)) next = next.filter(x => x !== id);
         }
         return next;
       });
-    }, { rootMargin: "-90px 0px 0px 0px", threshold: 0 });
+    }, { root: windowed ? viewRef.current : null, rootMargin: "-70px 0px 0px 0px", threshold: 0 });
     Object.values(refs.current).forEach(el => el && io.observe(el));
     return () => io.disconnect();
-  }, [list.length]);
+  }, [list.length, windowed]);
 
   if (!list.length) return null;
   const gold = "rgba(232,200,74,";
@@ -89,10 +106,13 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           background:linear-gradient(90deg, ${gold}.55), transparent); }
         .rv-hint.r::after { inset-inline-end:-8%; transform:scaleX(-1); }
         .rv-hint.l::after { inset-inline-start:-8%; }
-        .rv-hint img { display:block; width:100%; height:auto; border-radius:14px; border:1px solid ${gold}.3);
+        /* «פספרטו» — העיגול/מסגרת על המעטפת (עם שוליים); פינות התמונה עצמה כמעט ישרות = אפס חיתוך */
+        .rv-frame { display:block; position:relative; padding:8px; border-radius:16px;
+          background:linear-gradient(150deg,#241b10,#0f0b07); border:1px solid ${gold}.3);
           box-shadow:0 18px 44px -16px rgba(0,0,0,.85); }
+        .rv-frame img { display:block; width:100%; height:auto; border-radius:2px; }
         .rv-bridge { position:relative; z-index:2; width:88%; margin:0 auto 28px; transform:rotate(-.5deg); cursor:zoom-in; }
-        .rv-bridge img { display:block; width:100%; height:auto; border-radius:16px; border:1.5px solid ${gold}.5);
+        .rv-bridge .rv-frame { border-width:1.5px; border-color:${gold}.5);
           box-shadow:0 24px 60px -18px rgba(0,0,0,.9), 0 0 34px ${gold}.1); }
         .rv-bridge .rv-btag { position:absolute; top:-10px; right:18px; background:#0f0b1a; border:1px solid ${gold}.5);
           color:#e8c84a; font-family:${F.heading}; font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 12px; }
@@ -126,7 +146,37 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           padding:0; cursor:pointer; background:#0a0710; }
         .rv-mini img { width:100%; height:100%; object-fit:cover; display:block; }
         @media (max-width:560px) { .rv-hint { width:47.5%; } .rv-hint.l { margin-inline-start:50.5%; } .rv-tray { top:58px; } }
+        /* 🕹 מצב-חלון (הבית): אשנב שמראה ~3 רמזים ענקיים + מוט-ענק שגולל את הנהר */
+        .rvw-view { flex:1; min-width:0; height:clamp(620px,86vh,940px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; }
+        .rvw-view::-webkit-scrollbar { display:none; }
+        .rvw .rv-tray { top:8px; }
+        .rvw .rv-hint { width:62%; }
+        .rvw .rv-hint.r { margin-inline-start:1%; }
+        .rvw .rv-hint.l { margin-inline-start:37%; }
+        .rvw .rv-bridge { width:96%; }
+        .rvw-rod { flex:0 0 40px; position:relative; border-radius:999px; cursor:ns-resize; touch-action:none;
+          background:linear-gradient(180deg, ${gold}.35), rgba(58,134,200,.25) 55%, ${gold}.15));
+          box-shadow:inset 0 0 8px rgba(0,0,0,.6); }
+        .rvw-knob { position:absolute; left:50%; transform:translate(-50%,-50%); width:52px; height:68px; z-index:2;
+          border-radius:12px; background:linear-gradient(150deg,#f6dd92,#c9a227 55%,#8a6410);
+          border:1px solid #6b4e10; box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.5);
+          display:flex; align-items:center; justify-content:center; color:#3a2a06; font-size:20px; pointer-events:none;
+          transition:top .15s linear; }
+        @media (max-width:640px) { .rvw .rv-hint { width:80%; } .rvw .rv-hint.r { margin-inline-start:0%; }
+          .rvw .rv-hint.l { margin-inline-start:19%; } .rvw-view { height:clamp(540px,78vh,820px); } }
       `}</style>
+
+      {/* 🕹 מצב-חלון (הבית): מוט-ענק + אשנב פנימי; במצב רגיל — העטיפות שקופות */}
+      <div className={windowed ? "rvw" : undefined} style={windowed ? { display: "flex", gap: 14 } : undefined}>
+        {windowed && (
+          <div className="rvw-rod" ref={rodRef}
+            onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); rodDrag(e); }}
+            onPointerMove={e => { if (e.buttons) rodDrag(e); }}
+            title="משכו את המוט למעלה/למטה — לנוע בנהר">
+            <div className="rvw-knob" style={{ top: `${8 + rodRatio * 84}%` }}>⇕</div>
+          </div>
+        )}
+        <div className={windowed ? "rvw-view" : undefined} ref={viewRef} onScroll={windowed ? onViewScroll : undefined}>
 
       {/* מגירת-הזיכרון — הרמזים שכבר עברת (קטנים, מסודרים למעלה). לחיצה = חזרה אליהם */}
       {passedHints.length > 0 && (
@@ -153,10 +203,10 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           const isBridge = (ratios[h.id] || 0) > 1.25;    // מאוזנת → «גשר» חוצה-נהר
           // התמונה נקייה לגמרי (בלי שכבות שחוסמות תוכן); המספר/התגיות — בכיתוב שלידה
           const inner = (
-            <>
+            <span className="rv-frame">
               <img src={thumb(h.image_url, 900)} alt={title || ""} loading={i < 3 ? "eager" : "lazy"} onLoad={e => onImgLoad(h.id, e)} />
               {onEdit && <button className="rv-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(h); }}>✏️</button>}
-            </>
+            </span>
           );
           const caption = (
             <div className="rv-cap" onClick={e => e.stopPropagation()}>
@@ -211,6 +261,8 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           />
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import Lightbox from "./Lightbox.jsx";
 // מומלצות צפות גם לדף הבית, לעדכונים האחרונים ולדף הגלריות. חוק העץ האחד.
 // forceDark = כפיית פלטה כהה (בתוך הארכיון/הגלריה שתמיד שחורים). בבית — הבורר הרגיל.
 
-export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false }) {
+export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false, windowed = false, hideHeader = false }) {
   const auto = usePalette();
   const P = forceDark ? PALETTES.dark : auto;
   const { isAdmin } = useAuth();
@@ -138,8 +138,10 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
 
   return (
     <div style={{ direction: "rtl" }}>
-      <h2 className="hn-h2">🌊 זרם המציאות</h2>
-      <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
+      {!hideHeader && (<>
+        <h2 className="hn-h2">🌊 זרם המציאות</h2>
+        <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
+      </>)}
 
       {/* 🫧 בועות המספרים החיים — כל בועה מפנה לכל התמונות של אותו מספר בארכיון (עץ אחד) */}
       {bubbles.length > 0 && (
@@ -313,6 +315,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         hints={showHero && filtered.length > 0 ? filtered.slice(1) : filtered}
         cutoff={cutoff}
         palette={P}
+        windowed={windowed}
         max={compact ? 8 : 20}
         onOpen={i => setLbIdx((showHero ? 1 : 0) + i)}
         onEdit={isAdmin ? h => setEditImg(h) : null}
