@@ -141,8 +141,11 @@ export async function getRecentCommunityWords(limit = 4) {
     .eq('is_verified', true)
     .not('created_at', 'is', null)
     .order('created_at', { ascending: false, nullsFirst: false })
-    .limit(limit);
-  return data ?? [];
+    .limit(limit * 3);
+  // סינון רשומות-זבל לתצוגה: ביטוי שהוא מספר טהור או ערך 0/חסר (למשל «358 = 0») לא מילה אמיתית
+  return (data ?? [])
+    .filter(r => r.phrase && !/^[\d\s.,-]+$/.test(r.phrase.trim()) && r.ragil > 0)
+    .slice(0, limit);
 }
 
 // סך כל המילים במאגר — count מדויק בלי למשוך שורות (לפי האמת, לא מספר קבוע)

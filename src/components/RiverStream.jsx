@@ -203,9 +203,12 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           max-height:52vh; overflow-y:auto; }
         .rvb-date { color:#a99a7c; font-family:${F.heading}; font-size:11.5px; margin-top:10px; }
         @media (max-width:760px) {
-          /* מובייל: תיבת-ההסבר (החשובה ביותר) עוברת למעלה — רצועה מלאה מעל המוט והזרם */
+          /* מובייל: תיבת-ההסבר (החשובה ביותר) עוברת למעלה — רצועה מלאה מעל המוט והזרם.
+             המוט עובר לצד שמאל — שלא יוסתר מאחורי הכפתורים הצפים (שתפו/מחשבון) שבצד ימין. */
           .rvw { flex-wrap:wrap; }
           .rvw-side { flex:1 1 100%; order:-1; }
+          .rvw-rod { order:3; }
+          .rvw-view { padding-inline:8px; }
           .rvw-bubble::after { display:none; }
           .rvb-desc { max-height:26vh; font-size:14px; }
           .rvb-title { font-size:16px; }

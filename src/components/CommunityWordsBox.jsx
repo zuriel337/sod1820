@@ -27,10 +27,11 @@ export default function CommunityWordsBox({ light, max = 4, title = "✦ מיל�
 
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11, flexWrap: "wrap" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#25d366", boxShadow: "0 0 7px #25d366", flex: "0 0 auto" }} />
-        <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
-        <span style={{ marginInlineStart: "auto", color: L.dim, fontFamily: F.heading, fontSize: 11.5 }}>
+        <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, flex: "1 1 auto", minWidth: 0, lineHeight: 1.4 }}>{title}</span>
+        {/* הספירה בשורת-משנה משלה כשצר (מובייל) — לא נדחסת לצד הכותרת */}
+        <span style={{ marginInlineStart: "auto", color: L.dim, fontFamily: F.heading, fontSize: 11.5, whiteSpace: "nowrap", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "3px 11px" }}>
           {total > 0 ? `סך הכל ${total.toLocaleString("he")} מילים במאגר` : `${rows.length} אחרונות`}
         </span>
       </div>
