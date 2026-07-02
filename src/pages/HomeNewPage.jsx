@@ -24,6 +24,7 @@ import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
+import TreasuresHome from "../components/TreasuresHome.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
@@ -289,6 +290,9 @@ export default function HomeNewPage() {
           <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         </div>
       </section>
+
+      {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
+      <TreasuresHome />
 
       {/* ===== 🌊 זרם המציאות — Dark Island מלכותי ===== */}
       {/* רקע כהה קבוע (#09080f) ללא תלות במצב יום/לילה — forceDark. Hero = הרמז האחרון. */}
