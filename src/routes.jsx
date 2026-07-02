@@ -10,6 +10,7 @@ export const NAV = [
   { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
+  { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive?tab=galleries" },
   { label: 'הצופן התנ"כי · בקרוב', emoji: "🔒", to: "/code" },
   {

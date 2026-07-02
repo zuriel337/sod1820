@@ -37,6 +37,7 @@ const MOBILE_TILES = [
   { e: "📖", l: "פוסטים", to: "/post" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
+  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "💬", l: "הצ'אט הוותיק", to: "/community/chat" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
@@ -103,6 +104,7 @@ function UniversalSearch({ onDone, full }) {
   const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
     { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
+  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
     { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
     { e: "🏛️", l: "היכל הגילוי", to: "/research" },
     { e: "🖼", l: "גלריות", to: "/archive" },

@@ -6,6 +6,7 @@ import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
+import { track } from "../lib/tracking.js";
 import BrandTicker, { BRANDS, isVideoUrl, shareUpdate } from "../components/BrandTicker.jsx";
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
@@ -25,7 +26,7 @@ function ChannelFeed({ channel, P, focusId }) {
   }, [channel]);
 
   return (
-    <section style={{ marginBottom: 34 }}>
+    <section id={`ch-${channel}`} style={{ marginBottom: 34, scrollMarginTop: 80 }}>
       <BrandTicker channel={channel} />
       {items === null ? (
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "8px 4px" }}>טוען…</div>
@@ -107,7 +108,8 @@ export default function BroadcastsPage() {
   const [params] = useSearchParams();
   const focusId = params.get("u");   // קישור ויראלי: ?u=<id> — נוחתים בדיוק על העדכון ששותף
   useEffect(() => {
-    applySeo({ title: "מרכז השידורים", description: "העדכונים החיים מכל הערוצים — קוד המציאות, אור הגאולה וסוד החשמל — במקום אחד.", path: "/broadcasts" });
+    applySeo({ title: "מרכז השידורים — עדכונים חיים", description: "שידורים חיים ועדכונים מכל הערוצים — קוד המציאות, אור הגאולה וסוד החשמל — רמזים, מסרים וסרטונים במקום אחד, לייב מקבוצות הוואטסאפ.", path: "/broadcasts" });
+    track("broadcasts");   // 📈 מעקב-צפיות — נמדד בדף האדמין (בקשת צוריאל: מעקב אחרי הדף)
   }, []);
 
   return (
@@ -125,6 +127,23 @@ export default function BroadcastsPage() {
         </p>
       </header>
       <style>{`@keyframes bc-focus { 0%,100% { transform:none; } 50% { transform:scale(1.015); } }`}</style>
+      {/* 🧭 ניווט-מהיר בין הערוצים — קפיצה לערוץ בלחיצה */}
+      <nav style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 22 }}>
+        {CHANNELS.map(ch => {
+          const b = BRANDS[ch];
+          return (
+            <a key={ch} href={`#ch-${ch}`} style={{ display: "inline-flex", alignItems: "center", gap: 6,
+              textDecoration: "none", background: `${b.accent}14`, border: `1px solid ${b.accent}55`,
+              borderRadius: 999, padding: "6px 14px", color: b.accent, fontFamily: F.heading,
+              fontSize: 12.5, fontWeight: 800, minHeight: 34 }}>
+              {b.logo
+                ? <img src={b.logo} alt="" style={{ width: 16, height: 16, borderRadius: "50%", display: "block" }} />
+                : <span>{b.emoji}</span>}
+              {b.title} ↓
+            </a>
+          );
+        })}
+      </nav>
       {CHANNELS.map(ch => <ChannelFeed key={ch} channel={ch} P={P} focusId={focusId} />)}
     </div>
   );
