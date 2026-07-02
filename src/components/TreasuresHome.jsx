@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { F, GALLERY_BG } from "../theme.js";
+import { F, GALLERY_BG, LOGO_URL } from "../theme.js";
 import { getTreasures } from "../lib/supabase.js";
 import MuseumGallery from "./MuseumGallery.jsx";
 import Lightbox from "./Lightbox.jsx";
@@ -32,7 +32,10 @@ export default function TreasuresHome() {
       {/* הילת-במה עדינה מאחורי התערוכה */}
       <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.09), transparent 65%)", pointerEvents: "none" }} />
       <div style={{ position: "relative", maxWidth: 1000, margin: "0 auto", direction: "rtl" }}>
-        <HomeHeader dark title="👑 אוצרות הגילוי" sub="הגילויים שאסור לפספס — לא לפי זמן, לפי ערך." />
+        {/* הלוגו של האתר במקום אימוג'י הכתר (בקשת צוריאל) */}
+        <HomeHeader dark
+          title={<><img src={LOGO_URL} alt="סוד 1820" style={{ height: "1.3em", width: "auto", verticalAlign: "-0.28em", marginInlineEnd: 9, filter: "drop-shadow(0 0 9px rgba(232,200,74,.5))" }} />אוצרות הגילוי</>}
+          sub="הגילויים שאסור לפספס — לא לפי זמן, לפי ערך." />
 
         <MuseumGallery hints={treasures} onOpen={i => setLb(i)} onEdit={isAdmin ? h => setEditImg(h) : null} />
 

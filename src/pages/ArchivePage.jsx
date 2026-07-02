@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { C, F, GALLERY_BG } from "../theme.js";
+import { C, F, GALLERY_BG, LOGO_URL } from "../theme.js";
 import {
   getGalleriesOverview, getGalleryDetail,
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
@@ -1859,7 +1859,11 @@ function CascadeCompare({ isAdmin, onEdit }) {
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", background: GALLERY_BG, borderRadius: 22, padding: "26px clamp(12px,2.5vw,28px) 30px", border: "1px solid rgba(212,175,55,0.18)" }}>
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,26px)", fontWeight: 800, textShadow: "0 0 30px rgba(212,175,55,.3)" }}>👑 אוצרות הגילוי</div>
+        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,26px)", fontWeight: 800, textShadow: "0 0 30px rgba(212,175,55,.3)" }}>
+          {/* הלוגו של האתר במקום אימוג'י הכתר (בקשת צוריאל) */}
+          <img src={LOGO_URL} alt="סוד 1820" style={{ height: "1.3em", width: "auto", verticalAlign: "-0.28em", marginInlineEnd: 9, filter: "drop-shadow(0 0 9px rgba(232,200,74,.5))" }} />
+          אוצרות הגילוי
+        </div>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, maxWidth: 520, margin: "6px auto 0" }}>
           {hasTreasures
             ? "הבחירות הגדולות — רמזים, גימטריות והצלבות שאסור לפספס. לא לפי זמן — לפי ערך."
