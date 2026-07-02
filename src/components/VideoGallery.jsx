@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
+import HomeHeader from "./HomeHeader.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
 // מסגרת זהה לחידושי AI. שורה אחת: סרטון מובלט ראשון + השאר (גלילה אופקית).
@@ -89,16 +90,8 @@ export default function VideoGallery() {
         border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "26px 22px",
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
-          <h2 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
-            🎬 גלריית הסרטים
-          </h2>
-          <span className="sod-soon">🚧 בבנייה</span>
-          <span style={{ flex: 1 }} />
-          <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-            לכל הסרטים והפוסטים →
-          </Link>
-        </div>
+        <HomeHeader title="🎬 גלריית הסרטים" badge={<span className="sod-soon">🚧 בבנייה</span>}
+          action={{ label: "לכל הסרטים והפוסטים →", to: "/post" }} />
 
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">

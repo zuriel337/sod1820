@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
@@ -13,7 +13,20 @@ const STEPS = [
     to: "/סוד-1820" },
   { tier: "🫀 הלב", emoji: "🏛️", title: "היכל הגילוי — כל הכלים במקום אחד", badge: "חדש",
     body: "מחשבון גימטריה (17 שיטות · חינם), דף-המספר, חיפוש בפסוקים, דילוגי-אותיות ובית-המדרש — סביבת-מחקר אחת שנשארת פתוחה לאורך כל המסע.",
-    to: "/research" },
+    to: "/research",
+    links: [
+      { label: "📖 בית המדרש", to: "/research?tool=midrash" },
+      { label: "🧮 מחשבון גימטריה", to: "/research?tool=gematria" },
+      { label: "🔢 דף המספר", to: "/research?tool=number" },
+      { label: "📜 חיפוש בפסוקים", to: "/research?tool=verse" },
+      { label: "🧭 המסע האישי", to: "/research?tool=journey" },
+    ] },
+  { tier: "🫀 הלב", emoji: "🌊", title: "זרם המציאות — תיעוד רמזי הגאולה", badge: "חדש",
+    body: "תיעוד חי של רמזי הגאולה כפי שהם מופיעים במציאות: כל רמז חדש שעולה נכנס לזרם — תמונה, מספר דומיננטי ותאריך האירוע. כל מספר מוביל לדף-המספר שלו בגרף.",
+    to: "/archive?tab=reality" },
+  { tier: "🫀 הלב", emoji: "👑", title: "אוצרות הגילוי", badge: "חדש",
+    body: "בחירת העורך — הרמזים החזקים ביותר שנבחרו ביד, מוצגים כתערוכת מוזיאון. שער הכניסה לאוספי התמונות והסטים.",
+    to: "/archive?tab=cascade" },
   { tier: "🫀 הלב", emoji: "🧬", title: "דף המספר + מד ההתכנסות", badge: "חדש",
     body: "לכל מספר וביטוי דף-DNA: כמה שכבות בלתי-תלויות מתכנסות אליו (ציון 0-100 · 🥉🥈🥇), ישויות הזהב, וכרטיסי ההתכנסות. נסו את 1820.",
     to: "/number/1820" },
@@ -37,6 +50,7 @@ const badgeStyle = (P) => ({
 
 export default function StartHerePage() {
   const P = usePalette();
+  const navigate = useNavigate();
   return (
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="ברוכים הבאים" title="כאן מתחילים" />
@@ -84,6 +98,23 @@ export default function StartHerePage() {
                 {s.badge && <span style={badgeStyle(P)}>{s.badge}</span>}
               </div>
               <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85 }}>{s.body}</div>
+              {s.links && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+                  {s.links.map(l => (
+                    <span key={l.to} role="link" tabIndex={0} style={{
+                      display: "inline-block", background: P.card, color: P.accentText,
+                      border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px",
+                      fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 0.2,
+                      cursor: "pointer", whiteSpace: "nowrap",
+                    }}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(l.to); }}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); navigate(l.to); } }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}
+                    >{l.label}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </Link>
         ))}

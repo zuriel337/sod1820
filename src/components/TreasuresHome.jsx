@@ -6,6 +6,7 @@ import MuseumGallery from "./MuseumGallery.jsx";
 import Lightbox from "./Lightbox.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ImageEditModal from "./ImageEditModal.jsx";
+import HomeHeader from "./HomeHeader.jsx";
 import { setImageCuration } from "../lib/supabase.js";
 
 // 👑 «אוצרות הגילוי» בעמוד הבית — ציר-הערך מעל ציר-הזמן (החלטת צוריאל):
@@ -31,14 +32,7 @@ export default function TreasuresHome() {
       {/* הילת-במה עדינה מאחורי התערוכה */}
       <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.09), transparent 65%)", pointerEvents: "none" }} />
       <div style={{ position: "relative", maxWidth: 1000, margin: "0 auto", direction: "rtl" }}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, maxWidth: 640, margin: "0 auto 6px" }}>
-            <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,175,55,.45),transparent)" }} />
-            <h2 style={{ color: "#e8c84a", fontFamily: F.regal, fontSize: "clamp(21px,3.4vw,29px)", fontWeight: 800, margin: 0, textShadow: "0 0 34px rgba(232,200,74,.3)" }}>👑 אוצרות הגילוי</h2>
-            <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,175,55,.45),transparent)" }} />
-          </div>
-          <div style={{ color: "#a99a7c", fontFamily: F.body, fontSize: 13.5 }}>הגילויים שאסור לפספס — לא לפי זמן, לפי ערך.</div>
-        </div>
+        <HomeHeader dark title="👑 אוצרות הגילוי" sub="הגילויים שאסור לפספס — לא לפי זמן, לפי ערך." />
 
         <MuseumGallery hints={treasures} onOpen={i => setLb(i)} onEdit={isAdmin ? h => setEditImg(h) : null} />
 

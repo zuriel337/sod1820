@@ -27,6 +27,7 @@ import TreasuresHome from "../components/TreasuresHome.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
+import HomeHeader from "../components/HomeHeader.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -224,8 +225,7 @@ export default function HomeNewPage() {
 
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">📜 עדכונים אחרונים</h2>
-        <p className="hn-sub">החדשות והרמזים האחרונים באתר</p>
+        <HomeHeader title="📜 עדכונים אחרונים" sub="החדשות והרמזים האחרונים באתר" />
         <div className="hn-postgrid">
           {updatesFeed.map(item => {
             if (item.kind === "set") {
@@ -299,7 +299,6 @@ export default function HomeNewPage() {
         <style>{`
           #reality-home .rw-hero img, #reality-home .rw-hero-img { animation: rw-hero-in .7s cubic-bezier(.2,.8,.2,1) both; }
           @keyframes rw-hero-in { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
-          #reality-home .hn-h2, #reality-home h2 { color: #d4af37 !important; }
           @keyframes hn-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
           /* master-detail: גדול מימין, רצועת-אחרונות משמאל (RTL) */
           .hn-latest { display: flex; gap: 14px; align-items: flex-start; direction: rtl; }
@@ -324,15 +323,8 @@ export default function HomeNewPage() {
             סטטית כמו באוצרות הגילוי — אבן-לילה + זוהר-זהב עדין. */}
         <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.09), transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1360, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
-            <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
-              🌊 זרם המציאות
-            </h2>
-            <span style={{ flex: 1 }} />
-            <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-              לזרם המלא →
-            </Link>
-          </div>
+          <HomeHeader dark title="🌊 זרם המציאות" sub="תיעוד רמזי הגאולה — חי, ישר מהמציאות"
+            action={{ label: "לזרם המלא →", to: "/archive" }} />
 
           {/* ⛔ ריבוע-הבועות + «הכי חם» הוסרו מהבית (בקשת צוריאל — לא לבלבל; חיים בגלריה) */}
 
@@ -365,8 +357,7 @@ export default function HomeNewPage() {
 
       {/* ===== עץ ההתכנסויות — כניסה חיה ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🕸️ עץ ההתכנסויות</h2>
-        <p className="hn-sub">כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד</p>
+        <HomeHeader title="🕸️ עץ ההתכנסויות" sub="כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד" />
         {/* ✨ קונסטלציה חיה — תצוגה מקדימה (אותו אפקט מבית-הקוד), מקושר ל-/numbers בלי שכפול */}
         <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
           <div style={{ position: "relative", overflow: "hidden", textAlign: "center", background: "#070b12", border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "34px 22px", boxShadow: "0 16px 46px rgba(0,0,0,0.35)" }}>
@@ -389,16 +380,14 @@ export default function HomeNewPage() {
 
       {/* ===== מה גולשים מחפשים עכשיו ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🔎 מה גולשים מחפשים עכשיו</h2>
-        <p className="hn-sub">המילים והשמות האחרונים שגולשים בדקו במחשבון</p>
+        <HomeHeader title="🔎 מה גולשים מחפשים עכשיו" sub="המילים והשמות האחרונים שגולשים בדקו במחשבון" />
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
         <div style={{ marginTop: 16 }}><CommunityWordsBox max={4} /></div>
       </section>
 
       {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <h2 className="hn-h2">🔮 הצלבות המנוע</h2>
-        <p className="hn-sub">חיבורים נדירים בין ביטויים — נמצאו ואומתו אוטומטית במנוע הגימטריה</p>
+        <HomeHeader title="🔮 הצלבות המנוע" sub="חיבורים נדירים בין ביטויים — נמצאו ואומתו אוטומטית במנוע הגימטריה" />
         <CrossInsightsBox light={P.mode === "light"} max={3} />
       </section>
 
@@ -425,8 +414,8 @@ export default function HomeNewPage() {
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 60px" }}>
-        <h2 className="hn-h2"><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</h2>
-        <p className="hn-sub">ארבע ההתכנסויות האחרונות — החדש מודגש</p>
+        <HomeHeader title={<><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</>}
+          sub="ארבע ההתכנסויות האחרונות — החדש מודגש" />
         <div className="hn-postgrid">
           {liveCards.map(c => {
             const fresh = isNewSince(c, convCutoff);
