@@ -13,7 +13,7 @@ import { gallerySetFor, gallerySetHref } from "../lib/numberSets.js";
 // ה«מוט» המוזהב בצד (או גוללים/מחליקים/חצים) כדי לנוע בזמן. לצד התמונה (או מתחתיה
 // במובייל) — הפירוט המלא באותיות יפות וגדולות. **אפס חיתוך** (חוק) — יחס טבעי תמיד.
 const STEP = 130;          // פיקסלים של גרירה = מעבר תמונה
-const VISIBLE = 2.6;       // כמה שכנים נראים לכל כיוון
+const VISIBLE = 1.35;      // חלון של שלוש: המוקד + אחת מעל + אחת מתחת (בקשת צוריאל)
 
 export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 10 }) {
   const items = hints.slice(0, max);
@@ -81,7 +81,7 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
       <style>{`
         .sw-grid { display:flex; gap:20px; align-items:stretch; }
         .sw-stagewrap { flex:1.35; min-width:0; display:flex; gap:12px; }
-        .sw-stage { position:relative; flex:1; min-width:0; height:clamp(340px,52vh,520px);
+        .sw-stage { position:relative; flex:1; min-width:0; height:clamp(320px,48vh,470px);
           perspective:1050px; touch-action:pan-x; cursor:grab; user-select:none; overflow:hidden; }
         .sw-stage:active { cursor:grabbing; }
         .sw-item { position:absolute; top:50%; left:50%; width:min(86%,560px);
@@ -93,14 +93,14 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
           box-shadow:0 26px 60px -18px rgba(0,0,0,.9), 0 0 44px rgba(212,175,55,.14); }
         .sw-item:not(.focus) img { border:1px solid rgba(212,175,55,.18); filter:brightness(.6); }
         /* ה«מוט» — מסילה + ידית זהב תלת-מימדית */
-        .sw-rod { flex:0 0 26px; position:relative; border-radius:999px; cursor:ns-resize;
+        .sw-rod { flex:0 0 40px; position:relative; border-radius:999px; cursor:ns-resize;
           background:linear-gradient(180deg, rgba(212,175,55,.35), rgba(58,134,200,.25) 55%, rgba(212,175,55,.15));
           box-shadow:inset 0 0 8px rgba(0,0,0,.6); }
-        .sw-knob { position:absolute; left:50%; transform:translate(-50%,-50%); width:34px; height:46px;
+        .sw-knob { position:absolute; left:50%; transform:translate(-50%,-50%); width:52px; height:68px;
           border-radius:12px; background:linear-gradient(150deg,#f6dd92,#c9a227 55%,#8a6410);
           border:1px solid #6b4e10; box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.5);
           transition:top .35s cubic-bezier(.2,.7,.3,1); display:flex; align-items:center; justify-content:center;
-          color:#3a2a06; font-size:13px; pointer-events:none; }
+          color:#3a2a06; font-size:20px; pointer-events:none; }
         .sw-arrows { position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%);
           display:flex; flex-direction:column; gap:8px; z-index:6; }
         .sw-arrows button { width:36px; height:36px; border-radius:999px; border:1px solid rgba(212,175,55,.5);
@@ -161,8 +161,8 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
               if (ad > VISIBLE + 0.7) return null;
               return (
                 <div key={h.id} className={`sw-item${i === idx ? " focus" : ""}`} style={{
-                  transform: `translate(-50%,-50%) translateY(${d * STEP * 0.86}px) translateZ(${-ad * 170}px) rotateX(${-d * 13}deg) scale(${Math.max(0.55, 1 - ad * 0.14)})`,
-                  opacity: Math.max(0, 1 - ad * 0.34),
+                  transform: `translate(-50%,-50%) translateY(${d * STEP * 0.92}px) translateZ(${-ad * 190}px) rotateX(${-d * 14}deg) scale(${Math.max(0.5, 1 - ad * 0.2)})`,
+                  opacity: Math.max(0, 1 - ad * 0.52),
                   zIndex: 50 - Math.round(ad * 10),
                 }}>
                   <img src={thumb(h.image_url, 900)} alt={i === idx ? (title || "") : ""} loading={ad < 1.5 ? "eager" : "lazy"} draggable={false} />

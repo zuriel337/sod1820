@@ -39,7 +39,7 @@ function Placard({ h, side = "start" }) {
 const CSS = `
   .mgal { direction: rtl; }
   /* ── במת ה-Hero: תמונה ביחס מלא + שלט צף ── */
-  .mgal-stage { display:flex; gap:0; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:30px; perspective:1100px; }
+  .mgal-stage { display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:30px; perspective:1100px; }
   .mgal-heroBox { position:relative; flex:1.6; min-width:min(100%,340px); display:flex; justify-content:center; }
   .mgal-hero { position:relative; display:inline-block; cursor:zoom-in; animation: mgal-fade .8s ease both; }
   .mgal-hero img { display:block; max-width:100%; max-height:70vh; width:auto; height:auto; border-radius:16px;
@@ -53,7 +53,7 @@ const CSS = `
     display:flex; align-items:center; justify-content:center; }
   /* שלט-המוזיאון — צף בצד, מוטה בתלת-מימד, גדול */
   .mgal-placard { flex:1; min-width:min(100%,270px); max-width:430px; z-index:3; animation: mgal-fade .9s ease both; }
-  .mgal-placard.start { margin-inline-start:-26px; transform: rotateY(9deg); }
+  .mgal-placard.start { margin-inline-start:16px; transform: rotateY(8deg); }
   .mgal-placard.under { margin:14px auto 0; transform:none; max-width:640px; }
   .mgal-placard-in { background:linear-gradient(150deg, rgba(30,22,10,.97), rgba(14,10,5,.97)); border:1px solid rgba(212,175,55,.5);
     border-radius:16px; padding:18px 20px; box-shadow:0 26px 60px -18px rgba(0,0,0,.85), 0 0 34px rgba(212,175,55,.08); }

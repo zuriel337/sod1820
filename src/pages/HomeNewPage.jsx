@@ -16,7 +16,6 @@ import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
-import MatrixRain from "../components/MatrixRain.jsx";
 import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
@@ -322,35 +321,21 @@ export default function HomeNewPage() {
             .hn-thumb { width: 92px; flex: 0 0 auto; }
           }
         `}</style>
-        {/* המספרים היורדים — רקע מלא לכל המקטע (מקצה לקצה בדסקטופ). אפקט קל מבית-הקוד
-            (~18fps, מכבד reduced-motion, עוצר כשהטאב מוסתר). */}
-        <MatrixRain color="#d4af37" featured="1820" />
-        {/* דהיית קריאוּת מעל המספרים — שהטקסט יישאר חד */}
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(9,8,15,0.55), rgba(9,8,15,0.88) 85%)", pointerEvents: "none" }} />
+        {/* ⛔ רקע-המטריקס הזז הוסר (בקשת צוריאל — בלי תנועה מבלבלת). במקומו: הילת-במה
+            סטטית כמו באוצרות הגילוי — אבן-לילה + זוהר-זהב עדין. */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.09), transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1360, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
             <h2 style={{ color: "#d4af37", fontFamily: F.regal, fontSize: "clamp(22px,3vw,30px)", fontWeight: 700, margin: 0 }}>
-              🖼️ אחרונות מהמאגר
+              🌊 זרם המציאות
             </h2>
             <span style={{ flex: 1 }} />
             <Link to="/archive" style={{ color: "#d4af37", fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-              גלרית דוד המלך →
+              לזרם המלא →
             </Link>
           </div>
 
-          {/* 🫧 בועות-העל מכל המאגר — מי שרוצה יותר, גולש לגלריה */}
-          {homeBubbles.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              {hottest.length > 0 && (
-                <div style={{ color: "#f6e27a", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>
-                  🔥 הכי חם במאגר: {hottest.join(" · ")}
-                </div>
-              )}
-              <NumberBubbles data={homeBubbles}
-                title="🫧 כל המספרים החיים במאגר — גודל = כמות · מהבהב = פעיל עכשיו · לחצו לצלילה"
-                hrefFor={b => `/archive?tab=pool&nums=${b.nums.join(",")}`} />
-            </div>
-          )}
+          {/* ⛔ ריבוע-הבועות + «הכי חם» הוסרו מהבית (בקשת צוריאל — לא לבלבל; חיים בגלריה) */}
 
           {/* 🎡 «גלגל הזרם» — תמונה אחת במוקד + מוט תלת-מימדי לנוע בזמן; הפירוט המלא בצד (בקשת צוריאל) */}
           {recentHints.length ? (
