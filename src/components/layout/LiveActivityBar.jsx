@@ -143,9 +143,9 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       // ⛔ התכנסויות + פוסטים — לא בהזרקה האוטומטית. ⛔ ספירת «כמה התכנסויות במאגר» הוסרה (בקשת צוריאל).
+      // ⛔ «X מילים נחקרו היום בבית המדרש» הוסר מהטיקר (בקשת צוריאל 2.7.2026)
       try {
-        const { words, topNumber } = await getSearchStatsToday();
-        if (words > 0) out.push(`📖 ${words === 1 ? "מילה אחת נחקרה" : `${words} מילים נחקרו`} היום בבית המדרש`);
+        const { topNumber } = await getSearchStatsToday();
         if (topNumber != null) out.push(`🔥 המספר הכי מבוקש היום: ${topNumber}`);
       } catch { /* ignore */ }
       // — עֵרים (תמיד) —
