@@ -32,6 +32,13 @@ export default function ChannelUpdateCard() {
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#57c98a", boxShadow: "0 0 8px #57c98a",
             animation: "cu-dot 2s ease-in-out infinite", flex: "0 0 auto" }} />
           <b style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5 }}>📡 עדכון מהערוץ</b>
+          {/* מאיפה זה בא — הקרדיט ליד כל עדכון (בקשת צוריאל) */}
+          {u.credit && (
+            <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
+              background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px" }}>
+              ✍️ {u.credit}
+            </span>
+          )}
           <span style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
             🕒 {timeAgoHe(u.created_at)}
           </span>

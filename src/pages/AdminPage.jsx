@@ -3748,6 +3748,7 @@ function StreamAdminTab() {
 function BroadcastTab() {
   const [text, setText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [credit, setCredit] = useState("");
   const [hours, setHours] = useState(24);
   const [busy, setBusy] = useState(false);
   const [rows, setRows] = useState([]);
@@ -3764,8 +3765,8 @@ function BroadcastTab() {
     setBusy(true); setMsg("");
     try {
       const { broadcastChannelUpdate } = await import("../lib/supabase.js");
-      await broadcastChannelUpdate({ text: text.trim(), imageUrl: imageUrl.trim() || null, hours: hours || null });
-      setText(""); setImageUrl(""); setMsg("✅ שודר! יופיע בטיקר ובעמוד הבית תוך דקה (רענון אצל הגולשים).");
+      await broadcastChannelUpdate({ text: text.trim(), imageUrl: imageUrl.trim() || null, hours: hours || null, credit: credit.trim() || null });
+      setText(""); setImageUrl(""); setCredit(""); setMsg("✅ שודר! יופיע בטיקר ובעמוד הבית תוך דקה (רענון אצל הגולשים).");
       load();
     } catch (e) { setMsg("שגיאה: " + (e.message || e)); }
     setBusy(false);
@@ -3791,6 +3792,8 @@ function BroadcastTab() {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} dir="ltr" placeholder="קישור לתמונה (אופציונלי)"
             style={{ ...inp, flex: 1, minWidth: 220 }} />
+          <input value={credit} onChange={e => setCredit(e.target.value)} placeholder="מאת… (למשל: שחר קנדרו · קוד המציאות)"
+            style={{ ...inp, flex: 1, minWidth: 200 }} />
           <select value={hours} onChange={e => setHours(Number(e.target.value))} style={{ ...inp, width: "auto", cursor: "pointer" }}>
             <option value={6}>יורד אחרי 6 שעות</option>
             <option value={24}>יורד אחרי 24 שעות</option>

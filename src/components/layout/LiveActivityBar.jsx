@@ -181,9 +181,9 @@ function useLiveTicker() {
       // 📡 «עדכון חי» — שידורים מהערוץ/אדמין (channel_updates), תמיד ראשונים בסבב.
       // אובייקטים (לא מחרוזות) כדי לשאת תמונה — הקשה עליהם פותחת אותה במסך מלא.
       try {
-        const lives = await getChannelUpdates(3);
+        const lives = await getChannelUpdates(6);
         for (const u of (lives || []).reverse())
-          uniq.unshift({ live: true, id: u.id, text: u.text, image: u.image_url || null });
+          uniq.unshift({ live: true, id: u.id, text: u.text, image: u.image_url || null, credit: u.credit || null });
       } catch { /* ignore */ }
       if (live) setMsgs(uniq);
     }
@@ -268,6 +268,8 @@ export default function LiveActivityBar() {
             <span style={{ background: "#7a1320", color: "#ffd9de", fontSize: 9.5, fontWeight: 900, borderRadius: 999,
               padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.5, verticalAlign: "middle" }}>● עדכון חי</span>
             {cur.text}{cur.image ? " · 📷" : ""}
+            {/* מאיפה זה בא — הקרדיט ליד כל עדכון (בקשת צוריאל) */}
+            {cur.credit && <span style={{ color: "#c9b27a", fontSize: 10.5, fontWeight: 700 }}> · מאת {cur.credit}</span>}
           </div>
         ) : (
           <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
