@@ -11,7 +11,7 @@ const TYPES = [
   { key: "numbers",  dot: "#57c98a", e: "🔢", label: "מישהו חוקר מספר" },
   { key: "names",    dot: "#e8c84a", e: "🔤", label: "מישהו חוקר שם או ביטוי" },
   { key: "verses",   dot: "#b07df6", e: "📖", label: "מישהו מחפש בפסוקים" },
-  { key: "els",      dot: "#5aa9ff", e: "🧩", label: "מישהו מריץ דילוגי אותיות" },
+  // 🧩 דילוגי-אותיות (els) — מוסתר עד שצוריאל פותח את ה-ELS לציבור (הנתון קיים ב-RPC, רק לא מוצג)
   { key: "journeys", dot: "#ff9b6b", e: "🧭", label: "מישהו יצא למסע" },
   { key: "research", dot: "#e0779b", e: "🔬", label: "מישהו לומד בהיכל הגילוי" },
 ];
