@@ -25,6 +25,7 @@ import StartHereCard from "../components/StartHereCard.jsx";
 import NumberOfDay from "../components/NumberOfDay.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import TreasuresHome from "../components/TreasuresHome.jsx";
+import StreamWheel from "../components/StreamWheel.jsx";
 import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
@@ -119,7 +120,7 @@ export default function HomeNewPage() {
   // 🖼️ התמונות האחרונות — רצועה משמאל, הנבחרת בגדול מימין.
   const recentHints = useMemo(() => {
     const hs = (hints || []).filter(h => h.image_url);
-    return [...hs].sort((a, b) => effDate(b) - effDate(a)).slice(0, 8);
+    return [...hs].sort((a, b) => effDate(b) - effDate(a)).slice(0, 10);
   }, [hints]);
   const latestHint = recentHints[0] || null;
   const sel = selHint && recentHints.some(h => h.id === selHint.id) ? selHint : latestHint;
@@ -351,48 +352,15 @@ export default function HomeNewPage() {
             </div>
           )}
 
-          {/* 🖼️ רצועת אחרונות משמאל · הנבחרת בגדול מימין + כיתוב יפה */}
-          {sel ? (
-            <div className="hn-latest">
-              {/* גדול (ימין ב-RTL) */}
-              <div className="hn-latest-main">
-                <div onClick={() => setLbImg(sel)} style={{ cursor: "zoom-in", position: "relative", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(212,175,55,0.32)", background: "#09080f", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
-                  <img key={sel.id} src={thumb(sel.image_url, 900)} alt={cleanName(sel.name) || ""} className="rw-hero-img"
-                    style={{ width: "100%", maxHeight: "min(56vh, 540px)", objectFit: "contain", display: "block" }} />
-                  {domNum(sel) != null && (
-                    <Link to={`/number/${domNum(sel)}`} onClick={e => e.stopPropagation()}
-                      style={{ position: "absolute", top: 12, insetInlineStart: 12, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(24px,3.6vw,42px)", borderRadius: 12, padding: "3px 15px", textDecoration: "none", lineHeight: 1.1 }}>
-                      {domNum(sel)}
-                    </Link>
-                  )}
-                  {sel.id === latestHint?.id && (
-                    <span style={{ position: "absolute", top: 12, insetInlineEnd: 12, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "4px 12px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 האחרון שעלה</span>
-                  )}
-                </div>
-                {/* כיתוב יפה מתחת */}
-                <div style={{ marginTop: 12, padding: "13px 17px", borderRadius: 12, background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.22)" }}>
-                  {cleanName(sel.name) && <div style={{ color: "#f6e27a", fontFamily: F.regal, fontSize: "clamp(17px,2.3vw,23px)", fontWeight: 800, lineHeight: 1.45, marginBottom: 6 }}>{cleanName(sel.name)}</div>}
-                  {sel.description && <div style={{ color: "#cdbf9c", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(sel.description)}</div>}
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                    {hintNums(sel).slice(0, 6).map(n => (
-                      <Link key={n} to={`/archive?tab=pool&nums=${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, color: "#1a0e00", background: "linear-gradient(135deg,#f6dd92,#d4af37)", borderRadius: 999, padding: "3px 12px" }}>{n} →</Link>
-                    ))}
-                    {shortDate(sel) && <span style={{ color: "#a89060", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>🗓️ {shortDate(sel)}</span>}
-                  </div>
-                </div>
-              </div>
-              {/* רצועת אחרונות (שמאל ב-RTL) */}
-              <div className="hn-latest-thumbs">
-                <div className="hn-thumbs-lbl" style={{ color: "#a89060", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>📍 6 האחרונות</div>
-                {recentHints.slice(0, 6).map(h => (
-                  <button key={h.id} onClick={() => setSelHint(h)} title={cleanName(h.name) || ""}
-                    className={`hn-thumb${sel.id === h.id ? " on" : ""}`}>
-                    <img src={thumb(h.image_url, 240)} alt="" loading="lazy" />
-                    {domNum(h) != null && <span className="hn-thumb-n">{domNum(h)}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* 🎡 «גלגל הזרם» — תמונה אחת במוקד + מוט תלת-מימדי לנוע בזמן; הפירוט המלא בצד (בקשת צוריאל) */}
+          {recentHints.length ? (
+            <StreamWheel
+              hints={recentHints}
+              cutoff={postsCutoff}
+              max={10}
+              onOpen={i => setLbImg(recentHints[i])}
+              onEdit={isAdmin ? h => setEditImg(h) : null}
+            />
           ) : (
             <div style={{ textAlign: "center", color: "#a89060", fontFamily: F.body, fontSize: 14, padding: "30px 0" }}>טוען…</div>
           )}

@@ -6,9 +6,8 @@ import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGall
 import ImageEditModal from "./ImageEditModal.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
-import { computePulse, filterHints, hintNums, domNum, shortDate, effDate } from "../lib/reality.js";
+import { filterHints, hintNums, domNum, shortDate, effDate } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
-import RealityPulse from "./RealityPulse.jsx";
 import RiverStream from "./RiverStream.jsx";
 import NumberBubbles from "./NumberBubbles.jsx";
 import { computeBubbles } from "../lib/bubbles.js";
@@ -28,7 +27,6 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const [sets, setSets] = useState([]);
   const [activeSet, setActiveSet] = useState(null);   // «גלריית רמזים» שמורה פעילה
   const [value, setValue] = useState(null);           // מספר יחיד לסינון דינמי
-  const [pulsePeriod, setPulsePeriod] = useState("week");
   const [streamPeriod, setStreamPeriod] = useState(null); // null=הכל
   const [rare, setRare] = useState(false);
   const [builder, setBuilder] = useState(null);       // {id?, name, numbers:Set} | null
@@ -44,7 +42,6 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
 
   async function reloadSets() { try { setSets(await getNumberSets()); } catch { /* ignore */ } }
 
-  const pulse = useMemo(() => computePulse(hints || []), [hints]);
 
   // 🫧 בועות המספרים החיים — לפי הערך-הראשי בזרם (14+45 כבועה אחת). מפנות לארכיון.
   // הבהוב אוטומטי = «טרי»: מספר שעלתה לו תמונה ב-21 הימים הקרובים לתמונה האחרונה.
@@ -155,7 +152,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         </div>
       )}
 
-      <RealityPulse pulse={pulse} period={pulsePeriod} onPeriod={setPulsePeriod} activeValue={value} onPick={setValue} max={compact ? 5 : 8} palette={P} />
+      {/* ⛔ קופסת «חם עכשיו» (RealityPulse) הוסרה — בקשת צוריאל: רק בועות «המספרים החיים» למעלה */}
 
       {/* גלריות רמזים — סטים שמורים (מתכונת הגלריות, בצורה חדשה) */}
       {(liveSets.length > 0 || (isAdmin && !compact)) && (
