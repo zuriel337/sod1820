@@ -111,6 +111,13 @@ export default function DiamondCascade({ hints = [], cutoff, palette: P, onOpen,
                       נוסף {streamLabel(h)}
                     </span>
                   )}
+                  {/* ✏️ עריכה (אדמין) — גם על תמונות-המפל, לא רק ה-Hero */}
+                  {onEdit && (
+                    <button onClick={e => { e.stopPropagation(); onEdit(h); }} title="ערוך תמונה"
+                      style={{ position: "absolute", top: 5, insetInlineEnd: 5, zIndex: 3, background: "rgba(0,0,0,.55)", color: "#fff",
+                        border: "none", borderRadius: 999, width: 22, height: 22, fontSize: 11, cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center" }}>✏️</button>
+                  )}
                 </div>
               );
             })}
