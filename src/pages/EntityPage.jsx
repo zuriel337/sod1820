@@ -1241,30 +1241,25 @@ export default function EntityPage({ embedPhrase } = {}) {
         {/* ── 🖼 גלריות — ממוקד: main (על המספר + אזכור משמעותי) · מקרי מקופל בנפרד. סיווג משותף (galleryMain) ── */}
         {d.galleries?.length > 0 && (
           <Acc id="galleries" icon="🖼" title="תמונות מהמאגר" count={galleryMain.length || galleryIncidental.length} open={open} onToggle={toggleAcc} P={P}>
-            {/* 🖼 הפניה למאגר המסונן — כשיש הרבה יותר תמונות מהמוצג כאן (דף המספר מביא מדגם).
-                למספרים עם «סט» (למשל 45 → 14+45 · דוד/דוד המלך) מפנה לסט המלא המסונן במאגר. */}
-            {isNumber && (d.galleriesCount || 0) > galleryMain.length && (() => {
+            {/* התמונות נשארות בדף (בקשת צוריאל) — אין main? מציגים את האזכורים המשניים בקרוסלה */}
+            {(galleryMain.length > 0 || galleryIncidental.length > 0) && (
+              <PostImageCarousel value={value} images={galleryMain.length > 0 ? galleryMain : galleryIncidental} />
+            )}
+            {galleryMain.length > 0 && galleryIncidental.length > 0 && (
+              <CrossGallery value={value} images={galleryIncidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${galleryIncidental.length})`} />
+            )}
+            {/* הודעה קטנה למטה — הפניה לגלריה המסוננת (לא באנר גדול במקום התמונות) */}
+            {isNumber && (d.galleriesCount || 0) > 0 && (() => {
               const gSet = NUMBER_GALLERY_SETS[value] || [value];
-              const fam = gSet.length > 1;
               return (
-                <Link to={`/archive?tab=pool&nums=${gSet.join(",")}`}
-                  style={{ display: "block", textDecoration: "none", textAlign: "center", margin: "0 auto 14px", maxWidth: 480,
-                    background: P.accentBtn, color: P.onAccent, borderRadius: 14, padding: "13px 18px", fontFamily: F.heading, fontWeight: 800, fontSize: 15, boxShadow: `0 8px 24px ${P.glow}` }}>
-                  🖼 צפו בכל {(d.galleriesCount).toLocaleString("he")} התמונות של {value} במאגר
-                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, opacity: 0.85, marginTop: 3 }}>
-                    {fam ? `סט ${gSet.join("+")} מסונן (דוד · דוד המלך) →` : "מסוננות לפי המספר →"}
-                  </span>
-                </Link>
+                <div style={{ textAlign: "center", marginTop: 10 }}>
+                  <Link to={`/archive?tab=pool&nums=${gSet.join(",")}`}
+                    style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+                    🖼 צפו בכל {(d.galleriesCount).toLocaleString("he")} התמונות {gSet.length > 1 ? `של סט ${gSet.join("+")}` : `של ${value}`} בגלריה →
+                  </Link>
+                </div>
               );
             })()}
-            {galleryMain.length > 0 ? (
-              <PostImageCarousel value={value} images={galleryMain} />
-            ) : (
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, padding: "8px 4px", textAlign: "center" }}>
-                אין כאן תמונה יחידה ש-<b style={{ color: P.accentText }}>{value}</b> דומיננטי בה — אבל {value} מופיע בעוד תמונות רבות במאגר (למעלה ⬆), ולהלן אזכורים נוספים.
-              </div>
-            )}
-            {galleryIncidental.length > 0 && <CrossGallery value={value} images={galleryIncidental} P={P} label={`🔗 ${value} מוזכר דרך-אגב (אזכורים משניים · ${galleryIncidental.length})`} />}
             {isNumber && <ZeroResonance value={value} P={P} />}
           </Acc>
         )}
