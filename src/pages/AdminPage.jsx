@@ -55,6 +55,7 @@ const TABS = [
   { key: "push",     label: "🔔 שליחת התראה" },
   { key: "worklog",  label: "📝 יומן עבודה" },
   { key: "stream",   label: "🌊 זרם המציאות" },
+  { key: "broadcast", label: "📡 שדר לטיקר" },
 ];
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -132,6 +133,7 @@ export default function AdminPage() {
       {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
       {tab === "stream" && <StreamAdminTab />}
+      {tab === "broadcast" && <BroadcastTab />}
     </div>
   );
 }
@@ -3740,3 +3742,94 @@ function StreamAdminTab() {
   );
 }
 
+
+// 📡 «שדר לטיקר» — שידור חי לאתר: נכנס לרצועת «עדכון חי» + כרטיס «עדכון מהערוץ» בבית.
+// מקור אחד: channel_updates. שום דבר לא נכנס לזרם המציאות מכאן — רק תצוגה.
+function BroadcastTab() {
+  const [text, setText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [hours, setHours] = useState(24);
+  const [busy, setBusy] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [msg, setMsg] = useState("");
+
+  const load = useCallback(async () => {
+    try { const { listChannelUpdates } = await import("../lib/supabase.js"); setRows(await listChannelUpdates(30)); }
+    catch { /* ignore */ }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function send() {
+    if (!text.trim()) { setMsg("כתבו את העדכון קודם"); return; }
+    setBusy(true); setMsg("");
+    try {
+      const { broadcastChannelUpdate } = await import("../lib/supabase.js");
+      await broadcastChannelUpdate({ text: text.trim(), imageUrl: imageUrl.trim() || null, hours: hours || null });
+      setText(""); setImageUrl(""); setMsg("✅ שודר! יופיע בטיקר ובעמוד הבית תוך דקה (רענון אצל הגולשים).");
+      load();
+    } catch (e) { setMsg("שגיאה: " + (e.message || e)); }
+    setBusy(false);
+  }
+  async function toggle(r) {
+    try {
+      const { setChannelUpdateStatus } = await import("../lib/supabase.js");
+      await setChannelUpdateStatus(r.id, r.status === "live" ? "off" : "live");
+      load();
+    } catch (e) { alert("שגיאה: " + (e.message || e)); }
+  }
+
+  const inp = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, color: C.goldLight, fontFamily: F.body, fontSize: 14.5, padding: "10px 13px", outline: "none", width: "100%", boxSizing: "border-box" };
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 760 }}>
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>📡 שידור חדש</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>
+          נכנס לרצועת «● עדכון חי» בכל האתר + כרטיס «עדכון מהערוץ» בעמוד הבית. לא נוגע בזרם המציאות.
+        </div>
+        <textarea value={text} onChange={e => setText(e.target.value)} rows={3} placeholder="מה קורה עכשיו?"
+          style={{ ...inp, resize: "vertical", minHeight: 70, marginBottom: 10 }} />
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} dir="ltr" placeholder="קישור לתמונה (אופציונלי)"
+            style={{ ...inp, flex: 1, minWidth: 220 }} />
+          <select value={hours} onChange={e => setHours(Number(e.target.value))} style={{ ...inp, width: "auto", cursor: "pointer" }}>
+            <option value={6}>יורד אחרי 6 שעות</option>
+            <option value={24}>יורד אחרי 24 שעות</option>
+            <option value={72}>יורד אחרי 3 ימים</option>
+            <option value={0}>נשאר עד כיבוי ידני</option>
+          </select>
+          <button onClick={send} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)",
+            color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 14, padding: "10px 26px" }}>
+            {busy ? "משדר…" : "📡 שדר"}
+          </button>
+        </div>
+        {msg && <div style={{ marginTop: 10, color: msg.startsWith("✅") ? "#7bbf7b" : "#ff8080", fontFamily: F.body, fontSize: 13 }}>{msg}</div>}
+      </div>
+
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 14, marginBottom: 10 }}>השידורים האחרונים</div>
+        {!rows.length && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>עוד לא שודר כלום.</div>}
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map(r => {
+            const expired = r.expires_at && new Date(r.expires_at) < new Date();
+            const liveNow = r.status === "live" && !expired;
+            return (
+              <div key={r.id} style={{ display: "flex", gap: 10, alignItems: "center", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ flex: "0 0 auto", fontSize: 10.5, fontFamily: F.heading, fontWeight: 800, borderRadius: 999, padding: "2px 9px",
+                  background: liveNow ? "rgba(87,201,138,.15)" : "rgba(255,255,255,.06)", color: liveNow ? "#57c98a" : C.muted }}>
+                  {liveNow ? "● חי" : expired ? "פג" : "כבוי"}
+                </span>
+                {r.image_url && <span title="עם תמונה">📷</span>}
+                <span style={{ flex: 1, minWidth: 0, color: C.goldLight, fontFamily: F.body, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.text}</span>
+                <span style={{ flex: "0 0 auto", color: C.muted, fontFamily: F.heading, fontSize: 10.5 }}>{fmtDate(r.created_at)}</span>
+                <button onClick={() => toggle(r)} style={{ flex: "0 0 auto", cursor: "pointer", background: "none", border: `1px solid ${C.border}`,
+                  color: C.goldLight, borderRadius: 999, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 12px" }}>
+                  {r.status === "live" ? "כבה" : "הדלק"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

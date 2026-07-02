@@ -28,6 +28,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
+import ChannelUpdateCard from "../components/ChannelUpdateCard.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -224,6 +225,9 @@ export default function HomeNewPage() {
           <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
         </form>
       </section>
+
+      {/* ===== 📡 עדכון מהערוץ — השידור-החי האחרון (מוצג רק כשיש) ===== */}
+      <ChannelUpdateCard />
 
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>

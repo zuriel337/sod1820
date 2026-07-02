@@ -148,6 +148,40 @@ export async function getRecentCommunityWords(limit = 4) {
     .slice(0, limit);
 }
 
+// 📡 שידורים חיים (channel_updates) — «עדכון חי» בטיקר + כרטיס בעמוד הבית.
+// קריאה ציבורית: רק live שלא פג; כתיבה: אדמין בלבד (RLS). מקור עתידי: גשר הוואטסאפ.
+export async function getChannelUpdates(limit = 3) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('channel_updates')
+    .select('id,text,image_url,is_urgent,created_at')
+    .eq('status', 'live')
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
+export async function broadcastChannelUpdate({ text, imageUrl = null, hours = null, urgent = false }) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('channel_updates').insert({
+    text, image_url: imageUrl || null, is_urgent: urgent,
+    expires_at: hours ? new Date(Date.now() + hours * 3600e3).toISOString() : null,
+  }).select('id').maybeSingle();
+  if (error) throw error;
+  return data;
+}
+export async function listChannelUpdates(limit = 30) {   // אדמין — כולל כבויים/שפגו
+  if (!supabase) return [];
+  const { data } = await supabase.from('channel_updates')
+    .select('*').order('created_at', { ascending: false }).limit(limit);
+  return data || [];
+}
+export async function setChannelUpdateStatus(id, status) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('channel_updates').update({ status }).eq('id', id);
+  if (error) throw error;
+}
+
 // סך כל המילים במאגר — count מדויק בלי למשוך שורות (לפי האמת, לא מספר קבוע)
 export async function getGematriaWordsCount() {
   if (!supabase) return 0;

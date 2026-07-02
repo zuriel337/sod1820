@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages } from "../../lib/supabase.js";
+import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages, getChannelUpdates } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
@@ -178,6 +178,13 @@ function useLiveTicker() {
 
       // 🚫 בלי כפילויות (בקשת צוריאל) — כל הודעה מופיעה פעם אחת בלבד בסבב.
       const uniq = [...new Set(out.filter(Boolean))];
+      // 📡 «עדכון חי» — שידורים מהערוץ/אדמין (channel_updates), תמיד ראשונים בסבב.
+      // אובייקטים (לא מחרוזות) כדי לשאת תמונה — הקשה עליהם פותחת אותה במסך מלא.
+      try {
+        const lives = await getChannelUpdates(3);
+        for (const u of (lives || []).reverse())
+          uniq.unshift({ live: true, id: u.id, text: u.text, image: u.image_url || null });
+      } catch { /* ignore */ }
       if (live) setMsgs(uniq);
     }
     load();
@@ -198,18 +205,20 @@ export default function LiveActivityBar() {
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
+  const [lbImg, setLbImg] = useState(null);   // תמונת «עדכון חי» שנפתחה במסך מלא
   const idx = msgs.length ? i % msgs.length : 0;
   const cur = msgs[idx] || "";
-  const isVerse = cur.startsWith("📜");
+  const isLive = typeof cur === "object" && cur.live;
+  const isVerse = typeof cur === "string" && cur.startsWith("📜");
   // 📜 סופר צפייה בפסוק — כשפסוק מוצג בפועל, מקדם את המכסה היומית של המבקר (עד 2 ליום).
   // אחרי המכסה הבנייה-הבאה (≤60ש') תפסיק להזריק פסוקים למבקר הזה. כך «רואים פעמיים ביום».
   useEffect(() => { if (isVerse) bumpVersesSeen(); }, [idx, isVerse]);
   // קצב רגוע (בקשת צוריאל). פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
   useEffect(() => {
     if (msgs.length < 2) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 11000 : 7000);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 11000 : isLive ? 9500 : 7000);
     return () => clearTimeout(id);
-  }, [i, msgs.length, isVerse]);
+  }, [i, msgs.length, isVerse, isLive]);
 
   if (!msgs.length) return null;
 
@@ -251,8 +260,28 @@ export default function LiveActivityBar() {
 
       <div className="lt-bar" aria-label="עדכונים אחרונים באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-        <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
+        {isLive ? (
+          /* 📡 עדכון חי — תג אדום; עם תמונה → לחיץ ופותח אותה במסך מלא */
+          <div className="lt-msg" key={idx}
+            onClick={cur.image ? () => setLbImg(cur.image) : undefined}
+            style={{ pointerEvents: cur.image ? "auto" : "none", cursor: cur.image ? "pointer" : "default" }}>
+            <span style={{ background: "#7a1320", color: "#ffd9de", fontSize: 9.5, fontWeight: 900, borderRadius: 999,
+              padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.5, verticalAlign: "middle" }}>● עדכון חי</span>
+            {cur.text}{cur.image ? " · 📷" : ""}
+          </div>
+        ) : (
+          <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
+        )}
       </div>
+
+      {/* תמונת העדכון במסך מלא — נסגרת בהקשה */}
+      {lbImg && (
+        <div onClick={() => setLbImg(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
+          background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
+          <img src={lbImg} alt="עדכון חי" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
+            border: "1px solid rgba(212,175,55,0.5)", boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+        </div>
+      )}
     </div>
   );
 }
