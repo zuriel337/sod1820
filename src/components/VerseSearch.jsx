@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import QuickActions from "./QuickActions.jsx";
-import AiAnalyze from "./AiAnalyze.jsx";
 import { entityFromVerse } from "../lib/research/entity.js";
 import { METHODS, methodLabel } from "../lib/gematria.js";
 
@@ -266,8 +265,7 @@ export default function VerseSearch({ seed }) {
               </div>
               <div style={{ fontSize: 17, lineHeight: 1.9, marginTop: 6, fontWeight: 600 }}>{hl(res)}</div>
               <QuickActions entity={entityFromVerse(ref, r[3])} />
-              {/* 🤖 ניתוח AI — מפרש את הפסוק (פשט + חיבור הערך כרמז) */}
-              <AiAnalyze compact kind="verse" subject={`${ref} — ${r[3]}`} facts={`סך הפסוק (${methodLabel(method)}) = ${total}.`} />
+              {/* ⛔ ניתוח-AI לפסוק הוסר (בקשת צוריאל) — נשאר בהשוואה/נוטריקון/מחקר-אישי בלבד */}
             </div>
           );
         })}
