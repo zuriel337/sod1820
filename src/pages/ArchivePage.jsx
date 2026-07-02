@@ -9,7 +9,7 @@ import {
   getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
   getRealityHints, getTreasures, supabase,
 } from "../lib/supabase.js";
-import MuseumGate from "../components/MuseumGate.jsx";
+import MuseumGallery, { CascadeContain } from "../components/MuseumGallery.jsx";
 import { stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { bubbleKeyFor, CORE_BUBBLE } from "../lib/bubbles.js";
@@ -63,7 +63,7 @@ export default function ArchivePage() {
   // סנכרון טאב כשמנווטים עם ?tab= (אותו עמוד, לא מתבצע remount)
   useEffect(() => {
     const t = new URLSearchParams(loc.search).get("tab");
-    if (t === "galleries" || t === "pool" || t === "reality" || t === "cascade") setTab(t);
+    if (t === "galleries" || t === "pool" || t === "reality" || t === "cascade" || t === "trial") setTab(t);
   }, [loc.search]);
   const [gals, setGals] = useState(null);
   const [imgs, setImgs] = useState([]);
@@ -862,7 +862,7 @@ export default function ArchivePage() {
 
       {/* טאבים */}
       <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 26, flexWrap: "wrap" }}>
-        {[["reality", "🌊 זרם המציאות"], ["cascade", "👑 אוצרות הגילוי"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
+        {[["reality", "🌊 זרם המציאות"], ["cascade", "👑 אוצרות הגילוי"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"], ...(isAdmin ? [["trial", "🧪 ניסוי"]] : [])].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 20px", borderRadius: 999,
             border: `1px solid ${tab === k ? C.gold : C.border}`,
@@ -879,8 +879,11 @@ export default function ArchivePage() {
         </div>
       )}
 
-      {/* ============ 💎 טאב מפל — זירת השוואה חיה: המפל מול שער-המוזיאון (לבחירת צוריאל) ============ */}
+      {/* ============ 👑 טאב אוצרות הגילוי — ציר-הערך, שער-המוזיאון ללא-חיתוך ============ */}
       {tab === "cascade" && <CascadeCompare isAdmin={isAdmin} onEdit={isAdmin ? h => setEditImg(h) : null} />}
+
+      {/* ============ 🧪 טאב ניסוי (אדמין) — שתי גלריות ללא-חיתוך על נתוני הזרם, לבחירה ============ */}
+      {tab === "trial" && isAdmin && <TrialGalleries onEdit={h => setEditImg(h)} />}
 
       {/* ============ טאב גלריות (ההיסטורי) — עם רצועת גלריות-רמזים מומלצות ============ */}
       {tab === "galleries" && (
@@ -1870,12 +1873,59 @@ function CascadeCompare({ isAdmin, onEdit }) {
       </div>
 
       {gateList.length > 0
-        ? <MuseumGate hints={gateList} palette={P} total={total} onOpen={i => setLb({ list: gateList, idx: i })} onEdit={onEdit} />
+        ? <MuseumGallery hints={gateList} onOpen={i => setLb({ list: gateList, idx: i })} onEdit={onEdit} />
         : <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>אין עדיין תמונות להצגה.</div>}
+      {total != null && (
+        <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.heading, fontSize: 13, marginTop: 26 }}>
+          📷 <b style={{ color: C.goldBright, fontFamily: "'Courier New',monospace", fontSize: 17 }}>{Number(total).toLocaleString("he")}</b> תמונות במאגר ·{" "}
+          <Link to="/archive?tab=pool" style={{ color: C.goldBright }}>🔎 פתח את הגלריה המלאה ←</Link>
+        </div>
+      )}
 
       {lb != null && (
         <Lightbox images={lb.list} initialIndex={lb.idx} onClose={() => setLb(null)}
           onEdit={isAdmin && onEdit ? h => { setLb(null); onEdit(h); } : null} />
+      )}
+    </div>
+  );
+}
+
+// ═══ 🧪 טאב הניסוי (אדמין) — שתי גלריות «ללא-חיתוך» על נתוני-הזרם החיים, לבחירת צוריאל ═══
+function TrialGalleries({ onEdit }) {
+  const [hints, setHints] = useState(null);
+  const [lb, setLb] = useState(null);
+  useEffect(() => {
+    let live = true;
+    getRealityHints(9).then(h => { if (live) setHints(h || []); }).catch(() => live && setHints([]));
+    return () => { live = false; };
+  }, []);
+  if (hints === null) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען…</div>;
+  if (!hints.length) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>אין תמונות בזרם.</div>;
+
+  const head = (t, note) => (
+    <div style={{ textAlign: "center", margin: "0 0 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, maxWidth: 760, margin: "0 auto 4px" }}>
+        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,175,55,.4))" }} />
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(17px,3vw,22px)", fontWeight: 800 }}>{t}</span>
+        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(212,175,55,.4),transparent)" }} />
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>{note}</div>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, fontSize: 13, marginBottom: 26, lineHeight: 1.7 }}>
+        🧪 זירת ניסוי (רק אתה רואה) — שתי גלריות «ללא-חיתוך» על תמונות הזרם. בחר את המנצחת לאוצרות.
+      </div>
+      {head("✨ גרסה א׳ — שער המניפה", "Hero ביחס מלא + שלט-מוזיאון תלת-מימדי צף בצד (תיאור מלא) + מניפה ברוחבים יורדים · ה-Hero מתחלף כל 15ש׳")}
+      <MuseumGallery hints={hints} onOpen={i => setLb(i)} onEdit={onEdit} />
+      <div style={{ height: 56 }} />
+      {head("💎 גרסה ב׳ — מפל ללא-חיתוך", "Hero ביחס מלא + התיאור מתחתיו · השאר משתלשלות פנימה בתלת-מימד בגודל יחסי")}
+      <CascadeContain hints={hints.slice(0, 5)} onOpen={i => setLb(i)} onEdit={onEdit} />
+      {lb != null && (
+        <Lightbox images={hints} initialIndex={lb} onClose={() => setLb(null)}
+          onEdit={onEdit ? h => { setLb(null); onEdit(h); } : null} />
       )}
     </div>
   );
