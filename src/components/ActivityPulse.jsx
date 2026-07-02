@@ -59,10 +59,11 @@ export default function ActivityPulse({ light, title = "🟢 פעילות חיה
       `}</style>
       <div className="ap-head" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
         <span className="ap-title" style={{ color: pal.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
-        {pulse.active > 0 && (
+        {/* «חקירות» ולא «חוקרים» (בקשת צוריאל + יושר): events = ספירת פעולות אמיתית מה-RPC */}
+        {(pulse.events ?? pulse.active) > 0 && (
           <span className="ap-badge" style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800,
             background: pal.glow, border: `1px solid ${pal.border}`, borderRadius: 999, padding: "3px 11px" }}>
-            ⚡ {pulse.active === 1 ? "חוקר אחד פעיל" : `${pulse.active} חוקרים פעילים`} בשעה האחרונה
+            ⚡ {(pulse.events ?? pulse.active) === 1 ? "חקירה אחת" : `${pulse.events ?? pulse.active} חקירות`} בשעה האחרונה
           </span>
         )}
       </div>
