@@ -36,6 +36,32 @@ const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 
 const strengthLabel = n =>
   n >= 5 ? "✦ התכנסות-על" : n >= 3 ? "✦ התכנסות חזקה" : n === 2 ? "הצלבה" : "נגיעה יחידה";
 
+// כותרות פוסטים ישנים מגיעות עם ישויות-HTML של וורדפרס — ניקוי לתצוגה
+const decodeTitle = s => String(s || "")
+  .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+  .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&apos;|&#x27;/g, "'")
+  .replace(/<[^>]+>/g, "").trim();
+
+// 🧭 המסביר האינטראקטיבי — שלושת שלבי ההצלבה. הדוגמאות אומתו במנוע הרשמי (fn_ragil):
+// אהבה=13, אחד=13, משיח=358, נחש=358 — נתוני מערכת מאומתים.
+const EXPLAIN = [
+  {
+    k: "fact", icon: "🔢", t: "עובדה", head: "לכל ביטוי יש ערך",
+    body: "כל אות עברית שווה מספר (א=1, ב=2 … ת=400). מחברים את אותיות הביטוי ומקבלים את הערך שלו. למשל: אהבה = 1+5+2+5 = 13. זה חישוב טהור שהמנוע מאמת — עובדה, לא פרשנות.",
+    demo: { label: "אהבה = 13 = אחד", to: "/number/13" },
+  },
+  {
+    k: "cross", icon: "✚", t: "הצלבה", head: "שני ביטויים · אותו מספר",
+    body: "כששני ביטויים שונים נופלים בדיוק על אותו ערך — נוצרת הצלבה: נקודת מפגש בין שני מושגים. הדוגמה המפורסמת: משיח = 358 = נחש. ההצלבה עצמה היא עובדה מתמטית; מה היא אומרת — זה הרמז.",
+    demo: { label: "משיח = 358 = נחש", to: "/cross?n=358" },
+  },
+  {
+    k: "conv", icon: "✦", t: "התכנסות", head: "הרבה שיטות · מספר אחד",
+    body: "יש 9 שיטות חישוב שונות (רגיל, מילוי, מסתתר, אתבש…). כשביטויים רבים — בשיטות בלתי-תלויות — נופלים כולם על אותו מספר, זו התכנסות. ככל שיותר שיטות עצמאיות מצביעות על אותה נקודה, הראיה נדירה וחזקה יותר. זה מה שהדף הזה מודד.",
+    demo: { label: "1820 — התכנסות-העל", to: "/cross?n=1820" },
+  },
+];
+
 export default function CrossMethodPage() {
   const P = usePalette();
   const { isAdmin } = useAuth();
@@ -53,6 +79,8 @@ export default function CrossMethodPage() {
   const [entities, setEntities] = useState([]);   // ישויות מאומתות שנופלות על המספר (מדורגות לפי משמעות)
   const [related, setRelated] = useState([]);     // ישויות קרובות דרך הגרף (edges)
   const [cards, setCards] = useState([]);         // כרטיסי התכנסות שמכילים את המספר (גשר ל-/topic)
+  const [entityPosts, setEntityPosts] = useState({}); // ישות → פוסטי-המקור מהגרף (edges: post mentions entity)
+  const [expl, setExpl] = useState(null);          // המסביר האינטראקטיבי — איזה שלב פתוח
 
   // כרטיסי התכנסות שמכילים את המספר — הגשר לציר ההתכנסות
   useEffect(() => {
@@ -106,6 +134,24 @@ export default function CrossMethodPage() {
     })();
     return () => { live = false; };
   }, [rows]);
+
+  // 📖 פוסטי-המקור לכל ישות — RPC משולב: קודם קשרי-הגרף (edges: post mentions entity),
+  // ואם אין — חיפוש הביטוי בפוסטים עצמם (כותרת קודם, ואז תוכן). מפנה — לא מעתיק (עץ אחד).
+  useEffect(() => {
+    let live = true;
+    if (!entities.length) { setEntityPosts({}); return; }
+    supabase.rpc("cross_source_posts", { p_labels: entities.map(e => e.label) })
+      .then(({ data }) => {
+        if (!live) return;
+        const m = {};
+        for (const r of data || []) {
+          if (!r.slug) continue;
+          (m[r.label] = m[r.label] || []).push({ slug: r.slug, title: decodeTitle(r.title) });
+        }
+        setEntityPosts(m);
+      });
+    return () => { live = false; };
+  }, [entities]);
 
   // לכל ביטוי — השיטות שבהן נפל על המספר, אחרי קיפול תלות (method_hierarchy_ragil_foundation):
   // «גדול» ששווה ל«רגיל» = אין אות סופית = אותה ראיה, לא שיטה נפרדת → מקופל.
@@ -225,6 +271,51 @@ export default function CrossMethodPage() {
           כל הביטויים <b style={{ color: P.ink }}>המאומתים</b> שנופלים על אותו מספר — בכל שיטה ושיטה.
           כשמספר אחד הוא נקודת מפגש של שיטות רבות, הביטויים סביבו נקראים יחד כמסר.
         </p>
+
+        {/* 🧭 מה זו הצלבה? — מסביר אינטראקטיבי: עיגולים שנפתחים לריבועי-הסבר עם דוגמה חיה */}
+        <div style={{ maxWidth: 660, margin: "16px auto 0" }}>
+          <div style={{ color: P.accent, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1.5, marginBottom: 10 }}>
+            מה זו הצלבה? לחצו על כל שלב 👇
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "center", flexWrap: "wrap" }}>
+            {EXPLAIN.map((s, i) => {
+              const on = expl === s.k;
+              return (
+                <React.Fragment key={s.k}>
+                  <button onClick={() => setExpl(x => (x === s.k ? null : s.k))} aria-expanded={on}
+                    style={{ cursor: "pointer", width: 74, height: 74, borderRadius: "50%",
+                      background: on ? P.cardGrad : P.card,
+                      border: on ? `2px solid ${P.accent}` : `1.5px solid ${P.borderStrong}`,
+                      boxShadow: on ? `0 0 26px ${P.glow}` : "none",
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2,
+                      color: on ? P.accentText : P.ink, transition: "box-shadow .18s ease, border-color .18s ease" }}>
+                    <span style={{ fontSize: 19, lineHeight: 1 }}>{s.icon}</span>
+                    <span style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{s.t}</span>
+                    <span style={{ fontFamily: F.mono, fontSize: 9.5, color: P.accentDim }}>{i + 1}/3</span>
+                  </button>
+                  {i < EXPLAIN.length - 1 && <span style={{ color: P.accentDim, fontSize: 16, padding: "0 2px" }}>←</span>}
+                </React.Fragment>
+              );
+            })}
+          </div>
+          {expl && (() => {
+            const s = EXPLAIN.find(x => x.k === expl);
+            return (
+              <div style={{ marginTop: 12, background: P.cardGrad, border: `1px solid ${P.accent}`, borderRadius: 14, padding: "15px 18px", textAlign: "center" }}>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>{s.icon} {s.head}</div>
+                <p style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 2, margin: "8px 0 11px" }}>{s.body}</p>
+                <Link to={s.demo.to} onClick={() => { if (s.demo.to.startsWith("/cross")) { const n = Number(s.demo.to.split("n=")[1]); if (n) { go(n); setExpl(null); } } }}
+                  style={{ textDecoration: "none", display: "inline-block", background: P.accentBtn, color: P.onAccent,
+                    fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "8px 20px", borderRadius: 999 }}>
+                  ✦ דוגמה חיה: {s.demo.label} ←
+                </Link>
+                <div style={{ marginTop: 9, color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+                  ⚙️ הערכים בדוגמאות אומתו במנוע · 🔎 המשמעות — רמז משלים
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       </header>
 
       {/* קלט */}
@@ -293,8 +384,10 @@ export default function CrossMethodPage() {
             {entities.map(e => {
               const vias = (phraseMethods[e.label] || []).map(c => METHOD_BY_COL[c]).filter(Boolean);
               const isGold = e.tier === "gold";
+              const srcPosts = entityPosts[e.label] || [];
               return (
-              <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none",
+              <div key={e.label}>
+              <Link to={`/number/${encodeURIComponent(e.label)}`} style={{ display: "block", textDecoration: "none",
                 padding: isGold ? "13px 15px" : "9px 13px", borderRadius: isGold ? 13 : 10,
                 background: isGold ? P.cardGrad : P.card,
                 border: isGold ? `1.5px solid ${P.accent}` : `1px solid ${P.border}`,
@@ -319,6 +412,20 @@ export default function CrossMethodPage() {
                   </div>
                 )}
               </Link>
+              {/* 📖 פוסט המקור — גלוי על כל הצלבה, מפנה לפוסט המלא (עץ אחד: מפנים, לא מעתיקים) */}
+              {srcPosts.length > 0 && (
+                <div style={{ margin: "0 10px", padding: "7px 12px 8px", background: P.card,
+                  border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 11px 11px",
+                  display: "flex", flexDirection: "column", gap: 4 }}>
+                  {srcPosts.map(p => (
+                    <Link key={p.slug} to={`/${p.slug}`} style={{ textDecoration: "none", color: P.accentText,
+                      fontFamily: F.body, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6 }}>
+                      📖 פוסט המקור: {p.title} ←
+                    </Link>
+                  ))}
+                </div>
+              )}
+              </div>
             );})}
           </div>
           {related.length > 0 && (
