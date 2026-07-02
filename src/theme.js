@@ -325,6 +325,55 @@ export const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-rows > div:first-child { margin-top: 0; }
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
+
+  /* 🔤 ערכת «גרפיקת-קוד» קנונית (sgx) — אנימציות CSS לפוסטים גרפיים (ר"ת/ס"ת, אתב"ש, אנגרמות).
+     חיה כאן כמו sod-gematria-box: הפוסט משתמש בקלאסים בלבד, בלי <style> משלו — פתרון מערכתי.
+     שימוש ראשון: פוסט הקוד של הרב עמוס גואטה (id 5008). ⚠️ שני עותקים: legacy.jsx + theme.js. */
+  .sod-post-content .sgx { background: linear-gradient(170deg, #16112a, #0e0a1a); border: 1px solid rgba(232,200,74,.35); border-radius: 16px; padding: 26px 14px; margin: 26px 0; text-align: center; direction: rtl; overflow: hidden; }
+  .sod-post-content .sgx-cap { color: #b6ab92; font-size: 13.5px; line-height: 1.9; margin-top: 14px; }
+  .sod-post-content .sgx-cap b { color: #f0dc9a; }
+  .sod-post-content .sgx-step { display: inline-block; background: rgba(232,200,74,.12); border: 1px solid rgba(232,200,74,.45); color: #e8c84a; border-radius: 999px; padding: 3px 14px; font-size: 12px; font-weight: 800; letter-spacing: 1px; margin-bottom: 14px; }
+  .sod-post-content .sgx1-name { font-size: clamp(34px, 9vw, 52px); font-weight: 800; color: #ded5c2; letter-spacing: 2px; }
+  .sod-post-content .sgx1-name .rt, .sod-post-content .sgx1-name .st { display: inline-block; animation: sgx-glow 2.6s ease-in-out infinite; }
+  .sod-post-content .sgx1-name .rt { color: #ffd86b; text-shadow: 0 0 18px rgba(255,216,107,.7); }
+  .sod-post-content .sgx1-name .st { color: #7fd4ff; text-shadow: 0 0 18px rgba(127,212,255,.7); animation-delay: -1.3s; }
+  .sod-post-content .sgx1-out { margin-top: 16px; }
+  .sod-post-content .sgx1-out i { display: inline-block; font-style: normal; font-size: clamp(26px, 7vw, 38px); font-weight: 800; margin: 0 4px; padding: 6px 14px; border-radius: 12px; background: rgba(232,200,74,.1); border: 1px solid rgba(232,200,74,.5); color: #f0dc9a; animation: sgx-pop 7s ease infinite; }
+  .sod-post-content .sgx1-out i:nth-child(1) { animation-delay: -0.0s; color: #ffd86b; }
+  .sod-post-content .sgx1-out i:nth-child(2) { animation-delay: -5.8s; color: #ffd86b; }
+  .sod-post-content .sgx1-out i:nth-child(3) { animation-delay: -4.6s; color: #7fd4ff; border-color: rgba(127,212,255,.5); background: rgba(127,212,255,.08); }
+  .sod-post-content .sgx1-out i:nth-child(4) { animation-delay: -3.4s; color: #7fd4ff; border-color: rgba(127,212,255,.5); background: rgba(127,212,255,.08); }
+  .sod-post-content .sgx2-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; perspective: 700px; }
+  .sod-post-content .sgx2-card { width: clamp(56px, 16vw, 76px); aspect-ratio: 3/4; position: relative; }
+  .sod-post-content .sgx2-in { position: absolute; inset: 0; transform-style: preserve-3d; animation: sgx-flip 7s ease-in-out infinite; }
+  .sod-post-content .sgx2-card:nth-child(1) .sgx2-in { animation-delay: -0.0s; }
+  .sod-post-content .sgx2-card:nth-child(2) .sgx2-in { animation-delay: -0.4s; }
+  .sod-post-content .sgx2-card:nth-child(3) .sgx2-in { animation-delay: -0.8s; }
+  .sod-post-content .sgx2-card:nth-child(4) .sgx2-in { animation-delay: -1.2s; }
+  .sod-post-content .sgx2-f, .sod-post-content .sgx2-b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: clamp(28px, 8vw, 40px); font-weight: 800; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .sod-post-content .sgx2-f { background: rgba(232,200,74,.1); border: 1px solid rgba(232,200,74,.5); color: #f0dc9a; }
+  .sod-post-content .sgx2-b { background: rgba(200,16,46,.14); border: 1px solid rgba(255,110,130,.55); color: #ff9caa; transform: rotateY(180deg); }
+  .sod-post-content .sgx3-stage { position: relative; min-height: 150px; }
+  .sod-post-content .sgx3-rowA, .sod-post-content .sgx3-rowB { position: absolute; inset-inline: 0; top: 0; display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .sod-post-content .sgx3-rowA { animation: sgx-showA 10s ease infinite; }
+  .sod-post-content .sgx3-rowB { animation: sgx-showB 10s ease infinite; }
+  .sod-post-content .sgx3-tile { display: inline-flex; align-items: center; justify-content: center; width: clamp(40px, 11vw, 54px); aspect-ratio: 1; border-radius: 11px; font-size: clamp(22px, 6vw, 30px); font-weight: 800; background: rgba(232,200,74,.1); border: 1px solid rgba(232,200,74,.5); color: #f0dc9a; }
+  .sod-post-content .sgx3-red { background: rgba(200,16,46,.16); border-color: rgba(255,110,130,.6); color: #ff9caa; }
+  .sod-post-content .sgx3-plus { color: #8d8270; font-size: 22px; font-weight: 800; }
+  .sod-post-content .sgx3-lbl { width: 100%; color: #b6ab92; font-size: 12.5px; margin-top: 10px; }
+  .sod-post-content .sgx3-lbl b { color: #f0dc9a; }
+  .sod-post-content .sgx-date { direction: ltr; unicode-bidi: isolate; font-size: clamp(30px, 9vw, 46px); font-weight: 800; color: #ffd86b; text-shadow: 0 0 30px rgba(255,216,107,.55); animation: sgx-beat 2.4s ease-in-out infinite; display: inline-block; }
+  @keyframes sgx-glow { 0%,100% { transform: none; } 50% { transform: translateY(-7px) scale(1.12); } }
+  @keyframes sgx-pop { 0%, 8% { opacity: 0; transform: translateY(16px) scale(.7); } 14%, 88% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; transform: translateY(-10px) scale(.85); } }
+  @keyframes sgx-flip { 0%, 34% { transform: rotateY(0); } 48%, 84% { transform: rotateY(180deg); } 100% { transform: rotateY(360deg); } }
+  @keyframes sgx-showA { 0%, 38% { opacity: 1; transform: none; } 46%, 92% { opacity: 0; transform: translateY(-14px); } 100% { opacity: 1; transform: none; } }
+  @keyframes sgx-showB { 0%, 40% { opacity: 0; transform: translateY(16px); } 50%, 90% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .sod-post-content .sgx1-out i, .sod-post-content .sgx2-in, .sod-post-content .sgx3-rowA, .sod-post-content .sgx3-rowB,
+    .sod-post-content .sgx1-name .rt, .sod-post-content .sgx1-name .st, .sod-post-content .sgx-date { animation: none !important; }
+    .sod-post-content .sgx3-rowA { position: static; margin-bottom: 12px; }
+    .sod-post-content .sgx3-rowB { position: static; }
+  }
   /* ai_box_theme_aware — מצב בהיר (יום): קופסה בהירה + טקסט כהה במקום ניווי כהה על קלף */
   [data-theme="light"] .sod-post-content .sod-gematria-box {
     background: linear-gradient(135deg, rgba(176,125,18,0.10), rgba(255,255,255,0.72));
