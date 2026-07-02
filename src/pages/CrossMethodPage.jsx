@@ -29,6 +29,13 @@ const TOTAL_METHODS = METHOD_COLS.length;
 
 const SAMPLES = [1820, 313, 326, 322, 1234, 776, 86];
 
+// עוגנים קדושים — מספרי-ליבה (זהה ל-CrossFinder; מקור אחד עתידי: crossRarity)
+const ANCHOR_SET = new Set([1820, 776, 358, 424, 604, 26, 86, 314, 543, 91, 13, 1237, 541, 137, 248, 611, 1202, 318]);
+
+// עוצמת ההתכנסות לפי שיטות בלתי-תלויות (אחרי קיפול גדול→רגיל) — תווית עובדתית, לא ציון שרירותי
+const strengthLabel = n =>
+  n >= 5 ? "✦ התכנסות-על" : n >= 3 ? "✦ התכנסות חזקה" : n === 2 ? "הצלבה" : "נגיעה יחידה";
+
 export default function CrossMethodPage() {
   const P = usePalette();
   const { isAdmin } = useAuth();
@@ -100,27 +107,70 @@ export default function CrossMethodPage() {
     return () => { live = false; };
   }, [rows]);
 
-  // קיבוץ לפי שיטה — לכל שיטה רשימת הביטויים שנופלים על המספר בה.
-  const groups = useMemo(() => {
-    return METHOD_COLS
-      .map(m => ({ ...m, phrases: [...new Set(rows.filter(r => r[m.col] === num).map(r => r.phrase))] }))
-      .filter(g => g.phrases.length > 0)
-      .sort((a, b) => b.phrases.length - a.phrases.length);
-  }, [rows, num]);
-
-  const allPhrases = useMemo(() => [...new Set(rows.map(r => r.phrase))], [rows]);
-  const methodsHit = groups.length;
-  const meaning = KEY_NUMBERS[num];
-
-  // לכל ביטוי — דרך אילו שיטות הוא נפל על המספר (נשמת השיטה).
+  // לכל ביטוי — השיטות שבהן נפל על המספר, אחרי קיפול תלות (method_hierarchy_ragil_foundation):
+  // «גדול» ששווה ל«רגיל» = אין אות סופית = אותה ראיה, לא שיטה נפרדת → מקופל.
   const phraseMethods = useMemo(() => {
     const map = {};
     for (const r of rows) {
-      const hits = METHOD_COLS.filter(m => r[m.col] === num).map(m => m.col);
+      let hits = METHOD_COLS.filter(m => r[m.col] === num).map(m => m.col);
+      if (hits.includes("ragil") && hits.includes("gadol")) hits = hits.filter(c => c !== "gadol");
       if (hits.length) map[r.phrase] = [...new Set([...(map[r.phrase] || []), ...hits])];
     }
     return map;
   }, [rows, num]);
+
+  // כמה ביטויים קופלו (גדול=רגיל) — לשקיפות בתעודה
+  const foldedCount = useMemo(() =>
+    rows.filter(r => r.ragil === num && r.gadol === num).length, [rows, num]);
+
+  // קיבוץ לפי שיטה — מהמפה המקופלת (ספירה ישרה, לא מנופחת)
+  const groups = useMemo(() => {
+    const byCol = {};
+    for (const [p, cols] of Object.entries(phraseMethods))
+      for (const c of cols) (byCol[c] = byCol[c] || new Set()).add(p);
+    return METHOD_COLS
+      .map(m => ({ ...m, phrases: [...(byCol[m.col] || [])] }))
+      .filter(g => g.phrases.length > 0)
+      .sort((a, b) => b.phrases.length - a.phrases.length);
+  }, [phraseMethods]);
+
+  const allPhrases = useMemo(() => Object.keys(phraseMethods), [phraseMethods]);
+  const methodsHit = groups.length;   // שיטות בלתי-תלויות בלבד
+  const meaning = KEY_NUMBERS[num];
+
+  // דירוג ביטויים בתוך שיטה: ישויות-זהב → ישויות → מי שנופל ביותר שיטות → הקצר קודם
+  const entityRank = useMemo(() => {
+    const m = {};
+    for (const e of entities) m[e.label] = e.tier === "gold" ? 2 : 1;
+    return m;
+  }, [entities]);
+  const rankPhrases = list => [...list].sort((a, b) =>
+    (entityRank[b] || 0) - (entityRank[a] || 0) ||
+    (phraseMethods[b]?.length || 0) - (phraseMethods[a]?.length || 0) ||
+    a.length - b.length);
+
+  // 📜 תעודת המספר — פסקה מוסברת, דטרמיניסטית, כולה מנתוני המנוע (אפס המצאות)
+  const certificate = useMemo(() => {
+    if (!allPhrases.length) return null;
+    const densest = groups[0];
+    const rarest = groups[groups.length - 1];
+    const goldCount = entities.filter(e => e.tier === "gold").length;
+    let s = `על ${num} נופלים ${allPhrases.length} ביטויים מאומתים ב-${methodsHit} ${methodsHit === 1 ? "שיטה" : "שיטות"} בלתי-תלויות`;
+    if (goldCount) s += `, ובהם ${goldCount === 1 ? "ישות-זהב אחת" : `${goldCount} ישויות-זהב`}`;
+    s += `. ההתכנסות הצפופה ביותר — ב«${densest.name}» (${densest.phrases.length} ביטויים)`;
+    if (rarest && rarest.col !== densest.col)
+      s += `; הנדירה ביותר — ב«${rarest.name}», ${rarest.phrases.length === 1 ? "ביטוי אחד בלבד" : `רק ${rarest.phrases.length} ביטויים`} בכל המאגר — ככל שהמשפחה קטנה, הראיה נדירה וחזקה יותר`;
+    s += ANCHOR_SET.has(num) ? `. המספר עצמו הוא עוגן קדוש במערכת.` : ".";
+    return s;
+  }, [allPhrases.length, groups, entities, methodsHit, num]);
+
+  // כרטיסי-שיטה מקופלים — top-5 גלוי, השאר בלחיצה
+  const [expanded, setExpanded] = useState({});
+  useEffect(() => { setExpanded({}); }, [num]);
+  const TOP_N = 5;
+  // רצועת-המסר — מדורגת ומקופלת גם היא
+  const [stripOpen, setStripOpen] = useState(false);
+  const STRIP_N = 15;
 
   // מסר נרטיבי — נבנה מהעולמות והקשרים של הישויות.
   const narrative = useMemo(() => {
@@ -204,18 +254,31 @@ export default function CrossMethodPage() {
         </div>
       )}
 
-      {/* המספר + סיכום */}
+      {/* 📜 תעודת המספר — סיכום-מנוע מוסבר (שיטות בלתי-תלויות בלבד, לא ספירה מנופחת) */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(44px,11vw,84px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 50px ${P.glow}` }}>{num}</div>
         {meaning && <div style={{ color: P.accent, fontFamily: F.regal, fontSize: 16, marginTop: 6 }}>{meaning}</div>}
-        <div style={{ marginTop: 12, display: "inline-flex", gap: 18, flexWrap: "wrap", justifyContent: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
-          <span>מתכנס ב־<b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{methodsHit}</b> מתוך {TOTAL_METHODS} שיטות</span>
-          <span>·</span>
-          <span><b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{allPhrases.length}</b> ביטויים מאומתים</span>
-          {methodsHit === TOTAL_METHODS && (
-            <span style={{ color: P.accentText, fontWeight: 700 }}>✦ התכנסות מלאה</span>
-          )}
-        </div>
+        {!loading && allPhrases.length > 0 && (
+          <>
+            <div style={{ marginTop: 12, display: "inline-flex", gap: 18, flexWrap: "wrap", justifyContent: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
+              <span><b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{methodsHit}</b> שיטות בלתי-תלויות</span>
+              <span>·</span>
+              <span><b style={{ color: P.ink, fontFamily: F.mono, fontSize: 16 }}>{allPhrases.length}</b> ביטויים מאומתים</span>
+              <span>·</span>
+              <span style={{ color: P.accentText, fontWeight: 700 }}>{strengthLabel(methodsHit)}</span>
+            </div>
+            {certificate && (
+              <p style={{ maxWidth: 620, margin: "14px auto 0", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 14,
+                padding: "14px 18px", color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 2, textAlign: "center" }}>
+                {certificate}
+              </p>
+            )}
+            <div style={{ marginTop: 8, color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7 }}>
+              עובדה: כל הערכים חושבו ואומתו במנוע. משמעות השיטות — רמז משלים.
+              {foldedCount > 0 && ` · «גדול» נספר רק כשיש אות סופית (${foldedCount} ${foldedCount === 1 ? "ביטוי קופל" : "ביטויים קופלו"} לתוך «רגיל»)`}
+            </div>
+          </>
+        )}
       </div>
 
       {/* ✨ המסר המרכזי — ישויות-זהב מדורגות לפי משמעות */}
@@ -281,46 +344,75 @@ export default function CrossMethodPage() {
         </div>
       )}
 
-      {/* טבלת השיטות */}
+      {/* כרטיסי השיטות — מדורג ומוסבר: top-5 גלוי (ישויות קודם), השאר בלחיצה. עובדה ↑ רמז ↓ */}
       {!loading && groups.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 14 }}>
-          {groups.map(g => (
+          {groups.map(g => {
+            const ranked = rankPhrases(g.phrases);
+            const open = !!expanded[g.col];
+            const shown = open ? ranked : ranked.slice(0, TOP_N);
+            const rest = ranked.length - TOP_N;
+            return (
             <section key={g.col} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 16px" }}>
               <div style={{ borderBottom: `1px solid ${P.border}`, paddingBottom: 8, marginBottom: 10 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                   <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{g.icon} {g.name}</span>
-                  <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{g.sub}</span>
                   <span style={{ flex: 1 }} />
-                  <span style={{ color: P.accent, fontFamily: F.mono, fontSize: 13 }}>{g.phrases.length}</span>
+                  <span style={{ color: P.accent, fontFamily: F.mono, fontSize: 13 }} title="גודל המשפחה — כמה ביטויים מאומתים נופלים כאן">{g.phrases.length}</span>
                 </div>
-                <div style={{ color: P.accent, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>{g.soul}</div>
+                {/* עובדה (מה השיטה מחשבת) ↑ · רמז (מה נהוג לקרוא בה) ↓ — הפרדה מפורשת */}
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 3 }}>⚙️ {g.sub}</div>
+                <div style={{ color: P.accent, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>🔎 רמז: {g.soul}</div>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-                {g.phrases.map(p => (
-                  <Link key={p} to={`/number/${encodeURIComponent(p)}`} style={phraseChip}>{p}</Link>
-                ))}
+                {shown.map(p => {
+                  const tier = entityRank[p] || 0;
+                  return (
+                    <Link key={p} to={`/number/${encodeURIComponent(p)}`} style={{ ...phraseChip,
+                      ...(tier === 2 ? { borderColor: P.accent, color: P.accentText, fontWeight: 700 } : tier === 1 ? { borderColor: P.borderStrong } : {}) }}>
+                      {tier === 2 ? "👑 " : ""}{p}
+                    </Link>
+                  );
+                })}
               </div>
+              {rest > 0 && (
+                <button onClick={() => setExpanded(x => ({ ...x, [g.col]: !open }))} style={{ cursor: "pointer", marginTop: 9, background: "none",
+                  border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: 0 }}>
+                  {open ? "▴ הצג פחות" : `▾ הצג את כל ${ranked.length} הביטויים`}
+                </button>
+              )}
             </section>
-          ))}
+          );})}
         </div>
       )}
 
-      {/* רצועת המסר — כל הביטויים יחד */}
-      {!loading && allPhrases.length > 1 && (
+      {/* רצועת המסר — מדורגת (ישויות קודם) ומקופלת */}
+      {!loading && allPhrases.length > 1 && (() => {
+        const ranked = rankPhrases(allPhrases);
+        const shown = stripOpen ? ranked : ranked.slice(0, STRIP_N);
+        return (
         <section style={{ marginTop: 26, background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "18px 20px" }}>
           <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>
             המסר המצטרף · {num}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, justifyContent: "center", lineHeight: 2 }}>
-            {allPhrases.map((p, i) => (
+            {shown.map((p, i) => (
               <React.Fragment key={p}>
-                <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: P.ink, fontFamily: F.regal, fontSize: 17, textDecoration: "none" }}>{p}</Link>
-                {i < allPhrases.length - 1 && <span style={{ color: P.accentDim }}>·</span>}
+                <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: entityRank[p] ? P.accentText : P.ink, fontFamily: F.regal, fontSize: 17, textDecoration: "none", fontWeight: entityRank[p] === 2 ? 800 : 400 }}>{entityRank[p] === 2 ? "👑 " : ""}{p}</Link>
+                {i < shown.length - 1 && <span style={{ color: P.accentDim }}>·</span>}
               </React.Fragment>
             ))}
           </div>
+          {ranked.length > STRIP_N && (
+            <div style={{ textAlign: "center", marginTop: 10 }}>
+              <button onClick={() => setStripOpen(v => !v)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`,
+                color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 16px" }}>
+                {stripOpen ? "▴ הצג פחות" : `▾ עוד ${ranked.length - STRIP_N} ביטויים`}
+              </button>
+            </div>
+          )}
         </section>
-      )}
+      );})()}
 
       <div style={{ textAlign: "center", marginTop: 26, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <Link to="/journey" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
