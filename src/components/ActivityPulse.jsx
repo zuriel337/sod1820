@@ -46,34 +46,44 @@ export default function ActivityPulse({ light, title = "🟢 פעילות חיה
       <style>{`
         @keyframes ap-breathe { 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.5; transform:scale(.75);} }
         @keyframes ap-in { from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none;} }
+        /* 📱 מובייל: קטן וממורכז (בקשת צוריאל) — הכותרת, הבועות והערת-הפרטיות באמצע, פונטים מוקטנים */
+        @media (max-width:640px) {
+          .ap-head { justify-content:center !important; text-align:center; }
+          .ap-head .ap-title { font-size:13.5px !important; }
+          .ap-head .ap-badge { margin-inline-start:0 !important; font-size:10.5px !important; padding:2px 9px !important; }
+          .ap-list { justify-content:center !important; }
+          .ap-chip { padding:4px 10px !important; }
+          .ap-txt { font-size:11.5px !important; }
+          .ap-foot { text-align:center; font-size:10px !important; }
+        }
       `}</style>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-        <span style={{ color: pal.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
+      <div className="ap-head" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <span className="ap-title" style={{ color: pal.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{title}</span>
         {pulse.active > 0 && (
-          <span style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800,
+          <span className="ap-badge" style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800,
             background: pal.glow, border: `1px solid ${pal.border}`, borderRadius: 999, padding: "3px 11px" }}>
             ⚡ {pulse.active === 1 ? "חוקר אחד פעיל" : `${pulse.active} חוקרים פעילים`} בשעה האחרונה
           </span>
         )}
       </div>
       {active.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        <div className="ap-list" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {active.map(t => {
             const on = t.key === hiKey;
             return (
-              <span key={t.key} style={{ display: "inline-flex", alignItems: "center", gap: 7, animation: "ap-in .4s ease both",
+              <span key={t.key} className="ap-chip" style={{ display: "inline-flex", alignItems: "center", gap: 7, animation: "ap-in .4s ease both",
                 background: on ? pal.glow : pal.cardSoft, border: `1px solid ${on ? t.dot : pal.border}`,
                 borderRadius: 999, padding: "5px 13px", transition: "border-color .5s, background .5s, transform .5s",
                 transform: on ? "scale(1.04)" : "scale(1)" }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: t.dot, boxShadow: `0 0 7px ${t.dot}`,
                   animation: "ap-breathe 2.2s ease-in-out infinite" }} />
-                <span style={{ color: pal.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600 }}>{t.e} {t.label}…</span>
+                <span className="ap-txt" style={{ color: pal.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600 }}>{t.e} {t.label}…</span>
               </span>
             );
           })}
         </div>
       )}
-      <div style={{ marginTop: 9, color: pal.inkSoft, fontFamily: F.body, fontSize: 11 }}>
+      <div className="ap-foot" style={{ marginTop: 9, color: pal.inkSoft, fontFamily: F.body, fontSize: 11 }}>
         🔒 מטעמי פרטיות מוצג רק סוג הפעילות — לא מה שחיפשו.
       </div>
     </div>
