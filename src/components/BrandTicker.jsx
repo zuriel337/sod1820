@@ -152,10 +152,16 @@ export default function BrandTicker({ channel, peek = null }) {
             העדכונים בדרך — הערוץ יתעורר בקרוב…
           </div>
         )}
-        {/* שקיפות לגולשים (בקשת צוריאל): ערוץ אוטומטי + מערכת בהרצה */}
-        <div style={{ marginTop: 7, paddingTop: 6, borderTop: `1px solid ${b.accent}26`, color: "#a99a7c",
-          fontFamily: F.heading, fontSize: 9.5, letterSpacing: 0.3 }}>
-          🛠 ערוץ שידורים אוטומטי · המערכת בהרצה — ייתכנו שיפורים בימים הקרובים
+        {/* שורת-תחתית: שקיפות (בהרצה) + דלת למרכז השידורים — כל העדכונים מכל הערוצים */}
+        <div style={{ marginTop: 7, paddingTop: 6, borderTop: `1px solid ${b.accent}26`, display: "flex",
+          alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ color: "#a99a7c", fontFamily: F.heading, fontSize: 9.5, letterSpacing: 0.3 }}>
+            🛠 ערוץ שידורים אוטומטי · בהרצה
+          </span>
+          <Link to="/broadcasts" style={{ marginInlineStart: "auto", color: b.accent, fontFamily: F.heading,
+            fontSize: 10.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>
+            📡 כל העדכונים מכל הערוצים ←
+          </Link>
         </div>
       </div>
 
