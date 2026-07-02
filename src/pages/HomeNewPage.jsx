@@ -228,7 +228,7 @@ export default function HomeNewPage() {
 
       {/* ===== 🎬 טיקר «קוד המציאות» — עדכוני הערוץ בעמוד הבית (בקשת צוריאל: רק הערוץ הזה כאן) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
-        <BrandTicker channel="reality-code" peek={{ channel: "or-geula", to: "/community/chat" }} />
+        <BrandTicker channel="reality-code" peek={{ channel: "or-geula", to: "/broadcasts" }} />
       </section>
 
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}

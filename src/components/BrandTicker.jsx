@@ -34,7 +34,7 @@ export default function BrandTicker({ channel, peek = null }) {
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
   const [lb, setLb] = useState(null);
-  const [peekCount, setPeekCount] = useState(0);
+  const [peekItems, setPeekItems] = useState([]);
 
   useEffect(() => {
     let live = true;
@@ -47,7 +47,7 @@ export default function BrandTicker({ channel, peek = null }) {
   useEffect(() => {
     if (!peek?.channel) return;
     let live = true;
-    getChannelUpdates(8, peek.channel).then(r => { if (live) setPeekCount((r || []).length); }).catch(() => {});
+    getChannelUpdates(8, peek.channel).then(r => { if (live) setPeekItems(r || []); }).catch(() => {});
     return () => { live = false; };
   }, [peek?.channel]);
 
@@ -90,20 +90,6 @@ export default function BrandTicker({ channel, peek = null }) {
             </span>
           )}
           <span style={{ flex: 1 }} />
-          {peek?.channel && peekCount > 0 && (() => {
-            const pb = BRANDS[peek.channel];
-            return (
-              <Link to={peek.to || "/broadcasts"} title={`יש ${peekCount} עדכונים חיים ב«${pb.title}» — לצפייה`}
-                style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
-                  border: `1px solid ${pb.accent}66`, background: `${pb.accent}1f`, borderRadius: 999, padding: "2px 9px" }}>
-                <i style={{ width: 7, height: 7, borderRadius: "50%", background: pb.accent, boxShadow: `0 0 7px ${pb.accent}`,
-                  animation: "bt-dot 1.6s infinite" }} />
-                <span style={{ color: pb.accent, fontFamily: F.heading, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap" }}>
-                  {pb.emoji} {peekCount}
-                </span>
-              </Link>
-            );
-          })()}
           {items.length > 1 && (
             <span style={{ flex: "0 0 auto", color: "#c9bb93", fontFamily: F.mono, fontSize: 10.5 }}>
               {(i % items.length) + 1}/{items.length}
@@ -156,6 +142,27 @@ export default function BrandTicker({ channel, peek = null }) {
             העדכונים בדרך — הערוץ יתעורר בקרוב…
           </div>
         )}
+        {/* 👁 הצצה לערוץ האחר: מי · מתי · המילים הראשונות — לחיצה עוברת לדף השידורים (בקשת צוריאל) */}
+        {peek?.channel && peekItems.length > 0 && (() => {
+          const pb = BRANDS[peek.channel];
+          const p0 = peekItems[0];
+          return (
+            <Link to={peek.to || "/broadcasts"} style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 8,
+              textDecoration: "none", background: `${pb.accent}14`, border: `1px solid ${pb.accent}44`, borderRadius: 10, padding: "5px 10px" }}>
+              <i style={{ flex: "0 0 auto", width: 7, height: 7, borderRadius: "50%", background: pb.accent,
+                boxShadow: `0 0 7px ${pb.accent}`, animation: "bt-dot 1.6s infinite" }} />
+              {pb.logo
+                ? <img src={pb.logo} alt="" style={{ flex: "0 0 auto", width: 15, height: 15, borderRadius: "50%", display: "block" }} />
+                : <span style={{ flex: "0 0 auto", fontSize: 11 }}>{pb.emoji}</span>}
+              <span style={{ flex: "0 0 auto", color: pb.accent, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>
+                חדש ב«{pb.title}» · {timeAgoHe(p0.created_at)}
+              </span>
+              <span style={{ flex: 1, minWidth: 0, color: "#e8ddc0", fontFamily: F.body, fontSize: 11.5,
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p0.text}</span>
+              <span style={{ flex: "0 0 auto", color: pb.accent, fontSize: 12, fontWeight: 800 }}>←</span>
+            </Link>
+          );
+        })()}
         {/* שורת-תחתית: שקיפות (בהרצה) + דלת למרכז השידורים — כל העדכונים מכל הערוצים */}
         <div style={{ marginTop: 7, paddingTop: 6, borderTop: `1px solid ${b.accent}26`, display: "flex",
           alignItems: "center", gap: 8, flexWrap: "wrap" }}>

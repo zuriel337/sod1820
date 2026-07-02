@@ -4142,7 +4142,7 @@ function SpotimChatPage() {
       `}</style>
       <ChatScrollRail />
       {/* ✨ טיקר «אור הגאולה» — עדכוני הערוץ בדף הצ'אט; מציץ לעדכוני קוד-המציאות (בבית) */}
-      <BrandTicker channel="or-geula" peek={{ channel: "reality-code", to: "/" }} />
+      <BrandTicker channel="or-geula" peek={{ channel: "reality-code", to: "/broadcasts" }} />
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט
