@@ -468,9 +468,9 @@ export default function Navbar() {
 
       {drawer && (
         <div className="sod-nav-drawer" style={{ borderTop: `1px solid ${cc.border}`, padding: "12px 8px 20px", maxHeight: "80vh", overflowY: "auto" }}>
+          {/* הקוביה הוסרה מהמגירה — היא כבר קיימת בסרגל המובייל העליון (בקשת צוריאל) */}
           <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "4px 6px 12px" }}>
             <UniversalSearch full onDone={() => setDrawer(false)} />
-            <SurpriseButton onDone={() => setDrawer(false)} />
           </div>
           <Link to={user ? "/profile" : "/login"} onClick={() => setDrawer(false)} style={{
             display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
