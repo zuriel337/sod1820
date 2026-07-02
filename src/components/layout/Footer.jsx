@@ -6,16 +6,27 @@ import { chromeColors } from "../../lib/chromeTheme.js";
 import { useStream } from "../../lib/stream.js";
 import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
 
-// עמודות נושאיות בגובה אחיד — ההיכל (לימוד) · הגנזך (תוכן) · הקהילה · השער
+// עמודות נושאיות בגובה אחיד — ההיכל (המנועים) · מה חדש (המנועים האחרונים) · הגנזך (תוכן) · הקהילה והשער
+// «בני ההיכל» הוסר (בקשת צוריאל 2.7.2026); «מה חדש» מרכז את המנועים החדשים.
 const COLUMNS = [
   {
     title: "ההיכל",
     links: [
+      { label: "היכל הגילוי", to: "/research" },
       { label: "בית המדרש", to: "/beit-midrash" },
       { label: "מחשבון הגימטריה", to: "/beit-midrash?tab=calc" },
-      { label: "הצלבת שיטות", to: "/cross" },
       { label: "עץ ההתכנסויות", to: "/numbers" },
       { label: "דף המספר 1820", to: "/number/1820" },
+    ],
+  },
+  {
+    title: "🆕 מה חדש",
+    links: [
+      { label: "זרם המציאות", to: "/archive?tab=reality" },
+      { label: "אוצרות הגילוי", to: "/archive?tab=cascade" },
+      { label: "המסע האישי", to: "/research?tool=journey" },
+      { label: "חיפוש בפסוקים", to: "/research?tool=verse" },
+      { label: "הגשת חידוש", to: "/research?tool=midrash&tab=submit" },
     ],
   },
   {
@@ -29,19 +40,12 @@ const COLUMNS = [
     ],
   },
   {
-    title: "הקהילה",
+    title: "הקהילה והשער",
     links: [
       { label: "צ'אט האתר", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
-      { label: "בני ההיכל", to: "/members" },
-    ],
-  },
-  {
-    title: "השער",
-    links: [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
-      { label: 'הצופן התנ"כי', to: "/code" },
       { label: "אודות וצור קשר", to: "/contact" },
     ],
   },
