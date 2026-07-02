@@ -21,7 +21,8 @@ export async function shareUpdate(u, brandTitle) {
 // עובד זהה במובייל ובדסקטופ: הודעה מתחלפת בדהייה, קרדיט ליד, תמונה נפתחת בהקשה.
 export const BRANDS = {
   "or-geula":       { title: "אור הגאולה", emoji: "✨", accent: "#f2c94c", glow: "rgba(242,201,76,.35)", bg: "linear-gradient(90deg, rgba(63,48,10,.75), rgba(90,70,16,.85), rgba(63,48,10,.75))" },
-  "reality-code":   { title: "קוד המציאות", emoji: "🎬", accent: "#9d7bff", glow: "rgba(157,123,255,.35)", bg: "linear-gradient(90deg, rgba(34,22,63,.8), rgba(52,33,96,.9), rgba(34,22,63,.8))" },
+  "reality-code":   { title: "קוד המציאות", emoji: "🎬", accent: "#9d7bff", glow: "rgba(157,123,255,.35)", bg: "linear-gradient(90deg, rgba(34,22,63,.8), rgba(52,33,96,.9), rgba(34,22,63,.8))",
+                      wa: "https://whatsapp.com/channel/0029Vb7CqG67Noa2cZUPug1k" },   // הצטרפות לערוץ
   "sod-hachashmal": { title: "סוד החשמל", emoji: "⚡", accent: "#5ec8ff", glow: "rgba(94,200,255,.32)", bg: "linear-gradient(90deg, rgba(8,38,58,.8), rgba(12,55,84,.9), rgba(8,38,58,.8))" },
 };
 
@@ -68,12 +69,21 @@ export default function BrandTicker({ channel, peek = null }) {
           <i style={{ width: 6, height: 6, borderRadius: "50%", background: "#9c1322", animation: "bt-dot 1.4s infinite" }} />
           {b.emoji} {b.title}
         </span>
-        {/* שידעו: זה מגיע אוטומטית, לייב, מקבוצות/ערוצי הוואטסאפ (בקשת צוריאל) */}
-        <span title="העדכונים מגיעים אוטומטית — לייב מקבוצות הוואטסאפ" style={{ flex: "0 0 auto", display: "inline-flex",
-          alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading, fontSize: 9, fontWeight: 800,
-          border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "1px 7px", background: "rgba(37,211,102,.12)", whiteSpace: "nowrap" }}>
-          💬 לייב מהוואטסאפ
-        </span>
+        {/* שידעו: זה מגיע אוטומטית, לייב, מקבוצות/ערוצי הוואטסאפ. יש קישור-ערוץ? הצ'יפ = הצטרפות */}
+        {b.wa ? (
+          <a href={b.wa} target="_blank" rel="noopener noreferrer" title="הצטרפו לערוץ הוואטסאפ — העדכונים מגיעים משם לייב"
+            style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading,
+              fontSize: 9, fontWeight: 800, border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "1px 7px",
+              background: "rgba(37,211,102,.12)", whiteSpace: "nowrap", textDecoration: "none" }}>
+            💬 לייב מהוואטסאפ · הצטרפו +
+          </a>
+        ) : (
+          <span title="העדכונים מגיעים אוטומטית — לייב מקבוצות הוואטסאפ" style={{ flex: "0 0 auto", display: "inline-flex",
+            alignItems: "center", gap: 4, color: "#25d366", fontFamily: F.heading, fontSize: 9, fontWeight: 800,
+            border: "1px solid rgba(37,211,102,.45)", borderRadius: 999, padding: "1px 7px", background: "rgba(37,211,102,.12)", whiteSpace: "nowrap" }}>
+            💬 לייב מהוואטסאפ
+          </span>
+        )}
         {/* ההודעה המתחלפת */}
         {cur ? (
           <div key={cur.id + i} onClick={cur.image_url ? () => setLb(cur.image_url) : undefined}

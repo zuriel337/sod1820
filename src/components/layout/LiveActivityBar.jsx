@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../../theme.js";
+import { BRANDS } from "../BrandTicker.jsx";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages, getChannelUpdates } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
@@ -178,12 +180,14 @@ function useLiveTicker() {
 
       // 🚫 בלי כפילויות (בקשת צוריאל) — כל הודעה מופיעה פעם אחת בלבד בסבב.
       const uniq = [...new Set(out.filter(Boolean))];
-      // 📡 «עדכון חי» — שידורים מהערוץ/אדמין (channel_updates), תמיד ראשונים בסבב.
-      // אובייקטים (לא מחרוזות) כדי לשאת תמונה — הקשה עליהם פותחת אותה במסך מלא.
+      // 📡 «עדכון חי» — מצביע קומפקטי בלבד (הפרדת תפקידים, החלטת צוריאל 2.7.2026):
+      // התוכן המלא חי בטיקרים הממותגים (בית/צ'אט/מרכז השידורים) — כאן רק כותרת + «← לצפייה».
+      // כך אין כפילות, וכל מי שנוחת בפוסט ישן רואה שיש חדשות חיות ונכנס פנימה.
       try {
         const lives = await getChannelUpdates(6);
         for (const u of (lives || []).reverse())
-          uniq.unshift({ live: true, id: u.id, text: u.text, image: u.image_url || null, credit: u.credit || null });
+          uniq.unshift({ live: true, id: u.id, text: u.text, channel: u.channel || "main",
+            urgent: !!u.is_urgent, credit: u.credit || null });
       } catch { /* ignore */ }
       if (live) setMsgs(uniq);
     }
@@ -205,7 +209,6 @@ export default function LiveActivityBar() {
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
-  const [lbImg, setLbImg] = useState(null);   // תמונת «עדכון חי» שנפתחה במסך מלא
   const idx = msgs.length ? i % msgs.length : 0;
   const cur = msgs[idx] || "";
   const isLive = typeof cur === "object" && cur.live;
@@ -261,29 +264,22 @@ export default function LiveActivityBar() {
       <div className="lt-bar" aria-label="עדכונים אחרונים באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
         {isLive ? (
-          /* 📡 עדכון חי — תג אדום; עם תמונה → לחיץ ופותח אותה במסך מלא */
-          <div className="lt-msg" key={idx}
-            onClick={cur.image ? () => setLbImg(cur.image) : undefined}
-            style={{ pointerEvents: cur.image ? "auto" : "none", cursor: cur.image ? "pointer" : "default" }}>
-            <span style={{ background: "#7a1320", color: "#ffd9de", fontSize: 9.5, fontWeight: 900, borderRadius: 999,
-              padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.5, verticalAlign: "middle" }}>● עדכון חי</span>
-            {cur.text}{cur.image ? " · 📷" : ""}
-            {/* מאיפה זה בא — הקרדיט ליד כל עדכון (בקשת צוריאל) */}
-            {cur.credit && <span style={{ color: "#c9b27a", fontSize: 10.5, fontWeight: 700 }}> · מאת {cur.credit}</span>}
+          /* 📡 עדכון חי — מצביע: כותרת קצרה + «← לצפייה» אל הדף שבו הערוץ חי (בלי כפילות תוכן) */
+          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
+            <Link to={cur.channel === "or-geula" ? "/community/chat" : cur.channel === "reality-code" ? "/" : "/broadcasts"}
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span style={{ background: cur.urgent ? "#9c1322" : "#7a1320", color: "#ffd9de", fontSize: 9.5, fontWeight: 900,
+                borderRadius: 999, padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.5, verticalAlign: "middle" }}>
+                {cur.urgent ? "🚨" : "●"} עדכון חי{BRANDS[cur.channel] ? ` · ${BRANDS[cur.channel].emoji} ${BRANDS[cur.channel].title}` : ""}
+              </span>
+              {cur.text.length > 58 ? cur.text.slice(0, 58) + "…" : cur.text}
+              <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>← לצפייה</b>
+            </Link>
           </div>
         ) : (
           <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
         )}
       </div>
-
-      {/* תמונת העדכון במסך מלא — נסגרת בהקשה */}
-      {lbImg && (
-        <div onClick={() => setLbImg(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
-          background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          <img src={lbImg} alt="עדכון חי" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
-            border: "1px solid rgba(212,175,55,0.5)", boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-        </div>
-      )}
     </div>
   );
 }

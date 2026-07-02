@@ -22,10 +22,11 @@ const COLUMNS = [
   {
     title: "🆕 מה חדש",
     links: [
+      { label: "📡 מרכז השידורים", to: "/broadcasts" },
+      { label: "✨ עדכוני אור הגאולה", to: "/community/chat" },
       { label: "זרם המציאות", to: "/archive?tab=reality" },
       { label: "אוצרות הגילוי", to: "/archive?tab=cascade" },
       { label: "המסע האישי", to: "/research?tool=journey" },
-      { label: "חיפוש בפסוקים", to: "/research?tool=verse" },
       { label: "הגשת חידוש", to: "/research?tool=midrash&tab=submit" },
     ],
   },
