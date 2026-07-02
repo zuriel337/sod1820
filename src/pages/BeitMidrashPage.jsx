@@ -1133,6 +1133,14 @@ export default function BeitMidrashPage() {
     if (tp && SECTIONS.some(s => s.key === tp)) setTab(tp);
   }, [loc.search]);
 
+  // קישור-עומק לשיטה: ?tab=methods&m=<שם השיטה> — גולל אל כרטיס השיטה (מגיע מהקרוס וממסע הפתיחה)
+  useEffect(() => {
+    const m = new URLSearchParams(loc.search).get("m");
+    if (!m) return;
+    const t = setTimeout(() => document.getElementById(`bm-method-${m}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 450);
+    return () => clearTimeout(t);
+  }, [loc.search, tab]);
+
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
   const gridRef = useRef(null);
 

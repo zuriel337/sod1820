@@ -22,9 +22,12 @@ const METHOD_COLS = [
   { col: "siduri",   name: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", icon: "🔢" },
   { col: "atbash",   name: "אתבש",   sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", icon: "🪞" },
   { col: "albam",    name: "אלבם",   sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", icon: "💍" },
-  { col: "ribua",    name: "ריבוע",  sub: "ערך בריבוע", soul: "העָצמה — הערך בריבוע", icon: "💠" },
+  { col: "ribua",    name: "ריבוע",  sub: "סכום הקידומות המצטברות (ד+דו+דוד)", soul: "ההתפשטות — מהאות אל השלם", icon: "💠" },
 ];
 const METHOD_BY_COL = Object.fromEntries(METHOD_COLS.map(m => [m.col, m]));
+// שם-הלימוד של כל שיטה בספריית השיטות של בית המדרש (עוגן bm-method-<שם> בטאב methods)
+const LEARN_NAME = { ragil: "רגיל", miluy: "מילוי", misratar: "מסתתר", kadmi: "קדמי", gadol: "גדול", siduri: "סידורי", atbash: "אתבש", albam: "אלבם", ribua: "ריבוע" };
+const learnUrl = col => `/research?tool=midrash&tab=methods&m=${encodeURIComponent(LEARN_NAME[col] || "")}`;
 const SELECT = "phrase,category," + METHOD_COLS.map(m => m.col).join(",");
 const TOTAL_METHODS = METHOD_COLS.length;
 
@@ -482,6 +485,13 @@ export default function CrossMethodPage() {
                 {/* עובדה (מה השיטה מחשבת) ↑ · רמז (מה נהוג לקרוא בה) ↓ — הפרדה מפורשת */}
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 3 }}>⚙️ {g.sub}</div>
                 <div style={{ color: P.accent, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>🔎 רמז: {g.soul}</div>
+                {/* רוצים ללמוד את השיטה? → ספריית השיטות בבית המדרש (הסבר + דוגמה חיה) */}
+                {LEARN_NAME[g.col] && (
+                  <Link to={learnUrl(g.col)} style={{ display: "inline-block", marginTop: 5, color: P.accentText,
+                    fontFamily: F.heading, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+                    📚 רוצים ללמוד על «{LEARN_NAME[g.col]}»? ←
+                  </Link>
+                )}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {shown.map(p => {

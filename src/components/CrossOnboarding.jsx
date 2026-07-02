@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 
 // 🎓 מסע הפתיחה של דף הקרוס — «מסוף הדרכה» חד-פעמי (בקשת צוריאל).
@@ -7,6 +8,9 @@ import { F } from "../theme.js";
 // מוצג פעם אחת פר-משתמש (localStorage — ברוח whats_new_law: פר-משתמש, לא חלון גלובלי).
 // הדוגמאות אומתו במנוע הרשמי (fn_ragil): אהבה=13, אחד=13, משיח=358, נחש=358.
 // הכרטיס הקבוע «מה זו הצלבה?» נשאר בדף כרענון — זה משלים, לא מחליף.
+// 📚 חלק ב׳ (אופציונלי, בקשת צוריאל): שילוב שיטות — רגיל+ריבוע נפגשים על 26
+// (יהוה ברגיל = 26 = חי בריבוע; ריבוע לפי ההגדרה הנעולה ribua_definition:
+// סכום הקידומות — חי = ח(8) + חי(18) = 26) + קישורי «רוצים ללמוד?» לספריית השיטות.
 
 const KEY = "sod_cross_onboarding_v1";
 export const shouldShowCrossOnboarding = () => {
@@ -23,7 +27,7 @@ const SATS = [
   { t: "שמחת הבית השלישי",    s: { bottom: 0, left: 2 } },
 ];
 
-const LAST = 5; // תת-שלבים: 0 פתיחה · 1 אהבה · 2 אחד · 3 משיח · 4 נחש⭐ · 5 התכנסות
+const LAST = 8; // 0 פתיחה · 1 אהבה · 2 אחד · 3 משיח · 4 נחש⭐ · 5 התכנסות · חלק ב׳: 6 יהוה·רגיל · 7 חי·ריבוע⭐ · 8 ללמוד
 
 export default function CrossOnboarding({ open, onClose, phrases = 0, methods = 0 }) {
   const [step, setStep] = useState(0);
@@ -37,8 +41,9 @@ export default function CrossOnboarding({ open, onClose, phrases = 0, methods = 
   }, [open]);
   if (!open) return null;
 
-  const slide = step === 0 ? 1 : step <= 2 ? 2 : step <= 4 ? 3 : 4;
-  const advance = () => { if (step < LAST) setStep(s => s + 1); };
+  const slide = step === 0 ? 1 : step <= 2 ? 2 : step <= 4 ? 3 : step === 5 ? 4 : step <= 7 ? 5 : 6;
+  // הקשה מתקדמת — אבל לא נכנסת לחלק ב׳ לבד (שלב 5 → רק בכפתור) ולא ממשיכה אחרי הסוף
+  const advance = () => setStep(s => (s === 5 || s >= LAST ? s : s + 1));
   const done = e => { e?.stopPropagation(); markSeen(); onClose?.(); };
 
   const gold = "#e8c84a", goldSoft = "#f0dc9a", dim = "#9b917f";
@@ -67,7 +72,7 @@ export default function CrossOnboarding({ open, onClose, phrases = 0, methods = 
           <button onClick={done} aria-label="דלגו" style={{ cursor: "pointer", background: "none", border: "none",
             color: "#7d7466", fontFamily: F.heading, fontSize: 13, padding: "6px 8px", minHeight: 44 }}>דלגו ✕</button>
           <div style={{ display: "flex", gap: 7, direction: "ltr" }}>
-            {[1, 2, 3, 4].map(d => (
+            {[1, 2, 3, 4, 5, 6].map(d => (
               <span key={d} style={{ height: 8, borderRadius: 99, transition: "all .3s",
                 width: d === slide ? 22 : 8,
                 background: d === slide ? gold : "#2c2540",
@@ -138,15 +143,77 @@ export default function CrossOnboarding({ open, onClose, phrases = 0, methods = 
               </div>
             </div>
             <span className="ob-star ob-in" style={{ fontSize: 16, marginTop: 6 }}>✦ התכנסות-על</span>
-            <button onClick={done} style={{ cursor: "pointer", marginTop: 20, padding: "13px 40px", borderRadius: 999,
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginTop: 20 }}>
+              <button onClick={done} style={{ cursor: "pointer", padding: "13px 34px", borderRadius: 999,
+                border: "none", background: "linear-gradient(135deg,#e8c84a,#c9a52e)", color: "#241a02",
+                fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, minHeight: 48,
+                boxShadow: "0 6px 30px rgba(232,200,74,.4)" }}>✦ התחל לחקור</button>
+              <button onClick={e => { e.stopPropagation(); setStep(6); }} style={{ cursor: "pointer", padding: "13px 22px",
+                borderRadius: 999, background: "none", border: "1.5px solid rgba(232,200,74,.55)", color: goldSoft,
+                fontFamily: F.heading, fontSize: 14, fontWeight: 800, minHeight: 48 }}>📚 חלק ב׳: שילוב שיטות ←</button>
+            </div>
+          </>)}
+
+          {slide === 5 && (<>
+            <div style={{ color: "#b39a3e", fontSize: 12.5, letterSpacing: 4, fontFamily: F.heading, marginBottom: 12 }}>חלק ב׳ · שילוב שיטות</div>
+            <div style={{ fontFamily: F.mono, fontWeight: 800, color: "#ffe08a", fontSize: 80, lineHeight: 1, textShadow: "0 0 55px rgba(255,215,100,.5)" }}>26</div>
+            <div style={{ color: "#6f6553", fontSize: 22, margin: "12px 0 6px" }}>↓</div>
+            <div style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "flex-start" }}>
+              <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <span className={wordCls(step >= 6)}>יהוה</span>
+                <small style={{ opacity: step >= 6 ? 1 : 0, transition: "opacity .5s", color: "#b39a3e", fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>✦ רגיל</small>
+              </span>
+              <span className={wordCls(step >= 7)} style={{ padding: "10px 12px", color: "#8d8270" }}>=</span>
+              <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <span className={wordCls(step >= 7)}>חי</span>
+                <small style={{ opacity: step >= 7 ? 1 : 0, transition: "opacity .5s", color: "#b39a3e", fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>💠 ריבוע</small>
+              </span>
+            </div>
+            <div style={{ minHeight: 58 }}>
+              <span className={`ob-star${step >= 7 ? " ob-in" : ""}`}>⭐ הצלבת שיטות!</span>
+            </div>
+            <p style={{ color: dim, fontFamily: F.body, fontSize: 13, lineHeight: 1.9, opacity: step >= 7 ? 1 : 0, transition: "opacity .5s .3s" }}>
+              שתי דרכי חישוב <b style={{ color: goldSoft }}>שונות לגמרי</b> נפגשות באותו מספר:<br />
+              שם ה׳ בשיטה הרגילה = 26 = «חי» בשיטת הריבוע.<br />
+              <span style={{ color: "#b6ab92" }}>⚙️ אומת במנוע · 🔎 המשמעות — רמז: ה׳ חי.</span>
+            </p>
+          </>)}
+
+          {slide === 6 && (<>
+            <div style={{ color: "#b39a3e", fontSize: 12.5, letterSpacing: 4, fontFamily: F.heading, marginBottom: 10 }}>חלק ב׳ · איך זה עובד?</div>
+            <h3 style={{ color: goldSoft, fontFamily: F.regal, fontSize: 21, fontWeight: 800, margin: 0 }}>💠 מה זה «ריבוע»?</h3>
+            <p style={{ color: "#cfc6b5", fontFamily: F.body, fontSize: 14, lineHeight: 2, margin: "10px 0 8px" }}>
+              בונים את המילה אות-אחר-אות ומחברים את השלבים:
+            </p>
+            <div style={{ background: "rgba(232,200,74,.07)", border: "1px solid rgba(232,200,74,.4)", borderRadius: 12,
+              padding: "11px 20px", fontFamily: F.mono, color: goldSoft, fontSize: 17, fontWeight: 700 }}>
+              חי → ח(8) + חי(18) = 26
+            </div>
+            <p style={{ color: dim, fontFamily: F.body, fontSize: 13, lineHeight: 1.9, margin: "10px 0 4px" }}>
+              ולכן «חי» בריבוע נופל בדיוק על 26 — הערך של שם ה׳ ברגיל.
+            </p>
+            {/* רוצים ללמוד? → ספריית השיטות בבית המדרש (הסבר + דוגמה חיה לכל שיטה) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12, width: "100%", maxWidth: 300 }}>
+              <Link to="/research?tool=midrash&tab=methods&m=ריבוע" onClick={done} style={{ textDecoration: "none",
+                background: "rgba(232,200,74,.09)", border: "1px solid rgba(232,200,74,.45)", borderRadius: 999,
+                color: goldSoft, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 18px", minHeight: 44 }}>
+                📐 רוצים ללמוד על «ריבוע»? ←
+              </Link>
+              <Link to="/research?tool=midrash&tab=methods&m=מסתתר" onClick={done} style={{ textDecoration: "none",
+                background: "rgba(232,200,74,.09)", border: "1px solid rgba(232,200,74,.45)", borderRadius: 999,
+                color: goldSoft, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 18px", minHeight: 44 }}>
+                🔍 ועל «מסתתר» — שיטת הבית ←
+              </Link>
+            </div>
+            <button onClick={done} style={{ cursor: "pointer", marginTop: 16, padding: "13px 40px", borderRadius: 999,
               border: "none", background: "linear-gradient(135deg,#e8c84a,#c9a52e)", color: "#241a02",
-              fontFamily: F.heading, fontSize: 16, fontWeight: 800, minHeight: 48,
+              fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, minHeight: 48,
               boxShadow: "0 6px 30px rgba(232,200,74,.4)" }}>✦ התחל לחקור</button>
           </>)}
         </div>
 
         {/* רמז-הקשה */}
-        {slide < 4 && (
+        {(slide < 4 || slide === 5) && (
           <div style={{ position: "absolute", bottom: 22, insetInline: 0, textAlign: "center",
             color: "#6f6553", fontSize: 13, fontFamily: F.body }}>
             <b style={{ color: "#b39a3e" }}>לחצו</b> בכל מקום להמשך 👆
