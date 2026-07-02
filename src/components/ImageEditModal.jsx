@@ -42,6 +42,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [imageType, setImageType] = useState(im.image_type || "");
   const [importance, setImportance] = useState(im.importance ?? 3);
   const [curatorHidden, setCuratorHidden] = useState(!!im.curator_hidden);
+  const [treasure, setTreasure] = useState(!!im.treasure);   // 👑 אוצרות הגילוי (ציר-הערך)
   const [tags, setTags] = useState(im.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -66,6 +67,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
       setImageType(full.image_type || "");
       setImportance(full.importance ?? 3);
       setCuratorHidden(!!full.curator_hidden);
+      setTreasure(!!full.treasure);
       setTags(full.tags || []);
     });
     return () => { alive = false; };
@@ -86,6 +88,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     if (imageType !== (b.image_type || "")) patch.image_type = imageType || null;
     if (importance !== (b.importance ?? 3)) patch.importance = Number(importance);
     if (curatorHidden !== !!b.curator_hidden) patch.curator_hidden = curatorHidden;
+    if (treasure !== !!b.treasure) patch.treasure = treasure;
     const origTags = JSON.stringify([...(b.tags || [])].sort());
     if (JSON.stringify([...tags].sort()) !== origTags) patch.tags = tags;
     await onSave(patch);
@@ -291,6 +294,11 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
                 <label style={{ display: "flex", gap: 8, alignItems: "center", cursor: "pointer" }}>
                   <input type="checkbox" checked={curatorHidden} onChange={e => setCuratorHidden(e.target.checked)} style={{ width: 16, height: 16, accentColor: "#d4af37" }} />
                   <span style={{ color: "#ffffffaa", fontFamily: F.heading, fontSize: 12.5 }}>מוסתר מהגלריה</span>
+                </label>
+                {/* 👑 אוצרות הגילוי — ציר-הערך; דגל בלתי-תלוי מהזרם (אפשר בשניהם) */}
+                <label style={{ display: "flex", gap: 8, alignItems: "center", cursor: "pointer" }}>
+                  <input type="checkbox" checked={treasure} onChange={e => setTreasure(e.target.checked)} style={{ width: 16, height: 16, accentColor: "#e8c84a" }} />
+                  <span style={{ color: treasure ? "#e8c84a" : "#ffffffaa", fontFamily: F.heading, fontSize: 12.5, fontWeight: treasure ? 800 : 400 }}>👑 באוצרות הגילוי</span>
                 </label>
                 <span style={{ color: inStream ? "#7bbf7b" : "#ffffff55", fontFamily: F.heading, fontSize: 12.5 }}>
                   {inStream ? "🌊 בזרם המציאות" : "📁 בגלריה בלבד"}

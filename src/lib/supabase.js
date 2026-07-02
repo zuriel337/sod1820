@@ -311,6 +311,23 @@ export async function getRealityHints(limit = 1000) {
   return data || [];
 }
 
+// 👑 «אוצרות הגילוי» — ציר-הערך: תמונות שצוריאל סימן treasure=true (אצירה ידנית, לא תלוי-זמן).
+// סדר: הבלטה (importance) ואז חדש→ישן. הראשונה = «בחירת העורך» (ה-Hero של שער-המוזיאון).
+export async function getTreasures(limit = 12) {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,image_type')
+    .eq('treasure', true)
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)
+    .order('importance', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
+
 // ===== אוספים (gallery_collections) — גלריות/אוספים/מסלולים גמישים מעל הדרגות הקבועות =====
 // אוסף = כלל (filter jsonb) על gallery_images. הדרגה (image_type) לא משתנה; זו רק תצוגה.
 export async function getGalleryCollections() {
@@ -1018,7 +1035,7 @@ export async function setImageCuration(id, patch) {
   // 🌊 «הוסף לזרם» (source=update) → חותמת stream_at=עכשיו כך שהתמונה קופצת לראש הזרם (גם ישנה).
   const p = patch.source === 'update' ? { ...patch, stream_at: new Date().toISOString() } : patch;
   const { data, error } = await supabase.from('gallery_images')
-    .update(p).eq('id', id).select('id,importance,curator_hidden,source,stream_at').maybeSingle();
+    .update(p).eq('id', id).select('id,importance,curator_hidden,source,stream_at,treasure').maybeSingle();
   if (error) throw error;
   invalidateGalleriesOverview();
   return data;
@@ -1038,7 +1055,7 @@ export async function getGalleryImageFull(id) {
   if (!supabase || !id) return null;
   try {
     const { data } = await supabase.from('gallery_images')
-      .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers')
+      .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers,treasure')
       .eq('id', id).maybeSingle();
     return data || null;
   } catch { return null; }

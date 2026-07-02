@@ -7,9 +7,8 @@ import {
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
   searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
   getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
-  getRealityHints, supabase,
+  getRealityHints, getTreasures, supabase,
 } from "../lib/supabase.js";
-import DiamondCascade from "../components/DiamondCascade.jsx";
 import MuseumGate from "../components/MuseumGate.jsx";
 import { stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
@@ -863,7 +862,7 @@ export default function ArchivePage() {
 
       {/* טאבים */}
       <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 26, flexWrap: "wrap" }}>
-        {[["reality", "🌊 זרם המציאות"], ["cascade", "💎 מפל"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
+        {[["reality", "🌊 זרם המציאות"], ["cascade", "👑 אוצרות הגילוי"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 20px", borderRadius: 999,
             border: `1px solid ${tab === k ? C.gold : C.border}`,
@@ -1828,53 +1827,54 @@ function ImageMeta({ im, isAdmin, onEdit, onJump, onDelete }) {
   );
 }
 
-// ═══ 💎 זירת ההשוואה — «מפל» מול «שער המוזיאון» (טאב בחירה חי לצוריאל) ═══
-// שתי הגרסאות רצות על אותם רמזים אמיתיים מהזרם (עץ אחד). לחיצה על תמונה → לייטבוקס.
+// ═══ 👑 «אוצרות הגילוי» — ציר-הערך (לצד ציר-הזמן של הזרם) ═══
+// תערוכת-מוזיאון של הבחירות הידניות (treasure=true): לא תלוי-זמן — «אל תפספס את הדברים
+// הכי גדולים». סגנון שער-המוזיאון: ענקית במרכז + 2 מציצות + רשת שקטה. אצירה: 👑 בעורך-התמונה.
+// כשעדיין אין אוצרות — מציג לזירת-ההשוואה (זרם) כדי שהטאב לא ייראה ריק, עם הסבר-אצירה לאדמין.
 function CascadeCompare({ isAdmin, onEdit }) {
-  const [hints, setHints] = useState(null);
+  const [treasures, setTreasures] = useState(null);
+  const [hints, setHints] = useState([]);
   const [total, setTotal] = useState(null);
-  const [lb, setLb] = useState(null);
+  const [lb, setLb] = useState(null);       // {list, idx}
   const P = PALETTES.dark;
 
   useEffect(() => {
     let live = true;
-    getRealityHints(50).then(h => { if (live) setHints(h || []); }).catch(() => live && setHints([]));
+    getTreasures(12).then(t => { if (live) setTreasures(t || []); }).catch(() => live && setTreasures([]));
+    getRealityHints(50).then(h => { if (live) setHints(h || []); }).catch(() => {});
     supabase.from("gallery_images").select("id", { count: "exact", head: true })
       .not("curator_hidden", "is", true).eq("min_tier", 0)
       .then(({ count }) => { if (live && count != null) setTotal(count); });
     return () => { live = false; };
   }, []);
 
-  if (hints === null) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען את הזרם…</div>;
-  if (!hints.length) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>אין עדיין רמזים בזרם.</div>;
+  if (treasures === null) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען את האוצרות…</div>;
 
-  const secHead = (icon, title, note) => (
-    <div style={{ textAlign: "center", margin: "0 0 18px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 14, maxWidth: 720, margin: "0 auto 4px" }}>
-        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,175,55,.4))" }} />
-        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(17px,3vw,23px)", fontWeight: 800 }}>{icon} {title}</span>
-        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(212,175,55,.4),transparent)" }} />
-      </div>
-      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>{note}</div>
-    </div>
-  );
+  const hasTreasures = treasures.length > 0;
+  const gateList = hasTreasures ? treasures : hints;   // עד שיש אוצרות — טעימה מהזרם (שלא יהיה ריק)
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, fontSize: 13, marginBottom: 26, lineHeight: 1.7 }}>
-        זירת השוואה חיה — שתי גרסאות-הפתיח על התמונות האמיתיות מהזרם. בדוק בדסקטופ ובטלפון, ותחליט מי עולה לבית.
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,26px)", fontWeight: 800, textShadow: "0 0 30px rgba(212,175,55,.3)" }}>👑 אוצרות הגילוי</div>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, maxWidth: 520, margin: "6px auto 0" }}>
+          {hasTreasures
+            ? "הבחירות הגדולות — רמזים, גימטריות והצלבות שאסור לפספס. לא לפי זמן — לפי ערך."
+            : "כאן יחיו הבחירות הגדולות — בינתיים מוצגת טעימה מהזרם."}
+        </div>
+        {isAdmin && (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>
+            🛠 אצירה: פתח כל תמונה בעורך (✏️) וסמן «👑 באוצרות הגילוי». «הבלטה» קובעת מי ה-Hero.
+          </div>
+        )}
       </div>
 
-      {secHead("✨", "גרסה 1 — שער המוזיאון", "ענקית במרכז · ה-2 וה-3 מציצות מאחוריה יחד · 6 ברשת · מונה עושר")}
-      <MuseumGate hints={hints} palette={P} total={total} onOpen={i => setLb(i)} onEdit={onEdit} />
-
-      <div style={{ height: 46 }} />
-
-      {secHead("💎", "גרסה 2 — המפל", "ענקית בצד · 4 משתלשלות פנימה בתלת-מימד ודוהות")}
-      <DiamondCascade hints={hints.slice(0, 5)} palette={P} onOpen={i => setLb(i)} onEdit={onEdit} />
+      {gateList.length > 0
+        ? <MuseumGate hints={gateList} palette={P} total={total} onOpen={i => setLb({ list: gateList, idx: i })} onEdit={onEdit} />
+        : <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>אין עדיין תמונות להצגה.</div>}
 
       {lb != null && (
-        <Lightbox images={hints} initialIndex={lb} onClose={() => setLb(null)}
+        <Lightbox images={lb.list} initialIndex={lb.idx} onClose={() => setLb(null)}
           onEdit={isAdmin && onEdit ? h => { setLb(null); onEdit(h); } : null} />
       )}
     </div>
