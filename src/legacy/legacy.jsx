@@ -2104,6 +2104,15 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
 
+  /* post_text_colors_law (חקוק 2.7.2026): פוסט נקי — טקסט לבן; גימטריה זהובה ולחיצה
+     (ביטוי → /number/<ביטוי>, ערך → /number/<ערך>). במצב בהיר הטקסט מתהפך לכהה. */
+  .sod-post-content.clean { color: #ffffff; }
+  .sod-post-content.clean a[href^="/number/"] { color: #ffd86b; font-weight: 800; text-decoration: none; border-bottom: 1px dotted rgba(255,216,107,.55); }
+  .sod-post-content.clean a[href^="/number/"]:hover { background: rgba(255,216,107,.15); border-radius: 4px; }
+  .sod-post-content.clean .sod-gematria-box b, .sod-post-content.clean .sod-gematria-box a { color: #ffd86b; }
+  [data-theme="light"] .sod-post-content.clean { color: #1b1d22; }
+  [data-theme="light"] .sod-post-content.clean a[href^="/number/"] { color: #b07d12; border-bottom-color: rgba(176,125,18,.5); }
+
   /* 🔤 ערכת «גרפיקת-קוד» קנונית (sgx) — אנימציות CSS לפוסטים גרפיים (ר"ת/ס"ת, אתב"ש, אנגרמות).
      חיה כאן כמו sod-gematria-box: הפוסט משתמש בקלאסים בלבד, בלי <style> משלו — פתרון מערכתי.
      שימוש ראשון: פוסט הקוד של הרב עמוס גואטה (id 5008). ⚠️ שני עותקים: legacy.jsx + theme.js. */
