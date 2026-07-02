@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { isNewSince } from "../lib/crossesNew.js";
-import { domNum, hintNums, hintTags, shortDate } from "../lib/reality.js";
+import { domNum, hintNums, hintTags, shortDate, streamLabel } from "../lib/reality.js";
 import { trackImageClick } from "../lib/tracking.js";
 
 // Single hint card — CSS classes (rs-card, rs-imgwrap, etc.) must be injected by the parent layout.
@@ -17,9 +17,19 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
   const tags = hintTags(h);
   const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
   const desc = h.description ? stripHtml(h.description) : null;
+  const added = streamLabel(h);   // 🌊 «נוסף לזרם» — מתי התמונה נכנסה לזרם (לא מתי האירוע קרה)
 
   return (
     <article className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
+      {added && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 11px", fontSize: 11, fontWeight: 800,
+          color: fresh ? "#ffc0c9" : (palette?.accentText || "#c9a227"),
+          background: fresh ? "linear-gradient(90deg,rgba(224,85,106,.16),transparent)" : "linear-gradient(90deg,rgba(212,175,55,.10),transparent)",
+          borderBottom: `1px solid ${palette?.border || "#2c2145"}` }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", flex: "none", background: fresh ? "#e0556a" : (palette?.accentText || "#c9a227"), boxShadow: fresh ? "0 0 7px #e0556a" : "none" }} />
+          {fresh ? "🆕 נוסף לזרם" : "נוסף לזרם"} · {added}
+        </div>
+      )}
       <div className="rs-imgwrap" onClick={() => { trackImageClick(h.id, v); onOpen?.(); }}>
         {h.image_url
           ? <img src={h.image_url} alt={title || ""} loading="lazy" />

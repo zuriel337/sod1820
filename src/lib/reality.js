@@ -6,11 +6,30 @@
 const DAY = 86400000;
 export const RARE_MAX = 2;            // «נדיר» = מספר שהופיע עד 2 פעמים בכל הזמן
 
-// תאריך אפקטיבי של רמז (אירוע > העלאה)
+// תאריך אפקטיבי של רמז (אירוע > העלאה) — לדופק/ציר-הזמן
 export function effDate(h) {
   const s = h?.occurred_at || h?.created_at;
   const t = s ? +new Date(s) : 0;
   return Number.isFinite(t) ? t : 0;
+}
+
+// 🌊 «מתי נוסף לזרם» — קובע את סדר-הזרם (הכי-חדש-שנוסף ראשון). נפילה ל-created_at.
+export function streamDate(h) {
+  const s = h?.stream_at || h?.created_at;
+  const t = s ? +new Date(s) : 0;
+  return Number.isFinite(t) ? t : 0;
+}
+// תווית «נוסף לזרם»: היום / אתמול / תאריך (עברית)
+export function streamLabel(h) {
+  const t = streamDate(h);
+  if (!t) return "";
+  const d = new Date(t), now = new Date();
+  const dayMs = 86400000;
+  const startToday = new Date(now); startToday.setHours(0, 0, 0, 0);
+  const diff = +startToday - +new Date(d).setHours(0, 0, 0, 0);
+  if (diff <= 0) return "היום";
+  if (diff <= dayMs) return "אתמול";
+  try { return new Date(t).toLocaleDateString("he-IL", { day: "numeric", month: "long" }); } catch { return ""; }
 }
 
 // המספר הדומיננטי של הרמז (לספירת הדופק)
@@ -107,8 +126,9 @@ export function filterHints(hints = [], { value = null, values = null, period = 
     for (const h of hints) { const v = domNum(h); if (v != null) cnt.set(v, (cnt.get(v) || 0) + 1); }
     arr = arr.filter(h => { const v = domNum(h); return v != null && (cnt.get(v) || 0) <= RARE_MAX; });
   }
+  // 🌊 סדר הזרם: הכי-חדש-שנוסף-לזרם ראשון (בקשת צוריאל). נפילה: אירוע → העלאה.
   return [...arr].sort((a, b) =>
-    ((b.importance ?? 0) - (a.importance ?? 0)) ||
+    (streamDate(b) - streamDate(a)) ||
     (effDate(b) - effDate(a)) ||
     (new Date(b.created_at) - new Date(a.created_at))
   );

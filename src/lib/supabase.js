@@ -282,11 +282,12 @@ export async function getGalleryUpdates(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance')
+    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance')
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
     .eq('min_tier', 0)                                               // נראות: ציבורי בלבד (פרימיום/מוסתר נחסם)
+    .order('stream_at', { ascending: false, nullsFirst: false })    // 🌊 לפי «נוסף לזרם»
     .order('created_at', { ascending: false })
     .limit(limit);
   return data || [];
@@ -299,13 +300,12 @@ export async function getRealityHints(limit = 1000) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,ocr_meta,image_type')
+    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,ocr_meta,image_type')
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
     .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('occurred_at', { ascending: false, nullsFirst: false })
+    .order('stream_at', { ascending: false, nullsFirst: false })    // 🌊 הכי-חדש-שנוסף-לזרם ראשון (חלון 50)
     .order('created_at', { ascending: false })
     .limit(limit);
   return data || [];
@@ -1005,8 +1005,10 @@ export async function searchArchiveOcrIds(q, { limit = 800 } = {}) {
 }
 export async function setImageCuration(id, patch) {
   if (!supabase) throw new Error('no supabase');
+  // 🌊 «הוסף לזרם» (source=update) → חותמת stream_at=עכשיו כך שהתמונה קופצת לראש הזרם (גם ישנה).
+  const p = patch.source === 'update' ? { ...patch, stream_at: new Date().toISOString() } : patch;
   const { data, error } = await supabase.from('gallery_images')
-    .update(patch).eq('id', id).select('id,importance,curator_hidden,source').maybeSingle();
+    .update(p).eq('id', id).select('id,importance,curator_hidden,source,stream_at').maybeSingle();
   if (error) throw error;
   invalidateGalleriesOverview();
   return data;
