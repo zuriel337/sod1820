@@ -35,6 +35,7 @@
 > החוק המלא: `select description from nodes where rule_id='broadcast_channels_law';`
 - **מקור אחד:** `channel_updates` (ערוצים: `main` · `reality-code` בבית · `or-geula` בצ'אט · `sod-hachashmal`). רצועות = `BrandTicker.jsx` (מיתוג ב-`BRANDS`); מרכז השידורים = `/broadcasts`; פרסום = טאב אדמין «📡 שדר לטיקר».
 - **אפס כפילות:** הטיקר העליון (`LiveActivityBar`) מציג עדכון-חי רק כ**מצביע** («← לצפייה») ומוסתר ב-`/` וב-`/community/chat`. **עדכון מקושר-לפוסט (`link_url`) מוסתר בטיקר של עמוד הבית** (`hidePostLinked` ב-`BrandTicker`) — הפוסט כבר ב«עדכונים אחרונים». בטיקר, עדכון-פוסט = כותרת בלבד + כפתור «📖 לקריאת הפוסט המלא», לא כל התוכן. תקן: ● LIVE אדום + אייקון וואטסאפ, בלי מילים. **קרדיט «מאת» חובה על כל עדכון.**
+- **📲 הפצה לקבוצות וואטסאפ (`wa_*`, מספר משני דרך Green API):** מפתחות ב-Vault (`GREEN_API_ID`+`GREEN_API_TOKEN`); פונקציות: `wa_state()` (מצב חיבור) · `wa_groups()` (רשימת קבוצות) · `wa_distribute(text, image?, chat_ids?, slug?, dry_run?)` (בלי chat_ids = כל הקבוצות; תמיד dry_run קודם!). יומן: `wa_publish_log`. **הפצה בפקודת צוריאל בלבד — לא אוטומטית.** חסום מהציבור (service_role בלבד).
 - ⛔ שום עדכון לא נכנס לזרם המציאות אוטומטית. וידאו מתנגן רק בהקשה (Egress!); בהיקף — Cloudflare R2. העלאת מדיה: `gallery/sod1820/broadcasts/` (policy זמנית — לסגור מיד!).
 
 ## ⛔ חובה לפני הכל — קרא את ההגדרות הקנוניות (`agent_onboarding_law`)
