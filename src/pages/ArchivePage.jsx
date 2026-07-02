@@ -7,7 +7,10 @@ import {
   getNumberSets, saveNumberSet, deleteNumberSet, getTederStations,
   searchArchiveOcrIds, addImageToRealityStream, setImageCuration,
   getHintSets, saveHintSet, addHintSetMember, deleteGalleryImage, checkImageConnections,
+  getRealityHints, supabase,
 } from "../lib/supabase.js";
+import DiamondCascade from "../components/DiamondCascade.jsx";
+import MuseumGate from "../components/MuseumGate.jsx";
 import { stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { bubbleKeyFor, CORE_BUBBLE } from "../lib/bubbles.js";
@@ -56,12 +59,12 @@ export default function ArchivePage() {
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(loc.search).get("tab");
     // ברירת-מחדל: זרם המציאות (קליל) — reality_stream_law. גלריות/מאגר הכבדים רק בכניסה מפורשת.
-    return t === "galleries" ? "galleries" : t === "pool" ? "pool" : "reality";
+    return t === "galleries" ? "galleries" : t === "pool" ? "pool" : t === "cascade" ? "cascade" : "reality";
   });
   // סנכרון טאב כשמנווטים עם ?tab= (אותו עמוד, לא מתבצע remount)
   useEffect(() => {
     const t = new URLSearchParams(loc.search).get("tab");
-    if (t === "galleries" || t === "pool" || t === "reality") setTab(t);
+    if (t === "galleries" || t === "pool" || t === "reality" || t === "cascade") setTab(t);
   }, [loc.search]);
   const [gals, setGals] = useState(null);
   const [imgs, setImgs] = useState([]);
@@ -860,7 +863,7 @@ export default function ArchivePage() {
 
       {/* טאבים */}
       <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 26, flexWrap: "wrap" }}>
-        {[["reality", "🌊 זרם המציאות"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
+        {[["reality", "🌊 זרם המציאות"], ["cascade", "💎 מפל"], ["galleries", "📚 גלריות"], ["pool", "🔢 מאגר / סטים"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "9px 20px", borderRadius: 999,
             border: `1px solid ${tab === k ? C.gold : C.border}`,
@@ -876,6 +879,9 @@ export default function ArchivePage() {
           <RealityWorld forceDark presetSetId={new URLSearchParams(loc.search).get("set")} />
         </div>
       )}
+
+      {/* ============ 💎 טאב מפל — זירת השוואה חיה: המפל מול שער-המוזיאון (לבחירת צוריאל) ============ */}
+      {tab === "cascade" && <CascadeCompare isAdmin={isAdmin} onEdit={isAdmin ? h => setEditImg(h) : null} />}
 
       {/* ============ טאב גלריות (ההיסטורי) — עם רצועת גלריות-רמזים מומלצות ============ */}
       {tab === "galleries" && (
@@ -1818,6 +1824,59 @@ function ImageMeta({ im, isAdmin, onEdit, onJump, onDelete }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+// ═══ 💎 זירת ההשוואה — «מפל» מול «שער המוזיאון» (טאב בחירה חי לצוריאל) ═══
+// שתי הגרסאות רצות על אותם רמזים אמיתיים מהזרם (עץ אחד). לחיצה על תמונה → לייטבוקס.
+function CascadeCompare({ isAdmin, onEdit }) {
+  const [hints, setHints] = useState(null);
+  const [total, setTotal] = useState(null);
+  const [lb, setLb] = useState(null);
+  const P = PALETTES.dark;
+
+  useEffect(() => {
+    let live = true;
+    getRealityHints(50).then(h => { if (live) setHints(h || []); }).catch(() => live && setHints([]));
+    supabase.from("gallery_images").select("id", { count: "exact", head: true })
+      .not("curator_hidden", "is", true).eq("min_tier", 0)
+      .then(({ count }) => { if (live && count != null) setTotal(count); });
+    return () => { live = false; };
+  }, []);
+
+  if (hints === null) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>טוען את הזרם…</div>;
+  if (!hints.length) return <div style={{ textAlign: "center", color: C.muted, fontFamily: F.body, padding: 40 }}>אין עדיין רמזים בזרם.</div>;
+
+  const secHead = (icon, title, note) => (
+    <div style={{ textAlign: "center", margin: "0 0 18px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, maxWidth: 720, margin: "0 auto 4px" }}>
+        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(212,175,55,.4))" }} />
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(17px,3vw,23px)", fontWeight: 800 }}>{icon} {title}</span>
+        <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(212,175,55,.4),transparent)" }} />
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>{note}</div>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", color: C.goldDim, fontFamily: F.body, fontSize: 13, marginBottom: 26, lineHeight: 1.7 }}>
+        זירת השוואה חיה — שתי גרסאות-הפתיח על התמונות האמיתיות מהזרם. בדוק בדסקטופ ובטלפון, ותחליט מי עולה לבית.
+      </div>
+
+      {secHead("✨", "גרסה 1 — שער המוזיאון", "ענקית במרכז · ה-2 וה-3 מציצות מאחוריה יחד · 6 ברשת · מונה עושר")}
+      <MuseumGate hints={hints} palette={P} total={total} onOpen={i => setLb(i)} onEdit={onEdit} />
+
+      <div style={{ height: 46 }} />
+
+      {secHead("💎", "גרסה 2 — המפל", "ענקית בצד · 4 משתלשלות פנימה בתלת-מימד ודוהות")}
+      <DiamondCascade hints={hints.slice(0, 5)} palette={P} onOpen={i => setLb(i)} onEdit={onEdit} />
+
+      {lb != null && (
+        <Lightbox images={hints} initialIndex={lb} onClose={() => setLb(null)}
+          onEdit={isAdmin && onEdit ? h => { setLb(null); onEdit(h); } : null} />
+      )}
     </div>
   );
 }
