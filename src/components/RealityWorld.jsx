@@ -9,8 +9,7 @@ import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { computePulse, filterHints, hintNums, domNum, shortDate, effDate } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import RealityPulse from "./RealityPulse.jsx";
-import RealityStream from "./RealityStream.jsx";
-import DiamondCascade from "./DiamondCascade.jsx";
+import RiverStream from "./RiverStream.jsx";
 import NumberBubbles from "./NumberBubbles.jsx";
 import { computeBubbles } from "../lib/bubbles.js";
 import Lightbox from "./Lightbox.jsx";
@@ -312,38 +311,15 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         );
       })()}
 
-      {/* ===== פריסה: 💎 «יהלום» (Hero ענק + מפל תלת-מימד) ואז הזרם ===== */}
-      {(() => {
-        const useDiamond = !showHero && filtered.length >= 2;   // גם ב-compact (הבית) — «הלב של האתר»
-        const diamondCount = useDiamond ? Math.min(filtered.length, 5) : 0;
-        const streamHints = showHero && filtered.length > 0 ? filtered.slice(1)
-          : useDiamond ? filtered.slice(diamondCount)
-          : filtered;
-        const streamLbOffset = showHero ? 1 : diamondCount;
-
-        return (
-          <>
-            {useDiamond && (
-              <DiamondCascade
-                hints={filtered.slice(0, diamondCount)}
-                cutoff={cutoff}
-                palette={P}
-                onOpen={i => setLbIdx(i)}
-                onEdit={isAdmin ? h => setEditImg(h) : null}
-              />
-            )}
-            <RealityStream
-              hints={streamHints}
-              cutoff={cutoff}
-              compact={compact}
-              onPick={setValue}
-              palette={P}
-              onLightbox={(_, relIdx) => setLbIdx(streamLbOffset + relIdx)}
-              onEdit={isAdmin ? h => setEditImg(h) : null}
-            />
-          </>
-        );
-      })()}
+      {/* ===== 🌊 «נהר הזרם» — קו-זרם במרכז, רמזים עוגנים לסירוגין, גשר למאוזנות (בחירת צוריאל) ===== */}
+      <RiverStream
+        hints={showHero && filtered.length > 0 ? filtered.slice(1) : filtered}
+        cutoff={cutoff}
+        palette={P}
+        max={compact ? 8 : 20}
+        onOpen={i => setLbIdx((showHero ? 1 : 0) + i)}
+        onEdit={isAdmin ? h => setEditImg(h) : null}
+      />
 
       {/* לייטבוקס מאוחד — hero strip + גריד */}
       {lbIdx != null && (

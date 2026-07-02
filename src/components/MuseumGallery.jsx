@@ -20,7 +20,7 @@ function Placard({ h, side = "start" }) {
   const desc = h.description ? stripHtml(h.description).trim() : "";
   const v = domNum(h);
   const date = heDate(h);
-  if (!title && !desc) return null;
+  if (!title && !desc && v == null) return null;
   return (
     <div className={`mgal-placard ${side}`}>
       <div className="mgal-placard-in">
@@ -101,7 +101,6 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
 
   if (!n) return null;
   const hero = hints[heroIdx];
-  const v = domNum(hero);
   const rest = hints.filter((_, i) => i !== heroIdx);
   const widths = [46, 38, 32, 27, 23, 20, 18, 16];   // הרוחב יורד — הגובה נגזר מהיחס (בלי חיתוך)
 
@@ -111,9 +110,9 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
       {/* הבמה: תמונה ביחס מלא + שלט-מוזיאון תלת-מימדי צף בצד (במובייל יורד מתחת) */}
       <div className="mgal-stage">
         <div className="mgal-heroBox">
+          {/* התמונה נקייה — המספר בשלט-המוזיאון שלצדה, לא עליה (לא חוסמים תוכן) */}
           <div className="mgal-hero" key={hero.id} onClick={() => onOpen?.(heroIdx)}>
             <img src={hero.image_url} alt={cleanName(hero.name) || ""} />
-            {v != null && <Link to={`/number/${v}`} className="mgal-heroNum" onClick={e => e.stopPropagation()}>{v}</Link>}
             {onEdit && <button className="mgal-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(hero); }}>✏️</button>}
           </div>
         </div>
@@ -131,7 +130,12 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
               <div key={h.id} className="mgal-f" onClick={() => onOpen?.(origIdx)}
                 style={{ width: `${w}%`, minWidth: 110, transform: `rotate(${i % 2 ? 1.6 : -1.6}deg) translateY(${(i % 3) * 6}px)`, zIndex: 8 - i }}>
                 <img src={h.image_url} alt="" loading="lazy" />
-                {rv != null && <Link to={`/number/${rv}`} className="mgal-fnum" onClick={e => e.stopPropagation()}>{rv}</Link>}
+                {/* המספר מתחת לתמונה — לא עליה */}
+                {rv != null && (
+                  <div style={{ textAlign: "center", marginTop: 5 }}>
+                    <Link to={`/number/${rv}`} className="mgal-fnum" style={{ position: "static", display: "inline-block" }} onClick={e => e.stopPropagation()}>{rv}</Link>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -145,7 +149,6 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
 export function CascadeContain({ hints = [], onOpen, onEdit }) {
   if (!hints.length) return null;
   const hero = hints[0];
-  const v = domNum(hero);
   const rest = hints.slice(1, 5);
   // מדרגות: רוחב יורד + סיבוב/עומק גדלים — «משתלשל פנימה», הגובה טבעי (בלי חיתוך)
   const steps = [
@@ -158,9 +161,9 @@ export function CascadeContain({ hints = [], onOpen, onEdit }) {
     <div className="mgc">
       <style>{CSS}</style>
       <div className="mgc-main">
+        {/* התמונה נקייה — המספר בשלט שמתחתיה (לא חוסמים תוכן) */}
         <div className="mgal-hero" onClick={() => onOpen?.(0)} style={{ cursor: "zoom-in" }}>
           <img src={hero.image_url} alt={cleanName(hero.name) || ""} style={{ margin: "0 auto" }} />
-          {v != null && <Link to={`/number/${v}`} className="mgal-heroNum" onClick={e => e.stopPropagation()}>{v}</Link>}
           {onEdit && <button className="mgal-edit" title="ערוך" onClick={e => { e.stopPropagation(); onEdit(hero); }}>✏️</button>}
         </div>
         <Placard h={hero} side="under" />
@@ -175,7 +178,12 @@ export function CascadeContain({ hints = [], onOpen, onEdit }) {
                 style={{ width: s.w, marginInlineStart: `${i * 7}%`, opacity: s.op,
                   transform: `rotateY(${s.rot}deg) translateZ(${s.z}px)` }}>
                 <img src={h.image_url} alt="" loading="lazy" style={{ border: "1px solid rgba(212,175,55,.3)" }} />
-                {rv != null && i < 2 && <Link to={`/number/${rv}`} className="mgal-fnum" onClick={e => e.stopPropagation()}>{rv}</Link>}
+                {/* המספר מתחת — לא על התמונה */}
+                {rv != null && i < 2 && (
+                  <div style={{ textAlign: "center", marginTop: 4 }}>
+                    <Link to={`/number/${rv}`} className="mgal-fnum" style={{ position: "static", display: "inline-block" }} onClick={e => e.stopPropagation()}>{rv}</Link>
+                  </div>
+                )}
               </div>
             );
           })}

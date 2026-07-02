@@ -311,6 +311,24 @@ export async function getRealityHints(limit = 1000) {
   return data || [];
 }
 
+// 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
+// ספירה בצד-לקוח על values בלבד (בלי מונחים — פרטיות). [{n, count}] ממוין חם→קר.
+export async function getHotNumbers(days = 7, lim = 10) {
+  if (!supabase) return [];
+  try {
+    const since = new Date(Date.now() - days * 864e5).toISOString();
+    const { data } = await supabase.from('search_log').select('value')
+      .gte('created_at', since).not('value', 'is', null).limit(4000);
+    const counts = new Map();
+    for (const r of (data || [])) {
+      const n = Number(r.value);
+      if (n > 0) counts.set(n, (counts.get(n) || 0) + 1);
+    }
+    return [...counts.entries()].map(([n, count]) => ({ n, count }))
+      .sort((a, b) => b.count - a.count).slice(0, lim);
+  } catch { return []; }
+}
+
 // 👑 «אוצרות הגילוי» — ציר-הערך: תמונות שצוריאל סימן treasure=true (אצירה ידנית, לא תלוי-זמן).
 // סדר: הבלטה (importance) ואז חדש→ישן. הראשונה = «בחירת העורך» (ה-Hero של שער-המוזיאון).
 export async function getTreasures(limit = 12) {
