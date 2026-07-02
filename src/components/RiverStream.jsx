@@ -119,7 +119,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv::before { content:""; position:absolute; top:0; bottom:0; right:50%; width:3px; transform:translateX(50%);
           background:linear-gradient(180deg, ${gold}1), rgba(58,134,200,.65) 45%, ${gold}.45) 80%, transparent);
           box-shadow:0 0 14px ${gold}.3); border-radius:99px; }
-        .rv-drop { position:relative; z-index:2; width:fit-content; margin:0 auto 16px; background:#0f0b1a;
+        .rv-drop { position:relative; z-index:3; width:fit-content; margin:0 auto 16px; background:#0f0b1a;
           border:1px solid ${gold}.5); color:#e8c84a; font-family:${F.heading}; font-size:11px; font-weight:800;
           border-radius:999px; padding:3px 14px; box-shadow:0 0 12px ${gold}.22); }
         /* רמז = שורה מלאה: תמונה בצד אחד של הנהר, הטקסט המלא בצד השני — לסירוגין (בקשת צוריאל) */
@@ -186,10 +186,15 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rvw-view::-webkit-scrollbar { display:none; }
         .rvw .rv-tray { top:8px; }
         /* התמונה קטנה וממורכזת — הגובה מוגבל כך שנכנסות שתיים שלמות באשנב */
-        .rvw .rv-hint, .rvw .rv-hint.l, .rvw .rv-hint.r { width:94%; margin:0 auto 24px; display:block; transform:none; text-align:center; }
+        .rvw .rv-hint, .rvw .rv-hint.l, .rvw .rv-hint.r { width:94%; margin:0 auto 16px; display:block; transform:none; text-align:center; }
         .rvw .rv-frame { display:inline-block; max-width:100%; }
         .rvw .rv-frame img { max-height:36vh; width:auto; max-width:100%; margin:0 auto; }
-        .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; }
+        /* הכיתוב = גוש קומפקטי: כותרת+תאריך בשורה מלאה ממורכזת, ושני הצ'יפים יחד בשורה אחת מתחת */
+        .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; gap:6px 8px; }
+        .rvw .rv-cap .rv-t { order:1; flex:1 1 100%; }
+        .rvw .rv-cap .rv-t span { margin-top:2px; }
+        .rvw .rv-num { order:2; }
+        .rvw .rv-gal { order:3; }
         .rvw .rv-desc { display:none; }   /* ההסבר עבר לבועה שליד המוט */
         .rvw .rv-hint::after { display:none; }
         .rvw .rv-bridge { width:94%; text-align:center; }
