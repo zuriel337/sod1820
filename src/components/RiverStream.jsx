@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { thumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
+import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate, streamLabel, effDate } from "../lib/reality.js";
 import { isNewSince } from "../lib/crossesNew.js";
 import { getHotNumbers } from "../lib/supabase.js";
@@ -125,6 +126,9 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rv-cap { margin-top:7px; color:${P?.ink || "#efe6d2"}; font-family:${F.body}; font-size:12.5px; font-weight:700; line-height:1.5;
           display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
         .rv-cap .rv-t span { display:block; color:${P?.inkSoft || "#a99a7c"}; font-size:10.5px; font-weight:400; margin-top:1px; }
+        /* התיאור המלא של הרמז — אותיות גדולות ויפות (חצי מהרמז הוא הטקסט) */
+        .rv-desc { width:100%; color:#e6d9b8; font-family:${F.body}; font-size:14px; font-weight:400; line-height:1.9;
+          white-space:pre-wrap; max-height:180px; overflow-y:auto; }
         /* 🖼 שער-הסט — קישור תלת-מימדי מהבהב לגלריה המסוננת (סטטי, אפס-עומס על השרת) */
         .rv-gal { display:inline-flex; align-items:center; gap:5px; text-decoration:none; color:#e8c84a;
           background:linear-gradient(150deg, rgba(35,26,10,.95), rgba(14,10,5,.95)); border:1px solid ${gold}.55);
@@ -150,9 +154,17 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rvw-view { flex:1; min-width:0; height:clamp(620px,86vh,940px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; }
         .rvw-view::-webkit-scrollbar { display:none; }
         .rvw .rv-tray { top:8px; }
-        .rvw .rv-hint { width:62%; }
-        .rvw .rv-hint.r { margin-inline-start:1%; }
-        .rvw .rv-hint.l { margin-inline-start:37%; }
+        /* בבית: התמונה קטנה ב~25% (62%→46%) והטקסט המלא לצדה בגדול — רואים 2-3 רמזים בגלילה */
+        .rvw .rv-hint { width:96%; margin-inline-start:2%; display:flex; gap:22px; align-items:flex-start; }
+        .rvw .rv-hint.r { transform:rotate(-.6deg); }
+        .rvw .rv-hint.l { margin-inline-start:2%; flex-direction:row-reverse; transform:rotate(.6deg); }
+        .rvw .rv-hint .rv-frame { flex:0 0 46%; min-width:0; }
+        .rvw .rv-hint .rv-cap { flex:1; min-width:0; margin-top:4px; align-content:flex-start; font-size:15.5px; }
+        .rvw .rv-cap .rv-t { font-family:${F.regal}; font-size:18px; line-height:1.5; }
+        .rvw .rv-cap .rv-t span { font-size:12.5px; margin-top:4px; }
+        .rvw .rv-num { font-size:17px; padding:2px 14px; }
+        .rvw .rv-desc { font-size:16.5px; line-height:2; max-height:none; overflow:visible; margin-top:4px; }
+        .rvw .rv-hint::after { display:none; }
         .rvw .rv-bridge { width:96%; }
         .rvw-rod { flex:0 0 40px; position:relative; border-radius:999px; cursor:ns-resize; touch-action:none;
           background:linear-gradient(180deg, ${gold}.35), rgba(58,134,200,.25) 55%, ${gold}.15));
@@ -162,8 +174,12 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           border:1px solid #6b4e10; box-shadow:0 6px 16px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.5);
           display:flex; align-items:center; justify-content:center; color:#3a2a06; font-size:20px; pointer-events:none;
           transition:top .15s linear; }
-        @media (max-width:640px) { .rvw .rv-hint { width:80%; } .rvw .rv-hint.r { margin-inline-start:0%; }
-          .rvw .rv-hint.l { margin-inline-start:19%; } .rvw-view { height:clamp(540px,78vh,820px); } }
+        @media (max-width:640px) {
+          /* מובייל: תמונה מלאה למעלה, הטקסט הגדול מתחתיה */
+          .rvw .rv-hint, .rvw .rv-hint.l { flex-direction:column; gap:8px; width:94%; margin-inline-start:3%; transform:none; }
+          .rvw .rv-hint .rv-frame { flex:none; width:100%; }
+          .rvw .rv-desc { font-size:15px; }
+          .rvw-view { height:clamp(540px,78vh,820px); } }
       `}</style>
 
       {/* 🕹 מצב-חלון (הבית): מוט-ענק + אשנב פנימי; במצב רגיל — העטיפות שקופות */}
@@ -198,6 +214,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           lastBucket = bucket || lastBucket;
           const v = domNum(h);
           const title = cleanName(h.name);
+          const desc = h.description ? stripHtml(h.description).trim() : "";
           const added = streamLabel(h);
           const fresh = cutoff ? isNewSince(h, cutoff) : false;
           const isBridge = (ratios[h.id] || 0) > 1.25;    // מאוזנת → «גשר» חוצה-נהר
@@ -220,6 +237,8 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
                   🖼 כל {gallerySetFor(v).join("+")} ←
                 </Link>
               )}
+              {/* התיאור המלא — ליד/מתחת לתמונה, באותיות גדולות ויפות (הטקסט הוא חצי מהרמז) */}
+              {desc && <div className="rv-desc">{desc}</div>}
             </div>
           );
           return (

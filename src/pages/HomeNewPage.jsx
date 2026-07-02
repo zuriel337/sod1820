@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import { bubblesFromCounts } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -81,6 +81,7 @@ export default function HomeNewPage() {
   const hotSlugs = useHotPostSlugs();   // 🔥 פוסטים חמים השבוע (דגל בלבד)
   const [cards, setCards] = useState([]);
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
+  const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
 
@@ -99,6 +100,7 @@ export default function HomeNewPage() {
       markSeenKey("home-conv");   // ראה את ההתכנסות → הביקור הבא ישווה לרגע זה (לא יהבהב שוב)
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
+    getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -380,8 +382,18 @@ export default function HomeNewPage() {
 
       {/* ===== מה גולשים מחפשים עכשיו ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <HomeHeader title="🔎 מה גולשים מחפשים עכשיו" sub="המילים והשמות האחרונים שגולשים בדקו במחשבון" />
+        <HomeHeader title="🔎 מה קורה באתר עכשיו" sub="החיפושים האחרונים של הגולשים · המספרים החמים ביותר לפי מפת-החום" />
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+        {/* 🔥 המספרים החמים באתר — אותה מפת-חום כמו בקצה הנהר (search_log, 7 ימים) */}
+        {hotNums.length > 0 && (
+          <div style={{ marginTop: 16, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "15px 16px" }}>
+            <NumberBubbles
+              data={hotNums.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
+              title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
+              hrefFor={b => `/number/${b.nums[0]}`}
+            />
+          </div>
+        )}
         <div style={{ marginTop: 16 }}><CommunityWordsBox max={4} /></div>
       </section>
 

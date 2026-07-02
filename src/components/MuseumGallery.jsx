@@ -40,8 +40,10 @@ const CSS = `
   .mgal { direction: rtl; }
   /* ── במת ה-Hero: תמונה ביחס מלא + שלט צף ── */
   .mgal-stage { display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:30px; perspective:1100px; }
-  .mgal-heroBox { position:relative; flex:1.6; min-width:min(100%,340px); display:flex; justify-content:center; }
-  .mgal-hero { position:relative; display:inline-block; cursor:zoom-in; animation: mgal-fade .8s ease both;
+  .mgal-heroBox { position:relative; flex:1.6; min-width:min(100%,340px); max-width:100%; display:flex; justify-content:center; }
+  /* min-width:0 + max-width:100% — בלי זה תמונה רחבה גולשת ונחתכת בצדדים ע"י overflow:hidden של הסקשן */
+  .mgal-hero { position:relative; display:inline-block; min-width:0; max-width:100%; box-sizing:border-box;
+    cursor:zoom-in; animation: mgal-fade .8s ease both;
     padding:10px; border-radius:18px; background:linear-gradient(150deg,#241b10,#0f0b07);
     border:1.5px solid rgba(212,175,55,.55); box-shadow:0 30px 70px -20px rgba(0,0,0,.9), 0 0 50px rgba(212,175,55,.13); }
   .mgal-hero img { display:block; max-width:100%; max-height:68vh; width:auto; height:auto; border-radius:2px; }

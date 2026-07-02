@@ -16,7 +16,8 @@ import StreamSwitch from "../StreamSwitch.jsx";
 
 // קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
 // «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 היכל הגילוי» הבולט (בית-המדרש חי בתוך המעבדה).
-const CORE_KEYS = ["/", "/timeline", "/community"];
+// «ציר ההתגלות» ↔ «זרם המציאות» הוחלפו (בקשת צוריאל): הזרם בליבה, הציר ב"עוד ▾".
+const CORE_KEYS = ["/", "/archive?tab=reality", "/community"];
 const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 // הוסרו מהתפריט (לפי בקשת צוריאל): הצופן התנ"כי (/code · חי בהיכל), בני ההיכל (/members), ניסויים (/lab).
 const MORE_HIDE = ["/start", "/code", "/members", "/lab"];
@@ -34,7 +35,7 @@ const MOBILE_TILES = [
   { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
   { e: "📖", l: "פוסטים", to: "/post" },
   { e: "🖼", l: "גלריות", to: "/archive" },
-  { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
+  { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "💬", l: "הצ'אט הוותיק", to: "/community/chat" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
@@ -50,7 +51,8 @@ const SURPRISE_NUMS = [
 
 function isActive(pathname, to) {
   if (to === "/") return pathname === "/";
-  return pathname === to || pathname.startsWith(to + "/");
+  const base = to.split("?")[0];   // "/archive?tab=reality" נחשב פעיל בכל /archive
+  return pathname === base || pathname.startsWith(base + "/");
 }
 
 const postTitle = p => stripHtml(typeof p.title === "string" ? p.title : (p.title?.rendered || ""));
@@ -99,7 +101,7 @@ function UniversalSearch({ onDone, full }) {
   // 💬 חיפוש "צאט"/"צ'אט"/chat → קיצור דרך לצ'אט האתר
   const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
-    { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
+    { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
     { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
     { e: "🏛️", l: "היכל הגילוי", to: "/research" },
     { e: "🖼", l: "גלריות", to: "/archive" },

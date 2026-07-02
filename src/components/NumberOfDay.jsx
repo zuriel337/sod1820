@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import HomeHeader from "./HomeHeader.jsx";
 
 // 🗓 "המספר של היום" — באנר יומי שמתחלף לבד (דטרמיניסטי לפי התאריך).
 // בוחר מספר-ליבה מ-KEY_NUMBERS + מציג את התאריך העברי (לוח עברי מובנה ב-Intl).
@@ -24,6 +25,7 @@ export default function NumberOfDay() {
 
   return (
     <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+      <HomeHeader title="🗓 המספר של היום" sub={heb ? `${heb} — כל יום מספר-ליבה אחר עולה לבמה` : "כל יום מספר-ליבה אחר עולה לבמה"} />
       <Link to={`/number/${n}`} className="nod" style={{
         display: "flex", alignItems: "stretch", gap: 0, textDecoration: "none",
         background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 18,
