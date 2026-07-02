@@ -9,8 +9,9 @@ import { trackShare } from "../lib/tracking.js";
 export const isVideoUrl = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
 
 // ↗ שיתוף עדכון ישירות מהאתר: Web Share (מובייל) → נפילה לוואטסאפ. נמדד ב-share tracking.
+// הקישור ויראלי-עמוק: ?u=<id> מנחית את המקבל בדיוק על אותו עדכון בדף השידורים.
 export async function shareUpdate(u, brandTitle) {
-  const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}\n\n🔗 https://sod1820.co.il/broadcasts?src=share`;
+  const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}\n\n🔗 https://sod1820.co.il/broadcasts?u=${u.id}&src=share`;
   try { trackShare("broadcast", "bc-" + u.id); } catch { /* ignore */ }
   try { if (navigator.share) { await navigator.share({ text }); return; } } catch { return; }
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
@@ -110,7 +111,7 @@ export default function BrandTicker({ channel, peek = null }) {
         {cur ? (
           <div key={cur.id + i} style={{ display: "flex", gap: 10, alignItems: "flex-start", animation: "bt-fade .5s ease" }}>
             {cur.image_url && (
-              <button onClick={() => setLb(cur.image_url)} title={isVideoUrl(cur.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
+              <button onClick={() => setLb(cur)} title={isVideoUrl(cur.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
                 style={{ flex: "0 0 auto", position: "relative", padding: 0, cursor: "pointer", border: `1px solid ${b.accent}66`,
                   borderRadius: 10, overflow: "hidden", background: "#0a0710", width: 64, height: 64 }}>
                 {isVideoUrl(cur.image_url) ? (
@@ -128,7 +129,7 @@ export default function BrandTicker({ channel, peek = null }) {
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               {/* גם האותיות לחיצות — פותחות את הידיעה, לא רק התמונה (בקשת צוריאל) */}
-              <div onClick={cur.image_url ? () => setLb(cur.image_url) : undefined}
+              <div onClick={cur.image_url ? () => setLb(cur) : undefined}
                 title={cur.image_url ? (isVideoUrl(cur.image_url) ? "לחצו לצפייה בסרטון" : "לחצו לצפייה בתמונה") : undefined}
                 style={{ color: "#f5ecd2", fontFamily: F.body, fontSize: 13.5, fontWeight: 600, lineHeight: 1.6, minHeight: 42,
                 display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden",
@@ -183,13 +184,20 @@ export default function BrandTicker({ channel, peek = null }) {
       {lb && (
         <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
           background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          {isVideoUrl(lb) ? (
-            <video src={lb} controls autoPlay playsInline onClick={e => e.stopPropagation()}
-              style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-          ) : (
-            <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
-              border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-          )}
+          <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxWidth: "96vw", cursor: "default" }}>
+            {isVideoUrl(lb.image_url) ? (
+              <video src={lb.image_url} controls autoPlay playsInline
+                style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+            ) : (
+              <img src={lb.image_url} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12,
+                border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+            )}
+            {/* ↗ שתף מתחת לכל סרטון/תמונה (בקשת צוריאל) — קישור ויראלי שמנחית בדיוק על העדכון */}
+            <button onClick={() => shareUpdate(lb, b.title)} style={{ cursor: "pointer", display: "inline-flex",
+              alignItems: "center", gap: 8, background: b.accent, color: "#191008", border: "none", borderRadius: 999,
+              fontFamily: F.heading, fontSize: 14.5, fontWeight: 900, padding: "11px 30px", minHeight: 44,
+              boxShadow: `0 6px 24px ${b.glow}` }}>↗ שתפו את העדכון</button>
+          </div>
         </div>
       )}
     </div>

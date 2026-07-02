@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates } from "../lib/supabase.js";
@@ -11,10 +12,11 @@ import BrandTicker, { BRANDS, isVideoUrl, shareUpdate } from "../components/Bran
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
 const CHANNELS = ["reality-code", "or-geula", "sod-hachashmal"];
 
-function ChannelFeed({ channel, P }) {
+function ChannelFeed({ channel, P, focusId }) {
   const b = BRANDS[channel];
   const [items, setItems] = useState(null);
   const [lb, setLb] = useState(null);
+  const scrolledRef = useRef(false);   // גלילה לעדכון המשותף — פעם אחת בלבד
 
   useEffect(() => {
     let live = true;
@@ -33,9 +35,20 @@ function ChannelFeed({ channel, P }) {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
-          {items.map(u => (
-            <div key={u.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.card,
-              border: `1px solid ${P.border}`, borderInlineStart: `3px solid ${b.accent}`, borderRadius: 12, padding: "12px 14px" }}>
+          {items.map(u => {
+            const focused = focusId && u.id === focusId;
+            return (
+            <div key={u.id}
+              ref={focused ? el => {
+                if (el && !scrolledRef.current) {
+                  scrolledRef.current = true;
+                  setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+                }
+              } : undefined}
+              style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.card,
+              border: focused ? `1.5px solid ${b.accent}` : `1px solid ${P.border}`,
+              borderInlineStart: `3px solid ${b.accent}`, borderRadius: 12, padding: "12px 14px",
+              ...(focused ? { boxShadow: `0 0 26px ${b.accent}55`, animation: "bc-focus 1.6s ease 2" } : {}) }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{u.text}</p>
                 <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
@@ -46,7 +59,7 @@ function ChannelFeed({ channel, P }) {
                 </div>
               </div>
               {u.image_url && (
-                <button onClick={() => setLb(u.image_url)} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
+                <button onClick={() => setLb(u)} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
                   style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
                   border: `1px solid ${P.borderStrong}`, borderRadius: 10, overflow: "hidden", background: "#0a0710" }}>
                   {isVideoUrl(u.image_url) ? (
@@ -63,19 +76,26 @@ function ChannelFeed({ channel, P }) {
                 </button>
               )}
             </div>
-          ))}
+          );})}
         </div>
       )}
       {lb && (
         <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
           background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          {isVideoUrl(lb) ? (
-            <video src={lb} controls autoPlay playsInline onClick={e => e.stopPropagation()}
-              style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-          ) : (
-            <img src={lb} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 12,
-              border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-          )}
+          <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxWidth: "96vw", cursor: "default" }}>
+            {isVideoUrl(lb.image_url) ? (
+              <video src={lb.image_url} controls autoPlay playsInline
+                style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+            ) : (
+              <img src={lb.image_url} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12,
+                border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
+            )}
+            {/* ↗ שתף מתחת לכל סרטון/תמונה — קישור ויראלי שמנחית בדיוק על העדכון */}
+            <button onClick={() => shareUpdate(lb, b.title)} style={{ cursor: "pointer", display: "inline-flex",
+              alignItems: "center", gap: 8, background: b.accent, color: "#191008", border: "none", borderRadius: 999,
+              fontFamily: F.heading, fontSize: 14.5, fontWeight: 900, padding: "11px 30px", minHeight: 44,
+              boxShadow: `0 6px 24px ${b.accent}55` }}>↗ שתפו את העדכון</button>
+          </div>
         </div>
       )}
     </section>
@@ -84,6 +104,8 @@ function ChannelFeed({ channel, P }) {
 
 export default function BroadcastsPage() {
   const P = usePalette();
+  const [params] = useSearchParams();
+  const focusId = params.get("u");   // קישור ויראלי: ?u=<id> — נוחתים בדיוק על העדכון ששותף
   useEffect(() => {
     applySeo({ title: "מרכז השידורים", description: "העדכונים החיים מכל הערוצים — קוד המציאות, אור הגאולה וסוד החשמל — במקום אחד.", path: "/broadcasts" });
   }, []);
@@ -102,7 +124,8 @@ export default function BroadcastsPage() {
           </span>
         </p>
       </header>
-      {CHANNELS.map(ch => <ChannelFeed key={ch} channel={ch} P={P} />)}
+      <style>{`@keyframes bc-focus { 0%,100% { transform:none; } 50% { transform:scale(1.015); } }`}</style>
+      {CHANNELS.map(ch => <ChannelFeed key={ch} channel={ch} P={P} focusId={focusId} />)}
     </div>
   );
 }
