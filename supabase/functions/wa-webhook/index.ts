@@ -72,8 +72,8 @@ Deno.serve(async (req) => {
 
     // ⏱️ ביטוי כבד/ארוך → קודם הודעת-המתנה מהירה, שלא ימתינו בשקט
     const words = clean(phrase).split(" ").filter(Boolean);
-    const heavy = words.length >= 4 || phrase.length > 28;
-    if (heavy) { try { await reply(chatId, "🔎 רגע, בודק את זה במנוע — כמה שניות…", msgId); } catch { /* noop */ } }
+    const heavy = words.length >= 3 || phrase.length > 20;
+    if (heavy) { try { await reply(chatId, "🔎 קיבלתי! בודק את הדברים שלכם במנוע — בקרוב תשובה 🙏", msgId); } catch { /* noop */ } }
 
     const value = await ragil(phrase);
     if (value <= 0) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
