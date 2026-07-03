@@ -231,11 +231,8 @@ export default function HomeNewPage() {
         <BrandTicker channel="reality-code" hidePostLinked peek={{ channel: "or-geula", to: "/broadcasts" }} />
       </section>
 
-      {/* ===== ☀️ טיקר «תורת הרמז VIP» — בעמוד הבית רק התכנסויות אמיתיות (/topic/), לא גימטריות בודדות ===== */}
-      {/* convergesOnly: בקשת צוריאל — «רק התכנסויות, לא סתם גימטריות». שאר העדכונים נשארים במרכז השידורים (/broadcasts). */}
-      <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
-        <BrandTicker channel="torat-haremez" convergesOnly />
-      </section>
+      {/* ===== ☀️ טיקר «תורת הרמז VIP» — הוסר זמנית מעמוד הבית (בקשת צוריאל 3.7): התוכן עדיין לא מאורגן. ===== */}
+      {/* נשאר חי במרכז השידורים (/broadcasts). כשהתוכן יסודר — להחזיר עם convergesOnly. */}
 
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
