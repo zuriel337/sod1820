@@ -129,6 +129,48 @@ export function buildLexicon(rows, { verifiedOnly = true } = {}) {
   return m;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 🚦 Language Router — lane אחד: זיהוי סוג-קלט. (הראוטר המלא יעטוף את זה בעתיד.)
+// מחזיר: 'empty' | 'number' | 'hebrew' | 'english' | 'mixed'
+export function classifyInput(input) {
+  const s = String(input || "").trim();
+  if (!s) return "empty";
+  if (/^\d[\d,]*$/.test(s)) return "number";
+  const hasHeb = /[א-ת]/.test(s);
+  const hasLat = /[A-Za-z]/.test(s);
+  if (hasHeb && hasLat) return "mixed";
+  if (hasLat) return "english";
+  if (hasHeb) return "hebrew";
+  return "mixed";
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ❓ אוטומציית «המשתמשים בונים איתנו» (בקשת צוריאל): לפי סוג-הקלט + תוצאת-המנוע,
+// מה לשאול את המשתמש כדי ללמוד ממנו. מחזיר { ask, kind, question, proposal }.
+//   ask=false → אין שאלה (עברית/מספר/נמצא במילון) · ask=true → מציגים שאלה קטנה.
+// resolved: האם כבר יש התאמה במאגר (word/alias). engineResult: פלט transliterate().
+export function buildUserPrompt(input, { engineResult = null, resolved = false } = {}) {
+  const type = classifyInput(input);
+  if (type === "empty" || type === "number" || type === "hebrew" || resolved) {
+    return { ask: false, kind: type, question: null, proposal: null };
+  }
+  const best = engineResult && engineResult.candidates && engineResult.candidates[0];
+  if (type === "english") {
+    if (engineResult && engineResult.source === "lexicon") return { ask: false, kind: "english", question: null, proposal: best };
+    if (best && best.confidence >= REVIEW_THRESHOLD) {
+      // ביטחון סביר → שאלת-אישור: «התכוונת ל…?»
+      return { ask: true, kind: "confirm_translit", proposal: best,
+        question: `חיפשת «${input}» — התכוונת ל־«${best.hebrew}»?` };
+    }
+    // ביטחון נמוך/אין → שאלה פתוחה: «איך כותבים בעברית?»
+    return { ask: true, kind: "ask_hebrew", proposal: best || null,
+      question: `איך כותבים את «${input}» בעברית?` };
+  }
+  // mixed
+  return { ask: true, kind: "ask_language", proposal: null,
+    question: `לא בטוח מה חיפשת — «${input}». אפשר לכתוב בעברית?` };
+}
+
 // מדיניות סף (בקשת צוריאל): גבוה→אוטומטי · בינוני→תור-אישור · נמוך→ידני בלבד.
 export const AUTO_ADD_THRESHOLD = 0.95;
 export const REVIEW_THRESHOLD = 0.75;
