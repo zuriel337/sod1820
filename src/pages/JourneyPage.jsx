@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail } from "../lib/supabase.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
+import { trackSubscribe } from "../lib/marketing.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
@@ -45,6 +47,7 @@ const FUTURE = [
 export default function JourneyPage() {
   const P = usePalette();
   const { addJourney, saveItem } = useResearch();
+  const { verified } = useAuth();   // מחובר/מאומת → כבר ברשימה, מדלג על שער-המייל
   const [sp] = useSearchParams();
   const startFrom = (sp.get("from") || "").trim();
   const [target, setTarget] = useState(null);     // ערך-היעד הנסתר (הסקאלה הפעילה)
@@ -62,6 +65,11 @@ export default function JourneyPage() {
   const [deepState, setDeepState] = useState("idle"); // idle | busy | done | off
   const [shareBusy, setShareBusy] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false); // 🔖 משוב «נשמר»
+  // ✉️ שער-מייל למסר-העומק: השכבה השנייה נפתחת תמורת הרשמה לרשימה (lead magnet).
+  const [email, setEmail] = useState("");
+  const [gateBusy, setGateBusy] = useState(false);
+  const [gateErr, setGateErr] = useState("");
+  const [emailGiven, setEmailGiven] = useState(() => { try { return localStorage.getItem("sod_jdeep_email") === "1"; } catch { return false; } });
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
@@ -214,13 +222,33 @@ export default function JourneyPage() {
     } finally { setShareBusy(false); }
   }
 
-  // 🔓 פתיחת מסר-העומק — השכבה השנייה נפתחת ישירות, בלי דרישת שיתוף (המסר הרציני מגיע כמו שהוא).
+  // 🔓 פתיחת מסר-העומק — השכבה השנייה. נפתחת אחרי שער-המייל (או ישירות למי שכבר מנוי/מחובר).
   function unlockDeep() {
     if (root == null) return;
     setUnlocked(true);
     try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
     track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק
     fetchDeepMessage();
+  }
+
+  // ✉️ שער-המייל: השארת מייל → הרשמה לרשימה (source=journey-deep) → פתיחת המסר. אמין: גם אם
+  // ההרשמה נכשלה (רשת) — התגמול לא נתקע, פותחים בכל זאת (אבל לא מסמנים שנרשם).
+  async function submitEmailGate(e) {
+    e?.preventDefault?.();
+    setGateErr("");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setGateErr("נא להזין מייל תקין"); return; }
+    setGateBusy(true);
+    try {
+      await subscribeEmail({ email: email.trim(), source: "journey-deep" });
+      try { trackSubscribe({ source: "journey-deep" }); } catch { /* noop */ }
+      try { localStorage.setItem("sod_jdeep_email", "1"); } catch { /* noop */ }
+      setEmailGiven(true);
+    } catch {
+      setGateErr("לא הצלחנו לשמור כרגע — פותחים בכל זאת");
+    } finally {
+      setGateBusy(false);
+      unlockDeep();
+    }
   }
 
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
@@ -332,20 +360,39 @@ export default function JourneyPage() {
           )}
 
           {/* ✦ מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"). שכבה שנייה, אישית ועמוקה
-              יותר. ללא דרישת שיתוף — נפתח ישירות בלחיצה. אחרי פתיחה — נשאר פתוח לתמיד. */}
+              יותר. שער-מייל (lead magnet): נפתח תמורת הרשמה לרשימה. מנוי/מחובר קיים — נפתח ישירות.
+              אחרי פתיחה — נשאר פתוח לתמיד. */}
           {root != null && aiState === "done" && (
             !unlocked ? (
-              <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
-                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
-                  שכבה שנייה — מסר אישי ועמוק יותר על מה שהמסע שלכם מגלה.
+              (verified || emailGiven) ? (
+                /* כבר מנוי/מחובר — בלי לבקש מייל שוב */
+                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 10 }}>יש עוד שכבה — מסר עומק על {root}</div>
+                  <button onClick={unlockDeep}
+                    style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                    ✦ פִּתחו את מסר-העומק
+                  </button>
                 </div>
-                <button onClick={unlockDeep}
-                  style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                  ✦ פִּתחו את מסר-העומק
-                </button>
-              </div>
+              ) : (
+                /* שער-מייל — מסר-העומק תמורת הרשמה לרשימה */
+                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
+                    השאירו מייל, ומסר-העומק האישי ייפתח — שכבה שנייה, עמוקה יותר, על מה שהמסע שלכם מגלה. בלי ספאם.
+                  </div>
+                  <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
+                      style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
+                    <button type="submit" disabled={gateBusy}
+                      style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 24px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
+                      {gateBusy ? "פותח…" : "✦ קבלו את מסר-העומק"}
+                    </button>
+                  </form>
+                  {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
+                </div>
+              )
             ) : (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
