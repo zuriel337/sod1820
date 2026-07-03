@@ -58,6 +58,23 @@ Deno.serve(async (req) => {
       .eq("group_id", chatId).eq("action", "replied").gte("created_at", since);
     if ((count || 0) >= (cfg.max_per_hour || 20)) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "rate_limited" }); return ok(); }
 
+    // 🎯 פקודת-עומק: reply על הודעה + «עומק»/«תעמיק»/🔎 → ניתוח עמוק להודעה המצוטטת
+    const extInfo = md?.extendedTextMessageData || {};
+    const quoted = md?.quotedMessage || null;
+    const replyText = (extInfo.text || md?.textMessageData?.textMessage || "").trim();
+    if (quoted && /(^|\s)(עומק|תעמיק|🔎)(\s|$)/.test(replyText)) {
+      const qtext = quoted.textMessage || quoted.extendedTextMessageData?.text || quoted.extendedTextMessage?.text || "";
+      const eqq = qtext.indexOf("=");
+      const qphrase = clean(eqq > 0 ? qtext.slice(0, eqq) : qtext);
+      const qMsgId = extInfo.stanzaId || quoted.stanzaId || msgId;
+      if (qphrase && qphrase.length >= 2) {
+        try { await reply(chatId, "🔎 מעמיק על ההודעה הזו — בקרוב תשובה 🙏", qMsgId); } catch { /* noop */ }
+        await sb.from("wa_deep_queue").insert({ chat_id: chatId, msg_id: qMsgId, sender, sender_name: senderName, phrase: qphrase, claimed: null });
+        await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "deep_command" });
+        return ok();
+      }
+    }
+
     // ── טריגר ──
     let phrase = "", claimed: number | null = null;
     const eq = text.indexOf("=");
