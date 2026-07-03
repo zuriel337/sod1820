@@ -1522,7 +1522,7 @@ function PopularityTab() {
   const [topImgs, setTopImgs] = useState([]);
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
-  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, promptAccept: 0, promptDismiss: 0, byBrowser: [], byDevice: [], bySource: [] });
+  const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, promptAccept: 0, promptDismiss: 0, byBrowser: [], byDevice: [], bySource: [], byDay: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1562,8 +1562,22 @@ function PopularityTab() {
             // WhatsApp
             const waRows = rows.filter(r => r.event_type === "share" && r.meta?.platform === "whatsapp");
             setTopWa(agg(waRows, "slug").slice(0, 8));
-            // משפך התקנת אפליקציה: הצעה → התקנה → חזרה לשימוש + פילוח
-            const appRows = rows.filter(r => r.section === "app");
+            // גולשים ייחודיים
+            setUniq(new Set(rows.map(r => r.visitor_id)).size);
+          }).catch(() => {}),
+
+        // 📲 משפך התקנת האפליקציה — שאילתה ייעודית לאירועי 'app' בלבד.
+        // ⚠️ אסור לחשב את זה מתוך 2000 השורות האחרונות: אירועי התקנה נדירים,
+        // וזרם הצפיות מבליע אותם → הספירה "מתאפסת". כאן שולפים ישירות את אירועי
+        // האפליקציה (מעטים) בכל החלון, ומחשבים משפך + פילוח יומי אמיתי.
+        supabase.from("visitor_events")
+          .select("event_type, meta, visitor_id, created_at")
+          .eq("section", "app")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(10000)
+          .then(({ data }) => {
+            const appRows = data || [];
             const offers = new Set(appRows.filter(r => r.event_type === "offer").map(r => r.visitor_id)).size;
             const installRows = appRows.filter(r => r.event_type === "install");
             const installs = installRows.length;
@@ -1579,9 +1593,16 @@ function PopularityTab() {
               installRows.forEach(r => { const v = r.meta?.[key]; if (v) c[v] = (c[v] || 0) + 1; });
               return Object.entries(c).sort((a, b) => b[1] - a[1]);
             };
-            setAppStats({ offers, installs, installsReal, installsInferred, launchers, promptAccept, promptDismiss, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source") });
-            // גולשים ייחודיים
-            setUniq(new Set(rows.map(r => r.visitor_id)).size);
+            // התקנות לפי יום (מהישן לחדש) — real מול inferred
+            const dayCnt = {};
+            installRows.forEach(r => {
+              const d = (r.created_at || "").slice(0, 10); if (!d) return;
+              const c = dayCnt[d] || (dayCnt[d] = { real: 0, inferred: 0 });
+              if (r.meta?.inferred) c.inferred++; else c.real++;
+            });
+            const byDay = Object.entries(dayCnt).sort((a, b) => a[0] < b[0] ? -1 : 1)
+              .map(([day, c]) => ({ day, ...c, total: c.real + c.inferred }));
+            setAppStats({ offers, installs, installsReal, installsInferred, launchers, promptAccept, promptDismiss, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source"), byDay });
           }).catch(() => {}),
       ]).finally(() => setLoading(false));
     });
@@ -1650,6 +1671,26 @@ function PopularityTab() {
             ))}
           </div>
         )}
+        {/* 📅 התקנות לפי יום — מה שלא הוצג קודם (הספירה נחתכה בזרם הצפיות) */}
+        {appStats.byDay.length > 0 && (() => {
+          const maxDay = appStats.byDay.reduce((m, d) => Math.max(m, d.total), 1);
+          return (
+            <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>📅 התקנות לפי יום</div>
+              <div style={{ display: "grid", gap: 6 }}>
+                {appStats.byDay.map(d => (
+                  <div key={d.day} style={{ display: "grid", gridTemplateColumns: "84px 1fr 54px", alignItems: "center", gap: 10 }}>
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5 }}>{new Date(d.day).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}</span>
+                    <div style={{ background: C.bgGlow, borderRadius: 999, height: 10, overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: `linear-gradient(90deg, ${C.gold}, ${C.goldBright})`, width: `${Math.round((d.total / maxDay) * 100)}%`, borderRadius: 999, transition: "width .4s" }} />
+                    </div>
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, textAlign: "left" }} title={`${d.real} ודאי · ${d.inferred} אומדן`}>{d.total}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* TOP מדורים — bar chart */}
