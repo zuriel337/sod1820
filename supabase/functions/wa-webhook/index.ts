@@ -53,6 +53,11 @@ Deno.serve(async (req) => {
     if (dup) return ok();
     const sinceH = new Date(Date.now() - 3600e3).toISOString();
 
+    // 👑 אנשי-זהב (VIP): הבוט תמיד עונה להם בעומק, גם בלי «רזיאל». התאמה לפי מספר או לפי שם.
+    const { data: vips } = await sb.from("wa_vip_senders").select("sender,name_match").eq("active", true);
+    const isVip = (vips || []).some((v: { sender?: string; name_match?: string }) =>
+      (v.sender && sender.startsWith(v.sender)) || (v.name_match && senderName.includes(v.name_match)));
+
     // 👁️ תמונה → OCR אוטומטי (קורא את התמונה/הטופס, מחזיר מה שרואים + מספרים). cap 15/שעה.
     const fileData = md?.fileMessageData || {};
     const imgUrl = (md?.typeMessage === "imageMessage" || fileData.downloadUrl) ? (fileData.downloadUrl || "") : "";
@@ -112,15 +117,17 @@ Deno.serve(async (req) => {
       const m = base.slice(eq + 1).match(/\d{1,6}/); claimed = m ? parseInt(m[0], 10) : null;
     } else {
       const c = clean(base); const w = c.split(" ").filter(Boolean);
-      const okWord = called ? (w.length >= 1 && w.length <= 6 && c.length >= 2) : (w.length >= 1 && w.length <= 5 && c.length >= 2 && !(w.length === 1 && STOP.has(w[0])));
+      // VIP: בלי תקרת-מילים, רק לא ברכה-בודדת (למנוע «תודה» → מסה). קרוא/רגיל כרגיל.
+      const okWord = called ? (w.length >= 1 && w.length <= 6 && c.length >= 2)
+        : isVip ? (c.length >= 2 && !(w.length === 1 && STOP.has(w[0])))
+        : (w.length >= 1 && w.length <= 5 && c.length >= 2 && !(w.length === 1 && STOP.has(w[0])));
       if (okWord) phrase = c;
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 
-    // ⚡ תשובה מהירה מיד · חישוב עמוק «אחר כך» (פעימת-הדקה). שמעון תמיד → עומק.
+    // ⚡ תשובה מהירה מיד · חישוב עמוק «אחר כך» (פעימת-הדקה). אנשי-זהב תמיד → עומק.
     const words = clean(phrase).split(" ").filter(Boolean);
-    const isShimon = sender.startsWith("972526034851");
-    const deep = words.length >= 3 || phrase.length > 20 || isShimon;
+    const deep = words.length >= 3 || phrase.length > 20 || isVip;
 
     if (deep) {
       try { await reply(chatId, "🔎 קיבלתי! בודק את הדברים שלכם במנוע — בקרוב תשובה 🙏", msgId); } catch { /* noop */ }

@@ -19,6 +19,10 @@ async function calc(fn: string, phrase: string) {
 Deno.serve(async (req) => {
   if (new URL(req.url).searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
   const { data: rows } = await sb.from("wa_deep_queue").select("*").eq("status", "pending").order("created_at").limit(6);
+  // 👑 אנשי-זהב — רק תוכן איכותי *שלהם* (התכנסות אמיתית) זורם לערוץ torat-haremez באתר.
+  const { data: vips } = await sb.from("wa_vip_senders").select("sender,name_match").eq("active", true);
+  const isVipSender = (sender: string, name: string) => (vips || []).some((v: { sender?: string; name_match?: string }) =>
+    (v.sender && (sender || "").startsWith(v.sender)) || (v.name_match && (name || "").includes(v.name_match)));
   let done = 0;
   for (const row of (rows || [])) {
     try {
@@ -56,6 +60,22 @@ Deno.serve(async (req) => {
 
       await sb.rpc("wa_admin", { p_method: "sendMessage", p_payload: { chatId: row.chat_id, message: msg, quotedMessageId: row.msg_id }, p_http: "POST" });
       await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: row.sender_name ? "מאת " + row.sender_name : null });
+
+      // 📡 זרימה לערוץ האתר — רק אנשי-זהב + התכנסות אמיתית (strong≥1). דדופ 7 ימים.
+      if (strong.length >= 1 && isVipSender(row.sender as string, row.sender_name as string)) {
+        const chText = `🔯 *${phrase}* = *${ragil}* = ${strong.map((p) => `*${p}*`).join(" = ")}`;
+        const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
+        const { data: exist } = await sb.from("channel_updates").select("id")
+          .eq("channel", "torat-haremez").eq("text", chText).gte("created_at", weekAgo).maybeSingle();
+        if (!exist) {
+          await sb.from("channel_updates").insert({
+            channel: "torat-haremez", text: chText, source: "wa-vip",
+            credit: row.sender_name ? String(row.sender_name) : null,
+            link_url: `/number/${ragil}`, priority: 90,
+          });
+        }
+      }
+
       await sb.from("wa_deep_queue").update({ status: "done", processed_at: new Date().toISOString() }).eq("id", row.id);
       done++;
     } catch {
