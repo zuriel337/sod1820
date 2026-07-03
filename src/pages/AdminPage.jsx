@@ -43,6 +43,7 @@ const TABS = [
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
+  { key: "newsletter", label: "✉️ דיוור" },
   { key: "sets",     label: "🖼 סטים ותמונות" },
   { key: "topics",   label: "🎴 כרטיסי נושא" },
   { key: "curation", label: "⭐ אצירת תמונות" },
@@ -121,6 +122,7 @@ export default function AdminPage() {
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
+      {tab === "newsletter" && <NewsletterTab />}
       {tab === "sets" && <SetsTab />}
       {tab === "topics" && <TopicsTab />}
       {tab === "curation" && <CurationTab />}
@@ -3074,6 +3076,109 @@ function EmailsTab() {
       </div>
       <textarea readOnly value={all} style={{ width: "100%", minHeight: 200, boxSizing: "border-box", background: C.bg, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 10, padding: 14, fontFamily: F.mono, fontSize: 13, direction: "ltr", lineHeight: 1.8 }} />
       <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>הדבקו ב-Gmail/מערכת דיוור בשדה הנמענים (BCC).</div>
+    </div>
+  );
+}
+
+// ===== ✉️ דיוור — שליחת מייל לרשימת התפוצה (send-newsletter + Resend) =====
+// שלב 1: כתיבה + פילוח (פעילים / לפי מקור) + ספירת נמענים + «שלח בדיקה אליי» + «שלח לכולם».
+// שולח רק ל-active=true. כל מייל כולל לינק הסרה. השליחה מאומתת לפי חשבון האדמין (JWT).
+// דורש RESEND_API_KEY ב-Secrets + אימות דומיין — עד אז «שלח לכולם» יחזיר not_configured.
+function NewsletterTab() {
+  const { user } = useAuth();
+  const [subs, setSubs] = useState(null);
+  const [source, setSource] = useState("");     // "" = כל הפעילים
+  const [subject, setSubject] = useState("");
+  const [bodyHtml, setBodyHtml] = useState("");
+  const [busy, setBusy] = useState("");         // "" | test | send
+  const [msg, setMsg] = useState(null);
+  const [err, setErr] = useState("");
+
+  useEffect(() => { adminGetSubscribers().then(setSubs).catch(() => setSubs([])); }, []);
+
+  const active = useMemo(() => (subs || []).filter(s => s.active && s.email), [subs]);
+  const sources = useMemo(() => {
+    const c = {}; active.forEach(s => { const k = s.source || "(ללא מקור)"; c[k] = (c[k] || 0) + 1; });
+    return Object.entries(c).sort((a, b) => b[1] - a[1]);
+  }, [active]);
+  const reach = useMemo(() => source ? active.filter(s => (s.source || "(ללא מקור)") === source).length : active.length, [active, source]);
+
+  async function invoke(payload) {
+    const { data, error } = await supabase.functions.invoke("send-newsletter", { body: payload });
+    if (error) throw new Error(data?.error || error.message);
+    if (data?.error) throw new Error(data.hint || data.error);
+    return data;
+  }
+  async function sendTest() {
+    setErr(""); setMsg(null);
+    if (!user?.email) { setErr("אין כתובת אדמין לשליחת בדיקה"); return; }
+    if (!subject.trim() || !bodyHtml.trim()) { setErr("מלאו נושא ותוכן"); return; }
+    setBusy("test");
+    try {
+      const r = await invoke({ subject: subject.trim(), html: bodyHtml, test_email: user.email });
+      setMsg(r?.ok ? `✓ נשלחה בדיקה אל ${user.email}` : "הבדיקה לא נשלחה — בדקו את מפתח Resend");
+    } catch (e) { setErr(String(e.message || e)); } finally { setBusy(""); }
+  }
+  async function sendAll() {
+    setErr(""); setMsg(null);
+    if (!subject.trim() || !bodyHtml.trim()) { setErr("מלאו נושא ותוכן"); return; }
+    if (!window.confirm(`לשלוח את «${subject.trim()}» ל-${reach} נמענים${source ? ` (${source})` : ""}?`)) return;
+    setBusy("send");
+    try {
+      const r = await invoke({ subject: subject.trim(), html: bodyHtml, source: source || undefined });
+      setMsg(`✦ נשלח: ${r.sent} · נכשל: ${r.failed} (מתוך ${r.recipients})`);
+    } catch (e) { setErr(String(e.message || e)); } finally { setBusy(""); }
+  }
+
+  const field = { width: "100%", padding: "10px 12px", background: C.surface, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, fontFamily: F.body, fontSize: 14, outline: "none", boxSizing: "border-box" };
+  const lbl = { color: C.goldDim, fontFamily: F.heading, fontSize: 12.5, display: "block", margin: "14px 0 5px" };
+
+  return (
+    <div style={{ display: "grid", gap: 16, maxWidth: 640 }}>
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>✉️ שליחת דיוור לרשימת התפוצה</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+          נשלח רק ל<b style={{ color: C.goldLight }}> נרשמים פעילים</b>. כל מייל כולל לינק הסרה. תמיד «שלחו בדיקה אליכם» לפני שליחה לכולם.
+        </div>
+
+        <label style={lbl}>פילוח נמענים</label>
+        <select value={source} onChange={e => setSource(e.target.value)} style={field}>
+          <option value="">📣 כל הפעילים ({active.length})</option>
+          {sources.map(([s, n]) => <option key={s} value={s}>{s} ({n})</option>)}
+        </select>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginTop: 6 }}>
+          יעד נוכחי: <b style={{ color: C.goldBright }}>{subs ? reach : "…"}</b> נמענים
+        </div>
+
+        <label style={lbl}>נושא</label>
+        <input style={field} value={subject} onChange={e => setSubject(e.target.value)} dir="rtl" placeholder="רמז חדש התגלה על 1820" />
+
+        <label style={lbl}>תוכן (HTML — מותר עברית, קישורים, כותרות)</label>
+        <textarea style={{ ...field, minHeight: 200, fontFamily: F.mono, fontSize: 13, lineHeight: 1.7, direction: "rtl" }}
+          value={bodyHtml} onChange={e => setBodyHtml(e.target.value)}
+          placeholder={"<h2>שלום,</h2>\n<p>התגלתה התכנסות חדשה סביב 1820…</p>\n<p><a href=\"https://sod1820.co.il/number/1820\">לצפייה בדף המספר ←</a></p>"} />
+
+        {err && <div style={{ color: C.danger || C.crimsonLight, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{err}</div>}
+        {msg && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, marginTop: 12 }}>{msg}</div>}
+
+        <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+          <button onClick={sendTest} disabled={!!busy} style={{
+            cursor: busy ? "wait" : "pointer", padding: "11px 22px", borderRadius: 10, border: `1px solid ${C.borderGold}`,
+            background: "transparent", color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700,
+          }}>{busy === "test" ? "שולח…" : "🧪 שלח בדיקה אליי"}</button>
+          <button onClick={sendAll} disabled={!!busy} style={{
+            cursor: busy ? "wait" : "pointer", padding: "11px 26px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+            fontFamily: F.heading, fontSize: 15, fontWeight: 800,
+          }}>{busy === "send" ? "שולח…" : `✉️ שלח ל-${subs ? reach : "…"} נמענים`}</button>
+        </div>
+      </div>
+
+      <div style={{ ...card, borderColor: C.border }}>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.9 }}>
+          <b style={{ color: C.goldLight }}>הפעלה:</b> להוסיף ב-Supabase → Edge Functions → Secrets את <code style={{ color: C.goldBright }}>RESEND_API_KEY</code> (ואם רוצים כתובת שולח מותאמת — <code style={{ color: C.goldBright }}>NEWSLETTER_FROM</code>), ולאמת את הדומיין <b>sod1820.co.il</b> ב-Resend. עד אז «שלח לכולם» יחזיר הודעת «חסר מפתח».
+        </div>
+      </div>
     </div>
   );
 }
