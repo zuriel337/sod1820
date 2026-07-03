@@ -214,15 +214,13 @@ export default function JourneyPage() {
     } finally { setShareBusy(false); }
   }
 
-  // 🔓 פתיחת מסר-העומק — אמין: פותח *מיד* את השכבה השנייה (התגמול לעולם לא «נתקע»), ומפעיל את
-  // השיתוף במקביל. כך גם אם המשתמש סוגר את גיליון-השיתוף (מק/סאפרי) — המסר עדיין נפתח.
+  // 🔓 פתיחת מסר-העומק — השכבה השנייה נפתחת ישירות, בלי דרישת שיתוף (המסר הרציני מגיע כמו שהוא).
   function unlockDeep() {
     if (root == null) return;
     setUnlocked(true);
     try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
     track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק
     fetchDeepMessage();
-    shareJourney();   // מזמין את השיתוף במקביל (לא חוסם את פתיחת המסר)
   }
 
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
@@ -333,26 +331,26 @@ export default function JourneyPage() {
             </div>
           )}
 
-          {/* 🔓 מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"), בזכות שיתוף. שער עדין,
-              לא-חוסם: המשתמש כבר קיבל מתנה; זו הזמנה להעמיק תמורת הפצה. אחרי פתיחה — נשאר פתוח לתמיד. */}
+          {/* ✦ מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"). שכבה שנייה, אישית ועמוקה
+              יותר. ללא דרישת שיתוף — נפתח ישירות בלחיצה. אחרי פתיחה — נשאר פתוח לתמיד. */}
           {root != null && aiState === "done" && (
             !unlocked ? (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                <div style={{ fontSize: 26, marginBottom: 4 }}>🔓</div>
+                <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
-                  שתפו את המסע עם מישהו שיאהב אותו — ובזכות ההפצה ייפתח לכם מסר-עומק שני, אישי ועשיר יותר, על מה שהמסע שלכם מגלה.
+                  שכבה שנייה — מסר אישי ועמוק יותר על מה שהמסע שלכם מגלה.
                 </div>
-                <button onClick={unlockDeep} disabled={shareBusy}
-                  style={{ cursor: shareBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                  {shareBusy ? "פותח…" : "שתפו כדי לפתוח 🔓"}
+                <button onClick={unlockDeep}
+                  style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                  ✦ פִּתחו את מסר-העומק
                 </button>
               </div>
             ) : (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
-                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>🔓 מסר עומק</span>
-                  <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>נפתח בזכות השיתוף · תודה 🙏</span>
+                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>✦ מסר עומק</span>
+                  <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>שכבה שנייה · אישית</span>
                 </div>
                 {deepState === "done" && deepMsg ? (
                   <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
