@@ -195,6 +195,8 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
         .rvw .rv-hint, .rvw .rv-hint.l, .rvw .rv-hint.r { width:94%; margin:0 auto 16px; display:block; transform:none; text-align:center; }
         .rvw .rv-frame { display:inline-block; max-width:100%; }
         .rvw .rv-frame img { max-height:36vh; width:auto; max-width:100%; margin:0 auto; }
+        /* דסקטופ: תמונות הזרם גדולות ב-25% (36vh → 45vh) — במובייל נשאר כמו שהיה (בקשת צוריאל) */
+        @media (min-width:561px) { .rvw .rv-frame img { max-height:45vh; } }
         /* הכיתוב = גוש קומפקטי: כותרת+תאריך בשורה מלאה ממורכזת, ושני הצ'יפים יחד בשורה אחת מתחת.
            רקע כהה לכל הגוש — שלא יתנגש ויזואלית עם המוט/הנהר (בקשת צוריאל) */
         .rvw .rv-cap { justify-content:center; font-size:13.5px; margin-top:8px; gap:6px 8px;
