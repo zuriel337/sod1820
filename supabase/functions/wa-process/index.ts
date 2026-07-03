@@ -4,7 +4,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SECRET = "s0d1820wahook_7yq2c9";
-const SIGN = "⚙️ מאומת במנוע · sod1820";
+const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
