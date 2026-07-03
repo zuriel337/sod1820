@@ -40,7 +40,6 @@ function engineMessage({ root, bases = [], stations = 0, dWorld }) {
 // 🔮 ריבוע פיתוחים עתידיים — מה שבדרך (כולל גרסה 2 של המסע)
 const FUTURE = [
   { icon: "🧭", title: "מסע מודרך לפי שדה/עולם", note: "לבחור נושא — והמנוע בונה מסע סביבו" },
-  { icon: "💾", title: "המסעות שלי", note: "היסטוריה אישית — לשמור ולחזור למסעות" },
   { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
 ];
 
@@ -419,6 +418,18 @@ export default function JourneyPage() {
           <div style={{ maxWidth: 520, margin: "0 auto 24px", textAlign: "right", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px" }}>
             <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>🔮 מה עוד בדרך</div>
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 12 }}>המסע הזה רק מתחיל לגדול. הנה מה שהמנוע יֵדע לעשות בקרוב:</div>
+            {/* 💾 «המסעות שלי» — כבר פעיל: פותח את האזור האישי (עולם המשתמש) עם המסעות שנשמרו + כל השמורים */}
+            <Link to="/profile" onClick={() => logView("journey_myjourneys", "profile")}
+              style={{ display: "flex", gap: 10, alignItems: "center", textDecoration: "none",
+                background: `linear-gradient(135deg, ${P.accent}22, ${P.glow})`, border: `1.5px solid ${P.accent}`,
+                borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
+              <span style={{ fontSize: 18, lineHeight: 1.2 }}>💾</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>המסעות שלי · האזור האישי</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>לצפות במסעות שעשית ובכל מה ששמרת — פרטי לחלוטין.</div>
+              </div>
+              <span style={{ flex: "0 0 auto", color: P.accentText, fontSize: 15, fontWeight: 800 }}>←</span>
+            </Link>
             <div style={{ display: "grid", gap: 8 }}>
               {FUTURE.map((f, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: P.glow, border: `1px solid ${P.border}`, borderRadius: 12, padding: "9px 12px" }}>
