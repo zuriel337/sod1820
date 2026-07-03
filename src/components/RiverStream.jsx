@@ -234,16 +234,21 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           max-height:52vh; overflow-y:auto; }
         .rvb-date { color:#a99a7c; font-family:${F.heading}; font-size:11.5px; margin-top:10px; }
         @media (max-width:760px) {
-          /* מובייל: תיבת-ההסבר (החשובה ביותר) עוברת למעלה — רצועה מלאה מעל המוט והזרם.
-             המוט עובר לצד שמאל — שלא יוסתר מאחורי הכפתורים הצפים (שתפו/מחשבון) שבצד ימין. */
-          .rvw { flex-wrap:wrap; }
-          .rvw-side { flex:1 1 100%; order:-1; }
+          /* מובייל: הכיתוב סטיקי בתחתית החלון — מתחת לתמונה, כמו שהעין רגילה לקרוא (בקשת צוריאל).
+             הבועה מרחפת מעל הזרם בתחתית; התמונות נגללות מאחוריה והכיתוב תמיד מול העיניים.
+             המוט נשאר בצד שמאל — שלא יוסתר מאחורי הכפתורים הצפים (שתפו/מחשבון) שבצד ימין. */
+          .rvw-side { position:absolute; bottom:8px; inset-inline:10px; z-index:6; flex:none; }
           .rvw-rod { order:3; }
           .rvw-view { padding-inline:8px; }
+          .rvw-bubble { padding:10px 14px 12px; border-radius:14px; }
           .rvw-bubble::after { display:none; }
-          .rvb-desc { max-height:26vh; font-size:14px; }
-          .rvb-title { font-size:16px; }
+          .rvb-num { font-size:15px; margin-bottom:5px; }
+          .rvb-desc { max-height:16vh; font-size:13.5px; line-height:1.8; }
+          .rvb-title { font-size:15.5px; margin-bottom:5px; }
+          .rvb-date { margin-top:6px; }
           .rvw .rv-frame img { max-height:44vh; }
+          /* מקום נשימה בתחתית הזרם — שהרמז האחרון יוכל להיגלל אל מעל הבועה */
+          .rvw .rv { padding-bottom:180px; }
           .rvw-view { height:clamp(560px,80vh,880px); } }
       `}</style>
 
