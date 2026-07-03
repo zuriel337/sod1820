@@ -70,22 +70,26 @@ Deno.serve(async (req) => {
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 
+    // ⏱️ ביטוי כבד/ארוך → קודם הודעת-המתנה מהירה, שלא ימתינו בשקט
+    const words = clean(phrase).split(" ").filter(Boolean);
+    const heavy = words.length >= 4 || phrase.length > 28;
+    if (heavy) { try { await reply(chatId, "🔎 רגע, בודק את זה במנוע — כמה שניות…", msgId); } catch { /* noop */ } }
+
     const value = await ragil(phrase);
     if (value <= 0) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 
     const conv = await convergences(value, phrase);
     const convLine = conv.length ? `\nבאותו ערך במנוע: ${conv.map((p) => `*${p}*`).join(" · ")}` : "";
-    // 📥 הוספה אוטומטית למאגר (רק אם חדש)
-    const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
-    const savedLine = added === "added" ? "\n📥 נכנס למאגר סוד1820 ✓" : "";
 
     let message: string;
-    if (claimed !== null && claimed !== value) message = `בדקתי במנוע 🙏\n*${phrase}* = *${value}* (ולא ${claimed} — אולי כתיב/רווח שונה).${convLine}${savedLine}\n\n${SIGN}`;
-    else if (claimed !== null) message = `יפה 🙏 אימתתי במנוע:\n*${phrase}* = *${value}* ✓${convLine}${savedLine}\n\n${SIGN}`;
-    else message = `*${phrase}* = *${value}* 🎯${convLine}${savedLine}\n\n${SIGN}`;
+    if (claimed !== null && claimed !== value) message = `בדקתי במנוע 🙏\n*${phrase}* = *${value}* (ולא ${claimed} — אולי כתיב/רווח שונה).${convLine}\n\n${SIGN}`;
+    else if (claimed !== null) message = `יפה 🙏 אימתתי במנוע:\n*${phrase}* = *${value}* ✓${convLine}\n\n${SIGN}`;
+    else message = `*${phrase}* = *${value}* 🎯${convLine}\n\n${SIGN}`;
 
+    // מגיבים מיד; ההוספה-למאגר והלוג קורים אחרי (לא מעכבים את המענה)
     await reply(chatId, message, msgId);
-    await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, value, reply_out: message, action: "replied" });
+    const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
+    await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, value, reply_out: message, action: added === "added" ? "replied+saved" : "replied" });
     return ok();
   } catch { return ok(); }
 });
