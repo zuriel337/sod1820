@@ -20,6 +20,25 @@ function extractPhrases(t: string): string[] {
   return [...new Set(out)].slice(0, 15);
 }
 
+// 🧹 שער-איכות (quality gate — בקשת צוריאל 3.7): מונע כניסת רעש-צ׳אט למאגר.
+// מסנן: מילות-מטא ("בגימטריא"/"כלומר"…), פותחי/מחברי-משפט ("וגם"…), שברי-רעש ("חח"/"תודה"),
+// ומשפטים (5+ מילים). ביטויי-גימטריה אמיתיים הם קצרים (שם/צירוף), לא משפטי-שיחה.
+const META_RE = /(גימטרי|בגימ|כלומר|וכדומה|השאלה|שמצאתי|נכתב|סרטון|אנגלית|תודה|הביאה חידוש|מופיע ב|יקר שלי|יפה שאתה|רואים את|לפני עשור)/;
+const FILLER = new Set(["וגם", "וכו", "וכדומה", "כלומר", "נכון", "לגבי", "אבל"]);
+const NOISE = new Set(["חח", "חחח", "חחחח", "ההה", "לול", "אמ", "מם", "בה", "הה"]);
+function isQualityPhrase(p: string): boolean {
+  const c = clean(p);
+  if (!c) return false;
+  const words = c.split(" ").filter(Boolean);
+  const bare = c.replace(/\s+/g, "");
+  if (bare.length < 2) return false;                              // קצר מדי (אות בודדת)
+  if (words.length > 4) return false;                             // משפט, לא ביטוי
+  if (NOISE.has(bare) || words.some((w) => NOISE.has(w))) return false;   // רעש-שיחה
+  if (META_RE.test(c)) return false;                             // מילת-מטא/צ׳אט
+  if (FILLER.has(words[0]) || words.some((w) => w === "וגם")) return false; // פותח/מחבר-משפט
+  return true;
+}
+
 async function calc(fn: string, phrase: string) {
   // שמות הארגומנטים במנוע: fn_ragil/fn_misratar/fn_albam → phrase · השאר → p
   const usesPhrase = fn === "fn_ragil" || fn === "fn_misratar" || fn === "fn_albam";
@@ -74,12 +93,12 @@ Deno.serve(async (req) => {
       const vip = isVipSender(row.sender as string, row.sender_name as string);
       const who = row.sender_name ? String(row.sender_name) : null;
       if (vip) {
-        // 👑 נתיב-זהב: מחלצים *כל* הביטויים מההודעה המלאה ומכניסים לעמודה נפרדת (vip_source). לא מאבדים כלום.
-        const phrases = extractPhrases((row.raw_text as string) || phrase);
-        if (!phrases.includes(phrase)) phrases.unshift(phrase);
+        // 👑 נתיב-זהב: מחלצים ביטויים מההודעה — אך *רק ביטויי-איכות* (שער isQualityPhrase) נכנסים למאגר.
+        const phrases = extractPhrases((row.raw_text as string) || phrase).filter(isQualityPhrase);
+        if (isQualityPhrase(phrase) && !phrases.includes(phrase)) phrases.unshift(phrase);
         for (const p of phrases.slice(0, 15)) { try { await sb.rpc("wa_add_vip_word", { p_phrase: p, p_vip: who, p_note: who ? "מאת " + who : null }); } catch { /* noop */ } }
         try { await sb.from("wa_vip_inbox").update({ phrases }).eq("msg_id", row.msg_id); } catch { /* noop */ }
-      } else {
+      } else if (isQualityPhrase(phrase)) {
         await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: who ? "מאת " + who : null });
       }
 
