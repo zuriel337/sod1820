@@ -26,6 +26,8 @@ export const BRANDS = {
   "reality-code":   { title: "קוד המציאות", emoji: "🎬", accent: "#9d7bff", glow: "rgba(157,123,255,.35)", bg: "linear-gradient(90deg, rgba(34,22,63,.8), rgba(52,33,96,.9), rgba(34,22,63,.8))",
                       wa: "https://whatsapp.com/channel/0029Vb7CqG67Noa2cZUPug1k" },   // הצטרפות לערוץ
   "sod-hachashmal": { title: "סוד החשמל", emoji: "⚡", accent: "#5ec8ff", glow: "rgba(94,200,255,.32)", bg: "linear-gradient(90deg, rgba(8,38,58,.8), rgba(12,55,84,.9), rgba(8,38,58,.8))" },
+  "torat-haremez":  { title: "תורת הרמז VIP", emoji: "☀️", accent: "#ffb347", glow: "rgba(255,179,71,.35)", bg: "linear-gradient(90deg, rgba(70,42,8,.8), rgba(105,64,12,.9), rgba(70,42,8,.8))",
+                      sub: "כל התותחים של עולם הרמז בקבוצה · בשיתוף בינה מלאכותית 🤖" },
 };
 
 // peek: {channel, to} — נקודת-הצצה לערוץ אחר: כשיש שם עדכונים חיים, מופיעה נקודה

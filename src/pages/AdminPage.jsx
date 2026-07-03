@@ -3800,6 +3800,7 @@ function BroadcastTab() {
             <option value="reality-code">🎬 קוד המציאות (בית)</option>
             <option value="or-geula">✨ אור הגאולה (צ'אט)</option>
             <option value="sod-hachashmal">⚡ סוד החשמל</option>
+            <option value="torat-haremez">☀️ תורת הרמז VIP</option>
           </select>
           <select value={hours} onChange={e => setHours(Number(e.target.value))} style={{ ...inp, width: "auto", cursor: "pointer" }}>
             <option value={6}>יורד אחרי 6 שעות</option>

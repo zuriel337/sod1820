@@ -11,7 +11,7 @@ import BrandTicker, { BRANDS, isVideoUrl, shareUpdate } from "../components/Bran
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
-const CHANNELS = ["reality-code", "or-geula", "sod-hachashmal"];
+const CHANNELS = ["reality-code", "torat-haremez", "or-geula", "sod-hachashmal"];
 
 function ChannelFeed({ channel, P, focusId }) {
   const b = BRANDS[channel];
@@ -28,6 +28,11 @@ function ChannelFeed({ channel, P, focusId }) {
   return (
     <section id={`ch-${channel}`} style={{ marginBottom: 34, scrollMarginTop: 80 }}>
       <BrandTicker channel={channel} />
+      {b.sub && (
+        <div style={{ color: b.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, textAlign: "center", margin: "4px 0 8px", opacity: 0.9 }}>
+          {b.sub}
+        </div>
+      )}
       {items === null ? (
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "8px 4px" }}>טוען…</div>
       ) : items.length === 0 ? (
