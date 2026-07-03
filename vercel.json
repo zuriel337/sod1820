@@ -1,63 +1,216 @@
 {
   "redirects": [
-    { "source": "/פוסטים-אחרונים-2", "destination": "/post", "permanent": true },
-    { "source": "/פוסטים-אחרונים", "destination": "/post", "permanent": true },
-    { "source": "/דף-ראשי-2", "destination": "/", "permanent": true },
-    { "source": "/דף-ראשי", "destination": "/", "permanent": true },
-    { "source": "/משיח-בשנת-התשעו", "destination": "/code", "permanent": true },
-    { "source": "/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95", "destination": "/code", "permanent": true },
-    { "source": "/(.+)/", "destination": "/$1", "permanent": true }
+    {
+      "source": "/פוסטים-אחרונים-2",
+      "destination": "/post",
+      "permanent": true
+    },
+    {
+      "source": "/פוסטים-אחרונים",
+      "destination": "/post",
+      "permanent": true
+    },
+    {
+      "source": "/דף-ראשי-2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/דף-ראשי",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/משיח-בשנת-התשעו",
+      "destination": "/code",
+      "permanent": true
+    },
+    {
+      "source": "/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95",
+      "destination": "/code",
+      "permanent": true
+    },
+    {
+      "source": "/(.+)/",
+      "destination": "/$1",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/wp-admin", "destination": "/api/honeypot" },
-    { "source": "/wp-admin/(.*)", "destination": "/api/honeypot" },
-    { "source": "/wp-login.php", "destination": "/api/honeypot" },
-    { "source": "/wp-cron.php", "destination": "/api/honeypot" },
-    { "source": "/wp-includes/(.*)", "destination": "/api/honeypot" },
-    { "source": "/wp-content/(.*)", "destination": "/api/honeypot" },
-    { "source": "/wp-config.php", "destination": "/api/honeypot" },
-    { "source": "/xmlrpc.php", "destination": "/api/honeypot" },
-    { "source": "/.env", "destination": "/api/honeypot" },
-    { "source": "/.env.(.*)", "destination": "/api/honeypot" },
-    { "source": "/.git", "destination": "/api/honeypot" },
-    { "source": "/.git/(.*)", "destination": "/api/honeypot" },
-    { "source": "/.aws/(.*)", "destination": "/api/honeypot" },
-    { "source": "/.ssh/(.*)", "destination": "/api/honeypot" },
-    { "source": "/.vscode/(.*)", "destination": "/api/honeypot" },
-    { "source": "/.DS_Store", "destination": "/api/honeypot" },
-    { "source": "/phpinfo.php", "destination": "/api/honeypot" },
-    { "source": "/phpmyadmin", "destination": "/api/honeypot" },
-    { "source": "/phpmyadmin/(.*)", "destination": "/api/honeypot" },
-    { "source": "/pma/(.*)", "destination": "/api/honeypot" },
-    { "source": "/vendor/(.*)", "destination": "/api/honeypot" },
-    { "source": "/cgi-bin/(.*)", "destination": "/api/honeypot" },
-    { "source": "/config.php", "destination": "/api/honeypot" },
-    { "source": "/configuration.php", "destination": "/api/honeypot" },
-    { "source": "/server-status", "destination": "/api/honeypot" },
-    { "source": "/actuator/(.*)", "destination": "/api/honeypot" },
-    { "source": "/admin/(.*)", "destination": "/api/honeypot" },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/wp-admin",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-admin/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-login.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-cron.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-includes/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-content/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/wp-config.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/xmlrpc.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.env",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.env.(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.git",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.git/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.aws/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.ssh/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.vscode/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/.DS_Store",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/phpinfo.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/phpmyadmin",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/phpmyadmin/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/pma/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/vendor/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/cgi-bin/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/config.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/configuration.php",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/server-status",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/actuator/(.*)",
+      "destination": "/api/honeypot"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/api/honeypot"
+    },
     {
       "source": "/(.*)",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|redditbot|Applebot|SkypeUriPreview|vkShare|Embedly|Iframely|W3C_Validator).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|redditbot|Applebot|SkypeUriPreview|vkShare|Embedly|Iframely|W3C_Validator).*"
+        }
+      ],
       "destination": "/api/og?path=/$1"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/:all*(svg|jpg|jpeg|png|gif|ico|webp|mp3)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
       ]
     }
   ]
