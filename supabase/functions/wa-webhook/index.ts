@@ -13,6 +13,9 @@ const STOP = new Set(["שלום","תודה","כן","לא","בסדר","אמן","�
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const ok = () => new Response("ok", { status: 200 });
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
+const langOf = (s: string) => { const he = /[א-ת]/.test(s), en = /[A-Za-z]/.test(s), ar = /[؀-ۿ]/.test(s); return he ? (en ? "he+en" : "he") : ar ? "ar" : en ? "en" : "other"; };
+// 👑 תיבת-VIP: כל הודעה של איש-זהב נשמרת גולמית (upsert לפי msg_id → לא כפול, לא אובד).
+async function vipInbox(row: Record<string, unknown>) { try { await sb.from("wa_vip_inbox").upsert(row, { onConflict: "msg_id" }); } catch { /* noop */ } }
 
 async function ragil(phrase: string) { const { data, error } = await sb.rpc("fn_ragil", { phrase }); return error ? 0 : (Number(data) || 0); }
 async function convergences(value: number, exclude: string) {
@@ -69,6 +72,7 @@ Deno.serve(async (req) => {
       const nums = Array.isArray(ocr?.numbers) ? ocr.numbers.slice(0, 25) : [];
       const otext = String(ocr?.text || "").trim();
       if (!nums.length && !otext) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_empty" }); return ok(); }
+      if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "image", text_raw: otext, numbers: nums, lang: langOf(otext) });
       const head = otext.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 5).join("\n").slice(0, 400);
       const numLine = nums.length ? `\n\n🔢 מספרים: ${nums.join(", ")}` : "";
       await reply(chatId, `👁️ קראתי את התמונה:\n${head}${numLine}\n\n${SIGN}`, msgId);
@@ -79,6 +83,8 @@ Deno.serve(async (req) => {
     const text = (md?.textMessageData?.textMessage || md?.extendedTextMessageData?.text || "").trim();
     if (!text) return ok();
     if (text.includes("sod1820") || text.includes(SIGN)) return ok();
+    // 👑 כל הודעת-טקסט של איש-זהב נשמרת מיד (גם שפה אחרת / בלי גימטריה) — «אל תפספס שום הודעה».
+    if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "text", text_raw: text, lang: langOf(text) });
 
     const since = new Date(Date.now() - 3600e3).toISOString();
     const { count } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true })
@@ -131,7 +137,7 @@ Deno.serve(async (req) => {
 
     if (deep) {
       try { await reply(chatId, "🔎 קיבלתי! בודק את הדברים שלכם במנוע — בקרוב תשובה 🙏", msgId); } catch { /* noop */ }
-      await sb.from("wa_deep_queue").insert({ chat_id: chatId, msg_id: msgId, sender, sender_name: senderName, phrase, claimed });
+      await sb.from("wa_deep_queue").insert({ chat_id: chatId, msg_id: msgId, sender, sender_name: senderName, phrase, claimed, raw_text: text });
       await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "queued" });
       return ok();
     }

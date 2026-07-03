@@ -8,6 +8,17 @@ const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
+// חילוץ כל הביטויים העבריים מהודעה מלאה (שורות/פסיקים/= וכו') — לנתיב-VIP, כדי לא לאבד שום גימטריה.
+function extractPhrases(t: string): string[] {
+  const parts = (t || "").split(/[\n,;=·|•\-–—:()"'".!?׃־]+/);
+  const out: string[] = [];
+  for (const raw of parts) {
+    const c = clean(raw); if (!c) continue;
+    const w = c.split(" ").filter(Boolean);
+    if (c.length >= 2 && c.length <= 40 && w.length >= 1 && w.length <= 6) out.push(c);
+  }
+  return [...new Set(out)].slice(0, 15);
+}
 
 async function calc(fn: string, phrase: string) {
   // שמות הארגומנטים במנוע: fn_ragil/fn_misratar/fn_albam → phrase · השאר → p
@@ -59,10 +70,21 @@ Deno.serve(async (req) => {
       const msg = `📿 העמקה על *${phrase}*${strongLine}${cross}\n\n*עובדה:* הכל חושב במנוע. *רמז:* פרשנות משלימה, לא עובדה.\n${SIGN}`;
 
       await sb.rpc("wa_admin", { p_method: "sendMessage", p_payload: { chatId: row.chat_id, message: msg, quotedMessageId: row.msg_id }, p_http: "POST" });
-      await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: row.sender_name ? "מאת " + row.sender_name : null });
+
+      const vip = isVipSender(row.sender as string, row.sender_name as string);
+      const who = row.sender_name ? String(row.sender_name) : null;
+      if (vip) {
+        // 👑 נתיב-זהב: מחלצים *כל* הביטויים מההודעה המלאה ומכניסים לעמודה נפרדת (vip_source). לא מאבדים כלום.
+        const phrases = extractPhrases((row.raw_text as string) || phrase);
+        if (!phrases.includes(phrase)) phrases.unshift(phrase);
+        for (const p of phrases.slice(0, 15)) { try { await sb.rpc("wa_add_vip_word", { p_phrase: p, p_vip: who, p_note: who ? "מאת " + who : null }); } catch { /* noop */ } }
+        try { await sb.from("wa_vip_inbox").update({ phrases }).eq("msg_id", row.msg_id); } catch { /* noop */ }
+      } else {
+        await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: who ? "מאת " + who : null });
+      }
 
       // 📡 זרימה לערוץ האתר — רק אנשי-זהב + התכנסות אמיתית (strong≥1). דדופ 7 ימים.
-      if (strong.length >= 1 && isVipSender(row.sender as string, row.sender_name as string)) {
+      if (strong.length >= 1 && vip) {
         const chText = `🔯 *${phrase}* = *${ragil}* = ${strong.map((p) => `*${p}*`).join(" = ")}`;
         const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
         const { data: exist } = await sb.from("channel_updates").select("id")
