@@ -39,6 +39,28 @@ function isQualityPhrase(p: string): boolean {
   return true;
 }
 
+// 🔤 צמד-תעתוק (שיטת שמעון: אנגלית→עברית→גימטריה). תופס שורה עם "=" יחיד שבצד אחד עברית
+// ובצד השני מילה לטינית אחת בלבד ("Realize = ריאלז" · "דרים= dream"). עמום (עברית+לטינית באותו צד) → דלג.
+function extractLatinPairs(t: string): { he: string; en: string }[] {
+  const pairs: { he: string; en: string }[] = [];
+  for (const line of (t || "").split(/\n+/)) {
+    const eq = line.split("=");
+    if (eq.length !== 2) continue;
+    const [a, b] = eq;
+    const heA = clean(a), heB = clean(b);
+    const enA = (a.match(/[A-Za-z][A-Za-z' ]*[A-Za-z]|[A-Za-z]/g) || []).map((s) => s.trim().toLowerCase()).filter((s) => s.length >= 2);
+    const enB = (b.match(/[A-Za-z][A-Za-z' ]*[A-Za-z]|[A-Za-z]/g) || []).map((s) => s.trim().toLowerCase()).filter((s) => s.length >= 2);
+    let he = "", en = "";
+    if (heA && !heB && enB.length === 1 && !enA.length) { he = heA; en = enB[0]; }        // עברית = אנגלית
+    else if (heB && !heA && enA.length === 1 && !enB.length) { he = heB; en = enA[0]; }    // אנגלית = עברית
+    else continue;
+    const w = he.split(" ").filter(Boolean);
+    if (w.length < 1 || w.length > 4) continue;
+    pairs.push({ he, en });
+  }
+  return pairs;
+}
+
 async function calc(fn: string, phrase: string) {
   // שמות הארגומנטים במנוע: fn_ragil/fn_misratar/fn_albam → phrase · השאר → p
   const usesPhrase = fn === "fn_ragil" || fn === "fn_misratar" || fn === "fn_albam";
@@ -100,6 +122,11 @@ Deno.serve(async (req) => {
         try { await sb.from("wa_vip_inbox").update({ phrases }).eq("msg_id", row.msg_id); } catch { /* noop */ }
       } else if (isQualityPhrase(phrase)) {
         await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: who ? "מאת " + who : null });
+      }
+
+      // 🔤 תעתוק אנגלית → שכבת הכינויים (word_aliases): כל מילה לטינית נצמדת כ-alias לישות העברית. עץ אחד.
+      for (const { he, en } of extractLatinPairs((row.raw_text as string) || phrase)) {
+        try { await sb.rpc("add_word_alias", { p_phrase: he, p_alias: en, p_lang: "en", p_type: "english", p_source: "wa-vip" }); } catch { /* noop */ }
       }
 
       // 📡 זרימה לערוץ האתר — רק אנשי-זהב + התכנסות אמיתית (strong≥1). דדופ 7 ימים.
