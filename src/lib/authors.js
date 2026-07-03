@@ -7,11 +7,14 @@ export const AUTHORS = {
   'הרב ווינטרוב זצ"ל': { avatar: "/authors/weintraub.jpg", role: "דברי תורה" },
   "ציון סיבוני": { avatar: "/authors/siboni.jpg", role: "כתב מיוחד" },
   "יניב לוי": { avatar: "/authors/yaniv.jpg", role: "כתב" },
+  // עלון «סוד החשמל» — לחיצה על הכותב מובילה לכל הקטגוריה שלו (cat), לא לפוסטים לפי-כותב.
+  "סוד החשמל": { avatar: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/rav-amos-guetta.png", role: "עלון סוד החשמל · פנימיות התורה", cat: "סוד החשמל" },
 };
 
-// מחזיר אובייקט כותב {name, avatar, role}. אם השם ריק → "המערכת".
+// מחזיר אובייקט כותב {name, avatar, role, cat?}. אם השם ריק → "המערכת".
+// cat (אופציונלי): שם קטגוריה — כשקיים, לחיצה על הכותב מובילה ל-/category/<cat>.
 export function resolveAuthor(name) {
   const key = (name && String(name).trim()) || "המערכת";
   const meta = AUTHORS[key] || { avatar: "/logo.png", role: "כתב/ת" };
-  return { name: key, avatar: meta.avatar, role: meta.role };
+  return { name: key, avatar: meta.avatar, role: meta.role, cat: meta.cat || null };
 }

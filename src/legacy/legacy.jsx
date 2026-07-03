@@ -4599,8 +4599,8 @@ function PostPageBySlug({ onNav }) {
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
                     <div
-                      onClick={() => navigate('/post?author=' + encodeURIComponent(by.name))}
-                      title={`כל הפוסטים של ${by.name}`}
+                      onClick={() => navigate(by.cat ? '/category/' + toSlug(by.cat) : '/post?author=' + encodeURIComponent(by.name))}
+                      title={by.cat ? `כל הפוסטים בקטגוריית ${by.cat}` : `כל הפוסטים של ${by.name}`}
                       style={{ display: "inline-flex", alignItems: "center", gap: 13, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "9px 22px 9px 14px", cursor: "pointer", transition: "border-color .15s" }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = pc.borderGold}
                       onMouseLeave={e => e.currentTarget.style.borderColor = pc.border}
