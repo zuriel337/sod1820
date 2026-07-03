@@ -70,23 +70,26 @@ Deno.serve(async (req) => {
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 
-    // ⏱️ ביטוי כבד/ארוך → קודם הודעת-המתנה מהירה, שלא ימתינו בשקט
+    // ⚡ תשובה מהירה מיד · חישוב עמוק «אחר כך» (פעימת-הדקה). שמעון תמיד → עומק.
     const words = clean(phrase).split(" ").filter(Boolean);
-    const heavy = words.length >= 3 || phrase.length > 20;
-    if (heavy) { try { await reply(chatId, "🔎 קיבלתי! בודק את הדברים שלכם במנוע — בקרוב תשובה 🙏", msgId); } catch { /* noop */ } }
+    const isShimon = sender.startsWith("972526034851");
+    const deep = words.length >= 3 || phrase.length > 20 || isShimon;
 
+    if (deep) {
+      try { await reply(chatId, "🔎 קיבלתי! בודק את הדברים שלכם במנוע — בקרוב תשובה 🙏", msgId); } catch { /* noop */ }
+      await sb.from("wa_deep_queue").insert({ chat_id: chatId, msg_id: msgId, sender, sender_name: senderName, phrase, claimed });
+      await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "queued" });
+      return ok();
+    }
+
+    // מילה בודדת פשוטה — מענה מיידי קל
     const value = await ragil(phrase);
     if (value <= 0) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
-
     const conv = await convergences(value, phrase);
     const convLine = conv.length ? `\nבאותו ערך במנוע: ${conv.map((p) => `*${p}*`).join(" · ")}` : "";
-
-    let message: string;
-    if (claimed !== null && claimed !== value) message = `בדקתי במנוע 🙏\n*${phrase}* = *${value}* (ולא ${claimed} — אולי כתיב/רווח שונה).${convLine}\n\n${SIGN}`;
-    else if (claimed !== null) message = `יפה 🙏 אימתתי במנוע:\n*${phrase}* = *${value}* ✓${convLine}\n\n${SIGN}`;
-    else message = `*${phrase}* = *${value}* 🎯${convLine}\n\n${SIGN}`;
-
-    // מגיבים מיד; ההוספה-למאגר והלוג קורים אחרי (לא מעכבים את המענה)
+    const message = claimed !== null
+      ? (claimed !== value ? `בדקתי במנוע 🙏\n*${phrase}* = *${value}* (ולא ${claimed}).${convLine}\n\n${SIGN}` : `יפה 🙏 *${phrase}* = *${value}* ✓${convLine}\n\n${SIGN}`)
+      : `*${phrase}* = *${value}* 🎯${convLine}\n\n${SIGN}`;
     await reply(chatId, message, msgId);
     const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
     await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, value, reply_out: message, action: added === "added" ? "replied+saved" : "replied" });
