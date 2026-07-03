@@ -231,6 +231,12 @@ export default function HomeNewPage() {
         <BrandTicker channel="reality-code" hidePostLinked peek={{ channel: "or-geula", to: "/broadcasts" }} />
       </section>
 
+      {/* ===== ☀️ טיקר «תורת הרמז VIP» — המידע של התותחים (שמעון/צבי) זורם בבית וממותג ל-/broadcasts ===== */}
+      {/* בלי hidePostLinked: עדכוני-VIP נושאים קישור /number|/topic וחייבים להופיע. הפוטר מקשר למרכז השידורים (בקשת צוריאל). */}
+      <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
+        <BrandTicker channel="torat-haremez" />
+      </section>
+
       {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <HomeHeader title="📜 עדכונים אחרונים" sub="החדשות והרמזים האחרונים באתר" />
