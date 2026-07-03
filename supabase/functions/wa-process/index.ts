@@ -125,8 +125,9 @@ Deno.serve(async (req) => {
       }
 
       // 🔤 תעתוק אנגלית → שכבת הכינויים (word_aliases): כל מילה לטינית נצמדת כ-alias לישות העברית. עץ אחד.
+      // method=transliteration (שומר את הערך העברי) · confidence 0.9 (אוטומטי) · verified=false עד סקירה.
       for (const { he, en } of extractLatinPairs((row.raw_text as string) || phrase)) {
-        try { await sb.rpc("add_word_alias", { p_phrase: he, p_alias: en, p_lang: "en", p_type: "english", p_source: "wa-vip" }); } catch { /* noop */ }
+        try { await sb.rpc("add_word_alias", { p_phrase: he, p_alias: en, p_lang: "en", p_type: "english", p_source: "wa-vip", p_method: "transliteration", p_confidence: 0.9, p_verified: false }); } catch { /* noop */ }
       }
 
       // 📡 זרימה לערוץ האתר — רק אנשי-זהב + התכנסות אמיתית (strong≥1). דדופ 7 ימים.
