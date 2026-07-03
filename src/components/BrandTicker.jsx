@@ -30,6 +30,66 @@ export const BRANDS = {
                       sub: "כל התותחים של עולם הרמז בקבוצה · בשיתוף בינה מלאכותית 🤖" },
 };
 
+// 🗞 מסך-ידיעה קנוני — לחיצה על עדכון (בטיקר או בעמוד השידורים) פותחת אותו במסך מלא:
+// המדיה בגדול, הטקסט המלא, קרדיט וזמן, שיתוף וקישור לפוסט. רכיב אחד לשני המקומות (עץ אחד).
+export function UpdateModal({ u, brand, onClose }) {
+  if (!u) return null;
+  const b = brand || BRANDS["reality-code"];
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "rgba(3,2,8,0.94)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 14, cursor: "zoom-out", direction: "rtl" }}>
+      <div onClick={e => e.stopPropagation()} style={{ cursor: "default", width: "min(560px, 96vw)", maxHeight: "92vh",
+        overflowY: "auto", background: "linear-gradient(170deg, #16112a, #0d0a18)", border: `1.5px solid ${b.accent}66`,
+        borderRadius: 18, boxShadow: `0 24px 80px rgba(0,0,0,.75), 0 0 40px ${b.glow}`, padding: "14px 16px 18px" }}>
+        {/* כותרת: מותג + סגירה */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: b.accent, color: "#191008",
+            fontFamily: F.heading, fontWeight: 900, fontSize: 11.5, borderRadius: 999, padding: "3px 12px" }}>
+            {b.logo
+              ? <img src={b.logo} alt="" style={{ width: 17, height: 17, borderRadius: "50%", display: "block" }} />
+              : <span>{b.emoji}</span>}
+            {b.title}
+          </span>
+          <span style={{ flex: 1 }} />
+          <button onClick={onClose} aria-label="סגירה" style={{ cursor: "pointer", background: "none",
+            border: `1px solid ${b.accent}55`, color: b.accent, borderRadius: 999, width: 32, height: 32,
+            fontSize: 16, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button>
+        </div>
+        {/* מדיה — וידאו מתנגן רק כאן, אחרי הקשה (Egress) */}
+        {u.image_url && (
+          isVideoUrl(u.image_url) ? (
+            <video src={u.image_url} controls autoPlay playsInline
+              style={{ width: "100%", maxHeight: "55vh", borderRadius: 12, border: `1px solid ${b.accent}44`, display: "block", background: "#000" }} />
+          ) : (
+            <img src={u.image_url} alt="" style={{ width: "100%", maxHeight: "55vh", objectFit: "contain",
+              borderRadius: 12, border: `1px solid ${b.accent}44`, display: "block", background: "#0a0710" }} />
+          )
+        )}
+        {/* הטקסט המלא */}
+        <p style={{ margin: "12px 2px 0", color: "#f5ecd2", fontFamily: F.body, fontSize: 15.5, lineHeight: 1.95, whiteSpace: "pre-wrap" }}>
+          {u.text}
+        </p>
+        <div style={{ marginTop: 8, color: "#b9a877", fontFamily: F.heading, fontSize: 11.5 }}>
+          {u.credit && <span style={{ color: b.accent, fontWeight: 800 }}>✍️ מאת {u.credit} · </span>}
+          🕒 {timeAgoHe(u.created_at)}
+        </div>
+        {/* פעולות */}
+        <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginTop: 14 }}>
+          <button onClick={() => shareUpdate(u, b.title)} style={{ cursor: "pointer", display: "inline-flex",
+            alignItems: "center", gap: 7, background: b.accent, color: "#191008", border: "none", borderRadius: 999,
+            fontFamily: F.heading, fontSize: 13.5, fontWeight: 900, padding: "10px 24px", minHeight: 44,
+            boxShadow: `0 6px 24px ${b.glow}` }}>↗ שתפו את העדכון</button>
+          {u.link_url && (
+            <Link to={u.link_url} onClick={onClose} style={{ display: "inline-flex", alignItems: "center", textDecoration: "none",
+              border: `1.5px solid ${b.accent}88`, color: b.accent, fontFamily: F.heading, fontSize: 13.5, fontWeight: 900,
+              borderRadius: 999, padding: "10px 22px", minHeight: 44, boxSizing: "border-box" }}>📖 לקריאת הפוסט המלא ←</Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // peek: {channel, to} — נקודת-הצצה לערוץ אחר: כשיש שם עדכונים חיים, מופיעה נקודה
 // נושמת בקצה הרצועה שמקשרת לדף שבו הערוץ ההוא חי (למשל אור-הגאולה → דף הצ'אט).
 // hidePostLinked: בעמוד הבית עדכון שמקושר לפוסט מוסתר — הפוסט כבר מופיע ב«עדכונים אחרונים»
@@ -140,12 +200,11 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
               </button>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              {/* גם האותיות לחיצות — פותחות את הידיעה, לא רק התמונה (בקשת צוריאל) */}
-              <div onClick={cur.image_url ? () => setLb(cur) : undefined}
-                title={cur.image_url ? (isVideoUrl(cur.image_url) ? "לחצו לצפייה בסרטון" : "לחצו לצפייה בתמונה") : undefined}
+              {/* כל הידיעה לחיצה — פותחת את מסך-הידיעה המלא (בקשת צוריאל), גם בלי תמונה */}
+              <div onClick={() => setLb(cur)} title="לחצו לפתיחת הידיעה במסך מלא"
                 style={{ color: "#f5ecd2", fontFamily: F.body, fontSize: 13.5, fontWeight: 600, lineHeight: 1.6, minHeight: 42,
                 display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden",
-                cursor: cur.image_url ? "pointer" : "default" }}>
+                cursor: "pointer" }}>
                 {cur.text}
               </div>
               <div style={{ marginTop: 3, color: "#b9a877", fontFamily: F.heading, fontSize: 10.5 }}>
@@ -199,25 +258,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
         </div>
       </div>
 
-      {lb && (
-        <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
-          background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxWidth: "96vw", cursor: "default" }}>
-            {isVideoUrl(lb.image_url) ? (
-              <video src={lb.image_url} controls autoPlay playsInline
-                style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-            ) : (
-              <img src={lb.image_url} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12,
-                border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-            )}
-            {/* ↗ שתף מתחת לכל סרטון/תמונה (בקשת צוריאל) — קישור ויראלי שמנחית בדיוק על העדכון */}
-            <button onClick={() => shareUpdate(lb, b.title)} style={{ cursor: "pointer", display: "inline-flex",
-              alignItems: "center", gap: 8, background: b.accent, color: "#191008", border: "none", borderRadius: 999,
-              fontFamily: F.heading, fontSize: 14.5, fontWeight: 900, padding: "11px 30px", minHeight: 44,
-              boxShadow: `0 6px 24px ${b.glow}` }}>↗ שתפו את העדכון</button>
-          </div>
-        </div>
-      )}
+      {lb && <UpdateModal u={lb} brand={b} onClose={() => setLb(null)} />}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
-import BrandTicker, { BRANDS, isVideoUrl, shareUpdate } from "../components/BrandTicker.jsx";
+import BrandTicker, { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
@@ -51,7 +51,8 @@ function ChannelFeed({ channel, P, focusId }) {
                   setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
                 }
               } : undefined}
-              style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.card,
+              onClick={() => setLb(u)} title="לחצו לפתיחת הידיעה במסך מלא"
+              style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.card, cursor: "pointer",
               border: focused ? `1.5px solid ${b.accent}` : `1px solid ${P.border}`,
               borderInlineStart: `3px solid ${b.accent}`, borderRadius: 12, padding: "12px 14px",
               ...(focused ? { boxShadow: `0 0 26px ${b.accent}55`, animation: "bc-focus 1.6s ease 2" } : {}) }}>
@@ -59,11 +60,11 @@ function ChannelFeed({ channel, P, focusId }) {
                 <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{u.text}</p>
                 <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
                   <span>{u.credit ? <>✍️ מאת {u.credit} · </> : null}🕒 {timeAgoHe(u.created_at)}</span>
-                  <button onClick={() => shareUpdate(u, b.title)} style={{ cursor: "pointer", background: "none",
+                  <button onClick={e => { e.stopPropagation(); shareUpdate(u, b.title); }} style={{ cursor: "pointer", background: "none",
                     border: `1px solid ${b.accent}66`, color: b.accent, borderRadius: 999, fontFamily: F.heading,
                     fontSize: 10.5, fontWeight: 800, padding: "2px 11px" }}>↗ שתפו</button>
                   {u.link_url && (
-                    <Link to={u.link_url} style={{ textDecoration: "none", background: b.accent, color: "#191008",
+                    <Link to={u.link_url} onClick={e => e.stopPropagation()} style={{ textDecoration: "none", background: b.accent, color: "#191008",
                       fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, borderRadius: 999, padding: "3px 12px" }}>
                       📖 לקריאת הפוסט המלא ←
                     </Link>
@@ -71,7 +72,7 @@ function ChannelFeed({ channel, P, focusId }) {
                 </div>
               </div>
               {u.image_url && (
-                <button onClick={() => setLb(u)} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
+                <button onClick={e => { e.stopPropagation(); setLb(u); }} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
                   style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
                   border: `1px solid ${P.borderStrong}`, borderRadius: 10, overflow: "hidden", background: "#0a0710" }}>
                   {isVideoUrl(u.image_url) ? (
@@ -91,25 +92,7 @@ function ChannelFeed({ channel, P, focusId }) {
           );})}
         </div>
       )}
-      {lb && (
-        <div onClick={() => setLb(null)} style={{ position: "fixed", inset: 0, zIndex: 2147483000,
-          background: "rgba(3,2,8,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, cursor: "zoom-out" }}>
-          <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxWidth: "96vw", cursor: "default" }}>
-            {isVideoUrl(lb.image_url) ? (
-              <video src={lb.image_url} controls autoPlay playsInline
-                style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12, border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-            ) : (
-              <img src={lb.image_url} alt="עדכון" style={{ maxWidth: "96vw", maxHeight: "80vh", borderRadius: 12,
-                border: `1px solid ${b.accent}88`, boxShadow: "0 20px 70px rgba(0,0,0,0.7)" }} />
-            )}
-            {/* ↗ שתף מתחת לכל סרטון/תמונה — קישור ויראלי שמנחית בדיוק על העדכון */}
-            <button onClick={() => shareUpdate(lb, b.title)} style={{ cursor: "pointer", display: "inline-flex",
-              alignItems: "center", gap: 8, background: b.accent, color: "#191008", border: "none", borderRadius: 999,
-              fontFamily: F.heading, fontSize: 14.5, fontWeight: 900, padding: "11px 30px", minHeight: 44,
-              boxShadow: `0 6px 24px ${b.accent}55` }}>↗ שתפו את העדכון</button>
-          </div>
-        </div>
-      )}
+      {lb && <UpdateModal u={lb} brand={b} onClose={() => setLb(null)} />}
     </section>
   );
 }
