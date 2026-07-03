@@ -17,6 +17,14 @@ const ORD = { "א": 1, "ב": 2, "ג": 3, "ד": 4, "ה": 5, "ו": 6, "ז": 7, "ח
 const KID = { "א": 1, "ב": 3, "ג": 6, "ד": 10, "ה": 15, "ו": 21, "ז": 28, "ח": 36, "ט": 45, "י": 55, "כ": 75, "ך": 75, "ל": 105, "מ": 145, "ם": 145, "נ": 195, "ן": 195, "ס": 255, "ע": 325, "פ": 405, "ף": 405, "צ": 495, "ץ": 495, "ק": 595, "ר": 795, "ש": 1095, "ת": 1495 };
 const ATB = { "א": 400, "ב": 300, "ג": 200, "ד": 100, "ה": 90, "ו": 80, "ז": 70, "ח": 60, "ט": 50, "י": 40, "כ": 30, "ך": 30, "ל": 20, "מ": 10, "ם": 10, "נ": 9, "ן": 9, "ס": 8, "ע": 7, "פ": 6, "ף": 6, "צ": 5, "ץ": 5, "ק": 4, "ר": 3, "ש": 2, "ת": 1 };
 const ALB = { "א": 30, "ב": 40, "ג": 50, "ד": 60, "ה": 70, "ו": 80, "ז": 90, "ח": 100, "ט": 200, "י": 300, "כ": 400, "ך": 400, "ל": 1, "מ": 2, "ם": 2, "נ": 3, "ן": 3, "ס": 4, "ע": 5, "פ": 6, "ף": 6, "צ": 7, "ץ": 7, "ק": 8, "ר": 9, "ש": 10, "ת": 20 };
+// אותיות אחרי / אותיות לפני (חוק otiot_shift_methods — נעול ב-DB): תמורת היסט ±1 במעגל הא״ב (22 אותיות),
+// סופיות מנורמלות לבסיס. «אותיות אחרי» (כל אות→הבאה) = צופן המזוזה «כוזו במוכסז כוזו» (יהוה→כוזו · אלהינו→במוכסז).
+// שיטת שמעון חיימוב. הובא לקבוצת תורת הרמז VIP. דוגמה: רזיאל→שחכבמ. ערך השיטה = רגיל של המילה המוחלפת.
+const SHIFT_AFTER_L  = { "א": "ב", "ב": "ג", "ג": "ד", "ד": "ה", "ה": "ו", "ו": "ז", "ז": "ח", "ח": "ט", "ט": "י", "י": "כ", "כ": "ל", "ך": "ל", "ל": "מ", "מ": "נ", "ם": "נ", "נ": "ס", "ן": "ס", "ס": "ע", "ע": "פ", "פ": "צ", "ף": "צ", "צ": "ק", "ץ": "ק", "ק": "ר", "ר": "ש", "ש": "ת", "ת": "א" };
+const SHIFT_BEFORE_L = { "א": "ת", "ב": "א", "ג": "ב", "ד": "ג", "ה": "ד", "ו": "ה", "ז": "ו", "ח": "ז", "ט": "ח", "י": "ט", "כ": "י", "ך": "י", "ל": "כ", "מ": "ל", "ם": "ל", "נ": "מ", "ן": "מ", "ס": "נ", "ע": "ס", "פ": "ע", "ף": "ע", "צ": "פ", "ץ": "פ", "ק": "צ", "ר": "ק", "ש": "ר", "ת": "ש" };
+const shiftVals = Lmap => Object.fromEntries(Object.keys(Lmap).map(c => [c, GEM[Lmap[c]] || 0]));
+const SHIFT_AFTER = shiftVals(SHIFT_AFTER_L);   // ערך רגיל של האות שאחרי
+const SHIFT_BEFORE = shiftVals(SHIFT_BEFORE_L); // ערך רגיל של האות שלפני
 const MILUI = { "א": 111, "ב": 412, "ג": 83, "ד": 434, "ה": 15, "ו": 22, "ז": 67, "ח": 418, "ט": 419, "י": 20, "כ": 100, "ך": 100, "ל": 74, "מ": 80, "ם": 80, "נ": 106, "ן": 106, "ס": 120, "ע": 130, "פ": 81, "ף": 81, "צ": 104, "ץ": 104, "ק": 186, "ר": 510, "ש": 360, "ת": 416 };
 // הכפלה (חוק hakpala_def — נעול): כל אות בריבוע (ערך×עצמו), ואז סכום. סופיות=רגיל. בינה=2²+10²+50²+5²=2629.
 const SQR = Object.fromEntries(Object.entries(GEM).map(([c, v]) => [c, v * v]));
@@ -52,6 +60,8 @@ export const METHODS = [
   { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
   { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
   { key: "אלבם", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
+  { key: "אותיות אחרי", sub: "כל אות → הבאה בא״ב (צופן המזוזה)", soul: "כוזו במוכסז — הצעד קדימה", fn: w => sumBy(w, SHIFT_AFTER), map: SHIFT_AFTER },
+  { key: "אותיות לפני", sub: "כל אות → הקודמת בא״ב", soul: "הצעד אחורה — השורש שלפני האות", fn: w => sumBy(w, SHIFT_BEFORE), map: SHIFT_BEFORE },
   { key: "מילוי בלבד", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
   { key: "הכפלה", sub: "כל אות בריבוע (אות×עצמה)", soul: "העוצמה הפנימית — כל אות מוכפלת בעצמה", fn: w => sumBy(w, SQR), map: null },
 ];
@@ -92,6 +102,8 @@ export function methodLetters(key, word) {
   if (!Ls.length) return null;
   if (key === "אתבש") return { type: "cipher", word: Ls.map(c => ATBASH_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ATBASH_L[c] || "?", val: ATB[c] || 0 })) };
   if (key === "אלבם") return { type: "cipher", word: Ls.map(c => ALBAM_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: ALBAM_L[c] || "?", val: ALB[c] || 0 })) };
+  if (key === "אותיות אחרי") return { type: "cipher", word: Ls.map(c => SHIFT_AFTER_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: SHIFT_AFTER_L[c] || "?", val: SHIFT_AFTER[c] || 0 })) };
+  if (key === "אותיות לפני") return { type: "cipher", word: Ls.map(c => SHIFT_BEFORE_L[c] || "").join(""), segs: Ls.map(c => ({ from: c, to: SHIFT_BEFORE_L[c] || "?", val: SHIFT_BEFORE[c] || 0 })) };
   if (key === "מסתתר" || key === "מסתתר גדול") {
     const vf = key === "מסתתר גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
     const segs = [];
@@ -150,6 +162,8 @@ export function methodResultText(key, word) {
   if (!Ls.length) return "";
   if (key === "אתבש") return Ls.map(c => ATBASH_L[c] || "").join("");
   if (key === "אלבם") return Ls.map(c => ALBAM_L[c] || "").join("");
+  if (key === "אותיות אחרי") return Ls.map(c => SHIFT_AFTER_L[c] || "").join("");
+  if (key === "אותיות לפני") return Ls.map(c => SHIFT_BEFORE_L[c] || "").join("");
   if (key === "מילוי") return miluiTextV(word, MILUI_VAR_DEFAULT);
   if (key === "מילוי דמילוי") return miluiDemiluyTextV(word, MILUI_VAR_DEFAULT);
   return Ls.join("");

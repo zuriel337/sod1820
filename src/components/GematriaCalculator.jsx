@@ -9,7 +9,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 
-// ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 17 השיטות, מאומת מול המנוע =====
+// ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 19 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
 const ALL = [...METHODS, ...DEPTH_METHODS];
 
@@ -41,7 +41,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
 
-  // חיפוש מורכב — רמות: 0=סגור · 1=שורה אחת · 2=שתי שורות. השורה העליונה (q) עצמאית = "צופה 17 השיטות".
+  // חיפוש מורכב — רמות: 0=סגור · 1=שורה אחת · 2=שתי שורות. השורה העליונה (q) עצמאית = "צופה 19 השיטות".
   const [m1, setM1] = useState("רגיל");
   const [advLevel, setAdvLevel] = useState(0);
   const [q1, setQ1] = useState("");
@@ -188,7 +188,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
       <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder={advOpen ? "התוצאה תופיע כאן — או הקלידו (17 שיטות)…" : "הקלידו מילה או ביטוי…"} dir="rtl" style={{
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder={advOpen ? "התוצאה תופיע כאן — או הקלידו (19 שיטות)…" : "הקלידו מילה או ביטוי…"} dir="rtl" style={{
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
@@ -246,7 +246,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               <div style={{ background: L.panel, border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 10, padding: "11px 13px", marginBottom: 11, color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.9 }}>
                 <b style={{ color: L.goldDeep }}>איך המצב המורחב עובד:</b><br />
                 • כל שורה = ביטוי + <b>שיטה משלה</b> (רגיל / אלב״ם / מילוי / אתב״ש…). מתחתיה רואים את <b>האותיות</b> של השיטה ואת הערך גם <b>באותיות עבריות</b> (231 = רל״א).<br />
-                • <b>⤴ למעלה</b> — לוקח את <b>תוצאת השיטה</b> ושם בשורה העליונה (מילוי=השם המלא · אתב״ש/אלב״ם=האותיות המוצפנות), וכל 17 השיטות מחושבות עליה. השורה העליונה עצמאית — שינוי בה לא נוגע בשורות.<br />
+                • <b>⤴ למעלה</b> — לוקח את <b>תוצאת השיטה</b> ושם בשורה העליונה (מילוי=השם המלא · אתב״ש/אלב״ם=האותיות המוצפנות), וכל 19 השיטות מחושבות עליה. השורה העליונה עצמאית — שינוי בה לא נוגע בשורות.<br />
                 • <b>➕ שורה שנייה</b> — מוסיף שורה להשוואה: <b>🔗 אחד</b> מחבר את שני הערכים (שווים → ✦ הצלבה) · <b>✂️ פצל</b> פותח כל ערך בנפרד.<br />
                 • <b>▲ סגור</b> — סוגר הכל וחוזר למחשבון, אחרי שהבאת למעלה את מה שרצית.
               </div>
@@ -258,7 +258,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               <select value={m1} onChange={e => setM1(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{methodLabel(m.key)}</option>)}</select>
               <span style={cs.eq}>= {v1}</span>
               {heb(v1) && <span style={cs.heb}>{heb(v1)}</span>}
-              <button onClick={() => { const t = fill1Text(); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
+              <button onClick={() => { const t = fill1Text(); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 19 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
             </div>
             {/* וריאנט מילוי — שורה 1 בלבד */}
             {isMiluiM1 && (
@@ -290,7 +290,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
                 <select value={m2} onChange={e => setM2(e.target.value)} style={cs.sel}>{ALL.map(m => <option key={m.key} value={m.key}>{methodLabel(m.key)}</option>)}</select>
                 <span style={cs.eq}>= {v2}</span>
                 {heb(v2) && <span style={cs.heb}>{heb(v2)}</span>}
-                <button onClick={() => { const t = methodResultText(m2, q2); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 17 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
+                <button onClick={() => { const t = methodResultText(m2, q2); if (t) setQ(t); }} title="מלא את השורה העליונה בתוצאת השיטה (חישוב 19 השיטות)" style={{ ...cs.send, marginInlineStart: "auto" }}>⤴ למעלה</button>
               </div>
               <LetterStrip mkey={m2} w={q2} />
               {/* בורר פעולה */}
@@ -330,7 +330,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           </div>
         )}
 
-        {/* כל 17 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
+        {/* כל 19 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
         <>
         {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
         <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
@@ -393,7 +393,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה · ⭐ בפינת האריח שומר רק את המספר</div>
           </>
         ) : (
-          <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 17 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
+          <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 19 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
         )}
         </>
       </div>
