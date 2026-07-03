@@ -132,8 +132,8 @@ function sourceInfo() {
   try { return new URL(ref).hostname; } catch { return "אחר"; }
 }
 
-// meta אחיד לכל אירועי האפליקציה — פילוח לדשבורד.
-function appMeta() {
+// meta אחיד לכל אירועי האפליקציה/פוש — פילוח לדשבורד (browser/os/device/source).
+export function appMeta() {
   return { ...deviceInfo(), source: sourceInfo() };
 }
 

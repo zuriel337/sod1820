@@ -1523,6 +1523,7 @@ function PopularityTab() {
   const [topWa, setTopWa] = useState([]);
   const [uniq, setUniq] = useState(null);
   const [appStats, setAppStats] = useState({ offers: 0, installs: 0, installsReal: 0, installsInferred: 0, launchers: 0, promptAccept: 0, promptDismiss: 0, byBrowser: [], byDevice: [], bySource: [], byDay: [] });
+  const [pushStats, setPushStats] = useState({ offers: 0, accepts: 0, dismisses: 0, enabled: 0, denied: 0, byBrowser: [], byOs: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1603,6 +1604,26 @@ function PopularityTab() {
             const byDay = Object.entries(dayCnt).sort((a, b) => a[0] < b[0] ? -1 : 1)
               .map(([day, c]) => ({ day, ...c, total: c.real + c.inferred }));
             setAppStats({ offers, installs, installsReal, installsInferred, launchers, promptAccept, promptDismiss, byBrowser: breakdown("browser"), byDevice: breakdown("device"), bySource: breakdown("source"), byDay });
+          }).catch(() => {}),
+
+        // 🔔 משפך התראות פוש — שאילתה ייעודית ל-section='push' (אירועים נדירים, לא נחתכים).
+        // offer=הבקשה הוצגה · prompt_accept=לחצו "כן" · enabled=נרשמו בפועל · denied=הדפדפן חסם · prompt_dismiss=דחו.
+        supabase.from("visitor_events")
+          .select("event_type, meta, visitor_id")
+          .eq("section", "push")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(10000)
+          .then(({ data }) => {
+            const rows = data || [];
+            const n = (t) => rows.filter(r => r.event_type === t).length;
+            const offers = new Set(rows.filter(r => r.event_type === "offer").map(r => r.visitor_id)).size;
+            const enabledRows = rows.filter(r => r.event_type === "enabled");
+            const bd = (key) => {
+              const c = {}; enabledRows.forEach(r => { const v = r.meta?.[key]; if (v) c[v] = (c[v] || 0) + 1; });
+              return Object.entries(c).sort((a, b) => b[1] - a[1]);
+            };
+            setPushStats({ offers, accepts: n("prompt_accept"), dismisses: n("prompt_dismiss"), enabled: enabledRows.length, denied: n("denied"), byBrowser: bd("browser"), byOs: bd("os") });
           }).catch(() => {}),
       ]).finally(() => setLoading(false));
     });
@@ -1691,6 +1712,47 @@ function PopularityTab() {
             </div>
           );
         })()}
+      </div>
+
+      {/* 🔔 משפך התראות פוש — מכשיר שהיה עיוור: הצעה → אישור → נרשם בפועל */}
+      <div style={{ ...card }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>🔔 משפך התראות פוש</div>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 14 }}>
+          מתחיל לאסוף מרגע העלייה · פוש עובד בכרום/אנדרואיד — ובאייפון רק באפליקציה מותקנת (iOS 16.4+)
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14 }}>
+          {[
+            { emoji: "👀", n: pushStats.offers, label: "ראו את הבקשה" },
+            { emoji: "🔔", n: pushStats.enabled, label: "נרשמו לפוש בפועל" },
+            { emoji: "🚫", n: pushStats.dismisses + pushStats.denied, label: "דחו / נחסמו" },
+            { emoji: "📈", n: pushStats.offers ? Math.round((pushStats.enabled / pushStats.offers) * 100) + "%" : "—", label: "יחס המרה (נרשמו/ראו)" },
+          ].map((s, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 26 }}>{s.emoji}</div>
+              <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 24, fontWeight: 800 }}>{s.n}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        {/* פילוח הנרשמים לפי דפדפן / מערכת-הפעלה */}
+        {pushStats.enabled > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+            {[
+              { title: "דפדפן", data: pushStats.byBrowser },
+              { title: "מערכת", data: pushStats.byOs },
+            ].map(col => col.data.length > 0 && (
+              <div key={col.title}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>{col.title}</div>
+                {col.data.map(([k, v]) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+                    <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>{k}</span>
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* TOP מדורים — bar chart */}
