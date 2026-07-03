@@ -5,6 +5,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SECRET = "s0d1820wahook_7yq2c9";
+const OCR_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-ocr?s=" + SECRET;
 const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const STOP = new Set(["שלום","תודה","כן","לא","בסדר","אמן","הי","היי","אוקיי","מעולה","יפה","וואו","מאומת","בוקר","ערב","לילה"]);
@@ -46,12 +47,33 @@ Deno.serve(async (req) => {
     const sender = body?.senderData?.sender || "";
     const senderName = body?.senderData?.senderName || "";
     const md = body?.messageData || {};
-    const text = (md?.textMessageData?.textMessage || md?.extendedTextMessageData?.text || "").trim();
-    if (!msgId || !text) return ok();
-    if (text.includes("sod1820") || text.includes(SIGN)) return ok();
+    if (!msgId) return ok();
 
     const { data: dup } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).maybeSingle();
     if (dup) return ok();
+    const sinceH = new Date(Date.now() - 3600e3).toISOString();
+
+    // 👁️ תמונה → OCR אוטומטי (קורא את התמונה/הטופס, מחזיר מה שרואים + מספרים). cap 15/שעה.
+    const fileData = md?.fileMessageData || {};
+    const imgUrl = (md?.typeMessage === "imageMessage" || fileData.downloadUrl) ? (fileData.downloadUrl || "") : "";
+    if (imgUrl) {
+      const { count: oc } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true }).eq("group_id", chatId).eq("action", "ocr_replied").gte("created_at", sinceH);
+      if ((oc || 0) >= 15) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_rate_limited" }); return ok(); }
+      let ocr: { numbers?: number[]; text?: string } | null = null;
+      try { const r = await fetch(OCR_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageUrl: imgUrl }) }); ocr = await r.json(); } catch { /* noop */ }
+      const nums = Array.isArray(ocr?.numbers) ? ocr.numbers.slice(0, 25) : [];
+      const otext = String(ocr?.text || "").trim();
+      if (!nums.length && !otext) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_empty" }); return ok(); }
+      const head = otext.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 5).join("\n").slice(0, 400);
+      const numLine = nums.length ? `\n\n🔢 מספרים: ${nums.join(", ")}` : "";
+      await reply(chatId, `👁️ קראתי את התמונה:\n${head}${numLine}\n\n${SIGN}`, msgId);
+      await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_replied" });
+      return ok();
+    }
+
+    const text = (md?.textMessageData?.textMessage || md?.extendedTextMessageData?.text || "").trim();
+    if (!text) return ok();
+    if (text.includes("sod1820") || text.includes(SIGN)) return ok();
 
     const since = new Date(Date.now() - 3600e3).toISOString();
     const { count } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true })
@@ -75,15 +97,23 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── טריגר ──
+    // ── טריגר ── (החוק: כותבים «רזיאל» כדי לדבר איתו)
+    const called = /רזיאל/.test(text);
+    const base = called ? text.replace(/רזיאל/g, " ").replace(/[?!.]/g, " ").replace(/\s+/g, " ").trim() : text;
+    if (called && !base) {
+      await reply(chatId, "כן, אני כאן 🔯 כתבו לי מילה או «ביטוי=מספר» ואחשב במנוע — או ענו «עומק» על הודעה כדי שאעמיק.", msgId);
+      await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "raziel_hi" });
+      return ok();
+    }
     let phrase = "", claimed: number | null = null;
-    const eq = text.indexOf("=");
+    const eq = base.indexOf("=");
     if (eq > 0) {
-      phrase = clean(text.slice(0, eq));
-      const m = text.slice(eq + 1).match(/\d{1,6}/); claimed = m ? parseInt(m[0], 10) : null;
+      phrase = clean(base.slice(0, eq));
+      const m = base.slice(eq + 1).match(/\d{1,6}/); claimed = m ? parseInt(m[0], 10) : null;
     } else {
-      const c = clean(text); const words = c.split(" ").filter(Boolean);
-      if (words.length >= 1 && words.length <= 5 && c.length >= 2 && !(words.length === 1 && STOP.has(words[0]))) phrase = c;
+      const c = clean(base); const w = c.split(" ").filter(Boolean);
+      const okWord = called ? (w.length >= 1 && w.length <= 6 && c.length >= 2) : (w.length >= 1 && w.length <= 5 && c.length >= 2 && !(w.length === 1 && STOP.has(w[0])));
+      if (okWord) phrase = c;
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 

@@ -30,18 +30,23 @@ Deno.serve(async (req) => {
       const ext = m.extendedTextMessage || {};
       const text = m.textMessage || ext.text || "";
       const msgId = m.idMessage;
-      if (!text || !msgId) continue;
+      const isImg = m.typeMessage === "imageMessage" || !!m.downloadUrl || !!m.fileMessageData;
+      if ((!text && !isImg) || !msgId) continue;
       const { data: dup } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).maybeSingle();
       if (dup) continue;
+      // תמונה — משיגים את קישור-ההורדה (מההודעה, ואם חסר — downloadFile)
+      let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
+      if (isImg && !dl) { try { const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST"); dl = d?.result?.downloadUrl || ""; } catch { /* noop */ } }
       const payload = {
         typeWebhook: "incomingMessageReceived",
         idMessage: msgId,
         senderData: { chatId, sender: m.senderId || "", senderName: m.senderName || "" },
         messageData: {
-          typeMessage: m.typeMessage || "textMessage",
+          typeMessage: m.typeMessage || (isImg ? "imageMessage" : "textMessage"),
           textMessageData: { textMessage: m.textMessage || "" },
           extendedTextMessageData: { text: ext.text || "", stanzaId: ext.stanzaId || "" },
           quotedMessage: m.quotedMessage || null,
+          fileMessageData: isImg ? { downloadUrl: dl } : undefined,
         },
       };
       try { await fetch(HOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); forwarded++; } catch { /* noop */ }
