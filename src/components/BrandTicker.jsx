@@ -8,6 +8,10 @@ import { trackShare } from "../lib/tracking.js";
 // וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
 export const isVideoUrl = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
 
+// התכנסות אמיתית = עדשת /topic/ (כרטיס-התכנסות בגרף). גימטריה בודדת מקושרת ל-/number/.
+// בעמוד הבית מציגים רק התכנסויות (בקשת צוריאל: «רק התכנסויות, לא סתם גימטריות»).
+export const isConvergenceUpdate = u => /^\/topic\//.test(u?.link_url || "");
+
 // ↗ שיתוף עדכון ישירות מהאתר: Web Share (מובייל) → נפילה לוואטסאפ. נמדד ב-share tracking.
 // הקישור ויראלי-עמוק: ?u=<id> מנחית את המקבל בדיוק על אותו עדכון בדף השידורים.
 export async function shareUpdate(u, brandTitle) {
@@ -94,7 +98,9 @@ export function UpdateModal({ u, brand, onClose }) {
 // נושמת בקצה הרצועה שמקשרת לדף שבו הערוץ ההוא חי (למשל אור-הגאולה → דף הצ'אט).
 // hidePostLinked: בעמוד הבית עדכון שמקושר לפוסט מוסתר — הפוסט כבר מופיע ב«עדכונים אחרונים»
 // (כלל אפס-כפילות של broadcast_channels_law).
-export default function BrandTicker({ channel, peek = null, hidePostLinked = false }) {
+// convergesOnly: בעמוד הבית הטיקר מציג רק התכנסויות אמיתיות (/topic/) ולא גימטריות בודדות (/number/).
+// הגימטריות הבודדות נשארות זמינות במרכז השידורים (/broadcasts) — עץ אחד, עדשה שונה.
+export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -108,12 +114,14 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
     const load = () => getChannelUpdates(8, channel).then(r => {
       if (!live) return;
       setHadRaw((r || []).length > 0);
-      setItems((r || []).filter(u => !(hidePostLinked && u.link_url)));
+      setItems((r || []).filter(u =>
+        !(hidePostLinked && u.link_url) &&
+        !(convergesOnly && !isConvergenceUpdate(u))));
     }).catch(() => {});
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [channel, hidePostLinked]);
+  }, [channel, hidePostLinked, convergesOnly]);
 
   useEffect(() => {
     if (!peek?.channel) return;
@@ -129,7 +137,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
     return () => clearTimeout(id);
   }, [i, items.length]);
 
-  if (hidePostLinked && !items.length && hadRaw) return null;
+  if ((hidePostLinked || convergesOnly) && !items.length && hadRaw) return null;
 
   return (
     <div style={{ direction: "rtl", marginBottom: 10 }}>
