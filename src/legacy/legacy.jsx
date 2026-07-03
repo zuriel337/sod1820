@@ -4635,16 +4635,9 @@ function PostPageBySlug({ onNav }) {
             {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}
             <style>{POST_CONTENT_CSS}</style>
             {themed && <style>{themedPostContentCSS(P)}</style>}
-            {/* הערת לחיצוּת אוטומטית — בכל פוסט שיש בו מספרים (חוק number_click_hint_law).
-                לא מוצג בפוסטי תפילה/חיזוק (קטגוריית «התחזקות» + פוסטי התפילה המיוחדים):
-                שם המספרים אינם רמזי גימטריה, אז הרמז מיותר ומסיח. */}
-            {content && /[0-9]/.test(String(content))
-              && !(cats || []).includes("התחזקות")
-              && !PRAYER_SHARE_WP_IDS.includes(post.wp_id) && (
-              <div style={{ maxWidth: 640, margin: "0 auto 18px", padding: "9px 15px", border: `1px dashed ${pc.borderGold}`, borderRadius: 12, background: pc.bgGlow, textAlign: "center", fontSize: 13.5, color: pc.goldLight, fontFamily: F.body }}>
-                💡 כל <b style={{ color: pc.goldBright, borderBottom: `1px dotted ${pc.goldBright}` }}>מספר</b> (ומילה מודגשת) בפוסט לחיץ — לחצו ותיפתח חלונית המספר עם הגימטריה והקשרים, בלי לצאת מהדף.
-              </div>
-            )}
+            {/* הערת הלחיצוּת («כל מספר/מילה לחיץ») הוסרה לבקשת צוריאל — כולם כבר יודעים שהמספרים
+                והביטויים המודגשים לחיצים, ההערה מיותרת ומסיחה. (number_click_hint_law — בוטל 3.7.2026.)
+                הלחיצוּת עצמה נשמרת: data-gem + openNumberDrawer עדיין פעילים על כל מספר/ביטוי. */}
             <div className={`sod-post-content${themed ? " themed" : ""}${post?.source === "ai" ? " clean" : ""}`} ref={contentRef}>
               {/* מרקרי גלריה (קומפוננטת React באותו עץ — קישורים/פלטה עובדים):
                   • <div data-sod-gallery="N"></div>     → קרוסלת רמזים לפי ערך-ראשי
