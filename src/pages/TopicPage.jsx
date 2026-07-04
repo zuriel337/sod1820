@@ -2,9 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, setImageCuration } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import ImageEditModal from "../components/ImageEditModal.jsx";
 import RealityStream from "../components/RealityStream.jsx";
 import DocActions from "../components/DocActions.jsx";
 import { track, trackShare } from "../lib/tracking.js";
@@ -26,6 +28,17 @@ export default function TopicPage() {
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
+  const { isAdmin } = useAuth();        // עריכת תמונה בדף ההתכנסויות — מנהל בלבד
+  const [editImg, setEditImg] = useState(null);
+
+  // 💾 שמירת עריכת-תמונה (מנהל) — מעדכן במאגר + אופטימי ברשימה. אותו מנגנון של הגלריות (עץ אחד).
+  function saveImgEdit(patch) {
+    if (!editImg || !Object.keys(patch).length) { setEditImg(null); return; }
+    const id = editImg.id;
+    setImageCuration(id, patch)
+      .then(() => { setImgs(prev => prev.map(i => i.id === id ? { ...i, ...patch } : i)); setEditImg(null); })
+      .catch(() => setEditImg(null));
+  }
 
   useEffect(() => { if (slug) track("convergence", slug); }, [slug]);
 
@@ -227,8 +240,24 @@ export default function TopicPage() {
           <RealityStream
             hints={imgs.map(im => ({ ...im, all_values: im.ocr_numbers || [], primary_value: (im.ocr_numbers || [])[0] ?? null }))}
             palette={P}
+            onEdit={isAdmin ? (h => setEditImg(imgs.find(i => i.id === h.id) || h)) : undefined}
           />
         </div>
+      )}
+
+      {/* ✏️ עריכת תמונה — מנהל בלבד, גם כאן בדף ההתכנסויות (אותו מודל של הגלריות) */}
+      {editImg && (
+        <ImageEditModal
+          image={editImg}
+          onSave={saveImgEdit}
+          onClose={() => setEditImg(null)}
+          onDelete={id => { setImgs(prev => prev.filter(i => i.id !== id)); setEditImg(null); }}
+          onRemoveFromStream={editImg.source === "update" ? async () => {
+            await setImageCuration(editImg.id, { source: "manual" });
+            setImgs(prev => prev.map(i => i.id === editImg.id ? { ...i, source: "manual" } : i));
+            setEditImg(null);
+          } : null}
+        />
       )}
 
       {/* הסתייגות מחקרית */}

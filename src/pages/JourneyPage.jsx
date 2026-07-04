@@ -40,7 +40,6 @@ function engineMessage({ root, bases = [], stations = 0, dWorld }) {
 // 🔮 ריבוע פיתוחים עתידיים — מה שבדרך (כולל גרסה 2 של המסע)
 const FUTURE = [
   { icon: "🧭", title: "מסע מודרך לפי שדה/עולם", note: "לבחור נושא — והמנוע בונה מסע סביבו" },
-  { icon: "💾", title: "המסעות שלי", note: "היסטוריה אישית — לשמור ולחזור למסעות" },
   { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
 ];
 
@@ -251,6 +250,24 @@ export default function JourneyPage() {
     }
   }
 
+  // ✉️ הרשמה ראשית בסיום המסע — גלויה לכל מי שסיים (לא חבויה במסר-העומק). source=journey.
+  // זה השער העיקרי: מאות מסיימים את המסע, וכאן מבקשים מהם מייל בבירור. אמין: כישלון רשת → הודעת-שגיאה.
+  async function submitJourneySignup(e) {
+    e?.preventDefault?.();
+    setGateErr("");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setGateErr("נא להזין מייל תקין"); return; }
+    setGateBusy(true);
+    try {
+      await subscribeEmail({ email: email.trim(), source: "journey" });
+      try { trackSubscribe({ source: "journey" }); } catch { /* noop */ }
+      try { localStorage.setItem("sod_jdeep_email", "1"); } catch { /* noop */ }
+      setEmailGiven(true);
+      logView("journey_signup", String(root));   // 📊 פאנל: הרשמה מהמסע
+    } catch {
+      setGateErr("לא הצלחנו לשמור כרגע — נסו שוב עוד רגע");
+    } finally { setGateBusy(false); }
+  }
+
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
   function saveJourney() {
     if (root == null) return;
@@ -322,6 +339,31 @@ export default function JourneyPage() {
                   {i < path.length - 1 && <span style={{ color: P.accentDim, fontSize: 14 }}>↓</span>}
                 </React.Fragment>
               ))}
+            </div>
+          )}
+
+          {/* ✉️ שער-הרשמה ראשי — גלוי לכל מי שסיים את המסע (לא חבוי במסר-העומק). כאן נרשמים המאות. */}
+          {root != null && !(verified || emailGiven) && (
+            <div style={{ maxWidth: 520, margin: "6px auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}22, ${P.cardSoft})`, border: `1.5px solid ${P.accentText}`, borderRadius: 18, padding: "18px 18px", boxShadow: `0 8px 30px ${P.glow}` }}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>🎁</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>סיימתם את המסע של {root}</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, maxWidth: 410, margin: "0 auto 14px" }}>
+                רוצים שכשיתגלו רמזים חדשים ל־{root} ולמספרים הקשורים אליו — נעדכן אתכם? השאירו מייל. בלי ספאם, אפשר לבטל בכל רגע.
+              </div>
+              <form onSubmit={submitJourneySignup} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
+                  style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
+                <button type="submit" disabled={gateBusy}
+                  style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
+                  {gateBusy ? "רושם…" : "🔔 עדכנו אותי"}
+                </button>
+              </form>
+              {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
+            </div>
+          )}
+          {root != null && emailGiven && !verified && (
+            <div style={{ maxWidth: 520, margin: "6px auto 18px", textAlign: "center", color: P.accent, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
+              ✓ נרשמתם — נשלח לכם את הגילויים הבאים 🙏
             </div>
           )}
 
@@ -419,6 +461,18 @@ export default function JourneyPage() {
           <div style={{ maxWidth: 520, margin: "0 auto 24px", textAlign: "right", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px" }}>
             <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>🔮 מה עוד בדרך</div>
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 12 }}>המסע הזה רק מתחיל לגדול. הנה מה שהמנוע יֵדע לעשות בקרוב:</div>
+            {/* 💾 «המסעות שלי» — כבר פעיל: פותח את האזור האישי (עולם המשתמש) עם המסעות שנשמרו + כל השמורים */}
+            <Link to="/profile" onClick={() => logView("journey_myjourneys", "profile")}
+              style={{ display: "flex", gap: 10, alignItems: "center", textDecoration: "none",
+                background: `linear-gradient(135deg, ${P.accent}22, ${P.glow})`, border: `1.5px solid ${P.accent}`,
+                borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
+              <span style={{ fontSize: 18, lineHeight: 1.2 }}>💾</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>המסעות שלי · האזור האישי</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>לצפות במסעות שעשית ובכל מה ששמרת — פרטי לחלוטין.</div>
+              </div>
+              <span style={{ flex: "0 0 auto", color: P.accentText, fontSize: 15, fontWeight: 800 }}>←</span>
+            </Link>
             <div style={{ display: "grid", gap: 8 }}>
               {FUTURE.map((f, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: P.glow, border: `1px solid ${P.border}`, borderRadius: 12, padding: "9px 12px" }}>

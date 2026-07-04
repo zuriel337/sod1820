@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="סוד החשמל">
+  <defs>
+    <radialGradient id="schBg" cx="50%" cy="36%" r="72%">
+      <stop offset="0%" stop-color="#12324a" />
+      <stop offset="58%" stop-color="#0a1826" />
+      <stop offset="100%" stop-color="#05070d" />
+    </radialGradient>
+    <linearGradient id="schBolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe9a8" />
+      <stop offset="55%" stop-color="#ffcf5c" />
+      <stop offset="100%" stop-color="#e6a12a" />
+    </linearGradient>
+    <filter id="schGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="b" />
+      <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#schBg)" />
+  <circle cx="100" cy="100" r="93" fill="none" stroke="#5ec8ff" stroke-opacity="0.55" stroke-width="3" />
+  <circle cx="100" cy="100" r="86" fill="none" stroke="#5ec8ff" stroke-opacity="0.14" stroke-width="1.5" />
+  <path d="M114 28 L62 110 L95 110 L82 172 L144 86 L104 86 Z"
+        fill="url(#schBolt)" stroke="#fff4d6" stroke-width="2.5" stroke-linejoin="round" filter="url(#schGlow)" />
+</svg>
