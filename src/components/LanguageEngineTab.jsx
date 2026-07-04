@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
-import { supabase, adminWordsConsole, adminReviewWord } from "../lib/supabase.js";
+import { Link } from "react-router-dom";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence } from "../lib/supabase.js";
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
 // 🌍 מנוע השפה — מרכז-בקרה מלא: כל המילים החדשות בכל השפות, מקור מפורט, ואישור/הסתרה/מחיקה.
@@ -40,6 +41,9 @@ function WordsConsole({ srcLabel }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(null);
+  const [convVal, setConvVal] = useState(null);   // 🎯 ערך-ההתכנסות הפתוח כרגע
+  const [conv, setConv] = useState(null);
+  const [convLoading, setConvLoading] = useState(false);
   const PAGE = 40;
   useEffect(() => { const t = setTimeout(() => { setQ(qLive); setOffset(0); }, 400); return () => clearTimeout(t); }, [qLive]);
   const load = useCallback(async () => {
@@ -48,10 +52,26 @@ function WordsConsole({ srcLabel }) {
     setData(d); setLoading(false);
   }, [scope, q, offset]);
   useEffect(() => { load(); }, [load]);
+  const loadConv = useCallback(async (value) => {
+    setConvLoading(true);
+    const d = await adminValueConvergence(value);
+    setConv(d); setConvLoading(false);
+  }, []);
+  const toggleConv = (value) => {
+    if (convVal === value) { setConvVal(null); setConv(null); return; }
+    setConvVal(value); setConv(null); loadConv(value);
+  };
   const doAction = async (id, action) => {
     if (action === "delete" && !confirm("למחוק לצמיתות?")) return;
     setBusy(id);
-    try { await adminReviewWord(id, action); await load(); }
+    try { await adminReviewWord(id, action); await load(); if (convVal != null) await loadConv(convVal); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const convAction = async (id, action) => {
+    if (action === "delete" && !confirm("למחוק לצמיתות?")) return;
+    setBusy(id);
+    try { await adminReviewWord(id, action); await loadConv(convVal); await load(); }
     catch (e) { alert("שגיאה: " + (e.message || e)); }
     finally { setBusy(null); }
   };
@@ -85,9 +105,35 @@ function WordsConsole({ srcLabel }) {
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{srcLabel(w.source)}</span>
                   {w.vip_source && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>· מאת {w.vip_source}</span>}
                   <span style={{ color: w.has_entity ? "#7bbf7b" : C.muted, fontFamily: F.heading, fontSize: 11 }}>{w.has_entity ? "🔗 מחובר לישות" : "◦ לא מקושר"}</span>
-                  {w.family > 0 && <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11 }}>· 🎯 {w.family} באותו ערך</span>}
+                  {w.family > 0 && (
+                    <button onClick={() => toggleConv(w.ragil)} style={{ cursor: "pointer", background: convVal === w.ragil ? "rgba(212,175,55,.25)" : "transparent", border: `1px solid ${C.borderGold}`, borderRadius: 999, color: C.goldBright, fontFamily: F.heading, fontSize: 11, fontWeight: 700, padding: "2px 10px" }}>
+                      🎯 {w.family} באותו ערך {convVal === w.ragil ? "▲" : "▾"}
+                    </button>
+                  )}
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10.5 }}>· {fmt(w.created_at)}</span>
                 </div>
+                {/* 🎯 ההתכנסות — כל הביטויים באותו ערך, פתוח אינליין. «להיכנס לתוך ההתכנסות». */}
+                {convVal === w.ragil && (
+                  <div style={{ margin: "2px 0 10px", background: C.surface2, border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "11px 13px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
+                      <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🎯 התכנסות הערך {w.ragil}{conv ? ` · ${conv.verified} מאומתים · ${conv.pending} ממתינים` : ""}</span>
+                      <Link to={`/number/${w.ragil}`} target="_blank" rel="noopener noreferrer" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700, textDecoration: "none", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 12px" }}>← היכנס לדף ההתכנסות</Link>
+                    </div>
+                    {convLoading ? <div style={{ color: C.muted, fontSize: 12 }}>טוען…</div>
+                      : conv?.error ? <div style={{ color: "#d98a92", fontSize: 12 }}>אין הרשאה</div>
+                      : <div style={{ display: "grid", gap: 6 }}>
+                        {(conv?.rows || []).map(c => (
+                          <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "5px 8px", borderRadius: 8, background: c.is_verified ? "rgba(123,191,123,.08)" : "rgba(224,179,74,.09)" }}>
+                            <Link to={`/number/${w.ragil}`} target="_blank" rel="noopener noreferrer" style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, fontWeight: 700, textDecoration: "none", flex: "1 1 auto", minWidth: 100 }}>{c.phrase}</Link>
+                            <span style={{ color: c.is_verified ? "#7bbf7b" : "#e0b34a", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>{c.is_verified ? "✅ מאומת" : "⏳ ממתין"}</span>
+                            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>{srcLabel(c.source)}</span>
+                            {!c.is_verified && <button disabled={busy === c.id} onClick={() => convAction(c.id, "approve")} style={btn("#2f8f4e")}>✅</button>}
+                            {c.is_verified && <button disabled={busy === c.id} onClick={() => convAction(c.id, "reject")} style={btn("transparent", C.muted)}>✖</button>}
+                          </div>
+                        ))}
+                      </div>}
+                  </div>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span title={w.rec?.why} style={{ flex: "1 1 auto", minWidth: 140, color: rec.c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{rec.e} {rec.t} — <span style={{ color: C.muted, fontWeight: 500 }}>{w.rec?.why}</span></span>
                   <div style={{ display: "flex", gap: 5 }}>

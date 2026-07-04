@@ -221,6 +221,15 @@ export async function adminReviewWord(id, action) {
   if (error) throw error;
   return data;
 }
+// 🎯 «להיכנס להתכנסות» — כל הביטויים באותו ערך-רגיל (מאומתים + ממתינים), לאדמין (עוקף RLS).
+export async function adminValueConvergence(value) {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc('admin_value_convergence', { p_value: value });
+    if (error) return null;
+    return data || null;
+  } catch { return null; }
+}
 // ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
 export async function getSiteUpdates(limit = 6) {
   if (!supabase) return [];
