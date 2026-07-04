@@ -8,7 +8,7 @@ export const AUTHORS = {
   "ציון סיבוני": { avatar: "/authors/siboni.jpg", role: "כתב מיוחד" },
   "יניב לוי": { avatar: "/authors/yaniv.jpg", role: "כתב" },
   // עלון «סוד החשמל» — לחיצה על הכותב מובילה לכל הקטגוריה שלו (cat), לא לפוסטים לפי-כותב.
-  "סוד החשמל": { avatar: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/rav-amos-guetta.png", role: "עלון סוד החשמל · פנימיות התורה", cat: "סוד החשמל" },
+  "סוד החשמל": { avatar: "/authors/sod-hachashmal.svg", role: "עלון סוד החשמל · פנימיות התורה", cat: "סוד החשמל" },
 };
 
 // מחזיר אובייקט כותב {name, avatar, role, cat?}. אם השם ריק → "המערכת".
