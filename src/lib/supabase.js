@@ -164,6 +164,13 @@ export async function getChannelUpdates(limit = 6, channel = null) {
   const { data } = await q;
   return data || [];
 }
+// ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
+export async function getSiteUpdates(limit = 6) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('site_updates').select('icon,title,link_url')
+    .eq('is_active', true).order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
+  return data || [];
+}
 export async function broadcastChannelUpdate({ text, imageUrl = null, hours = null, urgent = false, credit = null, channel = 'main' }) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('channel_updates').insert({

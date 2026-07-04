@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../../theme.js";
 import { BRANDS } from "../BrandTicker.jsx";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages, getChannelUpdates } from "../../lib/supabase.js";
+import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages, getChannelUpdates, getSiteUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
 // 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
@@ -131,6 +131,17 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       if (hintMsg) out.push(hintMsg);
+      // 📝 פוסט אחרון (בקשת צוריאל — חידושי האתר זורמים אוטומטית, בלי טיפול ידני)
+      try {
+        const latest = await getPostsFromSupabase({ limit: 1 });
+        const p0 = (latest || [])[0];
+        if (p0?.title) out.push(`📝 פוסט אחרון: ${stripHtml(p0.title).trim().slice(0, 70)}`);
+      } catch { /* ignore */ }
+      // ✨ «מה הוספנו לאתר» — changelog אוטומטי (site_updates)
+      try {
+        const ups = await getSiteUpdates(4);
+        for (const u of ups) if (u.title) out.push(`${u.icon || "✨"} ${u.title}`);
+      } catch { /* ignore */ }
       // 📜 פסוק גאולה — מוצג *במידה*, לא אינסוף. מכסה אישית: עד VERSE_DAILY_CAP ליום לכל מבקר.
       // הפסוק מתחלף יומית (dayIdx) ומוסט לפי כמה כבר ראה היום → 2 פסוקים שונים ביום, לא חזרה.
       const seen = versesSeenToday();
@@ -144,7 +155,8 @@ function useLiveTicker() {
           if (title) out.push(`💡 חידוש אחרון: ${title}`);
         }
       } catch { /* ignore */ }
-      // ⛔ התכנסויות + פוסטים — לא בהזרקה האוטומטית. ⛔ ספירת «כמה התכנסויות במאגר» הוסרה (בקשת צוריאל).
+      // 📝 פוסט אחרון + ✨ חידושי-אתר — נוספו למעלה (בקשת צוריאל 4.7: הטיקר אוטומטי לכל החידושים).
+      // ⛔ ספירת «כמה התכנסויות במאגר» הוסרה (בקשת צוריאל).
       // ⛔ «X מילים נחקרו היום בבית המדרש» הוסר מהטיקר (בקשת צוריאל 2.7.2026)
       try {
         const { topNumber } = await getSearchStatsToday();
