@@ -34,6 +34,7 @@ export default function LanguageEngineTab() {
   const [aliases, setAliases] = useState([]);
   const [translit, setTranslit] = useState([]);
   const [recent, setRecent] = useState([]);            // 🆕 נוספו לאחרונה ל-gematria_words
+  const [pending, setPending] = useState([]);          // 🛡️ שורות-מילים אמיתיות ממתינות לאישור (is_verified=false)
   const [qFilter, setQFilter] = useState("pending");   // pending|all|approved|rejected|blocked
   const [busy, setBusy] = useState(null);
   const [editing, setEditing] = useState({});
@@ -43,15 +44,19 @@ export default function LanguageEngineTab() {
     const wk = new Date(Date.now() - 7 * 864e5).toISOString();
     let q = supabase.from("word_review_queue").select("*").order("created_at", { ascending: false }).limit(150);
     if (qFilter !== "all") q = q.eq("status", qFilter);
-    const [fb, learned, sug, wrq, al, rec] = await Promise.all([
+    const [fb, learned, sug, wrq, al, rec, pend] = await Promise.all([
       supabase.from("feedback").select("verdict").limit(10000),
       supabase.from("word_aliases").select("id", { count: "exact", head: true }).eq("verified", true).gte("created_at", wk),
       supabase.from("translit_suggestions").select("*").eq("status", "open").order("hits", { ascending: false }).limit(25),
       q,
       supabase.from("word_aliases").select("id, alias, lang, method, layer, confidence, verified, source, created_at, gematria_words(phrase, ragil)").order("created_at", { ascending: false }).limit(120),
       supabase.from("gematria_words").select("id, phrase, ragil, source, vip_source, created_at").order("created_at", { ascending: false }).limit(40),
+      // 🛡️ מילים אמיתיות ממתינות לאישור — מקורות לא-אמון שהוסתרו עד אישור צוריאל
+      supabase.from("gematria_words").select("id, phrase, ragil, all_values, source, vip_source, notes, category, created_at")
+        .eq("review_status", "pending").eq("is_verified", false).order("created_at", { ascending: false }).limit(300),
     ]);
     setRecent(rec.data || []);
+    setPending(pend.data || []);
     const rows = fb.data || [];
     const found = rows.filter(r => r.verdict === "found").length, notFound = rows.filter(r => r.verdict === "not_found").length;
     setStats({ asked: rows.length, found, notFound, success: found + notFound ? Math.round(found / (found + notFound) * 100) : 0, learnedWeek: learned.count || 0, aliasTotal: (al.data || []).length });
@@ -63,6 +68,7 @@ export default function LanguageEngineTab() {
   const resolveWord = (id, action) => act("resolve_word_review", { p_id: id, p_action: action, p_edit: editing[id] || null }, id);
   const manageAlias = (id, action) => act("admin_manage_alias", { p_id: id, p_action: action }, id);
   const resolveTranslit = (norm, approve) => act("admin_resolve_translit", { p_input_norm: norm, p_approve: approve }, norm);
+  const reviewWord = (id, action) => act("wa_word_review", { p_id: id, p_action: action }, id);   // ✅ אישור/דחייה/מחיקה של שורת-מילה אמיתית
 
   if (!stats) return <div style={{ color: C.muted, padding: 20 }}>טוען…</div>;
   const stTone = s => s === "approved" ? "#7bbf7b" : s === "rejected" ? "#d98a92" : s === "blocked" ? "#9a8" : "#e0b34a";
@@ -77,8 +83,41 @@ export default function LanguageEngineTab() {
         <Stat label="👎 לא נמצא" value={stats.notFound} tone="#d98a92" />
         <Stat label="הצלחה" value={stats.success + "%"} />
         <Stat label="נלמדו השבוע" value={stats.learnedWeek} tone={C.goldBright} />
-        <Stat label="ממתינות" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
+        <Stat label="ממתינות לאישור" value={pending.length} tone="#e0b34a" />
       </div>
+
+      {/* ══ 🛡️ ממתינות לאישור — שורות-מילים אמיתיות ממקור לא-אמון (וואטסאפ/קהילה) שהוסתרו עד אישורך ══ */}
+      <H sub="מילים ממקורות לא-אמון (וואטסאפ/קהילה) — מוסתרות מהאתר עד שתאשר. ✅ מפרסם · ✖ משאיר מוסתר · 🗑 מוחק. שער-מחמיר: כלום לא עולה לבד.">🛡️ ממתינות לאישור ({pending.length})</H>
+      {!pending.length ? <div style={{ ...card, color: C.muted }}>אין מילים שממתינות לאישור — הכול נקי. 🌳</div>
+        : <div style={{ ...card, padding: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", padding: "10px 12px", borderBottom: `1px solid ${C.borderGold}` }}>
+            <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>{pending.length} ממתינות · אפשר לאשר אחת-אחת. אלה לא נראות באתר כרגע.</span>
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+              <thead><tr>{["מילה", "ערך", "כל הערכים", "מקור", "מאת", "מתי", "פעולות"].map((h, i) => <th key={i} style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, textAlign: "right", padding: "8px 10px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
+              <tbody>
+                {pending.map(w => (
+                  <tr key={w.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, padding: "6px 10px", whiteSpace: "nowrap" }}>{w.phrase}</td>
+                    <td style={{ color: C.goldBright, fontFamily: F.mono, padding: "6px 10px" }}>{w.ragil}</td>
+                    <td style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, padding: "6px 10px", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{(w.all_values || []).join(" · ")}</td>
+                    <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{srcLabel(w.source)}</td>
+                    <td style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: "6px 10px", whiteSpace: "nowrap" }}>{w.vip_source || (w.notes || "").replace(/^מאת /, "") || "—"}</td>
+                    <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{fmt(w.created_at)}</td>
+                    <td style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>
+                      <div style={{ display: "flex", gap: 5 }}>
+                        <button disabled={busy === w.id} onClick={() => reviewWord(w.id, "approve")} style={btn("#2f8f4e")}>✅ פרסם</button>
+                        <button disabled={busy === w.id} onClick={() => reviewWord(w.id, "reject")} style={btn("transparent", C.muted)}>✖ הסתר</button>
+                        <button disabled={busy === w.id} onClick={() => { if (confirm(`למחוק לצמיתות את «${w.phrase}»?`)) reviewWord(w.id, "delete"); }} style={btn("transparent", "#d98a92")}>🗑</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>}
 
       {/* ══ 🆕 נוספו לאחרונה למאגר (gematria_words) — מה שבאמת נכנס, כולל מה שרואים בבית ══ */}
       <H sub="המילים האחרונות שנכנסו למאגר הראשי (gematria_words) — עם מקור ותאריך. זה מה שמופיע בבית ובחיפוש.">🆕 נוספו לאחרונה למאגר ({recent.length})</H>
