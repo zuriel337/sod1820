@@ -8,6 +8,9 @@ import AnonToggle, { useAnon } from "./AnonToggle.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
+import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/translit.js";
+import { getAliasLexicon, logTranslitQuery } from "../lib/feedback.js";
+import FoundItFeedback from "./FoundItFeedback.jsx";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 19 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -24,6 +27,21 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
   const anon = useAnon();   // 🕶️ מצב אנונימי — לרענון האפקט כשמשתנה
+
+  // 🌍 קלט אנגלית → מנוע התעתוק (Language Router lane). המילון-הנלמד (verified) גובר על האלגוריתם.
+  const [lexicon, setLexicon] = useState(() => new Map());
+  useEffect(() => { getAliasLexicon().then(rows => setLexicon(buildLexicon(rows))).catch(() => {}); }, []);
+  const inputType = classifyInput(word);
+  const translit = useMemo(() => (inputType === "english" && word ? transliterate(word, { lexicon }) : null), [word, inputType, lexicon]);
+  const translitBest = translit && translit.candidates[0] ? translit.candidates[0] : null;
+  // רישום החיפוש-האנגלי (למונה ה-hits ולמידת-הקהילה) — פעם לכל מילה.
+  useEffect(() => {
+    if (inputType === "english" && word && translitBest) {
+      logTranslitQuery(word, "en", "english", translitBest.hebrew, translitBest.confidence,
+        translit.source === "lexicon" ? "Learned Dictionary" : "AI Transliteration");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [word]);
   const res = useMemo(() => ALL.map(m => ({ key: m.key, sub: m.sub || m.soul, value: m.fn(word) })), [word]);
   const ragilVal = res.find(r => r.key === "רגיל")?.value || 0;
   const [counts, setCounts] = useState({});
@@ -193,6 +211,23 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
         {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
+
+        {/* 🌍 עזר-אנגלית: תעתוק פונטי + גימטריה + משוב אוניברסלי «מצאנו את מה שחיפשת?» (בונה את מנוע-השפה עם הקהילה) */}
+        {translitBest && (
+          <div style={{ marginTop: 11, background: "#f3f7ff", border: "1px solid #c9d9f5", borderRadius: 12, padding: "10px 12px", textAlign: "right" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: F.heading, fontSize: 12, fontWeight: 800, color: "#2c5fb3" }}>🇺🇸 אנגלית</span>
+              <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>
+                «{word}» → <b>{translitBest.hebrew}</b>{" "}
+                <span style={{ color: "#5a6b85", fontSize: 12 }}>({translitBest.method === "translation" ? "תרגום" : "תעתוק"}{translit.source === "lexicon" ? " · מאומת" : ""})</span>
+                {" = "}<b style={{ fontFamily: F.mono, color: "#2c5fb3" }}>{valOf("רגיל", translitBest.hebrew)}</b>
+              </span>
+              <button onClick={() => setQ(translitBest.hebrew)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px", minHeight: 32 }}>חשב את «{translitBest.hebrew}» ←</button>
+            </div>
+            <FoundItFeedback context="translit" query={word} inputNorm={normEn(word)}
+              options={translit.candidates.slice(1, 3).map(c => ({ label: c.hebrew, hebrew: c.hebrew }))} tone="light" />
+          </div>
+        )}
 
         {/* 🕶️ חיפוש אנונימי — לא נשמר בהיסטוריה/בקיר (מצב ציבורי בלבד) */}
         {!research && (
