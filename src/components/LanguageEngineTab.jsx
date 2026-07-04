@@ -34,6 +34,9 @@ const fmt = d => d ? new Date(d).toLocaleString("he-IL", { day: "numeric", month
 const REC = { approve: { e: "✅", t: "מומלץ לאשר", c: "#7bbf7b" }, review: { e: "👁", t: "כדאי מבט", c: "#e0b34a" }, reject: { e: "🚫", t: "מומלץ לדחות", c: "#d98a92" } };
 const SCOPES = [["pending", "⏳ ממתינות"], ["verified", "✅ מאומתות"], ["rejected", "✖ נדחו"], ["all", "🌐 הכל"]];
 function WordsConsole({ srcLabel }) {
+  const [mode, setMode] = useState("he");           // he = עברית (gematria_words) · intl = שפות (word_aliases)
+  const [intl, setIntl] = useState(null);
+  const [intlBusy, setIntlBusy] = useState(null);
   const [scope, setScope] = useState("pending");
   const [q, setQ] = useState("");
   const [qLive, setQLive] = useState("");
@@ -52,6 +55,21 @@ function WordsConsole({ srcLabel }) {
     setData(d); setLoading(false);
   }, [scope, q, offset]);
   useEffect(() => { load(); }, [load]);
+  // 🌍 מילים בשפות אחרות — word_aliases (lang≠he). אישור/הסתרה/מחיקה דרך admin_manage_alias.
+  const loadIntl = useCallback(async () => {
+    const { data } = await supabase.from("word_aliases")
+      .select("id, alias, lang, method, verified, source, created_at, gematria_words(phrase, ragil)")
+      .neq("lang", "he").order("created_at", { ascending: false }).limit(300);
+    setIntl(data || []);
+  }, []);
+  useEffect(() => { if (mode === "intl") loadIntl(); }, [mode, loadIntl]);
+  const intlAction = async (id, action) => {
+    if (action === "delete" && !confirm("למחוק לצמיתות?")) return;
+    setIntlBusy(id);
+    try { await supabase.rpc("admin_manage_alias", { p_id: id, p_action: action }); await loadIntl(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setIntlBusy(null); }
+  };
   const loadConv = useCallback(async (value) => {
     setConvLoading(true);
     const d = await adminValueConvergence(value);
@@ -80,7 +98,41 @@ function WordsConsole({ srcLabel }) {
   const forbidden = data?.error === "forbidden";
   return (
     <div>
-      <H sub="כל המילים בכל המאגר — עדשה אחת. ממתין/מאומת/נדחה/הכל · חיפוש · דפדוף אחורה ללא סוף. לכל מילה: חיבור-לישות + המלצת-AI + פעולה. עוקף הרשאות כדי לראות גם מוסתרות.">🖥️ קונסולת המילים{total ? ` · ${total.toLocaleString("he")}` : ""}</H>
+      <H sub="כל המילים בכל המאגר — עדשה אחת. ממתין/מאומת/נדחה/הכל · חיפוש · דפדוף אחורה ללא סוף. לכל מילה: חיבור-לישות + המלצת-AI + פעולה. עוקף הרשאות כדי לראות גם מוסתרות.">🖥️ קונסולת המילים{mode === "he" && total ? ` · ${total.toLocaleString("he")}` : ""}</H>
+      {/* בורר-שפה: עברית (gematria_words) / שפות אחרות (word_aliases) */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        {[["he", "🇮🇱 עברית"], ["intl", "🌍 שפות אחרות"]].map(([k, l]) => (
+          <button key={k} onClick={() => setMode(k)} style={{ ...btn(mode === k ? "rgba(212,175,55,.25)" : "transparent", mode === k ? C.goldBright : C.muted), border: `1px solid ${mode === k ? C.borderGold : C.border}`, fontSize: 12.5, padding: "5px 14px" }}>{l}</button>
+        ))}
+      </div>
+      {mode === "intl" ? (
+        <div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 10 }}>מילים בשפות אחרות (תעתוק/תרגום → עברית). ✅ מאמת · 🙈 מסתיר · 🗑 מוחק.{intl ? ` · ${intl.length}` : ""}</div>
+          {!intl ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+            : !intl.length ? <div style={{ ...card, color: C.muted }}>אין עדיין מילים בשפות אחרות. ברגע שיתווספו (אנגלית/רוסית/…) הן יופיעו כאן לאישור.</div>
+            : <div style={{ display: "grid", gap: 8 }}>
+              {intl.map(a => (
+                <div key={a.id} style={{ ...card, padding: "11px 13px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                    <span style={{ fontSize: 15 }}>{LANG_FLAG[a.lang] || "🌍"}</span>
+                    <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 16, fontWeight: 700, direction: "ltr" }}>{a.alias}</span>
+                    <span style={{ color: C.muted, fontSize: 13 }}>→</span>
+                    <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 15 }}>{a.gematria_words?.phrase || "—"}</span>
+                    {a.gematria_words?.ragil != null && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12 }}>= {a.gematria_words.ragil}</span>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{METHOD_HE[a.method] || a.method || "—"} · {srcLabel(a.source)}</span>
+                    <span style={{ color: a.verified ? "#7bbf7b" : "#e0b34a", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{a.verified ? "✅ מאומת" : "⏳ ממתין"}</span>
+                    <span style={{ flex: 1 }} />
+                    {!a.verified && <button disabled={intlBusy === a.id} onClick={() => intlAction(a.id, "verify")} style={btn("#2f8f4e")}>✅ אשר</button>}
+                    {a.verified && <button disabled={intlBusy === a.id} onClick={() => intlAction(a.id, "hide")} style={btn("transparent", C.muted)}>🙈 הסתר</button>}
+                    <button disabled={intlBusy === a.id} onClick={() => intlAction(a.id, "delete")} style={btn("transparent", "#d98a92")}>🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>}
+        </div>
+      ) : (<>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
         {SCOPES.map(([k, l]) => (
           <button key={k} onClick={() => { setScope(k); setOffset(0); }} style={{ ...btn(scope === k ? "rgba(212,175,55,.2)" : "transparent", scope === k ? C.goldBright : C.muted), border: `1px solid ${scope === k ? C.borderGold : C.border}` }}>{l}</button>
@@ -155,6 +207,7 @@ function WordsConsole({ srcLabel }) {
           <button disabled={offset + PAGE >= total} onClick={() => setOffset(offset + PAGE)} style={{ ...btn(offset + PAGE >= total ? "transparent" : "rgba(212,175,55,.15)", offset + PAGE >= total ? C.muted : C.goldBright), border: `1px solid ${C.border}`, opacity: offset + PAGE >= total ? 0.5 : 1 }}>עוד ›</button>
         </div>
       )}
+      </>)}
     </div>
   );
 }
