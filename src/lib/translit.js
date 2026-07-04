@@ -11,6 +11,24 @@
 
 export const normEn = s => String(s || "").toLowerCase().replace(/[^a-z' ]/g, "").replace(/\s+/g, " ").trim();
 
+// 🔁 עברית → לטינית (פונטי) — הצעת-פתיחה לתעתוק אנגלי. לא מושלם (עברית בלי ניקוד),
+// אבל נותן בסיס שהאדמין עורך. משמש למילוי-מהיר של מאגר-האנגלית מתוך מילים עבריות.
+const HE2LAT = { "א": "a", "ב": "b", "ג": "g", "ד": "d", "ה": "h", "ו": "o", "ז": "z", "ח": "ch", "ט": "t", "י": "i", "כ": "k", "ך": "k", "ל": "l", "מ": "m", "ם": "m", "נ": "n", "ן": "n", "ס": "s", "ע": "a", "פ": "p", "ף": "f", "צ": "ts", "ץ": "ts", "ק": "k", "ר": "r", "ש": "sh", "ת": "t" };
+const HE_VOWELISH = new Set(["א", "ה", "ו", "י", "ע"]);   // אותיות שמתפקדות כתנועה — לא מוסיפים 'a' לפניהן
+export function hebrewToLatin(word) {
+  const chars = [...String(word || "")].filter(c => HE2LAT[c] || c === " ");
+  let out = "";
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (c === " ") { out += " "; continue; }
+    out += HE2LAT[c];
+    // הוספת תנועה 'a' בין שני עיצורים סמוכים (heuristic) — «שלום»→«shalom»
+    const next = chars[i + 1];
+    if (next && next !== " " && !HE_VOWELISH.has(c) && !HE_VOWELISH.has(next) && HE2LAT[next]) out += "a";
+  }
+  return out.replace(/\s+/g, " ").trim();
+}
+
 // דיגרפים (צירופי-אותיות) — נבדקים לפי אורך יורד. [en, he]
 const DIGRAPHS = [
   ["tch", "צ'"], ["sch", "ש"], ["igh", "יי"],

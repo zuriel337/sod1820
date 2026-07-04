@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias } from "../lib/supabase.js";
+import { hebrewToLatin } from "../lib/translit.js";
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
 // 🌍 מנוע השפה — מרכז-בקרה מלא: כל המילים החדשות בכל השפות, מקור מפורט, ואישור/הסתרה/מחיקה.
@@ -194,6 +195,10 @@ function WordsConsole({ srcLabel }) {
   const [convVal, setConvVal] = useState(null);   // 🎯 ערך-ההתכנסות הפתוח כרגע
   const [conv, setConv] = useState(null);
   const [convLoading, setConvLoading] = useState(false);
+  const [enId, setEnId] = useState(null);         // 🌍 המילה שפותחים לה טופס-אנגלית
+  const [enText, setEnText] = useState("");
+  const [enMsg, setEnMsg] = useState("");
+  const [enBusy, setEnBusy] = useState(false);
   const PAGE = 40;
   useEffect(() => { const t = setTimeout(() => { setQ(qLive); setOffset(0); }, 400); return () => clearTimeout(t); }, [qLive]);
   const load = useCallback(async () => {
@@ -225,6 +230,17 @@ function WordsConsole({ srcLabel }) {
   const toggleConv = (value) => {
     if (convVal === value) { setConvVal(null); setConv(null); return; }
     setConvVal(value); setConv(null); loadConv(value);
+  };
+  const openEn = (w) => {
+    if (enId === w.id) { setEnId(null); return; }
+    setEnId(w.id); setEnText(hebrewToLatin(w.phrase)); setEnMsg("");
+  };
+  const saveEn = async (phrase) => {
+    if (!enText.trim()) return;
+    setEnBusy(true); setEnMsg("");
+    try { await addEnglishAlias({ phrase, alias: enText.trim() }); setEnMsg("✓ נוסף למאגר האנגלית"); setTimeout(() => { setEnId(null); setEnMsg(""); }, 1200); }
+    catch (e) { setEnMsg("שגיאה: " + (e.message || e)); }
+    finally { setEnBusy(false); }
   };
   const doAction = async (id, action) => {
     if (action === "delete" && !confirm("למחוק לצמיתות?")) return;
@@ -336,12 +352,25 @@ function WordsConsole({ srcLabel }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span title={w.rec?.why} style={{ flex: "1 1 auto", minWidth: 140, color: rec.c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{rec.e} {rec.t} — <span style={{ color: C.muted, fontWeight: 500 }}>{w.rec?.why}</span></span>
                   <div style={{ display: "flex", gap: 5 }}>
+                    <button onClick={() => openEn(w)} style={btn(enId === w.id ? "rgba(94,200,255,.2)" : "transparent", "#5ec8ff")}>🌍 EN</button>
                     {!w.is_verified && <button disabled={busy === w.id} onClick={() => doAction(w.id, "approve")} style={btn("#2f8f4e")}>✅ פרסם</button>}
                     {w.is_verified && <button disabled={busy === w.id} onClick={() => doAction(w.id, "reject")} style={btn("transparent", C.muted)}>✖ הסתר</button>}
                     {!w.is_verified && w.state !== "rejected_by_admin" && <button disabled={busy === w.id} onClick={() => doAction(w.id, "reject")} style={btn("transparent", C.muted)}>✖ דחה</button>}
                     <button disabled={busy === w.id} onClick={() => doAction(w.id, "delete")} style={btn("transparent", "#d98a92")}>🗑</button>
                   </div>
                 </div>
+                {/* 🌍 הוספת תרגום/תעתוק אנגלי — ממלא את מאגר-האנגלית מתוך המילה העברית */}
+                {enId === w.id && (
+                  <div style={{ marginTop: 9, padding: "10px 11px", borderRadius: 10, background: "rgba(94,200,255,.07)", border: "1px solid rgba(94,200,255,.3)" }}>
+                    <div style={{ color: "#9bd6ff", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 7 }}>🌍 אנגלית ל«{w.phrase}» (ערך {w.ragil}) — הצעה אוטומטית, ערוך לפי הצורך:</div>
+                    <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                      <input value={enText} onChange={e => setEnText(e.target.value)} dir="ltr" placeholder="english" style={{ flex: "1 1 160px", minWidth: 140, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "8px 11px", outline: "none" }} />
+                      <button disabled={enBusy} onClick={() => saveEn(w.phrase)} style={btn("#2f6df6")}>{enBusy ? "שומר…" : "💾 הוסף למאגר האנגלית"}</button>
+                    </div>
+                    {enMsg && <div style={{ color: enMsg.startsWith("✓") ? "#7bbf7b" : "#d98a92", fontFamily: F.body, fontSize: 12, marginTop: 6 }}>{enMsg}</div>}
+                    <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 6 }}>נשמר כ-alias (lang=en, תעתוק) — הערך העברי נשמר. יופיע בקונסולה → «🌍 שפות אחרות».</div>
+                  </div>
+                )}
               </div>
             );
           })}

@@ -247,6 +247,15 @@ export async function sendNewsletter({ subject, html, source = null, testEmail =
   if (error) throw error;
   return data;
 }
+// 🌍 הוספת תרגום/תעתוק אנגלי למילה עברית — ממלא את מאגר-האנגלית (word_aliases).
+export async function addEnglishAlias({ phrase, alias, method = 'transliteration', verified = true }) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('add_word_alias', {
+    p_phrase: phrase, p_alias: alias, p_lang: 'en', p_type: method, p_source: 'admin', p_method: method, p_confidence: 1, p_verified: verified,
+  });
+  if (error) throw error;
+  return data;
+}
 // 🎯 «להיכנס להתכנסות» — כל הביטויים באותו ערך-רגיל (מאומתים + ממתינים), לאדמין (עוקף RLS).
 export async function adminValueConvergence(value) {
   if (!supabase) return null;
