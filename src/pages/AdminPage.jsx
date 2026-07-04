@@ -61,6 +61,19 @@ const TABS = [
   { key: "broadcast", label: "📡 שדר לטיקר" },
 ];
 
+// 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
+const GROUPS = [
+  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "heatmap", "popularity", "viral", "searches", "meta"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["journeys"] },
+  { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
+  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
+  { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
+  { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
+  { key: "tools",     label: "🔧 כלים",     subs: ["research", "scanner", "utm", "push", "worklog"] },
+];
+const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
+const GROUP_OF = Object.fromEntries(GROUPS.flatMap(g => g.subs.map(s => [s, g.key])));
+
 const fmtDate = d => d ? new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
 const card = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "18px 20px", minWidth: 0, maxWidth: "100%" };
 const th = { color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textAlign: "right", padding: "9px 12px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" };
@@ -88,7 +101,10 @@ function downloadCsv(filename, rows) {
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const [tab, setTab] = useState("stats");
+  const [group, setGroup] = useState("analytics");
   const mobile = useIsMobile();
+  const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
+  const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };
 
   if (loading) return <Center>טוען…</Center>;
   if (!user) return <Center>נדרשת התחברות. <Link to="/login" style={{ color: C.goldBright }}>כניסה →</Link></Center>;
@@ -101,17 +117,31 @@ export default function AdminPage() {
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>⚙️ ניהול סוד 1820</h1>
       </div>
 
-      {/* טאבים — במובייל גלילה אופקית במקום שבירת שורות צפופה */}
-      <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 8, marginBottom: 26, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
-        {TABS.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)} style={{
-            cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 13 : 14, fontWeight: 700, padding: mobile ? "8px 14px" : "9px 18px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
-            border: `1px solid ${tab === t.key ? C.gold : C.border}`,
-            background: tab === t.key ? "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(8,5,2,0.4))" : "transparent",
-            color: tab === t.key ? C.goldBright : C.muted,
-          }}>{t.label}</button>
+      {/* טאבי-על (7) — 🌳 עץ אחד: כל קבוצה פותחת שורת תת-טאבים */}
+      <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 8, marginBottom: 12, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
+        {GROUPS.map(g => (
+          <button key={g.key} onClick={() => selectGroup(g)} style={{
+            cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 13.5 : 15, fontWeight: 800, padding: mobile ? "9px 15px" : "10px 20px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
+            border: `1px solid ${group === g.key ? C.gold : C.border}`,
+            background: group === g.key ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(8,5,2,0.5))" : "transparent",
+            color: group === g.key ? C.goldBright : C.muted,
+          }}>{g.label}</button>
         ))}
       </div>
+      {/* תת-טאבים — רק אם לקבוצה יש יותר מאחד */}
+      {activeGroup.subs.length > 1 && (
+        <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 7, marginBottom: 26, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
+          {activeGroup.subs.map(s => (
+            <button key={s} onClick={() => setTab(s)} style={{
+              cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 12.5 : 13.5, fontWeight: 700, padding: mobile ? "6px 12px" : "7px 15px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
+              border: `1px solid ${tab === s ? C.borderGold : C.border}`,
+              background: tab === s ? "rgba(212,175,55,0.14)" : "transparent",
+              color: tab === s ? C.goldBright : C.muted,
+            }}>{TAB_LABEL[s] || s}</button>
+          ))}
+        </div>
+      )}
+      {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
       {tab === "stats" && <StatsTab />}
       {tab === "journeys" && <JourneysTab />}

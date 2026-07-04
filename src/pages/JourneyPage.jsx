@@ -142,6 +142,7 @@ export default function JourneyPage() {
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
+    logView("journey_step", String(np.filter(p => !p.leap).length));  // 📊 עומק-צעד — למדד-הנטישה (איפה עוזבים)
     if (np.filter(p => !p.leap).length >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)

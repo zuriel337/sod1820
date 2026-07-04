@@ -131,17 +131,6 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
       if (hintMsg) out.push(hintMsg);
-      // 📝 פוסט אחרון (בקשת צוריאל — חידושי האתר זורמים אוטומטית, בלי טיפול ידני)
-      try {
-        const latest = await getPostsFromSupabase({ limit: 1 });
-        const p0 = (latest || [])[0];
-        if (p0?.title) out.push(`📝 פוסט אחרון: ${stripHtml(p0.title).trim().slice(0, 70)}`);
-      } catch { /* ignore */ }
-      // ✨ «מה הוספנו לאתר» — changelog אוטומטי (site_updates)
-      try {
-        const ups = await getSiteUpdates(4);
-        for (const u of ups) if (u.title) out.push(`${u.icon || "✨"} ${u.title}`);
-      } catch { /* ignore */ }
       // 📜 פסוק גאולה — מוצג *במידה*, לא אינסוף. מכסה אישית: עד VERSE_DAILY_CAP ליום לכל מבקר.
       // הפסוק מתחלף יומית (dayIdx) ומוסט לפי כמה כבר ראה היום → 2 פסוקים שונים ביום, לא חזרה.
       const seen = versesSeenToday();
@@ -190,18 +179,32 @@ function useLiveTicker() {
         if (v >= 2500) out.push(`👣 ${v.toLocaleString("he-IL")} כניסות היום`);
       } catch { /* ignore */ }
 
-      // 🚫 בלי כפילויות (בקשת צוריאל) — כל הודעה מופיעה פעם אחת בלבד בסבב.
-      const uniq = [...new Set(out.filter(Boolean))];
-      // 📡 «עדכון חי» — מצביע קומפקטי בלבד (הפרדת תפקידים, החלטת צוריאל 2.7.2026):
-      // התוכן המלא חי בטיקרים הממותגים (בית/צ'אט/מרכז השידורים) — כאן רק כותרת + «← לצפייה».
-      // כך אין כפילות, וכל מי שנוחת בפוסט ישן רואה שיש חדשות חיות ונכנס פנימה.
+      // 🌳 עץ אחד — הסדר הסופי: החדש *תמיד* ראשון. (בקשת צוריאל 4.7: חידושי-האתר בהתחלה, לא בסוף.)
+      // fresh (חידושי-אתר + פוסט אחרון) → lives (עדכונים חיים) → out (התוכן המסתובב). בלי כפילויות.
+      const fresh = [];
       try {
-        const lives = await getChannelUpdates(6);
-        for (const u of (lives || []).reverse())
-          uniq.unshift({ live: true, id: u.id, text: u.text, channel: u.channel || "main",
-            urgent: !!u.is_urgent, credit: u.credit || null });
+        const ups = await getSiteUpdates(4);
+        for (const u of ups) if (u.title) fresh.push(`${u.icon || "✨"} ${u.title}`);
       } catch { /* ignore */ }
-      if (live) setMsgs(uniq);
+      try {
+        const latest = await getPostsFromSupabase({ limit: 1 });
+        const p0 = (latest || [])[0];
+        if (p0?.title) fresh.push(`📝 פוסט אחרון: ${stripHtml(p0.title).trim().slice(0, 70)}`);
+      } catch { /* ignore */ }
+      let lives = [];
+      try {
+        // 📡 «עדכון חי» — מצביע קומפקטי (הפרדת תפקידים 2.7): כאן כותרת + «← לצפייה», התוכן המלא בטיקרים הממותגים.
+        const ch = await getChannelUpdates(6);
+        lives = (ch || []).map(u => ({ live: true, id: u.id, text: u.text, channel: u.channel || "main",
+          urgent: !!u.is_urgent, credit: u.credit || null }));
+      } catch { /* ignore */ }
+      const seenKeys = new Set();
+      const final = [];
+      const add = it => { const k = typeof it === "string" ? it : it.text; if (k && !seenKeys.has(k)) { seenKeys.add(k); final.push(it); } };
+      fresh.forEach(add);           // 🌳 החדש קודם — תמיד בראש
+      lives.forEach(add);           // עדכונים חיים
+      out.forEach(add);             // תוכן מסתובב (רמז/חידושים/מספר-היום/פסוקים…)
+      if (live) setMsgs(final);
     }
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 60000);
