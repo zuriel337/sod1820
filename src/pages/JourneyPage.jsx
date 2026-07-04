@@ -345,17 +345,17 @@ export default function JourneyPage() {
           {/* ✉️ שער-הרשמה ראשי — גלוי לכל מי שסיים את המסע (לא חבוי במסר-העומק). כאן נרשמים המאות. */}
           {root != null && !(verified || emailGiven) && (
             <div style={{ maxWidth: 520, margin: "6px auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}22, ${P.cardSoft})`, border: `1.5px solid ${P.accentText}`, borderRadius: 18, padding: "18px 18px", boxShadow: `0 8px 30px ${P.glow}` }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>✉️</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>רוצים להמשיך? קבלו את הגילויים הבאים במייל</div>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>🎁</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>סיימתם את המסע של {root}</div>
               <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, maxWidth: 410, margin: "0 auto 14px" }}>
-                השאירו מייל ונשלח לכם עוד רמזים על {root}, מסעות חדשים ומספרים חמים — בלי ספאם, אפשר לבטל בכל רגע.
+                רוצים שכשיתגלו רמזים חדשים ל־{root} ולמספרים הקשורים אליו — נעדכן אתכם? השאירו מייל. בלי ספאם, אפשר לבטל בכל רגע.
               </div>
               <form onSubmit={submitJourneySignup} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
                   style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
                 <button type="submit" disabled={gateBusy}
                   style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
-                  {gateBusy ? "שולח…" : "✦ הרשמו"}
+                  {gateBusy ? "רושם…" : "🔔 עדכנו אותי"}
                 </button>
               </form>
               {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
