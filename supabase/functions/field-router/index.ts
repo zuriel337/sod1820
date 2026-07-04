@@ -9,6 +9,18 @@ const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const DAILY_CAP = Number(Deno.env.get("ROUTER_DAILY_CAP") || "20");
 
+// 🪙 רישום טוקנים — fire-and-forget ל-ai_token_log.
+async function logTokens(kind: string, uid: string | null, usage: { input_tokens?: number; output_tokens?: number } | undefined) {
+  try {
+    if (!SUPABASE_URL || !SERVICE_KEY || !usage) return;
+    await fetch(`${SUPABASE_URL}/rest/v1/ai_token_log`, {
+      method: "POST",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ source: "router", kind, model: MODEL, input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0, user_id: uid }),
+    });
+  } catch { /* לא חוסם */ }
+}
+
 // 🔐 GATE — מאמת משתמש מחובר + rate-limit. ללא גישה → fallback בטוח (בלי קריאה ל-Claude, בלי עלות).
 async function gate(req: Request): Promise<{ ok: true; uid: string } | { ok: false; reason: string }> {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
@@ -70,7 +82,7 @@ function parseJsonLoose(text: string): unknown {
   try { return JSON.parse(s); } catch { return null; }
 }
 
-async function callClaude(input: unknown, core: unknown, lens: string): Promise<unknown> {
+async function callClaude(input: unknown, core: unknown, lens: string, uid: string | null): Promise<unknown> {
   const sys =
     `אתה מנוע ב«מרכז מחקר זהות». ${LENSES[lens] || ""}\n` +
     `⚠️ מנוע הליבה כבר חישב את כל ערכי הגימטריה — הם תחת "core_values". אסור לחשב/לשנות מספרים, רק לפרש.\n` +
@@ -84,6 +96,7 @@ async function callClaude(input: unknown, core: unknown, lens: string): Promise<
   });
   if (!resp.ok) throw new Error(`anthropic ${resp.status}: ${(await resp.text()).slice(0, 160)}`);
   const data = await resp.json();
+  await logTokens(lens, uid, data?.usage);
   const raw = (data.content || []).filter((c: { type: string }) => c.type === "text").map((c: { text: string }) => c.text).join("\n");
   const out = parseJsonLoose(raw);
   if (!out) throw new Error("bad_json");
@@ -106,7 +119,7 @@ Deno.serve(async (req: Request) => {
     if (JSON.stringify(input).length > 20000) return json({ error: "input too large" }, 413);
 
     const keys = (Array.isArray(lenses) ? lenses : ["narrative"]).filter((k: string) => LENSES[k]).slice(0, 3);
-    const settled = await Promise.allSettled(keys.map((k: string) => callClaude(input, core_values, k)));
+    const settled = await Promise.allSettled(keys.map((k: string) => callClaude(input, core_values, k, g.uid)));
     const outputs = settled.map((r, i) => r.status === "fulfilled"
       ? { lens: keys[i], out: r.value }
       : { lens: keys[i], error: String((r as PromiseRejectedResult).reason).slice(0, 160) });

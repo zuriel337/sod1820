@@ -16,7 +16,7 @@ import {
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
-  getWallPrivate, getLabInsights, getJourneyFunnel,
+  getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -1865,6 +1865,7 @@ function JourneysTab() {
   const [ai, setAi] = useState(null);
   const [rw, setRw] = useState(null);
   const [funnel, setFunnel] = useState(null);
+  const [tokens, setTokens] = useState(null);
   const [err, setErr] = useState("");
   const [hours, setHours] = useState(168);
   const [days, setDays] = useState(7);  // טווח למשפך-המסע + אזור-המשתמש (7 / 30 / 90 יום)
@@ -1880,6 +1881,7 @@ function JourneysTab() {
     let live = true;
     getJourneyFunnel(days).then(d => live && setFunnel(d || null)).catch(() => live && setFunnel(null));
     getResearchUsage(days * 24).then(d => live && setRw(d || null)).catch(() => live && setRw(null));
+    getAiTokenUsage(days).then(d => live && setTokens(d || null)).catch(() => live && setTokens(null));
     return () => { live = false; };
   }, [days]);
   // תוויות ידידותיות לכל כפתור-AI (kind → שם + היכן)
@@ -2043,6 +2045,50 @@ function JourneysTab() {
           </div>
         )}
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, marginTop: 10, fontStyle: "italic" }}>מספרים = מבקרים ייחודיים. שמירה מקומית (בלי לוגין) נספרת גם — עץ אחד, Local-first.</div>
+      </div>
+
+      {/* 🪙 מד-טוקנים — כמה טוקנים ועלות ($) עלו קריאות ה-AI (מסע/ניתוח/מחקר). מקור: ai_token_log מ-Anthropic usage. */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🪙 מד-טוקנים ועלות AI · {rangeLbl}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כמה טוקנים באמת נצרכו וכמה זה עלה (הערכה ב-$). נמדד מהתגובה של Anthropic — מסע/ניתוח/מחקר. עלות = haiku $1/$5 · sonnet $3/$15 ל-1M.</div>
+        {!tokens ? <div style={{ color: C.muted }}>טוען…</div> : (() => {
+          const t = tokens.total || {};
+          const fmtTok = n => { n = Number(n || 0); return n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n); };
+          const SRC = { journey: "🧭 מסע", analyze: "🧠 ניתוח (כלים)", router: "🔬 מרכז-מחקר" };
+          if (!Number(t.calls)) return <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>עדיין אין קריאות-AI מתועדות בטווח (המדידה החלה כעת — יצטבר עם השימוש).</div>;
+          return (
+            <>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+                {[["💰 עלות משוערת", "$" + Number(t.cost_usd || 0).toLocaleString("en", { maximumFractionDigits: 2 })], ["🪙 סה״כ טוקנים", fmtTok(t.total_tokens)], ["⬆️ קלט", fmtTok(t.input_tokens)], ["⬇️ פלט", fmtTok(t.output_tokens)], ["🤖 קריאות", Number(t.calls || 0).toLocaleString("he")]].map(([lbl, v]) => (
+                  <div key={lbl} style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+                    <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{v}</div>
+                    <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+                  </div>
+                ))}
+              </div>
+              {(tokens.by_source || []).length > 0 && (() => {
+                const max = Math.max(...tokens.by_source.map(s => Number(s.total_tokens) || 0), 1);
+                return (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {tokens.by_source.map((s, i) => (
+                      <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                          <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, flex: 1 }}>{SRC[s.source] || s.source}</span>
+                          <span style={{ color: "#7fd18a", fontFamily: F.mono, fontSize: 13, fontWeight: 800 }}>${Number(s.cost_usd || 0).toLocaleString("en", { maximumFractionDigits: 2 })}</span>
+                          <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{fmtTok(s.total_tokens)}</span>
+                          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11 }}>· {Number(s.calls).toLocaleString("he")} קר׳</span>
+                        </div>
+                        <div style={{ height: 6, background: "rgba(212,175,55,0.12)", borderRadius: 999, overflow: "hidden" }}>
+                          <div style={{ width: `${Math.round((Number(s.total_tokens) / max) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#7fd18a,#d4af37)" }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </>
+          );
+        })()}
       </div>
 
       {/* 🤖 שימוש ב-AI לפי כפתור — על איזה כפתורי-AI לחצו הכי הרבה (30 יום). כל שורה = כפתור. */}

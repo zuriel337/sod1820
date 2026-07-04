@@ -195,6 +195,16 @@ export async function getJourneyFunnel(days = 7) {
     aiMsg: c('journey_ai_message'), saved: c('journey_save'), steps, savesCount, recentSaves,
   };
 }
+// 🪙 מד-טוקנים: כמה טוקנים ועלות ($) עלו קריאות ה-AI (מסע/ניתוח/מחקר) בטווח ימים.
+// מקור: ai_token_log (נכתב בצד-שרת מ-data.usage של Anthropic). RPC admin_ai_tokens מסכם + מתמחר.
+export async function getAiTokenUsage(days = 7) {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc('admin_ai_tokens', { p_days: days });
+    if (error) return null;
+    return data || null;
+  } catch { return null; }
+}
 // ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
 export async function getSiteUpdates(limit = 6) {
   if (!supabase) return [];
