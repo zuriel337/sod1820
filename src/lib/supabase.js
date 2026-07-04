@@ -135,17 +135,23 @@ export async function getGematriaByValues(values) {
 // ✦ מילים חדשות מהקהילה — N הביטויים האחרונים שנוספו למאגר (מאומתים), עם זמן.
 export async function getRecentCommunityWords(limit = 4) {
   if (!supabase) return [];
-  const { data } = await supabase
-    .from('gematria_words')
-    .select('phrase, ragil, created_at')
-    .eq('is_verified', true)
-    .not('created_at', 'is', null)
-    .order('created_at', { ascending: false, nullsFirst: false })
-    .limit(limit * 3);
-  // סינון רשומות-זבל לתצוגה: ביטוי שהוא מספר טהור או ערך 0/חסר (למשל «358 = 0») לא מילה אמיתית
-  return (data ?? [])
-    .filter(r => r.phrase && !/^[\d\s.,-]+$/.test(r.phrase.trim()) && r.ragil > 0)
-    .slice(0, limit);
+  // «נוסף למאגר» = הפך לגלוי. מילה שאושרה/נחשפה עכשיו (visibility_changed_at) קופצת לראש —
+  // גם אם ה-created_at שלה ישן. מושכים לפי שני הצירים וממזגים לפי «רגע-החשיפה» האפקטיבי.
+  const clean = arr => (arr ?? []).filter(r => r.phrase && !/^[\d\s.,-]+$/.test(r.phrase.trim()) && r.ragil > 0);
+  const sel = 'phrase, ragil, created_at, visibility_changed_at';
+  const [byCreated, byVis] = await Promise.all([
+    supabase.from('gematria_words').select(sel).eq('is_verified', true)
+      .not('created_at', 'is', null).order('created_at', { ascending: false, nullsFirst: false }).limit(limit * 3),
+    supabase.from('gematria_words').select(sel).eq('is_verified', true)
+      .not('visibility_changed_at', 'is', null).order('visibility_changed_at', { ascending: false, nullsFirst: false }).limit(limit * 3),
+  ]);
+  const seen = new Set(), merged = [];
+  for (const r of [...clean(byCreated.data), ...clean(byVis.data)]) {
+    if (seen.has(r.phrase)) continue; seen.add(r.phrase);
+    const eff = Math.max(new Date(r.created_at || 0).getTime(), new Date(r.visibility_changed_at || 0).getTime());
+    merged.push({ ...r, created_at: new Date(eff).toISOString() });   // «נוסף» = רגע-החשיפה האפקטיבי
+  }
+  return merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
 }
 
 // 📡 שידורים חיים (channel_updates) — «עדכון חי» בטיקר + כרטיס בעמוד הבית.

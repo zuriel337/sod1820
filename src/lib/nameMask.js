@@ -108,8 +108,8 @@ export const maskGibberish = t => isReadable(t) ? t : GIB;
 //        שם פרטי + משפחה → רק השם הפרטי + כוכביות. שם בודד → 2 אותיות. אדמין → ללא מסכה.
 //        ג'יבריש → ★★★ לכולם (כולל אדמין) — רעש, לא פרטיות.
 export function maskTerm(term, isAdmin) {
+  if (isAdmin) return term;   // 👑 אדמין רואה הכל — כולל ג'יבריש (בקשת צוריאל: «לראות הכל»)
   if (!isReadable(term)) return GIB;
-  if (isAdmin) return term;
   if (!looksLikeName(term)) return term;
   const words = String(term).trim().split(/\s+/);
   if (benBatIdx(words) >= 0) return head2(words[0]);   // פלוני בן/בת אלמוני → שם ההורה נמחק, הפרטי מוסתר
@@ -119,6 +119,7 @@ export function maskTerm(term, isAdmin) {
 
 // יעד לינק בטוח: לשם מוסתר (לא-אדמין) או לג'יבריש → לפי הערך המספרי (לא חושף את המחרוזת ב-URL).
 export function safeSearchHref(term, value, isAdmin) {
-  if (value != null && (!isReadable(term) || (!isAdmin && looksLikeName(term)))) return `/number/${value}`;
+  if (isAdmin) return `/number/${encodeURIComponent(term)}`;   // 👑 אדמין → הביטוי המלא
+  if (value != null && (!isReadable(term) || looksLikeName(term))) return `/number/${value}`;
   return `/number/${encodeURIComponent(term)}`;
 }
