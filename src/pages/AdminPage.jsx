@@ -5,6 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
+import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
@@ -52,6 +53,7 @@ const TABS = [
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
   { key: "searches", label: "🔍 חיפושי גולשים" },
+  { key: "language", label: "🌍 מנוע שפה" },
   { key: "utm",      label: "🔗 בונה קישורים" },
   { key: "push",     label: "🔔 שליחת התראה" },
   { key: "worklog",  label: "📝 יומן עבודה" },
@@ -131,6 +133,7 @@ export default function AdminPage() {
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
       {tab === "searches" && <SearchesTab />}
+      {tab === "language" && <LanguageEngineTab />}
       {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
