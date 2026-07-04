@@ -164,6 +164,11 @@ export async function getChannelUpdates(limit = 6, channel = null) {
   const { data } = await q;
   return data || [];
 }
+// 🔖 שמירת-מסע ל-DB (visitor_id + השורש + השביל) — כדי לראות בניהול מי שמר איזה מסע.
+export async function logJourneySave(visitor, { root, path = [], world = null }) {
+  if (!supabase || root == null) return;
+  try { await supabase.rpc("log_journey_save", { p_visitor: visitor || null, p_root: root, p_path: path, p_world: world }); } catch { /* ignore */ }
+}
 // ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
 export async function getSiteUpdates(limit = 6) {
   if (!supabase) return [];

@@ -33,6 +33,7 @@ export default function LanguageEngineTab() {
   const [queue, setQueue] = useState([]);
   const [aliases, setAliases] = useState([]);
   const [translit, setTranslit] = useState([]);
+  const [recent, setRecent] = useState([]);            // 🆕 נוספו לאחרונה ל-gematria_words
   const [qFilter, setQFilter] = useState("pending");   // pending|all|approved|rejected|blocked
   const [busy, setBusy] = useState(null);
   const [editing, setEditing] = useState({});
@@ -42,13 +43,15 @@ export default function LanguageEngineTab() {
     const wk = new Date(Date.now() - 7 * 864e5).toISOString();
     let q = supabase.from("word_review_queue").select("*").order("created_at", { ascending: false }).limit(150);
     if (qFilter !== "all") q = q.eq("status", qFilter);
-    const [fb, learned, sug, wrq, al] = await Promise.all([
+    const [fb, learned, sug, wrq, al, rec] = await Promise.all([
       supabase.from("feedback").select("verdict").limit(10000),
       supabase.from("word_aliases").select("id", { count: "exact", head: true }).eq("verified", true).gte("created_at", wk),
       supabase.from("translit_suggestions").select("*").eq("status", "open").order("hits", { ascending: false }).limit(25),
       q,
       supabase.from("word_aliases").select("id, alias, lang, method, layer, confidence, verified, source, created_at, gematria_words(phrase, ragil)").order("created_at", { ascending: false }).limit(120),
+      supabase.from("gematria_words").select("id, phrase, ragil, source, vip_source, created_at").order("created_at", { ascending: false }).limit(40),
     ]);
+    setRecent(rec.data || []);
     const rows = fb.data || [];
     const found = rows.filter(r => r.verdict === "found").length, notFound = rows.filter(r => r.verdict === "not_found").length;
     setStats({ asked: rows.length, found, notFound, success: found + notFound ? Math.round(found / (found + notFound) * 100) : 0, learnedWeek: learned.count || 0, aliasTotal: (al.data || []).length });
@@ -76,6 +79,26 @@ export default function LanguageEngineTab() {
         <Stat label="נלמדו השבוע" value={stats.learnedWeek} tone={C.goldBright} />
         <Stat label="ממתינות" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
       </div>
+
+      {/* ══ 🆕 נוספו לאחרונה למאגר (gematria_words) — מה שבאמת נכנס, כולל מה שרואים בבית ══ */}
+      <H sub="המילים האחרונות שנכנסו למאגר הראשי (gematria_words) — עם מקור ותאריך. זה מה שמופיע בבית ובחיפוש.">🆕 נוספו לאחרונה למאגר ({recent.length})</H>
+      {!recent.length ? <div style={{ ...card, color: C.muted }}>אין עדיין.</div>
+        : <div style={{ ...card, overflowX: "auto", padding: 0 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+            <thead><tr>{["מילה", "ערך", "מקור", "מאת", "מתי"].map((h, i) => <th key={i} style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, textAlign: "right", padding: "8px 10px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
+            <tbody>
+              {recent.map(w => (
+                <tr key={w.id}>
+                  <td style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, padding: "6px 10px" }}>{w.phrase}</td>
+                  <td style={{ color: C.muted, fontFamily: F.mono, padding: "6px 10px" }}>{w.ragil}</td>
+                  <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{srcLabel(w.source)}</td>
+                  <td style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: "6px 10px" }}>{w.vip_source || "—"}</td>
+                  <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{fmt(w.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>}
 
       {/* ══ מילים עבריות בתור-הבקרה ══ */}
       <H sub="לכל מילה: הטקסט המקורי · מה חולץ · הסיבה · סוג ✅/⚠️/❌ · דגלי-בטיחות · מילים-דומות · מקור · hits · איכות · ביטחון.">🛡️ מילים בתור-הבקרה</H>

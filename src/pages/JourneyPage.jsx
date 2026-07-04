@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail, logJourneySave } from "../lib/supabase.js";
+import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
 import { trackSubscribe } from "../lib/marketing.js";
@@ -272,8 +273,11 @@ export default function JourneyPage() {
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
   function saveJourney() {
     if (root == null) return;
-    addJourney({ root, path: path.filter(s => !s.leap).map(s => s.phrase), world: dWorld || null, msg: aiMsg });
+    const steps = path.filter(s => !s.leap).map(s => s.phrase);
+    addJourney({ root, path: steps, world: dWorld || null, msg: aiMsg });
     saveItem?.(entityFromNumber(root, KEY_NUMBERS[root]));
+    logJourneySave(visitorId(), { root, path: steps, world: dWorld || null });  // 🔖 פרסוס ל-DB (בקשת צוריאל A)
+    logView("journey_save", String(root));
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1800);
   }
