@@ -70,6 +70,7 @@ export default function JourneyPage() {
   const [gateBusy, setGateBusy] = useState(false);
   const [gateErr, setGateErr] = useState("");
   const [emailGiven, setEmailGiven] = useState(() => { try { return localStorage.getItem("sod_jdeep_email") === "1"; } catch { return false; } });
+  const [declinedDeep, setDeclinedDeep] = useState(false); // «לא עכשיו» → שקט על המסך הזה (בלי להציק שוב)
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
@@ -233,28 +234,9 @@ export default function JourneyPage() {
   }
 
   // ✉️ שער-המייל: השארת מייל → הרשמה לרשימה (source=journey-deep) → פתיחת המסר. אמין: גם אם
-  // ההרשמה נכשלה (רשת) — התגמול לא נתקע, פותחים בכל זאת (אבל לא מסמנים שנרשם).
+  // ✉️ שער-מייל יחיד בסיום — «להמשיך את הגילוי». קודם ערך (המסר חינם), ואז בקשה אחת בלבד:
+  // מייל → פותח את מסר-העומק *וגם* רושם לרשימת אירועי-הגילוי (source=journey). כישלון רשת → פותחים בכל זאת.
   async function submitEmailGate(e) {
-    e?.preventDefault?.();
-    setGateErr("");
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setGateErr("נא להזין מייל תקין"); return; }
-    setGateBusy(true);
-    try {
-      await subscribeEmail({ email: email.trim(), source: "journey-deep" });
-      try { trackSubscribe({ source: "journey-deep" }); } catch { /* noop */ }
-      try { localStorage.setItem("sod_jdeep_email", "1"); } catch { /* noop */ }
-      setEmailGiven(true);
-    } catch {
-      setGateErr("לא הצלחנו לשמור כרגע — פותחים בכל זאת");
-    } finally {
-      setGateBusy(false);
-      unlockDeep();
-    }
-  }
-
-  // ✉️ הרשמה ראשית בסיום המסע — גלויה לכל מי שסיים (לא חבויה במסר-העומק). source=journey.
-  // זה השער העיקרי: מאות מסיימים את המסע, וכאן מבקשים מהם מייל בבירור. אמין: כישלון רשת → הודעת-שגיאה.
-  async function submitJourneySignup(e) {
     e?.preventDefault?.();
     setGateErr("");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setGateErr("נא להזין מייל תקין"); return; }
@@ -266,8 +248,11 @@ export default function JourneyPage() {
       setEmailGiven(true);
       logView("journey_signup", String(root));   // 📊 פאנל: הרשמה מהמסע
     } catch {
-      setGateErr("לא הצלחנו לשמור כרגע — נסו שוב עוד רגע");
-    } finally { setGateBusy(false); }
+      setGateErr("לא הצלחנו לשמור כרגע — פותחים בכל זאת");
+    } finally {
+      setGateBusy(false);
+      unlockDeep();
+    }
   }
 
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
@@ -347,28 +332,12 @@ export default function JourneyPage() {
             </div>
           )}
 
-          {/* ✉️ שער-הרשמה ראשי — גלוי לכל מי שסיים את המסע (לא חבוי במסר-העומק). כאן נרשמים המאות. */}
-          {root != null && !(verified || emailGiven) && (
-            <div style={{ maxWidth: 520, margin: "6px auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}22, ${P.cardSoft})`, border: `1.5px solid ${P.accentText}`, borderRadius: 18, padding: "18px 18px", boxShadow: `0 8px 30px ${P.glow}` }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>🎁</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>סיימתם את המסע של {root}</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, maxWidth: 410, margin: "0 auto 14px" }}>
-                רוצים שכשיתגלו רמזים חדשים ל־{root} ולמספרים הקשורים אליו — נעדכן אתכם? השאירו מייל. בלי ספאם, אפשר לבטל בכל רגע.
-              </div>
-              <form onSubmit={submitJourneySignup} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
-                  style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
-                <button type="submit" disabled={gateBusy}
-                  style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
-                  {gateBusy ? "רושם…" : "🔔 עדכנו אותי"}
-                </button>
-              </form>
-              {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
-            </div>
-          )}
-          {root != null && emailGiven && !verified && (
-            <div style={{ maxWidth: 520, margin: "6px auto 18px", textAlign: "center", color: P.accent, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
-              ✓ נרשמתם — נשלח לכם את הגילויים הבאים 🙏
+          {/* ✨ רגע השיא — סגירת המסע. בלי בקשת-מייל: קודם ערך, אחר-כך בקשה (החלטת צוריאל, פסיכולוגיית-הרשמה). */}
+          {root != null && (
+            <div style={{ maxWidth: 520, margin: "2px auto 16px", textAlign: "center" }}>
+              <div style={{ fontSize: 26, marginBottom: 2 }}>✨</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>המסע על {root} הושלם</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>ראיתם את שכבות המספר — הנה מה שהמנוע כתב עבורכם.</div>
             </div>
           )}
 
@@ -409,32 +378,48 @@ export default function JourneyPage() {
           {/* ✦ מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"). שכבה שנייה, אישית ועמוקה
               יותר. שער-מייל (lead magnet): נפתח תמורת הרשמה לרשימה. מנוי/מחובר קיים — נפתח ישירות.
               אחרי פתיחה — נשאר פתוח לתמיד. */}
-          {root != null && aiState === "done" && (
+          {root != null && aiState === "done" && !declinedDeep && (
             !unlocked ? (
               (verified || emailGiven) ? (
-                /* כבר מנוי/מחובר — בלי לבקש מייל שוב */
+                /* כבר מנוי/מחובר — בלי לבקש מייל שוב. בחירה פשוטה: להמשיך / לא עכשיו. */
                 <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 10 }}>יש עוד שכבה — מסר עומק על {root}</div>
-                  <button onClick={unlockDeep}
-                    style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                    ✦ פִּתחו את מסר-העומק
-                  </button>
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>🔮</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>גילינו עוד שכבה למספר {root}</div>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, maxWidth: 400, margin: "0 auto 14px" }}>מסר-עומק אישי — רמזים שלא נחשפו במסע, מספרים קשורים ותובנות חדשות.</div>
+                  <div style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center" }}>
+                    <button onClick={unlockDeep}
+                      style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                      🔓 כן, פתחו לי את ההמשך
+                    </button>
+                    <button onClick={() => setDeclinedDeep(true)}
+                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "12px 20px" }}>
+                      לא עכשיו
+                    </button>
+                  </div>
                 </div>
               ) : (
-                /* שער-מייל — מסר-העומק תמורת הרשמה לרשימה */
+                /* ✉️ ההצעה (לא דרישה) — «להמשיך את הגילוי». תעלומה קודם, בקשה אחר-כך, בחירה חופשית. */
                 <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
-                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
-                    השאירו מייל, ומסר-העומק האישי ייפתח — שכבה שנייה, עמוקה יותר, על מה שהמסע שלכם מגלה. בלי ספאם.
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>🔮</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 8 }}>גילינו עוד קשרים למספר {root} — שלא הוצגו במסע</div>
+                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 12 }}>
+                    {["מספרים קשורים", "הצלבות", "שורשים", "מסרי עומק"].map(t => (
+                      <span key={t} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "4px 12px", background: P.glow }}>{t}</span>
+                    ))}
+                  </div>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 410, margin: "0 auto 14px" }}>
+                    רוצים לפתוח את השכבה הבאה של המספר הזה? השאירו מייל ונשלח לכם רמזים שלא נחשפו, מספרים קשורים ותובנות עומק — <b style={{ color: P.accentText }}>רק כשמתגלה משהו אמיתי</b>. בלי ספאם, בכל רגע אפשר להסיר.
                   </div>
                   <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
-                      style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
+                      style={{ flex: "1 1 100%", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
                     <button type="submit" disabled={gateBusy}
                       style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 24px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
-                      {gateBusy ? "פותח…" : "✦ קבלו את מסר-העומק"}
+                      {gateBusy ? "פותח…" : "🔓 כן, פתחו לי את ההמשך"}
+                    </button>
+                    <button type="button" onClick={() => setDeclinedDeep(true)}
+                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "12px 20px", whiteSpace: "nowrap" }}>
+                      לא עכשיו
                     </button>
                   </form>
                   {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
@@ -442,6 +427,9 @@ export default function JourneyPage() {
               )
             ) : (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
+                {emailGiven && !verified && (
+                  <div style={{ textAlign: "center", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>✨ נרשמת למסע הרמזים — נעדכן רק כשמתגלה משהו אמיתי</div>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
                   <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>✦ מסר עומק</span>
                   <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>שכבה שנייה · אישית</span>
