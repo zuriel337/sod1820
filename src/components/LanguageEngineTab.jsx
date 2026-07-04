@@ -116,6 +116,66 @@ function DiscoveryPanel() {
   );
 }
 
+// 🆕 נוסף לאחרונה — רשימה אינסופית («טען עוד») של כל המאגר לפי סדר-כניסה, עם אישור/דחייה במקום.
+function RecentWordsFeed({ srcLabel }) {
+  const [rows, setRows] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(null);
+  const PAGE = 30;
+  const loadMore = useCallback(async (off) => {
+    setLoading(true);
+    const d = await adminWordsConsole({ scope: "all", limit: PAGE, offset: off });
+    setLoading(false);
+    if (!d || d.error) return;
+    setTotal(d.total || 0);
+    setRows(prev => off === 0 ? (d.rows || []) : [...prev, ...(d.rows || [])]);
+    setOffset(off + PAGE);
+  }, []);
+  useEffect(() => { loadMore(0); }, [loadMore]);
+  const act = async (id, action) => {
+    if (action === "delete" && !confirm("למחוק לצמיתות?")) return;
+    setBusy(id);
+    try {
+      await adminReviewWord(id, action);
+      setRows(prev => action === "delete" ? prev.filter(r => r.id !== id)
+        : prev.map(r => r.id === id ? { ...r, is_verified: action === "approve" } : r));
+    } catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  return (
+    <div>
+      <H sub="כל המילים שנכנסו למאגר לפי סדר-כניסה — רשימה אינסופית («טען עוד»). אשר/דחה/מחק במקום. זה מה שמופיע בבית ובחיפוש.">🆕 נוסף לאחרונה למאגר · {total.toLocaleString("he")}</H>
+      {!rows.length && loading ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+        : !rows.length ? <div style={{ ...card, color: C.muted }}>אין עדיין.</div>
+        : <div style={{ display: "grid", gap: 7 }}>
+          {rows.map(w => (
+            <div key={w.id} style={{ ...card, padding: "9px 12px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>{w.phrase}</span>
+              <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13 }}>= {w.ragil}</span>
+              <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10.5 }}>{srcLabel(w.source)}</span>
+              {w.family > 0 && <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 10.5 }}>🎯 {w.family}</span>}
+              <span style={{ color: w.is_verified ? "#7bbf7b" : "#e0b34a", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>{w.is_verified ? "✅ גלוי" : "⏳ מוסתר"}</span>
+              <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>{fmt(w.created_at)}</span>
+              <span style={{ flex: 1 }} />
+              {!w.is_verified && <button disabled={busy === w.id} onClick={() => act(w.id, "approve")} style={btn("#2f8f4e")}>✅ פרסם</button>}
+              {w.is_verified && <button disabled={busy === w.id} onClick={() => act(w.id, "reject")} style={btn("transparent", C.muted)}>✖ הסתר</button>}
+              <button disabled={busy === w.id} onClick={() => act(w.id, "delete")} style={btn("transparent", "#d98a92")}>🗑</button>
+            </div>
+          ))}
+        </div>}
+      {offset < total && (
+        <div style={{ textAlign: "center", marginTop: 12 }}>
+          <button onClick={() => loadMore(offset)} disabled={loading} style={{ ...btn("rgba(212,175,55,.15)", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 13, padding: "9px 24px" }}>
+            {loading ? "טוען…" : `טען עוד (${(total - offset).toLocaleString("he")} נותרו)`}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // 🖥️ קונסולת-מילים — עדשה אחת על כל המאגר: ממתין/מאומת/נדחה/הכל · חיפוש · דפדוף אחורה ללא סוף ·
 // לכל מילה: חיבור-לישות (משפחת-ערך) + המלצת-AI + אישור/דחייה/מחיקה. עוקף RLS דרך RPC (רואה מוסתרות).
 const REC = { approve: { e: "✅", t: "מומלץ לאשר", c: "#7bbf7b" }, review: { e: "👁", t: "כדאי מבט", c: "#e0b34a" }, reject: { e: "🚫", t: "מומלץ לדחות", c: "#d98a92" } };
@@ -304,7 +364,6 @@ export default function LanguageEngineTab() {
   const [queue, setQueue] = useState([]);
   const [aliases, setAliases] = useState([]);
   const [translit, setTranslit] = useState([]);
-  const [recent, setRecent] = useState([]);            // 🆕 נוספו לאחרונה ל-gematria_words
   const [qFilter, setQFilter] = useState("pending");   // pending|all|approved|rejected|blocked
   const [busy, setBusy] = useState(null);
   const [editing, setEditing] = useState({});
@@ -314,15 +373,13 @@ export default function LanguageEngineTab() {
     const wk = new Date(Date.now() - 7 * 864e5).toISOString();
     let q = supabase.from("word_review_queue").select("*").order("created_at", { ascending: false }).limit(150);
     if (qFilter !== "all") q = q.eq("status", qFilter);
-    const [fb, learned, sug, wrq, al, rec] = await Promise.all([
+    const [fb, learned, sug, wrq, al] = await Promise.all([
       supabase.from("feedback").select("verdict").limit(10000),
       supabase.from("word_aliases").select("id", { count: "exact", head: true }).eq("verified", true).gte("created_at", wk),
       supabase.from("translit_suggestions").select("*").eq("status", "open").order("hits", { ascending: false }).limit(25),
       q,
       supabase.from("word_aliases").select("id, alias, lang, method, layer, confidence, verified, source, created_at, gematria_words(phrase, ragil)").order("created_at", { ascending: false }).limit(120),
-      supabase.from("gematria_words").select("id, phrase, ragil, source, vip_source, created_at").order("created_at", { ascending: false }).limit(40),
     ]);
-    setRecent(rec.data || []);
     const rows = fb.data || [];
     const found = rows.filter(r => r.verdict === "found").length, notFound = rows.filter(r => r.verdict === "not_found").length;
     setStats({ asked: rows.length, found, notFound, success: found + notFound ? Math.round(found / (found + notFound) * 100) : 0, learnedWeek: learned.count || 0, aliasTotal: (al.data || []).length });
@@ -359,25 +416,8 @@ export default function LanguageEngineTab() {
       {/* ══ 🖥️ קונסולת המילים — עדשה מלאה על כל המאגר (עוקף RLS, דפדוף, המלצות, חיבור-לישות) ══ */}
       <WordsConsole srcLabel={srcLabel} />
 
-      {/* ══ 🆕 נוספו לאחרונה למאגר (gematria_words) — מה שבאמת נכנס, כולל מה שרואים בבית ══ */}
-      <H sub="המילים האחרונות שנכנסו למאגר הראשי (gematria_words) — עם מקור ותאריך. זה מה שמופיע בבית ובחיפוש.">🆕 נוספו לאחרונה למאגר ({recent.length})</H>
-      {!recent.length ? <div style={{ ...card, color: C.muted }}>אין עדיין.</div>
-        : <div style={{ ...card, overflowX: "auto", padding: 0 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
-            <thead><tr>{["מילה", "ערך", "מקור", "מאת", "מתי"].map((h, i) => <th key={i} style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, textAlign: "right", padding: "8px 10px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
-            <tbody>
-              {recent.map(w => (
-                <tr key={w.id}>
-                  <td style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, padding: "6px 10px" }}>{w.phrase}</td>
-                  <td style={{ color: C.muted, fontFamily: F.mono, padding: "6px 10px" }}>{w.ragil}</td>
-                  <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{srcLabel(w.source)}</td>
-                  <td style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: "6px 10px" }}>{w.vip_source || "—"}</td>
-                  <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}>{fmt(w.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>}
+      {/* ══ 🆕 נוסף לאחרונה למאגר — רשימה אינסופית + אישור/דחייה במקום ══ */}
+      <RecentWordsFeed srcLabel={srcLabel} />
 
       {/* ══ מילים עבריות בתור-הבקרה ══ */}
       <H sub="לכל מילה: הטקסט המקורי · מה חולץ · הסיבה · סוג ✅/⚠️/❌ · דגלי-בטיחות · מילים-דומות · מקור · hits · איכות · ביטחון.">🛡️ מילים בתור-הבקרה</H>
