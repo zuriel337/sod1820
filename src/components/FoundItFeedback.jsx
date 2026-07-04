@@ -10,7 +10,7 @@ import { recordFeedback, voteTranslit, alreadyAnswered, markAnswered } from "../
 //   inputNorm — למידת-תעתוק: מפתח מנורמל להצבעה (confirm/reject/alt). אם null → משוב בלבד.
 //   options   — [{label, hebrew}] להצגה ב-2B (אופציונלי)
 //   tone      — 'light' (ברירת-מחדל, סביבת-מחקר) | 'dark' (דף-מספר זהב)
-export default function FoundItFeedback({ context, query, target = null, inputNorm = null, options = [], tone = "light" }) {
+export default function FoundItFeedback({ context, query, target = null, inputNorm = null, options = [], tone = "light", meta = {} }) {
   const key = `${context}:${(query || "").toLowerCase()}`;
   const [stage, setStage] = useState(alreadyAnswered(key) ? "done" : "ask"); // ask | why | write | thanks | done
   const [txt, setTxt] = useState("");
@@ -28,20 +28,20 @@ export default function FoundItFeedback({ context, query, target = null, inputNo
 
   const done = () => { markAnswered(key); setStage("thanks"); setTimeout(() => setStage("done"), 2600); };
 
-  const yes = () => { recordFeedback(context, "found", { query, target }); if (inputNorm) voteTranslit(inputNorm, "confirm"); done(); };
+  const yes = () => { recordFeedback(context, "found", { query, target, meta }); if (inputNorm) voteTranslit(inputNorm, "confirm"); done(); };
   const no = () => {
-    recordFeedback(context, "not_found", { query, target });
+    recordFeedback(context, "not_found", { query, target, meta });
     if (inputNorm) voteTranslit(inputNorm, "reject");
     setStage(options.length ? "why" : "write");
   };
   const pick = (opt) => {
-    recordFeedback(context, "partial", { query, target, detail: opt.hebrew || opt.label });
+    recordFeedback(context, "partial", { query, target, detail: opt.hebrew || opt.label, meta });
     if (inputNorm && opt.hebrew) voteTranslit(inputNorm, "alt", opt.hebrew);
     done();
   };
   const submitText = () => {
     const t = txt.trim(); if (!t) return;
-    recordFeedback(context, "not_found", { query, target, detail: t });
+    recordFeedback(context, "not_found", { query, target, detail: t, meta });
     if (inputNorm && /[א-ת]/.test(t)) voteTranslit(inputNorm, "alt", t);
     done();
   };

@@ -224,7 +224,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               </span>
               <button onClick={() => setQ(translitBest.hebrew)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px", minHeight: 32 }}>חשב את «{translitBest.hebrew}» ←</button>
             </div>
-            <FoundItFeedback context="translit" query={word} inputNorm={normEn(word)}
+            <FoundItFeedback context="search" query={word} inputNorm={normEn(word)} meta={{ kind: "translit" }}
               options={translit.candidates.slice(1, 3).map(c => ({ label: c.hebrew, hebrew: c.hebrew }))} tone="light" />
           </div>
         )}
