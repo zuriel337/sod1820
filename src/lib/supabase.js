@@ -221,6 +221,26 @@ export async function adminReviewWord(id, action) {
   if (error) throw error;
   return data;
 }
+// 🔔 אירועי-גילוי — זיהוי התכנסויות אמיתיות + שליחת מייל לרשימה (עץ אחד: אותה רשימת subscribers).
+export async function scanDiscoveryEvents({ days = 7, minMembers = 8 } = {}) {
+  if (!supabase) return null;
+  try { const { data, error } = await supabase.rpc('scan_discovery_events', { p_days: days, p_min_members: minMembers }); if (error) return null; return data; } catch { return null; }
+}
+export async function discoveryPending() {
+  if (!supabase) return null;
+  try { const { data, error } = await supabase.rpc('discovery_events_pending'); if (error) return null; return data; } catch { return null; }
+}
+export async function discoveryMark(id, status) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('discovery_event_mark', { p_id: id, p_status: status }); if (error) throw error; return data;
+}
+// ✉️ שליחת קמפיין — עוטף את send-newsletter (אדמין, Resend). source=null → כולם · dry_run → ספירה · test_email → בדיקה.
+export async function sendNewsletter({ subject, html, source = null, testEmail = null, dryRun = false }) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke('send-newsletter', { body: { subject, html, source, test_email: testEmail, dry_run: dryRun } });
+  if (error) throw error;
+  return data;
+}
 // 🎯 «להיכנס להתכנסות» — כל הביטויים באותו ערך-רגיל (מאומתים + ממתינים), לאדמין (עוקף RLS).
 export async function adminValueConvergence(value) {
   if (!supabase) return null;

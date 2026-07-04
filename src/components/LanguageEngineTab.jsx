@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter } from "../lib/supabase.js";
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
 // 🌍 מנוע השפה — מרכז-בקרה מלא: כל המילים החדשות בכל השפות, מקור מפורט, ואישור/הסתרה/מחיקה.
@@ -28,6 +28,93 @@ function Stat({ label, value, tone }) {
   );
 }
 const fmt = d => d ? new Date(d).toLocaleString("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+
+// 🔔 אירועי-גילוי — «משהו אמיתי קרה»: זיהוי התכנסות שגדלה, והכנת מייל-אירוע לרשימה (לא ניוזלטר).
+function eventEmail(ev) {
+  const link = `https://sod1820.co.il/number/${ev.value}`;
+  const sample = (ev.sample || []).slice(0, 5);
+  return {
+    subject: `🔔 גילוי: ${ev.member_count} ביטויים מתכנסים על ${ev.value}`,
+    html:
+      `<h2 style="color:#7a5c12;">🔔 התכנסות חדשה סביב הערך ${ev.value}</h2>` +
+      `<p>זיהינו התכנסות אמיתית: <b>${ev.member_count} ביטויים</b> חולקים את הערך <b>${ev.value}</b>.</p>` +
+      (sample.length ? `<p>בין הביטויים:</p><ul>${sample.map(s => `<li>${s} = ${ev.value}</li>`).join("")}</ul>` : "") +
+      `<p style="margin:26px 0;"><a href="${link}" style="background:#c9a227;color:#1b1420;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:bold;">היכנסו לגילוי המלא ←</a></p>` +
+      `<p style="color:#888;font-size:14px;">נשלח רק כשמתגלה משהו אמיתי. תודה שאתם חלק מהעץ 🌳</p>`,
+  };
+}
+function DiscoveryPanel() {
+  const [adminEmail, setAdminEmail] = useState(null);
+  useEffect(() => { supabase?.auth?.getUser?.().then(({ data }) => setAdminEmail(data?.user?.email || null)).catch(() => {}); }, []);
+  const [pending, setPending] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [sel, setSel] = useState(null);          // האירוע שמכינים לו מייל
+  const [subject, setSubject] = useState("");
+  const [html, setHtml] = useState("");
+  const [audience, setAudience] = useState("all");   // all | journey
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const load = useCallback(async () => { const d = await discoveryPending(); setPending(d?.error ? [] : (d || [])); }, []);
+  useEffect(() => { load(); }, [load]);
+  const scan = async () => { setScanning(true); const r = await scanDiscoveryEvents({ days: 30, minMembers: 8 }); setScanning(false); setStatus(r?.found != null ? `נמצאו ${r.found} אירועים חדשים` : "שגיאת סריקה"); await load(); };
+  const compose = (ev) => { const e = eventEmail(ev); setSel(ev); setSubject(e.subject); setHtml(e.html); setStatus(""); };
+  const dryRun = async () => { try { const r = await sendNewsletter({ subject, html, source: audience === "journey" ? "journey" : null, dryRun: true }); setStatus(`${r?.count ?? 0} נמענים יקבלו`); } catch (e) { setStatus("שגיאה: " + (e.message || e)); } };
+  const sendTest = async () => { if (!adminEmail) { setStatus("אין מייל-אדמין לבדיקה"); return; } setBusy(true); try { const r = await sendNewsletter({ subject, html, testEmail: adminEmail }); setStatus(r?.ok ? `נשלחה בדיקה ל-${adminEmail}` : "בדיקה נכשלה"); } catch (e) { setStatus("שגיאה: " + (e.message || e)); } finally { setBusy(false); } };
+  const sendAll = async () => {
+    if (!confirm(`לשלוח ל${audience === "journey" ? "-נרשמי המסע" : "כל הרשימה"}?`)) return;
+    setBusy(true);
+    try {
+      const r = await sendNewsletter({ subject, html, source: audience === "journey" ? "journey" : null });
+      setStatus(`נשלח ל-${r?.sent ?? 0} (נכשל: ${r?.failed ?? 0})`);
+      if (sel) { await discoveryMark(sel.id, "sent"); setSel(null); await load(); }
+    } catch (e) { setStatus("שגיאה: " + (e.message || e)); } finally { setBusy(false); }
+  };
+  const dismiss = async (id) => { await discoveryMark(id, "dismissed"); await load(); };
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", margin: "8px 2px 12px" }}>
+        <div>
+          <h3 style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 16.5, fontWeight: 800, margin: 0 }}>🔔 אירועי גילוי — מיילים חכמים</h3>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>שולח לרשימה **רק כשמתגלה התכנסות אמיתית** — לא ניוזלטר. אותה רשימת subscribers, מתויגת. אתה מחליט מה לשלוח.</div>
+        </div>
+        <button onClick={scan} disabled={scanning} style={{ ...btn("rgba(212,175,55,.2)", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 12.5, padding: "7px 15px" }}>{scanning ? "סורק…" : "🔍 סרוק עכשיו"}</button>
+      </div>
+      {status && <div style={{ color: C.goldBright, fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>{status}</div>}
+      {!pending ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+        : !pending.length ? <div style={{ ...card, color: C.muted }}>אין אירועים ממתינים. לחצו «סרוק עכשיו» כדי לזהות התכנסויות חדשות.</div>
+        : <div style={{ display: "grid", gap: 8 }}>
+          {pending.map(ev => (
+            <div key={ev.id} style={{ ...card, padding: "11px 13px", borderColor: sel?.id === ev.id ? C.borderGold : C.border }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>🎯 {ev.value}</span>
+                <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{ev.member_count} ביטויים</span>
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, flex: "1 1 auto", minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{(ev.sample || []).slice(0, 3).join(" · ")}</span>
+                <button onClick={() => compose(ev)} style={btn("#2f8f4e")}>✉️ הכן מייל</button>
+                <button onClick={() => dismiss(ev.id)} style={btn("transparent", C.muted)}>דחה</button>
+              </div>
+            </div>
+          ))}
+        </div>}
+      {sel && (
+        <div style={{ ...card, marginTop: 12, border: `1px solid ${C.borderGold}` }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 9 }}>✉️ מייל לאירוע {sel.value}</div>
+          <input value={subject} onChange={e => setSubject(e.target.value)} dir="rtl" style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "9px 12px", marginBottom: 8 }} />
+          <textarea value={html} onChange={e => setHtml(e.target.value)} dir="rtl" rows={7} style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.muted, fontFamily: F.mono, fontSize: 12, padding: "9px 12px", marginBottom: 9 }} />
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11.5 }}>קהל:</span>
+            {[["all", "כל הרשימה"], ["journey", "נרשמי המסע"]].map(([k, l]) => (
+              <button key={k} onClick={() => setAudience(k)} style={{ ...btn(audience === k ? "rgba(212,175,55,.25)" : "transparent", audience === k ? C.goldBright : C.muted), border: `1px solid ${audience === k ? C.borderGold : C.border}` }}>{l}</button>
+            ))}
+            <span style={{ flex: 1 }} />
+            <button onClick={dryRun} disabled={busy} style={btn("transparent", C.goldBright)}>👁 כמה יקבלו</button>
+            <button onClick={sendTest} disabled={busy} style={btn("transparent", C.goldBright)}>✉️ בדיקה אליי</button>
+            <button onClick={sendAll} disabled={busy} style={btn("#2f8f4e")}>{busy ? "שולח…" : "🚀 שלח"}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // 🖥️ קונסולת-מילים — עדשה אחת על כל המאגר: ממתין/מאומת/נדחה/הכל · חיפוש · דפדוף אחורה ללא סוף ·
 // לכל מילה: חיבור-לישות (משפחת-ערך) + המלצת-AI + אישור/דחייה/מחיקה. עוקף RLS דרך RPC (רואה מוסתרות).
@@ -262,6 +349,11 @@ export default function LanguageEngineTab() {
         <Stat label="הצלחה" value={stats.success + "%"} />
         <Stat label="נלמדו השבוע" value={stats.learnedWeek} tone={C.goldBright} />
         <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
+      </div>
+
+      {/* ══ 🔔 אירועי גילוי — מיילים חכמים (רק כשמתגלה התכנסות אמיתית) ══ */}
+      <div style={{ margin: "22px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+        <DiscoveryPanel />
       </div>
 
       {/* ══ 🖥️ קונסולת המילים — עדשה מלאה על כל המאגר (עוקף RLS, דפדוף, המלצות, חיבור-לישות) ══ */}
