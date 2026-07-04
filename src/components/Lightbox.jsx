@@ -14,6 +14,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const [shared, setShared] = useState(false);
+  const [tall, setTall] = useState(false);   // תמונה גבוהה (מאמר/ערך) → גלילה במקום דחיסה-לגובה
   const touchStart = useRef(null);
 
   async function handleShare(image) {
@@ -30,6 +31,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   }
 
   useEffect(() => { setIdx(initialIndex); }, [initialIndex]);
+  useEffect(() => { setTall(false); }, [idx]);   // איפוס זיהוי-הגובה בכל מעבר תמונה
 
   function go(newIdx) {
     setIdx(newIdx);
@@ -106,8 +108,8 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         )}
       </div>
 
-      {/* Main — תמונה + פאנל מידע (row בדסקטופ, column במובייל) */}
-      <div className="lb-main">
+      {/* Main — תמונה + פאנל מידע (row בדסקטופ, column במובייל). tall → גלילה רציפה. */}
+      <div className={`lb-main${tall ? " lb-scroll" : ""}`}>
         <div
           className="lb-imgpane"
           onClick={e => e.stopPropagation()}
@@ -124,7 +126,8 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
             <button onClick={prev} style={navBtnStyle("right")} aria-label="הקודם">&#8250;</button>
           )}
           {h?.image_url
-            ? <img key={fadeKey} src={h.image_url} alt={title || ""} className="lb-img" style={{ animation: "lb-fade .25s ease" }} />
+            ? <img key={fadeKey} src={h.image_url} alt={title || ""} className={`lb-img${tall ? " tall" : ""}`} style={{ animation: "lb-fade .25s ease" }}
+                onLoad={e => { const t = e.currentTarget; if (t.naturalWidth) setTall(t.naturalHeight > t.naturalWidth * 1.5); }} />
             : <div style={{ width: 360, height: 240, background: "#1a1a1a", borderRadius: 10 }} />
           }
           {images.length > 1 && (
@@ -225,7 +228,13 @@ const LB_CSS = `
   .lb-main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
   .lb-imgpane { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; padding: 0 6px; }
   .lb-img { max-width: min(92vw, 1000px); max-height: calc(100vh - 200px); object-fit: contain; border-radius: 10px; display: block; }
+  /* 🖼️ תמונה גבוהה (צילום ערך/מאמר): במקום לדחוס לגובה-המסך ולהקטין את הטקסט — מציגים ברוחב קריא,
+     גוללים אנכית דרך כל המודאל, והטקסט/פאנל זורם ברור מתחת (תיקון «רואים את התמונה אבל הטקסט מתחתיה»). */
+  .lb-main.lb-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .lb-main.lb-scroll .lb-imgpane { flex: none; align-items: flex-start; padding: 10px 6px; }
+  .lb-img.tall { max-height: none; width: min(94vw, 640px); height: auto; }
   .lb-panel { flex-shrink: 0; max-height: 38vh; overflow-y: auto; padding: 14px 18px 18px; -webkit-overflow-scrolling: touch; }
+  .lb-main.lb-scroll .lb-panel { max-height: none; overflow: visible; }
   .lb-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
   .lb-sec-t { color: #ffffff66; font-family: ${F.heading}; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
   .lb-num { display: flex; align-items: center; gap: 10px; text-decoration: none;
@@ -244,11 +253,13 @@ const LB_CSS = `
     background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.45); color: #d4af37;
     font-family: ${F.heading}; font-weight: 700; font-size: 13.5px; border-radius: 11px; padding: 10px 16px; }
   @media (min-width: 920px) {
-    .lb-main { flex-direction: row; }
+    .lb-main, .lb-main.lb-scroll { flex-direction: row; overflow: hidden; }
     .lb-imgpane { padding: 0 10px; }
-    .lb-panel { width: 340px; max-height: none; border-inline-start: 1px solid rgba(212,175,55,0.18);
+    .lb-main.lb-scroll .lb-imgpane { flex: 1; overflow-y: auto; align-items: flex-start; }
+    .lb-panel, .lb-main.lb-scroll .lb-panel { width: 340px; max-height: none; overflow-y: auto; border-inline-start: 1px solid rgba(212,175,55,0.18);
       background: linear-gradient(200deg, rgba(20,15,8,0.5), rgba(6,4,2,0.4)); }
     .lb-img { max-height: calc(100vh - 150px); max-width: 100%; }
+    .lb-img.tall { width: auto; max-width: 100%; max-height: none; }
   }
 `;
 
