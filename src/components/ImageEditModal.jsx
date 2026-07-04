@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { checkImageConnections, deleteGalleryImage, setImageCuration, getGalleryImageFull } from "../lib/supabase.js";
+import { checkImageConnections, deleteGalleryImage, setImageCuration, getGalleryImageFull, uploadGalleryImage } from "../lib/supabase.js";
 
 // ===== מודל עריכה מלא לתמונה =====
 // Props:
@@ -48,6 +48,21 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const tagInputRef = useRef(null);
+  // 🖼️ החלפת קובץ-התמונה הפיזי (העלאת קובץ חדש במקום הקיים)
+  const [newImageUrl, setNewImageUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
+
+  async function pickNewImage(e) {
+    const f = e.target.files?.[0];
+    if (e.target) e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { alert("נא לבחור קובץ תמונה"); return; }
+    setUploading(true);
+    try { setNewImageUrl(await uploadGalleryImage(f)); }
+    catch (err) { alert("העלאת התמונה נכשלה: " + (err?.message || err)); }
+    setUploading(false);
+  }
 
   const [deleteStep, setDeleteStep] = useState(null);
   const [connections, setConnections] = useState([]);
@@ -93,6 +108,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     if (treasure !== !!b.treasure) patch.treasure = treasure;
     const origTags = JSON.stringify([...(b.tags || [])].sort());
     if (JSON.stringify([...tags].sort()) !== origTags) patch.tags = tags;
+    if (newImageUrl && newImageUrl !== im.image_url) patch.image_url = newImageUrl;   // 🖼️ החלפת התמונה הפיזית
     await onSave(patch);
     setSaving(false);
   }
@@ -160,6 +176,24 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
           </div>
           <button onClick={onClose} aria-label="סגור" style={{ flexShrink: 0, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", fontSize: 20, cursor: "pointer", width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         </div>
+
+        {/* 🖼️ החלפת קובץ-התמונה הפיזי — מעלים תמונה חדשה במקום הקיימת (נשמר עם «שמור») */}
+        {!deleteStep && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(212,175,55,0.06)", border: `1px solid ${newImageUrl ? "rgba(94,240,160,0.5)" : "rgba(212,175,55,0.25)"}`, borderRadius: 12, padding: "10px 12px" }}>
+            <img src={newImageUrl || im.image_url} alt="" style={{ width: 58, height: 58, objectFit: "cover", borderRadius: 10, flexShrink: 0, border: newImageUrl ? "2px solid #5ef0a0" : "1px solid rgba(255,255,255,0.15)" }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: "#d4af37", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🖼️ החלפת התמונה</div>
+              <div style={{ color: newImageUrl ? "#5ef0a0" : "#ffffff66", fontFamily: F.heading, fontSize: 11, marginTop: 2, lineHeight: 1.5 }}>
+                {uploading ? "מעלה…" : newImageUrl ? "✓ תמונה חדשה נבחרה — לחצו «שמור» למטה" : "העלו קובץ חדש במקום הקיים"}
+              </div>
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" onChange={pickNewImage} style={{ display: "none" }} />
+            <button onClick={() => fileRef.current?.click()} disabled={uploading} type="button"
+              style={{ flexShrink: 0, cursor: uploading ? "wait" : "pointer", background: "rgba(212,175,55,0.14)", border: "1px solid rgba(212,175,55,0.45)", color: "#d4af37", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5, borderRadius: 999, padding: "8px 16px", whiteSpace: "nowrap" }}>
+              {uploading ? "…" : "🔄 החלף"}
+            </button>
+          </div>
+        )}
 
         {/* מסך מחיקה */}
         {(deleteStep === "warn" || deleteStep === "confirm" || deleteStep === "checking" || deleteStep === "deleting") ? (

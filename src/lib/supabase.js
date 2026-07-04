@@ -1107,6 +1107,16 @@ export async function setImageCuration(id, patch) {
   invalidateGalleriesOverview();
   return data;
 }
+
+// 🖼️ העלאת/החלפת קובץ-תמונה פיזי ל-bucket 'gallery' → מחזיר URL ציבורי (מנהל בלבד, RLS).
+export async function uploadGalleryImage(file) {
+  if (!supabase) throw new Error('no supabase');
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+  const path = `sod1820/replaced/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`;
+  const { error } = await supabase.storage.from('gallery').upload(path, file, { upsert: true, contentType: file.type });
+  if (error) throw error;
+  return supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+}
 // 🌊 הזזת רמז בזרם (אדמין): מחליפים את חותמות-הזמן האפקטיביות של שני רמזים שכנים —
 // הסדר בזרם נקבע לפי stream_at (עם נפילה ל-created_at), אז החלפה = החלפת מיקום.
 // dir: 'up' | 'down' — אם החותמות שוות, מזיזים שנייה אחת כדי שההחלפה תיתפס.
