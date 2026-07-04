@@ -16,7 +16,7 @@ import {
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
-  getWallPrivate, getLabInsights,
+  getWallPrivate, getLabInsights, getJourneyFunnel,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -1864,25 +1864,134 @@ function JourneysTab() {
   const [shares, setShares] = useState(null);
   const [ai, setAi] = useState(null);
   const [rw, setRw] = useState(null);
+  const [funnel, setFunnel] = useState(null);
   const [err, setErr] = useState("");
   const [hours, setHours] = useState(168);
+  const [days, setDays] = useState(7);  // טווח למשפך-המסע + אזור-המשתמש (7 / 30 / 90 יום)
   useEffect(() => {
     let live = true; setErr("");
     getPageDwell(hours).then(d => live && setDwell(d || [])).catch(e => live && setErr(String(e?.message || e)));
     getVisitorJourneys(24, 4).then(d => live && setJourneys(d || [])).catch(() => live && setJourneys([]));
     getJourneyShares(720).then(d => live && setShares(d || null)).catch(() => live && setShares(null));
     getAiUsage(720).then(d => live && setAi(d || null)).catch(() => live && setAi(null));
-    getResearchUsage(48).then(d => live && setRw(d || null)).catch(() => live && setRw(null));
     return () => { live = false; };
   }, [hours]);
+  useEffect(() => {
+    let live = true;
+    getJourneyFunnel(days).then(d => live && setFunnel(d || null)).catch(() => live && setFunnel(null));
+    getResearchUsage(days * 24).then(d => live && setRw(d || null)).catch(() => live && setRw(null));
+    return () => { live = false; };
+  }, [days]);
   // תוויות ידידותיות לכל כפתור-AI (kind → שם + היכן)
   const AI_LABELS = {
     compare: "🔀 השוואת מילים", notarikon: "🔠 ראשי/סופי תיבות", verse: "📜 חיפוש בפסוק",
     daily_verse: "📅 פסוק יומי", research: "🧠 ניתוח המחקר שלי (אזור אישי)",
     journey_msg: "🧭 מסר-מסע (ראשון)", journey_deep: "🔓 מסר-עומק (מסע)",
   };
+  const rangeLbl = days === 7 ? "7 ימים" : days === 30 ? "30 יום" : "90 יום";
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      {/* 🧭 משפך המסע — התחילו → יעד → סיום → שיתוף → פתיחה → וואטסאפ → שמירה. הדליפה שצוריאל רצה לראות. */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: 0 }}>🧭 משפך המסע — איפה מאבדים אנשים</h3>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[[7, "7 ימים"], [30, "30 יום"], [90, "90 יום"]].map(([d, lbl]) => (
+              <button key={d} onClick={() => setDays(d)} style={{ cursor: "pointer", border: `1px solid ${days === d ? C.gold : C.border}`, background: days === d ? "rgba(212,175,55,0.18)" : "transparent", color: days === d ? C.goldBright : C.muted, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>כל שלב = כמה מבקרים הגיעו אליו, ואיזה אחוז מהמתחילים. הצניחה הגדולה = איפה לתקן. טווח: {rangeLbl}.</div>
+        {!funnel ? <div style={{ color: C.muted }}>טוען…</div> : (() => {
+          const base = funnel.started || 0;
+          const stages = [
+            ["🚀 התחילו מסע", funnel.started, "#d4af37"],
+            ["🎯 הגיעו ליעד", funnel.revealed, "#e8c860"],
+            ["✅ סיימו מסע", funnel.completed, "#7fd18a"],
+            ["🔗 שיתפו", funnel.shared, "#5fb0ff"],
+            ["📬 שיתוף נפתח", funnel.opened, "#3ea6ff"],
+            ["💬 לחצו וואטסאפ", funnel.cta, "#25d366"],
+            ["🔖 שמרו מסע", Math.max(funnel.saved || 0, funnel.savesCount || 0), "#d98cff"],
+          ];
+          const pct = n => base > 0 ? Math.round((n / base) * 100) : 0;
+          return (
+            <div style={{ display: "grid", gap: 7 }}>
+              {stages.map(([lbl, n, col], i) => (
+                <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 12px", background: "rgba(8,5,2,0.3)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, flex: 1 }}>{lbl}</span>
+                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{Number(n || 0).toLocaleString("he")}</span>
+                    <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, minWidth: 42, textAlign: "left" }}>{pct(n)}%</span>
+                  </div>
+                  <div style={{ height: 7, background: "rgba(212,175,55,0.1)", borderRadius: 999, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.max(pct(n), n > 0 ? 2 : 0)}%`, height: "100%", borderRadius: 999, background: col }} />
+                  </div>
+                </div>
+              ))}
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 6, lineHeight: 1.6, fontStyle: "italic" }}>
+                {base > 0 && funnel.completed != null && (
+                  <>שיעור סיום: <b style={{ color: C.goldBright }}>{pct(funnel.completed)}%</b> · שיעור שיתוף: <b style={{ color: C.goldBright }}>{pct(funnel.shared)}%</b> · המרה לוואטסאפ: <b style={{ color: C.goldBright }}>{pct(funnel.cta)}%</b>. </>
+                )}
+                {funnel.aiMsg > 0 && <>🤖 {Number(funnel.aiMsg).toLocaleString("he")} מסרי-AI במסעות (טוקנים).</>}
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* 📉 נשירה לפי שלב — באיזה שלב במסע אנשים עוצרים. עמודה = כמה הגיעו לשלב N. */}
+      {funnel && funnel.steps && Object.keys(funnel.steps).length > 0 && (
+        <div style={card}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>📉 נשירה לפי שלב · {rangeLbl}</h3>
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>כמה מבקרים הגיעו לכל שלב-מסע. הצניחה בין שלב לשלב = איפה עוצרים באמצע.</div>
+          {(() => {
+            const keys = Object.keys(funnel.steps).map(Number).sort((a, b) => a - b);
+            const max = Math.max(...keys.map(k => funnel.steps[k]), 1);
+            const first = funnel.steps[keys[0]] || 1;
+            return (
+              <div style={{ display: "grid", gap: 6 }}>
+                {keys.map(k => {
+                  const n = funnel.steps[k];
+                  return (
+                    <div key={k} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, minWidth: 58 }}>שלב {k}</span>
+                      <div style={{ flex: 1, height: 18, background: "rgba(212,175,55,0.1)", borderRadius: 6, overflow: "hidden" }}>
+                        <div style={{ width: `${Math.round((n / max) * 100)}%`, height: "100%", borderRadius: 6, background: "linear-gradient(90deg,#d4af37,#f0d878)" }} />
+                      </div>
+                      <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, fontWeight: 800, minWidth: 44, textAlign: "left" }}>{Number(n).toLocaleString("he")}</span>
+                      <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, minWidth: 40, textAlign: "left" }}>{Math.round((n / first) * 100)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* 🔖 שמירות-מסע אחרונות — מי שמר מסע (journey_saves) + לאיזה שורש. עץ אחד: נשמר ב-DB, לא רק localStorage. */}
+      {funnel && (funnel.recentSaves || []).length > 0 && (
+        <div style={card}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🔖 שמירות-מסע אחרונות</h3>
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>מי שמר מסע ולאיזה שורש. סה״כ בטווח: <b style={{ color: C.goldBright }}>{Number(funnel.savesCount || 0).toLocaleString("he")}</b>.</div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr><th style={th}>מתי</th><th style={th}>שורש</th><th style={th}>עולם</th><th style={th}>מבקר</th></tr></thead>
+              <tbody>
+                {funnel.recentSaves.map((r, i) => (
+                  <tr key={i}>
+                    <td style={td}>{r.created_at ? new Date(r.created_at).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                    <td style={{ ...td, fontFamily: F.mono }}>{r.root ? <Link to={`/number/${r.root}`} style={{ color: C.goldBright }}>{r.root}</Link> : "—"}</td>
+                    <td style={td}>{r.world || "—"}</td>
+                    <td style={{ ...td, color: C.goldDim, fontFamily: F.mono, fontSize: 11 }}>{String(r.visitor_id || "").slice(0, 8)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* 🔗 שיתופי-מסע + 🔓 פתיחות מסר-עומק (AI) — «מי שיתף» (30 יום). קשור ישירות לצריכת קרדיטי ה-AI. */}
       <div style={card}>
         <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🔗 שיתופי מסע · 🔓 מסרי-עומק (AI) · 30 יום</h3>
@@ -1921,7 +2030,7 @@ function JourneysTab() {
 
       {/* 🧠 שימוש באזור-המשתמש — כמה נכנסו/שמרו/הוסיפו למחקר (כולל אנונימיים!) ב-48 שעות. */}
       <div style={card}>
-        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🧠 אזור המשתמש — מי נכנס ושמר · 48 שעות</h3>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🧠 אזור המשתמש — מי נכנס ושמר · {rangeLbl}</h3>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כולל אנונימיים (visitor_id) — לא רק רשומים. «נכנסו» = פתחו את «עולם המשתמש»; «שמרו» = ⭐/🔖.</div>
         {!rw ? <div style={{ color: C.muted }}>טוען…</div> : (
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

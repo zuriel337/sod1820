@@ -169,6 +169,32 @@ export async function logJourneySave(visitor, { root, path = [], world = null })
   if (!supabase || root == null) return;
   try { await supabase.rpc("log_journey_save", { p_visitor: visitor || null, p_root: root, p_path: path, p_world: world }); } catch { /* ignore */ }
 }
+// 🧭 משפך-המסע (בקשת צוריאל B) — כל שלבי-המסע ל-N ימים + התפלגות עומק-נטישה + שמירות.
+export async function getJourneyFunnel(days = 7) {
+  if (!supabase) return null;
+  const since = new Date(Date.now() - days * 864e5).toISOString();
+  let rows = [];
+  try {
+    const { data } = await supabase.from('page_views').select('kind,ref,created_at').like('kind', 'journey%').gte('created_at', since).limit(30000);
+    rows = data || [];
+  } catch { /* ignore */ }
+  const c = k => rows.filter(r => r.kind === k).length;
+  const steps = {};
+  rows.filter(r => r.kind === 'journey_step').forEach(r => { const s = parseInt(r.ref, 10); if (s >= 1 && s <= 15) steps[s] = (steps[s] || 0) + 1; });
+  let savesCount = 0, recentSaves = [];
+  try {
+    const { count } = await supabase.from('journey_saves').select('*', { count: 'exact', head: true }).gte('created_at', since);
+    savesCount = count || 0;
+    const { data: rs } = await supabase.from('journey_saves').select('visitor_id,root,world,created_at').order('created_at', { ascending: false }).limit(15);
+    recentSaves = rs || [];
+  } catch { /* ignore */ }
+  return {
+    days,
+    started: c('journey_start'), completed: c('journey_complete'), revealed: c('journey_target_revealed'),
+    shared: c('journey_share'), opened: c('journey_open'), cta: c('journey_wa_cta'), leap: c('journey_leap'),
+    aiMsg: c('journey_ai_message'), saved: c('journey_save'), steps, savesCount, recentSaves,
+  };
+}
 // ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
 export async function getSiteUpdates(limit = 6) {
   if (!supabase) return [];
