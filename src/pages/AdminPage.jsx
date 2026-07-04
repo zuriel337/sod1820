@@ -1455,6 +1455,7 @@ function HeatmapTab() {
   const [views, setViews] = useState({});
   const [sectionCounts, setSectionCounts] = useState({});
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0);   // 🔄 רענון-ידני — טוען מחדש נתונים טריים
 
   useEffect(() => {
     let alive = true;
@@ -1485,7 +1486,7 @@ function HeatmapTab() {
       finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
-  }, []);
+  }, [tick]);
 
   const numberHeat = useMemo(() => {
     const pulse = computePulse(hints);
@@ -1497,6 +1498,10 @@ function HeatmapTab() {
 
   return (
     <div style={{ display: "grid", gap: 22 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>מפות החום נטענות מחדש בכל כניסה — לחצו לרענון מיידי.</span>
+        <button onClick={() => setTick(t => t + 1)} style={{ cursor: "pointer", border: `1px solid ${C.borderGold}`, background: "rgba(212,175,55,0.15)", color: C.goldBright, borderRadius: 999, padding: "7px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>🔄 רענן עכשיו</button>
+      </div>
       {/* 1 — מפת חום התנהגותית (Microsoft Clarity) */}
       <div style={{ ...card }}>
         <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 8 }}>🖱 מפת חום התנהגותית — קליקים · גלילה · עכבר</div>
@@ -2275,10 +2280,10 @@ function LegacyStatsView() {
               <div key={i} style={{ position: "absolute", insetInline: 0, bottom: `${t.pct}%`, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
             ))}
             <div style={{ position: "absolute", inset: 0, overflowX: "auto", overflowY: "hidden" }}>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", minWidth: gran === "day" ? view.length * 8 : "100%", paddingInline: 2 }}>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", width: "100%", minWidth: gran === "day" && view.length > 45 ? view.length * 8 : "100%", paddingInline: 2 }}>
                 {view.map(r => (
                   <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות`}
-                    style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
+                    style={{ flex: "1 1 0", minWidth: gran === "day" ? 3 : 14, maxWidth: gran === "day" ? 20 : "none", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
                     <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${barH(r.views)}%`, minHeight: r.views > 0 ? 2 : 0, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
                   </div>
                 ))}
@@ -2458,10 +2463,10 @@ function LiveStatsView() {
               <div style={{ flex: 1, minWidth: 0, position: "relative", height: 190, borderInlineStart: `1px solid ${C.border}` }}>
                 {ticks.map((t, i) => <div key={i} style={{ position: "absolute", insetInline: 0, bottom: `${t.pct}%`, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />)}
                 <div style={{ position: "absolute", inset: 0, overflowX: "auto", overflowY: "hidden" }}>
-                  <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", minWidth: gran === "day" ? view.length * 8 : "100%", paddingInline: 2 }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: gran === "day" ? 2 : 6, height: "100%", width: "100%", minWidth: gran === "day" && view.length > 45 ? view.length * 8 : "100%", paddingInline: 2 }}>
                     {view.map(r => (
                       <div key={r.key} onClick={() => setSel(r)} title={`${r.key}: ${r.views.toLocaleString()} צפיות · ${r.uniques.toLocaleString()} ייחודיים`}
-                        style={{ flex: gran === "day" ? "0 0 6px" : 1, minWidth: gran === "day" ? 6 : 14, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
+                        style={{ flex: "1 1 0", minWidth: gran === "day" ? 3 : 14, maxWidth: gran === "day" ? 20 : "none", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", cursor: "pointer" }}>
                         <div style={{ background: sel?.key === r.key ? `linear-gradient(180deg, ${C.goldBright}, ${C.gold})` : `linear-gradient(180deg, ${C.gold}, ${C.goldDark})`, borderRadius: "3px 3px 0 0", height: `${barH(r.views)}%`, minHeight: r.views > 0 ? 2 : 0, boxShadow: sel?.key === r.key ? `0 0 12px ${C.gold}` : "none" }} />
                       </div>
                     ))}
