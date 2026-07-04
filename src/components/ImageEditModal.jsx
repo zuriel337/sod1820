@@ -39,6 +39,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
   const [occurredAt, setOccurredAt] = useState(im.occurred_at ? im.occurred_at.slice(0, 10) : "");
   const [primaryValue, setPrimaryValue] = useState(im.primary_value ?? "");
   const [allValues, setAllValues] = useState((im.all_values || []).join(", "));
+  const [ocrNumbers, setOcrNumbers] = useState((im.ocr_numbers || []).join(", "));   // 🔎 המספרים שמופיעים בהתכנסות/בזרם
   const [imageType, setImageType] = useState(im.image_type || "");
   const [importance, setImportance] = useState(im.importance ?? 3);
   const [curatorHidden, setCuratorHidden] = useState(!!im.curator_hidden);
@@ -80,6 +81,7 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
       setOccurredAt(full.occurred_at ? full.occurred_at.slice(0, 10) : "");
       setPrimaryValue(full.primary_value ?? "");
       setAllValues((full.all_values || []).join(", "));
+      setOcrNumbers((full.ocr_numbers || []).join(", "));
       setImageType(full.image_type || "");
       setImportance(full.importance ?? 3);
       setCuratorHidden(!!full.curator_hidden);
@@ -102,6 +104,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     if (pv !== b.primary_value) patch.primary_value = pv;
     const parsedAll = allValues.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
     if (JSON.stringify(parsedAll) !== JSON.stringify(b.all_values || [])) patch.all_values = parsedAll;
+    const parsedOcr = ocrNumbers.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+    if (JSON.stringify(parsedOcr) !== JSON.stringify(b.ocr_numbers || [])) patch.ocr_numbers = parsedOcr;
     if (imageType !== (b.image_type || "")) patch.image_type = imageType || null;
     if (importance !== (b.importance ?? 3)) patch.importance = Number(importance);
     if (curatorHidden !== !!b.curator_hidden) patch.curator_hidden = curatorHidden;
@@ -251,6 +255,10 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
                   <input value={allValues} onChange={e => setAllValues(e.target.value)} placeholder="1820, 1620, ..." style={inputStyle} />
                 </label>
               </div>
+              <label style={{ ...labelStyle, marginTop: 10 }}>
+                <span style={labelText}>🔎 מספרים שזוהו (OCR) — <b style={{ color: "#d4af37" }}>אלה שמופיעים בדף ההתכנסות ובזרם</b></span>
+                <input value={ocrNumbers} onChange={e => setOcrNumbers(e.target.value)} placeholder="1820, 358, ..." style={inputStyle} />
+              </label>
             </div>
 
             {/* === תאריך === */}
