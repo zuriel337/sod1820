@@ -247,7 +247,7 @@ export default function HomeNewPage() {
                     <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{latestConv.title}</small>
                     <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestConv.created_at)}</span>
                   </span>
-                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 8, height: 8, borderRadius: "50%", background: "#d4af37", boxShadow: "0 0 8px #d4af37", animation: "hn-pulse 1.8s ease-in-out infinite" }} />}
+                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 7, height: 7, borderRadius: "50%", background: "#d4af37" }} />}
                 </button>
               );
             })()}
@@ -265,7 +265,7 @@ export default function HomeNewPage() {
                     <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cleanName(latestHint.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</small>
                     <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestHint.created_at || latestHint.occurred_at)}</span>
                   </span>
-                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 8, height: 8, borderRadius: "50%", background: "#3ea6ff", boxShadow: "0 0 8px #3ea6ff", animation: "hn-pulse 1.8s ease-in-out infinite" }} />}
+                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 7, height: 7, borderRadius: "50%", background: "#3ea6ff" }} />}
                 </button>
               );
             })()}
