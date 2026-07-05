@@ -268,6 +268,103 @@ function NumberAiReading({ value, meaning, anchor, phrases, counts, P }) {
   );
 }
 
+// 🔺 משפחת 3־6־9 — «מספר קטן» (digital root) + מודולו 3. חישוב טהור (בלי DB): כל מספר
+// מצטמצם לספרה אחת ונופל לאחת משלוש משפחות לפי שארית mod 3. יושר: החלוקה = מתמטיקה מדויקת;
+// ה«צורה תלת-ממדית מכל זווית» = אשליה מעוצבת (אמביגרם), לא גיאומטריה — מסומן בהערה.
+const F369 = [
+  { idx: 1, digits: "1 · 4 · 7", res: 1, color: "#5ad1e0" },
+  { idx: 2, digits: "2 · 5 · 8", res: 2, color: "#c39bff" },
+  { idx: 3, digits: "3 · 6 · 9", res: 0, color: "#a6e05a" },
+];
+function digitalRootChain(n) {
+  const chain = [n]; let x = n;
+  while (x > 9) { x = String(x).split("").reduce((s, d) => s + (+d), 0); chain.push(x); }
+  return chain;
+}
+function SmallNumberFamily({ value, P, numHref }) {
+  const chain = digitalRootChain(value);
+  const root = chain[chain.length - 1];
+  const res = value % 3;                                   // 0 → 3·6·9 · 1 → 1·4·7 · 2 → 2·5·8
+  const fam = F369.find(f => f.res === res) || F369[2];
+  // בני משפחה משמעותיים — מתוך מספרי הליבה (KEY_NUMBERS), אותה שארית, בלי המספר עצמו
+  const members = Object.keys(KEY_NUMBERS).map(Number)
+    .filter(n => n !== value && ((n % 3) === res))
+    .sort((a, b) => a - b).slice(0, 6);
+  const isKing = res === 0;
+
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      {/* שרשרת הצמצום */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap",
+        background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 10px" }}>
+        {chain.map((v, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span style={{ color: P.accentDim, fontFamily: F.mono }}>←</span>}
+            <span style={{ fontFamily: F.mono, fontWeight: 800, fontSize: i === chain.length - 1 ? 26 : 19,
+              color: i === chain.length - 1 ? fam.color : P.ink, textShadow: i === chain.length - 1 ? `0 0 16px ${fam.color}66` : "none" }}>{v}</span>
+          </React.Fragment>
+        ))}
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, width: "100%", textAlign: "center", marginTop: 4 }}>
+          מספר קטן <b style={{ color: fam.color }}>{root}</b> · שארית <b style={{ color: fam.color }}>{res}</b> (mod 3)
+        </span>
+      </div>
+
+      {/* לוח שלוש המשפחות */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+        {F369.map(f => {
+          const lit = f.idx === fam.idx;
+          return (
+            <div key={f.idx} style={{ position: "relative", textAlign: "center", borderRadius: 12, padding: "11px 4px 12px",
+              border: `1.5px solid ${lit ? f.color : P.border}`, background: lit ? `${f.color}1f` : P.cardSoft,
+              boxShadow: lit ? `0 0 18px ${f.color}44` : "none" }}>
+              {lit && <span style={{ position: "absolute", top: -9, insetInlineStart: "50%", transform: "translateX(50%)",
+                background: f.color, color: "#1a0e00", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>{value} כאן</span>}
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 9, fontWeight: 800, letterSpacing: 1, marginBottom: 6 }}>עמודה {f.idx}</div>
+              <div style={{ color: f.color, fontFamily: F.mono, fontSize: 19, fontWeight: 800 }}>{f.digits}</div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 9.5, marginTop: 6 }}>שארית {f.res}{f.idx === 3 ? " 👑" : ""}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* בני משפחה (מספרי ליבה באותה שארית) */}
+      {members.length > 0 && (
+        <div>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 7 }}>
+            בני המשפחה של {value} — אותה שארית ({fam.digits})
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {members.map(n => (
+              <Link key={n} to={numHref(n)} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+                background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 12px" }}>
+                <span style={{ color: fam.color, fontFamily: F.mono, fontWeight: 800, fontSize: 15 }}>{n}</span>
+                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{KEY_NUMBERS[n]}</span>
+                <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 10.5 }}>→{digitalRootChain(n).pop()}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isKing && (
+        <div style={{ color: "#a6e05a", fontFamily: F.body, fontSize: 12, textAlign: "center", opacity: 0.9 }}>
+          ✦ משפחת <b>3·6·9</b> — כל כפולה של 9 חוזרת ל-9 (מלך המשפחה).
+        </div>
+      )}
+
+      {/* יושר: עובדה מול רמז */}
+      <div style={{ background: `linear-gradient(180deg, ${P.glow}, transparent)`, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "12px 13px", display: "grid", gap: 7 }}>
+        <div style={{ display: "flex", gap: 8, fontFamily: F.body, fontSize: 12, lineHeight: 1.6 }}>
+          <span>✅</span><span style={{ color: P.ink }}><b>עובדה:</b> החלוקה 1-4-7 / 2-5-8 / 3-6-9 = מודולו 3 / מספר קטן — חישוב מדויק לכל מספר.</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, fontFamily: F.body, fontSize: 12, lineHeight: 1.6 }}>
+          <span>💡</span><span style={{ color: P.accentDim }}><b>רמז:</b> «צורה אחת נראית כספרה אחרת מכל זווית» — אשליה מעוצבת (אמביגרם), לא גיאומטריה.</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 🧬 פאנל ההתכנסות (יושב בתוך "מעבדה" כהה) — לביטוי: ערכי-שיטות (העוגן נבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
   const P = usePalette();
@@ -1324,6 +1421,13 @@ export default function EntityPage({ embedPhrase } = {}) {
               P={P}
             />
           </div>
+        )}
+
+        {/* ── 🔺 משפחת 3־6־9 — מספר קטן / מודולו 3 (מצב מחקר) ── */}
+        {isNumber && value >= 1 && (
+          <Acc id="family369" icon="🔺" title="משפחת 3־6־9 — מספר קטן" open={open} onToggle={toggleAcc} P={P}>
+            <SmallNumberFamily value={value} P={P} numHref={numHref} />
+          </Acc>
         )}
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
