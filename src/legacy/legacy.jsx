@@ -12,7 +12,6 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
-import LessonFunnel from "../components/LessonFunnel.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
@@ -4716,9 +4715,7 @@ function PostPageBySlug({ onNav }) {
               </div>
             )}
 
-            {/* 🎓 משפך «שיעור 1» נודד — וריאנט רנדומלי-דביק פר-גולש, נמדד ב-visitor_events + subscribers.
-                מדלג אוטומטית על פוסטים שכבר מכילים משפך מוטמע בתוכן (sgl-form). */}
-            <LessonFunnel slug={post.slug || slug} content={content} />
+            {/* 🎓 משפך «שיעור 1» הוסר (662 צפיות → 0 הרשמות — לא הביא כלום). בקשת צוריאל 5.7. */}
 
             {/* מעקב בתוך הפוסט — הרשמה לעדכונים לפי קטגוריה/כותב (עץ אחד: subscribers + notification_prefs) */}
             <PostFollowBox categories={cats} author={author} pc={pc} />
