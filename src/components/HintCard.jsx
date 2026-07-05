@@ -57,16 +57,22 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
           >✏️</button>
         )}
       </div>
-      {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0) && (
+      {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0 || v != null) && (
         <div className="rs-body">
           {shortDate(h) && <div className="rs-date">🗓️ {shortDate(h)}</div>}
-          {title && <div className="rs-title">{title}</div>}
+          {title && (v != null
+            ? <Link to={`/number/${v}`} className="rs-title rs-titlelink" title={`לדף המספר ${v}`}>{title}</Link>
+            : <div className="rs-title">{title}</div>)}
           {desc && <div className="rs-title">{desc}</div>}
           {(tags.length > 0 || extraNums.length > 0) && (
             <div className="rs-tags">
               {tags.map((t, i) => <span key={`t${i}`} className="rs-tag">{t}</span>)}
               {extraNums.map(n => <button key={`n${n}`} className="rs-tag" onClick={() => onPick?.(n)}>#{n}</button>)}
             </div>
+          )}
+          {/* קישור ברור לדף המספר הקנוני — כל רמז הוא שער לדף המספר (עץ אחד), לא פוסט */}
+          {v != null && (
+            <Link to={`/number/${v}`} className="rs-golink" title={`לדף המספר ${v}`}>🔢 לדף המספר {v} ←</Link>
           )}
         </div>
       )}

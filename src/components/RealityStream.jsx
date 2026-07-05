@@ -68,6 +68,12 @@ export default function RealityStream({ hints = [], cutoff, compact = false, onP
         .rs-date { color:${P.inkSoft}; font-family:${F.heading}; font-size:11px; }
         .rs-title { color:${P.ink}; font-family:${F.regal}; font-size:14px; font-weight:700; line-height:1.4;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        a.rs-titlelink { text-decoration:none; cursor:pointer; transition:color .15s; }
+        a.rs-titlelink:hover { color:${P.accentText}; text-decoration:underline; text-decoration-color:${P.accent}; }
+        .rs-golink { display:inline-flex; align-items:center; gap:5px; align-self:flex-start; text-decoration:none;
+          margin-top:2px; font-family:${F.heading}; font-size:11.5px; font-weight:800; color:${P.accentText};
+          background:${P.cardSoft}; border:1px solid ${P.border}; border-radius:999px; padding:4px 11px; transition:border-color .15s, background .15s; }
+        .rs-golink:hover { border-color:${P.accent}; background:${P.card}; }
         .rs-tags { display:flex; gap:5px; flex-wrap:wrap; }
         .rs-tag { font-family:${F.heading}; font-size:10.5px; color:${P.inkSoft}; background:${P.cardSoft};
           border:1px solid ${P.border}; border-radius:999px; padding:1px 8px; }
