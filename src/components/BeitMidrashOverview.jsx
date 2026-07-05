@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getSearchFeed, getRecentCrosses, getRecentCommunityWords } from "../lib/supabase.js";
+import { getSearchFeed, getRecentCrosses, getRecentEnglishWords } from "../lib/supabase.js";
 import { countNewCrosses, crossDate } from "../lib/crossesNew.js";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -34,11 +34,11 @@ export default function BeitMidrashOverview() {
   const isMobile = useIsMobile();
   const [searches, setSearches] = useState([]);
   const [crosses, setCrosses] = useState([]);
-  const [newWords, setNewWords] = useState([]);   // ✦ מילים חדשות שעלו (2 שורות)
+  const [enWords, setEnWords] = useState([]);   // 🌍 מילים חדשות באנגלית
 
   useEffect(() => {
     let live = true;
-    getRecentCommunityWords(6).then(w => { if (live) setNewWords(w || []); }).catch(() => {});
+    getRecentEnglishWords(6).then(w => { if (live) setEnWords(w || []); }).catch(() => {});
     // 🔒 פרטיות: תוכן-חיפושים נמשך לאדמין בלבד; הציבור מקבל «פעילות חיה» (ActivityPulse)
     if (isAdmin) {
       getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});
@@ -98,23 +98,25 @@ export default function BeitMidrashOverview() {
           )}
         </div>
 
-        {/* ✦ מילים חדשות שעלו — דסקטופ (הצלבות המנוע הוסרו זמנית לבקשת צוריאל) */}
+        {/* 🌍 מילים חדשות באנגלית — דסקטופ (החלטת צוריאל: רק אנגלית כאן, לא מילים אוטומטיות) */}
         {!isMobile && (
           <div style={{ minWidth: 0 }}>
             <div style={secTitle}>
-              ✦ מילים חדשות שעלו
-              <Link to="/beit-midrash?tab=calc" style={seeAll}>עוד →</Link>
+              🌍 מילים חדשות באנגלית
+              <Link to="/beit-midrash?tab=calc" style={seeAll}>למחשבון →</Link>
             </div>
-            {newWords.length === 0 ? (
-              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
+            {enWords.length === 0 ? (
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>עדיין אין מילים באנגלית — הוסיפו בקונסולת-המילים (🌍 EN).</div>
             ) : (
               <div style={{ display: "grid", gap: 7, marginTop: 9 }}>
-                {newWords.slice(0, 6).map((w, i) => (
-                  <Link key={i} to={`/number/${encodeURIComponent(w.phrase)}`} title={`${w.phrase} = ${w.ragil}`}
+                {enWords.slice(0, 6).map((w, i) => (
+                  <Link key={i} to={w.gematria_words?.ragil ? `/number/${w.gematria_words.ragil}` : "/beit-midrash?tab=calc"} title={`${w.alias} → ${w.gematria_words?.phrase || ""}`}
                     style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
-                    <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.phrase}</span>
-                    <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 9px", flex: "0 0 auto" }}>{w.ragil}</span>
-                    {w.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(w.created_at)}</span>}
+                    <span style={{ fontSize: 13 }}>🇺🇸</span>
+                    <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 700, direction: "ltr" }}>{w.alias}</span>
+                    <span style={{ color: L.sub, fontSize: 12 }}>→</span>
+                    <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.gematria_words?.phrase || ""}</span>
+                    {w.gematria_words?.ragil != null && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 9px", flex: "0 0 auto" }}>{w.gematria_words.ragil}</span>}
                   </Link>
                 ))}
               </div>

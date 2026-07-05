@@ -248,6 +248,15 @@ export async function sendNewsletter({ subject, html, source = null, testEmail =
   if (error) throw error;
   return data;
 }
+// 🌍 מילים חדשות באנגלית — aliases מאומתים אחרונים (lang≠he) עם המילה העברית והערך.
+export async function getRecentEnglishWords(limit = 6) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('word_aliases')
+    .select('alias, lang, created_at, gematria_words(phrase, ragil)')
+    .neq('lang', 'he').eq('verified', true)
+    .order('created_at', { ascending: false }).limit(limit);
+  return data || [];
+}
 // 🌍 הוספת תרגום/תעתוק אנגלי למילה עברית — ממלא את מאגר-האנגלית (word_aliases).
 export async function addEnglishAlias({ phrase, alias, method = 'transliteration', verified = true }) {
   if (!supabase) return null;
