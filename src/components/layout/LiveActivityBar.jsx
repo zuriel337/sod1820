@@ -18,9 +18,9 @@ function useLiveTicker() {
       const items = [];
       const cutoff = Date.now() - 24 * 3600 * 1000;   // "טרי" = 24 שעות אחרונות
 
-      // 1) 📝 עדכוני-פוסטים טריים → לפוסט
+      // 1) 📝 עדכוני-פוסטים טריים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
       try {
-        const posts = await getPostsFromSupabase({ limit: 20 });
+        const { posts } = await getPostsFromSupabase({ limit: 20 });
         for (const p of (posts || [])) {
           const ts = new Date(p.modified || p.date || 0).getTime();
           if (!ts || ts < cutoff) continue;

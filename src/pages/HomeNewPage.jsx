@@ -229,7 +229,7 @@ export default function HomeNewPage() {
 
       {/* ===== 🎬 טיקר «קוד המציאות» — עדכוני הערוץ בעמוד הבית (בקשת צוריאל: רק הערוץ הזה כאן) ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
-        <BrandTicker channel="reality-code" hidePostLinked peek={{ channel: "or-geula", to: "/broadcasts" }} />
+        <BrandTicker channel="reality-code" hidePostLinked withPosts peek={{ channel: "or-geula", to: "/broadcasts" }} />
       </section>
 
       {/* ===== ☀️ טיקר «תורת הרמז VIP» — הוסר זמנית מעמוד הבית (בקשת צוריאל 3.7): התוכן עדיין לא מאורגן. ===== */}
