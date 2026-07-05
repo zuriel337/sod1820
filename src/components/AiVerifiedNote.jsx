@@ -16,9 +16,9 @@ import VerifiedBadge from "./VerifiedBadge.jsx";
  *     נגזרים מ-usePalette (P.mode/P.ink/P.cardSoft), והאקסנט הכחול #3ea6ff נשמר בשני המצבים.
  */
 
-// הנוסח הקבוע — מקור אמת אחד.
+// הנוסח הקבוע — מקור אמת אחד. קצר (2 שורות) לבקשת צוריאל.
 export const AI_DISCLAIMER =
-  "הנתונים בפוסט זה (תאריכים ומספרים) נבדקו ואומתו על ידי בינה מלאכותית. הפרשנות והחידוש הם של המערכת. כל תוספת המסומנת כ-AI נוספה על ידי הבינה המלאכותית — לא על ידי המערכת.";
+  "הנתונים (מספרים ותאריכים) אומתו במנוע הרשמי · הפרשנות והחידוש של המערכת.";
 
 const linkChip = (color) => ({
   display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
@@ -36,7 +36,7 @@ export function AiVerifiedDisclaimer() {
       background: dark
         ? "linear-gradient(135deg, rgba(62,166,255,0.07), rgba(8,5,16,0.4))"
         : "linear-gradient(135deg, rgba(62,166,255,0.10), rgba(255,255,255,0.65))",
-      border: `1px solid #3ea6ff55`, borderRadius: 14, padding: "14px 16px", margin: "0 auto 30px", maxWidth: 720,
+      border: `1px solid #3ea6ff55`, borderRadius: 12, padding: "9px 14px", margin: "0 auto 20px", maxWidth: 720,
     }}>
       <style>{`
         @media (max-width: 560px) {
@@ -46,13 +46,13 @@ export function AiVerifiedDisclaimer() {
           .ai-vdisc .ai-vdisc-chips a { flex: 1 1 100% !important; justify-content: center !important; }
         }
       `}</style>
-      <div className="ai-vdisc-head" style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-        <VerifiedBadge variant="ai" size={18} label="AI · מאומת" />
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: 0, flex: "1 1 220px", minWidth: 0, textAlign: "right" }}>
+      <div className="ai-vdisc-head" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <VerifiedBadge variant="ai" size={17} label="AI · מאומת" />
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, margin: 0, flex: "1 1 220px", minWidth: 0, textAlign: "right" }}>
           {AI_DISCLAIMER}
         </p>
       </div>
-      <div className="ai-vdisc-chips" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+      <div className="ai-vdisc-chips" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
         <Link to="/cross" style={linkChip("#3ea6ff")}>🔗 הצלבות השיטות שמצא ה-AI ←</Link>
         <Link to="/verified" style={linkChip(P.accentText)}>✓ פוסטים מאומתים באתר ←</Link>
       </div>
