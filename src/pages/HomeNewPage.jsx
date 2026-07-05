@@ -102,6 +102,7 @@ export default function HomeNewPage() {
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
+    markSeenKey("home-radar");
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -162,10 +163,14 @@ export default function HomeNewPage() {
     };
     // רמזים מזרם המציאות — כל רמז שעלה (source='update') מופיע גם כאן ככרטיס-תמונה,
     // ממוזג עם הפוסטים לפי תאריך → "רואים שעכשיו עלה עדכון גלריה".
-    const hs = (hints || []).map(h => ({ kind: "hint", date: effDate(h), data: h })).filter(x => x.date > 0);
-    return [...ps, ...ss, ...hs].map(rankItem).sort((a, b) => b.sortKey - a.sortKey).slice(0, 12);
-  }, [posts, hints, homeSets, myTopics]);
-  const goReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+    // 🌊 רמזי זרם המציאות הוצאו מ«עדכונים אחרונים» — הם מופיעים ברדאר העליון ובאזור זרם המציאות בלבד.
+    return [...ps, ...ss].map(rankItem).sort((a, b) => b.sortKey - a.sortKey).slice(0, 12);
+  }, [posts, homeSets, myTopics]);
+  const scrollToId = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const goReality = () => scrollToId("reality-home");
+  // רדאר עליון — «חדש» פר-משתמש (whats_new_law): מהבהב רק אם עלה מאז הביקור האחרון
+  const radarMs = useMemo(() => +new Date(seenCutoff("home-radar")), []);
+  const latestConv = useMemo(() => [...cards].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))[0] || null, [cards]);
 
   // מהארכיון — אירוע מתחלף יומית עם "לפני N שנים" (מ-metadata.year)
   const decodeHtml = s => { try { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; } catch { return s; } };
@@ -225,6 +230,48 @@ export default function HomeNewPage() {
           <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
         </form>
       </section>
+
+      {/* ===== רדאר עליון — 2 האחרונים: התכנסות + זרם המציאות (התראה קטנה · הבהוב פר-משתמש) ===== */}
+      {(latestConv || latestHint) && (
+        <section style={{ padding: "8px 18px 4px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: (latestConv && latestHint) ? "1fr 1fr" : "1fr", gap: 10, maxWidth: 640, margin: "0 auto" }}>
+            {latestConv && (() => {
+              const isNew = +new Date(latestConv.created_at || 0) > radarMs;
+              return (
+                <button onClick={() => scrollToId("conv-home")}
+                  style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "right", cursor: "pointer", font: "inherit",
+                    background: P.cardSoft, border: `1px solid ${isNew ? "#d4af37" : P.border}`, borderRadius: 12, padding: "9px 12px", position: "relative", minWidth: 0 }}>
+                  <span style={{ fontSize: 20, flex: "none" }} aria-hidden>✦</span>
+                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.3 }}>
+                    <b style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>התכנסות חדשה נוצרה</b>
+                    <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{latestConv.title}</small>
+                    <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestConv.created_at)}</span>
+                  </span>
+                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 8, height: 8, borderRadius: "50%", background: "#d4af37", boxShadow: "0 0 8px #d4af37", animation: "hn-pulse 1.8s ease-in-out infinite" }} />}
+                </button>
+              );
+            })()}
+            {latestHint && (() => {
+              const isNew = effDate(latestHint) > radarMs; const v = domNum(latestHint);
+              return (
+                <button onClick={goReality}
+                  style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "right", cursor: "pointer", font: "inherit",
+                    background: P.cardSoft, border: `1px solid ${isNew ? "#3ea6ff" : P.border}`, borderRadius: 12, padding: "9px 12px", position: "relative", minWidth: 0 }}>
+                  <span style={{ width: 40, height: 40, flex: "none", borderRadius: 9, background: latestHint.image_url ? `center/cover no-repeat url(${thumb(latestHint.image_url, 96)})` : P.cardGrad, position: "relative", overflow: "hidden" }} aria-hidden>
+                    {v != null && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontFamily: F.mono, fontWeight: 900, fontSize: 14, color: "#f6e27a", textShadow: "0 1px 5px rgba(0,0,0,.85)" }}>{v}</span>}
+                  </span>
+                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.3 }}>
+                    <b style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>רמז חדש עלה בזרם המציאות</b>
+                    <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cleanName(latestHint.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</small>
+                    <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestHint.created_at || latestHint.occurred_at)}</span>
+                  </span>
+                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 8, height: 8, borderRadius: "50%", background: "#3ea6ff", boxShadow: "0 0 8px #3ea6ff", animation: "hn-pulse 1.8s ease-in-out infinite" }} />}
+                </button>
+              );
+            })()}
+          </div>
+        </section>
+      )}
 
       {/* ===== רצועת השידור הממותגת הוסרה מהבית (בקשת צוריאל) — השורה העליונה (LiveActivityBar) מציגה את החדשות/פוסטים ===== */}
 
@@ -431,7 +478,7 @@ export default function HomeNewPage() {
       </section>
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 60px" }}>
+      <section id="conv-home" className="hn-wrap" style={{ padding: "0 18px 60px", scrollMarginTop: 74 }}>
         <HomeHeader title={<><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</>}
           sub="ארבע ההתכנסויות האחרונות — החדש מודגש" />
         <div className="hn-postgrid">
