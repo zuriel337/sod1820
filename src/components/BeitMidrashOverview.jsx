@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getSearchFeed, getRecentCrosses } from "../lib/supabase.js";
+import { getSearchFeed, getRecentCrosses, getRecentCommunityWords } from "../lib/supabase.js";
 import { countNewCrosses, crossDate } from "../lib/crossesNew.js";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -33,9 +33,11 @@ export default function BeitMidrashOverview() {
   const isMobile = useIsMobile();
   const [searches, setSearches] = useState([]);
   const [crosses, setCrosses] = useState([]);
+  const [newWords, setNewWords] = useState([]);   // ✦ מילים חדשות שעלו (2 שורות)
 
   useEffect(() => {
     let live = true;
+    getRecentCommunityWords(2).then(w => { if (live) setNewWords(w || []); }).catch(() => {});
     // 🔒 פרטיות: תוכן-חיפושים נמשך לאדמין בלבד; הציבור מקבל «פעילות חיה» (ActivityPulse)
     if (isAdmin) {
       getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});
@@ -113,6 +115,26 @@ export default function BeitMidrashOverview() {
                   </Link>
                 ))}
               </div>
+            )}
+
+            {/* ✦ מילים חדשות שעלו — שתי שורות מתחת להצלבות (מצביע לדף המספר; עץ אחד) */}
+            {newWords.length > 0 && (
+              <>
+                <div style={{ ...secTitle, marginTop: 14 }}>
+                  ✦ מילים חדשות שעלו
+                  <Link to="/beit-midrash?tab=calc" style={seeAll}>עוד →</Link>
+                </div>
+                <div style={{ display: "grid", gap: 7, marginTop: 9 }}>
+                  {newWords.slice(0, 2).map((w, i) => (
+                    <Link key={i} to={`/number/${encodeURIComponent(w.phrase)}`} title={`${w.phrase} = ${w.ragil}`}
+                      style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
+                      <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.phrase}</span>
+                      <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 9px", flex: "0 0 auto" }}>{w.ragil}</span>
+                      {w.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(w.created_at)}</span>}
+                    </Link>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
