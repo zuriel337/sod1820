@@ -102,7 +102,8 @@ export function UpdateModal({ u, brand, onClose }) {
 // (כלל אפס-כפילות של broadcast_channels_law).
 // convergesOnly: בעמוד הבית הטיקר מציג רק התכנסויות אמיתיות (/topic/) ולא גימטריות בודדות (/number/).
 // הגימטריות הבודדות נשארות זמינות במרכז השידורים (/broadcasts) — עץ אחד, עדשה שונה.
-export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false, withPosts = false }) {
+// maxAgeHours: מציג רק עדכונים מ-N השעות האחרונות; אם אין עדכון טרי — הרצועה מוסתרת לגמרי (ריקה).
+export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false, withPosts = false, maxAgeHours = 0 }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -118,9 +119,11 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
         const r = await getChannelUpdates(8, channel);
         if (!live) return;
         setHadRaw((r || []).length > 0);
+        const freshFloor = maxAgeHours ? Date.now() - maxAgeHours * 3600 * 1000 : 0;
         const list = (r || []).filter(u =>
           !(hidePostLinked && u.link_url) &&
-          !(convergesOnly && !isConvergenceUpdate(u)));
+          !(convergesOnly && !isConvergenceUpdate(u)) &&
+          !(maxAgeHours && new Date(u.created_at || 0).getTime() < freshFloor));
         if (withPosts) {
           // 📝 פוסטים אחרונים (24ש') — שנכתבו או קודמו (modified) — נכנסים לטיקר העליון,
           //    לחיצים לפוסט. נוספים *אחרי* מסנן hidePostLinked כדי שלא ייחסמו (link_url=/slug).
@@ -145,7 +148,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [channel, hidePostLinked, convergesOnly, withPosts]);
+  }, [channel, hidePostLinked, convergesOnly, withPosts, maxAgeHours]);
 
   useEffect(() => {
     if (!peek?.channel) return;
@@ -161,6 +164,8 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
     return () => clearTimeout(id);
   }, [i, items.length]);
 
+  // חלון-זמן (צ'אט): אין עדכון טרי → הרצועה מוסתרת לגמרי (ריקה), בלי מצב-המתנה.
+  if (maxAgeHours && !items.length) return null;
   if ((hidePostLinked || convergesOnly) && !items.length && hadRaw) return null;
 
   return (

@@ -4231,7 +4231,8 @@ function SpotimChatPage() {
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
       `}</style>
       <ChatScrollRail />
-      {/* רצועת השידור הממותגת «אור הגאולה» הוסרה מהצ'אט (בקשת צוריאל) — השורה העליונה מציגה חדשות/פוסטים */}
+      {/* רצועת «אור הגאולה» בצ'אט — רק עדכונים מ-24 השעות האחרונות; אין טרי → מוסתרת. «מעבר לדף הערוצים» בתחתית הרצועה. */}
+      <BrandTicker channel="or-geula" maxAgeHours={24} />
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט
