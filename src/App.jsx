@@ -73,6 +73,7 @@ const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.j
 const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
 const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
+const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -226,6 +227,8 @@ export default function App() {
           <Route path="/code" element={<CodePage />} />
           <Route path="/beit-midrash" element={<BeitMidrashToLab />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
+          <Route path="/languages" element={<LanguagesPage />} />
+          <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/gallery" element={<GalleryPage />} />

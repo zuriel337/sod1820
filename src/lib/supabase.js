@@ -218,6 +218,34 @@ export async function adminHideWord(phrase) {
   if (error) throw error;
   return data;   // { ok, hidden, phrase } | { error }
 }
+
+// 🌍 קשרים בין שפות (אשף שמעון) — שכבת מחקר LCE. הכול pending עד אישור אדמין.
+export async function langLinkAdd({ hebrew, foreign, lang = 'en', rel = 'semantic', note = null, name = null, visitor = null }) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('lang_link_add', {
+    p_hebrew: hebrew, p_foreign: foreign, p_lang: lang, p_rel: rel, p_note: note, p_name: name, p_visitor: visitor,
+  });
+  if (error) throw error;
+  return data;   // { ok, id, gematria_he, status } | { error }
+}
+export async function langLinksList(visitor = null) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('lang_links_list', { p_visitor: visitor });
+  if (error) return [];
+  return data || [];
+}
+export async function langLinksPending() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('lang_links_pending');
+  if (error) return [];
+  return data || [];
+}
+export async function langLinkReview(id, action) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('lang_link_review', { p_id: id, p_action: action });
+  if (error) throw error;
+  return data;   // 'approved' | 'rejected' | 'deleted' | 'forbidden'
+}
 // 🔔 אירועי-גילוי — זיהוי התכנסויות אמיתיות + שליחת מייל לרשימה (עץ אחד: אותה רשימת subscribers).
 export async function scanDiscoveryEvents({ days = 7, minMembers = 8 } = {}) {
   if (!supabase) return null;

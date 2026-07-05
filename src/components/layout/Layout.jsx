@@ -20,10 +20,10 @@ import JoinCelebration from "../JoinCelebration.jsx";
 const RESERVED_ROUTES = [
   "about", "admin", "archive", "beit-midrash", "broadcasts", "chat", "code", "community", "contact",
   "cross", "enter", "experience", "galaxy", "gallery", "gallery-updates", "gematria", "heichal",
-  "home-classic", "home-new", "journey", "lab", "login", "map", "members", "name", "number", "numbers",
+  "home-classic", "home-new", "journey", "lab", "languages", "login", "map", "members", "name", "number", "numbers",
   "numbers-report", "post", "profile", "reality", "research", "reveal", "start", "stream", "sulamot",
   "theme-preview", "timeline", "traffic", "verified",
-  "בית-חדש", "גימטריה", "דף-צאט-ראשי", "היכל", "הצלבה", "חישוב", "מסע", "ניסיון", "פוסטים-אחרונים", "פוסטים-אחרונים-2",
+  "בית-חדש", "גימטריה", "דף-צאט-ראשי", "היכל", "הצלבה", "חישוב", "מסע", "ניסיון", "פוסטים-אחרונים", "פוסטים-אחרונים-2", "קשרי-שפות",
 ].join("|");
 // פוסט = מקטע-אחד שאינו נתיב-מערכת שמור. (sulamot\d* מכסה sulamot2..11)
 const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+)(?:\\/|$))[^\\/]+$`);
@@ -35,6 +35,7 @@ const LIGHT_ROUTES = [
   /^\/post$/, /^\/community\/chat$/,
   /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
   /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
+  /^\/languages$/, /^\/קשרי-שפות$/,   // 🌍 קשרי-שפות — מרחב מחקר בהיר-נקי
   POST_SLUG_RE,   // 🔒 פוסטים (/:slug) — תומכים בבהיר מערכתית (תוקן: רקע-לילה שחור בפוסט בהיר)
 ];
 
