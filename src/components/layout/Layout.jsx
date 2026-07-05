@@ -16,6 +16,18 @@ import JoinCelebration from "../JoinCelebration.jsx";
 // דפים שכבר הוסבו לפלטה (תומכים במצב בהיר). שאר הדפים נשארים כהים *בכוח* —
 // כך מתג התמה גלובלי, בלי לשבור דפים שעוד לא מוגרו (בית-מדרש/טופיק/ארכיון/...).
 // להוספת דף מוגר חדש (למשל /post, /archive) — להוסיף כאן שורת regex.
+// 🔒 חקוק: נתיבי-מערכת בעלי-מקטע-אחד שנשארים כהים (לא מוגרו). כל השאר (/:slug) = פוסט → תומך בבהיר.
+const RESERVED_ROUTES = [
+  "about", "admin", "archive", "beit-midrash", "broadcasts", "chat", "code", "community", "contact",
+  "cross", "enter", "experience", "galaxy", "gallery", "gallery-updates", "gematria", "heichal",
+  "home-classic", "home-new", "journey", "lab", "login", "map", "members", "name", "number", "numbers",
+  "numbers-report", "post", "profile", "reality", "research", "reveal", "start", "stream", "sulamot",
+  "theme-preview", "timeline", "traffic", "verified",
+  "בית-חדש", "גימטריה", "דף-צאט-ראשי", "היכל", "הצלבה", "חישוב", "מסע", "ניסיון", "פוסטים-אחרונים", "פוסטים-אחרונים-2",
+].join("|");
+// פוסט = מקטע-אחד שאינו נתיב-מערכת שמור. (sulamot\d* מכסה sulamot2..11)
+const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+)(?:\\/|$))[^\\/]+$`);
+
 const LIGHT_ROUTES = [
   /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
@@ -23,6 +35,7 @@ const LIGHT_ROUTES = [
   /^\/post$/, /^\/community\/chat$/,
   /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
   /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
+  POST_SLUG_RE,   // 🔒 פוסטים (/:slug) — תומכים בבהיר מערכתית (תוקן: רקע-לילה שחור בפוסט בהיר)
 ];
 
 export default function Layout() {
