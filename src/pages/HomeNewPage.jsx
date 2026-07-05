@@ -28,7 +28,6 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
-import BrandTicker from "../components/BrandTicker.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -227,10 +226,7 @@ export default function HomeNewPage() {
         </form>
       </section>
 
-      {/* ===== 🎬 טיקר «קוד המציאות» — עדכוני הערוץ בעמוד הבית (בקשת צוריאל: רק הערוץ הזה כאן) ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 22px" }}>
-        <BrandTicker channel="reality-code" hidePostLinked withPosts peek={{ channel: "or-geula", to: "/broadcasts" }} />
-      </section>
+      {/* ===== רצועת השידור הממותגת הוסרה מהבית (בקשת צוריאל) — השורה העליונה (LiveActivityBar) מציגה את החדשות/פוסטים ===== */}
 
       {/* ===== ☀️ טיקר «תורת הרמז VIP» — הוסר זמנית מעמוד הבית (בקשת צוריאל 3.7): התוכן עדיין לא מאורגן. ===== */}
       {/* נשאר חי במרכז השידורים (/broadcasts). כשהתוכן יסודר — להחזיר עם convergesOnly. */}
