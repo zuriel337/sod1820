@@ -113,98 +113,20 @@ function useLiveTicker() {
   useEffect(() => {
     let live = true;
     async function load() {
-      const out = [];
-      const dayIdx = Math.floor(Date.now() / 864e5);
-      const verse = k => "📜 " + VERSES[(dayIdx + k) % VERSES.length];
-      // 📌 הודעות-טיקר ידניות (צוריאל שולט) — ראשונות, ומופיעות שוב באמצע הסבב
-      let featured = [];
-      try { featured = await getTickerMessages(); } catch { /* ignore */ }
-      for (const f of featured) out.push(f);
-      // 🌊 הרמז האחרון בזרם המציאות — מילה במילה, מופיע פעמיים (בקשת צוריאל)
-      let hintMsg = null;
+      // 🔒 בקשת צוריאל: הטיקר מציג *רק עדכוני-פוסטים אחרונים*, וכל עדכון פג אחרי 12 שעות.
+      //    אין עדכון ב-12 השעות האחרונות → הפס ריק (מוסתר). בלי פסוקים/עובדות/מספר-היום.
+      const items = [];
       try {
-        const hints = await getGalleryUpdates(1);
-        const hint = (hints || [])[0];
-        if (hint?.name) {
-          const hv = hint.primary_value != null ? ` · ${hint.primary_value}` : "";
-          hintMsg = `🌊 רמז אחרון בזרם המציאות — ${hint.name}${hv}`;
+        const posts = await getPostsFromSupabase({ limit: 20 });
+        const cutoff = Date.now() - 12 * 3600 * 1000;   // חלון 12 שעות
+        for (const p of (posts || [])) {
+          const ts = new Date(p.modified || p.date || 0).getTime();
+          if (!ts || ts < cutoff) continue;             // מחוץ ל-12 שעות → לא מוצג
+          const title = stripHtml(p.title || "").trim();
+          if (title) items.push({ post: true, text: title.slice(0, 80), slug: p.slug || null });
         }
       } catch { /* ignore */ }
-      if (hintMsg) out.push(hintMsg);
-      // 📜 פסוק גאולה — מוצג *במידה*, לא אינסוף. מכסה אישית: עד VERSE_DAILY_CAP ליום לכל מבקר.
-      // הפסוק מתחלף יומית (dayIdx) ומוסט לפי כמה כבר ראה היום → 2 פסוקים שונים ביום, לא חזרה.
-      const seen = versesSeenToday();
-      if (seen < VERSE_DAILY_CAP) out.push(verse(seen));
-      // 💡 החידושים האחרונים שנכנסו למערכת (insights · origin=ai) — תוכן טרי במקום חזרות.
-      // עד 2 חדשים, כותרת מקוצרת. הדה-דופ בסוף מונע כפילות אם אותו חידוש חוזר.
-      try {
-        const crosses = await getRecentCrosses(4);
-        for (const c of (crosses || []).slice(0, 2)) {
-          const title = stripHtml(c.title || "").trim().slice(0, 64);
-          if (title) out.push(`💡 חידוש אחרון: ${title}`);
-        }
-      } catch { /* ignore */ }
-      // 📝 פוסט אחרון + ✨ חידושי-אתר — נוספו למעלה (בקשת צוריאל 4.7: הטיקר אוטומטי לכל החידושים).
-      // ⛔ ספירת «כמה התכנסויות במאגר» הוסרה (בקשת צוריאל).
-      // ⛔ «X מילים נחקרו היום בבית המדרש» הוסר מהטיקר (בקשת צוריאל 2.7.2026)
-      try {
-        const { topNumber } = await getSearchStatsToday();
-        if (topNumber != null) out.push(`🔥 המספר הכי מבוקש היום: ${topNumber}`);
-      } catch { /* ignore */ }
-      // — עֵרים (תמיד) —
-      const nod = numberOfDay();
-      if (nod) out.push(`🔢 המספר של היום: ${nod.n} · ${nod.meaning}`);
-      // ⛔ הצלבות (כולל של חברים) הוסרו מהטיקר לגמרי (בקשת צוריאל).
-      // 🧩 ידעת? — שתי עובדות גימטריה (מסתובבות יומית כך שלא חוזרות תמיד)
-      out.push(`🧩 ידעת? ${GEM_FACTS[dayIdx % GEM_FACTS.length]}`);
-      out.push(`🧩 ידעת? ${GEM_FACTS[(dayIdx + 3) % GEM_FACTS.length]}`);
-      // 🗓️ היום בהיסטוריה — אירוע מציר ההתגלות "לפני N שנים"
-      try {
-        const events = await getAxisEvents(40);
-        const yrs = (events || []).filter(e => +(e.metadata?.year) > 1900);
-        if (yrs.length) {
-          const e = yrs[dayIdx % yrs.length];
-          const n = new Date().getFullYear() - +e.metadata.year;
-          const label = stripHtml(e.label || "").slice(0, 60);
-          if (label) out.push(`🗓️ ${n <= 0 ? "השנה" : n === 1 ? "לפני שנה" : `לפני ${n} שנים`}: ${label}`);
-        }
-      } catch { /* ignore */ }
-      // ⛔ «כמה חיפושים יש באתר» (total כל-הזמן) הוסר. ⛔ ספירת ההתכנסויות במאגר הוסרה (בקשת צוריאל).
-      const moed = moedGreeting();
-      if (moed) out.push(moed);
-      out.push(timeGreeting());
-      // — מבקרים היום: רק אם ≥ 2500 —
-      try {
-        const v = await getVisitorsToday();
-        if (v >= 2500) out.push(`👣 ${v.toLocaleString("he-IL")} כניסות היום`);
-      } catch { /* ignore */ }
-
-      // 🌳 עץ אחד — הסדר הסופי: החדש *תמיד* ראשון. (בקשת צוריאל 4.7: חידושי-האתר בהתחלה, לא בסוף.)
-      // fresh (חידושי-אתר + פוסט אחרון) → lives (עדכונים חיים) → out (התוכן המסתובב). בלי כפילויות.
-      const fresh = [];
-      try {
-        const ups = await getSiteUpdates(4);
-        for (const u of ups) if (u.title) fresh.push(`${u.icon || "✨"} ${u.title}`);
-      } catch { /* ignore */ }
-      try {
-        const latest = await getPostsFromSupabase({ limit: 1 });
-        const p0 = (latest || [])[0];
-        if (p0?.title) fresh.push(`📝 פוסט אחרון: ${stripHtml(p0.title).trim().slice(0, 70)}`);
-      } catch { /* ignore */ }
-      let lives = [];
-      try {
-        // 📡 «עדכון חי» — מצביע קומפקטי (הפרדת תפקידים 2.7): כאן כותרת + «← לצפייה», התוכן המלא בטיקרים הממותגים.
-        const ch = await getChannelUpdates(6);
-        lives = (ch || []).map(u => ({ live: true, id: u.id, text: u.text, channel: u.channel || "main",
-          urgent: !!u.is_urgent, credit: u.credit || null }));
-      } catch { /* ignore */ }
-      const seenKeys = new Set();
-      const final = [];
-      const add = it => { const k = typeof it === "string" ? it : it.text; if (k && !seenKeys.has(k)) { seenKeys.add(k); final.push(it); } };
-      fresh.forEach(add);           // 🌳 החדש קודם — תמיד בראש
-      lives.forEach(add);           // עדכונים חיים
-      out.forEach(add);             // תוכן מסתובב (רמז/חידושים/מספר-היום/פסוקים…)
-      if (live) setMsgs(final);
+      if (live) setMsgs(items);
     }
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 60000);
@@ -230,6 +152,7 @@ export default function LiveActivityBar() {
   const idx = msgs.length ? i % msgs.length : 0;
   const cur = msgs[idx] || "";
   const isLive = typeof cur === "object" && cur.live;
+  const isPost = typeof cur === "object" && cur.post;
   const isVerse = typeof cur === "string" && cur.startsWith("📜");
   // 📜 סופר צפייה בפסוק — כשפסוק מוצג בפועל, מקדם את המכסה היומית של המבקר (עד 2 ליום).
   // אחרי המכסה הבנייה-הבאה (≤60ש') תפסיק להזריק פסוקים למבקר הזה. כך «רואים פעמיים ביום».
@@ -292,6 +215,19 @@ export default function LiveActivityBar() {
               </span>
               {cur.text.length > 58 ? cur.text.slice(0, 58) + "…" : cur.text}
               <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>← לצפייה</b>
+            </Link>
+          </div>
+        ) : isPost ? (
+          /* 📝 עדכון-פוסט אחרון (≤12ש') — כותרת + «← לקריאה» אל הפוסט */
+          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
+            <Link to={cur.slug ? `/${encodeURIComponent(cur.slug)}` : "/post"}
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span style={{ background: "#3a2a08", color: "#ffe6ad", fontSize: 9.5, fontWeight: 900,
+                borderRadius: 999, padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.4, verticalAlign: "middle" }}>
+                📝 עדכון פוסט
+              </span>
+              {cur.text}
+              <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>← לקריאה</b>
             </Link>
           </div>
         ) : (
