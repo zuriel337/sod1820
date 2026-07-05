@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getAiAnalysis } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -183,6 +183,90 @@ const BASE8 = ["רגיל", "מסתתר", "מילוי", "קדמי", "סידורי
 const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
 
 // מתג התמה גלובלי בנאבבר (הוסר מדף המספר — כפילות)
+
+// 🤖 קריאת-מנוע על המספר — פרשנות AI לפי-בקשה (opt-in, חוסך קרדיט). נצברת (cache) לפי מספר.
+// יושר: ה-AI מפרש רק עובדות שסופקו (ערך · משמעות · מילים-שוות · עוגן) — לא מחשב גימטריה.
+// «קריאה נוספת» מופיעה *רק אחרי* שהקריאה הראשונה הסתיימה (בקשת צוריאל).
+function NumberAiReading({ value, meaning, anchor, phrases, counts, P }) {
+  const [state, setState] = useState("idle");   // idle | busy | done | off
+  const [text, setText] = useState("");
+  const ck = "sod_num_ai_" + value;
+
+  useEffect(() => {   // שחזור קריאה שמורה לאותו מספר (בלי לקרוא ל-AI שוב)
+    setState("idle"); setText("");
+    try { const c = localStorage.getItem("sod_num_ai_" + value); if (c) { setText(c); setState("done"); } } catch { /* noop */ }
+  }, [value]);
+
+  function buildFacts() {
+    const lines = [`הערך: ${value}`];
+    if (meaning) lines.push(`משמעות המספר: ${meaning}`);
+    if (anchor?.fact) lines.push(`מהות המספר: ${anchor.fact}`);
+    const top = (phrases || []).map(p => p.phrase).filter(Boolean).slice(0, 10);
+    if (top.length) lines.push(`מילים/ביטויים ששווים ל-${value}: ${top.join(" · ")}`);
+    const cparts = [];
+    if (counts?.posts) cparts.push(`${counts.posts} פוסטים`);
+    if (counts?.galleries) cparts.push(`${counts.galleries} גלריות`);
+    if (counts?.events) cparts.push(`${counts.events} אירועים בציר`);
+    if (cparts.length) lines.push(`מחובר ל: ${cparts.join(" · ")}`);
+    return lines.join("\n");
+  }
+
+  async function run(again = false) {
+    if (state === "busy") return;
+    setState("busy");
+    try { logView("number_ai_reading", String(value)); } catch { /* noop */ }
+    const analysis = await getAiAnalysis({
+      kind: "number",
+      subject: `המספר ${value}${meaning ? ` — ${meaning}` : ""}`,
+      facts: buildFacts(),
+      again,
+    }).catch(() => null);
+    if (analysis) { setText(analysis); setState("done"); try { localStorage.setItem(ck, analysis); } catch { /* noop */ } }
+    else setState("off");
+  }
+
+  return (
+    <div style={{ background: P.cardSoft, border: `1.5px solid #3ea6ff`, borderRadius: 16, padding: "15px 16px", boxShadow: "0 0 26px rgba(62,166,255,0.16)" }}>
+      <style>{`@keyframes sodAiPulse{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}`}</style>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
+        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>🤖 קריאת המנוע על {value}</span>
+        <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>AI · פרשנות</span>
+      </div>
+
+      {state === "done" && text ? (
+        <>
+          <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{text}</p>
+          {/* 🔁 קריאה נוספת — מופיעה רק אחרי שהראשונה הסתיימה (done) */}
+          <div style={{ textAlign: "center", marginTop: 12 }}>
+            <button onClick={() => run(true)}
+              style={{ cursor: "pointer", background: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 18px" }}>
+              🔁 קבלו קריאה נוספת
+            </button>
+          </div>
+        </>
+      ) : state === "busy" ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 9, color: P.accentDim, fontFamily: F.body, fontSize: 14, fontStyle: "italic", padding: "4px 0" }}>
+          <span style={{ animation: "sodAiPulse 1s ease-in-out infinite", display: "inline-block" }}>✍️</span> המנוע קורא את {value}…
+        </div>
+      ) : state === "off" ? (
+        <div style={{ textAlign: "center" }}>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>הקריאה אינה זמינה כרגע.</div>
+          <button onClick={() => run(false)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 16px" }}>↻ נסו שוב</button>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center" }}>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, maxWidth: 420, margin: "0 auto 12px" }}>
+            רוצים לשמוע מה המנוע רואה ב-{value}? פרשנות קצרה שמחברת בין המשמעות, המילים השוות וההתכנסויות — מבוססת רק על עובדות מאומתות.
+          </div>
+          <button onClick={() => run(false)}
+            style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 24px", boxShadow: `0 8px 26px ${P.glow}` }}>
+            🔮 קבלו קריאת מנוע
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // 🧬 פאנל ההתכנסות (יושב בתוך "מעבדה" כהה) — לביטוי: ערכי-שיטות (העוגן נבחר אוטומטית); למספר: ישר המד.
 function EntityConvergence({ term, isNumber, ragil }) {
@@ -1227,6 +1311,20 @@ export default function EntityPage({ embedPhrase } = {}) {
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
             </div>
         </Acc>
+
+        {/* ── 🤖 קריאת המנוע — פרשנות AI לפי-בקשה (רק למספרים; opt-in חוסך קרדיט) ── */}
+        {isNumber && (
+          <div style={{ margin: "0 0 6px" }}>
+            <NumberAiReading
+              value={value}
+              meaning={KEY_NUMBERS[value] || null}
+              anchor={anchor}
+              phrases={d.phrases || []}
+              counts={{ posts: d.postsCount, galleries: d.galleriesCount, events: d.eventsCount }}
+              P={P}
+            />
+          </div>
+        )}
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>

@@ -197,10 +197,14 @@ export default function JourneyPage() {
   }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 🔓 מסר-העומק — נפתח *רק אחרי* שהמשתמש קיבל את המסר הראשון ואז שיתף. נשמר פתוח לפי מספר.
-  async function fetchDeepMessage() {
+  // force=true → מתעלם מה-cache ומבקש מהמנוע מסר *נוסף* (בקשת צוריאל: אפשר לפתוח AI פעמיים אם רוצים).
+  async function fetchDeepMessage(force = false) {
     if (root == null) return;
+    if (deepState === "busy") return;
     const ck = "sod_jmsgdeep_" + root;
-    try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
+    if (!force) {
+      try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
+    }
     setDeepState("busy");
     trackAi("journey_deep", "journey");   // 📊 שימוש ב-AI — מסר-עומק (מסע)
     const msg = await getJourneyMessage({
@@ -209,6 +213,7 @@ export default function JourneyPage() {
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
       depth: "deep",
+      again: force || undefined,   // רמז למנוע: מסר נוסף/שונה
     });
     if (msg) { setDeepMsg(msg); setDeepState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
     else setDeepState("off");
@@ -435,7 +440,16 @@ export default function JourneyPage() {
                   <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>שכבה שנייה · אישית</span>
                 </div>
                 {deepState === "done" && deepMsg ? (
-                  <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
+                  <>
+                    <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
+                    {/* 🔁 מסר נוסף מהמנוע — לפי בקשה בלבד (אפשר פעמיים אם רוצים) */}
+                    <div style={{ textAlign: "center", marginTop: 12 }}>
+                      <button onClick={() => fetchDeepMessage(true)}
+                        style={{ cursor: "pointer", background: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 18px" }}>
+                        🔁 קבלו מסר נוסף מהמנוע
+                      </button>
+                    </div>
+                  </>
                 ) : deepState === "off" ? (
                   <div style={{ textAlign: "center" }}>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>מסר-העומק אינו זמין כרגע.</div>

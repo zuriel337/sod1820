@@ -356,11 +356,11 @@ export async function getNumberAnchor(value) {
 // 🤖 מסר-מסע אישי מהמנוע (AI) — Edge Function journey-message.
 // מקבל את המספר, מסלול הביטויים, העולם והמהות; מחזיר טקסט קצר בעברית או null.
 // נכשל בשקט (null) אם אין מפתח / שגיאה → הקורא נופל להודעת-התבנית הקיימת.
-export async function getJourneyMessage({ value, path, world, meaning, depth }) {
+export async function getJourneyMessage({ value, path, world, meaning, depth, again }) {
   if (!supabase || value == null) return null;
   try {
     const { data, error } = await supabase.functions.invoke('journey-message', {
-      body: { value, path, world, meaning, depth },
+      body: { value, path, world, meaning, depth, again },
     });
     if (error) return null;
     return data?.message || null;
