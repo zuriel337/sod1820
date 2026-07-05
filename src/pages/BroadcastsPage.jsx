@@ -13,17 +13,22 @@ import BrandTicker, { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../co
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
 const CHANNELS = ["sod-hachashmal", "reality-code", "torat-haremez", "or-geula"];
 
+// 🔒 ערוצים נעולים — לא מציגים עדכונים, מציגים שלט «נעול».
+const LOCKED_CHANNELS = new Set(["torat-haremez"]);
+
 function ChannelFeed({ channel, P, focusId }) {
   const b = BRANDS[channel];
+  const locked = LOCKED_CHANNELS.has(channel);
   const [items, setItems] = useState(null);
   const [lb, setLb] = useState(null);
   const scrolledRef = useRef(false);   // גלילה לעדכון המשותף — פעם אחת בלבד
 
   useEffect(() => {
+    if (locked) return;
     let live = true;
     getChannelUpdates(30, channel).then(r => { if (live) setItems(r || []); }).catch(() => live && setItems([]));
     return () => { live = false; };
-  }, [channel]);
+  }, [channel, locked]);
 
   return (
     <section id={`ch-${channel}`} style={{ marginBottom: 34, scrollMarginTop: 80 }}>
@@ -33,7 +38,13 @@ function ChannelFeed({ channel, P, focusId }) {
           {b.sub}
         </div>
       )}
-      {items === null ? (
+      {locked ? (
+        <div style={{ textAlign: "center", background: P.card, border: `1px dashed ${b.accent}66`, borderRadius: 12, padding: "22px 16px" }}>
+          <div style={{ fontSize: 26, marginBottom: 6 }}>🔒</div>
+          <div style={{ color: b.accent, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>הערוץ נעול כרגע</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>העדכונים בערוץ «{b.title}» סגורים לעת עתה.</div>
+        </div>
+      ) : items === null ? (
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "8px 4px" }}>טוען…</div>
       ) : items.length === 0 ? (
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, fontStyle: "italic", padding: "6px 4px" }}>
