@@ -16,46 +16,23 @@ import VerifiedBadge from "./VerifiedBadge.jsx";
  *     נגזרים מ-usePalette (P.mode/P.ink/P.cardSoft), והאקסנט הכחול #3ea6ff נשמר בשני המצבים.
  */
 
-// הנוסח הקבוע — מקור אמת אחד.
+// הנוסח הקבוע — מקור אמת אחד. הערה קצרה (2 שורות), לא ריבוע, לבקשת צוריאל.
 export const AI_DISCLAIMER =
-  "הנתונים בפוסט זה (תאריכים ומספרים) נבדקו ואומתו על ידי בינה מלאכותית. הפרשנות והחידוש הם של המערכת. כל תוספת המסומנת כ-AI נוספה על ידי הבינה המלאכותית — לא על ידי המערכת.";
+  "פוסט זה נכתב בשיתוף הבינה המלאכותית, והגימטריה והנתונים אומתו במנוע הרשמי.";
 
-const linkChip = (color) => ({
-  display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none",
-  background: `${color}14`, border: `1px solid ${color}55`, borderRadius: 999,
-  color, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "5px 12px",
-});
-
+// הערה קצרה (2 שורות) — לא ריבוע. באדג׳ מאומת + משפט אחד, ממורכז, מודע-פלטה.
 export function AiVerifiedDisclaimer() {
   const P = usePalette();
-  const dark = P.mode === "dark";
   return (
-    <div className="ai-vdisc" style={{
-      direction: "rtl",
-      // מודע-פלטה: כהה = הגרדיאנט הכהה המקורי · בהיר = תכלת עדין על קלף (לא כתם כהה)
-      background: dark
-        ? "linear-gradient(135deg, rgba(62,166,255,0.07), rgba(8,5,16,0.4))"
-        : "linear-gradient(135deg, rgba(62,166,255,0.10), rgba(255,255,255,0.65))",
-      border: `1px solid #3ea6ff55`, borderRadius: 14, padding: "14px 16px", margin: "0 auto 30px", maxWidth: 720,
+    <div className="ai-vnote" style={{
+      direction: "rtl", display: "flex", alignItems: "center", justifyContent: "center",
+      gap: 8, flexWrap: "wrap", textAlign: "center",
+      maxWidth: 620, margin: "0 auto 20px", padding: "0 12px",
     }}>
-      <style>{`
-        @media (max-width: 560px) {
-          .ai-vdisc { padding: 12px 13px !important; border-radius: 12px !important; }
-          .ai-vdisc .ai-vdisc-head { flex-direction: column !important; align-items: center !important; gap: 8px !important; text-align: center !important; }
-          .ai-vdisc .ai-vdisc-head p { text-align: center !important; flex-basis: auto !important; }
-          .ai-vdisc .ai-vdisc-chips a { flex: 1 1 100% !important; justify-content: center !important; }
-        }
-      `}</style>
-      <div className="ai-vdisc-head" style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-        <VerifiedBadge variant="ai" size={18} label="AI · מאומת" />
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: 0, flex: "1 1 220px", minWidth: 0, textAlign: "right" }}>
-          {AI_DISCLAIMER}
-        </p>
-      </div>
-      <div className="ai-vdisc-chips" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-        <Link to="/cross" style={linkChip("#3ea6ff")}>🔗 הצלבות השיטות שמצא ה-AI ←</Link>
-        <Link to="/verified" style={linkChip(P.accentText)}>✓ פוסטים מאומתים באתר ←</Link>
-      </div>
+      <VerifiedBadge variant="ai" size={15} label="AI · מאומת" />
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>
+        {AI_DISCLAIMER}
+      </span>
     </div>
   );
 }

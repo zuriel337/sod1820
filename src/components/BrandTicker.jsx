@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { getChannelUpdates } from "../lib/supabase.js";
-import { timeAgoHe } from "../lib/format.js";
+import { getChannelUpdates, getPostsFromSupabase } from "../lib/supabase.js";
+import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { trackShare } from "../lib/tracking.js";
 
 // וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
@@ -100,7 +100,7 @@ export function UpdateModal({ u, brand, onClose }) {
 // (כלל אפס-כפילות של broadcast_channels_law).
 // convergesOnly: בעמוד הבית הטיקר מציג רק התכנסויות אמיתיות (/topic/) ולא גימטריות בודדות (/number/).
 // הגימטריות הבודדות נשארות זמינות במרכז השידורים (/broadcasts) — עץ אחד, עדשה שונה.
-export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false }) {
+export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false, withPosts = false }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -111,17 +111,39 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
 
   useEffect(() => {
     let live = true;
-    const load = () => getChannelUpdates(8, channel).then(r => {
-      if (!live) return;
-      setHadRaw((r || []).length > 0);
-      setItems((r || []).filter(u =>
-        !(hidePostLinked && u.link_url) &&
-        !(convergesOnly && !isConvergenceUpdate(u))));
-    }).catch(() => {});
+    const load = async () => {
+      try {
+        const r = await getChannelUpdates(8, channel);
+        if (!live) return;
+        setHadRaw((r || []).length > 0);
+        const list = (r || []).filter(u =>
+          !(hidePostLinked && u.link_url) &&
+          !(convergesOnly && !isConvergenceUpdate(u)));
+        if (withPosts) {
+          // 📝 פוסטים אחרונים (24ש') — שנכתבו או קודמו (modified) — נכנסים לטיקר העליון,
+          //    לחיצים לפוסט. נוספים *אחרי* מסנן hidePostLinked כדי שלא ייחסמו (link_url=/slug).
+          const cutoff = Date.now() - 24 * 3600 * 1000;
+          const { posts } = await getPostsFromSupabase({ limit: 12 });
+          if (!live) return;
+          const seen = new Set(list.map(u => u.link_url).filter(Boolean));
+          for (const p of (posts || [])) {
+            const ts = new Date(p.modified || p.date || 0).getTime();
+            const to = p.slug ? `/${encodeURIComponent(p.slug)}` : null;
+            const text = stripHtml(p.title || "").trim();
+            if (!ts || ts < cutoff || !to || !text || seen.has(to)) continue;
+            seen.add(to);
+            list.push({ id: `post-${p.id}`, text, image_url: p.image_url || null,
+              credit: null, created_at: p.modified || p.date, link_url: to, _post: true });
+          }
+          list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        }
+        if (live) setItems(list);
+      } catch { /* ignore */ }
+    };
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [channel, hidePostLinked, convergesOnly]);
+  }, [channel, hidePostLinked, convergesOnly, withPosts]);
 
   useEffect(() => {
     if (!peek?.channel) return;

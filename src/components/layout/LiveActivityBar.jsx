@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { getSearchStatsToday, getGalleryUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
@@ -18,9 +18,9 @@ function useLiveTicker() {
       const items = [];
       const cutoff = Date.now() - 24 * 3600 * 1000;   // "טרי" = 24 שעות אחרונות
 
-      // 1) 📝 עדכוני-פוסטים טריים → לפוסט
+      // 1) 📝 עדכוני-פוסטים טריים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
       try {
-        const posts = await getPostsFromSupabase({ limit: 20 });
+        const { posts } = await getPostsFromSupabase({ limit: 20 });
         for (const p of (posts || [])) {
           const ts = new Date(p.modified || p.date || 0).getTime();
           if (!ts || ts < cutoff) continue;
@@ -69,9 +69,7 @@ const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊" };
 // קבוע בכל האתר דרך ה-Layout. תמה-מודע: כהה תמיד כדי להתאים ל-chrome החום-כהה.
 export default function LiveActivityBar() {
   const isLight = useThemeMode() === "light";
-  const { pathname } = useLocation();
-  // ⛔ בלי שני טיקרים (בקשת צוריאל): בבית ובצ'אט יש טיקר ממותג — העליון מוסתר שם.
-  const hasBrandTicker = pathname === "/" || pathname.startsWith("/community/chat");
+  // 📡 השורה העליונה מוצגת בכל האתר (בקשת צוריאל: הוסרו רצועות השידור הממותגות מהבית/צ'אט).
   const barBg = isLight
     ? "linear-gradient(90deg, #241b0e, #2f2415, #241b0e)"
     : "linear-gradient(90deg, rgba(60,40,5,0.55), rgba(80,55,8,0.7), rgba(60,40,5,0.55))";
@@ -87,7 +85,7 @@ export default function LiveActivityBar() {
     return () => clearTimeout(id);
   }, [i, msgs.length]);
 
-  if (hasBrandTicker || !msgs.length || !cur) return null;
+  if (!msgs.length || !cur) return null;
 
   return (
     <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
