@@ -91,7 +91,8 @@ export default function HomeNewPage() {
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
-    getPostsFromSupabase({ limit: 8, orderBy: "modified" }).then(({ posts: r }) => { setPosts(r || []); markSeenKey("home-posts"); }).catch(() => {});
+    // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). מושכים מעט יותר ומסננים.
+    getPostsFromSupabase({ limit: 12, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !(p.tags || []).includes("לא-בבית")).slice(0, 8)); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
