@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
@@ -217,6 +217,8 @@ function WordsConsole({ srcLabel }) {
   const [enText, setEnText] = useState("");
   const [enMsg, setEnMsg] = useState("");
   const [enBusy, setEnBusy] = useState(false);
+  const [triage, setTriage] = useState(null);     // 🧹 ספירת דליי-הסינון
+  const [triageBusy, setTriageBusy] = useState(false);
   const PAGE = 40;
   useEffect(() => { const t = setTimeout(() => { setQ(qLive); setOffset(0); }, 400); return () => clearTimeout(t); }, [qLive]);
   const load = useCallback(async () => {
@@ -225,6 +227,17 @@ function WordsConsole({ srcLabel }) {
     setData(d); setLoading(false);
   }, [scope, q, offset]);
   useEffect(() => { load(); }, [load]);
+  // 🧹 ספירת דליי-הסינון — נטען כשמסתכלים על «ממתינות».
+  const loadTriage = useCallback(async () => { if (mode === "he" && scope === "pending") { const t = await adminTriageCounts(); setTriage(t?.error ? null : t); } }, [mode, scope]);
+  useEffect(() => { loadTriage(); }, [loadTriage]);
+  const bulkTriage = async (action) => {
+    const label = action === "reject_junk" ? `לדחות ${triage?.reject || 0} מילות-זבל (ספאם/משפטים/פסוקים)?` : `לאשר ${triage?.approve || 0} מילים נקיות ומחוברות?`;
+    if (!confirm(label)) return;
+    setTriageBusy(true);
+    try { const n = await adminBulkTriage(action); await load(); await loadTriage(); alert(`בוצע על ${n} מילים.`); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setTriageBusy(false); }
+  };
   // 🌍 מילים בשפות אחרות — word_aliases (lang≠he). אישור/הסתרה/מחיקה דרך admin_manage_alias.
   const loadIntl = useCallback(async () => {
     const { data } = await supabase.from("word_aliases")
@@ -321,6 +334,18 @@ function WordsConsole({ srcLabel }) {
       </div>
       <input value={qLive} onChange={e => setQLive(e.target.value)} placeholder="🔍 חיפוש מילה…" dir="rtl"
         style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, color: C.goldLight, fontFamily: F.body, fontSize: 16, padding: "10px 13px", marginBottom: 12, outline: "none" }} />
+      {/* 🧹 סינון-מסה — 3 דליים לפי המלצת-המנוע. שני כפתורים מנקים אלפים בקליק. */}
+      {scope === "pending" && triage && triage.total > 0 && (
+        <div style={{ ...card, marginBottom: 12, borderColor: C.borderGold, padding: "12px 14px" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>🧹 סינון-חכם — {triage.total.toLocaleString("he")} ממתינות</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 10 }}>המנוע פיצל לפי המלצה. דחה את הזבל ואשר את הטוב בקליק — נשאר לך לעבור ידנית רק על ה«אמצע».</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <button disabled={triageBusy || !triage.reject} onClick={() => bulkTriage("reject_junk")} style={btn(triage.reject ? "#7a3f45" : "transparent", "#fff")}>🚫 דחה זבל · {triage.reject}</button>
+            <button disabled={triageBusy || !triage.approve} onClick={() => bulkTriage("approve_good")} style={btn(triage.approve ? "#2f8f4e" : "transparent", "#fff")}>✅ אשר טוב · {triage.approve}</button>
+            <span style={{ color: "#e0b34a", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>👁 לעין אנושית: {triage.review}</span>
+          </div>
+        </div>
+      )}
       {forbidden ? <div style={{ ...card, color: "#d98a92" }}>אין הרשאת-אדמין (התחבר כאדמין).</div>
         : loading && !rows.length ? <div style={{ ...card, color: C.muted }}>טוען…</div>
         : !rows.length ? <div style={{ ...card, color: C.muted }}>אין מילים בקטגוריה זו. 🌳</div>

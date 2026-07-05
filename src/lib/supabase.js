@@ -248,6 +248,15 @@ export async function sendNewsletter({ subject, html, source = null, testEmail =
   if (error) throw error;
   return data;
 }
+// 🧹 סינון-מסה לערימות-ההמתנה — ספירת דליים + פעולת-מסה (reject_junk / approve_good).
+export async function adminTriageCounts() {
+  if (!supabase) return null;
+  try { const { data, error } = await supabase.rpc('admin_triage_counts'); if (error) return null; return data; } catch { return null; }
+}
+export async function adminBulkTriage(action) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('admin_bulk_triage', { p_action: action }); if (error) throw error; return data;
+}
 // 🌍 מילים חדשות באנגלית — aliases מאומתים אחרונים (lang≠he) עם המילה העברית והערך.
 export async function getRecentEnglishWords(limit = 6) {
   if (!supabase) return [];
