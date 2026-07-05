@@ -94,11 +94,16 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
         ))}
       </div>
 
+      {/* ✦ הפרשנות שמחברת — מבין=אמונה (102) ⇢ השגחה פרטית (1020) */}
+      <div style={{ color: co.goldLight || C.goldLight, fontFamily: F.body, fontSize: "clamp(14px,2vw,16px)", lineHeight: 1.75, maxWidth: 440, margin: "0 auto 18px" }}>
+        ✦ <b style={{ color: gold }}>ההבנה האמיתית היא להאמין</b> — «מבין» ו«אמונה» הם אותו ערך.<br />ומהאמונה נולדת <b style={{ color: gold }}>השגחה פרטית</b>.
+      </div>
+
       <div style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(16px,2.2vw,19px)", fontWeight: 800, marginBottom: 4 }}>
-        ✨ רוצים לראות עוד רמזים כאלה?
+        ✨ רוצים לקבל עוד חיבורים כמו אלה?
       </div>
       <div style={{ color: co.muted || C.muted, fontFamily: F.body, fontSize: 14, marginBottom: 16 }}>
-        השאירו מייל — ונשלח לכם התכנסויות מפתיעות. בלי הצפה, אפשר לבטל בכל רגע.
+        השאירו מייל — ונשלח לכם התכנסויות ורמזים מפתיעים. בלי הצפה, אפשר לבטל בכל רגע.
       </div>
 
       <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
