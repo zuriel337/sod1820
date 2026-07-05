@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
+import { METHODS } from "../lib/gematria.js";
+import { englishSimple, hasLatin } from "../lib/englishGematria.js";
+
+// מחשב ערך-רגיל בצד-לקוח (מנוע רשמי) — לבדיקה מיידית במעבדה.
+const ragilFn = METHODS.find(m => m.key === "רגיל").fn;
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
 // 🌍 מנוע השפה — מרכז-בקרה מלא: כל המילים החדשות בכל השפות, מקור מפורט, ואישור/הסתרה/מחיקה.
@@ -190,6 +195,79 @@ function RecentWordsFeed({ srcLabel }) {
             {loading ? "טוען…" : `טען עוד (${(total - offset).toLocaleString("he")} נותרו)`}
           </button>
         </div>
+      )}
+    </div>
+  );
+}
+
+// 🧪 מעבדת התכנסויות — שולחן-עבודה: מקלידים ביטוי → רואים מיד עם מה הוא מתכנס → מוסיפים למאגר.
+function ConvergenceLab() {
+  const [q, setQ] = useState("");
+  const [val, setVal] = useState(null);       // {ragil, en, enVal}
+  const [conv, setConv] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [added, setAdded] = useState([]);     // מה שהוספתי הפעם
+  const [msg, setMsg] = useState("");
+  const heb = q.replace(/[^א-ת ]/g, "").trim();   // אותיות עבריות בלבד
+  const check = async () => {
+    setMsg("");
+    const en = hasLatin(q);
+    const ragil = heb ? ragilFn(heb) : null;
+    setVal({ ragil, en, enVal: en ? englishSimple(q) : null });
+    if (ragil) { setLoading(true); const d = await adminValueConvergence(ragil); setConv(d?.error ? null : d); setLoading(false); }
+    else setConv(null);
+  };
+  const add = async () => {
+    if (!heb || !val?.ragil) return;
+    setBusy(true); setMsg("");
+    try {
+      const r = await adminAddWord(heb, { ragil: val.ragil });
+      if (r === "added") { setAdded(a => [{ phrase: heb, ragil: val.ragil }, ...a]); setMsg(`✓ «${heb}» נוסף — מתכנס עכשיו עם ${(conv?.rows || []).length} ביטויים ב-${val.ragil}`); await check(); }
+      else if (r === "exists") setMsg("כבר קיים במאגר.");
+      else setMsg("לא נוסף: " + r);
+    } catch (e) { setMsg("שגיאה: " + (e.message || e)); }
+    finally { setBusy(false); }
+  };
+  const exists = (conv?.rows || []).some(w => w.phrase === heb);
+  return (
+    <div style={{ ...card, borderColor: C.borderGold }}>
+      <h3 style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 16.5, fontWeight: 800, margin: "0 0 4px" }}>🧪 מעבדת התכנסויות</h3>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 11 }}>הקלד ביטוי → ראה מיד עם מה הוא מתכנס → הוסף למאגר כדי לבנות התכנסות. (לדוגמה: «גוד קינג» → 176 → «כסא המלך».)</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+        <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === "Enter" && check()} placeholder="הקלד ביטוי (עברית / אנגלית)…" dir="rtl"
+          style={{ flex: "1 1 240px", minWidth: 180, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, color: C.goldLight, fontFamily: F.body, fontSize: 17, padding: "11px 14px", outline: "none" }} />
+        <button onClick={check} style={{ ...btn("rgba(212,175,55,.2)", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 14, padding: "9px 20px" }}>בדוק ↩</button>
+      </div>
+      {val && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+            {val.ragil != null && <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 18 }}>{heb} = <b style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 22 }}>{val.ragil}</b></span>}
+            {val.en && <span style={{ color: "#5ec8ff", fontFamily: F.heading, fontSize: 13 }}>🇺🇸 English Simple = {val.enVal}</span>}
+          </div>
+          {val.ragil != null && (
+            loading ? <div style={{ color: C.muted }}>טוען התכנסות…</div> : (
+              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                  <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🎯 התכנסות {val.ragil} · {(conv?.rows || []).length} ביטויים</span>
+                  {!exists && heb && <button disabled={busy} onClick={add} style={btn("#2f8f4e")}>➕ הוסף «{heb}» למאגר</button>}
+                  {exists && <span style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>✓ כבר בהתכנסות</span>}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 160, overflowY: "auto" }}>
+                  {(conv?.rows || []).length === 0 ? <span style={{ color: C.muted, fontSize: 12 }}>אין עדיין ביטויים בערך הזה — תהיה הראשון.</span>
+                    : (conv.rows || []).map((w, i) => (
+                      <span key={i} title={w.is_verified ? "מאומת" : "ממתין"} style={{ background: w.is_verified ? "rgba(123,191,123,.1)" : "rgba(224,179,74,.1)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 11px", color: C.goldLight, fontFamily: F.body, fontSize: 13.5 }}>{w.phrase}{!w.is_verified ? " ⏳" : ""}</span>
+                    ))}
+                </div>
+              </div>
+            )
+          )}
+          {val.ragil == null && val.en && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5 }}>ביטוי אנגלי — ההוספה למאגר-האנגלית נעשית דרך «🌍 EN» בקונסולה. כאן מוצג הערך בלבד.</div>}
+        </div>
+      )}
+      {msg && <div style={{ color: msg.startsWith("✓") ? "#7bbf7b" : C.muted, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>{msg}</div>}
+      {added.length > 0 && (
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>נוספו הפעם: {added.map(a => `${a.phrase} (${a.ragil})`).join(" · ")}</div>
       )}
     </div>
   );
@@ -529,6 +607,11 @@ export default function LanguageEngineTab() {
         <Stat label="🌍 אנגלית מאושרות" value={stats.enVerified} tone="#7bbf7b" />
         <Stat label="🌍 אנגלית ממתינות" value={stats.enPending} tone="#e0b34a" />
         <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
+      </div>
+
+      {/* ══ 🧪 מעבדת התכנסויות — שולחן-העבודה: הקלד → ראה התכנסות → הוסף ══ */}
+      <div style={{ margin: "18px 0 8px" }}>
+        <ConvergenceLab />
       </div>
 
       {/* ══ 🔗 סוגי התכנסויות ממתינות — לראות ולהחליט איפה תוכן-אנשים חי ══ */}
