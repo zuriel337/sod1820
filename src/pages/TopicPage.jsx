@@ -197,6 +197,29 @@ export default function TopicPage() {
         </div>
       )}
 
+      {/* התכנסות — כל שורה: ביטוי + הערך שלו מימין (convergence_display_law) */}
+      {Array.isArray(f.rows) && f.rows.length > 0 && (
+        <div style={{ ...box, marginBottom: 20 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>🔢 ההתכנסות — כל ביטוי והערך שלו</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {f.rows.map((r, i) => {
+              const v = typeof r === "object" && r ? r.v : null;
+              const p = typeof r === "object" && r ? r.p : String(r);
+              const note = typeof r === "object" && r ? r.note : null;
+              return (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                  <Link to={`/number/${v}`} style={{ flex: "0 0 auto", minWidth: 56, textAlign: "center", fontFamily: F.mono, fontWeight: 800, color: "#241a02", background: "linear-gradient(135deg,#ffd86b,#d8b34a)", borderRadius: 8, padding: "2px 9px", textDecoration: "none", fontVariantNumeric: "tabular-nums" }}>{v}</Link>
+                  <span style={{ flex: "1 1 auto", minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.55 }}>
+                    <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: "inherit", textDecoration: "none", borderBottom: `1px dotted ${P.borderStrong}` }}>{p}</Link>
+                    {note && <span style={{ color: P.inkSoft, fontSize: 12.5 }}> · {note}</span>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* חיבורים */}
       {Array.isArray(f.connections) && f.connections.length > 0 && (
         <div style={{ ...box, marginBottom: 20 }}>

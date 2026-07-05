@@ -2103,6 +2103,12 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-rows > div:first-child { margin-top: 0; }
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
+  /* convergence_display_law (חקוק): כל שורה = ביטוי אחד + הערך שלו מימין (גלולת-זהב). ברור לכל אדם. */
+  .sod-post-content .sod-gematria-box .gb-line { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; }
+  .sod-post-content .sod-gematria-box .gb-line:first-child { margin-top: 0; }
+  .sod-post-content .sod-gematria-box .gb-val { flex: 0 0 auto; min-width: 56px; text-align: center; font-weight: 800; color: #241a02 !important; background: linear-gradient(135deg, #ffd86b, #d8b34a); border-radius: 8px; padding: 2px 9px; font-size: 0.94em; font-variant-numeric: tabular-nums; }
+  .sod-post-content .sod-gematria-box .gb-line .gb-val a { color: #241a02 !important; text-decoration: none !important; border: 0 !important; }
+  .sod-post-content .sod-gematria-box .gb-phrase { flex: 1 1 auto; line-height: 1.55; min-width: 0; }
 
   /* 📜 פסוק — קופסת ציטוט קנונית (post_verse_law): תקין בשני המצבים (כהה+בהיר) בלי inline.
      שימוש: <blockquote class="sod-verse">…«פסוק»… <b>מילים מודגשות</b></blockquote>. */
