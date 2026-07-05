@@ -211,6 +211,13 @@ export async function adminReviewWord(id, action) {
   if (error) throw error;
   return data;
 }
+// 🙈 הסתרת מילה/ביטוי לנצח מכל המאגר (אדמין בדף המספר). מסמן את כל השורות עם אותו טקסט.
+export async function adminHideWord(phrase) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('admin_hide_word', { p_phrase: phrase });
+  if (error) throw error;
+  return data;   // { ok, hidden, phrase } | { error }
+}
 // 🔔 אירועי-גילוי — זיהוי התכנסויות אמיתיות + שליחת מייל לרשימה (עץ אחד: אותה רשימת subscribers).
 export async function scanDiscoveryEvents({ days = 7, minMembers = 8 } = {}) {
   if (!supabase) return null;

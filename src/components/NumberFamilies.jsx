@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getValueFamilies, getMethodFamilies } from "../lib/supabase.js";
+import { getValueFamilies, getMethodFamilies, adminHideWord } from "../lib/supabase.js";
 import { useGold } from "../lib/goldTier.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { worldColor, WORLD_FAMILIES } from "../lib/worlds.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 
@@ -20,10 +21,23 @@ const BIDIM_FNS = [...METHODS, ...DEPTH_METHODS].filter(m => BIDIM_KEYS.has(m.ke
 export default function NumberFamilies({ value, highlight, term, isNumber = true }) {
   const P = usePalette();
   const gold = useGold();
+  const { isAdmin } = useAuth();
   const [fams, setFams] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [legend, setLegend] = useState(false);
+  const [hidden, setHidden] = useState(() => new Set());   // 🙈 מילים שהאדמין הסתיר (הסרה אופטימית)
   const expr = !!term && !isNumber;
+
+  // 🙈 הסתרת מילה לנצח מכל המאגר (אדמין בלבד). אישור → הסרה מיידית מה-UI → קריאה ל-RPC.
+  async function hideWord(phrase) {
+    if (!phrase) return;
+    if (!window.confirm(`להסתיר לנצח את «${phrase}» מכל המאגר?\nהמילה תיעלם מכל דפי-המספר. ניתן לשחזר במסוף-המילים בניהול.`)) return;
+    setHidden(s => new Set(s).add(phrase));   // אופטימי
+    try {
+      const r = await adminHideWord(phrase);
+      if (r?.error) { setHidden(s => { const n = new Set(s); n.delete(phrase); return n; }); alert("לא ניתן להסתיר: " + r.error); }
+    } catch { setHidden(s => { const n = new Set(s); n.delete(phrase); return n; }); alert("שגיאה בהסתרה — נסו שוב"); }
+  }
 
   useEffect(() => {
     let live = true; setFams(null);
@@ -56,16 +70,26 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
   const Word = ({ phrase, world, ragil, method }) => {
     const isG = gold.labels.has(phrase);
     return (
-      <Link to={`/number/${encodeURIComponent(phrase)}`} style={{
-        textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
-        color: isG ? P.onAccent : P.accentText, background: isG ? P.accentBtn : P.card,
-        border: `1px solid ${isG ? "transparent" : P.border}`, borderRadius: 999, padding: "4px 12px",
-        fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : 500,
-      }}>
-        {isG ? "✦ " : ""}{phrase}
-        {method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
-        {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
-      </Link>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+        <Link to={`/number/${encodeURIComponent(phrase)}`} style={{
+          textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
+          color: isG ? P.onAccent : P.accentText, background: isG ? P.accentBtn : P.card,
+          border: `1px solid ${isG ? "transparent" : P.border}`, borderRadius: 999, padding: "4px 12px",
+          fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : 500,
+        }}>
+          {isG ? "✦ " : ""}{phrase}
+          {method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
+          {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
+        </Link>
+        {/* 🙈 אדמין — הסתר לנצח מכל המאגר */}
+        {isAdmin && (
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideWord(phrase); }}
+            title="הסתר לנצח מכל המאגר" aria-label={`הסתר את ${phrase}`}
+            style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim,
+              borderRadius: 999, width: 22, height: 22, fontSize: 11, lineHeight: 1, padding: 0, flexShrink: 0,
+              display: "inline-flex", alignItems: "center", justifyContent: "center" }}>🙈</button>
+        )}
+      </span>
     );
   };
 
@@ -86,7 +110,7 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
         </div>
         {desc && M_DESC[g.method] && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginBottom: 6, lineHeight: 1.5 }}>{M_DESC[g.method]}</div>}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          {g.phrases.map((p, i) => <Word key={i} {...p} method={g.method} />)}
+          {g.phrases.filter(p => !hidden.has(p.phrase)).map((p, i) => <Word key={i} {...p} method={g.method} />)}
           {g.count > g.phrases.length && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, alignSelf: "center" }}>+{g.count - g.phrases.length}</span>}
         </div>
       </div>
