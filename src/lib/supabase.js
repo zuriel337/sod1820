@@ -248,6 +248,11 @@ export async function sendNewsletter({ subject, html, source = null, testEmail =
   if (error) throw error;
   return data;
 }
+// 🔗 סוגי-התכנסויות ממתינות — ליבה / קהילה / מעורב (להחלטה איפה תוכן-אנשים חי).
+export async function adminConvergenceTypes(min = 2) {
+  if (!supabase) return null;
+  try { const { data, error } = await supabase.rpc('admin_convergence_types', { p_min: min }); if (error) return null; return data; } catch { return null; }
+}
 // 🧹 סינון-מסה לערימות-ההמתנה — ספירת דליים + פעולת-מסה (reject_junk / approve_good).
 export async function adminTriageCounts() {
   if (!supabase) return null;

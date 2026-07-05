@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { kindBadge, activeFlags } from "../lib/wordQuality.js";
 
@@ -189,6 +189,54 @@ function RecentWordsFeed({ srcLabel }) {
           <button onClick={() => loadMore(offset)} disabled={loading} style={{ ...btn("rgba(212,175,55,.15)", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 13, padding: "9px 24px" }}>
             {loading ? "טוען…" : `טען עוד (${(total - offset).toLocaleString("he")} נותרו)`}
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🔗 סוגי-התכנסויות ממתינות — לצוריאל לראות ולהחליט: ליבה (מצטרף לגרעין) · קהילה (חדש מאנשים) · מעורב.
+const CONV_KIND = { core: { e: "🏛️", t: "ליבה", c: "#7bbf7b", d: "מצטרף להתכנסות קיימת של האתר" }, community: { e: "👥", t: "קהילה", c: "#c58cff", d: "התכנסות חדשה מאנשים — נפרד מהאתר" }, mixed: { e: "🔀", t: "מעורב", c: "#e0b34a", d: "גרעין קטן + תוספת" } };
+function ConvergenceTypesPanel() {
+  const [data, setData] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("all");
+  useEffect(() => { if (open && !data) adminConvergenceTypes(2).then(d => setData(d?.error ? [] : (d || []))).catch(() => setData([])); }, [open, data]);
+  const rows = (data || []).filter(r => filter === "all" || r.kind === filter);
+  const sum = k => (data || []).filter(r => r.kind === k).reduce((a, r) => a + (r.pending || 0), 0);
+  return (
+    <div>
+      <button onClick={() => setOpen(o => !o)} style={{ ...btn(open ? "rgba(212,175,55,.15)" : "transparent", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 13, padding: "8px 16px" }}>
+        🔗 סוגי התכנסויות ממתינות {open ? "▲" : "▾"}
+      </button>
+      {open && (
+        <div style={{ ...card, marginTop: 10 }}>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 10 }}>לראות אילו התכנסויות נוצרות מהתוכן הממתין — לפני שמחליטים איפה תוכן-אנשים חי (אתר / אזור-משתמשים נפרד).</div>
+          {!data ? <div style={{ color: C.muted }}>טוען…</div> : (
+            <>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                {[["all", `הכל (${data.length})`], ...Object.keys(CONV_KIND).map(k => [k, `${CONV_KIND[k].e} ${CONV_KIND[k].t}`])].map(([k, l]) => (
+                  <button key={k} onClick={() => setFilter(k)} style={{ ...btn(filter === k ? "rgba(212,175,55,.2)" : "transparent", filter === k ? C.goldBright : C.muted), border: `1px solid ${filter === k ? C.borderGold : C.border}` }}>{l}{k !== "all" ? ` · ${sum(k)}` : ""}</button>
+                ))}
+              </div>
+              <div style={{ display: "grid", gap: 7, maxHeight: 420, overflowY: "auto" }}>
+                {rows.slice(0, 120).map((r, i) => {
+                  const ck = CONV_KIND[r.kind] || CONV_KIND.mixed;
+                  return (
+                    <div key={i} style={{ border: `1px solid ${C.border}`, borderInlineStart: `3px solid ${ck.c}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                        <span style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>🎯 {r.value}</span>
+                        <span style={{ color: ck.c, fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>{ck.e} {ck.t}</span>
+                        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11.5 }}>{r.pending} ממתינים{r.verified_core > 0 ? ` · ${r.verified_core} בליבה` : ""}</span>
+                        <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 10 }}>· {(r.sources || []).join(", ")}</span>
+                      </div>
+                      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, lineHeight: 1.6 }}>{(r.sample || []).join(" · ")}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -483,8 +531,13 @@ export default function LanguageEngineTab() {
         <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
       </div>
 
+      {/* ══ 🔗 סוגי התכנסויות ממתינות — לראות ולהחליט איפה תוכן-אנשים חי ══ */}
+      <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+        <ConvergenceTypesPanel />
+      </div>
+
       {/* ══ 🔔 אירועי גילוי — מיילים חכמים (רק כשמתגלה התכנסות אמיתית) ══ */}
-      <div style={{ margin: "22px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+      <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
         <DiscoveryPanel />
       </div>
 
