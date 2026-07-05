@@ -4582,7 +4582,8 @@ function PostPageBySlug({ onNav }) {
                   ))}
                 </div>
               )}
-              <h1 style={{ color: pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
+              {/* 🔒 חוק: בבהיר הכותרת שחורה (ink) לקריאוּת — זהב שמור לכהה. */}
+              <h1 style={{ color: P.mode === "light" ? P.ink : pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
               {hotWeek && (
                 <div style={{ textAlign: "center", margin: "-8px 0 18px" }}>
                   <span title="חם השבוע" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e0556a", fontFamily: F.heading, fontSize: 13, fontWeight: 800, border: "1px solid rgba(224,85,106,0.4)", background: "rgba(224,85,106,0.10)", borderRadius: 999, padding: "3px 13px" }}>
@@ -4621,11 +4622,11 @@ function PostPageBySlug({ onNav }) {
                 );
               })()}
               {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה (לועזי + עברי) + תאריך עדכון (לועזי בלבד) */}
-              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: P.mode === "light" ? P.ink : pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
                 <span title="תאריך יצירת הפוסט">
                   📅 נוצר: {date}{dateHeb ? <span style={{ opacity: 0.65 }}> / {dateHeb}</span> : null}
                 </span>
-                {modified && <span style={{ color: pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
+                {modified && <span style={{ color: P.mode === "light" ? P.ink : pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
               </div>
               <RoyalDivider width={160} />
             </div>
