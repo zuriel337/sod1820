@@ -37,7 +37,7 @@ export default function BeitMidrashOverview() {
 
   useEffect(() => {
     let live = true;
-    getRecentCommunityWords(2).then(w => { if (live) setNewWords(w || []); }).catch(() => {});
+    getRecentCommunityWords(6).then(w => { if (live) setNewWords(w || []); }).catch(() => {});
     // 🔒 פרטיות: תוכן-חיפושים נמשך לאדמין בלבד; הציבור מקבל «פעילות חיה» (ActivityPulse)
     if (isAdmin) {
       getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});
@@ -93,48 +93,26 @@ export default function BeitMidrashOverview() {
           )}
         </div>
 
-        {/* הצלבות המנוע — דסקטופ בלבד */}
+        {/* ✦ מילים חדשות שעלו — דסקטופ (הצלבות המנוע הוסרו זמנית לבקשת צוריאל) */}
         {!isMobile && (
           <div style={{ minWidth: 0 }}>
             <div style={secTitle}>
-              🔮 הצלבות המנוע
-              {newCount > 0 && <span style={{ background: "#e8a200", color: "#1a0e00", borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, boxShadow: "0 0 7px #e8a200" }}>🆕 {newCount}</span>}
-              <Link to="/beit-midrash?tab=crosses" style={seeAll}>כל ההצלבות →</Link>
+              ✦ מילים חדשות שעלו
+              <Link to="/beit-midrash?tab=calc" style={seeAll}>עוד →</Link>
             </div>
-            {cr.length === 0 ? (
+            {newWords.length === 0 ? (
               <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
             ) : (
               <div style={{ display: "grid", gap: 7, marginTop: 9 }}>
-                {cr.map(c => (
-                  <Link key={c.id} to="/beit-midrash?tab=crosses" style={{ textDecoration: "none", display: "block", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                      <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.35 }}>{c.title}</span>
-                      {countNewCrosses([c]) > 0 && <span style={{ color: L.goldHi, fontSize: 11, fontWeight: 800 }}>🆕</span>}
-                      {c.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap" }}>{crossDate(c.created_at)}</span>}
-                    </div>
+                {newWords.slice(0, 6).map((w, i) => (
+                  <Link key={i} to={`/number/${encodeURIComponent(w.phrase)}`} title={`${w.phrase} = ${w.ragil}`}
+                    style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
+                    <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.phrase}</span>
+                    <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 9px", flex: "0 0 auto" }}>{w.ragil}</span>
+                    {w.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(w.created_at)}</span>}
                   </Link>
                 ))}
               </div>
-            )}
-
-            {/* ✦ מילים חדשות שעלו — שתי שורות מתחת להצלבות (מצביע לדף המספר; עץ אחד) */}
-            {newWords.length > 0 && (
-              <>
-                <div style={{ ...secTitle, marginTop: 14 }}>
-                  ✦ מילים חדשות שעלו
-                  <Link to="/beit-midrash?tab=calc" style={seeAll}>עוד →</Link>
-                </div>
-                <div style={{ display: "grid", gap: 7, marginTop: 9 }}>
-                  {newWords.slice(0, 2).map((w, i) => (
-                    <Link key={i} to={`/number/${encodeURIComponent(w.phrase)}`} title={`${w.phrase} = ${w.ragil}`}
-                      style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
-                      <span style={{ flex: 1, minWidth: 0, color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.phrase}</span>
-                      <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 9px", flex: "0 0 auto" }}>{w.ragil}</span>
-                      {w.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(w.created_at)}</span>}
-                    </Link>
-                  ))}
-                </div>
-              </>
             )}
           </div>
         )}

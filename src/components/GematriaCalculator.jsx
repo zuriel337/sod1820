@@ -9,6 +9,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/translit.js";
+import { englishSimple, hasLatin, EN_METHODS } from "../lib/englishGematria.js";
 import { getAliasLexicon, logTranslitQuery } from "../lib/feedback.js";
 import FoundItFeedback from "./FoundItFeedback.jsx";
 
@@ -34,6 +35,9 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const inputType = classifyInput(word);
   const translit = useMemo(() => (inputType === "english" && word ? transliterate(word, { lexicon }) : null), [word, inputType, lexicon]);
   const translitBest = translit && translit.candidates[0] ? translit.candidates[0] : null;
+  // 🇺🇸 גימטריה אנגלית ילידית (Simple) — כדי שקלט אנגלי לעולם לא יראה 0. LCE-seed.
+  const enSimple = useMemo(() => (inputType === "english" && hasLatin(word) ? englishSimple(word) : null), [word, inputType]);
+  const [enMethodsOpen, setEnMethodsOpen] = useState(false);
   // רישום החיפוש-האנגלי (למונה ה-hits ולמידת-הקהילה) — פעם לכל מילה.
   useEffect(() => {
     if (inputType === "english" && word && translitBest) {
@@ -212,20 +216,45 @@ export default function GematriaCalculator({ seed, onResult, research = false })
         }} />
         {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
 
-        {/* 🌍 עזר-אנגלית: תעתוק פונטי + גימטריה + משוב אוניברסלי «מצאנו את מה שחיפשת?» (בונה את מנוע-השפה עם הקהילה) */}
-        {translitBest && (
+        {/* 🌍 עזר-אנגלית: קלט אנגלי לעולם לא רואה 0. תעתוק עברי (אם קיים) + English Simple (תמיד). */}
+        {inputType === "english" && word && enSimple != null && (
           <div style={{ marginTop: 11, background: "#f3f7ff", border: "1px solid #c9d9f5", borderRadius: 12, padding: "10px 12px", textAlign: "right" }}>
+            {/* 🔁 תעתוק עברי — רק אם נמצא */}
+            {translitBest ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span style={{ fontFamily: F.heading, fontSize: 12, fontWeight: 800, color: "#2c5fb3" }}>🔁 תעתוק עברי</span>
+                <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>
+                  «{word}» → <b>{translitBest.hebrew}</b>{" "}
+                  <span style={{ color: "#5a6b85", fontSize: 12 }}>({translitBest.method === "translation" ? "תרגום" : "תעתוק"}{translit.source === "lexicon" ? " · מאומת" : ""})</span>
+                  {" = "}<b style={{ fontFamily: F.mono, color: "#2c5fb3" }}>{valOf("רגיל", translitBest.hebrew)}</b>
+                </span>
+                <button onClick={() => setQ(translitBest.hebrew)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px", minHeight: 32 }}>חשב את «{translitBest.hebrew}» ←</button>
+              </div>
+            ) : (
+              <div style={{ color: "#5a6b85", fontFamily: F.body, fontSize: 12, marginBottom: 8 }}>לא נמצא תעתוק עברי מאומת — אפשר לחפש ידנית.</div>
+            )}
+            {/* 🇺🇸 English Simple — תמיד. תג לחיץ שחושף שיטות עתידיות. */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontFamily: F.heading, fontSize: 12, fontWeight: 800, color: "#2c5fb3" }}>🇺🇸 אנגלית</span>
-              <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>
-                «{word}» → <b>{translitBest.hebrew}</b>{" "}
-                <span style={{ color: "#5a6b85", fontSize: 12 }}>({translitBest.method === "translation" ? "תרגום" : "תעתוק"}{translit.source === "lexicon" ? " · מאומת" : ""})</span>
-                {" = "}<b style={{ fontFamily: F.mono, color: "#2c5fb3" }}>{valOf("רגיל", translitBest.hebrew)}</b>
-              </span>
-              <button onClick={() => setQ(translitBest.hebrew)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "#2c5fb3", border: "none", borderRadius: 999, color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "5px 14px", minHeight: 32 }}>חשב את «{translitBest.hebrew}» ←</button>
+              <button onClick={() => setEnMethodsOpen(o => !o)} title="שיטות נוספות בקרוב"
+                style={{ cursor: "pointer", background: "#eaf0fb", border: "1px solid #cfe0fb", borderRadius: 999, color: "#2c5fb3", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>
+                🇺🇸 English Simple {enMethodsOpen ? "▲" : "▾"}
+              </button>
+              <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>«{word}» = <b style={{ fontFamily: F.mono, color: "#2c5fb3", fontSize: 16 }}>{enSimple}</b></span>
+              <span style={{ color: "#8a94a6", fontFamily: F.body, fontSize: 11 }}>A=1 … Z=26</span>
             </div>
-            <FoundItFeedback context="search" query={word} inputNorm={normEn(word)} meta={{ kind: "translit" }}
-              options={translit.candidates.slice(1, 3).map(c => ({ label: c.hebrew, hebrew: c.hebrew }))} tone="light" />
+            {enMethodsOpen && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                {EN_METHODS.map(m => (
+                  <span key={m.key} title={m.note} style={{ background: m.active ? "#eaf0fb" : "#f4f5f7", border: `1px solid ${m.active ? "#cfe0fb" : "#e2e4e8"}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11, fontWeight: 700, color: m.active ? "#2c5fb3" : "#a0a6b0" }}>
+                    {m.active ? "✓ " : ""}{m.label}{!m.active ? " · בקרוב" : ""}
+                  </span>
+                ))}
+              </div>
+            )}
+            {translitBest && (
+              <FoundItFeedback context="search" query={word} inputNorm={normEn(word)} meta={{ kind: "translit" }}
+                options={translit.candidates.slice(1, 3).map(c => ({ label: c.hebrew, hebrew: c.hebrew }))} tone="light" />
+            )}
           </div>
         )}
 
