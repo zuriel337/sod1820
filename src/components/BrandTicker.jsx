@@ -30,6 +30,8 @@ export const BRANDS = {
   "reality-code":   { title: "קוד המציאות", emoji: "🎬", accent: "#9d7bff", glow: "rgba(157,123,255,.35)", bg: "linear-gradient(90deg, rgba(34,22,63,.8), rgba(52,33,96,.9), rgba(34,22,63,.8))",
                       wa: "https://whatsapp.com/channel/0029Vb7CqG67Noa2cZUPug1k" },   // הצטרפות לערוץ
   "sod-hachashmal": { title: "סוד החשמל", emoji: "⚡", accent: "#5ec8ff", glow: "rgba(94,200,255,.32)", bg: "linear-gradient(90deg, rgba(8,38,58,.8), rgba(12,55,84,.9), rgba(8,38,58,.8))" },
+  // 📢 חדשות האתר — ערוץ-המערכת: מה עלה, מה בקרוב, החזון. לא מוואטסאפ (site:true → בלי אייקון WA).
+  "site-news":      { title: "חדשות האתר", emoji: "🆕", accent: "#e8c15a", glow: "rgba(232,193,90,.35)", bg: "linear-gradient(90deg, rgba(63,48,10,.8), rgba(92,71,18,.9), rgba(63,48,10,.8))", site: true },
   "torat-haremez":  { title: "תורת הרמז VIP", emoji: "☀️", accent: "#ffb347", glow: "rgba(255,179,71,.35)", bg: "linear-gradient(90deg, rgba(70,42,8,.8), rgba(105,64,12,.9), rgba(70,42,8,.8))",
                       sub: "כל התותחים של עולם הרמז בקבוצה · בשיתוף בינה מלאכותית 🤖" },
 };
@@ -184,7 +186,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
             <i style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", animation: "bt-dot 1.2s infinite" }} />
             LIVE
           </span>
-          {b.wa ? (
+          {!b.site && (b.wa ? (
             <a href={b.wa} target="_blank" rel="noopener noreferrer" title="המקור: ערוץ הוואטסאפ — לחצו להצטרפות"
               style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", justifyContent: "center",
                 width: 20, height: 20, borderRadius: "50%", background: "#25d366", color: "#fff", textDecoration: "none" }}>
@@ -195,6 +197,10 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
               width: 20, height: 20, borderRadius: "50%", background: "#25d366", color: "#fff" }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2z" /></svg>
             </span>
+          ))}
+          {b.site && (
+            <span title="עדכוני המערכת" style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 20, height: 20, borderRadius: "50%", background: b.accent, color: "#191008", fontSize: 12 }}>📢</span>
           )}
           <span style={{ flex: 1 }} />
           {items.length > 1 && (
@@ -279,7 +285,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
         <div style={{ marginTop: 7, paddingTop: 6, borderTop: `1px solid ${b.accent}26`, display: "flex",
           alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ color: "#a99a7c", fontFamily: F.heading, fontSize: 9.5, letterSpacing: 0.3 }}>
-            🛠 ערוץ שידורים אוטומטי · בהרצה
+            {b.site ? "📢 חדשות ועדכוני המערכת" : "🛠 ערוץ שידורים אוטומטי · בהרצה"}
           </span>
           <Link to="/broadcasts" style={{ marginInlineStart: "auto", color: b.accent, fontFamily: F.heading,
             fontSize: 10.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>

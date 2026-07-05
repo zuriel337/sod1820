@@ -11,7 +11,7 @@ import BrandTicker, { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../co
 
 // 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
 // עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
-const CHANNELS = ["sod-hachashmal", "reality-code", "torat-haremez", "or-geula"];
+const CHANNELS = ["site-news", "sod-hachashmal", "reality-code", "torat-haremez", "or-geula"];
 
 // 🔒 ערוצים נעולים — לא מציגים עדכונים, מציגים שלט «נעול».
 const LOCKED_CHANNELS = new Set(["torat-haremez"]);
