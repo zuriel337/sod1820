@@ -1,5 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { C, F } from "../theme.js";
+
+// 🔢 ספירה-עולה — המספר «רץ» מ-0 ליעד כשהוא נכנס למסך (אפקט-משפך חי).
+function CountUp({ target, dur = 1100 }) {
+  const [n, setN] = useState(0);
+  const ref = useRef(null);
+  useEffect(() => {
+    let raf, start, seen = false;
+    const run = () => {
+      const tick = (t) => {
+        if (!start) start = t;
+        const p = Math.min((t - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        setN(Math.round(target * eased));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver((es) => {
+      es.forEach(e => { if (e.isIntersecting && !seen) { seen = true; run(); } });
+    }, { threshold: 0.4 });
+    if (ref.current) io.observe(ref.current);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [target, dur]);
+  return <span ref={ref}>{n.toLocaleString("he")}</span>;
+}
+
+// 🌫️ שכבת מספרים-נודדים ברקע — ambiance «משפך חי».
+const FLOAT_NUMS = ["358", "1820", "102", "1020", "26", "776", "424", "541", "72"];
+function FloatingNumbers() {
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      {FLOAT_NUMS.map((num, i) => (
+        <span key={i} style={{
+          position: "absolute", left: `${(i * 11 + 5) % 92}%`, bottom: -40,
+          fontFamily: F.mono, fontSize: `${14 + (i % 4) * 6}px`, fontWeight: 800,
+          color: "rgba(212,175,55,0.13)", whiteSpace: "nowrap",
+          animation: `sodFloatUp ${9 + (i % 5) * 2.5}s linear ${i * 1.3}s infinite`,
+        }}>{num}</span>
+      ))}
+    </div>
+  );
+}
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { subscribeEmail, getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
@@ -59,11 +101,12 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
   }
 
   const box = {
-    marginTop: 52, direction: "rtl", textAlign: "center",
+    marginTop: 52, direction: "rtl", textAlign: "center", position: "relative", overflow: "hidden",
     background: co.surface || C.surface, border: `1px solid ${co.borderGold || C.borderGold}`,
     borderRadius: 14, padding: "26px 22px",
   };
   const gold = co.goldBright || C.goldBright;
+  const fx = <style>{`@keyframes sodFloatUp{0%{transform:translateY(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(-340px);opacity:0}}@keyframes sodTeaserIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>;
 
   if (done) {
     return (
@@ -77,6 +120,9 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
 
   return (
     <form onSubmit={submit} style={box}>
+      {fx}
+      <FloatingNumbers />
+      <div style={{ position: "relative", zIndex: 1 }}>
       {/* 🔢 הטיזר — ההוק לפני הבקשה */}
       <div style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,21px)", fontWeight: 800, marginBottom: 14 }}>
         🔢 ידעתם?
@@ -84,11 +130,12 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
       <div style={{ display: "grid", gap: 8, maxWidth: 420, margin: "0 auto 18px" }}>
         {TEASERS.map((t, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap",
-            background: "rgba(212,175,55,0.08)", border: `1px solid ${co.border || C.border}`, borderRadius: 12, padding: "10px 14px" }}>
+            background: "rgba(212,175,55,0.08)", border: `1px solid ${co.border || C.border}`, borderRadius: 12, padding: "10px 14px",
+            animation: `sodTeaserIn .5s ease ${i * 0.18}s both` }}>
             <span style={{ color: co.goldLight || C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{t.a}</span>
             {t.b && <><span style={{ color: co.muted || C.muted }}>=</span><span style={{ color: co.goldLight || C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{t.b}</span></>}
             <span style={{ color: co.muted || C.muted }}>=</span>
-            <span style={{ color: gold, fontFamily: F.mono, fontSize: 19, fontWeight: 800 }}>{t.v}</span>
+            <span style={{ color: gold, fontFamily: F.mono, fontSize: 20, fontWeight: 800, textShadow: "0 0 14px rgba(212,175,55,0.45)" }}><CountUp target={t.v} /></span>
             {t.note && <span style={{ color: gold, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, background: "rgba(212,175,55,0.18)", borderRadius: 999, padding: "2px 10px" }}>✦ {t.note}</span>}
           </div>
         ))}
@@ -120,6 +167,7 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
         }}>{busy ? "רושם…" : "כן, שלחו לי עוד →"}</button>
       </div>
       {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
+      </div>
     </form>
   );
 }
