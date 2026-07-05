@@ -2104,6 +2104,20 @@ const POST_CONTENT_CSS = `
   .sod-post-content .sod-gematria-box .gb-note { margin-top: 10px; font-size: 0.85em; color: #a59b80; line-height: 1.6; }
   .sod-post-content .sod-gematria-box b { color: ${C.goldBright}; }
 
+  /* 📜 פסוק — קופסת ציטוט קנונית (post_verse_law): תקין בשני המצבים (כהה+בהיר) בלי inline.
+     שימוש: <blockquote class="sod-verse">…«פסוק»… <b>מילים מודגשות</b></blockquote>. */
+  .sod-post-content .sod-verse {
+    max-width: 620px; margin: 18px auto; padding: 12px 18px; border-radius: 8px;
+    border-inline-start: 3px solid ${C.goldBright}; direction: rtl; text-align: right;
+    background: rgba(212,175,55,0.06); color: #f0e9d6;
+    font-size: 1.05em; line-height: 2.05; font-weight: 500;
+  }
+  .sod-post-content .sod-verse b { color: ${C.goldBright}; font-weight: 700; }
+  [data-theme="light"] .sod-post-content .sod-verse {
+    border-inline-start-color: #b07d12; background: rgba(176,125,18,0.07); color: #2a2416;
+  }
+  [data-theme="light"] .sod-post-content .sod-verse b { color: #8a6410; }
+
   /* post_text_colors_law v3 (חקוק): עיצוב ברירת-המחדל של פוסט «של המציאות» — לא וורדפרס.
      טקסט רץ: לבן רך, משקל רגיל, נעים לעין. זהב שמור לערכים ולאקסנטים — לא הכל צהוב.
      גימטריה = data-gem → פותחת את מגירת המספר בתוך הדף (לא ניווט החוצה).
