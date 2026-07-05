@@ -404,13 +404,14 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🤖 ניתוח AI גנרי לכלי המחקר (השוואה · נוטריקון · פסוק · פסוק-יומי) — Edge Function ai-analyze.
 // facts = עובדות מאומתות מהמנוע (ערכים שכבר חושבו). ה-AI רק מפרש, לא מחשב. null בכשל/ללא מפתח.
-export async function getAiAnalysis({ kind, subject, facts }) {
+export async function getAiAnalysis({ kind, subject, facts, again }) {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts } });
-    if (error) return null;
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again } });
+    if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
+    if (data?.error) { try { console.warn('[ai-analyze] server:', data.error, data.detail || ''); } catch { /* noop */ } }
     return data?.analysis || null;
-  } catch { return null; }
+  } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].

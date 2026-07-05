@@ -250,7 +250,7 @@ function NumberAiReading({ value, meaning, anchor, phrases, counts, P }) {
         </div>
       ) : state === "off" ? (
         <div style={{ textAlign: "center" }}>
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>הקריאה אינה זמינה כרגע.</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>לא הצלחנו להגיע למנוע כרגע — בדקו חיבור ונסו שוב.</div>
           <button onClick={() => run(false)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 16px" }}>↻ נסו שוב</button>
         </div>
       ) : (
