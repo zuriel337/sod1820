@@ -1,139 +1,68 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { F, KEY_NUMBERS } from "../../theme.js";
-import { BRANDS } from "../BrandTicker.jsx";
+import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getRecentCrosses, getSearchStatsToday, getVisitorsToday, getAxisEvents, getGalleryUpdates, getTickerMessages, getChannelUpdates, getSiteUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
+import { getSearchStatsToday, getGalleryUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 
-// 🧩 עובדות גימטריה — כל זוג אומת במנוע הרשמי (fn_ragil). ל"ידעת?".
-// כל זוג אומת במנוע (fn_ragil) — סוד=יין=70 · לב=כבוד=32 · אני=אין=61 · אהבה=אחד=13 …
-const GEM_FACTS = [
-  "נחש = משיח = 358", "אהבה = אחד = 13", "הטבע = אלהים = 86",
-  "אריה = גבורה = 216", "סוד = יין = 70", "אדם = מה = 45",
-  "לב = כבוד = 32", "אני = אין = 61",
-];
-
-// 📜 פסוקי גאולה ונחמה — רוטציה שצוריאל שולט בה (לא אוטומטי). 3 מתחלפים ביום
-// לפי dayIdx. לעריכה: הוסף/הסר שורות כאן. מוצגים עם גלישה (2 שורות) ולא נחתכים.
-const VERSES = [
-  "וְעַתָּה כֹּה אָמַר ה' בֹּרַאֲךָ יַעֲקֹב וְיֹצֶרְךָ יִשְׂרָאֵל — אַל תִּירָא כִּי גְאַלְתִּיךָ, קָרָאתִי בְשִׁמְךָ לִי אָתָּה (ישעיהו מ״ג, א׳)",
-  "אַל תִּירָא כִּי עִמְּךָ אָנִי, אַל תִּשְׁתָּע כִּי אֲנִי אֱלֹהֶיךָ (ישעיהו מ״א, י׳)",
-  "כִּי תַעֲבֹר בַּמַּיִם אִתְּךָ אָנִי וּבַנְּהָרוֹת לֹא יִשְׁטְפוּךָ (ישעיהו מ״ג, ב׳)",
-  "כִּי הֶהָרִים יָמוּשׁוּ וְהַגְּבָעוֹת תְּמוּטֶנָה — וְחַסְדִּי מֵאִתֵּךְ לֹא יָמוּשׁ (ישעיהו נ״ד, י׳)",
-  "קוּמִי אוֹרִי כִּי בָא אוֹרֵךְ וּכְבוֹד ה' עָלַיִךְ זָרָח (ישעיהו ס׳, א׳)",
-  "נַחֲמוּ נַחֲמוּ עַמִּי יֹאמַר אֱלֹהֵיכֶם (ישעיהו מ׳, א׳)",
-  "הֲתִשְׁכַּח אִשָּׁה עוּלָהּ... גַּם אֵלֶּה תִשְׁכַּחְנָה וְאָנֹכִי לֹא אֶשְׁכָּחֵךְ (ישעיהו מ״ט, ט״ו)",
-  "מַחְשְׁבוֹת שָׁלוֹם וְלֹא לְרָעָה, לָתֵת לָכֶם אַחֲרִית וְתִקְוָה (ירמיהו כ״ט, י״א)",
-  "וְשָׁבוּ בָנִים לִגְבוּלָם (ירמיהו ל״א, ט״ז)",
-  "ה' אֱלֹהַיִךְ בְּקִרְבֵּךְ גִּבּוֹר יוֹשִׁיעַ, יָשִׂישׂ עָלַיִךְ בְּשִׂמְחָה (צפניה ג׳, י״ז)",
-  "הִנֵּה לֹא יָנוּם וְלֹא יִישָׁן שׁוֹמֵר יִשְׂרָאֵל (תהילים קכ״א, ד׳)",
-  "וְשָׁב ה' אֱלֹהֶיךָ אֶת שְׁבוּתְךָ וְרִחֲמֶךָ, וְשָׁב וְקִבֶּצְךָ מִכָּל הָעַמִּים (דברים ל׳, ג׳)",
-  "כִּי מָלְאָה הָאָרֶץ דֵּעָה אֶת ה' כַּמַּיִם לַיָּם מְכַסִּים (ישעיהו י״א, ט׳)",
-  "וְגָר זְאֵב עִם כֶּבֶשׂ וְנָמֵר עִם גְּדִי יִרְבָּץ (ישעיהו י״א, ו׳)",
-  "וְכִתְּתוּ חַרְבוֹתָם לְאִתִּים וַחֲנִיתוֹתֵיהֶם לְמַזְמֵרוֹת (ישעיהו ב׳, ד׳)",
-  "וּפְדוּיֵי ה' יְשֻׁבוּן וּבָאוּ צִיּוֹן בְּרִנָּה וְשִׂמְחַת עוֹלָם עַל רֹאשָׁם (ישעיהו ל״ה, י׳)",
-  "וְהָיָה ה' לְמֶלֶךְ עַל כָּל הָאָרֶץ, בַּיּוֹם הַהוּא יִהְיֶה ה' אֶחָד וּשְׁמוֹ אֶחָד (זכריה י״ד, ט׳)",
-  "וְנָתַתִּי לָכֶם לֵב חָדָשׁ וְרוּחַ חֲדָשָׁה אֶתֵּן בְּקִרְבְּכֶם (יחזקאל ל״ו, כ״ו)",
-  "וְלָקַחְתִּי אֶתְכֶם מִן הַגּוֹיִם וְקִבַּצְתִּי אֶתְכֶם מִכָּל הָאֲרָצוֹת (יחזקאל ל״ו, כ״ד)",
-  "עוֹד יֵשְׁבוּ זְקֵנִים וּזְקֵנוֹת בִּרְחֹבוֹת יְרוּשָׁלָ͏ִם (זכריה ח׳, ד׳)",
-  "וּרְחֹבוֹת הָעִיר יִמָּלְאוּ יְלָדִים וִילָדוֹת מְשַׂחֲקִים בִּרְחֹבֹתֶיהָ (זכריה ח׳, ה׳)",
-  "הַזֹּרְעִים בְּדִמְעָה בְּרִנָּה יִקְצֹרוּ (תהילים קכ״ו, ה׳)",
-  "בְּשׁוּב ה' אֶת שִׁיבַת צִיּוֹן הָיִינוּ כְּחֹלְמִים (תהילים קכ״ו, א׳)",
-  "כִּי לֹא יִטֹּשׁ ה' עַמּוֹ וְנַחֲלָתוֹ לֹא יַעֲזֹב (תהילים צ״ד, י״ד)",
-  "טוֹב ה' לַכֹּל וְרַחֲמָיו עַל כָּל מַעֲשָׂיו (תהילים קמ״ה, ט׳)",
-  "קָרוֹב ה' לְכָל קֹרְאָיו לְכֹל אֲשֶׁר יִקְרָאֻהוּ בֶאֱמֶת (תהילים קמ״ה, י״ח)",
-  "כִּי מִצִּיּוֹן תֵּצֵא תוֹרָה וּדְבַר ה' מִירוּשָׁלָ͏ִם (ישעיהו ב׳, ג׳)",
-  "וְהָיָה בְּאַחֲרִית הַיָּמִים נָכוֹן יִהְיֶה הַר בֵּית ה' בְּרֹאשׁ הֶהָרִים (ישעיהו ב׳, ב׳)",
-  "מִי אֵל כָּמוֹךָ נֹשֵׂא עָוֺן וְעֹבֵר עַל פֶּשַׁע (מיכה ז׳, י״ח)",
-  "וְלֹא יִלְמְדוּ עוֹד מִלְחָמָה (ישעיהו ב׳, ד׳)",
-  "וְרָאוּ כָל בְּשָׂר יַחְדָּו כִּי פִּי ה' דִּבֵּר (ישעיהו מ׳, ה׳)",
-  "וּמָחָה ה' אֱלֹהִים דִּמְעָה מֵעַל כָּל פָּנִים (ישעיהו כ״ה, ח׳)",
-];
-
-// 📜 מכסת-פסוקים יומית לכל מבקר — כדי שהנבואה לא תחזור «מיליון פעם»: כל אדם רואה עד
-// VERSE_DAILY_CAP פסוקים ביום (אם יסתכל למעלה). נשמר ב-localStorage לפי תאריך מקומי;
-// אחרי המכסה — לא מזריקים פסוקים למבקר הזה עד למחר. הפסוק עצמו מתחלף יומית מתוך מאגר גדול.
-const VERSE_DAILY_CAP = 2;
-function verseDayKey() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
-function versesSeenToday() {
-  try { const o = JSON.parse(localStorage.getItem("sod_verse_day") || "{}"); return o.d === verseDayKey() ? (o.n || 0) : 0; }
-  catch { return 0; }
-}
-function bumpVersesSeen() {
-  try {
-    const d = verseDayKey();
-    const o = JSON.parse(localStorage.getItem("sod_verse_day") || "{}");
-    const n = (o.d === d ? (o.n || 0) : 0) + 1;
-    localStorage.setItem("sod_verse_day", JSON.stringify({ d, n }));
-  } catch { /* noop */ }
-}
-
-// 🕯️ ברכת מועד (ערב/מוצאי שבת · ראש חודש) — null אם אין מועד מיוחד
-function moedGreeting() {
-  const d = new Date(), day = d.getDay(), h = d.getHours();
-  if (day === 5 && h >= 12) return "🕯️ שבת שלום ומבורך";          // ערב שבת
-  if (day === 6) return h < 20 ? "🕯️ שבת שלום" : "✨ שבוע טוב ומבורך"; // שבת / מוצ"ש
-  try {
-    const hd = new Intl.DateTimeFormat("he-u-ca-hebrew-nu-latn", { day: "numeric" }).format(d);
-    if (hd === "1" || hd === "30") return "🌑 חודש טוב";          // ראש חודש
-  } catch { /* ignore */ }
-  return null;
-}
-
-// האם תאריך הוא "היום" (לפי שעון מקומי)
-function isToday(d) {
-  if (!d) return false;
-  const x = new Date(d), n = new Date();
-  return x.getFullYear() === n.getFullYear() && x.getMonth() === n.getMonth() && x.getDate() === n.getDate();
-}
-
-// 🗓 המספר של היום — אותה לוגיקה דטרמיניסטית כמו רכיב NumberOfDay (חוק העץ האחד).
-function numberOfDay() {
-  const keys = Object.keys(KEY_NUMBERS).map(Number).sort((a, b) => a - b);
-  if (!keys.length) return null;
-  const n = keys[Math.floor(Date.now() / 864e5) % keys.length];
-  return { n, meaning: KEY_NUMBERS[n] };
-}
-
-// 🕯️ ברכה לפי שעת היום (טהור, בלי נתונים)
-function timeGreeting() {
-  const h = new Date().getHours();
-  if (h >= 5 && h < 12) return "🌅 בוקר טוב — יום חדש בדרך לגאולה";
-  if (h >= 12 && h < 17) return "☀️ צהריים טובים — האור מאיר את המספרים";
-  if (h >= 17 && h < 21) return "🌇 ערב טוב — שעה טובה לחקור רמז";
-  return "🌙 לילה טוב — האור עולה מתוך החושך";
-}
-
-// 📡 בונה הודעות טיקר חי. קודם ה"טריים" (התכנסות/פוסט/מילים היום), ואז העֵרים שתמיד
-// מלאים (המספר של היום · רמז אחרון · גודל המאגר · ברכה) — כך הפס לעולם לא דליל.
-// "מבקרים היום" מתווסף רק אם ≥ 2500. מתרענן כל דקה (רק כשהטאב גלוי).
+// 📡 בונה חדשות-טיקר טריות. כל פריט = דבר שקרה היום/עכשיו, לחיץ, מוביל למקומו.
+// מקורות: עדכוני-פוסטים · תמונות חדשות בזרם המציאות · מדדים יומיים. מתחלף כל יום, בלי חזרות.
 function useLiveTicker() {
   const [msgs, setMsgs] = useState([]);
   useEffect(() => {
     let live = true;
     async function load() {
-      // 🔒 בקשת צוריאל: הטיקר מציג *רק עדכוני-פוסטים אחרונים*, וכל עדכון פג אחרי 12 שעות.
-      //    אין עדכון ב-12 השעות האחרונות → הפס ריק (מוסתר). בלי פסוקים/עובדות/מספר-היום.
+      // 🔒 בקשת צוריאל: הטיקר = *חדשות טריות יומיות* בלבד — דברים שקרו היום/עכשיו ומתחלפים
+      //    כל יום, בלי חזרות. כל פריט לחיץ ומוביל למקומו (פוסט/זרם המציאות/דף המספר).
+      //    מקורות: עדכוני-פוסטים טריים · תמונות חדשות בזרם המציאות · מדדים יומיים.
       const items = [];
+      const cutoff = Date.now() - 24 * 3600 * 1000;   // "טרי" = 24 שעות אחרונות
+
+      // 1) 📝 עדכוני-פוסטים טריים → לפוסט
       try {
         const posts = await getPostsFromSupabase({ limit: 20 });
-        const cutoff = Date.now() - 12 * 3600 * 1000;   // חלון 12 שעות
         for (const p of (posts || [])) {
           const ts = new Date(p.modified || p.date || 0).getTime();
-          if (!ts || ts < cutoff) continue;             // מחוץ ל-12 שעות → לא מוצג
+          if (!ts || ts < cutoff) continue;
           const title = stripHtml(p.title || "").trim();
-          if (title) items.push({ post: true, text: title.slice(0, 80), slug: p.slug || null });
+          if (title) items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post" });
         }
       } catch { /* ignore */ }
-      if (live) setMsgs(items);
+
+      // 2) 🖼️ תמונות חדשות בזרם המציאות (היום) → לזרם המציאות
+      try {
+        const imgs = await getGalleryUpdates(20);
+        for (const g of (imgs || [])) {
+          const ts = new Date(g.stream_at || g.created_at || 0).getTime();
+          if (!ts || ts < cutoff) continue;
+          const nm = (g.name || "").trim();
+          const label = nm ? nm.slice(0, 46) : (g.primary_value ? `מספר ${g.primary_value}` : "רמז חדש");
+          items.push({ kind: "reality", text: `תמונה חדשה בזרם המציאות — ${label}`, to: "/reality" });
+        }
+      } catch { /* ignore */ }
+
+      // 3) 📊 מדדים יומיים (מתחלפים מעצמם) → מרכז המחקר / דף המספר החם
+      try {
+        const s = await getSearchStatsToday();
+        if (s?.month >= 50) items.push({ kind: "stat", text: `${Number(s.month).toLocaleString("he")} חיפושים בוצעו החודש באתר`, to: "/beit-midrash" });
+        if (s?.searches >= 20) items.push({ kind: "stat", text: `${Number(s.searches).toLocaleString("he")} חיפושים בוצעו היום`, to: "/beit-midrash" });
+        if (s?.topNumber) items.push({ kind: "stat", text: `המספר הכי נחקר היום — ${s.topNumber}`, to: `/number/${s.topNumber}` });
+      } catch { /* ignore */ }
+
+      // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
+      const seen = new Set(); const uniq = [];
+      for (const it of items) { if (seen.has(it.text)) continue; seen.add(it.text); uniq.push(it); }
+      if (live) setMsgs(uniq.slice(0, 12));
     }
     load();
-    const id = setInterval(() => { if (!document.hidden) load(); }, 60000);
+    const id = setInterval(() => { if (!document.hidden) load(); }, 120000);
     return () => { live = false; clearInterval(id); };
   }, []);
   return msgs;
 }
+
+// אייקון + תווית-מקור קצרה לפי סוג הפריט (בלי «ריבוע» כבד — רק אמוג'י)
+const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
@@ -150,21 +79,15 @@ export default function LiveActivityBar() {
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
   const idx = msgs.length ? i % msgs.length : 0;
-  const cur = msgs[idx] || "";
-  const isLive = typeof cur === "object" && cur.live;
-  const isPost = typeof cur === "object" && cur.post;
-  const isVerse = typeof cur === "string" && cur.startsWith("📜");
-  // 📜 סופר צפייה בפסוק — כשפסוק מוצג בפועל, מקדם את המכסה היומית של המבקר (עד 2 ליום).
-  // אחרי המכסה הבנייה-הבאה (≤60ש') תפסיק להזריק פסוקים למבקר הזה. כך «רואים פעמיים ביום».
-  useEffect(() => { if (isVerse) bumpVersesSeen(); }, [idx, isVerse]);
-  // קצב רגוע (בקשת צוריאל). פסוק = שורה ארוכה → זמן קריאה ארוך יותר לפני המעבר הבא.
+  const cur = (msgs[idx] && typeof msgs[idx] === "object") ? msgs[idx] : null;
+  // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף.
   useEffect(() => {
     if (msgs.length < 2) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, isVerse ? 11000 : isLive ? 9500 : 7000);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 7000);
     return () => clearTimeout(id);
-  }, [i, msgs.length, isVerse, isLive]);
+  }, [i, msgs.length]);
 
-  if (hasBrandTicker || !msgs.length) return null;
+  if (hasBrandTicker || !msgs.length || !cur) return null;
 
   return (
     <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
@@ -189,50 +112,25 @@ export default function LiveActivityBar() {
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
-        /* 📜 פסוק — ארוך, לכן נגלל ל-2 שורות (לא נחתך), טון פרגמנט עדין. */
-        .lt-msg.verse { white-space:normal; text-overflow:clip; line-height:1.35; font-size:12px;
-          max-width:94%; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
-        /* טלפון: «עכשיו באתר» מוסתר — ההודעה ממורכזת בכל הרוחב. בדסקטופ התג נשאר. */
+        /* 📱 טלפון: «עכשיו באתר» (הריבוע הימני) מוסתר לגמרי — ההודעה ממורכזת בכל הרוחב, בלי גניבת-שורה. */
         @media (max-width: 640px) {
           .lt-bar { padding:7px 16px; }
           .lt-badge { display:none; }
           .lt-msg { font-size:11px; }
-          .lt-msg.verse { font-size:10.5px; -webkit-line-clamp:3; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
 
-      <div className="lt-bar" aria-label="עדכונים אחרונים באתר">
+      <div className="lt-bar" aria-label="חדשות טריות באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-        {isLive ? (
-          /* 📡 עדכון חי — מצביע: כותרת קצרה + «← לצפייה» אל הדף שבו הערוץ חי (בלי כפילות תוכן) */
-          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
-            <Link to={cur.channel === "or-geula" ? "/community/chat" : cur.channel === "reality-code" ? "/" : "/broadcasts"}
-              style={{ textDecoration: "none", color: "inherit" }}>
-              <span style={{ background: cur.urgent ? "#9c1322" : "#7a1320", color: "#ffd9de", fontSize: 9.5, fontWeight: 900,
-                borderRadius: 999, padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.5, verticalAlign: "middle" }}>
-                {cur.urgent ? "🚨" : "●"} עדכון חי{BRANDS[cur.channel] ? ` · ${BRANDS[cur.channel].emoji} ${BRANDS[cur.channel].title}` : ""}
-              </span>
-              {cur.text.length > 58 ? cur.text.slice(0, 58) + "…" : cur.text}
-              <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>← לצפייה</b>
-            </Link>
-          </div>
-        ) : isPost ? (
-          /* 📝 עדכון-פוסט אחרון (≤12ש') — כותרת + «← לקריאה» אל הפוסט */
-          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
-            <Link to={cur.slug ? `/${encodeURIComponent(cur.slug)}` : "/post"}
-              style={{ textDecoration: "none", color: "inherit" }}>
-              <span style={{ background: "#3a2a08", color: "#ffe6ad", fontSize: 9.5, fontWeight: 900,
-                borderRadius: 999, padding: "1px 8px", marginInlineEnd: 7, letterSpacing: 0.4, verticalAlign: "middle" }}>
-                📝 עדכון פוסט
-              </span>
-              {cur.text}
-              <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>← לקריאה</b>
-            </Link>
-          </div>
-        ) : (
-          <div className={"lt-msg" + (isVerse ? " verse" : "")} key={idx}>{cur}</div>
-        )}
+        {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר) */}
+        <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
+          <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
+            <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
+            {cur.text}
+            <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>←</b>
+          </Link>
+        </div>
       </div>
     </div>
   );

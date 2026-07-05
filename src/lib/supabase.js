@@ -810,7 +810,13 @@ export async function getSearchStatsToday() {
     const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true });
     total = count || 0;
   } catch { /* ignore */ }
-  return { searches, words, total, topNumber };
+  let month = 0;
+  try {
+    const m0 = new Date(); m0.setDate(1); m0.setHours(0, 0, 0, 0);
+    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", m0.toISOString());
+    month = count || 0;
+  } catch { /* ignore */ }
+  return { searches, words, total, topNumber, month };
 }
 // 💎 כותרות הצלבות מאומתות-ציבוריות (לרצועת הטיקר). רק space='core' + verified=true —
 // כך רמזי-גלם/מעבדה שלא אושרו לא דולפים לציבור. מחזיר עד `limit` (לגיוון ברוטציה).
