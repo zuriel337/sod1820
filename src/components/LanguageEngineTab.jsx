@@ -55,6 +55,7 @@ function DiscoveryPanel() {
   const [audience, setAudience] = useState("all");   // all | journey
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [listOpen, setListOpen] = useState(true);   // רשימת-אירועים נפתחת/נסגרת (יכולה להיות ארוכה)
   const load = useCallback(async () => { const d = await discoveryPending(); setPending(d?.error ? [] : (d || [])); }, []);
   useEffect(() => { load(); }, [load]);
   const scan = async () => { setScanning(true); const r = await scanDiscoveryEvents({ days: 30, minMembers: 8 }); setScanning(false); setStatus(r?.found != null ? `נמצאו ${r.found} אירועים חדשים` : "שגיאת סריקה"); await load(); };
@@ -81,9 +82,15 @@ function DiscoveryPanel() {
         <button onClick={scan} disabled={scanning} style={{ ...btn("rgba(212,175,55,.2)", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 12.5, padding: "7px 15px" }}>{scanning ? "סורק…" : "🔍 סרוק עכשיו"}</button>
       </div>
       {status && <div style={{ color: C.goldBright, fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>{status}</div>}
+      {pending && pending.length > 0 && (
+        <button onClick={() => setListOpen(o => !o)} style={{ ...btn(listOpen ? "rgba(212,175,55,.15)" : "transparent", C.goldBright), border: `1px solid ${C.borderGold}`, fontSize: 12.5, padding: "6px 14px", marginBottom: 9 }}>
+          {listOpen ? "▲ סגור רשימה" : "▼ פתח רשימה"} · {pending.length} אירועים
+        </button>
+      )}
       {!pending ? <div style={{ ...card, color: C.muted }}>טוען…</div>
         : !pending.length ? <div style={{ ...card, color: C.muted }}>אין אירועים ממתינים. לחצו «סרוק עכשיו» כדי לזהות התכנסויות חדשות.</div>
-        : <div style={{ display: "grid", gap: 8 }}>
+        : !listOpen ? null
+        : <div style={{ display: "grid", gap: 8, maxHeight: 340, overflowY: "auto", paddingInlineEnd: 2 }}>
           {pending.map(ev => (
             <div key={ev.id} style={{ ...card, padding: "11px 13px", borderColor: sel?.id === ev.id ? C.borderGold : C.border }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -98,7 +105,18 @@ function DiscoveryPanel() {
         </div>}
       {sel && (
         <div style={{ ...card, marginTop: 12, border: `1px solid ${C.borderGold}` }}>
-          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 9 }}>✉️ מייל לאירוע {sel.value}</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 9 }}>
+            <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>✉️ מייל לאירוע {sel.value} · {sel.member_count} ביטויים</span>
+            <button onClick={() => setSel(null)} title="סגור" style={{ ...btn("transparent", C.muted), fontSize: 14, padding: "4px 12px" }}>✕ סגור</button>
+          </div>
+          {/* 🔤 הביטויים בהתכנסות — האחרונים למעלה */}
+          {(sel.sample || []).length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10, maxHeight: 96, overflowY: "auto" }}>
+              {(sel.sample || []).map((s, i) => (
+                <span key={i} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 11px", color: C.goldLight, fontFamily: F.body, fontSize: 13 }}>{s} <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>={sel.value}</span></span>
+              ))}
+            </div>
+          )}
           <input value={subject} onChange={e => setSubject(e.target.value)} dir="rtl" style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "9px 12px", marginBottom: 8 }} />
           <textarea value={html} onChange={e => setHtml(e.target.value)} dir="rtl" rows={7} style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.muted, fontFamily: F.mono, fontSize: 12, padding: "9px 12px", marginBottom: 9 }} />
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
@@ -402,16 +420,18 @@ export default function LanguageEngineTab() {
     const wk = new Date(Date.now() - 7 * 864e5).toISOString();
     let q = supabase.from("word_review_queue").select("*").order("created_at", { ascending: false }).limit(150);
     if (qFilter !== "all") q = q.eq("status", qFilter);
-    const [fb, learned, sug, wrq, al] = await Promise.all([
+    const [fb, learned, sug, wrq, al, enVer, enPend] = await Promise.all([
       supabase.from("feedback").select("verdict").limit(10000),
       supabase.from("word_aliases").select("id", { count: "exact", head: true }).eq("verified", true).gte("created_at", wk),
       supabase.from("translit_suggestions").select("*").eq("status", "open").order("hits", { ascending: false }).limit(25),
       q,
       supabase.from("word_aliases").select("id, alias, lang, method, layer, confidence, verified, source, created_at, gematria_words(phrase, ragil)").order("created_at", { ascending: false }).limit(120),
+      supabase.from("word_aliases").select("id", { count: "exact", head: true }).neq("lang", "he").eq("verified", true),
+      supabase.from("word_aliases").select("id", { count: "exact", head: true }).neq("lang", "he").eq("verified", false),
     ]);
     const rows = fb.data || [];
     const found = rows.filter(r => r.verdict === "found").length, notFound = rows.filter(r => r.verdict === "not_found").length;
-    setStats({ asked: rows.length, found, notFound, success: found + notFound ? Math.round(found / (found + notFound) * 100) : 0, learnedWeek: learned.count || 0, aliasTotal: (al.data || []).length });
+    setStats({ asked: rows.length, found, notFound, success: found + notFound ? Math.round(found / (found + notFound) * 100) : 0, learnedWeek: learned.count || 0, aliasTotal: (al.data || []).length, enVerified: enVer.count || 0, enPending: enPend.count || 0 });
     setTranslit(sug.data || []); setQueue(wrq.data || []); setAliases(al.data || []);
   }, [qFilter]);
   useEffect(() => { load(); }, [load]);
@@ -433,7 +453,8 @@ export default function LanguageEngineTab() {
         <Stat label="👍 נמצא" value={stats.found} tone="#7bbf7b" />
         <Stat label="👎 לא נמצא" value={stats.notFound} tone="#d98a92" />
         <Stat label="הצלחה" value={stats.success + "%"} />
-        <Stat label="נלמדו השבוע" value={stats.learnedWeek} tone={C.goldBright} />
+        <Stat label="🌍 אנגלית מאושרות" value={stats.enVerified} tone="#7bbf7b" />
+        <Stat label="🌍 אנגלית ממתינות" value={stats.enPending} tone="#e0b34a" />
         <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
       </div>
 

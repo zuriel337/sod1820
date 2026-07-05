@@ -110,6 +110,7 @@ export async function getGematriaByValue(value) {
     .from('gematria_words')
     .select('phrase, ragil')
     .eq('ragil', value)
+    .order('created_at', { ascending: false, nullsFirst: false })   // ביטוי חדש שהוסף — תמיד למעלה
     .limit(12);
   return data ?? [];
 }
@@ -645,7 +646,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
       ? supabase.from('gematria_words').select('phrase,ragil', { count: 'exact' })
-          .eq('ragil', value).order('is_verified', { ascending: false }).limit(500)
+          .eq('ragil', value).order('is_verified', { ascending: false }).order('created_at', { ascending: false, nullsFirst: false }).limit(500)
           .then(({ data, count }) => ({ items: data || [], count: count ?? (data?.length || 0) }))
           .catch(() => ({ items: [], count: 0 }))
       : Promise.resolve({ items: [], count: 0 }),
