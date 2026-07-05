@@ -19,33 +19,35 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
   (categories || []).forEach(c => { if (c) opts.push({ key: `cat:${c}`, label: `📁 ${c}` }); });
   if (by.name && by.name !== "המערכת") opts.push({ key: `author:${by.name}`, label: `✍️ ${by.name}` });
 
-  const [picked, setPicked] = useState([]); // ריק — המשתמש בוחר נושא קודם, ורק אז נחשף שדה המייל
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
 
-  if (!opts.length) return null;
-
-  const toggle = (k) => { setErr(""); setPicked(p => p.includes(k) ? p.filter(x => x !== k) : [...p, k]); };
+  // 🔢 טיזר-גימטריה (ערכים מאומתים של צוריאל = נתון-מערכת). ההוק: שני ביטויים שונים = אותו ערך.
+  const TEASERS = [
+    { a: "אמונה", b: "מבין", v: 102, note: "אותו ערך!" },
+    { a: "השגחה פרטית", v: 1020 },
+  ];
 
   async function submit(e) {
     e?.preventDefault?.();
     setErr("");
     const mail = (user?.email || email).trim();
     if (!user && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("נא להזין כתובת מייל תקינה"); return; }
-    if (!picked.length) { setErr("בחרו לפחות נושא אחד"); return; }
     setBusy(true);
     try {
       if (mail) await subscribeEmail({ email: mail, source: "post-follow" });
+      // עוקבים אוטומטית אחרי נושאי-הפוסט (בלי לבקש מהמשתמש לבחור — חיכוך מינימלי)
+      const topics = opts.map(o => o.key);
       const id = user ? { userId: user.id } : { visitorId: getVisitorId() };
-      const existing = await getNotificationPrefs(id);                       // מיזוג — לא לדרוס בחירות קודמות
-      const merged = Array.from(new Set([...(existing?.topics || []), ...picked]));
+      const existing = await getNotificationPrefs(id).catch(() => null);
+      const merged = Array.from(new Set([...(existing?.topics || []), ...topics]));
       await saveNotificationPrefs({
         ...id, topics: merged,
         channels: existing?.channels?.length ? existing.channels : ["email"],
         email: mail || existing?.email || null,
-      });
+      }).catch(() => {});
       trackConversion("follow", { source: "post-follow" });
       if (mail) trackSubscribe({ source: "post-follow" });
       setDone(true);
@@ -61,12 +63,13 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
     background: co.surface || C.surface, border: `1px solid ${co.borderGold || C.borderGold}`,
     borderRadius: 14, padding: "26px 22px",
   };
+  const gold = co.goldBright || C.goldBright;
 
   if (done) {
     return (
       <div style={box}>
-        <div style={{ color: co.goldBright || C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>
-          ✦ נרשמתם! נעדכן אתכם כשיֵצא חדש בנושאים שבחרתם. 🙏
+        <div style={{ color: gold, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>
+          ✦ מעולה! נשלח לכם עוד רמזים והתכנסויות מפתיעות. 🙏
         </div>
       </div>
     );
@@ -74,55 +77,43 @@ export default function PostFollowBox({ categories = [], author = "", pc }) {
 
   return (
     <form onSubmit={submit} style={box}>
-      <div style={{ color: co.goldBright || C.goldBright, fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,21px)", fontWeight: 700, marginBottom: 6 }}>
-        🔔 רוצים לדעת כשיֵצא עוד כזה?
+      {/* 🔢 הטיזר — ההוק לפני הבקשה */}
+      <div style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(17px,2.4vw,21px)", fontWeight: 800, marginBottom: 14 }}>
+        🔢 ידעתם?
+      </div>
+      <div style={{ display: "grid", gap: 8, maxWidth: 420, margin: "0 auto 18px" }}>
+        {TEASERS.map((t, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap",
+            background: "rgba(212,175,55,0.08)", border: `1px solid ${co.border || C.border}`, borderRadius: 12, padding: "10px 14px" }}>
+            <span style={{ color: co.goldLight || C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{t.a}</span>
+            {t.b && <><span style={{ color: co.muted || C.muted }}>=</span><span style={{ color: co.goldLight || C.goldLight, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{t.b}</span></>}
+            <span style={{ color: co.muted || C.muted }}>=</span>
+            <span style={{ color: gold, fontFamily: F.mono, fontSize: 19, fontWeight: 800 }}>{t.v}</span>
+            {t.note && <span style={{ color: gold, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, background: "rgba(212,175,55,0.18)", borderRadius: 999, padding: "2px 10px" }}>✦ {t.note}</span>}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(16px,2.2vw,19px)", fontWeight: 800, marginBottom: 4 }}>
+        ✨ רוצים לראות עוד רמזים כאלה?
       </div>
       <div style={{ color: co.muted || C.muted, fontFamily: F.body, fontSize: 14, marginBottom: 16 }}>
-        הירשמו לעדכונים על מה שמעניין אתכם — בלי הצפה, אפשר לבטל בכל רגע.
+        השאירו מייל — ונשלח לכם התכנסויות מפתיעות. בלי הצפה, אפשר לבטל בכל רגע.
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginBottom: 16 }}>
-        {opts.map(o => {
-          const on = picked.includes(o.key);
-          return (
-            <button key={o.key} type="button" onClick={() => toggle(o.key)} style={{
-              cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 600, padding: "7px 14px", borderRadius: 999,
-              border: `1px solid ${on ? (co.gold || C.gold) : (co.border || C.border)}`,
-              background: on ? "rgba(212,175,55,0.16)" : "transparent",
-              color: on ? (co.goldBright || C.goldBright) : (co.muted || C.muted),
-            }}>{o.label}{on ? " ✓" : ""}</button>
-          );
-        })}
+      <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+        {!user && (
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr"
+            style={{ flex: "1 1 220px", minWidth: 200, padding: "11px 14px", borderRadius: 10,
+              background: co.bg || C.surface, border: `1px solid ${co.border || C.border}`, color: co.goldLight || C.goldLight,
+              fontFamily: F.body, fontSize: 16, textAlign: "center", outline: "none" }} />
+        )}
+        <button type="submit" disabled={busy} style={{
+          padding: "11px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+          fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
+        }}>{busy ? "רושם…" : "כן, שלחו לי עוד →"}</button>
       </div>
-
-      {/* רק אחרי שבחרו נושא — נחשף שדה המייל וכפתור ההרשמה (חשיפה מדורגת) */}
-      {picked.length === 0 ? (
-        <div style={{ color: co.muted || C.muted, fontFamily: F.heading, fontSize: 13, opacity: 0.85 }}>
-          👆 בחרו נושא שמעניין אתכם — ואז תוכלו להשאיר מייל לעדכונים
-        </div>
-      ) : (
-        <div style={{ animation: "sodFollowReveal .35s ease" }}>
-          <style>{`@keyframes sodFollowReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
-          {!user && (
-            <div style={{ color: co.goldLight || C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, marginBottom: 9 }}>
-              📧 לאן לשלוח את העדכונים?
-            </div>
-          )}
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-            {!user && (
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr" autoFocus
-                style={{ flex: "1 1 220px", minWidth: 200, padding: "11px 14px", borderRadius: 10,
-                  background: co.bg || C.surface, border: `1px solid ${co.border || C.border}`, color: co.goldLight || C.goldLight,
-                  fontFamily: F.body, fontSize: 15, textAlign: "center", outline: "none" }} />
-            )}
-            <button type="submit" disabled={busy} style={{
-              padding: "11px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
-              background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
-              fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
-            }}>{busy ? "רושם…" : "עדכנו אותי →"}</button>
-          </div>
-        </div>
-      )}
       {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
     </form>
   );
