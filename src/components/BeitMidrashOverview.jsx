@@ -35,6 +35,14 @@ export default function BeitMidrashOverview() {
   const [searches, setSearches] = useState([]);
   const [crosses, setCrosses] = useState([]);
   const [enWords, setEnWords] = useState([]);   // 🌍 מילים חדשות באנגלית
+  const [rot, setRot] = useState(0);            // 📱 מובייל: מסתובב על פריט אחד כל פעם (לא מציף)
+
+  // מובייל — פריט אחד מתחלף כל 4ש (במקום רשימה שמציפה מסך כבד)
+  useEffect(() => {
+    if (!isMobile) return;
+    const id = setInterval(() => setRot(r => r + 1), 4000);
+    return () => clearInterval(id);
+  }, [isMobile]);
 
   useEffect(() => {
     let live = true;
@@ -51,7 +59,10 @@ export default function BeitMidrashOverview() {
   }, [tier, isAdmin]);
 
   const newCount = countNewCrosses(crosses);
-  const sh = searches.slice(0, isMobile ? 2 : 11);   // מובייל: 2 · דסקטופ: 11
+  // מובייל: פריט אחד מתחלף · דסקטופ: 11
+  const sh = isMobile
+    ? (searches.length ? [searches[rot % searches.length]] : [])
+    : searches.slice(0, 11);
   const cr = crosses.slice(0, 2);                     // דסקטופ: 2 הצלבות
 
   const secTitle = { color: L.gold, fontFamily: F.heading, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" };
