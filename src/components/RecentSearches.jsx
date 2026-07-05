@@ -7,6 +7,7 @@ import { getSearchFeed } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
+import { englishSimple, hasLatin } from "../lib/englishGematria.js";
 import ActivityPulse from "./ActivityPulse.jsx";
 
 // 🕒 חיפושים אחרונים — מקור אחד (search_log). 🔒 פרטיות (החלטת צוריאל 7.2026):
@@ -46,14 +47,19 @@ export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midra
       </div>
       {!isAdmin && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11, marginBottom: 9 }}>🔒 שמות אישיים מוסתרים</div>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {shown.map((r, i) => (
-          <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={isAdmin ? `${maskTerm(r.term, isAdmin)}${r.value ? ` = ${r.value}` : ""}` : "חיפוש"}
+        {shown.map((r, i) => {
+          // 🇺🇸 מונח אנגלי בלי ערך עברי → English Simple (לעולם לא 0), עם תג-דגל קטן.
+          const isEn = (!r.value || r.value <= 0) && hasLatin(r.term);
+          const val = isEn ? englishSimple(r.term) : r.value;
+          return (
+          <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={isAdmin ? `${maskTerm(r.term, isAdmin)}${val ? ` = ${val}${isEn ? " (English Simple)" : ""}` : ""}` : "חיפוש"}
             style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
             <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
-            {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{r.value}</span>}
+            {val != null && val > 0 && <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>{isEn ? "🇺🇸 " : ""}{val}</span>}
             {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
           </Link>
-        ))}
+        );
+        })}
       </div>
       {tier === "anon" && (
         <div style={{ marginTop: 9, color: L.sub, fontFamily: F.body, fontSize: 12 }}>

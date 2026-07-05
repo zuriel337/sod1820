@@ -5,6 +5,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { getSearchFeed, getRecentCrosses, getRecentCommunityWords } from "../lib/supabase.js";
 import { countNewCrosses, crossDate } from "../lib/crossesNew.js";
 import { maskTerm, safeSearchHref } from "../lib/nameMask.js";
+import { englishSimple, hasLatin } from "../lib/englishGematria.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import ActivityPulse from "./ActivityPulse.jsx";
@@ -77,14 +78,18 @@ export default function BeitMidrashOverview() {
                 <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
               ) : (
                 <div style={{ display: "flex", flexWrap: isMobile ? "nowrap" : "wrap", overflow: isMobile ? "hidden" : "visible", gap: 7, marginTop: 9 }}>
-                  {sh.map((r, i) => (
+                  {sh.map((r, i) => {
+                    const isEn = (!r.value || r.value <= 0) && hasLatin(r.term);
+                    const val = isEn ? englishSimple(r.term) : r.value;
+                    return (
                     <Link key={i} to={safeSearchHref(r.term, r.value, isAdmin)} title={r.term}
                       style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "4px 6px 4px 11px", whiteSpace: "nowrap", flex: "0 0 auto" }}>
                       <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>{maskTerm(r.term, isAdmin)}</span>
-                      {r.value != null && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{r.value}</span>}
+                      {val != null && val > 0 && <span style={{ background: L.badge, color: L.gold, fontFamily: "'Courier New',monospace", fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "1px 8px" }}>{isEn ? "🇺🇸 " : ""}{val}</span>}
                       {r.at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, whiteSpace: "nowrap" }}>· {timeAgoHe(r.at)}</span>}
                     </Link>
-                  ))}
+                  );
+                  })}
                 </div>
               )}
             </>
