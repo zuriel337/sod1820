@@ -54,7 +54,9 @@
     <style>
       *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; overflow-x: clip; }
-      body { background: #0C0818; color: #f5f0e8; overflow-x: clip; }
+      body { background: #0C0818; color: #f5f0e8; overflow-x: clip; width: 100%; }
+      /* 📱 נעילת גלילה-אופקית במובייל — iOS מתעלם מ-clip על html/body, לכן על #root ישירות */
+      #root { overflow-x: clip; max-width: 100%; position: relative; }
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: #0C0818; }
       ::-webkit-scrollbar-thumb { background: #3a2a00; border-radius: 3px; }
