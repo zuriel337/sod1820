@@ -46,7 +46,7 @@ export default function BeitMidrashOverview() {
 
   useEffect(() => {
     let live = true;
-    getRecentEnglishWords(6).then(w => { if (live) setEnWords(w || []); }).catch(() => {});
+    getRecentEnglishWords(3).then(w => { if (live) setEnWords(w || []); }).catch(() => {});
     // 🔒 פרטיות: תוכן-חיפושים נמשך לאדמין בלבד; הציבור מקבל «פעילות חיה» (ActivityPulse)
     if (isAdmin) {
       getSearchFeed(tier).then(r => { if (live) setSearches(r || []); }).catch(() => {});

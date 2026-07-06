@@ -280,14 +280,17 @@ export async function adminBulkTriage(action) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc('admin_bulk_triage', { p_action: action }); if (error) throw error; return data;
 }
-// 🌍 מילים חדשות באנגלית — aliases מאומתים אחרונים (lang≠he) עם המילה העברית והערך.
-export async function getRecentEnglishWords(limit = 6) {
+// 🌍 מילים חדשות באנגלית — קורא מאותו מקור של «דף האנגלית» (language_links, מאושרים)
+// דרך ה-RPC הקנוני lang_links_list (SECURITY DEFINER) — עץ אחד, בלי טבלה מקבילה.
+// ממופה לצורת התצוגה הקיימת: { alias, gematria_words:{ phrase, ragil } }.
+export async function getRecentEnglishWords(limit = 3) {
   if (!supabase) return [];
-  const { data } = await supabase.from('word_aliases')
-    .select('alias, lang, created_at, gematria_words(phrase, ragil)')
-    .neq('lang', 'he').eq('verified', true)
-    .order('created_at', { ascending: false }).limit(limit);
-  return data || [];
+  const { data, error } = await supabase.rpc('lang_links_list', { p_visitor: null });
+  if (error || !Array.isArray(data)) return [];
+  return data
+    .filter(r => (r.lang || 'en') === 'en' && r.status === 'approved' && r.foreign_word && r.hebrew)
+    .slice(0, limit)
+    .map(r => ({ alias: r.foreign_word, gematria_words: { phrase: r.hebrew, ragil: r.gematria_he } }));
 }
 // 🌍 הוספת תרגום/תעתוק אנגלי למילה עברית — ממלא את מאגר-האנגלית (word_aliases).
 export async function addEnglishAlias({ phrase, alias, method = 'transliteration', verified = true }) {
