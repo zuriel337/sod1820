@@ -12,6 +12,7 @@ import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import { isToolReady } from "../../lib/hub/ready.js";
+import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/install.js";
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
@@ -24,6 +25,7 @@ const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const MORE_HIDE = ["/start", "/code", "/members", "/lab"];
 const moreItems = [
   ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
+  { label: "הכתבים והחוקרים", emoji: "📜", to: "/community/researchers" },
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
@@ -40,6 +42,7 @@ const MOBILE_TILES = [
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "💬", l: "הצ'אט הוותיק", to: "/community/chat" },
+  { e: "📜", l: "הכתבים והחוקרים", to: "/community/researchers" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
 const MOBILE_SOON = [
@@ -530,6 +533,19 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            {/* 📲 הורדת האפליקציה — מוסתר כשכבר מותקנת; אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
+            {!isStandalone() && (
+              <button className="sod-tile" style={{ borderColor: cc.borderGold, background: "none", cursor: "pointer" }}
+                onClick={async () => {
+                  setDrawer(false);
+                  if (canInstall()) { await promptInstall(); }
+                  else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»");
+                  else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»");
+                }}>
+                <span className="sod-tile-e">📲</span>
+                <span className="sod-tile-l">הורדת האפליקציה</span>
+              </button>
+            )}
           </div>
           {/* בקרוב — מעומעם */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "12px 6px 4px" }}>
