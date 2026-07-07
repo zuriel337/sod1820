@@ -1,6 +1,7 @@
 import React from "react";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
+import { withRid } from "../lib/propagation.js";
 
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // ➕ הוסף למחקר · ⭐ שמור · 📌 הצמד · 🔗 שתף · 📋 העתק · 🤖 AI — אותו מקום ועיצוב בכל Hub.
@@ -10,7 +11,18 @@ export default function QuickActions({ entity, onShare, extra, style }) {
   if (!entity) return null;
   const pinned = isPinned?.(entity.id);
   // onShare = שיתוף עשיר ספציפי-לסוג (למשל תמונת-מספר בדף המספר) → מונע כפילות שיתוף.
-  const share = () => { emit(EVENTS.ITEM_SHARE, entity); if (onShare) return onShare(); try { navigator.share?.({ title: entity.title }); } catch { /* noop */ } };
+  // 🔗 שיתוף חייב לכלול URL — בלי url הדפדפן/וואטסאפ שולח רק כותרת בלי לינק (התקלה "האפליקציה לא נתן לינק").
+  // משתפים את הקישור הקנוני של העמוד הנוכחי (כמו RoyalShareWidget) עם rid למדידת ויראליות. בלי navigator.share — נופלים ל-copy.
+  const share = () => {
+    emit(EVENTS.ITEM_SHARE, entity);
+    if (onShare) return onShare();
+    const url = typeof window !== "undefined" ? withRid(window.location.href) : "https://sod1820.co.il";
+    const title = entity.title || "סוד 1820";
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title, url }).catch(() => {});
+      else navigator.clipboard?.writeText(url);
+    } catch { /* noop */ }
+  };
   const copy = () => { emit(EVENTS.ITEM_COPY, entity); try { navigator.clipboard?.writeText(entity.title); } catch { /* noop */ } };
   // style = משתני-תמה מהדף (P) → צבעים נקראים נכון בבהיר ובכהה (לא נשענים על fallback מעומעם).
   return (
