@@ -16,6 +16,7 @@ import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -859,6 +860,9 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
+          {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
+          <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
+            label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
         </div>
 
         {/* מתג המצב עבר לשורה העליונה (ליד המחשבון) — «מצב מחקר / מצב רגיל». */}

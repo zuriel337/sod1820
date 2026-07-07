@@ -425,6 +425,24 @@ export async function getTopPrimaryValues(lim = 16) {
   return data.map(r => ({ value: Number(r.value), count: Number(r.cnt) }));
 }
 
+// 🔎 Collective Discovery — כמה חוקרים שונים אוספים ישות (ספירה בלבד, פרטיות-בטוח). RPC entity_collective_count.
+export async function getCollectiveCount(type, ref) {
+  if (!supabase || !type || ref == null) return 0;
+  try {
+    const { data } = await supabase.rpc('entity_collective_count', { p_type: type, p_ref: String(ref) });
+    return typeof data === 'number' ? data : (parseInt(data, 10) || 0);
+  } catch { return 0; }
+}
+
+// מה שהקהילה חוקרת עכשיו — ישויות שנאספו ע"י >= minUsers חוקרים (אגרגט, בלי זהויות). RPC top_collective.
+export async function getTopCollective(minUsers = 2, lim = 12) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.rpc('top_collective', { min_users: minUsers, lim });
+    return Array.isArray(data) ? data : [];
+  } catch { return []; }
+}
+
 // סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.
 export async function getGalleryImageCount() {
   if (!supabase) return 0;
