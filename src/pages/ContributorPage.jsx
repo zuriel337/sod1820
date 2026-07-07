@@ -124,13 +124,33 @@ export default function ContributorPage() {
     } catch { return { ok: false, error: "network" }; }
   }, [slug]);
 
+  const [posts, setPosts] = useState([]);
   useEffect(() => {
     let alive = true;
-    supabase.from("contributors").select("slug,display_name,role,bio,notes,vip,media").eq("slug", slug).maybeSingle()
+    supabase.from("contributors").select("slug,display_name,role,bio,notes,vip,media,avatar_url").eq("slug", slug).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug]);
+
+  // 📝 הפוסטים על שמו — עדשה על posts (author = השם הקנוני), לא עותק
+  useEffect(() => {
+    if (!c?.display_name) return;
+    let alive = true;
+    supabase.from("posts").select("slug,title,date,image_url").eq("author", c.display_name)
+      .order("date", { ascending: false }).limit(30)
+      .then(({ data }) => { if (alive && Array.isArray(data)) setPosts(data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.display_name]);
+
+  // 🔗 שיתוף הדף — לכל משתמש (גם אנונימי)
+  const sharePage = useCallback(async () => {
+    const url = `https://sod1820.co.il/community/researcher/${slug}`;
+    const title = `${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`;
+    try { if (navigator.share) return await navigator.share({ title, url }); } catch { /* בוטל */ }
+    try { await navigator.clipboard.writeText(url); alert("הקישור הועתק 📋"); } catch { /* noop */ }
+  }, [slug, c?.display_name]);
 
   // SEO קנוני לדף דינמי (כמו EntityPage/TopicPage) — כותרת + קנוניקל לפי החוקר
   useEffect(() => {
@@ -179,6 +199,10 @@ export default function ContributorPage() {
     <div style={pageWrap}>
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "24px 14px 60px" }}>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
+        {c.avatar_url && (
+          <img src={c.avatar_url} alt={c.display_name} loading="lazy"
+            style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
+        )}
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
@@ -188,6 +212,15 @@ export default function ContributorPage() {
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
           </div>
         )}
+        {/* 🔗 שיתוף הדף — לכל אחד */}
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
+          <button onClick={sharePage} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 20px", minHeight: 40 }}>
+            🔗 שתפו את הדף
+          </button>
+          <a href="/community/researchers" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px" }}>
+            📜 כל הכתבים ←
+          </a>
+        </div>
       </div>
 
       {/* אימותי-מנוע מהסריקה */}
@@ -247,6 +280,27 @@ export default function ContributorPage() {
           style={{ display: "block", margin: "14px auto 0", cursor: "pointer", background: "none", border: `1px dashed ${P.border}`, color: P.accentText, borderRadius: 12, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 26px", minHeight: 44 }}>
           עוד גילויים ({totalInCat - shown.length}) ▾
         </button>
+      )}
+
+      {/* 📝 הפוסטים על שמו — קישור לפוסט הקנוני, לא עותק */}
+      {posts.length > 0 && (
+        <div style={{ marginTop: 26 }}>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
+            📝 הפוסטים של {c.display_name} ({posts.length})
+          </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {posts.map(p => (
+              <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
+                {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>{p.title}</div>
+                  {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
+                </div>
+                <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 14 }}>←</span>
+              </a>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* דייג׳סט-טקסט */}

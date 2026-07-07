@@ -77,6 +77,7 @@ const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
+const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -243,6 +244,7 @@ export default function App() {
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/community/researcher/:slug" element={<ContributorPage />} />
+          <Route path="/community/researchers" element={<ResearchersIndexPage />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/about" element={<Navigate to="/contact" replace />} />
           <Route path="/contact" element={<ContactRoute />} />
