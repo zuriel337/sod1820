@@ -27,10 +27,23 @@ const CAT_LABELS = {
   "signature-verse": "✍️ חתימה",
 };
 
-function Card({ e, P, slug, user, onHide }) {
+// חילוץ הביטויים העבריים מתוך ה-claims ("ישועת אלהינו=888" → "ישועת אלהינו") לקידום לרשימה הכללית
+function claimPhrases(claims) {
+  return [...new Set((claims || []).map(c => (c.split("=")[0] || "").trim()).filter(p => /[א-ת]/.test(p) && p.length <= 60))];
+}
+
+function Card({ e, P, slug, user, isAdmin, onHide, onPromote }) {
   const [open, setOpen] = useState(false);
+  const [promoting, setPromoting] = useState(false);
+  const [promoted, setPromoted] = useState(null);
   const claims = e.claims || (e.values ? Object.entries(e.values).map(([k, v]) => `${k}=${v}`) : []);
   const cardId = `contrib-${slug}-${e.f || e.msg_id || e.title}`;
+  const approved = e.status === "approved" || promoted?.ok;
+  async function promote() {
+    setPromoting(true);
+    try { setPromoted(await onPromote(e.f || e.msg_id, claimPhrases(claims))); }
+    finally { setPromoting(false); }
+  }
   // ישות קנונית ל-Research Bus — «העבר לממצא אישי» = ➕ הוסף למחקר / ⭐ שמור
   const entity = {
     id: cardId, type: "hint-card",
@@ -55,14 +68,27 @@ function Card({ e, P, slug, user, onHide }) {
         )}
         <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
           {e.verified && <span style={{ color: "#2e9e5b", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>✓ מאומת במנוע</span>}
-          {e.status === "pending-review" && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>⏳ סטייג׳ — ממתין לאישור</span>}
+          {approved
+            ? <span style={{ color: "#2e9e5b", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>👑 ברשימה הכללית</span>
+            : e.status === "pending-review" && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>🔬 חומר-מחקר</span>}
           {e.d && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, marginInlineStart: "auto" }}>{e.d}</span>}
         </div>
         {/* מחובר בלבד: הפעולות הקנוניות (➕ למחקר האישי · ⭐ שמור · שתף · AI) + הסתרה */}
         {user && (
           <QuickActions entity={entity} style={{ marginTop: 4 }}
-            extra={<button onClick={() => onHide(cardId)} title="הסתר את הכרטיס הזה אצלי">🙈 הסתר</button>} />
+            extra={<>
+              <button onClick={() => onHide(cardId)} title="הסתר את הכרטיס הזה אצלי">🙈 הסתר</button>
+              {/* 👑 אדמין בלבד — קידום הביטויים לרשימה הכללית (מוגן גם בשרת) */}
+              {isAdmin && !approved && claimPhrases(claims).length > 0 && (
+                <button onClick={promote} disabled={promoting} style={{ borderColor: "#c9a227" }}
+                  title={`יוסיף לרשימה הכללית: ${claimPhrases(claims).join(" · ")}`}>
+                  {promoting ? "מעביר…" : "👑 אשר לרשימה הכללית"}
+                </button>
+              )}
+            </>} />
         )}
+        {promoted && !promoted.ok && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 11 }}>שגיאה: {promoted.error || "נסה שוב"}</div>}
+        {promoted?.ok && <div style={{ color: "#2e9e5b", fontFamily: F.body, fontSize: 11 }}>נוספו {promoted.added} ביטויים ({promoted.skipped_existing} כבר היו)</div>}
       </div>
     </div>
   );
@@ -71,14 +97,21 @@ function Card({ e, P, slug, user, onHide }) {
 export default function ContributorPage() {
   const { slug } = useParams();
   const P = usePalette();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
   const [limit, setLimit] = useState(24);
   const [hidden, setHidden] = useState(loadHidden);
+  const [q, setQ] = useState("");
   const hide = useCallback((id) => setHidden(h => { const n = new Set(h); n.add(id); saveHidden(n); return n; }), []);
   const unhideAll = useCallback(() => { setHidden(new Set()); saveHidden(new Set()); }, []);
+  const onPromote = useCallback(async (cardKey, phrases) => {
+    try {
+      const { data, error } = await supabase.rpc("admin_promote_contrib_card", { p_slug: slug, p_card_key: cardKey, p_phrases: phrases });
+      return error ? { ok: false, error: error.message } : data;
+    } catch { return { ok: false, error: "network" }; }
+  }, [slug]);
 
   useEffect(() => {
     let alive = true;
@@ -110,8 +143,18 @@ export default function ContributorPage() {
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
   }, [items]);
   const visible = items.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`));
-  const shown = (cat === "all" ? visible : visible.filter(e => (e.category || "אחר") === cat)).slice(0, limit);
-  const totalInCat = cat === "all" ? visible.length : visible.filter(e => (e.category || "אחר") === cat).length;
+  // 🔎 חיפוש בתוך הדף: מספר → התאמת מספר-שלם בכל השיטות/הכרטיסים; טקסט → הכלה חופשית
+  const nq = q.trim();
+  const isNum = /^\d+$/.test(nq);
+  const numRe = useMemo(() => (isNum ? new RegExp(`(^|[^\\d])${nq}([^\\d]|$)`) : null), [nq, isNum]);
+  const matchQ = useCallback((e) => {
+    if (!nq) return true;
+    const hay = [e.title, e.txt, ...(e.claims || []), ...(e.values ? Object.entries(e.values).map(([k, v]) => `${k}=${v}`) : [])].filter(Boolean).join(" | ");
+    return isNum ? numRe.test(hay) : hay.includes(nq);
+  }, [nq, isNum, numRe]);
+  const searched = visible.filter(matchQ);
+  const shown = (cat === "all" ? searched : searched.filter(e => (e.category || "אחר") === cat)).slice(0, limit);
+  const totalInCat = cat === "all" ? searched.length : searched.filter(e => (e.category || "אחר") === cat).length;
   const hiddenCount = items.length - visible.length;
 
   if (err) return <div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div>;
@@ -143,9 +186,29 @@ export default function ContributorPage() {
         </div>
       )}
 
+      {/* 🔎 חיפוש בתוך הדף — מספר בכל השיטות, או טקסט חופשי */}
+      <div style={{ marginBottom: 14 }}>
+        <input value={q} onChange={e => { setQ(e.target.value); setLimit(24); }} dir="auto"
+          placeholder="🔎 חפשו מספר (למשל 888) או מילה — בכל הכרטיסים והשיטות"
+          style={{ width: "100%", boxSizing: "border-box", padding: "12px 15px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" }} />
+        {nq && (
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
+              {searched.length} כרטיסים מכילים «{nq}»
+            </span>
+            {isNum && (
+              <a href={`/number/${nq}`} style={{ color: P.onAccent, background: P.accentBtn, textDecoration: "none", borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
+                🔢 לדף המספר {nq} ←
+              </a>
+            )}
+            <button onClick={() => setQ("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>נקה</button>
+          </div>
+        )}
+      </div>
+
       {/* קטגוריות */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
-        <button onClick={() => { setCat("all"); setLimit(24); }} style={chip(P, cat === "all")}>הכל ({items.length})</button>
+        <button onClick={() => { setCat("all"); setLimit(24); }} style={chip(P, cat === "all")}>הכל ({searched.length})</button>
         {cats.map(([k, n]) => (
           <button key={k} onClick={() => { setCat(k); setLimit(24); }} style={chip(P, cat === k)}>{CAT_LABELS[k] || k} ({n})</button>
         ))}
@@ -153,7 +216,7 @@ export default function ContributorPage() {
 
       {/* גריד הכרטיסים */}
       <div style={{ columns: "2 300px", columnGap: 12 }}>
-        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} onHide={hide} />)}
+        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote} />)}
       </div>
       {hiddenCount > 0 && (
         <div style={{ textAlign: "center", marginTop: 10 }}>
