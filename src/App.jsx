@@ -245,6 +245,8 @@ export default function App() {
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/community/researcher/:slug" element={<ContributorPage />} />
           <Route path="/community/researchers" element={<ResearchersIndexPage />} />
+          {/* 888 — מספר-החתימה של עמית מייק רוב → קיצור לדף-החוקר שלו (החלטת צוריאל) */}
+          <Route path="/888" element={<Navigate to="/community/researcher/amit-mike-rob" replace />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/about" element={<Navigate to="/contact" replace />} />
           <Route path="/contact" element={<ContactRoute />} />
