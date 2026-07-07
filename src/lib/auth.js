@@ -80,16 +80,48 @@ export async function saveCloudNotes(userId, content) {
   );
 }
 
-// ── עולם-המשתמש בענן (user_research): cart · saved · pinned · history · collections ──
+// ── עולם-המשתמש בענן (עץ אחד) ──
+// פריטים (cart/saved/pinned) = research_items (שורה-לפריט, מחובר-לגרף, קנוני).
+// collections/journeys/history = user_research (בלוב מצב-משתמש). ה-interface נשאר זהה
+// {cart,saved,pinned,history,collections,journeys} → ResearchProvider לא משתנה.
+const RI_BUCKET = { cart: 'cart', saved: 'library', pinned: 'pinned' };
+
 export async function getCloudResearch(userId) {
   if (!userId) return null;
-  const { data } = await supabase.from('user_research').select('data').eq('user_id', userId).maybeSingle();
-  return data?.data ?? null;
+  const [itemsRes, blobRes] = await Promise.all([
+    supabase.from('research_items').select('bucket, metadata').eq('user_id', userId),
+    supabase.from('user_research').select('data').eq('user_id', userId).maybeSingle(),
+  ]);
+  const out = { cart: [], saved: [], pinned: [] };
+  for (const r of itemsRes.data || []) {
+    const key = r.bucket === 'library' ? 'saved' : r.bucket; // library→saved
+    if (out[key] && r.metadata) out[key].push(r.metadata);
+  }
+  const b = blobRes.data?.data || {};
+  return { ...out, history: b.history || [], collections: b.collections || [], journeys: b.journeys || [] };
 }
+
 export async function saveCloudResearch(userId, data) {
   if (!userId) return;
+  const d = data || {};
+  // 1) מצב לא-פריטים → בלוב (user_research)
   await supabase.from('user_research').upsert(
-    { user_id: userId, data: data || {}, updated_at: new Date().toISOString() },
+    { user_id: userId, data: { history: d.history || [], collections: d.collections || [], journeys: d.journeys || [] }, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
+  // 2) פריטים → research_items (החלפה מלאה לדליים cart/library/pinned)
+  const rows = [];
+  const seen = new Set();
+  for (const [srcKey, bucket] of Object.entries(RI_BUCKET)) {
+    for (const e of (d[srcKey] || [])) {
+      if (!e || !e.type) continue;
+      const ref = String(e.ref ?? e.id ?? e.title ?? '');
+      const k = `${bucket}|${e.type}|${ref}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      rows.push({ user_id: userId, bucket, entity_type: e.type, entity_ref: ref, title: e.title ?? null, link: e.link ?? null, metadata: e });
+    }
+  }
+  await supabase.from('research_items').delete().eq('user_id', userId).in('bucket', Object.values(RI_BUCKET));
+  if (rows.length) await supabase.from('research_items').insert(rows);
 }
