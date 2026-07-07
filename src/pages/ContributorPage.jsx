@@ -238,8 +238,8 @@ export default function ContributorPage() {
         </div>
         <form onSubmit={tryUnlock} style={{ display: "flex", gap: 8, justifyContent: "center" }}>
           <input value={pw} onChange={e => { setPw(e.target.value); setPwErr(false); }} inputMode="numeric" autoFocus
-            placeholder="קוד כניסה" dir="ltr"
-            style={{ width: 140, textAlign: "center", padding: "12px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${pwErr ? "#c0564a" : P.border}`, color: P.ink, fontFamily: F.mono, fontSize: 20, letterSpacing: 4, outline: "none" }} />
+            placeholder="קוד" dir="auto"
+            style={{ width: 130, textAlign: "center", padding: "12px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${pwErr ? "#c0564a" : P.border}`, color: P.ink, fontFamily: F.mono, fontSize: 15, letterSpacing: pw ? 3 : 0, outline: "none" }} />
           <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 12, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "0 22px" }}>כניסה</button>
         </form>
         {pwErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 10 }}>קוד שגוי — נסו שוב</div>}
