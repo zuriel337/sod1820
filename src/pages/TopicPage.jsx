@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { F } from "../theme.js";
+import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, setImageCuration } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
@@ -137,7 +137,8 @@ export default function TopicPage() {
           <div style={{ display: "grid", gap: 8 }}>
             {ents.map(e => {
               const gold = e.metadata?.tier === "gold";
-              const val = e.metadata?.value;
+              // no_row_without_number_law: לעולם לא שורה בלי מספר — אם אין ערך שמור, מחשבים במנוע
+              const val = e.metadata?.value ?? (calcGem(e.label) || null);
               return (
                 <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
                   display: "block", padding: "10px 13px", borderRadius: 10,
