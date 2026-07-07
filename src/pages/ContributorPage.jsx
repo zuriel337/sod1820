@@ -126,15 +126,38 @@ export default function ContributorPage() {
   }, [slug]);
 
   const [posts, setPosts] = useState([]);
+  // 🔑 שער-סיסמה (locked): לכולם, אימות בשרת (contrib_unlock) — הסיסמה לא נחשפת ב-API.
+  const [unlocked, setUnlocked] = useState(() => { try { return sessionStorage.getItem(`sod_unlock_${slug}`) === "1"; } catch { return false; } });
+  const [pw, setPw] = useState("");
+  const [pwErr, setPwErr] = useState(false);
+  const tryUnlock = useCallback(async (e) => {
+    e?.preventDefault?.();
+    setPwErr(false);
+    try {
+      const { data } = await supabase.rpc("contrib_unlock", { p_key: slug, p_code: pw.trim() });
+      if (data === true) { try { sessionStorage.setItem(`sod_unlock_${slug}`, "1"); } catch { /* noop */ } setUnlocked(true); }
+      else setPwErr(true);
+    } catch { setPwErr(true); }
+  }, [slug, pw]);
+
   useEffect(() => {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug]);
+
+  // דף נעול לא נכנס לאינדקס של גוגל (מותר שיופיע — הכניסה בסיסמה)
+  useEffect(() => {
+    if (!c?.locked) return;
+    const m = document.createElement("meta");
+    m.name = "robots"; m.content = "noindex";
+    document.head.appendChild(m);
+    return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
+  }, [c?.locked]);
 
   // 📝 הפוסטים על שמו — עדשה על posts (author = השם הקנוני), לא עותק
   useEffect(() => {
@@ -203,6 +226,26 @@ export default function ContributorPage() {
 
   if (err) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div></div>;
   if (!c) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div></div>;
+
+  // 🔑 דף נעול וטרם נפתח — שער-הסיסמה (לכולם)
+  if (c.locked && !unlocked) return (
+    <div style={pageWrap}>
+      <div style={{ direction: "rtl", maxWidth: 420, margin: "0 auto", padding: "80px 18px", textAlign: "center" }}>
+        <div style={{ fontSize: 44, marginBottom: 10 }}>🔑</div>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 24, fontWeight: 800 }}>{c.vip ? "👑 " : ""}{c.display_name}</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: "10px 0 18px" }}>
+          הדף הזה פתוח למוזמנים — הזינו את קוד-הכניסה.
+        </div>
+        <form onSubmit={tryUnlock} style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+          <input value={pw} onChange={e => { setPw(e.target.value); setPwErr(false); }} inputMode="numeric" autoFocus
+            placeholder="קוד כניסה" dir="ltr"
+            style={{ width: 140, textAlign: "center", padding: "12px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${pwErr ? "#c0564a" : P.border}`, color: P.ink, fontFamily: F.mono, fontSize: 20, letterSpacing: 4, outline: "none" }} />
+          <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 12, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "0 22px" }}>כניסה</button>
+        </form>
+        {pwErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 10 }}>קוד שגוי — נסו שוב</div>}
+      </div>
+    </div>
+  );
 
   return (
     <div style={pageWrap}>

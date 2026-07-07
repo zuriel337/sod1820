@@ -14,7 +14,7 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,display_name,kind,role,vip,avatar_url,media").eq("active", true).order("vip", { ascending: false })
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked").eq("active", true).order("vip", { ascending: false })
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); })
       .catch(() => alive && setRows([]));
     return () => { alive = false; };
@@ -38,14 +38,14 @@ export default function ResearchersIndexPage() {
             {rows.map(r => {
               const items = Array.isArray(r.media) ? r.media.filter(e => e.kind !== "digest" && e.kind !== "scan-header").length : 0;
               return (
-                <a key={r.slug} href={`/community/researcher/${r.slug}`}
+                <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`}
                   style={{ display: "flex", alignItems: "center", gap: 13, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none" }}>
                   {r.avatar_url
                     ? <img src={r.avatar_url} alt={r.display_name} loading="lazy" style={{ width: 54, height: 54, borderRadius: "50%", objectFit: "cover", border: `2px solid ${P.accent}`, flexShrink: 0 }} />
                     : <div style={{ width: 54, height: 54, borderRadius: "50%", background: P.glow, border: `2px solid ${P.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{r.vip ? "👑" : "🔎"}</div>}
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800 }}>
-                      {r.vip ? "👑 " : ""}{r.display_name}
+                      {r.vip ? "👑 " : ""}{r.display_name}{r.locked ? " 🔑" : ""}
                     </div>
                     {r.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{r.role}</div>}
                     {items > 0 && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>💎 {items} גילויים בדף</div>}
