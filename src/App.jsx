@@ -76,6 +76,7 @@ const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
 const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
+const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -241,6 +242,7 @@ export default function App() {
           <Route path="/community/chat" element={<SpotimChatRoute />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
+          <Route path="/community/researcher/:slug" element={<ContributorPage />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/about" element={<Navigate to="/contact" replace />} />
           <Route path="/contact" element={<ContactRoute />} />
