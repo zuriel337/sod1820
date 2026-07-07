@@ -173,7 +173,10 @@ export default function ContributorPage() {
     items.forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
   }, [items]);
-  const visible = items.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`));
+  // 🏆 הטופ של החוקר — רק כרטיסים שסומנו top_rank (החלטת צוריאל, פר-חוקר; לא באתר הכללי)
+  const topGold = items.filter(e => e.top_rank).sort((a, b) => a.top_rank - b.top_rank);
+  const topKeys = new Set(topGold.map(e => e.f || e.msg_id));
+  const visible = items.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`) && !topKeys.has(e.f || e.msg_id));
   // 🔎 חיפוש בתוך הדף: מספר → התאמת מספר-שלם בכל השיטות/הכרטיסים; טקסט → הכלה חופשית
   const nq = q.trim();
   const isNum = /^\d+$/.test(nq);
@@ -232,6 +235,25 @@ export default function ContributorPage() {
               <span key={i} style={{ color: P.ink, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.body, fontSize: 12 }}>{v}</span>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* 🏆 הזהב — הטופ שצוריאל קבע, בראש הדף של החוקר בלבד */}
+      {topGold.length > 0 && !nq && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 10 }}>
+            🏆 הזהב של {c.display_name}
+          </div>
+          <div style={{ columns: "2 300px", columnGap: 12 }}>
+            {topGold.map((e, i) => (
+              <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
+                <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
+                <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote}
+                  onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "6px 0 2px" }} />
         </div>
       )}
 
