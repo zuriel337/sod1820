@@ -3714,14 +3714,13 @@ function Navbar({ page, onNav }) {
       }}>
         <div style={{ position: "relative", display: "inline-flex" }}>
           <img src={LOGO_URL} alt="SOD1820" className="logo-animated" style={{ height: 36, width: "auto" }} />
-          <span style={{
-            position: "absolute", top: -5, right: -8,
-            background: `linear-gradient(135deg, ${C.crimsonLight}, ${C.crimson})`,
-            color: "#f6e27a", fontSize: 7, fontWeight: 800, letterSpacing: 0.5,
-            fontFamily: F.heading, padding: "1.5px 4px", borderRadius: 3,
-            border: `1px solid ${C.goldDim}`, lineHeight: 1.3,
-            boxShadow: `0 0 6px rgba(122,19,32,0.6)`, textTransform: "uppercase",
-          }}>AI</span>
+          {/* ✨ ניצוץ-AI (החלטת צוריאל 7.7.2026) — עותק-legacy של התג בנאבבר; לשמור זהה לשם */}
+          <span aria-hidden style={{
+            position: "absolute", top: -7, right: -9,
+            fontSize: 13, lineHeight: 1,
+            filter: "drop-shadow(0 0 4px rgba(212,175,55,0.85))",
+            animation: "sodSparkle 2.6s ease-in-out infinite",
+          }}>✨</span>
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>
