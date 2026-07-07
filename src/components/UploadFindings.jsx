@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_vyUxS9qIkxqbOqiNd-L-BQ_LBPZhwhg';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+import { supabase } from "../lib/supabase.js";
+// ⚠️ קליינט אחד בלבד! createClient נפרד יצר GoTrueClient כפול → מריבה על טוקן-האימות,
+// רענון-לולאה ו-onAuthStateChange חוזר → שיטפון בקשות ("הכרום מקבל הרבה מידע"). מאוחד לקליינט המשותף.
 
 const S = {
   wrap: {
