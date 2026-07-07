@@ -5,6 +5,7 @@ import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { updateProfile } from "../../lib/auth.js";
+import HintsPanel from "./HintsPanel.jsx";
 
 // 🏛️ UserCenter — מרכז השליטה האישי. מגירה שמאלית אחת (overlay), זהה בטלפון ובמחשב.
 // registry מודולרי: להוסיף אזור = רשומה במערך MODULES, בלי לגעת בשלד. עיצוב בהיר-מודרני
@@ -197,9 +198,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
     { id: "tree", icon: "🌳", title: "העץ שלי", status: "soon", render: () => (
       <Soon T={T} lines={["מפת-צמיחה חזותית של העץ האישי שלך", "כל חיפוש · רמז · פוסט · אוצר = ענף חדש", "רואים את העץ גדל לאורך זמן — לא רק מספרים", "לחיצה על ענף → קופצים לישות בגרף"]} />
     ) },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "soon", render: () => (
-      <Soon T={T} lines={["ארכיון אישי לפי סוג: 📷 תמונות · 🤖 AI · 🎥 סרטונים · 🔊 הקלטות · 📄 מסמכים", "🚗 לוחיות · 🌙 חלומות · 🔄 סנכרונים · 📰 חדשות · 🔗 קישורים · 💡 רעיונות", "גלריה מסודרת לפי תאריך · תגית · סוג"]} />
-    ) },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "posts", icon: "📝", title: "הפוסטים שלי", status: "soon", badge: c.posts || undefined, render: () => (
       <Soon T={T} lines={["כל הפוסטים שכתבת באתר", "טיוטות ופוסטים שממתינים לאישור", "צפיות · לייקים · שיתופים · תגובות", "כמה שמרו · כמה נפתחו דרך AI", "הפוסטים הכי מצליחים שלך"]} />
     ) },
