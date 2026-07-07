@@ -467,20 +467,6 @@ export default function ProfilePage() {
 
       <ComingSoonGrid P={P} card={card} />
 
-      {/* "הזרם שלך" — נעול כרגע (הפתעות בדרך). id נשמר כדי שגלילת ה-#notifications תעבוד */}
-      <div id="notifications" style={{ ...card, textAlign: "center", marginTop: 22, position: "relative", overflow: "hidden" }}>
-        <div style={{ fontSize: 42, filter: "drop-shadow(0 0 16px rgba(212,175,55,0.4))" }}>🌊</div>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, marginTop: 4 }}>הזרם שלך</div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, margin: "14px 0 12px",
-          background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "5px 16px",
-          color: P.accentDim, fontFamily: F.heading, fontWeight: 700, fontSize: 13 }}>
-          🔒 נעול כרגע
-        </div>
-        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, maxWidth: 380, margin: "0 auto" }}>
-          ✨ הפתעות בדרך — בקרוב נפתח כאן את <b style={{ color: P.accentText }}>ההתאמה האישית של הזרם שלך</b>:
-          השערים, עוצמת הזרם והעדכונים שלך. שווה לחכות. 👑
-        </div>
-      </div>
 
       <div style={{ textAlign: "center", marginTop: 20 }}>
         <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>

@@ -276,7 +276,6 @@ function UserMenu({ user, profile, cc }) {
           boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
         }}>
           <Link to="/profile" style={item} onMouseEnter={hov} onMouseLeave={out}>👤 הפרופיל שלי</Link>
-          <Link to="/profile#notifications" style={item} onMouseEnter={hov} onMouseLeave={out}>🌊 הזרם שלך</Link>
           {isAdmin && (
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
@@ -482,12 +481,6 @@ export default function Navbar() {
             {user ? <Avatar profile={profile} user={user} size={26} onDark /> : <span style={{ fontSize: 18 }}>🔑</span>}
             {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
           </Link>
-          {user && (
-            <Link to="/profile#notifications" onClick={() => setDrawer(false)} style={{
-              display: "flex", alignItems: "center", gap: 10, color: cc.goldDim, textDecoration: "none",
-              fontFamily: F.royal, fontSize: 14, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
-            }}>🌊 הזרם שלך</Link>
-          )}
           {isAdmin && (
             <Link to="/admin" onClick={() => setDrawer(false)} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
