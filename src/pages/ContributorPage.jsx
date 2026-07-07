@@ -126,6 +126,8 @@ export default function ContributorPage() {
   }, [slug]);
 
   const [posts, setPosts] = useState([]);
+  const [tagged, setTagged] = useState([]);       // 📌 פוסטים המתויגים בשמו (מופיע בהם, לא בהכרח כתב)
+  const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   // 🔑 שער-סיסמה (locked): לכולם, אימות בשרת (contrib_unlock) — הסיסמה לא נחשפת ב-API.
   const [unlocked, setUnlocked] = useState(() => { try { return sessionStorage.getItem(`sod_unlock_${slug}`) === "1"; } catch { return false; } });
   const [pw, setPw] = useState("");
@@ -143,21 +145,21 @@ export default function ContributorPage() {
   useEffect(() => {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug]);
 
-  // דף נעול לא נכנס לאינדקס של גוגל (מותר שיופיע — הכניסה בסיסמה)
+  // דף נעול / בבנייה לא נכנס לאינדקס של גוגל
   useEffect(() => {
-    if (!c?.locked) return;
+    if (!c?.locked && !c?.building) return;
     const m = document.createElement("meta");
     m.name = "robots"; m.content = "noindex";
     document.head.appendChild(m);
     return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
-  }, [c?.locked]);
+  }, [c?.locked, c?.building]);
 
   // 📝 הפוסטים על שמו — עדשה על posts (author = השם הקנוני), לא עותק
   useEffect(() => {
@@ -169,6 +171,24 @@ export default function ContributorPage() {
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name]);
+
+  // 📌 תיוגים + 🎯 התכנסויות — עדשה על posts.tags / topic_cards.search_terms לפי contributor.tags.
+  // עץ אחד: לא עותק — מצביע לפוסט הקנוני ולעמוד ההתכנסות (/topic/:slug).
+  useEffect(() => {
+    const tags = Array.isArray(c?.tags) ? c.tags.filter(Boolean) : [];
+    if (!tags.length) { setTagged([]); setConvergences([]); return; }
+    let alive = true;
+    supabase.from("posts").select("slug,title,date,image_url,author")
+      .overlaps("tags", tags).order("date", { ascending: false }).limit(60)
+      .then(({ data }) => { if (alive && Array.isArray(data)) setTagged(data); })
+      .catch(() => {});
+    supabase.from("topic_cards").select("slug,title,subtitle,occurred_at,highlight_numbers,numbers")
+      .eq("status", "approved").overlaps("search_terms", tags)
+      .order("occurred_at", { ascending: false, nullsFirst: false }).limit(24)
+      .then(({ data }) => { if (alive && Array.isArray(data)) setConvergences(data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.tags]);
 
   // 🔗 שיתוף הדף — לכל משתמש (גם אנונימי)
   const sharePage = useCallback(async () => {
@@ -226,6 +246,22 @@ export default function ContributorPage() {
 
   if (err) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div></div>;
   if (!c) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div></div>;
+
+  // 🚧 דף בבנייה — placeholder בלבד, התוכן חסום (building)
+  if (c.building) return (
+    <div style={pageWrap}>
+      <div style={{ direction: "rtl", maxWidth: 460, margin: "0 auto", padding: "90px 18px", textAlign: "center" }}>
+        <div style={{ fontSize: 52, marginBottom: 12 }}>🚧</div>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 26, fontWeight: 800 }}>{c.vip ? "👑 " : ""}{c.display_name}</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, margin: "12px 0 20px" }}>
+          הדף בבנייה — בקרוב ייחשפו כאן הגילויים והרמזים.
+        </div>
+        <a href="/community/researchers" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 18px" }}>
+          📜 כל הכתבים ←
+        </a>
+      </div>
+    </div>
+  );
 
   // 🔑 דף נעול וטרם נפתח — שער-הסיסמה (לכולם)
   if (c.locked && !unlocked) return (
@@ -373,6 +409,60 @@ export default function ContributorPage() {
           </div>
         </div>
       )}
+
+      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug */}
+      {convergences.length > 0 && (
+        <div style={{ marginTop: 26 }}>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
+            🎯 ההתכנסויות של {c.display_name} ({convergences.length})
+          </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {convergences.map(t => {
+              const nums = [...new Set([...(t.highlight_numbers || []), ...(t.numbers || [])])].slice(0, 5);
+              return (
+                <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{t.title}</div>
+                  {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{t.subtitle}</div>}
+                  {nums.length > 0 && (
+                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
+                      {nums.map(n => <span key={n} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px", fontFamily: F.mono, fontSize: 11.5 }}>{n}</span>)}
+                    </div>
+                  )}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 📌 מופיע גם בפוסטים אלו (תיוגים) — לא בהכרח כתב, מצביע לפוסט הקנוני */}
+      {(() => {
+        const authoredSlugs = new Set(posts.map(p => p.slug));
+        const featured = tagged.filter(p => !authoredSlugs.has(p.slug));
+        if (!featured.length) return null;
+        return (
+          <div style={{ marginTop: 26 }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 4 }}>
+              📌 מופיע גם בפוסטים אלו ({featured.length})
+            </div>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 10 }}>פוסטים המתויגים בשמו — לחיצה פותחת את הפוסט המלא.</div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {featured.map(p => (
+                <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
+                  {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{p.title}</div>
+                    <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>
+                      {p.author ? `${p.author} · ` : ""}{p.date ? String(p.date).slice(0, 10) : ""}
+                    </div>
+                  </div>
+                  <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 14 }}>←</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* דייג׳סט-טקסט */}
       {digest?.data && (
