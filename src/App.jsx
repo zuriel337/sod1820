@@ -24,6 +24,8 @@ const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
 import HomeNewPage from "./pages/HomeNewPage.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import { UserCenterProvider } from "./lib/userCenter/UserCenterContext.jsx";
+import UserCenter from "./components/userCenter/UserCenter.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
@@ -177,6 +179,7 @@ export default function App() {
     <AuthProvider>
     <BrowserRouter>
         <ResearchProvider>
+        <UserCenterProvider>
         <RouteEffects />
         <LegacyRedirect />
         <OnboardingGate />
@@ -284,6 +287,8 @@ export default function App() {
         </Route>
         </Routes>
         </React.Suspense>
+        <UserCenter />
+        </UserCenterProvider>
         </ResearchProvider>
     </BrowserRouter>
     </AuthProvider>

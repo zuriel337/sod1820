@@ -5,6 +5,7 @@ import { NAV } from "../../routes.jsx";
 import { GoldButton } from "../ui.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { Avatar } from "../../pages/AuthPage.jsx";
+import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
@@ -249,6 +250,7 @@ function Dropdown({ items, onNavigate }) {
 function UserMenu({ user, profile, cc }) {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useAuth();
+  const { open: openCenter } = useUserCenter();
   const item = {
     display: "block", color: cc.goldDim, textDecoration: "none",
     fontFamily: F.royal, fontSize: 14.5, padding: "10px 13px", borderRadius: 5,
@@ -258,8 +260,8 @@ function UserMenu({ user, profile, cc }) {
   const out = e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = cc.goldDim; };
   return (
     <div style={{ position: "relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/profile" title="הפרופיל שלי" style={{
-        display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+      <button onClick={() => openCenter()} title="מרכז השליטה שלי" style={{
+        display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", background: "transparent",
         padding: "3px 6px 3px 12px", border: `1px solid ${open ? cc.borderGold : cc.border}`, borderRadius: 22,
         transition: "border-color .2s",
       }}>
@@ -267,7 +269,7 @@ function UserMenu({ user, profile, cc }) {
           {profile?.display_name || profile?.username || "פרופיל"}
         </span>
         <Avatar profile={profile} user={user} size={28} onDark />
-      </Link>
+      </button>
       {open && (
         <div style={{
           position: "absolute", top: "100%", left: 0, minWidth: 190,
@@ -275,7 +277,7 @@ function UserMenu({ user, profile, cc }) {
           border: `1px solid ${cc.borderGold}`, borderRadius: 8, padding: 8, zIndex: 200,
           boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
         }}>
-          <Link to="/profile" style={item} onMouseEnter={hov} onMouseLeave={out}>👤 הפרופיל שלי</Link>
+          <button onClick={() => openCenter()} style={{ ...item, width: "100%", textAlign: "right", background: "transparent", border: "none", cursor: "pointer" }} onMouseEnter={hov} onMouseLeave={out}>👤 מרכז השליטה שלי</button>
           {isAdmin && (
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
@@ -406,6 +408,7 @@ export default function Navbar() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
   const { user, profile, isAdmin } = useAuth();
+  const { open: openCenter } = useUserCenter();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
 
@@ -473,14 +476,26 @@ export default function Navbar() {
           <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "4px 6px 12px" }}>
             <UniversalSearch full onDone={() => setDrawer(false)} />
           </div>
-          <Link to={user ? "/profile" : "/login"} onClick={() => setDrawer(false)} style={{
-            display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
-            fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
-            borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
-          }}>
-            {user ? <Avatar profile={profile} user={user} size={26} onDark /> : <span style={{ fontSize: 18 }}>🔑</span>}
-            {user ? (profile?.display_name || profile?.username || "הפרופיל שלי") : "כניסה · הרשמה חינם"}
-          </Link>
+          {user ? (
+            <button onClick={() => { setDrawer(false); openCenter(); }} style={{
+              display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px", width: "100%",
+              background: "none", border: "none", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+              cursor: "pointer", textAlign: "start",
+            }}>
+              <Avatar profile={profile} user={user} size={26} onDark />
+              {profile?.display_name || profile?.username || "מרכז השליטה שלי"}
+            </button>
+          ) : (
+            <Link to="/login" onClick={() => setDrawer(false)} style={{
+              display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 15, fontWeight: 700, padding: "10px 14px",
+              borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+            }}>
+              <span style={{ fontSize: 18 }}>🔑</span>
+              כניסה · הרשמה חינם
+            </Link>
+          )}
           {isAdmin && (
             <Link to="/admin" onClick={() => setDrawer(false)} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
