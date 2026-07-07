@@ -168,10 +168,15 @@ export default function ContributorPage() {
   const totalInCat = cat === "all" ? searched.length : searched.filter(e => (e.category || "אחר") === cat).length;
   const hiddenCount = items.length - visible.length;
 
-  if (err) return <div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div>;
-  if (!c) return <div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div>;
+  // רקע-דף קנוני (light_mode_background_law): בבהיר — רקע אטום (קרם) מתחת לתוכן,
+  // בכהה — שקוף (הקוסמוס נשאר). לעולם לא נשענים על תמונת-הרקע של האתר בבהיר.
+  const pageWrap = { background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };
+
+  if (err) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div></div>;
+  if (!c) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div></div>;
 
   return (
+    <div style={pageWrap}>
     <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "24px 14px 60px" }}>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
@@ -269,6 +274,7 @@ export default function ContributorPage() {
       <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
         הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
       </div>
+    </div>
     </div>
   );
 }
