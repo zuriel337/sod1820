@@ -301,6 +301,26 @@ export async function addEnglishAlias({ phrase, alias, method = 'transliteration
   if (error) throw error;
   return data;
 }
+// 🔷 אוצרות הגילוי — הצלבה חוצת-שיטות: ביטויים ששווים למספר-העוגן בשיטה כלשהי.
+// היררכיה (otzarot_giluy_hierarchy): שכבה 1 «אוצרות הגילוי» · שכבה 2 «השלמה לאוצרות». עץ אחד — קורא מ-gematria_words לפי תגית.
+export async function getGiluyTreasures(anchor) {
+  if (!supabase || !anchor) return { core: [], supplement: [] };
+  const { data } = await supabase.from('gematria_words')
+    .select('phrase, ragil, other_value, other_method, tags')
+    .or(`other_value.eq.${anchor},ragil.eq.${anchor}`)
+    .overlaps('tags', ['אוצרות הגילוי', 'השלמה לאוצרות'])
+    .limit(80);
+  const rows = data || [];
+  const method = r => r.other_method || (r.ragil === anchor ? 'רגיל' : '');
+  const seen = new Set();
+  const pick = tier => rows.filter(r => {
+    const tags = r.tags || [];
+    if (tier === 'core' && !tags.includes('אוצרות הגילוי')) return false;
+    if (tier === 'supp' && !(tags.includes('השלמה לאוצרות') && !tags.includes('אוצרות הגילוי'))) return false;
+    if (seen.has(r.phrase)) return false; seen.add(r.phrase); return true;
+  }).map(r => ({ phrase: r.phrase, method: method(r) }));
+  return { core: pick('core'), supplement: pick('supp') };
+}
 // 🎯 «להיכנס להתכנסות» — כל הביטויים באותו ערך-רגיל (מאומתים + ממתינים), לאדמין (עוקף RLS).
 export async function adminValueConvergence(value) {
   if (!supabase) return null;

@@ -12,6 +12,7 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
 import NumberDNA from "../components/NumberDNA.jsx";
 import NumberFamilies from "../components/NumberFamilies.jsx";
+import GiluyTreasures from "../components/GiluyTreasures.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
@@ -1167,6 +1168,9 @@ export default function EntityPage({ embedPhrase } = {}) {
             })}
           </div>
         )}
+
+        {/* ── 🔷 הצלבת אוצרות הגילוי — «<value> בכל שיטה» (הצלבה חוצת-שיטות, לא התכנסות) ── */}
+        {isNumber && <GiluyTreasures value={value} />}
 
         {/* ── 👑 באנר-תפארת לדף-דגל (1820 וכו') — על הדף הקנוני, לא מערכת מקבילה ── */}
         {isNumber && FLAGSHIP[value] && <FlagshipSeals cfg={FLAGSHIP[value]} />}
