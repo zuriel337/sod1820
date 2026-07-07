@@ -32,7 +32,10 @@ function claimPhrases(claims) {
   return [...new Set((claims || []).map(c => (c.split("=")[0] || "").trim()).filter(p => /[א-ת]/.test(p) && p.length <= 60))];
 }
 
-function Card({ e, P, slug, user, isAdmin, onHide, onPromote }) {
+// המספר שבסוף claim ("ישועת אלהינו=888" → 888) — ללחיצת-סינון
+function claimNumber(c) { const m = String(c).match(/=\s*(\d+)\s*$/); return m ? m[1] : null; }
+
+function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
   const [open, setOpen] = useState(false);
   const [promoting, setPromoting] = useState(false);
   const [promoted, setPromoted] = useState(null);
@@ -61,9 +64,17 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote }) {
         {(e.title || e.txt) && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.55 }}>{e.title || e.txt}</div>}
         {claims.length > 0 && (
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {claims.slice(0, 6).map((c, i) => (
-              <span key={i} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 8, padding: "2px 8px", fontFamily: F.mono, fontSize: 11.5, direction: "ltr" }}>{c}</span>
-            ))}
+            {claims.slice(0, 6).map((c, i) => {
+              const n = claimNumber(c);
+              return (
+                <button key={i} onClick={() => n && onNumClick(n)} disabled={!n}
+                  title={n ? `הצג את כל הכרטיסים של הכותב עם ${n}` : undefined}
+                  style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 8, padding: "2px 8px",
+                    fontFamily: F.mono, fontSize: 11.5, direction: "ltr", cursor: n ? "pointer" : "default" }}>
+                  {c}
+                </button>
+              );
+            })}
           </div>
         )}
         <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
@@ -216,7 +227,8 @@ export default function ContributorPage() {
 
       {/* גריד הכרטיסים */}
       <div style={{ columns: "2 300px", columnGap: 12 }}>
-        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote} />)}
+        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote}
+          onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* noop */ } }} />)}
       </div>
       {hiddenCount > 0 && (
         <div style={{ textAlign: "center", marginTop: 10 }}>
