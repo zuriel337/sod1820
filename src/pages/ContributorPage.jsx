@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import { applySeo } from "../lib/seo.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -86,6 +87,18 @@ export default function ContributorPage() {
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug]);
+
+  // SEO קנוני לדף דינמי (כמו EntityPage/TopicPage) — כותרת + קנוניקל לפי החוקר
+  useEffect(() => {
+    if (!c) return;
+    const firstImg = (Array.isArray(c.media) ? c.media : []).find(e => e.url)?.url;
+    applySeo({
+      title: `${c.display_name} — דף חוקר`,
+      description: `הגילויים, האוצרות והרמזים של ${c.display_name} · ${c.role || "חוקר"} · סוד 1820`,
+      path: `/community/researcher/${c.slug}`,
+      image: firstImg,
+    });
+  }, [c]);
 
   const media = useMemo(() => (Array.isArray(c?.media) ? c.media : []), [c]);
   const digest = media.find(e => e.kind === "digest");
