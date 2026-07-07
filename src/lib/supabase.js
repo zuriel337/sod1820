@@ -1102,8 +1102,14 @@ export function subscribeShareCount(wpId, cb) {
 // שקט ולא חוסם: רושם רק למשתמש מחובר (RLS), נכשל בשתיקה אם אין session.
 export async function logActivity(kind, ref = null, title = null) {
   if (!supabase || !kind) return;
-  try { await supabase.from('user_activity').insert({ kind, ref, title: title ? String(title).slice(0, 200) : null }); }
-  catch { /* silent */ }
+  try {
+    // רק למשתמש מחובר: RLS דורש user_id=auth.uid(); אנונימי חסום (היה מפיל permission-denied בלוג).
+    // בעבר לא הועבר user_id כלל → נכשל גם למחוברים (with_check user_id=auth.uid() על null).
+    const { data: { session } } = await supabase.auth.getSession();
+    const uid = session?.user?.id;
+    if (!uid) return;
+    await supabase.from('user_activity').insert({ user_id: uid, kind, ref, title: title ? String(title).slice(0, 200) : null });
+  } catch { /* silent */ }
 }
 
 // מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות

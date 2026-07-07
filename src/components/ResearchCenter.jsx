@@ -138,7 +138,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const runAnalyze = async () => {
     if (aiState === "busy") return;
     if (aiState === "done") { setAiState("idle"); setAiText(null); return; }   // לחיצה שנייה = הסתר
-    if (!analyzeItems.length) return;
+    if (!analyzeItems.length) { setAiState("empty"); setAiText(null); return; }
     setAiState("busy");
     trackAi("research", "personal");   // 📊 שימוש ב-AI — ניתוח המחקר האישי
     const facts = analyzeItems.map(e => {
@@ -217,6 +217,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                   <div className="rw-ai-note">הערכים עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).</div>
                 </div>
               )}
+              {aiState === "empty" && <div className="rw-empty" style={{ marginTop: 8 }}>צרפו קודם ישות אחת למחקר (📌 הצמד / ➕ הוסף) — ואז אפשר לנתח את האוסף.</div>}
               {aiState === "off" && <div className="rw-empty" style={{ marginTop: 8 }}>הניתוח אינו זמין כרגע — נסו שוב מאוחר יותר.</div>}
             </>}
       </Panel>
