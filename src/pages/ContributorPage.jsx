@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import QuickActions from "../components/QuickActions.jsx";
+
+// הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
+const HIDE_KEY = "sod_hidden_contrib_cards_v1";
+function loadHidden() { try { return new Set(JSON.parse(localStorage.getItem(HIDE_KEY)) || []); } catch { return new Set(); } }
+function saveHidden(s) { try { localStorage.setItem(HIDE_KEY, JSON.stringify([...s])); } catch { /* noop */ } }
 
 // 👤 דף תורם/חוקר — /community/:slug (identity_architecture_law · research_gold_hints_law)
 // מרנדר את contributors.media: כרטיסי-זהב בסטייג׳, דייג׳סט, קטגוריות. עדשה על מקור אחד — לא עותק.
@@ -19,9 +26,16 @@ const CAT_LABELS = {
   "signature-verse": "✍️ חתימה",
 };
 
-function Card({ e, P }) {
+function Card({ e, P, slug, user, onHide }) {
   const [open, setOpen] = useState(false);
   const claims = e.claims || (e.values ? Object.entries(e.values).map(([k, v]) => `${k}=${v}`) : []);
+  const cardId = `contrib-${slug}-${e.f || e.msg_id || e.title}`;
+  // ישות קנונית ל-Research Bus — «העבר לממצא אישי» = ➕ הוסף למחקר / ⭐ שמור
+  const entity = {
+    id: cardId, type: "hint-card",
+    title: e.title || e.txt || `כרטיס של ${slug}`,
+    image: e.url, claims, source: e.source, contributor: slug,
+  };
   return (
     <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", breakInside: "avoid", marginBottom: 12 }}>
       {e.url && (
@@ -43,6 +57,11 @@ function Card({ e, P }) {
           {e.status === "pending-review" && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>⏳ סטייג׳ — ממתין לאישור</span>}
           {e.d && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, marginInlineStart: "auto" }}>{e.d}</span>}
         </div>
+        {/* מחובר בלבד: הפעולות הקנוניות (➕ למחקר האישי · ⭐ שמור · שתף · AI) + הסתרה */}
+        {user && (
+          <QuickActions entity={entity} style={{ marginTop: 4 }}
+            extra={<button onClick={() => onHide(cardId)} title="הסתר את הכרטיס הזה אצלי">🙈 הסתר</button>} />
+        )}
       </div>
     </div>
   );
@@ -51,10 +70,14 @@ function Card({ e, P }) {
 export default function ContributorPage() {
   const { slug } = useParams();
   const P = usePalette();
+  const { user } = useAuth();
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
   const [limit, setLimit] = useState(24);
+  const [hidden, setHidden] = useState(loadHidden);
+  const hide = useCallback((id) => setHidden(h => { const n = new Set(h); n.add(id); saveHidden(n); return n; }), []);
+  const unhideAll = useCallback(() => { setHidden(new Set()); saveHidden(new Set()); }, []);
 
   useEffect(() => {
     let alive = true;
@@ -73,8 +96,10 @@ export default function ContributorPage() {
     items.forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
   }, [items]);
-  const shown = (cat === "all" ? items : items.filter(e => (e.category || "אחר") === cat)).slice(0, limit);
-  const totalInCat = cat === "all" ? items.length : items.filter(e => (e.category || "אחר") === cat).length;
+  const visible = items.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`));
+  const shown = (cat === "all" ? visible : visible.filter(e => (e.category || "אחר") === cat)).slice(0, limit);
+  const totalInCat = cat === "all" ? visible.length : visible.filter(e => (e.category || "אחר") === cat).length;
+  const hiddenCount = items.length - visible.length;
 
   if (err) return <div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div>;
   if (!c) return <div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div>;
@@ -115,8 +140,15 @@ export default function ContributorPage() {
 
       {/* גריד הכרטיסים */}
       <div style={{ columns: "2 300px", columnGap: 12 }}>
-        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} />)}
+        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} onHide={hide} />)}
       </div>
+      {hiddenCount > 0 && (
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button onClick={unhideAll} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>
+            🙈 {hiddenCount} כרטיסים מוסתרים אצלך — הצג הכל מחדש
+          </button>
+        </div>
+      )}
       {shown.length < totalInCat && (
         <button onClick={() => setLimit(l => l + 24)}
           style={{ display: "block", margin: "14px auto 0", cursor: "pointer", background: "none", border: `1px dashed ${P.border}`, color: P.accentText, borderRadius: 12, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 26px", minHeight: 44 }}>
