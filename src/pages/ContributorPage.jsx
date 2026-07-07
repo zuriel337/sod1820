@@ -79,6 +79,7 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
         )}
         <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
           {e.verified && <span style={{ color: "#2e9e5b", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>✓ מאומת במנוע</span>}
+          {e.sensitive && <span style={{ color: "#c46a5a", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }} title="מוסתר מהציבור — אדמין בלבד">🔒 רגיש</span>}
           {approved
             ? <span style={{ color: "#2e9e5b", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>👑 ברשימה הכללית</span>
             : e.status === "pending-review" && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>🔬 חומר-מחקר</span>}
@@ -127,7 +128,9 @@ export default function ContributorPage() {
   const [posts, setPosts] = useState([]);
   useEffect(() => {
     let alive = true;
-    supabase.from("contributors").select("slug,display_name,role,bio,notes,vip,media,avatar_url").eq("slug", slug).maybeSingle()
+    // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url")
+      .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
@@ -146,7 +149,7 @@ export default function ContributorPage() {
 
   // 🔗 שיתוף הדף — לכל משתמש (גם אנונימי)
   const sharePage = useCallback(async () => {
-    const url = `https://sod1820.co.il/community/researcher/${slug}`;
+    const url = `https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`;
     const title = `${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`;
     try { if (navigator.share) return await navigator.share({ title, url }); } catch { /* בוטל */ }
     try { await navigator.clipboard.writeText(url); alert("הקישור הועתק 📋"); } catch { /* noop */ }
@@ -159,7 +162,7 @@ export default function ContributorPage() {
     applySeo({
       title: `${c.display_name} — דף חוקר`,
       description: `הגילויים, האוצרות והרמזים של ${c.display_name} · ${c.role || "חוקר"} · סוד 1820`,
-      path: `/community/researcher/${c.slug}`,
+      path: `/community/researcher/${c.code || c.slug}`,
       image: firstImg,
     });
   }, [c]);
@@ -170,13 +173,16 @@ export default function ContributorPage() {
   const items = media.filter(e => e.kind !== "digest" && e.kind !== "scan-header");
   const cats = useMemo(() => {
     const s = new Map();
-    items.forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
+    (isAdmin ? items : items.filter(x => !x.sensitive)).forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
-  }, [items]);
+  }, [items, isAdmin]);
+  // 🔒 תוכן רגיש (סומן בדאטה) — מוסתר מהציבור; אדמין רואה עם תג
+  const sensitiveCount = items.filter(e => e.sensitive).length;
+  const safeItems = isAdmin ? items : items.filter(e => !e.sensitive);
   // 🏆 הטופ של החוקר — רק כרטיסים שסומנו top_rank (החלטת צוריאל, פר-חוקר; לא באתר הכללי)
-  const topGold = items.filter(e => e.top_rank).sort((a, b) => a.top_rank - b.top_rank);
+  const topGold = safeItems.filter(e => e.top_rank).sort((a, b) => a.top_rank - b.top_rank);
   const topKeys = new Set(topGold.map(e => e.f || e.msg_id));
-  const visible = items.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`) && !topKeys.has(e.f || e.msg_id));
+  const visible = safeItems.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`) && !topKeys.has(e.f || e.msg_id));
   // 🔎 חיפוש בתוך הדף: מספר → התאמת מספר-שלם בכל השיטות/הכרטיסים; טקסט → הכלה חופשית
   const nq = q.trim();
   const isNum = /^\d+$/.test(nq);
@@ -189,7 +195,7 @@ export default function ContributorPage() {
   const searched = visible.filter(matchQ);
   const shown = (cat === "all" ? searched : searched.filter(e => (e.category || "אחר") === cat)).slice(0, limit);
   const totalInCat = cat === "all" ? searched.length : searched.filter(e => (e.category || "אחר") === cat).length;
-  const hiddenCount = items.length - visible.length;
+  const hiddenCount = safeItems.filter(e => !topKeys.has(e.f || e.msg_id)).length - visible.length;
 
   // רקע-דף קנוני (light_mode_background_law): בבהיר — רקע אטום (קרם) מתחת לתוכן,
   // בכהה — שקוף (הקוסמוס נשאר). לעולם לא נשענים על תמונת-הרקע של האתר בבהיר.
