@@ -4,6 +4,7 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { langLinkAdd, langLinksList, langLinksPending, langLinkReview } from "../lib/supabase.js";
+import EnglishDiscovery from "../components/EnglishDiscovery.jsx";
 
 // 🌍 קשרים בין שפות — אשף מחקר (שכבת LCE). כל קשר מסווג בסוג-קשר, ומקבל תגית ברורה
 // כדי שהקורא לא יבלבל בין תעתוק / תרגום / שורש / רעיון (בקשת צוריאל). הכול pending עד אישור.
@@ -122,6 +123,9 @@ export default function LanguagesPage() {
           מרחב מחקר לקשרים בין עברית לשפות אחרות. <b style={{ color: P.accentText }}>כל קשר מסווג</b> — תעתוק, תרגום, שורש או רעיון — כדי שיהיה ברור וישר. כל הזנה ממתינה לאישור לפני שהיא מוצגת לכולם.
         </div>
       </div>
+
+      {/* 🔎 שער-הכניסה — מנוע הגילויים (מילה לועזית → התכנסויות נדירות) */}
+      <EnglishDiscovery />
 
       {/* 🧙 האשף */}
       <form onSubmit={submit} style={{ background: P.surface, border: `1.5px solid ${P.borderStrong}`, borderRadius: 18, padding: "20px 18px", display: "grid", gap: 18, marginBottom: 30 }}>

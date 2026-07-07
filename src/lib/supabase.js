@@ -246,6 +246,14 @@ export async function langLinkReview(id, action) {
   if (error) throw error;
   return data;   // 'approved' | 'rejected' | 'deleted' | 'forbidden'
 }
+// 🔎 מנוע-הגילוי החוצה-שפתי — שאילתת-הליבה. מילה לועזית (או עברית) → פרישה על כל
+// השיטות, התכנסויות מדורגות בנדירות (gold/strong/weak). המסננים רצים בחיפוש, לא כשער.
+export async function enSearch(word, maxMatches = 8) {
+  if (!supabase || !word?.trim()) return [];
+  const { data, error } = await supabase.rpc('fn_en_search', { p_word: word.trim(), p_max_matches: maxMatches });
+  if (error) return [];
+  return data || [];   // [{ input_hebrew, method, value, rarity, signal, matches[] }]
+}
 // 🔔 אירועי-גילוי — זיהוי התכנסויות אמיתיות + שליחת מייל לרשימה (עץ אחד: אותה רשימת subscribers).
 export async function scanDiscoveryEvents({ days = 7, minMembers = 8 } = {}) {
   if (!supabase) return null;
