@@ -3719,8 +3719,9 @@ function Navbar({ page, onNav }) {
             position: "absolute", top: -7, right: -9,
             fontSize: 13, lineHeight: 1,
             filter: "drop-shadow(0 0 4px rgba(212,175,55,0.85))",
-            animation: "sodSparkle 2.6s ease-in-out infinite",
+            animation: "sodSparkle 12s ease-in-out infinite",
           }}>✨</span>
+          <style>{`@keyframes sodSparkle{0%{opacity:.72;transform:scale(1)}10%{opacity:1;transform:scale(1.2)}20%,100%{opacity:.72;transform:scale(1)}}`}</style>
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ color: C.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 800, lineHeight: 1.25 }}>

@@ -369,9 +369,10 @@ function Brand() {
           position: "absolute", top: -7, right: -9,
           fontSize: 13, lineHeight: 1,
           filter: "drop-shadow(0 0 4px rgba(212,175,55,0.85))",
-          animation: "sodSparkle 2.6s ease-in-out infinite",
+          animation: "sodSparkle 12s ease-in-out infinite",
         }}>✨</span>
-        <style>{`@keyframes sodSparkle{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.18)}}`}</style>
+        {/* נשימה אחת כל 12ש׳ (צוריאל): הפעימה עצמה ~2.4ש׳ (10%=1.2ש׳ שיא, 20%=2.4ש׳ סיום), ואז מנוחה */}
+        <style>{`@keyframes sodSparkle{0%{opacity:.72;transform:scale(1)}10%{opacity:1;transform:scale(1.2)}20%,100%{opacity:.72;transform:scale(1)}}`}</style>
       </div>
       <div style={{ textAlign: "right" }}>
         <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 400, lineHeight: 1.25 }}>
