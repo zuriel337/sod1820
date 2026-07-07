@@ -445,17 +445,20 @@ export async function getTopCollective(minUsers = 2, lim = 12) {
 
 // 🌳 סטטיסטיקת העץ האישי של המשתמש המחובר — גודל האוסף + כמה מהחיפושים שלו. למד-הפרופיל.
 export async function getMyTreeStats() {
-  if (!supabase) return { total: 0, searched: 0 };
+  const empty = { total: 0, searched: 0, words: 0 };
+  if (!supabase) return empty;
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const uid = session?.user?.id;
-    if (!uid) return { total: 0, searched: 0 };
-    const [totalRes, searchedRes] = await Promise.all([
+    if (!uid) return empty;
+    const [totalRes, searchedRes, wordsRes] = await Promise.all([
       supabase.from('research_items').select('*', { count: 'exact', head: true }).eq('user_id', uid),
       supabase.from('research_items').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('bucket', 'searched'),
+      supabase.rpc('my_words_in_engine'), // "N מהמילים שלך במנוע" (contribution_events, צד סוכן-2)
     ]);
-    return { total: totalRes.count || 0, searched: searchedRes.count || 0 };
-  } catch { return { total: 0, searched: 0 }; }
+    const words = typeof wordsRes.data === 'number' ? wordsRes.data : (parseInt(wordsRes.data, 10) || 0);
+    return { total: totalRes.count || 0, searched: searchedRes.count || 0, words };
+  } catch { return empty; }
 }
 
 // סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.

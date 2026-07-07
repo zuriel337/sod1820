@@ -5,7 +5,7 @@ import { getMyTreeStats } from "../lib/supabase.js";
 // הערך למשתמש-כוח (כמו שמעון): העץ שלו גדל מפעילותו. "המילים שלך במנוע" יידלק
 // כשסוכן-2 יחווט submitted_by (חוזה = users.id).
 export default function MyTreeCard({ profile }) {
-  const [stats, setStats] = useState({ total: 0, searched: 0 });
+  const [stats, setStats] = useState({ total: 0, searched: 0, words: 0 });
   useEffect(() => {
     let alive = true;
     getMyTreeStats().then(s => { if (alive) setStats(s); });
@@ -29,6 +29,11 @@ export default function MyTreeCard({ profile }) {
         <Stat label="קרדיטים" val={credits} />
         <Stat label="באוסף" val={stats.total} />
       </div>
+      {stats.words > 0 && (
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2f8f4e", marginTop: 8, textAlign: "center" }}>
+          🌐 {stats.words.toLocaleString("he")} מהמילים שלך נכנסו למנוע!
+        </div>
+      )}
       <div style={{ fontSize: 11, opacity: 0.7, marginTop: 8, textAlign: "center", lineHeight: 1.6 }}>
         {stats.searched > 0 ? `${stats.searched.toLocaleString("he")} מהחיפושים שלך בנו את העץ · ` : ""}כל גילוי מרחיב את המפה האישית שלך.
       </div>
