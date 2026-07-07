@@ -143,11 +143,14 @@ function Row({ T, k, v }) {
   return <div style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: `1px solid ${T.line}` }}><span style={{ color: T.sub, fontSize: 13.5 }}>{k}</span><span style={{ fontWeight: 800 }}>{typeof v === "number" ? v.toLocaleString("he") : v}</span></div>;
 }
 
-// ── ה-registry: 14 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
-function buildModules({ T, user, profile, isAdmin, center, signOut }) {
+// ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
+// כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
+// במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
+export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
   const c = center || {};
   return [
-    { id: "profile", icon: "🌳", title: "הפרופיל שלי", status: "live", render: () => (
+    // ─── LIVE — פאנלים אמיתיים עם נתונים ───
+    { id: "profile", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <Row T={T} k="דרגה" v={profile?.level ?? 1} />
         <Row T={T} k="XP" v={profile?.xp ?? 0} />
@@ -165,16 +168,7 @@ function buildModules({ T, user, profile, isAdmin, center, signOut }) {
         <Link to="/research" style={{ display: "inline-block", marginTop: 14, background: T.acc, color: "#fff", borderRadius: 10, padding: "9px 18px", textDecoration: "none", fontWeight: 700, fontSize: 13.5 }}>פתח את סביבת המחקר ←</Link>
       </div>
     ) },
-    { id: "posts", icon: "📝", title: "הפוסטים שלי", status: "soon", badge: c.posts || undefined, render: () => (
-      <Soon T={T} lines={["כל הפוסטים שכתבת באתר", "טיוטות ופוסטים שממתינים לאישור", "צפיות · לייקים · שיתופים · תגובות", "כמה שמרו · כמה נפתחו דרך AI", "הפוסטים הכי מצליחים שלך"]} />
-    ) },
-    { id: "treasures", icon: "💎", title: "האוצרות שלי", status: "soon", render: () => (
-      <Soon T={T} lines={["אוצרות שגיליתי", "אוצרות שאישרתי", "אוצרות שיצאו מתוך המחקר שלי", "פנינים שאושרו · תרומות למאגר"]} />
-    ) },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "soon", render: () => (
-      <Soon T={T} lines={["ארכיון אישי לפי סוג: 📷 תמונות · 🤖 AI · 🎥 סרטונים · 🔊 הקלטות · 📄 מסמכים", "🚗 לוחיות · 🌙 חלומות · 🔄 סנכרונים · 📰 חדשות · 🔗 קישורים · 💡 רעיונות", "גלריה מסודרת לפי תאריך · תגית · סוג"]} />
-    ) },
-    { id: "contrib", icon: "🏆", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
+    { id: "contrib", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
         <Row T={T} k="מהמילים שלך במנוע" v={c.contributions ?? 0} />
@@ -194,8 +188,41 @@ function buildModules({ T, user, profile, isAdmin, center, signOut }) {
         <Row T={T} k="פוסטים" v={c.posts ?? 0} />
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="תרומות" v={c.contributions ?? 0} />
-        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים · ציר-זמן אישי.</div>
+        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>
       </div>
+    ) },
+    { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} profile={profile} user={user} signOut={signOut} /> },
+
+    // ─── SOON — התוכנית האמיתית (הארכיטקטורה שלמה מהיום) ───
+    { id: "tree", icon: "🌳", title: "העץ שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["מפת-צמיחה חזותית של העץ האישי שלך", "כל חיפוש · רמז · פוסט · אוצר = ענף חדש", "רואים את העץ גדל לאורך זמן — לא רק מספרים", "לחיצה על ענף → קופצים לישות בגרף"]} />
+    ) },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["ארכיון אישי לפי סוג: 📷 תמונות · 🤖 AI · 🎥 סרטונים · 🔊 הקלטות · 📄 מסמכים", "🚗 לוחיות · 🌙 חלומות · 🔄 סנכרונים · 📰 חדשות · 🔗 קישורים · 💡 רעיונות", "גלריה מסודרת לפי תאריך · תגית · סוג"]} />
+    ) },
+    { id: "posts", icon: "📝", title: "הפוסטים שלי", status: "soon", badge: c.posts || undefined, render: () => (
+      <Soon T={T} lines={["כל הפוסטים שכתבת באתר", "טיוטות ופוסטים שממתינים לאישור", "צפיות · לייקים · שיתופים · תגובות", "כמה שמרו · כמה נפתחו דרך AI", "הפוסטים הכי מצליחים שלך"]} />
+    ) },
+    { id: "treasures", icon: "💎", title: "האוצרות שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["אוצרות שגיליתי", "אוצרות שאישרתי", "אוצרות שיצאו מתוך המחקר שלי", "פנינים שאושרו · תרומות למאגר"]} />
+    ) },
+    { id: "favorites", icon: "❤️", title: "המועדפים שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["כל מה שסימנת כמועדף במקום אחד:", "🔢 מספרים · 📝 פוסטים · 🧩 רמזים", "💎 אוצרות · 👥 חוקרים", "גישה מהירה לכל מה שאהבת"]} />
+    ) },
+    { id: "achievements", icon: "🏆", title: "ההישגים שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["תגים (Badges) שזכית בהם", "דרגות והתקדמות", "הישגים מיוחדים", "אבני דרך במסע שלך"]} />
+    ) },
+    { id: "timeline", icon: "📅", title: "לוח הפעילות שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["ציר-זמן אישי של כל מה שעשית:", "🔎 חיפושים · 📝 פוסטים · 🧩 רמזים", "💎 אוצרות · 💬 תגובות · 🏆 הישגים", "נעים ומספר-סיפור — לא סטטיסטיקה יבשה"]} />
+    ) },
+    { id: "quests", icon: "🎯", title: "המשימות שלי", status: "soon", render: () => (
+      <Soon T={T} lines={["«השלם 3 חיפושים → 10 קרדיטים»", "משימות שמזכות בקרדיטים ו-XP", "אתגרים יומיים · שבועיים", "המנוע שהופך משתמש חדש לחוקר פעיל"]} />
+    ) },
+    { id: "referral", icon: "🔗", title: "הזמן חוקר", status: "soon", render: () => (
+      <Soon T={T} lines={["«הזמן חוקר — קבל קרדיטים»", "קישור-הזמנה אישי", "עץ ההתפשטות שלך — מי הצטרף דרכך", "ערוץ הצמיחה הכי חזק של הקהילה"]} />
+    ) },
+    { id: "following", icon: "👥", title: "חוקרים שאני עוקב", status: "soon", render: () => (
+      <Soon T={T} lines={["חוקרים שאתה עוקב אחריהם", "חוקרים שעוקבים אחריך", "עדכון כשחוקר שאתה עוקב מפרסם", "יסוד המערכת החברתית העתידית"]} />
     ) },
     { id: "notifications", icon: "🔔", title: "התראות", status: "soon", render: () => (
       <Soon T={T} lines={["אוצר חדש שאושר", "תגובה לפוסט שלך", "מישהו שמר את הרמז שלך", "ה-AI מצא קשר חדש למחקר שלך", "עדכוני מערכת"]} />
@@ -206,10 +233,12 @@ function buildModules({ T, user, profile, isAdmin, center, signOut }) {
     { id: "messages", icon: "💬", title: "הודעות", status: "soon", render: () => (
       <Soon T={T} lines={["הודעות פרטיות בין חוקרים", "הזמנות לשיתוף פעולה", "קבוצות מחקר"]} />
     ) },
+    { id: "privacy", icon: "🔐", title: "פרטיות והרשאות", status: "soon", render: () => (
+      <Soon T={T} lines={["מי רואה את הפרופיל שלך", "מי רואה את המחקרים שלך", "מי רואה את הרמזים שלך", "העדפות התראות ודוא\"ל"]} />
+    ) },
     { id: "support", icon: "🆘", title: "תמיכה ועזרה", status: "soon", render: () => (
       <Soon T={T} lines={["דיווח על תקלה", "שליחת משוב", "בקשת פיצ'ר חדש", "דיווח על תוכן שגוי", "מעקב אחרי סטטוס הפנייה"]} />
     ) },
-    { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} profile={profile} user={user} signOut={signOut} /> },
     { id: "subscription", icon: "👑", title: "מנוי וחבילות", status: "soon", render: () => (
       <Soon T={T} lines={["דרגות חברות · חבילות קרדיטים", "בני היכל · חוקרי היכל · שותפי היכל", "הטבות ותכנים בלעדיים"]} />
     ) },
