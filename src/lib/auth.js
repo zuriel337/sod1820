@@ -1,7 +1,7 @@
 import { supabase } from './supabase.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at';
+const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at, credits, xp, level';
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
 export function signInWithGoogle() {

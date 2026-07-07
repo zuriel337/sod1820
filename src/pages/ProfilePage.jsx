@@ -4,6 +4,7 @@ import { C, F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import MyTreeCard from "../components/MyTreeCard.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
 import { supabase, getUserActivity, getUserItems, deleteUserItem } from "../lib/supabase.js";
@@ -412,6 +413,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        <MyTreeCard profile={profile} />
 
         <label style={label}>שם משתמש (ציבורי)</label>
         <input style={field} value={username} onChange={e => setUsername(e.target.value)} dir="rtl" />

@@ -443,6 +443,21 @@ export async function getTopCollective(minUsers = 2, lim = 12) {
   } catch { return []; }
 }
 
+// 🌳 סטטיסטיקת העץ האישי של המשתמש המחובר — גודל האוסף + כמה מהחיפושים שלו. למד-הפרופיל.
+export async function getMyTreeStats() {
+  if (!supabase) return { total: 0, searched: 0 };
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const uid = session?.user?.id;
+    if (!uid) return { total: 0, searched: 0 };
+    const [totalRes, searchedRes] = await Promise.all([
+      supabase.from('research_items').select('*', { count: 'exact', head: true }).eq('user_id', uid),
+      supabase.from('research_items').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('bucket', 'searched'),
+    ]);
+    return { total: totalRes.count || 0, searched: searchedRes.count || 0 };
+  } catch { return { total: 0, searched: 0 }; }
+}
+
 // סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.
 export async function getGalleryImageCount() {
   if (!supabase) return 0;
@@ -1604,6 +1619,20 @@ export async function logSearch(term, value) {
     sessionStorage.setItem(key, '1');
   } catch { /* ignore */ }
   try { await supabase.from('search_log').insert({ term: t, value: Number.isFinite(value) ? value : null }); } catch { /* ignore */ }
+  // 🌳 עץ אישי: חיפוש של משתמש מחובר → research_items (bucket 'searched'). מכבד מצב-אנונימי (יצא למעלה).
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const uid = session?.user?.id;
+    if (uid) {
+      const type = /^\d+$/.test(t) ? 'number' : 'phrase';
+      const link = `/number/${encodeURIComponent(t)}`;
+      const ent = { id: `${type}:${t}`, type, title: t, ref: t, link, metadata: {}, addedAt: Date.now() };
+      await supabase.from('research_items').upsert(
+        { user_id: uid, bucket: 'searched', entity_type: type, entity_ref: t, title: t, link, metadata: ent, created_at: new Date().toISOString() },
+        { onConflict: 'user_id,bucket,entity_type,entity_ref' }
+      );
+    }
+  } catch { /* ignore */ }
   // היסטוריה אישית (פר-משתמש) — לתצוגת "חיפושים אחרונים" בפרופיל. RLS דואג לבעלות.
   try { logActivity('gematria', t, Number.isFinite(value) ? String(value) : null); } catch { /* ignore */ }
 }
