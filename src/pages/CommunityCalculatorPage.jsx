@@ -22,6 +22,12 @@ const CORE3_INFO = {
   "מילוי": { tag: "הנשמה · הפנימי", desc: "כותבים כל אות בשמהּ המלא (א→אָלֶף, ב→בֵּית) וסוכמים. «נשמת האות» — הביטוי הפנימי המלא שמתמלא בתוכה." },
   "מסתתר": { tag: "הנסתר · שביניהן", desc: "סכום ההפרשים בין אותיות סמוכות (בכל מילה בנפרד). הרובד החבוי שמסתתר בֵּין האותיות." },
 };
+// 🤖 אופציות ניתוח AI (זמני — לבדיקה איזו זווית משתלבת הכי טוב). כל זווית מכוונת את הפרומפט.
+const AI_ANGLES = [
+  { key: "meaning", label: "🔍 משמעות ופנימיות", focus: "התמקד במשמעות השם וברבדיו: הגלוי (רגיל), הנשמה (מילוי), הנסתר (מסתתר) — מה הם מלמדים יחד." },
+  { key: "links",   label: "🔗 הקשרים במאגר",    focus: "התמקד בביטויים והמספרים ששווים לשם במאגר — ומה הם עשויים לרמז יחד. עובדתי." },
+  { key: "hint",    label: "✨ רמז משלים",        focus: "תן רמז משלים אחד קצר וחם, נאמן לעובדות בלבד — בלי נבואה." },
+];
 
 // ✦ מספרי-הגאולה של סוד 1820 — אם השם פוגע באחד מהם (בכל שיטה) → «מחובר לסוד».
 const GEULA_NUMS = { 1820: "שם הוי״ה בתורה", 358: "משיח", 26: "הוי״ה", 86: "אלהים", 541: "ישראל", 613: "תרי״ג מצוות", 137: "קבלה", 72: "חסד · שם ע״ב", 1237: "התגלות", 314: "שד־י · מטטרון", 65: "אדנ־י" };
@@ -97,18 +103,20 @@ function BabyNameTool({ P }) {
     return () => { alive = false; };
   }, [bDate]);
 
-  async function runAi(idx) {
+  async function runAi(idx, angle) {
     const a = analyzed[idx]; if (!a || ai[idx]?.busy) return;
-    setAi(s => ({ ...s, [idx]: { busy: true, text: "" } }));
+    setAi(s => ({ ...s, [idx]: { busy: true, text: "", angle: angle.key } }));
     const methodStr = a.core.map(c => `${c.key} ${c.value}`).join(", ");
     const ph = (phraseMap[a.value] || []).slice(0, 8).map(p => p.phrase).filter(x => x !== a.name);
-    const facts = `השם "${a.name}" בשלוש שיטות — ${methodStr} (רגיל=הגלוי, מילוי=הנשמה, מסתתר=הנסתר).` +
+    const facts = `${angle.focus}\nהשם "${a.name}" בשלוש שיטות — ${methodStr} (רגיל=הגלוי, מילוי=הנשמה, מסתתר=הנסתר).` +
       (ph.length ? ` שווה גם לביטויים: ${ph.join(", ")}.` : "") +
       (a.geula ? ` בשיטת ${a.geula.method} שווה ${a.geula.num} (${a.geula.meaning}).` : "") +
       (fam ? ` שם המשפחה "${fam.name}" = ${fam.value}.` : "") +
       (heb ? ` התאריך העברי של הלידה: ${heb.pretty} = ${heb.value}.` : "");
-    const txt = await getAiAnalysis({ kind: "number", subject: a.name, facts });
-    setAi(s => ({ ...s, [idx]: { busy: false, text: txt || "לא התקבל ניתוח כרגע — נסו שוב." } }));
+    // Sonnet איטי יותר → אם נכשל פעם אחת, ניסיון שני (מונע «לא התקבל» זמני).
+    let txt = await getAiAnalysis({ kind: "number", subject: a.name, facts });
+    if (!txt) { await new Promise(r => setTimeout(r, 900)); txt = await getAiAnalysis({ kind: "number", subject: a.name, facts, again: true }); }
+    setAi(s => ({ ...s, [idx]: { busy: false, text: txt || "לא התקבל ניתוח — נסו שוב עוד רגע (ה-AI עמוס).", angle: angle.key } }));
   }
 
   const setName = (i, v) => setNames(a => a.map((x, k) => (k === i ? v : x)));
@@ -142,6 +150,7 @@ function BabyNameTool({ P }) {
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>הקשר (אופציונלי) — לא חובה, מוסיף עומק</div>
             <input style={{ ...fld, fontSize: 16 }} value={family} onChange={e => setFamily(e.target.value)} placeholder="שם משפחה…" dir="rtl" />
+            <label style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginTop: 2 }}>📅 תאריך לידה (לועזי) — בחרו מהיומן</label>
             <input type="date" value={bDate} onChange={e => setBDate(e.target.value)} dir="ltr" style={{ ...fld, fontSize: 15, colorScheme: P.mode === "light" ? "light" : "dark" }} />
             {heb && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, textAlign: "center" }}>🗓️ תאריך עברי: <b>{heb.pretty}</b> = <b style={{ fontFamily: F.mono }}>{heb.value}</b></div>}
           </div>
@@ -196,16 +205,23 @@ function BabyNameTool({ P }) {
                 {dateEq && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>• גימטריית השם שווה בדיוק לגימטריית תאריך הלידה העברי ({heb.value}).</div>}
               </div>
             )}
-            {/* ניתוח AI עובדתי */}
+            {/* ניתוח AI עובדתי — 3 זוויות (זמני, לבדיקה איזו משתלבת) */}
             <div style={{ marginBottom: 12 }}>
-              {!ai[i]?.text && !ai[i]?.busy && (
-                <button onClick={() => runAi(i)} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 22px", width: "100%", boxSizing: "border-box" }}>
-                  🤖 ניתוח AI — הקשרים של «{a.name}»
-                </button>
-              )}
-              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "8px 0" }}>🤖 ה-AI חושב…</div>}
-              {ai[i]?.text && (
-                <div>
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 7 }}>🤖 ניתוח AI — בחרו זווית:</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+                {AI_ANGLES.map(ang => {
+                  const on = ai[i]?.angle === ang.key;
+                  return (
+                    <button key={ang.key} onClick={() => runAi(i, ang)} disabled={ai[i]?.busy}
+                      style={{ cursor: ai[i]?.busy ? "wait" : "pointer", background: on ? "linear-gradient(135deg,#3ea6ff,#7c3aed)" : P.card, color: on ? "#fff" : P.accentText, border: `1px solid ${on ? "transparent" : P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 14px" }}>
+                      {ang.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב… (Sonnet — כמה שניות)</div>}
+              {ai[i]?.text && !ai[i]?.busy && (
+                <div style={{ marginTop: 10 }}>
                   <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔵 ניתוח AI · עובדתי (מהמנוע)</div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{ai[i].text}</div>
                 </div>
@@ -483,6 +499,7 @@ export default function CommunityCalculatorPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
             בחרו את תאריך הלידה הלועזי — נמיר לתאריך העברי ונחשב את ערכו. ✨
           </div>
+          <label style={{ display: "block", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginBottom: 6 }}>📅 תאריך לידה (לועזי) — בחרו מהיומן</label>
           <input type="date" value={gDate} onChange={e => setGDate(e.target.value)} dir="ltr"
             style={{ ...inp, fontSize: 17, fontFamily: F.heading, colorScheme: P.mode === "light" ? "light" : "dark" }} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 13, cursor: "pointer" }}>
