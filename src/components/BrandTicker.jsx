@@ -200,6 +200,7 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
           .bt-slim-brand { flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; background:${b.accent};
             color:#191008; font-family:${F.heading}; font-weight:900; font-size:10.5px; border-radius:999px;
             padding:2px 9px; white-space:nowrap; }
+          .bt-slim-logo { width:15px; height:15px; border-radius:50%; display:block; }
           .bt-slim-live { flex:0 0 auto; display:inline-flex; align-items:center; gap:4px; background:#c8102e; color:#fff;
             font-family:${F.heading}; font-weight:900; font-size:8.5px; letter-spacing:1px; border-radius:4px; padding:2px 6px; }
           .bt-slim-live i { width:5px; height:5px; border-radius:50%; background:#fff; animation:bt-dot 1.2s infinite; }
@@ -215,14 +216,21 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
           .bt-slim-dot { flex:0 0 auto; width:5px; height:5px; border-radius:50%; background:${b.accent}; box-shadow:0 0 6px ${b.glow}; }
           .bt-slim-credit { color:${b.accent}; font-family:${F.heading}; font-weight:800; font-size:10.5px; }
           .bt-slim-cta { flex:0 0 auto; color:${b.accent}; font-family:${F.heading}; font-weight:900; font-size:11px; white-space:nowrap; }
+          /* 📱 בסמארטפון אין מקום לשם המלא — מסתירים את «${b.title}», משאירים רק לוגו (מוגדל) + LIVE. */
+          @media (max-width: 640px) {
+            .bt-slim-brand-txt { display:none; }
+            .bt-slim-brand { padding:2px 5px; gap:0; }
+            .bt-slim-logo { width:21px; height:21px; }
+            .bt-slim-emoji { font-size:17px; }
+          }
           @media (prefers-reduced-motion: reduce) { .bt-slim-track { animation:none; } }
         `}</style>
         <Link to="/broadcasts" className="bt-slim" title="לצפייה בכל העדכונים">
           <span className="bt-slim-brand">
             {b.logo
-              ? <img src={b.logo} alt="" style={{ width: 15, height: 15, borderRadius: "50%", display: "block" }} />
-              : <span>{b.emoji}</span>}
-            {b.title}
+              ? <img src={b.logo} alt={b.title} className="bt-slim-logo" />
+              : <span className="bt-slim-emoji">{b.emoji}</span>}
+            <span className="bt-slim-brand-txt">{b.title}</span>
           </span>
           <span className="bt-slim-live"><i />LIVE</span>
           <div className="bt-slim-win">
