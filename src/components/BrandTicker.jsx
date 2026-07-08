@@ -32,8 +32,10 @@ export const BRANDS = {
   "sod-hachashmal": { title: "סוד החשמל", emoji: "⚡", accent: "#5ec8ff", glow: "rgba(94,200,255,.32)", bg: "linear-gradient(90deg, rgba(8,38,58,.8), rgba(12,55,84,.9), rgba(8,38,58,.8))" },
   // 📢 חדשות האתר — ערוץ-המערכת: מה עלה, מה בקרוב, החזון. לא מוואטסאפ (site:true → בלי אייקון WA).
   "site-news":      { title: "חדשות האתר", emoji: "🆕", accent: "#e8c15a", glow: "rgba(232,193,90,.35)", bg: "linear-gradient(90deg, rgba(63,48,10,.8), rgba(92,71,18,.9), rgba(63,48,10,.8))", site: true },
-  "torat-haremez":  { title: "תורת הרמז VIP", emoji: "☀️", accent: "#ffb347", glow: "rgba(255,179,71,.35)", bg: "linear-gradient(90deg, rgba(70,42,8,.8), rgba(105,64,12,.9), rgba(70,42,8,.8))",
+  "torat-haremez":  { title: "תורת הרמז", emoji: "☀️", accent: "#ffb347", glow: "rgba(255,179,71,.35)", bg: "linear-gradient(90deg, rgba(70,42,8,.8), rgba(105,64,12,.9), rgba(70,42,8,.8))",
                       sub: "כל התותחים של עולם הרמז בקבוצה · בשיתוף בינה מלאכותית 🤖" },
+  "gilui-yomi":     { title: "הגילוי היומי", emoji: "🏛️", accent: "#b79bff", glow: "rgba(183,155,255,.35)", bg: "linear-gradient(90deg, rgba(38,28,68,.8), rgba(58,42,102,.9), rgba(38,28,68,.8))",
+                      sub: "גילויים יומיים מהכתבים · בשיתוף בינה מלאכותית 🤖" },
 };
 
 // 🗞 מסך-ידיעה קנוני — לחיצה על עדכון (בטיקר או בעמוד השידורים) פותחת אותו במסך מלא:

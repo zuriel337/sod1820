@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -7,149 +7,126 @@ import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
-import BrandTicker, { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
+import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
 
-// 📡 «מרכז השידורים» — דף הטיקרים המלא: כל ערוץ עם הרצועה החיה שלו + כל העדכונים הפעילים.
-// עדשה על channel_updates (עץ אחד) — אותו מקור של הטיקרים בבית/בצ'אט.
-const CHANNELS = ["site-news", "sod-hachashmal", "reality-code", "torat-haremez", "or-geula"];
-
-// 🔒 ערוצים נעולים — לא מציגים עדכונים, מציגים שלט «נעול».
-const LOCKED_CHANNELS = new Set(["torat-haremez"]);
-
-function ChannelFeed({ channel, P, focusId }) {
-  const b = BRANDS[channel];
-  const locked = LOCKED_CHANNELS.has(channel);
-  const [items, setItems] = useState(null);
-  const [lb, setLb] = useState(null);
-  const scrolledRef = useRef(false);   // גלילה לעדכון המשותף — פעם אחת בלבד
-
-  useEffect(() => {
-    if (locked) return;
-    let live = true;
-    getChannelUpdates(30, channel).then(r => { if (live) setItems(r || []); }).catch(() => live && setItems([]));
-    return () => { live = false; };
-  }, [channel, locked]);
-
-  return (
-    <section id={`ch-${channel}`} style={{ marginBottom: 34, scrollMarginTop: 80 }}>
-      <BrandTicker channel={channel} />
-      {b.sub && (
-        <div style={{ color: b.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, textAlign: "center", margin: "4px 0 8px", opacity: 0.9 }}>
-          {b.sub}
-        </div>
-      )}
-      {locked ? (
-        <div style={{ textAlign: "center", background: P.card, border: `1px dashed ${b.accent}66`, borderRadius: 12, padding: "22px 16px" }}>
-          <div style={{ fontSize: 26, marginBottom: 6 }}>🔒</div>
-          <div style={{ color: b.accent, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>הערוץ נעול כרגע</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>העדכונים בערוץ «{b.title}» סגורים לעת עתה.</div>
-        </div>
-      ) : items === null ? (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "8px 4px" }}>טוען…</div>
-      ) : items.length === 0 ? (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, fontStyle: "italic", padding: "6px 4px" }}>
-          עוד אין עדכונים פעילים בערוץ הזה — בקרוב.
-        </div>
-      ) : (
-        <div style={{ display: "grid", gap: 10 }}>
-          {items.map(u => {
-            const focused = focusId && u.id === focusId;
-            return (
-            <div key={u.id}
-              ref={focused ? el => {
-                if (el && !scrolledRef.current) {
-                  scrolledRef.current = true;
-                  setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
-                }
-              } : undefined}
-              onClick={() => setLb(u)} title="לחצו לפתיחת הידיעה במסך מלא"
-              style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.card, cursor: "pointer",
-              border: focused ? `1.5px solid ${b.accent}` : `1px solid ${P.border}`,
-              borderInlineStart: `3px solid ${b.accent}`, borderRadius: 12, padding: "12px 14px",
-              ...(focused ? { boxShadow: `0 0 26px ${b.accent}55`, animation: "bc-focus 1.6s ease 2" } : {}) }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{u.text}</p>
-                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>
-                  <span>{u.credit ? <>✍️ מאת {u.credit} · </> : null}🕒 {timeAgoHe(u.created_at)}</span>
-                  <button onClick={e => { e.stopPropagation(); shareUpdate(u, b.title); }} style={{ cursor: "pointer", background: "none",
-                    border: `1px solid ${b.accent}66`, color: b.accent, borderRadius: 999, fontFamily: F.heading,
-                    fontSize: 10.5, fontWeight: 800, padding: "2px 11px" }}>↗ שתפו</button>
-                  {u.link_url && (
-                    <Link to={u.link_url} onClick={e => e.stopPropagation()} style={{ textDecoration: "none", background: b.accent, color: "#191008",
-                      fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, borderRadius: 999, padding: "3px 12px" }}>
-                      📖 לקריאת הפוסט המלא ←
-                    </Link>
-                  )}
-                </div>
-              </div>
-              {u.image_url && (
-                <button onClick={e => { e.stopPropagation(); setLb(u); }} title={isVideoUrl(u.image_url) ? "נגן את הסרטון" : "פתח את התמונה"}
-                  style={{ flex: "0 0 auto", padding: 0, cursor: "zoom-in",
-                  border: `1px solid ${P.borderStrong}`, borderRadius: 10, overflow: "hidden", background: "#0a0710" }}>
-                  {isVideoUrl(u.image_url) ? (
-                    <span style={{ position: "relative", display: "block", width: 74, height: 74 }}>
-                      {/* preload=metadata — פריים ראשון בלבד, לא הסרטון */}
-                      <video src={u.image_url} preload="metadata" muted playsInline
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
-                      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                        background: "rgba(0,0,0,.25)", color: "#fff", fontSize: 22, textShadow: "0 1px 6px rgba(0,0,0,.8)" }}>▶</span>
-                    </span>
-                  ) : (
-                    <img src={thumb(u.image_url, 360)} alt="" loading="lazy" style={{ width: 74, height: 74, objectFit: "cover", display: "block" }} />
-                  )}
-                </button>
-              )}
-            </div>
-          );})}
-        </div>
-      )}
-      {lb && <UpdateModal u={lb} brand={b} onClose={() => setLb(null)} />}
-    </section>
-  );
-}
+// 📡 «מרכז השידורים» — פיד מאוחד של כל הערוצים, החדשים למעלה, בטורים (≥4 בדסקטוב רחב).
+// עדשה אחת על channel_updates (עץ אחד) — אותו מקור של «העדכונים החיים» בבית/בצ'אט.
+const CHANNELS = ["gilui-yomi", "torat-haremez", "site-news", "sod-hachashmal", "reality-code", "or-geula"];
+const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
 
 export default function BroadcastsPage() {
   const P = usePalette();
   const [params] = useSearchParams();
-  const focusId = params.get("u");   // קישור ויראלי: ?u=<id> — נוחתים בדיוק על העדכון ששותף
+  const focusId = params.get("u");   // קישור ויראלי: ?u=<id>
+  const [all, setAll] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [lb, setLb] = useState(null);
+
   useEffect(() => {
-    applySeo({ title: "מרכז השידורים — עדכונים חיים", description: "שידורים חיים ועדכונים מכל הערוצים — קוד המציאות, אור הגאולה וסוד החשמל — רמזים, מסרים וסרטונים במקום אחד, לייב מקבוצות הוואטסאפ.", path: "/broadcasts" });
-    track("broadcasts");   // 📈 מעקב-צפיות — נמדד בדף האדמין (בקשת צוריאל: מעקב אחרי הדף)
+    applySeo({ title: "מרכז השידורים — עדכונים חיים", description: "שידורים חיים ועדכונים מכל הערוצים — תורת הרמז, הגילוי היומי, קוד המציאות, אור הגאולה וסוד החשמל — רמזים, מסרים וסרטונים במקום אחד, לייב מקבוצות הוואטסאפ.", path: "/broadcasts" });
+    track("broadcasts");
   }, []);
 
+  useEffect(() => {
+    let live = true;
+    Promise.all(CHANNELS.map(ch => getChannelUpdates(40, ch).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => [])))
+      .then(arr => { if (!live) return; const merged = arr.flat().sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)); setAll(merged); })
+      .catch(() => live && setAll([]));
+    return () => { live = false; };
+  }, []);
+
+  const items = useMemo(() => (all || []).filter(u => filter === "all" || u.ch === filter), [all, filter]);
+  const counts = useMemo(() => { const m = {}; (all || []).forEach(u => { m[u.ch] = (m[u.ch] || 0) + 1; }); return m; }, [all]);
+
+  const dark = P.mode !== "light";
   return (
-    <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 16px 90px" }}>
-      <header style={{ textAlign: "center", marginBottom: 26 }}>
+    <div style={{ direction: "rtl", maxWidth: 1320, margin: "0 auto", padding: "34px 16px 90px" }}>
+      <style>{`
+        .bc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:15px;align-items:start}
+        .bc-card{display:flex;flex-direction:column;background:${P.card};border:1px solid ${P.border};border-top:3px solid var(--acc);
+          border-radius:15px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .15s;text-align:start}
+        .bc-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,${dark ? ".45" : ".14"})}
+        .bc-media{position:relative;width:100%;aspect-ratio:16/10;background:#0a0710;overflow:hidden}
+        .bc-media img,.bc-media video{width:100%;height:100%;object-fit:cover;display:block}
+        .bc-media .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);color:#fff;font-size:30px;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+        .bc-in{padding:11px 13px 12px;display:flex;flex-direction:column;gap:7px;flex:1}
+        .bc-badge{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;font-family:${F.heading};font-size:10.5px;font-weight:800;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border-radius:999px;padding:2px 9px}
+        .bc-ai{color:${dark ? "#7fe0c4" : "#027a5f"};background:${dark ? "rgba(37,211,102,.13)" : "rgba(0,128,105,.09)"}}
+        .bc-tx{margin:0;color:${P.ink};font-family:${F.body};font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+        .bc-meta{margin-top:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.heading};font-size:10.5px}
+        .bc-share{cursor:pointer;background:none;border:1px solid var(--acc);color:var(--acc);border-radius:999px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 10px}
+        .bc-link{text-decoration:none;background:var(--acc);color:#191008;font-family:${F.heading};font-size:10px;font-weight:900;border-radius:999px;padding:3px 11px}
+        .bc-chip{cursor:pointer;display:inline-flex;align-items:center;gap:5px;text-decoration:none;border-radius:999px;padding:6px 14px;
+          font-family:${F.heading};font-size:12.5px;font-weight:800;min-height:34px;border:1px solid var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+        .bc-chip.on{color:#191008;background:var(--acc)}
+        @keyframes bc-focus{0%,100%{transform:none}50%{transform:scale(1.02)}}
+        .bc-card.focus{box-shadow:0 0 26px var(--acc);animation:bc-focus 1.6s ease 2}
+      `}</style>
+
+      <header style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>שידור חי</div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(23px,4.4vw,34px)", fontWeight: 800, margin: "6px 0 8px", textShadow: `0 0 40px ${P.glow}` }}>
           📡 מרכז השידורים
         </h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, maxWidth: 480, margin: "0 auto" }}>
-          העדכונים החיים מכל הערוצים במקום אחד — כל ערוץ והצבע שלו, כל עדכון עם המקור שלו.
-          <br /><span style={{ color: "#25d366", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
-            💬 מגיע אוטומטית · לייב מקבוצות הוואטסאפ
-          </span>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, maxWidth: 520, margin: "0 auto" }}>
+          כל העדכונים מכל הערוצים בזרם אחד — החדשים למעלה.
+          <br /><span style={{ color: "#25d366", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>💬 מגיע אוטומטית · לייב מקבוצות הוואטסאפ</span>
         </p>
       </header>
-      <style>{`@keyframes bc-focus { 0%,100% { transform:none; } 50% { transform:scale(1.015); } }`}</style>
-      {/* 🧭 ניווט-מהיר בין הערוצים — קפיצה לערוץ בלחיצה */}
+
+      {/* מסנן ערוצים — «הכל» ואז ערוץ-ערוץ */}
       <nav style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 22 }}>
+        <button className={"bc-chip" + (filter === "all" ? " on" : "")} style={{ "--acc": P.accentText }} onClick={() => setFilter("all")}>📡 הכל{all ? ` · ${all.length}` : ""}</button>
         {CHANNELS.map(ch => {
-          const b = BRANDS[ch];
+          const b = BRANDS[ch]; if (!b) return null;
           return (
-            <a key={ch} href={`#ch-${ch}`} style={{ display: "inline-flex", alignItems: "center", gap: 6,
-              textDecoration: "none", background: `${b.accent}14`, border: `1px solid ${b.accent}55`,
-              borderRadius: 999, padding: "6px 14px", color: b.accent, fontFamily: F.heading,
-              fontSize: 12.5, fontWeight: 800, minHeight: 34 }}>
-              {b.logo
-                ? <img src={b.logo} alt="" style={{ width: 16, height: 16, borderRadius: "50%", display: "block" }} />
-                : <span>{b.emoji}</span>}
-              {b.title} ↓
-            </a>
+            <button key={ch} className={"bc-chip" + (filter === ch ? " on" : "")} style={{ "--acc": b.accent }} onClick={() => setFilter(ch)}>
+              {b.logo ? <img src={b.logo} alt="" style={{ width: 16, height: 16, borderRadius: "50%", display: "block" }} /> : <span>{b.emoji}</span>}
+              {b.title}{counts[ch] ? ` · ${counts[ch]}` : ""}
+            </button>
           );
         })}
       </nav>
-      {CHANNELS.map(ch => <ChannelFeed key={ch} channel={ch} P={P} focusId={focusId} />)}
+
+      {all === null ? (
+        <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: "40px 0" }}>טוען עדכונים…</div>
+      ) : items.length === 0 ? (
+        <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, fontStyle: "italic", padding: "40px 0" }}>אין עדכונים פעילים כרגע — בקרוב.</div>
+      ) : (
+        <div className="bc-grid">
+          {items.map(u => {
+            const b = BRANDS[u.ch] || BRANDS["reality-code"];
+            const ai = isAi(u);
+            const vid = u.image_url && isVideoUrl(u.image_url);
+            const focused = focusId && u.id === focusId;
+            const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+            return (
+              <div key={u.id} className={"bc-card" + (focused ? " focus" : "")} style={{ "--acc": b.accent }}
+                ref={focused ? el => { if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 300); } : undefined}
+                onClick={() => setLb(u)} title="לחצו לפתיחה במסך מלא">
+                {u.image_url && (
+                  <div className="bc-media">
+                    {vid
+                      ? <><video src={u.image_url} preload="metadata" muted playsInline /><span className="play">▶</span></>
+                      : <img src={thumb(u.image_url, 460)} alt="" loading="lazy" />}
+                  </div>
+                )}
+                <div className="bc-in">
+                  <span className="bc-badge">{b.emoji} {b.title}</span>
+                  {ai && <span className="bc-badge bc-ai" style={{ "--acc": "#25d366" }}>🤖 רזיאל · AI</span>}
+                  {showTxt && <p className="bc-tx">{u.text}</p>}
+                  <div className="bc-meta">
+                    <span>{u.credit ? `✍️ ${u.credit} · ` : ""}🕒 {timeAgoHe(u.created_at)}</span>
+                    <button className="bc-share" onClick={e => { e.stopPropagation(); shareUpdate(u, b.title); }}>↗ שתפו</button>
+                    {u.link_url && <Link to={u.link_url} className="bc-link" onClick={e => e.stopPropagation()}>📖 לפוסט ←</Link>}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {lb && <UpdateModal u={lb} brand={BRANDS[lb.ch] || BRANDS["reality-code"]} onClose={() => setLb(null)} />}
     </div>
   );
 }
