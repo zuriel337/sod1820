@@ -132,6 +132,8 @@ export default function ContributorPage() {
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
+  // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
+  const feedUpdates = (c?.feature_media ? waUpdates.filter(u => !u.image_url) : waUpdates);
   // 🔑 שער-סיסמה (locked): לכולם, אימות בשרת (contrib_unlock) — הסיסמה לא נחשפת ב-API.
   const [unlocked, setUnlocked] = useState(() => { try { return sessionStorage.getItem(`sod_unlock_${slug}`) === "1"; } catch { return false; } });
   const [pw, setPw] = useState("");
@@ -149,7 +151,7 @@ export default function ContributorPage() {
   useEffect(() => {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,wa_names")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,wa_names,feature_media")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
@@ -326,6 +328,27 @@ export default function ContributorPage() {
         </div>
       </div>
 
+      {/* 🎨 גלריה מודגשת בראש — כתב עם feature_media (contributor_featured_media_law · כרגע ציון). תמונות+טקסט ראשונים למעלה. */}
+      {c.feature_media && waUpdates.filter(u => u.image_url).length > 0 && (
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
+            🎨 הכרטיסים של {c.display_name}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
+            {waUpdates.filter(u => u.image_url).map(u => {
+              const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+              return (
+                <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                  <img src={thumb(u.image_url, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
+                  {showTxt && <div style={{ padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "18px 0 2px" }} />
+        </div>
+      )}
+
       {/* אימותי-מנוע מהסריקה */}
       {header?.engine_verified && (
         <div style={{ background: P.surface, border: `1.5px solid ${P.borderStrong}`, borderRadius: 14, padding: "14px 16px", marginBottom: 18 }}>
@@ -339,16 +362,16 @@ export default function ContributorPage() {
       )}
 
       {/* 📡 העדכונים החיים שלו — מהוואטסאפ (channel_updates לפי שמו). עץ אחד: אותו מקור של הטיקר. */}
-      {waUpdates.length > 0 && (
+      {feedUpdates.length > 0 && (
         <div style={{ marginBottom: 22 }}>
           <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>
             📡 העדכונים החיים של {c.display_name}
           </div>
           <div style={{ color: "#25d366", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
-            💬 {waUpdates.length} עדכונים · לייב מהוואטסאפ
+            💬 {feedUpdates.length} עדכונים · לייב מהוואטסאפ
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, alignItems: "start" }}>
-            {waUpdates.map(u => {
+            {feedUpdates.map(u => {
               const b = BRANDS[u.channel] || BRANDS["reality-code"];
               const vid = u.image_url && isVideoUrl(u.image_url);
               const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";

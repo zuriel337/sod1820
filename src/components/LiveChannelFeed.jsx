@@ -56,6 +56,7 @@ export default function LiveChannelFeed() {
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
+  const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
   const [tick, setTick] = useState(0);       // רוטציה של שורת-העדכון האחרון בגלולה הצפה
   const bodyRef = useRef(null);
   const seenTop = useRef(0);
@@ -246,7 +247,9 @@ export default function LiveChannelFeed() {
                         )}
                         {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" &&
                           <div className="lcf-tx">{stripHtml(u.text)}</div>}
-                        {u.image_url && isVideo(u.image_url) && <div className="lcf-md">🎬 וידאו · הקש לצפייה</div>}
+                        {u.image_url && isVideo(u.image_url) && (
+                          <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
+                        )}
                         {u.capMore && c.to && <Link to={c.to} className="lcf-ptr" onClick={() => { if (!docked) setOpen(false); }}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
                         <div className="lcf-meta">{timeAgoHe(u.created_at)}{ai && <span className="lcf-ck">✓✓</span>}</div>
                       </div>
@@ -264,6 +267,12 @@ export default function LiveChannelFeed() {
               <div className="lcf-zoom" onClick={() => setZoom(null)} role="dialog" aria-label="תמונה מוגדלת">
                 {/* גרסה מוקטנת בשרת (contain) — לא התמונה המקורית הכבדה */}
                 <img src={thumb(zoom, 1200)} alt="" />
+              </div>
+            )}
+            {vid && (
+              <div className="lcf-zoom" onClick={() => setVid(null)} role="dialog" aria-label="וידאו">
+                {/* וידאו מתנגן רק כאן, אחרי הקשה (Egress) */}
+                <video src={vid} controls autoPlay playsInline onClick={e => e.stopPropagation()} style={{ maxWidth: "96vw", maxHeight: "88vh", borderRadius: 10, background: "#000" }} />
               </div>
             )}
           </aside>
