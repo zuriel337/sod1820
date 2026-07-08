@@ -774,8 +774,12 @@ export async function getEntityBundle({ term, value, isNumber }) {
 
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
-      ? supabase.from('gematria_words').select('phrase,ragil', { count: 'exact' })
-          .eq('ragil', value).order('is_verified', { ascending: false }).order('created_at', { ascending: false, nullsFirst: false }).limit(500)
+      ? supabase.from('gematria_words').select('phrase,ragil,is_verified,visibility_tier,lead_rank', { count: 'exact' })
+          .eq('ragil', value)
+          .order('lead_rank', { ascending: true, nullsFirst: false })   // 📌 נעוצים (חזקים) קודם
+          .order('is_verified', { ascending: false })
+          .order('visibility_tier', { ascending: true, nullsFirst: false })
+          .order('created_at', { ascending: false, nullsFirst: false }).limit(500)
           .then(({ data, count }) => ({ items: data || [], count: count ?? (data?.length || 0) }))
           .catch(() => ({ items: [], count: 0 }))
       : Promise.resolve({ items: [], count: 0 }),

@@ -90,11 +90,20 @@ export function buildStory({ term, value, isNumber, phrases = [], goldLabels, co
   // משמעות ערוכה (רק למספרי-מפתח; לרוב אין — ואז הביטויים לבדם נושאים את הייחודיות)
   const meaning = (ANCHORS[value] ? ANCHORS[value].split(" · ")[0] : (KEY_NUMBERS[value] || "")).trim();
 
-  // ביטויים-מובילים אמיתיים — הליבה הייחודית. gold-first, מסונן מהמונח וגם מהמשמעות (למנוע כפילות).
+  // ביטויים-מובילים — לפי היררכיית-חוזק (שילוב: נעיצה ידנית + אוטומטי). מסונן מהמונח ומהמשמעות.
+  // סדר: 📌 lead_rank (נעיצת צוריאל, 1=ראשון) › זהב › מאומת › visibility_tier (1=חזק) › סדר-הקלט.
   const clean = phrases.filter(p => p?.phrase && p.phrase !== term && p.phrase !== meaning);
-  const golds = clean.filter(p => goldLabels?.has?.(p.phrase));
-  const rest = clean.filter(p => !goldLabels?.has?.(p.phrase));
-  const leads = [...golds, ...rest].slice(0, 3).map(p => p.phrase);
+  const strength = p => [
+    p.lead_rank != null ? p.lead_rank : 999,
+    goldLabels?.has?.(p.phrase) ? 0 : 1,
+    p.is_verified ? 0 : 1,
+    p.visibility_tier != null ? p.visibility_tier : 9,
+  ];
+  const leads = [...clean].sort((a, b) => {
+    const sa = strength(a), sb = strength(b);
+    for (let i = 0; i < sa.length; i++) if (sa[i] !== sb[i]) return sa[i] - sb[i];
+    return 0;
+  }).slice(0, 3).map(p => p.phrase);
 
   // ספירות-הצומת הדינמיות — רק מה שקיים (>0). מספרים אמיתיים = טביעת-אצבע ייחודית.
   const facets = [
