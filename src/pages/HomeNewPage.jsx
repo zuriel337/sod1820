@@ -91,8 +91,9 @@ export default function HomeNewPage() {
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
-    // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). מושכים מעט יותר ומסננים.
-    getPostsFromSupabase({ limit: 12, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !(p.tags || []).includes("לא-בבית")).slice(0, 8)); markSeenKey("home-posts"); }).catch(() => {});
+    // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). «הינוקא» = מוסתר מדף הבית (בקשת צוריאל). מושכים יותר ומסננים.
+    const hiddenAtHome = p => (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
+    getPostsFromSupabase({ limit: 24, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 16)); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
@@ -238,7 +239,7 @@ export default function HomeNewPage() {
       {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
-        <HomeHeader title="📜 עדכונים אחרונים" sub="8 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
+        <HomeHeader title="📜 עדכונים אחרונים" sub="12 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
         <LatestUpdatesRail posts={posts} convergences={cards} hints={hints} />
       </section>
 

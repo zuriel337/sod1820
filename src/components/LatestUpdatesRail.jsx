@@ -42,7 +42,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (posts || []).forEach(p => out.push({ type: "post", when: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: effDate(h) || +new Date(h.created_at || h.occurred_at || 0), data: h }));
-    return out.sort((a, b) => b.when - a.when).slice(0, 8);
+    return out.sort((a, b) => b.when - a.when).slice(0, 12);
   }, [posts, convergences, hints]);
 
   const scrollReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
