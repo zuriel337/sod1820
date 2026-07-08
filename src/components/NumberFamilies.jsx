@@ -133,25 +133,24 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
 
   return (
     <div style={{ display: "grid", gap: 11 }}>
-      {/* רגיל — ראשון, מה שכולם מבינים. «+N» → «פתח עוד» = כל הרשימה (ואדמין מסדר שם את הסדר). */}
+      {/* רגיל — ראשון. «+N» → «פתח עוד» = כל הרשימה. אדמין: גרירה ישירה על כל הרשימה (גלובלי). */}
       {regular ? (
         <div>
-          <Group g={regular}
-            moreOnClick={!expr && !regOpen ? openAllRegular : undefined}
-            phrasesOverride={regOpen && allPhr ? allPhr : null} />
-          {regOpen && (
-            <div style={{ marginTop: 10 }}>
-              {allPhr == null
-                ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "4px 0" }}>טוען את כל המילים…</div>
-                : (
-                  <>
-                    <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 8 }}>מציג את כל {allPhr.length} המילים השוות (רגיל).</div>
-                    {isAdmin && <LeadOrderEditor value={value} phrases={allPhr} term={term} onSaved={refreshAll} />}
-                  </>
-                )}
-              <button onClick={() => setRegOpen(false)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 8, textDecoration: "underline" }}>▴ הסתר את הרשימה המלאה</button>
+          {regOpen && isAdmin && allPhr ? (
+            <div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>רגיל</span>
+                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· כל {allPhr.length} המילים — גררו לסדר (נשמר גלובלית)</span>
+              </div>
+              <LeadOrderEditor value={value} phrases={allPhr} term={term} fullList onSaved={refreshAll} />
             </div>
+          ) : (
+            <Group g={regular}
+              moreOnClick={!expr && !regOpen ? openAllRegular : undefined}
+              phrasesOverride={regOpen && allPhr ? allPhr : null} />
           )}
+          {regOpen && allPhr == null && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "6px 0" }}>טוען את כל המילים…</div>}
+          {regOpen && <button onClick={() => setRegOpen(false)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 8, textDecoration: "underline" }}>▴ הסתר את הרשימה המלאה</button>}
         </div>
       ) : <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>אין מילים שוות לערך זה ברגיל — ראו «כל השיטות» למטה.</p>}
 

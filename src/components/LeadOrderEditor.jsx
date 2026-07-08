@@ -5,18 +5,19 @@ import { setLeadRanks } from "../lib/supabase.js";
 
 // 📌 כלי-מנהל: סידור היררכיית הביטויים-המובילים ל-story-top בגרירה-ושחרור.
 // גרירה (HTML5 native) לדסקטופ + ▲/▼ למובייל/נגישות. שמירה → lead_rank לפי הסדר. מנהל בלבד.
-export default function LeadOrderEditor({ value, phrases = [], term, onSaved }) {
+export default function LeadOrderEditor({ value, phrases = [], term, onSaved, fullList = false }) {
   const P = usePalette();
   const avail = useMemo(
     () => phrases.filter(p => p?.phrase && p.phrase !== term),
     [phrases, term]
   );
   const initial = useMemo(() => {
+    if (fullList) return avail.map(p => p.phrase);   // 🖐️ מצב רשימה-מלאה: גוררים את *כל* המילים
     const pinned = avail.filter(p => p.lead_rank != null).sort((a, b) => a.lead_rank - b.lead_rank).map(p => p.phrase);
     return pinned.length ? pinned : avail.slice(0, 3).map(p => p.phrase);
-  }, [avail]);
+  }, [avail, fullList]);
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(fullList);
   const [order, setOrder] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState("");
@@ -55,7 +56,7 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved }) 
   return (
     <div style={{ maxWidth: 560, margin: "14px auto 0", textAlign: "right", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, overflow: "hidden" }}>
       <button onClick={() => setOpen(o => !o)} style={{ width: "100%", cursor: "pointer", background: "none", border: "none", padding: "11px 14px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-        <span>📌 סדר מובילים (מנהל)</span>
+        <span>{fullList ? "🖐️ סדר את הרשימה בגרירה (מנהל)" : "📌 סדר מובילים (מנהל)"}</span>
         <span style={{ color: P.accentDim, fontWeight: 600 }}>· {order.length}</span>
         <span style={{ flex: 1 }} />
         <span>{open ? "▴" : "▾"}</span>
@@ -64,7 +65,9 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved }) 
       {open && (
         <div style={{ padding: "4px 14px 14px" }}>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginBottom: 10 }}>
-            גררו לסדר (או ▲/▼ במובייל). ה-3 העליונים מובילים ב-story-top. ✕ מסיר (חוזר לאוטומטי).
+            {fullList
+              ? "גררו כל מילה למעלה/למטה (או ▲/▼). הסדר נשמר ומופיע בכל המערכת — ה-3 העליונים מובילים ב-story-top."
+              : "גררו לסדר (או ▲/▼ במובייל). ה-3 העליונים מובילים ב-story-top. ✕ מסיר (חוזר לאוטומטי)."}
           </div>
 
           <div style={{ display: "grid", gap: 7 }}>
@@ -81,26 +84,28 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved }) 
                 <span style={{ flex: 1 }}>{ph}</span>
                 <button onClick={() => move(i, -1)} disabled={i === 0} title="למעלה" style={{ cursor: i === 0 ? "default" : "pointer", background: "none", border: "none", color: i === 0 ? P.border : P.accentDim, fontSize: 15, padding: "0 3px" }}>▲</button>
                 <button onClick={() => move(i, 1)} disabled={i === order.length - 1} title="למטה" style={{ cursor: i === order.length - 1 ? "default" : "pointer", background: "none", border: "none", color: i === order.length - 1 ? P.border : P.accentDim, fontSize: 15, padding: "0 3px" }}>▼</button>
-                <button onClick={() => removeAt(i)} title="הסר" style={{ cursor: "pointer", background: "none", border: "none", color: "#e0857a", fontSize: 15, padding: "0 4px" }}>✕</button>
+                {!fullList && <button onClick={() => removeAt(i)} title="הסר" style={{ cursor: "pointer", background: "none", border: "none", color: "#e0857a", fontSize: 15, padding: "0 4px" }}>✕</button>}
               </div>
             ))}
             {order.length === 0 && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "6px 0" }}>אין נעיצות — הכל אוטומטי לפי חוזק.</div>}
           </div>
 
-          {/* הוספת ביטוי */}
-          <div style={{ marginTop: 11 }}>
-            <input value={q} onChange={e => setQ(e.target.value)} dir="rtl" placeholder="הוסיפו ביטוי…"
-              style={{ width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, color: P.ink, padding: "10px 13px", fontSize: 16, outline: "none", fontFamily: F.body }} />
-            {candidates.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                {candidates.map(p => (
-                  <button key={p.phrase} onClick={() => add(p.phrase)} style={{ cursor: "pointer", ...chip, minHeight: 34, background: P.card, border: `1px solid ${P.border}`, color: P.accentText }}>
-                    + {p.phrase}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* הוספת ביטוי — רק במצב מובילים (במצב רשימה-מלאה כל המילים כבר שם) */}
+          {!fullList && (
+            <div style={{ marginTop: 11 }}>
+              <input value={q} onChange={e => setQ(e.target.value)} dir="rtl" placeholder="הוסיפו ביטוי…"
+                style={{ width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, color: P.ink, padding: "10px 13px", fontSize: 16, outline: "none", fontFamily: F.body }} />
+              {candidates.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                  {candidates.map(p => (
+                    <button key={p.phrase} onClick={() => add(p.phrase)} style={{ cursor: "pointer", ...chip, minHeight: 34, background: P.card, border: `1px solid ${P.border}`, color: P.accentText }}>
+                      + {p.phrase}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* פעולות */}
           <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap", marginTop: 13 }}>
