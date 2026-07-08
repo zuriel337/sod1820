@@ -60,10 +60,12 @@ export function timeAgoHe(dateStr) {
   const then = new Date(dateStr).getTime();
   if (Number.isNaN(then)) return formatDateHe(dateStr);
   const sec = Math.max(0, Math.floor((Date.now() - then) / 1000));
-  if (sec < 60) return "לפני רגע";
+  if (sec < 60) return "לפני דקה";
   const min = Math.floor(sec / 60);
-  if (min < 60) return `לפני ${min} דק׳`;
+  if (min === 1) return "לפני דקה";
+  if (min < 60) return `לפני ${min} דקות`;
   const hr = Math.floor(min / 60);
+  if (hr === 1) return "לפני שעה";
   if (hr < 24) return `לפני ${hr} שעות`;
   const day = Math.floor(hr / 24);
   if (day === 1) return "אתמול";
