@@ -22,6 +22,7 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved, fu
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState("");
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState(() => new Set());   // ☑️ בחירה-מרובה להעלאה בבת-אחת
   const dragFrom = useRef(null);
   const [overIdx, setOverIdx] = useState(null);
 
@@ -39,6 +40,15 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved, fu
   const move = (i, dir) => reorder(i, i + dir);
   const removeAt = i => setOrder(o => o.filter((_, j) => j !== i));
   const add = ph => { setOrder(o => [...o, ph]); setQ(""); };
+
+  // ☑️ בחירה-מרובה: מסמנים כמה, ו«העלה נבחרים» מקפיץ את כולם לראש בסדר הנוכחי שלהם.
+  const toggleSel = ph => setSelected(s => { const n = new Set(s); n.has(ph) ? n.delete(ph) : n.add(ph); return n; });
+  const clearSel = () => setSelected(new Set());
+  function promoteSelected() {
+    if (!selected.size) return;
+    setOrder(o => [...o.filter(p => selected.has(p)), ...o.filter(p => !selected.has(p))]);
+    clearSel();
+  }
 
   async function save(list) {
     setBusy(true); setFlash("");
@@ -66,9 +76,22 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved, fu
         <div style={{ padding: "4px 14px 14px" }}>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginBottom: 10 }}>
             {fullList
-              ? "גררו כל מילה למעלה/למטה (או ▲/▼). הסדר נשמר ומופיע בכל המערכת — ה-3 העליונים מובילים ב-story-top."
+              ? "גררו כל מילה (או ▲/▼), או סמנו כמה ב-☑️ ו«⬆️ העלה נבחרים» להעלאה בבת-אחת. ה-3 העליונים מובילים ב-story-top."
               : "גררו לסדר (או ▲/▼ במובייל). ה-3 העליונים מובילים ב-story-top. ✕ מסיר (חוזר לאוטומטי)."}
           </div>
+
+          {/* ⬆️ סרגל בחירה-מרובה — העלאת כל המסומנים לראש בבת-אחת (הגרירה/▲▼ נשארות) */}
+          {order.length > 1 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
+              <button onClick={promoteSelected} disabled={!selected.size}
+                style={{ cursor: selected.size ? "pointer" : "default", background: selected.size ? P.accentBtn : P.cardSoft, color: selected.size ? P.onAccent : P.accentDim, border: `1px solid ${selected.size ? "transparent" : P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "8px 15px" }}>
+                ⬆️ העלה נבחרים לראש{selected.size ? ` · ${selected.size}` : ""}
+              </button>
+              {selected.size > 0 && (
+                <button onClick={clearSel} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>נקה בחירה</button>
+              )}
+            </div>
+          )}
 
           <div style={{ display: "grid", gap: 7 }}>
             {order.map((ph, i) => (
@@ -78,7 +101,10 @@ export default function LeadOrderEditor({ value, phrases = [], term, onSaved, fu
                 onDragOver={e => { e.preventDefault(); setOverIdx(i); }}
                 onDrop={() => { reorder(dragFrom.current, i); dragFrom.current = null; setOverIdx(null); }}
                 onDragEnd={() => { dragFrom.current = null; setOverIdx(null); }}
-                style={{ ...chip, justifyContent: "flex-start", cursor: "grab", background: overIdx === i ? P.glow : P.card, border: `1px solid ${i < 3 ? P.accent : P.border}`, color: P.ink }}>
+                style={{ ...chip, justifyContent: "flex-start", cursor: "grab", background: selected.has(ph) ? P.glow : overIdx === i ? P.glow : P.card, border: `1px solid ${selected.has(ph) ? P.accent : i < 3 ? P.accent : P.border}`, color: P.ink }}>
+                <input type="checkbox" checked={selected.has(ph)} onChange={() => toggleSel(ph)}
+                  onClick={e => e.stopPropagation()} title="בחר להעלאה מרובה"
+                  style={{ width: 18, height: 18, cursor: "pointer", accentColor: P.accent, flexShrink: 0, margin: 0 }} />
                 <span style={{ color: P.accentDim, cursor: "grab", fontSize: 15 }} title="גרירה">⠿</span>
                 <span style={{ color: i < 3 ? P.accentText : P.accentDim, fontFamily: F.mono, fontWeight: 800, minWidth: 16 }}>{i + 1}</span>
                 <span style={{ flex: 1 }}>{ph}</span>
