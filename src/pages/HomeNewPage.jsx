@@ -328,18 +328,6 @@ export default function HomeNewPage() {
         </Link>
       </section>
 
-      {/* ===== 🔓 הצופן — צפנים (דילוגי אותיות / ELS) · יעד גלילה מ«עדכונים אחרונים» · בקרוב ===== */}
-      <section id="ciphers-home" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
-        <HomeHeader title="🔓 הצופן — צפנים" sub="דילוגי אותיות בתורה ובתנ״ך — התכנסויות נסתרות" />
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
-          <div style={{ fontSize: 30, marginBottom: 8 }}>🔓</div>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>הצופן נפתח בקרוב</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, marginTop: 8, maxWidth: 440, marginInline: "auto" }}>
-            כאן יופיעו צפני דילוגי-האותיות (ELS) — התכנסויות נסתרות בתורה ובתנ״ך, מאומתות במנוע. בהכנה 🛠️
-          </div>
-        </div>
-      </section>
-
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
       <StartHereCard />
 
@@ -364,6 +352,19 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <HomeHeader title="🔮 הצלבות המנוע" sub="חיבורים נדירים בין ביטויים — נמצאו ואומתו אוטומטית במנוע הגימטריה" />
         <CrossInsightsBox light={P.mode === "light"} max={3} />
+      </section>
+
+      {/* ===== 🔓 הצופן — צפנים (דילוגי אותיות / ELS) · יעד גלילה מ«עדכונים אחרונים» · בקרוב.
+          ממוקם כאן (לא צמוד להתכנסויות) כדי שכרטיס-התכנסות ינחת על סקשן ההתכנסויות, לא על הצפנים. ===== */}
+      <section id="ciphers-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
+        <HomeHeader title="🔓 הצופן — צפנים" sub="דילוגי אותיות בתורה ובתנ״ך — התכנסויות נסתרות" />
+        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
+          <div style={{ fontSize: 30, marginBottom: 8 }}>🔓</div>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>הצופן נפתח בקרוב</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, marginTop: 8, maxWidth: 440, marginInline: "auto" }}>
+            כאן יופיעו צפני דילוגי-האותיות (ELS) — התכנסויות נסתרות בתורה ובתנ״ך, מאומתות במנוע. בהכנה 🛠️
+          </div>
+        </div>
       </section>
 
       {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}

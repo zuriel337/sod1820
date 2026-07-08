@@ -6,7 +6,7 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
-import { GiluiLogo, RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהלוגואים המקוריים (מקור-אמת יחיד)
+import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
 //   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
@@ -63,12 +63,13 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         </button>
       );
     }
-    // conv → היכל הגילוי · התכנסות. לחיצה גוללת לסקשן «עץ ההתכנסויות» בבית (מפנה, לא מנווט).
+    // conv → היכל הגילוי · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל הגילוי» בנאב/למעלה).
+    // לחיצה גוללת לסקשן «עץ ההתכנסויות» בבית (מפנה, לא מנווט; לא לסקשן הצפנים).
     const num = (d.highlight_numbers || [])[0];
     return (
       <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("convergences-home")} className="lur-card" style={{ "--acc": cGilui }}>
-        <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <GiluiLogo s={30} />}</div>
-        <div className="lur-body"><Tag acc={cGilui} logo={<GiluiLogo s={13} />}>היכל הגילוי · התכנסות</Tag>
+        <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <span className="lur-em">🏛️</span>}</div>
+        <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל הגילוי · בית המדרש · התכנסות</Tag>
           <h3 className="lur-title">{d.title}</h3>
           <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cGilui }}>↓ בהתכנסויות</span></div></div>
       </button>
