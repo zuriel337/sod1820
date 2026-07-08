@@ -14,6 +14,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
+import { applySeo } from "../lib/seo.js"; // M2: שכבת-SEO נפרדת לדף-הנחיתה (title/description/canonical)
 
 // ===== «מסע ההתכנסות» — טיול בתוך הערך (value-as-trunk) =====
 // המסע מטייל בין ביטויים ששווים לאותו ערך גימטרי (משפחת-הערך מ-bidim). ערך-היעד נסתר עד השיא,
@@ -47,6 +48,13 @@ const FUTURE = [
   { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
 ];
 
+// 🧭 שלוש שכבות החוויה — מוצגות בדף-הנחיתה (הנוסח של צוריאל), כדי שהמשתמש יֵדע לאן הוא נכנס.
+const LAYERS = [
+  { t: "נקודה ראשונה — גילוי המספר", n: "היכרות עם הערכים, החיבורים והמשמעויות הראשונות." },
+  { t: "שכבה שנייה — פתיחת הקשרים", n: "גילוי מילים, גימטריות, מקורות ותכנים הקשורים למספר." },
+  { t: "שכבה שלישית — העמקה", n: "חיבור בין מספרים, רעיונות ורמזים שנאספו לאורך הדרך." },
+];
+
 export default function JourneyPage() {
   const P = usePalette();
   const { addJourney, saveItem } = useResearch();
@@ -78,8 +86,30 @@ export default function JourneyPage() {
   const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
   const [hookBusy, setHookBusy] = useState(false); // M2: לחיצת-פוש בעבודה
   const [showEmail, setShowEmail] = useState(false); // M2: מייל = אופציה מודחקת (רגע 3)
+  // 🧭 M2 — דף-כניסה לחוויה: הגעה ל-/journey בלי ?from= מציגה דף-נחיתה (החוויה + SEO), לא מסע-אקראי אוטומטי.
+  // deep-link (מדף-מספר: /journey?from=358) נכנס ישר לחוויה. הנוסח והשם: «המסע האישי» תחת סוד 1820.
+  const [entered, setEntered] = useState(!!startFrom);
+  const [seed, setSeed] = useState("");            // מספר/ביטוי-פתיחה שהמשתמש הקליד בדף-הנחיתה
 
-  useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; try { emit("journey", "landing"); } catch { /* noop */ } }, []);
+  // 📊 landing — פעם אחת בעליית הדף (משפך: מי נחת → מי התחיל)
+  useEffect(() => { try { emit("journey", "landing"); } catch { /* noop */ } }, []);
+  // 🔍 שכבת-SEO — כותרת/תיאור/canonical נפרדים לדף-הנחיתה (המותג הוותיק «סוד 1820», לא «קוד המציאות»).
+  useEffect(() => {
+    applySeo({
+      fullTitle: entered ? "מסע ההתכנסות · סוד 1820" : "מסע אישי לפי מספר · גילוי משמעות המספר שלך | סוד 1820",
+      description: "בחר מספר וצא למסע אישי — גלה את המשמעות, הגימטריות, המקורות והקשרים שמסתתרים בו. מסע רוחני דרך מספרים, שלב אחר שלב.",
+      path: "/journey",
+    });
+  }, [entered]);
+
+  // כניסה לחוויה מדף-הנחיתה — בלחיצת «התחל את המסע» (מספר שהוקלד) או «מסע אקראי».
+  function startWith(seedVal) {
+    const s = (seedVal || "").trim();
+    setEntered(true);
+    try { emit("journey", "enter", { props: { seeded: !!s } }); } catch { /* noop */ }
+    begin(s);
+  }
+  function onSeedSubmit(e) { e?.preventDefault?.(); startWith(seed); }
 
   // מאתחל מסע: בוחר ערך-יעד נסתר (משפחה עשירה) וטוען את משפחת-הערך לטייל בה.
   async function begin(fromParam) {
@@ -112,7 +142,8 @@ export default function JourneyPage() {
     try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
   }
 
-  useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
+  // deep-link בלבד (/journey?from=…) מתחיל אוטומטית; הגעה נקייה ל-/journey מציגה דף-נחיתה.
+  useEffect(() => { if (startFrom) { setEntered(true); begin(startFrom); } }, [startFrom]); // eslint-disable-line
 
   // 🔢 קפיצת-תהודה — כשמשפחת-הערך נגמרת, מחפש סקאלת-אפס עשירה בביטויים חדשים (zero_scale_law).
   async function tryLeap(seen) {
@@ -321,6 +352,67 @@ export default function JourneyPage() {
   const stations = path.filter(p => !p.leap);
   const dWorld = dominantWorld(stations);
   const progress = goal > 0 ? clamp(Math.round((stations.length / goal) * 100), 0, 100) : 0;
+
+  // ───────── דף-הנחיתה (חוויה + SEO) — לפני שהמסע מתחיל ─────────
+  if (!entered) {
+    return (
+      <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
+        <style>{`@keyframes jFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}`}</style>
+
+        <header style={{ textAlign: "center", marginBottom: 24, animation: "jFade .5s ease both" }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>סוד 1820 · המסע האישי</div>
+          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(25px,5.4vw,40px)", fontWeight: 800, margin: "9px 0 12px", textShadow: `0 0 40px ${P.onAccent}`, lineHeight: 1.28 }}>
+            המסע האישי שלך — גילוי החוט שמחבר אותך
+          </h1>
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 540, margin: "0 auto 12px" }}>
+            יש מספרים שמופיעים בדרך שלך שוב ושוב. רגעים, שמות, תאריכים, צירופי מקרים וחיבורים שמרגישים כאילו יש בהם סיפור.
+          </p>
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 540, margin: "0 auto" }}>
+            המסע נועד לקחת את המספר שבחרת ולהעמיק בו — שלב אחר שלב. לא רק לראות תוצאה, אלא לגלות קשרים: מה מסתתר במספר? אילו מילים מתחברות אליו? אילו מקורות, רעיונות וסיפורים קשורים אליו? ומה החוט שמוביל בין הדברים?
+          </p>
+        </header>
+
+        {/* בחירת מספר-פתיחה → כניסה לחוויה */}
+        <div style={{ maxWidth: 470, margin: "0 auto 26px", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "20px 18px", boxShadow: `0 0 40px ${P.glow}`, textAlign: "center", animation: "jFade .5s ease .05s both" }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>התחל את המסע שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginBottom: 16 }}>בחר מספר, וקבל נקודת פתיחה אישית.</div>
+          <form onSubmit={onSeedSubmit} style={{ display: "grid", gap: 11 }}>
+            <input
+              value={seed} onChange={e => setSeed(e.target.value)} inputMode="numeric" dir="rtl"
+              placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
+              style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "14px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
+              מה המספר שלך מגלה? התחל את המסע →
+            </button>
+          </form>
+          <button onClick={() => startWith("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginTop: 12, textDecoration: "underline" }}>
+            או צאו למסע אקראי 🎲
+          </button>
+        </div>
+
+        {/* שלוש השכבות */}
+        <div style={{ maxWidth: 560, margin: "0 auto 24px", display: "grid", gap: 10, animation: "jFade .5s ease .1s both" }}>
+          {LAYERS.map((l, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px" }}>
+              <span style={{ fontSize: 18, lineHeight: 1.25 }}>✨</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>{l.t}</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginTop: 2 }}>{l.n}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* המסע נשמר איתך */}
+        <div style={{ maxWidth: 560, margin: "0 auto", background: `linear-gradient(135deg, ${P.accent}18, ${P.glow})`, border: `1.5px solid ${P.accent}`, borderRadius: 16, padding: "16px 18px", textAlign: "center", animation: "jFade .5s ease .15s both" }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, marginBottom: 5 }}>💾 המסע שלך נשמר איתך</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+            אפשר להמשיך בכל זמן, לחזור לגילויים שלך ולבנות את המפה האישית שלך. המסע לא נגמר בתוצאה אחת — הוא נבנה מחיבורים.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
