@@ -32,8 +32,9 @@ const LINES = [
 ];
 
 // 🤖 «מסר מהמנוע» (בטא) — הודעה שנגזרת מנתוני המסע עצמם (לא טקסט קבוע). בעתיד תהפוך ל-AI מותאם.
-function engineMessage({ root, bases = [], stations = 0, dWorld }) {
+function engineMessage({ root, bases = [], stations = 0, dWorld, name }) {
   const out = [];
+  if (name) out.push(`${name}, הנה מה שראיתי במסע שלך:`);
   if (stations > 0) out.push(`ראיתי אותך עובר ${stations} תחנות — וכולן, ללא יוצא מן הכלל, נפלו על ${root}.`);
   if (bases.length > 1) out.push(`והערך לא נעצר: הוא המשיך להדהד בסדרי גודל — ${bases.join(" → ")}. מה שראית קטן ממה שיש מתחת.`);
   if (dWorld) out.push(`השדה ששב וחזר אליך הוא «${dWorld}» — שם נמצא הלב של המסע שלך.`);
@@ -90,6 +91,10 @@ export default function JourneyPage() {
   // deep-link (מדף-מספר: /journey?from=358) נכנס ישר לחוויה. הנוסח והשם: «המסע האישי» תחת סוד 1820.
   const [entered, setEntered] = useState(!!startFrom);
   const [seed, setSeed] = useState("");            // מספר/ביטוי-פתיחה שהמשתמש הקליד בדף-הנחיתה
+  // 👤 שם אישי (אופציונלי, לא שער) — הופך את «המסע האישי» לאישי: פנייה בשם ברגע-הגילוי ובמסר-המנוע.
+  // נשמר מקומית (זהות-רכה, בלי חשבון). שם ריק = המסע עובד בדיוק כמו קודם.
+  const [name, setName] = useState(() => { try { return localStorage.getItem("sod_jname") || ""; } catch { return ""; } });
+  const saveName = v => { const s = (v || "").trim().slice(0, 24); setName(s); try { s ? localStorage.setItem("sod_jname", s) : localStorage.removeItem("sod_jname"); } catch { /* noop */ } };
 
   // 📊 landing — פעם אחת בעליית הדף (משפך: מי נחת → מי התחיל)
   useEffect(() => { try { emit("journey", "landing"); } catch { /* noop */ } }, []);
@@ -216,6 +221,7 @@ export default function JourneyPage() {
       path: path.filter(s => !s.leap).map(s => s.phrase),
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
+      name: name || null,
     });
     if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root } }); } catch { /* noop */ } }
     else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
@@ -267,6 +273,7 @@ export default function JourneyPage() {
       meaning: KEY_NUMBERS[root] || null,
       depth: "deep",
       again: force || undefined,   // רמז למנוע: מסר נוסף/שונה
+      name: name || null,
     });
     if (msg) { setDeepMsg(msg); setDeepState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
     else setDeepState("off");
@@ -378,6 +385,10 @@ export default function JourneyPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginBottom: 16 }}>בחר מספר, וקבל נקודת פתיחה אישית.</div>
           <form onSubmit={onSeedSubmit} style={{ display: "grid", gap: 11 }}>
             <input
+              value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name"
+              placeholder="✦ איך לקרוא לך? (לא חובה — כדי לפנות אליך בשם)"
+              style={{ background: "rgba(255,255,255,0.04)", border: `1px dashed ${P.border}`, borderRadius: 14, color: P.ink, padding: "12px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+            <input
               value={seed} onChange={e => setSeed(e.target.value)} inputMode="numeric" dir="rtl"
               placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
               style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
@@ -477,7 +488,7 @@ export default function JourneyPage() {
           {root != null && (
             <div style={{ maxWidth: 520, margin: "2px auto 16px", textAlign: "center" }}>
               <div style={{ fontSize: 26, marginBottom: 2 }}>✨</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>המסע על {root} הושלם</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{name ? `${name}, המסע שלך על ${root} הושלם` : `המסע על ${root} הושלם`}</div>
               <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>ראיתם את שכבות המספר — הנה מה שהמנוע כתב עבורכם.</div>
             </div>
           )}
@@ -504,7 +515,7 @@ export default function JourneyPage() {
                 /* off — נפילה חיננית להודעת-התבנית + ניסיון חוזר */
                 <>
                   <div style={{ display: "grid", gap: 8 }}>
-                    {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
+                    {engineMessage({ root, bases, stations: stations.length, dWorld, name }).map((line, i, a) => (
                       <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
                     ))}
                   </div>
