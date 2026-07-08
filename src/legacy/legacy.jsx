@@ -4231,8 +4231,9 @@ function SpotimChatPage() {
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
       `}</style>
       <ChatScrollRail />
-      {/* רצועת «אור הגאולה» בצ'אט — רק עדכונים מ-24 השעות האחרונות; אין טרי → מוסתרת. «מעבר לדף הערוצים» בתחתית הרצועה. */}
-      <BrandTicker channel="or-geula" maxAgeHours={24} />
+      {/* רצועת «אור הגאולה» בצ'אט — רצועה דקה של שורה אחת שזזה (marquee): הכותרות רצות ברצף,
+          ומי שרוצה לחיצה אחת עוברת לדף העדכונים (/broadcasts). רק עדכונים מ-24 השעות האחרונות; אין טרי → מוסתרת. */}
+      <BrandTicker channel="or-geula" maxAgeHours={24} slim />
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
           דף צ'אט

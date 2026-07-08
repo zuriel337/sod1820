@@ -103,7 +103,10 @@ export function UpdateModal({ u, brand, onClose }) {
 // convergesOnly: בעמוד הבית הטיקר מציג רק התכנסויות אמיתיות (/topic/) ולא גימטריות בודדות (/number/).
 // הגימטריות הבודדות נשארות זמינות במרכז השידורים (/broadcasts) — עץ אחד, עדשה שונה.
 // maxAgeHours: מציג רק עדכונים מ-N השעות האחרונות; אם אין עדכון טרי — הרצועה מוסתרת לגמרי (ריקה).
-export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false, withPosts = false, maxAgeHours = 0 }) {
+// slim: רצועה דקה — שורה אחת שזזה (marquee) במקום הכרטיס הכבד. כל העדכונים בתנועה רציפה,
+// והרצועה כולה לחיצה → דף העדכונים (/broadcasts). עדשה נוספת על אותו מקור (channel_updates) —
+// עץ אחד, אפס כפילות (broadcast_channels_law). מתאים לדף הצ'אט (אור הגאולה).
+export default function BrandTicker({ channel, peek = null, hidePostLinked = false, convergesOnly = false, withPosts = false, maxAgeHours = 0, slim = false }) {
   const b = BRANDS[channel] || BRANDS["reality-code"];
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -167,6 +170,72 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
   // חלון-זמן (צ'אט): אין עדכון טרי → הרצועה מוסתרת לגמרי (ריקה), בלי מצב-המתנה.
   if (maxAgeHours && !items.length) return null;
   if ((hidePostLinked || convergesOnly) && !items.length && hadRaw) return null;
+
+  // ── רצועה דקה: שורה אחת שזזה (marquee). כל הכותרות רצות ברצף; לחיצה → דף העדכונים. ──
+  // המסילה LTR (translateX שלילי = תנועה שמאלה, תוכן חדש נכנס מימין); כל פריט RTL תקין בפני עצמו.
+  if (slim) {
+    if (!cur) return null;
+    // משך אנימציה מתכוונן לפי אורך התוכן → מהירות אחידה, לא תלוי בכמות העדכונים.
+    const totalChars = items.reduce((n, u) => n + (u.text?.length || 0) + 18, 0);
+    const dur = Math.min(90, Math.max(22, Math.round(totalChars * 0.34)));
+    const Row = ({ dup }) => (
+      <div className="bt-slim-row" aria-hidden={dup ? "true" : undefined}>
+        {items.map((u, k) => (
+          <span key={(u.id ?? k) + (dup ? "-b" : "-a")} className="bt-slim-item">
+            <i className="bt-slim-dot" />
+            <span>{u.text}</span>
+            {u.credit && <span className="bt-slim-credit">— מאת {u.credit}</span>}
+          </span>
+        ))}
+      </div>
+    );
+    return (
+      <div style={{ direction: "rtl", marginBottom: 10 }}>
+        <style>{`
+          @keyframes bt-dot { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+          @keyframes bt-slide { from { transform: translateX(0);} to { transform: translateX(-50%);} }
+          .bt-slim { display:flex; align-items:center; gap:8px; overflow:hidden; max-width:100%; box-sizing:border-box;
+            background:${b.bg}; border:1px solid ${b.accent}55; border-radius:999px; padding:5px 12px;
+            box-shadow:0 3px 14px ${b.glow}; text-decoration:none; }
+          .bt-slim-brand { flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; background:${b.accent};
+            color:#191008; font-family:${F.heading}; font-weight:900; font-size:10.5px; border-radius:999px;
+            padding:2px 9px; white-space:nowrap; }
+          .bt-slim-live { flex:0 0 auto; display:inline-flex; align-items:center; gap:4px; background:#c8102e; color:#fff;
+            font-family:${F.heading}; font-weight:900; font-size:8.5px; letter-spacing:1px; border-radius:4px; padding:2px 6px; }
+          .bt-slim-live i { width:5px; height:5px; border-radius:50%; background:#fff; animation:bt-dot 1.2s infinite; }
+          .bt-slim-win { flex:1; min-width:0; overflow:hidden; direction:ltr;
+            -webkit-mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent); }
+          .bt-slim-track { display:inline-flex; flex-wrap:nowrap; white-space:nowrap; will-change:transform;
+            animation:bt-slide ${dur}s linear infinite; }
+          .bt-slim:hover .bt-slim-track { animation-play-state:paused; }
+          .bt-slim-row { flex:0 0 auto; display:inline-flex; align-items:center; }
+          .bt-slim-item { direction:rtl; unicode-bidi:isolate; display:inline-flex; align-items:center; gap:6px;
+            padding:0 15px; color:#f5ecd2; font-family:${F.body}; font-size:12.5px; font-weight:600; white-space:nowrap; }
+          .bt-slim-dot { flex:0 0 auto; width:5px; height:5px; border-radius:50%; background:${b.accent}; box-shadow:0 0 6px ${b.glow}; }
+          .bt-slim-credit { color:${b.accent}; font-family:${F.heading}; font-weight:800; font-size:10.5px; }
+          .bt-slim-cta { flex:0 0 auto; color:${b.accent}; font-family:${F.heading}; font-weight:900; font-size:11px; white-space:nowrap; }
+          @media (prefers-reduced-motion: reduce) { .bt-slim-track { animation:none; } }
+        `}</style>
+        <Link to="/broadcasts" className="bt-slim" title="לצפייה בכל העדכונים">
+          <span className="bt-slim-brand">
+            {b.logo
+              ? <img src={b.logo} alt="" style={{ width: 15, height: 15, borderRadius: "50%", display: "block" }} />
+              : <span>{b.emoji}</span>}
+            {b.title}
+          </span>
+          <span className="bt-slim-live"><i />LIVE</span>
+          <div className="bt-slim-win">
+            <div className="bt-slim-track">
+              <Row />
+              <Row dup />
+            </div>
+          </div>
+          <span className="bt-slim-cta">לעדכונים ←</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div style={{ direction: "rtl", marginBottom: 10 }}>
