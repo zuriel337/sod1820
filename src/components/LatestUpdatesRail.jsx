@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getCipherFindings } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
-//   פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן).
+//   פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
 //   מציג «עודכן לפני X» ותג «AI» היכן שרלוונטי. תמונת זרם-מציאות → גלילה ל-#reality-home (מפנה, לא משכפל).
+//   ⛔ קשרי-שפות (cross-language) לא מוצגים כאן — מקומם הקנוני הוא דף «קשרי-שפות» (/languages).
 
 const GiluiLogo = ({ s = 18 }) => (
   <svg viewBox="0 0 32 32" width={s} height={s} style={{ display: "block", flex: "0 0 auto" }} aria-hidden>
@@ -36,17 +36,14 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
   const cPost = light ? "#c76a1f" : "#e8c15a";
-  const [ciphers, setCiphers] = useState([]);
-  useEffect(() => { let live = true; getCipherFindings(6).then(r => live && setCiphers(r || [])).catch(() => {}); return () => { live = false; }; }, []);
 
   const items = useMemo(() => {
     const out = [];
     (posts || []).forEach(p => out.push({ type: "post", when: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: effDate(h) || +new Date(h.created_at || h.occurred_at || 0), data: h }));
-    (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     return out.sort((a, b) => b.when - a.when).slice(0, 8);
-  }, [posts, convergences, hints, ciphers]);
+  }, [posts, convergences, hints]);
 
   const scrollReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
@@ -80,17 +77,13 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         </button>
       );
     }
-    // conv / cipher → היכל הגילוי
-    const isCipher = it.type === "cipher";
-    const num = isCipher ? d.num : (d.highlight_numbers || [])[0];
-    const title = isCipher ? d.t : d.title;
-    const to = isCipher ? (num != null ? `/number/${num}` : "/research") : (d.slug ? `/topic/${encodeURIComponent(d.slug)}` : "/research");
-    const ai = isCipher && aiRe.test(d.by || "");
+    // conv → היכל הגילוי · התכנסות (מבית המדרש). קשרי-שפות אינם כאן (ראו /languages).
+    const num = (d.highlight_numbers || [])[0];
     return (
-      <Link key={(isCipher ? "c" : "v") + (d.slug || d.id || title)} to={to} className="lur-card" style={{ "--acc": cGilui }}>
+      <Link key={"v" + (d.slug || d.id || d.title)} to={d.slug ? `/topic/${encodeURIComponent(d.slug)}` : "/research"} className="lur-card" style={{ "--acc": cGilui }}>
         <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <GiluiLogo s={30} />}</div>
-        <div className="lur-body"><Tag acc={cGilui} logo={<GiluiLogo s={13} />}>היכל הגילוי · {isCipher ? "צופן" : "התכנסות"}</Tag>
-          <h3 className="lur-title">{title}</h3><Meta when={it.when} ai={ai} /></div>
+        <div className="lur-body"><Tag acc={cGilui} logo={<GiluiLogo s={13} />}>היכל הגילוי · התכנסות</Tag>
+          <h3 className="lur-title">{d.title}</h3><Meta when={it.when} /></div>
       </Link>
     );
   };
