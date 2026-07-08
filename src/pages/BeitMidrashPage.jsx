@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
-import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses } from "../lib/supabase.js";
+import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses, getAllValuePhrases } from "../lib/supabase.js";
 import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
 import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
@@ -692,8 +692,9 @@ function NumberResults({ value, term }) {
   const [pulse, setPulse] = useState(null);
   useEffect(() => {
     let live = true; setEq(null); setPulse(null);
-    supabase.from("gematria_words").select("phrase").eq("ragil", value).limit(60)
-      .then(({ data }) => { if (live) setEq([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
+    // 🔗 מסונכרן עם דף המספר — אותה פונקציה, אותו סדר (lead_rank): מה שצוריאל מסדר למעלה בדף המספר, למעלה גם כאן.
+    getAllValuePhrases(value, 60)
+      .then(rows => { if (live) setEq([...new Set((rows || []).map(r => r.phrase).filter(Boolean))]); });
     getEntityBundle({ term: String(value), value, isNumber: true })
       .then(b => { if (live && b) setPulse(pulseFromCounts({ posts: b.postsCount, galleries: b.galleriesCount, words: b.phrases?.length, events: b.eventsCount, ai: b.insightsCount, comm: b.commentsCount })); })
       .catch(() => {});
