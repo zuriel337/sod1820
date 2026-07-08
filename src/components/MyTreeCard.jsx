@@ -1,33 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { getMyTreeStats } from "../lib/supabase.js";
 
-// 🌳 "העץ שלי" — גיימיפיקציה (דרגה/xp/קרדיטים) + גודל האוסף האישי (research_items).
-// הערך למשתמש-כוח (כמו שמעון): העץ שלו גדל מפעילותו. "המילים שלך במנוע" יידלק
-// כשסוכן-2 יחווט submitted_by (חוזה = users.id).
-export default function MyTreeCard({ profile }) {
+// 🌳 "העץ שלי" — גודל האוסף האישי האמיתי (research_items) + מילים שנכנסו למנוע + חיפושים.
+// דרגה/XP/קרדיטים הוסתרו עד שיהיה מנוע-הענקה אמיתי (platform_tiers_law) — לא מציגים מספרים ריקים.
+// "המילים שלך במנוע" יידלק כשסוכן-2 יחווט submitted_by (חוזה = users.id).
+export default function MyTreeCard() {
   const [stats, setStats] = useState({ total: 0, searched: 0, words: 0 });
   useEffect(() => {
     let alive = true;
     getMyTreeStats().then(s => { if (alive) setStats(s); });
     return () => { alive = false; };
   }, []);
-  const level = profile?.level ?? 1;
-  const xp = profile?.xp ?? 0;
-  const credits = profile?.credits ?? 0;
-  const Stat = ({ label, val }) => (
-    <div style={{ textAlign: "center", flex: 1 }}>
-      <div style={{ fontSize: 20, fontWeight: 800, color: "#b8901f" }}>{Number(val).toLocaleString("he")}</div>
-      <div style={{ fontSize: 11, opacity: 0.75 }}>{label}</div>
-    </div>
-  );
   return (
-    <div style={{ background: "rgba(184,134,11,0.08)", border: "1px solid rgba(184,134,11,0.30)", borderRadius: 14, padding: "12px 14px", margin: "0 0 14px" }}>
+    <div style={{ background: "rgba(184,134,11,0.08)", border: "1px solid rgba(184,134,11,0.30)", borderRadius: 14, padding: "14px 16px", margin: "0 0 14px", textAlign: "center" }}>
       <div style={{ fontSize: 13, fontWeight: 800, color: "#b8901f", marginBottom: 8 }}>🌳 העץ שלי</div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <Stat label="דרגה" val={level} />
-        <Stat label="XP" val={xp} />
-        <Stat label="קרדיטים" val={credits} />
-        <Stat label="באוסף" val={stats.total} />
+      <div>
+        <span style={{ fontSize: 30, fontWeight: 800, color: "#b8901f" }}>{Number(stats.total).toLocaleString("he")}</span>
+        <span style={{ fontSize: 13, opacity: 0.75, marginInlineStart: 6 }}>פריטים באוסף האישי שלך</span>
       </div>
       {stats.words > 0 && (
         <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2f8f4e", marginTop: 8, textAlign: "center" }}>

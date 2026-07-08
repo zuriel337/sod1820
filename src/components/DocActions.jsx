@@ -1,33 +1,25 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { useAuth } from "../lib/AuthContext.jsx";
-import { saveUserItem } from "../lib/supabase.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { printDoc } from "../lib/printDoc.js";
 
-// 🖨️ + 💾 רצועת פעולות-מסמך — הדפסה ושמירה פרטית ל«דף העבודה שלי».
+// 🖨️ + 💾 רצועת פעולות-מסמך — הדפסה ושמירה ל«שמורים» של עולם-המשתמש (עץ אחד = research_items).
 // props: kind ('cross'|'convergence') · refId · title · link · contentRef (מכל-התוכן להדפסה).
-// מסומנת no-print כדי שלא תופיע בהדפסה עצמה.
+// מסומנת no-print כדי שלא תופיע בהדפסה עצמה. שמירה local-first — עובדת גם בלי התחברות, ומסונכרנת לענן למחוברים.
 export default function DocActions({ kind, refId, title, link, contentRef }) {
   const P = usePalette();
-  const nav = useNavigate();
-  const { user } = useAuth();
+  const { saveItem } = useResearch();
   const [toast, setToast] = useState("");
   const [saved, setSaved] = useState(false);
   const flash = (m, ms = 3200) => { setToast(m); setTimeout(() => setToast(""), ms); };
 
   const onPrint = () => printDoc(title, contentRef?.current?.innerHTML || "");
 
-  const onSave = async () => {
-    if (!user) {
-      flash("התחברו (חינם) כדי לשמור לדף העבודה שלכם");
-      setTimeout(() => nav("/login"), 900);
-      return;
-    }
-    const { error } = await saveUserItem({ kind, ref: refId, title, link });
-    if (error) flash(error === "auth" ? "התחברו כדי לשמור" : "השמירה נכשלה — נסו שוב");
-    else { setSaved(true); flash("✓ נשמר לדף העבודה שלך"); }
+  const onSave = () => {
+    saveItem?.({ id: `${kind}:${refId}`, type: kind, title, link });
+    setSaved(true);
+    flash("✓ נשמר לשמורים · עולם המשתמש");
   };
 
   const b = {
@@ -39,7 +31,7 @@ export default function DocActions({ kind, refId, title, link, contentRef }) {
   return (
     <div className="no-print" style={{ display: "inline-flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
       <button onClick={onPrint} style={b} title="הדפסה / שמירה כ-PDF">🖨️ הדפס</button>
-      <button onClick={onSave} style={{ ...b, ...(saved ? { background: P.glow } : null) }} title="שמירה פרטית לדף העבודה שלך">
+      <button onClick={onSave} style={{ ...b, ...(saved ? { background: P.glow } : null) }} title="שמור לשמורים · עולם המשתמש">
         {saved ? "✓ נשמר" : "💾 שמור אצלי"}
       </button>
       {toast && (

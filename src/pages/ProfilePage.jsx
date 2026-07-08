@@ -7,7 +7,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import MyTreeCard from "../components/MyTreeCard.jsx";
 import { updateProfile } from "../lib/auth.js";
 import { Avatar } from "./AuthPage.jsx";
-import { supabase, getUserActivity, getUserItems, deleteUserItem } from "../lib/supabase.js";
+import { supabase, getUserActivity } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 import ResearchCenter from "../components/ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../lib/research/theme.js";
@@ -187,93 +187,34 @@ function RecentActivity({ P, card, user }) {
   );
 }
 
-// 🔒 פיצ'רים בפיתוח — כרטיסים נעולים "בקרוב".
-function ComingSoonGrid({ P, card }) {
-  const items = [
-    { e: "🔍", t: "דילוגי אותיות (ELS) שמורים", d: "החיפושים שלך בתורה — שמורים וזמינים לחזרה." },
-    { e: "🧭", t: "המסלולים שלי", d: "המסעות וההתכנסויות שאספת — אוסף אישי." },
-    { e: "⭐", t: "מועדפים", d: "מספרים, רמזים ופוסטים ששמרת לכוכב." },
-    { e: "🔔", t: "התראות לפי נושא", d: "בחירת נושאים שתרצה לקבל עליהם פוש בלבד." },
-    { e: "📊", t: "הסטטיסטיקה שלי", d: "כמה חיפשת, אילו מספרים ריתקו אותך, מגמות." },
-    { e: "🏅", t: "דרגת חוקר", d: "ניקוד אישי על חקירה, שיתופים ותגליות." },
+// ✨ בקרוב — מפת-דרך אחת קומפקטית (במקום עשרות כרטיסים נעולים). «בקרוב = התוכנית האמיתית».
+function ComingSoonCard({ P, card }) {
+  const rows = [
+    ["🌳", "העץ וההתקדמות", "העץ האישי · דרגת חוקר · הישגים · משימות"],
+    ["💎", "התוכן שלי", "הפוסטים · האוצרות · המועדפים · לוח פעילות"],
+    ["📊", "תובנות", "הסטטיסטיקה שלי · דילוגי ELS שמורים · התראות לפי נושא"],
+    ["👥", "קהילה", "חוקרים שאני עוקב · הזמן חוקר · הודעות"],
   ];
   return (
-    <div style={{ ...card, marginTop: 22 }}>
+    <div style={{ ...card, marginTop: 22, padding: "26px 26px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-        <span style={{ fontSize: 24 }}>✨</span>
+        <span style={{ fontSize: 22 }}>✨</span>
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>בקרוב באזור האישי</div>
       </div>
-      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, marginBottom: 16 }}>
-        כלים אישיים שנפתח בהדרגה — שווה לחכות. 👑
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>
+        מפת הדרך — הכלים האישיים נפתחים בהדרגה. 👑
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 12 }}>
-        {items.map((it, i) => (
-          <div key={i} style={{
-            position: "relative", background: P.cardSoft, border: `1px solid ${P.borderStrong}`,
-            borderRadius: 12, padding: "16px 14px", opacity: 0.92, overflow: "hidden",
-          }}>
-            <div style={{ fontSize: 26, marginBottom: 6, filter: "grayscale(0.2)" }}>{it.e}</div>
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{it.t}</div>
-            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6 }}>{it.d}</div>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 5, marginTop: 10,
-              background: "rgba(0,0,0,0.25)", border: `1px solid ${P.border}`, borderRadius: 999,
-              padding: "3px 10px", color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700,
-            }}>🔒 בקרוב</div>
+      <div style={{ display: "grid", gap: 10 }}>
+        {rows.map(([e, t, d], i) => (
+          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 11, padding: "9px 0", borderBottom: i < rows.length - 1 ? `1px solid ${P.border}` : "none" }}>
+            <span style={{ fontSize: 19, opacity: 0.85 }}>{e}</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>{t}</div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6 }}>{d}</div>
+            </div>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-// 📁 דף העבודה שלי — שמירות פרטיות (הצלבות / צירי התכנסות). רק המשתמש רואה (RLS).
-const SAVED_KIND = {
-  cross: { ic: "⟡", label: "הצלבה" },
-  convergence: { ic: "🧩", label: "התכנסות" },
-};
-function SavedItemsBoard({ P, card, user }) {
-  const [items, setItems] = useState(null);
-  useEffect(() => {
-    let alive = true;
-    if (!user) { setItems([]); return undefined; }
-    getUserItems().then(d => { if (alive) setItems(d); });
-    return () => { alive = false; };
-  }, [user]);
-
-  async function remove(id) {
-    if (!window.confirm("למחוק מדף העבודה שלך?")) return;
-    const { error } = await deleteUserItem(id);
-    if (!error) setItems(it => (it || []).filter(x => x.id !== id));
-  }
-
-  return (
-    <div style={{ ...card, marginTop: 22 }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>📁 דף העבודה שלי</div>
-        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5 }}>שמירות פרטיות — רק אתה רואה אותן</span>
-      </div>
-      {items === null ? (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, padding: "8px 2px" }}>טוען…</div>
-      ) : items.length === 0 ? (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, padding: "8px 2px" }}>
-          עדיין לא שמרת כלום. בכל <b style={{ color: P.accentText }}>הצלבה</b> או <b style={{ color: P.accentText }}>ציר התכנסות</b> לחץ «💾 שמור אצלי» — וזה יופיע כאן, פרטי לחלוטין.
-        </div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-          {items.map(it => {
-            const k = SAVED_KIND[it.kind] || { ic: "•", label: it.kind };
-            return (
-              <div key={it.id} style={{ position: "relative", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px", display: "flex", flexDirection: "column", gap: 6 }}>
-                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 1 }}>{k.ic} {k.label}</span>
-                <Link to={it.link || "/"} style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, textDecoration: "none", paddingInlineEnd: 20, lineHeight: 1.35 }}>{it.title}</Link>
-                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{it.created_at ? new Date(it.created_at).toLocaleDateString("he-IL") : ""}</span>
-                <button onClick={() => remove(it.id)} title="מחק מדף העבודה" style={{ position: "absolute", top: 6, insetInlineEnd: 6, cursor: "pointer", background: "transparent", border: "none", color: P.accentDim, fontSize: 13, lineHeight: 1, padding: 2 }}>🗑</button>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
@@ -414,7 +355,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <MyTreeCard profile={profile} />
+        <MyTreeCard />
 
         <label style={label}>שם משתמש (ציבורי)</label>
         <input style={field} value={username} onChange={e => setUsername(e.target.value)} dir="rtl" />
@@ -463,9 +404,7 @@ export default function ProfilePage() {
 
       <RecentActivity P={P} card={card} user={user} />
 
-      <SavedItemsBoard P={P} card={card} user={user} />
-
-      <ComingSoonGrid P={P} card={card} />
+      <ComingSoonCard P={P} card={card} />
 
 
       <div style={{ textAlign: "center", marginTop: 20 }}>
