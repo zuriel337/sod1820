@@ -248,7 +248,7 @@ export default function LiveChannelFeed() {
                         {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" &&
                           <div className="lcf-tx">{stripHtml(u.text)}</div>}
                         {u.image_url && isVideo(u.image_url) && (
-                          <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
+                          <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", color: WA.recvInk, width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
                         )}
                         {u.capMore && c.to && <Link to={c.to} className="lcf-ptr" onClick={() => { if (!docked) setOpen(false); }}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
                         <div className="lcf-meta">{timeAgoHe(u.created_at)}{ai && <span className="lcf-ck">✓✓</span>}</div>

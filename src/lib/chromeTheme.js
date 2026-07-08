@@ -32,28 +32,29 @@ export function chromeColors(mode) {
         crimsonLight: "#a01f2e",
       }
     : {
-        // ── יום: chrome בהיר אמיתי — קלף/קרם, טקסט זהב-כהה קריא (city_background_dual_theme_law).
-        //    כלל ברזל: כל טקסט ≥4.5:1 מול הקרם. אין עוד chrome כהה במצב בהיר.
-        bg: "#f4ecd8",            // קרם-קלף בהיר (תואם רקע-העיר)
-        bgScrolled: "#efe4c8",
-        border: "rgba(154,111,20,0.22)",
-        borderGold: "rgba(154,111,20,0.45)",
-        gold: "#a9791a",          // זהב לאקסנטים/כפתורים
-        goldBright: "#7a5510",    // כותרות/אקטיב — זהב כהה (~6:1 על קרם)
-        goldLight: "#8a6d1a",     // טקסט קלט/קישורים (~4.7:1)
-        goldDim: "#93712a",       // משני (~4.5:1)
-        muted: "#6b5a38",         // טקסט מעומעם — חום קריא (~5.8:1)
-        surface: "#eadfc4",       // רקע hover
-        chipBg: "rgba(154,111,20,0.10)",
-        dropBg: "#f7f0de",        // תפריט נפתח בהיר
-        catBg: "rgba(154,111,20,0.10)",
-        activeBg: "rgba(154,111,20,0.16)",
-        hoverBg: "rgba(154,111,20,0.10)",
+        // ── יום: chrome "עור/עץ מיושן" — חום-כהה חמים (לא שחור), טקסט זהב-קרם.
+        //    הגוף נשאר קרם בהיר; ה-chrome ממסגר אותו כמו כריכת ספר עתיקה כהה (בקשת צוריאל).
+        //    ⚠️ לא להפוך לבהיר — רק טיקר-העדכונים (LiveActivityBar) בהיר, לא ה-Navbar/Footer.
+        bg: "#2a2013",            // חום-קפה כהה (הדר) — כהה אך חמים, לא שחור
+        bgScrolled: "#211810",
+        border: "rgba(212,175,55,0.22)",
+        borderGold: "rgba(212,175,55,0.42)",
+        gold: "#c9a84a",          // זהב לאקסנטים/כפתורים
+        goldBright: "#f0d68a",    // כותרות/אקטיב — זהב בהיר (~10:1)
+        goldLight: "#e6cf86",     // טקסט קלט/קישורים בהירים
+        goldDim: "#b89a55",       // משני
+        muted: "#cfc2a4",         // טקסט מעומעם — קרם חם (~9:1)
+        surface: "#342818",       // רקע hover
+        chipBg: "rgba(26,20,11,0.7)",
+        dropBg: "#241c12",        // תפריט נפתח
+        catBg: "rgba(38,30,17,0.75)",
+        activeBg: "rgba(212,175,55,0.16)",
+        hoverBg: "rgba(212,175,55,0.10)",
         onGold: "#2a1e00",        // טקסט כהה על כפתור זהב
-        footBg: "linear-gradient(180deg, #f4ecd8 0%, #eadfc4 100%)", // כריכה תחתונה בהירה
-        footBorder: "rgba(154,111,20,0.22)",
-        faint: "rgba(154,111,20,0.10)",
-        social: "#eadfc4",
+        footBg: "linear-gradient(180deg, #2a2013 0%, #1d1409 100%)", // כריכה תחתונה כהה
+        footBorder: "rgba(212,175,55,0.22)",
+        faint: "rgba(212,175,55,0.12)",
+        social: "#342818",
         crimson: "#7a1320",
         crimsonLight: "#a01f2e",
       };
