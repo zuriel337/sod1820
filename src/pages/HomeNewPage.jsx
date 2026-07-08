@@ -28,6 +28,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
+import LatestUpdatesFeed from "../components/LatestUpdatesFeed.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -278,71 +279,11 @@ export default function HomeNewPage() {
       {/* ===== ☀️ טיקר «תורת הרמז VIP» — הוסר זמנית מעמוד הבית (בקשת צוריאל 3.7): התוכן עדיין לא מאורגן. ===== */}
       {/* נשאר חי במרכז השידורים (/broadcasts). כשהתוכן יסודר — להחזיר עם convergesOnly. */}
 
-      {/* ===== עדכונים אחרונים — בראש (מיד אחרי החיפוש), כדי שמבקר חוזר יראה מיד מה חדש ===== */}
+      {/* ===== עדכונים אחרונים — פיד מאוחד (נהר + טאבים): פוסטים · בית המדרש · ערוצים ===== */}
+      {/* עץ אחד: פוסטים (צוריאל) + התכנסויות (בית המדרש) + משבצת ערוצים מתחלפת (אור הגאולה + סוד החשמל).
+          זרם המציאות לא כאן — יש לו רדאר עליון וסקשן «🌊 זרם המציאות» ייעודי. */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <HomeHeader title="📜 עדכונים אחרונים" sub="החדשות והרמזים האחרונים באתר" />
-        <div className="hn-postgrid">
-          {updatesFeed.map(item => {
-            if (item.kind === "set") {
-              const s = item.data;
-              return (
-                <Link key={`s${s.id}`} to={`/archive?tab=reality&set=${s.id}`} className="hn-card" style={{ borderColor: "#d4af3766" }}>
-                  <div style={{ height: 120, position: "relative", background: s.cover ? `center/cover no-repeat url(${thumb(s.cover, 360)})` : P.cardGrad }}>
-                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "rgba(212,175,55,0.96)", color: "#1a0e00", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🗂️ גלריית רמזים</span>
-                  </div>
-                  <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45 }}>{s.name}</div>
-                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🌊 {(s.numbers || []).slice(0, 4).join(" · ")} ←</div>
-                  </div>
-                </Link>
-              );
-            }
-            if (item.kind === "hint") {
-              const h = item.data;
-              const v = domNum(h);
-              const title = cleanName(h.name);
-              return (
-                <button key={`h${h.id}`} onClick={() => setLbImg(h)} className="hn-card" style={{ cursor: "zoom-in", textAlign: "right", padding: 0, font: "inherit", borderColor: "#d4af3766" }}>
-                  <div style={{ height: 120, position: "relative", overflow: "hidden", background: h.image_url ? `center/cover no-repeat url(${thumb(h.image_url, 360)})` : P.cardGrad }}>
-                    <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#3ea6ff", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>🌊 רמז</span>
-                    {/* זמן עלייה — על התמונה, כמו בפוסטים */}
-                    <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🕒 {timeAgoHe(h.created_at || h.occurred_at)}</span>
-                    {/* רצועת מספר ממותגת — מאחדת את המראה (גם צילומי מסך נראים נקי) */}
-                    <div style={{ position: "absolute", insetInline: 0, bottom: 0, display: "flex", alignItems: "center", gap: 8, padding: "12px 10px 6px",
-                      background: "linear-gradient(0deg, rgba(18,12,3,0.94), rgba(18,12,3,0.55) 55%, rgba(18,12,3,0))" }}>
-                      {v != null && <span style={{ fontFamily: F.mono, fontWeight: 900, fontSize: 23, lineHeight: 1, color: "#f6e27a", textShadow: "0 1px 7px rgba(0,0,0,0.8)" }}>{v}</span>}
-                      <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#e8c84a", letterSpacing: 1.5, opacity: 0.92 }}>✦ סוד1820</span>
-                    </div>
-                  </div>
-                  <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title || "רמז חדש"}</div>
-                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, lineHeight: 1.5 }}>🌊 בקרוב בזרם המציאות · <span style={{ opacity: 0.85 }}>גלריות דוד המלך לשעבר</span></div>
-                  </div>
-                </button>
-              );
-            }
-            const p = item.data;
-            const fresh = isFreshPost(p);
-            const hot = hotSlugs.has(p.slug);
-            return (
-            <Link key={p.wp_id || p.id} to={`/${p.slug}`} className="hn-card" style={fresh ? { borderColor: "#e0556a", boxShadow: "0 0 0 1px #e0556a55" } : undefined}>
-              <div style={{ height: 120, position: "relative", background: p.image_url ? `center/cover no-repeat url(${thumb(p.image_url, 360)})` : P.cardGrad }}>
-                {fresh && <span style={{ position: "absolute", top: 8, insetInlineEnd: 8, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
-                {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
-                {/* תגית «לפי השער שלך» הוסרה — מערכת השערים סגורה (parked), לא חושפים שער למשתמש */}
-              </div>
-              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 14, fontWeight: 700, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{stripHtml(p.title || "")}</div>
-                <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 11 }}>🕒 עודכן {timeAgoHe(p.modified || p.date)}{(p.verified || p.ai_touched) ? " · ✓ AI" : ""}</div>
-              </div>
-            </Link>
-            );
-          })}
-          {!posts.length && !hints.length && <Skeletons n={4} />}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
-        </div>
+        <LatestUpdatesFeed posts={posts} convergences={cards} hotSlugs={hotSlugs} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
