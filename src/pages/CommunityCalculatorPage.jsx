@@ -33,6 +33,7 @@ export default function CommunityCalculatorPage() {
   const [name1, setName1] = useState("");
   const [name2, setName2] = useState("");
   const [compare, setCompare] = useState(false);
+  const [babyMode, setBabyMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [phrases1, setPhrases1] = useState([]);
   const [showAll, setShowAll] = useState(false);
@@ -189,11 +190,19 @@ export default function CommunityCalculatorPage() {
         <input style={inp} value={name1} onChange={e => setName1(e.target.value)} placeholder="הקלידו שם / מילה בעברית…" autoFocus dir="rtl" />
         {compare && <input style={inp} value={name2} onChange={e => setName2(e.target.value)} placeholder="שם שני להשוואה…" dir="rtl" />}
       </div>
-      <div style={{ textAlign: "center", marginBottom: 24 }}>
+      <div style={{ textAlign: "center", marginBottom: babyMode ? 12 : 24, display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
         <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
           {compare ? "− הסר השוואה" : "💞 השוואת שני שמות (תאימות)"}
         </button>
+        <button onClick={() => setBabyMode(b => !b)} style={{ cursor: "pointer", background: "none", border: "none", color: babyMode ? P.heroNum : P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
+          👶 בחירת שם לתינוק
+        </button>
       </div>
+      {babyMode && (
+        <div style={{ background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "11px 15px", marginBottom: 20, textAlign: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
+          👶 <b style={{ color: P.accentText }}>מצב בחירת שם:</b> הקלידו שם מועמד וראו למה הוא מתחבר — בחרו שם עם גימטריה וחיבור טובים. ✦ חיבור לסוד = סימן מיוחד.
+        </div>
+      )}
 
       {r1 && (
         <div style={{ display: "grid", gap: 16 }}>
@@ -272,6 +281,9 @@ export default function CommunityCalculatorPage() {
             </button>
             {!r2 && (
               <a href={cardFor(name1.trim(), r1.value)} target="_blank" rel="noopener noreferrer" style={pillBtn(P.card, P.accentText)}>📥 שמור תמונה</a>
+            )}
+            {!r2 && (
+              <a href={`${cardFor(name1.trim(), r1.value)}&format=story`} target="_blank" rel="noopener noreferrer" style={pillBtn(P.card, P.accentText)}>📸 לסטורי</a>
             )}
           </div>
 
