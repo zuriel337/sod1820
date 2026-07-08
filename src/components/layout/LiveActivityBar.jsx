@@ -91,7 +91,9 @@ export default function LiveActivityBar() {
     return () => clearTimeout(id);
   }, [i, msgs.length]);
 
-  if (!msgs.length || !cur) return null;
+  // 🚫 CLS: לא מחזירים null לפני שהנתונים נטענים — זה גורם לרצועה «לקפוץ» פנימה בראש הדף
+  //    ולדחוף את כל התוכן מטה (Cumulative Layout Shift). במקום — הרצועה נוכחת תמיד בגובה
+  //    קבוע, וההודעה מופיעה בתוכה כשנטענת. הרצועה כמעט תמיד מתמלאת (מדד חיפושים יומי).
 
   return (
     <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
@@ -127,14 +129,17 @@ export default function LiveActivityBar() {
 
       <div className="lt-bar" aria-label="חדשות טריות באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-        {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר) */}
-        <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
-          <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
-            <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-            {cur.text}
-            <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
-          </Link>
-        </div>
+        {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר).
+            עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
+        {cur && (
+          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
+            <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
+              <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
+              {cur.text}
+              <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

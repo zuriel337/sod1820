@@ -69,7 +69,7 @@ export default function Layout() {
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
-            <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>
+            <React.Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>
               <Outlet />
             </React.Suspense>
           </ErrorBoundary>
