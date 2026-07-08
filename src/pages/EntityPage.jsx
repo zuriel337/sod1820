@@ -661,7 +661,7 @@ export default function EntityPage({ embedPhrase } = {}) {
     d.phrases?.length && { id: "words", e: "🌳", n: d.phrasesCount || d.phrases.length, l: "מילים שוות" },
     d.postsCount && { id: "posts", e: "📖", n: d.postsCount, l: "פוסטים" },
     d.eventsCount && { id: "events", e: "🕰", n: d.eventsCount, l: "אירועים" },
-    d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "חידושי AI" },
+    d.insightsCount && { id: "insights", e: "🤖", n: d.insightsCount, l: "גילויים ותובנות" },
     d.commentsCount && { id: "comments", e: "💬", n: d.commentsCount, l: "דיונים" },
   ].filter(Boolean);
 
@@ -701,7 +701,7 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   // 📖 story-top — משפט-סיפור ייחודי לכל מספר (ביטויים אמיתיים + ספירות אמיתיות). «התכנסויות»
   // מגיע מ-state topics (לא מה-bundle). leadingPhrases = ביטויי-הזהב המובילים כקישורי-פנים.
-  const storyCounts = { words: d.phrasesCount || d.phrases?.length || 0, posts: d.postsCount || 0, galleries: d.galleriesCount || 0, events: d.eventsCount || 0, topics: topics.length || 0 };
+  const storyCounts = { words: d.phrasesCount || d.phrases?.length || 0, posts: d.postsCount || 0, galleries: d.galleriesCount || 0, events: d.eventsCount || 0, topics: topics.length || 0, insights: d.insightsCount || 0 };
   const story = buildStory({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels, counts: storyCounts });
 
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
@@ -915,23 +915,28 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             );
           })()}
-          {/* 📖 story-top — משפט-סיפור ייחודי (ביטויים אמיתיים כקישורי-פנים) + כניסת-מסע במצב-קריאה */}
+          {/* 📖 story-top — «טביעת-אצבע» ייחודית: משמעות + ביטויים (קישורי-פנים) + ספירות אמיתיות + כניסת-מסע */}
           {isNumber && story.ok ? (
-            <div style={{ maxWidth: 560, margin: "12px auto 0" }}>
-              <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.75, margin: 0 }}>
-                <b style={{ fontFamily: F.mono, color: P.accentText, fontWeight: 800 }}>{value}</b>{" — "}
-                {story.meaning && (
-                  <span><span style={{ color: P.accentText, fontWeight: 800 }}>{story.meaning}</span>{story.leads.length ? ": " : ". "}</span>
+            <div style={{ maxWidth: 580, margin: "12px auto 0" }}>
+              <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.8, margin: 0 }}>
+                <b style={{ fontFamily: F.mono, color: P.accentText, fontWeight: 800 }}>{value}</b>
+                {story.meaning && <>{" — "}<span style={{ color: P.accentText, fontWeight: 800 }}>{story.meaning}</span>.</>}
+                {(story.leads.length > 0 || story.facets.length > 0) && (
+                  <>{story.meaning ? " נמצא בצומת של: " : " — נמצא בצומת של: "}
+                    {story.leads.map((ph, i) => (
+                      <React.Fragment key={ph}>
+                        {i > 0 && <span style={{ color: P.accentDim }}> · </span>}
+                        <Link to={numHref(encodeURIComponent(ph))} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>{ph}</Link>
+                      </React.Fragment>
+                    ))}
+                    {story.facets.map((f, i) => (
+                      <React.Fragment key={"f" + i}>
+                        {(i > 0 || story.leads.length > 0) && <span style={{ color: P.accentDim }}> · </span>}
+                        <span style={{ color: P.accentDim }}>{f}</span>
+                      </React.Fragment>
+                    ))}.
+                  </>
                 )}
-                {story.leads.length > 0 && (
-                  <span>שווה ל{story.leads.map((ph, i) => (
-                    <React.Fragment key={ph}>
-                      {i > 0 && (i === story.leads.length - 1 ? " ו" : ", ")}
-                      <Link to={numHref(encodeURIComponent(ph))} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>{ph}</Link>
-                    </React.Fragment>
-                  ))}{story.moreWords}.</span>
-                )}
-                {story.whereStr && <span style={{ color: P.accentDim }}>{" "}{story.whereStr}.</span>}
               </p>
               {!showBody && (
                 <div style={{ marginTop: 13 }}>
@@ -1304,7 +1309,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                 if (d.galleriesCount) parts.push(`${d.galleriesCount} גלריות`);
                 if (d.phrases?.length) parts.push(`${d.phrases.length} מילים שוות`);
                 if (d.eventsCount) parts.push(`${d.eventsCount} אירועים בציר`);
-                if (d.insightsCount) parts.push(`${d.insightsCount} חידושי AI`);
+                if (d.insightsCount) parts.push(`${d.insightsCount} גילויים ותובנות`);
                 if (d.commentsCount) parts.push(`${d.commentsCount} תובנות קהילה`);
                 return (
                   <div style={{ marginBottom: 14, padding: "13px 18px", borderRadius: 14, border: `1px solid ${P.border}`, background: P.card }}>
@@ -1443,10 +1448,10 @@ export default function EntityPage({ embedPhrase } = {}) {
           </section>
         )}
 
-        {/* ── 🤖 חידושי AI ── */}
+        {/* ── 🤖 גילויים ותובנות ── */}
         {d.insights?.length > 0 && (
           <section id="insights" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-            <SectionHead icon="🤖" title="חידושי AI" count={d.insightsCount} />
+            <SectionHead icon="🤖" title="גילויים ותובנות" count={d.insightsCount} />
             <div style={{ display: "grid", gap: 10 }}>
               {d.insights.map(it => (
                 <div key={it.id} style={card}>
