@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
-import { getAllValuePhrases, addWallWord } from "../lib/supabase.js";
+import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
@@ -33,6 +33,19 @@ export default function CommunityCalculatorPage() {
   const [showAll, setShowAll] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [fromShare, setFromShare] = useState(false);
+  const [aiText, setAiText] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+
+  // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
+  async function runAi() {
+    if (!r1 || aiBusy) return;
+    setAiBusy(true); setAiText("");
+    const facts = `השם "${name1.trim()}" = ${r1.value} בגימטריה רגילה.` +
+      (phrases1.length ? ` שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
+    const txt = await getAiAnalysis({ kind: "number", subject: name1.trim(), facts });
+    setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
+    setAiBusy(false);
+  }
 
   useEffect(() => {
     applySeo({
@@ -197,6 +210,24 @@ export default function CommunityCalculatorPage() {
                     ))}
                   </div>
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.6 }}>✓ עובדה מאומתת במנוע · ✧ רמז משלים (פרשנות)</div>
+
+                  {/* 🤖 ניתוח AI אמיתי (Claude via ai-analyze) */}
+                  <div style={{ marginTop: 14, borderTop: `1px solid ${P.border}`, paddingTop: 14 }}>
+                    {!aiText && !aiBusy && (
+                      <button onClick={runAi} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "11px 22px", width: "100%", boxSizing: "border-box" }}>
+                        🤖 קבלו ניתוח AI אישי לשם «{name1.trim()}»
+                      </button>
+                    )}
+                    {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "6px 0" }}>🤖 ה-AI חושב…</div>}
+                    {aiText && (
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                          <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔵 ניתוח AI · מאומת מהמנוע</span>
+                        </div>
+                        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>

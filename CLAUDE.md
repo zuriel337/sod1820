@@ -1,5 +1,18 @@
 # SOD1820 — הנחיות פרויקט
 
+## 🗺️ מפת המערכות הפעילות (`active_systems_map`) — קרא ואל תשאל מחדש
+> **לצוריאל כבר יש מערכת שלמה שעובדת. אל תשאל אותו לפתוח חשבונות, אל תבנה מקביל, ואל תגיד «אין X» לפני שבדקת כאן ובפונקציות ה-Edge.** כל מה שכאן **חי ופרוס**. חוסר-ידיעה = לבדוק (`list_edge_functions`, `vault.secrets`, `work_log`), לא לשאול מאפס.
+
+- **🤖 AI — קיים ועובד.** Edge Function **`ai-analyze`** (Claude `claude-haiku-4-5`) — helper מוכן `getAiAnalysis({kind,subject,facts,again})` (`src/lib/supabase.js`). kinds: `compare·notarikon·verse·daily_verse·number·research`. חוקי-ברזל: מפרש עובדות-מנוע בלבד, מפריד עובדה מפרשנות, בלי נבואות. גם `smart-search`, `journey-message`, `post-to-storyboard` = AI. **המפתח `ANTHROPIC_API_KEY` שמור כ-secret של פונקציות ה-Edge (לא ב-Vault!)** ומשותף עם ה-OCR. לצוריאל **חשבון Anthropic מוכן** (console.anthropic.com) — אל תבקש לפתוח.
+- **📱 בוט וואטסאפ (רזיאל) — עובד.** `wa-webhook·wa-process·wa-poll·wa-ocr·wa-channel-ingest·wa-daily-digest·wa-vip-backfill` על **Green API** (מספר משני). מפתחות: `GREEN_API_ID/TOKEN/URL` ב-Vault.
+- **📣 פרסום לרשתות — עובד בלי מפתח.** `social_post`/`social_admin` RPC → `facebook-admin`/`share-to-facebook` (FB·IG). `meta-capi` = Conversions API. מפתח `FB_ADMIN_KEY` ב-Vault (ראה `social_publish_law`).
+- **✉️ ניוזלטר — עובד.** `newsletter-signup·send-newsletter·newsletter-unsubscribe·email-ingest` על **Resend** (~804 נמענים).
+- **🔍 GSC — עובד.** `gsc-sync` קורא `GSC_SA_KEY`/`GSC_SYNC_KEY` מ-Vault. נכס-דומיין `sod1820.co.il` + נכס-קידומת https (עבוד מהדומיין).
+- **🖼 מדיה/OCR — עובד.** `gallery-ocr·wa-ocr` (OCR עם Anthropic) · `upload-image·storage-put·migrate-media·video-migrate·reality-upload·admin-card-upload`.
+- **💳 סליקה/מנויים:** **PayPlus** (recurring) ל«בני ההיכל». **Supabase** project `linswmnnkjxvweumprav` · **Vercel** (prod=main).
+- **מיקום מפתחות:** LLM (`ANTHROPIC_API_KEY`, `ANALYZE_MODEL`) = **Edge secrets**. השאר (`FB_ADMIN_KEY·GREEN_API_*·GSC_*`) = **Vault** (`vault.secrets`). לבדיקה: `select name from vault.secrets;` + `list_edge_functions`.
+- **פערים לצוריאל (רק אלה — פעם אחת):** אם יש **אתרים/דומיינים נוספים** מעבר ל-sod1820.co.il, או מנויים/כלים שלא כאן — תגיד פעם אחת ואוסיף למפה. עדכון המפה = כאן + רשומת `work_log`.
+
 ## 🌳 חוק העץ האחד — חקוק בראש המערכת (קרא לפני כל דבר)
 > **כל החומר באתר הוא זהב — וכשהוא מחובר יחד הוא יהלום.** כל סוכן/מנוע, לפני שהוא נוגע בגלריות/מספרים/כרטיסים/כל פיצ׳ר, חייב לראות את התמונה המלאה ולהתחיל מהשורש.
 - **עץ ידע אחד.** כל האתר הוא גרף אחד (`nodes`+`edges`). אין "גלריות/גימטריה/פוסטים" כעולמות נפרדים — יש **ישויות וקשרים**. כל דבר הוא node: `number`, `entity` (כולל זהב), `convergence`, `event`, `year`, `post`, `word`, `phrase`, image. כל עמוד = **עדשה** על אותו גרף.
