@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
+import { thumb } from "../lib/img.js";
 
 // 📡💬 «העדכונים החיים» — פיד חי בעיצוב וואטסאפ אמיתי (אותם צבעים/בועות/זנבות).
 // דסקטופ: עמודה קבועה תמיד-פתוחה בצד ימין (מתחת לנאבבר). מובייל: כפתור פותח → גיליון תחתון.
@@ -14,6 +15,7 @@ const CH = {
   "gilui-yomi":    { name: "הגילוי היומי", em: "🏛️", c: "#b79bff" },
   "site-news":     { name: "עדכוני האתר", em: "🆕", c: "#53bdeb" },
   "reality-code":  { name: "קוד המציאות", em: "🎬", c: "#9d7bff" },
+  "sod-hachashmal":{ name: "סוד החשמל", em: "⚡", c: "#5ec8e0" },
   "or-geula":      { name: "אור הגאולה", em: "✨", c: "#f0b232", cap: 0.2, to: "/broadcasts" },
 };
 const CH_KEYS = Object.keys(CH);
@@ -42,6 +44,7 @@ export default function LiveChannelFeed() {
   const [raw, setRaw] = useState([]);
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
   const [unseen, setUnseen] = useState(0);
+  const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const bodyRef = useRef(null);
   const seenTop = useRef(0);
 
@@ -142,6 +145,18 @@ export default function LiveChannelFeed() {
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
         .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
         .lcf-md{margin-top:5px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.16);border-radius:6px;padding:3px 9px;font-size:11px;opacity:.9}
+        /* תמונה בבועה — תצוגה מקדימה, הקשה מגדילה */
+        .lcf-imgw{display:block;margin:4px 0 3px;padding:0;border:none;background:none;cursor:pointer;width:100%;border-radius:7px;overflow:hidden;position:relative;line-height:0}
+        .lcf-imgw img{width:100%;max-height:230px;object-fit:cover;display:block;border-radius:7px}
+        .lcf-imgw .lcf-tap{position:absolute;inset-block-end:6px;inset-inline-end:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;backdrop-filter:blur(2px)}
+        /* לייטבוקס */
+        .lcf-zoom{position:fixed;inset:0;z-index:2000;background:rgba(3,4,8,.94);display:flex;align-items:center;justify-content:center;padding:22px;cursor:zoom-out;animation:lcf-fade .18s ease}
+        .lcf-zoom img{max-width:96vw;max-height:92vh;border-radius:10px;box-shadow:0 12px 60px rgba(0,0,0,.6)}
+        /* קישור-סיום: כשנגמרים העדכונים → מרכז השידורים */
+        .lcf-foot{margin-top:12px;text-align:center;flex:0 0 auto}
+        .lcf-foot a{display:inline-flex;align-items:center;gap:6px;font-family:${F.heading};font-weight:800;font-size:12px;text-decoration:none;
+          color:${dark ? "#8fe6b6" : "#008069"};background:${dark ? "rgba(37,211,102,.1)" : "rgba(0,128,105,.08)"};border:1px solid ${dark ? "rgba(37,211,102,.28)" : "rgba(0,128,105,.28)"};border-radius:999px;padding:7px 15px}
+        .lcf-foot .sub{display:block;font-size:10px;font-weight:600;color:${WA.time};margin-top:5px}
         .lcf-ptr{margin-top:5px;font-size:11.5px;font-weight:800;color:${dark ? "#53bdeb" : "#027eb5"};text-decoration:none;display:inline-block}
         .lcf-meta{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:2px;font-size:10px;color:${WA.time}}
         .lcf-ck{color:#53bdeb;font-size:11px;letter-spacing:-2px}
@@ -183,15 +198,33 @@ export default function LiveChannelFeed() {
                         {ai
                           ? <div className="lcf-ai"><span className="rb2">🤖</span>רזיאל · AI</div>
                           : <div className="lcf-snd" style={{ color: c.c }}>{c.em} {u.credit || c.name}</div>}
-                        <div className="lcf-tx">{stripHtml(u.text || (u.image_url ? (isVideo(u.image_url) ? "🎬 עדכון וידאו" : "📷 עדכון") : ""))}</div>
-                        {u.image_url && <div className="lcf-md">{isVideo(u.image_url) ? "🎬 וידאו" : "📷 תמונה"} · הקש לצפייה</div>}
+                        {u.image_url && !isVideo(u.image_url) && (
+                          <button className="lcf-imgw" onClick={() => setZoom(u.image_url)} aria-label="הגדל תמונה">
+                            <img src={thumb(u.image_url, 360)} alt="" loading="lazy" />
+                            <span className="lcf-tap">🔍 הקש להגדלה</span>
+                          </button>
+                        )}
+                        {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" &&
+                          <div className="lcf-tx">{stripHtml(u.text)}</div>}
+                        {u.image_url && isVideo(u.image_url) && <div className="lcf-md">🎬 וידאו · הקש לצפייה</div>}
                         {u.capMore && c.to && <Link to={c.to} className="lcf-ptr" onClick={() => { if (!docked) setOpen(false); }}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
                         <div className="lcf-meta">{timeAgoHe(u.created_at)}{ai && <span className="lcf-ck">✓✓</span>}</div>
                       </div>
                     </div>
                   );
                 })}
+              {items.length > 0 && (
+                <div className="lcf-foot">
+                  <Link to="/broadcasts" onClick={() => { if (!docked) setOpen(false); }}>📡 כל העדכונים · מרכז השידורים ←</Link>
+                  <span className="sub">הגעת לסוף — כאן כל הערוצים במלואם</span>
+                </div>
+              )}
             </div>
+            {zoom && (
+              <div className="lcf-zoom" onClick={() => setZoom(null)} role="dialog" aria-label="תמונה מוגדלת">
+                <img src={zoom} alt="" />
+              </div>
+            )}
           </aside>
         </>
       )}
