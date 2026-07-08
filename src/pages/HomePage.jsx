@@ -297,7 +297,7 @@ function AiInsightsBox() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
           <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,26px)", fontWeight: 700, margin: 0 }}>
-            🔵 חידושי AI
+            🔵 גילויים ותובנות
           </h2>
           <VerifiedBadge variant="ai" size={15} />
           <span style={{ flex: 1 }} />

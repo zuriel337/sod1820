@@ -80,3 +80,53 @@ export function buildMessages({ term, value, isNumber, phrases = [], goldLabels 
 
 // המסר הראשי (הטוב ביותר הזמין)
 export function topMessage(args) { return buildMessages(args)[0]?.text || ""; }
+
+// ===== buildStory — «טביעת-אצבע» ל-fold העליון של דף-המספר (story-top) =====
+// עיקרון-על (דרישת צוריאל): טקסט **אמיתי וייחודי לכל מספר**, לא תבנית שמחליפה רק את המספר.
+// «נמצא בצומת של…» = רשימה **דינמית** שמשתנה לפי מה שבאמת קיים במספר — הביטויים האמיתיים
+// (קישורי-פנים) + הספירות האמיתיות (N ביטויים · N גלריות · N מקורות…). כל דף מקבל טביעת-אצבע.
+// טהור (בלי React/DB/effects). phrases=[{phrase,ragil}] gold-first; counts={words,galleries,posts,events,topics,insights}.
+export function buildStory({ term, value, isNumber, phrases = [], goldLabels, counts = {} } = {}) {
+  // משמעות ערוכה (רק למספרי-מפתח; לרוב אין — ואז הביטויים לבדם נושאים את הייחודיות)
+  const meaning = (ANCHORS[value] ? ANCHORS[value].split(" · ")[0] : (KEY_NUMBERS[value] || "")).trim();
+
+  // ביטויים-מובילים — לפי היררכיית-חוזק (שילוב: נעיצה ידנית + אוטומטי). מסונן מהמונח ומהמשמעות.
+  // סדר: 📌 lead_rank (נעיצת צוריאל, 1=ראשון) › זהב › מאומת › visibility_tier (1=חזק) › סדר-הקלט.
+  const clean = phrases.filter(p => p?.phrase && p.phrase !== term && p.phrase !== meaning);
+  const strength = p => [
+    p.lead_rank != null ? p.lead_rank : 999,
+    goldLabels?.has?.(p.phrase) ? 0 : 1,
+    p.is_verified ? 0 : 1,
+    p.visibility_tier != null ? p.visibility_tier : 9,
+  ];
+  const leads = [...clean].sort((a, b) => {
+    const sa = strength(a), sb = strength(b);
+    for (let i = 0; i < sa.length; i++) if (sa[i] !== sb[i]) return sa[i] - sb[i];
+    return 0;
+  }).slice(0, 3).map(p => p.phrase);
+
+  // ספירות-הצומת הדינמיות — רק מה שקיים (>0). מספרים אמיתיים = טביעת-אצבע ייחודית.
+  const facets = [
+    counts.words     && `${counts.words} ביטויים`,
+    counts.galleries && `${counts.galleries} גלריות`,
+    counts.posts     && `${counts.posts} מקורות`,
+    counts.events    && `${counts.events} אירועים`,
+    counts.topics    && `${counts.topics} התכנסויות`,
+    counts.insights  && `${counts.insights} גילויים ותובנות`,
+  ].filter(Boolean);
+
+  const items = [...leads, ...facets];
+  let sentence;
+  if (meaning && items.length) sentence = `${value} — ${meaning}. נמצא בצומת של: ${items.join(" · ")}.`;
+  else if (items.length)       sentence = `${value} נמצא בצומת של: ${items.join(" · ")}.`;
+  else if (meaning)            sentence = `${value} — ${meaning}.`;
+  else                         sentence = `${value} — מספר חי במערכת.`;
+
+  // תיאור-SEO ייחודי — משמעות + ביטויים אמיתיים + טביעת-האצבע
+  let seo = (meaning || leads.length)
+    ? `${value}${meaning ? ` — ${meaning}` : ""}${leads.length ? ` · ${leads.join(" · ")}` : ""}${facets.length ? ` · ${facets.join(" · ")}` : ""} — גימטריה ומילים שוות`
+    : `המספר ${value} — גימטריה, מילים שוות, גלריות וקשרים`;
+  if (seo.length > 158) { seo = seo.slice(0, 158); const c = seo.lastIndexOf(" "); if (c > 95) seo = seo.slice(0, c); seo += "…"; }
+
+  return { meaning, leads, facets, sentence, seoDescription: seo, ok: !!(meaning || items.length) };
+}

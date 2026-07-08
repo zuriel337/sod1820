@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getValueFamilies, getMethodFamilies, adminHideWord } from "../lib/supabase.js";
+import { getValueFamilies, getMethodFamilies, adminHideWord, getAllValuePhrases } from "../lib/supabase.js";
 import { useGold } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import LeadOrderEditor from "./LeadOrderEditor.jsx";
 import { worldColor, WORLD_FAMILIES } from "../lib/worlds.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 
@@ -27,6 +28,14 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
   const [legend, setLegend] = useState(false);
   const [hidden, setHidden] = useState(() => new Set());   // 🙈 מילים שהאדמין הסתיר (הסרה אופטימית)
   const expr = !!term && !isNumber;
+  // 📂 «פתח עוד» — הרשימה המלאה של המילים-השוות ברגיל (לחיצה על ה«+N»). אדמין מסדר שם את הסדר.
+  const [regOpen, setRegOpen] = useState(false);
+  const [allPhr, setAllPhr] = useState(null);   // null=טרם נטען · [] · [...]
+  async function openAllRegular() {
+    setRegOpen(true);
+    if (allPhr == null && value) { const list = await getAllValuePhrases(value); setAllPhr(list || []); }
+  }
+  const refreshAll = async () => { if (value) { const list = await getAllValuePhrases(value); setAllPhr(list || []); } };
 
   // 🙈 הסתרת מילה לנצח מכל המאגר (אדמין בלבד). אישור → הסרה מיידית מה-UI → קריאה ל-RPC.
   async function hideWord(phrase) {
@@ -93,8 +102,9 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
     );
   };
 
-  const Group = ({ g, desc }) => {
+  const Group = ({ g, desc, moreOnClick, phrasesOverride }) => {
     const on = highlight && g.method === highlight;
+    const list = phrasesOverride || g.phrases;
     return (
       <div style={{ borderInlineStart: `3px solid ${on ? P.accent : P.border}`, paddingInlineStart: 9, background: on ? P.cardSoft : "transparent", borderRadius: 8 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginBottom: desc ? 2 : 5 }}>
@@ -110,8 +120,12 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
         </div>
         {desc && M_DESC[g.method] && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginBottom: 6, lineHeight: 1.5 }}>{M_DESC[g.method]}</div>}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          {g.phrases.filter(p => !hidden.has(p.phrase)).map((p, i) => <Word key={i} {...p} method={g.method} />)}
-          {g.count > g.phrases.length && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, alignSelf: "center" }}>+{g.count - g.phrases.length}</span>}
+          {list.filter(p => !hidden.has(p.phrase)).map((p, i) => <Word key={i} {...p} method={g.method} />)}
+          {!phrasesOverride && g.count > g.phrases.length && (
+            moreOnClick
+              ? <button onClick={moreOnClick} style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "5px 13px", alignSelf: "center" }}>+{g.count - g.phrases.length} · פתח הכל ▾</button>
+              : <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, alignSelf: "center" }}>+{g.count - g.phrases.length}</span>
+          )}
         </div>
       </div>
     );
@@ -119,8 +133,26 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
 
   return (
     <div style={{ display: "grid", gap: 11 }}>
-      {/* רגיל — ראשון, מה שכולם מבינים */}
-      {regular ? <Group g={regular} /> : <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>אין מילים שוות לערך זה ברגיל — ראו «כל השיטות» למטה.</p>}
+      {/* רגיל — ראשון. «+N» → «פתח עוד» = כל הרשימה. אדמין: גרירה ישירה על כל הרשימה (גלובלי). */}
+      {regular ? (
+        <div>
+          {regOpen && isAdmin && allPhr ? (
+            <div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>רגיל</span>
+                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· כל {allPhr.length} המילים — גררו לסדר (נשמר גלובלית)</span>
+              </div>
+              <LeadOrderEditor value={value} phrases={allPhr} term={term} fullList onSaved={refreshAll} />
+            </div>
+          ) : (
+            <Group g={regular}
+              moreOnClick={!expr && !regOpen ? openAllRegular : undefined}
+              phrasesOverride={regOpen && allPhr ? allPhr : null} />
+          )}
+          {regOpen && allPhr == null && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "6px 0" }}>טוען את כל המילים…</div>}
+          {regOpen && <button onClick={() => setRegOpen(false)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 8, textDecoration: "underline" }}>▴ הסתר את הרשימה המלאה</button>}
+        </div>
+      ) : <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>אין מילים שוות לערך זה ברגיל — ראו «כל השיטות» למטה.</p>}
 
       {/* כל השיטות — נפתח בנפרד (לא ראשון), מסודר עם הסבר */}
       {others.length > 0 && (

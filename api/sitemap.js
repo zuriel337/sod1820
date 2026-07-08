@@ -81,17 +81,20 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי פוסטים */ }
 
-  // ── דפי מספר → /number/:n (כל מספר ≥10 עם תמונות בגלריה) ──
+  // ── דפי מספר → /number/:n — יהלומים: גלריות ∪ גימטריה עשירה(≥20) ∪ התכנסויות (RPC sitemap_numbers).
+  // כולל lastmod (אות re-crawl לתבנית ה-story-top) + priority לפי עושר. ספרה בודדת מפנה ל-/sulamot → ≥10.
   try {
-    const imgs = await fetchAll('gallery_images?select=primary_value&primary_value=not.is.null');
-    const numbers = new Set();
-    for (const r of imgs) {
-      const n = Number(r.primary_value);
-      // דף הישות דורש מינימום 2 ספרות (ספרה בודדת מפנה ל-/sulamot)
-      if (Number.isFinite(n) && n >= 10) numbers.add(n);
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sitemap_numbers`, {
+      method: 'POST', headers: { ...HEADERS, 'Content-Type': 'application/json' }, body: '{}',
+    });
+    if (r.ok) {
+      const rows = await r.json();
+      for (const row of (Array.isArray(rows) ? rows : [])) {
+        const n = Number(row.value);
+        if (Number.isFinite(n) && n >= 10)
+          urls.push({ loc: '/number/' + n, lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: row.priority || '0.6' });
+      }
     }
-    for (const n of [...numbers].sort((a, b) => a - b))
-      urls.push({ loc: '/number/' + n, changefreq: 'monthly', priority: '0.6' });
   } catch (e) { /* ממשיכים גם בלי דפי מספר */ }
 
   // ── צירי התכנסות מאושרים → /topic/:slug ──
