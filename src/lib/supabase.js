@@ -1805,6 +1805,27 @@ export async function getLabInsights(limit = 80) {
   } catch { return []; }
 }
 
+// 🧬 כל המילים-השוות ברגיל לערך (לכפתור «פתח עוד» — הרשימה המלאה). ממוין לפי חוזק
+// (lead_rank › מאומת › visibility_tier › recency) — אותו סדר כמו story-top, ונושא שדות-חוזק
+// לכלי הסידור. עד 500. כל פריט: {phrase, is_verified, visibility_tier, lead_rank}.
+export async function getAllValuePhrases(value, limit = 500) {
+  if (!supabase || !value) return [];
+  try {
+    const { data } = await supabase.from("gematria_words")
+      .select("phrase,is_verified,visibility_tier,lead_rank")
+      .eq("ragil", Number(value))
+      .order("lead_rank", { ascending: true, nullsFirst: false })
+      .order("is_verified", { ascending: false })
+      .order("visibility_tier", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false, nullsFirst: false })
+      .limit(limit);
+    // ייחוד לפי ביטוי (יכולות להיות כפילויות ב-gematria_words)
+    const seen = new Set(), out = [];
+    for (const r of (data || [])) { if (r.phrase && !seen.has(r.phrase)) { seen.add(r.phrase); out.push(r); } }
+    return out;
+  } catch { return []; }
+}
+
 // 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim) + העולם של כל ביטוי (מ-nodes).
 // המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
 export async function getValueFamilies(value, perMethod = 20) {
