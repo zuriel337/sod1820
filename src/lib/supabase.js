@@ -1814,9 +1814,8 @@ export async function getAllValuePhrases(value, limit = 500) {
     const { data } = await supabase.from("gematria_words")
       .select("phrase,is_verified,visibility_tier,lead_rank")
       .eq("ragil", Number(value))
+      // כלל צוריאל: מסודר → לפי lead_rank (חדשה לתחתית); לא-מסודר → הכי-חדש-ראשון (חדשה למעלה)
       .order("lead_rank", { ascending: true, nullsFirst: false })
-      .order("is_verified", { ascending: false })
-      .order("visibility_tier", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false, nullsFirst: false })
       .limit(limit);
     // ייחוד לפי ביטוי (יכולות להיות כפילויות ב-gematria_words)
