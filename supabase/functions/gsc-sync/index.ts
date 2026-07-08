@@ -1,10 +1,11 @@
 // gsc-sync — Google Search Console → public.gsc_metrics
 // Service Account (webmasters.readonly) → OAuth JWT → searchAnalytics/query → upsert.
 //
-// Secrets (Edge Function env):
+// סודות: נשמרים ב-Supabase Vault (GSC_SA_KEY, GSC_SYNC_KEY) ונקראים דרך RPC public.gsc_secrets()
+// (SECURITY DEFINER, service_role בלבד). env נתמך כ-fallback לגיבוי.
 //   GSC_SA_KEY   — תוכן קובץ ה-JSON של ה-Service Account (מחרוזת JSON מלאה)
 //   GSC_SYNC_KEY — מפתח-אדמין שמגן על הפונקציה (header x-gsc-key)
-//   GSC_SITE     — (אופציונלי) ברירת-מחדל 'sc-domain:sod1820.co.il'
+//   GSC_SITE     — (אופציונלי env) ברירת-מחדל 'sc-domain:sod1820.co.il'
 //   SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY — מוזרקים אוטומטית
 //
 // קריאה (POST):
@@ -106,12 +107,25 @@ async function queryAnalytics(token: string, site: string, startDate: string, en
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST")   return json({ ok: false, error: "POST only" }, 405);
-  if (!SYNC_KEY)               return json({ ok: false, error: "GSC_SYNC_KEY not configured" }, 403);
-  if (req.headers.get("x-gsc-key") !== SYNC_KEY) return json({ ok: false, error: "unauthorized" }, 401);
-  if (!SA_RAW)                 return json({ ok: false, error: "GSC_SA_KEY not configured" }, 400);
+
+  const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false } });
+
+  // סודות: Vault (RPC) עם fallback ל-env
+  let saRaw = SA_RAW, syncKey = SYNC_KEY;
+  if (!saRaw || !syncKey) {
+    const { data, error } = await sb.rpc("gsc_secrets");
+    if (error) return json({ ok: false, error: `gsc_secrets rpc: ${error.message}` }, 500);
+    const row = Array.isArray(data) ? data[0] : data;
+    saRaw   = saRaw   || row?.sa || "";
+    syncKey = syncKey || row?.sync_key || "";
+  }
+
+  if (!syncKey)               return json({ ok: false, error: "GSC_SYNC_KEY not configured" }, 403);
+  if (req.headers.get("x-gsc-key") !== syncKey) return json({ ok: false, error: "unauthorized" }, 401);
+  if (!saRaw)                 return json({ ok: false, error: "GSC_SA_KEY not configured" }, 400);
 
   let sa: any;
-  try { sa = JSON.parse(SA_RAW); } catch { return json({ ok: false, error: "GSC_SA_KEY is not valid JSON" }, 400); }
+  try { sa = JSON.parse(saRaw); } catch { return json({ ok: false, error: "GSC_SA_KEY is not valid JSON" }, 400); }
   if (!sa.client_email || !sa.private_key) return json({ ok: false, error: "SA JSON missing client_email/private_key" }, 400);
 
   let body: Record<string, any> = {};
@@ -127,7 +141,16 @@ Deno.serve(async (req) => {
 
   try {
     const token = await getAccessToken(sa);
-    const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false } });
+
+    // אבחון: לאילו נכסים ל-Service Account יש גישה בפועל
+    if (String(body.action || "") === "sites") {
+      const r = await fetch("https://searchconsole.googleapis.com/webmasters/v3/sites", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(`sites ${r.status}: ${d?.error?.message || JSON.stringify(d)}`);
+      return json({ ok: true, service_account: sa.client_email, sites: d.siteEntry || [] });
+    }
 
     const report: Record<string, number> = {};
     for (const dim of ["total", ...DIMS]) {
