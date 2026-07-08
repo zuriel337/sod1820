@@ -41,6 +41,12 @@ export default function CommunityCalculatorPage() {
   const [fromShare, setFromShare] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
+  // 🗓️ מצב תאריך עברי — ממיר תאריך לועזי לתאריך עברי (יום הולדת) ומחשב את הגימטריה שלו.
+  const [dateMode, setDateMode] = useState(false);
+  const [gDate, setGDate] = useState("");         // תאריך לועזי (yyyy-mm-dd)
+  const [afterSunset, setAfterSunset] = useState(false); // אחרי השקיעה = היום העברי הבא
+  const [heb, setHeb] = useState(null);           // { pretty, clean, value } או null
+  const [hebBusy, setHebBusy] = useState(false);
 
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
   async function runAi() {
@@ -80,6 +86,28 @@ export default function CommunityCalculatorPage() {
   // 📅 מילה של היום (דטרמיניסטי — בלי Math.random, יציב ליום)
   const daily = useMemo(() => { const w = DAILY_WORDS[new Date().getDate() % DAILY_WORDS.length]; return { word: w, value: regularOf(w) }; }, []);
 
+  // 🗓️ המרת תאריך לועזי → תאריך עברי + גימטריה. @hebcal/core נטען דינמית (לא בבאנדל הראשי).
+  useEffect(() => {
+    if (!dateMode || !gDate) { setHeb(null); return; }
+    let alive = true;
+    setHebBusy(true);
+    (async () => {
+      try {
+        const [y, m, d] = gDate.split("-").map(Number);
+        if (!y || !m || !d) { if (alive) { setHeb(null); setHebBusy(false); } return; }
+        const { HDate } = await import("@hebcal/core");
+        let hd = new HDate(new Date(y, m - 1, d));
+        if (afterSunset) hd = hd.next();            // אחרי השקיעה = היום העברי הבא
+        const rendered = hd.renderGematriya();       // «כ״ב סִיוָן תש״נ»
+        const pretty = rendered.replace(/[֑-ׇ]/g, ""); // בלי ניקוד/טעמים
+        const clean = rendered.replace(/[^א-ת]/g, ""); // רק אותיות — לגימטריה
+        if (alive) setHeb({ pretty, clean, value: regularOf(clean) });
+      } catch { if (alive) setHeb(null); }
+      if (alive) setHebBusy(false);
+    })();
+    return () => { alive = false; };
+  }, [dateMode, gDate, afterSunset]);
+
   // ✨ הקסם: לאילו ביטויים מהתורה/הגרף השם שווה
   useEffect(() => {
     if (!r1) { setPhrases1([]); return; }
@@ -114,6 +142,7 @@ export default function CommunityCalculatorPage() {
   );
 
   // ── סגנונות theme-aware ──
+  const lightMode = P.mode === "light";
   const inp = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: F.heading, fontSize: 19, fontWeight: 700, padding: "15px 16px", textAlign: "center", outline: "none" };
   const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 999, fontFamily: F.body, fontSize: 14, fontWeight: 700, textDecoration: "none" };
   const pillBtn = (bg, fg) => ({ cursor: "pointer", background: bg, color: fg, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 });
@@ -163,6 +192,15 @@ export default function CommunityCalculatorPage() {
   }
 
   return (
+    <div style={{ background: lightMode ? "#f6f1e6" : P.pageBg, minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+      {/* 🏙️ רקע-עיר בשני המצבים (city_background_dual_theme_law) — בבהיר תמונת-העיר בעיבוד בהיר; בכהה הרקע הכהה הגלובלי נשאר */}
+      {lightMode && (
+        <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/city-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center", filter: "grayscale(0.45) brightness(1.55) contrast(0.85)", opacity: 0.14 }} />
+          <div style={{ position: "absolute", inset: 0, mixBlendMode: "multiply", background: "linear-gradient(180deg, rgba(184,134,11,0.07), rgba(123,76,176,0.06))" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 0%, rgba(246,241,230,0.55) 12%, #f6f1e6 30%, #f6f1e6 70%, rgba(246,241,230,0.55) 88%, transparent 100%)" }} />
+        </div>
+      )}
     <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "48px 16px 100px", position: "relative", zIndex: 1 }}>
       {/* Hero */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
@@ -197,7 +235,44 @@ export default function CommunityCalculatorPage() {
         <button onClick={() => setBabyMode(b => !b)} style={{ cursor: "pointer", background: "none", border: "none", color: babyMode ? P.heroNum : P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
           👶 בחירת שם לתינוק
         </button>
+        <button onClick={() => setDateMode(d => !d)} style={{ cursor: "pointer", background: "none", border: "none", color: dateMode ? P.heroNum : P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
+          🗓️ תאריך עברי (יום הולדת)
+        </button>
       </div>
+
+      {/* 🗓️ מצב תאריך עברי — לועזי → עברי → גימטריה */}
+      {dateMode && (
+        <div style={{ background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, padding: "16px 16px", marginBottom: 20 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>🗓️ הגימטריה של יום ההולדת העברי שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
+            בחרו את תאריך הלידה הלועזי — נמיר לתאריך העברי ונחשב את ערכו. ✨
+          </div>
+          <input type="date" value={gDate} onChange={e => setGDate(e.target.value)} dir="ltr"
+            style={{ ...inp, fontSize: 17, fontFamily: F.heading, colorScheme: P.mode === "light" ? "light" : "dark" }} />
+          <label style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 13, cursor: "pointer" }}>
+            <input type="checkbox" checked={afterSunset} onChange={e => setAfterSunset(e.target.checked)} />
+            נולדתי אחרי השקיעה (היום העברי הבא)
+          </label>
+
+          {hebBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "12px 0" }}>🗓️ ממיר…</div>}
+          {heb && !hebBusy && (
+            <div style={{ marginTop: 14, textAlign: "center" }}>
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, marginBottom: 3 }}>התאריך העברי שלך</div>
+              <div style={{ color: P.heroNum, fontFamily: F.regal, fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>{heb.pretty}</div>
+              <Link to={`/number/${heb.value}`} style={{ textDecoration: "none", display: "inline-block", marginTop: 8 }}>
+                <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{heb.value}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>גימטריה של התאריך · לחצו לחקירה →</div>
+              </Link>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 14 }}>
+                <button onClick={() => { setName1(heb.clean); setDateMode(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={pillBtn(P.accentBtn, P.onAccent)}>
+                  🔢 כל 19 השיטות לתאריך שלי
+                </button>
+                <a href={`https://wa.me/?text=${encodeURIComponent(`התאריך העברי שלי: ${heb.pretty} = ${heb.value} בגימטריה ✨\nגלו את שלכם:\n${SITE_URL}/community/calculator`)}`} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו</a>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       {babyMode && (
         <div style={{ background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "11px 15px", marginBottom: 20, textAlign: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
           👶 <b style={{ color: P.accentText }}>מצב בחירת שם:</b> הקלידו שם מועמד וראו למה הוא מתחבר — בחרו שם עם גימטריה וחיבור טובים. ✦ חיבור לסוד = סימן מיוחד.
@@ -309,6 +384,7 @@ export default function CommunityCalculatorPage() {
           רוצים לעומק? המחשבון המקצועי — 19 שיטות, הצלבות ומנוע מלא →
         </Link>
       </div>
+    </div>
     </div>
   );
 }
