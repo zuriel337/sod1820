@@ -1969,6 +1969,23 @@ export async function getTopicCardsByNumber(value, limit = 6) {
   } catch { return []; }
 }
 
+// 🔗 מספרים-קרובים = גרף (נעילת צוריאל #3) — שכנים אמיתיים: מספרים שמופיעים יחד עם הערך
+// באותה התכנסות (topic_cards) או באותה תמונה (gallery_images), ממוינים לפי משקל (RPC number_neighbors,
+// עם דיכוי-IDF למספרי-הַאב). לא רשימת-סקאלה — קשרים בגרף. נכשל בשקט → [].
+export async function getNumberNeighbors(value, limit = 8) {
+  if (!supabase || !value) return [];
+  try {
+    const { data, error } = await supabase.rpc('number_neighbors', { p_value: Number(value), p_limit: limit });
+    if (error) return [];
+    return (data || []).map(r => ({
+      value: r.value,
+      weight: Number(r.weight),
+      viaTopic: Number(r.via_topic) || 0,
+      viaGallery: Number(r.via_gallery) || 0,
+    }));
+  } catch { return []; }
+}
+
 // 🔍 autocomplete עברי — חיפוש prefix בטבלת bidim (שיטת רגיל).
 export async function searchPhrases(prefix, limit = 8) {
   if (!supabase || !prefix || prefix.length < 2) return [];

@@ -129,6 +129,51 @@ export function applySeo(o = {}) {
   }
 }
 
+// ── JSON-LD לדף-ישות (מספר/ביטוי) — נעילת צוריאל #2: מתאר ישות, לא כתבה ──
+// @graph: DefinedTerm (הישות עצמה) + WebPage (הדף) + BreadcrumbList (בית→מספרים→הערך).
+// לא Article: מספר אינו חדשה. משתמשים בזה במקום article-ld בדף המספר.
+export function setEntityJsonLd({ term, value, isNumber, path, description, image } = {}) {
+  if (typeof document === "undefined") return;
+  const canonical = SITE_URL + (path || "");
+  const name = isNumber ? String(value) : `${term} · ${value}`;
+  const desc = description || DEFAULT_DESC;
+  const graph = [
+    {
+      "@type": "DefinedTerm",
+      "@id": canonical + "#term",
+      name,
+      termCode: String(value),
+      description: desc,
+      inDefinedTermSet: { "@type": "DefinedTermSet", name: "גימטריה — סוד 1820", url: SITE_URL + "/gematria" },
+      url: canonical,
+    },
+    {
+      "@type": "WebPage",
+      "@id": canonical,
+      url: canonical,
+      name: isNumber ? `${value} — דף המספר · ${SITE_NAME}` : `${term} · ${value} — דף הביטוי · ${SITE_NAME}`,
+      description: desc,
+      inLanguage: "he-IL",
+      isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+      about: { "@id": canonical + "#term" },
+      primaryImageOfPage: image ? { "@type": "ImageObject", url: image } : undefined,
+      breadcrumb: { "@id": canonical + "#breadcrumb" },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": canonical + "#breadcrumb",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "בית", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "מספרים", item: SITE_URL + "/numbers" },
+        { "@type": "ListItem", position: 3, name, item: canonical },
+      ],
+    },
+  ];
+  setJsonLd("sod-entity-ld", { "@context": "https://schema.org", "@graph": graph });
+  removeJsonLd("sod-article-ld"); // ודא שאין כפילות עם ה-Article הישן
+}
+export function clearEntityJsonLd() { removeJsonLd("sod-entity-ld"); }
+
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {
   if (typeof document === "undefined") return;

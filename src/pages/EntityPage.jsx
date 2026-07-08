@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -113,8 +113,64 @@ function ZeroResonance({ value, P }) {
     </div>
   );
 }
+// 🔗 מספרים-קרובים = גרף (נעילת צוריאל #3). שתי שכבות: (1) שכני-גרף אמיתיים — מספרים שמופיעים
+// יחד עם הערך באותה התכנסות/תמונה (RPC), עם תווית-סיבה («✦ נושא» / «🖼 מקור»); (2) קפיצות-סקאלה
+// (×10 · חצי · ×100) כרמז משני. לא רשימה שרירותית — קשרים.
+function NearbyNumbers({ value, P, numHref, compact = false }) {
+  const [graph, setGraph] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    setGraph(null);
+    if (value >= 10) getNumberNeighbors(value, compact ? 6 : 10).then(g => { if (alive) setGraph(g || []); }).catch(() => alive && setGraph([]));
+    return () => { alive = false; };
+  }, [value, compact]);
+
+  const scale = value >= 10
+    ? [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value)
+    : [];
+  const hasGraph = Array.isArray(graph) && graph.length > 0;
+  if (value < 10 || (!hasGraph && !scale.length)) return null;
+
+  const chip = (n, extra) => (
+    <Link key={n + (extra || "")} to={numHref(n)}
+      style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+        borderRadius: 999, padding: compact ? "5px 12px" : "4px 11px", fontFamily: F.mono, fontSize: compact ? 13 : 12.5, fontWeight: 700,
+        display: "inline-flex", alignItems: "center", gap: 5 }}>
+      {n}{extra}
+    </Link>
+  );
+
+  return (
+    <div style={{ marginTop: compact ? 20 : 0, textAlign: compact ? "center" : "right" }}>
+      {hasGraph && (
+        <div style={{ marginBottom: scale.length ? 9 : 0 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>
+            🔗 מספרים קשורים <span style={{ color: P.border, fontWeight: 600 }}>· אותם נושאים ומקורות</span>
+          </div>
+          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+            {graph.map(g => {
+              const reason = g.viaTopic > 0 ? "✦" : "🖼";  // התכנסות מול תמונה
+              return chip(g.value, <span style={{ color: P.accentDim, fontSize: 10, fontWeight: 600 }}>{reason}</span>);
+            })}
+          </div>
+        </div>
+      )}
+      {scale.length > 0 && (
+        <div>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 7 }}>
+            {hasGraph ? "↕ אותו שורש בסדר גודל אחר" : "✦ מספרים קרובים:"}
+          </div>
+          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+            {scale.map(n => chip(n))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
-import { SITE_URL, applySeo, DEFAULT_IMAGE } from "../lib/seo.js";
+import { SITE_URL, applySeo, DEFAULT_IMAGE, setEntityJsonLd } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { resolve, getScore, getBundle } from "../lib/engine.js";
@@ -494,14 +550,18 @@ export default function EntityPage({ embedPhrase } = {}) {
     let alive = true;
     setLoading(true); setData(null); setHarvest([]); setOpen(o => ({ ...o, words: true }));
     const quickMsg = buildMessages({ term, value, isNumber, phrases: [] })[0]?.text;
+    const epPath = `/number/${encodeURIComponent(phrase)}`;
+    const epDesc = quickMsg
+      ? `${term} = ${value} · ${quickMsg}`
+      : `המספר ${value} — גימטריה, מילים שוות, גלריות ועוד`;
     applySeo({
       title: `${term} · ${value} — ${isNumber ? "דף המספר" : "דף הביטוי"}`,
-      description: quickMsg
-        ? `${term} = ${value} · ${quickMsg}`
-        : `המספר ${value} — גימטריה, מילים שוות, גלריות ועוד`,
-      path: `/number/${encodeURIComponent(phrase)}`,
+      description: epDesc,
+      path: epPath,
       image: DEFAULT_IMAGE,
     });
+    // נעילת צוריאל #2 — JSON-LD ישות (DefinedTerm+WebPage+BreadcrumbList), לא Article.
+    setEntityJsonLd({ term, value, isNumber, path: epPath, description: epDesc, image: DEFAULT_IMAGE });
     if (term) logSearch(term, value);
     if (value) {
       logView("number", value);
@@ -1084,23 +1144,12 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* מספרים קרובים */}
-                {value >= 10 && (() => {
-                  const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
-                  return near.length ? (
-                    <Reveal delay={60}>
-                      <div style={{ marginTop: 20, textAlign: "center" }}>
-                        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>✦ מספרים קרובים:</div>
-                        <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap" }}>
-                          {near.map(n => (
-                            <Link key={n} to={numHref(n)} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
-                              borderRadius: 999, padding: "5px 13px", fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{n}</Link>
-                          ))}
-                        </div>
-                      </div>
-                    </Reveal>
-                  ) : null;
-                })()}
+                {/* מספרים קרובים — גרף (נעילת צוריאל #3): שכני-גרף + סקאלה */}
+                {value >= 10 && (
+                  <Reveal delay={60}>
+                    <NearbyNumbers value={value} P={P} numHref={numHref} compact />
+                  </Reveal>
+                )}
 
                 {/* 🔬 הכפתור הגדול — המשך להיכל הגילוי (שכבה 3) */}
                 <Reveal delay={80}>
@@ -1192,19 +1241,13 @@ export default function EntityPage({ embedPhrase } = {}) {
           </div>
         )}
 
-        {/* ── 📂 מספרים קרובים (ימין) + פתח/סגור הכל (שמאל) — zero_scale_law ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-          {value >= 10 && (() => {
-            const near = [value * 10, (value % 10 === 0 ? value / 10 : null), value * 100].filter(n => n && n !== value);
-            return near.length ? (
-              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
-                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>קרובים ✦</span>
-                {near.map(n => (
-                  <Link key={n} to={numHref(n)} style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.mono, fontSize: 12.5, fontWeight: 700 }}>{n}</Link>
-                ))}
-              </div>
-            ) : null;
-          })()}
+        {/* ── 📂 מספרים-קרובים = גרף (נעילת צוריאל #3, ימין) + פתח/סגור הכל (שמאל) ── */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+          {value >= 10 && (
+            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+              <NearbyNumbers value={value} P={P} numHref={numHref} />
+            </div>
+          )}
           <button onClick={() => setAll(!allOpen)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
             {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
           </button>
