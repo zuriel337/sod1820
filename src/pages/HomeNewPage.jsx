@@ -308,8 +308,8 @@ export default function HomeNewPage() {
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
 
-      {/* ===== עץ ההתכנסויות — כניסה חיה ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+      {/* ===== עץ ההתכנסויות — כניסה חיה (יעד גלילה מ«עדכונים אחרונים») ===== */}
+      <section id="convergences-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
         <HomeHeader title="🕸️ עץ ההתכנסויות" sub="כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד" />
         {/* ✨ קונסטלציה חיה — תצוגה מקדימה (אותו אפקט מבית-הקוד), מקושר ל-/numbers בלי שכפול */}
         <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
@@ -326,6 +326,18 @@ export default function HomeNewPage() {
             </div>
           </div>
         </Link>
+      </section>
+
+      {/* ===== 🔓 הצופן — צפנים (דילוגי אותיות / ELS) · יעד גלילה מ«עדכונים אחרונים» · בקרוב ===== */}
+      <section id="ciphers-home" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
+        <HomeHeader title="🔓 הצופן — צפנים" sub="דילוגי אותיות בתורה ובתנ״ך — התכנסויות נסתרות" />
+        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
+          <div style={{ fontSize: 30, marginBottom: 8 }}>🔓</div>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>הצופן נפתח בקרוב</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, marginTop: 8, maxWidth: 440, marginInline: "auto" }}>
+            כאן יופיעו צפני דילוגי-האותיות (ELS) — התכנסויות נסתרות בתורה ובתנ״ך, מאומתות במנוע. בהכנה 🛠️
+          </div>
+        </div>
       </section>
 
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}

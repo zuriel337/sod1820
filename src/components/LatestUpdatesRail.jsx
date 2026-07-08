@@ -45,7 +45,8 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     return out.sort((a, b) => b.when - a.when).slice(0, 12);
   }, [posts, convergences, hints]);
 
-  const scrollReality = () => { const el = document.getElementById("reality-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
+  const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
   const Tag = ({ acc, logo, children }) => (
     <span className="lur-tag" style={{ "--acc": acc }}>{logo}{children}</span>
@@ -69,7 +70,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     if (it.type === "reality") {
       const v = domNum(d);
       return (
-        <button key={"r" + d.id} type="button" onClick={scrollReality} className="lur-card" style={{ "--acc": cReality }}>
+        <button key={"r" + d.id} type="button" onClick={() => scrollTo("reality-home")} className="lur-card" style={{ "--acc": cReality }}>
           <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${thumb(d.image_url, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
           <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
@@ -77,14 +78,15 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         </button>
       );
     }
-    // conv → היכל הגילוי · התכנסות (מבית המדרש). קשרי-שפות אינם כאן (ראו /languages).
+    // conv → היכל הגילוי · התכנסות. לחיצה גוללת לסקשן «עץ ההתכנסויות» בבית (מפנה, לא מנווט).
     const num = (d.highlight_numbers || [])[0];
     return (
-      <Link key={"v" + (d.slug || d.id || d.title)} to={d.slug ? `/topic/${encodeURIComponent(d.slug)}` : "/research"} className="lur-card" style={{ "--acc": cGilui }}>
+      <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("convergences-home")} className="lur-card" style={{ "--acc": cGilui }}>
         <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <GiluiLogo s={30} />}</div>
         <div className="lur-body"><Tag acc={cGilui} logo={<GiluiLogo s={13} />}>היכל הגילוי · התכנסות</Tag>
-          <h3 className="lur-title">{d.title}</h3><Meta when={it.when} /></div>
-      </Link>
+          <h3 className="lur-title">{d.title}</h3>
+          <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cGilui }}>↓ בהתכנסויות</span></div></div>
+      </button>
     );
   };
 
