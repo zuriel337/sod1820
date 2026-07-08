@@ -7,6 +7,8 @@ import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
 import { emit } from "../lib/events.js"; // M3: מדידת משפך-המסע לרמת-אדם (surface=journey), additive לצד logView הישן
+import { enablePush, PUSH_CONFIGURED, pushPermission } from "../lib/push.js"; // M2: הוק פוש-קודם
+import { stitchPush } from "../lib/identity.js"; // M2: קישור מנוי-פוש לזהות-אדם
 import { trackSubscribe } from "../lib/marketing.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
@@ -74,6 +76,8 @@ export default function JourneyPage() {
   const [declinedDeep, setDeclinedDeep] = useState(false); // «לא עכשיו» → שקט על המסך הזה (בלי להציק שוב)
   const journeyIdRef = useRef(null);  // מזהה מופע-מסע — לתפירת המשפך לרמת-אדם
   const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
+  const [hookBusy, setHookBusy] = useState(false); // M2: לחיצת-פוש בעבודה
+  const [showEmail, setShowEmail] = useState(false); // M2: מייל = אופציה מודחקת (רגע 3)
 
   useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; try { emit("journey", "landing"); } catch { /* noop */ } }, []);
 
@@ -294,6 +298,24 @@ export default function JourneyPage() {
     setTimeout(() => setSavedFlash(false), 1800);
   }
 
+  // 🪝 M2 — הוק «פוש/שמירה קודם» אחרי הפלט הראשון. מייל נדחה לרגע 3. ההבטחה («הרובד הבא») נשמרת בכל מקרה.
+  const pushPerm = PUSH_CONFIGURED ? pushPermission() : "unsupported";
+  async function hookPush() {
+    if (hookBusy || root == null) return;
+    setHookBusy(true);
+    try { emit("journey", "hook_tap_push", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
+    let granted = false;
+    try { const r = await enablePush({ topics: ["journey"] }); granted = !!r?.ok; if (granted) { try { stitchPush({ source: "journey", root }); } catch { /* noop */ } } } catch { /* noop */ }
+    try { emit("journey", "push_result", { journeyId: journeyIdRef.current, props: { granted } }); } catch { /* noop */ }
+    setHookBusy(false);
+    unlockDeep(); // פותחים את הרובד הבא בכל מקרה — ההבטחה נשמרת
+  }
+  function hookSave() {
+    try { emit("journey", "hook_tap_save", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
+    saveJourney();
+    unlockDeep();
+  }
+
   const cur = path[path.length - 1];
   const prev = path.length > 1 ? path[path.length - 2] : null;
   const stations = path.filter(p => !p.leap);
@@ -407,51 +429,44 @@ export default function JourneyPage() {
               אחרי פתיחה — נשאר פתוח לתמיד. */}
           {root != null && aiState === "done" && !declinedDeep && (
             !unlocked ? (
-              (verified || emailGiven) ? (
-                /* כבר מנוי/מחובר — בלי לבקש מייל שוב. בחירה פשוטה: להמשיך / לא עכשיו. */
-                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                  <div style={{ fontSize: 26, marginBottom: 4 }}>🔮</div>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>גילינו עוד שכבה למספר {root}</div>
-                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, maxWidth: 400, margin: "0 auto 14px" }}>מסר-עומק אישי — רמזים שלא נחשפו במסע, מספרים קשורים ותובנות חדשות.</div>
-                  <div style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center" }}>
-                    <button onClick={unlockDeep}
-                      style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                      🔓 כן, פתחו לי את ההמשך
-                    </button>
-                    <button onClick={() => setDeclinedDeep(true)}
-                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "12px 20px" }}>
-                      לא עכשיו
-                    </button>
-                  </div>
+              /* 🪝 M2 — הוק «פוש/שמירה קודם» (במקום שער-מייל). אחרי הפלט הראשון: המשך בלחיצה אחת. */
+              <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                <div style={{ fontSize: 26, marginBottom: 4 }}>✨</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>זו רק הנקודה הראשונה בחוט שלך</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 410, margin: "0 auto 14px" }}>
+                  המסע נבנה סביב המספר שלך — ומכאן הוא נפתח: <b style={{ color: P.accentText }}>מספרים קשורים, הצלבות, שורשים ומסרי-עומק</b>.
                 </div>
-              ) : (
-                /* ✉️ ההצעה (לא דרישה) — «להמשיך את הגילוי». תעלומה קודם, בקשה אחר-כך, בחירה חופשית. */
-                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                  <div style={{ fontSize: 26, marginBottom: 4 }}>🔮</div>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 8 }}>גילינו עוד קשרים למספר {root} — שלא הוצגו במסע</div>
-                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 12 }}>
-                    {["מספרים קשורים", "הצלבות", "שורשים", "מסרי עומק"].map(t => (
-                      <span key={t} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, border: `1px solid ${P.borderStrong}`, borderRadius: 999, padding: "4px 12px", background: P.glow }}>{t}</span>
-                    ))}
-                  </div>
-                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 410, margin: "0 auto 14px" }}>
-                    רוצים לפתוח את השכבה הבאה של המספר הזה? השאירו מייל ונשלח לכם רמזים שלא נחשפו, מספרים קשורים ותובנות עומק — <b style={{ color: P.accentText }}>רק כשמתגלה משהו אמיתי</b>. בלי ספאם, בכל רגע אפשר להסיר.
-                  </div>
-                  <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
+                <div style={{ display: "grid", gap: 9, maxWidth: 340, margin: "0 auto" }}>
+                  {PUSH_CONFIGURED && pushPerm !== "denied" && (
+                    <button onClick={hookPush} disabled={hookBusy}
+                      style={{ cursor: hookBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                      {hookBusy ? "פותח…" : "🔔 שמרו לי — ותנו לי את הרובד הבא"}
+                    </button>
+                  )}
+                  <button onClick={hookSave}
+                    style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 750, padding: "12px 22px" }}>
+                    📌 שמור בלי הרשמה — ופתחו את ההמשך
+                  </button>
+                  <Link to={`/number/${root}`} onClick={() => { logView("journey_open", String(root)); try { emit("journey", "goto_number", { journeyId: journeyIdRef.current, props: { root, via: "hook" } }); } catch { /* noop */ } }}
+                    style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "6px" }}>
+                    המשך למספר שלי →
+                  </Link>
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  {!verified && !emailGiven && (
+                    <button onClick={() => setShowEmail(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 600, textDecoration: "underline" }}>או קבלו את ההמשך במייל</button>
+                  )}
+                  <button onClick={() => setDeclinedDeep(true)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 600, marginInlineStart: 14 }}>לא עכשיו</button>
+                </div>
+                {showEmail && !verified && !emailGiven && (
+                  <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 360, margin: "12px auto 0" }}>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
-                      style={{ flex: "1 1 100%", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
-                    <button type="submit" disabled={gateBusy}
-                      style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 24px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
-                      {gateBusy ? "פותח…" : "🔓 כן, פתחו לי את ההמשך"}
-                    </button>
-                    <button type="button" onClick={() => setDeclinedDeep(true)}
-                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "12px 20px", whiteSpace: "nowrap" }}>
-                      לא עכשיו
-                    </button>
+                      style={{ flex: "1 1 100%", minWidth: 160, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "11px 16px", fontSize: 16, textAlign: "center", outline: "none" }} />
+                    <button type="submit" disabled={gateBusy} style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "11px 20px" }}>{gateBusy ? "…" : "שלחו לי"}</button>
                   </form>
-                  {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
-                </div>
-              )
+                )}
+                {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
+              </div>
             ) : (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
                 {emailGiven && !verified && (
