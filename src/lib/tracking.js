@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js";
 import { trackConversion } from "./marketing.js";
+import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
@@ -30,6 +31,8 @@ export function track(section, slug = null, eventType = "view", meta = null) {
     visitor_id, section, slug, event_type: eventType,
     meta: meta ?? undefined,
   }).then(() => {}).catch(() => {});
+  // dual-write: אותו אירוע נרשם גם ב-pipeline החדש (events) לרמת-אדם. לא נוגע בישן.
+  try { emit(section, eventType, { props: (slug || meta) ? { slug: slug ?? null, ...(meta || {}) } : null }); } catch { /* ignore */ }
 }
 
 // שיתוף — מתעד פנימית (visitor_events) עם פילוח מלא: פלטפורמה + מכשיר/OS + מקור,

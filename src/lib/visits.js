@@ -2,6 +2,7 @@
 // נתוני האתר החדש, נאספים ישירות לבסיס הנתונים שלנו — ללא תלות בגוגל.
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
+import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
 
 const VKEY = "sod_visitor";
 
@@ -47,6 +48,8 @@ export async function trackVisit(path) {
       p_device: deviceType(),
     });
   } catch { /* שקט — מד-הכניסות לא יפיל את האתר */ }
+  // dual-write: אותה כניסה נרשמת גם ב-pipeline החדש (events) לרמת-אדם. לא תלוי בהצלחת הישן.
+  try { emit("page", "view", { path }); } catch { /* ignore */ }
 }
 
 // קריאת אגרגציה (למנהל בלבד — נחסם ב-DB ל-anon).
