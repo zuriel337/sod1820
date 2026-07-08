@@ -10,6 +10,7 @@ import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשי
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
+import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
 
@@ -44,6 +45,8 @@ export default function Layout() {
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
   const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
+  // 📡 בדף הבית ובצ'אט: מוסרים את הטיקר-העליון ואת בועת מגירת-המספר, ובמקומם «פותח העדכונים» החי (LiveChannelFeed).
+  const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
   const mode = (supportsLight && globalMode === "light") ? "light" : "dark"; // אחרת — כהה בכוח
   const P = PALETTES[mode];
   const dark = mode === "dark";
@@ -61,8 +64,8 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        {/* 📡 הטיקר («עכשיו באתר») — פעיל. שליטה ידנית דרך ticker_messages ב-DB. */}
-        <LiveActivityBar />
+        {/* 📡 הטיקר («עכשיו באתר») — בכל האתר, פרט לבית ולצ'אט (שם «פותח העדכונים» תופס את מקומו). */}
+        {!liveChrome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
@@ -73,7 +76,9 @@ export default function Layout() {
         </main>
         <Footer />
       </div>
-      <NumberDrawer />
+      {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
+      <NumberDrawer hideLauncher={liveChrome} />
+      {liveChrome && <LiveChannelFeed />}
       <JoinCelebration />
     </div>
   );

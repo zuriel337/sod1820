@@ -17,7 +17,7 @@ const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "את�
 
 const PW = () => Math.min(380, (typeof window !== "undefined" ? window.innerWidth : 380) * 0.92);
 
-export default function NumberDrawer() {
+export default function NumberDrawer({ hideLauncher = false } = {}) {
   const P = usePalette();
   const dark = P.mode === "dark";
   // הפאנל הצף — אטום מספיק לרחף מעל התוכן. כהה = הזהב-על-שחור המקורי; בהיר = קלף נקי.
@@ -133,8 +133,8 @@ export default function NumberDrawer() {
   return (
     <>
 
-      {/* בועה צפה גלובלית — פותחת את מגירת המספר מכל מקום באתר (כולל דף הצ'אט) */}
-      {!open && (
+      {/* בועה צפה גלובלית — פותחת את מגירת המספר מכל מקום באתר. מוסתרת בבית ובצ'אט (hideLauncher). */}
+      {!open && !hideLauncher && (
         <button onClick={() => openNumberDrawer()} aria-label="פתח את מגירת המספר — מחשבון גימטריה"
           title="מחשבון הגימטריה — פתחו מכל מקום" className="nd-launcher">
           🧮
