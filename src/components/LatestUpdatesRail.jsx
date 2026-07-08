@@ -6,28 +6,13 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
+import { GiluiLogo, RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהלוגואים המקוריים (מקור-אמת יחיד)
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
-//   פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
+//   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
 //   מציג «עודכן לפני X» ותג «AI» היכן שרלוונטי. תמונת זרם-מציאות → גלילה ל-#reality-home (מפנה, לא משכפל).
 //   ⛔ קשרי-שפות (cross-language) לא מוצגים כאן — מקומם הקנוני הוא דף «קשרי-שפות» (/languages).
 
-const GiluiLogo = ({ s = 18 }) => (
-  <svg viewBox="0 0 32 32" width={s} height={s} style={{ display: "block", flex: "0 0 auto" }} aria-hidden>
-    <circle cx="16" cy="16" r="15" fill="#e8c15a" stroke="#7a5c12" />
-    <g stroke="#4a3608" strokeWidth="1.7" strokeLinecap="round" fill="none">
-      <path d="M9.5 23.5V15a6.5 6.5 0 0 1 13 0v8.5" /><path d="M7.5 23.5h17" /><path d="M16 4.8v2.6M11.6 6l1 2.1M20.4 6l-1 2.1" />
-    </g><circle cx="16" cy="15.2" r="1.7" fill="#4a3608" />
-  </svg>
-);
-const RealityLogo = ({ s = 18 }) => (
-  <svg viewBox="0 0 32 32" width={s} height={s} style={{ display: "block", flex: "0 0 auto" }} aria-hidden>
-    <circle cx="16" cy="16" r="15" fill="#0e9b8e" stroke="#075c54" />
-    <g stroke="#eafffb" strokeWidth="2" fill="none" strokeLinecap="round">
-      <path d="M6 12.5c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /><path d="M6 18.5c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
-    </g>
-  </svg>
-);
 const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/i;
 
 export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [] }) {
