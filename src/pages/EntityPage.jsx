@@ -20,6 +20,8 @@ import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
+import LeadOrderEditor from "../components/LeadOrderEditor.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track } from "../lib/tracking.js";
@@ -575,7 +577,7 @@ export default function EntityPage({ embedPhrase } = {}) {
       if (alive) { setData(d); setHarvest(h || []); setLoading(false); }
     }).catch(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [term, value, isNumber]);
+  }, [term, value, isNumber, leadBump]);
 
   // Sticky nav: מעקב אחרי גלילה מהירו (IntersectionObserver)
   useEffect(() => {
@@ -643,6 +645,8 @@ export default function EntityPage({ embedPhrase } = {}) {
   }, [value, isNumber]);
   const hasGate = isNumber && sigs.length > 0;
   const gold = useGold();
+  const { isAdmin } = useAuth();               // 👑 מנהל → כלי סידור-מובילים (גרירה-ושחרור)
+  const [leadBump, setLeadBump] = useState(0); // רענון ה-bundle אחרי שמירת סדר-מובילים
 
   // ✦ topic_cards שמכילים מספר זה — גילוי התכנסויות קשורות
   const [topics, setTopics] = useState([]);
@@ -953,6 +957,10 @@ export default function EntityPage({ embedPhrase } = {}) {
                 {msgs[0].text}
               </p>
             )
+          )}
+          {/* 📌 כלי-מנהל: סידור היררכיית המובילים בגרירה-ושחרור (גלוי למנהל בלבד) */}
+          {isAdmin && isNumber && (
+            <LeadOrderEditor value={value} phrases={d.phrases || []} term={term} onSaved={() => setLeadBump(b => b + 1)} />
           )}
           {msgs[1] && msgs[1].layer !== "F" && (
             <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>

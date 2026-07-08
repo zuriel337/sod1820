@@ -2010,6 +2010,15 @@ export async function getNumberNeighbors(value, limit = 8) {
   } catch { return []; }
 }
 
+// 📌 שמירת סדר-המובילים (lead_rank) למספר — גרירה-ושחרור של מנהל. phrases = הסדר החדש (1-based).
+// [] = איפוס לאוטומטי. מנהל בלבד (נבדק בשרת ב-admin_set_lead_ranks).
+export async function setLeadRanks(value, phrases) {
+  if (!supabase || !value) return { error: "no-supabase" };
+  const { data, error } = await supabase.rpc("admin_set_lead_ranks", { p_value: Number(value), p_phrases: phrases || [] });
+  if (error) return { error: error.message };
+  return data || {};
+}
+
 // 🔍 autocomplete עברי — חיפוש prefix בטבלת bidim (שיטת רגיל).
 export async function searchPhrases(prefix, limit = 8) {
   if (!supabase || !prefix || prefix.length < 2) return [];
