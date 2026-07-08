@@ -5,8 +5,9 @@ import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 
-// 📡💬 «פותח העדכונים» — פיד חי בסגנון וואטסאפ, הודעה אחרי הודעה, מהערוצים שנבחרו.
-// מחליף את הטיקר-העליון + מגירת-המספר בדף הבית ובצ'אט (כפתור צף → פאנל/גיליון).
+// 📡💬 «העדכונים החיים» — פיד חי בסגנון וואטסאפ, הודעה אחרי הודעה, מהערוצים שנבחרו.
+// דסקטופ: עמודה קבועה תמיד-פתוחה בצד ימין (מתחת לנאבבר). מובייל: כפתור פותח → גיליון תחתון.
+// מחליף את הטיקר-העליון + מגירת-המספר בדף הבית ובצ'אט.
 // כללי רוטציה (בקשת צוריאל): תורת הרמז + הגילוי היומי בתדירות · אור הגאולה עד 20% (מצביע לדף הערוץ) ·
 // עדכוני אתר בפנים · מענה-AI מסומן בבירור (בועה כחולה «🤖 AI»). וידאו מתנגן רק בהקשה (Egress).
 const CH = {
@@ -17,6 +18,7 @@ const CH = {
   "or-geula":      { name: "אור הגאולה", em: "✨", c: "#e0a92e", cap: 0.2, to: "/broadcasts" },
 };
 const CH_KEYS = Object.keys(CH);
+const DESKTOP_MQ = "(min-width:900px)";
 const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
 // מענה-AI: מסומן דרך source או קרדיט הבוט (רזיאל). לתיוג עתידי — source='ai' / credit='רזיאל · AI'.
 const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
@@ -36,12 +38,32 @@ function applyCaps(list) {
 
 export default function LiveChannelFeed() {
   const P = usePalette();
-  const [open, setOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches);
+  const [open, setOpen] = useState(() => typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches);
   const [raw, setRaw] = useState([]);
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
   const [unseen, setUnseen] = useState(0);
   const bodyRef = useRef(null);
   const seenTop = useRef(0);
+
+  // מעקב אחרי רוחב המסך: דסקטופ → עמודה קבועה פתוחה; מובייל → כפתור פותח
+  useEffect(() => {
+    const mq = window.matchMedia(DESKTOP_MQ);
+    const on = () => { setIsDesktop(mq.matches); setOpen(mq.matches); };
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  const docked = isDesktop && open; // דסקטופ פתוח = עמודה מעוגנת (בלי scrim)
+
+  // בדסקטופ-מעוגן — מפנים מקום בצד ימין כדי שלא יכסה תוכן; מזיזים לשוניות-קצה גלובליות (שיתוף) שמאלה מהעמודה
+  useEffect(() => {
+    try {
+      document.body.style.paddingInlineStart = docked ? "372px" : "";
+      document.body.classList.toggle("lcf-docked", docked);
+    } catch { /* ignore */ }
+    return () => { try { document.body.style.paddingInlineStart = ""; document.body.classList.remove("lcf-docked"); } catch { /* ignore */ } };
+  }, [docked]);
 
   useEffect(() => {
     let live = true;
@@ -74,7 +96,7 @@ export default function LiveChannelFeed() {
   return (
     <>
       <style>{`
-        .lcf-fab{position:fixed;inset-inline-end:16px;bottom:18px;z-index:150;cursor:pointer;border:none;
+        .lcf-fab{position:fixed;inset-inline-start:16px;bottom:18px;z-index:150;cursor:pointer;border:none;
           display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 17px;
           background:linear-gradient(135deg,#25d366,#1aa851);color:#04170c;font-family:${F.heading};font-weight:800;font-size:14px;
           box-shadow:0 8px 26px rgba(37,211,102,.45)}
@@ -83,9 +105,13 @@ export default function LiveChannelFeed() {
         .lcf-fab .badge{background:#c8102e;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:0 6px;min-width:17px;text-align:center}
         .lcf-scrim{position:fixed;inset:0;z-index:159;background:rgba(4,6,10,.55);backdrop-filter:blur(2px);animation:lcf-fade .2s ease}
         @keyframes lcf-fade{from{opacity:0}to{opacity:1}}
-        .lcf-panel{position:fixed;z-index:160;inset-block:0;inset-inline-end:0;width:min(400px,100vw);display:flex;flex-direction:column;
-          background:${dark ? "#0d1512" : "#e9ede9"};border-inline-start:1px solid rgba(37,211,102,.3);box-shadow:-14px 0 50px rgba(0,0,0,.5);animation:lcf-slide .28s cubic-bezier(.3,.8,.3,1)}
-        @keyframes lcf-slide{from{transform:translateX(-30px);opacity:.4}to{transform:none;opacity:1}}
+        .lcf-panel{position:fixed;z-index:160;inset-block:0;inset-inline-start:0;width:min(400px,100vw);display:flex;flex-direction:column;
+          background:${dark ? "#0d1512" : "#e9ede9"};border-inline-end:1px solid rgba(37,211,102,.3);box-shadow:14px 0 50px rgba(0,0,0,.5);animation:lcf-slide .28s cubic-bezier(.3,.8,.3,1)}
+        @keyframes lcf-slide{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
+        /* דסקטופ — עמודה מעוגנת קבועה בצד ימין, מתחת לנאבבר (64px), מתחת לתפריטי-הנאב (z 100/200) */
+        .lcf-panel.docked{inset-block-start:64px;inset-block-end:0;width:360px;z-index:90;animation:none;border-top:1px solid rgba(37,211,102,.22)}
+        /* לשוניית-הקצה הגלובלית «שתפו» עוברת אל מול העמודה, לא מעליה */
+        body.lcf-docked .rsw-tab{right:360px}
         .lcf-head{display:flex;align-items:center;gap:9px;padding:11px 13px;background:#12312a;flex:0 0 auto}
         .lcf-head .ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#e8c15a,#b98f2e);display:grid;place-items:center;font-size:17px}
         .lcf-head .nm{font-family:${F.heading};font-weight:800;font-size:14px;color:#fff}
@@ -106,7 +132,7 @@ export default function LiveChannelFeed() {
         .lcf-ai{display:inline-flex;align-items:center;gap:4px;background:rgba(62,166,255,.16);border:1px solid rgba(62,166,255,.5);color:#3ea6ff;border-radius:999px;padding:1px 7px;font-size:9px;font-weight:800}
         .lcf-ai .rb{width:13px;height:13px;border-radius:4px;background:linear-gradient(135deg,#3ea6ff,#1e6fd0);display:grid;place-items:center;font-size:8px}
         .lcf-empty{color:${dark ? "#7d8c82" : "#5a6b60"};text-align:center;font-family:${F.body};padding:24px 12px;font-size:13px}
-        @media (max-width:520px){ .lcf-panel{inset-inline:0;inset-block-start:auto;height:82vh;border-radius:16px 16px 0 0;border-inline-start:none;border-top:1px solid rgba(37,211,102,.3);animation:lcf-up .3s cubic-bezier(.3,.8,.3,1)} }
+        @media (max-width:899.98px){ .lcf-panel{inset-inline:0;inset-block-start:auto;height:82vh;border-radius:16px 16px 0 0;border-inline-end:none;border-top:1px solid rgba(37,211,102,.3);animation:lcf-up .3s cubic-bezier(.3,.8,.3,1)} }
         @keyframes lcf-up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
         @media (prefers-reduced-motion:reduce){.lcf-fab .live,.lcf-msg,.lcf-panel{animation:none}}
       `}</style>
@@ -119,12 +145,12 @@ export default function LiveChannelFeed() {
 
       {open && (
         <>
-          <div className="lcf-scrim" onClick={() => setOpen(false)} />
-          <aside className="lcf-panel" role="dialog" aria-label="עדכונים חיים">
+          {!docked && <div className="lcf-scrim" onClick={() => setOpen(false)} />}
+          <aside className={"lcf-panel" + (docked ? " docked" : "")} role={docked ? "complementary" : "dialog"} aria-label="עדכונים חיים">
             <div className="lcf-head">
               <span className="ava">📡</span>
               <div><div className="nm">עדכונים חיים · סוד1820</div><div className="st">מחובר<i /></div></div>
-              <button className="x" onClick={() => setOpen(false)} aria-label="סגור">✕</button>
+              <button className="x" onClick={() => setOpen(false)} aria-label={docked ? "מזער" : "סגור"}>{docked ? "–" : "✕"}</button>
             </div>
             <div className="lcf-chips">
               {CH_KEYS.map(k => (
@@ -145,7 +171,7 @@ export default function LiveChannelFeed() {
                       </div>
                       <div className="tx">{stripHtml(u.text || (u.image_url ? (isVideo(u.image_url) ? "🎬 עדכון וידאו" : "📷 עדכון") : ""))}</div>
                       {u.image_url && <div className="md">{isVideo(u.image_url) ? "🎬 וידאו" : "📷 תמונה"} · הקש לצפייה</div>}
-                      {u.capMore && c.to && <Link to={c.to} className="ptr" onClick={() => setOpen(false)}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
+                      {u.capMore && c.to && <Link to={c.to} className="ptr" onClick={() => { if (!docked) setOpen(false); }}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
                       <div className="tm">{timeAgoHe(u.created_at)}</div>
                     </div>
                   );
