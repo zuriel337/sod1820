@@ -24,6 +24,15 @@ const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
 // מענה-AI: מסומן דרך source או קרדיט הבוט (רזיאל). תיוג-אמת מהאינג'סט: source='ai'.
 const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
 
+// 👁 תצוגה-מקדימה לשורת-הגלולה (סגנון וואטסאפ): טקסט→הטקסט; תמונה→«📷 תמונה»; סרטון→«🎥 סרטון».
+const snip = t => stripHtml(t || "").replace(/\s+/g, " ").trim().slice(0, 40);
+function previewOf(u) {
+  const cap = (u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו") ? snip(u.text) : "";
+  if (u.image_url && isVideo(u.image_url)) return cap ? `🎥 ${cap}` : "🎥 סרטון חדש";
+  if (u.image_url) return cap ? `📷 ${cap}` : "📷 תמונה חדשה";
+  return cap || "💬 עדכון חדש";
+}
+
 // מגביל ערוץ לאחוז מקסימלי מהרשימה (אור הגאולה ≤20%) — משאיר את החדשים, מסמן שיש עוד בדף הערוץ.
 function applyCaps(list) {
   let out = [...list];
@@ -192,7 +201,7 @@ export default function LiveChannelFeed() {
             <span className="flbl">עדכונים{unseen > 0 && <span className="badge">{unseen}</span>}</span>
             <span className="flatest" key={tick} style={{ animation: "lcf-swap .4s ease" }}>
               {cur
-                ? <>{cur.credit || CH[cur.ch]?.name} · {cur.image_url ? (isVideo(cur.image_url) ? "🎬 עדכון וידאו חדש" : "✨ נוספה תמונה חדשה") : stripHtml(cur.text || "").slice(0, 42)}<em className="ftime"> · {timeAgoHe(cur.created_at)}</em></>
+                ? <>{cur.credit || CH[cur.ch]?.name} · {previewOf(cur)}<em className="ftime"> · {timeAgoHe(cur.created_at)}</em></>
                 : "העדכונים בדרך…"}
             </span>
           </span>
