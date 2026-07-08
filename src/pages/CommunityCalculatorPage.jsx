@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { setForcedMode } from "../lib/themeMode.js";
 import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
 import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
@@ -14,7 +15,13 @@ import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 // כאן: רגש · שיתוף · «מה השם שלך מסתיר?» — כל תוצאה מפנה לעץ האחד (/number/:value), לא משכפלת.
 
 const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 19 שיטות
-const CORE_KEYS = ["רגיל", "מילוי", "מסתתר", "קדמי", "ריבוע", "סידורי", "אתבש", "אלבם"]; // 8 מרכזיות
+// 3 השיטות המרכזיות עם ההסבר הנעול (gematria.js soul + הגדרות ה-DB): גוף/נשמה/נסתר.
+const CORE3_KEYS = ["רגיל", "מילוי", "מסתתר"];
+const CORE3_INFO = {
+  "רגיל":  { tag: "הגוף · הגלוי",   desc: "היסוד של הגימטריה — חיבור פשוט של ערכי האותיות. הזהות הבסיסית והגלויה של המילה." },
+  "מילוי": { tag: "הנשמה · הפנימי", desc: "כותבים כל אות בשמהּ המלא (א→אָלֶף, ב→בֵּית) וסוכמים. «נשמת האות» — הביטוי הפנימי המלא שמתמלא בתוכה." },
+  "מסתתר": { tag: "הנסתר · שביניהן", desc: "סכום ההפרשים בין אותיות סמוכות (בכל מילה בנפרד). הרובד החבוי שמסתתר בֵּין האותיות." },
+};
 
 // ✦ מספרי-הגאולה של סוד 1820 — אם השם פוגע באחד מהם (בכל שיטה) → «מחובר לסוד».
 const GEULA_NUMS = { 1820: "שם הוי״ה בתורה", 358: "משיח", 26: "הוי״ה", 86: "אלהים", 541: "ישראל", 613: "תרי״ג מצוות", 137: "קבלה", 72: "חסד · שם ע״ב", 1237: "התגלות", 314: "שד־י · מטטרון", 65: "אדנ־י" };
@@ -52,8 +59,10 @@ export default function CommunityCalculatorPage() {
   async function runAi() {
     if (!r1 || aiBusy) return;
     setAiBusy(true); setAiText("");
-    const facts = `השם "${name1.trim()}" = ${r1.value} בגימטריה רגילה.` +
-      (phrases1.length ? ` שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
+    const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
+    const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
+    const facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
+      (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
     const txt = await getAiAnalysis({ kind: "number", subject: name1.trim(), facts });
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
@@ -65,6 +74,16 @@ export default function CommunityCalculatorPage() {
       description: "מה השם שלך מסתיר? מחשבון הגימטריה החינמי של SOD1820 — חשבו כל שם או מילה, גלו לאילו ביטויים מהתורה הוא שווה, השוו בין שני שמות ושתפו בוואטסאפ. ✨",
       path: "/community/calculator",
     });
+  }, []);
+
+  // ☀️ גולש ראשון (בעיקר מגוגל) — בלי העדפת-תמה שמורה → כופה מצב בהיר למחשבון (light_calculator_dark_temple).
+  // מי שכבר בחר תמה (יש sod-theme) מקבל את בחירתו. משוחרר ביציאה מהדף (לא נשמר → לא משנה את שאר האתר).
+  useEffect(() => {
+    let hasPref = true;
+    try { hasPref = localStorage.getItem("sod-theme") != null; } catch { /* ignore */ }
+    if (hasPref) return undefined;
+    setForcedMode("light");
+    return () => setForcedMode(null);
   }, []);
 
   // הגעה משיתוף (?w=) → ממלא את השם ומראה «בדוק את שלך»
@@ -148,7 +167,8 @@ export default function CommunityCalculatorPage() {
   const pillBtn = (bg, fg) => ({ cursor: "pointer", background: bg, color: fg, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 });
 
   function Reveal({ name, r, phrases }) {
-    const shown = showAll ? r.all : r.all.filter(a => CORE_KEYS.includes(a.key));
+    const shown = r.all;                                          // כל 19 — לתצוגת ההרחבה
+    const core3 = CORE3_KEYS.map(k => r.all.find(a => a.key === k)).filter(Boolean); // 3 הליבה, בסדר קבוע
     return (
       <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, padding: "22px 18px", boxShadow: P.mode === "light" ? "0 6px 24px rgba(120,90,20,0.08)" : "0 6px 24px rgba(0,0,0,0.35)" }}>
         <div style={{ textAlign: "center" }}>
@@ -172,18 +192,38 @@ export default function CommunityCalculatorPage() {
           </div>
         )}
 
-        {/* שיטות — 8 מרכזיות, אפשר לפתוח את כל ה-19 */}
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px,1fr))", gap: 8 }}>
-          {shown.map(a => (
-            <Link key={a.key} to={`/number/${a.value}`} title={a.sub} style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 6px", textAlign: "center" }}>
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>{a.key}</div>
-              <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
-            </Link>
-          ))}
-        </div>
+        {/* 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל 19. */}
+        {!showAll ? (
+          <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
+            {core3.map(a => {
+              const info = CORE3_INFO[a.key] || {};
+              return (
+                <Link key={a.key} to={`/number/${a.value}`} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
+                  <div style={{ textAlign: "center", flexShrink: 0, minWidth: 62 }}>
+                    <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{a.value}</div>
+                    <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginTop: 2 }}>{a.key}</div>
+                  </div>
+                  <div style={{ minWidth: 0, textAlign: "start" }}>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 2 }}>{info.tag}</div>
+                    <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{info.desc}</div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px,1fr))", gap: 8 }}>
+            {shown.map(a => (
+              <Link key={a.key} to={`/number/${a.value}`} title={a.sub} style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 6px", textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>{a.key}</div>
+                <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
+              </Link>
+            ))}
+          </div>
+        )}
         <div style={{ textAlign: "center", marginTop: 10, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
-            {showAll ? "− הצג פחות" : "+ כל 19 השיטות"}
+            {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל 19 השיטות"}
           </button>
           <Link to="/research?tool=gematria" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
         </div>

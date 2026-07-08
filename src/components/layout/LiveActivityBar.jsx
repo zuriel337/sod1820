@@ -69,10 +69,14 @@ const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊" };
 // קבוע בכל האתר דרך ה-Layout. תמה-מודע: כהה תמיד כדי להתאים ל-chrome החום-כהה.
 export default function LiveActivityBar() {
   const isLight = useThemeMode() === "light";
-  // 📡 השורה העליונה מוצגת בכל האתר (בקשת צוריאל: הוסרו רצועות השידור הממותגות מהבית/צ'אט).
+  // 📡 השורה העליונה מוצגת בכל האתר. תמה-מודע (city_background_dual_theme_law §3):
+  //    בבהיר — רצועת קרם/זהב-עדין + טקסט כהה קריא; בכהה — הגרסה החום-כהה הקיימת.
   const barBg = isLight
-    ? "linear-gradient(90deg, #241b0e, #2f2415, #241b0e)"
+    ? "linear-gradient(90deg, #f4ecd8, #efe3c6, #f4ecd8)"
     : "linear-gradient(90deg, rgba(60,40,5,0.55), rgba(80,55,8,0.7), rgba(60,40,5,0.55))";
+  const barInk = isLight ? "#5b4718" : "#ffe6ad";       // טקסט ההודעה
+  const barAccent = isLight ? "#9a6f14" : "#ffd86b";    // חץ/אקסנט
+  const barBorder = isLight ? "rgba(154,111,20,0.35)" : "rgba(212,175,55,0.28)";
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
@@ -98,7 +102,7 @@ export default function LiveActivityBar() {
            ארוכה ממלאת את הרצועה שבין הגוטרים, ולעולם לא יושבת על הריבוע הימני. */
         .lt-bar { position:relative; display:flex; align-items:center; justify-content:center; pointer-events:none;
           overflow:hidden; max-width:100%; box-sizing:border-box; min-height:30px;
-          background:${barBg}; border-bottom:1px solid rgba(212,175,55,0.28); padding:7px 104px; }
+          background:${barBg}; border-bottom:1px solid ${barBorder}; padding:7px 104px; }
         .lt-badge { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%);
           display:inline-flex; align-items:center; gap:6px;
           color:#1a0e00; background:linear-gradient(135deg,#ffd86b,#d4a017);
@@ -106,7 +110,7 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-msg { max-width:100%; margin:0 auto; text-align:center; color:#ffe6ad;
+        .lt-msg { max-width:100%; margin:0 auto; text-align:center; color:${barInk};
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
@@ -126,7 +130,7 @@ export default function LiveActivityBar() {
           <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
             <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
             {cur.text}
-            <b style={{ color: "#ffd86b", marginInlineStart: 6 }}>←</b>
+            <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
           </Link>
         </div>
       </div>
