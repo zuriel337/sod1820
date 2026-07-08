@@ -80,3 +80,59 @@ export function buildMessages({ term, value, isNumber, phrases = [], goldLabels 
 
 // המסר הראשי (הטוב ביותר הזמין)
 export function topMessage(args) { return buildMessages(args)[0]?.text || ""; }
+
+// חיבור עברי טבעי לרשימה: [א] · [א ו-ב] · [א, ב ו-ג]
+function heList(arr) {
+  if (!arr.length) return "";
+  if (arr.length === 1) return arr[0];
+  return `${arr.slice(0, -1).join(", ")} ו${arr[arr.length - 1]}`;
+}
+
+// ===== buildStory — משפט-הסיפור ל-fold העליון של דף-המספר (story-top) =====
+// עיקרון-על (דרישת צוריאל): הטקסט **אמיתי וייחודי לכל מספר**, לא תבנית שמחליפה רק את המספר.
+// מנוע-הייחודיות = הביטויים-השווים האמיתיים (שונים לגמרי בין מספרים) + הספירות האמיתיות.
+// תוויות-קטגוריה הן קישוט משני בלבד — לעולם לא גוף המשפט. טהור (בלי React/DB/effects).
+//   phrases  — [{phrase, ragil}] (הביטויים השווים לערך; gold-first לפי goldLabels)
+//   counts   — { words, posts, galleries, events, topics } (מספרים אמיתיים)
+export function buildStory({ term, value, isNumber, phrases = [], goldLabels, counts = {} } = {}) {
+  // 1) ביטויים-מובילים אמיתיים — הליבה הייחודית. gold-first, מסונן מהמונח עצמו.
+  const clean = phrases.filter(p => p?.phrase && p.phrase !== term);
+  const golds = clean.filter(p => goldLabels?.has?.(p.phrase));
+  const rest = clean.filter(p => !goldLabels?.has?.(p.phrase));
+  const leads = [...golds, ...rest].slice(0, 3).map(p => p.phrase);
+
+  // 2) משמעות ערוכה (רק למספרי-מפתח; לרוב אין — ואז הביטויים לבדם נושאים את הייחודיות)
+  const meaning = (ANCHORS[value] ? ANCHORS[value].split(" · ")[0] : (KEY_NUMBERS[value] || "")).trim();
+
+  // 3) «ועוד N מילים» — מהספירה האמיתית (מוסיף ייחודיות)
+  const words = Number(counts.words) || clean.length;
+  const moreWords = words > leads.length ? ` ועוד ${words - leads.length} מילים שוות` : "";
+
+  // 4) «מופיע ב-…» — מהספירות האמיתיות בלבד (מספרים אמיתיים = ייחודי, לא קטגוריות ריקות)
+  const where = [
+    counts.posts && `${counts.posts} מקורות`,
+    counts.galleries && `${counts.galleries} תמונות`,
+    counts.events && `${counts.events} אירועים`,
+    counts.topics && `${counts.topics} התכנסויות`,
+  ].filter(Boolean).slice(0, 4);
+  const whereStr = where.length ? `מופיע ב-${where.join(" · ")}` : "";
+
+  // 5) הרכבת המשפט — ביטויים-קודם, כך שכל מספר מקבל טקסט שונה באמת
+  const listStr = heList(leads);
+  const eqClause = leads.length ? `שווה ל${listStr}${moreWords}` : "";
+  const whereTail = whereStr ? ` ${whereStr}.` : "";
+  let sentence;
+  if (meaning && leads.length) sentence = `${value} — ${meaning}: ${eqClause}.${whereTail}`;
+  else if (leads.length)       sentence = `${value} — ${eqClause}.${whereTail}`;
+  else if (meaning)            sentence = `${value} — ${meaning}.${whereTail}`;
+  else if (whereStr)           sentence = `${value} — ${whereStr}.`;
+  else                         sentence = `${value} — מספר חי במערכת.`;
+
+  // תיאור-SEO ייחודי — הביטויים האמיתיים בראש
+  let seo = leads.length
+    ? `${value} = ${leads.join(" · ")}${moreWords}${meaning ? ` · ${meaning}` : ""} — גימטריה, מילים שוות ומקורות`
+    : (meaning ? `${value} — ${meaning}. גימטריה, מילים שוות, מקורות וקשרים` : `המספר ${value} — גימטריה, מילים שוות, גלריות וקשרים`);
+  if (seo.length > 158) { seo = seo.slice(0, 158); const c = seo.lastIndexOf(" "); if (c > 95) seo = seo.slice(0, c); seo += "…"; }
+
+  return { meaning, leads, moreWords, whereStr, sentence, seoDescription: seo, ok: !!(leads.length || meaning || whereStr) };
+}

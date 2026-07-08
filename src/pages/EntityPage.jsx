@@ -172,7 +172,7 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { SITE_URL, applySeo, DEFAULT_IMAGE, setEntityJsonLd } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
-import { buildMessages } from "../lib/numberMessage.js";
+import { buildMessages, buildStory } from "../lib/numberMessage.js";
 import { resolve, getScore, getBundle } from "../lib/engine.js";
 import { usePalette } from "../lib/palette.js";
 
@@ -699,6 +699,19 @@ export default function EntityPage({ embedPhrase } = {}) {
   // מנוע המסרים: תמיד משהו אמיתי (A→F), גם לשם בלי מאגר. עובדה≠רמז.
   const msgs = buildMessages({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels });
 
+  // 📖 story-top — משפט-סיפור ייחודי לכל מספר (ביטויים אמיתיים + ספירות אמיתיות). «התכנסויות»
+  // מגיע מ-state topics (לא מה-bundle). leadingPhrases = ביטויי-הזהב המובילים כקישורי-פנים.
+  const storyCounts = { words: d.phrasesCount || d.phrases?.length || 0, posts: d.postsCount || 0, galleries: d.galleriesCount || 0, events: d.eventsCount || 0, topics: topics.length || 0 };
+  const story = buildStory({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels, counts: storyCounts });
+
+  // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
+  useEffect(() => {
+    if (!isNumber || !data || !story.ok) return;
+    const p = `/number/${encodeURIComponent(phrase)}`;
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE });
+    setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
+  }, [story.seoDescription, data, term, value, isNumber, phrase]); // eslint-disable-line
+
   // 🖼 סיווג הגלריה «תמונות מהמאגר» — «על המספר»+«אזכור משמעותי» = main · «מקרי/תאריך» = incidental.
   // מחושב פעם אחת, משמש גם בשכבה 2 (גלה עוד) וגם בשכבה 3 (היכל הגילוי) — בלי כפילות לוגיקה.
   const { galleryMain, galleryIncidental } = useMemo(() => {
@@ -902,10 +915,39 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             );
           })()}
-          {msgs[0] && (
-            <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
-              {msgs[0].text}
-            </p>
+          {/* 📖 story-top — משפט-סיפור ייחודי (ביטויים אמיתיים כקישורי-פנים) + כניסת-מסע במצב-קריאה */}
+          {isNumber && story.ok ? (
+            <div style={{ maxWidth: 560, margin: "12px auto 0" }}>
+              <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.75, margin: 0 }}>
+                <b style={{ fontFamily: F.mono, color: P.accentText, fontWeight: 800 }}>{value}</b>{" — "}
+                {story.meaning && (
+                  <span><span style={{ color: P.accentText, fontWeight: 800 }}>{story.meaning}</span>{story.leads.length ? ": " : ". "}</span>
+                )}
+                {story.leads.length > 0 && (
+                  <span>שווה ל{story.leads.map((ph, i) => (
+                    <React.Fragment key={ph}>
+                      {i > 0 && (i === story.leads.length - 1 ? " ו" : ", ")}
+                      <Link to={numHref(encodeURIComponent(ph))} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>{ph}</Link>
+                    </React.Fragment>
+                  ))}{story.moreWords}.</span>
+                )}
+                {story.whereStr && <span style={{ color: P.accentDim }}>{" "}{story.whereStr}.</span>}
+              </p>
+              {!showBody && (
+                <div style={{ marginTop: 13 }}>
+                  <Link to={`/journey?from=${encodeURIComponent(value)}`} onClick={() => { try { track("number", String(value), "journey_cta"); } catch { /* noop */ } }}
+                    style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "9px 20px", borderRadius: 999, border: `1px solid ${P.borderStrong}`, background: P.card, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14.5 }}>
+                    ✨ קחו את המספר הזה למסע ←
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            msgs[0] && (
+              <p style={{ color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.4vw,19px)", fontWeight: 600, lineHeight: 1.7, maxWidth: 520, margin: "12px auto 0" }}>
+                {msgs[0].text}
+              </p>
+            )
           )}
           {msgs[1] && msgs[1].layer !== "F" && (
             <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, lineHeight: 1.6, maxWidth: 480, margin: "6px auto 0" }}>
