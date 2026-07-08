@@ -84,6 +84,10 @@ export default async function handler(req) {
   const t = (searchParams.get('t') || '').trim();
   const subParam = (searchParams.get('sub') || '').trim();
   const n = nRaw && /^\d+$/.test(nRaw) ? parseInt(nRaw, 10) : null;
+  // 📸 פורמט סטורי (אינסטגרם/וואטסאפ) — 1080×1920 לאורך; ברירת מחדל 1200×630.
+  const story = (searchParams.get('format') || '') === 'story';
+  const W = story ? 1080 : 1200;
+  const H = story ? 1920 : 630;
 
   // המילה/המספר הגדול במרכז
   const hero = w || (n != null ? String(n) : 'סוד 1820');
@@ -126,8 +130,8 @@ export default async function handler(req) {
     'div',
     {
       style: {
-        width: '1200px',
-        height: '630px',
+        width: `${W}px`,
+        height: `${H}px`,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -181,7 +185,7 @@ export default async function handler(req) {
           lineHeight: 1.12,
           textShadow: '0 0 40px rgba(212,175,55,0.55)',
           padding: '4px 24px',
-          maxWidth: '1080px',
+          maxWidth: `${W - 120}px`,
           textAlign: 'center',
         },
       },
@@ -212,7 +216,7 @@ export default async function handler(req) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginTop: '46px',
+          marginTop: `${story ? 110 : 46}px`,
           gap: '8px',
         },
       },
@@ -222,8 +226,8 @@ export default async function handler(req) {
   );
 
   return new ImageResponse(tree, {
-    width: 1200,
-    height: 630,
+    width: W,
+    height: H,
     fonts: [{ name: 'Heebo', data: font, weight: 800, style: 'normal' }],
   });
 }

@@ -17,6 +17,7 @@ export const NAV = [
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "צ'אט", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
+      { label: "מחשבון מקצועי", to: "/research?tool=gematria" },
       { label: "תגובות", to: "/community/comments" },
       { label: "אודות וצור קשר", to: "/contact" },
     ],
