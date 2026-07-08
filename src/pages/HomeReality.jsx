@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
-import { getPostsFromSupabase } from "../lib/supabase.js";
+import { getPostsFromSupabase, getRealityCodePosts, REALITY_CODE_TAGS } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
@@ -13,7 +13,9 @@ import MatrixRain from "../components/MatrixRain.jsx";
 // "עדכונים" = פוסטי «מימד חמש» (שם פנימי — לא מוצג). שאר הפוסטים בקטן מתחת.
 
 const ACCENT = "#7fc8ff";
-const MIMAD_TAG = "מימד חמש";   // שם פנימי בלבד — לא מוצג בכותרת
+// עולם «קוד המציאות» — עדשת המציאות/קולנוע. העדכונים הראשיים = כל התגיות של העולם הזה
+// (מימד חמש · מטריקס · משחקי הדיונון · קולנוע), לא רק «מימד חמש». שמות פנימיים — לא מוצגים בכותרת.
+const REALITY_TAG_SET = new Set(REALITY_CODE_TAGS);
 
 // רשתות "קוד המציאות" — ערוץ וואטסאפ · אינסטגרם · פייסבוק (אייקוני מותג simple-icons)
 const RC_ICONS = {
@@ -78,9 +80,9 @@ export default function HomeReality() {
   useEffect(() => {
     track("home_reality");
     applySeo({ title: "קוד המציאות — סוד 1820", description: "המספרים שמאחורי המציאות: דפוסים, צירופים והקוד שמתחת לפני השטח.", path: "/reality" });
-    getPostsFromSupabase({ tag: MIMAD_TAG, limit: 9, orderBy: "modified" }).then(({ posts }) => setFeatured(posts || [])).catch(() => {});
-    getPostsFromSupabase({ limit: 16, orderBy: "modified" }).then(({ posts }) => {
-      setMinor((posts || []).filter(p => !(p.tags || []).includes(MIMAD_TAG)).slice(0, 8));
+    getRealityCodePosts(9).then(posts => setFeatured(posts || [])).catch(() => {});
+    getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(({ posts }) => {
+      setMinor((posts || []).filter(p => !(p.tags || []).some(t => REALITY_TAG_SET.has(t))).slice(0, 8));
     }).catch(() => {});
   }, []);
 

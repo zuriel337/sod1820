@@ -32,6 +32,26 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
+// 🎬 פוסטי «קוד המציאות» — עדשת המציאות/קולנוע. מאחד את כל התגיות של העולם הזה
+// (מימד חמש · מטריקס · משחקי הדיונון · קולנוע/סרטים) + קטגוריית «הצופן בסרטים», ממוזג
+// ומדורג לפי תאריך-עדכון. עץ אחד — לא טבלה חדשה, רק עדשה על posts.
+export const REALITY_CODE_TAGS = ["מימד חמש", "מטריקס", "משחקי הדיונון", "קולנוע"];
+export const REALITY_CODE_CATS = ["הצופן בסרטים"];
+export async function getRealityCodePosts(limit = 12) {
+  if (!supabase) return [];
+  try {
+    const [byTag, byCat] = await Promise.all([
+      supabase.from("posts").select("*").overlaps("tags", REALITY_CODE_TAGS).order("modified", { ascending: false, nullsFirst: false }).limit(limit),
+      supabase.from("posts").select("*").overlaps("categories", REALITY_CODE_CATS).order("modified", { ascending: false, nullsFirst: false }).limit(limit),
+    ]);
+    const map = new Map();
+    for (const p of [...(byTag.data || []), ...(byCat.data || [])]) map.set(p.id ?? p.wp_id, p);
+    return [...map.values()]
+      .sort((a, b) => new Date(b.modified || b.date) - new Date(a.modified || a.date))
+      .slice(0, limit);
+  } catch { return []; }
+}
+
 // Search in title + content, optional filters
 export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
