@@ -49,7 +49,7 @@ function applyCaps(list) {
 export default function LiveChannelFeed() {
   const P = usePalette();
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches);
-  const [open, setOpen] = useState(() => typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches);
+  const [open, setOpen] = useState(false); // סגור כברירת-מחדל בשני המצבים (מחשב+מובייל) — המשתמש פותח בעצמו
   const [raw, setRaw] = useState([]);
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
   const [unseen, setUnseen] = useState(0);
@@ -60,7 +60,7 @@ export default function LiveChannelFeed() {
 
   useEffect(() => {
     const mq = window.matchMedia(DESKTOP_MQ);
-    const on = () => { setIsDesktop(mq.matches); setOpen(mq.matches); };
+    const on = () => { setIsDesktop(mq.matches); }; // שינוי גודל חלון לא פותח מחדש — נשאר סגור/כפי שהמשתמש השאיר
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
