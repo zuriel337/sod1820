@@ -516,6 +516,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [q, setQ] = useState("");
   const heroRef = useRef(null);
   const [heroGone, setHeroGone] = useState(false);
+  const [leadBump, setLeadBump] = useState(0); // רענון ה-bundle אחרי שמירת סדר-מובילים (מוצהר לפני useEffect-הטעינה — נמנע TDZ)
   // שכבה 3 (DNA) — עומק "דביק" (נשמר ב-localStorage); שכבה 4 (שורשים) — כבדה, נפתחת ידנית.
   // מילים תמיד פתוחות; השאר דביק (זוכר מה הגולש פתח); ברירת מחדל ראשונה = מילים + שורשים.
   const [open, setOpen] = useState(() => {
@@ -646,7 +647,6 @@ export default function EntityPage({ embedPhrase } = {}) {
   const hasGate = isNumber && sigs.length > 0;
   const gold = useGold();
   const { isAdmin } = useAuth();               // 👑 מנהל → כלי סידור-מובילים (גרירה-ושחרור)
-  const [leadBump, setLeadBump] = useState(0); // רענון ה-bundle אחרי שמירת סדר-מובילים
 
   // ✦ topic_cards שמכילים מספר זה — גילוי התכנסויות קשורות
   const [topics, setTopics] = useState([]);
