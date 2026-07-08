@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -6,6 +6,7 @@ import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logVi
 import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
+import { emit } from "../lib/events.js"; // M3: מדידת משפך-המסע לרמת-אדם (surface=journey), additive לצד logView הישן
 import { trackSubscribe } from "../lib/marketing.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
@@ -71,11 +72,15 @@ export default function JourneyPage() {
   const [gateErr, setGateErr] = useState("");
   const [emailGiven, setEmailGiven] = useState(() => { try { return localStorage.getItem("sod_jdeep_email") === "1"; } catch { return false; } });
   const [declinedDeep, setDeclinedDeep] = useState(false); // «לא עכשיו» → שקט על המסך הזה (בלי להציק שוב)
+  const journeyIdRef = useRef(null);  // מזהה מופע-מסע — לתפירת המשפך לרמת-אדם
+  const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
 
-  useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
+  useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; try { emit("journey", "landing"); } catch { /* noop */ } }, []);
 
   // מאתחל מסע: בוחר ערך-יעד נסתר (משפחה עשירה) וטוען את משפחת-הערך לטייל בה.
   async function begin(fromParam) {
+    journeyIdRef.current = (crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+    hookShownRef.current = false;
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
@@ -100,6 +105,7 @@ export default function JourneyPage() {
     setPath([start]);
     setLoading(false);
     logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
+    try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
   }
 
   useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
@@ -139,16 +145,20 @@ export default function JourneyPage() {
       setFinished("stopped");
       logView("journey_stall", String(target));            // 📊 פאנל: נעצר (גם התהודה נגמרה)
       logView("journey_target_revealed", String(bases[0])); // 📊 פאנל: הערך נחשף
+      try { emit("journey", "stalled", { journeyId: journeyIdRef.current, depth: path.filter(p => !p.leap).length, props: { root: bases[0] } }); } catch { /* noop */ }
       return;
     }
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
-    logView("journey_step", String(np.filter(p => !p.leap).length));  // 📊 עומק-צעד — למדד-הנטישה (איפה עוזבים)
-    if (np.filter(p => !p.leap).length >= goal) {
+    const _depth = np.filter(p => !p.leap).length;
+    logView("journey_step", String(_depth));  // 📊 עומק-צעד — למדד-הנטישה (איפה עוזבים)
+    try { emit("journey", "step", { journeyId: journeyIdRef.current, depth: _depth }); } catch { /* noop */ }
+    if (_depth >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
       logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
+      try { emit("journey", "complete", { journeyId: journeyIdRef.current, depth: _depth, props: { root: bases[0] } }); } catch { /* noop */ }
     }
   }
 
@@ -162,7 +172,7 @@ export default function JourneyPage() {
   async function fetchAiMessage() {
     if (aiState === "busy" || root == null) return;
     const ck = "sod_jmsg_" + root;
-    try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); return; } } catch { /* noop */ }
+    try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root, cached: true } }); } catch { /* noop */ } return; } } catch { /* noop */ }
     setAiState("busy");
     logView("journey_ai_message", String(root));   // 📊 פאנל: מסר אישי נוצר
     trackAi("journey_msg", "journey");              // 📊 שימוש ב-AI — מסר-מסע (ראשון)
@@ -172,7 +182,7 @@ export default function JourneyPage() {
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
     });
-    if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
+    if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root } }); } catch { /* noop */ } }
     else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
   }
 
@@ -195,6 +205,14 @@ export default function JourneyPage() {
       if (localStorage.getItem("sod_jdeep_" + root) === "1") { setUnlocked(true); if (deepState === "idle") fetchDeepMessage(); }
     } catch { /* noop */ }
   }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 📊 hook_shown — כרטיס-הלכידה שמופיע אחרי הפלט הראשון (פעם אחת למסע)
+  useEffect(() => {
+    if (finished && aiState === "done" && !unlocked && !declinedDeep && root != null && !hookShownRef.current) {
+      hookShownRef.current = true;
+      try { emit("journey", "hook_shown", { journeyId: journeyIdRef.current, props: { root, gated: !(verified || emailGiven) } }); } catch { /* noop */ }
+    }
+  }, [finished, aiState, unlocked, declinedDeep, root]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 🔓 מסר-העומק — נפתח *רק אחרי* שהמשתמש קיבל את המסר הראשון ואז שיתף. נשמר פתוח לפי מספר.
   // force=true → מתעלם מה-cache ומבקש מהמנוע מסר *נוסף* (בקשת צוריאל: אפשר לפתוח AI פעמיים אם רוצים).
@@ -224,6 +242,7 @@ export default function JourneyPage() {
     if (shareBusy || root == null) return;
     setShareBusy(true);
     logView("journey_share", String(root));   // 📊 פאנל: שיתוף מסע
+    try { emit("journey", "share", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     try {
       await shareJourneyCard(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase })), KEY_NUMBERS[root] || null);
     } finally { setShareBusy(false); }
@@ -235,6 +254,7 @@ export default function JourneyPage() {
     setUnlocked(true);
     try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
     track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק
+    try { emit("journey", "hook_tap_unlock", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     fetchDeepMessage();
   }
 
@@ -252,6 +272,7 @@ export default function JourneyPage() {
       try { localStorage.setItem("sod_jdeep_email", "1"); } catch { /* noop */ }
       setEmailGiven(true);
       logView("journey_signup", String(root));   // 📊 פאנל: הרשמה מהמסע
+      try { emit("journey", "email_left", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     } catch {
       setGateErr("לא הצלחנו לשמור כרגע — פותחים בכל זאת");
     } finally {
@@ -268,6 +289,7 @@ export default function JourneyPage() {
     saveItem?.(entityFromNumber(root, KEY_NUMBERS[root]));
     logJourneySave(visitorId(), { root, path: steps, world: dWorld || null });  // 🔖 פרסוס ל-DB (בקשת צוריאל A)
     logView("journey_save", String(root));
+    try { emit("journey", "save", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1800);
   }
@@ -508,7 +530,7 @@ export default function JourneyPage() {
           {/* כפתורים — פתיחת הגזע · שיתוף · מסע חדש */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             {root != null && (
-              <Link to={`/number/${root}`} onClick={() => logView("journey_open", String(root))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              <Link to={`/number/${root}`} onClick={() => { logView("journey_open", String(root)); try { emit("journey", "goto_number", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ } }} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
                 פתח את {root} →
               </Link>
             )}
