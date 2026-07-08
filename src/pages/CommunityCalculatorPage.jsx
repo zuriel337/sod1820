@@ -113,9 +113,9 @@ function BabyNameTool({ P }) {
       (a.geula ? ` בשיטת ${a.geula.method} שווה ${a.geula.num} (${a.geula.meaning}).` : "") +
       (fam ? ` שם המשפחה "${fam.name}" = ${fam.value}.` : "") +
       (heb ? ` התאריך העברי של הלידה: ${heb.pretty} = ${heb.value}.` : "");
-    // Sonnet איטי יותר → אם נכשל פעם אחת, ניסיון שני (מונע «לא התקבל» זמני).
-    let txt = await getAiAnalysis({ kind: "number", subject: a.name, facts });
-    if (!txt) { await new Promise(r => setTimeout(r, 900)); txt = await getAiAnalysis({ kind: "number", subject: a.name, facts, again: true }); }
+    // אינטראקטיבי → מודל מהיר (Haiku); אם נכשל פעם אחת, ניסיון שני (מונע «לא התקבל» זמני).
+    let txt = await getAiAnalysis({ kind: "number", subject: a.name, facts, fast: true });
+    if (!txt) { await new Promise(r => setTimeout(r, 900)); txt = await getAiAnalysis({ kind: "number", subject: a.name, facts, again: true, fast: true }); }
     setAi(s => ({ ...s, [idx]: { busy: false, text: txt || "לא התקבל ניתוח — נסו שוב עוד רגע (ה-AI עמוס).", angle: angle.key } }));
   }
 
@@ -273,7 +273,7 @@ export default function CommunityCalculatorPage() {
     const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
     const facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
       (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
-    const txt = await getAiAnalysis({ kind: "number", subject: name1.trim(), facts });
+    const txt = await getAiAnalysis({ kind: "number", subject: name1.trim(), facts, fast: true });
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
@@ -574,25 +574,34 @@ export default function CommunityCalculatorPage() {
                     ))}
                   </div>
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.6 }}>✓ עובדה מאומתת במנוע · ✧ רמז משלים (פרשנות)</div>
-
-                  {/* 🤖 ניתוח AI אמיתי (Claude via ai-analyze) */}
-                  <div style={{ marginTop: 14, borderTop: `1px solid ${P.border}`, paddingTop: 14 }}>
-                    {!aiText && !aiBusy && (
-                      <button onClick={runAi} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "11px 22px", width: "100%", boxSizing: "border-box" }}>
-                        🤖 קבלו ניתוח AI אישי לשם «{name1.trim()}»
-                      </button>
-                    )}
-                    {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "6px 0" }}>🤖 ה-AI חושב…</div>}
-                    {aiText && (
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
-                          <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔵 ניתוח AI · מאומת מהמנוע</span>
-                        </div>
-                        <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
-                      </div>
-                    )}
-                  </div>
                 </>
+              )}
+            </div>
+          )}
+
+          {/* 🤖 ניתוח AI אישי — כרטיס בולט משלו (Claude via ai-analyze), תמיד גלוי לשם יחיד */}
+          {!r2 && (
+            <div style={{ background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", borderRadius: 16, padding: "16px 18px", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
+                <span style={{ fontSize: 20 }}>🤖</span>
+                <div>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI אישי לשם «{name1.trim()}»</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+                </div>
+              </div>
+              {!aiText && !aiBusy && (
+                <button onClick={runAi} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                  ✨ הפעילו ניתוח AI
+                </button>
+              )}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב…</div>}
+              {aiText && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                    <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔵 ניתוח AI · מאומת מהמנוע</span>
+                  </div>
+                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
+                </div>
               )}
             </div>
           )}

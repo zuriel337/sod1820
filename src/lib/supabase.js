@@ -487,10 +487,10 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🤖 ניתוח AI גנרי לכלי המחקר (השוואה · נוטריקון · פסוק · פסוק-יומי) — Edge Function ai-analyze.
 // facts = עובדות מאומתות מהמנוע (ערכים שכבר חושבו). ה-AI רק מפרש, לא מחשב. null בכשל/ללא מפתח.
-export async function getAiAnalysis({ kind, subject, facts, again }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast }) {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again } });
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast } });
     if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
     if (data?.error) { try { console.warn('[ai-analyze] server:', data.error, data.detail || ''); } catch { /* noop */ } }
     return data?.analysis || null;
