@@ -28,6 +28,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
+import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -234,21 +235,11 @@ export default function HomeNewPage() {
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
 
-      {/* ===== עדכונים אחרונים — ברירת-מחדל זמנית: הפוסטים האחרונים בלבד.
-          (הפיד המאוחד «היכל הגילוי · המלוכה · כתבים · ערוצים» הוסר לבקשת צוריאל — עד להחלטה.) ===== */}
+      {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
+          פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
-        <HomeHeader title="📜 עדכונים אחרונים" sub="הפוסטים האחרונים באתר" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 14, maxWidth: 1120, margin: "0 auto" }}>
-          {(posts || []).slice(0, 8).map((p, i) => (
-            <Link key={p.id || p.slug || i} to={`/${p.slug}`} style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 14, overflow: "hidden", display: "block" }}>
-              {p.image_url && <div style={{ aspectRatio: "16 / 9", background: `center/cover no-repeat url(${thumb(p.image_url, 380)})` }} />}
-              <div style={{ padding: "11px 13px 13px" }}>
-                <h3 style={{ margin: 0, color: P.ink, fontFamily: F.heading, fontSize: 15, fontWeight: 800, lineHeight: 1.35 }}>{stripHtml(p.title || "")}</h3>
-                <div style={{ marginTop: 6, color: P.ink, opacity: 0.55, fontSize: 11.5, fontFamily: F.body }}>{timeAgoHe(p.modified || p.date)}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <HomeHeader title="📜 עדכונים אחרונים" sub="8 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
+        <LatestUpdatesRail posts={posts} convergences={cards} hints={hints} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
