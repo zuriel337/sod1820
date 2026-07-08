@@ -919,6 +919,28 @@ export function ELSSection({ gated = false } = {}) {
               </div>
             );
           })()}
+          {/* 🆕 היקף החיפוש — בולט (לא מוסתר בהגדרות): תורה / כל התנ״ך / ספר בודד. */}
+          <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, justifyContent: "center" }}>
+            <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>היקף:</span>
+            {[{ k: "torah", l: "כל התורה" }, { k: "all", l: "כל התנ״ך" }].map(o => (
+              <button key={o.k} type="button" onClick={() => setBook(o.k)} style={{
+                cursor: "pointer", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "6px 15px",
+                background: book === o.k ? C.goldBright : "transparent", color: book === o.k ? "#1a0e00" : C.goldLight,
+                border: `1px solid ${book === o.k ? "transparent" : C.borderGold}` }}>{o.l}</button>
+            ))}
+            <select value={book} onChange={e => setBook(e.target.value)} style={{
+              background: C.surface2, color: C.goldLight, border: `1px solid ${C.borderGold}`, borderRadius: 999,
+              padding: "6px 12px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, cursor: "pointer", minWidth: 110 }}>
+              <optgroup label="בחירת ספר">
+                {["תורה", "נביאים", "כתובים"].map(sec => (
+                  <optgroup key={sec} label={"— " + sec}>
+                    {TANAKH_BOOKS.filter(b => b.section === sec).map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+                  </optgroup>
+                ))}
+              </optgroup>
+            </select>
+            {needTanakh && !tanakhLetters && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>טוען תנ״ך…</span>}
+          </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
             <GoldButton onClick={run} disabled={searching || gateLocked}>
               {searching ? "מחפש…" : "חפש דילוגים ◆"}

@@ -59,6 +59,7 @@ const NamePage = React.lazy(() => import("./pages/NamePage.jsx"));
 const ArchivePage = React.lazy(() => import("./pages/ArchivePage.jsx"));
 const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx"));
 const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
+const VerseGematriaPage = React.lazy(() => import("./pages/VerseGematriaPage.jsx"));
 const BroadcastsPage = React.lazy(() => import("./pages/BroadcastsPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
@@ -270,6 +271,8 @@ export default function App() {
           <Route path="/home-new" element={<HomeNewPage />} />
           <Route path="/בית-חדש" element={<HomeNewPage />} />
           <Route path="/cross" element={<CrossMethodPage />} />
+          <Route path="/verse-gematria" element={<VerseGematriaPage />} />
+          <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
