@@ -29,7 +29,7 @@ export default function BroadcastsPage() {
 
   useEffect(() => {
     let live = true;
-    Promise.all(CHANNELS.map(ch => getChannelUpdates(40, ch).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => [])))
+    Promise.all(CHANNELS.map(ch => getChannelUpdates(40, ch, true).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => [])))
       .then(arr => { if (!live) return; const merged = arr.flat().sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)); setAll(merged); })
       .catch(() => live && setAll([]));
     return () => { live = false; };
@@ -49,6 +49,9 @@ export default function BroadcastsPage() {
         .bc-media{position:relative;width:100%;aspect-ratio:16/10;background:#0a0710;overflow:hidden}
         .bc-media img,.bc-media video{width:100%;height:100%;object-fit:cover;display:block}
         .bc-media .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);color:#fff;font-size:30px;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+        .bc-vidph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#141018,#0a0710);color:#cbb6ff}
+        .bc-vidph .play{position:static;background:none;font-size:34px}
+        .bc-vidph .vlbl{font-family:${F.heading};font-size:11px;font-weight:800;opacity:.8}
         .bc-in{padding:11px 13px 12px;display:flex;flex-direction:column;gap:7px;flex:1}
         .bc-badge{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;font-family:${F.heading};font-size:10.5px;font-weight:800;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border-radius:999px;padding:2px 9px}
         .bc-ai{color:${dark ? "#7fe0c4" : "#027a5f"};background:${dark ? "rgba(37,211,102,.13)" : "rgba(0,128,105,.09)"}}
@@ -106,9 +109,10 @@ export default function BroadcastsPage() {
                 onClick={() => setLb(u)} title="לחצו לפתיחה במסך מלא">
                 {u.image_url && (
                   <div className="bc-media">
+                    {/* וידאו — לא נטען בגריד (עומס/Egress); תצוגה = שלט + הקש לפתיחה במסך מלא */}
                     {vid
-                      ? <><video src={u.image_url} preload="metadata" muted playsInline /><span className="play">▶</span></>
-                      : <img src={thumb(u.image_url, 460)} alt="" loading="lazy" />}
+                      ? <div className="bc-vidph"><span className="play">▶</span><span className="vlbl">וידאו · הקש לצפייה</span></div>
+                      : <img src={thumb(u.image_url, 420)} alt="" loading="lazy" />}
                   </div>
                 )}
                 <div className="bc-in">

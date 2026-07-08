@@ -178,15 +178,17 @@ export async function getRecentCommunityWords(limit = 4) {
 // 📡 שידורים חיים (channel_updates) — «עדכון חי» בטיקר + כרטיס בעמוד הבית.
 // קריאה ציבורית: רק live שלא פג; כתיבה: אדמין בלבד (RLS). מקור עתידי: גשר הוואטסאפ.
 // channel: null = הטיקר הראשי (main + reality-code) · 'or-geula'/'reality-code' = טיקר ממותג
-export async function getChannelUpdates(limit = 6, channel = null) {
+// byDate=true → מיון לפי תאריך בלבד (החדשים קודם), בלי priority — לפידים החיים («מכל הערוצים»),
+// כדי שעדכוני היום לא ייחסמו ע״י שורות ישנות בעלות priority גבוה.
+export async function getChannelUpdates(limit = 6, channel = null, byDate = false) {
   if (!supabase) return [];
   let q = supabase.from('channel_updates')
     .select('id,text,image_url,credit,channel,is_urgent,created_at,link_url,source')
     .eq('status', 'live')
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order('priority', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+  q = byDate ? q.order('created_at', { ascending: false })
+             : q.order('priority', { ascending: false }).order('created_at', { ascending: false });
+  q = q.limit(limit);
   q = channel ? q.eq('channel', channel) : q.in('channel', ['main', 'reality-code']);
   const { data } = await q;
   return data || [];

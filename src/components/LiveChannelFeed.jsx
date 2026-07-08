@@ -45,6 +45,7 @@ export default function LiveChannelFeed() {
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
+  const [tick, setTick] = useState(0);       // רוטציה של שורת-העדכון האחרון בגלולה הצפה
   const bodyRef = useRef(null);
   const seenTop = useRef(0);
 
@@ -69,7 +70,7 @@ export default function LiveChannelFeed() {
     let live = true;
     const load = async () => {
       try {
-        const arr = await Promise.all(CH_KEYS.map(k => getChannelUpdates(12, k).then(r => (r || []).map(x => ({ ...x, ch: k })))));
+        const arr = await Promise.all(CH_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k })))));
         if (!live) return;
         const all = arr.flat().filter(u => u.text || u.image_url);
         const newestTs = Math.max(0, ...all.map(u => +new Date(u.created_at || 0)));
@@ -83,6 +84,14 @@ export default function LiveChannelFeed() {
   }, []);
 
   const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch])).slice(-60), [raw, active]);
+  // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
+  const latest = useMemo(() => items.slice(-6).reverse(), [items]);
+  const cur = latest.length ? latest[tick % latest.length] : null;
+  useEffect(() => {
+    if (open || latest.length < 2) return;
+    const id = setInterval(() => { if (!document.hidden) setTick(t => t + 1); }, 4200);
+    return () => clearInterval(id);
+  }, [open, latest.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -101,13 +110,20 @@ export default function LiveChannelFeed() {
   return (
     <>
       <style>{`
-        .lcf-fab{position:fixed;inset-inline-start:16px;bottom:18px;z-index:150;cursor:pointer;border:none;
-          display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 17px;
-          background:linear-gradient(135deg,#25d366,#1aa851);color:#04170c;font-family:${F.heading};font-weight:800;font-size:14px;
-          box-shadow:0 8px 26px rgba(37,211,102,.45)}
-        .lcf-fab .live{width:7px;height:7px;border-radius:50%;background:#04170c;animation:lcf-dot 1.2s infinite}
-        @keyframes lcf-dot{0%,100%{opacity:1}50%{opacity:.35}}
-        .lcf-fab .badge{background:#c8102e;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:0 6px;min-width:17px;text-align:center}
+        /* פתיחה צפה — גלולה עם אייקון וואטסאפ + «עדכונים» + שורת העדכון האחרון (מתחלף) */
+        .lcf-fab{position:fixed;inset-inline-start:14px;bottom:16px;z-index:150;cursor:pointer;border:none;direction:rtl;text-align:start;
+          display:inline-flex;align-items:center;gap:10px;border-radius:16px;padding:8px 13px 8px 9px;max-width:min(345px,calc(100vw - 28px));
+          background:${dark ? "#1f2c33" : "#ffffff"};color:${dark ? "#e9edef" : "#111b21"};box-shadow:0 8px 26px rgba(0,0,0,${dark ? ".5" : ".22"});border:1px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.08)"}}
+        .lcf-fab .wic{position:relative;width:36px;height:36px;border-radius:50%;background:#25d366;display:grid;place-items:center;flex:0 0 auto}
+        .lcf-fab .wic svg{width:21px;height:21px}
+        .lcf-fab .wic::after{content:"";position:absolute;top:-1px;inset-inline-end:-1px;width:9px;height:9px;border-radius:50%;background:#25d366;border:2px solid ${dark ? "#1f2c33" : "#fff"};animation:lcf-dot 1.3s infinite}
+        @keyframes lcf-dot{0%,100%{opacity:1}50%{opacity:.4}}
+        .lcf-fab .ftxt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+        .lcf-fab .flbl{font-family:${F.heading};font-weight:800;font-size:13px;color:#25d366;display:inline-flex;align-items:center;gap:6px}
+        .lcf-fab .flatest{font-family:${F.body};font-size:11.5px;color:${dark ? "#c4cfca" : "#54656f"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+        .lcf-fab .ftime{color:${dark ? "#8696a0" : "#8a978d"};font-style:normal}
+        @keyframes lcf-swap{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+        .lcf-fab .badge{background:#c8102e;color:#fff;border-radius:999px;font-size:10px;font-weight:800;padding:0 6px;min-width:16px;text-align:center}
         .lcf-scrim{position:fixed;inset:0;z-index:159;background:rgba(4,6,10,.55);backdrop-filter:blur(2px);animation:lcf-fade .2s ease}
         @keyframes lcf-fade{from{opacity:0}to{opacity:1}}
         .lcf-panel{position:fixed;z-index:160;inset-block:0;inset-inline-start:0;width:min(400px,100vw);display:flex;flex-direction:column;direction:rtl;
@@ -168,8 +184,18 @@ export default function LiveChannelFeed() {
       `}</style>
 
       {!open && (
-        <button className="lcf-fab" onClick={() => setOpen(true)} aria-label="פתח עדכונים חיים">
-          <span className="live" aria-hidden />📡 עדכונים חיים{unseen > 0 && <span className="badge">{unseen}</span>}
+        <button className="lcf-fab" onClick={() => setOpen(true)} aria-label="פתח עדכונים">
+          <span className="wic" aria-hidden>
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.728-.977zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          </span>
+          <span className="ftxt">
+            <span className="flbl">עדכונים{unseen > 0 && <span className="badge">{unseen}</span>}</span>
+            <span className="flatest" key={tick} style={{ animation: "lcf-swap .4s ease" }}>
+              {cur
+                ? <>{cur.credit || CH[cur.ch]?.name} · {cur.image_url ? (isVideo(cur.image_url) ? "🎬 עדכון וידאו חדש" : "✨ נוספה תמונה חדשה") : stripHtml(cur.text || "").slice(0, 42)}<em className="ftime"> · {timeAgoHe(cur.created_at)}</em></>
+                : "העדכונים בדרך…"}
+            </span>
+          </span>
         </button>
       )}
 
@@ -225,7 +251,8 @@ export default function LiveChannelFeed() {
             </div>
             {zoom && (
               <div className="lcf-zoom" onClick={() => setZoom(null)} role="dialog" aria-label="תמונה מוגדלת">
-                <img src={zoom} alt="" />
+                {/* גרסה מוקטנת בשרת (contain) — לא התמונה המקורית הכבדה */}
+                <img src={thumb(zoom, 1200)} alt="" />
               </div>
             )}
           </aside>
