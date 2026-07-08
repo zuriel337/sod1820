@@ -72,11 +72,13 @@ export default function LiveActivityBar() {
   // 📡 השורה העליונה מוצגת בכל האתר. תמה-מודע (city_background_dual_theme_law §3):
   //    בבהיר — רצועת קרם/זהב-עדין + טקסט כהה קריא; בכהה — הגרסה החום-כהה הקיימת.
   const barBg = isLight
-    ? "linear-gradient(90deg, #f4ecd8, #efe3c6, #f4ecd8)"
+    ? "linear-gradient(90deg, #f0e6cd, #e9dcbb, #f0e6cd)"
     : "linear-gradient(90deg, rgba(60,40,5,0.55), rgba(80,55,8,0.7), rgba(60,40,5,0.55))";
-  const barInk = isLight ? "#5b4718" : "#ffe6ad";       // טקסט ההודעה
-  const barAccent = isLight ? "#9a6f14" : "#ffd86b";    // חץ/אקסנט
-  const barBorder = isLight ? "rgba(154,111,20,0.35)" : "rgba(212,175,55,0.28)";
+  // 🔒 city_background_dual_theme_law §3: במצב בהיר האותיות על הרצועה חייבות להיות
+  //    *כהות וקריאות* (ניגודיות ≥7:1) — לא זהב-בהיר שנבלע ברקע-העיר. חום-כהה כמעט-שחור.
+  const barInk = isLight ? "#33260a" : "#ffe6ad";       // טקסט ההודעה — כהה מאוד בבהיר
+  const barAccent = isLight ? "#6d4e0b" : "#ffd86b";    // חץ/אקסנט — זהב-כהה בבהיר
+  const barBorder = isLight ? "rgba(90,66,12,0.45)" : "rgba(212,175,55,0.28)";
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
