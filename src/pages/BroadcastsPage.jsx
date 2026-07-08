@@ -121,8 +121,8 @@ export default function BroadcastsPage() {
                   {ai && <span className="bc-badge bc-ai" style={{ "--acc": "#25d366" }}>🤖 רזיאל · AI</span>}
                   {showTxt && <p className="bc-tx">{u.text}</p>}
                   <div className="bc-meta">
-                    <ReporterAvatar credit={u.credit} size={20} ring={b.accent} />
-                    <span>{u.credit ? <>✍️ <ReporterLink credit={u.credit} style={{ color: b.accent, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 800 }}>{u.credit}</ReporterLink> · </> : ""}🕒 {timeAgoHe(u.created_at)}</span>
+                    <ReporterAvatar credit={u.credit} size={20} ring={b.accent} fallback={b.logo} />
+                    <span>{u.credit ? <>✍️ <ReporterLink credit={u.credit} canonical style={{ color: b.accent, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 800 }}>{u.credit}</ReporterLink> · </> : ""}🕒 {timeAgoHe(u.created_at)}</span>
                     <button className="bc-share" onClick={e => { e.stopPropagation(); shareUpdate(u, b.title); }}>↗ שתפו</button>
                     {u.link_url && <Link to={u.link_url} className="bc-link" onClick={e => e.stopPropagation()}>📖 לפוסט ←</Link>}
                   </div>

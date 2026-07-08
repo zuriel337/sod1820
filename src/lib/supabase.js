@@ -196,11 +196,17 @@ export async function getChannelUpdates(limit = 6, channel = null, byDate = fals
 // 👤 כל העדכונים החיים של כתב מסוים (credit) — עדשה על channel_updates לדף הכתב (ContributorPage).
 // עץ אחד: לא עותק — אותו מקור של הטיקר/מרכז השידורים, מסונן לפי הכותב.
 export async function getUpdatesByReporter(credit, limit = 60) {
-  if (!supabase || !credit) return [];
+  return getUpdatesByReporterNames([credit], limit);
+}
+// גרסה לפי כמה שמות (display_name + כינויי-וואטסאפ wa_names) — כדי שעדכוני כתב תחת
+// שם-וואטסאפ שונה (למשל «OPOC1 OPOC1» → צבי) יופיעו כולם בדף הכתב הקנוני.
+export async function getUpdatesByReporterNames(names, limit = 60) {
+  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
+  if (!supabase || !list.length) return [];
   const { data } = await supabase.from('channel_updates')
     .select('id,text,image_url,credit,channel,created_at,link_url,source')
     .eq('status', 'live')
-    .eq('credit', credit)
+    .in('credit', list)
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .order('created_at', { ascending: false })
     .limit(limit);

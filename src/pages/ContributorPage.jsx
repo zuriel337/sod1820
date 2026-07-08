@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase, getUpdatesByReporter } from "../lib/supabase.js";
+import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -149,7 +149,7 @@ export default function ContributorPage() {
   useEffect(() => {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,wa_names")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
@@ -180,11 +180,12 @@ export default function ContributorPage() {
   useEffect(() => {
     if (!c?.display_name) { setWaUpdates([]); return; }
     let alive = true;
-    getUpdatesByReporter(c.display_name, 60)
+    const names = [c.display_name, ...(Array.isArray(c.wa_names) ? c.wa_names : [])];
+    getUpdatesByReporterNames(names, 60)
       .then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
       .catch(() => {});
     return () => { alive = false; };
-  }, [c?.display_name]);
+  }, [c?.display_name, c?.wa_names]);
 
   // 📌 תיוגים + 🎯 התכנסויות — עדשה על posts.tags / topic_cards.search_terms לפי contributor.tags.
   // עץ אחד: לא עותק — מצביע לפוסט הקנוני ולעמוד ההתכנסות (/topic/:slug).

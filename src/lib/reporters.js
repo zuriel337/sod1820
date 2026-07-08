@@ -11,11 +11,18 @@ export function loadReporters() {
     if (!supabase) return new Map();
     try {
       const { data } = await supabase.from("contributors")
-        .select("slug,code,display_name,avatar_url");
+        .select("slug,code,display_name,avatar_url,wa_names");
       const m = new Map();
       (data || []).forEach(c => {
         const name = (c.display_name || "").trim();
-        if (name) m.set(name, { slug: c.code || c.slug, avatar: c.avatar_url || null });
+        if (!name) return;
+        const entry = { slug: c.code || c.slug, avatar: c.avatar_url || null, name };
+        m.set(name, entry);
+        // כינויים — שם-וואטסאפ שונה (למשל «OPOC1 OPOC1» → צבי) ממופה לאותו דף/תמונה/שם קנוני.
+        (Array.isArray(c.wa_names) ? c.wa_names : []).forEach(alias => {
+          const a = (alias || "").trim();
+          if (a && !m.has(a)) m.set(a, entry);
+        });
       });
       return m;
     } catch { return new Map(); }

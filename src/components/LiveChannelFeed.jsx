@@ -6,6 +6,7 @@ import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
+import { BRANDS } from "./BrandTicker.jsx";
 
 // 📡💬 «העדכונים החיים» — פיד חי בעיצוב וואטסאפ אמיתי (אותם צבעים/בועות/זנבות).
 // דסקטופ: עמודה קבועה תמיד-פתוחה בצד ימין (מתחת לנאבבר). מובייל: כפתור פותח → גיליון תחתון.
@@ -236,7 +237,7 @@ export default function LiveChannelFeed() {
                       <div className={"lcf-b " + (ai ? "sb" : "rb")}>
                         {ai
                           ? <div className="lcf-ai"><span className="rb2">🤖</span>רזיאל · AI</div>
-                          : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} /><span>{c.em} <ReporterLink credit={u.credit} style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}
+                          : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} fallback={BRANDS[u.ch]?.logo} /><span>{c.em} <ReporterLink credit={u.credit} canonical style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}
                         {u.image_url && !isVideo(u.image_url) && (
                           <button className="lcf-imgw" onClick={() => setZoom(u.image_url)} aria-label="הגדל תמונה">
                             <img src={thumb(u.image_url, 360)} alt="" loading="lazy" />
