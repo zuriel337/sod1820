@@ -193,6 +193,19 @@ export async function getChannelUpdates(limit = 6, channel = null, byDate = fals
   const { data } = await q;
   return data || [];
 }
+// 👤 כל העדכונים החיים של כתב מסוים (credit) — עדשה על channel_updates לדף הכתב (ContributorPage).
+// עץ אחד: לא עותק — אותו מקור של הטיקר/מרכז השידורים, מסונן לפי הכותב.
+export async function getUpdatesByReporter(credit, limit = 60) {
+  if (!supabase || !credit) return [];
+  const { data } = await supabase.from('channel_updates')
+    .select('id,text,image_url,credit,channel,created_at,link_url,source')
+    .eq('status', 'live')
+    .eq('credit', credit)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
 // 🔖 שמירת-מסע ל-DB (visitor_id + השורש + השביל) — כדי לראות בניהול מי שמר איזה מסע.
 export async function logJourneySave(visitor, { root, path = [], world = null }) {
   if (!supabase || root == null) return;

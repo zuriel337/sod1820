@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { getChannelUpdates, getPostsFromSupabase } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { trackShare } from "../lib/tracking.js";
+import ReporterLink from "./ReporterLink.jsx";
 
 // וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
 export const isVideoUrl = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
@@ -78,7 +79,7 @@ export function UpdateModal({ u, brand, onClose }) {
           {u.text}
         </p>
         <div style={{ marginTop: 8, color: "#b9a877", fontFamily: F.heading, fontSize: 11.5 }}>
-          {u.credit && <span style={{ color: b.accent, fontWeight: 800 }}>✍️ מאת {u.credit} · </span>}
+          {u.credit && <span style={{ color: b.accent, fontWeight: 800 }}>✍️ מאת <ReporterLink credit={u.credit} style={{ color: b.accent, textDecoration: "underline", textUnderlineOffset: 2 }}>{u.credit}</ReporterLink> · </span>}
           🕒 {timeAgoHe(u.created_at)}
         </div>
         {/* פעולות */}

@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase } from "../lib/supabase.js";
+import { supabase, getUpdatesByReporter } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import { applySeo } from "../lib/seo.js";
+import { timeAgoHe } from "../lib/format.js";
+import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -128,6 +130,8 @@ export default function ContributorPage() {
   const [posts, setPosts] = useState([]);
   const [tagged, setTagged] = useState([]);       // 📌 פוסטים המתויגים בשמו (מופיע בהם, לא בהכרח כתב)
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
+  const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
+  const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   // 🔑 שער-סיסמה (locked): לכולם, אימות בשרת (contrib_unlock) — הסיסמה לא נחשפת ב-API.
   const [unlocked, setUnlocked] = useState(() => { try { return sessionStorage.getItem(`sod_unlock_${slug}`) === "1"; } catch { return false; } });
   const [pw, setPw] = useState("");
@@ -168,6 +172,16 @@ export default function ContributorPage() {
     supabase.from("posts").select("slug,title,date,image_url").eq("author", c.display_name)
       .order("date", { ascending: false }).limit(30)
       .then(({ data }) => { if (alive && Array.isArray(data)) setPosts(data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.display_name]);
+
+  // 📡 העדכונים החיים שלו — עדשה על channel_updates לפי credit=display_name (עץ אחד, לא עותק)
+  useEffect(() => {
+    if (!c?.display_name) { setWaUpdates([]); return; }
+    let alive = true;
+    getUpdatesByReporter(c.display_name, 60)
+      .then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name]);
@@ -322,6 +336,45 @@ export default function ContributorPage() {
           </div>
         </div>
       )}
+
+      {/* 📡 העדכונים החיים שלו — מהוואטסאפ (channel_updates לפי שמו). עץ אחד: אותו מקור של הטיקר. */}
+      {waUpdates.length > 0 && (
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>
+            📡 העדכונים החיים של {c.display_name}
+          </div>
+          <div style={{ color: "#25d366", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
+            💬 {waUpdates.length} עדכונים · לייב מהוואטסאפ
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, alignItems: "start" }}>
+            {waUpdates.map(u => {
+              const b = BRANDS[u.channel] || BRANDS["reality-code"];
+              const vid = u.image_url && isVideoUrl(u.image_url);
+              const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+              return (
+                <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה במסך מלא"
+                  style={{ display: "flex", flexDirection: "column", background: P.card, border: `1px solid ${P.border}`,
+                    borderTop: `3px solid ${b.accent}`, borderRadius: 14, overflow: "hidden", cursor: "pointer", textAlign: "start" }}>
+                  {u.image_url && (
+                    <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", background: "#0a0710", overflow: "hidden" }}>
+                      {vid
+                        ? <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, color: "#cbb6ff" }}><span style={{ fontSize: 30 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
+                        : <img src={thumb(u.image_url, 420)} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+                    </div>
+                  )}
+                  <div style={{ padding: "10px 12px 11px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
+                    <span style={{ alignSelf: "flex-start", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, color: b.accent, background: `color-mix(in srgb,${b.accent} 15%,transparent)`, borderRadius: 999, padding: "2px 9px" }}>{b.emoji} {b.title}</span>
+                    {showTxt && <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word", display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</p>}
+                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5 }}>🕒 {timeAgoHe(u.created_at)}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
+        </div>
+      )}
+      {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
 
       {/* 🏆 הזהב — הטופ שצוריאל קבע, בראש הדף של החוקר בלבד */}
       {topGold.length > 0 && !nq && (
