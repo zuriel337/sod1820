@@ -1294,6 +1294,25 @@ export async function getTopicCards({ approvedOnly = false } = {}) {
   const { data } = await q;
   return data || [];
 }
+// 🔡 צפנים — ממצאי «הצופן» (nodes type=convergence, חוצי-שפה/שיטה): 86=אלהים=הטבע, בן=son=sun…
+// מוצגים ב«היכל הגילוי» לצד ההתכנסויות (topic_cards). עדשה על הגרף — לא טבלה חדשה.
+export async function getCipherFindings(limit = 8) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('nodes')
+    .select('id,label,metadata,created_at')
+    .eq('type', 'convergence').eq('is_active', true)
+    .order('created_at', { ascending: false }).limit(40);
+  return (data || [])
+    .filter(n => n.metadata && (n.metadata.kind === 'cross-language' || n.metadata.lang))
+    .slice(0, limit)
+    .map(n => ({
+      t: String(n.label || '').replace(/^\s*\d+\s*[—–-]\s*/, '').trim(),
+      num: (n.metadata.numbers || [])[0] ?? null,
+      slug: n.metadata.slug || null,
+      by: n.metadata.discovered_by || null,
+      created_at: n.created_at,
+    }));
+}
 // אירועי ציר ההתגלות (nodes type=event) — לשימוש ב"מהארכיון" בדף הבית
 export async function getAxisEvents(limit = 24) {
   if (!supabase) return [];

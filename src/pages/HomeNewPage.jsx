@@ -232,58 +232,15 @@ export default function HomeNewPage() {
         </form>
       </section>
 
-      {/* ===== רדאר עליון — 2 האחרונים: התכנסות + זרם המציאות (התראה קטנה · הבהוב פר-משתמש) ===== */}
-      {(latestConv || latestHint) && (
-        <section style={{ padding: "8px 18px 4px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: (latestConv && latestHint) ? "1fr 1fr" : "1fr", gap: 10, maxWidth: 640, margin: "0 auto" }}>
-            {latestConv && (() => {
-              const isNew = +new Date(latestConv.created_at || 0) > radarMs;
-              return (
-                <button onClick={() => scrollToId("conv-home")}
-                  style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "right", cursor: "pointer", font: "inherit",
-                    background: P.cardSoft, border: `1px solid ${isNew ? "#d4af37" : P.border}`, borderRadius: 12, padding: "9px 12px", position: "relative", minWidth: 0 }}>
-                  <span style={{ fontSize: 20, flex: "none" }} aria-hidden>✦</span>
-                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.3 }}>
-                    <b style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>התכנסות חדשה נוצרה</b>
-                    <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{latestConv.title}</small>
-                    <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestConv.created_at)}</span>
-                  </span>
-                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 7, height: 7, borderRadius: "50%", background: "#d4af37" }} />}
-                </button>
-              );
-            })()}
-            {latestHint && (() => {
-              const isNew = effDate(latestHint) > radarMs; const v = domNum(latestHint);
-              return (
-                <button onClick={goReality}
-                  style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "right", cursor: "pointer", font: "inherit",
-                    background: P.cardSoft, border: `1px solid ${isNew ? "#3ea6ff" : P.border}`, borderRadius: 12, padding: "9px 12px", position: "relative", minWidth: 0 }}>
-                  <span style={{ width: 40, height: 40, flex: "none", borderRadius: 9, background: latestHint.image_url ? `center/cover no-repeat url(${thumb(latestHint.image_url, 96)})` : P.cardGrad, position: "relative", overflow: "hidden" }} aria-hidden>
-                    {v != null && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontFamily: F.mono, fontWeight: 900, fontSize: 14, color: "#f6e27a", textShadow: "0 1px 5px rgba(0,0,0,.85)" }}>{v}</span>}
-                  </span>
-                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.3 }}>
-                    <b style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>רמז חדש עלה בזרם המציאות</b>
-                    <small style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cleanName(latestHint.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</small>
-                    <span style={{ color: P.muted, fontFamily: F.heading, fontSize: 10 }}>🕒 {timeAgoHe(latestHint.created_at || latestHint.occurred_at)}</span>
-                  </span>
-                  {isNew && <span aria-hidden style={{ position: "absolute", top: 9, insetInlineStart: 9, width: 7, height: 7, borderRadius: "50%", background: "#3ea6ff" }} />}
-                </button>
-              );
-            })()}
-          </div>
-        </section>
-      )}
+      {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
+          ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
 
-      {/* ===== רצועת השידור הממותגת הוסרה מהבית (בקשת צוריאל) — השורה העליונה (LiveActivityBar) מציגה את החדשות/פוסטים ===== */}
-
-      {/* ===== ☀️ טיקר «תורת הרמז VIP» — הוסר זמנית מעמוד הבית (בקשת צוריאל 3.7): התוכן עדיין לא מאורגן. ===== */}
-      {/* נשאר חי במרכז השידורים (/broadcasts). כשהתוכן יסודר — להחזיר עם convergesOnly. */}
-
-      {/* ===== עדכונים אחרונים — פיד מאוחד (נהר + טאבים): פוסטים · בית המדרש · ערוצים ===== */}
-      {/* עץ אחד: פוסטים (צוריאל) + התכנסויות (בית המדרש) + משבצת ערוצים מתחלפת (אור הגאולה + סוד החשמל).
-          זרם המציאות לא כאן — יש לו רדאר עליון וסקשן «🌊 זרם המציאות» ייעודי. */}
-      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <LatestUpdatesFeed posts={posts} convergences={cards} hotSlugs={hotSlugs} />
+      {/* ===== עדכונים אחרונים — פיד מאוחד בסדר עדיפות (עץ אחד):
+          ① היכל הגילוי (התכנסויות + צפנים) ② כי לה' המלוכה (רמזי זרם המציאות → גוללים ל-#reality-home)
+          ③ כתבים ④ ערוצים (סוד החשמל 2:1, «תריס נופל») ⑤ תפילות ותכנים — למטה. ===== */}
+      <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
+        <HomeHeader title="📜 עדכונים אחרונים" sub="הכל בזרם אחד — היכל הגילוי · המלוכה · כתבים · ערוצים. סננו בטאב." />
+        <LatestUpdatesFeed posts={posts} convergences={cards} hints={hints} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
