@@ -217,6 +217,17 @@ export async function getAiTokenUsage(days = 7) {
     return data || null;
   } catch { return null; }
 }
+// 💰 מרכז עלות AI מאוחד — כל המדדים במקום אחד: total · by_source · by_model · by_kind · by_day (מגמה) ·
+//   wa (פעילות בוט וואטסאפ לפי קבוצה/צ׳אט + כמות הודעות). מקור: ai_token_log (עלות $) + wa_bot_log (הודעות).
+//   RPC admin_ai_cost — מתמחר לפי _ai_price(model): haiku $1/$5 · sonnet $3/$15 · opus $15/$75 ל-1M.
+export async function getAiCostMetrics(days = 30) {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc('admin_ai_cost', { p_days: days });
+    if (error) return null;
+    return data || null;
+  } catch { return null; }
+}
 // 🖥️ קונסולת-מילים לאדמין — RPC SECURITY DEFINER שעוקף RLS (רואה גם is_verified=false).
 // scope: pending|verified|rejected|all · pagination · המלצת-AI + חיבור-לישות לכל שורה.
 export async function adminWordsConsole({ scope = 'pending', q = null, limit = 50, offset = 0 } = {}) {

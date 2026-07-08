@@ -16,7 +16,7 @@ import {
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
-  getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage,
+  getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -34,6 +34,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
+  { key: "aicost",   label: "💰 עלות AI" },
   { key: "journeys", label: "🧭 מסעות" },
   { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
@@ -63,7 +64,7 @@ const TABS = [
 
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
-  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "heatmap", "popularity", "viral", "searches", "meta"] },
+  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
   { key: "journeys",  label: "🧭 מסעות",    subs: ["journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
@@ -144,6 +145,7 @@ export default function AdminPage() {
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
       {tab === "stats" && <StatsTab />}
+      {tab === "aicost" && <AiCostTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
@@ -1853,6 +1855,195 @@ function PopularityTab() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ===== 💰 מרכז עלות AI — כל מדדי-העלות במקום אחד =====
+//   מקור עלות אמיתי: ai_token_log (usage מ-Anthropic) → total · לפי מקור · לפי מודל · לפי סוג · מגמה יומית.
+//   פעילות בוט וואטסאפ: wa_bot_log → כמות הודעות + תגובות-AI לכל קבוצה/צ׳אט.
+//   🌳 עץ אחד: המקור היחיד לעלות הוא ai_token_log; כאן רק עדשה מאוחדת עליו (מפנה, לא משכפל).
+const AI_SRC = { journey: "🧭 מסע (מרכז מחקר)", analyze: "🧠 ניתוח כלים", "wa-chat": "💬 שיחת וואטסאפ", router: "🔬 ניתוב מחקר", "gallery-ocr": "🔤 OCR גלריה" };
+const AI_KIND = { deep: "ניתוח עומק", msg: "הודעת-מסע", notarikon: "ראשי/סופי תיבות", number: "דף מספר", research: "מרכז מחקר", converse: "שיחה חופשית", verse: "פסוק", compare: "השוואה" };
+// שמות ידידותיים לערוצי וואטסאפ הידועים (לא חושפים מזהה-גולמי מיותר)
+const WA_NAMES = {
+  "120363409557354268@g.us": "סוד1820 · הקבוצה הראשית",
+  "120363397037220315@g.us": "תורת הרמז",
+  "120363428363475524@g.us": "ערוץ נוסף",
+};
+const waLabel = (id = "") => WA_NAMES[id] || (id.endsWith("@g.us") ? "קבוצה ···" + id.replace("@g.us", "").slice(-4) : id.replace("@c.us", "").replace(/^972/, "0"));
+const fmtTok = n => { n = Number(n || 0); return n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n); };
+const usd = n => "$" + Number(n || 0).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const usd4 = n => "$" + Number(n || 0).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+function AiCostTab() {
+  const [days, setDays] = useState(30);
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let live = true; setLoading(true);
+    getAiCostMetrics(days).then(x => { if (live) { setD(x || null); setLoading(false); } }).catch(() => live && setLoading(false));
+    return () => { live = false; };
+  }, [days]);
+
+  const t = d?.total || {};
+  const bySource = d?.by_source || [];
+  const byModel = d?.by_model || [];
+  const byKind = d?.by_kind || [];
+  const byDay = d?.by_day || [];
+  const wa = d?.wa || {};
+  const waGroups = wa.groups || [];
+  const dayMaxCost = Math.max(...byDay.map(x => Number(x.cost_usd) || 0), 0.0001);
+  const srcMaxCost = Math.max(...bySource.map(x => Number(x.cost_usd) || 0), 0.0001);
+  const waMax = Math.max(...waGroups.map(g => Number(g.msgs) || 0), 1);
+
+  const Kpi = ({ v, lbl, big }) => (
+    <div style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 15px", background: "rgba(8,5,2,0.4)" }}>
+      <div style={{ color: big ? "#7fd18a" : C.goldBright, fontFamily: F.mono, fontSize: big ? 27 : 22, fontWeight: 800 }}>{v}</div>
+      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      {/* כותרת + טווח */}
+      <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 24, margin: "0 0 3px" }}>💰 מרכז עלות ה-AI</h2>
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5 }}>כל עלויות ה-AI במקום אחד — נמדד מהשימוש האמיתי (Anthropic usage). haiku $1/$5 · sonnet $3/$15 · opus $15/$75 ל-1M טוקן.</div>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[[7, "שבוע"], [30, "חודש"], [90, "3 חודשים"]].map(([n, lbl]) => (
+            <button key={n} onClick={() => setDays(n)} style={{ cursor: "pointer", border: `1px solid ${days === n ? C.gold : C.border}`, background: days === n ? "rgba(212,175,55,0.18)" : "transparent", color: days === n ? C.goldBright : C.muted, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? <div style={{ ...card, color: C.muted, textAlign: "center", padding: 30 }}>טוען מדדים…</div> : !Number(t.calls) ? (
+        <div style={{ ...card, color: C.muted, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: 30 }}>עדיין אין קריאות-AI מתועדות בטווח הזה.</div>
+      ) : (
+        <>
+          {/* KPI ראשי */}
+          <div style={card}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Kpi big v={usd(t.cost_usd)} lbl="💰 עלות כוללת (הערכה)" />
+              <Kpi v={fmtTok(t.total_tokens)} lbl="🪙 סה״כ טוקנים" />
+              <Kpi v={fmtTok(t.input_tokens)} lbl="⬆️ קלט" />
+              <Kpi v={fmtTok(t.output_tokens)} lbl="⬇️ פלט" />
+              <Kpi v={Number(t.calls || 0).toLocaleString("he")} lbl="🤖 קריאות AI" />
+            </div>
+          </div>
+
+          {/* עלות לפי מקור */}
+          <div style={card}>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 4px" }}>🗂️ עלות לפי מקור</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>מהיכן מגיעה ההוצאה — מסע / ניתוח-כלים / שיחת-וואטסאפ.</div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {bySource.map((s, i) => (
+                <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, flex: 1, minWidth: 120 }}>{AI_SRC[s.source] || s.source}</span>
+                    <span style={{ color: "#7fd18a", fontFamily: F.mono, fontSize: 14, fontWeight: 800 }}>{usd4(s.cost_usd)}</span>
+                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, fontWeight: 700 }}>{fmtTok(s.total_tokens)}</span>
+                    <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11 }}>· {Number(s.calls).toLocaleString("he")} קר׳</span>
+                  </div>
+                  <div style={{ height: 6, background: "rgba(212,175,55,0.12)", borderRadius: 999, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.round((Number(s.cost_usd) / srcMaxCost) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#7fd18a,#d4af37)" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* מגמה יומית + לפי מודל */}
+          <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}>
+            <div style={card}>
+              <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 12px" }}>📈 מגמה יומית</h3>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 120, marginBottom: 8 }}>
+                {byDay.map((x, i) => (
+                  <div key={i} title={`${x.day}: ${usd4(x.cost_usd)} · ${x.calls} קר׳`} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }}>
+                    <div style={{ width: "100%", maxWidth: 34, height: Math.max(4, Math.round((Number(x.cost_usd) / dayMaxCost) * 96)), borderRadius: "5px 5px 0 0", background: "linear-gradient(180deg,#d4af37,#7fd18a)" }} />
+                    <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 9.5, whiteSpace: "nowrap" }}>{x.day.slice(5)}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, textAlign: "center" }}>גובה = עלות $ ליום</div>
+            </div>
+
+            <div style={card}>
+              <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 12px" }}>🤖 עלות לפי מודל</h3>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead><tr><th style={th}>מודל</th><th style={th}>עלות</th><th style={th}>טוקנים</th><th style={th}>קריאות</th></tr></thead>
+                  <tbody>
+                    {byModel.map((m, i) => (
+                      <tr key={i}>
+                        <td style={{ ...td, color: C.goldBright, fontWeight: 700, fontFamily: F.mono, fontSize: 12.5 }}>{m.model}</td>
+                        <td style={{ ...td, color: "#7fd18a", fontFamily: F.mono }}>{usd4(m.cost_usd)}</td>
+                        <td style={td}>{fmtTok(m.total_tokens)}</td>
+                        <td style={td}>{Number(m.calls).toLocaleString("he")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* לפי סוג-פעולה */}
+          <div style={card}>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 4px" }}>🔎 עלות לפי סוג-פעולה</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>פירוט מדויק — איזו פעולת-AI ספציפית צרכה הכי הרבה.</div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><th style={th}>מקור</th><th style={th}>פעולה</th><th style={th}>עלות</th><th style={th}>טוקנים</th><th style={th}>קריאות</th></tr></thead>
+                <tbody>
+                  {byKind.map((k, i) => (
+                    <tr key={i}>
+                      <td style={{ ...td, color: C.goldLight }}>{AI_SRC[k.source] || k.source}</td>
+                      <td style={{ ...td, color: C.goldBright, fontWeight: 700 }}>{AI_KIND[k.kind] || k.kind}</td>
+                      <td style={{ ...td, color: "#7fd18a", fontFamily: F.mono }}>{usd4(k.cost_usd)}</td>
+                      <td style={td}>{fmtTok(k.total_tokens)}</td>
+                      <td style={td}>{Number(k.calls).toLocaleString("he")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 📱 פעילות בוט וואטסאפ לפי קבוצה */}
+          <div style={card}>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 4px" }}>📱 פעילות הבוט לפי קבוצה / צ׳אט</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כמות ההודעות שהבוט טיפל בהן וכמה מהן היו תגובת-AI (בתשלום). רוב התגובות = מנוע-גימטריה בלבד → עלות AI אפס.</div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              <Kpi v={Number(wa.total_msgs || 0).toLocaleString("he")} lbl="💬 סה״כ הודעות שטופלו" />
+              <Kpi v={Number(wa.ai_msgs || 0).toLocaleString("he")} lbl="🤖 מתוכן תגובות-AI" />
+              <Kpi v={waGroups.length.toLocaleString("he")} lbl="👥 ערוצים פעילים" />
+            </div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {waGroups.map((g, i) => (
+                <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 13 }}>{g.kind === "group" ? "👥" : "👤"}</span>
+                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, flex: 1, minWidth: 100 }}>{waLabel(g.group_id)}</span>
+                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800 }}>{Number(g.msgs).toLocaleString("he")}</span>
+                    {Number(g.ai_msgs) > 0 && <span style={{ color: "#7fd18a", fontFamily: F.mono, fontSize: 11.5, fontWeight: 700 }}>🤖 {g.ai_msgs}</span>}
+                  </div>
+                  <div style={{ height: 6, background: "rgba(212,175,55,0.12)", borderRadius: 999, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.round((Number(g.msgs) / waMax) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#25d366,#d4af37)" }} />
+                  </div>
+                </div>
+              ))}
+              {waGroups.length === 0 && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>אין פעילות-בוט בטווח.</div>}
+            </div>
+          </div>
+
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, textAlign: "center", fontStyle: "italic" }}>
+            💡 עלות ה-AI מבוססת על צריכת-הטוקנים האמיתית שמדווחת מ-Anthropic. הבוט האוטונומי (מנוע-גימטריה) לא צורך טוקנים כלל — רק שיחות-AI («רזיאל») ופעולות-ניתוח נספרות כאן.
+          </div>
+        </>
+      )}
     </div>
   );
 }
