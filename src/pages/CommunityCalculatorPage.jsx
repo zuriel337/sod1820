@@ -219,7 +219,7 @@ function BabyNameTool({ P }) {
                   );
                 })}
               </div>
-              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב… (Sonnet — כמה שניות)</div>}
+              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב… (כמה שניות)</div>}
               {ai[i]?.text && !ai[i]?.busy && (
                 <div style={{ marginTop: 10 }}>
                   <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔵 ניתוח AI · עובדתי (מהמנוע)</div>
@@ -266,17 +266,29 @@ export default function CommunityCalculatorPage() {
   const [hebBusy, setHebBusy] = useState(false);
 
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
+  // שם יחיד → kind=number; שני שמות (השוואה) → kind=compare. מודל מהיר (fast) לכלי אינטראקטיבי.
   async function runAi() {
     if (!r1 || aiBusy) return;
     setAiBusy(true); setAiText("");
-    const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
-    const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
-    const facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
-      (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
-    const txt = await getAiAnalysis({ kind: "number", subject: name1.trim(), facts, fast: true });
+    let kind, subject, facts;
+    if (r2) {
+      const eq = matches.map(m => `${m.key} (${m.value})`).join(", ");
+      kind = "compare"; subject = `${name1.trim()} מול ${name2.trim()}`;
+      facts = `שני שמות: "${name1.trim()}" = ${r1.value} · "${name2.trim()}" = ${r2.value} (גימטריה רגילה).` +
+        (matches.length ? ` הם מתכנסים לאותו ערך בשיטות: ${eq}.` : " אין להם ערך שווה באף שיטה מ-19 השיטות.");
+    } else {
+      const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
+      const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
+      kind = "number"; subject = name1.trim();
+      facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
+        (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
+    }
+    const txt = await getAiAnalysis({ kind, subject, facts, fast: true });
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
+  // איפוס ניתוח כשמשנים שם/מצב — כדי שלא יישאר ניתוח ישן על נתונים חדשים
+  useEffect(() => { setAiText(""); }, [name1, name2, compare]);
 
   useEffect(() => {
     applySeo({
@@ -579,19 +591,18 @@ export default function CommunityCalculatorPage() {
             </div>
           )}
 
-          {/* 🤖 ניתוח AI אישי — כרטיס בולט משלו (Claude via ai-analyze), תמיד גלוי לשם יחיד */}
-          {!r2 && (
-            <div style={{ background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", borderRadius: 16, padding: "16px 18px", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
+          {/* 🤖 ניתוח AI אישי — כרטיס בולט משלו (Claude via ai-analyze). שם יחיד = ניתוח · השוואה = חיבור בין השמות */}
+          <div style={{ background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", borderRadius: 16, padding: "16px 18px", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
                 <span style={{ fontSize: 20 }}>🤖</span>
                 <div>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI אישי לשם «{name1.trim()}»</div>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{r2 ? `ניתוח AI — «${name1.trim()}» מול «${name2.trim()}»` : `ניתוח AI אישי לשם «${name1.trim()}»`}</div>
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
                 </div>
               </div>
               {!aiText && !aiBusy && (
                 <button onClick={runAi} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                  ✨ הפעילו ניתוח AI
+                  {r2 ? "✨ מה ה-AI אומר על החיבור?" : "✨ הפעילו ניתוח AI"}
                 </button>
               )}
               {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב…</div>}
@@ -603,8 +614,7 @@ export default function CommunityCalculatorPage() {
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
           {/* שיתוף */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
