@@ -33,8 +33,9 @@ import PostsPage from "./pages/PostsPage.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import {
   MembersPage, CommunityPage,
-  CommunityCalculatorPage, CommunityCommentsPage, MethodPage,
+  CommunityCommentsPage, MethodPage,
 } from "./pages/placeholders.jsx";
+import CommunityCalculatorPage from "./pages/CommunityCalculatorPage.jsx";
 import {
   PostBySlugRoute, GematriaRoute,
   LoginRoute, ContactRoute, SpotimChatRoute,

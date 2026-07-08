@@ -33,7 +33,8 @@ const moreItems = [
 // מסודר לפי קבוצות: מחקר (מחשבון · מספרים · היכל) → תוכן (פוסטים · גלריות · ציר) → קהילה → ניווט.
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
-  { e: "🧮", l: "מחשבון גימטריה", to: "/beit-midrash?tab=calc" },
+  { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
+  { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
   { e: "🔢", l: "מנוע המספרים", to: "/number" },
   { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
   { e: "📖", l: "פוסטים", to: "/post" },
