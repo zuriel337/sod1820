@@ -64,10 +64,10 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       );
     }
     // conv → היכל הגילוי · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל הגילוי» בנאב/למעלה).
-    // לחיצה גוללת לסקשן «עץ ההתכנסויות» בבית (מפנה, לא מנווט; לא לסקשן הצפנים).
+    // לחיצה גוללת ל«● LIVE · חדשות בית המדרש» (#conv-home — ארבע ההתכנסויות האחרונות), לא לקונסטלציה ולא לצפנים.
     const num = (d.highlight_numbers || [])[0];
     return (
-      <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("convergences-home")} className="lur-card" style={{ "--acc": cGilui }}>
+      <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("conv-home")} className="lur-card" style={{ "--acc": cGilui }}>
         <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <span className="lur-em">🏛️</span>}</div>
         <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל הגילוי · בית המדרש · התכנסות</Tag>
           <h3 className="lur-title">{d.title}</h3>
