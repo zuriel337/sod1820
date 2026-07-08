@@ -16,6 +16,11 @@ import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 19 שיטות
 const CORE_KEYS = ["רגיל", "מילוי", "מסתתר", "קדמי", "ריבוע", "סידורי", "אתבש", "אלבם"]; // 8 מרכזיות
 
+// ✦ מספרי-הגאולה של סוד 1820 — אם השם פוגע באחד מהם (בכל שיטה) → «מחובר לסוד».
+const GEULA_NUMS = { 1820: "שם הוי״ה בתורה", 358: "משיח", 26: "הוי״ה", 86: "אלהים", 541: "ישראל", 613: "תרי״ג מצוות", 137: "קבלה", 72: "חסד · שם ע״ב", 1237: "התגלות", 314: "שד־י · מטטרון", 65: "אדנ־י" };
+// 📅 מילה של היום — דטרמיניסטי לפי היום בחודש (סיבה לחזור).
+const DAILY_WORDS = ["אמת", "אהבה", "גאולה", "משיח", "תורה", "חכמה", "בינה", "אור", "שלום", "חיים", "נשמה", "ברכה", "תשובה", "אמונה", "צדק"];
+
 const gemAll = name => ALL_METHODS.map(m => ({ key: m.key, sub: m.sub || m.soul || "", value: m.fn(name) }));
 const regularOf = name => { try { return resolve(name).value; } catch { return METHODS[0].fn(name); } };
 // כרטיס-שיתוף דינמי 1200×630 — השם ענק + הערך (api/card קיים).
@@ -64,6 +69,15 @@ export default function CommunityCalculatorPage() {
   const r1 = useMemo(() => onlyHeb(name1).length ? { value: regularOf(name1), all: gemAll(name1) } : null, [name1]);
   const r2 = useMemo(() => (compare && onlyHeb(name2).length) ? { value: regularOf(name2), all: gemAll(name2) } : null, [compare, name2]);
   const matches = useMemo(() => (r1 && r2) ? r1.all.filter((a, i) => a.value === r2.all[i].value) : [], [r1, r2]);
+
+  // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מ-19 השיטות
+  const geula = useMemo(() => {
+    if (!r1) return null;
+    for (const m of r1.all) if (GEULA_NUMS[m.value]) return { num: m.value, method: m.key, meaning: GEULA_NUMS[m.value] };
+    return null;
+  }, [r1]);
+  // 📅 מילה של היום (דטרמיניסטי — בלי Math.random, יציב ליום)
+  const daily = useMemo(() => { const w = DAILY_WORDS[new Date().getDate() % DAILY_WORDS.length]; return { word: w, value: regularOf(w) }; }, []);
 
   // ✨ הקסם: לאילו ביטויים מהתורה/הגרף השם שווה
   useEffect(() => {
@@ -164,6 +178,12 @@ export default function CommunityCalculatorPage() {
         </div>
       )}
 
+      {/* 📅 מילה של היום — סיבה לחזור */}
+      <button onClick={() => { setName1(daily.word); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+        style={{ cursor: "pointer", width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, justifyContent: "center", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
+        📅 מילה של היום: <b style={{ color: P.heroNum }}>{daily.word}</b> = <b style={{ fontFamily: F.mono }}>{daily.value}</b> · הקליקו לחקור →
+      </button>
+
       {/* קלט */}
       <div style={{ display: "grid", gap: 12, marginBottom: 8 }}>
         <input style={inp} value={name1} onChange={e => setName1(e.target.value)} placeholder="הקלידו שם / מילה בעברית…" autoFocus dir="rtl" />
@@ -178,6 +198,17 @@ export default function CommunityCalculatorPage() {
       {r1 && (
         <div style={{ display: "grid", gap: 16 }}>
           <Reveal name={name1} r={r1} phrases={phrases1} />
+
+          {/* ✦ חיבור לסוד 1820 — הרגע המיוחד */}
+          {!r2 && geula && (
+            <Link to={`/number/${geula.num}`} style={{ textDecoration: "none", display: "block", background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06))", border: `1.5px solid ${P.accent}`, borderRadius: 16, padding: "16px 18px", textAlign: "center" }}>
+              <div style={{ color: P.heroNum, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 3 }}>✦ השם שלך מחובר לסוד!</div>
+              <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
+                בשיטת <b>{geula.method}</b> הוא שווה <b style={{ fontFamily: F.mono }}>{geula.num}</b> — <b>{geula.meaning}</b>. לחצו לחקירת הצומת →
+              </div>
+            </Link>
+          )}
+
           {r2 && <Reveal name={name2} r={r2} phrases={[]} />}
 
           {/* 💞 תאימות */}
@@ -239,6 +270,9 @@ export default function CommunityCalculatorPage() {
             <button onClick={() => { navigator.clipboard?.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 1500); }} style={pillBtn(P.card, P.accentText)}>
               {copied ? "✓ הועתק" : "🔗 העתק קישור"}
             </button>
+            {!r2 && (
+              <a href={cardFor(name1.trim(), r1.value)} target="_blank" rel="noopener noreferrer" style={pillBtn(P.card, P.accentText)}>📥 שמור תמונה</a>
+            )}
           </div>
 
           {/* 📸 תצוגת כרטיס-השיתוף */}

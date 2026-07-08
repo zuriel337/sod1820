@@ -7,7 +7,8 @@
 - **📱 בוט וואטסאפ (רזיאל) — עובד.** `wa-webhook·wa-process·wa-poll·wa-ocr·wa-channel-ingest·wa-daily-digest·wa-vip-backfill` על **Green API** (מספר משני). מפתחות: `GREEN_API_ID/TOKEN/URL` ב-Vault.
 - **📣 פרסום לרשתות — עובד בלי מפתח.** `social_post`/`social_admin` RPC → `facebook-admin`/`share-to-facebook` (FB·IG). `meta-capi` = Conversions API. מפתח `FB_ADMIN_KEY` ב-Vault (ראה `social_publish_law`).
 - **✉️ ניוזלטר — עובד.** `newsletter-signup·send-newsletter·newsletter-unsubscribe·email-ingest` על **Resend** (~804 נמענים).
-- **🔍 GSC — עובד.** `gsc-sync` קורא `GSC_SA_KEY`/`GSC_SYNC_KEY` מ-Vault. נכס-דומיין `sod1820.co.il` + נכס-קידומת https (עבוד מהדומיין).
+- **🔍 GSC — עובד.** `gsc-sync` קורא `GSC_SA_KEY`/`GSC_SYNC_KEY` מ-Vault. נכס-דומיין `sod1820.co.il` + נכס-קידומת https (עבוד מהדומיין). אימות ב-`index.html` (`google-site-verification`).
+- **📊 כלי מדידה (Google + Microsoft) — מחוברים.** **Google Analytics 4** (`src/lib/analytics.js`, ID ב-Vercel env `VITE_GA_ID`; `syncGoogleAnalytics`/`getGaInsights`/`getGaInsights` בדף-הניהול טאב «📊 אנליטיקס»). **Microsoft Clarity** (`src/lib/clarity.js`, project `xdwf0gps8h` — הקלטות-סשן + מפות-חום, חינם). **Meta Pixel/CAPI** (`meta-capi` + טאב «📡 מעקב Meta»). כל אלה כבר פעילים — אל תבנה אנליטיקס מקביל.
 - **🖼 מדיה/OCR — עובד.** `gallery-ocr·wa-ocr` (OCR עם Anthropic) · `upload-image·storage-put·migrate-media·video-migrate·reality-upload·admin-card-upload`.
 - **💳 סליקה/מנויים:** **PayPlus** (recurring) ל«בני ההיכל». **Supabase** project `linswmnnkjxvweumprav` · **Vercel** (prod=main).
 - **מיקום מפתחות:** LLM (`ANTHROPIC_API_KEY`, `ANALYZE_MODEL`) = **Edge secrets**. השאר (`FB_ADMIN_KEY·GREEN_API_*·GSC_*`) = **Vault** (`vault.secrets`). לבדיקה: `select name from vault.secrets;` + `list_edge_functions`.
