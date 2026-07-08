@@ -25,7 +25,6 @@ const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
 const MORE_HIDE = ["/start", "/code", "/members", "/lab"];
 const moreItems = [
   ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
-  { label: "הכתבים והחוקרים", emoji: "📜", to: "/community/researchers" },
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
@@ -42,7 +41,6 @@ const MOBILE_TILES = [
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "💬", l: "הצ'אט הוותיק", to: "/community/chat" },
-  { e: "📜", l: "הכתבים והחוקרים", to: "/community/researchers" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
 const MOBILE_SOON = [
