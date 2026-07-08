@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
-import ReporterLink from "./ReporterLink.jsx";
+import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
 
 // 📡💬 «העדכונים החיים» — פיד חי בעיצוב וואטסאפ אמיתי (אותם צבעים/בועות/זנבות).
 // דסקטופ: עמודה קבועה תמיד-פתוחה בצד ימין (מתחת לנאבבר). מובייל: כפתור פותח → גיליון תחתון.
@@ -167,7 +167,7 @@ export default function LiveChannelFeed() {
         /* זנבות הבועה (משולש בפינה העליונה) */
         .lcf-b.rb::before{content:"";position:absolute;top:0;right:-7px;border:7px solid transparent;border-top-color:${WA.recv};border-right:0}
         .lcf-b.sb::before{content:"";position:absolute;top:0;left:-7px;border:7px solid transparent;border-top-color:${WA.sent};border-left:0}
-        .lcf-snd{font-family:${F.heading};font-size:12px;font-weight:700;margin-bottom:2px;line-height:1.2}
+        .lcf-snd{display:flex;align-items:center;gap:5px;font-family:${F.heading};font-size:12px;font-weight:700;margin-bottom:2px;line-height:1.2}
         .lcf-ai{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:${dark ? "#7fe0c4" : "#027a5f"};margin-bottom:2px}
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
         .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
@@ -236,7 +236,7 @@ export default function LiveChannelFeed() {
                       <div className={"lcf-b " + (ai ? "sb" : "rb")}>
                         {ai
                           ? <div className="lcf-ai"><span className="rb2">🤖</span>רזיאל · AI</div>
-                          : <div className="lcf-snd" style={{ color: c.c }}>{c.em} <ReporterLink credit={u.credit} style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></div>}
+                          : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} /><span>{c.em} <ReporterLink credit={u.credit} style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}
                         {u.image_url && !isVideo(u.image_url) && (
                           <button className="lcf-imgw" onClick={() => setZoom(u.image_url)} aria-label="הגדל תמונה">
                             <img src={thumb(u.image_url, 360)} alt="" loading="lazy" />

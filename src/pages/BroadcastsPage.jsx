@@ -8,7 +8,7 @@ import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
-import ReporterLink from "../components/ReporterLink.jsx";
+import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
 
 // 📡 «מרכז השידורים» — פיד מאוחד של כל הערוצים, החדשים למעלה, בטורים (≥4 בדסקטוב רחב).
 // עדשה אחת על channel_updates (עץ אחד) — אותו מקור של «העדכונים החיים» בבית/בצ'אט.
@@ -121,6 +121,7 @@ export default function BroadcastsPage() {
                   {ai && <span className="bc-badge bc-ai" style={{ "--acc": "#25d366" }}>🤖 רזיאל · AI</span>}
                   {showTxt && <p className="bc-tx">{u.text}</p>}
                   <div className="bc-meta">
+                    <ReporterAvatar credit={u.credit} size={20} ring={b.accent} />
                     <span>{u.credit ? <>✍️ <ReporterLink credit={u.credit} style={{ color: b.accent, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 800 }}>{u.credit}</ReporterLink> · </> : ""}🕒 {timeAgoHe(u.created_at)}</span>
                     <button className="bc-share" onClick={e => { e.stopPropagation(); shareUpdate(u, b.title); }}>↗ שתפו</button>
                     {u.link_url && <Link to={u.link_url} className="bc-link" onClick={e => e.stopPropagation()}>📖 לפוסט ←</Link>}
