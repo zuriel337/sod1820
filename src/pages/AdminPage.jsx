@@ -1892,10 +1892,11 @@ function AiCostTab() {
   const byKind = d?.by_kind || [];
   const byDay = d?.by_day || [];
   const wa = d?.wa || {};
-  const waGroups = wa.groups || [];
+  const waChats = wa.chats || [];
   const dayMaxCost = Math.max(...byDay.map(x => Number(x.cost_usd) || 0), 0.0001);
   const srcMaxCost = Math.max(...bySource.map(x => Number(x.cost_usd) || 0), 0.0001);
-  const waMax = Math.max(...waGroups.map(g => Number(g.msgs) || 0), 1);
+  const waMax = Math.max(...waChats.map(g => Number(g.msgs) || 0), 1);
+  const chatName = c => c.kind === "group" ? waLabel(c.chat_id) : (c.name && c.name.trim() ? c.name : waLabel(c.chat_id));
 
   const Kpi = ({ v, lbl, big }) => (
     <div style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 15px", background: "rgba(8,5,2,0.4)" }}>
@@ -2012,31 +2013,39 @@ function AiCostTab() {
             </div>
           </div>
 
-          {/* 📱 פעילות בוט וואטסאפ לפי קבוצה */}
+          {/* 📱 פעילות + עלות לפי משתמש/קבוצה — כל מי שהבוט דיבר איתו, למעקב וניהול */}
           <div style={card}>
-            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 4px" }}>📱 פעילות הבוט לפי קבוצה / צ׳אט</h3>
-            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כמות ההודעות שהבוט טיפל בהן וכמה מהן היו תגובת-AI (בתשלום). רוב התגובות = מנוע-גימטריה בלבד → עלות AI אפס.</div>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 19, margin: "0 0 4px" }}>💬 עלות ופעילות לפי משתמש / קבוצה</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>כל מי שהבוט («רזיאל») דיבר איתו — קבוצות ומשתמשים פרטיים. כמות הודעות · תגובות-AI · עלות $ בפועל. רוב התגובות = מנוע-גימטריה → עלות אפס; רק שיחת-AI («רזיאל») עולה טוקנים.</div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
               <Kpi v={Number(wa.total_msgs || 0).toLocaleString("he")} lbl="💬 סה״כ הודעות שטופלו" />
-              <Kpi v={Number(wa.ai_msgs || 0).toLocaleString("he")} lbl="🤖 מתוכן תגובות-AI" />
-              <Kpi v={waGroups.length.toLocaleString("he")} lbl="👥 ערוצים פעילים" />
+              <Kpi v={Number(wa.ai_msgs || 0).toLocaleString("he")} lbl="🤖 תגובות-AI (בתשלום)" />
+              <Kpi big v={usd4(wa.ai_cost_usd)} lbl="💰 עלות שיחות-AI" />
+              <Kpi v={waChats.length.toLocaleString("he")} lbl="👥 משתמשים/קבוצות" />
             </div>
-            <div style={{ display: "grid", gap: 8 }}>
-              {waGroups.map((g, i) => (
-                <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", background: "rgba(8,5,2,0.3)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 13 }}>{g.kind === "group" ? "👥" : "👤"}</span>
-                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, flex: 1, minWidth: 100 }}>{waLabel(g.group_id)}</span>
-                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14, fontWeight: 800 }}>{Number(g.msgs).toLocaleString("he")}</span>
-                    {Number(g.ai_msgs) > 0 && <span style={{ color: "#7fd18a", fontFamily: F.mono, fontSize: 11.5, fontWeight: 700 }}>🤖 {g.ai_msgs}</span>}
-                  </div>
-                  <div style={{ height: 6, background: "rgba(212,175,55,0.12)", borderRadius: 999, overflow: "hidden" }}>
-                    <div style={{ width: `${Math.round((Number(g.msgs) / waMax) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#25d366,#d4af37)" }} />
-                  </div>
-                </div>
-              ))}
-              {waGroups.length === 0 && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>אין פעילות-בוט בטווח.</div>}
-            </div>
+            {waChats.length === 0 ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13 }}>אין פעילות-בוט בטווח.</div> : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead><tr><th style={th}>משתמש / קבוצה</th><th style={th}>סוג</th><th style={th}>הודעות</th><th style={th}>תגובות-AI</th><th style={th}>עלות</th><th style={th}>אחרון</th></tr></thead>
+                  <tbody>
+                    {waChats.map((c, i) => (
+                      <tr key={i}>
+                        <td style={{ ...td, color: C.goldBright, fontWeight: 700 }}>
+                          <span style={{ marginInlineEnd: 6 }}>{c.kind === "group" ? "👥" : "👤"}</span>{chatName(c)}
+                          <div style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 10, marginTop: 2, direction: "ltr", textAlign: "right" }}>{c.kind === "private" ? String(c.chat_id).replace("@c.us", "").replace(/^972/, "0") : String(c.chat_id).slice(-8)}</div>
+                        </td>
+                        <td style={{ ...td, color: C.goldDim, fontSize: 12 }}>{c.kind === "group" ? "קבוצה" : "פרטי"}</td>
+                        <td style={{ ...td, color: C.goldBright, fontFamily: F.mono, fontWeight: 700 }}>{Number(c.msgs).toLocaleString("he")}</td>
+                        <td style={td}>{Number(c.ai_msgs) > 0 ? <span style={{ color: "#7fd18a", fontFamily: F.mono, fontWeight: 700 }}>🤖 {c.ai_msgs}</span> : <span style={{ color: C.muted }}>—</span>}</td>
+                        <td style={{ ...td, color: Number(c.cost_usd) > 0 ? "#7fd18a" : C.muted, fontFamily: F.mono }}>{Number(c.cost_usd) > 0 ? usd4(c.cost_usd) : "$0"}</td>
+                        <td style={{ ...td, color: C.goldDim, fontSize: 11.5, whiteSpace: "nowrap" }}>{fmtDate(c.last)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, marginTop: 10, fontStyle: "italic" }}>💡 עלות-שיחה נמדדת מעכשיו לכל צ׳אט (מהעדכון הזה) — תתמלא ככל שהבוט משוחח. שיחות-AI קודמות נספרו בלי ייחוס-משתמש.</div>
           </div>
 
           <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, textAlign: "center", fontStyle: "italic" }}>
