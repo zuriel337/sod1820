@@ -16,7 +16,6 @@ import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
-import { useSiteFlag } from "../components/MaintenanceLock.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
@@ -78,11 +77,7 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
-  const { user, isAdmin } = useAuth();
-  // 🔒 lock_reality: כשהזרם נעול (mode=anon → אנונימיים) — עמוד הבית לא טוען רמזי-זרם בכלל:
-  // הריל/קאברים/מספרים-חמים מהזרם נעלמים, וגם לא נשרפות טרנספורמציות-תמונה על תנועה אנונימית.
-  const { loading: rlLoading, lock: rlLock } = useSiteFlag("lock_reality");
-  const streamBlocked = !!rlLock?.enabled && !isAdmin && !(rlLock.mode === "anon" && user);
+  const { isAdmin } = useAuth();
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
@@ -124,12 +119,12 @@ export default function HomeNewPage() {
     markSeenKey("home-radar");
   }, []);
 
-  // 🔒 רמזי זרם המציאות בבית — רק למי שהזרם פתוח עבורו (lock_reality). חסום → אין טעינה בכלל.
+  // 🌊 רמזי הזרם נטענים לכולם — כטיזר: תמונה קטנה ב«עדכונים אחרונים» (החלטת צוריאל 9.7.2026).
+  // «לפתוח» את הזרם עצמו אי-אפשר בלי רישום: הלחיצה גוללת ל-#reality-home, ושם RealityWorld
+  // (מגודר בתוכו, site_flags_lock_law) מציג לאנונימי את טיזר-ההרשמה במקום הזרם.
   useEffect(() => {
-    if (rlLoading) return;
-    if (streamBlocked) { setHints([]); return; }
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
-  }, [rlLoading, streamBlocked]);
+  }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
   // יום = קלף קרם (אטום, מכסה). מקור אחד: SpaceBackground.jsx → משנה את כל הדפים הכהים.
