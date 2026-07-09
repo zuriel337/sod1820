@@ -5,8 +5,8 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getContributorsList } from "../lib/supabase.js";
 
-// 🔑 כניסה עם קוד-סוד (בלי התחברות) — לעקוף את חסם ההתחברות. ?key=<code>
-const EDIT_KEY = "sod-edit-9k4m2x";
+// 🔑 כניסה עם קוד-סוד (בלי התחברות) — ?key=<code>. הקוד עצמו לא נשמר בצד-הלקוח:
+// כל key פותח את הטופס, אבל השמירה מאומתת בשרת (post-save token) — key שגוי → נדחה.
 import { thumb } from "../lib/img.js";
 
 // ✍️ עורך הפוסטים המתקדם (אדמין) — /admin/editor (חדש) · /admin/editor/:slug (עריכה).
@@ -33,7 +33,7 @@ export default function PostEditorPage() {
   const { isAdmin, verified, user, profile, loading: authLoading } = useAuth();
   // כניסה עם קוד-סוד בכתובת (?key=) — עוקף את שער ההתחברות ומשתמש בשמירה מוגנת-קוד.
   const editKey = useMemo(() => { try { return new URLSearchParams(window.location.search).get("key") || ""; } catch { return ""; } }, []);
-  const hasKey = editKey === EDIT_KEY;
+  const hasKey = !!editKey;   // הטופס נפתח עם כל key; השמירה מאמתת בשרת
   const canEdit = hasKey || (verified && isAdmin);
 
   const isEdit = !!routeSlug;
