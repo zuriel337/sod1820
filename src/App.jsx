@@ -13,6 +13,7 @@ import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
+import SitePromoPopup from "./components/SitePromoPopup.jsx";
 import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -191,6 +192,7 @@ export default function App() {
         <Analytics />
         <GlobalChrome>
           <UpdateBanner />
+          <SitePromoPopup />
           <RoyalShareWidget />
           {/* הוסר זמנית לבקשת צוריאל — נחזיר כשיחליט. <LabDock /> */}
           <InstallPrompt />

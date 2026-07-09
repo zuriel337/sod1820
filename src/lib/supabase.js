@@ -554,6 +554,33 @@ export async function getOwnerNote(value) {
   } catch { return null; }
 }
 
+// 📣 פופ-אפ קמפיין אתר-רחב (site_promo) — דאטא-דרייבן מ-nodes (role='site_promo'). מחזיר את
+// הקמפיין הפעיל האחרון בתוך חלון-הזמן (active_until), או null. צוריאל מכבה/מאריך בלי פריסה.
+export async function getSitePromo() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.from('nodes')
+      .select('id,metadata')
+      .eq('type', 'entity').eq('is_active', true)
+      .eq('metadata->>role', 'site_promo')
+      .order('created_at', { ascending: false })
+      .limit(1).maybeSingle();
+    if (error || !data) return null;
+    const m = data.metadata || {};
+    if (m.active_until && Date.parse(m.active_until) <= Date.now()) return null;  // חלון נגמר
+    if (!m.href) return null;
+    return {
+      id: data.id,
+      href: m.href,
+      title: m.title || 'פוסט חדש באתר',
+      teaser: m.teaser || '',
+      image: m.image || '',
+      cta: m.cta || '📖 לקריאת הפוסט',
+      activeUntil: m.active_until || null,
+    };
+  } catch { return null; }
+}
+
 // 🧲 פניית גולש בעקבות ההודעה האישית — משאיר דרך ליצירת קשר (INSERT ציבורי; קריאה server-only).
 export async function submitOwnerNoteRequest({ number, name, contact, message, visitorId }) {
   if (!supabase || !contact) return false;
