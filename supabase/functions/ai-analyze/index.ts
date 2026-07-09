@@ -5,11 +5,14 @@
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
 //    Gemini משתמש ב-GEMINI_API_KEY (Edge secret, כמו ANTHROPIC_API_KEY — לא Vault).
 //    אם אין מפתח למנוע המבוקש → { analysis:null, error:"not_configured" } (נפילה בחן, לא קריסה).
-const ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
-const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") || "";
-const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
-const FAST_MODEL = Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5";
-const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
+// .trim() — הגנה מפני רווח/שורה עודפת בסוד (הכי נפוץ; גורם ל-Google להחזיר "API key not valid").
+const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
+const GEMINI_KEY = (Deno.env.get("GEMINI_API_KEY") || "").trim();
+const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
+const FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim();
+// אם GEMINI_MODEL לא מוגדר/שגוי → ברירת-מחדל בטוחה (מונע דגם לא-תקין בסוד).
+const GEMINI_MODEL_RAW = (Deno.env.get("GEMINI_MODEL") || "").trim();
+const GEMINI_MODEL = GEMINI_MODEL_RAW.startsWith("gemini") ? GEMINI_MODEL_RAW : "gemini-2.5-flash";
 
 // 🔓 CORS: חובה לכלול את *כל* ה-headers ש-supabase-js שולח בקריאת functions.invoke
 //    (בעיקר x-client-info + x-supabase-api-version), אחרת ה-preflight של הדפדפן נכשל
