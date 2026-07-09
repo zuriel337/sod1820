@@ -245,7 +245,7 @@ export default function HomeNewPage() {
           {HERO_SLIDES.map((s, i) => (
             <div className="hn-slide" key={i}>
               <div className="hn-gate">
-                <img src={s.img} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
+                <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
                   fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />
                 <Link to={s.to} className="hn-cta hn-cta-big hn-enter">{s.cta}</Link>
               </div>
