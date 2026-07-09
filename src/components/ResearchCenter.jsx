@@ -206,16 +206,22 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 <div className="rw-sec-t" style={{ marginTop: pinned.length ? 10 : 0 }}>🔬 במחקר עכשיו</div>
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
+              {aiState !== "done" && (
+                <>
+                  <div className="rw-sec-t" style={{ marginTop: 12 }}>🤖 נתח את המספרים שלך ב-AI</div>
+                  <div className="rw-muted" style={{ marginBottom: 8 }}>שני מנועים — כל אחד קורא את המספרים שלך בזווית אחרת. בקרוב: גם חיבור ופרשנות משותפת ביניהם.</div>
+                </>
+              )}
               <div className="rw-cta">
                 {aiState === "done" ? (
                   <button className="b1" onClick={() => runAnalyze(aiEngine, { toggle: true })} title="הסתר ניתוח">🤖 הסתר ניתוח</button>
                 ) : (
                   <>
-                    <button className="b1" onClick={() => runAnalyze("claude")} disabled={aiState === "busy"} title="ניתוח באמצעות Claude — פרשנות סיפורית">
-                      {aiState === "busy" && aiEngine === "claude" ? "✍️ Claude…" : "🔵 Claude"}
+                    <button className="b1" onClick={() => runAnalyze("claude")} disabled={aiState === "busy"} title="ניתוח AI באמצעות Claude — פרשנות סיפורית">
+                      {aiState === "busy" && aiEngine === "claude" ? "✍️ Claude…" : "🔵 נתח ב-Claude"}
                     </button>
-                    <button className="b1" onClick={() => runAnalyze("gemini")} disabled={aiState === "busy"} title="ניתוח באמצעות Gemini — זווית אנליטית" style={{ background: "linear-gradient(135deg,#8a63f4,#6d3ff0)" }}>
-                      {aiState === "busy" && aiEngine === "gemini" ? "✍️ Gemini…" : "🟣 Gemini"}
+                    <button className="b1" onClick={() => runAnalyze("gemini")} disabled={aiState === "busy"} title="ניתוח AI באמצעות Gemini — זווית אנליטית" style={{ background: "linear-gradient(135deg,#8a63f4,#6d3ff0)" }}>
+                      {aiState === "busy" && aiEngine === "gemini" ? "✍️ Gemini…" : "🟣 נתח ב-Gemini"}
                     </button>
                   </>
                 )}

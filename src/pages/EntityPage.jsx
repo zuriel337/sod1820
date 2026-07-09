@@ -1237,24 +1237,26 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 ניתוח AI — כרטיס בולט (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
-            <div style={{ maxWidth: 580, margin: "12px auto 4px", padding: "16px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
-                <span style={{ fontSize: 20 }}>🤖</span>
+            {/* 🤖 ניתוח AI — כרטיס עדין וקומפקטי (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
+            <div style={{ maxWidth: 480, margin: "12px auto 4px", padding: "11px 13px", borderRadius: 13, background: P.card, border: "1px solid rgba(62,166,255,0.28)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: aiText ? 9 : 7 }}>
+                <span style={{ fontSize: 15 }}>🤖</span>
                 <div style={{ textAlign: "start" }}>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
                 </div>
               </div>
               {!aiText && !aiBusy && (
-                <div style={{ display: "grid", gap: 8 }}>
-                  <button onClick={() => runAiNumber("claude")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    🔵 ניתוח ב-Claude
-                  </button>
-                  <button onClick={() => runAiNumber("gemini")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    🟣 ניתוח ב-Gemini
-                  </button>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
+                <div>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => runAiNumber("claude")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+                      🔵 Claude
+                    </button>
+                    <button onClick={() => runAiNumber("gemini")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+                      🟣 Gemini
+                    </button>
+                  </div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת</div>
                 </div>
               )}
               {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
