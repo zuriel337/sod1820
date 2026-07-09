@@ -44,6 +44,9 @@
 3. **דופק המציאות** — ספירה אוטומטית לפי חלון (היום/שבוע/חודש/כל-הזמנים) על `primary_value`, **ציר = `occurred_at` עם נפילה ל-`created_at`**, כולל מגמה (השבוע מול הקודם).
 - **חישוב טהור:** `src/lib/reality.js` (`computePulse`/`filterHints`/`computeTrend`). נתונים: `getRealityHints`. רכיבים: `RealityWorld`/`RealityStream`/`RealityPulse`. כל מספר = node בגרף → הרמז מפנה ל-`/number/:n` (`EntityPage`), **לא משכפל**.
 - **קביעת מספר בהעלאה:** `gallery-ocr` מציע (`ocr_numbers`), צוריאל מאשר את הדומיננטי. אסור לקבוע מספר דומיננטי אוטומטית בלי אישור.
+- **⛔ ראוטים — לא לבלבל (`reality_stream_routes_law`):** «זרם המציאות» = **`/archive`** (העדשה על `gallery_images source='update'`). «קוד המציאות» = **`/reality`** (עדשת-פוסטים, `HomeReality`). כל קישור/טיקר/כפתור «לזרם» → `/archive` בלבד. שתי תקריות באותו יום (9.7.2026).
+- **🔒 נעילת אזורים (`site_flags_lock_law`):** מנגנון יחיד — טבלת `site_flags` (`mode='all'`=כולם חסומים · `'anon'`=רשומים עוברים) + `<Locked flag>`/`<LockTeaser>`/`useSiteFlag` (`src/components/MaintenanceLock.jsx`). **חוק-ברזל: רכיב שמושך נתונים בעצמו (RealityWorld, TreasuresHome…) מגודר *בתוכו*, וחסום=אפס fetch.** פתיחה = `update site_flags set enabled=false` — בלי פריסה. אדמין תמיד עוקף. מצב נוכחי (9.7.2026): `lock_reality`=זרם לרשומים · `lock_galleries`=גלריות נעולות לכולם.
+- **🫧 ווידג׳ט צף מפנה מקום לעולם-המשתמש (`floating_ui_yields_law`):** כל בועה/פופאפ צף מסתתר כש-`useUserCenter().isOpen` — לא מתחרים ב-z-index על המגירה (4000/4001).
 
 ## 📡 ערוצי השידור החיים (`broadcast_channels_law`) — לקרוא לפני נגיעה בטיקרים
 > החוק המלא: `select description from nodes where rule_id='broadcast_channels_law';`
