@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 
 // ── ממשק עריכת פוסט מתקדם (אדמין) ──
 // סרגל כלים שמזריק HTML בנקודת הסימון, תצוגה מקדימה חיה בעיצוב האתר,
@@ -11,6 +12,7 @@ const inputStyle = { width: "100%", boxSizing: "border-box", background: C.bg, b
 export default function AdvancedPostEditor({ draft, setDraft, onSave, onCancel, saving, saveErr }) {
   const taRef = useRef(null);
   const [preview, setPreview] = useState(false);
+  const P = usePalette();   // תצוגה-מקדימה אמיתית: אותה תמה (יום/לילה) + קלאס .clean כמו הפוסט החי
 
   // החלת טרנספורמציה על תוכן ה-textarea, תוך שמירת מיקום הסימון
   function applyToContent(transform) {
@@ -51,13 +53,16 @@ export default function AdvancedPostEditor({ draft, setDraft, onSave, onCancel, 
     { l: "I", t: "נטוי", on: () => wrap("<em>", "</em>"), italic: true },
     { l: "כותרת", t: "כותרת ראשית (H2)", on: () => wrap("\n<h2>", "</h2>\n", "כותרת") },
     { l: "כותרת קטנה", t: "כותרת משנה (H3)", on: () => wrap("\n<h3>", "</h3>\n", "כותרת משנה") },
-    { l: "❝ ציטוט", t: "ציטוט", on: () => wrap("\n<blockquote><p>", "</p></blockquote>\n", "ציטוט") },
+    // ציטוט = קלאס קנוני sod-verse → תקין בשני המצבים (post_verse_law), לא blockquote חשוף
+    { l: "❝ ציטוט", t: "ציטוט (פסוק)", on: () => wrap('\n<blockquote class="sod-verse">', "</blockquote>\n", "«פסוק»") },
     { l: "• רשימה", t: "רשימת תבליטים", on: () => insert("\n<ul>\n  <li>פריט</li>\n  <li>פריט</li>\n</ul>\n") },
     { l: "🔗 קישור", t: "הוספת קישור", on: addLink },
     { l: "🖼 תמונה", t: "הוספת תמונה", on: addImage },
     { l: "⊟ מרכוז", t: "פסקה ממורכזת", on: () => wrap('\n<p style="text-align:center">', "</p>\n", "טקסט ממורכז") },
-    { l: "🟡 זהב", t: "צבע זהב", on: () => wrap('<span style="color:#f6e27a">', "</span>") },
-    { l: "⚪ קרם", t: "צבע קרם", on: () => wrap('<span style="color:#ede4d3">', "</span>") },
+    // ⛔ צבעי-inline (זהב/קרם) הוסרו: הם נבלעו במצב בהיר (post_theme_safe_colors_law). במקום —
+    //    «הדגשה» מפיקה <strong> תמה-מודע (זהב בלילה, זהב-חם קריא ביום), ומספר → קישור /number/.
+    { l: "✨ הדגשה", t: "הדגשה תמה-מודעת (זהב)", on: () => wrap("<strong>", "</strong>") },
+    { l: "🔢 מספר", t: "קישור לדף המספר", on: () => { const n = window.prompt("המספר:", ""); if (n && /^\d+$/.test(n.trim())) wrap(`<a href="/number/${n.trim()}">`, "</a>", n.trim()); } },
     { l: "— קו", t: "קו מפריד", on: () => insert("\n<hr />\n") },
   ];
 
@@ -119,8 +124,8 @@ export default function AdvancedPostEditor({ draft, setDraft, onSave, onCancel, 
       </div>
 
       {preview ? (
-        <div className="ape-preview-pane">
-          <div className="sod-post-content" dangerouslySetInnerHTML={{ __html: draft.content || "<p>(אין תוכן)</p>" }} />
+        <div className="ape-preview-pane" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,0.4)" }}>
+          <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: draft.content || "<p>(אין תוכן)</p>" }} />
         </div>
       ) : (
         <textarea ref={taRef} value={draft.content} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}

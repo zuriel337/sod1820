@@ -366,6 +366,22 @@ export const POST_CONTENT_CSS = `
   /* איים כהים (sgx/sgl — רקע כהה קבוע): נשארים בעולם הזהב גם במצב בהיר */
   [data-theme="light"] .sod-post-content.clean .sgx .sod-numlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-numlink { color: #ffd86b !important; }
   [data-theme="light"] .sod-post-content.clean .sgx .sod-gemlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-gemlink { border-bottom-color: rgba(255,216,107,.55); }
+  /* 🌗 post_theme_safe_colors_law — השלמת מצב-בהיר מלאה לפוסט נקי. כל אלה היו זהב *בלי*
+     גרסת-בהיר ⇒ נבלעו על רקע קרם: כותרות (h1/h2/h3), מודגש (strong), נטוי (em), קישורים
+     שאינם /number/ («ראו גם» וכו'), כיתובים, קרדיט-כותב, תאי-טבלה. עכשיו קריאים בשני המצבים.
+     ⚠️ קנוני בשני עותקי POST_CONTENT_CSS: legacy.jsx + theme.js — לעדכן את שניהם. */
+  [data-theme="light"] .sod-post-content.clean h1,
+  [data-theme="light"] .sod-post-content.clean h2,
+  [data-theme="light"] .sod-post-content.clean h3 { color: #7a5e12; text-shadow: none; }
+  [data-theme="light"] .sod-post-content.clean strong { color: #7a5e12; }
+  [data-theme="light"] .sod-post-content.clean em { color: #7a5e12; }
+  [data-theme="light"] .sod-post-content.clean a { color: #a5561a !important; }
+  [data-theme="light"] .sod-post-content.clean a:visited { color: #7a4a12 !important; }
+  [data-theme="light"] .sod-post-content.clean a:hover,
+  [data-theme="light"] .sod-post-content.clean a:focus { color: #c8102e !important; }
+  [data-theme="light"] .sod-post-content.clean figcaption { color: #6b6250; }
+  [data-theme="light"] .sod-post-content.clean .post-author { color: #7a4a12; }
+  [data-theme="light"] .sod-post-content.clean td { color: #33301f; }
 
   /* 🔤 ערכת «גרפיקת-קוד» קנונית (sgx) — אנימציות CSS לפוסטים גרפיים (ר"ת/ס"ת, אתב"ש, אנגרמות).
      חיה כאן כמו sod-gematria-box: הפוסט משתמש בקלאסים בלבד, בלי <style> משלו — פתרון מערכתי.
