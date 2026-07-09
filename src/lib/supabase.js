@@ -20,6 +20,7 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
   if (category) query = query.contains('categories', [category]);
   if (tag) query = query.contains('tags', [tag]);
+  else query = query.not('tags', 'cs', '{טיוטה}');   // טיוטות מוסתרות מהפידים הציבוריים (מוצגות רק ברשימת הטיוטות/למנהל)
   if (author) query = query.eq('author', author);
   if (year) {
     query = query
@@ -1369,6 +1370,27 @@ export async function getPostCategoriesTags() {
   }
   const he = (a, b) => a.localeCompare(b, 'he');
   return { categories: [...cats].sort(he), tags: [...tgs].sort(he) };
+}
+
+// רשימת הטיוטות (פוסטים עם תגית «טיוטה») — לרשימת-הטיוטות בעורך. מנהל בלבד (RLS posts_admin_write לא חוסם קריאה; קריאה ציבורית מסוננת בפיד).
+export async function getDraftPosts(limit = 40) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('posts')
+    .select('id,slug,title,modified,image_url,categories,author')
+    .contains('tags', ['טיוטה'])
+    .order('modified', { ascending: false, nullsFirst: false }).limit(limit);
+  if (error) return [];
+  return data || [];
+}
+
+// רשימת הכותבים/תורמים — לבורר «קשר לכתב» בעורך. slug + שם + אם נעול.
+export async function getContributorsList() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('contributors')
+    .select('slug,display_name,locked')   // עמודות מאושרות לקריאה בלבד (active עלול להיות חסום)
+    .order('display_name', { ascending: true });
+  if (error) return [];
+  return data || [];
 }
 
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──

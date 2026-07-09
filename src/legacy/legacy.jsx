@@ -4617,8 +4617,15 @@ function PostPageBySlug({ onNav }) {
 
         {loading && <div style={{ textAlign: "center", padding: "80px 0" }}><div style={{ fontSize: 42, color: pc.goldDim, marginBottom: 20 }}>✦</div><p style={{ color: pc.muted, fontFamily: F.body, fontSize: 14, letterSpacing: 2 }}>טוען...</p></div>}
         {error && <p style={{ color: "#b05050", fontFamily: F.body }}>{error}</p>}
-        {post && !loading && (
+        {/* טיוטה (תגית «טיוטה») — נראית רק למנהל; לגולש רגיל: לא זמין */}
+        {post && !loading && (post.tags || []).includes("טיוטה") && !isAdmin && (
+          <div style={{ textAlign: "center", padding: "80px 0", color: pc.muted, fontFamily: F.body, fontSize: 15 }}>הפוסט אינו זמין.</div>
+        )}
+        {post && !loading && !((post.tags || []).includes("טיוטה") && !isAdmin) && (
           <>
+            {isAdmin && (post.tags || []).includes("טיוטה") && (
+              <div style={{ textAlign: "center", marginBottom: 16 }}><span style={{ background: "rgba(232,193,90,.14)", border: "1px solid #e8c15a", color: "#e8c15a", borderRadius: 999, padding: "3px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>● טיוטה — גלוי למנהל בלבד</span></div>
+            )}
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               {cats.length > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14, justifyContent: "center" }}>

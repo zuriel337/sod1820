@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getPostBySlug, adminSavePost, getPostAiEdit, getPostCategoriesTags } from "../lib/supabase.js";
+import { getPostBySlug, adminSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getContributorsList } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 
 // ✍️ עורך הפוסטים המתקדם (אדמין) — /admin/editor (חדש) · /admin/editor/:slug (עריכה).
@@ -48,6 +48,9 @@ export default function PostEditorPage() {
   const [allTags, setAllTags] = useState([]);
   const [catInput, setCatInput] = useState("");
   const [tagInput, setTagInput] = useState("");
+  const [drafts, setDrafts] = useState([]);       // רשימת הטיוטות
+  const [contribs, setContribs] = useState([]);   // כותבים לבורר «קשר לכתב»
+  const [wasDraft, setWasDraft] = useState(!isEdit); // האם הפוסט הנטען כרגע טיוטה (חדש = טיוטה כברירת-מחדל)
 
   const [preview, setPreview] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -63,7 +66,9 @@ export default function PostEditorPage() {
 
   const taRef = useRef(null);
 
-  useEffect(() => { getPostCategoriesTags().then(({ categories: c, tags: t }) => { setAllCats(c); setAllTags(t); }).catch(() => {}); }, []);
+  useEffect(() => { getPostCategoriesTags().then(({ categories: c, tags: t }) => { setAllCats(c); setAllTags(t.filter(x => x !== "טיוטה")); }).catch(() => {}); }, []);
+  const reloadDrafts = useCallback(() => { getDraftPosts().then(setDrafts).catch(() => {}); }, []);
+  useEffect(() => { reloadDrafts(); getContributorsList().then(setContribs).catch(() => {}); }, [reloadDrafts]);
 
   useEffect(() => {
     let alive = true;
@@ -79,7 +84,8 @@ export default function PostEditorPage() {
       setAuthor(p.author || "");
       setImageUrl(p.image_url || "");
       setCategories(p.categories || []);
-      setTags(p.tags || []);
+      setWasDraft((p.tags || []).includes("טיוטה"));
+      setTags((p.tags || []).filter(t => t !== "טיוטה"));   // «טיוטה» מנוהל ע"י כפתורי שמור-טיוטה/פרסם, לא כצ'יפ
       setAiTouched(!!p.ai_touched);
       setSource(p.source || "ai");
       slugTouched.current = true;
@@ -152,20 +158,26 @@ export default function PostEditorPage() {
   };
   const removeChip = (kind, val) => kind === "cat" ? setCategories(a => a.filter(x => x !== val)) : setTags(a => a.filter(x => x !== val));
 
-  const save = async () => {
+  const save = async (asDraft) => {
     setErr(""); setMsg("");
     if (!title.trim()) { setErr("כותרת חובה."); return; }
     setSaving(true);
+    // «טיוטה» = תגית-סטטוס: מוסיפים בשמירת-טיוטה, מסירים בפרסום.
+    const baseTags = (tags || []).filter(t => t !== "טיוטה");
+    const finalTags = asDraft ? [...baseTags, "טיוטה"] : baseTags;
     try {
       const res = await adminSavePost({
         id: postId, title: title.trim(), slug: slug.trim() || null, content, excerpt,
-        categories, tags, author: author.trim() || null, image_url: imageUrl.trim() || null,
+        categories, tags: finalTags, author: author.trim() || null, image_url: imageUrl.trim() || null,
         source: source || "ai", ai_touched: aiTouched,
       });
       setSaving(false);
+      if (res?.id && !postId) setPostId(res.id);   // אחרי יצירה — נשארים על אותו פוסט
+      setWasDraft(asDraft);
+      reloadDrafts();
       const savedSlug = res?.slug || slug;
-      setMsg(`נשמר ✓ (id ${res?.id})`);
-      if (savedSlug) setTimeout(() => nav(`/${savedSlug}`), 600);
+      setMsg(asDraft ? `נשמר כטיוטה ✓ (id ${res?.id})` : `פורסם ✓ (id ${res?.id})`);
+      if (!asDraft && savedSlug) setTimeout(() => nav(`/${savedSlug}`), 700);
     } catch (e) {
       setSaving(false);
       const m = String(e?.message || e);
@@ -176,9 +188,16 @@ export default function PostEditorPage() {
   if (!verified || !isAdmin) {
     return (
       <div dir="rtl" style={{ maxWidth: 640, margin: "60px auto", padding: 24, textAlign: "center", fontFamily: F.body, color: C.goldDim }}>
-        <h2 style={{ color: C.goldBright, fontFamily: F.heading }}>עורך הפוסטים</h2>
-        <p>האזור הזה למנהלים בלבד. התחבר עם חשבון מנהל.</p>
-        <Link to="/" style={{ color: C.gold }}>← לדף הבית</Link>
+        <h2 style={{ color: C.goldBright, fontFamily: F.heading }}>✍️ עורך הפוסטים</h2>
+        {!verified ? (
+          <>
+            <p>כדי לפתוח את העורך צריך להתחבר עם חשבון המנהל.</p>
+            <Link to="/login" style={{ display: "inline-block", marginTop: 8, background: C.gold, color: "#1a0e00", padding: "10px 24px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontWeight: 800 }}>התחברות ←</Link>
+          </>
+        ) : (
+          <p>החשבון המחובר אינו מנהל. התחבר עם חשבון המנהל (yosiviner7).</p>
+        )}
+        <div style={{ marginTop: 14 }}><Link to="/" style={{ color: C.gold }}>← לדף הבית</Link></div>
       </div>
     );
   }
@@ -225,11 +244,30 @@ export default function PostEditorPage() {
 
       <div className="pe-title-row">
         <h1>✍️ {isEdit ? "עריכת פוסט" : "פוסט חדש"}</h1>
-        <span className="pe-badge">{isEdit ? `id ${postId ?? "?"}` : "טיוטה חדשה"}</span>
-        <span className="pe-badge">source: {source}</span>
+        <span className="pe-badge" style={wasDraft ? { color: "#e8c15a", borderColor: "#e8c15a" } : { color: "#8fd6a0", borderColor: "#8fd6a0" }}>
+          {wasDraft ? "● טיוטה" : "● מפורסם"}
+        </span>
+        {postId != null && <span className="pe-badge">id {postId}</span>}
         <span style={{ flex: 1 }} />
+        <a href="/admin/editor" className="pe-badge" style={{ textDecoration: "none" }}>+ פוסט חדש</a>
         <Link to="/post" className="pe-badge" style={{ textDecoration: "none" }}>← לכל הפוסטים</Link>
       </div>
+
+      {/* 📝 רשימת הטיוטות — פתיחה מהירה לעריכה */}
+      {drafts.length > 0 && (
+        <details open={!isEdit} style={{ marginBottom: 14, background: "rgba(20,12,32,.4)", border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "10px 14px" }}>
+          <summary style={{ cursor: "pointer", color: "#c9b6ff", fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>📝 טיוטות ({drafts.length})</summary>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+            {drafts.map(d => (
+              <a key={d.id} href={`/admin/editor/${encodeURIComponent(d.slug)}`}
+                style={{ display: "flex", alignItems: "center", gap: 8, background: C.bg, border: `1px solid ${d.slug === routeSlug ? C.gold : C.border}`, borderRadius: 10, padding: "7px 11px", textDecoration: "none", color: "#ede4d3", fontSize: 12.5, maxWidth: 260 }}>
+                {d.image_url && <img src={thumb(d.image_url, 80)} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: "cover", flex: "0 0 30px" }} />}
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.slug}</span>
+              </a>
+            ))}
+          </div>
+        </details>
+      )}
 
       <div className="pe-grid">
         {/* ── עמודה ראשית: תוכן + AI ── */}
@@ -308,6 +346,13 @@ export default function PostEditorPage() {
           <label className="pe-lbl">תקציר</label>
           <textarea className="pe-in" value={excerpt} onChange={e => setExcerpt(e.target.value)} rows={3} style={{ resize: "vertical" }} placeholder="תקציר קצר לתצוגות" />
 
+          <label className="pe-lbl">קשר לכתב (מהרשימה)</label>
+          <select className="pe-in" value={contribs.some(c => c.display_name === author) ? author : ""}
+            onChange={e => { if (e.target.value) setAuthor(e.target.value); }}>
+            <option value="">— בחר כותב/תורם —</option>
+            {contribs.map(c => <option key={c.slug} value={c.display_name}>{c.display_name}{c.locked ? " 🔒" : ""}</option>)}
+          </select>
+
           <label className="pe-lbl">כותב (ריק = «המערכת»)</label>
           <input className="pe-in" value={author} onChange={e => setAuthor(e.target.value)} placeholder="שם הכותב" />
 
@@ -339,9 +384,11 @@ export default function PostEditorPage() {
       {err && <p className="pe-err">{err}</p>}
       {msg && <p className="pe-ok">{msg}</p>}
       <div className="pe-actions">
-        <button type="button" className="pe-btn pe-save" onClick={save} disabled={saving}>{saving ? "שומר…" : (isEdit ? "💾 שמור שינויים" : "💾 פרסם פוסט")}</button>
+        <button type="button" className="pe-btn pe-ghost" onClick={() => save(true)} disabled={saving} style={{ borderColor: "#e8c15a", color: "#e8c15a" }}>{saving ? "שומר…" : "💾 שמור טיוטה"}</button>
+        <button type="button" className="pe-btn pe-save" onClick={() => save(false)} disabled={saving}>{saving ? "שומר…" : "🚀 פרסם"}</button>
         <button type="button" className="pe-btn pe-ghost" onClick={() => nav(-1)} disabled={saving}>חזרה</button>
       </div>
+      <p style={{ color: C.goldDim, fontSize: 11.5, marginTop: 8, fontFamily: F.body }}>«שמור טיוטה» = נשמר ולא מופיע באתר (רק כאן ברשימת הטיוטות). «פרסם» = עולה לאתר ולזרם העדכונים.</p>
     </div>
   );
 }
