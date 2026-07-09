@@ -15,7 +15,10 @@ const KEY = "hub_rails_v1";
 
 export default function EntityHubRails({ entity }) {
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
-  const [ltab, setLtab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } }); // כניסה ראשונה → פנקס
+  // ברירת-מחדל «שמור» (החלטת צוריאל 9.7.2026): שרואים קודם את השמירה והמחקר — הפנקס חזר להיות טאב.
+  // מפתח נפרד מהמעבדה (rw_left_tab של ResearchShell) — כאן דף-המספר בלבד.
+  const [ltab, setLtabRaw] = useState(() => { try { return localStorage.getItem("rw_hub_tab") || "saved"; } catch { return "saved"; } });
+  const setLtab = t => { setLtabRaw(t); try { localStorage.setItem("rw_hub_tab", t); } catch { /* noop */ } };
   const set = (side, v) => setOpen(o => {
     const n = { ...o, [side]: v };
     try { localStorage.setItem(KEY, JSON.stringify(n)); } catch { /* noop */ }
@@ -31,13 +34,17 @@ export default function EntityHubRails({ entity }) {
           <span className="ehr-tab-t">{label}</span>
         </button>
       ) : (
-        <div className="ehr-panel">
-          <div className="ehr-head">
-            <b>{icon} {label}</b>
-            <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
+        <>
+          {/* 📱 בנייד: רקע-הקשה — נגיעה מחוץ לפאנל סוגרת (הפאנל לא תופס את כל העמוד) */}
+          <div className="ehr-back" onClick={() => set(side, false)} aria-hidden />
+          <div className="ehr-panel">
+            <div className="ehr-head">
+              <b>{icon} {label}</b>
+              <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
+            </div>
+            <div className="ehr-body" style={RW_VARS}>{content}</div>
           </div>
-          <div className="ehr-body" style={RW_VARS}>{content}</div>
-        </div>
+        </>
       )}
     </aside>
   );
@@ -97,9 +104,18 @@ const RAILS_CSS = `
 .ehr-body{flex:1;overflow-y:auto;padding:14px 16px;direction:rtl}
 .ehr-empty{color:#9a8f78;font-family:inherit;font-size:13px;line-height:1.7}
 
-/* 📱 נייד — אותה לשונית-צד, מותאמת מגע: פאנל כמעט-מלא ולשונית נגישה (≥44px מגע) */
+/* רקע-הקשה לסגירה — פעיל רק בנייד (בדסקטופ הפאנל צר ולא צריך) */
+.ehr-back{display:none}
+
+/* 📱 נייד — עמודת-צד קומפקטית: הפאנל לא תופס את כל העמוד, נגיעה בחוץ סוגרת, ✕ גדול */
 @media (max-width:859px){
-  .ehr-panel{width:min(340px,92vw)}
   .ehr-tab{padding:16px 10px}
+  .ehr-back{display:block;pointer-events:auto;position:fixed;inset:0;z-index:0;
+    background:rgba(20,15,5,.28);animation:ehr-fade .18s ease}
+  @keyframes ehr-fade{from{opacity:0}to{opacity:1}}
+  .ehr-panel{width:min(300px,78vw);z-index:1}
+  .ehr-x{width:44px;height:44px;font-size:18px}
+  .ehr-head{padding:12px 14px}
+  .ehr-body{padding:12px 12px}
 }
 `;
