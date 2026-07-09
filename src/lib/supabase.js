@@ -503,7 +503,7 @@ export async function getStories(lim = 20) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from('stories')
-      .select('id,title,image_url,link,credit,contributor_slug,sort')
+      .select('id,title,image_url,video_url,link,credit,contributor_slug,sort')
       .eq('active', true)
       .order('sort', { ascending: false })
       .order('created_at', { ascending: false })

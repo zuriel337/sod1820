@@ -35,9 +35,14 @@ export default function RevelationWindows() {
               style={{ flex: "0 0 auto", background: "none", border: "none", cursor: "pointer", width: 80, padding: 0 }}>
               <span style={{ display: "block", width: 74, height: 74, borderRadius: "50%", padding: 3, margin: "0 auto",
                 background: `conic-gradient(from 210deg, ${P.accent}, #f7e39c, ${P.accent})` }}>
-                <img src={thumb(s.image_url, 200)} alt={s.title || ""} loading="lazy"
-                  style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover",
-                    border: `2px solid ${P.card}`, display: "block", background: P.cardSoft }} />
+                {s.image_url ? (
+                  <img src={thumb(s.image_url, 200)} alt={s.title || ""} loading="lazy"
+                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover",
+                      border: `2px solid ${P.card}`, display: "block", background: P.cardSoft }} />
+                ) : (
+                  <span style={{ width: "100%", height: "100%", borderRadius: "50%", display: "grid", placeItems: "center",
+                    border: `2px solid ${P.card}`, background: P.cardSoft, color: P.accentText, fontSize: 24 }}>▶</span>
+                )}
               </span>
               <span style={{ display: "block", marginTop: 6, color: P.inkSoft, fontFamily: F.body, fontSize: 11,
                 lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.credit || s.title}</span>
@@ -53,7 +58,13 @@ export default function RevelationWindows() {
             style={{ maxWidth: 440, width: "100%", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 18,
               overflow: "hidden", boxShadow: "0 30px 70px -20px #000e" }}>
             <div style={{ position: "relative" }}>
-              <img src={thumb(active.image_url, 900)} alt={active.title || ""} style={{ width: "100%", display: "block" }} />
+              {active.video_url ? (
+                <video src={active.video_url} controls playsInline preload="none"
+                  poster={active.image_url ? thumb(active.image_url, 900) : undefined}
+                  style={{ width: "100%", maxHeight: "72vh", display: "block", background: "#000" }} />
+              ) : (
+                <img src={thumb(active.image_url, 900)} alt={active.title || ""} style={{ width: "100%", display: "block" }} />
+              )}
               <button onClick={() => setOpen(null)} aria-label="סגור"
                 style={{ position: "absolute", top: 10, insetInlineEnd: 10, width: 34, height: 34, borderRadius: "50%",
                   border: "none", background: "#00000099", color: "#fff", fontSize: 17, cursor: "pointer" }}>✕</button>
