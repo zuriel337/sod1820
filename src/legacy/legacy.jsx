@@ -2143,6 +2143,25 @@ const POST_CONTENT_CSS = `
   /* איים כהים (sgx/sgl — רקע כהה קבוע): נשארים בעולם הזהב גם במצב בהיר */
   [data-theme="light"] .sod-post-content.clean .sgx .sod-numlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-numlink { color: #ffd86b !important; }
   [data-theme="light"] .sod-post-content.clean .sgx .sod-gemlink, [data-theme="light"] .sod-post-content.clean .sgl .sod-gemlink { border-bottom-color: rgba(255,216,107,.55); }
+  /* 🔤 אי-כהה קנוני (sgx) — self-contained (post_text_colors_law v5): האי תמיד כהה, ולכן הטקסט בתוכו
+     בהיר/זהב וקריא בשני המצבים — פותר שורשית «ריבועים/אותיות צהובים על רקע בהיר». מגדיר גם תת-קלאסים
+     חדשים (sgx-big/sgx-out/sgx-tile/sgx-lang) כדי שלא יישארו חסרי-סגנון. ⚠️ שני עותקים: legacy.jsx + theme.js. */
+  .sod-post-content .sgx { color: #e7dec8; }
+  [data-theme="light"] .sod-post-content.clean .sgx { color: #e7dec8; }
+  .sod-post-content .sgx-big,
+  [data-theme="light"] .sod-post-content.clean .sgx-big { display: block; font-size: clamp(40px,11vw,66px); font-weight: 800; line-height: 1; margin: 6px 0; color: #ffd86b; text-shadow: 0 0 26px rgba(255,216,107,.45); font-variant-numeric: tabular-nums; }
+  .sod-post-content .sgx-out { display: flex; gap: 8px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin-top: 8px; }
+  .sod-post-content .sgx-out.en { direction: ltr; }
+  .sod-post-content .sgx-out i, .sod-post-content .sgx-tile,
+  [data-theme="light"] .sod-post-content.clean .sgx-out i, [data-theme="light"] .sod-post-content.clean .sgx-tile { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-style: normal; min-width: clamp(42px,11vw,56px); padding: 8px 6px; border-radius: 11px; background: rgba(232,200,74,.1); border: 1px solid rgba(232,200,74,.5); color: #f0dc9a; font-weight: 800; font-size: clamp(20px,6vw,28px); cursor: pointer; }
+  .sod-post-content .sgx-out i small, .sod-post-content .sgx-tile small { font-size: 11px; color: #b6ab92; font-weight: 700; margin-top: 3px; }
+  .sod-post-content .sgx-lang,
+  [data-theme="light"] .sod-post-content.clean .sgx-lang { color: #f0dc9a; font-weight: 800; }
+  /* 🔗 גימטריה לחיצה קנונית: כל [data-gem] פותח את מגירת-המספר (סמן-יד). מחוץ לאי-כהה, במצב בהיר =
+     אדום קריא (לא זהב שנבלע); בתוך האי-כהה הזהב נשמר (קריא על כהה). */
+  .sod-post-content.clean [data-gem] { cursor: pointer; }
+  [data-theme="light"] .sod-post-content.clean [data-gem] { color: #c8102e; }
+  [data-theme="light"] .sod-post-content.clean .sgx [data-gem], [data-theme="light"] .sod-post-content.clean .sgl [data-gem] { color: #f0dc9a; }
   /* 🌗 post_theme_safe_colors_law — השלמת מצב-בהיר מלאה לפוסט נקי. כל אלה היו זהב *בלי*
      גרסת-בהיר ⇒ נבלעו על רקע קרם: כותרות (h1/h2/h3), מודגש (strong), נטוי (em), קישורים
      שאינם /number/ («ראו גם» וכו'), כיתובים, קרדיט-כותב, תאי-טבלה. עכשיו קריאים בשני המצבים.
