@@ -498,6 +498,20 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine 
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 
+// 🔑 חלונות הגילוי — סטורי בראש דף הבית. קריאה ציבורית (RLS: active=true). מיון: sort↓ ואז חדש.
+export async function getStories(lim = 20) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from('stories')
+      .select('id,title,image_url,link,credit,contributor_slug,sort')
+      .eq('active', true)
+      .order('sort', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(lim);
+    return data || [];
+  } catch { return []; }
+}
+
 // 🧲 לכידת ליד-מחקר (research_workspace funnel שלב 4) — מייל + snapshot של תיק-המחקר.
 // הכנסה ציבורית מותרת (RLS insert בלבד; קריאה = server-only). מחזיר true בהצלחה.
 export async function saveResearchLead({ email, items, visitorId }) {

@@ -4,6 +4,7 @@ import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
+import RevelationWindows from "../components/RevelationWindows.jsx";
 import { bubblesFromCounts } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import Lightbox from "../components/Lightbox.jsx";
@@ -232,6 +233,9 @@ export default function HomeNewPage() {
           <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
         </form>
       </section>
+
+      {/* ===== 🔑 חלונות הגילוי — רצועת סטורי בראש הדף ===== */}
+      <RevelationWindows />
 
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
