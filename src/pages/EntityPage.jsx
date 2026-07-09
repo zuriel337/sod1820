@@ -8,6 +8,7 @@ export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/tracking.js";
+import RealityHint from "../components/RealityHint.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -900,6 +901,7 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   return (
     <Shell P={P}>
+      <RealityHint />
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         {/* במובייל: החיפוש הופך לסרגל מלא בראש (order:-1) כדי שלא "יירד למטה" וייקבר */}
