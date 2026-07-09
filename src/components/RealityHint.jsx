@@ -73,7 +73,7 @@ export default function RealityHint() {
 
   return (
     <div role="status" aria-live="polite" style={{
-      position: "fixed", bottom: 18, insetInlineStart: 18, zIndex: 60,
+      position: "fixed", bottom: 18, insetInlineEnd: 18, zIndex: 60,
       width: "min(330px, calc(100vw - 32px))",
       background: "linear-gradient(180deg,#1c1633,#151027)",
       border: `1px solid ${hint.grow ? "rgba(169,207,148,.32)" : "rgba(232,194,90,.22)"}`,
