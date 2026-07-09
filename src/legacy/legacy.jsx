@@ -4455,7 +4455,9 @@ function PostPageBySlug({ onNav }) {
             // מדלגים על קישורים, סקריפטים, data-gem, ורכיבי React אינטראקטיביים (קרוסלה) — לא להפוך את ה-UI שלהם ללחיץ-מספר
             // ⛔ גם על גלולת-הערך הקנונית (.gb-val) בריבוע הגימטריה: היא כבר מעוצבת (כהה על זהב) —
             //    עטיפת ה-numlink צבעה אותה מחדש בזהב (זהב-על-זהב). משאירים אותה כפי שהיא.
-            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem") || (p.classList && (p.classList.contains("pic-carousel") || p.classList.contains("gb-val")))) return NodeFilter.FILTER_REJECT;
+            // ⛔ gematria_word_primary_link_law: המילה היא הקישור העיקרי (data-gem), לא המספר. לכן אין לקשר-אוטומטית
+            //    מספרים בתוך קופסאות-גימטריה מעוצבות (.sgx*) או כל אלמנט עם .no-numlink — שם המילה כבר לחיצה למחשבון.
+            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem") || (p.classList && (p.classList.contains("pic-carousel") || p.classList.contains("gb-val") || p.classList.contains("no-numlink") || p.classList.contains("sgx-tile") || p.classList.contains("sgx-out") || p.classList.contains("sgx-big") || p.classList.contains("sgx-step") || p.classList.contains("sgx-lang")))) return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
         },
