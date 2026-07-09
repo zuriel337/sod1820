@@ -20,6 +20,7 @@ import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { useStream } from "./lib/stream.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
+import Locked from "./components/MaintenanceLock.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
@@ -228,7 +229,7 @@ export default function App() {
           <Route path="/research" element={<ResearchPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
-          <Route path="/reality" element={<HomeReality />} />
+          <Route path="/reality" element={<Locked flag="lock_reality"><HomeReality /></Locked>} />
           <Route path="/home-classic" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
@@ -240,8 +241,8 @@ export default function App() {
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
-          <Route path="/archive" element={<ArchivePage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/archive" element={<Locked flag="lock_galleries"><ArchivePage /></Locked>} />
+          <Route path="/gallery" element={<Locked flag="lock_galleries"><GalleryPage /></Locked>} />
           <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />

@@ -729,6 +729,18 @@ export async function getRealityHints(limit = 1000) {
   return data || [];
 }
 
+// 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
+// מחזיר מפה {key: {enabled, message}}. משמש את <Locked> לעטיפת ראוטים.
+export async function getSiteFlags() {
+  if (!supabase) return {};
+  try {
+    const { data } = await supabase.from('site_flags').select('key,enabled,message');
+    const m = {};
+    for (const r of (data || [])) m[r.key] = r;
+    return m;
+  } catch { return {}; }
+}
+
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
 // ספירה בצד-לקוח על values בלבד (בלי מונחים — פרטיות). [{n, count}] ממוין חם→קר.
 export async function getHotNumbers(days = 7, lim = 10) {
