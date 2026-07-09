@@ -26,6 +26,61 @@ const AI_PRESETS = [
   { l: "הוסף «ראו גם»", v: "הוסף בסוף בלוק «ראו גם» עם 2-3 קישורים רלוונטיים לפי הנושא (השאר placeholder אם אינך יודע את ה-slug המדויק)." },
 ];
 
+// 🏷 בורר קטגוריות/תגיות אמין — מחליף את ה-datalist השביר (שלא נפתח באייפון) + Enter-בלבד.
+//   • רשימה נלחצת שנפתחת בפוקוס/הקלדה (סינון חי) — הקשה מוסיפה.
+//   • כפתור «הוסף» (לא רק Enter) — עובד מצוין בנייד.
+//   • «הצג הכל» פותח את כל הרשימה הקיימת גם בלי להקליד.
+function ChipField({ selected, options, onAdd, onRemove, placeholder, addLabel = "הוסף" }) {
+  const [input, setInput] = useState("");
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef(null);
+
+  const q = input.trim();
+  const avail = (options || []).filter(o => !selected.includes(o));
+  const matches = q ? avail.filter(o => o.toLowerCase().includes(q.toLowerCase())) : avail;
+  const isNew = q && !options.some(o => o.toLowerCase() === q.toLowerCase()) && !selected.some(s => s.toLowerCase() === q.toLowerCase());
+
+  const add = (v) => { const t = (v || "").trim(); if (!t) return; onAdd(t); setInput(""); setOpen(false); };
+
+  // סגירה בלחיצה מחוץ לרכיב
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  const menuOpen = open && (matches.length > 0 || isNew);
+
+  return (
+    <div className="pe-picker" ref={boxRef}>
+      {selected.length > 0 && (
+        <div className="pe-chips">{selected.map(c => <span key={c} className="pe-chip">{c}<button type="button" onClick={() => onRemove(c)}>×</button></span>)}</div>
+      )}
+      <div className="pe-row">
+        <input
+          className="pe-in" value={input} placeholder={placeholder}
+          onChange={e => { setInput(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); add(input); } }}
+        />
+        <button type="button" className="pe-addbtn" disabled={!q} onClick={() => add(input)}>{addLabel}</button>
+      </div>
+      {menuOpen && (
+        <div className="pe-menu">
+          {isNew && <button type="button" className="pe-opt new" onMouseDown={e => e.preventDefault()} onClick={() => add(q)}>＋ צור חדש: «{q}»</button>}
+          {matches.map(o => <button key={o} type="button" className="pe-opt" onMouseDown={e => e.preventDefault()} onClick={() => add(o)}>{o}</button>)}
+        </div>
+      )}
+      {!menuOpen && !q && avail.length > 0 && (
+        <button type="button" className="pe-toggle" onClick={() => setOpen(true)}>
+          הצג את כל הקיימות ({avail.length}) ▾
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function PostEditorPage() {
   const { slug: routeSlug } = useParams();
   const nav = useNavigate();
@@ -53,8 +108,6 @@ export default function PostEditorPage() {
 
   const [allCats, setAllCats] = useState([]);
   const [allTags, setAllTags] = useState([]);
-  const [catInput, setCatInput] = useState("");
-  const [tagInput, setTagInput] = useState("");
   const [drafts, setDrafts] = useState([]);       // רשימת הטיוטות
   const [contribs, setContribs] = useState([]);   // כותבים לבורר «קשר לכתב»
   const [wasDraft, setWasDraft] = useState(!isEdit); // האם הפוסט הנטען כרגע טיוטה (חדש = טיוטה כברירת-מחדל)
@@ -160,8 +213,8 @@ export default function PostEditorPage() {
   // ── ניהול קטגוריות/תגיות ──
   const addChip = (kind, val) => {
     const v = (val || "").trim(); if (!v) return;
-    if (kind === "cat") { setCategories(a => a.includes(v) ? a : [...a, v]); setCatInput(""); }
-    else { setTags(a => a.includes(v) ? a : [...a, v]); setTagInput(""); }
+    if (kind === "cat") setCategories(a => a.includes(v) ? a : [...a, v]);
+    else setTags(a => a.includes(v) ? a : [...a, v]);
   };
   const removeChip = (kind, val) => kind === "cat" ? setCategories(a => a.filter(x => x !== val)) : setTags(a => a.filter(x => x !== val));
 
@@ -245,6 +298,16 @@ export default function PostEditorPage() {
         .pe-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
         .pe-chip { display:inline-flex; align-items:center; gap:6px; background:${C.bgGlow}; border:1px solid ${C.border}; border-radius:999px; color:${C.goldLight}; font-size:12px; padding:3px 10px; }
         .pe-chip button { background:none; border:none; color:${C.goldDim}; cursor:pointer; font-size:14px; line-height:1; padding:0; }
+        /* בורר קטגוריות/תגיות — רשימה נלחצת אמינה (מחליף datalist השביר) */
+        .pe-picker { position:relative; }
+        .pe-row { display:flex; gap:6px; margin-top:6px; }
+        .pe-addbtn { flex-shrink:0; min-width:52px; background:${C.gold}; color:#1a1206; border:none; border-radius:6px; font-family:${F.heading}; font-weight:700; font-size:13px; cursor:pointer; padding:0 14px; min-height:42px; }
+        .pe-addbtn:disabled { opacity:.4; cursor:default; }
+        .pe-menu { position:absolute; z-index:20; top:100%; inset-inline:0; margin-top:4px; max-height:240px; overflow-y:auto; background:${C.bg}; border:1px solid ${C.gold}; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,.55); -webkit-overflow-scrolling:touch; }
+        .pe-opt { display:block; width:100%; text-align:right; background:none; border:none; border-bottom:1px solid ${C.border}; color:#ede4d3; font-family:${F.body}; font-size:14px; padding:11px 14px; cursor:pointer; min-height:44px; }
+        .pe-opt:hover, .pe-opt:focus { background:${C.bgGlow}; color:${C.goldLight}; outline:none; }
+        .pe-opt.new { color:${C.gold}; font-weight:700; }
+        .pe-toggle { background:none; border:1px solid ${C.border}; border-radius:6px; color:${C.goldDim}; font-size:12px; cursor:pointer; padding:6px 12px; margin-top:6px; min-height:36px; }
         .pe-btn { cursor:pointer; border:none; border-radius:8px; font-family:${F.heading}; font-weight:800; letter-spacing:.5px; padding:11px 22px; }
         .pe-save { background:linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color:#1a0e00; font-size:14px; }
         .pe-save:disabled { opacity:.6; }
@@ -378,18 +441,18 @@ export default function PostEditorPage() {
           {imageUrl && <img src={thumb(imageUrl, 240)} alt="" style={{ marginTop: 8, maxWidth: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} onError={e => { e.currentTarget.style.display = "none"; }} />}
 
           <label className="pe-lbl">קטגוריות</label>
-          <div className="pe-chips">{categories.map(c => <span key={c} className="pe-chip">{c}<button type="button" onClick={() => removeChip("cat", c)}>×</button></span>)}</div>
-          <input className="pe-in" list="pe-cats" value={catInput} onChange={e => setCatInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addChip("cat", catInput); } }}
-            placeholder="הוסף קטגוריה (Enter)…" style={{ marginTop: 6 }} />
-          <datalist id="pe-cats">{allCats.map(c => <option key={c} value={c} />)}</datalist>
+          <ChipField
+            selected={categories} options={allCats}
+            onAdd={v => addChip("cat", v)} onRemove={v => removeChip("cat", v)}
+            placeholder="חפש או הוסף קטגוריה…"
+          />
 
-          <label className="pe-lbl">תגיות</label>
-          <div className="pe-chips">{tags.map(t => <span key={t} className="pe-chip">{t}<button type="button" onClick={() => removeChip("tag", t)}>×</button></span>)}</div>
-          <input className="pe-in" list="pe-tags" value={tagInput} onChange={e => setTagInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addChip("tag", tagInput); } }}
-            placeholder="הוסף תגית (Enter)…" style={{ marginTop: 6 }} />
-          <datalist id="pe-tags">{allTags.map(t => <option key={t} value={t} />)}</datalist>
+          <label className="pe-lbl" style={{ marginTop: 16 }}>תגיות</label>
+          <ChipField
+            selected={tags} options={allTags}
+            onAdd={v => addChip("tag", v)} onRemove={v => removeChip("tag", v)}
+            placeholder="חפש או הוסף תגית…"
+          />
 
           <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16, color: C.goldLight, fontSize: 13, cursor: "pointer" }}>
             <input type="checkbox" checked={aiTouched} onChange={e => setAiTouched(e.target.checked)} />
