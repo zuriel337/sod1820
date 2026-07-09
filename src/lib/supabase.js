@@ -530,6 +530,45 @@ export async function saveResearchLead({ email, items, visitorId }) {
   } catch { return false; }
 }
 
+// 💌 הודעה אישית מבעל האתר לדף מספר (owner_note_law) — דאטא-דרייבן מ-nodes (role='owner_note').
+// מחזיר {title, teaser, body, cta, signature} או null. מאפשר לצוריאל להוסיף/לערוך מספרים אישיים
+// בלי פריסה (שינוי נתונים חי מיד). קריאה ציבורית — nodes כבר פתוח לקריאת anon.
+export async function getOwnerNote(value) {
+  if (!supabase || value == null) return null;
+  try {
+    const { data, error } = await supabase.from('nodes')
+      .select('description,metadata')
+      .eq('type', 'entity').eq('is_active', true)
+      .eq('metadata->>role', 'owner_note')
+      .eq('metadata->>value', String(value))
+      .limit(1).maybeSingle();
+    if (error || !data) return null;
+    const m = data.metadata || {};
+    return {
+      title: m.title || '💌 הודעה אישית מבעל האתר',
+      teaser: m.teaser || '',
+      body: data.description || '',
+      cta: m.cta || 'כן, אשמח לשמוע עוד ✨',
+      signature: m.signature || '',
+    };
+  } catch { return null; }
+}
+
+// 🧲 פניית גולש בעקבות ההודעה האישית — משאיר דרך ליצירת קשר (INSERT ציבורי; קריאה server-only).
+export async function submitOwnerNoteRequest({ number, name, contact, message, visitorId }) {
+  if (!supabase || !contact) return false;
+  try {
+    const { error } = await supabase.from('owner_note_requests').insert({
+      number: number != null ? Number(number) : null,
+      name: (name || '').trim().slice(0, 120) || null,
+      contact: String(contact).trim().slice(0, 200),
+      message: (message || '').trim().slice(0, 2000) || null,
+      visitor_id: visitorId || null,
+    });
+    return !error;
+  } catch { return false; }
+}
+
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
 export async function getTopPrimaryValues(lim = 16) {
   if (!supabase) return [];
