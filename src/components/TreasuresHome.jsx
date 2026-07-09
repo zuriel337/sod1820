@@ -5,6 +5,7 @@ import { getTreasures } from "../lib/supabase.js";
 import MuseumGallery from "./MuseumGallery.jsx";
 import Lightbox from "./Lightbox.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 import ImageEditModal from "./ImageEditModal.jsx";
 import HomeHeader from "./HomeHeader.jsx";
 import { setImageCuration } from "../lib/supabase.js";
@@ -14,18 +15,22 @@ import { setImageCuration } from "../lib/supabase.js";
 // נוסף שיסומן נכנס למניפה שמתחתיו אוטומטית. עתיד: הבית של הסטים («עת ההתגלות»…).
 // אין אוצרות → הסקציה לא מוצגת כלל. אי-חיתוך תמיד (חוק).
 export default function TreasuresHome() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_galleries: האוצרות = תוכן גלריה — כשהגלריות נעולות הסקציה נעלמת מהבית (גם לרשומים).
+  const { loading: glLoading, lock: glLock } = useSiteFlag("lock_galleries");
+  const galBlocked = !!glLock?.enabled && !isAdmin && !(glLock.mode === "anon" && user);
   const [treasures, setTreasures] = useState(null);
   const [lb, setLb] = useState(null);
   const [editImg, setEditImg] = useState(null);
 
   useEffect(() => {
+    if (glLoading || galBlocked) return;
     let live = true;
     getTreasures(8).then(t => { if (live) setTreasures(t || []); }).catch(() => live && setTreasures([]));
     return () => { live = false; };
-  }, []);
+  }, [glLoading, galBlocked]);
 
-  if (!treasures || !treasures.length) return null;
+  if (galBlocked || !treasures || !treasures.length) return null;
 
   return (
     <section style={{ position: "relative", overflow: "hidden", background: GALLERY_BG, colorScheme: "dark", padding: "44px 18px 50px" }}>

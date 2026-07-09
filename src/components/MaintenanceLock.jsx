@@ -57,6 +57,32 @@ export function MaintenanceLock({ message, showLogin = false }) {
   );
 }
 
+// 🔒 טיזר-נעילה קומפקטי — לסקציות מוטמעות (עמוד הבית וכד'), לא מסך שלם.
+// מציג את הודעת-הנעילה + CTA הרשמה (כשהנעילה היא לרשומים). עובד על רקעים כהים ובהירים.
+export function LockTeaser({ message, showLogin = false }) {
+  return (
+    <div dir="rtl" style={{
+      maxWidth: 560, margin: "18px auto", textAlign: "center",
+      background: "linear-gradient(170deg, rgba(24,17,9,.92), rgba(10,7,3,.92))",
+      border: "1px solid rgba(232,200,74,.45)", borderRadius: 18, padding: "26px 20px",
+      fontFamily: "'Heebo','Assistant',system-ui,sans-serif",
+    }}>
+      <div style={{ fontSize: 17, fontWeight: 800, color: "#f0dc9a", lineHeight: 1.6 }}>{message || DEFAULT_MSG}</div>
+      {showLogin && (
+        <>
+          <div style={{ marginTop: 8, fontSize: 13.5, color: "#cdbf9f", lineHeight: 1.8 }}>
+            ההרשמה חינם ולוקחת חצי דקה — ופותחת את הזרם, שמירת מחקר והתראות על רמזים חדשים.
+          </div>
+          <Link to="/login" style={{
+            display: "inline-block", marginTop: 14, background: "#e8c84a", color: "#1a0e00",
+            fontWeight: 800, fontSize: 14.5, padding: "10px 26px", borderRadius: 999, textDecoration: "none",
+          }}>✨ התחברות / הרשמה חינם</Link>
+        </>
+      )}
+    </div>
+  );
+}
+
 // hook פנימי לשליפת דגל בודד. מחזיר {loading, lock}.
 export function useSiteFlag(flag) {
   const [st, setSt] = useState({ loading: true, lock: null });

@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { getRealityHints, getNumberSets, saveNumberSet, deleteNumberSet, getGalleriesForStreamPicker, addImageToRealityStream, setImageCuration, swapStreamOrder } from "../lib/supabase.js";
 import ImageEditModal from "./ImageEditModal.jsx";
+import { LockTeaser, useSiteFlag } from "./MaintenanceLock.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { filterHints, hintNums, domNum, shortDate, effDate } from "../lib/reality.js";
@@ -22,7 +23,11 @@ import Lightbox from "./Lightbox.jsx";
 export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false, windowed = false, hideHeader = false }) {
   const auto = usePalette();
   const P = forceDark ? PALETTES.dark : auto;
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_reality (mode=anon): הזרם לרשומים בלבד — הגידור בתוך הרכיב, כך שכל משטח
+  // שמרכיב אותו (בית · דף מספר · טופיק · ארכיון) מקבל את אותה נעילה + טיזר-הרשמה.
+  const { loading: rlLoading, lock: rlLock } = useSiteFlag("lock_reality");
+  const streamBlocked = !!rlLock?.enabled && !isAdmin && !(rlLock.mode === "anon" && user);
   const [hints, setHints] = useState(null);
   const [sets, setSets] = useState([]);
   const [activeSet, setActiveSet] = useState(null);   // «גלריית רמזים» שמורה פעילה
@@ -36,9 +41,11 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
   const cutoff = useMemo(() => seenCutoff("home-gallery"), []);
 
   useEffect(() => {
+    if (rlLoading) return;
+    if (streamBlocked) { setHints([]); return; }   // נעול — לא מושכים כלום (גם לא טרנספורמציות)
     getRealityHints(50).then(r => { setHints(r || []); markSeenKey("home-gallery"); }).catch(() => setHints([]));
     reloadSets();
-  }, []);
+  }, [rlLoading, streamBlocked]);
 
   async function reloadSets() { try { setSets(await getNumberSets()); } catch { /* ignore */ } }
 
@@ -93,7 +100,9 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
     value, values: activeSet ? activeSet.numbers : null, period: streamPeriod, rare,
   }), [hints, value, activeSet, streamPeriod, rare]);
 
-  if (hints === null) return <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>טוען את זרם המציאות…</div>;
+  // 🔒 נעול לרשומים → טיזר-הרשמה במקום הזרם (בכל משטח שמרכיב את הרכיב)
+  if (streamBlocked) return <LockTeaser message={rlLock?.message} showLogin={rlLock?.mode === "anon"} />;
+  if (rlLoading || hints === null) return <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>טוען את זרם המציאות…</div>;
   if (!hints.length) return null;
 
   const periodBtn = (key, label) => (
