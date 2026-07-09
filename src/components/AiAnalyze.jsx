@@ -83,6 +83,11 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
               <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, alignSelf: "center" }}>החלף מנוע — אותן עובדות</span>
             </div>
           )}
+          {compare && (
+            <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>
+              כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.
+            </div>
+          )}
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, marginTop: 9, fontStyle: "italic" }}>
             הגימטריה עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).
           </div>
