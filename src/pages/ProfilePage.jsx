@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import MyTreeCard from "../components/MyTreeCard.jsx";
-import { updateProfile } from "../lib/auth.js";
+import ProfileSettings from "../components/ProfileSettings.jsx";
 import { Avatar } from "./AuthPage.jsx";
 import { supabase, getUserActivity } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
@@ -275,16 +275,8 @@ function MyResearchCard({ P, card }) {
 
 export default function ProfilePage() {
   const P = usePalette();
-  const { user, profile, loading, isAdmin, signOut, refreshProfile } = useAuth();
+  const { user, profile, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [err, setErr] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [showUrl, setShowUrl] = useState(false);
 
   // סגנונות תלויי-תמה (יום/לילה)
   const card = {
@@ -292,19 +284,6 @@ export default function ProfilePage() {
     border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`,
     borderRadius: 12, padding: "36px 30px", boxShadow: `0 4px 40px ${P.glow}`,
   };
-  const field = {
-    width: "100%", padding: "11px 13px", background: P.cardSoft, color: P.ink,
-    border: `1px solid ${P.borderStrong}`, borderRadius: 8, fontFamily: F.body, fontSize: 14, outline: "none",
-  };
-  const label = { color: P.accentDim, fontFamily: F.heading, fontSize: 12, display: "block", margin: "14px 0 6px" };
-
-  useEffect(() => {
-    if (profile) {
-      setUsername(profile.username || "");
-      setDisplayName(profile.display_name || "");
-      setAvatarUrl(profile.avatar_url || "");
-    }
-  }, [profile]);
 
   // גלילה ל"ניהול עדכונים" כשמגיעים עם #notifications (מהתפריט/פוטר)
   useEffect(() => {
@@ -324,45 +303,6 @@ export default function ProfilePage() {
     );
   }
 
-  async function pickAvatar(e) {
-    const f = e.target.files?.[0];
-    e.target.value = "";   // לאפשר בחירה חוזרת של אותו קובץ
-    if (!f) return;
-    if (!f.type.startsWith("image/")) { setErr("נא לבחור קובץ תמונה"); return; }
-    if (f.size > 5 * 1024 * 1024) { setErr("התמונה גדולה מדי (מקסימום 5MB)"); return; }
-    setErr(""); setMsg(""); setUploading(true);
-    try {
-      const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-      const path = `avatars/${user.id}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: false, contentType: f.type });
-      if (error) throw error;
-      const url = supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
-      setAvatarUrl(url);
-      setMsg("התמונה הועלתה — לחצו שמירה לעדכון ✦");
-    } catch (e2) {
-      setErr(e2?.message || "שגיאה בהעלאת התמונה");
-    }
-    setUploading(false);
-  }
-
-  async function save() {
-    setErr(""); setMsg("");
-    if (username.trim().length < 2) { setErr("שם המשתמש קצר מדי"); return; }
-    setBusy(true);
-    try {
-      await updateProfile(user.id, {
-        username: username.trim(),
-        display_name: displayName.trim() || null,
-        avatar_url: avatarUrl.trim() || null,
-      });
-      await refreshProfile();
-      setMsg("נשמר בהצלחה ✦");
-    } catch (e) {
-      setErr(e?.message?.includes("duplicate") ? "שם המשתמש כבר תפוס" : (e?.message || "שגיאה בשמירה"));
-    }
-    setBusy(false);
-  }
-
   const lightMode = P.mode === "light";
 
   return (
@@ -379,9 +319,9 @@ export default function ProfilePage() {
     <div style={{ direction: "rtl", maxWidth: 520, margin: "0 auto", padding: "56px 24px 120px", position: "relative", zIndex: 1 }}>
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
-          <Avatar profile={{ ...profile, avatar_url: avatarUrl }} user={user} size={64} />
+          <Avatar profile={profile} user={user} size={64} />
           <div>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 700 }}>{displayName || username || "פרופיל"}</div>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 700 }}>{profile?.display_name || profile?.username || "פרופיל"}</div>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, marginTop: 3 }}>
               {profile?.tier === "member" ? "👑 בני ההיכל" : "משתמש רשום"}{profile?.role === "admin" ? " · אדמין" : ""}
             </div>
@@ -390,44 +330,13 @@ export default function ProfilePage() {
 
         <MyTreeCard />
 
-        <label style={label}>שם משתמש (ציבורי)</label>
-        <input style={field} value={username} onChange={e => setUsername(e.target.value)} dir="rtl" />
-
-        <label style={label}>שם תצוגה</label>
-        <input style={field} value={displayName} onChange={e => setDisplayName(e.target.value)} dir="rtl" />
-
-        <label style={label}>תמונת פרופיל</label>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <Avatar profile={{ ...profile, avatar_url: avatarUrl }} user={user} size={52} />
-          <label style={{
-            display: "inline-flex", alignItems: "center", gap: 8, cursor: uploading ? "wait" : "pointer",
-            background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 10,
-            padding: "10px 18px", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
-          }}>
-            {uploading ? "מעלה…" : "📷 העלאת תמונה מהמכשיר"}
-            <input type="file" accept="image/*" onChange={pickAvatar} disabled={uploading} style={{ display: "none" }} />
-          </label>
-          {avatarUrl && !uploading && (
-            <button onClick={() => { setAvatarUrl(""); setMsg(""); }} style={{
-              background: "none", border: "none", cursor: "pointer", color: P.accentDim,
-              fontFamily: F.heading, fontSize: 12.5, textDecoration: "underline", textUnderlineOffset: 2,
-            }}>הסר</button>
-          )}
-        </div>
-        <button onClick={() => setShowUrl(v => !v)} style={{
-          background: "none", border: "none", cursor: "pointer", color: P.accentDim,
-          fontFamily: F.heading, fontSize: 12, marginTop: 8, padding: 0, textDecoration: "underline", textUnderlineOffset: 2,
-        }}>{showUrl ? "הסתר" : "או הדבק קישור (URL)"}</button>
-        {showUrl && (
-          <input style={{ ...field, marginTop: 8 }} value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} dir="ltr" placeholder="https://…" />
-        )}
-
-        {err && <div style={{ color: C.danger, fontSize: 13, marginTop: 12, fontFamily: F.heading }}>{err}</div>}
-        {msg && <div style={{ color: P.accentText, fontSize: 13, marginTop: 12, fontFamily: F.heading }}>{msg}</div>}
-
-        <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
-          <GoldButton onClick={save} disabled={busy}>{busy ? "שומר…" : "שמירה"}</GoldButton>
-          <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
+        {/* עורך-הפרופיל הקנוני — אותו רכיב בדיוק כמו במגירת «האזור האישי» (חוק העץ האחד) */}
+        <div style={{ marginTop: 8 }}>
+          <ProfileSettings
+            t={{ fieldBg: P.cardSoft, ink: P.ink, line: P.borderStrong, sub: P.accentDim, acc: P.accentText, danger: C.danger, btnBg: P.accentBtn, btnText: P.onAccent }}
+            showSignOut
+            onSignOut={() => navigate("/")}
+          />
         </div>
       </div>
 
