@@ -40,6 +40,24 @@ const regularOf = name => { try { return resolve(name).value; } catch { return M
 const cardFor = (name, value) => `${SITE_URL}/api/card?w=${encodeURIComponent(name)}&n=${value}`;
 const shareUrl = name => `${SITE_URL}/community/calculator?w=${encodeURIComponent(name)}`;
 
+// ✨ דירוג-הפתעה (Parallel Finder #2) — דטרמיניסטי, בלי המצאה.
+// הפתעה = ביטוי-מושג שלם (ריבוי-מילים) ורחוק מהשם, לא מילה נפוצה קצרה. אנגרמה של השם מוחרגת (טריוויאלית).
+const _sortedLetters = s => onlyHeb(s).slice().sort().join("");
+function rankBySurprise(phrases, name) {
+  const nameKey = _sortedLetters(name);
+  const nameTrim = String(name || "").trim();
+  return (phrases || [])
+    .filter(p => p?.phrase && p.phrase !== nameTrim && _sortedLetters(p.phrase) !== nameKey) // לא השם ולא אנגרמה שלו
+    .map(p => {
+      const letters = onlyHeb(p.phrase).length;
+      const words = p.phrase.trim().split(/\s+/).length;
+      // ריבוי-מילים = ההפתעה הגדולה (ביטוי שלם ששווה לשם); אורך = נדירות; מאומת = מושג שצוריאל אצר.
+      const score = words * 12 + letters * 2 + (p.is_verified ? 4 : 0) - (letters <= 2 ? 6 : 0);
+      return { ...p, words, score };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
 // 👶 כלי-מחקר לשם תינוק — לא "ציון" ולא "שם מומלץ" (אין דרך אובייקטיבית), אלא כלי-גילוי:
 // מדדים תיאוריים (עושר קשרים/מקורות · התאמות) + ניתוח עובדתי + העמקה. המשתמש מחליט.
 // זרימה: שלב 1 = 1-3 שמות · שלב 2 (אופציונלי) = שם משפחה + תאריך לידה → התאמות וקשרים.
@@ -282,8 +300,9 @@ export default function CommunityCalculatorPage() {
       const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
       const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
       kind = "number"; subject = name1.trim();
+      const surp = rankBySurprise(phrases1, name1.trim());
       facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
-        (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
+        (surp.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים (מהמפתיע לנפוץ): ${surp.slice(0, 8).map(p => p.phrase).join(", ")}. בחר את המקבילה הכי מפתיעה — זו הרחוקה ביותר מהמשמעות הרגילה של השם — והסבר את החיבור כרמז משלים.` : "");
     }
     const txt = await getAiAnalysis({ kind, subject, facts, fast: true, engine });
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
@@ -370,6 +389,9 @@ export default function CommunityCalculatorPage() {
     [r1?.value, phrases1, name1]
   );
 
+  // ✨ תגליות מפתיעות (#2) — המקבילות מדורגות לפי הפתעה (ביטוי-מושג שלם ורחוק) לראש.
+  const discoveries = useMemo(() => rankBySurprise(phrases1, name1.trim()), [phrases1, name1]);
+
   // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-19 השיטות מתכנסות לאותו ערך.
   // הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).
   const compat = useMemo(() => {
@@ -387,7 +409,7 @@ export default function CommunityCalculatorPage() {
   const shareText = !r1 ? "" : (
     r2
       ? `✨ "${name1.trim()}" (${r1.value}) ו-"${name2.trim()}" (${r2.value}) נפגשים ב-${matches.length} מתוך ${r1.all.length} שיטות גימטריה${matches.length ? `: ${matches.map(m => m.key).join(", ")}` : ""}\nבדקו את ההתאמה שלכם:\n${shareUrl(name1.trim())}`
-      : `הגימטריה של "${name1.trim()}" = ${r1.value} ✨${phrases1[0] ? ` (שווה ל«${phrases1[0].phrase}»!)` : ""}\nגלו מה השם שלכם מסתיר:\n${shareUrl(name1.trim())}`
+      : `הגימטריה של "${name1.trim()}" = ${r1.value} ✨${discoveries[0] ? ` (שווה ל«${discoveries[0].phrase}»!)` : (phrases1[0] ? ` (שווה ל«${phrases1[0].phrase}»!)` : "")}\nגלו מה השם שלכם מסתיר:\n${shareUrl(name1.trim())}`
   );
 
   // ── סגנונות theme-aware ──
@@ -561,6 +583,32 @@ export default function CommunityCalculatorPage() {
               </div>
             </Link>
           )}
+
+          {/* ✨ תגלית מפתיעה (#2 Parallel Finder) — המקבילה הכי «רחוקה» מהשם, מדורגת-הפתעה */}
+          {!r2 && discoveries.length > 0 && (() => {
+            const top = discoveries[0], rest = discoveries.slice(1, 4);
+            const blurb = `✨ גיליתי ש"${name1.trim()}" שווה בגימטריה (${r1.value}) ל«${top.phrase}»${rest[0] ? ` וגם ל«${rest[0].phrase}»` : ""}!\nמה השם שלך מסתיר?\n${shareUrl(name1.trim())}`;
+            return (
+              <div style={{ background: P.glow, border: `1.5px solid ${P.borderStrong}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.3, marginBottom: 6 }}>✨ תגלית</div>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, lineHeight: 1.4 }}>
+                  «{name1.trim()}» <span style={{ color: P.accentDim }}>=</span> <span style={{ fontFamily: F.mono, color: P.heroNum }}>{r1.value}</span> <span style={{ color: P.accentDim }}>=</span> «{top.phrase}»
+                </div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>אותו ערך בגימטריה רגילה — עובדה מהמנוע ✦ הפירוש למטה ב-AI</div>
+                {rest.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 10 }}>
+                    {rest.map(p => (
+                      <Link key={p.phrase} to={`/number/${r1.value}`} style={{ ...chip, background: P.card, color: P.accentText, border: `1px solid ${P.border}` }}>{p.phrase}</Link>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 9, justifyContent: "center", flexWrap: "wrap", marginTop: 13 }}>
+                  <a href={`https://wa.me/?text=${encodeURIComponent(blurb)}`} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו את התגלית</a>
+                  <button onClick={() => { navigator.clipboard?.writeText(blurb); setCopied(true); setTimeout(() => setCopied(false), 1500); }} style={pillBtn(P.card, P.accentText)}>{copied ? "✓ הועתק" : "📋 העתקה"}</button>
+                </div>
+              </div>
+            );
+          })()}
 
           {r2 && <Reveal name={name2} r={r2} phrases={[]} />}
 
