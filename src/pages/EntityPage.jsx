@@ -673,7 +673,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
 
   // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
-  const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode } = useResearch();
+  const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode, cart = [], pinned: pinnedItems = [] } = useResearch();
   // 🪜 מסע 3 שכבות (discovery_journey): 1=שער הגילוי · 2=גלה עוד (המשך גלילה) · 3=היכל הגילוי (הכל).
   // כל יכולת מחקר עתידית נכנסת רק להיכל הגילוי — דף המספר נשאר שער מהיר.
   const [layer, setLayer] = useState(1);
@@ -711,7 +711,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   // 🤖 ניתוח AI לדף המספר (ai-analyze · kind=number · fast=Haiku). מפרש עובדות-מנוע בלבד.
   const [aiBusy, setAiBusy] = useState(false);
   const [aiText, setAiText] = useState("");
-  useEffect(() => { setAiText(""); setAiBusy(false); }, [value, term]);  // מספר חדש → איפוס
+  const [comboBusy, setComboBusy] = useState(false);
+  const [comboText, setComboText] = useState("");
+  useEffect(() => { setAiText(""); setAiBusy(false); setComboText(""); }, [value, term]);  // מספר חדש → איפוס
   async function runAiNumber() {
     if (aiBusy) return;
     setAiBusy(true); setAiText("");
@@ -728,6 +730,51 @@ export default function EntityPage({ embedPhrase } = {}) {
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
+
+  // 🧠 משפך המחקר (research_workspace_law · שלב 2+3): אחרי הווו (ניתוח-AI חינם) — לשמור מילים
+  //    ולנתח כמה יחד (kind=research, מוצא את החוט המחבר). אנונימי (localStorage), בלי לוגין.
+  const researchItems = [...(pinnedItems || []), ...(cart || [])];
+  const inResearch = (cart || []).some(e => e && e.id === entity?.id) || (pinnedItems || []).some(e => e && e.id === entity?.id);
+  async function runCombo() {
+    if (comboBusy || researchItems.length < 2) return;
+    setComboBusy(true); setComboText("");
+    const facts = researchItems.map(e => {
+      if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;
+      if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;
+      return `• ${e.title}`;
+    }).join("\n");
+    let txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, fast: true });
+    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, again: true, fast: true }); }
+    setComboText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
+    setComboBusy(false);
+  }
+  // כרטיס-הנדנוד: מוצג אחרי שהניתוח רץ (aiText). מזמין לשמור + לנתח כמה מילים יחד → תיק-מחקר.
+  const funnelNudge = (
+    <div style={{ marginTop: 12, padding: "13px 15px", borderRadius: 14, background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, textAlign: "start" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>🧠 בנו תיק-מחקר</div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginBottom: 10 }}>
+        שמרו מילים/מספרים — ותנו ל-AI למצוא את <b>החוט המחבר</b> ביניהם. {researchItems.length > 0 && <>({researchItems.length} כבר במחקר שלך)</>}
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={() => addToResearch?.(entity)} disabled={inResearch}
+          style={{ cursor: inResearch ? "default" : "pointer", background: inResearch ? P.card : P.accentBtn, color: inResearch ? P.accentDim : P.onAccent, border: inResearch ? `1px solid ${P.border}` : "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 16px" }}>
+          {inResearch ? "✓ במחקר שלך" : `➕ הוסף את ${isNumber ? value : term} למחקר`}
+        </button>
+        {researchItems.length >= 2 && (
+          <button onClick={runCombo} disabled={comboBusy}
+            style={{ cursor: comboBusy ? "wait" : "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 16px" }}>
+            {comboBusy ? "🤖 מנתח…" : `🧠 נתח ${researchItems.length} מילים יחד`}
+          </button>
+        )}
+      </div>
+      {comboText && (
+        <div style={{ marginTop: 11 }}>
+          <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 6 }}>🔵 ניתוח-על · החוט המחבר</div>
+          <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{comboText}</div>
+        </div>
+      )}
+    </div>
+  );
 
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
   useEffect(() => {
@@ -1004,6 +1051,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
               {aiBusy && !aiText && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, padding: "4px 0" }}>🤖 ה-AI חושב…</div>}
               {aiText && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>}
+              {aiText && funnelNudge}
             </div>
           )}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
@@ -1046,6 +1094,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                 <div>
                   <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
+                  {funnelNudge}
                 </div>
               )}
             </div>
