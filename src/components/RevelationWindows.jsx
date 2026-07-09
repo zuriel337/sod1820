@@ -33,8 +33,13 @@ export default function RevelationWindows() {
           {items.map((s, i) => (
             <button key={s.id} onClick={() => setOpen(i)} title={s.title || ""}
               style={{ flex: "0 0 auto", background: "none", border: "none", cursor: "pointer", width: 80, padding: 0 }}>
-              <span style={{ display: "block", width: 74, height: 74, borderRadius: "50%", padding: 3, margin: "0 auto",
+              <span style={{ position: "relative", display: "block", width: 74, height: 74, borderRadius: "50%", padding: 3, margin: "0 auto",
                 background: `conic-gradient(from 210deg, ${P.accent}, #f7e39c, ${P.accent})` }}>
+                {s.video_url && (
+                  <span aria-hidden="true" style={{ position: "absolute", bottom: 1, insetInlineEnd: 1, width: 21, height: 21,
+                    borderRadius: "50%", background: "#000000b0", color: "#fff", display: "grid", placeItems: "center",
+                    fontSize: 9, border: "1.5px solid #f7e39c", zIndex: 1 }}>▶</span>
+                )}
                 {s.image_url ? (
                   <img src={thumb(s.image_url, 200)} alt={s.title || ""} loading="lazy"
                     style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover",
