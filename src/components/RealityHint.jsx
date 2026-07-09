@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { track } from "../lib/tracking.js";
+import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 
 // 🫧 רמז מציאות — בועה קטנה בפינה, לא חוסמת, בקול האתר.
 // שתי התנהגויות (כמו שצוריאל הגדיר):
@@ -26,6 +27,9 @@ const CYCLE_MS = 240000;       // «פעם בכמה דקות» — ~4 דק׳ ב�
 export default function RealityHint() {
   const [hint, setHint] = useState(null);
   const [show, setShow] = useState(false);
+  // 🏛️ עולם-המשתמש פתוח (מגירה z-4000) → הבועה (z-60) נבלעת מאחורי ההאפלה ונראית תקולה.
+  // לכן: כשהמגירה פתוחה — הבועה מוסתרת; כשנסגרת — חוזרת אם עוד בחלון התצוגה שלה.
+  const { isOpen: ucOpen } = useUserCenter();
   const idxRef = useRef(Math.floor(Math.random() * HINTS.length)); // התחלה אקראית → שונה בין ביקורים
   const stoppedRef = useRef(false);
   const hideT = useRef(null);
@@ -79,9 +83,9 @@ export default function RealityHint() {
       border: `1px solid ${hint.grow ? "rgba(169,207,148,.32)" : "rgba(232,194,90,.22)"}`,
       borderRadius: 16, padding: "13px 13px 12px",
       boxShadow: "0 20px 44px -18px #000e, inset 0 1px 0 #ffffff0c",
-      transform: show ? "translateY(0)" : "translateY(24px)",
-      opacity: show ? 1 : 0,
-      pointerEvents: show ? "auto" : "none",
+      transform: (show && !ucOpen) ? "translateY(0)" : "translateY(24px)",
+      opacity: (show && !ucOpen) ? 1 : 0,
+      pointerEvents: (show && !ucOpen) ? "auto" : "none",
       transition: "transform .5s cubic-bezier(.2,.8,.2,1), opacity .45s ease",
       fontFamily: "'Heebo','Assistant',system-ui,sans-serif", direction: "rtl",
     }}>

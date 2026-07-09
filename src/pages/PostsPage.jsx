@@ -4,6 +4,7 @@ import { C, F, calcGem, isWarmNumber } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { MaintenanceLock, useSiteFlag } from "../components/MaintenanceLock.jsx";
 import ShareToFacebookBtn from "../components/ShareToFacebookBtn.jsx";
 import {
   getPostsFromSupabase, searchPosts, adaptPost,
@@ -102,7 +103,10 @@ function PostCard({ p, i, view, hot, isAdmin }) {
 
 export default function PostsPage() {
   const P = usePalette();
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_reality: פילטר «זרם המציאות» ב-/post — לרשומים בלבד כשהדגל פעיל (mode=anon)
+  const { loading: rlLoading, lock: rlLock } = useSiteFlag("lock_reality");
+  const streamBlocked = !!rlLock?.enabled && !isAdmin && !(rlLock.mode === "anon" && user);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   // נתוני עזר
@@ -189,10 +193,11 @@ export default function PostsPage() {
 
   // טעינת רמזי זרם המציאות כשהפילטר פעיל
   useEffect(() => {
-    if (!realityMode) return;
+    if (!realityMode || rlLoading) return;
+    if (streamBlocked) { setRHints([]); setLoading(false); return; }   // נעול לרשומים — לא טוענים
     setLoading(true); setError("");
     getGalleryUpdates(60).then(h => { setRHints(h || []); setLoading(false); }).catch(() => { setRHints([]); setLoading(false); });
-  }, [realityMode]);
+  }, [realityMode, rlLoading, streamBlocked]);
 
   // אפקט חיפוש (debounce)
   useEffect(() => {
@@ -411,7 +416,9 @@ export default function PostsPage() {
 
       {/* תוצאות — מצב זרם המציאות (רמזים) */}
       {realityMode ? (
-        rHints.length === 0 && loading ? (
+        streamBlocked ? (
+          <MaintenanceLock message={rlLock?.message} showLogin={rlLock?.mode === "anon"} />
+        ) : rHints.length === 0 && loading ? (
           <div className="pp-empty">טוען רמזים…</div>
         ) : rHints.length === 0 ? (
           <div className="pp-empty">אין רמזים עדיין בזרם המציאות.</div>

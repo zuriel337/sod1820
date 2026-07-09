@@ -16,6 +16,7 @@ import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
+import { useSiteFlag } from "../components/MaintenanceLock.jsx";
 import VideoGallery from "../components/VideoGallery.jsx";
 import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
@@ -77,7 +78,11 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_reality: כשהזרם נעול (mode=anon → אנונימיים) — עמוד הבית לא טוען רמזי-זרם בכלל:
+  // הריל/קאברים/מספרים-חמים מהזרם נעלמים, וגם לא נשרפות טרנספורמציות-תמונה על תנועה אנונימית.
+  const { loading: rlLoading, lock: rlLock } = useSiteFlag("lock_reality");
+  const streamBlocked = !!rlLock?.enabled && !isAdmin && !(rlLock.mode === "anon" && user);
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
@@ -106,7 +111,7 @@ export default function HomeNewPage() {
     // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). «הינוקא» = מוסתר מדף הבית (בקשת צוריאל). מושכים יותר ומסננים.
     const hiddenAtHome = p => (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
     getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 18)); markSeenKey("home-posts"); }).catch(() => {});
-    getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    // רמזי-הזרם נטענים ב-effect נפרד, מותנה בדגל lock_reality (ראה למטה)
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
     getHomeSets().then(r => setHomeSets(r || [])).catch(() => {});
@@ -118,6 +123,13 @@ export default function HomeNewPage() {
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
     markSeenKey("home-radar");
   }, []);
+
+  // 🔒 רמזי זרם המציאות בבית — רק למי שהזרם פתוח עבורו (lock_reality). חסום → אין טעינה בכלל.
+  useEffect(() => {
+    if (rlLoading) return;
+    if (streamBlocked) { setHints([]); return; }
+    getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+  }, [rlLoading, streamBlocked]);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
   // יום = קלף קרם (אטום, מכסה). מקור אחד: SpaceBackground.jsx → משנה את כל הדפים הכהים.
