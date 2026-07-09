@@ -1346,6 +1346,15 @@ export async function adminSavePost({ id = null, title, slug = null, content = '
   return data;
 }
 
+// שמירת פוסט עם קוד-סוד (בלי התחברות) — Edge Function post-save (token). לעורך במצב ?key=.
+export async function tokenSavePost(key, fields = {}) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.functions.invoke('post-save', { body: { token: key, ...fields } });
+  if (error) throw new Error(error?.message || 'invoke');
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
 // 🤖 עריכת תוכן פוסט ב-AI — Edge Function post-ai-edit. מנוע ברירת-מחדל 'gemini' (ה-AI שנקנה בטוקנים).
 // מקבל תוכן HTML + הוראה, מחזיר HTML נקי (קלאסים קנוניים). null בכשל. engine: 'gemini' | 'claude'.
 export async function getPostAiEdit({ content = '', instruction, title = '', engine = 'gemini' }) {

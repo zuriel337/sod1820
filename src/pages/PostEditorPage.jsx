@@ -3,7 +3,10 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getPostBySlug, adminSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getContributorsList } from "../lib/supabase.js";
+import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getContributorsList } from "../lib/supabase.js";
+
+// 🔑 כניסה עם קוד-סוד (בלי התחברות) — לעקוף את חסם ההתחברות. ?key=<code>
+const EDIT_KEY = "sod-edit-9k4m2x";
 import { thumb } from "../lib/img.js";
 
 // ✍️ עורך הפוסטים המתקדם (אדמין) — /admin/editor (חדש) · /admin/editor/:slug (עריכה).
@@ -28,6 +31,10 @@ export default function PostEditorPage() {
   const nav = useNavigate();
   const P = usePalette();
   const { isAdmin, verified, user, profile, loading: authLoading } = useAuth();
+  // כניסה עם קוד-סוד בכתובת (?key=) — עוקף את שער ההתחברות ומשתמש בשמירה מוגנת-קוד.
+  const editKey = useMemo(() => { try { return new URLSearchParams(window.location.search).get("key") || ""; } catch { return ""; } }, []);
+  const hasKey = editKey === EDIT_KEY;
+  const canEdit = hasKey || (verified && isAdmin);
 
   const isEdit = !!routeSlug;
   const [loading, setLoading] = useState(isEdit);
@@ -165,12 +172,13 @@ export default function PostEditorPage() {
     // «טיוטה» = תגית-סטטוס: מוסיפים בשמירת-טיוטה, מסירים בפרסום.
     const baseTags = (tags || []).filter(t => t !== "טיוטה");
     const finalTags = asDraft ? [...baseTags, "טיוטה"] : baseTags;
+    const payload = {
+      id: postId, title: title.trim(), slug: slug.trim() || null, content, excerpt,
+      categories, tags: finalTags, author: author.trim() || null, image_url: imageUrl.trim() || null,
+      source: source || "ai", ai_touched: aiTouched,
+    };
     try {
-      const res = await adminSavePost({
-        id: postId, title: title.trim(), slug: slug.trim() || null, content, excerpt,
-        categories, tags: finalTags, author: author.trim() || null, image_url: imageUrl.trim() || null,
-        source: source || "ai", ai_touched: aiTouched,
-      });
+      const res = hasKey ? await tokenSavePost(editKey, payload) : await adminSavePost(payload);
       setSaving(false);
       if (res?.id && !postId) setPostId(res.id);   // אחרי יצירה — נשארים על אותו פוסט
       setWasDraft(asDraft);
@@ -185,8 +193,8 @@ export default function PostEditorPage() {
     }
   };
 
-  if (authLoading) return <div dir="rtl" style={{ padding: 40, textAlign: "center", color: C.goldDim, fontFamily: F.body }}>בודק הרשאות…</div>;
-  if (!verified || !isAdmin) {
+  if (!hasKey && authLoading) return <div dir="rtl" style={{ padding: 40, textAlign: "center", color: C.goldDim, fontFamily: F.body }}>בודק הרשאות…</div>;
+  if (!canEdit) {
     return (
       <div dir="rtl" style={{ maxWidth: 640, margin: "60px auto", padding: 24, textAlign: "center", fontFamily: F.body, color: C.goldDim }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.heading }}>✍️ עורך הפוסטים</h2>

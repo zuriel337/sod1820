@@ -6,10 +6,12 @@ import { getEntityBundle, getTopicCards, getRecentSearchCount } from "../lib/sup
 import { stripHtml } from "../lib/format.js";
 import { useNumberDrawer, openNumberDrawer, closeNumberDrawer, toggleNumberDrawer } from "../lib/numberDrawer.js";
 import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
+import { englishSimple, hasLatin } from "../lib/englishGematria.js";
 import ConvergenceMeter from "./ConvergenceMeter.jsx";
 import NumberEngineLogo from "./NumberEngineLogo.jsx";
 
-const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "אתבש", "גדול", "קדמי", "מילוי בלבד"].includes(m.key));
+// 6 שיטות (בקשת צוריאל — בלי אתבש), כמו רשימת-הליבה בבית המדרש.
+const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "גדול", "קדמי", "מילוי בלבד"].includes(m.key));
 
 // ===== מגירת המספר — פאנל צף גלובלי =====
 // צף באוויר בצד ימין, נשאר פתוח גם בניווט, עם בועה צפה לפתיחה וחוט שמצביע
@@ -53,9 +55,11 @@ export default function NumberDrawer({ hideLauncher = false } = {}) {
 
   const eff = (q || "").trim();             // הביטוי הפעיל (מהשדה החי)
   const isNumber = eff !== "" && /^\d+$/.test(eff);
-  const value = eff ? (isNumber ? Number(eff) : calcGem(eff)) : null;
-  const methodVals = (eff && !isNumber) ? MINI.map(m => ({ key: m.key, v: m.fn(eff), sub: m.sub })) : null;
-  const depthVals = (eff && !isNumber) ? DEPTH_METHODS.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
+  const isEnglish = eff !== "" && !isNumber && hasLatin(eff);   // קלט אנגלי → English Simple (A=1 … Z=26), כמו בבית המדרש
+  const value = eff ? (isNumber ? Number(eff) : (isEnglish ? englishSimple(eff) : calcGem(eff))) : null;
+  const methodVals = (eff && !isNumber && !isEnglish) ? MINI.map(m => ({ key: m.key, v: m.fn(eff), sub: m.sub }))
+    : (isEnglish ? [{ key: "English Simple", lbl: "🇺🇸 English", v: englishSimple(eff), sub: "A=1 … Z=26" }] : null);
+  const depthVals = (eff && !isNumber && !isEnglish) ? DEPTH_METHODS.map(m => ({ key: m.key, v: m.fn(eff) })) : null;
 
   // טעינת הקשרים — מתעדכנת חי לפי השדה (עם השהיה קצרה כדי לא להעמיס)
   useEffect(() => {
@@ -185,7 +189,7 @@ export default function NumberDrawer({ hideLauncher = false } = {}) {
                 <button key={t.key} onClick={() => goTo(`/number/${t.v}`)} title={`פתח את דף המספר ${t.v} (${t.key})`}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = P.borderStrong)} onMouseLeave={e => (e.currentTarget.style.borderColor = P.border)}
                   style={{ cursor: "pointer", textAlign: "center", background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, padding: "6px 4px", transition: "border-color .15s" }}>
-                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{methodLabel(t.key)}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.lbl || methodLabel(t.key)}</div>
                   <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18.5, fontWeight: 800, lineHeight: 1.15 }}><span style={{ color: P.accentDim, fontWeight: 700 }}>= </span>{t.v}</div>
                   {t.sub && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.3, marginTop: 2, opacity: 0.85 }}>{t.sub}</div>}
                 </button>
