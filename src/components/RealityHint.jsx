@@ -1,72 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { track } from "../lib/tracking.js";
 
-// 🫧 רמז מציאות — בועה קטנה בפינה, לא חוסמת, נסגרת, בקול האתר.
-// מתחילים קטן ומודדים: כל הצגה/לחיצה/סגירה נרשמת ל-visitor_events (section='reality_hint', slug=kind).
-// יושר: עובדה לפני פרשנות. בלי נבואות. לא מציק — פעם ל-session, ואחרי סגירה cooldown של 3 ימים.
-//
-// עקרון whats_new_law: לא חלון-זמן גלובלי מעצבן. פעם ל-session + snooze פר-משתמש.
+// 🫧 רמז מציאות — בועה קטנה בפינה, לא חוסמת, בקול האתר.
+// שתי התנהגויות (כמו שצוריאל הגדיר):
+//   • התעלמות → נעלמת בעדינות וחוזרת בעוד כמה דקות עם רמז אחר.
+//   • סגירה (✕) → מפסיקה עד סוף ה-session (מכבד «לא עכשיו»).
+// טריגר ראשון: אחרי שהמשתמש גלל, או אחרי השהייה. מדידה: view/click/dismiss ל-visitor_events.
+// יושר: עובדה לפני פרשנות, בלי נבואות.
 
 const HINTS = [
-  { kind: "inspire",  ic: "💡", body: "אולי החיים משאירים רמזים." },
+  { kind: "thread",   ic: "🌱", body: "אולי גם לחיים שלך יש חוט שמחבר בין שמות, מספרים ותאריכים.", cta: "למסע האישי", to: "/journey", grow: true },
   { kind: "connect",  ic: "🔍", body: "אל תחפש תשובות. חפש קשרים.", strong: true },
-  { kind: "invite",   ic: "🧭", body: "רוצה לבדוק אם גם לחיים שלך יש חתימה?", cta: "למסע האישי", to: "/journey", grow: true },
-  { kind: "ai",       ic: "🤖", body: "נסו לראות איך שני מנועי AI מפרשים את אותו מספר.", cta: "למחשבון", to: "/community/calculator" },
-  { kind: "question", ic: "✨", body: "האם יש מספר שחוזר אצלכם שוב ושוב?", grow: true },
   { kind: "thought",  ic: "📜", body: "כל תגלית גדולה מתחילה בהתבוננות אחת." },
+  { kind: "question", ic: "✨", body: "האם יש מספר שחוזר אצלך שוב ושוב?", grow: true },
+  { kind: "ai",       ic: "🤖", body: "נסו לראות איך שני מנועי AI מפרשים את אותו מספר.", cta: "למחשבון", to: "/community/calculator" },
+  { kind: "inspire",  ic: "💡", body: "אולי החיים משאירים רמזים." },
 ];
 
-const SNOOZE_KEY = "sod_hint_snooze";      // ms timestamp — עד מתי לא להציג (אחרי סגירה)
-const SESSION_KEY = "sod_hint_seen";        // הוצג כבר ב-session הזה
-const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;  // 3 ימים
-const APPEAR_DELAY = 7000;                  // מופיע אחרי 7ש׳ שיטוט
-const AUTO_HIDE = 22000;                    // נעלם בעדינות אם התעלמו
-
-function pickHint() {
-  // בחירה יציבה-ל-session (לא מתחלף בכל רינדור), אך שונה בין ביקורים
-  const i = Math.floor((Date.now() / 1000) % HINTS.length);
-  return HINTS[i];
-}
+const SCROLL_TRIGGER = 400;    // px — «אחרי שהמשתמש גלל»
+const FALLBACK_DELAY = 30000;  // אם לא גלל — מופיע אחרי 30ש׳
+const VISIBLE_MS = 18000;      // כמה זמן מוצגת לפני היעלמות עדינה
+const CYCLE_MS = 240000;       // «פעם בכמה דקות» — ~4 דק׳ בין רמזים
 
 export default function RealityHint() {
   const [hint, setHint] = useState(null);
   const [show, setShow] = useState(false);
+  const idxRef = useRef(Math.floor(Math.random() * HINTS.length)); // התחלה אקראית → שונה בין ביקורים
+  const stoppedRef = useRef(false);
+  const hideT = useRef(null);
+  const cycleT = useRef(null);
 
   useEffect(() => {
-    // כבר הוצג ב-session? / ב-snooze? → לא מציגים
-    try {
-      if (sessionStorage.getItem(SESSION_KEY)) return;
-      const snooze = Number(localStorage.getItem(SNOOZE_KEY) || 0);
-      if (snooze && Date.now() < snooze) return;
-    } catch { /* ignore */ }
-
-    const h = pickHint();
-    const t = setTimeout(() => {
-      try { sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* ignore */ }
+    let started = false;
+    const showNext = () => {
+      if (stoppedRef.current) return;
+      const h = HINTS[idxRef.current % HINTS.length];
+      idxRef.current += 1;
       setHint(h); setShow(true);
-      track("reality_hint", h.kind, "view");   // 📊 impression
-    }, APPEAR_DELAY);
-    return () => clearTimeout(t);
+      track("reality_hint", h.kind, "view");
+      clearTimeout(hideT.current);
+      hideT.current = setTimeout(() => setShow(false), VISIBLE_MS); // התעלמות → נעלמת
+    };
+    const begin = () => {
+      if (started || stoppedRef.current) return;
+      started = true;
+      window.removeEventListener("scroll", onScroll);
+      showNext();
+      cycleT.current = setInterval(showNext, CYCLE_MS); // חוזרת כל כמה דקות
+    };
+    const onScroll = () => { if (window.scrollY > SCROLL_TRIGGER) begin(); };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const fb = setTimeout(begin, FALLBACK_DELAY); // אם לא גלל בכלל
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(fb); clearTimeout(hideT.current); clearInterval(cycleT.current);
+    };
   }, []);
 
-  // היעלמות עדינה אם התעלמו (לא נספר כסגירה)
-  useEffect(() => {
-    if (!show) return;
-    const t = setTimeout(() => setShow(false), AUTO_HIDE);
-    return () => clearTimeout(t);
-  }, [show]);
-
   const dismiss = () => {
+    stoppedRef.current = true;                    // סגירה = מפסיק עד סוף ה-session
+    clearInterval(cycleT.current); clearTimeout(hideT.current);
     setShow(false);
-    try { localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_MS)); } catch { /* ignore */ }
     if (hint) track("reality_hint", hint.kind, "dismiss");
   };
   const clickCta = () => { if (hint) track("reality_hint", hint.kind, "click", { to: hint.to }); };
 
   if (!hint) return null;
-
   const accent = hint.grow ? "#a9cf94" : "#e8c25a";
+
   return (
     <div role="status" aria-live="polite" style={{
       position: "fixed", bottom: 18, insetInlineStart: 18, zIndex: 60,
