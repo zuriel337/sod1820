@@ -241,7 +241,9 @@ export default function App() {
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
-          <Route path="/archive" element={<Locked flag="lock_galleries"><ArchivePage /></Locked>} />
+          {/* /archive = זרם המציאות: שער-רשומים ברמת הראוט (lock_reality mode=anon);
+              טאבי הגלריות בפנים חסומים בנפרד גם לרשומים (lock_galleries, בתוך ArchivePage) */}
+          <Route path="/archive" element={<Locked flag="lock_reality"><ArchivePage /></Locked>} />
           <Route path="/gallery" element={<Locked flag="lock_galleries"><GalleryPage /></Locked>} />
           <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />

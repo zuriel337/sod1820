@@ -730,11 +730,11 @@ export async function getRealityHints(limit = 1000) {
 }
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
-// מחזיר מפה {key: {enabled, message}}. משמש את <Locked> לעטיפת ראוטים.
+// מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
 export async function getSiteFlags() {
   if (!supabase) return {};
   try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message');
+    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
     const m = {};
     for (const r of (data || [])) m[r.key] = r;
     return m;

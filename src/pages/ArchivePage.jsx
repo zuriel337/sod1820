@@ -17,6 +17,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
+import { MaintenanceLock, useSiteFlag } from "../components/MaintenanceLock.jsx";
 import HintSetWizard from "../components/HintSetWizard.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import { track } from "../lib/tracking.js";
@@ -52,8 +53,11 @@ function eventLabel(im) {
   return d ? d.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" }) : null;
 }
 export default function ArchivePage() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const loc = useLocation();
+  // 🔒 טאבי הגלריות (גלריות/מאגר/אוצרות) נעולים בנפרד מהזרם — גם לרשומים (lock_galleries).
+  const { lock: galLock } = useSiteFlag("lock_galleries");
+  const galBlocked = !!galLock?.enabled && !isAdmin && !(galLock.mode === "anon" && user);
   useEffect(() => { track("reality-stream"); }, []); // eslint-disable-line
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(loc.search).get("tab");
@@ -879,14 +883,17 @@ export default function ArchivePage() {
         </div>
       )}
 
+      {/* 🔒 נעילת גלריות — חלה על אוצרות/גלריות/מאגר בלבד; הזרם (reality) נשאר פתוח לרשומים */}
+      {galBlocked && ["cascade", "galleries", "pool"].includes(tab) && <MaintenanceLock message={galLock?.message} />}
+
       {/* ============ 👑 טאב אוצרות הגילוי — ציר-הערך, שער-המוזיאון ללא-חיתוך ============ */}
-      {tab === "cascade" && <CascadeCompare isAdmin={isAdmin} onEdit={isAdmin ? h => setEditImg(h) : null} />}
+      {tab === "cascade" && !galBlocked && <CascadeCompare isAdmin={isAdmin} onEdit={isAdmin ? h => setEditImg(h) : null} />}
 
       {/* ============ 🧪 טאב ניסוי (אדמין) — שתי גלריות ללא-חיתוך על נתוני הזרם, לבחירה ============ */}
       {tab === "trial" && isAdmin && <TrialGalleries onEdit={h => setEditImg(h)} />}
 
       {/* ============ טאב גלריות (ההיסטורי) — עם רצועת גלריות-רמזים מומלצות ============ */}
-      {tab === "galleries" && (
+      {tab === "galleries" && !galBlocked && (
       <>
         {sets.some(s => s.show_on_home) && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "center", marginBottom: 22 }}>
@@ -924,7 +931,7 @@ export default function ArchivePage() {
       )}
 
       {/* ============ טאב מאגר / סטים ============ */}
-      {tab === "pool" && (
+      {tab === "pool" && !galBlocked && (
         <div className="ar-layout">
           <aside className="ar-side">
             {/* ── סוגי תמונות ── */}
