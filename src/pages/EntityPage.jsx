@@ -992,11 +992,20 @@ export default function EntityPage({ embedPhrase } = {}) {
           {showBody && <QuickActions
             entity={entity}
             onShare={() => shareNumberSmart(value, data?.phrases || [])}
+            onAnalyze={runAiNumber}
             style={{ "--ink": P.ink, "--card": P.cardSoft, "--line": P.border, "--acc": P.accentText, "--accS": P.glow, "--onAcc": P.onAccent || "#1a0e00" }}
             extra={<>
               <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
+          {/* 🤖 תוצאת ה-AI במצב מחקר (מתחת לפס-הפעולות) — «נתח ב-AI» מפעיל את runAiNumber */}
+          {showBody && (aiBusy || aiText) && (
+            <div style={{ maxWidth: 580, margin: "12px auto 0", padding: "14px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", textAlign: "start" }}>
+              <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
+              {aiBusy && !aiText && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, padding: "4px 0" }}>🤖 ה-AI חושב…</div>}
+              {aiText && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>}
+            </div>
+          )}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
