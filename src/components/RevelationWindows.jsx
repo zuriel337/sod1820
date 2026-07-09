@@ -29,7 +29,7 @@ export default function RevelationWindows() {
           <h2 style={{ margin: 0, color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>חלונות הגילוי</h2>
         </div>
         <div style={{ display: "flex", gap: 16, overflowX: "auto", padding: "4px 6px 8px", scrollbarWidth: "none",
-          justifyContent: items.length < 5 ? "center" : "flex-start" }}>
+          justifyContent: "center" }}>
           {items.map((s, i) => (
             <button key={s.id} onClick={() => setOpen(i)} title={s.title || ""}
               style={{ flex: "0 0 auto", background: "none", border: "none", cursor: "pointer", width: 80, padding: 0 }}>
