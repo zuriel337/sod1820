@@ -4684,6 +4684,26 @@ function PostPageBySlug({ onNav }) {
                   </div>
                 );
               })()}
+              {/* כתבים נוספים (כמה כתבים השתתפו) — post.authors מעבר לכתב הראשי */}
+              {(() => {
+                const list = Array.isArray(post.authors) ? post.authors.filter(Boolean) : [];
+                const primary = author || list[0] || "";
+                const others = list.filter(a => a && a !== primary && a !== "המערכת");
+                if (!others.length) return null;
+                return (
+                  <div style={{ textAlign: "center", margin: "-6px 0 14px", color: pc.muted, fontFamily: F.heading, fontSize: 12.5 }}>
+                    בהשתתפות:
+                    {others.map((a, i) => (
+                      <span key={a}>
+                        {i > 0 ? " · " : " "}
+                        <span onClick={() => navigate('/post?author=' + encodeURIComponent(a))}
+                          title={`כל הפוסטים של ${a}`}
+                          style={{ color: pc.goldLight, cursor: "pointer", borderBottom: `1px dotted ${pc.muted}` }}>{a}</span>
+                      </span>
+                    ))}
+                  </div>
+                );
+              })()}
               {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה (לועזי + עברי) + תאריך עדכון (לועזי בלבד) */}
               <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: P.mode === "light" ? P.ink : pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
                 <span title="תאריך יצירת הפוסט">

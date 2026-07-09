@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getContributorsList } from "../lib/supabase.js";
+import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getAllAuthors } from "../lib/supabase.js";
+import { supabase } from "../lib/supabase.js";
 
 // 🔑 כניסה עם קוד-סוד (בלי התחברות) — ?key=<code>. הקוד עצמו לא נשמר בצד-הלקוח:
 // כל key פותח את הטופס, אבל השמירה מאומתת בשרת (post-save token) — key שגוי → נדחה.
@@ -98,8 +99,9 @@ export default function PostEditorPage() {
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [author, setAuthor] = useState("");
+  const [authors, setAuthors] = useState([]);   // כמה כתבים לפוסט (authors[0] = הכתב הראשי)
   const [imageUrl, setImageUrl] = useState("");
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [aiTouched, setAiTouched] = useState(false);
@@ -109,10 +111,10 @@ export default function PostEditorPage() {
   const [allCats, setAllCats] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [drafts, setDrafts] = useState([]);       // רשימת הטיוטות
-  const [contribs, setContribs] = useState([]);   // כותבים לבורר «קשר לכתב»
+  const [allAuthors, setAllAuthors] = useState([]);   // כל הכתבים באתר (פוסטים+מרשם+contributors)
   const [wasDraft, setWasDraft] = useState(!isEdit); // האם הפוסט הנטען כרגע טיוטה (חדש = טיוטה כברירת-מחדל)
 
-  const [preview, setPreview] = useState(false);
+  const [view, setView] = useState("edit");       // edit | preview | split (עריכה תוך תצוגה מקדימה)
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
@@ -128,7 +130,7 @@ export default function PostEditorPage() {
 
   useEffect(() => { getPostCategoriesTags().then(({ categories: c, tags: t }) => { setAllCats(c); setAllTags(t.filter(x => x !== "טיוטה")); }).catch(() => {}); }, []);
   const reloadDrafts = useCallback(() => { getDraftPosts().then(setDrafts).catch(() => {}); }, []);
-  useEffect(() => { reloadDrafts(); getContributorsList().then(setContribs).catch(() => {}); }, [reloadDrafts]);
+  useEffect(() => { reloadDrafts(); getAllAuthors().then(setAllAuthors).catch(() => {}); }, [reloadDrafts]);
 
   useEffect(() => {
     let alive = true;
@@ -141,7 +143,7 @@ export default function PostEditorPage() {
       setSlug(p.slug || "");
       setExcerpt(p.excerpt || "");
       setContent(p.content || "");
-      setAuthor(p.author || "");
+      setAuthors(Array.isArray(p.authors) && p.authors.length ? p.authors : (p.author ? [p.author] : []));
       setImageUrl(p.image_url || "");
       setCategories(p.categories || []);
       setWasDraft((p.tags || []).includes("טיוטה"));
@@ -176,6 +178,19 @@ export default function PostEditorPage() {
   });
   const addLink = () => { const url = window.prompt("כתובת הקישור (URL):", "/"); if (url) wrap(`<a href="${url}">`, "</a>", "טקסט הקישור"); };
   const addImage = () => { const url = window.prompt("כתובת התמונה (URL):", "https://"); if (url) insert(`\n<div style="text-align:center;margin:22px 0;"><img src="${url}" alt="" style="max-width:280px;width:100%;border-radius:12px;" /></div>\n`); };
+  // 🔗 הפיכת גימטריה לקישור-לחיץ שפותח את מגירת המספר (post_text_colors_law):
+  //   cls='sod-gemlink' = ביטוי (קו-זהב מנוקד) · cls='sod-numlink' = ערך (זהב מודגש).
+  //   עובד על הבחירה הנוכחית ב-textarea; אם אין בחירה — שואל.
+  const gemify = (cls) => applyToContent((sel, v, s, e) => {
+    let inner = (sel && sel.trim()) || "";
+    if (!inner) { inner = (window.prompt(cls === "sod-numlink" ? "הערך/המספר:" : "הביטוי:", "") || "").trim(); }
+    if (!inner) return { text: v, selStart: s, selEnd: e };
+    const open = `<a href="/number/${encodeURIComponent(inner)}" class="${cls}" data-gem="${inner}">`;
+    const bOpen = cls === "sod-numlink" ? "<b>" : "", bClose = cls === "sod-numlink" ? "</b>" : "";
+    const text = v.slice(0, s) + open + bOpen + inner + bClose + "</a>" + v.slice(e);
+    const selStart = s + open.length + bOpen.length;
+    return { text, selStart, selEnd: selStart + inner.length };
+  });
 
   const tools = [
     { l: "B", t: "מודגש", on: () => wrap("<strong>", "</strong>"), bold: true },
@@ -188,7 +203,8 @@ export default function PostEditorPage() {
     { l: "🔗 קישור", t: "קישור", on: addLink },
     { l: "🖼 תמונה", t: "תמונה", on: addImage },
     { l: "⊟ מרכוז", t: "פסקה ממורכזת", on: () => wrap('\n<p style="text-align:center">', "</p>\n", "טקסט ממורכז") },
-    { l: "🔢 מספר", t: "קישור לדף המספר", on: () => { const n = window.prompt("המספר או הביטוי:", ""); if (n && n.trim()) wrap(`<a href="/number/${encodeURIComponent(n.trim())}" class="sod-numlink" data-gem="${n.trim()}"><b>`, "</b></a>", n.trim()); } },
+    { l: "🔗 גימטריה", t: "בחר ביטוי והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-gemlink", on: () => gemify("sod-gemlink") },
+    { l: "🔢 מספר", t: "בחר ערך/מספר והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-numlink", on: () => gemify("sod-numlink") },
     { l: "🔗 ראו גם", t: "בלוק «ראו גם»", on: () => insert(SEE_ALSO) },
     { l: "— קו", t: "קו מפריד", on: () => insert("\n<hr />\n") },
   ];
@@ -207,7 +223,25 @@ export default function PostEditorPage() {
     if (!aiResult?.html) return;
     setContent(mode === "append" ? `${content}\n${aiResult.html}` : aiResult.html);
     if (!aiTouched) setAiTouched(true);   // AI נגע בתוכן → חותמת מאומת (ai_gematria_verified_stamp_law)
-    setAiResult(null); setPreview(true);
+    setAiResult(null); setView("preview");
+  };
+
+  // ── העלאת תמונה ראשית מהמכשיר (לא רק URL) ──
+  const pickPostImage = async (e) => {
+    const f = e.target.files?.[0]; e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { setErr("נא לבחור קובץ תמונה"); return; }
+    if (f.size > 8 * 1024 * 1024) { setErr("התמונה גדולה מדי (מקסימום 8MB)"); return; }
+    setErr(""); setMsg(""); setUploadingImg(true);
+    try {
+      const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `posts/${(slug || "post").replace(/[^a-z0-9א-ת_-]/gi, "").slice(0, 40) || "post"}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: false, contentType: f.type });
+      if (error) throw error;
+      setImageUrl(supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl);
+      setMsg("התמונה הראשית הועלתה ✓");
+    } catch (e2) { setErr(e2?.message || "שגיאה בהעלאת התמונה"); }
+    setUploadingImg(false);
   };
 
   // ── ניהול קטגוריות/תגיות ──
@@ -225,9 +259,13 @@ export default function PostEditorPage() {
     // «טיוטה» = תגית-סטטוס: מוסיפים בשמירת-טיוטה, מסירים בפרסום.
     const baseTags = (tags || []).filter(t => t !== "טיוטה");
     const finalTags = asDraft ? [...baseTags, "טיוטה"] : baseTags;
+    const cleanAuthors = (authors || []).map(a => String(a || "").trim()).filter(Boolean);
     const payload = {
       id: postId, title: title.trim(), slug: slug.trim() || null, content, excerpt,
-      categories, tags: finalTags, author: author.trim() || null, image_url: imageUrl.trim() || null,
+      categories, tags: finalTags,
+      author: cleanAuthors[0] || null,        // כתב ראשי (תאימות-לאחור)
+      authors: cleanAuthors,                  // רשימת כל הכתבים
+      image_url: imageUrl.trim() || null,
       source: source || "ai", ai_touched: aiTouched,
     };
     try {
@@ -290,6 +328,11 @@ export default function PostEditorPage() {
         .pe-in { width:100%; box-sizing:border-box; background:${C.bg}; border:1px solid ${C.border}; border-radius:6px; color:#ede4d3; font-family:${F.body}; font-size:14px; padding:10px 12px; }
         .pe-in:focus{ outline:none; border-color:${C.gold}; }
         .pe-toolbar { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; padding:8px; border:1px solid ${C.border}; border-radius:8px; background:rgba(8,5,2,.5); }
+        .pe-viewtabs { display:flex; gap:4px; }
+        /* מצב מפוצל — עריכה (ימין) + תצוגה חיה (שמאל) זה-לצד-זה בדסקטופ, מוערמים בנייד */
+        .pe-split { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
+        .pe-split .pe-prev { margin:0; max-height:60vh; overflow-y:auto; }
+        @media (max-width:820px){ .pe-split { grid-template-columns:1fr; } }
         .pe-tool { cursor:pointer; background:${C.bgGlow}; border:1px solid ${C.border}; color:${C.goldLight}; font-family:${F.heading}; font-size:12px; padding:6px 10px; border-radius:6px; }
         .pe-tool:hover { border-color:${C.gold}; color:${C.goldBright}; }
         .pe-content { width:100%; box-sizing:border-box; background:${C.bg}; border:1px solid ${C.border}; border-radius:8px; color:#ede4d3; font-family:${F.mono}; font-size:13.5px; line-height:1.7; padding:12px 14px; direction:ltr; text-align:right; resize:vertical; min-height:360px; outline:none; }
@@ -353,25 +396,35 @@ export default function PostEditorPage() {
         {/* ── עמודה ראשית: תוכן + AI ── */}
         <div>
           <div className="pe-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <label className="pe-lbl" style={{ margin: 0 }}>תוכן הפוסט (HTML)</label>
-              <button type="button" className="pe-tool" onClick={() => setPreview(p => !p)} style={preview ? { background: C.gold, color: "#1a0e00", fontWeight: 800 } : undefined}>
-                {preview ? "✎ עריכה" : "👁 תצוגה מקדימה"}
-              </button>
-            </div>
-            <div className="pe-toolbar">
-              {tools.map(t => (
-                <button key={t.l} type="button" title={t.t} onClick={t.on} className="pe-tool"
-                  style={{ fontWeight: t.bold ? 800 : undefined, fontStyle: t.italic ? "italic" : undefined }}>{t.l}</button>
-              ))}
-            </div>
-            {preview ? (
-              <div className="pe-prev" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,.4)" }}>
-                <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: content || "<p>(אין תוכן)</p>" }} />
+              {/* מצב-תצוגה: עריכה · תצוגה מקדימה · מפוצל (עריכה + תצוגה יחד) */}
+              <div className="pe-viewtabs">
+                {[["edit", "✎ עריכה"], ["split", "⚌ מפוצל"], ["preview", "👁 תצוגה"]].map(([v, l]) => (
+                  <button key={v} type="button" className="pe-tool" onClick={() => setView(v)}
+                    style={view === v ? { background: C.gold, color: "#1a0e00", fontWeight: 800 } : undefined}>{l}</button>
+                ))}
               </div>
-            ) : (
-              <textarea ref={taRef} value={content} onChange={e => setContent(e.target.value)} rows={20} className="pe-content" spellCheck={false} />
+            </div>
+            {/* בסרגל-הכלים: במצב «תצוגה» מוסתר (אין textarea לפעול עליו); ב«מפוצל»/«עריכה» פעיל */}
+            {view !== "preview" && (
+              <div className="pe-toolbar">
+                {tools.map(t => (
+                  <button key={t.l} type="button" title={t.t} onClick={t.on} className="pe-tool"
+                    style={{ fontWeight: t.bold ? 800 : undefined, fontStyle: t.italic ? "italic" : undefined }}>{t.l}</button>
+                ))}
+              </div>
             )}
+            <div className={view === "split" ? "pe-split" : undefined}>
+              {view !== "preview" && (
+                <textarea ref={taRef} value={content} onChange={e => setContent(e.target.value)} rows={view === "split" ? 16 : 20} className="pe-content" spellCheck={false} />
+              )}
+              {view !== "edit" && (
+                <div className="pe-prev" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,.4)" }}>
+                  <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: content || "<p>(אין תוכן)</p>" }} />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* עוזר ה-AI */}
@@ -426,18 +479,25 @@ export default function PostEditorPage() {
           <label className="pe-lbl">תקציר</label>
           <textarea className="pe-in" value={excerpt} onChange={e => setExcerpt(e.target.value)} rows={3} style={{ resize: "vertical" }} placeholder="תקציר קצר לתצוגות" />
 
-          <label className="pe-lbl">קשר לכתב (מהרשימה)</label>
-          <select className="pe-in" value={contribs.some(c => c.display_name === author) ? author : ""}
-            onChange={e => { if (e.target.value) setAuthor(e.target.value); }}>
-            <option value="">— בחר כותב/תורם —</option>
-            {contribs.map(c => <option key={c.slug} value={c.display_name}>{c.display_name}{c.locked ? " 🔒" : ""}</option>)}
-          </select>
+          <label className="pe-lbl">כתבים ({authors.length || "המערכת"}) — אפשר כמה</label>
+          <ChipField
+            selected={authors} options={allAuthors}
+            onAdd={v => setAuthors(a => a.includes(v) ? a : [...a, v])}
+            onRemove={v => setAuthors(a => a.filter(x => x !== v))}
+            placeholder="חפש או הוסף כתב…" addLabel="הוסף"
+          />
+          <div style={{ color: C.goldDim, fontSize: 11, marginTop: 4 }}>
+            הראשון = הכתב הראשי. ריק = «המערכת». {authors.length > 1 ? `${authors.length} כתבים השתתפו.` : ""}
+          </div>
 
-          <label className="pe-lbl">כותב (ריק = «המערכת»)</label>
-          <input className="pe-in" value={author} onChange={e => setAuthor(e.target.value)} placeholder="שם הכותב" />
-
-          <label className="pe-lbl">תמונה ראשית (URL)</label>
-          <input className="pe-in" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…" style={{ direction: "ltr", textAlign: "right" }} />
+          <label className="pe-lbl" style={{ marginTop: 16 }}>תמונה ראשית</label>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input className="pe-in" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://… או העלה →" style={{ direction: "ltr", textAlign: "right" }} />
+            <label className="pe-addbtn" style={{ display: "inline-flex", alignItems: "center", cursor: uploadingImg ? "wait" : "pointer" }}>
+              {uploadingImg ? "…" : "📷 העלה"}
+              <input type="file" accept="image/*" onChange={pickPostImage} disabled={uploadingImg} style={{ display: "none" }} />
+            </label>
+          </div>
           {imageUrl && <img src={thumb(imageUrl, 240)} alt="" style={{ marginTop: 8, maxWidth: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} onError={e => { e.currentTarget.style.display = "none"; }} />}
 
           <label className="pe-lbl">קטגוריות</label>

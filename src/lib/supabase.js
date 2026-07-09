@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
+import { AUTHORS } from './authors.js';
 
 const supabase = createClient(
   'https://linswmnnkjxvweumprav.supabase.co',
@@ -1413,7 +1414,7 @@ export async function adminUpdatePost(id, fields = {}) {
 // שמירת פוסט (יצירה או עריכה) בעורך המתקדם — דרך RPC admin_save_post (SECURITY DEFINER, מאומת-מנהל).
 // יצירה: id=null → מחשב id/wp_id=max+1, date=modified=now (post_publish_law). עריכה: id קיים → modified=now.
 // מחזיר { id, slug, wp_id, modified, date }. זורק שגיאה (not_admin / empty_title / not_found).
-export async function adminSavePost({ id = null, title, slug = null, content = '', excerpt = '', categories = [], tags = [], author = null, image_url = null, source = 'ai', ai_touched = false }) {
+export async function adminSavePost({ id = null, title, slug = null, content = '', excerpt = '', categories = [], tags = [], author = null, image_url = null, source = 'ai', ai_touched = false, authors = null }) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.rpc('admin_save_post', {
     p_id: id, p_title: title, p_slug: slug, p_content: content, p_excerpt: excerpt,
@@ -1421,6 +1422,11 @@ export async function adminSavePost({ id = null, title, slug = null, content = '
     p_image_url: image_url, p_source: source, p_ai_touched: !!ai_touched,
   });
   if (error) throw error;
+  // עמודת «authors» (כמה כתבים) — נכתבת ישירות; ה-RPC לא מכיר אותה. מנהל בלבד (RLS posts_admin_write).
+  if (data?.id && Array.isArray(authors)) {
+    const clean = authors.map(a => String(a || '').trim()).filter(Boolean);
+    try { await supabase.from('posts').update({ authors: clean.length ? clean : null }).eq('id', data.id); } catch { /* noop */ }
+  }
   return data;
 }
 
@@ -1478,6 +1484,32 @@ export async function getContributorsList() {
     .order('display_name', { ascending: true });
   if (error) return [];
   return data || [];
+}
+
+// 👥 כל הכתבים באתר — איחוד שלושה מקורות (כדי שלא יחסרו כתבים ישנים בבורר):
+//   1) כתבים אמיתיים מהפוסטים (author + authors[]) — כולל «מזכה הרבים» והרבנים.
+//   2) מרשם הכותבים (authors.js) — שמות עם תמונה/תפקיד.
+//   3) טבלת contributors — תורמים רשומים.
+// מחזיר מערך שמות ייחודי, ממויין עברית. (הבורר בעורך משתמש בזה במקום contributors בלבד.)
+export async function getAllAuthors() {
+  const names = new Set();
+  if (supabase) {
+    for (let from = 0; ; from += 1000) {
+      const { data } = await supabase.from('posts').select('author,authors').range(from, from + 999);
+      if (!data || !data.length) break;
+      for (const r of data) {
+        if (r.author && String(r.author).trim()) names.add(String(r.author).trim());
+        (r.authors || []).forEach(a => { if (a && String(a).trim()) names.add(String(a).trim()); });
+      }
+      if (data.length < 1000) break;
+    }
+    try {
+      const { data } = await supabase.from('contributors').select('display_name');
+      (data || []).forEach(c => { if (c.display_name) names.add(String(c.display_name).trim()); });
+    } catch { /* noop */ }
+  }
+  try { Object.keys(AUTHORS || {}).forEach(n => names.add(n)); } catch { /* noop */ }
+  return [...names].filter(Boolean).sort((a, b) => a.localeCompare(b, 'he'));
 }
 
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──
