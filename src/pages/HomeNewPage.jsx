@@ -94,7 +94,7 @@ export default function HomeNewPage() {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). «הינוקא» = מוסתר מדף הבית (בקשת צוריאל). מושכים יותר ומסננים.
     const hiddenAtHome = p => (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
-    getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 24)); markSeenKey("home-posts"); }).catch(() => {});
+    getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 18)); markSeenKey("home-posts"); }).catch(() => {});
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
@@ -234,8 +234,8 @@ export default function HomeNewPage() {
         </form>
       </section>
 
-      {/* ===== 🔑 חלונות הגילוי — רצועת סטורי בראש הדף ===== */}
-      <RevelationWindows />
+      {/* ===== 🔑 חלונות הגילוי — רצועת סטורי בראש הדף (מוסתר זמנית לבקשת צוריאל) ===== */}
+      {/* <RevelationWindows /> */}
 
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
