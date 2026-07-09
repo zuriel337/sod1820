@@ -20,6 +20,8 @@ export default function RevelationWindows() {
 
   if (!items.length) return null;
   const active = open != null ? items[open] : null;
+  // דף הכותב של הסטורי (חלונות הגילוי חוברים לעמודי ה-contributors ב-/community/researcher/:slug)
+  const authorLink = active?.contributor_slug ? `/community/researcher/${active.contributor_slug}` : null;
 
   return (
     <section aria-label="חלונות הגילוי" style={{ padding: "6px 12px 4px" }}>
@@ -76,11 +78,18 @@ export default function RevelationWindows() {
             </div>
             <div style={{ padding: "14px 16px 16px", textAlign: "start" }}>
               {active.title && <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{active.title}</div>}
-              {active.credit && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>מאת {active.credit}</div>}
-              {active.link && (
-                <Link to={active.link} onClick={() => setOpen(null)}
-                  style={{ display: "inline-block", marginTop: 12, color: P.onAccent, background: P.accentBtn, borderRadius: 999,
-                    fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, padding: "9px 20px", textDecoration: "none" }}>לצפייה מלאה ←</Link>
+              {active.credit && (
+                // 🔗 חלונות הגילוי חוברים לדף הכותב: הקרדיט מקשר לעמוד ה-contributor (אם יש slug)
+                authorLink ? (
+                  <Link to={authorLink} onClick={() => setOpen(null)} style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 3, display: "inline-block", textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>מאת {active.credit} ←</Link>
+                ) : (
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>מאת {active.credit}</div>
+                )
+              )}
+              {(active.link || authorLink) && (
+                <Link to={active.link || authorLink} onClick={() => setOpen(null)}
+                  style={{ display: "block", marginTop: 12, color: P.onAccent, background: P.accentBtn, borderRadius: 999, textAlign: "center",
+                    fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, padding: "9px 20px", textDecoration: "none" }}>{active.link ? "לצפייה מלאה ←" : "לדף הכותב ←"}</Link>
               )}
             </div>
           </div>
