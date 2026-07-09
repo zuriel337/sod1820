@@ -47,8 +47,9 @@ export default function EntityHubRails({ entity }) {
             <div className="ehr-head">
               <b>{icon} {label}</b>
               <span style={{ display: "inline-flex", gap: 6 }}>
-                {/* 🧑 גשר לזהות: מחובר → מגירת «האזור האישי» · אורח → התחברות (איחוד האזורים 9.7.2026) */}
-                <button className="ehr-x" onClick={() => (user ? openPersonal() : nav("/login"))}
+                {/* 🧑 גשר לזהות: סוגרים את הלשונית *לפני* פתיחת המגירה — סביבה אחת, לא חלונית מתחת
+                    (החלטת צוריאל 9.7.2026). מחובר → «האזור האישי» · אורח → התחברות. */}
+                <button className="ehr-x" onClick={() => { set(side, false); user ? openPersonal() : nav("/login"); }}
                   title={user ? "האזור האישי" : "התחברות / הרשמה"} aria-label="האזור האישי">👤</button>
                 <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
               </span>

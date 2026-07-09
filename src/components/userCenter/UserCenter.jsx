@@ -6,6 +6,22 @@ import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { updateProfile } from "../../lib/auth.js";
 import HintsPanel from "./HintsPanel.jsx";
+import ResearchCenter from "../ResearchCenter.jsx";
+import { rwCss, RW_VARS } from "../../lib/research/theme.js";
+
+// 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
+// החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
+// כמו הלשונית בדף-המספר (rw_hub_tab) ⇒ ההקשר נשמר במעבר (עיקרון «לא מאבדים Context»).
+function DrawerResearch() {
+  const [t, setT] = useState(() => { try { return localStorage.getItem("rw_hub_tab") || "saved"; } catch { return "saved"; } });
+  const pick = x => { setT(x); try { localStorage.setItem("rw_hub_tab", x); } catch { /* noop */ } };
+  return (
+    <div style={RW_VARS}>
+      <style>{rwCss()}</style>
+      <ResearchCenter variant="context" tabbed activeTab={t} onTab={pick} />
+    </div>
+  );
+}
 
 // 🏛️ UserCenter — מרכז השליטה האישי. מגירה שמאלית אחת (overlay), זהה בטלפון ובמחשב.
 // registry מודולרי: להוסיף אזור = רשומה במערך MODULES, בלי לגעת בשלד. עיצוב בהיר-מודרני
@@ -175,12 +191,11 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
       </div>
     ) },
-    { id: "research", icon: "🔎", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
+    { id: "research", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
       <div>
-        <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
-        <Row T={T} k="שמורים" v={c.saved ?? 0} />
-        <Row T={T} k="חיפושים שבנו את העץ" v={c.searched ?? 0} />
-        <Link to="/research" style={{ display: "inline-block", marginTop: 14, background: T.acc, color: "#fff", borderRadius: 10, padding: "9px 18px", textDecoration: "none", fontWeight: 700, fontSize: 13.5 }}>פתח את סביבת המחקר ←</Link>
+        {/* סביבת המחקר המלאה בתוך האזור האישי — סביבה אחת (החלטת צוריאל 9.7.2026) */}
+        <DrawerResearch />
+        <Link to="/research" style={{ display: "inline-block", marginTop: 14, color: T.acc, textDecoration: "none", fontWeight: 700, fontSize: 13 }}>למעבדה המלאה (מסך רחב) ←</Link>
       </div>
     ) },
     { id: "contrib", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
