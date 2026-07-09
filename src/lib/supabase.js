@@ -497,6 +497,23 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast }) {
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 
+// 🧲 לכידת ליד-מחקר (research_workspace funnel שלב 4) — מייל + snapshot של תיק-המחקר.
+// הכנסה ציבורית מותרת (RLS insert בלבד; קריאה = server-only). מחזיר true בהצלחה.
+export async function saveResearchLead({ email, items, visitorId }) {
+  if (!supabase || !email) return false;
+  try {
+    const clean = (items || []).slice(0, 40).map(e => ({
+      type: e.type, title: e.title,
+      value: e.metadata?.value ?? null, meaning: e.metadata?.meaning ?? null,
+      link: e.link || null,
+    }));
+    const { error } = await supabase.from('research_leads').insert({
+      email: String(email).trim().toLowerCase(), items: clean, visitor_id: visitorId || null,
+    });
+    return !error;
+  } catch { return false; }
+}
+
 // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל בדף הבית. [{value,count}].
 export async function getTopPrimaryValues(lim = 16) {
   if (!supabase) return [];

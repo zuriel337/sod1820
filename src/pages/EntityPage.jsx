@@ -6,7 +6,8 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead } from "../lib/supabase.js";
+import { getVisitorId } from "../lib/tracking.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -713,7 +714,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [aiText, setAiText] = useState("");
   const [comboBusy, setComboBusy] = useState(false);
   const [comboText, setComboText] = useState("");
-  useEffect(() => { setAiText(""); setAiBusy(false); setComboText(""); }, [value, term]);  // מספר חדש → איפוס
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
+  useEffect(() => { setAiText(""); setAiBusy(false); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
   async function runAiNumber() {
     if (aiBusy) return;
     setAiBusy(true); setAiText("");
@@ -748,6 +751,15 @@ export default function EntityPage({ embedPhrase } = {}) {
     setComboText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setComboBusy(false);
   }
+  // שלב 4 — לכידה רכה: שומרים את תיק-המחקר במייל (בלי סיסמה). אחרי כמה ימים research-nurture ישלח תובנה טרייה.
+  async function submitLead() {
+    const email = leadEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setLeadStatus("err"); return; }
+    setLeadStatus("sending");
+    let vid = null; try { vid = getVisitorId(); } catch { /* noop */ }
+    const ok = await saveResearchLead({ email, items: researchItems, visitorId: vid });
+    setLeadStatus(ok ? "done" : "err");
+  }
   // כרטיס-הנדנוד: מוצג אחרי שהניתוח רץ (aiText). מזמין לשמור + לנתח כמה מילים יחד → תיק-מחקר.
   const funnelNudge = (
     <div style={{ marginTop: 12, padding: "13px 15px", borderRadius: 14, background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, textAlign: "start" }}>
@@ -772,6 +784,30 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 6 }}>🔵 ניתוח-על · החוט המחבר</div>
           <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{comboText}</div>
         </div>
+      )}
+      {/* שלב 4 — לכידה רכה (מייל בלבד): מופיע אחרי ניתוח-העל. שומר את תיק-המחקר + מבטיח תובנה טרייה. */}
+      {comboText && (
+        leadStatus === "done" ? (
+          <div style={{ marginTop: 12, padding: "11px 14px", borderRadius: 12, background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>
+            ✓ שמרנו את תיק-המחקר שלך. תוך כמה ימים תקבל תובנת-AI טרייה על המילים האלה במייל ✨
+          </div>
+        ) : (
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${P.border}` }}>
+            <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>💾 שמרו את תיק-המחקר + קבלו תובנה טרייה</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 9 }}>
+              נשלח לכם למייל את המחקר, ותוך כמה ימים תובנת-AI חדשה על המילים שאספתם. בלי סיסמה, ניתן להסרה בכל עת.
+            </div>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+              <input type="email" dir="ltr" value={leadEmail} onChange={e => { setLeadEmail(e.target.value); if (leadStatus === "err") setLeadStatus("idle"); }}
+                placeholder="you@example.com" style={{ flex: "1 1 180px", minWidth: 0, background: P.card, border: `1px solid ${leadStatus === "err" ? "#d1495b" : P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 15, padding: "10px 15px", outline: "none" }} />
+              <button onClick={submitLead} disabled={leadStatus === "sending"}
+                style={{ cursor: leadStatus === "sending" ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "10px 20px", whiteSpace: "nowrap" }}>
+                {leadStatus === "sending" ? "שומר…" : "💾 שמור לי"}
+              </button>
+            </div>
+            {leadStatus === "err" && <div style={{ color: "#d1495b", fontFamily: F.body, fontSize: 12, marginTop: 6 }}>אימייל לא תקין או שמירה נכשלה — נסו שוב.</div>}
+          </div>
+        )
       )}
     </div>
   );
