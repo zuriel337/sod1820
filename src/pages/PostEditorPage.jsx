@@ -27,7 +27,7 @@ export default function PostEditorPage() {
   const { slug: routeSlug } = useParams();
   const nav = useNavigate();
   const P = usePalette();
-  const { isAdmin, verified } = useAuth();
+  const { isAdmin, verified, user, profile, loading: authLoading } = useAuth();
 
   const isEdit = !!routeSlug;
   const [loading, setLoading] = useState(isEdit);
@@ -185,17 +185,26 @@ export default function PostEditorPage() {
     }
   };
 
+  if (authLoading) return <div dir="rtl" style={{ padding: 40, textAlign: "center", color: C.goldDim, fontFamily: F.body }}>בודק הרשאות…</div>;
   if (!verified || !isAdmin) {
     return (
       <div dir="rtl" style={{ maxWidth: 640, margin: "60px auto", padding: 24, textAlign: "center", fontFamily: F.body, color: C.goldDim }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.heading }}>✍️ עורך הפוסטים</h2>
         {!verified ? (
           <>
-            <p>כדי לפתוח את העורך צריך להתחבר עם חשבון המנהל.</p>
+            <p>אינך מחובר. התחבר עם חשבון המנהל (yosiviner7@gmail.com) כדי לפתוח את העורך.</p>
             <Link to="/login" style={{ display: "inline-block", marginTop: 8, background: C.gold, color: "#1a0e00", padding: "10px 24px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontWeight: 800 }}>התחברות ←</Link>
           </>
         ) : (
-          <p>החשבון המחובר אינו מנהל. התחבר עם חשבון המנהל (yosiviner7).</p>
+          <>
+            <p>החשבון המחובר אינו מנהל.</p>
+            <div style={{ margin: "12px auto", maxWidth: 420, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 16px", textAlign: "start", fontSize: 13, color: "#ede4d3" }}>
+              <div>מחובר כ: <b dir="ltr">{user?.email || "—"}</b></div>
+              <div>role: <b>{profile?.role || "ללא (הפרופיל לא נטען)"}</b></div>
+            </div>
+            <p style={{ fontSize: 12.5 }}>אם זה לא <b dir="ltr">yosiviner7@gmail.com</b> — התנתק והתחבר עם חשבון המנהל.</p>
+            <Link to="/login" style={{ display: "inline-block", marginTop: 8, background: C.gold, color: "#1a0e00", padding: "9px 22px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontWeight: 800 }}>למסך ההתחברות ←</Link>
+          </>
         )}
         <div style={{ marginTop: 14 }}><Link to="/" style={{ color: C.gold }}>← לדף הבית</Link></div>
       </div>
