@@ -6,7 +6,7 @@ import { getGalleryPage, setImageCuration, bulkSetCuratorHidden } from "../lib/s
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import { cleanName } from "../lib/galleryName.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 
 // ===== גלריה ציבורית — /gallery =====
 // כל gallery_images עם פילטר לפי image_type, חיפוש, ו-masonry grid.
@@ -257,7 +257,7 @@ export default function GalleryPage() {
             return (
               <div key={img.id} className={"gl-card" + (selectMode ? " selmode" : "") + (selected.has(img.id) ? " selected" : "")}>
                 <div className="gl-imgwrap" onClick={() => selectMode ? toggleSelect(img.id) : setLbIdx(idx)}>
-                  <img src={thumb(img.image_url, 480)} alt={title || ""} loading="lazy" onError={e => { e.target.style.display = "none"; }} />
+                  <img src={galThumb(img, 480)} alt={title || ""} loading="lazy" onError={e => { e.target.style.display = "none"; }} />
                   <div className="gl-shade" />
                   {isAdmin && selectMode && <span className="gl-check">{selected.has(img.id) ? "✓" : ""}</span>}
                   {img.primary_value != null && (

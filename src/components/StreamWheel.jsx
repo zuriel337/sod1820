@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate, streamLabel } from "../lib/reality.js";
@@ -137,7 +137,7 @@ export default function StreamWheel({ hints = [], cutoff, onOpen, onEdit, max = 
           {items.slice(0, idx).map((h, i) => (
             <button key={h.id} className="sw-mini" title={cleanName(h.name) || String(domNum(h) || "")}
               onClick={() => setIdx(i)}>
-              <img src={thumb(h.image_url, 360)} alt="" />
+              <img src={galThumb(h, 360)} alt="" />
             </button>
           ))}
         </div>

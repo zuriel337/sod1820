@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
@@ -46,7 +46,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const ai = d.ai_touched || aiRe.test(d.content || "");
       return (
         <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className="lur-card" style={{ "--acc": cPost }}>
-          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${thumb(d.image_url, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
+          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
           <div className="lur-body"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
@@ -56,7 +56,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const v = domNum(d);
       return (
         <button key={"r" + d.id} type="button" onClick={() => scrollTo("reality-home")} className="lur-card" style={{ "--acc": cReality }}>
-          <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${thumb(d.image_url, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
+          <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
           <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
             <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>

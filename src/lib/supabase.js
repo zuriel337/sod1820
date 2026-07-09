@@ -447,7 +447,7 @@ export async function getGalleriesOverview({ force = false } = {}) {
   while (true) {
     const { data } = await supabase
       .from('gallery_images')
-      .select('id,gallery_id,image_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
+      .select('id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
       .not('image_url', 'is', null)
       .order('occurred_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
@@ -618,7 +618,7 @@ export async function getGalleryUpdates(limit = 60) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance')
+    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance')
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
@@ -636,7 +636,7 @@ export async function getRealityHints(limit = 1000) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,ocr_meta,image_type')
+    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,ocr_meta,image_type')
     .eq('source', 'update')
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
@@ -671,7 +671,7 @@ export async function getTreasures(limit = 12) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,image_type')
+    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,image_type')
     .eq('treasure', true)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
@@ -696,7 +696,7 @@ export async function getGalleryCollections() {
 export async function getCollectionImages(filter, limit = 500) {
   if (!supabase || !filter) return [];
   let q = supabase.from('gallery_images')
-    .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,tags')
+    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,tags')
     .not('image_url', 'is', null).not('curator_hidden', 'is', true).eq('min_tier', 0);
   if (filter.tag) q = q.contains('tags', [filter.tag]);
   if (filter.primary_value) q = q.eq('primary_value', filter.primary_value);
@@ -724,7 +724,7 @@ export async function getGalleryDetail(galleryId) {
   if (!supabase || !galleryId) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,ordering,primary_value,all_values,occurred_at')
+    .select('id,name,description,image_url,thumb_url,ordering,primary_value,all_values,occurred_at')
     .eq('gallery_id', galleryId)
     .not('curator_hidden', 'is', true)
     .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
@@ -737,7 +737,7 @@ export async function getImagesByPrimaryValue(value) {
   if (!supabase || !value) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at,importance')
+    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,created_at,importance')
     .eq('primary_value', value)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
@@ -753,7 +753,7 @@ export async function getImagesByValue(value) {
   if (!supabase || !value) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,primary_value,all_values,occurred_at,created_at,importance')
+    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,created_at,importance')
     .or(`primary_value.eq.${value},all_values.cs.{${value}}`)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
@@ -772,7 +772,7 @@ export async function getImagesByGallery(wpGalleryId) {
   if (!supabase || !wpGalleryId) return [];
   const { data } = await supabase
     .from('gallery_images')
-    .select('id,name,description,image_url,ordering,primary_value,all_values,occurred_at,created_at,importance')
+    .select('id,name,description,image_url,thumb_url,ordering,primary_value,all_values,occurred_at,created_at,importance')
     .eq('wp_gallery_id', wpGalleryId)
     .not('image_url', 'is', null)
     .not('curator_hidden', 'is', true)
@@ -837,7 +837,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
     // יגיעו תמיד תחילה, ואז אזכורים (all_values). סינון-הרלוונטיות נעשה בדף עצמו.
     isNumber ? (async () => {
       try {
-        const cols = 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
+        const cols = 'id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
         const ord = q => q.not('curator_hidden', 'is', true).eq('min_tier', 0)
           .order('importance', { ascending: false, nullsFirst: false })
           .order('occurred_at', { ascending: false, nullsFirst: false })
@@ -853,7 +853,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
         return { items, count: sr.count ?? items.length };
       } catch { return { items: [], count: 0 }; }
     })() :
-    sec('gallery_images', 'id,name,description,image_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance',
+    sec('gallery_images', 'id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance',
       q => q.ilike('name', like)
             .not('curator_hidden', 'is', true)
             .order('importance', { ascending: false, nullsFirst: false })
@@ -1470,7 +1470,7 @@ export async function getGalleryImageFull(id) {
   if (!supabase || !id) return null;
   try {
     const { data } = await supabase.from('gallery_images')
-      .select('id,image_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers,treasure')
+      .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers,treasure')
       .eq('id', id).maybeSingle();
     return data || null;
   } catch { return null; }
@@ -1624,7 +1624,7 @@ export async function addImageToRealityStream(id, occurredAt = null) {
 export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "", hidden = "no" } = {}) {
   if (!supabase) return { data: [], count: 0 };
   let q = supabase.from('gallery_images')
-    .select('id,name,description,image_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
+    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
     .not('image_url', 'is', null);
   if (hidden === 'only') q = q.eq('curator_hidden', true);
   else if (hidden !== 'all') q = q.not('curator_hidden', 'is', true);

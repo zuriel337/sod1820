@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate } from "../lib/reality.js";
@@ -133,7 +133,7 @@ export default function MuseumGallery({ hints = [], onOpen, onEdit, live = true 
             return (
               <div key={h.id} className="mgal-f" onClick={() => onOpen?.(origIdx)}
                 style={{ width: `${w}%`, minWidth: 110, transform: `rotate(${i % 2 ? 1.6 : -1.6}deg) translateY(${(i % 3) * 6}px)`, zIndex: 8 - i }}>
-                <img src={thumb(h.image_url, 360)} alt="" loading="lazy" />
+                <img src={galThumb(h, 360)} alt="" loading="lazy" />
                 {/* המספר מתחת לתמונה — לא עליה */}
                 {rv != null && (
                   <div style={{ textAlign: "center", marginTop: 5 }}>
@@ -181,7 +181,7 @@ export function CascadeContain({ hints = [], onOpen, onEdit }) {
               <div key={h.id} className="mgc-item" onClick={() => onOpen?.(i + 1)}
                 style={{ width: s.w, marginInlineStart: `${i * 7}%`, opacity: s.op,
                   transform: `rotateY(${s.rot}deg) translateZ(${s.z}px)` }}>
-                <img src={thumb(h.image_url, 360)} alt="" loading="lazy" style={{ border: "1px solid rgba(212,175,55,.3)" }} />
+                <img src={galThumb(h, 360)} alt="" loading="lazy" style={{ border: "1px solid rgba(212,175,55,.3)" }} />
                 {/* המספר מתחת — לא על התמונה */}
                 {rv != null && i < 2 && (
                   <div style={{ textAlign: "center", marginTop: 4 }}>

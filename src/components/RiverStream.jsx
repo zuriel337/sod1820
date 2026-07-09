@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { domNum, shortDate, streamLabel, effDate } from "../lib/reality.js";
@@ -291,7 +291,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
           {passedHints.map(h => (
             <button key={h.id} className="rv-mini" title={cleanName(h.name) || String(domNum(h) || "")}
               onClick={() => refs.current[h.id]?.scrollIntoView({ behavior: "smooth", block: "center" })}>
-              <img src={thumb(h.image_url, 360)} alt="" />
+              <img src={galThumb(h, 360)} alt="" />
             </button>
           ))}
         </div>
