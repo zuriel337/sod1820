@@ -38,6 +38,7 @@ const TABS = [
   { key: "journeys", label: "🧭 מסעות" },
   { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
+  { key: "conversions", label: "🎯 המרות" },
   { key: "viral",    label: "🔥 ויראליות" },
   { key: "research", label: "🧪 מעבדת צוריאל" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
@@ -149,6 +150,7 @@ export default function AdminPage() {
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
+      {tab === "conversions" && <ConversionsTab />}
       {tab === "viral" && <ViralIntelTab />}
       {tab === "research" && <ResearchTab />}
       {tab === "scanner" && <ScannerTab />}
@@ -1875,6 +1877,46 @@ const waLabel = (id = "") => WA_NAMES[id] || (id.endsWith("@g.us") ? "קבוצה
 const fmtTok = n => { n = Number(n || 0); return n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n); };
 const usd = n => "$" + Number(n || 0).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const usd4 = n => "$" + Number(n || 0).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+// 🎯 טאב המרות — משפך המחקר: אנונימי → רשום → משתמש-מחקר. RPC admin_conversion_funnel (אדמין).
+function ConversionsTab() {
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    import("../lib/supabase.js").then(({ supabase }) =>
+      supabase.rpc("admin_conversion_funnel").then(({ data }) => { if (alive) { setD(data || null); setLoading(false); } })
+    ).catch(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, []);
+  if (loading) return <div style={{ color: C.muted, fontFamily: F.body, padding: 30, textAlign: "center" }}>טוען…</div>;
+  if (!d || d.error) return <div style={{ color: "#d98a92", fontFamily: F.body, padding: 30, textAlign: "center" }}>אין הרשאה / שגיאה בטעינת המדדים.</div>;
+  const engaged = d.registered ? Math.round(100 * (d.saved_research || 0) / d.registered) : 0;
+  const convRate = d.leads ? Math.round(100 * (d.leads_converted || 0) / d.leads) : 0;
+  const Tile = ({ label, value, sub, accent }) => (
+    <div style={{ background: C.surface, border: `1px solid ${accent ? C.borderGold : C.border}`, borderRadius: 14, padding: "16px 18px", minWidth: 150, flex: "1 1 150px" }}>
+      <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{label}</div>
+      <div style={{ color: accent ? C.goldBright : "#ede4d3", fontFamily: F.mono, fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{sub}</div>}
+    </div>
+  );
+  return (
+    <div style={{ direction: "rtl" }}>
+      <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, fontWeight: 800, margin: "4px 0 4px" }}>🎯 משפך ההמרות</h3>
+      <p style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>אנונימי → רשום → משתמש-מחקר. ככל שיותר נרשמים משתמשים במחקר — הפיצ׳ר דביק והמינוף גבוה.</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
+        <Tile label="👥 משתמשים רשומים" value={d.registered ?? 0} sub={`${d.registered_30d ?? 0} ב-30 יום`} accent />
+        <Tile label="🧠 שמרו מחקר בענן" value={d.saved_research ?? 0} sub={`${engaged}% מהרשומים — דביקות`} accent />
+        <Tile label="✉️ מנויי מייל" value={d.subscribers ?? 0} />
+        <Tile label="🎯 לידי-מחקר" value={d.leads ?? 0} sub={`${d.leads_7d ?? 0} ב-7 יום`} />
+        <Tile label="✅ לידים שהומרו" value={d.leads_converted ?? 0} sub={`${convRate}% המרה · ${d.converted_7d ?? 0} ב-7 יום`} />
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, lineHeight: 1.7, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 15px" }}>
+        💡 «שמרו מחקר» = משתמשים שהמחקר שלהם סונכרן לענן (המדד הכי-חשוב לדביקות). «לידי-מחקר» = מי שהשאיר מייל אחרי ניתוח-על (למשפך הטיפוח, כשהניוזלטר יופעל).
+      </div>
+    </div>
+  );
+}
 
 function AiCostTab() {
   const [days, setDays] = useState(30);

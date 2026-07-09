@@ -647,7 +647,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   }, [value, isNumber]);
   const hasGate = isNumber && sigs.length > 0;
   const gold = useGold();
-  const { isAdmin } = useAuth();               // 👑 מנהל → כלי סידור-מובילים (גרירה-ושחרור)
+  const { isAdmin, user } = useAuth();         // 👑 מנהל → כלי סידור-מובילים · user → נהג-המרה (הירשם לשמור)
 
   // ✦ topic_cards שמכילים מספר זה — גילוי התכנסויות קשורות
   const [topics, setTopics] = useState([]);
@@ -785,8 +785,23 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{comboText}</div>
         </div>
       )}
-      {/* שלב 4 — לכידה רכה (מייל בלבד): מופיע אחרי ניתוח-העל. שומר את תיק-המחקר + מבטיח תובנה טרייה. */}
-      {comboText && (
+      {/* 🎯 נהג-המרה (שלב 6ב): אנונימי עם תיק-מחקר → הזמנה להירשם ולשמור לתמיד + בין מכשירים.
+          הרשמה (OTP) יוצרת חשבון, מסנכרנת את המחקר לענן, ו-claim_research_lead מסמן converted. */}
+      {!user && researchItems.length >= 2 && (
+        <div style={{ marginTop: 12, padding: "13px 15px", borderRadius: 14, background: "linear-gradient(135deg, rgba(212,175,55,0.14), rgba(62,166,255,0.06))", border: `1.5px solid ${P.accent}` }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800, marginBottom: 3 }}>💾 שמרו את תיק-המחקר לתמיד</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 10 }}>
+            אספתם {researchItems.length} ישויות. הירשמו (חינם, בלי סיסמה) — והמחקר יישמר בענן וילווה אתכם בכל מכשיר.
+          </div>
+          <Link to={`/login?next=${encodeURIComponent(numHref(isNumber ? String(value) : encodeURIComponent(term)))}`}
+            onClick={() => { try { track("number", String(value), "register_cta"); } catch { /* noop */ } }}
+            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "11px 22px" }}>
+            🔐 הירשם ושמור את המחקר ←
+          </Link>
+        </div>
+      )}
+      {/* שלב 4 — לכידה רכה (מייל בלבד, למי שלא רוצה חשבון מלא): נשמר כ-research_lead לטיפוח עתידי. */}
+      {comboText && !user && (
         leadStatus === "done" ? (
           <div style={{ marginTop: 12, padding: "11px 14px", borderRadius: 12, background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>
             ✓ שמרנו את תיק-המחקר שלך. תוך כמה ימים תקבל תובנת-AI טרייה על המילים האלה במייל ✨
