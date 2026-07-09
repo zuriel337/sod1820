@@ -134,11 +134,13 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   // הישויות שאספת (ערכים משותפים · קשר תמטי · התכנסות), ביושר אם אין. הערכים = עובדה מהמנוע.
   const [aiState, setAiState] = useState("idle"); // idle | busy | done | off
   const [aiText, setAiText] = useState(null);
+  const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   const analyzeItems = [...pinned, ...cart];
-  const runAnalyze = async () => {
+  const runAnalyze = async (engine = "claude", { toggle = false } = {}) => {
     if (aiState === "busy") return;
-    if (aiState === "done") { setAiState("idle"); setAiText(null); return; }   // לחיצה שנייה = הסתר
+    if (toggle && aiState === "done") { setAiState("idle"); setAiText(null); return; }   // «הסתר» = לחיצה שנייה
     if (!analyzeItems.length) { setAiState("empty"); setAiText(null); return; }
+    setAiEngine(engine);
     setAiState("busy");
     trackAi("research", "personal");   // 📊 שימוש ב-AI — ניתוח המחקר האישי
     const facts = analyzeItems.map(e => {
@@ -146,7 +148,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
       if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;
       return `• ${ENTITY_LABEL[e.type] || e.type}: ${e.title}`;
     }).join("\n");
-    const a = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${analyzeItems.length} ישויות`, facts });
+    const a = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${analyzeItems.length} ישויות`, facts, engine });
     if (a) { setAiText(a); setAiState("done"); } else setAiState("off");
   };
 
@@ -205,16 +207,31 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
               <div className="rw-cta">
-                <button className="b1" onClick={runAnalyze} disabled={aiState === "busy"} title="ניתוח AI של אוסף המחקר — חוטים משותפים בין הישויות">
-                  {aiState === "busy" ? "✍️ מנתח…" : aiState === "done" ? "🤖 הסתר ניתוח" : "🤖 נתח ב-AI"}
-                </button>
+                {aiState === "done" ? (
+                  <button className="b1" onClick={() => runAnalyze(aiEngine, { toggle: true })} title="הסתר ניתוח">🤖 הסתר ניתוח</button>
+                ) : (
+                  <>
+                    <button className="b1" onClick={() => runAnalyze("claude")} disabled={aiState === "busy"} title="ניתוח באמצעות Claude — פרשנות סיפורית">
+                      {aiState === "busy" && aiEngine === "claude" ? "✍️ Claude…" : "🔵 Claude"}
+                    </button>
+                    <button className="b1" onClick={() => runAnalyze("gemini")} disabled={aiState === "busy"} title="ניתוח באמצעות Gemini — זווית אנליטית" style={{ background: "linear-gradient(135deg,#8a63f4,#6d3ff0)" }}>
+                      {aiState === "busy" && aiEngine === "gemini" ? "✍️ Gemini…" : "🟣 Gemini"}
+                    </button>
+                  </>
+                )}
                 <button className="b2" onClick={exportResearch} title="העתק + הדפס/PDF">📤 ייצוא</button>
               </div>
               {aiState === "done" && aiText && (
                 <div className="rw-ai-box">
-                  <div className="rw-ai-h">🔵 ניתוח AI · פרשנות</div>
+                  <div className="rw-ai-h" style={{ color: aiEngine === "gemini" ? "#8a63f4" : undefined }}>
+                    {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות
+                    <button onClick={() => runAnalyze(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiState === "busy"}
+                      style={{ cursor: "pointer", marginInlineStart: 8, background: "none", border: "1px solid currentColor", borderRadius: 999, color: "inherit", fontSize: 11, fontWeight: 700, padding: "2px 9px", opacity: 0.85 }}>
+                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                    </button>
+                  </div>
                   <p className="rw-ai-t">{aiText}</p>
-                  <div className="rw-ai-note">הערכים עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).</div>
+                  <div className="rw-ai-note">כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם. הערכים עובדה מאומתת במנוע; הפרשנות נכתבה ב-AI.</div>
                 </div>
               )}
               {aiState === "empty" && <div className="rw-empty" style={{ marginTop: 8 }}>צרפו קודם ישות אחת למחקר (📌 הצמד / ➕ הוסף) — ואז אפשר לנתח את האוסף.</div>}
