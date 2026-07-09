@@ -37,7 +37,9 @@ function useLiveTicker() {
           if (!ts || ts < cutoff) continue;
           const nm = (g.name || "").trim();
           const label = nm ? nm.slice(0, 46) : (g.primary_value ? `מספר ${g.primary_value}` : "רמז חדש");
-          items.push({ kind: "reality", text: `תמונה חדשה בזרם המציאות — ${label}`, to: "/reality" });
+          // ⚠️ הזרם = /archive (לא /reality = עדשת קוד-המציאות). /archive נעול-לרשומים →
+          // אנונימי שלוחץ מקבל את מסך «פתוח לרשומים בלבד» עם הרשמה (בקשת צוריאל).
+          items.push({ kind: "reality", text: `תמונה חדשה בזרם המציאות — ${label}`, to: "/archive" });
         }
       } catch { /* ignore */ }
 
