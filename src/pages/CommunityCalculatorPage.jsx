@@ -299,8 +299,8 @@ export default function CommunityCalculatorPage() {
     } else {
       const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
       const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
-      kind = "number"; subject = name1.trim();
       const surp = rankBySurprise(phrases1, name1.trim());
+      kind = surp.length ? "discovery" : "number"; subject = name1.trim();
       facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
         (surp.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים (מהמפתיע לנפוץ): ${surp.slice(0, 8).map(p => p.phrase).join(", ")}. בחר את המקבילה הכי מפתיעה — זו הרחוקה ביותר מהמשמעות הרגילה של השם — והסבר את החיבור כרמז משלים.` : "");
     }
