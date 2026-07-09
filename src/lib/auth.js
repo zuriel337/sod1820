@@ -66,6 +66,12 @@ export function signOut() {
   return supabase.auth.signOut();
 }
 
+// 🎯 המרה (research funnel שלב 6): בעת התחברות, לתבוע את ליד-המחקר של המשתמש
+// (לפי מייל או visitor_id) ולסמן converted. RPC security-definer. שקט בכשל.
+export async function claimResearchLead(visitorId) {
+  try { await supabase.rpc('claim_research_lead', { p_visitor: visitorId || null }); } catch { /* noop */ }
+}
+
 // ── פנקס-מחקר בענן (user_notes) — סנכרון בין מכשירים למשתמש מחובר ──
 export async function getCloudNotes(userId) {
   if (!userId) return null;

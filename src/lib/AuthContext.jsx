@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, logActivity, claimVisitorPrefs } from './supabase.js';
-import { fetchProfile, signOut as doSignOut } from './auth.js';
+import { fetchProfile, signOut as doSignOut, claimResearchLead } from './auth.js';
 import { getVisitorId } from './tracking.js';
 
 const AuthContext = createContext({
@@ -48,10 +48,12 @@ export function AuthProvider({ children }) {
     logActivity('visit', typeof window !== 'undefined' ? window.location.pathname : null);
   }, [user]);
 
-  // תפר זהות: בעת התחברות, לקשר את העדפות ההתראות האנונימיות (visitor_id) לחשבון.
+  // תפר זהות: בעת התחברות, לקשר את העדפות ההתראות האנונימיות (visitor_id) לחשבון,
+  // ולתבוע את ליד-המחקר (research funnel שלב 6 → converted).
   useEffect(() => {
     if (!user) return;
     try { claimVisitorPrefs(user.id, getVisitorId()); } catch { /* ignore */ }
+    try { claimResearchLead(getVisitorId()); } catch { /* ignore */ }
   }, [user]);
 
   const value = {
