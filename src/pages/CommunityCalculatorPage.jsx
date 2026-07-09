@@ -370,17 +370,23 @@ export default function CommunityCalculatorPage() {
     [r1?.value, phrases1, name1]
   );
 
-  // אחוז-תאימות משחקי לשני שמות
+  // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-19 השיטות מתכנסות לאותו ערך.
+  // הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).
   const compat = useMemo(() => {
     if (!r1 || !r2) return null;
-    if (r1.value === r2.value) return { pct: 100, note: "נשמות תאומות — אותה גימטריה רגילה!" };
-    const pct = Math.min(98, 22 + matches.length * 13);
-    return { pct, note: matches.length ? `${matches.length} שיטות משותפות` : "אין התאמה ישירה — אבל הסכום מספר סיפור" };
+    const total = r1.all.length;              // 19 שיטות המנוע
+    const count = matches.length;
+    const sameRagil = r1.value === r2.value;
+    const note = sameRagil
+      ? "אותה גימטריה רגילה — מפגש בלב השיטה 💫"
+      : count ? `נפגשים ב-${count} מתוך ${total} השיטות`
+              : "לא נפגשים באף שיטה — אבל הסכום מספר סיפור";
+    return { count, total, sameRagil, strong: sameRagil || count >= 2, note };
   }, [r1, r2, matches]);
 
   const shareText = !r1 ? "" : (
     r2
-      ? `גימטריה ✨ "${name1.trim()}" = ${r1.value} · "${name2.trim()}" = ${r2.value}${compat?.pct != null ? ` — תאימות ${compat.pct}%` : ""}\nבדקו את שלכם:\n${shareUrl(name1.trim())}`
+      ? `✨ "${name1.trim()}" (${r1.value}) ו-"${name2.trim()}" (${r2.value}) נפגשים ב-${matches.length} מתוך ${r1.all.length} שיטות גימטריה${matches.length ? `: ${matches.map(m => m.key).join(", ")}` : ""}\nבדקו את ההתאמה שלכם:\n${shareUrl(name1.trim())}`
       : `הגימטריה של "${name1.trim()}" = ${r1.value} ✨${phrases1[0] ? ` (שווה ל«${phrases1[0].phrase}»!)` : ""}\nגלו מה השם שלכם מסתיר:\n${shareUrl(name1.trim())}`
   );
 
@@ -558,11 +564,13 @@ export default function CommunityCalculatorPage() {
 
           {r2 && <Reveal name={name2} r={r2} phrases={[]} />}
 
-          {/* 💞 תאימות */}
+          {/* 💞 התאמה גימטרית — ציון מדיד (כמה מ-19 השיטות נפגשות), לא אחוז מומצא */}
           {compat && (
-            <div style={{ background: compat.pct >= 60 ? P.glow : P.cardSoft, border: `1px solid ${compat.pct >= 60 ? P.borderStrong : P.border}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
-              <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 40, fontWeight: 800 }}>{compat.pct}%</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>תאימות גימטרית</div>
+            <div style={{ background: compat.strong ? P.glow : P.cardSoft, border: `1px solid ${compat.strong ? P.borderStrong : P.border}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
+              <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1.05 }}>
+                {compat.count}<span style={{ fontSize: 22, color: P.accentDim }}> / {compat.total}</span>
+              </div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>שיטות נפגשות</div>
               <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>{compat.note}</div>
               {matches.length > 0 && <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>{matches.map(m => `${m.key} (${m.value})`).join(" · ")}</div>}
               <Link to={`/number/${r1.value + r2.value}`} style={{ display: "inline-block", marginTop: 8, color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>סכום שני השמות: {r1.value + r2.value} →</Link>
