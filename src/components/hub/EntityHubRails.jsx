@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { emit, EVENTS } from "../../lib/research/eventBus.js";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { trackResearch } from "../../lib/tracking.js";
+import { useAuth } from "../../lib/AuthContext.jsx";
+import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 
 // 🧪 EntityHub — שלד הסרגלים (Reality Graph Law · Reader→Research).
 // המרכז נשאר בדיוק כמו היום. שני סרגלים מתקפלים, **סגורים כברירת-מחדל**, ו**תואמים למעבדה**:
@@ -14,6 +17,9 @@ import { trackResearch } from "../../lib/tracking.js";
 const KEY = "hub_rails_v1";
 
 export default function EntityHubRails({ entity }) {
+  const { user } = useAuth();
+  const { open: openPersonal } = useUserCenter();   // 🧑 «האזור האישי» — המגירה הגלובלית
+  const nav = useNavigate();
   const [open, setOpen] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
   // ברירת-מחדל «שמור» (החלטת צוריאל 9.7.2026): שרואים קודם את השמירה והמחקר — הפנקס חזר להיות טאב.
   // מפתח נפרד מהמעבדה (rw_left_tab של ResearchShell) — כאן דף-המספר בלבד.
@@ -40,7 +46,12 @@ export default function EntityHubRails({ entity }) {
           <div className="ehr-panel">
             <div className="ehr-head">
               <b>{icon} {label}</b>
-              <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
+              <span style={{ display: "inline-flex", gap: 6 }}>
+                {/* 🧑 גשר לזהות: מחובר → מגירת «האזור האישי» · אורח → התחברות (איחוד האזורים 9.7.2026) */}
+                <button className="ehr-x" onClick={() => (user ? openPersonal() : nav("/login"))}
+                  title={user ? "האזור האישי" : "התחברות / הרשמה"} aria-label="האזור האישי">👤</button>
+                <button className="ehr-x" onClick={() => set(side, false)} aria-label="סגור">✕</button>
+              </span>
             </div>
             <div className="ehr-body" style={RW_VARS}>{content}</div>
           </div>
@@ -54,10 +65,10 @@ export default function EntityHubRails({ entity }) {
     <>
       <style>{RAILS_CSS}</style>
       <style>{rwCss()}</style>
-      {/* 👤 «עולם המשתמש» — לשונית-צד שמאלית (inline-end ב-RTL) בכל רוחב מסך.
-          החלטת צוריאל (9.7.2026): גם בנייד עמודת-צד, לא כפתור-תחתון/גיליון-תחתון.
-          הרכיב מורכב רק בדף-המספר (EntityPage) — לא להרחיב לדפים אחרים. */}
-      {rail("right", "👤", "עולם המשתמש", <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />)}
+      {/* 🧠 «המחקר שלי» (לשעבר «עולם המשתמש») — לשונית-צד שמאלית (inline-end ב-RTL) בכל רוחב מסך.
+          איחוד האזורים (9.7.2026): הלשונית = עולם המחקר בלבד; הזהות = «האזור האישי» (מגירה, כפתור 👤).
+          החלטת צוריאל: גם בנייד עמודת-צד, לא כפתור-תחתון. מורכב רק בדף-המספר — לא להרחיב. */}
+      {rail("right", "🧠", "המחקר שלי", <ResearchCenter variant="context" tabbed activeTab={ltab} onTab={setLtab} />)}
       {/* הסרגל הימני (מנועי המחקר) מוסתר בדף-המספר העצמאי לבקשת צוריאל — רק קיר-המשתמש מוצג.
          {rail("left", "🧮", "מנועי המחקר", <ResearchCenter variant="tools" />)} */}
     </>

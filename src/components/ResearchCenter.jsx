@@ -326,7 +326,9 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   ];
 
   const ids = variant === "tools" ? ["ai", "whatsnew"]
-    : variant === "context" ? ["me", "notes", "active", "history", "journeys", "saved", "roadmap"]
+    // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
+    // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
+    : variant === "context" ? ["notes", "active", "history", "journeys", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
@@ -355,7 +357,8 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 }
 
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
+// «me» הוסר — הזהות עברה ל«אזור האישי» (איחוד האזורים 9.7.2026).
 export const LEFT_TABS = [
-  { id: "me", icon: "👤" }, { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
+  { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
   { id: "history", icon: "🕘" }, { id: "journeys", icon: "🧭" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];
