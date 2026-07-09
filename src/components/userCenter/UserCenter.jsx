@@ -100,7 +100,8 @@ export default function UserCenter() {
             <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} />
             <Stat T={T} label="שמורים" val={center?.saved ?? "—"} />
             <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} />
-            <Stat T={T} label="פוסטים" val={center?.posts ?? "—"} gold />
+            {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
+            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold />}
           </div>
         </div>
 
@@ -180,12 +181,13 @@ function Row({ T, k, v }) {
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
 export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
   const c = center || {};
+  const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים ───
     { id: "profile", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <Row T={T} k="סטטוס" v={c.is_publisher ? "👑 כותב · VIP" : "חוקר רשום"} />
-        <Row T={T} k="פוסטים באתר" v={c.posts ?? 0} />
+        {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="שמורים" v={c.saved ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
@@ -208,7 +210,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
     { id: "stats", icon: "📊", title: "סטטיסטיקות", status: "live", render: () => (
       <div>
         <Row T={T} k="חיפושים" v={c.searched ?? 0} />
-        <Row T={T} k="פוסטים" v={c.posts ?? 0} />
+        {hasPosts && <Row T={T} k="פוסטים" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="תרומות" v={c.contributions ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>

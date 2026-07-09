@@ -12,6 +12,7 @@ import {
   getTagCounts, getGalleryNumberTags, getGalleryUpdates, setImageCuration,
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
+import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import Lightbox from "../components/Lightbox.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
@@ -184,6 +185,17 @@ export default function PostsPage() {
 
   // איפוס עמוד כשמשתנים פילטר/מיון (במצב גלישה)
   useEffect(() => { if (!searching) setPage(1); }, [sort, filterCat, filterTag, filterYear, filterAuthor, searching]);
+
+  // SEO ייעודי לדף-הכותב (/post?author=<שם>): כותרת + תיאור דינמיים → דף כותב אמיתי לגוגל.
+  useEffect(() => {
+    if (!filterAuthor) return;
+    applySeo({
+      title: `פוסטים של ${filterAuthor}`,
+      description: `כל הפוסטים, החידושים והתגליות של ${filterAuthor} באתר סוד 1820.`,
+      path: `/post?author=${encodeURIComponent(filterAuthor)}`,
+      type: "profile",
+    });
+  }, [filterAuthor]);
 
   // אפקט גלישה (מדלג במצב זרם המציאות)
   useEffect(() => {

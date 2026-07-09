@@ -82,6 +82,13 @@ function ChipField({ selected, options, onAdd, onRemove, placeholder, addLabel =
   );
 }
 
+// 💡 רמזי-קטגוריה (המלצה בלבד — לעולם לא נבחר אוטומטית). מילת-מפתח בתוכן → קטגוריה מוצעת.
+const CAT_KW = [
+  { re: /(פרה אדומה|בית המקדש|בית המקדש השלישי|מזבח|קרבן)/, cat: "בית המקדש השלישי" },
+  { re: /(פיגוע|מלחמ|טיל|רקטה|רעידת אדמה|אסון|שיטפון|התרסק|שריפ|קורה עכשיו|בזמן אמת|חדשות|תיעוד)/, cat: "תיעוד אירועים" },
+  { re: /(משיח|גאול|אחרית הימים|קץ הימים|ביאת)/, cat: "גאולה ומשיח" },
+];
+
 export default function PostEditorPage() {
   const { slug: routeSlug } = useParams();
   const nav = useNavigate();
@@ -116,6 +123,9 @@ export default function PostEditorPage() {
 
   const [view, setView] = useState("edit");       // edit | preview | split (עריכה תוך תצוגה מקדימה)
   const [saving, setSaving] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [autoSavedAt, setAutoSavedAt] = useState(null);
+  const snapRef = useRef("");                     // תצלום «נשמר לאחרונה» — לזיהוי שינויים לא-שמורים
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
 
@@ -159,6 +169,32 @@ export default function PostEditorPage() {
   // slug נגזר מהכותרת עד שנוגעים בו ידנית (ובפוסט חדש בלבד)
   useEffect(() => { if (!isEdit && !slugTouched.current) setSlug(slugify(title)); }, [title, isEdit]);
 
+  // תצלום המצב הניתן-לעריכה — להשוואת «שינויים לא שמורים» ולשמירה-אוטומטית
+  const snapshot = useCallback(
+    () => JSON.stringify({ title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched }),
+    [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched]
+  );
+  const dirty = snapshot() !== snapRef.current;
+
+  // אתחול התצלום כשהטעינה הסתיימה (פוסט קיים או חדש) — אחריו כל שינוי נחשב «לא שמור»
+  useEffect(() => { if (!loading) snapRef.current = snapshot(); /* eslint-disable-next-line */ }, [loading]);
+
+  // 💾 שמירה אוטומטית — לפוסט קיים בלבד (לא יוצרים חדשים אוטומטית), debounce 4ש', שומר במצב הנוכחי
+  // (טיוטה נשארת טיוטה, פורסם נשאר פורסם). מנהל בלבד (לא בנתיב token).
+  useEffect(() => {
+    if (hasKey || !postId || !title.trim() || !dirty) return;
+    const t = setTimeout(() => { save(wasDraft, { silent: true }); }, 4000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched, postId, wasDraft]);
+
+  // ⚠️ אזהרת «שינויים לא שמורים» ביציאה מהדף/רענון
+  useEffect(() => {
+    const h = (e) => { if (dirty && snapRef.current) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [dirty]);
+
   // ── עריכת תוכן דרך הסרגל ──
   const applyToContent = useCallback((transform) => {
     const ta = taRef.current;
@@ -192,6 +228,25 @@ export default function PostEditorPage() {
     return { text, selStart, selEnd: selStart + inner.length };
   });
 
+  // ✨ הפיכה אוטומטית של כל המספרים בתוכן לקישורים-לחיצים (פותחים את מגירת המספר).
+  // ממיר רק מקטעי-טקסט (לא בתוך תגיות), ומדלג על כל מה שכבר בתוך <a> — לא כופל קישורים.
+  const autoLinkNumbers = () => {
+    const html = content || "";
+    let depthA = 0;
+    const out = html.split(/(<[^>]+>)/g).map(seg => {
+      if (seg.startsWith("<")) {
+        if (/^<a\b/i.test(seg)) depthA++;
+        else if (/^<\/a>/i.test(seg)) depthA = Math.max(0, depthA - 1);
+        return seg;
+      }
+      if (depthA > 0) return seg;   // בתוך קישור קיים — לא נוגעים
+      return seg.replace(/(^|[^\w֐-׿/])(\d{2,4})(?![\w֐-׿])/g,
+        (m, pre, num) => `${pre}<a href="/number/${num}" class="sod-numlink" data-gem="${num}"><b>${num}</b></a>`);
+    }).join("");
+    if (out !== html) { setContent(out); setMsg("המספרים בתוכן הפכו לקישורים-לחיצים ✓"); }
+    else setMsg("לא נמצאו מספרים חדשים להמרה.");
+  };
+
   const tools = [
     { l: "B", t: "מודגש", on: () => wrap("<strong>", "</strong>"), bold: true },
     { l: "I", t: "נטוי", on: () => wrap("<em>", "</em>"), italic: true },
@@ -205,6 +260,7 @@ export default function PostEditorPage() {
     { l: "⊟ מרכוז", t: "פסקה ממורכזת", on: () => wrap('\n<p style="text-align:center">', "</p>\n", "טקסט ממורכז") },
     { l: "🔗 גימטריה", t: "בחר ביטוי והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-gemlink", on: () => gemify("sod-gemlink") },
     { l: "🔢 מספר", t: "בחר ערך/מספר והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-numlink", on: () => gemify("sod-numlink") },
+    { l: "✨ מספרים→קישורים", t: "הפוך אוטומטית את כל המספרים בתוכן לקישורים-לחיצים", on: autoLinkNumbers },
     { l: "🔗 ראו גם", t: "בלוק «ראו גם»", on: () => insert(SEE_ALSO) },
     { l: "— קו", t: "קו מפריד", on: () => insert("\n<hr />\n") },
   ];
@@ -252,10 +308,22 @@ export default function PostEditorPage() {
   };
   const removeChip = (kind, val) => kind === "cat" ? setCategories(a => a.filter(x => x !== val)) : setTags(a => a.filter(x => x !== val));
 
-  const save = async (asDraft) => {
-    setErr(""); setMsg("");
-    if (!title.trim()) { setErr("כותרת חובה."); return; }
-    setSaving(true);
+  // 💡 המלצות קטגוריה (לא נבחר אוטומטית — רק מציע; צוריאל מחליט). מקורות: מפת-מילים + קטגוריות
+  // קיימות ששמן מופיע בכותרת/תוכן. מסונן ממה שכבר נבחר.
+  const suggestedCats = useMemo(() => {
+    const hay = `${title} ${content}`;
+    const low = hay.toLowerCase();
+    const set = new Set();
+    CAT_KW.forEach(({ re, cat }) => { if (re.test(hay) && allCats.includes(cat)) set.add(cat); });
+    allCats.forEach(c => { if (c && c.length >= 3 && low.includes(c.toLowerCase())) set.add(c); });
+    return [...set].filter(c => !categories.includes(c)).slice(0, 6);
+  }, [title, content, allCats, categories]);
+
+  const save = async (asDraft, opts = {}) => {
+    const silent = !!opts.silent;   // silent = שמירה-אוטומטית (בלי הודעות/ניווט)
+    if (!silent) { setErr(""); setMsg(""); }
+    if (!title.trim()) { if (!silent) setErr("כותרת חובה."); return; }
+    if (silent) setAutoSaving(true); else setSaving(true);
     // «טיוטה» = תגית-סטטוס: מוסיפים בשמירת-טיוטה, מסירים בפרסום.
     const baseTags = (tags || []).filter(t => t !== "טיוטה");
     const finalTags = asDraft ? [...baseTags, "טיוטה"] : baseTags;
@@ -270,14 +338,17 @@ export default function PostEditorPage() {
     };
     try {
       const res = hasKey ? await tokenSavePost(editKey, payload) : await adminSavePost(payload);
-      setSaving(false);
+      if (silent) setAutoSaving(false); else setSaving(false);
       if (res?.id && !postId) setPostId(res.id);   // אחרי יצירה — נשארים על אותו פוסט
       setWasDraft(asDraft);
+      snapRef.current = snapshot();               // סימון «נשמר» — מנקה את מצב ה-dirty
       reloadDrafts();
+      if (silent) { setAutoSavedAt(new Date()); return; }
       const savedSlug = res?.slug || slug;
       setMsg(asDraft ? `נשמר כטיוטה ✓ (id ${res?.id})` : `פורסם ✓ (id ${res?.id})`);
       if (!asDraft && savedSlug) setTimeout(() => nav(`/${savedSlug}`), 700);
     } catch (e) {
+      if (silent) { setAutoSaving(false); return; }   // שמירה-אוטומטית נכשלת בשקט
       setSaving(false);
       const m = String(e?.message || e);
       setErr(m.includes("not_admin") ? "אין הרשאת מנהל." : m.includes("empty_title") ? "כותרת חובה." : `שגיאת שמירה: ${m}`);
@@ -486,8 +557,10 @@ export default function PostEditorPage() {
             onRemove={v => setAuthors(a => a.filter(x => x !== v))}
             placeholder="חפש או הוסף כתב…" addLabel="הוסף"
           />
-          <div style={{ color: C.goldDim, fontSize: 11, marginTop: 4 }}>
-            הראשון = הכתב הראשי. ריק = «המערכת». {authors.length > 1 ? `${authors.length} כתבים השתתפו.` : ""}
+          <div style={{ color: C.goldDim, fontSize: 11, marginTop: 4, lineHeight: 1.6 }}>
+            {authors.length === 0 ? "ריק = הפוסט יוצג בשם «המערכת»." : (
+              <>👑 <b style={{ color: C.goldLight }}>ראשי:</b> {authors[0]}{authors.length > 1 && <> · ✍️ <b style={{ color: C.goldLight }}>בהשתתפות:</b> {authors.slice(1).join(" · ")}</>}</>
+            )}
           </div>
 
           <label className="pe-lbl" style={{ marginTop: 16 }}>תמונה ראשית</label>
@@ -501,6 +574,19 @@ export default function PostEditorPage() {
           {imageUrl && <img src={thumb(imageUrl, 240)} alt="" style={{ marginTop: 8, maxWidth: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} onError={e => { e.currentTarget.style.display = "none"; }} />}
 
           <label className="pe-lbl">קטגוריות</label>
+          {suggestedCats.length > 0 && (
+            <div style={{ margin: "0 0 6px" }}>
+              <span style={{ color: C.goldDim, fontSize: 11 }}>💡 מוצע (המלצה — לחץ להוספה, לא נבחר אוטומטית):</span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
+                {suggestedCats.map(c => (
+                  <button key={c} type="button" onClick={() => addChip("cat", c)}
+                    style={{ background: "rgba(199,154,46,.12)", border: `1px dashed ${C.gold}`, color: C.goldLight, borderRadius: 999, fontSize: 12.5, padding: "5px 12px", cursor: "pointer", minHeight: 34 }}>
+                    ＋ {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <ChipField
             selected={categories} options={allCats}
             onAdd={v => addChip("cat", v)} onRemove={v => removeChip("cat", v)}
@@ -523,6 +609,14 @@ export default function PostEditorPage() {
 
       {err && <p className="pe-err">{err}</p>}
       {msg && <p className="pe-ok">{msg}</p>}
+      {/* מצב שמירה-אוטומטית / שינויים לא-שמורים */}
+      <div style={{ color: C.goldDim, fontSize: 11.5, margin: "6px 0", fontFamily: F.body, minHeight: 16 }}>
+        {autoSaving ? "💾 שומר אוטומטית…"
+          : !postId ? (dirty ? "● יש שינויים — «שמור טיוטה» יפעיל שמירה אוטומטית" : "")
+          : dirty ? "● שינויים לא שמורים — יישמרו אוטומטית תוך כמה שניות"
+          : autoSavedAt ? `✓ נשמר אוטומטית ב-${autoSavedAt.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}`
+          : "✓ הכל שמור"}
+      </div>
       <div className="pe-actions">
         <button type="button" className="pe-btn pe-ghost" onClick={() => save(true)} disabled={saving} style={{ borderColor: "#e8c15a", color: "#e8c15a" }}>{saving ? "שומר…" : "💾 שמור טיוטה"}</button>
         <button type="button" className="pe-btn pe-save" onClick={() => save(false)} disabled={saving}>{saving ? "שומר…" : "🚀 פרסם"}</button>
