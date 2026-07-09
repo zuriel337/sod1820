@@ -66,6 +66,7 @@ const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
 const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
+const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
@@ -255,6 +256,8 @@ export default function App() {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/editor" element={<PostEditorPage />} />
+          <Route path="/admin/editor/:slug" element={<PostEditorPage />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
           <Route path="/theme-preview" element={<ThemePreviewPage />} />

@@ -4586,13 +4586,22 @@ function PostPageBySlug({ onNav }) {
         {isAdmin && post && !loading && (
           <div style={{ marginBottom: 28 }}>
             {!editing ? (
-              <button onClick={startEdit} style={{
-                background: pc.bgGlow, border: `1px solid ${pc.gold}`, color: pc.goldLight,
-                padding: "9px 18px", borderRadius: 4, cursor: "pointer",
-                fontFamily: F.heading, fontSize: 12, letterSpacing: 2,
-              }}>
-                ✏️ עריכת פוסט
-              </button>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button onClick={startEdit} style={{
+                  background: pc.bgGlow, border: `1px solid ${pc.gold}`, color: pc.goldLight,
+                  padding: "9px 18px", borderRadius: 4, cursor: "pointer",
+                  fontFamily: F.heading, fontSize: 12, letterSpacing: 2,
+                }}>
+                  ✏️ עריכה מהירה
+                </button>
+                <a href={`/admin/editor/${encodeURIComponent(post.slug || "")}`} style={{
+                  background: pc.gold, border: `1px solid ${pc.gold}`, color: "#1a0e00",
+                  padding: "9px 18px", borderRadius: 4, cursor: "pointer", textDecoration: "none",
+                  fontFamily: F.heading, fontSize: 12, letterSpacing: 2, fontWeight: 800,
+                }}>
+                  ✍️ עורך מתקדם + AI
+                </a>
+              </div>
             ) : (
               <AdvancedPostEditor
                 draft={draft}

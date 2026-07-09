@@ -1331,6 +1331,46 @@ export async function adminUpdatePost(id, fields = {}) {
   return data;
 }
 
+// שמירת פוסט (יצירה או עריכה) בעורך המתקדם — דרך RPC admin_save_post (SECURITY DEFINER, מאומת-מנהל).
+// יצירה: id=null → מחשב id/wp_id=max+1, date=modified=now (post_publish_law). עריכה: id קיים → modified=now.
+// מחזיר { id, slug, wp_id, modified, date }. זורק שגיאה (not_admin / empty_title / not_found).
+export async function adminSavePost({ id = null, title, slug = null, content = '', excerpt = '', categories = [], tags = [], author = null, image_url = null, source = 'ai', ai_touched = false }) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('admin_save_post', {
+    p_id: id, p_title: title, p_slug: slug, p_content: content, p_excerpt: excerpt,
+    p_categories: categories || [], p_tags: tags || [], p_author: author,
+    p_image_url: image_url, p_source: source, p_ai_touched: !!ai_touched,
+  });
+  if (error) throw error;
+  return data;
+}
+
+// 🤖 עריכת תוכן פוסט ב-AI — Edge Function post-ai-edit. מנוע ברירת-מחדל 'gemini' (ה-AI שנקנה בטוקנים).
+// מקבל תוכן HTML + הוראה, מחזיר HTML נקי (קלאסים קנוניים). null בכשל. engine: 'gemini' | 'claude'.
+export async function getPostAiEdit({ content = '', instruction, title = '', engine = 'gemini' }) {
+  if (!supabase) return { html: null, error: 'no_supabase' };
+  try {
+    const { data, error } = await supabase.functions.invoke('post-ai-edit', { body: { content, instruction, title, engine } });
+    if (error) { try { console.warn('[post-ai-edit] invoke:', error?.message || error); } catch { /* noop */ } return { html: null, error: error?.message || 'invoke' }; }
+    if (data?.error) { try { console.warn('[post-ai-edit] server:', data.error, data.detail || ''); } catch { /* noop */ } return { html: null, error: data.error, detail: data.detail }; }
+    return { html: data?.html || null, engine: data?.engine, model: data?.model };
+  } catch (e) { return { html: null, error: String(e?.message || e) }; }
+}
+
+// קטגוריות/תגיות קיימות — למלאי בעורך (למניעת כפילויות). מחזיר { categories:[], tags:[] } ממויין.
+export async function getPostCategoriesTags() {
+  if (!supabase) return { categories: [], tags: [] };
+  const cats = new Set(), tgs = new Set();
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from('posts').select('categories,tags').range(from, from + 999);
+    if (!data || !data.length) break;
+    for (const r of data) { (r.categories || []).forEach(c => c && cats.add(c)); (r.tags || []).forEach(t => t && tgs.add(t)); }
+    if (data.length < 1000) break;
+  }
+  const he = (a, b) => a.localeCompare(b, 'he');
+  return { categories: [...cats].sort(he), tags: [...tgs].sort(he) };
+}
+
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──
 export async function getOcrCounts() {
   if (!supabase) return { total: 0, done: 0, pending: 0, error: 0, other: 0 };

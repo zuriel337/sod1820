@@ -117,6 +117,10 @@ export default function AdminPage() {
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>לוח בקרה</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>⚙️ ניהול סוד 1820</h1>
+        <a href="/admin/editor" style={{
+          display: "inline-block", marginTop: 14, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
+          padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, letterSpacing: 1,
+        }}>✍️ פוסט חדש — עורך מתקדם + AI</a>
       </div>
 
       {/* טאבי-על (7) — 🌳 עץ אחד: כל קבוצה פותחת שורת תת-טאבים */}
