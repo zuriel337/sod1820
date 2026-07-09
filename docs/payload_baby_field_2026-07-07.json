@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "engine": "SOD1820 official engine (SQL *_calc)",
+  "contract": {
+    "role": "interpret_only",
+    "iron_rules": [
+      "אל תחשב גימטריה — כל הערכים מאומתים מהמנוע.",
+      "הפרד עובדה (שוויון מדיד) מרמז (כיוון פרשני). כל פרשנות = הצעה, לא קביעה.",
+      "שם-תינוק: אין 'טוב/רע' ואין הכרעה. מציגים את השדה ואת ההתכנסויות בכבוד, ההחלטה של ההורים.",
+      "בלי נבואות/תאריכים-עתידיים/הבטחות. עברית, בלי Markdown."
+    ]
+  },
+  "kind": "research",
+  "use_case": "baby_name_field",
+  "subject": "מפת שדה ללידת בן — אבא אברהם · אמא מרים · תאריך 07-07-2026",
+  "field": {
+    "father": { "name": "אברהם", "ragil": 248, "mistater": 429, "kadmi": 959, "milui": 1128, "gadol": 808 },
+    "mother": { "name": "מרים", "ragil": 290, "mistater": 380, "kadmi": 1140, "milui": 690, "gadol": 850 },
+    "parents_combined": { "phrase": "אברהם מרים", "ragil": 538, "mistater": 809, "kadmi": 2099, "gadol": 1658 },
+    "birth_date": {
+      "gregorian": "07-07-2026",
+      "day": 7, "month": 7, "year": 2026,
+      "day_plus_month": 14,
+      "full_sum": 2040,
+      "note_hebrew_date": "התאריך העברי המדויק ל-7 ביולי 2026 לא אומת כאן — לאמת מול לוח לפני שימוש בו כעובדה."
+    }
+  },
+  "convergences": {
+    "note": "עובדות מדידות — שווין רגיל מהמנוע. אלה 'הלב' של הבדיקה.",
+    "with_birth_date_14": {
+      "value": 14,
+      "meaning": "7 (יום) + 7 (חודש) = 14",
+      "equal_names_and_words": [
+        { "phrase": "דוד",  "ragil": 14, "type": "שם" },
+        { "phrase": "אהוב", "ragil": 14, "type": "מילה" },
+        { "phrase": "אוהב", "ragil": 14, "type": "מילה" },
+        { "phrase": "זהב",  "ragil": 14, "type": "מילה" }
+      ]
+    },
+    "with_father_248": {
+      "value": 248,
+      "meaning": "ערך אברהם (האב)",
+      "equal_names": [
+        { "phrase": "אוריאל", "ragil": 248, "gadol": 248, "note": "= אברהם בדיוק ברגיל" },
+        { "phrase": "רזיאל",  "ragil": 248, "gadol": 248, "note": "= אברהם בדיוק ברגיל" }
+      ]
+    },
+    "with_mother_290": {
+      "value": 290,
+      "meaning": "ערך מרים (האם)",
+      "equal_names": [
+        { "phrase": "כרמל", "ragil": 290, "note": "= מרים בדיוק ברגיל" }
+      ]
+    },
+    "with_parents_538": {
+      "value": 538,
+      "meaning": "אברהם + מרים יחד",
+      "equal_words": ["נפתח", "קלחת"],
+      "finding": "לא נמצא שם-בן מקובל שווה ל-538 במאגר — עובדה. אפשר להמשיך לחפש."
+    }
+  },
+  "candidate_names_verified": [
+    { "name": "דוד",    "ragil": 14,  "mistater": 4,   "kadmi": 41,  "resonates_with": "תאריך הלידה (7+7=14) · 'אהוב'/'אוהב'=14" },
+    { "name": "אוריאל", "ragil": 248, "mistater": 427, "kadmi": 978, "resonates_with": "האב אברהם (248)" },
+    { "name": "רזיאל",  "ragil": 248, "mistater": 234, "kadmi": 984, "resonates_with": "האב אברהם (248)" },
+    { "name": "כרמל",   "ragil": 290, "mistater": 350, "kadmi": 1120,"resonates_with": "האם מרים (290)" }
+  ],
+  "guidance_for_interpreter": {
+    "start_from": ["רגיל"],
+    "structure": "1) הצג את השדה (אב/אם/תאריך). 2) הצג את ההתכנסויות כעובדה. 3) הצע כיוון-משמעות לכל שם-מועמד כרמז. 4) בלי להכריע — ההחלטה של ההורים.",
+    "highlight": "דוד(14)=יום+חודש ו='אהוב'; אוריאל/רזיאל(248)=האב; כרמל(290)=האם.",
+    "must_flag": "התאריך העברי לא אומת — לא להשתמש בו כעובדה עד אימות."
+  }
+}
