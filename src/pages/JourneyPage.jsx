@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail, logJourneySave } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, getAiAnalysis, subscribeEmail, logJourneySave } from "../lib/supabase.js";
 import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
@@ -72,6 +72,8 @@ export default function JourneyPage() {
   const [loading, setLoading] = useState(true);
   const [aiMsg, setAiMsg] = useState(null);        // מסר אישי מהמנוע (AI) — null עד שלוחצים
   const [aiState, setAiState] = useState("idle");  // idle | busy | done | off (לא פעיל/נכשל)
+  const [gemMsg, setGemMsg] = useState(null);      // 🟣 זווית Gemini על אותו מסע (A/B) — null עד שלוחצים
+  const [gemState, setGemState] = useState("idle");// idle | busy | done | off
   const [unlocked, setUnlocked] = useState(false); // 🔓 האם מסר-העומק נפתח (בזכות שיתוף)
   const [deepMsg, setDeepMsg] = useState(null);    // מסר-העומק (שכבה שנייה) — נפתח בשיתוף
   const [deepState, setDeepState] = useState("idle"); // idle | busy | done | off
@@ -121,7 +123,7 @@ export default function JourneyPage() {
     journeyIdRef.current = (crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2)));
     hookShownRef.current = false;
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
-    setAiMsg(null); setAiState("idle");
+    setAiMsg(null); setAiState("idle"); setGemMsg(null); setGemState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
     let value = null, startPhrase = null;
     if (isNumeric(fromParam)) {
@@ -225,6 +227,21 @@ export default function JourneyPage() {
     });
     if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root } }); } catch { /* noop */ } }
     else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
+  }
+
+  // 🟣 זווית Gemini על אותו מסע (A/B) — דרך ai-analyze (kind=research), אותן עובדות-מנוע, פרשן אחר.
+  async function fetchGeminiAngle() {
+    if (gemState === "busy" || root == null) return;
+    setGemState("busy"); setGemMsg(null);
+    trackAi("journey_msg_gemini", "journey");
+    const steps = path.filter(s => !s.leap).map(s => s.phrase);
+    const facts =
+      `מסע גימטרי: כל התחנות התכנסו על ${root}${KEY_NUMBERS[root] ? ` (${KEY_NUMBERS[root]})` : ""}.` +
+      (steps.length ? ` תחנות: ${steps.join(", ")}.` : "") +
+      (dWorld ? ` השדה החוזר: ${dWorld}.` : "") +
+      (bases.length > 1 ? ` סקאלות: ${bases.join(" → ")}.` : "");
+    const txt = await getAiAnalysis({ kind: "research", subject: name ? `המסע של ${name} אל ${root}` : `מסע אל ${root}`, facts, fast: true, engine: "gemini" });
+    if (txt) { setGemMsg(txt); setGemState("done"); } else setGemState("off");
   }
 
   // ▶️ מסר אוטומטי — ברגע שמגיעים למסך הגילוי (finished) ויש מספר-שורש.
@@ -523,6 +540,26 @@ export default function JourneyPage() {
                     <button onClick={() => setAiState("idle")} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 16px" }}>↻ נסה מסר אישי</button>
                   </div>
                 </>
+              )}
+
+              {/* 🟣 זווית Gemini על אותו מסע (A/B) — אחרי שהמסר הראשון (Claude) התיישב */}
+              {(aiState === "done" || aiState === "off") && (
+                <div style={{ marginTop: 12, paddingTop: 11, borderTop: `1px dashed ${P.border}` }}>
+                  {gemState !== "done" ? (
+                    <div style={{ textAlign: "center" }}>
+                      <button onClick={fetchGeminiAngle} disabled={gemState === "busy"} style={{ cursor: gemState === "busy" ? "wait" : "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "9px 18px" }}>
+                        {gemState === "busy" ? "🟣 Gemini קורא את המסע…" : "🟣 קרא את זווית Gemini על המסע"}
+                      </button>
+                      {gemState === "off" && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontStyle: "italic", marginTop: 6 }}>הזווית אינה זמינה כרגע — נסו שוב מאוחר יותר.</div>}
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ color: "#8a63f4", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 6 }}>🟣 זווית Gemini</div>
+                      <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{gemMsg}</p>
+                      <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
