@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis } from "../lib/supabase.js";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -708,6 +708,27 @@ export default function EntityPage({ embedPhrase } = {}) {
   const storyCounts = { words: d.phrasesCount || d.phrases?.length || 0, posts: d.postsCount || 0, galleries: d.galleriesCount || 0, events: d.eventsCount || 0, topics: topics.length || 0, insights: d.insightsCount || 0 };
   const story = buildStory({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels, counts: storyCounts });
 
+  // 🤖 ניתוח AI לדף המספר (ai-analyze · kind=number · fast=Haiku). מפרש עובדות-מנוע בלבד.
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiText, setAiText] = useState("");
+  useEffect(() => { setAiText(""); setAiBusy(false); }, [value, term]);  // מספר חדש → איפוס
+  async function runAiNumber() {
+    if (aiBusy) return;
+    setAiBusy(true); setAiText("");
+    const leads = (d.phrases || []).slice(0, 8).map(p => p.phrase).filter(Boolean);
+    const subject = isNumber ? String(value) : term;
+    const facts =
+      (isNumber ? `המספר ${value}` : `הביטוי "${term}" (ערך ${value})`) +
+      (anchor?.fact ? ` — ${anchor.fact}` : (story?.meaning ? ` — ${story.meaning}` : "")) + "." +
+      (leads.length ? ` שווה בגימטריה לביטויים: ${leads.join(", ")}.` : "") +
+      (convCount ? ` ${convCount} ישויות מתכנסות על הערך הזה.` : "") +
+      (topics[0]?.title ? ` התכנסות מרכזית: ${topics[0].title}.` : "");
+    let txt = await getAiAnalysis({ kind: "number", subject, facts, fast: true });
+    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "number", subject, facts, again: true, fast: true }); }
+    setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
+    setAiBusy(false);
+  }
+
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
   useEffect(() => {
     if (!isNumber || !data || !story.ok) return;
@@ -996,6 +1017,29 @@ export default function EntityPage({ embedPhrase } = {}) {
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 10 }}>🔢 עובדה מאומתת במנוע</div>
               </div>
             )}
+
+            {/* 🤖 ניתוח AI — כרטיס בולט (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
+            <div style={{ maxWidth: 580, margin: "12px auto 4px", padding: "16px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
+                <span style={{ fontSize: 20 }}>🤖</span>
+                <div style={{ textAlign: "start" }}>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+                </div>
+              </div>
+              {!aiText && !aiBusy && (
+                <button onClick={runAiNumber} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                  ✨ הפעילו ניתוח AI
+                </button>
+              )}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב…</div>}
+              {aiText && (
+                <div>
+                  <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
+                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
+                </div>
+              )}
+            </div>
 
             {/* 🔮 הצלבה נסתרת — הריבוע במרכז (שלב א', הכי חשוב: «הכל מתחבר») */}
             {!isNumber ? (
