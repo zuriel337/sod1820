@@ -712,13 +712,15 @@ export default function EntityPage({ embedPhrase } = {}) {
   // 🤖 ניתוח AI לדף המספר (ai-analyze · kind=number · fast=Haiku). מפרש עובדות-מנוע בלבד.
   const [aiBusy, setAiBusy] = useState(false);
   const [aiText, setAiText] = useState("");
+  const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   const [comboBusy, setComboBusy] = useState(false);
   const [comboText, setComboText] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
   useEffect(() => { setAiText(""); setAiBusy(false); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
-  async function runAiNumber() {
+  async function runAiNumber(engine = "claude") {
     if (aiBusy) return;
+    setAiEngine(engine);
     setAiBusy(true); setAiText("");
     const leads = (d.phrases || []).slice(0, 8).map(p => p.phrase).filter(Boolean);
     const subject = isNumber ? String(value) : term;
@@ -728,8 +730,8 @@ export default function EntityPage({ embedPhrase } = {}) {
       (leads.length ? ` שווה בגימטריה לביטויים: ${leads.join(", ")}.` : "") +
       (convCount ? ` ${convCount} ישויות מתכנסות על הערך הזה.` : "") +
       (topics[0]?.title ? ` התכנסות מרכזית: ${topics[0].title}.` : "");
-    let txt = await getAiAnalysis({ kind: "number", subject, facts, fast: true });
-    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "number", subject, facts, again: true, fast: true }); }
+    let txt = await getAiAnalysis({ kind: "number", subject, facts, fast: true, engine });
+    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "number", subject, facts, again: true, fast: true, engine }); }
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
@@ -1099,9 +1101,10 @@ export default function EntityPage({ embedPhrase } = {}) {
           {/* 🤖 תוצאת ה-AI במצב מחקר (מתחת לפס-הפעולות) — «נתח ב-AI» מפעיל את runAiNumber */}
           {showBody && (aiBusy || aiText) && (
             <div style={{ maxWidth: 580, margin: "12px auto 0", padding: "14px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", textAlign: "start" }}>
-              <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
-              {aiBusy && !aiText && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, padding: "4px 0" }}>🤖 ה-AI חושב…</div>}
+              <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>{aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע</div>
+              {aiBusy && !aiText && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, padding: "4px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
               {aiText && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>}
+              {aiText && <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>}
               {aiText && funnelNudge}
             </div>
           )}
@@ -1136,15 +1139,30 @@ export default function EntityPage({ embedPhrase } = {}) {
                 </div>
               </div>
               {!aiText && !aiBusy && (
-                <button onClick={runAiNumber} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                  ✨ הפעילו ניתוח AI
-                </button>
+                <div style={{ display: "grid", gap: 8 }}>
+                  <button onClick={() => runAiNumber("claude")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    🔵 ניתוח ב-Claude
+                  </button>
+                  <button onClick={() => runAiNumber("gemini")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    🟣 ניתוח ב-Gemini
+                  </button>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
+                </div>
               )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב…</div>}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
               {aiText && (
                 <div>
-                  <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>🔵 ניתוח AI · מאומת מהמנוע</div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
+                    <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+                      {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+                    </div>
+                    <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiBusy}
+                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
+                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                    </button>
+                  </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
+                  <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
                   {funnelNudge}
                 </div>
               )}

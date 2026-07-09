@@ -72,6 +72,7 @@ function Forward() {
           )}
           {/* 🤖 ניתוח AI — מפרש את ראשי/אמצעי/סופי התיבות (לא מחשב) */}
           <AiAnalyze
+            compare
             kind="notarikon"
             subject={q.trim()}
             facts={`ביטוי: ${q.trim()}. ראשי-תיבות «${rashei}»=${calcGem(rashei)} · אמצעי-תיבות «${emtzaei}»=${calcGem(emtzaei)} · סופי-תיבות «${sofei}»=${calcGem(sofei)}.` + (conv ? " התכנסות מחושבת: " + conv.map(([a, b]) => `${a.k}-תיבות «${a.t}» = ${b.k}-תיבות «${b.t}» = ${a.v}`).join(" · ") : "")}

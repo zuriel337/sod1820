@@ -110,6 +110,7 @@ export default function CompareTwo({ onOpenTool }) {
 
           {/* 🤖 ניתוח AI — מפרש את ההצלבות שהמנוע מצא (לא מחשב) */}
           <AiAnalyze
+            compare
             kind="compare"
             subject={`${cmp.ta} מול ${cmp.tb}`}
             facts={[

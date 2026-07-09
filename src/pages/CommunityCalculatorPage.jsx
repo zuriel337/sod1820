@@ -682,6 +682,9 @@ export default function CommunityCalculatorPage() {
                     </button>
                   </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
+                  <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>
+                    כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.
+                  </div>
                 </div>
               )}
           </div>
