@@ -258,6 +258,7 @@ export default function CommunityCalculatorPage() {
   const [fromShare, setFromShare] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
+  const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   // 🗓️ מצב תאריך עברי — ממיר תאריך לועזי לתאריך עברי (יום הולדת) ומחשב את הגימטריה שלו.
   const [dateMode, setDateMode] = useState(false);
   const [gDate, setGDate] = useState("");         // תאריך לועזי (yyyy-mm-dd)
@@ -267,8 +268,9 @@ export default function CommunityCalculatorPage() {
 
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
   // שם יחיד → kind=number; שני שמות (השוואה) → kind=compare. מודל מהיר (fast) לכלי אינטראקטיבי.
-  async function runAi() {
+  async function runAi(engine = "claude") {
     if (!r1 || aiBusy) return;
+    setAiEngine(engine);
     setAiBusy(true); setAiText("");
     let kind, subject, facts;
     if (r2) {
@@ -283,7 +285,7 @@ export default function CommunityCalculatorPage() {
       facts = `השם "${name1.trim()}" בשלוש שיטות הליבה — ${methodStr} (רגיל=המהות הגלויה, מילוי=הפנימיות/נשמת האות, מסתתר=הרובד הנסתר שבין האותיות).` +
         (phrases1.length ? ` בגימטריה רגילה (${r1.value}) שווה גם לביטויים: ${phrases1.slice(0, 8).map(p => p.phrase).join(", ")}.` : "");
     }
-    const txt = await getAiAnalysis({ kind, subject, facts, fast: true });
+    const txt = await getAiAnalysis({ kind, subject, facts, fast: true, engine });
     setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
@@ -601,15 +603,27 @@ export default function CommunityCalculatorPage() {
                 </div>
               </div>
               {!aiText && !aiBusy && (
-                <button onClick={runAi} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                  {r2 ? "✨ מה ה-AI אומר על החיבור?" : "✨ הפעילו ניתוח AI"}
-                </button>
+                <div style={{ display: "grid", gap: 8 }}>
+                  <button onClick={() => runAi("claude")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    {r2 ? "🔵 מה Claude אומר על החיבור?" : "🔵 ניתוח ב-Claude"}
+                  </button>
+                  <button onClick={() => runAi("gemini")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    {r2 ? "🟣 מה Gemini אומר על החיבור?" : "🟣 ניתוח ב-Gemini"}
+                  </button>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
+                </div>
               )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב…</div>}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
               {aiText && (
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
-                    <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔵 ניתוח AI · מאומת מהמנוע</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
+                    <span style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+                      {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+                    </span>
+                    <button onClick={() => runAi(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiBusy}
+                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
+                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                    </button>
                   </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
                 </div>
