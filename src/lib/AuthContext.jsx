@@ -18,7 +18,20 @@ export function AuthProvider({ children }) {
 
   const loadProfile = useCallback(async (u) => {
     if (!u) { setProfile(null); return; }
-    try { setProfile(await fetchProfile(u.id)); } catch { setProfile(null); }
+    try {
+      let p = await fetchProfile(u.id);
+      // ירושת תמונה מחשבון חברתי (גוגל/פייסבוק) גם למשתמש קיים שמתחבר עכשיו:
+      // הטריגר handle_new_user יורש רק בהרשמה ראשונה — כאן משלימים אם עדיין ריק.
+      const social = u.user_metadata?.avatar_url || u.user_metadata?.picture;
+      if (p && !p.avatar_url && social) {
+        try {
+          const { updateProfile } = await import('./auth.js');
+          const updated = await updateProfile(u.id, { avatar_url: social });
+          if (updated) p = updated;
+        } catch { /* ignore */ }
+      }
+      setProfile(p);
+    } catch { setProfile(null); }
   }, []);
 
   useEffect(() => {

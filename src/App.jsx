@@ -9,6 +9,8 @@ import { initAppInstallTracking, captureArrivalSource } from "./lib/tracking.js"
 import { initInstall } from "./lib/install.js";
 import { captureArrival } from "./lib/propagation.js";
 import { initClarity } from "./lib/clarity.js";
+import { startPresence, updatePresence } from "./lib/presence.js";
+import { useAuth } from "./lib/AuthContext.jsx";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
@@ -93,7 +95,11 @@ function RouteEffects() {
   // כך גם כשהכל עובר תחת המעבדה — לא מאבדים את הפילוח לפי כלי.
   const labTool = pathname === "/research" ? new URLSearchParams(search).get("tool") : null;
   const trackPath = labTool ? `/research?tool=${labTool}` : pathname;
+  const { user } = useAuth();
   useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); captureArrivalSource(); initClarity(); }, []);
+  // 🟢 נוכחות חיה — כל דפדפן פתוח מצטרף לערוץ אחד; מדווח uid (למחובר) + נתיב נוכחי.
+  useEffect(() => { startPresence({ uid: user?.id || null, path: pathname }); }, [user?.id]);
+  useEffect(() => { updatePresence({ uid: user?.id || null, path: pathname }); }, [pathname, user?.id]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
     const meta = ROUTE_META[pathname];

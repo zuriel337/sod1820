@@ -11,6 +11,13 @@ export function signInWithGoogle() {
   });
 }
 
+export function signInWithFacebook() {
+  return supabase.auth.signInWithOAuth({
+    provider: 'facebook',
+    options: { redirectTo: SITE_URL + '/', scopes: 'email public_profile' },
+  });
+}
+
 // כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין
 export async function signInWithPassword(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({

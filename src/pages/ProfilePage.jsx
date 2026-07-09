@@ -11,6 +11,39 @@ import { supabase, getUserActivity } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 import ResearchCenter from "../components/ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../lib/research/theme.js";
+import { useSiteOnline } from "../lib/presence.js";
+
+// 🟢 מחוברים עכשיו — מונה חי (Realtime Presence). לאדמין בלבד.
+// מפריד בין מחוברים (עם חשבון) לגולשים אנונימיים. מתעדכן תוך שנייה בכניסה/יציאה.
+function OnlineNowCard({ P, card }) {
+  const { total, members, guests } = useSiteOnline();
+  const stat = (n, label, dot) => (
+    <div style={{ flex: 1, minWidth: 92, textAlign: "center", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "12px 10px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot, boxShadow: `0 0 8px ${dot}` }} />
+        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{n}</span>
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, marginTop: 6 }}>{label}</div>
+    </div>
+  );
+  return (
+    <div style={{ ...card, marginTop: 22 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <span style={{ fontSize: 24 }}>🟢</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>מחוברים עכשיו</div>
+        <span style={{ marginInlineStart: "auto", color: P.accentDim, fontFamily: F.heading, fontSize: 11, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 10px" }}>LIVE · אדמין</span>
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 14 }}>
+        כמה אנשים באתר ברגע זה — חי, מתעדכן מיד. (רואה רק אתה.)
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {stat(total, "סה״כ באתר", "#5bd16a")}
+        {stat(members, "מחוברים (חשבון)", "#f0c14b")}
+        {stat(guests, "גולשים (אורחים)", "#7bb7ff")}
+      </div>
+    </div>
+  );
+}
 
 // 🔔 כרטיס מצב התראות Push — מראה אם המכשיר הזה רשום + כפתור הפעלה/ביטול.
 // סך המנויים הכולל מוצג *רק לאדמין* (לבדיקה) — לא חושפים אותו לגולשים.
@@ -397,6 +430,8 @@ export default function ProfilePage() {
           <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
         </div>
       </div>
+
+      {isAdmin && <OnlineNowCard P={P} card={card} />}
 
       <MyResearchCard P={P} card={card} />
 

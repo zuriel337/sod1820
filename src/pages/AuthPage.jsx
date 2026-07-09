@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { C, F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
-import { signInWithGoogle, requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../lib/auth.js";
+import { signInWithGoogle, signInWithFacebook, requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../lib/auth.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 export default function AuthPage() {
@@ -154,6 +154,11 @@ export default function AuthPage() {
             <button onClick={() => signInWithGoogle()} style={googleBtn}>
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 2.9 14.7 2 12 2 6.9 2 2.8 6.1 2.8 11.2S6.9 20.4 12 20.4c5.9 0 9.8-4.1 9.8-9.9 0-.7-.1-1.2-.2-1.7H12z"/></svg>
               המשך עם Google
+            </button>
+
+            <button onClick={() => signInWithFacebook()} style={{ ...googleBtn, marginTop: 10, background: "#1877F2", color: "#fff", border: "1px solid #1877F2" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+              המשך עם פייסבוק
             </button>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0", color: P.inkSoft, fontSize: 12, fontFamily: F.heading }}>
