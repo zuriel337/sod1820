@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -36,6 +36,12 @@ import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
+const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
+// 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
+const HERO_SLIDES = [
+  { img: SHVILEI_IMG, emblem: true, alt: "שבילי שפה — גלה את הדרך שבין מילים לעולמות", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ פוסט המבוא", label: "פוסט המבוא" },
+  { img: HERO_IMG, alt: "כי לה' המלוכה · סוד 1820 — שער המספר הגדול", to: "/start", cta: "✨ כאן מתחילים", label: "מתחילים" },
+];
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
@@ -86,6 +92,11 @@ export default function HomeNewPage() {
   const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
+  // 🎠 קרוסלת הירו
+  const heroRef = useRef(null);
+  const [heroIdx, setHeroIdx] = useState(0);
+  const onHeroScroll = () => { const el = heroRef.current; if (!el || !el.clientWidth) return; setHeroIdx(Math.max(0, Math.min(HERO_SLIDES.length - 1, Math.round(Math.abs(el.scrollLeft) / el.clientWidth)))); };
+  const goHero = i => { const el = heroRef.current; el?.children[i]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); };
 
   // ברירת המחדל כהה; מי שרוצה בהיר ימצא את ה-🌙/☀️ למעלה. (אין בורר-תמה כפוי למבקר חדש.)
   useEffect(() => { track("home"); }, []);
@@ -201,6 +212,16 @@ export default function HomeNewPage() {
         @keyframes hn-pulse { 0%,100%{ box-shadow:0 10px 30px ${P.glow}; } 50%{ box-shadow:0 12px 44px ${P.accent}; } }
         @media (max-width:520px){ .hn-cta-big{ font-size:14.5px; padding:9px 22px; } .hn-enter{ bottom:-18px; } }
         @media (max-width:360px){ .hn-cta-big{ font-size:13px; padding:8px 18px; } .hn-enter{ bottom:-16px; } }
+        /* 🎠 קרוסלת הירו — החלקה (scroll-snap), נקודות, רמז החלקה */
+        .hn-carousel { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+        .hn-carousel::-webkit-scrollbar { display:none; }
+        .hn-slide { flex:0 0 100%; scroll-snap-align:center; display:flex; justify-content:center; padding:2px 4px 36px; box-sizing:border-box; }
+        .hn-gate-img.emblem { object-fit:contain; background:#000; }
+        .hn-dots { display:flex; gap:8px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
+        .hn-dot { cursor:pointer; background:transparent; border:1px solid ${P.border}; color:${P.inkSoft};
+          font-family:${F.heading}; font-weight:800; font-size:12.5px; padding:5px 16px; border-radius:999px; transition:.15s; }
+        .hn-dot.on { background:${P.accentBtn}; color:${P.onAccent}; border-color:${P.accent}; }
+        .hn-swipe-hint { color:${P.inkSoft}; font-family:${F.body}; font-size:12px; margin-top:8px; opacity:.75; }
         .hn-tile { background:${P.card}; border:1px solid ${P.border}; border-radius:14px; padding:16px 8px; text-decoration:none;
           text-align:center; transition:transform .15s, border-color .15s; }
         .hn-tile:hover { transform:translateY(-3px); border-color:${P.accent}; }
@@ -220,11 +241,23 @@ export default function HomeNewPage() {
 
       {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
-        <div className="hn-gate">
-          <img src={HERO_IMG} alt="כי לה' המלוכה · סוד 1820 — שער המספר הגדול" className="hn-gate-img"
-            fetchpriority="high" decoding="async" />
-          <Link to="/start" className="hn-cta hn-cta-big hn-enter">✨ כאן מתחילים</Link>
+        <div className="hn-carousel" ref={heroRef} onScroll={onHeroScroll}>
+          {HERO_SLIDES.map((s, i) => (
+            <div className="hn-slide" key={i}>
+              <div className="hn-gate">
+                <img src={s.img} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
+                  fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />
+                <Link to={s.to} className="hn-cta hn-cta-big hn-enter">{s.cta}</Link>
+              </div>
+            </div>
+          ))}
         </div>
+        <div className="hn-dots">
+          {HERO_SLIDES.map((s, i) => (
+            <button key={i} type="button" onClick={() => goHero(i)} className={"hn-dot" + (heroIdx === i ? " on" : "")}>{s.label}</button>
+          ))}
+        </div>
+        <div className="hn-swipe-hint">← החליקו לגלות עוד</div>
 
         {/* חיפוש גימטריה + כניסה משנית */}
         <form onSubmit={go} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 460, margin: "44px auto 12px" }}>
