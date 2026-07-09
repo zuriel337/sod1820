@@ -9,7 +9,7 @@ import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCate
 // כל key פותח את הטופס, אבל השמירה מאומתת בשרת (post-save token) — key שגוי → נדחה.
 import { thumb } from "../lib/img.js";
 
-// ✍️ עורך הפוסטים המתקדם (אדמין) — /admin/editor (חדש) · /admin/editor/:slug (עריכה).
+// ✍️ עורך הפוסטים המתקדם (אדמין) — /editor (חדש) · /editor/:slug (עריכה). מחוץ ל-/admin/ (honeypot).
 // כתיבה/עריכה עם כל השדות + עוזר-AI שעורך את התוכן (מנוע ברירת-מחדל: Gemini — ה-AI שנקנה בטוקנים, לא חשבון ה-Anthropic).
 // תצוגה מקדימה חיה בקלאס הקנוני sod-post-content.clean + POST_CONTENT_CSS + data-theme. שמירה דרך RPC admin_save_post.
 
@@ -266,7 +266,7 @@ export default function PostEditorPage() {
         </span>
         {postId != null && <span className="pe-badge">id {postId}</span>}
         <span style={{ flex: 1 }} />
-        <a href="/admin/editor" className="pe-badge" style={{ textDecoration: "none" }}>+ פוסט חדש</a>
+        <a href={`/editor${editKey ? `?key=${encodeURIComponent(editKey)}` : ""}`} className="pe-badge" style={{ textDecoration: "none" }}>+ פוסט חדש</a>
         <Link to="/post" className="pe-badge" style={{ textDecoration: "none" }}>← לכל הפוסטים</Link>
       </div>
 
@@ -276,7 +276,7 @@ export default function PostEditorPage() {
           <summary style={{ cursor: "pointer", color: "#c9b6ff", fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>📝 טיוטות ({drafts.length})</summary>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
             {drafts.map(d => (
-              <a key={d.id} href={`/admin/editor/${encodeURIComponent(d.slug)}`}
+              <a key={d.id} href={`/editor/${encodeURIComponent(d.slug)}${editKey ? `?key=${encodeURIComponent(editKey)}` : ""}`}
                 style={{ display: "flex", alignItems: "center", gap: 8, background: C.bg, border: `1px solid ${d.slug === routeSlug ? C.gold : C.border}`, borderRadius: 10, padding: "7px 11px", textDecoration: "none", color: "#ede4d3", fontSize: 12.5, maxWidth: 260 }}>
                 {d.image_url && <img src={thumb(d.image_url, 80)} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: "cover", flex: "0 0 30px" }} />}
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.slug}</span>

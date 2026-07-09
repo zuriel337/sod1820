@@ -256,8 +256,9 @@ export default function App() {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/editor" element={<PostEditorPage />} />
-          <Route path="/admin/editor/:slug" element={<PostEditorPage />} />
+          {/* ⛔ העורך מחוץ ל-/admin/ — vercel.json honeypot תופס /admin/(.*) ומחזיר 403. */}
+          <Route path="/editor" element={<PostEditorPage />} />
+          <Route path="/editor/:slug" element={<PostEditorPage />} />
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
           <Route path="/theme-preview" element={<ThemePreviewPage />} />

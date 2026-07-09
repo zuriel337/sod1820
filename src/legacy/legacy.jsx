@@ -4596,7 +4596,7 @@ function PostPageBySlug({ onNav }) {
                 }}>
                   ✏️ עריכה מהירה
                 </button>
-                <a href={`/admin/editor/${encodeURIComponent(post.slug || "")}`} style={{
+                <a href={`/editor/${encodeURIComponent(post.slug || "")}`} style={{
                   background: pc.gold, border: `1px solid ${pc.gold}`, color: "#1a0e00",
                   padding: "9px 18px", borderRadius: 4, cursor: "pointer", textDecoration: "none",
                   fontFamily: F.heading, fontSize: 12, letterSpacing: 2, fontWeight: 800,
