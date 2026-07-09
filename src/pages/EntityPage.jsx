@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/tracking.js";
 import RealityHint from "../components/RealityHint.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
@@ -356,6 +356,81 @@ function ShareButtons({ value, term, phrases, copyText, onPreview }) {
   );
 }
 
+// 💌 הודעה אישית מבעל האתר — פופ-אפ שקופץ בדף מספר אישי (owner_note_law).
+// שלב read: ההודעה של צוריאל + CTA · שלב form: טופס יצירת-קשר · שלב done: תודה.
+function OwnerNoteModal({ note, number, onClose }) {
+  const P = usePalette();
+  const [step, setStep] = useState("read");
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function send() {
+    const c = contact.trim();
+    if (c.length < 3) { setErr("השאירו טלפון / וואטסאפ או אימייל כדי שאוכל לחזור אליכם"); return; }
+    setBusy(true); setErr("");
+    let vid = null; try { vid = getVisitorId(); } catch { /* noop */ }
+    const ok = await submitOwnerNoteRequest({ number, name, contact: c, message, visitorId: vid });
+    setBusy(false);
+    if (ok) setStep("done"); else setErr("השליחה נכשלה — נסו שוב עוד רגע");
+  }
+
+  const overlay = { position: "fixed", inset: 0, zIndex: 9500, background: "rgba(0,0,0,.72)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, direction: "rtl" };
+  const sheet = { position: "relative", width: "100%", maxWidth: 460, background: P.mode === "light" ? "#fbf7ec" : "#100a1c", border: `1.5px solid ${P.accent}`, borderRadius: 20, padding: "26px 22px 22px", boxShadow: `0 0 60px ${P.glow}, 0 24px 60px rgba(0,0,0,.5)`, maxHeight: "88vh", overflowY: "auto" };
+  const inp = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: F.body, fontSize: 16, padding: "11px 14px", outline: "none", marginBottom: 10 };
+
+  return (
+    <div style={overlay} onClick={onClose}>
+      <style>{`@keyframes own-note-in{0%{opacity:0;transform:translateY(16px) scale(.97)}100%{opacity:1;transform:none}}`}</style>
+      <div style={{ ...sheet, animation: "own-note-in .32s cubic-bezier(.2,.8,.2,1)" }} onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} aria-label="סגור" style={{ position: "absolute", top: 12, insetInlineEnd: 14, width: 34, height: 34, borderRadius: 999, border: "none", background: P.cardSoft, color: P.inkSoft, fontSize: 18, cursor: "pointer" }}>✕</button>
+
+        {step !== "done" && (
+          <>
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <div style={{ fontSize: 34, lineHeight: 1, marginBottom: 8 }}>💌</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{note.title}</div>
+              <div style={{ display: "inline-block", marginTop: 8, padding: "3px 12px", borderRadius: 999, background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.heroNum, fontFamily: F.mono, fontSize: 13, fontWeight: 800 }}>המספר {number}</div>
+            </div>
+            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, whiteSpace: "pre-line", textAlign: "start" }}>{note.body}</div>
+            {note.signature && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginTop: 12, textAlign: "start" }}>— {note.signature}</div>}
+          </>
+        )}
+
+        {step === "read" && (
+          <div style={{ marginTop: 18, display: "grid", gap: 8 }}>
+            <button onClick={() => setStep("form")} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 22px" }}>{note.cta}</button>
+            <button onClick={onClose} style={{ cursor: "pointer", background: "none", border: "none", color: P.inkSoft, fontFamily: F.heading, fontSize: 13, padding: "6px" }}>אולי אחר כך</button>
+          </div>
+        )}
+
+        {step === "form" && (
+          <div style={{ marginTop: 18 }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 10, textAlign: "start" }}>השאירו לי דרך ליצור קשר ואשלח לכם עוד 🙏</div>
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="השם שלך (לא חובה)" dir="rtl" style={inp} />
+            <input value={contact} onChange={e => { setContact(e.target.value); if (err) setErr(""); }} placeholder="טלפון / וואטסאפ או אימייל" dir="rtl" style={{ ...inp, borderColor: err ? "#d1495b" : P.borderStrong }} />
+            <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="רוצים להוסיף משהו? (לא חובה)" dir="rtl" rows={3} style={{ ...inp, resize: "vertical" }} />
+            {err && <div style={{ color: "#d1495b", fontFamily: F.body, fontSize: 12.5, marginBottom: 8 }}>{err}</div>}
+            <button onClick={send} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", width: "100%", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px" }}>{busy ? "שולח…" : "📩 שלח לצוריאל"}</button>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, marginTop: 8, textAlign: "center" }}>הפרטים נשמרים באופן פרטי ומשמשים רק כדי לחזור אליכם.</div>
+          </div>
+        )}
+
+        {step === "done" && (
+          <div style={{ textAlign: "center", padding: "14px 4px" }}>
+            <div style={{ fontSize: 46, lineHeight: 1, marginBottom: 12 }}>🕊️</div>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800, marginBottom: 8 }}>ההודעה נשלחה!</div>
+            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.8 }}>תודה שפנית 🙏 אחזור אליך אישית עם עוד מידע על המספר {number}.</div>
+            <button onClick={onClose} style={{ marginTop: 18, cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 28px" }}>סגור</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ===== דף הישות (Entity Page) — מרכז כל המידע סביב מספר/ביטוי =====
 // /number/:phrase — מספר (1237) או ביטוי (דוד המלך). חום קודם (מספר→משמעות→תמונות→מילים),
 // והניתוח (שיטות/התכנסות/DNA) בפאנל "העמקה" מתקפל. תמה בהירה/כהה דרך מתג.
@@ -687,6 +762,26 @@ export default function EntityPage({ embedPhrase } = {}) {
   // ✦ עוגן-המהות של המספר (number_anchors) — «מהות המספר» בראש מצב-הקריאה.
   const [anchor, setAnchor] = useState(null);
   useEffect(() => { let a = true; setAnchor(null); getNumberAnchor(value).then(r => { if (a) setAnchor(r); }); return () => { a = false; }; }, [value]);
+  // 💌 הודעה אישית מבעל האתר (owner_note_law) — קופצת פעם אחת לכל מספר/ביקור (whats_new spirit:
+  // לא לנדנד), וכפתור צף נשאר לפתיחה חוזרת. דאטא-דרייבן מ-nodes → צוריאל מוסיף מספרים בלי פריסה.
+  const [ownerNote, setOwnerNote] = useState(null);
+  const [noteOpen, setNoteOpen] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    setOwnerNote(null); setNoteOpen(false);
+    if (!isNumber || !value) return;
+    getOwnerNote(value).then(n => {
+      if (!alive || !n) return;
+      setOwnerNote(n);
+      let seen = false;
+      try { seen = localStorage.getItem(`own-note-seen-${value}`) === "1"; } catch { /* noop */ }
+      if (!seen) {
+        setNoteOpen(true);
+        try { localStorage.setItem(`own-note-seen-${value}`, "1"); } catch { /* noop */ }
+      }
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [value, isNumber]);
   // 🧬 מספר הישויות המתכנסות על הערך (בכל השיטות) — מד ההתכנסות. למונה «מתכנסות» בשער.
   const [convCount, setConvCount] = useState(null);
   const [convScore, setConvScore] = useState(null);   // ⭐ ציון ההתכנסות 0-100 → כוכבי-עוצמה
@@ -902,6 +997,17 @@ export default function EntityPage({ embedPhrase } = {}) {
   return (
     <Shell P={P}>
       <RealityHint />
+      {/* 💌 הודעה אישית מבעל האתר (owner_note_law) — פופ-אפ + כפתור צף לפתיחה חוזרת */}
+      {ownerNote && noteOpen && (
+        <OwnerNoteModal note={ownerNote} number={value} onClose={() => setNoteOpen(false)} />
+      )}
+      {ownerNote && !noteOpen && (
+        <button onClick={() => setNoteOpen(true)} title="הודעה אישית מבעל האתר"
+          style={{ position: "fixed", insetInlineEnd: 16, bottom: 18, zIndex: 400, display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 18px", boxShadow: `0 6px 20px ${P.glow}, 0 4px 14px rgba(0,0,0,.4)`, cursor: "pointer", animation: "own-note-bob 2.6s ease-in-out infinite" }}>
+          <style>{`@keyframes own-note-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}`}</style>
+          💌 הודעה מבעל האתר
+        </button>
+      )}
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         {/* במובייל: החיפוש הופך לסרגל מלא בראש (order:-1) כדי שלא "יירד למטה" וייקבר */}
@@ -1131,24 +1237,26 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 ניתוח AI — כרטיס בולט (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
-            <div style={{ maxWidth: 580, margin: "12px auto 4px", padding: "16px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", boxShadow: P.mode === "light" ? "0 6px 22px rgba(62,120,220,0.10)" : "0 6px 22px rgba(0,0,0,0.35)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
-                <span style={{ fontSize: 20 }}>🤖</span>
+            {/* 🤖 ניתוח AI — כרטיס עדין וקומפקטי (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
+            <div style={{ maxWidth: 480, margin: "12px auto 4px", padding: "11px 13px", borderRadius: 13, background: P.card, border: "1px solid rgba(62,166,255,0.28)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: aiText ? 9 : 7 }}>
+                <span style={{ fontSize: 15 }}>🤖</span>
                 <div style={{ textAlign: "start" }}>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
                 </div>
               </div>
               {!aiText && !aiBusy && (
-                <div style={{ display: "grid", gap: 8 }}>
-                  <button onClick={() => runAiNumber("claude")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    🔵 ניתוח ב-Claude
-                  </button>
-                  <button onClick={() => runAiNumber("gemini")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    🟣 ניתוח ב-Gemini
-                  </button>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
+                <div>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => runAiNumber("claude")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+                      🔵 Claude
+                    </button>
+                    <button onClick={() => runAiNumber("gemini")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+                      🟣 Gemini
+                    </button>
+                  </div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת</div>
                 </div>
               )}
               {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
