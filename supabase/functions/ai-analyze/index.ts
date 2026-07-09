@@ -84,7 +84,9 @@ async function runGemini(user: string, maxTokens: number) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM }] },
       contents: [{ role: "user", parts: [{ text: user }] }],
-      generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
+      // thinkingBudget:0 — מכבה את שלב ה«חשיבה» של gemini-2.5-flash, אחרת הוא צורך את תקציב
+      // הטוקנים על מחשבה פנימית והפלט הגלוי נקטע. ל-2-4 משפטי פרשנות לא צריך thinking.
+      generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
   if (!resp.ok) return { error: `gemini_${resp.status}`, detail: (await resp.text()).slice(0, 200) };
