@@ -229,6 +229,8 @@ function SettingsPanel({ T, profile, user, signOut }) {
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [showUrl, setShowUrl] = useState(false);
   const fld = { width: "100%", padding: "10px 12px", background: T.card, color: T.ink, border: `1px solid ${T.line}`, borderRadius: 9, fontSize: 14, marginTop: 5, boxSizing: "border-box" };
   const lbl = { color: T.sub, fontSize: 12, marginTop: 12, display: "block" };
   const save = useCallback(async () => {
@@ -236,14 +238,44 @@ function SettingsPanel({ T, profile, user, signOut }) {
     try { await updateProfile(user.id, { display_name: displayName.trim() || null, username: username.trim() || null, avatar_url: avatarUrl.trim() || null }); setMsg("נשמר ✓"); }
     catch { setMsg("שגיאה בשמירה"); } finally { setBusy(false); }
   }, [user, displayName, username, avatarUrl]);
+  const pickAvatar = useCallback(async (e) => {
+    const f = e.target.files?.[0]; e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { setMsg("נא לבחור קובץ תמונה"); return; }
+    if (f.size > 5 * 1024 * 1024) { setMsg("התמונה גדולה מדי (מקסימום 5MB)"); return; }
+    setMsg(""); setUploading(true);
+    try {
+      const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: false, contentType: f.type });
+      if (error) throw error;
+      setAvatarUrl(supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl);
+      setMsg("התמונה הועלתה — לחצו שמירה ✓");
+    } catch (e2) { setMsg(e2?.message || "שגיאה בהעלאת התמונה"); }
+    setUploading(false);
+  }, [user]);
+  const initial = (displayName || username || user?.email || "?").trim().charAt(0).toUpperCase();
   return (
     <div>
       <label style={lbl}>שם תצוגה</label>
       <input style={fld} value={displayName} onChange={e => setDisplayName(e.target.value)} dir="rtl" />
       <label style={lbl}>שם משתמש</label>
       <input style={fld} value={username} onChange={e => setUsername(e.target.value)} dir="rtl" />
-      <label style={lbl}>קישור לתמונת פרופיל</label>
-      <input style={fld} value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} dir="ltr" placeholder="https://…" />
+      <label style={lbl}>תמונת פרופיל</label>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
+        <div style={{ width: 46, height: 46, borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: T.card, border: `1px solid ${T.line}`, display: "flex", alignItems: "center", justifyContent: "center", color: T.acc, fontWeight: 700, fontSize: 19 }}>
+          {avatarUrl ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initial}
+        </div>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: uploading ? "wait" : "pointer", background: T.card, border: `1px solid ${T.line}`, borderRadius: 9, padding: "10px 16px", color: T.ink, fontSize: 13.5, fontWeight: 700 }}>
+          {uploading ? "מעלה…" : "📷 העלאת תמונה מהמכשיר"}
+          <input type="file" accept="image/*" onChange={pickAvatar} disabled={uploading} style={{ display: "none" }} />
+        </label>
+        {avatarUrl && !uploading && (
+          <button onClick={() => setAvatarUrl("")} style={{ background: "none", border: "none", cursor: "pointer", color: T.sub, fontSize: 12.5, textDecoration: "underline" }}>הסר</button>
+        )}
+      </div>
+      <button onClick={() => setShowUrl(v => !v)} style={{ background: "none", border: "none", cursor: "pointer", color: T.sub, fontSize: 12, marginTop: 8, padding: 0, textDecoration: "underline" }}>{showUrl ? "הסתר" : "או הדבק קישור (URL)"}</button>
+      {showUrl && <input style={fld} value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} dir="ltr" placeholder="https://…" />}
       <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
         <button onClick={save} disabled={busy} style={{ flex: 1, background: T.acc, color: "#fff", border: "none", borderRadius: 9, padding: "10px", fontWeight: 700, cursor: "pointer" }}>{busy ? "שומר…" : "שמירה"}</button>
         <button onClick={() => signOut?.()} style={{ background: "none", border: `1px solid ${T.line}`, color: T.sub, borderRadius: 9, padding: "10px 16px", cursor: "pointer" }}>יציאה</button>
