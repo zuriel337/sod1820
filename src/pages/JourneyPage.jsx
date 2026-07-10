@@ -57,6 +57,18 @@ const LAYERS = [
   { t: "שכבה שלישית — העמקה", n: "חיבור בין מספרים, רעיונות ורמזים שנאספו לאורך הדרך." },
 ];
 
+// 🧪 A/B נגן-אוטומטי: ~50% «auto» (תחנות עוברות לבד) · 50% «manual» (לחיצה לכל תחנה).
+// דביק למבקר; מודדים המרה (jv_start_* → jv_msg_*) כדי לדעת מה עדיף.
+function getAutoVariant() {
+  try {
+    const v = localStorage.getItem("sod_j_auto");
+    if (v === "auto" || v === "manual") return v;
+    const nv = Math.random() < 0.5 ? "auto" : "manual";
+    localStorage.setItem("sod_j_auto", nv);
+    return nv;
+  } catch { return "auto"; }
+}
+
 // ⏱ מגן-תקיעה: מריץ הבטחה מול timeout — אם שאילתה נתקעת (hang), נופלים לברירת-מחדל
 // אחרי ms במקום להישאר תקועים על «מחפש קשרים» לנצח.
 const withTimeout = (p, ms, fallback) => Promise.race([
@@ -126,6 +138,8 @@ export default function JourneyPage() {
   const journeyIdRef = useRef(null);  // מזהה מופע-מסע — לתפירת המשפך לרמת-אדם
   const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
   const skipRef = useRef(false);      // «דלגו לגילוי» → מאיץ את הנגן-האוטומטי לגילוי מיידי
+  const [autoMode] = useState(getAutoVariant); // A/B: 'auto' (מתקדם לבד) | 'manual' (לחיצה)
+  const jvMsgRef = useRef(false);     // שהמדד jv_msg_* יירשם פעם אחת למסע
   const [hookBusy, setHookBusy] = useState(false); // M2: לחיצת-פוש בעבודה
   const [showEmail, setShowEmail] = useState(false); // M2: מייל = אופציה מודחקת (רגע 3)
   // 🧭 M2 — דף-כניסה לחוויה: הגעה ל-/journey בלי ?from= מציגה דף-נחיתה (החוויה + SEO), לא מסע-אקראי אוטומטי.
@@ -168,6 +182,7 @@ export default function JourneyPage() {
   async function begin(fromParam) {
     journeyIdRef.current = (crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2)));
     hookShownRef.current = false;
+    jvMsgRef.current = false;
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle"); setGemMsg(null); setGemState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
@@ -198,6 +213,7 @@ export default function JourneyPage() {
       setGoal(clamp(fam.length, 3, 7));
       setPath([start]);
       logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
+      logView("jv_start_" + autoMode, String(value));   // 🧪 מדד A/B נגן-אוטומטי
       try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
     } catch (e) {
       setFinished("stopped");   // ⛔ שגיאה כלשהי → לא נתקעים על «מחפש קשרים»
@@ -267,11 +283,21 @@ export default function JourneyPage() {
   // תיקון הצוק (החלטת צוריאל 10.7.2026): 96% נטשו כי נדרשו 3-7 לחיצות להגיע לערך.
   // ~500ms לתחנה (התגלגלות נעימה ~2-3ש׳); «דלגו לגילוי» מאיץ ל-90ms → גילוי כמעט-מיידי.
   useEffect(() => {
+    if (autoMode !== "auto") return;   // 🧪 A/B: רק בווריאנט האוטומטי; 'manual' = לחיצה ידנית
     if (!entered || loading || busy || finished || !family.length || !path.length) return;
     const t = setTimeout(() => { step(); }, skipRef.current ? 90 : 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entered, loading, busy, finished, family.length, path.length]);
+  }, [autoMode, entered, loading, busy, finished, family.length, path.length]);
+
+  // 🧪 מדד A/B — רישום «הגעה למסר» פר-ווריאנט (jv_msg_auto/jv_msg_manual) מול jv_start_*
+  useEffect(() => {
+    if (finished && root != null && !jvMsgRef.current) {
+      jvMsgRef.current = true;
+      logView("jv_msg_" + autoMode, String(root));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished, root]);
 
   const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
   const leaped = bases.length > 1;
@@ -438,38 +464,42 @@ export default function JourneyPage() {
         <header style={{ textAlign: "center", marginBottom: 22, animation: "jFade .5s ease both" }}>
           <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>סוד 1820 · המסע האישי</div>
           <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,6vw,42px)", fontWeight: 800, margin: "10px 0 8px", textShadow: `0 0 40px ${P.onAccent}`, lineHeight: 1.25 }}>
-            גלה את המספר שמאחורי השם שלך
+            צאו למסע — וגלו את המספר הנסתר
           </h1>
-          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 460, margin: "0 auto" }}>
-            הקלד את שמך — ותגלה תוך שניות את המספר שלו, המשמעות והקשרים שהוא יוצר.
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 470, margin: "0 auto" }}>
+            כל תחנה היא ביטוי חדש — וכולן מתכנסות אל מספר אחד. בחרו מספר או ביטוי, או צאו למסע אקראי.
           </p>
         </header>
 
-        {/* 🎯 שם-ראשון: לחיצה אחת → גילוי אישי (הגילוי מוביל למסע) */}
+        {/* 🎲 אקראי/מספר ראשי (המנגנון הוויראלי) — «לפי השם» כאופציה משנית */}
         <div style={{ maxWidth: 460, margin: "0 auto 22px", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "22px 18px", boxShadow: `0 0 40px ${P.glow}`, textAlign: "center", animation: "jFade .5s ease .05s both" }}>
-          <form onSubmit={e => { e.preventDefault(); const v = (name || "").trim() || (seed || "").trim(); startWith(v); }} style={{ display: "grid", gap: 12 }}>
+          <button onClick={() => startWith("")} style={{ width: "100%", cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 18, fontWeight: 800, padding: "16px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
+            🎲 צאו למסע אקראי
+          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0", color: P.accentDim, fontSize: 12, fontFamily: F.heading }}>
+            <div style={{ flex: 1, height: 1, background: P.border }} />או בחרו בעצמכם<div style={{ flex: 1, height: 1, background: P.border }} />
+          </div>
+          <form onSubmit={onSeedSubmit} style={{ display: "grid", gap: 10 }}>
             <input
-              value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name" autoFocus
-              placeholder="✦ מה השם שלך?"
-              style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${P.accent}`, borderRadius: 14, color: P.ink, padding: "15px 16px", fontSize: 18, fontWeight: 700, textAlign: "center", outline: "none", fontFamily: F.body }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 17, fontWeight: 800, padding: "15px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
-              ✨ גלה את המספר שלי ←
+              value={seed} onChange={e => setSeed(e.target.value)} dir="rtl"
+              placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
+              style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "14px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+            <button type="submit" style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px" }}>
+              התחילו את המסע →
             </button>
           </form>
-          <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 13, flexWrap: "wrap" }}>
-            <button onClick={() => setShowSeed(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline" }}>
-              או הכנס מספר / ביטוי
-            </button>
-            <button onClick={() => startWith("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline" }}>
-              מסע אקראי 🎲
-            </button>
-          </div>
+          <button onClick={() => setShowSeed(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline", marginTop: 12 }}>
+            ✦ או גלו לפי השם שלכם
+          </button>
           {showSeed && (
-            <form onSubmit={onSeedSubmit} style={{ marginTop: 12 }}>
+            <form onSubmit={e => { e.preventDefault(); startWith((name || "").trim()); }} style={{ marginTop: 10, display: "grid", gap: 10 }}>
               <input
-                value={seed} onChange={e => setSeed(e.target.value)} inputMode="numeric" dir="rtl"
-                placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
-                style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+                value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name"
+                placeholder="✦ השם שלכם"
+                style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.accent}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+              <button type="submit" style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "12px 22px" }}>
+                ✨ גלו את המספר שלי
+              </button>
             </form>
           )}
         </div>
@@ -777,9 +807,11 @@ export default function JourneyPage() {
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
               <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>תחנה {path.length} / ~{goal}</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: P.accentText, animation: "jPulseDot 1s ease-in-out infinite" }} />▶ מתקדם אוטומטית
-              </span>
+              {autoMode === "auto" && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: P.accentText, animation: "jPulseDot 1s ease-in-out infinite" }} />▶ מתקדם אוטומטית
+                </span>
+              )}
             </div>
             <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,44px)", fontWeight: 800, lineHeight: 1.25 }}>{cur.phrase}</div>
             {cur.world && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 8 }}>{cur.world}</div>}
@@ -787,8 +819,8 @@ export default function JourneyPage() {
 
           {/* כפתורים */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 22 }}>
-            <button onClick={() => { skipRef.current = true; step(); }} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
-              ⏩ דלגו לגילוי
+            <button onClick={() => { if (autoMode === "auto") skipRef.current = true; step(); }} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              {autoMode === "auto" ? "⏩ דלגו לגילוי" : "המשיכו במסע ✨"}
             </button>
             <Link to={`/number/${encodeURIComponent(cur.phrase)}`} style={{ textDecoration: "none", background: P.card, color: P.ink, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 20px" }}>
               פתחו את {cur.phrase} →
