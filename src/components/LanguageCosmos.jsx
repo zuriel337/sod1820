@@ -50,7 +50,8 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       const p = it < B0 ? 0 : it < C0 ? ease((it - B0) / (C0 - B0)) : 1; // 0=תשפ״ו · 1=שפות
       const scatter = it > D0 ? Math.min(1, (it - D0) / (END - D0)) : 0;
       const fin = Math.min(1, it / 0.4);                                   // fade-in
-      const sp = Math.min(W, H) * 0.16, bfs = Math.min(W, H) * 0.27;
+      // מרווח > רוחב-הגליף כדי שהאותיות לא יידחסו («תשפו» מחובר). sp גדל, הגופן קטן מעט.
+      const sp = Math.min(W, H) * 0.225, bfs = Math.min(W, H) * 0.225;
       const glow = (it >= C0 && it < D0) ? (0.55 + 0.45 * Math.sin((it - C0) * 3.2)) : 0.4;
       ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
       for (const L of YEAR) {
