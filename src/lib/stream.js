@@ -67,7 +67,7 @@ export function clearStream() { setStream(""); }
 // 🧪 A/B עדשות — שיוך מבקר-חדש: ~35% → «קוד המציאות» (reality), השאר → «כי לה' המלוכה» (kingdom).
 // דביק לכל מבקר (localStorage), מכבד בחירה קיימת, ומחזיר {variant,isNew} כדי לתעד את השיוך פעם אחת.
 const AB_KEY = "sod_ab_lens";
-const AB_REALITY_SHARE = 0.35;
+const AB_REALITY_SHARE = 0.5;  // 🧪 בדיקת-עדשות (10.7): 50/50 — קוד המציאות מול כי לה' המלוכה
 export function assignLensAB() {
   try {
     const prior = localStorage.getItem(AB_KEY);

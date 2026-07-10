@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail, logJourneyAb } from "../lib/supabase.js";
+import { assignLensAB } from "../lib/stream.js"; // 🧪 בדיקת-עדשות 50/50
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
 import { trackSubscribe } from "../lib/marketing.js";
@@ -50,6 +51,27 @@ export default function JourneyPage() {
   const { verified } = useAuth();   // מחובר/מאומת → כבר ברשימה, מדלג על שער-המייל
   const [sp] = useSearchParams();
   const startFrom = (sp.get("from") || "").trim();
+  // 🧪 עדשת A/B — משויכת פעם אחת למבקר (50/50, דביק). מחושבת סינכרונית (בלי side-effect ברינדור);
+  // סנכרון ה-stream + התיעוד קורים ב-effect דרך assignLensAB (מכבד את המפתח שכבר נכתב).
+  const [lens] = useState(() => {
+    try {
+      const prior = localStorage.getItem("sod_ab_lens");
+      if (prior === "reality" || prior === "kingdom") return prior;
+      const v = Math.random() < 0.5 ? "reality" : "kingdom";
+      localStorage.setItem("sod_ab_lens", v);
+      return v;
+    } catch { return "kingdom"; }
+  });
+  useEffect(() => { try { assignLensAB(); } catch { /* noop */ } }, []);
+  const reality = lens === "reality";
+  // 🎭 ההבדל בין העדשות — מיתוג-כניסה שונה (חילוני-סקרן מול מלכותי-אמוני) + אקסנט-צבע.
+  const LENS = reality
+    ? { eyebrow: "קוד המציאות", h1: "🔮 מה המספר שלך מסתיר?",
+        sub: "כל שם · מילה · תאריך — מוביל למספר אחד. גלה איזה קוד מסתתר מאחורי מה שחשוב לך.",
+        accent: "#8ea2ff", glow: "rgba(120,140,255,.55)" }
+    : { eyebrow: "מסע התכנסות", h1: "✨ קחו אותי למסע",
+        sub: "כל תחנה היא ביטוי חדש — וכולן מובילות אל מספר אחד נסתר. גלו לאיזה ערך כל המסע מתכנס.",
+        accent: null, glow: null };
   const [target, setTarget] = useState(null);     // ערך-היעד הנסתר (הסקאלה הפעילה)
   const [bases, setBases] = useState([]);          // [value, value*10, ...] — סקאלות שהמסע עבר (שורש→תהודה)
   const [family, setFamily] = useState([]);        // [{phrase, world}] — כל הביטויים = target
@@ -99,6 +121,7 @@ export default function JourneyPage() {
     setPath([start]);
     setLoading(false);
     logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
+    logJourneyAb(lens, "start", 0);             // 🧪 מדידת-עדשה: התחלה
   }
 
   useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
@@ -143,10 +166,13 @@ export default function JourneyPage() {
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
-    if (np.filter(p => !p.leap).length >= goal) {
+    const _depth = np.filter(p => !p.leap).length;
+    logJourneyAb(lens, "step", _depth);         // 🧪 מדידת-עדשה: עומק-צעד (מעבר-לצעד-2 = המדד הראשי)
+    if (_depth >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
       logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
+      logJourneyAb(lens, "complete", _depth);   // 🧪 מדידת-עדשה: סיום
     }
   }
 
@@ -276,10 +302,10 @@ export default function JourneyPage() {
         @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}`}</style>
 
       <header style={{ textAlign: "center", marginBottom: 22 }}>
-        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>מסע התכנסות</div>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 800, margin: "6px 0 6px", textShadow: `0 0 40px ${P.onAccent}` }}>✨ קחו אותי למסע</h1>
+        <div style={{ color: LENS.accent || P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>{LENS.eyebrow}</div>
+        <h1 style={{ color: LENS.accent || P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 800, margin: "6px 0 6px", textShadow: `0 0 40px ${LENS.glow || P.onAccent}` }}>{LENS.h1}</h1>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 470, margin: "0 auto" }}>
-          כל תחנה היא ביטוי חדש — וכולן מובילות אל מספר אחד נסתר. גלו לאיזה ערך כל המסע מתכנס.
+          {LENS.sub}
         </p>
       </header>
 

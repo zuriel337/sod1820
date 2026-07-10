@@ -487,6 +487,17 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
   } catch { return null; }
 }
 
+// 🧪 מדידת A/B עדשות למסע — רישום פר-מבקר (עדשה × אירוע × עומק) דרך RPC log_journey_ab.
+// event: 'start' | 'step' | 'complete'. לא חוסם, נכשל בשקט.
+export async function logJourneyAb(lens, event, depth = 0) {
+  if (!supabase) return;
+  try {
+    let v = localStorage.getItem('sod_visitor_id');
+    if (!v) { v = 'v' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); localStorage.setItem('sod_visitor_id', v); }
+    await supabase.rpc('log_journey_ab', { p_visitor: v, p_lens: lens, p_event: event, p_depth: depth });
+  } catch { /* לא חוסם */ }
+}
+
 // 🤖 ניתוח AI גנרי לכלי המחקר (השוואה · נוטריקון · פסוק · פסוק-יומי) — Edge Function ai-analyze.
 // facts = עובדות מאומתות מהמנוע (ערכים שכבר חושבו). ה-AI רק מפרש, לא מחשב. null בכשל/ללא מפתח.
 // engine: 'claude' (ברירת-מחדל) | 'gemini' — מנוע נוסף להשוואה (A/B). אותן עובדות, פרשן אחר.
