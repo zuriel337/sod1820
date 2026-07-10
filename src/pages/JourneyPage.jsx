@@ -92,6 +92,7 @@ export default function JourneyPage() {
   // deep-link (מדף-מספר: /journey?from=358) נכנס ישר לחוויה. הנוסח והשם: «המסע האישי» תחת סוד 1820.
   const [entered, setEntered] = useState(!!startFrom);
   const [seed, setSeed] = useState("");            // מספר/ביטוי-פתיחה שהמשתמש הקליד בדף-הנחיתה
+  const [showSeed, setShowSeed] = useState(false); // גילוי שדה מספר/ביטוי המשני (שם-ראשון כברירת מחדל)
   // 👤 שם אישי (אופציונלי, לא שער) — הופך את «המסע האישי» לאישי: פנייה בשם ברגע-הגילוי ובמסר-המנוע.
   // נשמר מקומית (זהות-רכה, בלי חשבון). שם ריק = המסע עובד בדיוק כמו קודם.
   const [name, setName] = useState(() => { try { return localStorage.getItem("sod_jname") || ""; } catch { return ""; } });
@@ -377,39 +378,43 @@ export default function JourneyPage() {
       <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
         <style>{`@keyframes jFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}`}</style>
 
-        <header style={{ textAlign: "center", marginBottom: 24, animation: "jFade .5s ease both" }}>
+        <header style={{ textAlign: "center", marginBottom: 22, animation: "jFade .5s ease both" }}>
           <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>סוד 1820 · המסע האישי</div>
-          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(25px,5.4vw,40px)", fontWeight: 800, margin: "9px 0 12px", textShadow: `0 0 40px ${P.onAccent}`, lineHeight: 1.28 }}>
-            המסע האישי שלך — גילוי החוט שמחבר אותך
+          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,6vw,42px)", fontWeight: 800, margin: "10px 0 8px", textShadow: `0 0 40px ${P.onAccent}`, lineHeight: 1.25 }}>
+            גלה את המספר שמאחורי השם שלך
           </h1>
-          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 540, margin: "0 auto 12px" }}>
-            יש מספרים שמופיעים בדרך שלך שוב ושוב. רגעים, שמות, תאריכים, צירופי מקרים וחיבורים שמרגישים כאילו יש בהם סיפור.
-          </p>
-          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 540, margin: "0 auto" }}>
-            המסע נועד לקחת את המספר שבחרת ולהעמיק בו — שלב אחר שלב. לא רק לראות תוצאה, אלא לגלות קשרים: מה מסתתר במספר? אילו מילים מתחברות אליו? אילו מקורות, רעיונות וסיפורים קשורים אליו? ומה החוט שמוביל בין הדברים?
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 460, margin: "0 auto" }}>
+            הקלד את שמך — ותגלה תוך שניות את המספר שלו, המשמעות והקשרים שהוא יוצר.
           </p>
         </header>
 
-        {/* בחירת מספר-פתיחה → כניסה לחוויה */}
-        <div style={{ maxWidth: 470, margin: "0 auto 26px", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "20px 18px", boxShadow: `0 0 40px ${P.glow}`, textAlign: "center", animation: "jFade .5s ease .05s both" }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>התחל את המסע שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginBottom: 16 }}>בחר מספר, וקבל נקודת פתיחה אישית.</div>
-          <form onSubmit={onSeedSubmit} style={{ display: "grid", gap: 11 }}>
+        {/* 🎯 שם-ראשון: לחיצה אחת → גילוי אישי (הגילוי מוביל למסע) */}
+        <div style={{ maxWidth: 460, margin: "0 auto 22px", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "22px 18px", boxShadow: `0 0 40px ${P.glow}`, textAlign: "center", animation: "jFade .5s ease .05s both" }}>
+          <form onSubmit={e => { e.preventDefault(); const v = (name || "").trim() || (seed || "").trim(); startWith(v); }} style={{ display: "grid", gap: 12 }}>
             <input
-              value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name"
-              placeholder="✦ איך לקרוא לך? (לא חובה — כדי לפנות אליך בשם)"
-              style={{ background: "rgba(255,255,255,0.04)", border: `1px dashed ${P.border}`, borderRadius: 14, color: P.ink, padding: "12px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
-            <input
-              value={seed} onChange={e => setSeed(e.target.value)} inputMode="numeric" dir="rtl"
-              placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
-              style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "14px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
-              מה המספר שלך מגלה? התחל את המסע →
+              value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name" autoFocus
+              placeholder="✦ מה השם שלך?"
+              style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${P.accent}`, borderRadius: 14, color: P.ink, padding: "15px 16px", fontSize: 18, fontWeight: 700, textAlign: "center", outline: "none", fontFamily: F.body }} />
+            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 17, fontWeight: 800, padding: "15px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
+              ✨ גלה את המספר שלי ←
             </button>
           </form>
-          <button onClick={() => startWith("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginTop: 12, textDecoration: "underline" }}>
-            או צאו למסע אקראי 🎲
-          </button>
+          <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 13, flexWrap: "wrap" }}>
+            <button onClick={() => setShowSeed(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline" }}>
+              או הכנס מספר / ביטוי
+            </button>
+            <button onClick={() => startWith("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline" }}>
+              מסע אקראי 🎲
+            </button>
+          </div>
+          {showSeed && (
+            <form onSubmit={onSeedSubmit} style={{ marginTop: 12 }}>
+              <input
+                value={seed} onChange={e => setSeed(e.target.value)} inputMode="numeric" dir="rtl"
+                placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
+                style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
+            </form>
+          )}
         </div>
 
         {/* שלוש השכבות */}
