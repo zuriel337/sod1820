@@ -4,7 +4,8 @@ import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
-import RevelationWindows from "../components/RevelationWindows.jsx";
+// חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
+// import RevelationWindows from "../components/RevelationWindows.jsx";
 import { bubblesFromCounts } from "../lib/bubbles.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import Lightbox from "../components/Lightbox.jsx";
@@ -274,8 +275,9 @@ export default function HomeNewPage() {
         </form>
       </section>
 
-      {/* ===== 🔑 חלונות הגילוי — רצועת סטורי בראש הדף (כל סטורי חובר לדף הכותב) ===== */}
-      <RevelationWindows />
+      {/* ===== 🔑 חלונות הגילוי — הוסרו מעמוד הבית «בשלב זה» (בקשת צוריאל 10.7.2026).
+           הרכיב נשמר (RevelationWindows.jsx) — להחזרה: החזר את השורה למטה ואת ה-import למעלה. ===== */}
+      {/* <RevelationWindows /> */}
 
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
