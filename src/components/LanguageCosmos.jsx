@@ -7,10 +7,10 @@ import React, { useRef, useEffect } from "react";
 
 // אותיות אמיתיות מכמה כתבים, כל כתב בגוון קוסמי משלו.
 const SCRIPTS = [
-  { chars: "אבגדהוזחטיכלמנסעפצקרשת", color: "#f6e27a" }, // עברית — זהב
-  { chars: "ABCDEFGHKLMNRSTVW",      color: "#b9a7ff" }, // אנגלית — סגול
-  { chars: "БГДЖЗИЛПФШЯЮ",           color: "#a7f0c0" }, // רוסית — ירוק
-  { chars: "0123456789",             color: "#eae4ff" }, // ספרות — לבן-כוכבי
+  { chars: "אבגדהוזחטיכלמנסעפצקרשת", color: "#efe3b8" }, // עברית — זהב רך
+  { chars: "ABCDEFGHKLMNRSTVW",      color: "#d6cfec" }, // אנגלית — סגול-חיוור
+  { chars: "БГДЖЗИЛПФШЯЮ",           color: "#d0e6d8" }, // רוסית — ירוק-חיוור
+  { chars: "0123456789",             color: "#e8e4f2" }, // ספרות — לבן-כוכבי
 ];
 // 🔤 המרכז — סיפור-האל"ף (רצף, לא אקראי): האות הראשונה נפתחת ומגלה שהכל אחד.
 // א → אֶלֶף (שמהּ) → פֶּלֶא (אנגרם של אלף!) → אֶחָד (א=1) → 1 → One → Один.
@@ -87,7 +87,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         vin: rnd(0.0016, 0.0042),           // מהירות התכנסות (יחסית ל-maxR)
         spin: rnd(-0.5, 0.5), rot: rnd(0, 6.28),
         sway: rnd(0.4, 1.3), swayP: Math.random() * 6.28,
-        ft: rnd(1.2, 4), fl: 0, sw: false,  // 🔄 מונה-היפוך · התקדמות-היפוך · האם כבר הוחלף הכתב
+        ft: rnd(4, 11), fl: 0, sw: false,   // 🔄 מונה-היפוך (ארוך → היפוכים נדירים) · התקדמות · האם הוחלף
       };
     };
 
@@ -98,7 +98,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       maxR = Math.hypot(W, H) / 2 || 1;
       cv.width = Math.max(1, W * dpr); cv.height = Math.max(1, H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const nP = Math.min(90, Math.max(38, Math.round((W * H) / 9000)));
+      const nP = Math.min(48, Math.max(20, Math.round((W * H) / 16000)));
       parts = Array.from({ length: nP }, spawn);
       const nS = Math.min(160, Math.round((W * H) / 3400));
       stars = Array.from({ length: nS }, () => ({ x: Math.random() * W, y: Math.random() * H, z: Math.random(), p: Math.random() * 6.28 }));
@@ -145,21 +145,22 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         // 🔄 היפוך-שפה: האות מתהפכת (scaleX) ובאמצע ההיפוך מתחלפת לכתב אחר — «אותיות
         // שהופכות לשפות». כמו flip ב-CSS, על קנבס: scaleX 1→0→1 עם החלפת-תו ב-0.
         if (p.fl > 0) {
-          p.fl += 0.028;
+          p.fl += 0.02;
           if (p.fl >= 0.5 && !p.sw) { const g = pick(); p.ch = g.ch; p.color = g.color; p.sw = true; }
-          if (p.fl >= 1) { p.fl = 0; p.sw = false; p.ft = rnd(1.6, 4.2); }
+          if (p.fl >= 1) { p.fl = 0; p.sw = false; p.ft = rnd(6, 13); }
         } else { p.ft -= 0.016; if (p.ft <= 0) p.fl = 0.0001; }
         const sx = p.fl > 0 ? Math.max(0.03, Math.abs(Math.cos(p.fl * Math.PI))) : 1;
         const wob = p.sway * 6 * Math.sin(t * 0.9 + p.swayP);
         const x = cx + Math.cos(p.ang) * p.dist + Math.cos(p.ang + 1.57) * wob;
         const y = cy + Math.sin(p.ang) * p.dist + Math.sin(p.ang + 1.57) * wob;
-        const fs = (12 + 30 * p.z) * (0.6 + 0.4 * nearC);
+        const fs = (9 + 16 * p.z) * (0.6 + 0.4 * nearC);
         const fade = nearC < 0.12 ? nearC / 0.12 : (nearC > 0.86 ? (1 - nearC) / 0.14 : 1); // דוהה בשוליים ובמרכז
+        // 🤫 עדין-עדין: אטימות נמוכה מאוד + כמעט בלי זוהר → אבק-אותיות ברקע, לא מתחרה במרכז.
         ctx.save();
         ctx.translate(x, y); ctx.rotate(Math.sin(p.rot) * 0.25); ctx.scale(sx, 1);
-        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.5 + 0.5 * p.z) * (0.55 + 0.45 * sx);
-        ctx.font = `700 ${fs}px 'Heebo','Assistant',system-ui,sans-serif`;
-        ctx.shadowColor = p.color; ctx.shadowBlur = 12 * nearC + 4 + (p.fl > 0 ? 10 * (1 - sx) : 0);
+        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.11 + 0.14 * p.z) * (0.6 + 0.4 * sx);
+        ctx.font = `600 ${fs}px 'Heebo','Assistant',system-ui,sans-serif`;
+        ctx.shadowColor = p.color; ctx.shadowBlur = 2 * nearC + 0.5 + (p.fl > 0 ? 2 * (1 - sx) : 0);
         ctx.fillStyle = p.color;
         ctx.fillText(p.ch, 0, 0);
         ctx.restore();
