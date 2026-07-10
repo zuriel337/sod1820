@@ -48,6 +48,7 @@ const COLUMNS = [
       { label: "כאן מתחילים", to: "/start" },
       { label: "מרכז הניווט", to: "/map" },
       { label: "אודות וצור קשר", to: "/contact" },
+      { label: "מדיניות פרטיות", to: "/privacy" },
     ],
   },
 ];
