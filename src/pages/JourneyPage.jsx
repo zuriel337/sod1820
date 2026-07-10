@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail, logJourneyAb } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, getClassicJourneySeed, logView, zeroScales, getJourneyMessage, subscribeEmail, logJourneyAb } from "../lib/supabase.js";
 import { assignLensAB } from "../lib/stream.js"; // 🧪 בדיקת-עדשות 50/50
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
@@ -64,6 +64,18 @@ export default function JourneyPage() {
   });
   useEffect(() => { try { assignLensAB(); } catch { /* noop */ } }, []);
   const reality = lens === "reality";
+  // 🧪 ניסוי-תוכן — «kind» משויך פעם אחת למבקר (50/50 דביק): full=כל המערכי-גימטריה (הנוכחי) ·
+  // classic=רק מילים שה-AI יצר בעולמות קלאסי+קדושה (פחות משיחי). חל רק על מסע אקראי («קחו אותי למסע»).
+  const [kind] = useState(() => {
+    try {
+      const prior = localStorage.getItem("sod_journey_kind");
+      if (prior === "full" || prior === "classic") return prior;
+      const v = Math.random() < 0.5 ? "classic" : "full";
+      localStorage.setItem("sod_journey_kind", v);
+      return v;
+    } catch { return "full"; }
+  });
+  const [runKind, setRunKind] = useState(null); // ה-kind בפועל של הריצה הנוכחית (null = מסע לא-אקראי, מחוץ לניסוי)
   // 🎭 ההבדל בין העדשות — מיתוג-כניסה שונה (חילוני-סקרן מול מלכותי-אמוני) + אקסנט-צבע.
   const LENS = reality
     ? { eyebrow: "קוד המציאות", h1: "🔮 מה המספר שלך מסתיר?",
@@ -100,16 +112,24 @@ export default function JourneyPage() {
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
-    let value = null, startPhrase = null;
+    let value = null, startPhrase = null, fam = null;
+    // 🧪 ניסוי-תוכן: מסע אקראי («קחו אותי למסע», בלי fromParam) בווריאנט classic → זריעה מהמאגר הקלאסי.
+    const randomStart = !fromParam;
+    const thisKind = randomStart ? kind : null;      // null = מסע מכוון (מספר/ביטוי) — מחוץ לניסוי
+    setRunKind(thisKind);
     if (isNumeric(fromParam)) {
       value = parseInt(fromParam, 10);
-    } else {
+    } else if (randomStart && kind === "classic") {
+      const seed = await getClassicJourneySeed();
+      if (seed) { value = seed.value; fam = seed.family; }   // כבר [{phrase,world}], מסונן קלאסי+AI
+    }
+    if (value == null) {                              // ברירת-מחדל / נפילה מ-classic ריק
       startPhrase = fromParam || await getRandomStartPhrase() || "ירושלים";
       const fams = await getPhraseValueFamilies(startPhrase);
       value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
     }
     if (value == null) { setFinished("stopped"); setLoading(false); return; }
-    const fam = await getValuePhraseList(value);
+    if (!fam) fam = await getValuePhraseList(value);
     if (!fam.length) { setTarget(value); setFinished("stopped"); setLoading(false); return; }
     // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
     const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
@@ -121,7 +141,7 @@ export default function JourneyPage() {
     setPath([start]);
     setLoading(false);
     logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
-    logJourneyAb(lens, "start", 0);             // 🧪 מדידת-עדשה: התחלה
+    logJourneyAb(lens, "start", 0, thisKind);  // 🧪 מדידה: עדשה + ווריאנט-תוכן
   }
 
   useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
@@ -145,9 +165,10 @@ export default function JourneyPage() {
     const seen = new Set(path.filter(p => !p.leap).map(p => p.phrase));
     const pool = family.filter(f => !seen.has(f.phrase));
     if (!pool.length) {
-      // משפחת-הערך נגמרה → לפני עצירה, ננסה לקפוץ לסקאלת-אפס (הערך מהדהד כלפי מעלה)
+      // משפחת-הערך נגמרה → לפני עצירה, ננסה לקפוץ לסקאלת-אפס (הערך מהדהד כלפי מעלה).
+      // בווריאנט הקלאסי אין קפיצות — כדי לשמור על טוהר העולמות הקלאסיים (בלי גלישה למשיחי/מודרני).
       setBusy(true);
-      const leap = await tryLeap(seen);
+      const leap = runKind === "classic" ? null : await tryLeap(seen);
       setBusy(false);
       if (leap) {
         setBases(b => [...b, leap.value]);
@@ -167,12 +188,12 @@ export default function JourneyPage() {
     const np = [...path, next];
     setPath(np);
     const _depth = np.filter(p => !p.leap).length;
-    logJourneyAb(lens, "step", _depth);         // 🧪 מדידת-עדשה: עומק-צעד (מעבר-לצעד-2 = המדד הראשי)
+    logJourneyAb(lens, "step", _depth, runKind); // 🧪 מדידה: עומק-צעד (מעבר-לצעד-2 = המדד הראשי) + ווריאנט
     if (_depth >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
       logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
-      logJourneyAb(lens, "complete", _depth);   // 🧪 מדידת-עדשה: סיום
+      logJourneyAb(lens, "complete", _depth, runKind);   // 🧪 מדידה: סיום + ווריאנט-תוכן
     }
   }
 

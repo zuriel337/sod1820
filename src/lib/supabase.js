@@ -489,12 +489,12 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🧪 מדידת A/B עדשות למסע — רישום פר-מבקר (עדשה × אירוע × עומק) דרך RPC log_journey_ab.
 // event: 'start' | 'step' | 'complete'. לא חוסם, נכשל בשקט.
-export async function logJourneyAb(lens, event, depth = 0) {
+export async function logJourneyAb(lens, event, depth = 0, kind = null) {
   if (!supabase) return;
   try {
     let v = localStorage.getItem('sod_visitor_id');
     if (!v) { v = 'v' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); localStorage.setItem('sod_visitor_id', v); }
-    await supabase.rpc('log_journey_ab', { p_visitor: v, p_lens: lens, p_event: event, p_depth: depth });
+    await supabase.rpc('log_journey_ab', { p_visitor: v, p_lens: lens, p_event: event, p_depth: depth, p_kind: kind });
   } catch { /* לא חוסם */ }
 }
 
@@ -2287,6 +2287,25 @@ export async function getRandomStartPhrase() {
   const { data } = await supabase.from('nodes').select('label').eq('type', 'entity').eq('is_active', true).gte('weight', 4).limit(400);
   const pool = [...new Set((data || []).map(r => r.label).filter(Boolean))];
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+}
+
+// 🧪 ניסוי-תוכן — זריעת «מסע קלאסי»: ערך אקראי + משפחתו, מתוך ישויות שה-AI יצר בעולמות
+// קלאסי+קדושה בלבד (בלי משיחי/מודרני). מחזיר { value, family:[{phrase,world}] } או null.
+export async function getClassicJourneySeed() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.rpc('journey_classic_seed');
+    if (!data || !data.length) return null;
+    const value = data[0].value;
+    const seen = new Set();
+    const family = [];
+    for (const r of data) {
+      if (!r.phrase || seen.has(r.phrase)) continue;
+      seen.add(r.phrase);
+      family.push({ phrase: r.phrase, world: r.world || null });
+    }
+    return family.length ? { value, family } : null;
+  } catch { return null; }
 }
 
 // 🔴 דופק המסע — נתוני-חיים אמיתיים בלבד (לטיקר תחושת-קהילה על המסע).
