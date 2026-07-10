@@ -562,12 +562,11 @@ export default function JourneyPage() {
 
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
-      {/* 🐞 עקבת-ניפוי זמנית — מראה איפה begin() נתקע. יוסר אחרי האבחון. */}
-      {dbg.length > 0 && (
-        <div style={{ position: "fixed", left: 6, bottom: 6, zIndex: 9999, maxWidth: "94vw", background: "rgba(0,0,0,.86)", color: "#7CFC00", fontFamily: "monospace", fontSize: 11, lineHeight: 1.45, padding: "8px 10px", borderRadius: 8, direction: "ltr", textAlign: "left", pointerEvents: "none", whiteSpace: "pre-wrap" }}>
-          {dbg.map((l, i) => <div key={i}>{l}</div>)}
-        </div>
-      )}
+      {/* 🐞 עקבת-ניפוי זמנית — למעלה, בולט, כדי שלא ייחתך. build-ID לאימות גרסה. יוסר אחרי האבחון. */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 99999, background: "rgba(0,0,0,.92)", color: "#7CFC00", fontFamily: "monospace", fontSize: 12, lineHeight: 1.5, padding: "6px 10px", direction: "ltr", textAlign: "left", pointerEvents: "none", borderBottom: "2px solid #7CFC00", maxHeight: "45vh", overflow: "auto" }}>
+        <div style={{ color: "#ffd166", fontWeight: 700 }}>🐞 build B7 · {dbg.length ? "" : "(הקש «צאו למסע אקראי»)"}</div>
+        {dbg.map((l, i) => <div key={i}>{l}</div>)}
+      </div>
       <style>{`@keyframes jArrive{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
         @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}
         @keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
