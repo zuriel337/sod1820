@@ -20,7 +20,8 @@ import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
-import { useStream } from "./lib/stream.js";
+import { useStream, assignLensAB } from "./lib/stream.js";
+import { track } from "./lib/tracking.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
 import Locked from "./components/MaintenanceLock.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
@@ -98,6 +99,11 @@ function RouteEffects() {
   const trackPath = labTool ? `/research?tool=${labTool}` : pathname;
   const { user } = useAuth();
   useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); captureArrivalSource(); initClarity(); }, []);
+  // 🧪 A/B עדשות — ~35% מהמבקרים החדשים דרך «קוד המציאות», למדידת המרה מול «כי לה' המלוכה».
+  useEffect(() => {
+    const { variant, isNew } = assignLensAB();
+    if (isNew) { try { track("ab_lens", variant, "assigned"); } catch { /* noop */ } }
+  }, []);
   // 🟢 נוכחות חיה — כל דפדפן פתוח מצטרף לערוץ אחד; מדווח uid (למחובר) + נתיב נוכחי.
   useEffect(() => { startPresence({ uid: user?.id || null, path: pathname }); }, [user?.id]);
   useEffect(() => { updatePresence({ uid: user?.id || null, path: pathname }); }, [pathname, user?.id]);

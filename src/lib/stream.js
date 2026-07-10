@@ -64,6 +64,22 @@ export function setStream(s) {
 
 export function clearStream() { setStream(""); }
 
+// 🧪 A/B עדשות — שיוך מבקר-חדש: ~35% → «קוד המציאות» (reality), השאר → «כי לה' המלוכה» (kingdom).
+// דביק לכל מבקר (localStorage), מכבד בחירה קיימת, ומחזיר {variant,isNew} כדי לתעד את השיוך פעם אחת.
+const AB_KEY = "sod_ab_lens";
+const AB_REALITY_SHARE = 0.35;
+export function assignLensAB() {
+  try {
+    const prior = localStorage.getItem(AB_KEY);
+    if (prior && isStream(prior)) return { variant: prior, isNew: false };
+    const existing = getStream();                                   // מבקר שכבר בחר עדשה — לא משנים
+    const variant = existing || (Math.random() < AB_REALITY_SHARE ? "reality" : "kingdom");
+    localStorage.setItem(AB_KEY, variant);
+    if (!existing) setStream(variant);
+    return { variant, isNew: true };
+  } catch { return { variant: "kingdom", isNew: false }; }
+}
+
 function subscribe(f) { subs.add(f); return () => subs.delete(f); }
 
 // hook ראשי — מחזיר את הזרם הנוכחי ("malchut" | "code" | ""). SSR fallback = "".
