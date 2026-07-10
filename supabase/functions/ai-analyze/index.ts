@@ -99,6 +99,54 @@ async function runGemini(user: string, maxTokens: number) {
   return { text: text || null, usage };
 }
 
+// ===== 📏 מכסת-AI (ai_quota_law) — אכיפה אמיתית בשרת =====
+// אורח 3/יום · רשום 15/יום · מנוי 100/יום · אדמין ∞. הזהות: משתמש מאומת > visitor_id > IP.
+const SB_URL = Deno.env.get("SUPABASE_URL") || "";
+const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const SB_ANON = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
+
+// מזהה תיר+זהות מהבקשה: מאמת את טוקן-המשתמש (אם יש), אחרת אורח לפי visitor_id/IP.
+async function resolveIdentity(req: Request, body: any): Promise<{ identity: string; tier: string }> {
+  const auth = req.headers.get("authorization") || "";
+  const token = auth.replace(/^Bearer\s+/i, "").trim();
+  // טוקן-משתמש אמיתי (לא anon-key) → אימות מול auth
+  if (token && token !== SB_ANON && SB_URL) {
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_ANON || token, Authorization: `Bearer ${token}` } });
+      if (r.ok) {
+        const u = await r.json();
+        const uid = u?.id;
+        if (uid) {
+          let tier = "user";
+          try {  // אדמין → ∞
+            const rr = await fetch(`${SB_URL}/rest/v1/users?id=eq.${uid}&select=role`, { headers: { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}` } });
+            const rows = rr.ok ? await rr.json() : [];
+            if (rows?.[0]?.role === "admin") tier = "admin";
+          } catch { /* ברירת-מחדל user */ }
+          return { identity: `u:${uid}`, tier };
+        }
+      }
+    } catch { /* נופל לאורח */ }
+  }
+  const vid = String(body?.visitor_id || "").slice(0, 60);
+  if (vid) return { identity: `v:${vid}`, tier: "anon" };
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  return { identity: ip ? `ip:${ip}` : "", tier: "anon" };
+}
+
+async function checkQuota(identity: string, tier: string): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string }> {
+  // fail-open: אם בדיקת-המכסה נכשלת (DB), לא חוסמים את הפיצ׳ר — אבל הלוג עדיין נספר בהמשך.
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/ai_quota_check`, {
+      method: "POST",
+      headers: { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_identity: identity, p_tier: tier }),
+    });
+    if (!r.ok) return { allowed: true, used: 0, limit: null, tier };
+    return await r.json();
+  } catch { return { allowed: true, used: 0, limit: null, tier }; }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
@@ -113,6 +161,16 @@ Deno.serve(async (req: Request) => {
     const facts = String(body?.facts || "").slice(0, isCollection ? 3500 : 2000);
     const again = !!body?.again;
     if (!subject && !facts) return json({ analysis: null, engine, error: "empty" });
+
+    // 📏 מכסת-AI — נבדק ונספר *לפני* קריאת-ה-LLM (עוצר שריפת-קרדיט אמיתית).
+    const { identity, tier } = await resolveIdentity(req, body);
+    const q = await checkQuota(identity, tier);
+    if (!q.allowed) {
+      return json({ analysis: null, error: "quota", tier: q.tier, used: q.used, limit: q.limit,
+        message: q.tier === "anon"
+          ? "השתמשת ב-3 שאלות ה-AI היומיות. הירשמו בחינם (פחות מדקה) ל-15 שאלות ביום, ולשמירת היסטוריה ומסעות."
+          : "הגעת למכסת שאלות-ה-AI היומית. המכסה מתחדשת מחר." });
+    }
 
     const hint = KIND_HINT[kind] || "ניתוח כללי של הנתון שסופק.";
     const lengthRule = isCollection ? "כתוב סינתזה שמחברת בין פריטי האוסף — עד 6 משפטים." : "2-4 משפטים.";

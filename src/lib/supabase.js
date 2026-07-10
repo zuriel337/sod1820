@@ -490,11 +490,25 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 // 🤖 ניתוח AI גנרי לכלי המחקר (השוואה · נוטריקון · פסוק · פסוק-יומי) — Edge Function ai-analyze.
 // facts = עובדות מאומתות מהמנוע (ערכים שכבר חושבו). ה-AI רק מפרש, לא מחשב. null בכשל/ללא מפתח.
 // engine: 'claude' (ברירת-מחדל) | 'gemini' — מנוע נוסף להשוואה (A/B). אותן עובדות, פרשן אחר.
+// 🪪 מזהה-מבקר יציב (אותו VKEY כמו feedback.js) — נקרא inline למניעת יבוא-מעגלי.
+function aiVisitorId() {
+  try {
+    let v = localStorage.getItem('sod_visitor_id');
+    if (!v) { v = 'v' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); localStorage.setItem('sod_visitor_id', v); }
+    return v;
+  } catch { return null; }
+}
 export async function getAiAnalysis({ kind, subject, facts, again, fast, engine }) {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine } });
+    // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, visitor_id: aiVisitorId() } });
     if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
+    // 🚦 מכסת-AI נגמרה → שדר אירוע גלובלי (שער-הרשמה/הודעה); מחזיר null → הקורא מציג נפילה בחן.
+    if (data?.error === 'quota') {
+      try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
+      return null;
+    }
     if (data?.error) { try { console.warn('[ai-analyze] server:', data.error, data.detail || ''); } catch { /* noop */ } }
     return data?.analysis || null;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
