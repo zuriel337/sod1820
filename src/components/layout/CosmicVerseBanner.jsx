@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useSyncExternalStore } from "react";
+import { TRACKS, toggle as musicToggle, next as musicNext, prev as musicPrev, pause as musicPause, subscribe as musicSubscribe, getState as musicState } from "../../lib/bgMusic.js";
 
 // 🌌 באנר-העל הקוסמי — רצועת פסוק מתחת לתפריט, בכל האתר (פרט לבית המדרש/היכל הגילוי).
 // שילוב שני קונספטים: «שמי כוכבים» (קנבס — נצנוץ, נדידה, כוכב-נופל) + «אור נגלה»
@@ -11,7 +12,7 @@ const VERSE = {
 };
 
 const CSS = `
-.cvb { position:relative; overflow:hidden; height:clamp(104px,15vw,148px); isolation:isolate;
+.cvb { position:relative; overflow:hidden; height:clamp(116px,15vw,156px); isolation:isolate;
   border-bottom:1px solid rgba(212,175,55,.28); }
 .cvb-dark { background:radial-gradient(130% 150% at 50% -30%, #1a1338 0%, #0b0819 60%, #070512 100%); }
 .cvb-light { background:linear-gradient(180deg,#e9ddc4 0%, #f3e4c4 45%, #f6ead0 72%, #fbf3df 100%); }
@@ -27,7 +28,7 @@ const CSS = `
 @keyframes cvb-breath { 0%,100%{transform:scale(1);opacity:.72} 50%{transform:scale(1.12);opacity:1} }
 
 .cvb-inner { position:relative; z-index:4; height:100%; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; text-align:center; padding:0 clamp(16px,5vw,64px); gap:6px; }
+  align-items:center; justify-content:center; text-align:center; padding:6px clamp(16px,5vw,64px) 30px; gap:6px; }
 .cvb-verse { margin:0; font-family:'Heebo','Assistant',system-ui,sans-serif; font-weight:600;
   font-size:clamp(14.5px,2.3vw,23px); line-height:1.45; letter-spacing:.4px; max-width:44ch;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
@@ -41,12 +42,32 @@ const CSS = `
   color:rgba(246,226,122,.6); }
 .cvb-light .cvb-ref { color:rgba(122,84,16,.7); }
 
+/* 🎵 נגן-רקע — פינה תחתונה */
+.cvb-music { position:absolute; z-index:5; inset-inline-start:12px; bottom:9px; display:flex; align-items:center; gap:7px;
+  background:rgba(10,7,20,.42); border:1px solid rgba(212,175,55,.28); border-radius:999px; padding:5px 12px 5px 8px;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); max-width:calc(100% - 24px); }
+.cvb-light .cvb-music { background:rgba(255,250,235,.6); border-color:rgba(150,110,40,.32); }
+.cvb-mbtn { background:none; border:none; cursor:pointer; color:#f6e27a; font-size:14px; line-height:1; padding:2px 3px; border-radius:6px; }
+.cvb-light .cvb-mbtn { color:#7a5410; }
+.cvb-mbtn:hover { color:#fffbe9; } .cvb-light .cvb-mbtn:hover { color:#4a3208; }
+.cvb-mbtn:focus-visible { outline:2px solid #d4af37; outline-offset:1px; }
+.cvb-play { font-size:15px; }
+.cvb-track { max-width:min(46vw,240px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:11.5px; letter-spacing:.3px; color:rgba(246,226,122,.92); font-family:'Heebo',system-ui,sans-serif; }
+.cvb-light .cvb-track { color:rgba(122,84,16,.95); }
+.cvb-eq { display:inline-flex; align-items:flex-end; gap:2px; height:13px; }
+.cvb-eq i { width:2.5px; height:28%; background:#f6e27a; border-radius:2px; }
+.cvb-light .cvb-eq i { background:#b5871f; }
+.cvb-music.playing .cvb-eq i { animation:cvb-eq 800ms ease-in-out infinite; }
+.cvb-eq i:nth-child(2){animation-delay:130ms} .cvb-eq i:nth-child(3){animation-delay:250ms} .cvb-eq i:nth-child(4){animation-delay:70ms}
+@keyframes cvb-eq { 0%,100%{height:22%} 50%{height:100%} }
+
 .cvb::after { content:""; position:absolute; inset:0; z-index:3; pointer-events:none;
   box-shadow:inset 0 -22px 40px rgba(0,0,0,.35), inset 0 0 60px rgba(0,0,0,.28); }
 .cvb-light::after { box-shadow:inset 0 -18px 34px rgba(150,110,40,.16); }
 
 @media (prefers-reduced-motion: reduce) {
-  .cvb-neb, .cvb-verse { animation:none !important; }
+  .cvb-neb, .cvb-verse, .cvb-music.playing .cvb-eq i { animation:none !important; }
   .cvb-verse { -webkit-text-fill-color:#f6e27a; color:#f6e27a; }
   .cvb-light .cvb-verse { -webkit-text-fill-color:#7a5410; color:#7a5410; }
 }
@@ -55,6 +76,12 @@ const CSS = `
 export default function CosmicVerseBanner({ mode = "dark" }) {
   const dark = mode !== "light";
   const cvRef = useRef(null);
+
+  // 🎵 מצב נגן-הרקע (חי מחוץ ל-React — שורד מעברי-דפים בין פוסטים)
+  const music = useSyncExternalStore(musicSubscribe, musicState, musicState);
+  const track = TRACKS[music.i] || TRACKS[0];
+  // ביציאה מאזור-הבאנר (פוסטים/צ'אט) — עוצרים את הנגינה כדי שלא תתנגן «רקע נסתר».
+  useEffect(() => () => musicPause(), []);
 
   useEffect(() => {
     if (!dark) return;   // שדה-הכוכבים רק במצב לילה; ביום — אופק-שחר בלי כוכבים
@@ -126,6 +153,18 @@ export default function CosmicVerseBanner({ mode = "dark" }) {
       <div className="cvb-inner">
         <p className="cvb-verse">{VERSE.text}</p>
         <span className="cvb-ref">{VERSE.ref}</span>
+      </div>
+
+      {/* 🎵 נגן-רקע — נגן/עצור, החלף רצועה, ושם-הרצועה הנוכחית */}
+      <div className={`cvb-music${music.playing ? " playing" : ""}`}>
+        <button type="button" className="cvb-mbtn" onClick={musicPrev} aria-label="רצועה קודמת" title="קודמת">⏮</button>
+        <button type="button" className="cvb-mbtn cvb-play" onClick={musicToggle}
+          aria-label={music.playing ? "השהה מוזיקה" : "נגן מוזיקה"} title={music.playing ? "השהה" : "נגן"}>
+          {music.loading ? "…" : music.playing ? "⏸" : "▶"}
+        </button>
+        <button type="button" className="cvb-mbtn" onClick={musicNext} aria-label="רצועה הבאה" title="הבאה">⏭</button>
+        <span className="cvb-eq" aria-hidden="true"><i /><i /><i /><i /></span>
+        <span className="cvb-track" title={track.t}>{music.started || music.playing ? track.t : "🎵 ניגון רקע"}</span>
       </div>
     </div>
   );
