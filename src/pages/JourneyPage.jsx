@@ -450,7 +450,12 @@ export default function JourneyPage() {
       </header>
 
       {loading ? (
-        <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: 40 }}>טוען את המסע…</div>
+        <div style={{ textAlign: "center", padding: "48px 20px" }}>
+          <div style={{ fontSize: 30, marginBottom: 12, animation: "jPulse 1s ease-in-out infinite" }}>🔎</div>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{name ? `מחפש את הקשרים של ${name}…` : "מחפש את הקשרים…"}</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>מצליב מספרים, שורשים והתכנסויות</div>
+          <style>{`@keyframes jPulse{0%,100%{opacity:.5;transform:scale(.94)}50%{opacity:1;transform:scale(1.08)}}`}</style>
+        </div>
       ) : finished ? (
         /* ───────── מסך הגילוי — העלה מתקפל אל הגזע ───────── */
         <div style={{ textAlign: "center" }}>
