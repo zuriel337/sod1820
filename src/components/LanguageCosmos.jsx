@@ -252,7 +252,6 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       `}</style>
       <canvas ref={cvRef} aria-hidden="true" />
       <div className="lc-cap">
-        <p className="lc-eyebrow">{title}</p>
         <p className="lc-verse">‹ {VERSE} ›</p>
         <p className="lc-ref">{VERSE_REF}</p>
       </div>
