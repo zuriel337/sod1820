@@ -489,6 +489,15 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🧪 מדידת A/B עדשות למסע — רישום פר-מבקר (עדשה × אירוע × עומק) דרך RPC log_journey_ab.
 // event: 'start' | 'step' | 'complete'. לא חוסם, נכשל בשקט.
+// 🔴 שידור חי — מי באתר עכשיו + כל הפרטים (דף, שובל, מקור, מכשיר, זהות). null בכשל.
+export async function getLiveVisitors(minutes = 10) {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.rpc('admin_live_visitors', { p_minutes: minutes });
+    return data || null;
+  } catch { return null; }
+}
+
 // 🟢 «כמה עכשיו» — מבקרים אמיתיים בדקות האחרונות (מסונן-בוטים). null בכשל.
 export async function getRealtimeNow(minutes = 5) {
   if (!supabase) return null;

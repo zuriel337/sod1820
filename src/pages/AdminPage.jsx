@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic, getRealtimeNow,
+  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -36,6 +36,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
+  { key: "live",     label: "🔴 שידור חי" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
@@ -68,7 +69,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -153,6 +154,7 @@ export default function AdminPage() {
 
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
+      {tab === "live" && <LiveVisitorsTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
@@ -2141,6 +2143,103 @@ const JEXP_META = {
     colors: { full: "#d4af37", classic: "#7fd18a" },
   },
 };
+
+// 🔴 שידור חי — מי באתר עכשיו, מקסימום פרטים. מתרענן כל 10ש.
+function humanPath(p) {
+  if (!p) return "—";
+  let s; try { s = decodeURIComponent(p); } catch { s = p; }
+  if (s === "/" || s === "") return "🏠 דף הבית";
+  const num = s.match(/^\/number\/(.+)$/); if (num) return "🔢 מספר · " + num[1];
+  if (s.startsWith("/journey")) return "🧭 מסע ההתכנסות";
+  if (s.startsWith("/reality")) return "🎬 קוד המציאות";
+  if (s.startsWith("/archive")) return "🌊 זרם המציאות";
+  if (s.startsWith("/beit-midrash") || s.startsWith("/research")) return "🧠 סביבת המחקר";
+  if (s.startsWith("/tag/")) { try { return "🏷️ תגית · " + decodeURIComponent(s.slice(5)); } catch { return "🏷️ " + s.slice(5); } }
+  if (s.startsWith("/topic/")) return "🔗 התכנסות · " + s.slice(7);
+  if (s.startsWith("/community")) return "💬 קהילה";
+  if (s.startsWith("/post")) return "📄 פוסטים";
+  if (s.startsWith("/gematria") || s.startsWith("/calc")) return "🧮 גימטריה";
+  if (s.startsWith("/els") || s.startsWith("/dilug")) return "🔍 דילוגים";
+  if (/^\/[^/]+$/.test(s) && s.length < 70) return "📄 " + s.slice(1);
+  return s;
+}
+function humanSrc(r) {
+  if (!r) return "🔗 ישיר";
+  if (/google/i.test(r)) return "🔍 Google";
+  if (/facebook|fb\./i.test(r)) return "📘 Facebook";
+  if (/instagram/i.test(r)) return "📸 Instagram";
+  if (/whatsapp|wa\.me/i.test(r)) return "💬 WhatsApp";
+  if (/t\.me|telegram/i.test(r)) return "✈️ Telegram";
+  if (/bing/i.test(r)) return "🔎 Bing";
+  if (/youtube/i.test(r)) return "▶️ YouTube";
+  if (/sod1820/i.test(r)) return "🏠 פנימי";
+  try { return "🌐 " + r.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]; } catch { return "🌐 חיצוני"; }
+}
+const devIcon = d => (/mobile|android|iphone/i.test(d || "") ? "📱" : /tablet|ipad/i.test(d || "") ? "📲" : "💻");
+function agoColor(s) { return s < 60 ? "#5fe08a" : s < 180 ? "#e8c860" : "#8a7a4a"; }
+function fmtAgo(s) { s = Number(s || 0); return s < 60 ? `${s}ש׳` : `${Math.floor(s / 60)}ד׳`; }
+function LiveVisitorsTab() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const [beat, setBeat] = useState(0);
+  useEffect(() => {
+    let live = true;
+    const tick = () => getLiveVisitors(10).then(x => { if (live) { setD(x || {}); setBeat(b => b + 1); } }).catch(e => live && setErr(String(e?.message || e)));
+    tick();
+    const id = setInterval(tick, 10000);
+    return () => { live = false; clearInterval(id); };
+  }, []);
+  const vs = (d && d.visitors) || [];
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <style>{`@keyframes lv-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}`}</style>
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+            <span style={{ width: 13, height: 13, borderRadius: "50%", background: "#ff5b5b", boxShadow: "0 0 10px #ff5b5b", animation: "lv-pulse 1.4s ease-in-out infinite" }} />
+            <span style={{ color: "#ff9a9a", fontFamily: F.heading, fontSize: 15, fontWeight: 800, letterSpacing: 1 }}>שידור חי</span>
+          </span>
+          <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 38, fontWeight: 800, lineHeight: 1 }}>{d ? Number(d.online || 0).toLocaleString("he") : "—"}</span>
+          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13 }}>באתר עכשיו (10 דק׳)</span>
+          <span style={{ flex: 1 }} />
+          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>🔁 {d?.returning || 0} חוזרים · 📧 {d?.identified || 0} מזוהים · מתרענן כל 10ש {beat > 0 ? "●" : ""}</span>
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>שגיאה: {err}</div>}
+      </div>
+      {!d ? <div style={{ color: C.muted, textAlign: "center", padding: 30 }}>טוען…</div> :
+        vs.length === 0 ? <div style={{ color: C.muted, textAlign: "center", padding: 30, fontFamily: F.body }}>אין מבקרים פעילים ב-10 הדקות האחרונות.</div> : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
+            {vs.map((v, i) => (
+              <div key={i} style={{ border: `1px solid ${v.secs_ago < 60 ? "rgba(95,224,138,0.4)" : C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.4)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>{devIcon(v.device)}</span>
+                  <span style={{ flex: 1, color: v.email ? "#7fd18a" : C.goldLight, fontFamily: v.email ? F.body : F.mono, fontSize: v.email ? 12.5 : 12, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {v.email ? "📧 " + v.email : "👤 " + v.v}
+                  </span>
+                  <span style={{ color: agoColor(v.secs_ago), fontFamily: F.mono, fontSize: 11, fontWeight: 700 }}>● {fmtAgo(v.secs_ago)}</span>
+                </div>
+                <div dir="rtl" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 6, wordBreak: "break-word" }}>{humanPath(v.path)}</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>
+                  <span>{humanSrc(v.referrer)}</span>
+                  <span>· 📄 {v.pages} דפים</span>
+                  {v.dur > 0 && <span>· ⏱️ {fmtAgo(v.dur)}</span>}
+                  <span>· {v.returning ? "🔁 חוזר" : "✨ חדש"}</span>
+                </div>
+                {Array.isArray(v.trail) && v.trail.length > 1 && (
+                  <div dir="rtl" style={{ borderTop: `1px solid ${C.border}`, paddingTop: 7, color: C.muted, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.7, wordBreak: "break-word" }}>
+                    🧭 {v.trail.map(p => humanPath(p).replace(/^\S+\s/, "")).join(" ← ")}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, padding: "0 4px", fontStyle: "italic" }}>
+        כל כרטיס = מבקר אמיתי חי (בוטים סוננו). 📧 = מזוהה (השאיר אימייל אי-פעם) · 👤 = אנונימי. השובל = הדפים שעבר ב-30 הדק׳. הנתונים דרך המונה שלנו — לא Google (שנחסם).
+      </div>
+    </div>
+  );
+}
 
 // 📈 כניסות אמיתיות לאורך זמן + מקורות — מסונן-בוטים. עונה על «מי שולח» ו«האם יש עלייה אמיתית».
 const SRC_ICON = { "(ישיר)": "🔗", "Google": "🔍", "Facebook": "📘", "Instagram": "📸", "X/Twitter": "𝕏", "WhatsApp": "💬", "Telegram": "✈️", "Bing": "🔎", "DuckDuckGo": "🦆", "YouTube": "▶️", "TikTok": "🎵", "(ניווט פנימי)": "🏠" };
