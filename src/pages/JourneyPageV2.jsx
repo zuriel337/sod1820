@@ -226,6 +226,16 @@ export default function JourneyPage() {
   // deep-link בלבד (/journey?from=…) מתחיל אוטומטית; הגעה נקייה ל-/journey מציגה דף-נחיתה.
   useEffect(() => { if (startFrom) { setEntered(true); begin(startFrom); } }, [startFrom]); // eslint-disable-line
 
+  // 🛡️ שומר-סף קשיח לספינר: begin() אמור לסיים תוך ~8ש (withTimeout על כל שאילתה), אבל
+  // במובייל setTimeout עלול להיחנק/הרשת להיתקע → «מחפש קשרים» לנצח. אם הטעינה עדיין
+  // פעילה אחרי 9ש — משחררים בכוח (עצירה בחן במקום ספינר-אינסופי). כש-begin מסיים תקין,
+  // loading→false מנקה את הטיימר לפני שהוא יורה, כך שאין עצירה מוקדמת של מסע תקין.
+  useEffect(() => {
+    if (!loading) return;
+    const t = setTimeout(() => { setLoading(false); setFinished(f => f || "stopped"); }, 9000);
+    return () => clearTimeout(t);
+  }, [loading]);
+
   // 🔢 קפיצת-תהודה — כשמשפחת-הערך נגמרת, מחפש סקאלת-אפס עשירה בביטויים חדשים (zero_scale_law).
   async function tryLeap(seen) {
     if (bases.length >= 3) return null;            // עד 2 קפיצות — לא רץ לאינסוף
