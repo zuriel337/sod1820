@@ -200,16 +200,14 @@ export default function JourneyPage() {
         trace("→ getRandomStartPhrase");
         startPhrase = String(fromParam || await withTimeout(getRandomStartPhrase(), 3000, null) || "ירושלים").trim();
         trace(`phrase=${startPhrase}`);
-        // 🔢 גימטריית השם ישירות — עובד לכל שם/ביטוי (לא רק מה שקיים ב-bidim).
-        const g = calcGem(startPhrase);
-        trace(`calcGem=${g}`);
-        value = g >= 10 ? g : null;
-        if (value == null) {
-          trace("→ getPhraseValueFamilies");
-          const fams = await withTimeout(getPhraseValueFamilies(startPhrase), 4000, []);
-          value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
-          trace(`fams→value=${value}`);
-        }
+        // 🌳 קודם משפחת-ערך *עשירה* מ-bidim (כמו המסע הקלאסי) — מבטיח שיש תחנות להתכנס אליהן.
+        // באג ה«הגיע לסוף בלי פריטים»: v2 לקח את calcGem הגולמי → לעיתים ערך בלי משפחה.
+        trace("→ getPhraseValueFamilies");
+        const fams = await withTimeout(getPhraseValueFamilies(startPhrase), 4000, []);
+        value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
+        trace(`richValue=${value} fams=${fams.length}`);
+        // פולבק בלבד לשם שאינו ב-bidim כלל (שם נדיר שהוקלד) — גימטריה רגילה, שיהיה לפחות מספר.
+        if (value == null) { const g = calcGem(startPhrase); value = g >= 10 ? g : null; trace(`calcGem fallback=${value}`); }
       }
       if (value == null) { trace("value=null → stopped"); setFinished("stopped"); return; }
       trace(`→ getValuePhraseList(${value})`);
