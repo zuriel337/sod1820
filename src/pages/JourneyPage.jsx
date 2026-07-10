@@ -6,6 +6,7 @@ import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logVi
 import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
+import { assignLensAB } from "../lib/stream.js";
 import { emit } from "../lib/events.js"; // M3: מדידת משפך-המסע לרמת-אדם (surface=journey), additive לצד logView הישן
 import { enablePush, PUSH_CONFIGURED, pushPermission } from "../lib/push.js"; // M2: הוק פוש-קודם
 import { stitchPush } from "../lib/identity.js"; // M2: קישור מנוי-פוש לזהות-אדם
@@ -132,6 +133,12 @@ export default function JourneyPage() {
 
   // 📊 landing — פעם אחת בעליית הדף (משפך: מי נחת → מי התחיל)
   useEffect(() => { try { emit("journey", "landing"); } catch { /* noop */ } }, []);
+
+  // 🧪 A/B עדשות — השיוך חל *רק על מי שנכנס למסע* (לא על כל מבקר האתר): ~35% «קוד המציאות».
+  useEffect(() => {
+    const { variant, isNew } = assignLensAB();
+    if (isNew) { try { track("ab_lens", variant, "assigned"); } catch { /* noop */ } }
+  }, []);
   // 🔍 שכבת-SEO — כותרת/תיאור/canonical נפרדים לדף-הנחיתה (המותג הוותיק «סוד 1820», לא «קוד המציאות»).
   useEffect(() => {
     applySeo({
