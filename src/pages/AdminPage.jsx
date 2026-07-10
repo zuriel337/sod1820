@@ -17,6 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
+  getJourneyExperiments,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -35,7 +36,8 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
-  { key: "journeys", label: "🧭 מסעות" },
+  { key: "jexp",     label: "🧪 ניסויי מסע" },
+  { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
   { key: "conversions", label: "🎯 המרות" },
@@ -66,7 +68,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -151,6 +153,7 @@ export default function AdminPage() {
 
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
+      {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
@@ -2122,6 +2125,110 @@ function fmtDwell(s) {
   if (s < 60) return `${s}ש׳`;
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} דק׳`;
 }
+// 🧪 ניסויי-מסע (A/B) — שני ממדים: עדשת-כניסה (reality/kingdom) + תוכן (full/classic).
+// מדד ראשי = מעבר-לצעד-2. נתונים מסוננים-בוטים ב-RPC. מחליף את «מסעות» כברירת-המחדל של הקבוצה.
+const JEXP_META = {
+  lens: {
+    title: "🎭 עדשת הכניסה — קוד המציאות מול כי לה׳ המלוכה",
+    note: "אותו מסע, מסך-כניסה שונה (מיתוג + צבע). מה גורם ליותר אנשים לצעוד פנימה?",
+    variants: { reality: "🔮 קוד המציאות", kingdom: "👑 כי לה׳ המלוכה" },
+    colors: { reality: "#8ea2ff", kingdom: "#e8c840" },
+  },
+  kind: {
+    title: "✍️ תוכן המסע — מלא מול קלאסי (ניסיוני)",
+    note: "מלא = כל המערכי-גימטריה וכל העולמות (כולל גאולה). קלאסי = רק מילים שה-AI יצר, בעולמות קלאסי+קדושה, בלי משיחי/מודרני.",
+    variants: { full: "🧮 מלא · כל המערכי-גימטריה", classic: "📜 קלאסי · עולמות קלאסי+קדושה" },
+    colors: { full: "#d4af37", classic: "#7fd18a" },
+  },
+};
+
+function JourneyExperimentsTab() {
+  const [days, setDays] = useState(14);
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    let live = true; setData(null); setErr("");
+    getJourneyExperiments(days).then(d => live && setData(d || {})).catch(e => live && setErr(String(e?.message || e)));
+    return () => { live = false; };
+  }, [days]);
+  const rate = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+  const rangeLbl = days === 7 ? "7 ימים" : days === 14 ? "14 יום" : "30 יום";
+
+  const renderExp = (key) => {
+    const meta = JEXP_META[key];
+    const rows = (data && data[key]) || [];
+    const byV = Object.fromEntries(rows.map(r => [r.variant, r]));
+    const filled = Object.keys(meta.variants).map(k => byV[k] || { variant: k, starts: 0, step2: 0, completes: 0 });
+    const anyData = filled.some(r => Number(r.starts) > 0);
+    const best = anyData ? filled.slice().sort((a, b) => rate(b.step2, b.starts) - rate(a.step2, a.starts))[0] : null;
+    return (
+      <div style={card} key={key}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>{meta.title}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14, lineHeight: 1.6 }}>{meta.note}</div>
+        {!anyData ? (
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: "8px 0" }}>
+            עדיין אין נתונים אמיתיים בטווח ({rangeLbl}) — צריך תנועה אמיתית של גולשים. הבוטים כבר סוננו.
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: 12 }}>
+            {filled.map(r => {
+              const r2 = rate(r.step2, r.starts), rc = rate(r.completes, r.starts);
+              const win = best && r.variant === best.variant && Number(r.step2) > 0;
+              const col = meta.colors[r.variant] || C.gold;
+              return (
+                <div key={r.variant} style={{ border: `1px solid ${win ? col : C.border}`, borderRadius: 12, padding: "12px 14px", background: win ? "rgba(212,175,55,0.06)" : "rgba(8,5,2,0.3)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 800, flex: 1 }}>{meta.variants[r.variant]}{win ? " 🏆" : ""}</span>
+                    <span style={{ color: col, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{r2}%</span>
+                    <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11 }}>צעד 2</span>
+                  </div>
+                  <div style={{ height: 10, background: "rgba(212,175,55,0.1)", borderRadius: 999, overflow: "hidden", marginBottom: 8 }}>
+                    <div style={{ width: `${Math.max(r2, r.step2 > 0 ? 3 : 0)}%`, height: "100%", borderRadius: 999, background: col }} />
+                  </div>
+                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>
+                    <span>🚀 מתחילים: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(r.starts).toLocaleString("he")}</b></span>
+                    <span>➡️ צעד 2: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(r.step2).toLocaleString("he")}</b></span>
+                    <span>✅ סיום: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(r.completes).toLocaleString("he")}</b> ({rc}%)</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+          <div>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>🧪 ניסויי המסע · A/B</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>המדד הראשי: <b style={{ color: C.goldBright }}>מעבר לצעד 2</b> — כמה מהמתחילים באמת המשיכו. הזוכה מסומן 🏆.</div>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[[7, "7 ימים"], [14, "14 יום"], [30, "30 יום"]].map(([d, lbl]) => (
+              <button key={d} onClick={() => setDays(d)} style={{ cursor: "pointer", border: `1px solid ${days === d ? C.gold : C.border}`, background: days === d ? "rgba(212,175,55,0.18)" : "transparent", color: days === d ? C.goldBright : C.muted, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>שגיאה: {err}</div>}
+        {data && (
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, fontStyle: "italic" }}>
+            🛡️ סינון בוטים: {Number(data.bot_events || 0).toLocaleString("he")} אירועי-בוט הוסרו ({Number(data.bot_sigs || 0)} חתימות) · {Number(data.real_events || 0).toLocaleString("he")} אירועים אמיתיים נותרו.
+          </div>
+        )}
+      </div>
+      {renderExp("lens")}
+      {renderExp("kind")}
+      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, padding: "0 4px" }}>
+        התצוגה המפורטת הישנה (משפך, שמירות, טוקנים) עברה לטאב «🧭 מסעות (ישן)».
+      </div>
+    </div>
+  );
+}
+
 function JourneysTab() {
   const [dwell, setDwell] = useState(null);
   const [journeys, setJourneys] = useState(null);
