@@ -57,6 +57,13 @@ const LAYERS = [
   { t: "שכבה שלישית — העמקה", n: "חיבור בין מספרים, רעיונות ורמזים שנאספו לאורך הדרך." },
 ];
 
+// ⏱ מגן-תקיעה: מריץ הבטחה מול timeout — אם שאילתה נתקעת (hang), נופלים לברירת-מחדל
+// אחרי ms במקום להישאר תקועים על «מחפש קשרים» לנצח.
+const withTimeout = (p, ms, fallback) => Promise.race([
+  Promise.resolve(p).catch(() => fallback),
+  new Promise(res => setTimeout(() => res(fallback), ms)),
+]);
+
 // 🔴 דופק המסע — טיקר תחושת-קהילה עם נתונים אמיתיים בלבד (journey_pulse RPC).
 // «458 אנשים חוקרים מספרים היום» · «המספר X נחקר עכשיו» · «N יצאו למסע היום».
 function JourneyPulse({ P }) {
@@ -169,18 +176,18 @@ export default function JourneyPage() {
       if (isNumeric(fromParam)) {
         value = parseInt(fromParam, 10);
       } else {
-        startPhrase = String(fromParam || await getRandomStartPhrase() || "ירושלים").trim();
+        startPhrase = String(fromParam || await withTimeout(getRandomStartPhrase(), 3000, null) || "ירושלים").trim();
         // 🔢 גימטריית השם ישירות — עובד לכל שם/ביטוי (לא רק מה שקיים ב-bidim).
         // כך «צוריאל» → 337 גם אם אינו בטבלה. פולבק: אשכול-ערך עשיר אם קיים.
         const g = calcGem(startPhrase);
         value = g >= 10 ? g : null;
         if (value == null) {
-          const fams = await getPhraseValueFamilies(startPhrase);
+          const fams = await withTimeout(getPhraseValueFamilies(startPhrase), 4000, []);
           value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
         }
       }
       if (value == null) { setFinished("stopped"); return; }
-      const fam = await getValuePhraseList(value);
+      const fam = await withTimeout(getValuePhraseList(value), 5000, []);
       if (!fam.length) { setTarget(value); setBases([value]); setFinished("stopped"); return; }
       // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
       const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
