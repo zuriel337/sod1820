@@ -212,6 +212,9 @@ export default function HomeNewPage() {
         /* גרפיקת-קנבס (LanguageCosmos) היא div בלי מידות טבעיות — inline-block היה מקריס
            את רוחבה ל-0 (ואז aspect-ratio → גובה 0 → קנבס בלתי-נראה). block + רוחב מוגדר מתקן. */
         .hn-gate.graphic { display:block; width:100%; }
+        .hn-gate.graphic .lc-link { display:block; text-decoration:none; }
+        /* בטאבלט/מובייל הכפתור הצהוב מכסה את הגרפיקה — מסתירים אותו, והגרפיקה עצמה לחיצה */
+        @media (max-width:1024px){ .hn-gate.graphic .hn-enter { display:none; } }
         /* זוהר סגול-מלכותי רדיאלי מאחורי ההירו (מתחבר לרקע הסגול) */
         .hn-gate::before { content:""; position:absolute; inset:-16% -10%; z-index:-1; pointer-events:none;
           background: radial-gradient(closest-side, rgba(123,76,176,0.50), rgba(61,31,92,0.24) 52%, transparent 78%); }
@@ -258,7 +261,7 @@ export default function HomeNewPage() {
             <div className="hn-slide" key={i}>
               <div className={"hn-gate" + (s.graphic ? " graphic" : "")}>
                 {s.graphic
-                  ? <LanguageCosmos />
+                  ? <Link to={s.to} className="lc-link" aria-label={s.alt}><LanguageCosmos /></Link>
                   : <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
                       fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />}
                 <Link to={s.to} className="hn-cta hn-cta-big hn-enter">{s.cta}</Link>

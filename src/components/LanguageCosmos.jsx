@@ -159,9 +159,9 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         // 🤫 עדין-עדין: אטימות נמוכה מאוד + כמעט בלי זוהר → אבק-אותיות ברקע, לא מתחרה במרכז.
         ctx.save();
         ctx.translate(x, y); ctx.rotate(Math.sin(p.rot) * 0.25); ctx.scale(sx, 1);
-        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.11 + 0.14 * p.z) * (0.6 + 0.4 * sx);
+        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.14 + 0.16 * p.z) * (0.6 + 0.4 * sx);
         ctx.font = `600 ${fs}px 'Heebo','Assistant',system-ui,sans-serif`;
-        ctx.shadowColor = p.color; ctx.shadowBlur = 2 * nearC + 0.5 + (p.fl > 0 ? 2 * (1 - sx) : 0);
+        ctx.shadowBlur = 0; // 🔪 אותיות חדות (בלי הילה) — עדינות אך מכוונות, לא מרוחות
         ctx.fillStyle = p.color;
         ctx.fillText(p.ch, 0, 0);
         ctx.restore();
