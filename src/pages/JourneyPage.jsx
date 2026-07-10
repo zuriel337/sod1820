@@ -1,21 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { F, KEY_NUMBERS, calcGem } from "../theme.js";
+import { F, KEY_NUMBERS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, getAiAnalysis, subscribeEmail, logJourneySave, getJourneyPulse } from "../lib/supabase.js";
-import { visitorId } from "../lib/feedback.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, subscribeEmail } from "../lib/supabase.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
-import { assignLensAB } from "../lib/stream.js";
-import { emit } from "../lib/events.js"; // M3: מדידת משפך-המסע לרמת-אדם (surface=journey), additive לצד logView הישן
-import { enablePush, PUSH_CONFIGURED, pushPermission } from "../lib/push.js"; // M2: הוק פוש-קודם
-import { stitchPush } from "../lib/identity.js"; // M2: קישור מנוי-פוש לזהות-אדם
 import { trackSubscribe } from "../lib/marketing.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { clamp, isNumeric, dominantWorld } from "../lib/journey.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
-import { applySeo } from "../lib/seo.js"; // M2: שכבת-SEO נפרדת לדף-הנחיתה (title/description/canonical)
 
 // ===== «מסע ההתכנסות» — טיול בתוך הערך (value-as-trunk) =====
 // המסע מטייל בין ביטויים ששווים לאותו ערך גימטרי (משפחת-הערך מ-bidim). ערך-היעד נסתר עד השיא,
@@ -33,9 +27,8 @@ const LINES = [
 ];
 
 // 🤖 «מסר מהמנוע» (בטא) — הודעה שנגזרת מנתוני המסע עצמם (לא טקסט קבוע). בעתיד תהפוך ל-AI מותאם.
-function engineMessage({ root, bases = [], stations = 0, dWorld, name }) {
+function engineMessage({ root, bases = [], stations = 0, dWorld }) {
   const out = [];
-  if (name) out.push(`${name}, הנה מה שראיתי במסע שלך:`);
   if (stations > 0) out.push(`ראיתי אותך עובר ${stations} תחנות — וכולן, ללא יוצא מן הכלל, נפלו על ${root}.`);
   if (bases.length > 1) out.push(`והערך לא נעצר: הוא המשיך להדהד בסדרי גודל — ${bases.join(" → ")}. מה שראית קטן ממה שיש מתחת.`);
   if (dWorld) out.push(`השדה ששב וחזר אליך הוא «${dWorld}» — שם נמצא הלב של המסע שלך.`);
@@ -49,64 +42,6 @@ const FUTURE = [
   { icon: "🧭", title: "מסע מודרך לפי שדה/עולם", note: "לבחור נושא — והמנוע בונה מסע סביבו" },
   { icon: "🎴", title: "כרטיס-מסע מעוצב לשיתוף", note: "תמונה שמספרת את כל המסע במבט אחד" },
 ];
-
-// 🧭 שלוש שכבות החוויה — מוצגות בדף-הנחיתה (הנוסח של צוריאל), כדי שהמשתמש יֵדע לאן הוא נכנס.
-const LAYERS = [
-  { t: "נקודה ראשונה — גילוי המספר", n: "היכרות עם הערכים, החיבורים והמשמעויות הראשונות." },
-  { t: "שכבה שנייה — פתיחת הקשרים", n: "גילוי מילים, גימטריות, מקורות ותכנים הקשורים למספר." },
-  { t: "שכבה שלישית — העמקה", n: "חיבור בין מספרים, רעיונות ורמזים שנאספו לאורך הדרך." },
-];
-
-// 🧪 A/B נגן-אוטומטי: ~50% «auto» (תחנות עוברות לבד) · 50% «manual» (לחיצה לכל תחנה).
-// דביק למבקר; מודדים המרה (jv_start_* → jv_msg_*) כדי לדעת מה עדיף.
-function getAutoVariant() {
-  try {
-    const v = localStorage.getItem("sod_j_auto");
-    if (v === "auto" || v === "manual") return v;
-    const nv = Math.random() < 0.5 ? "auto" : "manual";
-    localStorage.setItem("sod_j_auto", nv);
-    return nv;
-  } catch { return "auto"; }
-}
-
-// ⏱ מגן-תקיעה: מריץ הבטחה מול timeout — אם שאילתה נתקעת (hang), נופלים לברירת-מחדל
-// אחרי ms במקום להישאר תקועים על «מחפש קשרים» לנצח.
-const withTimeout = (p, ms, fallback) => Promise.race([
-  Promise.resolve(p).catch(() => fallback),
-  new Promise(res => setTimeout(() => res(fallback), ms)),
-]);
-
-// 🔴 דופק המסע — טיקר תחושת-קהילה עם נתונים אמיתיים בלבד (journey_pulse RPC).
-// «458 אנשים חוקרים מספרים היום» · «המספר X נחקר עכשיו» · «N יצאו למסע היום».
-function JourneyPulse({ P }) {
-  const [items, setItems] = useState([]);
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    let alive = true;
-    getJourneyPulse().then(d => {
-      if (!alive || !d) return;
-      const out = [];
-      if (d.researchers_today >= 8) out.push(`🔴 ${d.researchers_today} אנשים חוקרים מספרים היום`);
-      if (d.journeys_today >= 3) out.push(`🧭 ${d.journeys_today} יצאו למסע היום`);
-      (d.recent_numbers || []).slice(0, 6).forEach(n => out.push(`🔍 המספר ${n} נחקר ממש עכשיו`));
-      setItems(out);
-    }).catch(() => {});
-    return () => { alive = false; };
-  }, []);
-  useEffect(() => {
-    if (items.length < 2) return;
-    const t = setInterval(() => setI(v => (v + 1) % items.length), 2600);
-    return () => clearInterval(t);
-  }, [items.length]);
-  if (!items.length) return null;
-  return (
-    <div style={{ maxWidth: 460, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, background: "rgba(255,255,255,0.05)", border: `1px solid ${P.border}`, borderRadius: 999, padding: "9px 16px", animation: "jFade .5s ease both" }}>
-      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e0556a", boxShadow: "0 0 8px #e0556a", flexShrink: 0, animation: "jPulseDot 1.2s ease-in-out infinite" }} />
-      <span key={i} style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textAlign: "center", animation: "jFade .45s ease both" }}>{items[i]}</span>
-      <style>{`@keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
-    </div>
-  );
-}
 
 export default function JourneyPage() {
   const P = usePalette();
@@ -134,96 +69,38 @@ export default function JourneyPage() {
   const [gateBusy, setGateBusy] = useState(false);
   const [gateErr, setGateErr] = useState("");
   const [emailGiven, setEmailGiven] = useState(() => { try { return localStorage.getItem("sod_jdeep_email") === "1"; } catch { return false; } });
-  const [declinedDeep, setDeclinedDeep] = useState(false); // «לא עכשיו» → שקט על המסך הזה (בלי להציק שוב)
-  const journeyIdRef = useRef(null);  // מזהה מופע-מסע — לתפירת המשפך לרמת-אדם
-  const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
-  const skipRef = useRef(false);      // «דלגו לגילוי» → מאיץ את הנגן-האוטומטי לגילוי מיידי
-  const [autoMode] = useState(getAutoVariant); // A/B: 'auto' (מתקדם לבד) | 'manual' (לחיצה)
-  const jvMsgRef = useRef(false);     // שהמדד jv_msg_* יירשם פעם אחת למסע
-  const [hookBusy, setHookBusy] = useState(false); // M2: לחיצת-פוש בעבודה
-  const [showEmail, setShowEmail] = useState(false); // M2: מייל = אופציה מודחקת (רגע 3)
-  // 🧭 M2 — דף-כניסה לחוויה: הגעה ל-/journey בלי ?from= מציגה דף-נחיתה (החוויה + SEO), לא מסע-אקראי אוטומטי.
-  // deep-link (מדף-מספר: /journey?from=358) נכנס ישר לחוויה. הנוסח והשם: «המסע האישי» תחת סוד 1820.
-  const [entered, setEntered] = useState(!!startFrom);
-  const [seed, setSeed] = useState("");            // מספר/ביטוי-פתיחה שהמשתמש הקליד בדף-הנחיתה
-  const [showSeed, setShowSeed] = useState(false); // גילוי שדה מספר/ביטוי המשני (שם-ראשון כברירת מחדל)
-  // 👤 שם אישי (אופציונלי, לא שער) — הופך את «המסע האישי» לאישי: פנייה בשם ברגע-הגילוי ובמסר-המנוע.
-  // נשמר מקומית (זהות-רכה, בלי חשבון). שם ריק = המסע עובד בדיוק כמו קודם.
-  const [name, setName] = useState(() => { try { return localStorage.getItem("sod_jname") || ""; } catch { return ""; } });
-  const saveName = v => { const s = (v || "").trim().slice(0, 24); setName(s); try { s ? localStorage.setItem("sod_jname", s) : localStorage.removeItem("sod_jname"); } catch { /* noop */ } };
 
-  // 📊 landing — פעם אחת בעליית הדף (משפך: מי נחת → מי התחיל)
-  useEffect(() => { try { emit("journey", "landing"); } catch { /* noop */ } }, []);
-
-  // 🧪 A/B עדשות — השיוך חל *רק על מי שנכנס למסע* (לא על כל מבקר האתר): ~35% «קוד המציאות».
-  useEffect(() => {
-    const { variant, isNew } = assignLensAB();
-    if (isNew) { try { track("ab_lens", variant, "assigned"); } catch { /* noop */ } }
-  }, []);
-  // 🔍 שכבת-SEO — כותרת/תיאור/canonical נפרדים לדף-הנחיתה (המותג הוותיק «סוד 1820», לא «קוד המציאות»).
-  useEffect(() => {
-    applySeo({
-      fullTitle: entered ? "מסע ההתכנסות · סוד 1820" : "מסע אישי לפי מספר · גילוי משמעות המספר שלך | סוד 1820",
-      description: "בחר מספר וצא למסע אישי — גלה את המשמעות, הגימטריות, המקורות והקשרים שמסתתרים בו. מסע רוחני דרך מספרים, שלב אחר שלב.",
-      path: "/journey",
-    });
-  }, [entered]);
-
-  // כניסה לחוויה מדף-הנחיתה — בלחיצת «התחל את המסע» (מספר שהוקלד) או «מסע אקראי».
-  function startWith(seedVal) {
-    const s = (seedVal || "").trim();
-    setEntered(true);
-    try { emit("journey", "enter", { props: { seeded: !!s } }); } catch { /* noop */ }
-    begin(s);
-  }
-  function onSeedSubmit(e) { e?.preventDefault?.(); startWith(seed); }
+  useEffect(() => { document.title = "מסע ההתכנסות · סוד 1820"; }, []);
 
   // מאתחל מסע: בוחר ערך-יעד נסתר (משפחה עשירה) וטוען את משפחת-הערך לטייל בה.
   async function begin(fromParam) {
-    journeyIdRef.current = (crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2)));
-    hookShownRef.current = false;
-    jvMsgRef.current = false;
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
-    setAiMsg(null); setAiState("idle"); setGemMsg(null); setGemState("idle");
+    setAiMsg(null); setAiState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
-    try {
-      let value = null, startPhrase = null;
-      if (isNumeric(fromParam)) {
-        value = parseInt(fromParam, 10);
-      } else {
-        startPhrase = String(fromParam || await withTimeout(getRandomStartPhrase(), 3000, null) || "ירושלים").trim();
-        // 🔢 גימטריית השם ישירות — עובד לכל שם/ביטוי (לא רק מה שקיים ב-bidim).
-        // כך «צוריאל» → 337 גם אם אינו בטבלה. פולבק: אשכול-ערך עשיר אם קיים.
-        const g = calcGem(startPhrase);
-        value = g >= 10 ? g : null;
-        if (value == null) {
-          const fams = await withTimeout(getPhraseValueFamilies(startPhrase), 4000, []);
-          value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
-        }
-      }
-      if (value == null) { setFinished("stopped"); return; }
-      const fam = await withTimeout(getValuePhraseList(value), 5000, []);
-      if (!fam.length) { setTarget(value); setBases([value]); setFinished("stopped"); return; }
-      // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
-      const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
-      const start = startIdx >= 0 ? fam[startIdx] : fam[0];
-      setTarget(value);
-      setBases([value]);
-      setFamily(fam);
-      setGoal(clamp(fam.length, 3, 7));
-      setPath([start]);
-      logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
-      logView("jv_start_" + autoMode, String(value));   // 🧪 מדד A/B נגן-אוטומטי
-      try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
-    } catch (e) {
-      setFinished("stopped");   // ⛔ שגיאה כלשהי → לא נתקעים על «מחפש קשרים»
-    } finally {
-      setLoading(false);        // תמיד — מבטיח שהטעינה נעצרת
+    let value = null, startPhrase = null;
+    if (isNumeric(fromParam)) {
+      value = parseInt(fromParam, 10);
+    } else {
+      startPhrase = fromParam || await getRandomStartPhrase() || "ירושלים";
+      const fams = await getPhraseValueFamilies(startPhrase);
+      value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
     }
+    if (value == null) { setFinished("stopped"); setLoading(false); return; }
+    const fam = await getValuePhraseList(value);
+    if (!fam.length) { setTarget(value); setFinished("stopped"); setLoading(false); return; }
+    // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
+    const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
+    const start = startIdx >= 0 ? fam[startIdx] : fam[0];
+    setTarget(value);
+    setBases([value]);
+    setFamily(fam);
+    setGoal(clamp(fam.length, 3, 7));
+    setPath([start]);
+    setLoading(false);
+    logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
   }
 
-  // deep-link בלבד (/journey?from=…) מתחיל אוטומטית; הגעה נקייה ל-/journey מציגה דף-נחיתה.
-  useEffect(() => { if (startFrom) { setEntered(true); begin(startFrom); } }, [startFrom]); // eslint-disable-line
+  useEffect(() => { begin(startFrom); }, [startFrom]); // eslint-disable-line
 
   // 🔢 קפיצת-תהודה — כשמשפחת-הערך נגמרת, מחפש סקאלת-אפס עשירה בביטויים חדשים (zero_scale_law).
   async function tryLeap(seen) {
@@ -260,44 +137,19 @@ export default function JourneyPage() {
       setFinished("stopped");
       logView("journey_stall", String(target));            // 📊 פאנל: נעצר (גם התהודה נגמרה)
       logView("journey_target_revealed", String(bases[0])); // 📊 פאנל: הערך נחשף
-      try { emit("journey", "stalled", { journeyId: journeyIdRef.current, depth: path.filter(p => !p.leap).length, props: { root: bases[0] } }); } catch { /* noop */ }
       return;
     }
     const next = pool[Math.floor(Math.random() * pool.length)];
     const np = [...path, next];
     setPath(np);
-    const _depth = np.filter(p => !p.leap).length;
-    logView("journey_step", String(_depth));  // 📊 עומק-צעד — למדד-הנטישה (איפה עוזבים)
-    try { emit("journey", "step", { journeyId: journeyIdRef.current, depth: _depth }); } catch { /* noop */ }
-    if (_depth >= goal) {
+    if (np.filter(p => !p.leap).length >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
       logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
-      try { emit("journey", "complete", { journeyId: journeyIdRef.current, depth: _depth, props: { root: bases[0] } }); } catch { /* noop */ }
     }
   }
 
-  function restart() { skipRef.current = false; begin(""); }
-
-  // ▶️ נגן-אוטומטי — «וואו מיידי»: המסע מתקדם לבד עד הגילוי בלי לחיצות ידניות.
-  // תיקון הצוק (החלטת צוריאל 10.7.2026): 96% נטשו כי נדרשו 3-7 לחיצות להגיע לערך.
-  // ~500ms לתחנה (התגלגלות נעימה ~2-3ש׳); «דלגו לגילוי» מאיץ ל-90ms → גילוי כמעט-מיידי.
-  useEffect(() => {
-    if (autoMode !== "auto") return;   // 🧪 A/B: רק בווריאנט האוטומטי; 'manual' = לחיצה ידנית
-    if (!entered || loading || busy || finished || !family.length || !path.length) return;
-    const t = setTimeout(() => { step(); }, skipRef.current ? 90 : 800);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoMode, entered, loading, busy, finished, family.length, path.length]);
-
-  // 🧪 מדד A/B — רישום «הגעה למסר» פר-ווריאנט (jv_msg_auto/jv_msg_manual) מול jv_start_*
-  useEffect(() => {
-    if (finished && root != null && !jvMsgRef.current) {
-      jvMsgRef.current = true;
-      logView("jv_msg_" + autoMode, String(root));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finished, root]);
+  function restart() { begin(""); }
 
   const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
   const leaped = bases.length > 1;
@@ -307,7 +159,7 @@ export default function JourneyPage() {
   async function fetchAiMessage() {
     if (aiState === "busy" || root == null) return;
     const ck = "sod_jmsg_" + root;
-    try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root, cached: true } }); } catch { /* noop */ } return; } } catch { /* noop */ }
+    try { const c = localStorage.getItem(ck); if (c) { setAiMsg(c); setAiState("done"); return; } } catch { /* noop */ }
     setAiState("busy");
     logView("journey_ai_message", String(root));   // 📊 פאנל: מסר אישי נוצר
     trackAi("journey_msg", "journey");              // 📊 שימוש ב-AI — מסר-מסע (ראשון)
@@ -316,9 +168,8 @@ export default function JourneyPage() {
       path: path.filter(s => !s.leap).map(s => s.phrase),
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
-      name: name || null,
     });
-    if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } try { emit("journey", "ai_result", { journeyId: journeyIdRef.current, depth: path.filter(s => !s.leap).length, props: { root } }); } catch { /* noop */ } }
+    if (msg) { setAiMsg(msg); setAiState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
     else { setAiState("off"); }   // אין מפתח/שגיאה → נשארת הודעת-התבנית
   }
 
@@ -342,23 +193,11 @@ export default function JourneyPage() {
     } catch { /* noop */ }
   }, [finished, root]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 📊 hook_shown — כרטיס-הלכידה שמופיע אחרי הפלט הראשון (פעם אחת למסע)
-  useEffect(() => {
-    if (finished && aiState === "done" && !unlocked && !declinedDeep && root != null && !hookShownRef.current) {
-      hookShownRef.current = true;
-      try { emit("journey", "hook_shown", { journeyId: journeyIdRef.current, props: { root, gated: !(verified || emailGiven) } }); } catch { /* noop */ }
-    }
-  }, [finished, aiState, unlocked, declinedDeep, root]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // 🔓 מסר-העומק — נפתח *רק אחרי* שהמשתמש קיבל את המסר הראשון ואז שיתף. נשמר פתוח לפי מספר.
-  // force=true → מתעלם מה-cache ומבקש מהמנוע מסר *נוסף* (בקשת צוריאל: אפשר לפתוח AI פעמיים אם רוצים).
-  async function fetchDeepMessage(force = false) {
+  async function fetchDeepMessage() {
     if (root == null) return;
-    if (deepState === "busy") return;
     const ck = "sod_jmsgdeep_" + root;
-    if (!force) {
-      try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
-    }
+    try { const c = localStorage.getItem(ck); if (c) { setDeepMsg(c); setDeepState("done"); return; } } catch { /* noop */ }
     setDeepState("busy");
     trackAi("journey_deep", "journey");   // 📊 שימוש ב-AI — מסר-עומק (מסע)
     const msg = await getJourneyMessage({
@@ -367,8 +206,6 @@ export default function JourneyPage() {
       world: dWorld || null,
       meaning: KEY_NUMBERS[root] || null,
       depth: "deep",
-      again: force || undefined,   // רמז למנוע: מסר נוסף/שונה
-      name: name || null,
     });
     if (msg) { setDeepMsg(msg); setDeepState("done"); try { localStorage.setItem(ck, msg); } catch { /* noop */ } }
     else setDeepState("off");
@@ -379,7 +216,6 @@ export default function JourneyPage() {
     if (shareBusy || root == null) return;
     setShareBusy(true);
     logView("journey_share", String(root));   // 📊 פאנל: שיתוף מסע
-    try { emit("journey", "share", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     try {
       await shareJourneyCard(root, path.filter(s => !s.leap).map(s => ({ phrase: s.phrase })), KEY_NUMBERS[root] || null);
     } finally { setShareBusy(false); }
@@ -391,25 +227,21 @@ export default function JourneyPage() {
     setUnlocked(true);
     try { localStorage.setItem("sod_jdeep_" + root, "1"); } catch { /* noop */ }
     track("journey", `journey/${root}`, "deep_unlock", { root });   // 📊 דשבורד: מי פתח עומק
-    try { emit("journey", "hook_tap_unlock", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     fetchDeepMessage();
   }
 
   // ✉️ שער-המייל: השארת מייל → הרשמה לרשימה (source=journey-deep) → פתיחת המסר. אמין: גם אם
-  // ✉️ שער-מייל יחיד בסיום — «להמשיך את הגילוי». קודם ערך (המסר חינם), ואז בקשה אחת בלבד:
-  // מייל → פותח את מסר-העומק *וגם* רושם לרשימת אירועי-הגילוי (source=journey). כישלון רשת → פותחים בכל זאת.
+  // ההרשמה נכשלה (רשת) — התגמול לא נתקע, פותחים בכל זאת (אבל לא מסמנים שנרשם).
   async function submitEmailGate(e) {
     e?.preventDefault?.();
     setGateErr("");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setGateErr("נא להזין מייל תקין"); return; }
     setGateBusy(true);
     try {
-      await subscribeEmail({ email: email.trim(), source: "journey" });
-      try { trackSubscribe({ source: "journey" }); } catch { /* noop */ }
+      await subscribeEmail({ email: email.trim(), source: "journey-deep" });
+      try { trackSubscribe({ source: "journey-deep" }); } catch { /* noop */ }
       try { localStorage.setItem("sod_jdeep_email", "1"); } catch { /* noop */ }
       setEmailGiven(true);
-      logView("journey_signup", String(root));   // 📊 פאנל: הרשמה מהמסע
-      try { emit("journey", "email_left", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     } catch {
       setGateErr("לא הצלחנו לשמור כרגע — פותחים בכל זאת");
     } finally {
@@ -421,32 +253,10 @@ export default function JourneyPage() {
   // 🔖 שמירת המסע — נשמר ל«המסעות שלי» (שורד בין דפים/מכשירים) + כישות ל«שמורים». משוב «נשמר ✓».
   function saveJourney() {
     if (root == null) return;
-    const steps = path.filter(s => !s.leap).map(s => s.phrase);
-    addJourney({ root, path: steps, world: dWorld || null, msg: aiMsg });
+    addJourney({ root, path: path.filter(s => !s.leap).map(s => s.phrase), world: dWorld || null, msg: aiMsg });
     saveItem?.(entityFromNumber(root, KEY_NUMBERS[root]));
-    logJourneySave(visitorId(), { root, path: steps, world: dWorld || null });  // 🔖 פרסוס ל-DB (בקשת צוריאל A)
-    logView("journey_save", String(root));
-    try { emit("journey", "save", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1800);
-  }
-
-  // 🪝 M2 — הוק «פוש/שמירה קודם» אחרי הפלט הראשון. מייל נדחה לרגע 3. ההבטחה («הרובד הבא») נשמרת בכל מקרה.
-  const pushPerm = PUSH_CONFIGURED ? pushPermission() : "unsupported";
-  async function hookPush() {
-    if (hookBusy || root == null) return;
-    setHookBusy(true);
-    try { emit("journey", "hook_tap_push", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
-    let granted = false;
-    try { const r = await enablePush({ topics: ["journey"] }); granted = !!r?.ok; if (granted) { try { stitchPush({ source: "journey", root }); } catch { /* noop */ } } } catch { /* noop */ }
-    try { emit("journey", "push_result", { journeyId: journeyIdRef.current, props: { granted } }); } catch { /* noop */ }
-    setHookBusy(false);
-    unlockDeep(); // פותחים את הרובד הבא בכל מקרה — ההבטחה נשמרת
-  }
-  function hookSave() {
-    try { emit("journey", "hook_tap_save", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ }
-    saveJourney();
-    unlockDeep();
   }
 
   const cur = path[path.length - 1];
@@ -455,87 +265,10 @@ export default function JourneyPage() {
   const dWorld = dominantWorld(stations);
   const progress = goal > 0 ? clamp(Math.round((stations.length / goal) * 100), 0, 100) : 0;
 
-  // ───────── דף-הנחיתה (חוויה + SEO) — לפני שהמסע מתחיל ─────────
-  if (!entered) {
-    return (
-      <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
-        <style>{`@keyframes jFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}`}</style>
-
-        <header style={{ textAlign: "center", marginBottom: 22, animation: "jFade .5s ease both" }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>סוד 1820 · המסע האישי</div>
-          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,6vw,42px)", fontWeight: 800, margin: "10px 0 8px", textShadow: `0 0 40px ${P.onAccent}`, lineHeight: 1.25 }}>
-            צאו למסע — וגלו את המספר הנסתר
-          </h1>
-          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 470, margin: "0 auto" }}>
-            כל תחנה היא ביטוי חדש — וכולן מתכנסות אל מספר אחד. בחרו מספר או ביטוי, או צאו למסע אקראי.
-          </p>
-        </header>
-
-        {/* 🎲 אקראי/מספר ראשי (המנגנון הוויראלי) — «לפי השם» כאופציה משנית */}
-        <div style={{ maxWidth: 460, margin: "0 auto 22px", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "22px 18px", boxShadow: `0 0 40px ${P.glow}`, textAlign: "center", animation: "jFade .5s ease .05s both" }}>
-          <button onClick={() => startWith("")} style={{ width: "100%", cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 18, fontWeight: 800, padding: "16px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
-            🎲 צאו למסע אקראי
-          </button>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0", color: P.accentDim, fontSize: 12, fontFamily: F.heading }}>
-            <div style={{ flex: 1, height: 1, background: P.border }} />או בחרו בעצמכם<div style={{ flex: 1, height: 1, background: P.border }} />
-          </div>
-          <form onSubmit={onSeedSubmit} style={{ display: "grid", gap: 10 }}>
-            <input
-              value={seed} onChange={e => setSeed(e.target.value)} dir="rtl"
-              placeholder="מספר או ביטוי (למשל 358 · ירושלים)"
-              style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${P.borderStrong}`, borderRadius: 14, color: P.ink, padding: "14px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px" }}>
-              התחילו את המסע →
-            </button>
-          </form>
-          <button onClick={() => setShowSeed(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "underline", marginTop: 12 }}>
-            ✦ או גלו לפי השם שלכם
-          </button>
-          {showSeed && (
-            <form onSubmit={e => { e.preventDefault(); startWith((name || "").trim()); }} style={{ marginTop: 10, display: "grid", gap: 10 }}>
-              <input
-                value={name} onChange={e => saveName(e.target.value)} dir="rtl" autoComplete="given-name"
-                placeholder="✦ השם שלכם"
-                style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.accent}`, borderRadius: 14, color: P.ink, padding: "13px 16px", fontSize: 16, textAlign: "center", outline: "none", fontFamily: F.body }} />
-              <button type="submit" style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "12px 22px" }}>
-                ✨ גלו את המספר שלי
-              </button>
-            </form>
-          )}
-        </div>
-
-        {/* 🔴 דופק המסע — תחושת-קהילה חיה (נתונים אמיתיים) */}
-        <JourneyPulse P={P} />
-
-        {/* שלוש השכבות */}
-        <div style={{ maxWidth: 560, margin: "0 auto 24px", display: "grid", gap: 10, animation: "jFade .5s ease .1s both" }}>
-          {LAYERS.map((l, i) => (
-            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px" }}>
-              <span style={{ fontSize: 18, lineHeight: 1.25 }}>✨</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>{l.t}</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginTop: 2 }}>{l.n}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* המסע נשמר איתך */}
-        <div style={{ maxWidth: 560, margin: "0 auto", background: `linear-gradient(135deg, ${P.accent}18, ${P.glow})`, border: `1.5px solid ${P.accent}`, borderRadius: 16, padding: "16px 18px", textAlign: "center", animation: "jFade .5s ease .15s both" }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, marginBottom: 5 }}>💾 המסע שלך נשמר איתך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
-            אפשר להמשיך בכל זמן, לחזור לגילויים שלך ולבנות את המפה האישית שלך. המסע לא נגמר בתוצאה אחת — הוא נבנה מחיבורים.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
       <style>{`@keyframes jArrive{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
-        @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}
-        @keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
+        @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}`}</style>
 
       <header style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>מסע התכנסות</div>
@@ -546,12 +279,7 @@ export default function JourneyPage() {
       </header>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "48px 20px" }}>
-          <div style={{ fontSize: 30, marginBottom: 12, animation: "jPulse 1s ease-in-out infinite" }}>🔎</div>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{name ? `מחפש את הקשרים של ${name}…` : "מחפש את הקשרים…"}</div>
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>מצליב מספרים, שורשים והתכנסויות</div>
-          <style>{`@keyframes jPulse{0%,100%{opacity:.5;transform:scale(.94)}50%{opacity:1;transform:scale(1.08)}}`}</style>
-        </div>
+        <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: 40 }}>טוען את המסע…</div>
       ) : finished ? (
         /* ───────── מסך הגילוי — העלה מתקפל אל הגזע ───────── */
         <div style={{ textAlign: "center" }}>
@@ -596,15 +324,6 @@ export default function JourneyPage() {
             </div>
           )}
 
-          {/* ✨ רגע השיא — סגירת המסע. בלי בקשת-מייל: קודם ערך, אחר-כך בקשה (החלטת צוריאל, פסיכולוגיית-הרשמה). */}
-          {root != null && (
-            <div style={{ maxWidth: 520, margin: "2px auto 16px", textAlign: "center" }}>
-              <div style={{ fontSize: 26, marginBottom: 2 }}>✨</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{name ? `${name}, המסע שלך על ${root} הושלם` : `המסע על ${root} הושלם`}</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>ראיתם את שכבות המספר — הנה מה שהמנוע כתב עבורכם.</div>
-            </div>
-          )}
-
           {/* 🤖 מסר מהמנוע — תבנית נגזרת + מסר אישי (AI) בלחיצה */}
           {root != null && (
             <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px", boxShadow: `0 0 30px ${P.glow}` }}>
@@ -627,7 +346,7 @@ export default function JourneyPage() {
                 /* off — נפילה חיננית להודעת-התבנית + ניסיון חוזר */
                 <>
                   <div style={{ display: "grid", gap: 8 }}>
-                    {engineMessage({ root, bases, stations: stations.length, dWorld, name }).map((line, i, a) => (
+                    {engineMessage({ root, bases, stations: stations.length, dWorld }).map((line, i, a) => (
                       <p key={i} style={{ margin: 0, color: i === a.length - 1 ? P.accentDim : P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, fontStyle: i === a.length - 1 ? "italic" : "normal" }}>{line}</p>
                     ))}
                   </div>
@@ -636,73 +355,51 @@ export default function JourneyPage() {
                   </div>
                 </>
               )}
-
             </div>
           )}
 
           {/* ✦ מסר-עומק — נפתח *רק אחרי* שהמסר הראשון הגיע (aiState==="done"). שכבה שנייה, אישית ועמוקה
               יותר. שער-מייל (lead magnet): נפתח תמורת הרשמה לרשימה. מנוי/מחובר קיים — נפתח ישירות.
               אחרי פתיחה — נשאר פתוח לתמיד. */}
-          {root != null && aiState === "done" && !declinedDeep && (
+          {root != null && aiState === "done" && (
             !unlocked ? (
-              /* 🪝 M2 — הוק «פוש/שמירה קודם» (במקום שער-מייל). אחרי הפלט הראשון: המשך בלחיצה אחת. */
-              <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
-                <div style={{ fontSize: 26, marginBottom: 4 }}>✨</div>
-                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>זו רק הנקודה הראשונה בחוט שלך</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 410, margin: "0 auto 14px" }}>
-                  המסע נבנה סביב המספר שלך — ומכאן הוא נפתח: <b style={{ color: P.accentText }}>מספרים קשורים, הצלבות, שורשים ומסרי-עומק</b>.
-                </div>
-                <div style={{ display: "grid", gap: 9, maxWidth: 340, margin: "0 auto" }}>
-                  {PUSH_CONFIGURED && pushPerm !== "denied" && (
-                    <button onClick={hookPush} disabled={hookBusy}
-                      style={{ cursor: hookBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                      {hookBusy ? "פותח…" : "🔔 שמרו לי — ותנו לי את הרובד הבא"}
-                    </button>
-                  )}
-                  <button onClick={hookSave}
-                    style={{ cursor: "pointer", background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 750, padding: "12px 22px" }}>
-                    📌 שמור בלי הרשמה — ופתחו את ההמשך
+              (verified || emailGiven) ? (
+                /* כבר מנוי/מחובר — בלי לבקש מייל שוב */
+                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 10 }}>יש עוד שכבה — מסר עומק על {root}</div>
+                  <button onClick={unlockDeep}
+                    style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, padding: "13px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
+                    ✦ פִּתחו את מסר-העומק
                   </button>
-                  <Link to={`/number/${root}`} onClick={() => { logView("journey_open", String(root)); try { emit("journey", "goto_number", { journeyId: journeyIdRef.current, props: { root, via: "hook" } }); } catch { /* noop */ } }}
-                    style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "6px" }}>
-                    המשך למספר שלי →
-                  </Link>
                 </div>
-                <div style={{ marginTop: 12 }}>
-                  {!verified && !emailGiven && (
-                    <button onClick={() => setShowEmail(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 600, textDecoration: "underline" }}>או קבלו את ההמשך במייל</button>
-                  )}
-                  <button onClick={() => setDeclinedDeep(true)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 600, marginInlineStart: 14 }}>לא עכשיו</button>
-                </div>
-                {showEmail && !verified && !emailGiven && (
-                  <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 360, margin: "12px auto 0" }}>
+              ) : (
+                /* שער-מייל — מסר-העומק תמורת הרשמה לרשימה */
+                <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "center", background: `linear-gradient(135deg, ${P.accent}14, ${P.cardSoft})`, border: `1.5px dashed ${P.accentText}`, borderRadius: 18, padding: "18px 18px" }}>
+                  <div style={{ fontSize: 26, marginBottom: 4 }}>✦</div>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 6 }}>יש עוד שכבה — מסר עומק על {root}</div>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, maxWidth: 400, margin: "0 auto 14px" }}>
+                    השאירו מייל, ומסר-העומק האישי ייפתח — שכבה שנייה, עמוקה יותר, על מה שהמסע שלכם מגלה. בלי ספאם.
+                  </div>
+                  <form onSubmit={submitEmailGate} style={{ display: "flex", gap: 9, flexWrap: "wrap", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} dir="ltr" placeholder="המייל שלכם" required
-                      style={{ flex: "1 1 100%", minWidth: 160, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "11px 16px", fontSize: 16, textAlign: "center", outline: "none" }} />
-                    <button type="submit" disabled={gateBusy} style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "11px 20px" }}>{gateBusy ? "…" : "שלחו לי"}</button>
+                      style={{ flex: "1 1 200px", minWidth: 180, background: "rgba(255,255,255,0.06)", border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, padding: "12px 18px", fontSize: 16, textAlign: "center", outline: "none" }} />
+                    <button type="submit" disabled={gateBusy}
+                      style={{ cursor: gateBusy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 24px", boxShadow: `0 8px 26px ${P.glow}`, whiteSpace: "nowrap" }}>
+                      {gateBusy ? "פותח…" : "✦ קבלו את מסר-העומק"}
+                    </button>
                   </form>
-                )}
-                {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
-              </div>
+                  {gateErr && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 12.5, marginTop: 9 }}>{gateErr}</div>}
+                </div>
+              )
             ) : (
               <div style={{ maxWidth: 520, margin: "0 auto 18px", textAlign: "right", background: P.cardGrad, border: `1.5px solid #3ea6ff`, borderRadius: 18, padding: "16px 18px", boxShadow: "0 0 30px rgba(62,166,255,0.22)" }}>
-                {emailGiven && !verified && (
-                  <div style={{ textAlign: "center", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>✨ נרשמת למסע הרמזים — נעדכן רק כשמתגלה משהו אמיתי</div>
-                )}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "space-between" }}>
                   <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5 }}>✦ מסר עומק</span>
                   <span style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, border: "1px solid #3ea6ff", borderRadius: 999, padding: "2px 9px" }}>שכבה שנייה · אישית</span>
                 </div>
                 {deepState === "done" && deepMsg ? (
-                  <>
-                    <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
-                    {/* 🔁 מסר נוסף מהמנוע — לפי בקשה בלבד (אפשר פעמיים אם רוצים) */}
-                    <div style={{ textAlign: "center", marginTop: 12 }}>
-                      <button onClick={() => fetchDeepMessage(true)}
-                        style={{ cursor: "pointer", background: "none", border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "8px 18px" }}>
-                        🔁 קבלו מסר נוסף מהמנוע
-                      </button>
-                    </div>
-                  </>
+                  <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{deepMsg}</p>
                 ) : deepState === "off" ? (
                   <div style={{ textAlign: "center" }}>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontStyle: "italic", marginBottom: 8 }}>מסר-העומק אינו זמין כרגע.</div>
@@ -756,12 +453,10 @@ export default function JourneyPage() {
             </div>
           </div>
 
-          {/* 💬 וו-ההמרה בוואטסאפ — הוסר זמנית (בקשת צוריאל: «עוד לא מוכן»). לכשיבשיל — להחזיר. */}
-
           {/* כפתורים — פתיחת הגזע · שיתוף · מסע חדש */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             {root != null && (
-              <Link to={`/number/${root}`} onClick={() => { logView("journey_open", String(root)); try { emit("journey", "goto_number", { journeyId: journeyIdRef.current, props: { root } }); } catch { /* noop */ } }} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              <Link to={`/number/${root}`} onClick={() => logView("journey_open", String(root))} style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
                 פתח את {root} →
               </Link>
             )}
@@ -805,22 +500,15 @@ export default function JourneyPage() {
             background: P.cardGrad,
             border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "34px 22px", boxShadow: `0 0 40px ${P.onAccent}`,
           }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
-              <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>תחנה {path.length} / ~{goal}</span>
-              {autoMode === "auto" && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: P.accentText, animation: "jPulseDot 1s ease-in-out infinite" }} />▶ מתקדם אוטומטית
-                </span>
-              )}
-            </div>
+            <div style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13, marginBottom: 6 }}>תחנה {path.length}</div>
             <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,44px)", fontWeight: 800, lineHeight: 1.25 }}>{cur.phrase}</div>
             {cur.world && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 8 }}>{cur.world}</div>}
           </div>
 
           {/* כפתורים */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 22 }}>
-            <button onClick={() => { if (autoMode === "auto") skipRef.current = true; step(); }} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
-              {autoMode === "auto" ? "⏩ דלגו לגילוי" : "המשיכו במסע ✨"}
+            <button onClick={step} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              המשיכו במסע ✨
             </button>
             <Link to={`/number/${encodeURIComponent(cur.phrase)}`} style={{ textDecoration: "none", background: P.card, color: P.ink, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 20px" }}>
               פתחו את {cur.phrase} →
