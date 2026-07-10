@@ -291,7 +291,12 @@ export default function JourneyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoMode, entered, loading, busy, finished, family.length, path.length]);
 
+  const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
+  const leaped = bases.length > 1;
+
   // 🧪 מדד A/B — רישום «הגעה למסר» פר-ווריאנט (jv_msg_auto/jv_msg_manual) מול jv_start_*
+  // ⚠️ חייב לבוא *אחרי* הכרזת root — אחרת מערך-התלות [finished, root] קורא את root
+  // בזמן הרינדור לפני שהוגדר (TDZ) והרכיב קורס. זה היה באג ה«לא עובד בכלל».
   useEffect(() => {
     if (finished && root != null && !jvMsgRef.current) {
       jvMsgRef.current = true;
@@ -299,9 +304,6 @@ export default function JourneyPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished, root]);
-
-  const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
-  const leaped = bases.length > 1;
 
   // 🤖 מסר אישי מהמנוע — אוטומטי כשמגיעים למסך הגילוי. **נצבר (cache) לפי מספר** →
   // אותו מספר לא קורא ל-AI פעמיים (חוסך קרדיט; המסר נשמר במכשיר).
