@@ -8,15 +8,14 @@ import React, { useRef, useEffect } from "react";
 // אותיות אמיתיות מכמה כתבים, כל כתב בגוון קוסמי משלו.
 const SCRIPTS = [
   { chars: "אבגדהוזחטיכלמנסעפצקרשת", color: "#f6e27a" }, // עברית — זהב
-  { chars: "ABCDEFGHKLMNRSTW",       color: "#b9a7ff" }, // לטינית — סגול
-  { chars: "ΑΒΓΔΘΛΞΠΣΦΨΩ",           color: "#7fd3ff" }, // יוונית — תכלת
-  { chars: "ابتثجحخدرسصطعفقكلمنهوي", color: "#ffb3c8" }, // ערבית — ורוד
-  { chars: "БГДЖЗИЛПФШЯ",            color: "#a7f0c0" }, // קירילית — ירוק
+  { chars: "ABCDEFGHKLMNRSTVW",      color: "#b9a7ff" }, // אנגלית — סגול
+  { chars: "БГДЖЗИЛПФШЯЮ",           color: "#a7f0c0" }, // רוסית — ירוק
   { chars: "0123456789",             color: "#eae4ff" }, // ספרות — לבן-כוכבי
 ];
-// 🔤 המרכז — מילה/שם שמתהפך בין שפות (במקום המספר). ניתן להחלפה בקלות למילה/שם אחר.
-// ברירת-מחדל «אחד» על-שם «לְעָבְדוֹ שְׁכֶם אֶחָד» שבפסוק — אותו רעיון בכל השפות.
-const CENTER = ["אֶחָד", "One", "Ἕν", "واحد", "Один", "Eins", "Un"];
+// 🔤 המרכז — סיפור-האל"ף (רצף, לא אקראי): האות הראשונה נפתחת ומגלה שהכל אחד.
+// א → אֶלֶף (שמהּ) → פֶּלֶא (אנגרם של אלף!) → אֶחָד (א=1) → 1 → One → Один.
+const CENTER = ["א", "אֶלֶף", "פֶּלֶא", "אֶחָד", "1", "One", "Один"];
+const SUBS   = ["הָאוֹת הָרִאשׁוֹנָה", "שְׁמָהּ: אֶלֶף", "אֶלֶף ↔ פֶּלֶא", "א = 1 = אֶחָד", "אֶחָד", "בְּאַנְגְּלִית", "בְּרוּסִית"];
 const FLAT = SCRIPTS.flatMap(s => [...s.chars].map(ch => ({ ch, color: s.color })));
 
 const VERSE = "כִּי אָז אֶהְפֹּךְ אֶל עַמִּים שָׂפָה בְרוּרָה לִקְרֹא כֻלָּם בְּשֵׁם יְהוָה לְעָבְדוֹ שְׁכֶם אֶחָד";
@@ -188,6 +187,13 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.fillText(word, 0, 0);
       ctx.restore();
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      // תת-כותרת תואמת מתחת למילה — מספרת את הסיפור (שמהּ: אלף · אלף↔פלא · א=1=אחד...)
+      ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.globalAlpha = 0.8 * csx;
+      ctx.font = `700 ${Math.min(W, H) * 0.058}px 'Heebo',system-ui,sans-serif`;
+      ctx.fillStyle = "rgba(246,226,122,.9)";
+      ctx.fillText(SUBS[numI] || "", cx, cy + nfs * 0.72);
+      ctx.restore(); ctx.globalAlpha = 1;
       } // end else (post-intro)
 
       if (alive && !reduce) raf = requestAnimationFrame(draw);
