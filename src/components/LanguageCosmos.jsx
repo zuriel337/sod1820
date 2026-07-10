@@ -31,10 +31,51 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
     const ctx = cv.getContext("2d");
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     let W = 0, H = 0, cx = 0, cy = 0, maxR = 1, raf = 0, alive = true, t = 0;
-    let parts = [], stars = [], numI = 0, numT = 0;
+    let parts = [], stars = [], numI = 0, numT = 0, introT = 0, introDone = reduce; // reduce → דלג על הפתיח
 
     const rnd = (a, b) => a + Math.random() * (b - a);
     const pick = () => FLAT[(Math.random() * FLAT.length) | 0];
+    const ease = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; // easeInOutQuad
+
+    // 🕎 פתיח: תשפ״ו (ת·ש·פ·ו) מסתדר-מחדש ל-שָׂפוֹת (ש·פ·ו·ת) — אותן אותיות בדיוק.
+    // 4 אותיות, כל אחת נעה מהמיקום שלה בתשפ״ו למיקומה ב-שפות (RTL, שמאל→ימין ויזואלי).
+    const YEAR = [
+      { ch: "ת", s: 1.5, e: -1.5 }, // ת: מימין-קיצון → שמאל-קיצון (הקפיצה הגדולה)
+      { ch: "ש", s: 0.5, e: 1.5 },
+      { ch: "פ", s: -0.5, e: 0.5 },
+      { ch: "ו", s: -1.5, e: -0.5 },
+    ];
+    const drawIntro = (it) => {
+      const B0 = 2.1, C0 = 3.3, D0 = 5.0, END = 5.9;
+      const p = it < B0 ? 0 : it < C0 ? ease((it - B0) / (C0 - B0)) : 1; // 0=תשפ״ו · 1=שפות
+      const scatter = it > D0 ? Math.min(1, (it - D0) / (END - D0)) : 0;
+      const fin = Math.min(1, it / 0.4);                                   // fade-in
+      const sp = Math.min(W, H) * 0.16, bfs = Math.min(W, H) * 0.27;
+      const glow = (it >= C0 && it < D0) ? (0.55 + 0.45 * Math.sin((it - C0) * 3.2)) : 0.4;
+      ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      for (const L of YEAR) {
+        const slot = L.s + (L.e - L.s) * p;
+        const arc = (p > 0 && p < 1) ? -Math.sin(p * Math.PI) * sp * (L.ch === "ת" ? 1.15 : 0.5) : 0;
+        const x = cx + slot * sp * (1 + scatter * 2.4);
+        const y = cy + arc + scatter * (L.ch === "ת" ? -sp : sp) * 0.6;
+        ctx.globalAlpha = fin * (1 - scatter);
+        ctx.font = `900 ${bfs * (1 + scatter * 0.4)}px 'Frank Ruhl Libre','Heebo',serif`;
+        ctx.shadowColor = "#f6e27a"; ctx.shadowBlur = 26 + 34 * glow;
+        ctx.fillStyle = "#fff7df"; ctx.fillText(L.ch, x, y);
+      }
+      // כותרת עליונה + תווית «= שפות» כשמגיע ליעד
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = fin * (1 - scatter) * (it < C0 ? 0.85 : 0);
+      ctx.fillStyle = "rgba(246,226,122,.8)";
+      ctx.font = `800 ${Math.min(W, H) * 0.05}px 'Heebo',system-ui,sans-serif`;
+      ctx.fillText("שְׁנַת תשפ״ו", cx, cy - bfs * 0.85);
+      ctx.globalAlpha = fin * (1 - scatter) * (it >= C0 ? Math.min(1, (it - C0) / 0.4) : 0);
+      ctx.fillStyle = "rgba(246,226,122,.92)";
+      ctx.font = `800 ${Math.min(W, H) * 0.052}px 'Heebo',system-ui,sans-serif`;
+      ctx.fillText("אוֹתָן הָאוֹתִיּוֹת = שָׂפוֹת", cx, cy + bfs * 0.92);
+      ctx.restore(); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+      return it > END;
+    };
 
     const spawn = () => {
       const g = pick();
@@ -88,6 +129,10 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       halo.addColorStop(0.5, "rgba(132,88,255,0.10)");
       halo.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, cy, maxR * 0.42, 0, 6.28); ctx.fill();
+
+      // 🕎 פתיח פעם-אחת: תשפ״ו → שָׂפוֹת (אותן אותיות), ואז נפתח החלל המלא
+      if (!introDone) { introT += 0.016; if (drawIntro(introT)) introDone = true; }
+      else {
 
       // אותיות מתכנסות
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -143,6 +188,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.fillText(word, 0, 0);
       ctx.restore();
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      } // end else (post-intro)
 
       if (alive && !reduce) raf = requestAnimationFrame(draw);
     };
