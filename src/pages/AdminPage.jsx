@@ -1618,11 +1618,13 @@ function PopularityTab() {
         // 📲 משפך התקנת האפליקציה — שאילתה ייעודית לאירועי 'app' בלבד.
         // ⚠️ אסור לחשב את זה מתוך 2000 השורות האחרונות: אירועי התקנה נדירים,
         // וזרם הצפיות מבליע אותם → הספירה "מתאפסת". כאן שולפים ישירות את אירועי
-        // האפליקציה (מעטים) בכל החלון, ומחשבים משפך + פילוח יומי אמיתי.
+        // האפליקציה (מעטים) ומחשבים משפך + פילוח יומי אמיתי.
+        // 🔒 התקנות = מדד-חיים מצטבר: תמיד מתחילת-המדידה (כל הזמן), *ללא תלות בחלון שנבחר* —
+        //    כך «כמה הורידו» לא מתאפס כשמחליפים ל-7/30 יום. (בקשת צוריאל 10.7.2026.)
         supabase.from("visitor_events")
           .select("event_type, meta, visitor_id, created_at")
           .eq("section", "app")
-          .gte("created_at", since)
+          .gte("created_at", "2020-01-01T00:00:00Z")
           .order("created_at", { ascending: false })
           .limit(10000)
           .then(({ data }) => {
@@ -1698,7 +1700,8 @@ function PopularityTab() {
 
       {/* משפך התקנת אפליקציה (PWA) */}
       <div style={{ ...card }}>
-        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>📲 משפך התקנת האפליקציה</div>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>📲 משפך התקנת האפליקציה</div>
+        <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 14 }}>🔒 מצטבר מתחילת המדידה (כל הזמן) — לא מושפע מהחלון שנבחר למעלה.</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14 }}>
           {[
             { emoji: "👀", n: appStats.offers, label: "ראו הצעת התקנה" },
@@ -1740,20 +1743,30 @@ function PopularityTab() {
             ))}
           </div>
         )}
-        {/* 📅 התקנות לפי יום — מה שלא הוצג קודם (הספירה נחתכה בזרם הצפיות) */}
+        {/* 📅 התקנות לפי יום — כל ההיסטוריה מההתחלה ועד היום, עם מונה מצטבר (רץ) */}
         {appStats.byDay.length > 0 && (() => {
           const maxDay = appStats.byDay.reduce((m, d) => Math.max(m, d.total), 1);
+          let running = 0;
+          const rows = appStats.byDay.map(d => { running += d.total; return { ...d, cum: running }; });
+          const grand = running;
           return (
             <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>📅 התקנות לפי יום</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>📅 התקנות לפי יום — מההתחלה ועד היום</span>
+                <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>סה״כ מצטבר: {grand}</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "84px 1fr 44px 58px", alignItems: "center", gap: 10, marginBottom: 4, color: C.goldDim, fontFamily: F.heading, fontSize: 10.5 }}>
+                <span>תאריך</span><span /><span style={{ textAlign: "left" }}>ביום</span><span style={{ textAlign: "left" }}>מצטבר</span>
+              </div>
               <div style={{ display: "grid", gap: 6 }}>
-                {appStats.byDay.map(d => (
-                  <div key={d.day} style={{ display: "grid", gridTemplateColumns: "84px 1fr 54px", alignItems: "center", gap: 10 }}>
+                {rows.map(d => (
+                  <div key={d.day} style={{ display: "grid", gridTemplateColumns: "84px 1fr 44px 58px", alignItems: "center", gap: 10 }}>
                     <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5 }}>{new Date(d.day).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}</span>
                     <div style={{ background: C.bgGlow, borderRadius: 999, height: 10, overflow: "hidden" }}>
                       <div style={{ height: "100%", background: `linear-gradient(90deg, ${C.gold}, ${C.goldBright})`, width: `${Math.round((d.total / maxDay) * 100)}%`, borderRadius: 999, transition: "width .4s" }} />
                     </div>
                     <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12, textAlign: "left" }} title={`${d.real} ודאי · ${d.inferred} אומדן`}>{d.total}</span>
+                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 12, textAlign: "left", fontWeight: 700 }}>{d.cum}</span>
                   </div>
                 ))}
               </div>
