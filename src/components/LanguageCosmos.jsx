@@ -95,15 +95,15 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       const r = cv.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = r.width; H = r.height; cx = W / 2; cy = H / 2;
-      maxR = Math.hypot(W, H) / 2;
+      maxR = Math.hypot(W, H) / 2 || 1;
       cv.width = Math.max(1, W * dpr); cv.height = Math.max(1, H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const nP = Math.min(90, Math.max(38, Math.round((W * H) / 9000)));
       parts = Array.from({ length: nP }, spawn);
       const nS = Math.min(160, Math.round((W * H) / 3400));
       stars = Array.from({ length: nS }, () => ({ x: Math.random() * W, y: Math.random() * H, z: Math.random(), p: Math.random() * 6.28 }));
+      return W > 0 && H > 0;
     };
-    size();
     window.addEventListener("resize", size);
 
     const draw = () => {
@@ -199,7 +199,20 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
 
       if (alive && !reduce) raf = requestAnimationFrame(draw);
     };
-    if (reduce) draw(); else raf = requestAnimationFrame(draw);
+    // התחלה — מחכים שלקנבס יהיה גודל אמיתי (מונע «מסך שחור» כשה-layout עוד לא מוכן),
+    // ובמצב reduce מציירים פריים סטטי מכובד במקום פריים-בודד שקורס לקצוות.
+    const start = () => {
+      if (!alive) return;
+      if (!size()) { raf = requestAnimationFrame(start); return; }
+      if (reduce) {
+        introDone = true; numI = 3; numT = 1.0;                    // «אֶחָד» במלוא הרוחב
+        parts.forEach(p => { p.dist = rnd(0.22, 0.78) * maxR; });  // אותיות בטבעת-אמצע נראות
+        draw();
+      } else {
+        raf = requestAnimationFrame(draw);
+      }
+    };
+    start();
 
     const onVis = () => {
       if (document.hidden) cancelAnimationFrame(raf);
