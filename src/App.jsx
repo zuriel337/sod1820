@@ -295,9 +295,10 @@ export default function App() {
           <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
-          <Route path="/journey" element={<JourneyPage />} />
-          <Route path="/מסע" element={<JourneyPage />} />
+          <Route path="/journey" element={<JourneyPageV2 />} />
+          <Route path="/מסע" element={<JourneyPageV2 />} />
           <Route path="/journey-beta" element={<JourneyPageV2 />} />
+          <Route path="/journey-classic" element={<JourneyPage />} />
           <Route path="/lab" element={<LabIndex />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
