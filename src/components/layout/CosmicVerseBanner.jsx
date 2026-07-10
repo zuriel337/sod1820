@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useSyncExternalStore } from "react";
+import React, { useRef, useEffect, useState, useSyncExternalStore } from "react";
 import { TRACKS, toggle as musicToggle, next as musicNext, prev as musicPrev, pause as musicPause, subscribe as musicSubscribe, getState as musicState } from "../../lib/bgMusic.js";
 
 // 🌌 באנר-העל הקוסמי — רצועת פסוק מתחת לתפריט, בכל האתר (פרט לבית המדרש/היכל הגילוי).
@@ -6,10 +6,11 @@ import { TRACKS, toggle as musicToggle, next as musicNext, prev as musicPrev, pa
 // (פס-אור זהב שרץ על הפסוק). מודע-תמה: לילה קוסמי · יום = אופק-שחר רך (city_background_dual_theme_law).
 // הפסוק ניתן להחלפה כאן (VERSE) — בהמשך אפשר להזין מטבלת DB בלי פריסה.
 
-const VERSE = {
-  text: "וְהִנֵּה יְהֹוָה נִצָּב עָלָיו וַיֹּאמַר אֲנִי יְהֹוָה אֱלֹהֵי אַבְרָהָם אָבִיךָ וֵאלֹהֵי יִצְחָק הָאָרֶץ אֲשֶׁר אַתָּה שֹׁכֵב עָלֶיהָ לְךָ אֶתְּנֶנָּה וּלְזַרְעֶךָ",
-  ref: "בראשית כח, יג",
-};
+// 🔁 רוטציית פסוקים — מתחלפים רך. «שפה ברורה» (שבילי שפה) לצד «והנה ה' ניצב».
+const VERSES = [
+  { text: "כִּי אָז אֶהְפֹּךְ אֶל עַמִּים שָׂפָה בְרוּרָה לִקְרֹא כֻלָּם בְּשֵׁם יְהוָה לְעָבְדוֹ שְׁכֶם אֶחָד", ref: "צפניה ג, ט" },
+  { text: "וְהִנֵּה יְהֹוָה נִצָּב עָלָיו וַיֹּאמַר אֲנִי יְהֹוָה אֱלֹהֵי אַבְרָהָם אָבִיךָ וֵאלֹהֵי יִצְחָק הָאָרֶץ אֲשֶׁר אַתָּה שֹׁכֵב עָלֶיהָ לְךָ אֶתְּנֶנָּה וּלְזַרְעֶךָ", ref: "בראשית כח, יג" },
+];
 
 const CSS = `
 .cvb { position:relative; overflow:hidden; height:clamp(116px,15vw,156px); isolation:isolate;
@@ -41,6 +42,15 @@ const CSS = `
 .cvb-ref { z-index:4; font-family:'Heebo',system-ui,sans-serif; font-size:11px; letter-spacing:2px;
   color:rgba(246,226,122,.6); }
 .cvb-light .cvb-ref { color:rgba(122,84,16,.7); }
+
+/* דהיית-מעבר עדינה בכל החלפת-פסוק (key מרנדר מחדש) — לצד ברק-הזהב הרץ */
+.cvb-verse { animation:cvb-sweep 6.5s ease-in-out infinite, cvb-fade .8s ease both; }
+@keyframes cvb-fade { from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:none} }
+/* 🖥 מסך-מלא (צ'אט וכל עמוד רחב): הפסוק על שורה אחת שלמה, לא נשבר לשתיים */
+@media (min-width:768px) {
+  .cvb-verse { -webkit-line-clamp:unset; display:block; white-space:nowrap; max-width:none;
+    font-size:clamp(15px,1.75vw,22px); overflow:hidden; text-overflow:ellipsis; }
+}
 
 /* 🎵 נגן-רקע — פינה תחתונה */
 .cvb-music { position:absolute; z-index:5; inset-inline-start:12px; bottom:9px; display:flex; align-items:center; gap:7px;
@@ -76,6 +86,15 @@ const CSS = `
 export default function CosmicVerseBanner({ mode = "dark" }) {
   const dark = mode !== "light";
   const cvRef = useRef(null);
+
+  // 🔁 רוטציית-פסוקים — מתחלף כל ~11ש (מכובד, לא מסיח). מכבד prefers-reduced-motion.
+  const [vi, setVi] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || VERSES.length < 2) return;
+    const id = setInterval(() => setVi(v => (v + 1) % VERSES.length), 11000);
+    return () => clearInterval(id);
+  }, []);
+  const verse = VERSES[vi] || VERSES[0];
 
   // 🎵 מצב נגן-הרקע (חי מחוץ ל-React — שורד מעברי-דפים בין פוסטים)
   const music = useSyncExternalStore(musicSubscribe, musicState, musicState);
@@ -146,13 +165,13 @@ export default function CosmicVerseBanner({ mode = "dark" }) {
   }, [dark]);
 
   return (
-    <div className={`cvb ${dark ? "cvb-dark" : "cvb-light"}`} role="img" aria-label={`${VERSE.text} (${VERSE.ref})`}>
+    <div className={`cvb ${dark ? "cvb-dark" : "cvb-light"}`} role="img" aria-label={`${verse.text} (${verse.ref})`}>
       <style>{CSS}</style>
       {dark && <canvas ref={cvRef} className="cvb-stars" aria-hidden="true" />}
       <div className="cvb-neb" aria-hidden="true" />
       <div className="cvb-inner">
-        <p className="cvb-verse">{VERSE.text}</p>
-        <span className="cvb-ref">{VERSE.ref}</span>
+        <p key={vi} className="cvb-verse">{verse.text}</p>
+        <span className="cvb-ref">{verse.ref}</span>
       </div>
 
       {/* 🎵 נגן-רקע — נגן/עצור, החלף רצועה, ושם-הרצועה הנוכחית */}

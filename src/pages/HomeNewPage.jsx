@@ -4,6 +4,7 @@ import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
+import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
 // import RevelationWindows from "../components/RevelationWindows.jsx";
 import { bubblesFromCounts } from "../lib/bubbles.js";
@@ -40,7 +41,7 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
 // 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
 const HERO_SLIDES = [
-  { img: SHVILEI_IMG, emblem: true, alt: "שבילי שפה — גלה את הדרך שבין מילים לעולמות", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ פוסט המבוא", label: "פוסט המבוא" },
+  { graphic: true, alt: "שבילי שפה — כל השפות מתכנסות אל מספר אחד", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ פוסט המבוא", label: "פוסט המבוא" },
   { img: HERO_IMG, alt: "כי לה' המלוכה · סוד 1820 — שער המספר הגדול", to: "/start", cta: "✨ כאן מתחילים", label: "מתחילים" },
 ];
 
@@ -253,8 +254,10 @@ export default function HomeNewPage() {
           {HERO_SLIDES.map((s, i) => (
             <div className="hn-slide" key={i}>
               <div className="hn-gate">
-                <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
-                  fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />
+                {s.graphic
+                  ? <LanguageCosmos />
+                  : <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
+                      fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />}
                 <Link to={s.to} className="hn-cta hn-cta-big hn-enter">{s.cta}</Link>
               </div>
             </div>
