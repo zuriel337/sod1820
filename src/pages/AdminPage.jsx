@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic,
+  getJourneyExperiments, getRealTraffic, getRealtimeNow,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -2148,11 +2148,20 @@ function RealTrafficPanel() {
   const [days, setDays] = useState(30);
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
+  const [now, setNow] = useState(null);   // 🟢 «כמה עכשיו» — מתרענן כל 25ש
   useEffect(() => {
     let live = true; setD(null); setErr("");
     getRealTraffic(days).then(x => live && setD(x || {})).catch(e => live && setErr(String(e?.message || e)));
     return () => { live = false; };
   }, [days]);
+  useEffect(() => {
+    let live = true;
+    const tick = () => getRealtimeNow(5).then(x => live && setNow(x || null)).catch(() => { });
+    tick();
+    const id = setInterval(tick, 25000);
+    return () => { live = false; clearInterval(id); };
+  }, []);
+  const decode = p => { try { return decodeURIComponent(p); } catch { return p; } };
   const daily = (d && d.daily) || [];
   const sources = (d && d.sources) || [];
   const maxV = Math.max(...daily.map(x => Number(x.visitors) || 0), 1);
@@ -2172,6 +2181,26 @@ function RealTrafficPanel() {
         </div>
       </div>
       <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>מבקרים אמיתיים בלבד (בוטים דטרמיניסטיים סוננו). «מי שולח» = referrer.</div>
+      {/* 🟢 כמה עכשיו — חי, מתרענן כל 25ש */}
+      <div style={{ border: "1px solid rgba(127,209,138,0.4)", borderRadius: 14, padding: "14px 16px", background: "rgba(127,209,138,0.06)", marginBottom: 16 }}>
+        <style>{`@keyframes rt-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}`}</style>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#5fe08a", boxShadow: "0 0 8px #5fe08a", animation: "rt-pulse 1.6s ease-in-out infinite" }} />
+            <span style={{ color: "#7fd18a", fontFamily: F.heading, fontSize: 13, fontWeight: 800, letterSpacing: 1 }}>עכשיו באתר</span>
+          </span>
+          <span style={{ color: "#7fd18a", fontFamily: F.mono, fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{now ? Number(now.now_visitors || 0).toLocaleString("he") : "—"}</span>
+          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>מבקרים ב-5 הדק׳ האחרונות · <b style={{ color: C.goldBright, fontFamily: F.mono }}>{now ? Number(now.last30_visitors || 0).toLocaleString("he") : "—"}</b> ב-30 הדק׳</span>
+        </div>
+        {now && (now.top_paths || []).length > 0 && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+            {now.top_paths.map((p, i) => (
+              <span key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", background: "rgba(8,5,2,0.4)", color: C.goldLight, fontFamily: F.body, fontSize: 11.5, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", direction: "ltr" }} title={decode(p.path)}>{decode(p.path)} · {p.n}</span>
+            ))}
+          </div>
+        )}
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 10.5, marginTop: 8, fontStyle: "italic" }}>מתרענן אוטומטית כל 25 שניות · מסונן-בוטים · בד״כ גבוה מ-Google Analytics (שנחסם ע״י חוסמי-פרסומות).</div>
+      </div>
       {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13 }}>שגיאה: {err}</div>}
       {!d ? <div style={{ color: C.muted }}>טוען…</div> : (
         <>
