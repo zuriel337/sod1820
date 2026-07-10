@@ -156,10 +156,13 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         const y = cy + Math.sin(p.ang) * p.dist + Math.sin(p.ang + 1.57) * wob;
         const fs = (9 + 16 * p.z) * (0.6 + 0.4 * nearC);
         const fade = nearC < 0.12 ? nearC / 0.12 : (nearC > 0.86 ? (1 - nearC) / 0.14 : 1); // דוהה בשוליים ובמרכז
+        // 📱 מובייל (מסך צר): אותיות רק בחצי-העליון — דוהות ל-0 מתחת ל-60% גובה כדי שאזור הפסוק יישאר נקי.
+        const topFade = W < 560 ? Math.max(0, Math.min(1, (H * 0.6 - y) / (H * 0.16))) : 1;
+        if (topFade <= 0) continue; // מתחת לסף — לא מציירים כלל (גם חוסך ציור)
         // 🤫 עדין-עדין: אטימות נמוכה מאוד + כמעט בלי זוהר → אבק-אותיות ברקע, לא מתחרה במרכז.
         ctx.save();
         ctx.translate(x, y); ctx.rotate(Math.sin(p.rot) * 0.25); ctx.scale(sx, 1);
-        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.14 + 0.16 * p.z) * (0.6 + 0.4 * sx);
+        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.14 + 0.16 * p.z) * (0.6 + 0.4 * sx) * topFade;
         ctx.font = `600 ${fs}px 'Heebo','Assistant',system-ui,sans-serif`;
         ctx.shadowBlur = 0; // 🔪 אותיות חדות (בלי הילה) — עדינות אך מכוונות, לא מרוחות
         ctx.fillStyle = p.color;
