@@ -134,13 +134,13 @@ async function resolveIdentity(req: Request, body: any): Promise<{ identity: str
   return { identity: ip ? `ip:${ip}` : "", tier: "anon" };
 }
 
-async function checkQuota(identity: string, tier: string): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string }> {
+async function checkQuota(identity: string, tier: string, limitOverride: number | null = null): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string }> {
   // fail-open: אם בדיקת-המכסה נכשלת (DB), לא חוסמים את הפיצ׳ר — אבל הלוג עדיין נספר בהמשך.
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/ai_quota_check`, {
       method: "POST",
       headers: { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_identity: identity, p_tier: tier }),
+      body: JSON.stringify({ p_identity: identity, p_tier: tier, p_limit_override: limitOverride }),
     });
     if (!r.ok) return { allowed: true, used: 0, limit: null, tier };
     return await r.json();
@@ -162,14 +162,28 @@ Deno.serve(async (req: Request) => {
     const again = !!body?.again;
     if (!subject && !facts) return json({ analysis: null, engine, error: "empty" });
 
-    // 📏 מכסת-AI — נבדק ונספר *לפני* קריאת-ה-LLM (עוצר שריפת-קרדיט אמיתית).
+    // 📏 מכסת-AI (ai_quota_law) — רק ה-AI *העמוק* (Sonnet, ברירת-מחדל) תחת מכסת 3/יום.
+    // ה-AI המהיר (fast=Haiku, דפי-מספר/מחשבון) = מסלול-חינם נדיב (אנטי-לולאה בלבד).
+    // מסר-המסע (journey-message) לא עובר כאן כלל → נשאר חינם.
+    const isDeep = !body?.fast;
     const { identity, tier } = await resolveIdentity(req, body);
-    const q = await checkQuota(identity, tier);
-    if (!q.allowed) {
-      return json({ analysis: null, error: "quota", tier: q.tier, used: q.used, limit: q.limit,
-        message: q.tier === "anon"
-          ? "השתמשת ב-3 שאלות ה-AI היומיות. הירשמו בחינם (פחות מדקה) ל-15 שאלות ביום, ולשמירת היסטוריה ומסעות."
-          : "הגעת למכסת שאלות-ה-AI היומית. המכסה מתחדשת מחר." });
+    if (isDeep) {
+      const q = await checkQuota(identity, tier);            // עמוק: 3/15/100/∞
+      if (!q.allowed) {
+        return json({ analysis: null, error: "quota", surface: "deep", tier: q.tier, used: q.used, limit: q.limit,
+          message: q.tier === "anon"
+            ? "השתמשת ב-3 ניתוחי-ה-AI המעמיקים היומיים. הירשמו בחינם (פחות מדקה) ל-15 ביום, ולשמירת היסטוריה ומסעות."
+            : "הגעת למכסת ניתוחי-ה-AI המעמיקים היומית. המכסה מתחדשת מחר." });
+      }
+    } else if (tier === "anon" || tier === "user") {
+      const lim = tier === "anon" ? 30 : 200;                // מהיר: נדיב, אנטי-לולאה; מנוי/אדמין = חופשי
+      const q = await checkQuota(`${identity}:f`, tier, lim);
+      if (!q.allowed) {
+        return json({ analysis: null, error: "quota", surface: "fast", tier: q.tier, used: q.used, limit: q.limit,
+          message: tier === "anon"
+            ? "הגעת למכסת ה-AI המהיר היומית (נדיבה). הירשמו בחינם להמשך חלק ולשמירת ההיסטוריה."
+            : "הגעת למכסת ה-AI המהיר היומית. המכסה מתחדשת מחר." });
+      }
     }
 
     const hint = KIND_HINT[kind] || "ניתוח כללי של הנתון שסופק.";
