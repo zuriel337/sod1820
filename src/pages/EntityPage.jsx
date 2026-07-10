@@ -8,7 +8,7 @@ export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/tracking.js";
-import RealityHint from "../components/RealityHint.jsx";
+// RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import ConvergenceMeter from "../components/ConvergenceMeter.jsx";
@@ -996,7 +996,7 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   return (
     <Shell P={P}>
-      <RealityHint />
+      {/* 🫧 RealityHint (בועת-הרמזים הצפה) הוסרה מדף המספר לבקשת צוריאל — הפריעה בנייד. */}
       {/* 💌 הודעה אישית מבעל האתר (owner_note_law) — פופ-אפ + כפתור צף לפתיחה חוזרת */}
       {ownerNote && noteOpen && (
         <OwnerNoteModal note={ownerNote} number={value} onClose={() => setNoteOpen(false)} />
