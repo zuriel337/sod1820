@@ -72,7 +72,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.globalAlpha = fin * (1 - scatter) * (it >= C0 ? Math.min(1, (it - C0) / 0.4) : 0);
       ctx.fillStyle = "rgba(246,226,122,.92)";
       ctx.font = `800 ${Math.min(W, H) * 0.052}px 'Heebo',system-ui,sans-serif`;
-      ctx.fillText("אוֹתָן הָאוֹתִיּוֹת = שָׂפוֹת", cx, cy + bfs * 0.92);
+      ctx.fillText("אוֹתָן הָאוֹתִיּוֹת = שָׂפוֹת", cx, cy + bfs * 0.7);
       ctx.restore(); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
       return it > END;
     };
