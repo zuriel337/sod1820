@@ -123,6 +123,9 @@ export default function JourneyPage() {
   const [finished, setFinished] = useState(null);  // null | "complete" | "stopped"
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  // 🐞 עקבת-ניפוי זמנית (רק /journey-beta) — מראה איפה begin() נתקע. הסר אחרי האבחון.
+  const [dbg, setDbg] = useState([]);
+  const trace = (m) => { try { setDbg(d => [...d.slice(-9), `${((performance.now() / 1000) || 0).toFixed(1)}s ${m}`]); } catch { /* noop */ } };
   const [aiMsg, setAiMsg] = useState(null);        // מסר אישי מהמנוע (AI) — null עד שלוחצים
   const [aiState, setAiState] = useState("idle");  // idle | busy | done | off (לא פעיל/נכשל)
   const [unlocked, setUnlocked] = useState(false); // 🔓 האם מסר-העומק נפתח (בזכות שיתוף)
@@ -187,23 +190,31 @@ export default function JourneyPage() {
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle"); setGemMsg(null); setGemState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
+    setDbg([]); trace("begin()");
     try {
       let value = null, startPhrase = null;
       if (isNumeric(fromParam)) {
         value = parseInt(fromParam, 10);
+        trace(`numeric=${value}`);
       } else {
+        trace("→ getRandomStartPhrase");
         startPhrase = String(fromParam || await withTimeout(getRandomStartPhrase(), 3000, null) || "ירושלים").trim();
+        trace(`phrase=${startPhrase}`);
         // 🔢 גימטריית השם ישירות — עובד לכל שם/ביטוי (לא רק מה שקיים ב-bidim).
-        // כך «צוריאל» → 337 גם אם אינו בטבלה. פולבק: אשכול-ערך עשיר אם קיים.
         const g = calcGem(startPhrase);
+        trace(`calcGem=${g}`);
         value = g >= 10 ? g : null;
         if (value == null) {
+          trace("→ getPhraseValueFamilies");
           const fams = await withTimeout(getPhraseValueFamilies(startPhrase), 4000, []);
           value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
+          trace(`fams→value=${value}`);
         }
       }
-      if (value == null) { setFinished("stopped"); return; }
+      if (value == null) { trace("value=null → stopped"); setFinished("stopped"); return; }
+      trace(`→ getValuePhraseList(${value})`);
       const fam = await withTimeout(getValuePhraseList(value), 5000, []);
+      trace(`fam=${fam.length}`);
       if (!fam.length) { setTarget(value); setBases([value]); setFinished("stopped"); return; }
       // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
       const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
@@ -216,9 +227,12 @@ export default function JourneyPage() {
       logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
       logView("jv_start_" + autoMode, String(value));   // 🧪 מדד A/B נגן-אוטומטי
       try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
+      trace(`✓ ready · goal=${clamp(fam.length, 3, 7)}`);
     } catch (e) {
+      trace(`✗ ERROR: ${String(e?.message || e).slice(0, 60)}`);
       setFinished("stopped");   // ⛔ שגיאה כלשהי → לא נתקעים על «מחפש קשרים»
     } finally {
+      trace("finally → loading=false");
       setLoading(false);        // תמיד — מבטיח שהטעינה נעצרת
     }
   }
@@ -550,6 +564,12 @@ export default function JourneyPage() {
 
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
+      {/* 🐞 עקבת-ניפוי זמנית — מראה איפה begin() נתקע. יוסר אחרי האבחון. */}
+      {dbg.length > 0 && (
+        <div style={{ position: "fixed", left: 6, bottom: 6, zIndex: 9999, maxWidth: "94vw", background: "rgba(0,0,0,.86)", color: "#7CFC00", fontFamily: "monospace", fontSize: 11, lineHeight: 1.45, padding: "8px 10px", borderRadius: 8, direction: "ltr", textAlign: "left", pointerEvents: "none", whiteSpace: "pre-wrap" }}>
+          {dbg.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+      )}
       <style>{`@keyframes jArrive{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
         @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}
         @keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
