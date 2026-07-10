@@ -85,6 +85,7 @@ export default function JourneyPage() {
   const [declinedDeep, setDeclinedDeep] = useState(false); // «לא עכשיו» → שקט על המסך הזה (בלי להציק שוב)
   const journeyIdRef = useRef(null);  // מזהה מופע-מסע — לתפירת המשפך לרמת-אדם
   const hookShownRef = useRef(false); // שההוק ייספר פעם אחת למסע
+  const skipRef = useRef(false);      // «דלגו לגילוי» → מאיץ את הנגן-האוטומטי לגילוי מיידי
   const [hookBusy, setHookBusy] = useState(false); // M2: לחיצת-פוש בעבודה
   const [showEmail, setShowEmail] = useState(false); // M2: מייל = אופציה מודחקת (רגע 3)
   // 🧭 M2 — דף-כניסה לחוויה: הגעה ל-/journey בלי ?from= מציגה דף-נחיתה (החוויה + SEO), לא מסע-אקראי אוטומטי.
@@ -202,7 +203,17 @@ export default function JourneyPage() {
     }
   }
 
-  function restart() { begin(""); }
+  function restart() { skipRef.current = false; begin(""); }
+
+  // ▶️ נגן-אוטומטי — «וואו מיידי»: המסע מתקדם לבד עד הגילוי בלי לחיצות ידניות.
+  // תיקון הצוק (החלטת צוריאל 10.7.2026): 96% נטשו כי נדרשו 3-7 לחיצות להגיע לערך.
+  // ~500ms לתחנה (התגלגלות נעימה ~2-3ש׳); «דלגו לגילוי» מאיץ ל-90ms → גילוי כמעט-מיידי.
+  useEffect(() => {
+    if (!entered || loading || busy || finished || !family.length || !path.length) return;
+    const t = setTimeout(() => { step(); }, skipRef.current ? 90 : 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entered, loading, busy, finished, family.length, path.length]);
 
   const root = bases[0] ?? target;                 // הערך-שורש שאליו התכנס המסע (לפני קפיצות)
   const leaped = bases.length > 1;
@@ -700,8 +711,8 @@ export default function JourneyPage() {
 
           {/* כפתורים */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 22 }}>
-            <button onClick={step} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
-              המשיכו במסע ✨
+            <button onClick={() => { skipRef.current = true; step(); }} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "13px 30px", boxShadow: `0 0 30px ${P.onAccent}` }}>
+              ⏩ דלגו לגילוי
             </button>
             <Link to={`/number/${encodeURIComponent(cur.phrase)}`} style={{ textDecoration: "none", background: P.card, color: P.ink, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "13px 20px" }}>
               פתחו את {cur.phrase} →
