@@ -2157,7 +2157,7 @@ function RealTrafficPanel() {
   const sources = (d && d.sources) || [];
   const maxV = Math.max(...daily.map(x => Number(x.visitors) || 0), 1);
   const maxSrc = Math.max(...sources.map(s => Number(s.visitors) || 0), 1);
-  const recent = Number(d?.recent_half || 0), prior = Number(d?.prior_half || 0);
+  const recent = Number(d?.recent_avg || 0), prior = Number(d?.prior_avg || 0);
   const trend = prior > 0 ? Math.round(((recent - prior) / prior) * 100) : (recent > 0 ? 100 : 0);
   const up = trend >= 0;
   const fmt = n => Number(n || 0).toLocaleString("he");
@@ -2182,7 +2182,7 @@ function RealTrafficPanel() {
             </div>
             <div style={{ flex: "1 1 150px", border: `1px solid ${up ? "#7fd18a" : "#e0796f"}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
               <div style={{ color: up ? "#7fd18a" : "#e0796f", fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{up ? "▲" : "▼"} {Math.abs(trend)}%</div>
-              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>מחצית אחרונה מול קודמת ({fmt(recent)} מול {fmt(prior)})</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>ממוצע יומי — מחצית אחרונה מול קודמת ({fmt(recent)} מול {fmt(prior)}/יום)</div>
             </div>
             <div style={{ flex: "1 1 150px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
               <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{fmt(d.bot_visitors)}</div>
