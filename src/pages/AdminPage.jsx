@@ -2182,14 +2182,17 @@ function UsersTab() {
           <>
             <div style={card}>
               <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: "0 0 4px", direction: "ltr", textAlign: "right" }}>📧 {j.email}</h3>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12, alignItems: "center" }}>
                 {j.role === "admin" && <span style={{ ...pill("#e0796f") }}>👑 מנהל</span>}
-                {j.tier && <span style={{ ...pill(C.gold) }}>{j.tier}</span>}
+                {j.vip && <span style={{ ...pill("#e0c860") }}>✨ בני היכל</span>}
+                <span style={{ ...pill(C.gold) }}>{j.tier || "free"}</span>
+                {j.building && <span style={{ ...pill(C.border) }}>🏛️ {j.building}</span>}
                 <span style={{ ...pill(C.border) }}>נרשם {j.registered ? new Date(j.registered).toLocaleDateString("he-IL") : "—"}</span>
                 <span style={{ ...pill(C.border) }}>התחברות אחרונה {timeAgoTs(j.last_sign_in)}</span>
+                {j.phone && <a href={"https://wa.me/" + String(j.phone).replace(/\D/g, "")} target="_blank" rel="noreferrer" style={{ ...pill("#25d366"), color: "#25d366", textDecoration: "none", fontWeight: 700 }}>💬 וואטסאפ</a>}
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {[["📅 ימים פעילים", num(j.active_days), "#7fd18a"], ["🕳️ ימי היעדרות", num(absent), "#8a7a4a"], ["📆 ימים מאז הרשמה", num(j.days_since_register), C.goldBright], ["⚡ סה״כ פעולות", num(j.total_activities), C.goldBright], ["👁 נראה לאחרונה", timeAgoTs(j.last_seen), C.goldLight]].map(([lbl, v, col]) => (
+                {[["📅 ימים פעילים", num(j.active_days), "#7fd18a"], ["🕳️ ימי היעדרות", num(absent), "#8a7a4a"], ["📆 ימים מאז הרשמה", num(j.days_since_register), C.goldBright], ["⚡ סה״כ פעולות", num(j.total_activities), C.goldBright], ["💰 עלות AI", "$" + Number(j.ai?.cost_usd || 0).toFixed(3), C.gold], ["🤖 קריאות AI", num(j.ai?.calls), C.goldLight], ["👁 נראה לאחרונה", timeAgoTs(j.last_seen), C.goldLight]].map(([lbl, v, col]) => (
                   <div key={lbl} style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
                     <div style={{ color: col, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{v}</div>
                     <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
@@ -2207,6 +2210,16 @@ function UsersTab() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.mono, fontSize: 10.5, marginTop: 4 }}>
                   <span>{daily[0]?.d}</span><span>{daily[daily.length - 1]?.d}</span>
+                </div>
+              </div>
+            )}
+            {(j.searches || []).length > 0 && (
+              <div style={card}>
+                <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🔍 מה הוא מחפש (הכי הרבה)</h3>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {j.searches.map((s, i) => (
+                    <span key={i} style={{ border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px", background: "rgba(8,5,2,0.4)", color: C.goldLight, fontFamily: F.body, fontSize: 13 }} dir="rtl">🧮 {s.term} <b style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 11 }}>×{s.n}</b></span>
+                  ))}
                 </div>
               </div>
             )}
@@ -2240,9 +2253,10 @@ function UsersTab() {
           {users.map((u, i) => (
             <button key={i} onClick={() => open(u.email)} style={{ cursor: "pointer", textAlign: "right", border: `1px solid ${u.online ? "rgba(95,224,138,0.5)" : C.border}`, borderRadius: 12, padding: "11px 14px", background: "rgba(8,5,2,0.4)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <span style={{ width: 9, height: 9, borderRadius: "50%", background: u.online ? "#5fe08a" : "#4a4436", boxShadow: u.online ? "0 0 7px #5fe08a" : "none", flex: "0 0 auto" }} />
-              <span style={{ flex: 1, minWidth: 160, color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700, direction: "ltr", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}{u.role === "admin" ? " 👑" : ""}</span>
+              <span style={{ flex: 1, minWidth: 150, color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700, direction: "ltr", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}{u.role === "admin" ? " 👑" : ""}{u.vip ? " ✨" : ""}</span>
               <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>⚡ {num(u.activities)}</span>
-              <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>📅 {num(u.active_days)} ימים</span>
+              <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>📅 {num(u.active_days)}י׳</span>
+              <span style={{ color: Number(u.ai_cost) > 0 ? "#7fd18a" : C.muted, fontFamily: F.mono, fontSize: 11.5 }}>💰${Number(u.ai_cost || 0).toFixed(2)}</span>
               <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
             </button>
           ))}
