@@ -2264,6 +2264,16 @@ export async function getRandomStartPhrase() {
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
 }
 
+// 🔴 דופק המסע — נתוני-חיים אמיתיים בלבד (לטיקר תחושת-קהילה על המסע).
+// { researchers_today, journeys_today, recent_numbers[] } מ-RPC journey_pulse (SECURITY DEFINER, ספירות בלבד).
+export async function getJourneyPulse() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.rpc('journey_pulse');
+    return data || null;
+  } catch { return null; }
+}
+
 // 🧬 משפחות לפי שיטה — לדף ביטוי: לכל שיטה הערך של הביטוי *באותה שיטה* + המילים השוות לו שם.
 // pairs: [{method, value}] (הערך של הביטוי בכל שיטה). מחזיר [{method, value, count, phrases}].
 export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) {

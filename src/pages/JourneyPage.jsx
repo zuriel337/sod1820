@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, getAiAnalysis, subscribeEmail, logJourneySave } from "../lib/supabase.js";
+import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, getAiAnalysis, subscribeEmail, logJourneySave, getJourneyPulse } from "../lib/supabase.js";
 import { visitorId } from "../lib/feedback.js";
 import { shareJourney as shareJourneyCard } from "../lib/numberCard.js";
 import { track, trackAi } from "../lib/tracking.js";
@@ -55,6 +55,38 @@ const LAYERS = [
   { t: "שכבה שנייה — פתיחת הקשרים", n: "גילוי מילים, גימטריות, מקורות ותכנים הקשורים למספר." },
   { t: "שכבה שלישית — העמקה", n: "חיבור בין מספרים, רעיונות ורמזים שנאספו לאורך הדרך." },
 ];
+
+// 🔴 דופק המסע — טיקר תחושת-קהילה עם נתונים אמיתיים בלבד (journey_pulse RPC).
+// «458 אנשים חוקרים מספרים היום» · «המספר X נחקר עכשיו» · «N יצאו למסע היום».
+function JourneyPulse({ P }) {
+  const [items, setItems] = useState([]);
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    getJourneyPulse().then(d => {
+      if (!alive || !d) return;
+      const out = [];
+      if (d.researchers_today >= 8) out.push(`🔴 ${d.researchers_today} אנשים חוקרים מספרים היום`);
+      if (d.journeys_today >= 3) out.push(`🧭 ${d.journeys_today} יצאו למסע היום`);
+      (d.recent_numbers || []).slice(0, 6).forEach(n => out.push(`🔍 המספר ${n} נחקר ממש עכשיו`));
+      setItems(out);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  useEffect(() => {
+    if (items.length < 2) return;
+    const t = setInterval(() => setI(v => (v + 1) % items.length), 2600);
+    return () => clearInterval(t);
+  }, [items.length]);
+  if (!items.length) return null;
+  return (
+    <div style={{ maxWidth: 460, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, background: "rgba(255,255,255,0.05)", border: `1px solid ${P.border}`, borderRadius: 999, padding: "9px 16px", animation: "jFade .5s ease both" }}>
+      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e0556a", boxShadow: "0 0 8px #e0556a", flexShrink: 0, animation: "jPulseDot 1.2s ease-in-out infinite" }} />
+      <span key={i} style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textAlign: "center", animation: "jFade .45s ease both" }}>{items[i]}</span>
+      <style>{`@keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
+    </div>
+  );
+}
 
 export default function JourneyPage() {
   const P = usePalette();
@@ -427,6 +459,9 @@ export default function JourneyPage() {
             </form>
           )}
         </div>
+
+        {/* 🔴 דופק המסע — תחושת-קהילה חיה (נתונים אמיתיים) */}
+        <JourneyPulse P={P} />
 
         {/* שלוש השכבות */}
         <div style={{ maxWidth: 560, margin: "0 auto 24px", display: "grid", gap: 10, animation: "jFade .5s ease .1s both" }}>
