@@ -16,6 +16,9 @@ const ACCENT = "#7fc8ff";
 // עולם «קוד המציאות» — עדשת המציאות/קולנוע. העדכונים הראשיים = כל התגיות של העולם הזה
 // (מימד חמש · מטריקס · משחקי הדיונון · קולנוע), לא רק «מימד חמש». שמות פנימיים — לא מוצגים בכותרת.
 const REALITY_TAG_SET = new Set(REALITY_CODE_TAGS);
+// 🚫 תגיות שלא שייכות לעדשת «קוד המציאות» (קהל חילוני/סקרן) — מסננים מהפיד.
+// «הינוקא» = פוסטי תפילות/סגולות דתיים; לא מתאימים לעדשה הזו. ניתן להרחיב.
+const REALITY_EXCLUDE_TAGS = new Set(["הינוקא"]);
 
 // רשתות "קוד המציאות" — ערוץ וואטסאפ · אינסטגרם · פייסבוק (אייקוני מותג simple-icons)
 const RC_ICONS = {
@@ -82,7 +85,12 @@ export default function HomeReality() {
     applySeo({ title: "קוד המציאות — סוד 1820", description: "המספרים שמאחורי המציאות: דפוסים, צירופים והקוד שמתחת לפני השטח.", path: "/reality" });
     getRealityCodePosts(9).then(posts => setFeatured(posts || [])).catch(() => {});
     getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(({ posts }) => {
-      setMinor((posts || []).filter(p => !(p.tags || []).some(t => REALITY_TAG_SET.has(t))).slice(0, 8));
+      setMinor((posts || []).filter(p => {
+        const tags = p.tags || [];
+        if (tags.some(t => REALITY_TAG_SET.has(t))) return false;      // כבר מוצג ב-featured
+        if (tags.some(t => REALITY_EXCLUDE_TAGS.has(t))) return false; // תוכן דתי (הינוקא) — לא בעדשה הזו
+        return true;
+      }).slice(0, 8));
     }).catch(() => {});
   }, []);
 
