@@ -6,6 +6,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
+import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
@@ -47,6 +48,8 @@ export default function Layout() {
   const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
   // 📡 בדף הבית ובצ'אט: מוסרים את הטיקר-העליון ואת בועת מגירת-המספר, ובמקומם «פותח העדכונים» החי (LiveChannelFeed).
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
+  // 🌌 באנר-העל הקוסמי — בכל האתר פרט לסביבת המחקר (בית המדרש) ולהיכל הגילוי (שם נדרש שקט נקי).
+  const noBanner = [/^\/research/, /^\/beit-midrash/, /^\/heichal/, /^\/היכל/].some(re => re.test(pathname));
   const mode = (supportsLight && globalMode === "light") ? "light" : "dark"; // אחרת — כהה בכוח
   const P = PALETTES[mode];
   const dark = mode === "dark";
@@ -64,6 +67,8 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
+        {/* 🌌 באנר-העל הקוסמי (פסוק על שמי-כוכבים + אור-נגלה) — מתחת לתפריט, בכל האתר פרט למחקר/היכל. */}
+        {!noBanner && <CosmicVerseBanner mode={mode} />}
         {/* 📡 הטיקר («עכשיו באתר») — בכל האתר, פרט לבית ולצ'אט (שם «פותח העדכונים» תופס את מקומו). */}
         {!liveChrome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
