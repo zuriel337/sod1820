@@ -23,9 +23,10 @@ export default function AuthPage() {
     border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accent}`,
     borderRadius: 12, padding: "40px 32px", boxShadow: `0 4px 40px ${P.glow}`,
   };
+  // כפתור-ספק אחיד — כל שיטות ההתחברות באותו מראה (כרטיס האתר), המותג רק באייקון הצבעוני.
   const googleBtn = {
     width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
-    background: "#fff", color: "#222", border: `1px solid ${P.borderStrong}`, borderRadius: 8,
+    background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 8,
     padding: "12px 16px", cursor: "pointer", fontFamily: F.heading, fontSize: 14, fontWeight: 700,
   };
   const linkBtn = {
@@ -156,8 +157,8 @@ export default function AuthPage() {
               המשך עם Google
             </button>
 
-            <button onClick={() => signInWithFacebook()} style={{ ...googleBtn, marginTop: 10, background: "#1877F2", color: "#fff", border: "1px solid #1877F2" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+            <button onClick={() => signInWithFacebook()} style={{ ...googleBtn, marginTop: 10 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
               המשך עם פייסבוק
             </button>
 
