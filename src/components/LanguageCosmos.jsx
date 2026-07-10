@@ -14,7 +14,9 @@ const SCRIPTS = [
   { chars: "БГДЖЗИЛПФШЯ",            color: "#a7f0c0" }, // קירילית — ירוק
   { chars: "0123456789",             color: "#eae4ff" }, // ספרות — לבן-כוכבי
 ];
-const CORE_NUMBERS = ["1820", "26", "358", "541", "611", "314", "137"];
+// 🔤 המרכז — מילה/שם שמתהפך בין שפות (במקום המספר). ניתן להחלפה בקלות למילה/שם אחר.
+// ברירת-מחדל «אחד» על-שם «לְעָבְדוֹ שְׁכֶם אֶחָד» שבפסוק — אותו רעיון בכל השפות.
+const CENTER = ["אֶחָד", "One", "Ἕν", "واحد", "Один", "Eins", "Un"];
 const FLAT = SCRIPTS.flatMap(s => [...s.chars].map(ch => ({ ch, color: s.color })));
 
 const VERSE = "כִּי אָז אֶהְפֹּךְ אֶל עַמִּים שָׂפָה בְרוּרָה לִקְרֹא כֻלָּם בְּשֵׁם יְהוָה לְעָבְדוֹ שְׁכֶם אֶחָד";
@@ -44,6 +46,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         vin: rnd(0.0016, 0.0042),           // מהירות התכנסות (יחסית ל-maxR)
         spin: rnd(-0.5, 0.5), rot: rnd(0, 6.28),
         sway: rnd(0.4, 1.3), swayP: Math.random() * 6.28,
+        ft: rnd(1.2, 4), fl: 0, sw: false,  // 🔄 מונה-היפוך · התקדמות-היפוך · האם כבר הוחלף הכתב
       };
     };
 
@@ -94,35 +97,50 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
         p.rot += p.spin * 0.01;
         const nearC = 1 - Math.max(0, p.dist) / maxR; // 0 בשוליים → 1 במרכז
         if (p.dist <= maxR * 0.06) { Object.assign(p, spawn()); continue; } // הגיע למרכז → נטמע ונולד מחדש
+        // 🔄 היפוך-שפה: האות מתהפכת (scaleX) ובאמצע ההיפוך מתחלפת לכתב אחר — «אותיות
+        // שהופכות לשפות». כמו flip ב-CSS, על קנבס: scaleX 1→0→1 עם החלפת-תו ב-0.
+        if (p.fl > 0) {
+          p.fl += 0.028;
+          if (p.fl >= 0.5 && !p.sw) { const g = pick(); p.ch = g.ch; p.color = g.color; p.sw = true; }
+          if (p.fl >= 1) { p.fl = 0; p.sw = false; p.ft = rnd(1.6, 4.2); }
+        } else { p.ft -= 0.016; if (p.ft <= 0) p.fl = 0.0001; }
+        const sx = p.fl > 0 ? Math.max(0.03, Math.abs(Math.cos(p.fl * Math.PI))) : 1;
         const wob = p.sway * 6 * Math.sin(t * 0.9 + p.swayP);
         const x = cx + Math.cos(p.ang) * p.dist + Math.cos(p.ang + 1.57) * wob;
         const y = cy + Math.sin(p.ang) * p.dist + Math.sin(p.ang + 1.57) * wob;
         const fs = (12 + 30 * p.z) * (0.6 + 0.4 * nearC);
         const fade = nearC < 0.12 ? nearC / 0.12 : (nearC > 0.86 ? (1 - nearC) / 0.14 : 1); // דוהה בשוליים ובמרכז
         ctx.save();
-        ctx.translate(x, y); ctx.rotate(Math.sin(p.rot) * 0.25);
-        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.5 + 0.5 * p.z);
+        ctx.translate(x, y); ctx.rotate(Math.sin(p.rot) * 0.25); ctx.scale(sx, 1);
+        ctx.globalAlpha = Math.max(0, Math.min(1, fade)) * (0.5 + 0.5 * p.z) * (0.55 + 0.45 * sx);
         ctx.font = `700 ${fs}px 'Heebo','Assistant',system-ui,sans-serif`;
-        ctx.shadowColor = p.color; ctx.shadowBlur = 12 * nearC + 4;
+        ctx.shadowColor = p.color; ctx.shadowBlur = 12 * nearC + 4 + (p.fl > 0 ? 10 * (1 - sx) : 0);
         ctx.fillStyle = p.color;
         ctx.fillText(p.ch, 0, 0);
         ctx.restore();
       }
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
 
-      // המספר המרכזי — מתחלף רך כל ~4.6ש
+      // 🔤 המילה המרכזית — מתהפכת בין שפות כל ~2.9ש (flip: scaleX 1→0→1 עם החלפה)
+      const DUR = 2.9, FZ = 0.42;
       numT += 0.016;
-      if (numT > 4.6) { numT = 0; numI = (numI + 1) % CORE_NUMBERS.length; }
-      const appear = Math.min(1, numT / 0.6) * Math.min(1, (4.6 - numT) / 0.6);
-      const num = CORE_NUMBERS[numI];
+      if (numT > DUR) { numT = 0; numI = (numI + 1) % CENTER.length; }
+      let csx = 1;
+      if (numT > DUR - FZ) csx = Math.max(0.03, (DUR - numT) / FZ);   // מצטמצם לפני ההחלפה
+      else if (numT < FZ) csx = Math.max(0.03, numT / FZ);            // נפתח אחרי
+      const word = CENTER[numI];
       ctx.save();
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.globalAlpha = 0.9 * Math.max(0.15, appear);
-      const nfs = Math.min(W, H) * 0.30;
-      ctx.font = `900 ${nfs}px 'Heebo',system-ui,sans-serif`;
-      ctx.shadowColor = "#f6e27a"; ctx.shadowBlur = 34 + 16 * pulse;
+      // גודל מותאם — מילה ארוכה תקטן שתיכנס
+      let nfs = Math.min(W, H) * 0.26;
+      ctx.font = `900 ${nfs}px 'Heebo','Frank Ruhl Libre',system-ui,serif`;
+      const tw = ctx.measureText(word).width;
+      if (tw > W * 0.72) { nfs *= (W * 0.72) / tw; ctx.font = `900 ${nfs}px 'Heebo','Frank Ruhl Libre',system-ui,serif`; }
+      ctx.translate(cx, cy); ctx.scale(csx, 1);
+      ctx.globalAlpha = 0.95;
+      ctx.shadowColor = "#f6e27a"; ctx.shadowBlur = 34 + 16 * pulse + (csx < 1 ? 22 * (1 - csx) : 0);
       ctx.fillStyle = "#fff7df";
-      ctx.fillText(num, cx, cy);
+      ctx.fillText(word, 0, 0);
       ctx.restore();
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
 
