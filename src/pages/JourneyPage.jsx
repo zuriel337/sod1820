@@ -490,7 +490,8 @@ export default function JourneyPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "34px 18px 90px", position: "relative", zIndex: 1 }}>
       <style>{`@keyframes jArrive{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
-        @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}`}</style>
+        @keyframes jReveal{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:none}}
+        @keyframes jPulseDot{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}`}</style>
 
       <header style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>מסע התכנסות</div>
@@ -760,7 +761,12 @@ export default function JourneyPage() {
             background: P.cardGrad,
             border: `1.5px solid ${P.borderStrong}`, borderRadius: 20, padding: "34px 22px", boxShadow: `0 0 40px ${P.onAccent}`,
           }}>
-            <div style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13, marginBottom: 6 }}>תחנה {path.length}</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
+              <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>תחנה {path.length} / ~{goal}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: P.accentText, animation: "jPulseDot 1s ease-in-out infinite" }} />▶ מתקדם אוטומטית
+              </span>
+            </div>
             <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,44px)", fontWeight: 800, lineHeight: 1.25 }}>{cur.phrase}</div>
             {cur.world && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 1, marginTop: 8 }}>{cur.world}</div>}
           </div>
