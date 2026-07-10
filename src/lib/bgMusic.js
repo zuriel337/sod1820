@@ -2,16 +2,22 @@
 // (ניווט בין פוסטים לא קוטע את הנגינה). הרצועות מהמאגר (באקט media הציבורי).
 // החלפת רצועה = next/prev/playIndex. בסיום רצועה — מעבר אוטומטי לבאה.
 
-// 🌌 פסקול חללי — «סימפוניית כוכבי-הלכת»: הקלטות החלל של גשושיות Voyager של NASA.
-// נחלת-הכלל (Public Domain Mark 1.0) → מותר להטמעה מסחרית באתר. ~30 דק' כל רצועה (אמביינט
-// חייזרי-קוסמי, מהפנט). מתארח ב-archive.org (סטרימינג/range נתמכים; ניגון cross-origin ב-<audio>
-// לא דורש CORS). אפשר בעתיד להעתיק לבאקט media למקסימום אמינות.
+// 🎼 פסקול מלכותי/אפי — Kevin MacLeod (incompetech.com), רישיון CC-BY 4.0 → מותר מסחרית
+//    כולל קרדיט (מוצג בשם-הרצועה: «· Kevin MacLeod · CC-BY»). תחושת פסקול-קולנוע/פנטזיה מלכותי.
+// 🌌 פסקול חללי — «סימפוניית כוכבי-הלכת»: הקלטות Voyager של NASA, נחלת-הכלל (Public Domain Mark).
+// שני העולמות בפלייליסט אחד — ⏭ נודד בין «ממלכה אפית» ל«חלל עמוק». מתארחים ב-incompetech/archive
+// (range/streaming; ניגון cross-origin ב-<audio> בלי CORS). אפשר בעתיד להעתיק לבאקט media לאמינות.
 const A = "https://archive.org/download";
+const K = "https://incompetech.com/music/royalty-free/mp3-royaltyfree";
 export const TRACKS = [
+  { t: "Crusade · Kevin MacLeod · CC-BY", src: `${K}/Crusade.mp3` },
+  { t: "Heroic Age · Kevin MacLeod · CC-BY", src: `${K}/Heroic%20Age.mp3` },
+  { t: "Prelude and Action · Kevin MacLeod · CC-BY", src: `${K}/Prelude%20and%20Action.mp3` },
+  { t: "Master of the Feast · Kevin MacLeod · CC-BY", src: `${K}/Master%20of%20the%20Feast.mp3` },
+  { t: "Angevin · Kevin MacLeod · CC-BY", src: `${K}/Angevin.mp3` },
+  { t: "Achilles · Kevin MacLeod · CC-BY", src: `${K}/Achilles.mp3` },
   { t: "סימפוניית כוכבי-הלכת · NASA Voyager II", src: `${A}/SymphoniesOfThePlanets2/1-SymphoniesOfThePlanets-Nasa-VoyagerRecordings.mp3` },
   { t: "סימפוניית כוכבי-הלכת · NASA Voyager III", src: `${A}/SymphoniesOfThePlanets3/2-SymphoniesOfThePlanets-Nasa-VoyagerRecordings.mp3` },
-  { t: "סימפוניית כוכבי-הלכת · NASA Voyager IV", src: `${A}/4-01-symphonies-of-the-planets-4/4-01_Symphonies_of_the_Planets_4.mp3` },
-  { t: "סימפוניית כוכבי-הלכת · NASA Voyager V", src: `${A}/5-01-symphonies-of-the-planets-5/5-01_Symphonies_of_the_Planets_5.mp3` },
 ];
 
 let audio = null;
