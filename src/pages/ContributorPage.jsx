@@ -168,14 +168,22 @@ export default function ContributorPage() {
     return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
   }, [c?.locked, c?.building]);
 
-  // 📝 הפוסטים על שמו — עדשה על posts (author = השם הקנוני), לא עותק
+  // 📝 הפוסטים על שמו — עדשה על posts. כולל פוסטים שכתב (author) וגם שהשתתף בהם (authors[]).
+  // «participated» = הכתב הראשי הוא מישהו אחר → מסומן «בהשתתפות».
   useEffect(() => {
     if (!c?.display_name) return;
+    const name = c.display_name;
     let alive = true;
-    supabase.from("posts").select("slug,title,date,image_url").eq("author", c.display_name)
-      .order("date", { ascending: false }).limit(30)
-      .then(({ data }) => { if (alive && Array.isArray(data)) setPosts(data); })
-      .catch(() => {});
+    Promise.all([
+      supabase.from("posts").select("slug,title,date,image_url,author").eq("author", name).order("date", { ascending: false }).limit(40),
+      supabase.from("posts").select("slug,title,date,image_url,author").contains("authors", [name]).order("date", { ascending: false }).limit(40),
+    ]).then(([a, b]) => {
+      if (!alive) return;
+      const bySlug = new Map();
+      [...(a.data || []), ...(b.data || [])].forEach(p => { if (!bySlug.has(p.slug)) bySlug.set(p.slug, { ...p, participated: p.author !== name }); });
+      const merged = [...bySlug.values()].sort((x, y) => String(y.date || "").localeCompare(String(x.date || "")));
+      setPosts(merged);
+    }).catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name]);
 
@@ -478,13 +486,18 @@ export default function ContributorPage() {
               <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
                 {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>{p.title}</div>
+                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
+                    {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{p.title}
+                  </div>
                   {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
                 </div>
                 <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 14 }}>←</span>
               </a>
             ))}
           </div>
+          <a href={`/post?author=${encodeURIComponent(c.display_name)}`} style={{ display: "inline-block", marginTop: 10, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>
+            📖 כל הפוסטים של {c.display_name} ←
+          </a>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4493,6 +4493,16 @@ function PostPageBySlug({ onNav }) {
   const image    = post?.image_url ?? null;
   const fx       = POST_FX[slug];   // אפקט ראש-עמוד (מטריקס-ריין) פר-פוסט
   const author   = post?.author ?? "";
+  // 🔗 גשר כותב↔חוקר: אם הכתב הוא גם חוקר → שם-הכותב מוביל לדף-החוקר העשיר (לא רק לרשימת הפוסטים)
+  const [authorContrib, setAuthorContrib] = useState(null);
+  useEffect(() => {
+    setAuthorContrib(null);
+    if (!author) return;
+    let alive = true;
+    getContributorByName(author).then(c => { if (alive) setAuthorContrib(c); }).catch(() => {});
+    return () => { alive = false; };
+  }, [author]);
+  const authorTo = authorContrib ? contributorHref(authorContrib) : null;
   const title    = stripHtml(post?.title ?? "");
   const date     = formatDateHe(post?.date ?? "");
   const dateHeb  = formatDateHebrewCal(post?.date ?? "");
@@ -4662,8 +4672,8 @@ function PostPageBySlug({ onNav }) {
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
                     <div
-                      onClick={() => navigate(by.cat ? '/category/' + toSlug(by.cat) : '/post?author=' + encodeURIComponent(by.name))}
-                      title={by.cat ? `כל הפוסטים בקטגוריית ${by.cat}` : `כל הפוסטים של ${by.name}`}
+                      onClick={() => navigate(authorTo ? authorTo : by.cat ? '/category/' + toSlug(by.cat) : '/post?author=' + encodeURIComponent(by.name))}
+                      title={authorTo ? `דף החוקר של ${by.name}` : by.cat ? `כל הפוסטים בקטגוריית ${by.cat}` : `כל הפוסטים של ${by.name}`}
                       style={{ display: "inline-flex", alignItems: "center", gap: 13, background: pc.surface, border: `1px solid ${pc.border}`, borderRadius: 999, padding: "9px 22px 9px 14px", cursor: "pointer", transition: "border-color .15s" }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = pc.borderGold}
                       onMouseLeave={e => e.currentTarget.style.borderColor = pc.border}

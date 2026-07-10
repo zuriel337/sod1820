@@ -1486,6 +1486,30 @@ export async function getContributorsList() {
   return data || [];
 }
 
+// 🔗 גשר כותב↔חוקר — לפי התאמת-שם אחידה (contributors.display_name = posts.author).
+// מחזיר { slug, code, vip, building, locked } או null. כולל חוקרים בבנייה/נעולים (מקשרים גם אליהם).
+// Cache בזיכרון כדי לא לשאול פעמיים על אותו שם.
+const _contribByName = new Map();
+export async function getContributorByName(name) {
+  const key = String(name || '').trim();
+  if (!key || !supabase) return null;
+  if (_contribByName.has(key)) return _contribByName.get(key);
+  let result = null;
+  try {
+    const { data } = await supabase.from('contributors')
+      .select('slug, code, display_name, vip, building, locked')
+      .eq('display_name', key).eq('active', true).maybeSingle();
+    result = data || null;
+  } catch { result = null; }
+  _contribByName.set(key, result);
+  return result;
+}
+// כתובת דף-החוקר הקנונית (קוד-מספר עדיף על slug — בלי שמות-אנשים בכתובת)
+export function contributorHref(c) {
+  if (!c) return null;
+  return `/community/researcher/${c.code || c.slug}`;
+}
+
 // 👥 כל הכתבים באתר — איחוד שלושה מקורות (כדי שלא יחסרו כתבים ישנים בבורר):
 //   1) כתבים אמיתיים מהפוסטים (author + authors[]) — כולל «מזכה הרבים» והרבנים.
 //   2) מרשם הכותבים (authors.js) — שמות עם תמונה/תפקיד.

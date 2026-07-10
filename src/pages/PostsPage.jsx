@@ -13,6 +13,7 @@ import {
 } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
+import { getContributorByName, contributorHref } from "../lib/supabase.js";
 import { cleanName } from "../lib/galleryName.js";
 import Lightbox from "../components/Lightbox.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
@@ -197,6 +198,16 @@ export default function PostsPage() {
     });
   }, [filterAuthor]);
 
+  // 🔗 גשר: אם הכותב הוא גם חוקר → מציעים מעבר לדף-החוקר העשיר (גילויים + וואטסאפ)
+  const [authorContrib, setAuthorContrib] = useState(null);
+  useEffect(() => {
+    setAuthorContrib(null);
+    if (!filterAuthor) return;
+    let alive = true;
+    getContributorByName(filterAuthor).then(c => { if (alive) setAuthorContrib(c); }).catch(() => {});
+    return () => { alive = false; };
+  }, [filterAuthor]);
+
   // אפקט גלישה (מדלג במצב זרם המציאות)
   useEffect(() => {
     if (searching || realityMode) return;
@@ -261,6 +272,15 @@ export default function PostsPage() {
             <button onClick={() => setSearchParams({})} style={{ background: "none", border: "none", color: P.inkSoft, cursor: "pointer", fontFamily: F.heading, fontSize: 13, letterSpacing: 3, marginBottom: 12 }}>← כל הפוסטים</button>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>✍️ פוסטים של</div>
             <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(22px,4vw,36px)", fontWeight: 700, margin: 0 }}>{filterAuthor}</h1>
+            {authorContrib && (
+              <div style={{ marginTop: 12 }}>
+                <Link to={contributorHref(authorContrib)} style={{
+                  display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+                  background: P.glow, border: `1px solid ${P.accent}`, borderRadius: 999,
+                  padding: "8px 18px", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700,
+                }}>🔎 דף החוקר המלא של {filterAuthor} — גילויים ועדכונים ←</Link>
+              </div>
+            )}
           </>
         ) : (
           <>
