@@ -1413,13 +1413,20 @@ export async function adminUpdatePost(id, fields = {}) {
 
 // שמירת פוסט (יצירה או עריכה) בעורך המתקדם — דרך RPC admin_save_post (SECURITY DEFINER, מאומת-מנהל).
 // יצירה: id=null → מחשב id/wp_id=max+1, date=modified=now (post_publish_law). עריכה: id קיים → modified=now.
-// מחזיר { id, slug, wp_id, modified, date }. זורק שגיאה (not_admin / empty_title / not_found).
-export async function adminSavePost({ id = null, title, slug = null, content = '', excerpt = '', categories = [], tags = [], author = null, image_url = null, source = 'ai', ai_touched = false, authors = null }) {
+// שדות מתקדמים: theme ('auto'|'light'|'dark' לפוסט) · keepModified (true=אל תקפיץ לראש «עדכונים אחרונים») ·
+//   axisPin (undefined=אל תיגע · null=אוטו · 1=הצג בציר ההתגלות · 0=הסתר) · treePriority (מיקום ידני בציר, גבוה=למעלה).
+// מחזיר { id, slug, wp_id, modified, date, theme, axis_pin, tree_priority }. זורק (not_admin / empty_title / not_found).
+export async function adminSavePost({ id = null, title, slug = null, content = '', excerpt = '', categories = [], tags = [], author = null, image_url = null, source = 'ai', ai_touched = false, authors = null, theme = null, keepModified = false, axisPin, treePriority }) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.rpc('admin_save_post', {
     p_id: id, p_title: title, p_slug: slug, p_content: content, p_excerpt: excerpt,
     p_categories: categories || [], p_tags: tags || [], p_author: author,
     p_image_url: image_url, p_source: source, p_ai_touched: !!ai_touched,
+    p_theme: theme || null, p_keep_modified: !!keepModified,
+    p_axis_pin: axisPin === undefined || axisPin === null ? null : Number(axisPin),
+    p_axis_pin_set: axisPin !== undefined,
+    p_tree_priority: treePriority === undefined || treePriority === null ? null : Number(treePriority),
+    p_tree_priority_set: treePriority !== undefined,
   });
   if (error) throw error;
   // עמודת «authors» (כמה כתבים) — נכתבת ישירות; ה-RPC לא מכיר אותה. מנהל בלבד (RLS posts_admin_write).
@@ -1427,6 +1434,15 @@ export async function adminSavePost({ id = null, title, slug = null, content = '
     const clean = authors.map(a => String(a || '').trim()).filter(Boolean);
     try { await supabase.from('posts').update({ authors: clean.length ? clean : null }).eq('id', data.id); } catch { /* noop */ }
   }
+  return data;
+}
+
+// «החזר למקום» — מאפס modified=date (הפוסט חוזר לסדר הכרונולוגי המקורי, לא נשאר ראשון ב«עדכונים אחרונים»).
+// removeFromAxis=true → מוציא אותו גם מציר ההתגלות (axis_pin=0) באותה פעולה. מנהל בלבד.
+export async function adminResetPostPosition(id, removeFromAxis = false) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('admin_reset_post_position', { p_id: id, p_remove_from_axis: !!removeFromAxis });
+  if (error) throw error;
   return data;
 }
 

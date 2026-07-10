@@ -80,16 +80,29 @@ export default function RevelationAxis() {
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
 
     // עדכוני AI — הבהוב כחול בראש הציר. מערכתי: פוסט נכנס לציר אם הוא נושא
-    // «חותמת-AI מאומת» — כלומר בקטגוריית «רמזים חזקים» (של צוריאל) *או* בתוכנו יש
-    // את הסימן «מאומת על ידי AI» (עדכון-גימטריה מאומת, כמו ai_post_update_law).
-    // כך כל עדכון מאומת מופיע אוטומטית, בלי תלות בקטגוריה — ובלי להציף בכל פוסט AI.
-    supabase.from("posts")
-      .select("wp_id,title,slug,modified")
-      .eq("ai_touched", true)
-      .or("categories.cs.{רמזים חזקים},content.ilike.*מאומת על ידי AI*")
-      .order("modified", { ascending: false, nullsFirst: false })
-      .limit(5)
-      .then(({ data }) => setAiPosts(data || []));
+    // «חותמת-AI מאומת» — קטגוריית «רמזים חזקים» *או* הסימן «מאומת על ידי AI» בתוכן.
+    // 📍 שליטת-עורך (axis_pin): 0=מוסתר בכפייה (יוצא מהאוטומטי) · 1=מוצג בכפייה (גם בלי חותמת).
+    //   מיקום בציר: tree_priority (גבוה=למעלה) קודם, ואז modified. שני מקורות → מיזוג ייחודי.
+    const AXIS_COLS = "wp_id,title,slug,modified,axis_pin,tree_priority";
+    Promise.all([
+      supabase.from("posts").select(AXIS_COLS)
+        .eq("ai_touched", true)
+        .or("categories.cs.{רמזים חזקים},content.ilike.*מאומת על ידי AI*")
+        .or("axis_pin.is.null,axis_pin.eq.1")        // לא מוסתר בכפייה
+        .order("modified", { ascending: false, nullsFirst: false }).limit(8),
+      supabase.from("posts").select(AXIS_COLS)
+        .eq("axis_pin", 1)                            // מוצג בכפייה (גם אם אינו עומד באוטומטי)
+        .order("modified", { ascending: false, nullsFirst: false }).limit(8),
+    ]).then(([a, b]) => {
+      const byId = new Map();
+      for (const r of [...(a.data || []), ...(b.data || [])]) if (!byId.has(r.wp_id)) byId.set(r.wp_id, r);
+      const merged = [...byId.values()].sort((x, y) => {
+        const tp = (y.tree_priority ?? -1) - (x.tree_priority ?? -1);   // גבוה=למעלה
+        if (tp) return tp;
+        return String(y.modified || "").localeCompare(String(x.modified || ""));
+      }).slice(0, 6);
+      setAiPosts(merged);
+    });
   }, []);
 
   // לא מציגים בעמודי עיצוב/ניהול — ובעמוד הציר המלא הציר הוא התוכן עצמו

@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { toggleTheme } from "../lib/themeMode.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getPostBySlug, adminSavePost, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getAllAuthors } from "../lib/supabase.js";
+import { getPostBySlug, adminSavePost, adminResetPostPosition, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getAllAuthors } from "../lib/supabase.js";
 import { supabase } from "../lib/supabase.js";
 
 // 🔑 כניסה עם קוד-סוד (בלי התחברות) — ?key=<code>. הקוד עצמו לא נשמר בצד-הלקוח:
@@ -19,6 +20,17 @@ const slugify = (s) => (s || "").trim().toLowerCase().replace(/\s+/g, "-").repla
 // הזרקות סרגל-הכלים לתוך ה-textarea (כמו AdvancedPostEditor, + ריבוע גימטריה קנוני)
 const GEM_BOX = '\n<div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — עובדה מאומתת במנוע</div><div class="gb-rows"><div><b>ערך</b> = ביטוי = ביטוי</div></div><div class="gb-note">הערה: הגימטריה עובדה; הרמז — פרשנות משלימה.</div></div>\n';
 const SEE_ALSO = '\n<h3>ראו גם</h3>\n<ul>\n  <li><a href="/SLUG">כותרת פוסט קשור</a></li>\n</ul>\n';
+
+// 🎨 צבעי-מילה מודעי-תמה — נשמרים כקלאס (sc-*) ולא inline, כדי שיעבדו יום+לילה (post_text_colors_law).
+const WORD_COLORS = [
+  { k: "gold", l: "זהב", swatch: "#e8c840" },
+  { k: "red", l: "אדום", swatch: "#e0524a" },
+  { k: "blue", l: "כחול", swatch: "#3ea6ff" },
+  { k: "green", l: "ירוק", swatch: "#4bb972" },
+  { k: "violet", l: "סגול", swatch: "#a678ff" },
+  { k: "white", l: "לבן/שחור", swatch: "#dcdcdc" },
+  { k: "hl", l: "הדגשה (רקע)", swatch: "rgba(212,175,55,.5)" },
+];
 
 const AI_PRESETS = [
   { l: "שיפור ניסוח וזרימה", v: "שפר את הניסוח והזרימה של הפוסט, שמור על כל העובדות והערכים, בלי לשנות את המשמעות. חלק לפסקאות קריאות." },
@@ -115,6 +127,17 @@ export default function PostEditorPage() {
   const [source, setSource] = useState("ai");
   const slugTouched = useRef(false);
 
+  // 🆕 שדות-שליטה מתקדמים (post_editor_upgrade)
+  const [theme, setTheme] = useState("auto");        // תמת-הפוסט: auto|light|dark
+  const [keepModified, setKeepModified] = useState(false);  // «שמור מיקום» — אל תקפיץ לראש
+  const [axisPin, setAxisPin] = useState(null);      // ציר ההתגלות: null=אוטו · 1=הצג · 0=הסתר
+  const [treePriority, setTreePriority] = useState(null);   // מיקום ידני בציר (גבוה=למעלה)
+  const [origModified, setOrigModified] = useState(null);   // modified המקורי (ל«החזר למקום»)
+  const [fullscreen, setFullscreen] = useState(false);      // עורך במסך-מלא
+  const [liveEdit, setLiveEdit] = useState(false);          // עריכה ישירה בתצוגה-המקדימה (WYSIWYG)
+  const [colorOpen, setColorOpen] = useState(false);        // פתיחת בורר-הצבעים
+  const liveRef = useRef(null);
+
   const [allCats, setAllCats] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [drafts, setDrafts] = useState([]);       // רשימת הטיוטות
@@ -160,6 +183,10 @@ export default function PostEditorPage() {
       setTags((p.tags || []).filter(t => t !== "טיוטה"));   // «טיוטה» מנוהל ע"י כפתורי שמור-טיוטה/פרסם, לא כצ'יפ
       setAiTouched(!!p.ai_touched);
       setSource(p.source || "ai");
+      setTheme(p.theme === "light" || p.theme === "dark" ? p.theme : "auto");
+      setAxisPin(p.axis_pin === 0 || p.axis_pin === 1 ? p.axis_pin : null);
+      setTreePriority(typeof p.tree_priority === "number" ? p.tree_priority : null);
+      setOrigModified(p.modified || null);
       slugTouched.current = true;
       setLoading(false);
     }).catch(() => { if (alive) { setErr("שגיאה בטעינת הפוסט"); setLoading(false); } });
@@ -171,8 +198,8 @@ export default function PostEditorPage() {
 
   // תצלום המצב הניתן-לעריכה — להשוואת «שינויים לא שמורים» ולשמירה-אוטומטית
   const snapshot = useCallback(
-    () => JSON.stringify({ title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched }),
-    [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched]
+    () => JSON.stringify({ title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched, theme, axisPin, treePriority }),
+    [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched, theme, axisPin, treePriority]
   );
   const dirty = snapshot() !== snapRef.current;
 
@@ -186,7 +213,7 @@ export default function PostEditorPage() {
     const t = setTimeout(() => { save(wasDraft, { silent: true }); }, 4000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched, postId, wasDraft]);
+  }, [title, slug, excerpt, content, authors, imageUrl, categories, tags, aiTouched, theme, axisPin, treePriority, keepModified, postId, wasDraft]);
 
   // ⚠️ אזהרת «שינויים לא שמורים» ביציאה מהדף/רענון
   useEffect(() => {
@@ -228,6 +255,26 @@ export default function PostEditorPage() {
     return { text, selStart, selEnd: selStart + inner.length };
   });
 
+  // 🎨 צביעת מילה/בחירה — עוטף בקלאס מודע-תמה (sc-*), לא inline. עובד יום+לילה.
+  const colorWord = (k) => { setColorOpen(false); wrap(`<span class="sc-${k}">`, "</span>", "טקסט"); };
+  // 📏 שורה-לחיצה שפותחת את חלונית המספר — עוטף את הבחירה ב-<div class="sod-numrow" data-gem="ערך">.
+  const numRow = () => applyToContent((sel, v, s, e) => {
+    const inner = (sel && sel.trim()) || (window.prompt("טקסט השורה:", "") || "").trim();
+    const val = (window.prompt("איזה מספר/ביטוי השורה תפתח בחלונית?", "") || "").trim();
+    if (!inner || !val) return { text: v, selStart: s, selEnd: e };
+    const open = `\n<div class="sod-numrow" data-gem="${val}">`;
+    const text = v.slice(0, s) + open + inner + "</div>\n" + v.slice(e);
+    const selStart = s + open.length;
+    return { text, selStart, selEnd: selStart + inner.length };
+  });
+  // 🧹 ניקוי עיצוב — מסיר תגיות HTML מהבחירה (משאיר טקסט נקי).
+  const clearFmt = () => applyToContent((sel, v, s, e) => {
+    if (!sel) return { text: v, selStart: s, selEnd: e };
+    const stripped = sel.replace(/<[^>]+>/g, "");
+    const text = v.slice(0, s) + stripped + v.slice(e);
+    return { text, selStart: s, selEnd: s + stripped.length };
+  });
+
   // ✨ הפיכה אוטומטית של כל המספרים בתוכן לקישורים-לחיצים (פותחים את מגירת המספר).
   // ממיר רק מקטעי-טקסט (לא בתוך תגיות), ומדלג על כל מה שכבר בתוך <a> — לא כופל קישורים.
   const autoLinkNumbers = () => {
@@ -247,22 +294,32 @@ export default function PostEditorPage() {
     else setMsg("לא נמצאו מספרים חדשים להמרה.");
   };
 
+  // סרגל-הכלים מחולק לקבוצות (g) — עיצוב-טקסט · מבנה · גימטריה/מספרים · הוספות.
   const tools = [
-    { l: "B", t: "מודגש", on: () => wrap("<strong>", "</strong>"), bold: true },
-    { l: "I", t: "נטוי", on: () => wrap("<em>", "</em>"), italic: true },
-    { l: "כותרת", t: "כותרת (H2)", on: () => wrap("\n<h2>", "</h2>\n", "כותרת") },
-    { l: "כותרת קטנה", t: "כותרת משנה (H3)", on: () => wrap("\n<h3>", "</h3>\n", "כותרת משנה") },
-    { l: "❝ פסוק", t: "ציטוט/פסוק (sod-verse)", on: () => wrap('\n<blockquote class="sod-verse">', "</blockquote>\n", "«פסוק» <b>מילים מרכזיות</b>") },
-    { l: "🔢 ריבוע גימטריה", t: "ריבוע גימטריה קנוני", on: () => insert(GEM_BOX) },
-    { l: "• רשימה", t: "רשימה", on: () => insert("\n<ul>\n  <li>פריט</li>\n  <li>פריט</li>\n</ul>\n") },
-    { l: "🔗 קישור", t: "קישור", on: addLink },
-    { l: "🖼 תמונה", t: "תמונה", on: addImage },
-    { l: "⊟ מרכוז", t: "פסקה ממורכזת", on: () => wrap('\n<p style="text-align:center">', "</p>\n", "טקסט ממורכז") },
-    { l: "🔗 גימטריה", t: "בחר ביטוי והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-gemlink", on: () => gemify("sod-gemlink") },
-    { l: "🔢 מספר", t: "בחר ערך/מספר והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-numlink", on: () => gemify("sod-numlink") },
-    { l: "✨ מספרים→קישורים", t: "הפוך אוטומטית את כל המספרים בתוכן לקישורים-לחיצים", on: autoLinkNumbers },
-    { l: "🔗 ראו גם", t: "בלוק «ראו גם»", on: () => insert(SEE_ALSO) },
-    { l: "— קו", t: "קו מפריד", on: () => insert("\n<hr />\n") },
+    { l: "B", t: "מודגש", on: () => wrap("<strong>", "</strong>"), bold: true, g: "טקסט" },
+    { l: "I", t: "נטוי", on: () => wrap("<em>", "</em>"), italic: true, g: "טקסט" },
+    { l: "U", t: "קו תחתון", on: () => wrap("<u>", "</u>"), g: "טקסט" },
+    { l: "S̶", t: "קו חוצה", on: () => wrap("<s>", "</s>"), g: "טקסט" },
+    { l: "🎨 צבע", t: "צבע-מילה (מודע-תמה)", on: () => setColorOpen(o => !o), g: "טקסט", active: colorOpen },
+    { l: "A⁺", t: "טקסט גדול", on: () => wrap('<span style="font-size:1.3em">', "</span>", "טקסט גדול"), g: "טקסט" },
+    { l: "A⁻", t: "טקסט קטן", on: () => wrap('<span style="font-size:.82em">', "</span>", "טקסט קטן"), g: "טקסט" },
+    { l: "🧹 נקה", t: "הסר עיצוב מהבחירה", on: clearFmt, g: "טקסט" },
+    { l: "כותרת", t: "כותרת (H2)", on: () => wrap("\n<h2>", "</h2>\n", "כותרת"), g: "מבנה" },
+    { l: "כותרת קטנה", t: "כותרת משנה (H3)", on: () => wrap("\n<h3>", "</h3>\n", "כותרת משנה"), g: "מבנה" },
+    { l: "❝ פסוק", t: "ציטוט/פסוק (sod-verse)", on: () => wrap('\n<blockquote class="sod-verse">', "</blockquote>\n", "«פסוק» <b>מילים מרכזיות</b>"), g: "מבנה" },
+    { l: "• רשימה", t: "רשימה", on: () => insert("\n<ul>\n  <li>פריט</li>\n  <li>פריט</li>\n</ul>\n"), g: "מבנה" },
+    { l: "→ ימין", t: "יישור לימין", on: () => wrap('\n<p style="text-align:right">', "</p>\n", "טקסט"), g: "מבנה" },
+    { l: "⊟ מרכוז", t: "פסקה ממורכזת", on: () => wrap('\n<p style="text-align:center">', "</p>\n", "טקסט ממורכז"), g: "מבנה" },
+    { l: "← שמאל", t: "יישור לשמאל", on: () => wrap('\n<p style="text-align:left" dir="ltr">', "</p>\n", "text"), g: "מבנה" },
+    { l: "— קו", t: "קו מפריד", on: () => insert("\n<hr />\n"), g: "מבנה" },
+    { l: "🔢 ריבוע גימטריה", t: "ריבוע גימטריה קנוני", on: () => insert(GEM_BOX), g: "גימטריה" },
+    { l: "🔗 גימטריה", t: "בחר ביטוי והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-gemlink", on: () => gemify("sod-gemlink"), g: "גימטריה" },
+    { l: "🔢 מספר", t: "בחר ערך/מספר והפוך אותו ללחיץ (פותח את מגירת המספר) — sod-numlink", on: () => gemify("sod-numlink"), g: "גימטריה" },
+    { l: "📏 שורה→חלונית", t: "הפוך שורה שלמה ללחיצה שפותחת את חלונית המספר", on: numRow, g: "גימטריה" },
+    { l: "✨ מספרים→קישורים", t: "הפוך אוטומטית את כל המספרים בתוכן לקישורים-לחיצים", on: autoLinkNumbers, g: "גימטריה" },
+    { l: "🔗 קישור", t: "קישור", on: addLink, g: "הוספה" },
+    { l: "🖼 תמונה", t: "תמונה", on: addImage, g: "הוספה" },
+    { l: "🔗 ראו גם", t: "בלוק «ראו גם»", on: () => insert(SEE_ALSO), g: "הוספה" },
   ];
 
   // ── עוזר ה-AI ──
@@ -335,11 +392,19 @@ export default function PostEditorPage() {
       authors: cleanAuthors,                  // רשימת כל הכתבים
       image_url: imageUrl.trim() || null,
       source: source || "ai", ai_touched: aiTouched,
+      theme,                                  // תמת-הפוסט (auto|light|dark)
+      keepModified,                           // «שמור מיקום» — אל תקפיץ לראש
+      axisPin,                                // ציר ההתגלות (null|0|1)
+      treePriority,                           // מיקום ידני בציר
     };
     try {
-      const res = hasKey ? await tokenSavePost(editKey, payload) : await adminSavePost(payload);
+      // נתיב-קוד (token): שולחים רק שדות שהם עמודות-DB אמיתיות (theme כן; keepModified/axisPin/treePriority
+      //   הם דגלי-עזר של ה-RPC בלבד ואינם עמודות — לא שולחים כדי לא לשבור את פונקציית ה-Edge).
+      const { keepModified: _km, axisPin: _ap, treePriority: _tp, ...tokenPayload } = payload;
+      const res = hasKey ? await tokenSavePost(editKey, tokenPayload) : await adminSavePost(payload);
       if (silent) setAutoSaving(false); else setSaving(false);
       if (res?.id && !postId) setPostId(res.id);   // אחרי יצירה — נשארים על אותו פוסט
+      if (res?.modified) setOrigModified(res.modified);
       setWasDraft(asDraft);
       snapRef.current = snapshot();               // סימון «נשמר» — מנקה את מצב ה-dirty
       reloadDrafts();
@@ -354,6 +419,35 @@ export default function PostEditorPage() {
       setErr(m.includes("not_admin") ? "אין הרשאת מנהל." : m.includes("empty_title") ? "כותרת חובה." : `שגיאת שמירה: ${m}`);
     }
   };
+
+  // ↩︎ «החזר למקום» — הפוסט קפץ לראש «עדכונים אחרונים» / נכנס לציר ההתגלות בלי שרצית.
+  //   מאפס modified לתאריך המקורי (חוזר לסדר הכרונולוגי) + אופציונלית מוציא מהציר.
+  const returnToPlace = async (alsoRemoveFromAxis) => {
+    if (!postId) { setErr("שמור קודם את הפוסט."); return; }
+    setErr(""); setMsg("");
+    try {
+      const r = await adminResetPostPosition(postId, !!alsoRemoveFromAxis);
+      if (r?.modified) setOrigModified(r.modified);
+      if (alsoRemoveFromAxis) setAxisPin(0);
+      setKeepModified(true);   // מכאן ואילך שמור מיקום כברירת-מחדל לפוסט הזה
+      setMsg("↩︎ הפוסט הוחזר למקומו הכרונולוגי" + (alsoRemoveFromAxis ? " והוסר מציר ההתגלות" : "") + " ✓");
+      reloadDrafts();
+    } catch (e) { setErr(`שגיאה: ${String(e?.message || e)}`); }
+  };
+
+  // ⌨️ Ctrl/Cmd+S = שמירה מהירה (במצב הנוכחי: טיוטה נשארת טיוטה, פורסם נשאר פורסם)
+  useEffect(() => {
+    const h = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); if (!saving && title.trim()) save(wasDraft); }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saving, wasDraft, title, content, theme, axisPin, treePriority, keepModified]);
+
+  // ✏️ עריכה חיה בתצוגה-המקדימה — מזריקים את ה-HTML פעם אחת בכניסה למצב; ההקלדה מסנכרנת חזרה
+  //   ל-content בלי לרנדר-מחדש את הצומת (שומר על הסמן). data-gem/קישורים לא פעילים בזמן עריכה.
+  useEffect(() => { if (liveEdit && liveRef.current) liveRef.current.innerHTML = content || ""; /* eslint-disable-next-line */ }, [liveEdit]);
 
   if (!hasKey && authLoading) return <div dir="rtl" style={{ padding: 40, textAlign: "center", color: C.goldDim, fontFamily: F.body }}>בודק הרשאות…</div>;
   if (!canEdit) {
@@ -384,56 +478,94 @@ export default function PostEditorPage() {
 
   const eng = { gemini: { name: "Gemini", c: "#8a63f4", note: "AI בטוקנים (החשבון שלך)" }, claude: { name: "Claude", c: "#3ea6ff", note: "חשבון האתר" } };
 
+  // 🌗 ממשק-העורך מודע-תמה (יום/לילה) — הכפתור בכותרת מחליף את מתג-האתר, וה-chrome + התצוגה
+  //   מתחלפים יחד. T = טוקני-chrome נגזרים מהפלטה הפעילה (P), עם אותם מפתחות כמו C (לדריסה נקייה).
+  const dk = P.mode !== "light";   // dk=כהה
+  const T = {
+    surface: dk ? C.surface : P.card,
+    bg: dk ? C.bg : P.cardSoft,
+    bgGlow: dk ? C.bgGlow : "#efe8d6",
+    border: dk ? C.border : P.border,
+    borderGold: dk ? C.borderGold : P.borderStrong,
+    gold: dk ? C.gold : P.accent,
+    goldBright: dk ? C.goldBright : P.accentText,
+    goldLight: dk ? C.goldLight : P.ink,
+    goldDim: dk ? C.goldDim : P.accentDim,
+    ink: dk ? "#ede4d3" : P.ink,
+    pageBg: dk ? "transparent" : P.pageBg,
+    prevBg: dk ? "rgba(5,4,0,.4)" : "#f6f1e6",
+  };
+  const wordCount = (content || "").replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+
   return (
-    <div className="pe" dir="rtl">
+    <div className={`pe${fullscreen ? " pe-fs" : ""}`} dir="rtl">
       <style>{POST_CONTENT_CSS}</style>
       <style>{`
-        .pe { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; font-family: ${F.body}; }
-        .pe-title-row { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
-        .pe-title-row h1 { color:${C.goldBright}; font-family:${F.heading}; font-size:22px; font-weight:800; margin:0; }
-        .pe-badge { font-size:11px; letter-spacing:1px; color:${C.goldDim}; border:1px solid ${C.border}; border-radius:999px; padding:2px 10px; }
-        .pe-grid { display:grid; grid-template-columns: 1.35fr 1fr; gap:18px; align-items:start; }
-        @media(max-width:900px){ .pe-grid{ grid-template-columns:1fr; } }
-        .pe-card { background: linear-gradient(160deg, ${C.surface} 0%, ${C.bg} 100%); border:1px solid ${C.borderGold}; border-radius:12px; padding:16px; }
-        .pe-lbl { display:block; color:${C.goldDim}; font-family:${F.heading}; font-size:10.5px; letter-spacing:2px; text-transform:uppercase; margin:14px 0 5px; }
-        .pe-in { width:100%; box-sizing:border-box; background:${C.bg}; border:1px solid ${C.border}; border-radius:6px; color:#ede4d3; font-family:${F.body}; font-size:14px; padding:10px 12px; }
-        .pe-in:focus{ outline:none; border-color:${C.gold}; }
-        .pe-toolbar { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; padding:8px; border:1px solid ${C.border}; border-radius:8px; background:rgba(8,5,2,.5); }
+        /* 🖥 רחב יותר בדסקטופ (בקשת צוריאל) + מסך-מלא */
+        .pe { max-width: 1480px; margin: 0 auto; padding: 20px 16px 60px; font-family: ${F.body}; color:${T.ink}; }
+        .pe-fs { position:fixed; inset:0; z-index:6000; max-width:none; margin:0; overflow-y:auto; background:${dk ? "#0b0803" : P.pageBg}; padding:16px 22px 60px; }
+        .pe-title-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+        .pe-title-row h1 { color:${T.goldBright}; font-family:${F.heading}; font-size:22px; font-weight:800; margin:0; }
+        .pe-badge { font-size:11px; letter-spacing:1px; color:${T.goldDim}; border:1px solid ${T.border}; border-radius:999px; padding:2px 10px; }
+        .pe-grid { display:grid; grid-template-columns: 1.55fr 1fr; gap:18px; align-items:start; }
+        .pe-fs .pe-grid { grid-template-columns: 1.8fr 1fr; }
+        @media(max-width:960px){ .pe-grid{ grid-template-columns:1fr; } }
+        .pe-card { background:${dk ? `linear-gradient(160deg, ${T.surface} 0%, ${T.bg} 100%)` : T.surface}; border:1px solid ${T.borderGold}; border-radius:12px; padding:16px; }
+        .pe-lbl { display:block; color:${T.goldDim}; font-family:${F.heading}; font-size:10.5px; letter-spacing:2px; text-transform:uppercase; margin:14px 0 5px; }
+        .pe-in { width:100%; box-sizing:border-box; background:${T.bg}; border:1px solid ${T.border}; border-radius:6px; color:${T.ink}; font-family:${F.body}; font-size:14px; padding:10px 12px; }
+        .pe-in:focus{ outline:none; border-color:${T.gold}; }
+        .pe-toolbar { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; padding:8px; border:1px solid ${T.border}; border-radius:8px; background:${dk ? "rgba(8,5,2,.5)" : "#efe8d6"}; align-items:center; }
+        .pe-grp { display:inline-block; width:1px; height:22px; background:${T.border}; margin:0 3px; }
         .pe-viewtabs { display:flex; gap:4px; }
-        /* מצב מפוצל — עריכה (ימין) + תצוגה חיה (שמאל) זה-לצד-זה בדסקטופ, מוערמים בנייד */
+        /* מצב מפוצל — עריכה (ימין) + תצוגה חיה (שמאל); בנייד מוערמים */
         .pe-split { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
-        .pe-split .pe-prev { margin:0; max-height:60vh; overflow-y:auto; }
+        .pe-split .pe-prev { margin:0; max-height:64vh; overflow-y:auto; }
+        .pe-fs .pe-split .pe-prev, .pe-fs .pe-content { max-height:76vh; }
         @media (max-width:820px){ .pe-split { grid-template-columns:1fr; } }
-        .pe-tool { cursor:pointer; background:${C.bgGlow}; border:1px solid ${C.border}; color:${C.goldLight}; font-family:${F.heading}; font-size:12px; padding:6px 10px; border-radius:6px; }
-        .pe-tool:hover { border-color:${C.gold}; color:${C.goldBright}; }
-        .pe-content { width:100%; box-sizing:border-box; background:${C.bg}; border:1px solid ${C.border}; border-radius:8px; color:#ede4d3; font-family:${F.mono}; font-size:13.5px; line-height:1.7; padding:12px 14px; direction:ltr; text-align:right; resize:vertical; min-height:360px; outline:none; }
-        .pe-content:focus{ border-color:${C.gold}; }
-        .pe-prev { border:1px dashed ${C.borderGold}; border-radius:8px; padding:18px 16px; min-height:360px; max-height:70vh; overflow-y:auto; }
+        .pe-tool { cursor:pointer; background:${T.bgGlow}; border:1px solid ${T.border}; color:${T.goldLight}; font-family:${F.heading}; font-size:12px; padding:6px 10px; border-radius:6px; }
+        .pe-tool:hover { border-color:${T.gold}; color:${T.goldBright}; }
+        .pe-tool.on { background:${T.gold}; color:${dk ? "#1a0e00" : "#fff"}; font-weight:800; }
+        .pe-content { width:100%; box-sizing:border-box; background:${T.bg}; border:1px solid ${T.border}; border-radius:8px; color:${T.ink}; font-family:${F.mono}; font-size:13.5px; line-height:1.7; padding:12px 14px; direction:ltr; text-align:right; resize:vertical; min-height:360px; outline:none; }
+        .pe-fs .pe-content { min-height:70vh; }
+        .pe-content:focus{ border-color:${T.gold}; }
+        .pe-prev { border:1px dashed ${T.borderGold}; border-radius:8px; padding:18px 16px; min-height:360px; max-height:72vh; overflow-y:auto; }
+        .pe-prev[contenteditable="true"] { outline:2px solid ${T.gold}; cursor:text; }
+        .pe-swatches { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:4px; padding:8px; border:1px dashed ${T.borderGold}; border-radius:8px; background:${T.bg}; }
+        .pe-sw { width:30px; height:30px; border-radius:7px; border:2px solid ${T.border}; cursor:pointer; padding:0; }
+        .pe-sw:hover { border-color:${T.gold}; transform:scale(1.08); }
         .pe-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
-        .pe-chip { display:inline-flex; align-items:center; gap:6px; background:${C.bgGlow}; border:1px solid ${C.border}; border-radius:999px; color:${C.goldLight}; font-size:12px; padding:3px 10px; }
-        .pe-chip button { background:none; border:none; color:${C.goldDim}; cursor:pointer; font-size:14px; line-height:1; padding:0; }
-        /* בורר קטגוריות/תגיות — רשימה נלחצת אמינה (מחליף datalist השביר) */
+        .pe-chip { display:inline-flex; align-items:center; gap:6px; background:${T.bgGlow}; border:1px solid ${T.border}; border-radius:999px; color:${T.goldLight}; font-size:12px; padding:3px 10px; }
+        .pe-chip button { background:none; border:none; color:${T.goldDim}; cursor:pointer; font-size:14px; line-height:1; padding:0; }
         .pe-picker { position:relative; }
         .pe-row { display:flex; gap:6px; margin-top:6px; }
-        .pe-addbtn { flex-shrink:0; min-width:52px; background:${C.gold}; color:#1a1206; border:none; border-radius:6px; font-family:${F.heading}; font-weight:700; font-size:13px; cursor:pointer; padding:0 14px; min-height:42px; }
+        .pe-addbtn { flex-shrink:0; min-width:52px; background:${T.gold}; color:${dk ? "#1a1206" : "#fff"}; border:none; border-radius:6px; font-family:${F.heading}; font-weight:700; font-size:13px; cursor:pointer; padding:0 14px; min-height:42px; }
         .pe-addbtn:disabled { opacity:.4; cursor:default; }
-        .pe-menu { position:absolute; z-index:20; top:100%; inset-inline:0; margin-top:4px; max-height:240px; overflow-y:auto; background:${C.bg}; border:1px solid ${C.gold}; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,.55); -webkit-overflow-scrolling:touch; }
-        .pe-opt { display:block; width:100%; text-align:right; background:none; border:none; border-bottom:1px solid ${C.border}; color:#ede4d3; font-family:${F.body}; font-size:14px; padding:11px 14px; cursor:pointer; min-height:44px; }
-        .pe-opt:hover, .pe-opt:focus { background:${C.bgGlow}; color:${C.goldLight}; outline:none; }
-        .pe-opt.new { color:${C.gold}; font-weight:700; }
-        .pe-toggle { background:none; border:1px solid ${C.border}; border-radius:6px; color:${C.goldDim}; font-size:12px; cursor:pointer; padding:6px 12px; margin-top:6px; min-height:36px; }
+        .pe-menu { position:absolute; z-index:20; top:100%; inset-inline:0; margin-top:4px; max-height:240px; overflow-y:auto; background:${T.bg}; border:1px solid ${T.gold}; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,.45); -webkit-overflow-scrolling:touch; }
+        .pe-opt { display:block; width:100%; text-align:right; background:none; border:none; border-bottom:1px solid ${T.border}; color:${T.ink}; font-family:${F.body}; font-size:14px; padding:11px 14px; cursor:pointer; min-height:44px; }
+        .pe-opt:hover, .pe-opt:focus { background:${T.bgGlow}; color:${T.goldLight}; outline:none; }
+        .pe-opt.new { color:${T.gold}; font-weight:700; }
+        .pe-toggle { background:none; border:1px solid ${T.border}; border-radius:6px; color:${T.goldDim}; font-size:12px; cursor:pointer; padding:6px 12px; margin-top:6px; min-height:36px; }
         .pe-btn { cursor:pointer; border:none; border-radius:8px; font-family:${F.heading}; font-weight:800; letter-spacing:.5px; padding:11px 22px; }
-        .pe-save { background:linear-gradient(135deg, ${C.gold}, ${C.goldLight}); color:#1a0e00; font-size:14px; }
+        .pe-save { background:linear-gradient(135deg, ${T.gold}, ${T.goldLight}); color:${dk ? "#1a0e00" : "#3a2a00"}; font-size:14px; }
         .pe-save:disabled { opacity:.6; }
-        .pe-ghost { background:none; border:1px solid ${C.borderGold}; color:${C.goldDim}; }
-        .pe-ai { border:1px solid ${C.borderGold}; border-top:3px solid #8a63f4; border-radius:12px; padding:14px; background:rgba(20,12,32,.5); }
-        .pe-ai h3 { margin:0 0 4px; color:#c9b6ff; font-family:${F.heading}; font-size:14px; }
+        .pe-ghost { background:none; border:1px solid ${T.borderGold}; color:${T.goldDim}; }
+        /* מקטע-שליטה (segmented) — יום/לילה, ציר, מיקום */
+        .pe-seg { display:flex; gap:0; border:1px solid ${T.border}; border-radius:8px; overflow:hidden; margin-top:6px; }
+        .pe-seg button { flex:1; cursor:pointer; background:${T.bg}; border:none; border-inline-start:1px solid ${T.border}; color:${T.goldLight}; font-family:${F.heading}; font-size:12px; font-weight:700; padding:9px 6px; min-height:40px; }
+        .pe-seg button:first-child { border-inline-start:none; }
+        .pe-seg button.on { background:${T.gold}; color:${dk ? "#1a0e00" : "#fff"}; }
+        .pe-ctl { border:1px solid ${T.borderGold}; border-radius:10px; padding:12px; margin-top:12px; background:${T.bg}; }
+        .pe-ctl h4 { margin:0 0 2px; color:${T.goldBright}; font-family:${F.heading}; font-size:13px; }
+        .pe-ctl .hint { color:${T.goldDim}; font-size:11px; line-height:1.55; margin:2px 0 0; }
+        .pe-check { display:flex; align-items:flex-start; gap:8px; margin-top:10px; color:${T.goldLight}; font-size:13px; cursor:pointer; }
+        .pe-ai { border:1px solid ${T.borderGold}; border-top:3px solid #8a63f4; border-radius:12px; padding:14px; background:${dk ? "rgba(20,12,32,.5)" : "#f3eefb"}; }
+        .pe-ai h3 { margin:0 0 4px; color:${dk ? "#c9b6ff" : "#6a3fd0"}; font-family:${F.heading}; font-size:14px; }
         .pe-eng { display:flex; gap:8px; margin:8px 0; }
-        .pe-eng button { flex:1; cursor:pointer; border-radius:8px; padding:8px; font-family:${F.heading}; font-size:12.5px; font-weight:700; background:${C.bg}; border:1px solid ${C.border}; color:${C.goldLight}; }
-        .pe-preset { cursor:pointer; background:${C.bgGlow}; border:1px solid ${C.border}; color:${C.goldLight}; font-size:11.5px; padding:5px 9px; border-radius:999px; margin:0 4px 6px 0; }
-        .pe-err { color:#e79aa2; font-size:12.5px; margin:8px 0 0; font-family:${F.heading}; }
-        .pe-ok { color:#8fd6a0; font-size:12.5px; margin:8px 0 0; font-family:${F.heading}; }
-        .pe-actions { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+        .pe-eng button { flex:1; cursor:pointer; border-radius:8px; padding:8px; font-family:${F.heading}; font-size:12.5px; font-weight:700; background:${T.bg}; border:1px solid ${T.border}; color:${T.goldLight}; }
+        .pe-preset { cursor:pointer; background:${T.bgGlow}; border:1px solid ${T.border}; color:${T.goldLight}; font-size:11.5px; padding:5px 9px; border-radius:999px; margin:0 4px 6px 0; }
+        .pe-err { color:${dk ? "#e79aa2" : "#b3261e"}; font-size:12.5px; margin:8px 0 0; font-family:${F.heading}; }
+        .pe-ok { color:${dk ? "#8fd6a0" : "#1a7a44"}; font-size:12.5px; margin:8px 0 0; font-family:${F.heading}; }
+        .pe-actions { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; align-items:center; }
       `}</style>
 
       <div className="pe-title-row">
@@ -442,19 +574,24 @@ export default function PostEditorPage() {
           {wasDraft ? "● טיוטה" : "● מפורסם"}
         </span>
         {postId != null && <span className="pe-badge">id {postId}</span>}
+        <span className="pe-badge" title="ספירת מילים">📝 {wordCount} מילים</span>
         <span style={{ flex: 1 }} />
+        {/* 🌗 יום/לילה לממשק העורך + לתצוגה המקדימה (מחליף את מתג-האתר) */}
+        <button type="button" className="pe-badge" style={{ cursor: "pointer", background: "none" }} onClick={toggleTheme} title="החלף יום/לילה בממשק ובתצוגה">{dk ? "☀️ מצב יום" : "🌙 מצב לילה"}</button>
+        <button type="button" className="pe-badge" style={{ cursor: "pointer", background: "none" }} onClick={() => setFullscreen(f => !f)} title="מסך מלא">{fullscreen ? "⤢ צא ממסך-מלא" : "⤢ מסך מלא"}</button>
+        {isEdit && slug && <a href={`/${slug}`} target="_blank" rel="noreferrer" className="pe-badge" style={{ textDecoration: "none" }} title="פתח את הפוסט באתר">↗ באתר</a>}
         <a href={`/editor${editKey ? `?key=${encodeURIComponent(editKey)}` : ""}`} className="pe-badge" style={{ textDecoration: "none" }}>+ פוסט חדש</a>
         <Link to="/post" className="pe-badge" style={{ textDecoration: "none" }}>← לכל הפוסטים</Link>
       </div>
 
       {/* 📝 רשימת הטיוטות — פתיחה מהירה לעריכה */}
       {drafts.length > 0 && (
-        <details open={!isEdit} style={{ marginBottom: 14, background: "rgba(20,12,32,.4)", border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "10px 14px" }}>
-          <summary style={{ cursor: "pointer", color: "#c9b6ff", fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>📝 טיוטות ({drafts.length})</summary>
+        <details open={!isEdit} style={{ marginBottom: 14, background: T.bg, border: `1px solid ${T.borderGold}`, borderRadius: 12, padding: "10px 14px" }}>
+          <summary style={{ cursor: "pointer", color: T.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>📝 טיוטות ({drafts.length})</summary>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
             {drafts.map(d => (
               <a key={d.id} href={`/editor/${encodeURIComponent(d.slug)}${editKey ? `?key=${encodeURIComponent(editKey)}` : ""}`}
-                style={{ display: "flex", alignItems: "center", gap: 8, background: C.bg, border: `1px solid ${d.slug === routeSlug ? C.gold : C.border}`, borderRadius: 10, padding: "7px 11px", textDecoration: "none", color: "#ede4d3", fontSize: 12.5, maxWidth: 260 }}>
+                style={{ display: "flex", alignItems: "center", gap: 8, background: T.bg, border: `1px solid ${d.slug === routeSlug ? T.gold : T.border}`, borderRadius: 10, padding: "7px 11px", textDecoration: "none", color: T.ink, fontSize: 12.5, maxWidth: 260 }}>
                 {d.image_url && <img src={thumb(d.image_url, 80)} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: "cover", flex: "0 0 30px" }} />}
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title || d.slug}</span>
               </a>
@@ -469,39 +606,62 @@ export default function PostEditorPage() {
           <div className="pe-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <label className="pe-lbl" style={{ margin: 0 }}>תוכן הפוסט (HTML)</label>
-              {/* מצב-תצוגה: עריכה · תצוגה מקדימה · מפוצל (עריכה + תצוגה יחד) */}
+              {/* מצב-תצוגה: עריכה · מפוצל · תצוגה · ✏️ עריכה-חיה (WYSIWYG בתצוגה) */}
               <div className="pe-viewtabs">
-                {[["edit", "✎ עריכה"], ["split", "⚌ מפוצל"], ["preview", "👁 תצוגה"]].map(([v, l]) => (
-                  <button key={v} type="button" className="pe-tool" onClick={() => setView(v)}
-                    style={view === v ? { background: C.gold, color: "#1a0e00", fontWeight: 800 } : undefined}>{l}</button>
+                {[["edit", "✎ קוד"], ["split", "⚌ מפוצל"], ["preview", "👁 תצוגה"], ["live", "✏️ עריכה-חיה"]].map(([v, l]) => (
+                  <button key={v} type="button" className={`pe-tool${view === v ? " on" : ""}`}
+                    onClick={() => { setView(v); setLiveEdit(v === "live"); }}>{l}</button>
                 ))}
               </div>
             </div>
-            {/* בסרגל-הכלים: במצב «תצוגה» מוסתר (אין textarea לפעול עליו); ב«מפוצל»/«עריכה» פעיל */}
-            {view !== "preview" && (
-              <div className="pe-toolbar">
-                {tools.map(t => (
-                  <button key={t.l} type="button" title={t.t} onClick={t.on} className="pe-tool"
-                    style={{ fontWeight: t.bold ? 800 : undefined, fontStyle: t.italic ? "italic" : undefined }}>{t.l}</button>
-                ))}
-              </div>
+            {/* סרגל-הכלים — פעיל בעריכת-קוד/מפוצל (יש textarea); מוסתר בתצוגה/עריכה-חיה */}
+            {(view === "edit" || view === "split") && (
+              <>
+                <div className="pe-toolbar">
+                  {tools.map((t, i) => (
+                    <React.Fragment key={t.l}>
+                      {i > 0 && tools[i - 1].g !== t.g && <span className="pe-grp" />}
+                      <button type="button" title={t.t} onClick={t.on} className={`pe-tool${t.active ? " on" : ""}`}
+                        style={{ fontWeight: t.bold ? 800 : undefined, fontStyle: t.italic ? "italic" : undefined }}>{t.l}</button>
+                    </React.Fragment>
+                  ))}
+                </div>
+                {/* 🎨 בורר-צבעים — נפתח מכפתור «צבע». בחר טקסט ואז לחץ על גוון (נשמר כקלאס מודע-תמה). */}
+                {colorOpen && (
+                  <div className="pe-swatches">
+                    <span style={{ color: T.goldDim, fontSize: 11, alignSelf: "center" }}>בחר טקסט → לחץ גוון:</span>
+                    {WORD_COLORS.map(c => (
+                      <button key={c.k} type="button" className="pe-sw" title={c.l} onClick={() => colorWord(c.k)} style={{ background: c.swatch }} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             <div className={view === "split" ? "pe-split" : undefined}>
-              {view !== "preview" && (
+              {(view === "edit" || view === "split") && (
                 <textarea ref={taRef} value={content} onChange={e => setContent(e.target.value)} rows={view === "split" ? 16 : 20} className="pe-content" spellCheck={false} />
               )}
-              {view !== "edit" && (
-                <div className="pe-prev" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,.4)" }}>
+              {view === "preview" && (
+                <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg }}>
                   <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: content || "<p>(אין תוכן)</p>" }} />
                 </div>
               )}
+              {view === "live" && (
+                /* ✏️ עריכה-חיה: התצוגה עצמה ניתנת לעריכה (contentEditable). ההקלדה מסנכרנת ל-content.
+                   ה-HTML מוזרק פעם אחת (useEffect על liveEdit) כדי לא לאבד את הסמן בכל תו. */
+                <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg }}>
+                  <div ref={liveRef} className="sod-post-content clean" contentEditable suppressContentEditableWarning
+                    onInput={() => setContent(liveRef.current?.innerHTML || "")} />
+                </div>
+              )}
             </div>
+            {view === "live" && <p style={{ color: T.goldDim, fontSize: 11.5, margin: "6px 2px 0" }}>✏️ עריכה חיה: הקלד ישירות בטקסט. לעיצוב מדויק (קלאסים/גימטריה) — עבור ל«קוד».</p>}
           </div>
 
           {/* עוזר ה-AI */}
           <div className="pe-ai" style={{ marginTop: 16 }}>
             <h3>🤖 עוזר ה-AI — {isEdit || content ? "עריכת התוכן" : "כתיבת פוסט"}</h3>
-            <div style={{ color: C.goldDim, fontSize: 12 }}>ה-AI עורך את התוכן לפי ההוראה, בקלאסים הקנוניים של האתר. עובדה נשמרת, פרשנות נפרדת.</div>
+            <div style={{ color: T.goldDim, fontSize: 12 }}>ה-AI עורך את התוכן לפי ההוראה, בקלאסים הקנוניים של האתר. עובדה נשמרת, פרשנות נפרדת.</div>
             <div className="pe-eng">
               {["gemini", "claude"].map(k => (
                 <button key={k} type="button" onClick={() => setEngine(k)}
@@ -525,7 +685,7 @@ export default function PostEditorPage() {
             {aiErr && <p className="pe-err">{aiErr}</p>}
             {aiResult?.html && (
               <div style={{ marginTop: 12 }}>
-                <div className="pe-prev" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,.4)", maxHeight: "40vh" }}>
+                <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg, maxHeight: "40vh" }}>
                   <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: aiResult.html }} />
                 </div>
                 <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
@@ -571,16 +731,16 @@ export default function PostEditorPage() {
               <input type="file" accept="image/*" onChange={pickPostImage} disabled={uploadingImg} style={{ display: "none" }} />
             </label>
           </div>
-          {imageUrl && <img src={thumb(imageUrl, 240)} alt="" style={{ marginTop: 8, maxWidth: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} onError={e => { e.currentTarget.style.display = "none"; }} />}
+          {imageUrl && <img src={thumb(imageUrl, 240)} alt="" style={{ marginTop: 8, maxWidth: "100%", borderRadius: 8, border: `1px solid ${T.border}` }} onError={e => { e.currentTarget.style.display = "none"; }} />}
 
           <label className="pe-lbl">קטגוריות</label>
           {suggestedCats.length > 0 && (
             <div style={{ margin: "0 0 6px" }}>
-              <span style={{ color: C.goldDim, fontSize: 11 }}>💡 מוצע (המלצה — לחץ להוספה, לא נבחר אוטומטית):</span>
+              <span style={{ color: T.goldDim, fontSize: 11 }}>💡 מוצע (המלצה — לחץ להוספה, לא נבחר אוטומטית):</span>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
                 {suggestedCats.map(c => (
                   <button key={c} type="button" onClick={() => addChip("cat", c)}
-                    style={{ background: "rgba(199,154,46,.12)", border: `1px dashed ${C.gold}`, color: C.goldLight, borderRadius: 999, fontSize: 12.5, padding: "5px 12px", cursor: "pointer", minHeight: 34 }}>
+                    style={{ background: dk ? "rgba(199,154,46,.12)" : "rgba(154,120,24,.10)", border: `1px dashed ${T.gold}`, color: T.goldLight, borderRadius: 999, fontSize: 12.5, padding: "5px 12px", cursor: "pointer", minHeight: 34 }}>
                     ＋ {c}
                   </button>
                 ))}
@@ -600,17 +760,62 @@ export default function PostEditorPage() {
             placeholder="חפש או הוסף תגית…"
           />
 
-          <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16, color: C.goldLight, fontSize: 13, cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16, color: T.goldLight, fontSize: 13, cursor: "pointer" }}>
             <input type="checkbox" checked={aiTouched} onChange={e => setAiTouched(e.target.checked)} />
             חותמת «🔵 AI · מאומת» (ai_touched)
           </label>
+
+          {/* 🌗 תמת-הפוסט — יום/לילה/אוטומטי, פר-פוסט (עצמאי ממתג-האתר) */}
+          <div className="pe-ctl">
+            <h4>🌗 מצב יום/לילה של הפוסט</h4>
+            <div className="pe-seg">
+              {[["auto", "🔄 אוטומטי"], ["light", "☀️ יום"], ["dark", "🌙 לילה"]].map(([v, l]) => (
+                <button key={v} type="button" className={theme === v ? "on" : ""} onClick={() => setTheme(v)}>{l}</button>
+              ))}
+            </div>
+            <p className="hint">«אוטומטי» = מתחלף עם מתג-האתר. «יום»/«לילה» = הפוסט תמיד באותו מצב, גם אם המבקר בחר אחרת.</p>
+          </div>
+
+          {/* 🌅 ציר ההתגלות — הכנס/הוצא + מיקום */}
+          <div className="pe-ctl">
+            <h4>🌅 ציר ההתגלות</h4>
+            <div className="pe-seg">
+              {[[null, "🔄 אוטומטי"], [1, "📍 הצג"], [0, "🚫 הסתר"]].map(([v, l]) => (
+                <button key={String(v)} type="button" className={axisPin === v ? "on" : ""} onClick={() => setAxisPin(v)}>{l}</button>
+              ))}
+            </div>
+            <p className="hint">«אוטומטי» = לפי הכלל (חותמת-AI / «רמזים חזקים»). «הצג»/«הסתר» = כפייה ידנית של הפוסט בציר.</p>
+            <label className="pe-lbl" style={{ marginTop: 10 }}>מיקום בציר (גבוה=למעלה)</label>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input type="range" min={-5} max={20} step={1} value={treePriority ?? 0}
+                onChange={e => setTreePriority(Number(e.target.value))} style={{ flex: 1 }} />
+              <span className="pe-badge" style={{ minWidth: 46, textAlign: "center" }}>{treePriority ?? "אוטו"}</span>
+              {treePriority != null && <button type="button" className="pe-toggle" style={{ margin: 0 }} onClick={() => setTreePriority(null)}>איפוס</button>}
+            </div>
+          </div>
+
+          {/* 🔒 שמור מיקום — אל תקפיץ לראש «עדכונים אחרונים» */}
+          <div className="pe-ctl">
+            <h4>🔒 שמירת מיקום בעדכונים</h4>
+            <label className="pe-check">
+              <input type="checkbox" checked={keepModified} onChange={e => setKeepModified(e.target.checked)} />
+              <span>אל תקפיץ את הפוסט לראש «עדכונים אחרונים» בשמירה זו (שומר על תאריך-העדכון הקיים).</span>
+            </label>
+            {isEdit && postId && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                <button type="button" className="pe-toggle" style={{ margin: 0 }} onClick={() => returnToPlace(false)}>↩︎ החזר למקום הכרונולוגי</button>
+                <button type="button" className="pe-toggle" style={{ margin: 0 }} onClick={() => returnToPlace(true)}>↩︎ החזר + הוצא מהציר</button>
+              </div>
+            )}
+            <p className="hint">קפץ פוסט לראש בטעות, או נכנס לציר ההתגלות שלא לצורך? «החזר למקום» מחזיר אותו לסדר הכרונולוגי המקורי.</p>
+          </div>
         </div>
       </div>
 
       {err && <p className="pe-err">{err}</p>}
       {msg && <p className="pe-ok">{msg}</p>}
       {/* מצב שמירה-אוטומטית / שינויים לא-שמורים */}
-      <div style={{ color: C.goldDim, fontSize: 11.5, margin: "6px 0", fontFamily: F.body, minHeight: 16 }}>
+      <div style={{ color: T.goldDim, fontSize: 11.5, margin: "6px 0", fontFamily: F.body, minHeight: 16 }}>
         {autoSaving ? "💾 שומר אוטומטית…"
           : !postId ? (dirty ? "● יש שינויים — «שמור טיוטה» יפעיל שמירה אוטומטית" : "")
           : dirty ? "● שינויים לא שמורים — יישמרו אוטומטית תוך כמה שניות"
@@ -622,7 +827,8 @@ export default function PostEditorPage() {
         <button type="button" className="pe-btn pe-save" onClick={() => save(false)} disabled={saving}>{saving ? "שומר…" : "🚀 פרסם"}</button>
         <button type="button" className="pe-btn pe-ghost" onClick={() => nav(-1)} disabled={saving}>חזרה</button>
       </div>
-      <p style={{ color: C.goldDim, fontSize: 11.5, marginTop: 8, fontFamily: F.body }}>«שמור טיוטה» = נשמר ולא מופיע באתר (רק כאן ברשימת הטיוטות). «פרסם» = עולה לאתר ולזרם העדכונים.</p>
+      {keepModified && <p style={{ color: T.goldDim, fontSize: 11.5, marginTop: 4, fontFamily: F.body }}>🔒 «שמור מיקום» פעיל — השמירה לא תקפיץ את הפוסט לראש העדכונים.</p>}
+      <p style={{ color: T.goldDim, fontSize: 11.5, marginTop: 8, fontFamily: F.body }}>«שמור טיוטה» = נשמר ולא מופיע באתר (רק כאן ברשימת הטיוטות). «פרסם» = עולה לאתר ולזרם העדכונים. שמירה מהירה: Ctrl/⌘+S.</p>
     </div>
   );
 }
