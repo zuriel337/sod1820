@@ -68,6 +68,7 @@ const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
 const VerseGematriaPage = React.lazy(() => import("./pages/VerseGematriaPage.jsx"));
 const BroadcastsPage = React.lazy(() => import("./pages/BroadcastsPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
+const JourneyPageV2 = React.lazy(() => import("./pages/JourneyPageV2.jsx")); // 🧪 גרסה-2 ניסיונית (נגן-אוטומטי/שם-ראשון/דופק) — /journey-beta, מגן-קרדיט פעיל
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
 const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
@@ -295,6 +296,7 @@ export default function App() {
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
           <Route path="/מסע" element={<JourneyPage />} />
+          <Route path="/journey-beta" element={<JourneyPageV2 />} />
           <Route path="/lab" element={<LabIndex />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
