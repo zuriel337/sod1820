@@ -489,6 +489,16 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🧪 מדידת A/B עדשות למסע — רישום פר-מבקר (עדשה × אירוע × עומק) דרך RPC log_journey_ab.
 // event: 'start' | 'step' | 'complete'. לא חוסם, נכשל בשקט.
+// 👤 מסע פר-יוזר — סקירת כל הרשומים + היסטוריה. מנהל בלבד (חושף אימיילים). null בכשל.
+export async function getUsersOverview() {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_users_overview'); return data || null; } catch { return null; }
+}
+export async function getUserJourney(email) {
+  if (!supabase || !email) return null;
+  try { const { data } = await supabase.rpc('admin_user_journey', { p_email: email }); return data || null; } catch { return null; }
+}
+
 // 🔴 שידור חי — מי באתר עכשיו + כל הפרטים (דף, שובל, מקור, מכשיר, זהות). null בכשל.
 export async function getLiveVisitors(minutes = 10) {
   if (!supabase) return null;

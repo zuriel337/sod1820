@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors,
+  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -37,6 +37,7 @@ const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
   { key: "live",     label: "🔴 שידור חי" },
+  { key: "users",    label: "👤 משתמשים" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
@@ -69,7 +70,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "users", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -155,6 +156,7 @@ export default function AdminPage() {
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
       {tab === "live" && <LiveVisitorsTab />}
+      {tab === "users" && <UsersTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
@@ -2143,6 +2145,112 @@ const JEXP_META = {
     colors: { full: "#d4af37", classic: "#7fd18a" },
   },
 };
+
+// 👤 משתמשים — רשימת רשומים + «מסע» מפורט לכל יוזר (נוכחות, ימים, פעילות).
+function pill(c) { return { border: `1px solid ${c}`, borderRadius: 999, padding: "3px 10px", background: "rgba(8,5,2,0.4)", color: C.goldLight, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }; }
+function timeAgoTs(ts) {
+  if (!ts) return "—";
+  const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (s < 60) return "עכשיו";
+  if (s < 3600) return `לפני ${Math.floor(s / 60)} דק׳`;
+  if (s < 86400) return `לפני ${Math.floor(s / 3600)} שע׳`;
+  return `לפני ${Math.floor(s / 86400)} ימים`;
+}
+const UA_KIND = { visit: "👁 ביקור", gematria: "🧮 גימטריה", post: "📄 פוסט" };
+function UsersTab() {
+  const [users, setUsers] = useState(null);
+  const [err, setErr] = useState("");
+  const [sel, setSel] = useState(null);
+  const [j, setJ] = useState(null);
+  const [lj, setLj] = useState(false);
+  useEffect(() => {
+    let live = true;
+    getUsersOverview().then(x => live && setUsers(Array.isArray(x) ? x : [])).catch(e => live && setErr(String(e?.message || e)));
+    return () => { live = false; };
+  }, []);
+  const open = (email) => { setSel(email); setJ(null); setLj(true); getUserJourney(email).then(setJ).catch(() => setJ({ error: "err" })).finally(() => setLj(false)); };
+  const num = n => Number(n || 0).toLocaleString("he");
+
+  if (sel) {
+    const absent = j ? Math.max(0, (j.days_since_register || 0) - (j.active_days || 0)) : 0;
+    const daily = (j && j.daily) || [];
+    const dmax = Math.max(...daily.map(x => Number(x.n) || 0), 1);
+    return (
+      <div style={{ display: "grid", gap: 16 }}>
+        <button onClick={() => setSel(null)} style={{ ...segBtn(false), alignSelf: "flex-start" }}>← חזרה לרשימת המשתמשים</button>
+        {lj || !j ? <Loading /> : j.error ? <Empty>לא נמצא</Empty> : (
+          <>
+            <div style={card}>
+              <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: "0 0 4px", direction: "ltr", textAlign: "right" }}>📧 {j.email}</h3>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                {j.role === "admin" && <span style={{ ...pill("#e0796f") }}>👑 מנהל</span>}
+                {j.tier && <span style={{ ...pill(C.gold) }}>{j.tier}</span>}
+                <span style={{ ...pill(C.border) }}>נרשם {j.registered ? new Date(j.registered).toLocaleDateString("he-IL") : "—"}</span>
+                <span style={{ ...pill(C.border) }}>התחברות אחרונה {timeAgoTs(j.last_sign_in)}</span>
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {[["📅 ימים פעילים", num(j.active_days), "#7fd18a"], ["🕳️ ימי היעדרות", num(absent), "#8a7a4a"], ["📆 ימים מאז הרשמה", num(j.days_since_register), C.goldBright], ["⚡ סה״כ פעולות", num(j.total_activities), C.goldBright], ["👁 נראה לאחרונה", timeAgoTs(j.last_seen), C.goldLight]].map(([lbl, v, col]) => (
+                  <div key={lbl} style={{ flex: "1 1 130px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+                    <div style={{ color: col, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{v}</div>
+                    <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>{lbl}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {daily.length > 0 && (
+              <div style={card}>
+                <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>📈 נוכחות יומית (פעולות ליום)</h3>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 120, borderBottom: `1px solid ${C.border}`, overflowX: "auto" }}>
+                  {daily.map((x, i) => (
+                    <div key={i} title={`${x.d}: ${num(x.n)} פעולות (👁${x.visits} 🧮${x.gem} 📄${x.posts})`} style={{ flex: "1 0 8px", minWidth: 8, height: Math.max(3, Math.round((Number(x.n) / dmax) * 112)), borderRadius: "3px 3px 0 0", background: "linear-gradient(180deg,#f0d878,#8a6d18)" }} />
+                  ))}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.mono, fontSize: 10.5, marginTop: 4 }}>
+                  <span>{daily[0]?.d}</span><span>{daily[daily.length - 1]?.d}</span>
+                </div>
+              </div>
+            )}
+            <div style={card}>
+              <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🧭 מסע הפעולות (50 אחרונות)</h3>
+              <div style={{ display: "grid", gap: 6, maxHeight: 400, overflowY: "auto" }}>
+                {(j.recent || []).map((r, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, border: `1px solid ${C.border}`, borderRadius: 9, padding: "7px 11px", background: "rgba(8,5,2,0.3)" }}>
+                    <span style={{ fontFamily: F.body, fontSize: 12.5, color: C.goldLight, minWidth: 90 }}>{UA_KIND[r.kind] || r.kind}</span>
+                    <span dir="rtl" style={{ flex: 1, color: C.goldDim, fontFamily: F.body, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.title || r.ref || ""}</span>
+                    <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 10.5 }}>{timeAgoTs(r.ts)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>👤 משתמשים רשומים {users ? `· ${users.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>לחצו על משתמש לפתיחת «מסע» מלא — נוכחות, ימים פעילים/חסרים, וכל הפעולות. 🟢 = באתר עכשיו.</div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>שגיאה: {err}</div>}
+      </div>
+      {!users ? <Loading /> : users.length === 0 ? <Empty>אין משתמשים רשומים.</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {users.map((u, i) => (
+            <button key={i} onClick={() => open(u.email)} style={{ cursor: "pointer", textAlign: "right", border: `1px solid ${u.online ? "rgba(95,224,138,0.5)" : C.border}`, borderRadius: 12, padding: "11px 14px", background: "rgba(8,5,2,0.4)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ width: 9, height: 9, borderRadius: "50%", background: u.online ? "#5fe08a" : "#4a4436", boxShadow: u.online ? "0 0 7px #5fe08a" : "none", flex: "0 0 auto" }} />
+              <span style={{ flex: 1, minWidth: 160, color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700, direction: "ltr", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}{u.role === "admin" ? " 👑" : ""}</span>
+              <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>⚡ {num(u.activities)}</span>
+              <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>📅 {num(u.active_days)} ימים</span>
+              <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // 🔴 שידור חי — מי באתר עכשיו, מקסימום פרטים. מתרענן כל 10ש.
 function humanPath(p) {
