@@ -28,15 +28,19 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...CORS } });
 }
 
-async function logTokens(kind: string, model: string, usage: { input_tokens?: number; output_tokens?: number } | undefined) {
+async function logTokens(kind: string, model: string, usage: { input_tokens?: number; output_tokens?: number } | undefined, identity = "") {
   try {
     const url = Deno.env.get("SUPABASE_URL");
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !key || !usage) return;
+    // 🪙 שיוך עלות למי: מחובר → user_id (מהטוקן) · אנונימי → visitor. כך רואים כמה כל אחד «עולה».
+    let user_id: string | null = null, visitor: string | null = null;
+    if (identity.startsWith("u:")) user_id = identity.slice(2);
+    else if (identity.startsWith("v:")) visitor = identity.slice(2);
     await fetch(`${url}/rest/v1/ai_token_log`, {
       method: "POST",
       headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ source: "analyze", kind, model, input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0 }),
+      body: JSON.stringify({ source: "analyze", kind, model, input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0, user_id, visitor }),
     });
   } catch { /* לא חוסם */ }
 }
@@ -200,7 +204,7 @@ Deno.serve(async (req: Request) => {
     const out = engine === "gemini" ? await runGemini(user, maxTokens) : await runClaude(model, user, maxTokens);
 
     if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
-    await logTokens(kind || "analyze", model, out.usage);
+    await logTokens(kind || "analyze", model, out.usage, identity);
     return json({ analysis: out.text, engine, model });
   } catch (e) {
     return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
