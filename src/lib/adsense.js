@@ -15,17 +15,21 @@
 //   VITE_ADSENSE_SLOT_SIDE   = מזהה יחידת מודעה לצד בדסקטופ (אנכי 300×600)
 
 export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || "";
-// 🛑 מתג כיבוי גלובלי — כל עוד true, אין שום מודעת AdSense באתר (גם אם הוגדר מזהה מפרסם).
-// להחזרת המודעות: שנה ל-false (וודא ש-VITE_ADSENSE_CLIENT מוגדר ב-Vercel).
-const ADSENSE_KILL_SWITCH = true;
+// 🛑 מתג כיבוי גלובלי — כשהוא true אין שום מודעה (גם אם הוגדר מזהה מפרסם).
+// כובה (false) לבקשת צוריאל 10.7.2026 — מודעות בפוסטים הישנים בלבד. עדיין no-op מוחלט
+// עד שמגדירים VITE_ADSENSE_CLIENT ב-Vercel, כך שבלי מזהה-מפרסם כלום לא מוצג.
+const ADSENSE_KILL_SWITCH = false;
 export const ADSENSE_ENABLED = !ADSENSE_KILL_SWITCH && !!ADSENSE_CLIENT;
 
 // מזהי יחידות פר-מיקום (ברירת-מחדל מ-env; אפשר לעקוף דרך prop ב-AdSlot).
+//   VITE_ADSENSE_SLOT_SIDE       = רצועת-צד ימין (וגם ברירת-מחדל לשמאל אם אין נפרד)
+//   VITE_ADSENSE_SLOT_SIDE_LEFT  = רצועת-צד שמאל (אופציונלי — אחרת נופל ל-SIDE)
 export const ADSENSE_SLOTS = {
   post: import.meta.env.VITE_ADSENSE_SLOT_POST || "",
   list: import.meta.env.VITE_ADSENSE_SLOT_LIST || "",
   anchor: import.meta.env.VITE_ADSENSE_SLOT_ANCHOR || "",
   side: import.meta.env.VITE_ADSENSE_SLOT_SIDE || "",
+  sideLeft: import.meta.env.VITE_ADSENSE_SLOT_SIDE_LEFT || "",
 };
 
 let scriptLoaded = false;

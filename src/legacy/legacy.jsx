@@ -4535,9 +4535,9 @@ function PostPageBySlug({ onNav }) {
   const date     = formatDateHe(post?.date ?? "");
   const dateHeb  = formatDateHebrewCal(post?.date ?? "");
   const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
-  // מודעות מוצגות רק על פוסטים "ישנים" — לפחות שבוע מאז הפרסום (לא על תוכן עדכני).
-  const postAgeDays = post?.date ? (Date.now() - new Date(post.date).getTime()) / 86400000 : 0;
-  const adsAllowed = postAgeDays >= 7;
+  // מודעות מוצגות רק על **פוסטים ישנים** (וורדפרס legacy, source!='ai') — לעולם לא על
+  // התוכן החדש/הנקי של צוריאל. (בקשת צוריאל 10.7.2026: פרסומות רק בפוסטים הישנים.)
+  const adsAllowed = !!post && post.source !== "ai";
   // 🟢 חוק התוכן הנקי: פוסט שנכתב אצלנו (source='ai') שומר על <style> מכוון (אנימציות/גרפיקה) —
   // מחיקת <style> היא ניקוי-וורדפרס והיא חלה רק על פוסטים ישנים. וורדפרס לא נכנס לתחום הנקי.
   const isCleanPost = post?.source === "ai";
@@ -4600,9 +4600,11 @@ function PostPageBySlug({ onNav }) {
     // מצב-התמה נקבע פר-פוסט (postMode): light/dark כופים, auto עוקב אחרי המתג. עצמאי ממתג-האתר.
     <div data-theme={postMode} style={{ direction: "rtl", background: postMode === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
       {/* שיתוף מטופל גלובלית ע"י RoyalShareWidget — בוטל מנגנון השיתוף הכפול של התפילות */}
-      {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
+      {/* מודעות — רק על פוסטים ישנים (legacy WP); no-op בלי מזהה AdSense.
+          נייד: אנקור תחתון. דסקטופ (≥1500px): רצועת-צד ימין + שמאל סביב עמודת הקריאה. */}
       {post && !loading && adsAllowed && <StickyAnchorAd />}
-      {post && !loading && adsAllowed && <SideRailAd />}
+      {post && !loading && adsAllowed && <SideRailAd side="right" />}
+      {post && !loading && adsAllowed && <SideRailAd side="left" />}
       {/* באנר מטריקס-ריין בראש העמוד — ה-hero לפוסט עם fx (לדוגמה מטריקס: ירוק + 506 נוזל). מחליף את תמונת ה-hero. */}
       {fx && !loading && (
         <div style={{ position: "relative", height: "clamp(200px, 34vw, 320px)", overflow: "hidden", background: "#070b12" }}>

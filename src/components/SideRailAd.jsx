@@ -2,13 +2,13 @@ import React, { useEffect, useRef } from "react";
 import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript } from "../lib/adsense.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 
-// 🟦 מודעת צד אנכית 300×600 לדסקטופ — בדפי קריאה (פוסטים/ארכיון).
-// נעוצה בשוליים השמאליים (הצד ה"חיצוני" ל-RTL), ממורכזת אנכית, רק כשיש מקום אמיתי
-// בצד עמודת התוכן (≥1280px). במובייל לא מוצגת — שם יש את האנקור התחתון במקומה.
+// 🟦 מודעת צד אנכית 300×600 לדסקטופ — בדפי קריאה (פוסטים ישנים).
+// side="right"|"left" — רצועה בכל צד של עמודת התוכן, ממורכזת אנכית. מוצגת רק כשיש מקום
+// אמיתי לשתי הרצועות משני צדי התוכן (≥1500px). במובייל לא מוצגת — שם יש את האנקור התחתון.
 // בלי מזהה מפרסם/יחידה → no-op מוחלט.
-export default function SideRailAd({ slot }) {
-  const slotId = slot || ADSENSE_SLOTS.side || "";
-  const wideEnough = useMediaQuery("(min-width: 1280px)");
+export default function SideRailAd({ side = "right", slot }) {
+  const slotId = slot || (side === "left" ? (ADSENSE_SLOTS.sideLeft || ADSENSE_SLOTS.side) : ADSENSE_SLOTS.side) || "";
+  const wideEnough = useMediaQuery("(min-width: 1500px)");   // מקום לשתי רצועות + עמודת-קריאה
   const pushed = useRef(false);
 
   const live = ADSENSE_ENABLED && !!slotId && wideEnough;
@@ -25,7 +25,7 @@ export default function SideRailAd({ slot }) {
     <div
       role="complementary" aria-label="מודעה"
       style={{
-        position: "fixed", left: 16, top: "50%", transform: "translateY(-50%)",
+        position: "fixed", [side === "left" ? "left" : "right"]: 16, top: "50%", transform: "translateY(-50%)",
         width: 300, zIndex: 840, direction: "rtl",
       }}
     >
