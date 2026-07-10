@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { F, KEY_NUMBERS } from "../theme.js";
+import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPhraseValueFamilies, getValuePhraseList, getRandomStartPhrase, logView, zeroScales, getJourneyMessage, getAiAnalysis, subscribeEmail, logJourneySave } from "../lib/supabase.js";
 import { visitorId } from "../lib/feedback.js";
@@ -125,28 +125,39 @@ export default function JourneyPage() {
     setLoading(true); setFinished(null); setPath([]); setTarget(null); setFamily([]); setBases([]);
     setAiMsg(null); setAiState("idle"); setGemMsg(null); setGemState("idle");
     setUnlocked(false); setDeepMsg(null); setDeepState("idle");
-    let value = null, startPhrase = null;
-    if (isNumeric(fromParam)) {
-      value = parseInt(fromParam, 10);
-    } else {
-      startPhrase = fromParam || await getRandomStartPhrase() || "ירושלים";
-      const fams = await getPhraseValueFamilies(startPhrase);
-      value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
+    try {
+      let value = null, startPhrase = null;
+      if (isNumeric(fromParam)) {
+        value = parseInt(fromParam, 10);
+      } else {
+        startPhrase = String(fromParam || await getRandomStartPhrase() || "ירושלים").trim();
+        // 🔢 גימטריית השם ישירות — עובד לכל שם/ביטוי (לא רק מה שקיים ב-bidim).
+        // כך «צוריאל» → 337 גם אם אינו בטבלה. פולבק: אשכול-ערך עשיר אם קיים.
+        const g = calcGem(startPhrase);
+        value = g >= 10 ? g : null;
+        if (value == null) {
+          const fams = await getPhraseValueFamilies(startPhrase);
+          value = (fams.find(f => f.size >= 3) || fams[0])?.value ?? null;
+        }
+      }
+      if (value == null) { setFinished("stopped"); return; }
+      const fam = await getValuePhraseList(value);
+      if (!fam.length) { setTarget(value); setBases([value]); setFinished("stopped"); return; }
+      // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
+      const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
+      const start = startIdx >= 0 ? fam[startIdx] : fam[0];
+      setTarget(value);
+      setBases([value]);
+      setFamily(fam);
+      setGoal(clamp(fam.length, 3, 7));
+      setPath([start]);
+      logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
+      try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
+    } catch (e) {
+      setFinished("stopped");   // ⛔ שגיאה כלשהי → לא נתקעים על «מחפש קשרים»
+    } finally {
+      setLoading(false);        // תמיד — מבטיח שהטעינה נעצרת
     }
-    if (value == null) { setFinished("stopped"); setLoading(false); return; }
-    const fam = await getValuePhraseList(value);
-    if (!fam.length) { setTarget(value); setFinished("stopped"); setLoading(false); return; }
-    // תחנת הפתיחה: הביטוי שהמשתמש בא ממנו (אם במשפחה) או הראשון במשפחה.
-    const startIdx = startPhrase ? fam.findIndex(f => f.phrase === startPhrase) : -1;
-    const start = startIdx >= 0 ? fam[startIdx] : fam[0];
-    setTarget(value);
-    setBases([value]);
-    setFamily(fam);
-    setGoal(clamp(fam.length, 3, 7));
-    setPath([start]);
-    setLoading(false);
-    logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
-    try { emit("journey", "start", { journeyId: journeyIdRef.current, props: { value } }); } catch { /* noop */ }
   }
 
   // deep-link בלבד (/journey?from=…) מתחיל אוטומטית; הגעה נקייה ל-/journey מציגה דף-נחיתה.
