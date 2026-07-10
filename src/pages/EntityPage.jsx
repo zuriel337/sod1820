@@ -1480,12 +1480,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* מספרים קרובים — גרף (נעילת צוריאל #3): שכני-גרף + סקאלה */}
-                {value >= 10 && (
-                  <Reveal delay={60}>
-                    <NearbyNumbers value={value} P={P} numHref={numHref} compact />
-                  </Reveal>
-                )}
+                {/* מספרים קרובים — הוסר לבקשת צוריאל (ריבוע «מספרים קשורים») */}
 
                 {/* 🔬 הכפתור הגדול — המשך להיכל הגילוי (שכבה 3) */}
                 <Reveal delay={80}>
@@ -1577,13 +1572,8 @@ export default function EntityPage({ embedPhrase } = {}) {
           </div>
         )}
 
-        {/* ── 📂 מספרים-קרובים = גרף (נעילת צוריאל #3, ימין) + פתח/סגור הכל (שמאל) ── */}
+        {/* ── 📂 פתח/סגור הכל (ריבוע «מספרים קשורים» הוסר לבקשת צוריאל) ── */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-          {value >= 10 && (
-            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
-              <NearbyNumbers value={value} P={P} numHref={numHref} />
-            </div>
-          )}
           <button onClick={() => setAll(!allOpen)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>
             {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
           </button>

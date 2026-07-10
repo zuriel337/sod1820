@@ -32,13 +32,13 @@ export const PALETTES = {
     cardGrad: "linear-gradient(135deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))",
     border: "rgba(212,175,55,0.18)",
     borderStrong: "rgba(212,175,55,0.38)",
-    ink: "#e8c840",
+    ink: "#e4c766",             // זהב-חם רגוע (רוכך מ-#e8c840 הנאון — canonical_colors_law)
     inkSoft: "#cfc9d6",
     accent: "#d4af37",
     accentText: "#f6e27a",
     accentDim: "#9a7818",
     heroNum: "#f6e27a",
-    accentBtn: "linear-gradient(135deg, #d4af37, #e8c840)",
+    accentBtn: "linear-gradient(135deg, #bf9a22, #d4af37)",  // זהב מלכותי עמוק (בלי קצה נאון #e8c840)
     onAccent: "#1a0e00",
     glow: "rgba(212,175,55,0.40)",
     labBg: "linear-gradient(160deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))",
