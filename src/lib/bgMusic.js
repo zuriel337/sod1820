@@ -2,18 +2,16 @@
 // (ניווט בין פוסטים לא קוטע את הנגינה). הרצועות מהמאגר (באקט media הציבורי).
 // החלפת רצועה = next/prev/playIndex. בסיום רצועה — מעבר אוטומטי לבאה.
 
-const B = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media";
-
-// רשימת-ניגון פותחת (מהמאגר). בהמשך אפשר להזין מטבלת DB בלי פריסה.
+// 🌌 פסקול חללי — «סימפוניית כוכבי-הלכת»: הקלטות החלל של גשושיות Voyager של NASA.
+// נחלת-הכלל (Public Domain Mark 1.0) → מותר להטמעה מסחרית באתר. ~30 דק' כל רצועה (אמביינט
+// חייזרי-קוסמי, מהפנט). מתארח ב-archive.org (סטרימינג/range נתמכים; ניגון cross-origin ב-<audio>
+// לא דורש CORS). אפשר בעתיד להעתיק לבאקט media למקסימום אמינות.
+const A = "https://archive.org/download";
 export const TRACKS = [
-  { t: "ניגון · הבן יקיר לי אפרים", src: `${B}/uploads/2023/11/nygvn-580-b-hbn-ykyr-ly-aprym.mp3` },
-  { t: "מוטי שטיינמץ · צאינה וראינה", src: `${B}/uploads/2016/01/mvty-shtyynmtz-tzaynh-vraynh-yshybh-atrt-shlmh-Motty-Steinmetz-Sings-New-Song.mp3` },
-  { t: "אברהם פריד · הנני בידך", src: `${B}/uploads/2016/01/abrhm-pryd-syngl-chdsh-hnny-bydk-avraham-fried-new-single-riboin-haolomim.mp3` },
-  { t: "יעקב שוואקי · לא ישא גוי", src: `${B}/uploads/2019/09/yakb-shvvaky-shyr-lchyylym-la-ysha-gvy.mp3` },
-  { t: "אורי דוידי · מוכנים", src: `${B}/uploads/2019/09/avry-dvydy-mvknym-shyr-ktzby.mp3` },
-  { t: "מחרוזת", src: `${B}/uploads/2015/12/artist-mchrvzt-1.mp3` },
-  { t: "שיר 222 · ואפילו בהסתרה", src: `${B}/uploads/2023/11/shyr-222-vapylv-bhstrh-zakt-hytvmym-pah-nkryt-abvdh-zrh-hvdv-gyrsa-2-srt-htvb-byvtr-shkbsh-at-havlm.mp3` },
-  { t: "שיר 358 · בעל התניא", src: `${B}/uploads/2018/01/shyr-358-vapylv-bhstrh-bal-htnya-yld-hpla.mp3` },
+  { t: "סימפוניית כוכבי-הלכת · NASA Voyager II", src: `${A}/SymphoniesOfThePlanets2/1-SymphoniesOfThePlanets-Nasa-VoyagerRecordings.mp3` },
+  { t: "סימפוניית כוכבי-הלכת · NASA Voyager III", src: `${A}/SymphoniesOfThePlanets3/2-SymphoniesOfThePlanets-Nasa-VoyagerRecordings.mp3` },
+  { t: "סימפוניית כוכבי-הלכת · NASA Voyager IV", src: `${A}/4-01-symphonies-of-the-planets-4/4-01_Symphonies_of_the_Planets_4.mp3` },
+  { t: "סימפוניית כוכבי-הלכת · NASA Voyager V", src: `${A}/5-01-symphonies-of-the-planets-5/5-01_Symphonies_of_the_Planets_5.mp3` },
 ];
 
 let audio = null;
