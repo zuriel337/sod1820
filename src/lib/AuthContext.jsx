@@ -67,6 +67,12 @@ export function AuthProvider({ children }) {
     if (!user) return;
     try { claimVisitorPrefs(user.id, getVisitorId()); } catch { /* ignore */ }
     try { claimResearchLead(getVisitorId()); } catch { /* ignore */ }
+    // 🔗 גשר לשידור-החי: לקשר את מזהה site_visits (sod_visitor UUID) לחשבון, כדי שמחוברים
+    // יזוהו במסך החי עם המייל. (מזהה נפרד מ-getVisitorId — לכן קישור ייעודי.)
+    try {
+      const sv = localStorage.getItem('sod_visitor');
+      if (sv) supabase.rpc('link_visitor_identity', { p_visitor: sv });
+    } catch { /* ignore */ }
   }, [user]);
 
   const value = {
