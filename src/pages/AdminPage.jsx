@@ -2199,6 +2199,42 @@ function JourneyExperimentsTab() {
     );
   };
 
+  // 🔀 צירופים (2×2) — כל שילוב עדשה×תוכן. «גם וגם»: לראות איזה שילוב ספציפי הכי עובד.
+  const CELL_LENS = { reality: "🔮 מציאות", kingdom: "👑 מלוכה" };
+  const CELL_KIND = { full: "🧮 מלא", classic: "📜 קלאסי" };
+  const renderCells = () => {
+    const rows = (data && data.cells) || [];
+    if (!rows.length) return null;
+    const anyData = rows.some(r => Number(r.starts) > 0);
+    if (!anyData) return null;
+    const best = rows.slice().sort((a, b) => rate(b.step2, b.starts) - rate(a.step2, a.starts))[0];
+    const maxRate = Math.max(...rows.map(r => rate(r.step2, r.starts)), 1);
+    return (
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 20, margin: "0 0 4px" }}>🔀 צירופים · עדשה × תוכן (2×2)</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14, lineHeight: 1.6 }}>איזה <b>שילוב</b> ספציפי מוביל הכי הרבה אנשים לצעד 2. משלים את ההשוואות השוליות למעלה.</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map((r, i) => {
+            const r2 = rate(r.step2, r.starts);
+            const win = best && r.lens === best.lens && r.kind === best.kind && Number(r.step2) > 0;
+            return (
+              <div key={i} style={{ border: `1px solid ${win ? "#7fd18a" : C.border}`, borderRadius: 10, padding: "9px 12px", background: win ? "rgba(127,209,138,0.07)" : "rgba(8,5,2,0.3)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                  <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, flex: 1 }}>{CELL_LENS[r.lens] || r.lens} + {CELL_KIND[r.kind] || r.kind}{win ? " 🏆" : ""}</span>
+                  <span style={{ color: win ? "#7fd18a" : C.goldBright, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{r2}%</span>
+                  <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11 }}>· {Number(r.starts).toLocaleString("he")} התחילו</span>
+                </div>
+                <div style={{ height: 7, background: "rgba(212,175,55,0.1)", borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.max(Math.round((r2 / maxRate) * 100), r.step2 > 0 ? 3 : 0)}%`, height: "100%", borderRadius: 999, background: win ? "#7fd18a" : C.gold }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <div style={card}>
@@ -2222,6 +2258,7 @@ function JourneyExperimentsTab() {
       </div>
       {renderExp("lens")}
       {renderExp("kind")}
+      {renderCells()}
       <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, padding: "0 4px" }}>
         התצוגה המפורטת הישנה (משפך, שמירות, טוקנים) עברה לטאב «🧭 מסעות (ישן)».
       </div>
