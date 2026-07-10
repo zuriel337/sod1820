@@ -209,6 +209,9 @@ export default function HomeNewPage() {
         .hn-cta { display:inline-block; text-decoration:none; background:${P.accentBtn}; color:${P.onAccent};
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px ${P.glow}; }
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
+        /* גרפיקת-קנבס (LanguageCosmos) היא div בלי מידות טבעיות — inline-block היה מקריס
+           את רוחבה ל-0 (ואז aspect-ratio → גובה 0 → קנבס בלתי-נראה). block + רוחב מוגדר מתקן. */
+        .hn-gate.graphic { display:block; width:100%; }
         /* זוהר סגול-מלכותי רדיאלי מאחורי ההירו (מתחבר לרקע הסגול) */
         .hn-gate::before { content:""; position:absolute; inset:-16% -10%; z-index:-1; pointer-events:none;
           background: radial-gradient(closest-side, rgba(123,76,176,0.50), rgba(61,31,92,0.24) 52%, transparent 78%); }
@@ -253,7 +256,7 @@ export default function HomeNewPage() {
         <div className="hn-carousel" ref={heroRef} onScroll={onHeroScroll}>
           {HERO_SLIDES.map((s, i) => (
             <div className="hn-slide" key={i}>
-              <div className="hn-gate">
+              <div className={"hn-gate" + (s.graphic ? " graphic" : "")}>
                 {s.graphic
                   ? <LanguageCosmos />
                   : <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
