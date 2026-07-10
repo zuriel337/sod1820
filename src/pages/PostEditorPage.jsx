@@ -4,7 +4,7 @@ import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { toggleTheme } from "../lib/themeMode.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getPostBySlug, adminSavePost, adminResetPostPosition, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getAllAuthors } from "../lib/supabase.js";
+import { getPostBySlug, adminSavePost, adminResetPostPosition, getPostRevisions, restorePostRevision, tokenSavePost, getPostAiEdit, getPostCategoriesTags, getDraftPosts, getAllAuthors } from "../lib/supabase.js";
 import { supabase } from "../lib/supabase.js";
 
 // 🔑 כניסה עם קוד-סוד (בלי התחברות) — ?key=<code>. הקוד עצמו לא נשמר בצד-הלקוח:
@@ -138,6 +138,12 @@ export default function PostEditorPage() {
   const [colorOpen, setColorOpen] = useState(false);        // פתיחת בורר-הצבעים
   const liveRef = useRef(null);
 
+  // 🕘 היסטוריית גרסאות
+  const [revisions, setRevisions] = useState([]);
+  const [revsOpen, setRevsOpen] = useState(false);
+  const [previewRev, setPreviewRev] = useState(null);       // גרסה בתצוגה מקדימה
+  const [revBusy, setRevBusy] = useState(false);
+
   const [allCats, setAllCats] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [drafts, setDrafts] = useState([]);       // רשימת הטיוטות
@@ -164,6 +170,13 @@ export default function PostEditorPage() {
   useEffect(() => { getPostCategoriesTags().then(({ categories: c, tags: t }) => { setAllCats(c); setAllTags(t.filter(x => x !== "טיוטה")); }).catch(() => {}); }, []);
   const reloadDrafts = useCallback(() => { getDraftPosts().then(setDrafts).catch(() => {}); }, []);
   useEffect(() => { reloadDrafts(); getAllAuthors().then(setAllAuthors).catch(() => {}); }, [reloadDrafts]);
+
+  // 🕘 טעינת היסטוריית הגרסאות של הפוסט הנוכחי (מנהל בלבד; ריק בנתיב token)
+  const reloadRevisions = useCallback(() => {
+    if (hasKey || !postId) { setRevisions([]); return; }
+    getPostRevisions(postId).then(setRevisions).catch(() => {});
+  }, [postId, hasKey]);
+  useEffect(() => { reloadRevisions(); }, [reloadRevisions]);
 
   useEffect(() => {
     let alive = true;
@@ -408,6 +421,7 @@ export default function PostEditorPage() {
       setWasDraft(asDraft);
       snapRef.current = snapshot();               // סימון «נשמר» — מנקה את מצב ה-dirty
       reloadDrafts();
+      setTimeout(reloadRevisions, 500);           // רענון היסטוריית הגרסאות (הטריגר שמר את המצב הקודם)
       if (silent) { setAutoSavedAt(new Date()); return; }
       const savedSlug = res?.slug || slug;
       setMsg(asDraft ? `נשמר כטיוטה ✓ (id ${res?.id})` : `פורסם ✓ (id ${res?.id})`);
@@ -433,6 +447,39 @@ export default function PostEditorPage() {
       setMsg("↩︎ הפוסט הוחזר למקומו הכרונולוגי" + (alsoRemoveFromAxis ? " והוסר מציר ההתגלות" : "") + " ✓");
       reloadDrafts();
     } catch (e) { setErr(`שגיאה: ${String(e?.message || e)}`); }
+  };
+
+  // 🕘 טעינת שדות גרסה לעורך (בלי לשמור עדיין — «שחזר לעורך») + שחזור-DB מלא.
+  const loadRevIntoEditor = (r) => {
+    setTitle(r.title || ""); setContent(r.content || ""); setExcerpt(r.excerpt || "");
+    setCategories(r.categories || []); setTags((r.tags || []).filter(t => t !== "טיוטה"));
+    setImageUrl(r.image_url || ""); setTheme(r.theme === "light" || r.theme === "dark" ? r.theme : "auto");
+    setAuthors(Array.isArray(r.authors) && r.authors.length ? r.authors : (r.author ? [r.author] : []));
+    setPreviewRev(null);
+    setMsg("↩︎ הגרסה נטענה לעורך — «פרסם»/«שמור טיוטה» כדי לקבע.");
+  };
+  // שחזור מלא ב-DB (הפיך — נשמר צילום «לפני שחזור»). אחרי-כן טוענים מחדש את הפוסט לעורך.
+  const doRestore = async (r) => {
+    if (!postId) { loadRevIntoEditor(r); return; }
+    if (!window.confirm(`לשחזר את גרסת ${new Date(r.created_at).toLocaleString("he-IL")}? המצב הנוכחי יישמר כ«לפני שחזור» וניתן יהיה לחזור אליו.`)) return;
+    setRevBusy(true); setErr(""); setMsg("");
+    try {
+      await restorePostRevision(r.id);
+      const p = await getPostBySlug(slug || routeSlug);
+      if (p) {
+        setTitle(p.title || ""); setContent(p.content || ""); setExcerpt(p.excerpt || "");
+        setCategories(p.categories || []); setWasDraft((p.tags || []).includes("טיוטה"));
+        setTags((p.tags || []).filter(t => t !== "טיוטה")); setImageUrl(p.image_url || "");
+        setTheme(p.theme === "light" || p.theme === "dark" ? p.theme : "auto");
+        setAuthors(Array.isArray(p.authors) && p.authors.length ? p.authors : (p.author ? [p.author] : []));
+        setOrigModified(p.modified || null);
+        snapRef.current = snapshot();
+      }
+      setPreviewRev(null);
+      setMsg("✓ הגרסה שוחזרה. המצב הקודם נשמר כ«לפני שחזור» בהיסטוריה.");
+      reloadRevisions();
+    } catch (e) { setErr(`שגיאת שחזור: ${String(e?.message || e)}`); }
+    setRevBusy(false);
   };
 
   // ⌨️ Ctrl/Cmd+S = שמירה מהירה (במצב הנוכחי: טיוטה נשארת טיוטה, פורסם נשאר פורסם)
@@ -809,8 +856,65 @@ export default function PostEditorPage() {
             )}
             <p className="hint">קפץ פוסט לראש בטעות, או נכנס לציר ההתגלות שלא לצורך? «החזר למקום» מחזיר אותו לסדר הכרונולוגי המקורי.</p>
           </div>
+
+          {/* 🕘 היסטוריית גרסאות — צילום נשמר אוטומטית בכל עריכה מהותית */}
+          {isEdit && postId && !hasKey && (
+            <div className="pe-ctl">
+              <button type="button" onClick={() => setRevsOpen(o => !o)}
+                style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: 0, color: T.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
+                <span>🕘 היסטוריית גרסאות {revisions.length > 0 && <span style={{ color: T.goldDim, fontWeight: 400 }}>({revisions.length})</span>}</span>
+                <span>{revsOpen ? "▲" : "▼"}</span>
+              </button>
+              {revsOpen && (
+                <div style={{ marginTop: 10 }}>
+                  {revisions.length === 0 ? (
+                    <p className="hint">אין עדיין גרסאות שמורות. גרסה נשמרת אוטומטית בעריכה הבאה (צילום המצב הקודם).</p>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflowY: "auto" }}>
+                      {revisions.map(r => (
+                        <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "7px 9px" }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: T.goldLight, fontSize: 12, fontWeight: 700 }}>{new Date(r.created_at).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</div>
+                            <div style={{ color: T.goldDim, fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {r.note === "לפני שחזור" ? "↩︎ לפני שחזור" : "✎ עריכה"} · {(r.title || "").slice(0, 30) || "—"}
+                            </div>
+                          </div>
+                          <button type="button" className="pe-toggle" style={{ margin: 0, minHeight: 30, padding: "4px 9px" }} onClick={() => setPreviewRev(r)}>👁</button>
+                          <button type="button" className="pe-toggle" style={{ margin: 0, minHeight: 30, padding: "4px 9px", borderColor: T.gold, color: T.goldBright }} disabled={revBusy} onClick={() => doRestore(r)}>↩︎ שחזר</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="hint" style={{ marginTop: 8 }}>נשמרות עד 50 גרסאות אחרונות. שחזור הפיך — המצב הנוכחי נשמר כ«לפני שחזור».</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* 🕘 חלון תצוגה מקדימה של גרסה שמורה */}
+      {previewRev && (
+        <div onClick={() => setPreviewRev(null)} style={{ position: "fixed", inset: 0, zIndex: 7000, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={e => e.stopPropagation()} dir="rtl" style={{ background: dk ? "#0f0b05" : P.pageBg, border: `1px solid ${T.borderGold}`, borderRadius: 14, maxWidth: 820, width: "100%", maxHeight: "88vh", overflowY: "auto", padding: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+              <div>
+                <div style={{ color: T.goldBright, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>{previewRev.title || "(ללא כותרת)"}</div>
+                <div style={{ color: T.goldDim, fontSize: 12 }}>🕘 גרסה מ-{new Date(previewRev.created_at).toLocaleString("he-IL")} · {previewRev.note === "לפני שחזור" ? "לפני שחזור" : "עריכה"}</div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" className="pe-btn pe-save" style={{ padding: "8px 16px" }} disabled={revBusy} onClick={() => doRestore(previewRev)}>↩︎ שחזר גרסה זו</button>
+                <button type="button" className="pe-btn pe-ghost" style={{ padding: "8px 16px" }} onClick={() => loadRevIntoEditor(previewRev)}>טען לעורך</button>
+                <button type="button" className="pe-btn pe-ghost" style={{ padding: "8px 16px" }} onClick={() => setPreviewRev(null)}>✕ סגור</button>
+              </div>
+            </div>
+            {previewRev.image_url && <img src={thumb(previewRev.image_url, 400)} alt="" style={{ maxWidth: 260, borderRadius: 8, marginBottom: 12 }} />}
+            <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg }}>
+              <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: previewRev.content || "<p>(אין תוכן)</p>" }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {err && <p className="pe-err">{err}</p>}
       {msg && <p className="pe-ok">{msg}</p>}

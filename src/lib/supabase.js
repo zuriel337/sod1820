@@ -1446,6 +1446,27 @@ export async function adminResetPostPosition(id, removeFromAxis = false) {
   return data;
 }
 
+// 🕘 היסטוריית גרסאות של פוסט — הצילומים שנשמרו בכל עריכה מהותית (post_revisions). מנהל בלבד (RLS).
+// מחזיר [{ id, title, content, excerpt, categories, tags, image_url, theme, author, authors, note, created_at }] מהחדש לישן.
+export async function getPostRevisions(postId, limit = 50) {
+  if (!supabase || !postId) return [];
+  const { data, error } = await supabase.from('post_revisions')
+    .select('id,title,content,excerpt,categories,tags,image_url,theme,author,authors,note,created_at')
+    .eq('post_id', postId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return data || [];
+}
+
+// שחזור גרסה — דורס את הפוסט בערכי הגרסה. הפיך: נשמר צילום «לפני שחזור» של המצב הנוכחי. מנהל בלבד.
+export async function restorePostRevision(revisionId) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('admin_restore_post_revision', { p_revision_id: revisionId });
+  if (error) throw error;
+  return data;
+}
+
 // שמירת פוסט עם קוד-סוד (בלי התחברות) — Edge Function post-save (token). לעורך במצב ?key=.
 export async function tokenSavePost(key, fields = {}) {
   if (!supabase) throw new Error('no supabase');
