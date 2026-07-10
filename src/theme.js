@@ -370,6 +370,28 @@ export const POST_CONTENT_CSS = `
      self-contained עם <style> מוטמע מודע-תמה משלו (רקע+צבעים ליום/לילה) — כלל קנוני בספציפיות גבוהה
      ידרוס אותו ויהרוס את העיצוב. הצבעים נשארים של הפוסט/הקנוני הקיים. (post_text_colors_law v6) */
   .sod-post-content.clean [data-gem] { cursor: pointer; }
+  /* 📏 שורה-לחיצה שלמה שפותחת את חלונית המספר — <div class="sod-numrow" data-gem="ערך">…שורה…</div>.
+     כל השורה לחיצה (data-gem תופס אותה דרך openNumberDrawer), עם אפקט-ריחוף עדין וקו-צד מוביל. */
+  .sod-post-content.clean .sod-numrow { cursor: pointer; display: block; border-inline-start: 3px solid rgba(212,175,55,.5); padding: 4px 12px; margin: 6px 0; border-radius: 6px; transition: background .15s ease; }
+  .sod-post-content.clean .sod-numrow:hover { background: rgba(212,175,55,.10); }
+  [data-theme="light"] .sod-post-content.clean .sod-numrow { border-inline-start-color: rgba(200,16,46,.45); }
+  [data-theme="light"] .sod-post-content.clean .sod-numrow:hover { background: rgba(200,16,46,.07); }
+  /* 🎨 צבעי-מילה מודעי-תמה (כפתורי הצבע בעורך) — נשמרים כקלאס, לא inline, כדי לעבוד יום+לילה.
+     ערך זהה בשני המצבים היכן שהניגודיות מספיקה; אדום/כחול/ירוק מקבלים גוון כהה יותר בבהיר. */
+  .sod-post-content.clean .sc-gold  { color: #ffd86b !important; }
+  .sod-post-content.clean .sc-red   { color: #ff7a6b !important; }
+  .sod-post-content.clean .sc-blue  { color: #6fbcff !important; }
+  .sod-post-content.clean .sc-green { color: #7fe0a0 !important; }
+  .sod-post-content.clean .sc-violet{ color: #c9a4ff !important; }
+  .sod-post-content.clean .sc-white { color: #ffffff !important; }
+  .sod-post-content.clean .sc-hl    { background: rgba(212,175,55,.22); border-radius: 4px; padding: 0 3px; }
+  [data-theme="light"] .sod-post-content.clean .sc-gold  { color: #9a7818 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-red   { color: #c8102e !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-blue  { color: #1863c8 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-green { color: #1a8a48 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-violet{ color: #6a3fd0 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-white { color: #1c1c1c !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-hl    { background: rgba(200,16,46,.14); }
   /* 🌗 post_theme_safe_colors_law — השלמת מצב-בהיר מלאה לפוסט נקי. כל אלה היו זהב *בלי*
      גרסת-בהיר ⇒ נבלעו על רקע קרם: כותרות (h1/h2/h3), מודגש (strong), נטוי (em), קישורים
      שאינם /number/ («ראו גם» וכו'), כיתובים, קרדיט-כותב, תאי-טבלה. עכשיו קריאים בשני המצבים.

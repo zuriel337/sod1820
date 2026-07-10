@@ -20,7 +20,7 @@ import MatrixRain from "../components/MatrixRain.jsx";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -2147,6 +2147,26 @@ const POST_CONTENT_CSS = `
      self-contained עם <style> מוטמע מודע-תמה משלו (רקע+צבעים ליום/לילה) — כלל קנוני בספציפיות גבוהה
      ידרוס אותו ויהרוס את העיצוב. הצבעים נשארים של הפוסט/הקנוני הקיים. (post_text_colors_law v6) */
   .sod-post-content.clean [data-gem] { cursor: pointer; }
+  /* 📏 שורה-לחיצה שלמה שפותחת את חלונית המספר — <div class="sod-numrow" data-gem="ערך">…שורה…</div>. */
+  .sod-post-content.clean .sod-numrow { cursor: pointer; display: block; border-inline-start: 3px solid rgba(212,175,55,.5); padding: 4px 12px; margin: 6px 0; border-radius: 6px; transition: background .15s ease; }
+  .sod-post-content.clean .sod-numrow:hover { background: rgba(212,175,55,.10); }
+  [data-theme="light"] .sod-post-content.clean .sod-numrow { border-inline-start-color: rgba(200,16,46,.45); }
+  [data-theme="light"] .sod-post-content.clean .sod-numrow:hover { background: rgba(200,16,46,.07); }
+  /* 🎨 צבעי-מילה מודעי-תמה (כפתורי הצבע בעורך) — קלאס, לא inline, לעבודה יום+לילה. */
+  .sod-post-content.clean .sc-gold  { color: #ffd86b !important; }
+  .sod-post-content.clean .sc-red   { color: #ff7a6b !important; }
+  .sod-post-content.clean .sc-blue  { color: #6fbcff !important; }
+  .sod-post-content.clean .sc-green { color: #7fe0a0 !important; }
+  .sod-post-content.clean .sc-violet{ color: #c9a4ff !important; }
+  .sod-post-content.clean .sc-white { color: #ffffff !important; }
+  .sod-post-content.clean .sc-hl    { background: rgba(212,175,55,.22); border-radius: 4px; padding: 0 3px; }
+  [data-theme="light"] .sod-post-content.clean .sc-gold  { color: #9a7818 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-red   { color: #c8102e !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-blue  { color: #1863c8 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-green { color: #1a8a48 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-violet{ color: #6a3fd0 !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-white { color: #1c1c1c !important; }
+  [data-theme="light"] .sod-post-content.clean .sc-hl    { background: rgba(200,16,46,.14); }
   /* 🌗 post_theme_safe_colors_law — השלמת מצב-בהיר מלאה לפוסט נקי. כל אלה היו זהב *בלי*
      גרסת-בהיר ⇒ נבלעו על רקע קרם: כותרות (h1/h2/h3), מודגש (strong), נטוי (em), קישורים
      שאינם /number/ («ראו גם» וכו'), כיתובים, קרדיט-כותב, תאי-טבלה. עכשיו קריאים בשני המצבים.
@@ -4330,15 +4350,23 @@ function PostPageBySlug({ onNav }) {
   // פוסט ישן (legacy-dark / source=wordpress) = נעול כהה — מכבד צבעים צרובים מ-WP.
   // themed = מתחלף עם מתג יום/לילה. ברירת מחדל ל-WordPress היא נעול-כהה (צבעים צרובים),
   // אבל פוסט שסומן במפורש theme='auto' יתחלף — גם פוסט ישן (opt-in דרך הניהול/DB).
-  // themed (מנטרל צבעי-WP ליום/לילה) — לפוסטים ישנים בלבד; פוסט נקי מטופל ע"י post_text_colors_law
-  const themed = post?.theme === "auto" && post?.source !== "ai";
-  // 🌗 post_theme_safe_colors_law (chrome): פוסט נקי (source='ai') תוכנן להיות תמה-מודע, אבל ה-pc
-  //    היה ננעל לפלטת-כהה גם במצב בהיר → כל ה-chrome (כרטיס-כותב, תגיות, תיבת-מעקב, תגובות,
-  //    כפתור-חזרה) נשאר כהה על רקע קרם («הסלט»). תיקון: במצב בהיר פוסט נקי מאמץ את פלטת-הבהיר
-  //    כמו themed; במצב כהה נשאר *זהה לחלוטין* לקבועים הצרובים — הלילה לא משתנה כלל.
-  const cleanLight = post?.source === "ai" && P.mode === "light";
-  const pc = (themed || cleanLight)
-    ? { bg: P.mode === "light" ? P.pageBg : C.bg, bgGlow: P.cardSoft, border: P.border, borderGold: P.borderStrong, faint: P.cardSoft, gold: P.accent, goldBright: P.accentText, goldDark: P.accentDim, goldDeep: P.onAccent, goldDim: P.accentDim, goldLight: P.ink, muted: P.inkSoft, royalLight: C.royalLight, surface: P.card, ink: P.ink, sub: P.inkSoft }
+  // 🌗 מצב-תמה לפוסט (posts.theme) — כפתור «יום/לילה/אוטומטי» בעורך שולט בזה, פר-פוסט:
+  //   'light' = תמיד יום · 'dark' = תמיד לילה · 'auto'/ריק = עוקב אחרי מתג-האתר (לפוסט נקי) או ננעל-כהה (WP ישן).
+  //   הכפייה עצמאית ממתג-האתר: פוסט שסומן «יום» יוצג בהיר גם כשהאתר במצב לילה, ולהיפך.
+  const isClean = post?.source === "ai";
+  const postMode =
+      post?.theme === "light" ? "light"
+    : post?.theme === "dark"  ? "dark"
+    : (isClean || post?.theme === "auto") ? P.mode   // בלי כפייה → עוקב אחרי המתג
+    : "dark";                                        // WP ישן רגיל → ננעל כהה (צבעים צרובים)
+  const PM = PALETTES[postMode] || PALETTES.dark;    // פלטת-היעד לפי מצב-הפוסט (לא ממתג-האתר)
+  // themed (מנטרל צבעי-WP ליום/לילה) — לפוסט ישן שמוצג בבהיר; פוסט נקי מטופל ע"י post_text_colors_law.
+  const themed = !isClean && postMode === "light";
+  // 🌗 post_theme_safe_colors_law (chrome): במצב בהיר ה-chrome (כרטיס-כותב, תגיות, תיבת-מעקב, תגובות,
+  //   כפתור-חזרה) מאמץ פלטת-בהיר; במצב כהה נשאר *זהה לחלוטין* לקבועים הצרובים — הלילה לא משתנה כלל.
+  const cleanLight = isClean && postMode === "light";
+  const pc = postMode === "light"
+    ? { bg: PM.pageBg, bgGlow: PM.cardSoft, border: PM.border, borderGold: PM.borderStrong, faint: PM.cardSoft, gold: PM.accent, goldBright: PM.accentText, goldDark: PM.accentDim, goldDeep: PM.onAccent, goldDim: PM.accentDim, goldLight: PM.ink, muted: PM.inkSoft, royalLight: C.royalLight, surface: PM.card, ink: PM.ink, sub: PM.inkSoft }
     : { bg: C.bg, bgGlow: C.bgGlow, border: C.border, borderGold: C.borderGold, faint: C.faint, gold: C.gold, goldBright: C.goldBright, goldDark: C.goldDark, goldDeep: C.goldDeep, goldDim: C.goldDim, goldLight: C.goldLight, muted: C.muted, royalLight: C.royalLight, surface: C.surface, ink: "#ede4d3", sub: "#d4ccbf" };
 
   // ── עריכת פוסט ידנית (מנהל מחובר בלבד) ──
@@ -4569,8 +4597,8 @@ function PostPageBySlug({ onNav }) {
   }, [user, post?.slug]);  // eslint-disable-line
 
   return (
-    // legacy-dark = נעול כהה (מכבד צבעים צרובים מ-WP). themed = מתחלף עם המתג.
-    <div data-theme={themed ? P.mode : "dark"} style={{ direction: "rtl", background: (themed ? P.mode : "dark") === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
+    // מצב-התמה נקבע פר-פוסט (postMode): light/dark כופים, auto עוקב אחרי המתג. עצמאי ממתג-האתר.
+    <div data-theme={postMode} style={{ direction: "rtl", background: postMode === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
       {/* שיתוף מטופל גלובלית ע"י RoyalShareWidget — בוטל מנגנון השיתוף הכפול של התפילות */}
       {/* מודעות — רק על פוסטים ישנים (שבוע+ מאז הפרסום); no-op בלי מזהה AdSense: אנקור במובייל, צד בדסקטופ */}
       {post && !loading && adsAllowed && <StickyAnchorAd />}
@@ -4656,7 +4684,7 @@ function PostPageBySlug({ onNav }) {
                 </div>
               )}
               {/* 🔒 חוק: בבהיר הכותרת שחורה (ink) לקריאוּת — זהב שמור לכהה. */}
-              <h1 style={{ color: P.mode === "light" ? P.ink : pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: P.mode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
+              <h1 style={{ color: postMode === "light" ? PM.ink : pc.goldBright, margin: "0 0 20px", fontSize: "clamp(24px, 4.5vw, 44px)", fontFamily: F.royal, fontWeight: 700, lineHeight: 1.2, letterSpacing: 1, textShadow: postMode === "light" ? "none" : `0 0 70px ${pc.goldDeep}` }}>{title}</h1>
               {hotWeek && (
                 <div style={{ textAlign: "center", margin: "-8px 0 18px" }}>
                   <span title="חם השבוע" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e0556a", fontFamily: F.heading, fontSize: 13, fontWeight: 800, border: "1px solid rgba(224,85,106,0.4)", background: "rgba(224,85,106,0.10)", borderRadius: 999, padding: "3px 13px" }}>
@@ -4715,11 +4743,11 @@ function PostPageBySlug({ onNav }) {
                 );
               })()}
               {/* חוק post_dates_law: כל פוסט מציג תאריך יצירה (לועזי + עברי) + תאריך עדכון (לועזי בלבד) */}
-              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: P.mode === "light" ? P.ink : pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "2px 0 16px", color: postMode === "light" ? PM.ink : pc.muted, fontFamily: F.heading, fontSize: 12, letterSpacing: 0.5 }}>
                 <span title="תאריך יצירת הפוסט">
                   📅 נוצר: {date}{dateHeb ? <span style={{ opacity: 0.65 }}> / {dateHeb}</span> : null}
                 </span>
-                {modified && <span style={{ color: P.mode === "light" ? P.ink : pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
+                {modified && <span style={{ color: postMode === "light" ? PM.ink : pc.goldLight }} title="עודכן לאחרונה">✏️ עודכן: {modified}</span>}
               </div>
               <RoyalDivider width={160} />
             </div>
@@ -4727,7 +4755,7 @@ function PostPageBySlug({ onNav }) {
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}
             <style>{POST_CONTENT_CSS}</style>
-            {themed && <style>{themedPostContentCSS(P)}</style>}
+            {themed && <style>{themedPostContentCSS(PM)}</style>}
             {/* הערת הלחיצוּת («כל מספר/מילה לחיץ») הוסרה לבקשת צוריאל — כולם כבר יודעים שהמספרים
                 והביטויים המודגשים לחיצים, ההערה מיותרת ומסיחה. (number_click_hint_law — בוטל 3.7.2026.)
                 הלחיצוּת עצמה נשמרת: data-gem + openNumberDrawer עדיין פעילים על כל מספר/ביטוי. */}
