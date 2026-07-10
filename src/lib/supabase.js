@@ -489,6 +489,15 @@ export async function getJourneyMessage({ value, path, world, meaning, depth, ag
 
 // 🧪 מדידת A/B עדשות למסע — רישום פר-מבקר (עדשה × אירוע × עומק) דרך RPC log_journey_ab.
 // event: 'start' | 'step' | 'complete'. לא חוסם, נכשל בשקט.
+// 📈 מעקב כניסות אמיתיות לאורך זמן + מקורות (referrer), מסונן-בוטים. null בכשל.
+export async function getRealTraffic(days = 30) {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.rpc('admin_real_traffic', { p_days: days });
+    return data || null;
+  } catch { return null; }
+}
+
 // 🧪 השוואת ניסויי-מסע (A/B) מסוננת-בוטים — עדשה (reality/kingdom) + תוכן (full/classic). null בכשל.
 export async function getJourneyExperiments(days = 14) {
   if (!supabase) return null;

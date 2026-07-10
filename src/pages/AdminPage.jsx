@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments,
+  getJourneyExperiments, getRealTraffic,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -2142,6 +2142,95 @@ const JEXP_META = {
   },
 };
 
+// 📈 כניסות אמיתיות לאורך זמן + מקורות — מסונן-בוטים. עונה על «מי שולח» ו«האם יש עלייה אמיתית».
+const SRC_ICON = { "(ישיר)": "🔗", "Google": "🔍", "Facebook": "📘", "Instagram": "📸", "X/Twitter": "𝕏", "WhatsApp": "💬", "Telegram": "✈️", "Bing": "🔎", "DuckDuckGo": "🦆", "YouTube": "▶️", "TikTok": "🎵", "(ניווט פנימי)": "🏠" };
+function RealTrafficPanel() {
+  const [days, setDays] = useState(30);
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    let live = true; setD(null); setErr("");
+    getRealTraffic(days).then(x => live && setD(x || {})).catch(e => live && setErr(String(e?.message || e)));
+    return () => { live = false; };
+  }, [days]);
+  const daily = (d && d.daily) || [];
+  const sources = (d && d.sources) || [];
+  const maxV = Math.max(...daily.map(x => Number(x.visitors) || 0), 1);
+  const maxSrc = Math.max(...sources.map(s => Number(s.visitors) || 0), 1);
+  const recent = Number(d?.recent_half || 0), prior = Number(d?.prior_half || 0);
+  const trend = prior > 0 ? Math.round(((recent - prior) / prior) * 100) : (recent > 0 ? 100 : 0);
+  const up = trend >= 0;
+  const fmt = n => Number(n || 0).toLocaleString("he");
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>📈 כניסות אמיתיות — מגמה ומקורות</h3>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[[7, "7 ימים"], [30, "30 יום"], [90, "90 יום"]].map(([n, lbl]) => (
+            <button key={n} onClick={() => setDays(n)} style={{ cursor: "pointer", border: `1px solid ${days === n ? C.gold : C.border}`, background: days === n ? "rgba(212,175,55,0.18)" : "transparent", color: days === n ? C.goldBright : C.muted, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>מבקרים אמיתיים בלבד (בוטים דטרמיניסטיים סוננו). «מי שולח» = referrer.</div>
+      {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13 }}>שגיאה: {err}</div>}
+      {!d ? <div style={{ color: C.muted }}>טוען…</div> : (
+        <>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
+            <div style={{ flex: "1 1 150px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+              <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{fmt(d.total_real_visitors)}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>מבקרים אמיתיים · {days} יום</div>
+            </div>
+            <div style={{ flex: "1 1 150px", border: `1px solid ${up ? "#7fd18a" : "#e0796f"}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+              <div style={{ color: up ? "#7fd18a" : "#e0796f", fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{up ? "▲" : "▼"} {Math.abs(trend)}%</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>מחצית אחרונה מול קודמת ({fmt(recent)} מול {fmt(prior)})</div>
+            </div>
+            <div style={{ flex: "1 1 150px", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.35)" }}>
+              <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 26, fontWeight: 800 }}>{fmt(d.bot_visitors)}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>🤖 בוטים שסוננו</div>
+            </div>
+          </div>
+          {/* גרף עמודות יומי */}
+          {daily.length > 0 && (
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>מבקרים אמיתיים ליום</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 130, borderBottom: `1px solid ${C.border}`, paddingBottom: 2, overflowX: "auto" }}>
+                {daily.map((x, i) => {
+                  const h = Math.max(2, Math.round((Number(x.visitors) / maxV) * 122));
+                  const isLast = i === daily.length - 1;
+                  return (
+                    <div key={x.day} title={`${x.day}: ${fmt(x.visitors)} מבקרים · ${fmt(x.visits)} ביקורים`} style={{ flex: "1 0 6px", minWidth: 6, height: h, borderRadius: "3px 3px 0 0", background: isLast ? "linear-gradient(180deg,#f0d878,#d4af37)" : "linear-gradient(180deg,#d4af37,#8a6d18)", opacity: isLast ? 1 : 0.85 }} />
+                  );
+                })}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.mono, fontSize: 10.5, marginTop: 4 }}>
+                <span>{daily[0]?.day}</span><span>{daily[daily.length - 1]?.day}</span>
+              </div>
+            </div>
+          )}
+          {/* מקורות */}
+          {sources.length > 0 && (
+            <div>
+              <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>מי שולח · מקורות ({days} יום)</div>
+              <div style={{ display: "grid", gap: 6 }}>
+                {sources.map((s, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, minWidth: 118, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{SRC_ICON[s.source] || "🌐"} {s.source}</span>
+                    <div style={{ flex: 1, height: 16, background: "rgba(212,175,55,0.1)", borderRadius: 6, overflow: "hidden" }}>
+                      <div style={{ width: `${Math.round((Number(s.visitors) / maxSrc) * 100)}%`, height: "100%", borderRadius: 6, background: "linear-gradient(90deg,#d4af37,#f0d878)" }} />
+                    </div>
+                    <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13, fontWeight: 800, minWidth: 54, textAlign: "left" }}>{fmt(s.visitors)}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11, marginTop: 8, fontStyle: "italic" }}>«ישיר» = הקלדה/סימנייה/קישור מאפליקציה (וואטסאפ/טלגרם לרוב נכנסים ככה). המספר = מבקרים ייחודיים.</div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function JourneyExperimentsTab() {
   const [days, setDays] = useState(14);
   const [data, setData] = useState(null);
@@ -2237,6 +2326,7 @@ function JourneyExperimentsTab() {
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      <RealTrafficPanel />
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
           <div>
