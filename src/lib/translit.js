@@ -15,18 +15,39 @@ export const normEn = s => String(s || "").toLowerCase().replace(/[^a-z' ]/g, ""
 // אבל נותן בסיס שהאדמין עורך. משמש למילוי-מהיר של מאגר-האנגלית מתוך מילים עבריות.
 const HE2LAT = { "א": "a", "ב": "b", "ג": "g", "ד": "d", "ה": "h", "ו": "o", "ז": "z", "ח": "ch", "ט": "t", "י": "i", "כ": "k", "ך": "k", "ל": "l", "מ": "m", "ם": "m", "נ": "n", "ן": "n", "ס": "s", "ע": "a", "פ": "p", "ף": "f", "צ": "ts", "ץ": "ts", "ק": "k", "ר": "r", "ש": "sh", "ת": "t" };
 const HE_VOWELISH = new Set(["א", "ה", "ו", "י", "ע"]);   // אותיות שמתפקדות כתנועה — לא מוסיפים 'a' לפניהן
-export function hebrewToLatin(word) {
+// overrides: מיפוי-חלופה per-אות (למשל {ב:'v'}) — משמש לייצור וריאנטים דו-משמעיים.
+export function hebrewToLatin(word, overrides = null) {
   const chars = [...String(word || "")].filter(c => HE2LAT[c] || c === " ");
   let out = "";
   for (let i = 0; i < chars.length; i++) {
     const c = chars[i];
     if (c === " ") { out += " "; continue; }
-    out += HE2LAT[c];
+    out += (overrides && overrides[c] != null) ? overrides[c] : HE2LAT[c];
     // הוספת תנועה 'a' בין שני עיצורים סמוכים (heuristic) — «שלום»→«shalom»
     const next = chars[i + 1];
     if (next && next !== " " && !HE_VOWELISH.has(c) && !HE_VOWELISH.has(next) && HE2LAT[next]) out += "a";
   }
   return out.replace(/\s+/g, " ").trim();
+}
+
+const cap1 = s => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+// 🔤 אפשרויות-תעתוק לבחירה («אופציה כזאת או כזאת») — איות-בסיס + החלפות של אותיות
+// דו-משמעיות (ב=b/v · ח=ch/h · צ=tz/ts · ש=sh/s · ת=t/th · ו=o/u/v · כ=k/kh · ק=k/q).
+// מחזיר מערך איותים ייחודיים, הבסיס ראשון, אות ראשונה גדולה. המשתמש בוחר או עורך ידנית.
+const HE_LAT_ALT = { "ב": "v", "ח": "h", "כ": "kh", "ך": "kh", "צ": "ts", "ץ": "ts", "ש": "s", "ת": "th", "ו": "u", "ק": "q" };
+export function hebrewLatinOptions(word, cap = 4) {
+  const base = hebrewToLatin(word);
+  if (!base) return [];
+  const out = [base];
+  const seen = new Set([base]);
+  const present = [...String(word || "")].filter(c => HE_LAT_ALT[c]);
+  for (const c of present) {
+    if (out.length >= cap) break;
+    const v = hebrewToLatin(word, { [c]: HE_LAT_ALT[c] });
+    if (v && !seen.has(v)) { seen.add(v); out.push(v); }
+  }
+  return out.slice(0, cap).map(cap1);
 }
 
 // דיגרפים (צירופי-אותיות) — נבדקים לפי אורך יורד. [en, he]

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
+import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supabase.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
@@ -92,6 +93,39 @@ function BridgeCard({ b, myWord }) {
   );
 }
 
+// 🎯 מד עומק ההצלבה — כמה שכבות עצמאיות מצטלבות על השם. צבע לפי עוצמה.
+function DepthGauge({ depth }) {
+  if (!depth) return null;
+  const s = depth.score;
+  const col = s >= 70 ? "#1f8a4c" : s >= 40 ? "#b78900" : "#5b6472";
+  const level = s >= 70 ? "הצלבה עשירה" : s >= 40 ? "הצלבה בינונית" : s >= 15 ? "הצלבה מתחילה" : "מעט הצלבות";
+  return (
+    <section style={{ background: "linear-gradient(180deg,#fbfdff,#f3f7ff)", border: `1px solid #d9e5ff`, borderRadius: 16, padding: "16px 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+        <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0, borderRadius: "50%", background: `conic-gradient(${col} ${s * 3.6}deg, #e4e7ec 0deg)` }}>
+          <div style={{ position: "absolute", inset: 6, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+            <b style={{ fontFamily: F.m, fontSize: 19, color: col, lineHeight: 1 }}>{s}</b>
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+            <span style={{ fontFamily: F.h, fontSize: 16, fontWeight: 800, color: C.ink }}>🎯 עומק ההצלבה</span>
+            <span style={{ fontFamily: F.h, fontSize: 12.5, fontWeight: 800, color: col }}>{level}</span>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 7 }}>
+            {depth.parts.map((p, i) => (
+              <span key={i} style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, fontFamily: F.h, fontSize: 11.5, fontWeight: 700, color: C.dim, padding: "2px 9px" }}>{p.label} <b style={{ color: C.blue }}>{p.n}</b></span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ color: "#8a94a6", fontFamily: F.h, fontSize: 11.5, lineHeight: 1.6, marginTop: 10 }}>
+        המדד סופר <b>שכבות שמצטלבות</b> על השם (התכנסויות · גשרים · פוסטים · חידושים · אוצרות) — לא כמה שיטות נותנות מספר זהה, ולא «כמה זה נכון». ציון גבוה = השם מחובר לעוד פינות בעץ, נקודת-פתיחה עשירה למחקר.
+      </div>
+    </section>
+  );
+}
+
 export default function NameLabPage() {
   const [sp, setSp] = useSearchParams();
   const [word, setWord] = useState((sp.get("w") || "").trim());
@@ -100,24 +134,56 @@ export default function NameLabPage() {
   const [ai, setAi] = useState(null);
   const [aiState, setAiState] = useState("idle"); // idle|busy|done|off
   const [conv, setConv] = useState(null);
+  const [convCount, setConvCount] = useState(0);
   const [research, setResearch] = useState(null); // {bridges,posts,treasures,hints,...} | false=err
+  const [enWord, setEnWord] = useState(null);      // איות-אנגלית שנבחר לשם עברי (תעתוק מוצהר)
   const { addToResearch, saveItem, isPinned, togglePin } = useResearch();
 
   useEffect(() => { document.title = "מעבדת השם · סוד 1820"; }, []);
 
   const hebVals = useMemo(() => word ? HEB.map(m => ({ ...m, value: m.fn(word) })) : [], [word]);
-  const enVals = useMemo(() => (word && hasLatin(word)) ? englishAll(word) : [], [word]);
   const regVal = hebVals[0]?.value || 0;
+  const heInput = !!word && !hasLatin(word);           // קלט עברי טהור → מציעים תעתוק לאנגלית
+  const translitOpts = useMemo(() => heInput ? hebrewLatinOptions(word) : [], [heInput, word]);
+
+  // ערכי-אנגלית: קלט לטיני → ישיר; קלט עברי → על האיות שנבחר (enWord), אם נבחר.
+  const enSource = hasLatin(word) ? word : (enWord || "");
+  const enVals = useMemo(() => enSource ? englishAll(enSource) : [], [enSource]);
+  const enOrdinal = enVals[0]?.value || 0;
+  // 💫 גשר-חי בין-שפתי: ערך-האנגלית (אורדינלי) שווה לערך העברי הרגיל = התכנסות חוצת-שפה אמיתית.
+  const liveBridge = enOrdinal > 0 && enOrdinal === regVal;
 
   // התכנסויות מאומתות — המילים ששוות לערך הרגיל (בתוך המספר).
   useEffect(() => {
-    let live = true; setConv(null);
+    let live = true; setConv(null); setConvCount(0);
     if (regVal >= 10) getValuePhraseList(regVal).then(list => {
       if (!live) return;
-      setConv((list || []).map(x => x.phrase).filter(p => p && p !== word).slice(0, 24));
+      const phrases = (list || []).map(x => x.phrase).filter(p => p && p !== word);
+      setConvCount(phrases.length);
+      setConv(phrases.slice(0, 24));
     }).catch(() => live && setConv([]));
     return () => { live = false; };
   }, [regVal, word]);
+
+  // איפוס בחירת-האיות כשמחליפים שם; ברירת-מחדל = האופציה הראשונה (המשתמש יכול לשנות).
+  useEffect(() => { setEnWord(heInput && translitOpts.length ? translitOpts[0] : null); }, [word, heInput, translitOpts]);
+
+  // 🎯 עומק ההצלבה (0-100) — כמה *שכבות עצמאיות* מצטלבות על השם. לא ספירת-שיטות, לא «אמת»:
+  // מודד עושר-החיבור בגרף (התכנסויות + גשרים + פוסטים + חידושים + אוצרות + גשר-חי).
+  const depth = useMemo(() => {
+    if (!word) return null;
+    const r = research || {};
+    const parts = [
+      { k: "conv", label: "התכנסויות בערך", n: convCount, pts: Math.min(convCount, 40) },
+      { k: "bridge", label: "גשרים מאומתים", n: (r.bridges || []).length, pts: (r.bridges || []).length * 12 },
+      { k: "live", label: "גשר-חי בין-שפתי", n: liveBridge ? 1 : 0, pts: liveBridge ? 14 : 0 },
+      { k: "posts", label: "פוסטים", n: r.posts_count || 0, pts: Math.min(r.posts_count || 0, 15) },
+      { k: "hints", label: "חידושים", n: r.hints_count || 0, pts: Math.min(r.hints_count || 0, 5) * 2 },
+      { k: "treas", label: "אוצרות", n: r.treasures_count || 0, pts: Math.min(r.treasures_count || 0, 3) * 3 },
+    ];
+    const score = Math.min(100, parts.reduce((a, p) => a + p.pts, 0));
+    return { score, parts: parts.filter(p => p.n > 0) };
+  }, [word, research, convCount, liveBridge]);
 
   // 🌉📚 מחקר הקשר + גשרים — RPC אחד (עץ אחד: השם כשער לגרף).
   useEffect(() => {
@@ -131,7 +197,8 @@ export default function NameLabPage() {
     setAiState("busy"); setAi(null);
     // הרכבת עובדות ל-AI + הנחיית «חוקר מלווה» (למה מעניין, מאיזו שיטה, מקורהּ, מה לחקור).
     const topHeb = hebVals.slice(0, 8).map(m => `${m.key}=${m.value}`).join(" · ");
-    const enLine = enVals.length ? "\nאנגלית: " + enVals.map(m => `${m.label}=${m.value} (${EN_TAGS[m.tag]?.label})`).join(" · ") : "";
+    const enLabel = hasLatin(word) ? word : enWord;
+    const enLine = enVals.length ? `\nאנגלית (${enLabel}${heInput ? ", תעתוק מוצהר" : ""}): ` + enVals.map(m => `${m.label}=${m.value} (${EN_TAGS[m.tag]?.label})`).join(" · ") + (liveBridge ? ` — ⚡ ערך-האנגלית האורדינלי (${enOrdinal}) שווה לערך העברי הרגיל (${regVal})!` : "") : "";
     const convLine = (conv && conv.length) ? `\nהתכנסויות (רגיל=${regVal}): ${conv.slice(0, 12).join(", ")}` : "";
     const br = research && research.bridges ? research.bridges : [];
     const brLine = br.length ? `\nגשרים חוצי-שפות: ${br.map(b => `${b.hebrew}↔${b.foreign_word} (${LANG[b.lang] || b.lang}, ${REL[b.relationship_type] || b.relationship_type}, ${b.gematria_he})`).join(" · ")}` : "";
@@ -143,7 +210,7 @@ export default function NameLabPage() {
       const res = await getAiAnalysis({ kind: "name_lab", subject: word, facts });
       setAi(res || null); setAiState(res ? "done" : "off");
     } catch { setAiState("off"); }
-  }, [word, hebVals, enVals, conv, regVal, research, aiState]);
+  }, [word, hebVals, enVals, conv, regVal, research, aiState, enWord, heInput, liveBridge, enOrdinal]);
 
   const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); if (w) setSp({ w }, { replace: true }); };
 
@@ -203,14 +270,42 @@ export default function NameLabPage() {
             )}
           </Section>
 
+          {/* 🎯 מד עומק ההצלבה — סיכום כמותי של החיבור בגרף */}
+          <DepthGauge depth={depth} />
+
           {/* 3 · המחקר — השיטות */}
           <Section n="03" icon="🔢" title="המחקר" sub={`${hebVals.length} שיטות עברית${enVals.length ? " · " + enVals.length + " שיטות אנגלית" : ""} — כל שיטה עם ערך, תג-מקור והסבר (לחיצה על «?»).`}>
             <div style={{ color: "#1f8a4c", fontFamily: F.h, fontSize: 12.5, fontWeight: 800, margin: "0 0 7px" }}>✅ מסורת עברית</div>
             <div style={{ display: "grid", gap: 6 }}>
               {hebVals.map((m, i) => <MethodRow key={i} m={m} value={m.value} openKey={openKey} setOpen={setOpen} />)}
             </div>
+
+            {/* 🔤 קלט עברי → הצעת חישוב באנגלית: בוחרים איות (תעתוק מוצהר) או עורכים ידנית */}
+            {heInput && (
+              <div style={{ marginTop: 14, background: "#f6f9ff", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ color: C.ink, fontFamily: F.h, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>🔤 לחשב את «{word}» גם באנגלית?</div>
+                <div style={{ color: C.dim, fontFamily: F.h, fontSize: 12, lineHeight: 1.6, marginBottom: 9 }}>העברית נכתבת בלי תנועות — לכן בוחרים <b>איות</b> (תעתוק מוצהר, לא תרגום). כל אפשרות מראה את ערך-האורדינלי שלה.</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 9 }}>
+                  {translitOpts.map((opt, i) => {
+                    const on = enWord === opt;
+                    const ord = englishAll(opt)[0]?.value || 0;
+                    const match = ord === regVal;
+                    return (
+                      <button key={i} onClick={() => setEnWord(opt)} style={{ cursor: "pointer", background: on ? C.blue : "#fff", border: `1px solid ${on ? C.blue : (match ? "#bfe4cd" : C.line)}`, borderRadius: 999, color: on ? "#fff" : C.ink, fontFamily: F.h, fontSize: 13, fontWeight: 800, padding: "7px 13px", minHeight: 40 }}>
+                        {opt} <span style={{ fontFamily: F.m, opacity: on ? 0.9 : 0.65 }}>· {ord}</span>{match ? " 💫" : ""}
+                      </button>
+                    );
+                  })}
+                </div>
+                <input value={enWord || ""} onChange={e => setEnWord(e.target.value.replace(/[^A-Za-z' ]/g, ""))} placeholder="או הקלד את האיות המדויק…" style={{ width: "100%", boxSizing: "border-box", fontFamily: F.h, fontSize: 15, fontWeight: 700, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: "#fff", color: C.ink }} />
+              </div>
+            )}
+
             {enVals.length > 0 && (<>
-              <div style={{ color: C.blue, fontFamily: F.h, fontSize: 12.5, fontWeight: 800, margin: "14px 0 7px" }}>🇺🇸 אנגלית</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "14px 0 7px" }}>
+                <span style={{ color: C.blue, fontFamily: F.h, fontSize: 12.5, fontWeight: 800 }}>🇺🇸 אנגלית{heInput && enWord ? ` · «${enWord}» (תעתוק)` : ""}</span>
+                {liveBridge && <span style={{ background: "#e8f6ee", border: "1px solid #bfe4cd", borderRadius: 999, color: "#1f8a4c", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>💫 גשר-חי: אנגלית = עברית = {regVal}</span>}
+              </div>
               <div style={{ display: "grid", gap: 6 }}>
                 {enVals.map((m, i) => <MethodRow key={i} m={m} value={m.value} openKey={openKey} setOpen={setOpen} />)}
               </div>
