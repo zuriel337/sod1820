@@ -46,7 +46,8 @@ export default function Layout() {
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
   const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
-  // 📡 בדף הבית ובצ'אט: מוסרים את הטיקר-העליון ואת בועת מגירת-המספר, ובמקומם «פותח העדכונים» החי (LiveChannelFeed).
+  // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
+  //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
@@ -69,8 +70,8 @@ export default function Layout() {
         <Navbar />
         {/* 🌌 באנר-העל הקוסמי (פסוק + שמי-כוכבים + אור-נגלה + נגן-רקע) — רק בפוסטים ובצ'אט. */}
         {showBanner && <CosmicVerseBanner mode={mode} />}
-        {/* 📡 הטיקר («עכשיו באתר») — בכל האתר, פרט לבית ולצ'אט (שם «פותח העדכונים» תופס את מקומו). */}
-        {!liveChrome && <LiveActivityBar />}
+        {/* 📡 טיקר-החדשות — בכל האתר, כולל דף הבית והצ'אט (הוחזר לבקשת צוריאל 11.7). */}
+        <LiveActivityBar />
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
