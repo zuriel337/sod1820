@@ -16,7 +16,7 @@
 -- שיטות אנגליות (Ordinal / Full-Reduction / Reverse-Ordinal / Reverse-Reduction)
 -- ומחזיר רק היכן שאחת מהן = fn_ragil(he). אלה גשרים נדירים: ~1 לכל ~280 זוגות.
 --
--- סרקנו ~540 זוגות-תרגום מדויקים → 3 נעילות נקיות חדשות. נכנסות כ-status='pending'
+-- סרקנו ~1,160 זוגות-תרגום מדויקים → 4 נעילות נקיות חדשות. נכנסות כ-status='pending'
 -- (human_verified=false) → מופיעות בפאנל האדמין «🌉 גשרים לאישור».
 -- **אישור ידני בלבד** דרך admin_verify_bridge(id,'verify'). לא מאשרים אוטומטית.
 -- ============================================================================
@@ -33,4 +33,6 @@ values
 ('טוב','good','en','shared_value','Reverse Reduction',17,'medium','pending',false,'מנוע · סריקת גשרים',
  'good ב-Reverse Reduction = 17 · טוב ברגיל = 17 · טוב = התרגום של good. שיטה רביעית (פחות קנונית) → evidence=medium.'),
 ('הבטחה','promise','en','shared_value','Reverse Reduction',29,'medium','pending',false,'מנוע · סריקת גשרים',
- 'promise ב-Reverse Reduction = 29 · הבטחה ברגיל = 29 · הבטחה = התרגום של promise. שיטה: Reverse Reduction → evidence=medium.');
+ 'promise ב-Reverse Reduction = 29 · הבטחה ברגיל = 29 · הבטחה = התרגום של promise. שיטה: Reverse Reduction → evidence=medium.'),
+('כס','throne','en','shared_value','English Ordinal',80,'strong','pending',false,'מנוע · סריקת גשרים',
+ 'throne ב-English Ordinal (a=1…z=26) = 80 · כס ברגיל = 80 · כס = התרגום של throne (צורת-מקרא של כסא, «כס הכבוד»). שיטה חזקה (כמו secret=סוד=70). רמז (מופרד): 80 = פ · כס-מלכות.');
