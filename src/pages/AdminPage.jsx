@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
@@ -3243,15 +3243,27 @@ function TwoMeterPanel() {
   const [comp, setComp] = useState(null);
   const [vm, setVm] = useState(null);
   const [src, setSrc] = useState("comp");
+  const [selDay, setSelDay] = useState(null);   // יום נבחר (לחיצה על עמודה)
+  const [detail, setDetail] = useState(null);
+  const [detailBusy, setDetailBusy] = useState(false);
   useEffect(() => {
     getTrafficComposition(21).then(setComp).catch(() => setComp([]));
     getVisitsTwoMeter(21).then(setVm).catch(() => setVm([]));
   }, []);
+  useEffect(() => {
+    if (!selDay) { setDetail(null); return; }
+    let alive = true; setDetailBusy(true);
+    getTrafficDayDetail(selDay)
+      .then(d => { if (alive) { setDetail(d); setDetailBusy(false); } })
+      .catch(() => { if (alive) { setDetail(null); setDetailBusy(false); } });
+    return () => { alive = false; };
+  }, [selDay]);
   const rows = ((src === "comp" ? comp : vm) || []).slice(-21);
   const unit = src === "comp" ? "בקשות/יום" : "ביקורים/יום";
   const max = Math.max(1, ...rows.map(r => Number(r.total) || 0));
   const last = rows[rows.length - 1];
   const fmt = n => Number(n || 0).toLocaleString("he");
+  const dec = p => { try { return decodeURIComponent(p); } catch { return p; } };
   return (
     <div style={{ ...card, borderColor: "rgba(120,150,220,0.4)", background: "rgba(90,120,200,0.05)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
@@ -3263,7 +3275,7 @@ function TwoMeterPanel() {
         </div>
       </div>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 10, fontFamily: F.body, fontSize: 12, color: C.muted }}>
-        <span>🟩 אנשים</span><span>🟧 בוטים</span><span>גובה-העמודה = סה״כ כולל בוטים</span>
+        <span>🟩 אנשים</span><span>🟧 בוטים</span><span>גובה-העמודה = סה״כ כולל בוטים</span><span style={{ color: "#9bb6ff" }}>👆 לחצו על יום לפירוט</span>
       </div>
       {!rows.length ? (
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, textAlign: "center", padding: 14 }}>אין נתונים בטווח.</div>
@@ -3275,30 +3287,83 @@ function TwoMeterPanel() {
               const hTot = Math.round(total / max * 100);
               const hHum = total ? Math.round(humans / total * hTot) : 0;
               const hBot = Math.max(0, hTot - hHum);
-              const d = String(r.day || "").slice(5);
+              const dd = String(r.day || "").slice(5);
+              const on = selDay === r.day;
               return (
-                <div key={i} title={`${d} · סה״כ ${fmt(total)} · אנשים ${fmt(humans)} · בוטים ${fmt(bots)}`}
-                  style={{ flex: "1 0 14px", minWidth: 14, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
-                  <div style={{ height: `${hBot}%`, background: "#d8934e", borderRadius: "3px 3px 0 0" }} />
-                  <div style={{ height: `${hHum}%`, background: "#4ea36b" }} />
+                <div key={i} onClick={() => setSelDay(on ? null : r.day)}
+                  title={`${dd} · סה״כ ${fmt(total)} · אנשים ${fmt(humans)} · בוטים ${fmt(bots)} — לחצו לפירוט`}
+                  style={{ flex: "1 0 14px", minWidth: 14, cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%", outline: on ? "2px solid #9bb6ff" : "none", outlineOffset: 1, borderRadius: 3 }}>
+                  <div style={{ height: `${hBot}%`, background: "#d8934e", borderRadius: "3px 3px 0 0", opacity: on ? 1 : 0.85 }} />
+                  <div style={{ height: `${hHum}%`, background: "#4ea36b", opacity: on ? 1 : 0.85 }} />
                 </div>
               );
             })}
           </div>
-          {last && (
+          {last && !selDay && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 10, marginTop: 12 }}>
               <Stat label={`🟦 כולל בוטים (${unit})`} value={fmt(last.total)} />
               <Stat label="🟩 אנשים" value={fmt(last.humans)} />
               <Stat label="🟧 בוטים" value={fmt(last.bots)} />
             </div>
           )}
+
+          {/* פירוט יום נבחר — דפים · מקורות · מדינות */}
+          {selDay && (
+            <div style={{ ...card, marginTop: 12, background: "rgba(0,0,0,0.15)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <div style={{ color: "#9bb6ff", fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>📅 פירוט {selDay}</div>
+                <span style={{ flex: 1 }} />
+                <button onClick={() => setSelDay(null)} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "4px 12px", fontFamily: F.heading, fontSize: 12 }}>✕ סגור</button>
+              </div>
+              {detailBusy && !detail ? <Loading /> : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
+                  <DayList title="📄 דפים שנכנסו" rows={detail?.pages} render={p => ({ label: dec(p.path), total: p.total, humans: p.humans, bots: p.bots })} fmt={fmt} muted={C.muted} />
+                  <DayList title="📍 מאיפה הגיעו (מקור)" rows={detail?.sources} render={s => ({ label: s.via, total: s.sessions })} fmt={fmt} muted={C.muted} />
+                  <DayList title="🌍 מדינות" rows={detail?.countries} render={c => ({ label: c.country, total: c.total, humans: c.humans, bots: c.bots })} fmt={fmt} muted={C.muted} />
+                </div>
+              )}
+            </div>
+          )}
+
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.7 }}>
             {src === "comp"
               ? "מקור: edge_geo_log (ה-middleware מתעד כל בקשה) — אחיד לכל 3 השבועות, בלי מדרגה. יחידה: בקשות-דף (לא ביקורים ייחודיים), לכן הסקאלה גבוהה מהמונה הישן."
               : "מקור: site_visits ביחידות-ביקורים. «כולל בוטים» רציף; «אנשים» (is_bot=false) נקי מהיום שבו נדלק סימון-הבוט (לפני כן חלק מהבוטים נספרו כאנשים)."}
-            {" "}היום חלקי עד חצות (שעון ישראל).
+            {" "}הפירוט: דפים ומדינות עם פילוח אנשים/בוטים; מקורות-הגעה מ-events. היום חלקי עד חצות (שעון ישראל).
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+// שורת-פירוט קטנה ליום נבחר (דפים / מקורות / מדינות)
+function DayList({ title, rows, render, fmt, muted }) {
+  const list = rows || [];
+  const top = Math.max(1, ...list.map(r => Number(render(r).total) || 0));
+  return (
+    <div>
+      <div style={{ color: "#c9d4ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>{title}</div>
+      {!list.length ? <div style={{ color: muted, fontFamily: F.body, fontSize: 12 }}>—</div> : (
+        <div style={{ display: "grid", gap: 6 }}>
+          {list.map((r, i) => {
+            const v = render(r);
+            const pct = Math.round((Number(v.total) || 0) / top * 100);
+            return (
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: F.body, fontSize: 12, color: "#dfe6ff" }}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "left", flex: 1 }}>{v.label}</span>
+                  <span style={{ fontFamily: F.mono, whiteSpace: "nowrap" }}>
+                    {fmt(v.total)}{v.humans != null ? <span style={{ color: "#4ea36b" }}> · {fmt(v.humans)}</span> : null}{v.bots != null && Number(v.bots) > 0 ? <span style={{ color: "#d8934e" }}> · {fmt(v.bots)}</span> : null}
+                  </span>
+                </div>
+                <div style={{ height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, marginTop: 2 }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: "#5f7fd0", borderRadius: 2 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

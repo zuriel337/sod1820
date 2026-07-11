@@ -79,6 +79,13 @@ export async function getTrafficComposition(days = 21) {
   if (error) throw error;
   return data || [];
 }
+// (ג) פירוט יום נבחר (לחיצה על עמודה): דפים (site_visits) · מקורות-הגעה (events) · מדינות (edge_geo_log).
+export async function getTrafficDayDetail(day) {
+  if (!supabase || !day) return null;
+  const { data, error } = await supabase.rpc("traffic_day_detail", { p_day: day });
+  if (error) throw error;
+  return data || null;
+}
 
 // קריאת אגרגציה (למנהל בלבד — נחסם ב-DB ל-anon).
 export async function getVisitStats(days = 90) {

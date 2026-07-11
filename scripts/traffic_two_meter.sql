@@ -65,3 +65,33 @@ end $$;
 
 grant execute on function public.visits_two_meter(int) to authenticated, anon;
 grant execute on function public.traffic_composition(int) to authenticated, anon;
+
+-- 5) פירוט יום נבחר (לחיצה על עמודה): דפים · מקורות-הגעה · מדינות. אדמין בלבד.
+create or replace function public.traffic_day_detail(p_day date)
+returns jsonb language plpgsql security definer set search_path to 'public' as $$
+declare v jsonb;
+  lo timestamptz := timezone('Asia/Jerusalem', p_day::timestamp);
+  hi timestamptz := timezone('Asia/Jerusalem', (p_day + 1)::timestamp);
+begin
+  if not exists (select 1 from users where id = auth.uid() and role = 'admin') then return '{}'::jsonb; end if;
+  select jsonb_build_object(
+    'pages', coalesce((select jsonb_agg(x) from (
+        select path, count(*) filter (where not is_bot) as humans,
+               count(*) filter (where is_bot) as bots, count(*) as total
+        from site_visits where ts >= lo and ts < hi and path is not null and path <> ''
+        group by path order by count(*) desc limit 20) x), '[]'::jsonb),
+    'sources', coalesce((select jsonb_agg(x) from (
+        select coalesce(via,'direct') as via, count(distinct session_id) as sessions
+        from events where ts >= lo and ts < hi group by 1 order by count(distinct session_id) desc limit 12) x), '[]'::jsonb),
+    'countries', coalesce((select jsonb_agg(x) from (
+        select country, sum(hits) filter (where kind='browser') as humans,
+               sum(hits) filter (where kind in ('bot','goodbot')) as bots, sum(hits) as total
+        from edge_geo_log where day = p_day group by country order by sum(hits) desc limit 15) x), '[]'::jsonb)
+  ) into v;
+  return v;
+end $$;
+grant execute on function public.traffic_day_detail(date) to authenticated, anon;
+
+-- 6) עקביות events: ingest_event מקבל p_is_bot (14, ברירת-מחדל) ורושם events.is_bot.
+--    (events.js מסמן isBot() בכל emit — מסמנים, לא מדלגים.) קריאות 13-ארגומנטים עדיין נפתרות.
+--    ההגדרה המלאה של ingest_event(+p_is_bot) הוחלה ב-DB; ראה pg_get_functiondef בעת הצורך.
