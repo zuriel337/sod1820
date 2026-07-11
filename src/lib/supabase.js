@@ -2356,6 +2356,21 @@ export async function getGraphBridges(word, value) {
   if (error) return [];
   return data || [];
 }
+
+// 🗂️ מרשם הגילויים — הצלבה מאוחדת (גשרים + התכנסויות + חידושים) לפי ערך או מילה.
+export async function getDiscoveries(value, term) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('get_discoveries', { p_value: value || null, p_term: (term || '').trim() || null });
+  if (error) return [];
+  return data || [];
+}
+// 🗺️ מפת-כיסוי — "כבר בדקנו את X?" (החזרה ריקה = לא נסרק).
+export async function wasScanned(term) {
+  if (!supabase || !term) return [];
+  const { data, error } = await supabase.rpc('was_scanned', { p_term: term.trim() });
+  if (error) return [];
+  return data || [];
+}
 // 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
 export async function getRandomStartPhrase() {
   if (!supabase) return null;
