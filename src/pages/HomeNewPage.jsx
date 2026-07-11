@@ -211,13 +211,15 @@ export default function HomeNewPage() {
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
         /* גרפיקת-קנבס (LanguageCosmos) היא div בלי מידות טבעיות — inline-block היה מקריס
            את רוחבה ל-0 (ואז aspect-ratio → גובה 0 → קנבס בלתי-נראה). block + רוחב מוגדר מתקן. */
-        .hn-gate.graphic { display:block; width:100%; }
+        .hn-gate.graphic { display:block; width:100%; text-align:center; }
         .hn-gate.graphic .lc-link { display:block; text-decoration:none; }
         /* גרפיקת «פוסט המבוא» בדיוק בגודל תמונת «מתחילים» — אותו aspect-ratio נחיתי (1536/1024)
            בכל רוחב, גם במובייל (מנטרל את 4/5 הגבוה של LanguageCosmos שהקפיץ אותה וכיסה את המבוא). */
         .hn-gate.graphic .lc-wrap { aspect-ratio:1536/1024; }
-        /* בטאבלט/מובייל הכפתור הצהוב מכסה את הגרפיקה — מסתירים אותו, והגרפיקה עצמה לחיצה */
-        @media (max-width:1024px){ .hn-gate.graphic .hn-enter { display:none; } }
+        /* הכפתור «פוסט המבוא» יושב *מתחת* לגרפיקה (בזרימה) ולא חופף לפסוק בתחתית הקנבס —
+           בגרפיקה יש פסוק צרוב בתחתית, אז אסור לכפתור לרחף עליו (בשונה מתמונת «מתחילים»). */
+        .hn-gate.graphic .hn-enter { position:static; left:auto; bottom:auto; transform:none; margin-top:16px; }
+        /* הכפתור כבר לא מרחף על הגרפיקה (יושב מתחתיה) → מוצג בכל הרוחבים, כמו ב«מתחילים». */
         /* זוהר סגול-מלכותי רדיאלי מאחורי ההירו (מתחבר לרקע הסגול) */
         .hn-gate::before { content:""; position:absolute; inset:-16% -10%; z-index:-1; pointer-events:none;
           background: radial-gradient(closest-side, rgba(123,76,176,0.50), rgba(61,31,92,0.24) 52%, transparent 78%); }
