@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -325,11 +325,13 @@ function ConvergenceTypesPanel() {
 // לכל מילה: חיבור-לישות (משפחת-ערך) + המלצת-AI + אישור/דחייה/מחיקה. עוקף RLS דרך RPC (רואה מוסתרות).
 const REC = { approve: { e: "✅", t: "מומלץ לאשר", c: "#7bbf7b" }, review: { e: "👁", t: "כדאי מבט", c: "#e0b34a" }, reject: { e: "🚫", t: "מומלץ לדחות", c: "#d98a92" } };
 const SCOPES = [["pending", "⏳ ממתינות"], ["verified", "✅ מאומתות"], ["rejected", "✖ נדחו"], ["all", "🌐 הכל"]];
-function WordsConsole({ srcLabel }) {
-  const [mode, setMode] = useState("he");           // he = עברית (gematria_words) · intl = שפות (word_aliases)
+function WordsConsole({ srcLabel, initialScope = "pending", lockScope = false, heOnly = false, intlOnly = false, showWorld = false }) {
+  const [mode, setMode] = useState(intlOnly ? "intl" : "he");   // he = עברית (gematria_words) · intl = שפות (word_aliases)
   const [intl, setIntl] = useState(null);
   const [intlBusy, setIntlBusy] = useState(null);
-  const [scope, setScope] = useState("pending");
+  const [scope, setScope] = useState(initialScope);
+  const [world, setWorld] = useState("");           // 🌍 מסנן-עולם (טאב מאושרות)
+  const [worlds, setWorlds] = useState([]);
   const [q, setQ] = useState("");
   const [qLive, setQLive] = useState("");
   const [offset, setOffset] = useState(0);
@@ -349,10 +351,12 @@ function WordsConsole({ srcLabel }) {
   useEffect(() => { const t = setTimeout(() => { setQ(qLive); setOffset(0); }, 400); return () => clearTimeout(t); }, [qLive]);
   const load = useCallback(async () => {
     setLoading(true);
-    const d = await adminWordsConsole({ scope, q: q || null, limit: PAGE, offset });
+    const d = await adminWordsConsole({ scope, q: q || null, limit: PAGE, offset, world: world || null });
     setData(d); setLoading(false);
-  }, [scope, q, offset]);
+  }, [scope, q, offset, world]);
   useEffect(() => { load(); }, [load]);
+  // 🌍 עולמות למסנן (רק בטאב-המאושרות)
+  useEffect(() => { if (showWorld) getWordWorlds().then(w => setWorlds(Array.isArray(w) ? w : [])); }, [showWorld]);
   // 🧹 ספירת דליי-הסינון — נטען כשמסתכלים על «ממתינות».
   const loadTriage = useCallback(async () => { if (mode === "he" && scope === "pending") { const t = await adminTriageCounts(); setTriage(t?.error ? null : t); } }, [mode, scope]);
   useEffect(() => { loadTriage(); }, [loadTriage]);
@@ -419,12 +423,14 @@ function WordsConsole({ srcLabel }) {
   return (
     <div>
       <H sub="כל המילים בכל המאגר — עדשה אחת. ממתין/מאומת/נדחה/הכל · חיפוש · דפדוף אחורה ללא סוף. לכל מילה: חיבור-לישות + המלצת-AI + פעולה. עוקף הרשאות כדי לראות גם מוסתרות.">🖥️ קונסולת המילים{mode === "he" && total ? ` · ${total.toLocaleString("he")}` : ""}</H>
-      {/* בורר-שפה: עברית (gematria_words) / שפות אחרות (word_aliases) */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-        {[["he", "🇮🇱 עברית"], ["intl", "🌍 שפות אחרות"]].map(([k, l]) => (
-          <button key={k} onClick={() => setMode(k)} style={{ ...btn(mode === k ? "rgba(212,175,55,.25)" : "transparent", mode === k ? C.goldBright : C.muted), border: `1px solid ${mode === k ? C.borderGold : C.border}`, fontSize: 12.5, padding: "5px 14px" }}>{l}</button>
-        ))}
-      </div>
+      {/* בורר-שפה: עברית (gematria_words) / שפות אחרות (word_aliases) — מוסתר כשהטאב נעול לשפה */}
+      {!heOnly && !intlOnly && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+          {[["he", "🇮🇱 עברית"], ["intl", "🌍 שפות אחרות"]].map(([k, l]) => (
+            <button key={k} onClick={() => setMode(k)} style={{ ...btn(mode === k ? "rgba(212,175,55,.25)" : "transparent", mode === k ? C.goldBright : C.muted), border: `1px solid ${mode === k ? C.borderGold : C.border}`, fontSize: 12.5, padding: "5px 14px" }}>{l}</button>
+          ))}
+        </div>
+      )}
       {mode === "intl" ? (
         <div>
           <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 10 }}>מילים בשפות אחרות (תעתוק/תרגום → עברית). ✅ מאמת · 🙈 מסתיר · 🗑 מוחק.{intl ? ` · ${intl.length}` : ""}</div>
@@ -453,11 +459,23 @@ function WordsConsole({ srcLabel }) {
             </div>}
         </div>
       ) : (<>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-        {SCOPES.map(([k, l]) => (
-          <button key={k} onClick={() => { setScope(k); setOffset(0); }} style={{ ...btn(scope === k ? "rgba(212,175,55,.2)" : "transparent", scope === k ? C.goldBright : C.muted), border: `1px solid ${scope === k ? C.borderGold : C.border}` }}>{l}</button>
-        ))}
-      </div>
+      {!lockScope && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+          {SCOPES.map(([k, l]) => (
+            <button key={k} onClick={() => { setScope(k); setOffset(0); }} style={{ ...btn(scope === k ? "rgba(212,175,55,.2)" : "transparent", scope === k ? C.goldBright : C.muted), border: `1px solid ${scope === k ? C.borderGold : C.border}` }}>{l}</button>
+          ))}
+        </div>
+      )}
+      {/* 🌍 מסנן-עולם — טאב-המאושרות. «∅» = מילים בלי עולם (חזית מתייג-העולמות). */}
+      {showWorld && worlds.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <select value={world} onChange={e => { setWorld(e.target.value); setOffset(0); }}
+            style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, color: C.goldLight, fontFamily: F.body, fontSize: 14, padding: "8px 11px", outline: "none", maxWidth: "100%" }}>
+            <option value="">🌍 כל העולמות</option>
+            {worlds.map(w => <option key={w.world} value={w.world}>{w.world === "∅" ? "◦ ללא עולם" : w.world} · {w.n}</option>)}
+          </select>
+        </div>
+      )}
       <input value={qLive} onChange={e => setQLive(e.target.value)} placeholder="🔍 חיפוש מילה…" dir="rtl"
         style={{ width: "100%", boxSizing: "border-box", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, color: C.goldLight, fontFamily: F.body, fontSize: 16, padding: "10px 13px", marginBottom: 12, outline: "none" }} />
       {/* 🧹 סינון-מסה — 3 דליים לפי המלצת-המנוע. שני כפתורים מנקים אלפים בקליק. */}
@@ -486,6 +504,9 @@ function WordsConsole({ srcLabel }) {
                   {(w.all_values || []).length > 1 && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>({w.all_values.join(" · ")})</span>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
+                  {w.world && <span style={{ background: "rgba(94,200,255,.14)", border: "1px solid rgba(94,200,255,.35)", borderRadius: 999, color: "#9bd6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, padding: "1px 9px" }}>🌍 {w.world}</span>}
+                  {w.category && w.category !== "מאגר_ערכים" && w.category !== "כללי" && <span style={{ color: "#c9b98a", fontFamily: F.heading, fontSize: 10.5 }}>🏷 {w.category}</span>}
+                  {w.tier != null && w.tier <= 1 && <span style={{ color: "#e0b34a", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>⭐ מוביל</span>}
                   <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{srcLabel(w.source)}</span>
                   {w.vip_source && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>· מאת {w.vip_source}</span>}
                   <span style={{ color: w.has_entity ? "#7bbf7b" : C.muted, fontFamily: F.heading, fontSize: 11 }}>{w.has_entity ? "🔗 מחובר לישות" : "◦ לא מקושר"}</span>
@@ -557,7 +578,16 @@ function WordsConsole({ srcLabel }) {
   );
 }
 
+const VIEWS = [
+  ["approved", "🟢 עברית · מאושרות"],
+  ["pending", "🟠 עברית · לאישור"],
+  ["english", "🇺🇸 אנגלית"],
+  ["russian", "🇷🇺 רוסית"],
+  ["lab", "🧪 מעבדה"],
+];
+
 export default function LanguageEngineTab() {
+  const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
   const [queue, setQueue] = useState([]);
   const [aliases, setAliases] = useState([]);
@@ -598,9 +628,10 @@ export default function LanguageEngineTab() {
 
   return (
     <div>
-      <H sub="כל המילים החדשות שנכנסות למאגר — מכל השפות ומכל מקור. שמרני: מה שיש בו ספק ממתין לאישורך.">🌍 מנוע השפה — מרכז בקרה</H>
-      <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
-        <Stat label="נשאל «מצאנו?»" value={stats.asked} />
+      <H sub="כל המילים בכל השפות — מחולק לטאבים. מאושרות · לאישור · אנגלית · רוסית · מעבדת-מחקר.">🌍 מנוע השפה — מרכז בקרה</H>
+
+      {/* ══ סרגל-סטטיסטיקה קבוע ══ */}
+      <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginBottom: 14 }}>
         <Stat label="👍 נמצא" value={stats.found} tone="#7bbf7b" />
         <Stat label="👎 לא נמצא" value={stats.notFound} tone="#d98a92" />
         <Stat label="הצלחה" value={stats.success + "%"} />
@@ -609,29 +640,24 @@ export default function LanguageEngineTab() {
         <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
       </div>
 
-      {/* ══ 🧪 מעבדת התכנסויות — שולחן-העבודה: הקלד → ראה התכנסות → הוסף ══ */}
-      <div style={{ margin: "18px 0 8px" }}>
-        <ConvergenceLab />
+      {/* ══ טאבים ══ */}
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 6, borderBottom: `1px solid ${C.border}`, paddingBottom: 12 }}>
+        {VIEWS.map(([k, l]) => (
+          <button key={k} onClick={() => setView(k)}
+            style={{ ...btn(view === k ? "rgba(212,175,55,.25)" : "transparent", view === k ? C.goldBright : C.muted), border: `1px solid ${view === k ? C.borderGold : C.border}`, fontSize: 13, padding: "7px 15px", minHeight: 36 }}>{l}</button>
+        ))}
       </div>
 
-      {/* ══ 🔗 סוגי התכנסויות ממתינות — לראות ולהחליט איפה תוכן-אנשים חי ══ */}
-      <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
-        <ConvergenceTypesPanel />
-      </div>
+      {/* ══ 🟢 עברית · מאושרות — טבלה עשירה עם עולם/קטגוריה/מקור ══ */}
+      {view === "approved" && (
+        <WordsConsole srcLabel={srcLabel} heOnly lockScope initialScope="verified" showWorld />
+      )}
 
-      {/* ══ 🔔 אירועי גילוי — מיילים חכמים (רק כשמתגלה התכנסות אמיתית) ══ */}
-      <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
-        <DiscoveryPanel />
-      </div>
-
-      {/* ══ 🖥️ קונסולת המילים — עדשה מלאה על כל המאגר (עוקף RLS, דפדוף, המלצות, חיבור-לישות) ══ */}
-      <WordsConsole srcLabel={srcLabel} />
-
-      {/* ══ 🆕 נוסף לאחרונה למאגר — רשימה אינסופית + אישור/דחייה במקום ══ */}
-      <RecentWordsFeed srcLabel={srcLabel} />
-
-      {/* ══ מילים עבריות בתור-הבקרה ══ */}
-      <H sub="לכל מילה: הטקסט המקורי · מה חולץ · הסיבה · סוג ✅/⚠️/❌ · דגלי-בטיחות · מילים-דומות · מקור · hits · איכות · ביטחון.">🛡️ מילים בתור-הבקרה</H>
+      {/* ══ 🟠 עברית · לאישור — ממתינות + נוסף-לאחרונה + תור-בקרה ══ */}
+      {view === "pending" && (<>
+        <WordsConsole srcLabel={srcLabel} heOnly lockScope initialScope="pending" />
+        <RecentWordsFeed srcLabel={srcLabel} />
+        <H sub="לכל מילה: הטקסט המקורי · מה חולץ · הסיבה · סוג ✅/⚠️/❌ · דגלי-בטיחות · מילים-דומות · מקור · hits · איכות · ביטחון.">🛡️ מילים בתור-הבקרה</H>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
         {[["pending", "⏳ ממתינות"], ["all", "הכל"], ["approved", "✅ אושרו"], ["rejected", "✖ נדחו"], ["blocked", "🚫 חסומות"]].map(([k, l]) => (
           <button key={k} onClick={() => setQFilter(k)} style={{ ...btn(qFilter === k ? "rgba(212,175,55,.2)" : "transparent", qFilter === k ? C.goldBright : C.muted), border: `1px solid ${qFilter === k ? C.borderGold : C.border}` }}>{l}</button>
@@ -668,7 +694,11 @@ export default function LanguageEngineTab() {
             );
           })}
         </div>}
+      </>)}
 
+      {/* ══ 🇺🇸 אנגלית — כינויים לאישור · feed · תור-תעתוק ══ */}
+      {view === "english" && (<>
+      <WordsConsole srcLabel={srcLabel} intlOnly initialScope="pending" />
       {/* ══ כל השפות — feed הכינויים ══ */}
       <H sub="כל ייצוג בכל שפה שנכנס — עם סוג-הקשר, שכבת-האמון, המקור, והישות העברית שהוא מצביע אליה.">🌐 מילים בכל השפות ({aliases.length})</H>
       {!aliases.length ? <div style={{ ...card, color: C.muted }}>אין עדיין.</div>
@@ -721,6 +751,23 @@ export default function LanguageEngineTab() {
             </tbody>
           </table>
         </div>}
+      </>)}
+
+      {/* ══ 🇷🇺 רוסית — בקרוב ══ */}
+      {view === "russian" && (
+        <div style={{ ...card, color: C.muted, textAlign: "center", padding: "44px 20px", lineHeight: 1.8 }}>
+          🇷🇺 <b style={{ color: C.goldLight }}>רוסית — בקרוב.</b><br />
+          התשתית כבר מוכנה (<code>word_aliases</code> תומך <code>lang=ru</code>, ו-<code>language_links</code> כבר כולל גשר רוסי: משיח ↔ мессия).<br />
+          ברגע שנתחיל להזין רוסית — היא תופיע כאן לאישור, בדיוק כמו אנגלית.
+        </div>
+      )}
+
+      {/* ══ 🧪 מעבדה — כלי-מחקר: מעבדת-התכנסויות · סוגים · אירועי-גילוי ══ */}
+      {view === "lab" && (<>
+        <ConvergenceLab />
+        <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 12 }}><ConvergenceTypesPanel /></div>
+        <div style={{ margin: "18px 0 8px", borderTop: `1px solid ${C.border}`, paddingTop: 8 }}><DiscoveryPanel /></div>
+      </>)}
     </div>
   );
 }

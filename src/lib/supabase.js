@@ -251,13 +251,22 @@ export async function getAiCostMetrics(days = 30) {
 }
 // 🖥️ קונסולת-מילים לאדמין — RPC SECURITY DEFINER שעוקף RLS (רואה גם is_verified=false).
 // scope: pending|verified|rejected|all · pagination · המלצת-AI + חיבור-לישות לכל שורה.
-export async function adminWordsConsole({ scope = 'pending', q = null, limit = 50, offset = 0 } = {}) {
+export async function adminWordsConsole({ scope = 'pending', q = null, limit = 50, offset = 0, world = null } = {}) {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.rpc('admin_words_console', { p_scope: scope, p_q: q, p_limit: limit, p_offset: offset });
+    const { data, error } = await supabase.rpc('admin_words_console', { p_scope: scope, p_q: q, p_limit: limit, p_offset: offset, p_world: world });
     if (error) return null;
     return data || null;
   } catch { return null; }
+}
+// 🌍 רשימת עולמות + ספירות (למסנן טאב-המילים המאושרות)
+export async function getWordWorlds() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc('admin_word_worlds');
+    if (error || data?.error) return [];
+    return data || [];
+  } catch { return []; }
 }
 export async function adminReviewWord(id, action) {
   if (!supabase) return null;
