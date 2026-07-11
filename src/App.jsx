@@ -56,6 +56,7 @@ const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const PrivacyPage = React.lazy(() => import("./pages/PrivacyPage.jsx"));
 const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
+const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
 const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
@@ -245,6 +246,8 @@ export default function App() {
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/numbers" element={<NumbersPage />} />
+          <Route path="/name-lab" element={<NameLabPage />} />
+          <Route path="/name" element={<NameLabPage />} />
           <Route path="/code" element={<CodePage />} />
           <Route path="/beit-midrash" element={<BeitMidrashToLab />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
