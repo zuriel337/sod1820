@@ -11,7 +11,9 @@
 --      gadol_calc / kadmi_calc / atbash_calc / albam_calc / miluy_calc / ribua_calc…).
 --      *אין חישוב ידני.* הטריגר bidim_sync מקרין ל-bidim (מקור ההתכנסויות).
 --   2) הקישור האנגלי נוסף דרך helper קנוני add_word_alias(...) — lang='en',
---      alias_type='english', method='transliteration', verified=true.
+--      alias_type='english', method='transliteration', verified=FALSE →
+--      נכנס כ«⏳ ממתין» לתור-האישור באדמין (מנוע השפה → 🌍 שפות אחרות).
+--      צוריאל מאשר ידנית (admin_manage_alias action='verify'). *לא* מאשרים אוטומטית.
 --
 -- הערות תעתוק:
 --   • ללא גרש/גרשיים (') — הטריגר מחשב רק עברית טהורה ^[א-ת]+( [א-ת]+)*$.
@@ -48,6 +50,6 @@ select p.he, 'english-expansion', 'תעתוק אנגלית', 'core', 'english_tr
 from _en_pairs p
 where not exists (select 1 from gematria_words g where g.phrase = p.he);
 
--- 2) קישור אנגלי מאומת דרך ה-helper הקנוני
-select add_word_alias(p.he, p.en, 'en', 'english', 'english-expansion', 'transliteration', p.conf, true)
+-- 2) קישור אנגלי — נכנס כ«ממתין לאישור» (verified=false). צוריאל מאשר ידנית באדמין.
+select add_word_alias(p.he, p.en, 'en', 'english', 'english-expansion', 'transliteration', p.conf, false)
 from _en_pairs p;
