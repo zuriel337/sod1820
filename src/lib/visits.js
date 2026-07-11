@@ -79,6 +79,13 @@ export async function getTrafficComposition(days = 21) {
   if (error) throw error;
   return data || [];
 }
+// 🕷️ Crawl Intelligence — מגמות בוטים: מוגש/חסום · לפי בוט · Top דליי-תוכן · מי-סורק.
+export async function getCrawlIntel(days = 7) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_crawl_intel", { p_days: days });
+  if (error || data?.error) return null;
+  return data || null;
+}
 // (ג) פירוט יום נבחר (לחיצה על עמודה): דפים (site_visits) · מקורות-הגעה (events) · מדינות (edge_geo_log).
 export async function getTrafficDayDetail(day) {
   if (!supabase || !day) return null;

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
@@ -3237,6 +3237,78 @@ function LegacyStatsView() {
 
 // ===== 🟢 חי — מד-הכניסות הפנימי של האתר החדש (SOD1820) =====
 const RANGES = [["30", "30 יום"], ["90", "90 יום"], ["365", "שנה"], ["all", "הכל"]];
+// ── 🕷️ Crawl Intelligence — מגמות בוטים (מי סורק · מוגש/חסום · לפי בוט · Top תוכן) ──
+const BOT_COLOR = { Googlebot: "#4caf50", Bingbot: "#0a84ff", "GPTBot (OpenAI)": "#10a37f", GPTBot: "#10a37f", ClaudeBot: "#d97757", PerplexityBot: "#a78bfa", Meta: "#3b7bff", Amazonbot: "#ff9900", Applebot: "#a1a1a6", Yandex: "#ff3b30", Baidu: "#4b56e0", DuckDuckBot: "#de5833", AhrefsBot: "#ff6b35", SemrushBot: "#ff642d", MJ12bot: "#c0392b", ubermetrics: "#b08d57", UptimeMonitor: "#7f8c8d", other: "#8696a0" };
+function CrawlSpark({ series, color }) {
+  const vals = (series || []).map(s => Number(s.hits) || 0);
+  const max = Math.max(1, ...vals);
+  return <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 20 }}>
+    {vals.map((v, i) => <span key={i} style={{ width: 5, height: `${v ? Math.max(10, Math.round(v / max * 100)) : 6}%`, minHeight: 2, background: color, borderRadius: 1, opacity: v ? 1 : 0.22 }} />)}
+  </span>;
+}
+function CrawlIntel() {
+  const [days, setDays] = useState(7);
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(true); getCrawlIntel(days).then(x => { setD(x); setLoading(false); }).catch(() => setLoading(false)); }, [days]);
+  const fmt = n => Number(n || 0).toLocaleString("he");
+  if (loading && !d) return <div style={card}><Loading /></div>;
+  if (!d) return null;
+  const t = d.totals || {}, total = (Number(t.served) || 0) + (Number(t.blocked) || 0);
+  const pctBlocked = total ? Math.round((Number(t.blocked) || 0) / total * 100) : 0;
+  const kd = d.kind_daily || [], kmax = Math.max(1, ...kd.map(x => (Number(x.served) || 0) + (Number(x.blocked) || 0)));
+  return (
+    <div style={{ ...card, borderColor: "rgba(150,120,220,.4)", background: "rgba(120,90,200,.05)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+        <div style={{ color: "#b9a6ff", fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>🕷️ Crawl Intelligence — מי סורק אותך</div>
+        <span style={{ flex: 1 }} />
+        <div style={segWrap}>{[[7, "7 ימים"], [14, "14"], [30, "30"]].map(([k, l]) => <button key={k} onClick={() => setDays(k)} style={segBtn(days === k)}>{l}</button>)}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(115px,1fr))", gap: 10, marginBottom: 12 }}>
+        <Stat label="✅ מוגש (בקשות)" value={fmt(t.served)} />
+        <Stat label="🚫 נחסם" value={fmt(t.blocked)} />
+        <Stat label="🤖 סורקים" value={fmt(t.crawlers)} />
+        <Stat label="📊 % חסום" value={pctBlocked + "%"} />
+      </div>
+      {kd.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🟩 מוגש מול 🟥 חסום · {days} ימים</div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 70 }}>
+            {kd.map((x, i) => { const s = Number(x.served) || 0, b = Number(x.blocked) || 0, tot = s + b, h = Math.round(tot / kmax * 100), sh = tot ? Math.round(s / tot * h) : 0, bh = Math.max(0, h - sh);
+              return <div key={i} title={`${x.day} · מוגש ${fmt(s)} · חסום ${fmt(b)}`} style={{ flex: "1 0 8px", display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
+                <div style={{ height: `${bh}%`, background: "#c0546a", borderRadius: "3px 3px 0 0" }} />
+                <div style={{ height: `${sh}%`, background: "#4ea36b" }} />
+              </div>; })}
+          </div>
+        </div>
+      )}
+      <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>📈 לפי בוט · {days} ימים {(!d.by_bot || !d.by_bot.length) && <span style={{ color: C.muted, fontWeight: 400, fontSize: 11 }}>(מתחיל להיאסף מהיום)</span>}</div>
+      {d.by_bot && d.by_bot.length > 0 ? (
+        <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
+          {d.by_bot.map((b, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: BOT_COLOR[b.bot] || "#8696a0", flex: "0 0 auto" }} />
+              <span style={{ fontFamily: F.heading, fontSize: 12.5, color: C.goldLight, minWidth: 118 }}>{b.bot}</span>
+              <CrawlSpark series={b.series} color={BOT_COLOR[b.bot] || "#8696a0"} />
+              <span style={{ marginInlineStart: "auto", fontFamily: F.mono, fontSize: 12.5, color: C.goldBright }}>{fmt(b.total)}{Number(b.blocked) > 0 && <span style={{ color: "#c0546a" }}> · חסום {fmt(b.blocked)}</span>}</span>
+            </div>
+          ))}
+        </div>
+      ) : <div style={{ ...card, color: C.muted, fontSize: 12, marginBottom: 14 }}>אוסף נתונים — יופיע תוך יום-יומיים (המדידה התחילה עכשיו).</div>}
+      {d.by_bucket && d.by_bucket.length > 0 && (<>
+        <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🔥 Top דליי-תוכן שנסרקו</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          {d.by_bucket.map((x, i) => <span key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldLight, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 10px" }}>{x.bucket} · <b style={{ fontFamily: F.mono }}>{fmt(x.hits)}</b></span>)}
+        </div>
+      </>)}
+      <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🔍 מי סורק (מזוהה · מצטבר)</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {(d.bot_seen || []).map((x, i) => <span key={i} style={{ fontFamily: F.body, fontSize: 11.5, color: C.muted, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 9px" }}><span style={{ color: BOT_COLOR[x.bot] || "#8696a0" }}>●</span> {x.bot} · {fmt(x.hits)}</span>)}
+      </div>
+    </div>
+  );
+}
+
 // ── שני מונים אחידים: «כולל בוטים» מול «אנשים בלבד» ──
 // מקור-על (comp) = edge_geo_log, אחיד ל-3 שבועות בלי מדרגה; ביקורים (visits) = site_visits מהיום.
 function TwoMeterPanel() {
@@ -3432,6 +3504,7 @@ function LiveStatsView() {
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
+      <CrawlIntel />
       <TwoMeterPanel />
       <div style={{ ...card, borderColor: "rgba(95,191,106,0.45)", background: "rgba(95,191,106,0.06)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

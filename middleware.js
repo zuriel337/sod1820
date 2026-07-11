@@ -39,6 +39,42 @@ function classify(ua) {
   return 'browser';
 }
 
+// 📊 Crawl Intelligence — שם-בוט ספציפי + דלי-תוכן (לתיעוד מגמות ב-crawl_daily).
+function botName(ua) {
+  if (/googlebot|google-inspection/.test(ua)) return 'Googlebot';
+  if (/bingbot|bingpreview|adidxbot/.test(ua)) return 'Bingbot';
+  if (/gptbot|oai-search|chatgpt-user/.test(ua)) return 'GPTBot';
+  if (/claudebot|anthropic/.test(ua)) return 'ClaudeBot';
+  if (/perplexit/.test(ua)) return 'PerplexityBot';
+  if (/meta-external|facebookexternal|facebot|facebookbot/.test(ua)) return 'Meta';
+  if (/amazonbot/.test(ua)) return 'Amazonbot';
+  if (/applebot/.test(ua)) return 'Applebot';
+  if (/yandex/.test(ua)) return 'Yandex';
+  if (/baidu/.test(ua)) return 'Baidu';
+  if (/duckduck/.test(ua)) return 'DuckDuckBot';
+  if (/ccbot/.test(ua)) return 'CCBot';
+  if (/ahrefs/.test(ua)) return 'AhrefsBot';
+  if (/semrush/.test(ua)) return 'SemrushBot';
+  if (/mj12/.test(ua)) return 'MJ12bot';
+  if (/um-ic|ubermetrics/.test(ua)) return 'ubermetrics';
+  return 'other';
+}
+function bucketOf(p) {
+  if (p === '/') return 'home';
+  if (p.startsWith('/number')) return '/number';
+  if (p.startsWith('/topic')) return '/topic';
+  if (p.startsWith('/cross')) return '/cross';
+  if (p.startsWith('/gallery') || p.startsWith('/archive')) return 'gallery';
+  if (p.startsWith('/languages') || p.startsWith('/name-lab') || p.startsWith('/%D7%A7%D7%A9%D7%A8%D7%99')) return 'languages';
+  if (p.startsWith('/journey')) return 'journey';
+  if (p.startsWith('/research') || p.startsWith('/beit-midrash')) return 'research';
+  if (p.startsWith('/community')) return 'community';
+  if (p.startsWith('/post') || p.startsWith('/category') || p.startsWith('/verified')) return 'posts';
+  if (p.startsWith('/timeline') || p.startsWith('/numbers') || p.startsWith('/map') || p.startsWith('/broadcasts')) return 'index';
+  if (/^\/[^/]+$/.test(p)) return 'post/slug';   // מקטע-יחיד = כנראה סלאג-פוסט
+  return 'other';
+}
+
 export default function middleware(request, context) {
   const country = request.headers.get('x-vercel-ip-country') || 'XX';
   const uaRaw = request.headers.get('user-agent') || '';
@@ -52,6 +88,18 @@ export default function middleware(request, context) {
       body: JSON.stringify({ p_country: country, p_kind: kind, p_ua: uaRaw }),
     }).catch(() => {}),
   );
+
+  // 📊 Crawl Intelligence — לבוטים בלבד: שם-בוט + דלי-תוכן + נחסם (crawl_daily, UPSERT מצטבר)
+  if (kind === 'goodbot' || kind === 'bot') {
+    let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
+    context.waitUntil(
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/log_crawl`, {
+        method: 'POST',
+        headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_bot: botName(uaRaw.toLowerCase()), p_bucket: bucketOf(path), p_blocked: kind === 'bot' }),
+      }).catch(() => {}),
+    );
+  }
 
   // goodbot עובר תמיד (SEO/OG). אחרת: חוסמים אם בוט-UA או מדינה-בניסוי.
   if (kind !== 'goodbot' && (kind === 'bot' || BLOCKED_COUNTRIES.has(country))) {
