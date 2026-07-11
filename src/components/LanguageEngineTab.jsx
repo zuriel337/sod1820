@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -586,6 +586,74 @@ const VIEWS = [
   ["lab", "🧪 מעבדה"],
 ];
 
+// 🌍 מתייג-העולמות — פאנל-סקירה בטאב «מאושרות». הצעת עולם לפי קטגוריה + אישור-בעין.
+// שום דבר לא מתויג אוטומטית — apply רץ רק בלחיצה על קטגוריה ספציפית.
+const CAT_WORLD = { "משיח": "גאולה", "יהוה": "שמות הקודש", "גאולה": "גאולה", "תורה": "תורה וקודש", "קבלה": "מושגי קבלה" };
+function WorldTagger() {
+  const [open, setOpen] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [worlds, setWorlds] = useState([]);
+  const [pick, setPick] = useState({});
+  const [busy, setBusy] = useState(null);
+  const [done, setDone] = useState({});
+  const load = useCallback(async () => {
+    const [s, w] = await Promise.all([getWorldTagStats(), getWordWorlds()]);
+    const rows = Array.isArray(s) ? s : [];
+    setStats(rows);
+    setWorlds((Array.isArray(w) ? w : []).map(x => x.world).filter(x => x && x !== "∅"));
+    const p = {}; rows.forEach(r => { if (CAT_WORLD[r.category]) p[r.category] = CAT_WORLD[r.category]; });
+    setPick(prev => ({ ...p, ...prev }));
+  }, []);
+  useEffect(() => { if (open && stats === null) load(); }, [open, stats, load]);
+  const apply = async (cat) => {
+    const w = pick[cat]; if (!w) return;
+    if (!confirm(`לתייג את כל המילים בקטגוריה «${cat}» לעולם «${w}»?`)) return;
+    setBusy(cat);
+    try { const n = await applyWorldTag(cat, w); setDone(d => ({ ...d, [cat]: n })); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const totalUntagged = (stats || []).reduce((a, r) => a + r.n, 0);
+  return (
+    <div style={{ ...card, marginBottom: 14, borderColor: C.borderGold }}>
+      <button onClick={() => setOpen(o => !o)} style={{ cursor: "pointer", background: "none", border: "none", width: "100%", textAlign: "right", padding: 0, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>🌍 מתייג-העולמות{stats ? ` · ${totalUntagged.toLocaleString("he")} ללא עולם` : ""}</span>
+        <span style={{ marginInlineStart: "auto", color: C.muted }}>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 12 }}>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 12, lineHeight: 1.6 }}>
+            שלב 1 — לפי קטגוריה (חינם, ללא AI). לכל קטגוריה: כמות · דגימה · עולם-יעד (הצעה מוכנה לקטגוריות ברורות). אשר קטגוריה → כל מילותיה מקבלות עולם. קטגוריות גנריות («מאגר_ערכים» וכו') = השאר ל-AI בשלב 2.
+          </div>
+          {stats === null ? <div style={{ color: C.muted }}>טוען…</div>
+            : !stats.length ? <div style={{ color: C.muted }}>אין קטגוריות לא-מתויגות 🌳</div>
+            : <div style={{ display: "grid", gap: 9 }}>
+              {stats.map(r => (
+                <div key={r.category} style={{ ...card, padding: "11px 13px", borderColor: pick[r.category] ? "#3f6a47" : C.border }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 7 }}>
+                    <b style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14 }}>🏷 {r.category}</b>
+                    <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12 }}>{r.n.toLocaleString("he")} מילים</span>
+                    {done[r.category] != null && <span style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ תויגו {done[r.category]}</span>}
+                  </div>
+                  <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 9 }}>דגימה: {(r.samples || []).join(" · ")}</div>
+                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center" }}>
+                    <select value={pick[r.category] || ""} onChange={e => setPick(p => ({ ...p, [r.category]: e.target.value }))}
+                      style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 13, padding: "6px 10px" }}>
+                      <option value="">— בחר עולם —</option>
+                      {worlds.map(w => <option key={w} value={w}>{w}</option>)}
+                    </select>
+                    <button disabled={busy === r.category || !pick[r.category]} onClick={() => apply(r.category)} style={btn(pick[r.category] ? "#2f8f4e" : "transparent", "#fff")}>{busy === r.category ? "מתייג…" : "✔ אשר ותייג"}</button>
+                    {CAT_WORLD[r.category] && !done[r.category] && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>💡 הצעה: {CAT_WORLD[r.category]}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function LanguageEngineTab() {
   const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
@@ -648,10 +716,11 @@ export default function LanguageEngineTab() {
         ))}
       </div>
 
-      {/* ══ 🟢 עברית · מאושרות — טבלה עשירה עם עולם/קטגוריה/מקור ══ */}
-      {view === "approved" && (
+      {/* ══ 🟢 עברית · מאושרות — מתייג-עולמות + טבלה עשירה עם עולם/קטגוריה/מקור ══ */}
+      {view === "approved" && (<>
+        <WorldTagger />
         <WordsConsole srcLabel={srcLabel} heOnly lockScope initialScope="verified" showWorld />
-      )}
+      </>)}
 
       {/* ══ 🟠 עברית · לאישור — ממתינות + נוסף-לאחרונה + תור-בקרה ══ */}
       {view === "pending" && (<>

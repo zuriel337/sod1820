@@ -259,6 +259,22 @@ export async function adminWordsConsole({ scope = 'pending', q = null, limit = 5
     return data || null;
   } catch { return null; }
 }
+// 🌍 מתייג-העולמות — סקירת קטגוריות לא-מתויגות (לעין לפני אישור)
+export async function getWorldTagStats() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc('admin_world_tag_stats');
+    if (error || data?.error) return [];
+    return data || [];
+  } catch { return []; }
+}
+// 🌍 אישור-תיוג — מתייג קטגוריה לעולם (רץ רק בלחיצה). מחזיר כמות.
+export async function applyWorldTag(category, world) {
+  if (!supabase) return 0;
+  const { data, error } = await supabase.rpc('admin_world_tag_apply', { p_category: category, p_world: world });
+  if (error) throw error;
+  return data ?? 0;
+}
 // 🌍 רשימת עולמות + ספירות (למסנן טאב-המילים המאושרות)
 export async function getWordWorlds() {
   if (!supabase) return [];
