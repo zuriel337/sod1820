@@ -50,20 +50,21 @@ export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => 
   return tot + s;
 }, 0);
 
+// ✅ כל השיטות העבריות = tag:"hebrew" (מסורת עברית). sub=מה עושים · soul=המשמעות (הסבר-סגור).
 export const METHODS = [
-  { key: "רגיל", sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", fn: w => sumBy(w, GEM), map: GEM },
-  { key: "מילוי", sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", fn: w => sumBy(w, MILUI), map: MILUI },
-  { key: "מסתתר", sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", fn: mistater, map: null },
-  { key: "קדמי", sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", fn: w => sumBy(w, KID), map: KID },
-  { key: "ריבוע", sub: "סכום הקידומות המצטברות", soul: "ההתפשטות מהאות אל השלם", fn: ribua, map: null },
-  { key: "גדול", sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", fn: gadol, map: null },
-  { key: "סידורי", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
-  { key: "אתבש", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
-  { key: "אלבם", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
-  { key: "אותיות אחרי", sub: "כל אות → הבאה בא״ב (צופן המזוזה)", soul: "כוזו במוכסז — הצעד קדימה", fn: w => sumBy(w, SHIFT_AFTER), map: SHIFT_AFTER },
-  { key: "אותיות לפני", sub: "כל אות → הקודמת בא״ב", soul: "הצעד אחורה — השורש שלפני האות", fn: w => sumBy(w, SHIFT_BEFORE), map: SHIFT_BEFORE },
-  { key: "מילוי בלבד", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
-  { key: "הכפלה", sub: "כל אות בריבוע (אות×עצמה)", soul: "העוצמה הפנימית — כל אות מוכפלת בעצמה", fn: w => sumBy(w, SQR), map: null },
+  { key: "רגיל", tag: "hebrew", sub: "חיבור ערכי האותיות", soul: "המהות הגלויה", fn: w => sumBy(w, GEM), map: GEM },
+  { key: "מילוי", tag: "hebrew", sub: "ערך שֵם האות המלא", soul: "הפנימיות — מה שמתמלא בפנים", fn: w => sumBy(w, MILUI), map: MILUI },
+  { key: "מסתתר", tag: "hebrew", sub: "הפרשים בין אותיות", soul: "מה שמסתתר בין האותיות", fn: mistater, map: null },
+  { key: "קדמי", tag: "hebrew", sub: "סכום מצטבר עד האות", soul: "השורש המצטבר", fn: w => sumBy(w, KID), map: KID },
+  { key: "ריבוע", tag: "hebrew", sub: "סכום הקידומות המצטברות", soul: "ההתפשטות מהאות אל השלם", fn: ribua, map: null },
+  { key: "גדול", tag: "hebrew", sub: "סופיות 500–900", soul: "ההתפשטות הגדולה", fn: gadol, map: null },
+  { key: "סידורי", tag: "hebrew", sub: "מיקום האות 1–22", soul: "הסדר והמיקום", fn: w => sumBy(w, ORD), map: ORD },
+  { key: "אתבש", tag: "hebrew", sub: "היפוך הא״ב", soul: "המראה — הצד הנגדי", fn: w => sumBy(w, ATB), map: ATB },
+  { key: "אלבם", tag: "hebrew", sub: "חצי מול חצי", soul: "בן/בת הזוג — הזיווג המשלים", fn: w => sumBy(w, ALB), map: ALB },
+  { key: "אותיות אחרי", tag: "hebrew", sub: "כל אות → הבאה בא״ב (צופן המזוזה)", soul: "כוזו במוכסז — הצעד קדימה", fn: w => sumBy(w, SHIFT_AFTER), map: SHIFT_AFTER },
+  { key: "אותיות לפני", tag: "hebrew", sub: "כל אות → הקודמת בא״ב", soul: "הצעד אחורה — השורש שלפני האות", fn: w => sumBy(w, SHIFT_BEFORE), map: SHIFT_BEFORE },
+  { key: "מילוי בלבד", tag: "hebrew", sub: "המילוי פחות האות עצמה", soul: "הפנימיות הטהורה — הנסתר שבאות", fn: w => sumBy(w, MILUI) - sumBy(w, GEM), map: null },
+  { key: "הכפלה", tag: "hebrew", sub: "כל אות בריבוע (אות×עצמה)", soul: "העוצמה הפנימית — כל אות מוכפלת בעצמה", fn: w => sumBy(w, SQR), map: null },
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 
@@ -80,12 +81,12 @@ export const mistaterGadol = w => String(w || "").split(/\s+/).reduce((tot, word
 
 // 4 מנועי העומק (שכבה 2) — לתצוגה במגירת המספר. כולם אומתו מול דוגמאות נעולות.
 export const DEPTH_METHODS = [
-  { key: "משולש גדול", soul: "קדמי גדול — הסופיות בסדר המורחב", fn: w => sumBy(w, KID_GADOL) },
-  { key: "מסתתר גדול", soul: "ההפרשים על ערכי גדול", fn: mistaterGadol },
-  { key: "מילוי דמילוי", soul: "מילוי המילוי — הפנימיות העמוקה", fn: w => sumBy(w, MDM) },
-  { key: "מילוי דמילוי גדול", soul: "מילוי דמילוי בסופיות גדול", fn: w => sumBy(w, MDM_GADOL) },
-  { key: "הכפלה גדולה", soul: "הכפלה בסופיות גדול (ך=500²)", fn: w => sumBy(w, SQR_GADOL) },
-  { key: "ריבוע גדול", soul: "ריבוע הקידומות בסופיות גדול", fn: ribuaGadol },
+  { key: "משולש גדול", tag: "hebrew", soul: "קדמי גדול — הסופיות בסדר המורחב", fn: w => sumBy(w, KID_GADOL) },
+  { key: "מסתתר גדול", tag: "hebrew", soul: "ההפרשים על ערכי גדול", fn: mistaterGadol },
+  { key: "מילוי דמילוי", tag: "hebrew", soul: "מילוי המילוי — הפנימיות העמוקה", fn: w => sumBy(w, MDM) },
+  { key: "מילוי דמילוי גדול", tag: "hebrew", soul: "מילוי דמילוי בסופיות גדול", fn: w => sumBy(w, MDM_GADOL) },
+  { key: "הכפלה גדולה", tag: "hebrew", soul: "הכפלה בסופיות גדול (ך=500²)", fn: w => sumBy(w, SQR_GADOL) },
+  { key: "ריבוע גדול", tag: "hebrew", soul: "ריבוע הקידומות בסופיות גדול", fn: ribuaGadol },
 ];
 
 export { GEM };
