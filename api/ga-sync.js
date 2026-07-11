@@ -1,6 +1,7 @@
 // Vercel Serverless Function — סנכרון Google Analytics (GA4) אל traffic_history.
-// מושך צפיות יומיות (screenPageViews) דרך אותו service account (GSC_SERVICE_ACCOUNT),
-// וכותב ל-DB (source='ga') דרך RPC מאובטח — כך שהכל נכנס לאותו גרף צמיחה אחד.
+// מושך צפיות (screenPageViews) + משתמשים (activeUsers) יומיים דרך אותו service
+// account (GSC_SERVICE_ACCOUNT), וכותב ל-DB (source='ga', views+visitors) דרך RPC
+// מאובטח. סנכרון אחד מְמַלֵּא גם רטרואקטיבית (GA מחזיר את כל הטווח) — הכל בגרף אחד.
 // env: GA_PROPERTY_ID (מזהה נכס GA4, מספר) · GSC_SERVICE_ACCOUNT (ה-JSON, משותף עם Search Console).
 
 import crypto from 'crypto';
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         dateRanges: [{ startDate, endDate: 'today' }],
         dimensions: [{ name: 'date' }],
-        metrics: [{ name: 'screenPageViews' }],
+        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
         limit: 100000,
       }),
     });
@@ -69,7 +70,11 @@ export default async function handler(req, res) {
     // GA מחזיר תאריך כ-YYYYMMDD → ממירים ל-YYYY-MM-DD
     const rows = (data.rows || []).map(r => {
       const d = r.dimensionValues[0].value; // 20260615
-      return { date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, views: parseInt(r.metricValues[0].value, 10) || 0 };
+      return {
+        date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`,
+        views: parseInt(r.metricValues[0].value, 10) || 0,
+        users: parseInt(r.metricValues[1].value, 10) || 0,   // activeUsers → traffic_history.visitors (backfill + forward)
+      };
     }).filter(x => x.views > 0);
 
     // כתיבה ל-DB דרך RPC מאובטח (טוקן האדמין)

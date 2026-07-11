@@ -95,3 +95,22 @@ grant execute on function public.traffic_day_detail(date) to authenticated, anon
 -- 6) עקביות events: ingest_event מקבל p_is_bot (14, ברירת-מחדל) ורושם events.is_bot.
 --    (events.js מסמן isBot() בכל emit — מסמנים, לא מדלגים.) קריאות 13-ארגומנטים עדיין נפתרות.
 --    ההגדרה המלאה של ingest_event(+p_is_bot) הוחלה ב-DB; ראה pg_get_functiondef בעת הצורך.
+
+-- 7) GA Users (activeUsers) → traffic_history.visitors. api/ga-sync.js מושך גם activeUsers;
+--    ה-RPC כותב visitors ומעדכן ב-conflict. סנכרון אחד ממלא גם רטרואקטיבית (GA מחזיר כל הטווח).
+create or replace function public.ingest_ga_daily(p_rows jsonb)
+returns integer language plpgsql security definer set search_path to 'public' as $$
+declare n int;
+begin
+  if not exists (select 1 from public.users where id = auth.uid() and role = 'admin') then
+    raise exception 'not authorized';
+  end if;
+  insert into public.traffic_history (period, granularity, views, visitors, source)
+  select (e->>'date')::date, 'day', (e->>'views')::int, nullif(e->>'users','')::int, 'ga'
+  from jsonb_array_elements(p_rows) e
+  where coalesce((e->>'views')::int, 0) > 0
+  on conflict (period, granularity, source)
+    do update set views = excluded.views, visitors = coalesce(excluded.visitors, traffic_history.visitors);
+  get diagnostics n = row_count;
+  return n;
+end $$;
