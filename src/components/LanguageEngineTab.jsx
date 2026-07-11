@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge, getLangStats, getAllBridges, editBridge } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge, getLangStats, getAllBridges, editBridge, getAllAliases, adminAddAlias, adminEditAlias, manageAliasRpc } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -791,6 +791,114 @@ function BridgesManager() {
   );
 }
 
+// 🌐 ניהול-כינויים מלא (word_aliases) — הוסף/ערוך/אשר/הסתר/מחק. כמו ניהול העברית.
+function AliasesManager() {
+  const [rows, setRows] = useState(null);
+  const [filter, setFilter] = useState("all");   // all | verified | pending
+  const [busy, setBusy] = useState(null);
+  const [edit, setEdit] = useState(null);        // {id, alias, hebrew}
+  const [add, setAdd] = useState({ hebrew: "", alias: "" });
+  const [adding, setAdding] = useState(false);
+  const load = useCallback(async () => setRows(await getAllAliases()), []);
+  useEffect(() => { load(); }, [load]);
+  const act = async (id, action) => {
+    if (action === "delete" && !confirm("למחוק את הכינוי לגמרי?")) return;
+    setBusy(id);
+    try { await manageAliasRpc(id, action); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const saveEdit = async () => {
+    if (!edit) return;
+    setBusy(edit.id);
+    try { await adminEditAlias(edit.id, edit.alias, edit.hebrew); setEdit(null); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const doAdd = async () => {
+    if (!add.hebrew.trim() || !add.alias.trim()) return;
+    setAdding(true);
+    try {
+      const id = await adminAddAlias(add.hebrew.trim(), add.alias.trim());
+      if (!id) alert("לא נוסף — ודא שהעברית תקינה (אותיות עבריות) ושהכינוי לא קיים.");
+      setAdd({ hebrew: "", alias: "" }); await load();
+    } catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setAdding(false); }
+  };
+  const all = rows || [];
+  const shown = filter === "all" ? all : all.filter(a => filter === "verified" ? a.verified : !a.verified);
+  const counts = { all: all.length, verified: all.filter(a => a.verified).length, pending: all.filter(a => !a.verified).length };
+  const inp = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "7px 10px", outline: "none" };
+  return (
+    <div style={{ marginTop: 18 }}>
+      <H sub="כל הכינויים הלועזיים (תעתוק/תרגום → עברית) במקום אחד — הוסף חדש, ערוך, אשר, הסתר או מחק. בדיוק כמו ניהול העברית.">🌐 ניהול כינויים{rows ? ` (${all.length})` : ""}</H>
+
+      {/* ➕ הוספת כינוי חדש */}
+      <div style={{ ...card, padding: "12px 14px", marginBottom: 10, borderColor: C.borderGold }}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>➕ הוסף כינוי — עברית ↔ לועזית</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={add.hebrew} onChange={e => setAdd({ ...add, hebrew: e.target.value })} placeholder="מילה בעברית (למשל: דרים)" style={{ ...inp, flex: "1 1 150px" }} dir="rtl" />
+          <span style={{ color: "#5ec8ff" }}>↔</span>
+          <input value={add.alias} onChange={e => setAdd({ ...add, alias: e.target.value })} placeholder="foreign word (e.g. dream)" style={{ ...inp, flex: "1 1 150px", direction: "ltr" }} />
+          <button disabled={adding || !add.hebrew.trim() || !add.alias.trim()} onClick={doAdd} style={btn("#2f6df6")}>{adding ? "מוסיף…" : "➕ הוסף"}</button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        {[["all", `הכל · ${counts.all}`], ["verified", `✅ מאושרים · ${counts.verified}`], ["pending", `⏳ ממתינים · ${counts.pending}`]].map(([k, l]) => (
+          <button key={k} onClick={() => setFilter(k)} style={{ ...btn(filter === k ? "rgba(212,175,55,.2)" : "transparent", filter === k ? C.goldBright : C.muted), border: `1px solid ${filter === k ? C.borderGold : C.border}`, fontSize: 12.5, padding: "5px 12px" }}>{l}</button>
+        ))}
+      </div>
+
+      {rows === null ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+        : !shown.length ? <div style={{ ...card, color: C.muted }}>אין כינויים בקטגוריה הזו.</div>
+        : <div style={{ display: "grid", gap: 8 }}>
+          {shown.map(a => {
+            const isEd = edit && edit.id === a.id;
+            return (
+              <div key={a.id} style={{ ...card, padding: "11px 13px", opacity: a.verified ? 1 : 0.72 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 7 }}>
+                  <span style={{ fontSize: 15 }}>{LANG_FLAG[a.lang] || "🌐"}</span>
+                  {isEd ? (
+                    <>
+                      <input value={edit.alias} onChange={e => setEdit({ ...edit, alias: e.target.value })} placeholder="לועזית" style={{ ...inp, width: 130, direction: "ltr" }} />
+                      <span style={{ color: "#5ec8ff" }}>→</span>
+                      <input value={edit.hebrew} onChange={e => setEdit({ ...edit, hebrew: e.target.value })} placeholder="עברית" style={{ ...inp, width: 120 }} dir="rtl" />
+                    </>
+                  ) : (
+                    <>
+                      <b style={{ color: "#9bd6ff", fontFamily: F.body, fontSize: 15, direction: "ltr" }}>{a.alias}</b>
+                      <span style={{ color: "#5ec8ff" }}>→</span>
+                      <b style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 16 }}>{a.hebrew || "—"}</b>
+                      {a.ragil != null && <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 13 }}>= {a.ragil}</span>}
+                      <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {METHOD_HE[a.method] || a.method || "תעתוק"} · {srcLabel(a.source)}</span>
+                    </>
+                  )}
+                  <span style={{ marginInlineStart: "auto", color: a.verified ? "#7bbf7b" : "#e0b34a", fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>{a.verified ? "✅ מאושר" : "⏳ ממתין"}</span>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                  {isEd ? (
+                    <>
+                      <button disabled={busy === a.id} onClick={saveEdit} style={btn("#2f8f4e")}>💾 שמור</button>
+                      <button onClick={() => setEdit(null)} style={btn("transparent", C.muted)}>ביטול</button>
+                    </>
+                  ) : (
+                    <>
+                      {!a.verified && <button disabled={busy === a.id} onClick={() => act(a.id, "verify")} style={btn("#2f8f4e")}>✅ אשר</button>}
+                      {a.verified && <button disabled={busy === a.id} onClick={() => act(a.id, "hide")} style={btn("transparent", "#e0b34a")}>🙈 הסתר</button>}
+                      <button disabled={busy === a.id} onClick={() => setEdit({ id: a.id, alias: a.alias, hebrew: a.hebrew || "" })} style={btn("transparent", "#9bd6ff")}>✏️ ערוך</button>
+                      <button disabled={busy === a.id} onClick={() => act(a.id, "delete")} style={btn("transparent", "#d98a92")}>🗑 מחק</button>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>}
+    </div>
+  );
+}
+
 export default function LanguageEngineTab() {
   const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
@@ -920,35 +1028,7 @@ export default function LanguageEngineTab() {
       {view === "english" && (<>
       <BridgesReview />
       <BridgesManager />
-      <WordsConsole srcLabel={srcLabel} intlOnly initialScope="pending" />
-      {/* ══ כל השפות — feed הכינויים ══ */}
-      <H sub="כל ייצוג בכל שפה שנכנס — עם סוג-הקשר, שכבת-האמון, המקור, והישות העברית שהוא מצביע אליה.">🌐 מילים בכל השפות ({aliases.length})</H>
-      {!aliases.length ? <div style={{ ...card, color: C.muted }}>אין עדיין.</div>
-        : <div style={{ ...card, overflowX: "auto", padding: 0 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
-            <thead><tr>{["", "כינוי", "סוג-קשר", "שכבה", "→ עברית", "ערך", "מקור", "בטחון", "אימות", ""].map((h, i) => <th key={i} style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 11.5, textAlign: "right", padding: "8px 9px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
-            <tbody>
-              {aliases.map(a => (
-                <tr key={a.id} style={{ opacity: a.verified ? 1 : 0.6 }}>
-                  <td style={{ padding: "6px 9px" }}>{LANG_FLAG[a.lang] || "🌐"}</td>
-                  <td style={{ color: C.goldLight, fontFamily: F.body, padding: "6px 9px" }}>{a.alias}</td>
-                  <td style={{ color: C.muted, padding: "6px 9px", whiteSpace: "nowrap" }}>{METHOD_HE[a.method] || a.method || "—"}</td>
-                  <td style={{ padding: "6px 9px" }}><span style={{ color: LAYER_TONE[a.layer] || C.muted, fontSize: 11.5, fontWeight: 700 }}>{a.layer || "—"}</span></td>
-                  <td style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 15, padding: "6px 9px" }}>{a.gematria_words?.phrase || "—"}</td>
-                  <td style={{ color: C.muted, fontFamily: F.mono, padding: "6px 9px" }}>{a.gematria_words?.ragil ?? ""}</td>
-                  <td style={{ color: C.muted, fontFamily: F.heading, fontSize: 11, padding: "6px 9px", whiteSpace: "nowrap" }}>{srcLabel(a.source)}</td>
-                  <td style={{ color: C.muted, fontFamily: F.mono, padding: "6px 9px" }}>{a.confidence != null ? Math.round(a.confidence * 100) + "%" : ""}</td>
-                  <td style={{ padding: "6px 9px" }}>{a.verified ? <span style={{ color: "#7bbf7b" }}>✓</span> : <span style={{ color: "#e0b34a" }}>⏳</span>}</td>
-                  <td style={{ padding: "6px 9px", whiteSpace: "nowrap" }}>
-                    {!a.verified && <button disabled={busy === a.id} onClick={() => manageAlias(a.id, "verify")} style={{ ...btn("#2e7d46"), padding: "3px 8px" }}>✔</button>}
-                    {a.verified && <button disabled={busy === a.id} onClick={() => manageAlias(a.id, "hide")} style={{ ...btn("transparent", "#c9b98a"), padding: "3px 8px" }}>🙈</button>}
-                    <button disabled={busy === a.id} onClick={() => { if (confirm("למחוק כינוי?")) manageAlias(a.id, "delete"); }} style={{ ...btn("transparent", "#d98a92"), padding: "3px 8px", marginInlineStart: 4 }}>🗑</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>}
+      <AliasesManager />
 
       {/* ══ תור תעתוק ══ */}
       <H sub="חיפושים באנגלית שחזרו הרבה ועדיין לא נפתרו — אישור יוצר כינוי מאומת.">🔤 תור תעתוק · Top לא-נפתרו ({translit.length})</H>

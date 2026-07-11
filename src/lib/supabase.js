@@ -300,6 +300,36 @@ export async function editBridge(id, hebrew, foreign_word) {
   if (error) throw error;
   return data ?? 0;
 }
+// 🌐 כל הכינויים הלועזיים לניהול (טאב אנגלית)
+export async function getAllAliases() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc('admin_all_aliases');
+    if (error || data?.error) return [];
+    return data || [];
+  } catch { return []; }
+}
+// 🌐 הוספת כינוי ידני (עברית↔לועזית) — מוודא שהמילה קיימת ומוסיף כינוי מאומת
+export async function adminAddAlias(hebrew, alias, lang = 'en', method = 'transliteration') {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('admin_add_alias', { p_hebrew: hebrew, p_alias: alias, p_lang: lang, p_method: method });
+  if (error) throw error;
+  return data ?? null;
+}
+// 🌐 עריכת כינוי — טקסט לועזי ו/או המילה העברית שאליה מפנה
+export async function adminEditAlias(id, alias, hebrew) {
+  if (!supabase) return 0;
+  const { data, error } = await supabase.rpc('admin_edit_alias', { p_id: id, p_alias: alias ?? null, p_hebrew: hebrew ?? null });
+  if (error) throw error;
+  return data ?? 0;
+}
+// 🌐 אישור/הסתרה/מחיקה של כינוי — verify | hide | delete
+export async function manageAliasRpc(id, action) {
+  if (!supabase) return 0;
+  const { data, error } = await supabase.rpc('admin_manage_alias', { p_id: id, p_action: action });
+  if (error) throw error;
+  return data ?? 0;
+}
 // 🌍 מתייג-העולמות — סקירת קטגוריות לא-מתויגות (לעין לפני אישור)
 export async function getWorldTagStats() {
   if (!supabase) return [];
