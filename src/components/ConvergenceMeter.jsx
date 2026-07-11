@@ -11,7 +11,6 @@ import { worldColor } from "../lib/worlds.js";
 export default function ConvergenceMeter({ value, light: lightOverride }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(null); // אינדקס שכבה פתוחה
-  const [wordsAll, setWordsAll] = useState(false); // הצג-כל במילים המקובצות
   const nav = useNavigate();
   const globalP = usePalette();
   const P = lightOverride == null ? globalP : PALETTES[lightOverride ? "light" : "dark"];
@@ -68,42 +67,19 @@ export default function ConvergenceMeter({ value, light: lightOverride }) {
               </div>
               {isOpen && (
                 <div style={{ margin: "4px 0 6px 23px", display: "flex", flexWrap: "wrap", gap: 5 }}>
-                  {l.name === "התכנסות מילים" && (() => {
-                    // 🌍 מקובץ לפי עולם + שורות מיושרות (במקום גלולות ברוחב משתנה)
-                    const items = (ev || []).map(e => typeof e === "string" ? { label: e } : e);
-                    const g = {};
-                    for (const e of items) { const w = e.world || "ללא עולם"; (g[w] ||= []).push(e); }
-                    const entries = Object.entries(g).sort((a, b) => (a[0] === "ללא עולם") - (b[0] === "ללא עולם") || b[1].length - a[1].length);
-                    const CAP = 3;
-                    const collapsedTotal = entries.reduce((a, [, arr]) => a + Math.min(arr.length, CAP), 0);
+                  {l.name === "התכנסות מילים" && ev?.map((e, k) => {
+                    const lbl = typeof e === "string" ? e : e.label;
+                    const mark = e.tier === "gold" ? "👑 " : e.tier === "silver" ? "🥈 " : "";
                     return (
-                      <div style={{ width: "100%", display: "grid", gap: 8 }}>
-                        {entries.map(([w, arr]) => {
-                          const vis = wordsAll ? arr : arr.slice(0, CAP);
-                          return (
-                            <div key={w}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                                <span style={{ width: 7, height: 7, borderRadius: "50%", background: worldColor(w) || T.muted }} />
-                                <span style={{ color: T.goldDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>{w} · {arr.length}</span>
-                              </div>
-                              {vis.map((e, k) => (
-                                <button key={k} onClick={() => nav(`/number/${encodeURIComponent(e.label)}`)}
-                                  title={`${e.label} = ${value} ב${e.method || "רגיל"}`}
-                                  style={{ display: "flex", width: "100%", alignItems: "baseline", gap: 8, background: "transparent", border: "none", borderTop: k ? `1px solid ${T.border}` : "none", padding: "5px 2px", cursor: "pointer", textAlign: "right" }}>
-                                  <span style={{ flex: 1, minWidth: 0, color: e.tier ? T.goldBright : T.goldLight, fontFamily: F.body, fontSize: 12.5, fontWeight: e.tier ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.tier === "gold" ? "👑 " : e.tier === "silver" ? "🥈 " : ""}{e.label}</span>
-                                  <span style={{ flexShrink: 1, borderBottom: `1px dotted ${T.border}`, minWidth: 10, alignSelf: "center", height: 1 }} />
-                                  <span style={{ flexShrink: 0, color: T.goldDim, fontSize: 10 }}>{e.method || "רגיל"}</span>
-                                </button>
-                              ))}
-                            </div>
-                          );
-                        })}
-                        {items.length > collapsedTotal && (
-                          <button onClick={() => setWordsAll(v => !v)} style={{ background: "transparent", border: "none", color: T.goldDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: "3px" }}>{wordsAll ? "▴ הצג פחות" : `▾ הצג הכל (${items.length})`}</button>
-                        )}
-                      </div>
+                      <button key={k} onClick={() => nav(`/number/${encodeURIComponent(lbl)}`)}
+                        className="cm-chip" style={chip(!!e.tier, T)}
+                        title={`${lbl} = ${value} ב${e.method || "רגיל"}`}>
+                        {mark}{lbl}
+                        {e.method && <span style={{ color: T.goldDim, fontSize: 9.5, marginInlineStart: 4 }}>· {e.method}</span>}
+                        {e.world && <span style={{ color: worldColor(e.world), fontWeight: 700, fontSize: 9.5, marginInlineStart: 4 }}>· {e.world}</span>}
+                      </button>
                     );
-                  })()}
+                  })}
                   {l.name === "כרטיס התכנסות" && ev?.map(c => (
                     <button key={c.slug} onClick={() => nav(`/topic/${encodeURIComponent(c.slug)}`)}
                       className="cm-chip" style={chip(true, T)}>🧩 {c.title} →</button>

@@ -1051,7 +1051,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
 
   const [phrases, posts, galleries, events, comments, insights] = await Promise.all([
     value
-      ? supabase.from('gematria_words').select('phrase,ragil,is_verified,visibility_tier,lead_rank,world', { count: 'exact' })
+      ? supabase.from('gematria_words').select('phrase,ragil,is_verified,visibility_tier,lead_rank', { count: 'exact' })
           .eq('ragil', value)
           .order('lead_rank', { ascending: true, nullsFirst: false })   // 📌 נעוצים (חזקים) קודם
           .order('is_verified', { ascending: false })
