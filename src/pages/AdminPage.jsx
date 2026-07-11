@@ -2504,6 +2504,23 @@ function RealTrafficPanel() {
               </div>
             </div>
           )}
+          {/* גרף שעתי — 24 שעות (זיהוי קפיצות / דפוס לילה-יום) */}
+          {(d.hourly || []).length > 0 && (() => {
+            const hrs = d.hourly, hmax = Math.max(...hrs.map(x => Number(x.visitors) || 0), 1);
+            return (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>מבקרים אמיתיים לפי שעה · 24ש (שעון ישראל)</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 90, borderBottom: `1px solid ${C.border}` }}>
+                  {hrs.map((x, i) => (
+                    <div key={i} title={`${x.hr}: ${fmt(x.visitors)} מבקרים`} style={{ flex: 1, minWidth: 5, height: Math.max(2, Math.round((Number(x.visitors) / hmax) * 84)), borderRadius: "3px 3px 0 0", background: "linear-gradient(180deg,#8ea2ff,#3a4a8a)" }} />
+                  ))}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.mono, fontSize: 10, marginTop: 3 }}>
+                  {hrs.filter((_, i) => i % 4 === 0).map((x, i) => <span key={i}>{x.hr}</span>)}
+                </div>
+              </div>
+            );
+          })()}
           {/* מקורות */}
           {sources.length > 0 && (
             <div>

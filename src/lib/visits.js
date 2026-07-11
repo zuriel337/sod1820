@@ -34,10 +34,19 @@ function externalReferrer() {
 
 let firstHit = true;
 
+// 🤖 סינון בוטים במקור: בוט שמריץ JS (Googlebot/מוניטורים/קרולרים) חושף עצמו ב-userAgent.
+// לא רושמים אותו כלל → מד-הכניסות סופר בני-אדם בלבד (Googlebot רינדור היה מנפח את הלילה).
+const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
+function isBotUA() {
+  try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; }
+  catch { return false; }
+}
+
 // רישום כניסה לדף. fire-and-forget — לעולם לא שובר גלישה.
 export async function trackVisit(path) {
   if (!supabase || !path) return;
   if (path.startsWith("/admin")) return;   // לא סופרים את עמוד הניהול עצמו
+  if (isBotUA()) return;                     // 🤖 בוט שמריץ JS — לא סופרים כבן-אדם
   const referrer = firstHit ? externalReferrer() : null;
   firstHit = false;
   try {
