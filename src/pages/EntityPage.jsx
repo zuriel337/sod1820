@@ -611,6 +611,77 @@ function BridgesStrip({ term, value, P }) {
   );
 }
 
+// 🧬 פאנל-ההתכנסות (מצב-מחקר) — כל המילים-השוות מקובצות לפי עולם + מסננים.
+// פותר את «200 מילים שטוחות מוביל לאף מקום»: קיבוץ · סינון-עולם · מאומת · חיפוש · תקרה-לקבוצה.
+const WORLD_DOT = { "גאולה": "#e9c84a", "שמות הקודש": "#6bb6e8", "עבודת ה'": "#8fd3ff", "אירועי הזמן": "#c98a3a", "אבות ואמהות": "#7bbf7b", "מלאכים": "#c58cff", "מושגי קבלה": "#b39ddb", "תורה וקודש": "#e0b34a", "ללא עולם": "#6b6b78" };
+function ConvergencePanel({ phrases, value, P, numHref }) {
+  const [wFilter, setWFilter] = useState(null);
+  const [vOnly, setVOnly] = useState(false);
+  const [q, setQ] = useState("");
+  const [expanded, setExpanded] = useState({});
+  const list = phrases || [];
+  const worldCounts = useMemo(() => {
+    const m = {}; for (const p of list) { const w = p.world || "ללא עולם"; m[w] = (m[w] || 0) + 1; } return m;
+  }, [list]);
+  const groups = useMemo(() => {
+    const f = list.filter(p => (!vOnly || p.is_verified) && (!q.trim() || (p.phrase || "").includes(q.trim())) && (!wFilter || (p.world || "ללא עולם") === wFilter));
+    const m = {}; for (const p of f) { const w = p.world || "ללא עולם"; (m[w] ||= []).push(p); }
+    return Object.entries(m).sort((a, b) => (a[0] === "ללא עולם") - (b[0] === "ללא עולם") || b[1].length - a[1].length);
+  }, [list, vOnly, q, wFilter]);
+  if (!list.length) return null;
+  const worldChips = Object.entries(worldCounts).sort((a, b) => (a[0] === "ללא עולם") - (b[0] === "ללא עולם") || b[1] - a[1]);
+  const CAP = 8;
+  return (
+    <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 14 }}>
+      {/* מסננים */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+        <button onClick={() => setWFilter(null)} style={{ cursor: "pointer", background: !wFilter ? P.accentBtn : "transparent", color: !wFilter ? P.onAccent : P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "4px 11px" }}>הכל · {list.length}</button>
+        {worldChips.map(([w, n]) => (
+          <button key={w} onClick={() => setWFilter(wFilter === w ? null : w)} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5, background: wFilter === w ? P.accentBtn : "transparent", color: wFilter === w ? P.onAccent : P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 10px" }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: WORLD_DOT[w] || "#8c8574" }} />{w} · {n}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍 חיפוש בתוך ההתכנסות…" dir="rtl"
+          style={{ flex: "1 1 160px", minWidth: 130, background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, color: P.ink, fontFamily: F.body, fontSize: 14, padding: "7px 11px", outline: "none" }} />
+        <button onClick={() => setVOnly(v => !v)} style={{ cursor: "pointer", background: vOnly ? P.accentBtn : "transparent", color: vOnly ? P.onAccent : P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "6px 12px" }}>✓ מאומת בלבד</button>
+      </div>
+      {/* קבוצות-עולם עם שורות מיושרות */}
+      {!groups.length ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, padding: "8px 2px" }}>אין תוצאות למסנן.</div>
+        : <div style={{ display: "grid", gap: 9 }}>
+          {groups.map(([w, items]) => {
+            const showAll = expanded[w] || items.length <= CAP;
+            const vis = showAll ? items : items.slice(0, CAP);
+            return (
+              <div key={w} style={{ border: `1px solid ${P.border}`, borderRadius: 11, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: `linear-gradient(90deg, ${P.cardGrad ? "rgba(212,175,55,.07)" : P.card}, transparent)` }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: WORLD_DOT[w] || "#8c8574" }} />
+                  <span style={{ color: P.ink, fontFamily: F.regal, fontSize: 14.5, fontWeight: 700 }}>{w}</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 12 }}>· {items.length}</span>
+                </div>
+                <div>
+                  {vis.map((p, i) => (
+                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))} style={{ display: "flex", alignItems: "baseline", gap: 9, padding: "7px 12px", textDecoration: "none", borderTop: i ? `1px solid ${P.border}` : "none" }}>
+                      <span style={{ flex: 1, minWidth: 0, color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.phrase}</span>
+                      <span style={{ flexShrink: 1, borderBottom: `1px dotted ${P.border}`, minWidth: 10, alignSelf: "center", height: 1 }} />
+                      {p.is_verified && <span style={{ flexShrink: 0, color: "#7bbf7b", fontSize: 11 }}>✓</span>}
+                    </Link>
+                  ))}
+                  {items.length > CAP && (
+                    <button onClick={() => setExpanded(e => ({ ...e, [w]: !e[w] }))} style={{ cursor: "pointer", display: "block", width: "100%", background: "transparent", border: "none", borderTop: `1px solid ${P.border}`, color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "7px" }}>
+                      {showAll ? "▴ הצג פחות" : `▾ עוד ${items.length - CAP}`}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>}
+    </div>
+  );
+}
+
 export default function EntityPage({ embedPhrase } = {}) {
   const params = useParams();
   // embedPhrase מסופק כשהדף מוטמע בתוך המעבדה (נשארים במעבדה תוך כדי טיול במספרים)
@@ -1658,6 +1729,8 @@ export default function EntityPage({ embedPhrase } = {}) {
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
+          {/* 🧬 פאנל-מחקר: כל המילים מקובצות לפי עולם + מסננים (פותר את «200 שטוחות») */}
+          {(d.phrases?.length || 0) > 6 && <ConvergencePanel phrases={d.phrases} value={value} P={P} numHref={numHref} />}
           <NumberFamilies value={value} highlight={sp.get("method")} term={term} isNumber={isNumber} />
           <div style={{ marginTop: 14 }}>
             <Link to={`/numbers?n=${value}`} style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
