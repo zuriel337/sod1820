@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
@@ -3237,6 +3237,73 @@ function LegacyStatsView() {
 
 // ===== 🟢 חי — מד-הכניסות הפנימי של האתר החדש (SOD1820) =====
 const RANGES = [["30", "30 יום"], ["90", "90 יום"], ["365", "שנה"], ["all", "הכל"]];
+// ── שני מונים אחידים: «כולל בוטים» מול «אנשים בלבד» ──
+// מקור-על (comp) = edge_geo_log, אחיד ל-3 שבועות בלי מדרגה; ביקורים (visits) = site_visits מהיום.
+function TwoMeterPanel() {
+  const [comp, setComp] = useState(null);
+  const [vm, setVm] = useState(null);
+  const [src, setSrc] = useState("comp");
+  useEffect(() => {
+    getTrafficComposition(21).then(setComp).catch(() => setComp([]));
+    getVisitsTwoMeter(21).then(setVm).catch(() => setVm([]));
+  }, []);
+  const rows = ((src === "comp" ? comp : vm) || []).slice(-21);
+  const unit = src === "comp" ? "בקשות/יום" : "ביקורים/יום";
+  const max = Math.max(1, ...rows.map(r => Number(r.total) || 0));
+  const last = rows[rows.length - 1];
+  const fmt = n => Number(n || 0).toLocaleString("he");
+  return (
+    <div style={{ ...card, borderColor: "rgba(120,150,220,0.4)", background: "rgba(90,120,200,0.05)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <div style={{ color: "#9bb6ff", fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>📊 שני מונים — כולל בוטים מול אנשים</div>
+        <span style={{ flex: 1 }} />
+        <div style={segWrap}>
+          {[["comp", "אחיד · 3 שבועות"], ["visits", "ביקורים · מהיום"]].map(([k, l]) =>
+            <button key={k} onClick={() => setSrc(k)} style={segBtn(src === k)}>{l}</button>)}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 10, fontFamily: F.body, fontSize: 12, color: C.muted }}>
+        <span>🟩 אנשים</span><span>🟧 בוטים</span><span>גובה-העמודה = סה״כ כולל בוטים</span>
+      </div>
+      {!rows.length ? (
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, textAlign: "center", padding: 14 }}>אין נתונים בטווח.</div>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 110, overflowX: "auto" }}>
+            {rows.map((r, i) => {
+              const total = Number(r.total) || 0, humans = Number(r.humans) || 0, bots = Number(r.bots) || 0;
+              const hTot = Math.round(total / max * 100);
+              const hHum = total ? Math.round(humans / total * hTot) : 0;
+              const hBot = Math.max(0, hTot - hHum);
+              const d = String(r.day || "").slice(5);
+              return (
+                <div key={i} title={`${d} · סה״כ ${fmt(total)} · אנשים ${fmt(humans)} · בוטים ${fmt(bots)}`}
+                  style={{ flex: "1 0 14px", minWidth: 14, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
+                  <div style={{ height: `${hBot}%`, background: "#d8934e", borderRadius: "3px 3px 0 0" }} />
+                  <div style={{ height: `${hHum}%`, background: "#4ea36b" }} />
+                </div>
+              );
+            })}
+          </div>
+          {last && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 10, marginTop: 12 }}>
+              <Stat label={`🟦 כולל בוטים (${unit})`} value={fmt(last.total)} />
+              <Stat label="🟩 אנשים" value={fmt(last.humans)} />
+              <Stat label="🟧 בוטים" value={fmt(last.bots)} />
+            </div>
+          )}
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.7 }}>
+            {src === "comp"
+              ? "מקור: edge_geo_log (ה-middleware מתעד כל בקשה) — אחיד לכל 3 השבועות, בלי מדרגה. יחידה: בקשות-דף (לא ביקורים ייחודיים), לכן הסקאלה גבוהה מהמונה הישן."
+              : "מקור: site_visits ביחידות-ביקורים. «כולל בוטים» רציף; «אנשים» (is_bot=false) נקי מהיום שבו נדלק סימון-הבוט (לפני כן חלק מהבוטים נספרו כאנשים)."}
+            {" "}היום חלקי עד חצות (שעון ישראל).
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function LiveStatsView() {
   const mobile = useIsMobile();
   const [s, setS] = useState(null);
@@ -3300,6 +3367,7 @@ function LiveStatsView() {
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
+      <TwoMeterPanel />
       <div style={{ ...card, borderColor: "rgba(95,191,106,0.45)", background: "rgba(95,191,106,0.06)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ color: "#7bd087", fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>🟢 מד-הכניסות החי של האתר החדש</div>

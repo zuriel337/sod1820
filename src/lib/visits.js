@@ -34,8 +34,9 @@ function externalReferrer() {
 
 let firstHit = true;
 
-// 🤖 סינון בוטים במקור: בוט שמריץ JS (Googlebot/מוניטורים/קרולרים) חושף עצמו ב-userAgent.
-// לא רושמים אותו כלל → מד-הכניסות סופר בני-אדם בלבד (Googlebot רינדור היה מנפח את הלילה).
+// 🤖 זיהוי בוטים: בוט שמריץ JS (Googlebot/מוניטורים/קרולרים) חושף עצמו ב-userAgent.
+// שינוי מדיניות (11.7): לא *מדלגים* על הבוט — **מסמנים** אותו (is_bot) ורושמים בכל זאת.
+// כך נשמרים שני מונים אחידים: «כולל בוטים» (הכל) ו«אנשים בלבד» (is_bot=false), בלי מדרגה.
 const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
 function isBotUA() {
   try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; }
@@ -46,7 +47,7 @@ function isBotUA() {
 export async function trackVisit(path) {
   if (!supabase || !path) return;
   if (path.startsWith("/admin")) return;   // לא סופרים את עמוד הניהול עצמו
-  if (isBotUA()) return;                     // 🤖 בוט שמריץ JS — לא סופרים כבן-אדם
+  const bot = isBotUA();                     // 🤖 מסמנים (לא מדלגים) → שני מונים: כולל-בוטים + אנשים
   const referrer = firstHit ? externalReferrer() : null;
   firstHit = false;
   try {
@@ -55,10 +56,28 @@ export async function trackVisit(path) {
       p_referrer: referrer,
       p_visitor: visitorId(),
       p_device: deviceType(),
+      p_is_bot: bot,
     });
   } catch { /* שקט — מד-הכניסות לא יפיל את האתר */ }
   // dual-write: אותה כניסה נרשמת גם ב-pipeline החדש (events) לרמת-אדם. לא תלוי בהצלחת הישן.
   try { emit("page", "view", { path }); } catch { /* ignore */ }
+}
+
+// ── שני מונים אחידים (מנהל) ─────────────────────────────────────────────────
+// (א) יחידות-ביקורים מ-site_visits: כולל-בוטים · אנשים(is_bot=false) · בוטים.
+export async function getVisitsTwoMeter(days = 21) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("visits_two_meter", { p_days: days });
+  if (error) throw error;
+  return data || [];
+}
+// (ב) הרכב-תנועה אחיד ל-3 שבועות מ-edge_geo_log (יחידות-בקשות, ה-middleware מתעד הכל):
+//     total(כולל בוטים) · humans(browser) · bots(bot+goodbot). אחיד לכל התקופה, בלי מדרגה.
+export async function getTrafficComposition(days = 21) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("traffic_composition", { p_days: days });
+  if (error) throw error;
+  return data || [];
 }
 
 // קריאת אגרגציה (למנהל בלבד — נחסם ב-DB ל-anon).
