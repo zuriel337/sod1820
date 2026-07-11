@@ -29,11 +29,17 @@ const BLOCKED_COUNTRIES = new Set(['CN', 'SG']);
 const GOOD_BOT = /(googlebot|google-inspectiontool|bingbot|duckduckbot|yandex|baidu|applebot|facebookexternalhit|facebot|meta-externalagent|facebookbot|meta-externalfetcher|twitterbot|whatsapp|telegrambot|linkedinbot|slackbot|discordbot|pinterest|redditbot|skypeuripreview|embedly|iframely|w3c_validator|vkshare)/;
 // חתימות בוט לחסימה — ספריות/כלים אוטומטיים שמזדהים בעצמם.
 const BAD_BOT = /(python-requests|python-urllib|aiohttp|httpx|scrapy|curl\/|wget\/|libwww|go-http-client|okhttp|node-fetch|axios\/|java\/|apache-httpclient|headless|phantomjs|puppeteer|playwright|selenium|guzzle|winhttp|zgrab|masscan|ahrefsbot|semrushbot|mj12bot|dotbot|petalbot|um-ic|ubermetrics|dataforseo|blexbot|barkrowler|mauibot|serpstatbot|zoominfobot)/;
+// 🤖 בוטי-AI — מותרים לתוכן ציבורי בלבד (חשיפה במנועי-תשובות), חסומים ממסלולים יקרים.
+//    (בקשת צוריאל: מדיניות לפי סוג-תוכן, לא לפי בוט.)
+const AI_BOT = /(gptbot|oai-searchbot|chatgpt-user|claudebot|anthropic-ai|claude-web|perplexitybot|perplexity-user|amazonbot|ccbot|cohere-ai|google-extended|applebot-extended|bytespider|youbot|ai2bot|omgili|diffbot|timpibot|imagesiftbot|webzio|meta-externalagent)/;
 const GENERIC_BOT = /(bot|crawler|crawl|spider|scraper)/; // אחרי שניכינו את הטובים
+// 🔒 מסלולים יקרים/פרטיים — חסומים לכל בוט (רק דפדפן-אדם עובר). מגן על טוקנים/AI.
+const EXPENSIVE_PATH = /^\/(journey|journey-beta|research|reveal|experience|auth|profile|login|admin|traffic|numbers-report|theme-preview)(\/|$)/;
 
 function classify(ua) {
   if (!ua) return 'bot';                 // UA ריק = כמעט תמיד אוטומציה
   if (GOOD_BOT.test(ua)) return 'goodbot';
+  if (AI_BOT.test(ua)) return 'ai';      // בוט-AI — ציבורי בלבד
   if (BAD_BOT.test(ua)) return 'bot';
   if (GENERIC_BOT.test(ua)) return 'bot';
   return 'browser';
@@ -89,21 +95,30 @@ export default function middleware(request, context) {
     }).catch(() => {}),
   );
 
+  let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
+  const isBot = kind !== 'browser';       // goodbot | ai | bot
+  const uaL = uaRaw.toLowerCase();
+
+  // ── מדיניות לפי סוג-תוכן (לא רק לפי בוט) ──
+  // 1) כל בוט חסום ממסלולים יקרים/פרטיים (מסע/מחקר/AI/ניהול) — רק דפדפן-אדם עובר.
+  // 2) בוט-רע (BAD/GENERIC) → 403 מלא.  3) חסימת-מדינה (ניסוי) — לא חלה על goodbot/ai.
+  // goodbot (חיפוש/שיתוף) + ai (מנועי-תשובות) → מותרים בתוכן ציבורי.
+  let blocked = false;
+  if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
+  else if (kind === 'bot') blocked = true;
+  if (kind !== 'goodbot' && kind !== 'ai' && BLOCKED_COUNTRIES.has(country)) blocked = true;
+
   // 📊 Crawl Intelligence — לבוטים בלבד: שם-בוט + דלי-תוכן + נחסם (crawl_daily, UPSERT מצטבר)
-  if (kind === 'goodbot' || kind === 'bot') {
-    let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
+  if (isBot) {
     context.waitUntil(
       fetch(`${SUPABASE_URL}/rest/v1/rpc/log_crawl`, {
         method: 'POST',
         headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_bot: botName(uaRaw.toLowerCase()), p_bucket: bucketOf(path), p_blocked: kind === 'bot' }),
+        body: JSON.stringify({ p_bot: botName(uaL), p_bucket: bucketOf(path), p_blocked: blocked }),
       }).catch(() => {}),
     );
   }
 
-  // goodbot עובר תמיד (SEO/OG). אחרת: חוסמים אם בוט-UA או מדינה-בניסוי.
-  if (kind !== 'goodbot' && (kind === 'bot' || BLOCKED_COUNTRIES.has(country))) {
-    return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
-  }
+  if (blocked) return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
   return next();
 }
