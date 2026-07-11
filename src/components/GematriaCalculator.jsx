@@ -9,7 +9,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/translit.js";
-import { englishSimple, hasLatin, EN_METHODS } from "../lib/englishGematria.js";
+import { englishSimple, hasLatin, EN_METHODS, englishAll, EN_TAGS } from "../lib/englishGematria.js";
 import { getAliasLexicon, logTranslitQuery } from "../lib/feedback.js";
 import FoundItFeedback from "./FoundItFeedback.jsx";
 
@@ -37,7 +37,9 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const translitBest = translit && translit.candidates[0] ? translit.candidates[0] : null;
   // 🇺🇸 גימטריה אנגלית ילידית (Simple) — כדי שקלט אנגלי לעולם לא יראה 0. LCE-seed.
   const enSimple = useMemo(() => (inputType === "english" && hasLatin(word) ? englishSimple(word) : null), [word, inputType]);
+  const enMethods = useMemo(() => (inputType === "english" && hasLatin(word) ? englishAll(word) : []), [word, inputType]);
   const [enMethodsOpen, setEnMethodsOpen] = useState(false);
+  const [enExplain, setEnExplain] = useState(null); // איזו שיטה פתוחה להסבר-סגור
   // רישום החיפוש-האנגלי (למונה ה-hits ולמידת-הקהילה) — פעם לכל מילה.
   useEffect(() => {
     if (inputType === "english" && word && translitBest) {
@@ -233,22 +235,37 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             ) : (
               <div style={{ color: "#5a6b85", fontFamily: F.body, fontSize: 12, marginBottom: 8 }}>לא נמצא תעתוק עברי מאומת — אפשר לחפש ידנית.</div>
             )}
-            {/* 🇺🇸 English Simple — תמיד. תג לחיץ שחושף שיטות עתידיות. */}
+            {/* 🇺🇸 שיטות אנגלית — כל שיטה עם תג-מקור והסבר-סגור (יושר מחקרי) */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => setEnMethodsOpen(o => !o)} title="שיטות נוספות בקרוב"
+              <button onClick={() => setEnMethodsOpen(o => !o)}
                 style={{ cursor: "pointer", background: "#eaf0fb", border: "1px solid #cfe0fb", borderRadius: 999, color: "#2c5fb3", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>
-                🇺🇸 English Simple {enMethodsOpen ? "▲" : "▾"}
+                🇺🇸 {enMethods.length} שיטות אנגלית {enMethodsOpen ? "▲" : "▾"}
               </button>
-              <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>«{word}» = <b style={{ fontFamily: F.mono, color: "#2c5fb3", fontSize: 16 }}>{enSimple}</b></span>
-              <span style={{ color: "#8a94a6", fontFamily: F.body, fontSize: 11 }}>A=1 … Z=26</span>
+              <span style={{ color: "#23201a", fontFamily: F.body, fontSize: 14 }}>«{word}» · Ordinal = <b style={{ fontFamily: F.mono, color: "#2c5fb3", fontSize: 16 }}>{enSimple}</b></span>
             </div>
             {enMethodsOpen && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                {EN_METHODS.map(m => (
-                  <span key={m.key} title={m.note} style={{ background: m.active ? "#eaf0fb" : "#f4f5f7", border: `1px solid ${m.active ? "#cfe0fb" : "#e2e4e8"}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11, fontWeight: 700, color: m.active ? "#2c5fb3" : "#a0a6b0" }}>
-                    {m.active ? "✓ " : ""}{m.label}{!m.active ? " · בקרוב" : ""}
-                  </span>
-                ))}
+              <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
+                {enMethods.map(m => {
+                  const tag = EN_TAGS[m.tag] || EN_TAGS.modern, open = enExplain === m.key;
+                  return (
+                    <div key={m.key} style={{ background: "#fff", border: "1px solid #e2e8f4", borderRadius: 10, padding: "8px 11px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span title={tag.label} style={{ fontSize: 13 }}>{tag.icon}</span>
+                        <span style={{ color: "#23201a", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{m.he}</span>
+                        <span style={{ color: "#8a94a6", fontFamily: F.body, fontSize: 11 }}>{m.label}</span>
+                        <span style={{ flex: 1 }} />
+                        <b style={{ fontFamily: F.mono, color: "#2c5fb3", fontSize: 16 }}>{m.value}</b>
+                        <button onClick={() => setEnExplain(open ? null : m.key)} title="הסבר" style={{ cursor: "pointer", background: "transparent", border: "1px solid #cfd8e6", borderRadius: 999, color: "#5a6b85", fontSize: 12, fontWeight: 700, width: 22, height: 22, lineHeight: 1, padding: 0 }}>{open ? "×" : "?"}</button>
+                      </div>
+                      {open && (
+                        <div style={{ marginTop: 7, paddingTop: 7, borderTop: "1px dashed #e2e8f4", color: "#3a4553", fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+                          <span style={{ color: "#2c5fb3", fontWeight: 700 }}>{tag.icon} {tag.label}</span> · {m.note}<br />{m.explain}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <div style={{ color: "#8a94a6", fontFamily: F.body, fontSize: 11, marginTop: 2 }}>לחיצה על «?» = הסבר מלא ומקור השיטה. Sumerian ו-«Jewish» מוגדרות אך כבויות (מסומנות 🧪 ניסיוני).</div>
               </div>
             )}
             {translitBest && (
