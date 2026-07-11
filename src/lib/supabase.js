@@ -259,6 +259,22 @@ export async function adminWordsConsole({ scope = 'pending', q = null, limit = 5
     return data || null;
   } catch { return null; }
 }
+// 🌉 גשרי-שפה שממתינים לאישור (טאב אנגלית)
+export async function getPendingBridges() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc('admin_bridges_pending');
+    if (error || data?.error) return [];
+    return data || [];
+  } catch { return []; }
+}
+// 🌉 אישור/דחיית גשר — verify | reject
+export async function verifyBridge(id, action) {
+  if (!supabase) return 0;
+  const { data, error } = await supabase.rpc('admin_verify_bridge', { p_id: id, p_action: action });
+  if (error) throw error;
+  return data ?? 0;
+}
 // 🌍 מתייג-העולמות — סקירת קטגוריות לא-מתויגות (לעין לפני אישור)
 export async function getWorldTagStats() {
   if (!supabase) return [];

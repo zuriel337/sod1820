@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -654,6 +654,48 @@ function WorldTagger() {
   );
 }
 
+// 🌉 גשרי-שפה לאישור — הגילויים החוצי-שפתיים שהמנוע מצא היום, ממתינים לאוצר.
+function BridgesReview() {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const load = useCallback(async () => setRows(await getPendingBridges()), []);
+  useEffect(() => { load(); }, [load]);
+  const act = async (id, action) => {
+    if (action === "reject" && !confirm("לדחות את הגשר?")) return;
+    setBusy(id);
+    try { await verifyBridge(id, action); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const REL = { shared_value: "ערך משותף", transliteration: "תעתוק", translation: "תרגום" };
+  return (
+    <div>
+      <H sub="גשרים חוצי-שפות שהמנוע מצא (מגובי-תרגום, מאומתי-מנוע) וממתינים לאישורך. אישור → נכנס לגרף ולמעבדת-השם כ«✓ מאומת».">🌉 גשרים לאישור{rows ? ` (${rows.length})` : ""}</H>
+      {rows === null ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+        : !rows.length ? <div style={{ ...card, color: C.muted }}>אין גשרים שממתינים לאישור כרגע. 🌳</div>
+        : <div style={{ display: "grid", gap: 9 }}>
+          {rows.map(b => (
+            <div key={b.id} style={{ ...card, padding: "12px 14px", borderColor: "#3f5a6a" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 6 }}>
+                <b style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17 }}>{b.hebrew}</b>
+                <span style={{ color: "#5ec8ff" }}>↔</span>
+                <b style={{ color: "#9bd6ff", fontFamily: F.body, fontSize: 15, direction: "ltr" }}>{LANG_FLAG[b.lang] || "🌍"} {b.foreign_word}</b>
+                <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14 }}>= {b.gematria_he}</span>
+                <span style={{ marginInlineStart: "auto", background: "rgba(94,200,255,.14)", border: "1px solid rgba(94,200,255,.3)", borderRadius: 999, color: "#9bd6ff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, padding: "1px 9px" }}>{REL[b.relationship_type] || b.relationship_type}{b.method ? ` · ${b.method}` : ""}</span>
+              </div>
+              {b.note && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginBottom: 8 }}>{b.note}</div>}
+              <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
+                <button disabled={busy === b.id} onClick={() => act(b.id, "verify")} style={btn("#2f8f4e")}>✅ אשר גשר</button>
+                <button disabled={busy === b.id} onClick={() => act(b.id, "reject")} style={btn("transparent", "#d98a92")}>✖ דחה</button>
+                <Link to={`/name-lab?w=${encodeURIComponent(b.foreign_word)}`} target="_blank" rel="noopener noreferrer" style={{ marginInlineStart: "auto", color: "#5ec8ff", fontFamily: F.heading, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>🔬 במעבדה →</Link>
+              </div>
+            </div>
+          ))}
+        </div>}
+    </div>
+  );
+}
+
 export default function LanguageEngineTab() {
   const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
@@ -765,8 +807,9 @@ export default function LanguageEngineTab() {
         </div>}
       </>)}
 
-      {/* ══ 🇺🇸 אנגלית — כינויים לאישור · feed · תור-תעתוק ══ */}
+      {/* ══ 🇺🇸 אנגלית — גשרים לאישור · כינויים · feed · תור-תעתוק ══ */}
       {view === "english" && (<>
+      <BridgesReview />
       <WordsConsole srcLabel={srcLabel} intlOnly initialScope="pending" />
       {/* ══ כל השפות — feed הכינויים ══ */}
       <H sub="כל ייצוג בכל שפה שנכנס — עם סוג-הקשר, שכבת-האמון, המקור, והישות העברית שהוא מצביע אליה.">🌐 מילים בכל השפות ({aliases.length})</H>
