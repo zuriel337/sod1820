@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse,
+  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse, getRetention,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -38,6 +38,7 @@ const TABS = [
   { key: "aicost",   label: "💰 עלות AI" },
   { key: "live",     label: "🔴 שידור חי" },
   { key: "traffic",  label: "📊 תנועה" },
+  { key: "retention",label: "🔁 חוזרים" },
   { key: "users",    label: "👤 משתמשים" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
@@ -71,7 +72,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "users", "jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -203,6 +204,7 @@ export default function AdminPage() {
       {tab === "aicost" && <AiCostTab />}
       {tab === "live" && <LiveVisitorsTab />}
       {tab === "traffic" && <RealTrafficPanel />}
+      {tab === "retention" && <RetentionTab />}
       {tab === "users" && <UsersTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
@@ -2192,6 +2194,85 @@ const JEXP_META = {
     colors: { full: "#d4af37", classic: "#7fd18a" },
   },
 };
+
+// 🔁 Retention — חוזרים מול חדשים + דביקות רשומים + קוהורטות.
+function RetentionTab() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => { let live = true; getRetention(30).then(x => live && setD(x || {})).catch(e => live && setErr(String(e?.message || e))); return () => { live = false; }; }, []);
+  const num = n => Number(n || 0).toLocaleString("he");
+  const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+  if (!d) return err ? <Empty>שגיאה: {err}</Empty> : <Loading />;
+  const ret7 = pct(d.reg_retained_7d, d.reg_eligible_7d);
+  const rd = d.returning_daily || [];
+  const rmax = Math.max(...rd.map(x => (Number(x.new) || 0) + (Number(x.ret) || 0)), 1);
+  const cohorts = d.cohorts || [];
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: "0 0 4px" }}>🔁 Retention — האם חוזרים</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>המדד המרכזי: מתוך הרשומים לפני 7+ ימים — כמה חזרו בשבוע האחרון. זה מנבא צמיחה לטווח ארוך.</div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "stretch" }}>
+          <div style={{ flex: "1 1 200px", border: `1px solid ${ret7 >= 40 ? "#7fd18a" : ret7 >= 20 ? "#e8c860" : "#e0796f"}`, borderRadius: 14, padding: "16px 18px", background: "rgba(127,209,138,0.06)" }}>
+            <div style={{ color: ret7 >= 40 ? "#7fd18a" : ret7 >= 20 ? "#e8c860" : "#e0796f", fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{ret7}%</div>
+            <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginTop: 4 }}>שימור 7 ימים</div>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>{num(d.reg_retained_7d)} מתוך {num(d.reg_eligible_7d)} רשומים ותיקים חזרו {ret7 >= 40 ? "· מצוין 🎉" : ""}</div>
+          </div>
+          {[["🟢 פעילים היום", d.reg_active_1d], ["📅 פעילים השבוע", d.reg_active_7d], ["📆 פעילים החודש", d.reg_active_30d], ["👥 סה״כ רשומים", d.reg_total]].map(([lbl, v]) => (
+            <div key={lbl} style={{ flex: "1 1 120px", border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 18px", background: "rgba(8,5,2,0.35)" }}>
+              <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 28, fontWeight: 800 }}>{num(v)}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginTop: 4 }}>{lbl}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {rd.length > 0 && (
+        <div style={card}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 4px" }}>חוזרים מול חדשים · יומי</h3>
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>🟩 חוזר = מבקר שכבר היה כאן ביום קודם · 🟨 חדש = ביקור ראשון. ככל שהירוק גדל — הבסיס נאמן יותר.</div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 130, borderBottom: `1px solid ${C.border}`, overflowX: "auto" }}>
+            {rd.map((x, i) => {
+              const nw = Number(x.new) || 0, rt = Number(x.ret) || 0, tot = nw + rt;
+              const h = Math.round((tot / rmax) * 122);
+              return (
+                <div key={i} title={`${x.d}: ${num(rt)} חוזרים · ${num(nw)} חדשים`} style={{ flex: "1 0 7px", minWidth: 7, height: Math.max(2, h), display: "flex", flexDirection: "column", justifyContent: "flex-end", borderRadius: "3px 3px 0 0", overflow: "hidden" }}>
+                  <div style={{ height: `${tot ? (nw / tot) * 100 : 0}%`, background: "#d4af37" }} />
+                  <div style={{ height: `${tot ? (rt / tot) * 100 : 0}%`, background: "#7fd18a" }} />
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.mono, fontSize: 10.5, marginTop: 4 }}>
+            <span>{rd[0]?.d}</span><span>{rd[rd.length - 1]?.d}</span>
+          </div>
+        </div>
+      )}
+
+      {cohorts.length > 0 && (
+        <div style={card}>
+          <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 4px" }}>קוהורטות — לפי שבוע הרשמה</h3>
+          <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>לכל קבוצת נרשמים (לפי שבוע) — כמה מהם עדיין פעילים בשבוע האחרון. אחוז גבוה = המוצר «נדבק».</div>
+          <div style={{ display: "grid", gap: 7 }}>
+            {cohorts.map((c, i) => {
+              const p = pct(c.active, c.size);
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 12.5, minWidth: 52 }}>{c.week}</span>
+                  <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, minWidth: 70 }}>{num(c.active)}/{num(c.size)} חוזרים</span>
+                  <div style={{ flex: 1, height: 16, background: "rgba(212,175,55,0.1)", borderRadius: 6, overflow: "hidden" }}>
+                    <div style={{ width: `${p}%`, height: "100%", borderRadius: 6, background: p >= 50 ? "linear-gradient(90deg,#7fd18a,#d4af37)" : "linear-gradient(90deg,#d4af37,#8a6d18)" }} />
+                  </div>
+                  <span style={{ color: p >= 50 ? "#7fd18a" : C.goldBright, fontFamily: F.mono, fontSize: 13, fontWeight: 800, minWidth: 42, textAlign: "left" }}>{p}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // 👤 משתמשים — רשימת רשומים + «מסע» מפורט לכל יוזר (נוכחות, ימים, פעילות).
 function pill(c) { return { border: `1px solid ${c}`, borderRadius: 999, padding: "3px 10px", background: "rgba(8,5,2,0.4)", color: C.goldLight, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }; }

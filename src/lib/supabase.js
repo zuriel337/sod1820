@@ -517,6 +517,12 @@ export async function getRealtimeNow(minutes = 5) {
   } catch { return null; }
 }
 
+// 🔁 Retention — חוזרים מול חדשים + דביקות רשומים + קוהורטות. מנהל בלבד. null בכשל.
+export async function getRetention(days = 30) {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_retention', { p_days: days }); return data || null; } catch { return null; }
+}
+
 // 🎛️ דופק עליון — כל מספרי הכותרת ממקור-האמת, קריאה אחת. מנהל בלבד. null בכשל.
 export async function getPulse() {
   if (!supabase) return null;
