@@ -173,12 +173,13 @@ export default function RoyalShareWidget() {
           font-weight: 800; font-size: 17px; letter-spacing: 2px; }
         @keyframes rsw-pulse { 0%,100% { box-shadow: -6px 0 22px rgba(20,10,40,0.6), 0 0 12px rgba(123,76,176,0.3); }
           50% { box-shadow: -6px 0 22px rgba(20,10,40,0.6), 0 0 26px rgba(233,200,74,0.4); } }
-        /* 📱 מובייל: הטאב מתכווץ ל«נעץ» קטן בקצה (רק לוגו, בלי התווית האנכית) כדי שלא
-           יכסה טקסט של עמודים (members/verse/reveal/cross/map). פותח את אותו פאנל שיתוף. */
+        /* 📱 מובייל: מציגים רק את המילה «שתפו» (בלי הכתר) — הכתר נקרא כמו לוגו ולא כמו
+           שיתוף, והמילה צרה מהכתר אז הטאב נשאר קומפקטי ולא מכסה טקסט (members/verse/
+           reveal/cross/map). בדסקטופ (מעל 560px) נשאר כתר + «שתפו» כרגיל. */
         @media (max-width:560px){
-          .rsw-tab { padding:7px 4px; gap:0; border-radius:11px 0 0 11px; opacity:.9; }
-          .rsw-tab-lbl { display:none; }
-          .rsw-tab-logo { width:20px; height:20px; }
+          .rsw-tab { padding:13px 6px; gap:0; border-radius:11px 0 0 11px; opacity:.94; }
+          .rsw-tab-logo { display:none; }
+          .rsw-tab-lbl { font-size:14px; letter-spacing:1.5px; }
         }
 
         .rsw-scrim { position: fixed; inset: 0; z-index: 9998; background: rgba(6,4,14,0.62);
