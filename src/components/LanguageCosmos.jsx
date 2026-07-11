@@ -53,12 +53,13 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       // מרווח > רוחב-הגליף כדי שהאותיות לא יידחסו («תשפו» מחובר). sp גדל, הגופן קטן מעט.
       const sp = Math.min(W, H) * 0.225, bfs = Math.min(W, H) * 0.225;
       const glow = (it >= C0 && it < D0) ? (0.55 + 0.45 * Math.sin((it - C0) * 3.2)) : 0.4;
+      const cyT = W < 560 ? H * 0.36 : cy;   // 📱 מרכז-התוכן גבוה יותר במובייל (לא נבלע בפסוק)
       ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
       for (const L of YEAR) {
         const slot = L.s + (L.e - L.s) * p;
         const arc = (p > 0 && p < 1) ? -Math.sin(p * Math.PI) * sp * (L.ch === "ת" ? 1.15 : 0.5) : 0;
         const x = cx + slot * sp * (1 + scatter * 2.4);
-        const y = cy + arc + scatter * (L.ch === "ת" ? -sp : sp) * 0.6;
+        const y = cyT + arc + scatter * (L.ch === "ת" ? -sp : sp) * 0.6;
         ctx.globalAlpha = fin * (1 - scatter);
         ctx.font = `900 ${bfs * (1 + scatter * 0.4)}px 'Frank Ruhl Libre','Heebo',serif`;
         ctx.shadowColor = "#f6e27a"; ctx.shadowBlur = 26 + 34 * glow;
@@ -69,11 +70,11 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.globalAlpha = fin * (1 - scatter) * (it < C0 ? 0.85 : 0);
       ctx.fillStyle = "rgba(246,226,122,.8)";
       ctx.font = `800 ${Math.min(W, H) * 0.05}px 'Heebo',system-ui,sans-serif`;
-      ctx.fillText("שְׁנַת תשפ״ו", cx, cy - bfs * 0.85);
+      ctx.fillText("שְׁנַת תשפ״ו", cx, cyT - bfs * 0.85);
       ctx.globalAlpha = fin * (1 - scatter) * (it >= C0 ? Math.min(1, (it - C0) / 0.4) : 0);
       ctx.fillStyle = "rgba(246,226,122,.92)";
       ctx.font = `800 ${Math.min(W, H) * 0.052}px 'Heebo',system-ui,sans-serif`;
-      ctx.fillText("אוֹתָן הָאוֹתִיּוֹת = שָׂפוֹת", cx, cy + bfs * 0.7);
+      ctx.fillText("אוֹתָן הָאוֹתִיּוֹת = שָׂפוֹת", cx, cyT + bfs * 0.7);
       ctx.restore(); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
       return it > END;
     };
@@ -179,6 +180,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       if (numT > DUR - FZ) csx = Math.max(0.03, (DUR - numT) / FZ);   // מצטמצם לפני ההחלפה
       else if (numT < FZ) csx = Math.max(0.03, numT / FZ);            // נפתח אחרי
       const word = CENTER[numI];
+      const cyC = W < 560 ? H * 0.36 : cy;   // 📱 מרכז-התוכן גבוה יותר במובייל — השורה האמצעית מעל הפסוק
       ctx.save();
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       // גודל מותאם — מילה ארוכה תקטן שתיכנס
@@ -186,7 +188,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.font = `900 ${nfs}px 'Heebo','Frank Ruhl Libre',system-ui,serif`;
       const tw = ctx.measureText(word).width;
       if (tw > W * 0.72) { nfs *= (W * 0.72) / tw; ctx.font = `900 ${nfs}px 'Heebo','Frank Ruhl Libre',system-ui,serif`; }
-      ctx.translate(cx, cy); ctx.scale(csx, 1);
+      ctx.translate(cx, cyC); ctx.scale(csx, 1);
       ctx.globalAlpha = 0.95;
       ctx.shadowColor = "#f6e27a"; ctx.shadowBlur = 34 + 16 * pulse + (csx < 1 ? 22 * (1 - csx) : 0);
       ctx.fillStyle = "#fff7df";
@@ -198,7 +200,7 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
       ctx.globalAlpha = 0.8 * csx;
       ctx.font = `700 ${Math.min(W, H) * 0.058}px 'Heebo',system-ui,sans-serif`;
       ctx.fillStyle = "rgba(246,226,122,.9)";
-      ctx.fillText(SUBS[numI] || "", cx, cy + nfs * 0.72);
+      ctx.fillText(SUBS[numI] || "", cx, cyC + nfs * 0.72);
       ctx.restore(); ctx.globalAlpha = 1;
       } // end else (post-intro)
 
@@ -252,6 +254,8 @@ export default function LanguageCosmos({ title = "שבילי שפה", subtitle =
           letter-spacing:2px; color:rgba(246,226,122,.55); }
         @keyframes lc-sweep { 0%,100%{background-position:120% 0} 50%{background-position:-20% 0} }
         @media (prefers-reduced-motion:reduce){ .lc-verse{ animation:none; -webkit-text-fill-color:#e8c65a; color:#e8c65a; } }
+        /* 📱 מובייל: קופסה גבוהה יותר (במקום 3:2 שטוח) כדי שהשורה האמצעית לא תיבלע בפסוק */
+        @media (max-width:560px){ .lc-wrap{ aspect-ratio:4/5; } }
       `}</style>
       <canvas ref={cvRef} aria-hidden="true" />
       <div className="lc-cap">
