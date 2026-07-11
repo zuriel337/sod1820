@@ -114,3 +114,9 @@ begin
   get diagnostics n = row_count;
   return n;
 end $$;
+
+-- 8) המונה-החי אנשים-בלבד (visits_stats + traffic_history_combined.lv): נוסף «and not is_bot»
+--    לכל קריאות site_visits (active_now/today/total/daily/paths/refs/dev). הבלוק הכחול
+--    (TwoMeterPanel) נשאר «כולל בוטים». נחוץ אחרי מעבר לסימון-במקום-דילוג (אחרת המונה סופר בוטים).
+-- 9) traffic_history_combined קיבל עמודה users (GA visitors) לקו-ה-Users בגרף-הצמיחה.
+--    (ההגדרות המלאות הוחלו ב-DB; ראה pg_get_functiondef.)

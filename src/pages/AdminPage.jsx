@@ -3670,6 +3670,7 @@ function ArrivalSourcesPanel() {
 function TrafficHistoryPanel() {
   const mob = useIsMobile();
   const [gran, setGran] = useState("week"); // day | week | month | year
+  const [metric, setMetric] = useState("views"); // views | users (GA activeUsers)
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
   const [ga, setGa] = useState(null);      // סטטוס סנכרון GA
@@ -3736,15 +3737,17 @@ function TrafficHistoryPanel() {
     const raf = requestAnimationFrame(recomputeViewMax);
     const t = setTimeout(recomputeViewMax, 120);
     return () => { cancelAnimationFrame(raf); clearTimeout(t); };
-  }, [display, recomputeViewMax]);
+  }, [display, metric, recomputeViewMax]);
   const scrollTick = useRef(false);
   const onScroll = useCallback(() => {
     if (scrollTick.current) return;
     scrollTick.current = true;
     requestAnimationFrame(() => { scrollTick.current = false; recomputeViewMax(); });
   }, [recomputeViewMax]);
-  const total = shown.reduce((s, r) => s + (r.views || 0), 0);
-  const peak = shown.reduce((a, r) => (r.views || 0) > (a.views || 0) ? r : a, shown[0] || {});
+  const isUsers = metric === "users";
+  const val = r => isUsers ? (r?.users || 0) : (r?.views || 0);
+  const total = shown.reduce((s, r) => s + val(r), 0);
+  const peak = shown.reduce((a, r) => val(r) > val(a) ? r : a, shown[0] || {});
   const { h: barH, ticks } = buildScale(viewMax, "linear"); // ציר-מד מתכוונן + קווי-עזר
   const BZ = mob ? 120 : 140, LBL = 16;                  // גובה אזור-העמודות + תווית
   const fmtLabel = p => {
@@ -3771,6 +3774,11 @@ function TrafficHistoryPanel() {
         </div>
         <button onClick={runGaSync} disabled={gaBusy} title="משיכת נתונים מ-Google Analytics" style={{ ...segBtn(false), opacity: gaBusy ? 0.5 : 1, cursor: gaBusy ? "default" : "pointer" }}>{gaBusy ? "מסנכרן…" : "🔄 GA"}</button>
         <div style={segWrap}>
+          {[["views", "צפיות"], ["users", "Users"]].map(([k, l]) => (
+            <button key={k} onClick={() => setMetric(k)} style={segBtn(metric === k)}>{l}</button>
+          ))}
+        </div>
+        <div style={segWrap}>
           {[["day", "ימים"], ["week", "שבועות"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
             <button key={k} onClick={() => setGran(k)} style={segBtn(gran === k)}>{l}</button>
           ))}
@@ -3794,8 +3802,9 @@ function TrafficHistoryPanel() {
           <>
             {/* סיכום: סה״כ + שיא */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 16px", color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: 8 }}>
-              <span>{gran === "day" ? "סה״כ ב-2026" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> צפיות</span>
-              {peak && peak.views > 0 && <span style={{ color: C.muted }}>שיא: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{(peak.views || 0).toLocaleString()}</b> ({fmtPeriod(peak.period)})</span>}
+              <span>{gran === "day" ? "סה״כ ב-2026" : "סה״כ בתצוגה"}: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{total.toLocaleString()}</b> {isUsers ? "Users" : "צפיות"}</span>
+              {peak && val(peak) > 0 && <span style={{ color: C.muted }}>שיא: <b style={{ color: C.goldBright, fontFamily: F.mono }}>{val(peak).toLocaleString()}</b> ({fmtPeriod(peak.period)})</span>}
+              {isUsers && total === 0 && <span style={{ color: C.muted }}>— לחצו «🔄 GA» למשיכת ה-Users (סנכרון ראשון ממלא גם אחורה)</span>}
             </div>
 
             {/* קריאת העמודה שנבחרה (הקשה) — עובד גם בנייד */}
@@ -3805,7 +3814,7 @@ function TrafficHistoryPanel() {
                   <span style={{ color: selRow.live_views > 0 ? "#7bd087" : C.goldBright, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
                     {selRow.live_views > 0 ? "🟢" : "🟡"} {fmtPeriod(selRow.period)}
                   </span>
-                  <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 13 }}>{(selRow.views || 0).toLocaleString()} צפיות{selRow.live_views > 0 ? ` · חי: ${selRow.live_views.toLocaleString()}` : ""}</span>
+                  <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 13 }}>{val(selRow).toLocaleString()} {isUsers ? "Users" : "צפיות"}{!isUsers && selRow.live_views > 0 ? ` · חי: ${selRow.live_views.toLocaleString()}` : ""}</span>
                   <button onClick={() => setSel(null)} title="סגור" style={{ cursor: "pointer", background: "none", border: "none", color: C.muted, fontSize: 14, lineHeight: 1, padding: 0 }}>✕</button>
                 </div>
               ) : <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>העדכני ביותר בקצה שמאל ← · הקש על עמודה לראות את המספר · גלול ימינה לחזור אחורה בזמן</span>}
@@ -3819,17 +3828,21 @@ function TrafficHistoryPanel() {
                     <div key={"g" + i} style={{ position: "absolute", left: 0, right: 0, bottom: LBL + (t.pct / 100) * BZ, borderTop: `1px dashed ${C.faint}`, pointerEvents: "none" }} />
                   ))}
                   {display.map((r, i) => {
-                    const views = r.views || 0, live = r.live_views || 0;
-                    const totalH = views > 0 ? Math.max(2, Math.round((barH(views) / 100) * BZ)) : 0;
-                    const liveH = live > 0 ? Math.max(2, Math.round((barH(live) / 100) * BZ)) : 0;
+                    const v = val(r), live = r.live_views || 0;
+                    const totalH = v > 0 ? Math.max(2, Math.round((barH(v) / 100) * BZ)) : 0;
+                    const liveH = !isUsers && live > 0 ? Math.max(2, Math.round((barH(live) / 100) * BZ)) : 0;
                     const jpH = Math.max(0, totalH - liveH);
                     const active = sel === r.period;
                     return (
-                      <div key={i} data-v={views} onClick={() => setSel(active ? null : r.period)}
+                      <div key={i} data-v={v} onClick={() => setSel(active ? null : r.period)}
                         style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: BZ + LBL, minWidth: colMin, cursor: "pointer", borderRadius: 6, background: active ? "rgba(212,175,55,0.14)" : "transparent" }}>
-                        <div title={`${r.period}: ${views.toLocaleString()}${live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw, height: BZ }}>
-                          {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none", transition: "height .25s ease" }} />}
-                          {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0", outline: active && liveH === 0 ? `2px solid ${C.goldBright}` : "none", transition: "height .25s ease" }} />}
+                        <div title={`${r.period}: ${v.toLocaleString()}${!isUsers && live ? ` (חי: ${live})` : ""}`} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: bw, height: BZ }}>
+                          {isUsers ? (
+                            totalH > 0 && <div style={{ width: bw, height: totalH, background: "linear-gradient(to top, #2f5fd0, #6f9bff)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #9bb6ff" : "none", transition: "height .25s ease" }} />
+                          ) : (<>
+                            {liveH > 0 && <div style={{ width: bw, height: liveH, background: "linear-gradient(to top, #2e7d32, #4caf50)", borderRadius: "4px 4px 0 0", outline: active ? "2px solid #7bd087" : "none", transition: "height .25s ease" }} />}
+                            {jpH > 0 && <div style={{ width: bw, height: jpH, background: `linear-gradient(to top, ${C.goldDim}, ${C.goldBright})`, borderRadius: liveH > 0 ? 0 : "4px 4px 0 0", outline: active && liveH === 0 ? `2px solid ${C.goldBright}` : "none", transition: "height .25s ease" }} />}
+                          </>)}
                         </div>
                         <span style={{ height: LBL, lineHeight: `${LBL}px`, fontSize: mob ? 8.5 : 9.5, color: active ? C.goldBright : C.muted, fontFamily: F.mono, whiteSpace: "nowrap" }}>{fmtLabel(r.period)}</span>
                       </div>
