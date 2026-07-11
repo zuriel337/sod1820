@@ -2339,6 +2339,15 @@ export async function getValuePhraseList(value, limit = 120) {
   }
   return phrases.map(p => ({ phrase: p, world: worldMap[p] || null }));
 }
+
+// 🧪 מעבדת השם — מחקר הקשר + גשרים חוצי-שפות לשם/מילה נתונה.
+export async function getNameResearch(word, value) {
+  const w = (word || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('name_lab_research', { p_word: w, p_value: value || null });
+  if (error) return null;
+  return data || null;
+}
 // 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
 export async function getRandomStartPhrase() {
   if (!supabase) return null;

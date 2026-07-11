@@ -247,7 +247,7 @@ export default function App() {
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/numbers" element={<NumbersPage />} />
           <Route path="/name-lab" element={<NameLabPage />} />
-          <Route path="/name" element={<NameLabPage />} />
+          <Route path="/מעבדת-השם" element={<NameLabPage />} />
           <Route path="/code" element={<CodePage />} />
           <Route path="/beit-midrash" element={<BeitMidrashToLab />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
