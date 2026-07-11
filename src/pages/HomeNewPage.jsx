@@ -213,6 +213,9 @@ export default function HomeNewPage() {
            את רוחבה ל-0 (ואז aspect-ratio → גובה 0 → קנבס בלתי-נראה). block + רוחב מוגדר מתקן. */
         .hn-gate.graphic { display:block; width:100%; }
         .hn-gate.graphic .lc-link { display:block; text-decoration:none; }
+        /* גרפיקת «פוסט המבוא» בדיוק בגודל תמונת «מתחילים» — אותו aspect-ratio נחיתי (1536/1024)
+           בכל רוחב, גם במובייל (מנטרל את 4/5 הגבוה של LanguageCosmos שהקפיץ אותה וכיסה את המבוא). */
+        .hn-gate.graphic .lc-wrap { aspect-ratio:1536/1024; }
         /* בטאבלט/מובייל הכפתור הצהוב מכסה את הגרפיקה — מסתירים אותו, והגרפיקה עצמה לחיצה */
         @media (max-width:1024px){ .hn-gate.graphic .hn-enter { display:none; } }
         /* זוהר סגול-מלכותי רדיאלי מאחורי ההירו (מתחבר לרקע הסגול) */
