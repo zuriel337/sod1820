@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge, getLangStats } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge, getLangStats, getAllBridges, editBridge } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -699,6 +699,98 @@ function BridgesReview() {
   );
 }
 
+// 🗂️ כל הגשרים — ניהול מלא (כמו עברית): הוצא/הכנס/ערוך. מאושרים · ממתינים · נדחו.
+function BridgesManager() {
+  const [rows, setRows] = useState(null);
+  const [filter, setFilter] = useState("all");    // all | approved | review | rejected
+  const [busy, setBusy] = useState(null);
+  const [edit, setEdit] = useState(null);          // {id, hebrew, foreign}
+  const load = useCallback(async () => setRows(await getAllBridges()), []);
+  useEffect(() => { load(); }, [load]);
+  const act = async (id, action) => {
+    if (action === "delete" && !confirm("למחוק את הגשר לגמרי?")) return;
+    if (action === "reject" && !confirm("לדחות את הגשר? (יוסר מהגרף)")) return;
+    setBusy(id);
+    try { await verifyBridge(id, action); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const saveEdit = async () => {
+    if (!edit) return;
+    setBusy(edit.id);
+    try { await editBridge(edit.id, edit.hebrew, edit.foreign); setEdit(null); await load(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); }
+    finally { setBusy(null); }
+  };
+  const stateOf = b => b.status === "rejected" ? "rejected" : (b.human_verified ? "approved" : "review");
+  const STATE = {
+    approved: { label: "✅ מאושר", c: "#7bbf7b" },
+    review:   { label: "⏳ ממתין לאישורך", c: "#e0b34a" },
+    rejected: { label: "✖ נדחה", c: "#d98a92" },
+  };
+  const all = rows || [];
+  const shown = filter === "all" ? all : all.filter(b => stateOf(b) === filter);
+  const counts = { all: all.length, approved: all.filter(b => stateOf(b) === "approved").length, review: all.filter(b => stateOf(b) === "review").length, rejected: all.filter(b => stateOf(b) === "rejected").length };
+  const inp = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.body, fontSize: 15, padding: "6px 9px", outline: "none", width: 120 };
+  return (
+    <div style={{ marginTop: 18 }}>
+      <H sub="כל גשרי-האנגלית במקום אחד — בדיוק כמו העברית. אפשר לאשר, לדחות, לערוך (להחליף את המילה העברית) או למחוק לגמרי.">🗂️ כל הגשרים{rows ? ` (${all.length})` : ""}</H>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        {[["all", `הכל · ${counts.all}`], ["approved", `✅ מאושרים · ${counts.approved}`], ["review", `⏳ לאישור · ${counts.review}`], ["rejected", `✖ נדחו · ${counts.rejected}`]].map(([k, l]) => (
+          <button key={k} onClick={() => setFilter(k)} style={{ ...btn(filter === k ? "rgba(212,175,55,.2)" : "transparent", filter === k ? C.goldBright : C.muted), border: `1px solid ${filter === k ? C.borderGold : C.border}`, fontSize: 12.5, padding: "5px 12px" }}>{l}</button>
+        ))}
+      </div>
+      {rows === null ? <div style={{ ...card, color: C.muted }}>טוען…</div>
+        : !shown.length ? <div style={{ ...card, color: C.muted }}>אין גשרים בקטגוריה הזו.</div>
+        : <div style={{ display: "grid", gap: 8 }}>
+          {shown.map(b => {
+            const st = STATE[stateOf(b)];
+            const isEd = edit && edit.id === b.id;
+            return (
+              <div key={b.id} style={{ ...card, padding: "11px 13px", borderColor: stateOf(b) === "rejected" ? "rgba(217,138,146,.3)" : C.border, opacity: stateOf(b) === "rejected" ? 0.7 : 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 7 }}>
+                  {isEd ? (
+                    <>
+                      <input value={edit.hebrew} onChange={e => setEdit({ ...edit, hebrew: e.target.value })} placeholder="עברית" style={inp} dir="rtl" />
+                      <span style={{ color: "#5ec8ff" }}>↔</span>
+                      <input value={edit.foreign} onChange={e => setEdit({ ...edit, foreign: e.target.value })} placeholder="לועזית" style={{ ...inp, direction: "ltr" }} />
+                    </>
+                  ) : (
+                    <>
+                      <b style={{ color: C.goldLight, fontFamily: F.regal, fontSize: 17 }}>{b.hebrew}</b>
+                      <span style={{ color: "#5ec8ff" }}>↔</span>
+                      <b style={{ color: "#9bd6ff", fontFamily: F.body, fontSize: 15, direction: "ltr" }}>{LANG_FLAG[b.lang] || "🌍"} {b.foreign_word}</b>
+                      <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14 }}>= {b.gematria_he}</span>
+                      {b.method && <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>· {b.method}</span>}
+                    </>
+                  )}
+                  <span style={{ marginInlineStart: "auto", color: st.c, fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>{st.label}</span>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                  {isEd ? (
+                    <>
+                      <button disabled={busy === b.id} onClick={saveEdit} style={btn("#2f8f4e")}>💾 שמור</button>
+                      <button onClick={() => setEdit(null)} style={btn("transparent", C.muted)}>ביטול</button>
+                    </>
+                  ) : (
+                    <>
+                      {stateOf(b) !== "approved" && <button disabled={busy === b.id} onClick={() => act(b.id, "verify")} style={btn("#2f8f4e")}>✅ אשר</button>}
+                      {stateOf(b) === "approved" && <button disabled={busy === b.id} onClick={() => act(b.id, "unverify")} style={btn("transparent", "#e0b34a")}>↩ החזר לתור</button>}
+                      {stateOf(b) !== "rejected" && <button disabled={busy === b.id} onClick={() => act(b.id, "reject")} style={btn("transparent", "#d98a92")}>✖ דחה</button>}
+                      <button disabled={busy === b.id} onClick={() => setEdit({ id: b.id, hebrew: b.hebrew, foreign: b.foreign_word })} style={btn("transparent", "#9bd6ff")}>✏️ ערוך</button>
+                      <button disabled={busy === b.id} onClick={() => act(b.id, "delete")} style={btn("transparent", "#d98a92")}>🗑 מחק</button>
+                      <Link to={`/name-lab?w=${encodeURIComponent(b.foreign_word)}`} target="_blank" rel="noopener noreferrer" style={{ marginInlineStart: "auto", color: "#5ec8ff", fontFamily: F.heading, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>🔬 במעבדה →</Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>}
+    </div>
+  );
+}
+
 export default function LanguageEngineTab() {
   const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
@@ -827,6 +919,7 @@ export default function LanguageEngineTab() {
       {/* ══ 🇺🇸 אנגלית — גשרים לאישור · כינויים · feed · תור-תעתוק ══ */}
       {view === "english" && (<>
       <BridgesReview />
+      <BridgesManager />
       <WordsConsole srcLabel={srcLabel} intlOnly initialScope="pending" />
       {/* ══ כל השפות — feed הכינויים ══ */}
       <H sub="כל ייצוג בכל שפה שנכנס — עם סוג-הקשר, שכבת-האמון, המקור, והישות העברית שהוא מצביע אליה.">🌐 מילים בכל השפות ({aliases.length})</H>

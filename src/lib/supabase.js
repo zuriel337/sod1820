@@ -277,10 +277,26 @@ export async function getPendingBridges() {
     return data || [];
   } catch { return []; }
 }
-// 🌉 אישור/דחיית גשר — verify | reject
+// 🌉 אישור/דחיית/מחיקת גשר — verify | reject | unverify | delete
 export async function verifyBridge(id, action) {
   if (!supabase) return 0;
   const { data, error } = await supabase.rpc('admin_verify_bridge', { p_id: id, p_action: action });
+  if (error) throw error;
+  return data ?? 0;
+}
+// 🌉 כל הגשרים לניהול (מאושרים + ממתינים + נדחו) — טאב אנגלית
+export async function getAllBridges() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc('admin_all_bridges');
+    if (error || data?.error) return [];
+    return data || [];
+  } catch { return []; }
+}
+// 🌉 עריכת גשר — מחליף עברית/לועזית (מחשב רגיל מחדש)
+export async function editBridge(id, hebrew, foreign_word) {
+  if (!supabase) return 0;
+  const { data, error } = await supabase.rpc('admin_edit_bridge', { p_id: id, p_hebrew: hebrew ?? null, p_foreign: foreign_word ?? null });
   if (error) throw error;
   return data ?? 0;
 }

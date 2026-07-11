@@ -24,15 +24,18 @@
 -- דוגמת-הרצה של הסורק (read-only) — כך מוצאים עוד:
 -- select * from direct_bridge_scan('[{"en":"slave","he":"עבד"}, ...]'::jsonb);
 
--- 3 הגשרים שנמצאו (נכנסים כ«ממתין לאישור»):
+-- הגשרים שנמצאו — נכנסים כ«ממתין לאישורך»: status='approved' + human_verified=false.
+-- ⚠️ חשוב: ה-UI מגדיר «ממתין» = status='approved' AND human_verified=false (לא status='pending'!).
+--    status='pending' בטבלה הזו הוא מצב-לימבו שה-אדמין וה-counters מתעלמים ממנו. אישור אנושי
+--    (admin_verify_bridge 'verify') → human_verified=true. ניהול מלא: admin_all_bridges / admin_edit_bridge.
 insert into language_links
   (hebrew, foreign_word, lang, relationship_type, method, gematria_he, evidence_level, status, human_verified, created_by_name, note)
 values
-('עבד','slave','en','shared_value','Reverse Ordinal',76,'strong','pending',false,'מנוע · סריקת גשרים',
+('עבד','slave','en','shared_value','Reverse Ordinal',76,'strong','approved',false,'מנוע · סריקת גשרים',
  'slave ב-Reverse Ordinal (a=26…z=1) = 76 · עבד ברגיל = 76 · עבד = התרגום של slave. תרגום + ערך משותף, אומת במנוע. שיטה חזקה (כמו priest=כהן=75). רמז (מופרד): מעבדות לחירות.'),
-('טוב','good','en','shared_value','Reverse Reduction',17,'medium','pending',false,'מנוע · סריקת גשרים',
+('טוב','good','en','shared_value','Reverse Reduction',17,'medium','approved',false,'מנוע · סריקת גשרים',
  'good ב-Reverse Reduction = 17 · טוב ברגיל = 17 · טוב = התרגום של good. שיטה רביעית (פחות קנונית) → evidence=medium.'),
-('הבטחה','promise','en','shared_value','Reverse Reduction',29,'medium','pending',false,'מנוע · סריקת גשרים',
+('הבטחה','promise','en','shared_value','Reverse Reduction',29,'medium','approved',false,'מנוע · סריקת גשרים',
  'promise ב-Reverse Reduction = 29 · הבטחה ברגיל = 29 · הבטחה = התרגום של promise. שיטה: Reverse Reduction → evidence=medium.'),
-('כס','throne','en','shared_value','English Ordinal',80,'strong','pending',false,'מנוע · סריקת גשרים',
+('כס','throne','en','shared_value','English Ordinal',80,'strong','approved',false,'מנוע · סריקת גשרים',
  'throne ב-English Ordinal (a=1…z=26) = 80 · כס ברגיל = 80 · כס = התרגום של throne (צורת-מקרא של כסא, «כס הכבוד»). שיטה חזקה (כמו secret=סוד=70). רמז (מופרד): 80 = פ · כס-מלכות.');
