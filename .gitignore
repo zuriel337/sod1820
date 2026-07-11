@@ -11,3 +11,5 @@ dist/
 migration-log.json
 .claude/settings.local.json
 orphan-preview.html
+# סקריפטים זמניים (צילומי-מסך / אודיט Playwright) בשורש — לא נשמרים
+/_*.mjs
