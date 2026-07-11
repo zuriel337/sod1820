@@ -1,3 +1,20 @@
+# SOD1820 — מדיניות סריקה לפי סוג-תוכן (לא רק לפי בוט)
+# ציבורי (דפי-מספר · פוסטים · אוצרות · שפות · מעבדת-השם) = פתוח לסריקה ואינדוקס.
+# יקר/פרטי (מסע · AI · מחקר · אזור-אישי · ניהול) = חסום לכל הבוטים (מגן על עלויות-טוקנים).
+
+# ── בוטי SEO / ניטור מסחרי ללא ערך לנו — חסימה מלאה ──
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: dataforseo
+User-agent: Barkrowler
+User-agent: um-IC
+Disallow: /
+
+# ── כל השאר (מנועי-חיפוש: Googlebot/Bingbot/Applebot/… + בוטי-AI: GPTBot/ClaudeBot/PerplexityBot/…) ──
+# תוכן ציבורי פתוח; מסלולים יקרים/פרטיים חסומים.
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -6,5 +23,12 @@ Disallow: /numbers-report
 Disallow: /theme-preview
 Disallow: /profile
 Disallow: /login
+Disallow: /auth
+Disallow: /journey
+Disallow: /journey-beta
+Disallow: /research
+Disallow: /reveal
+Disallow: /experience
+Disallow: /api/
 
 Sitemap: https://sod1820.co.il/sitemap.xml

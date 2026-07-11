@@ -28,7 +28,7 @@ const BLOCKED_COUNTRIES = new Set(['CN', 'SG']);
 // לבקשת צוריאל: לא חוסמים שום דבר של מטא. חייבים לעבור חופשי.
 const GOOD_BOT = /(googlebot|google-inspectiontool|bingbot|duckduckbot|yandex|baidu|applebot|facebookexternalhit|facebot|meta-externalagent|facebookbot|meta-externalfetcher|twitterbot|whatsapp|telegrambot|linkedinbot|slackbot|discordbot|pinterest|redditbot|skypeuripreview|embedly|iframely|w3c_validator|vkshare)/;
 // חתימות בוט לחסימה — ספריות/כלים אוטומטיים שמזדהים בעצמם.
-const BAD_BOT = /(python-requests|python-urllib|aiohttp|httpx|scrapy|curl\/|wget\/|libwww|go-http-client|okhttp|node-fetch|axios\/|java\/|apache-httpclient|headless|phantomjs|puppeteer|playwright|selenium|guzzle|winhttp|zgrab|masscan|ahrefsbot|semrushbot|mj12bot|dotbot|petalbot)/;
+const BAD_BOT = /(python-requests|python-urllib|aiohttp|httpx|scrapy|curl\/|wget\/|libwww|go-http-client|okhttp|node-fetch|axios\/|java\/|apache-httpclient|headless|phantomjs|puppeteer|playwright|selenium|guzzle|winhttp|zgrab|masscan|ahrefsbot|semrushbot|mj12bot|dotbot|petalbot|um-ic|ubermetrics|dataforseo|blexbot|barkrowler|mauibot|serpstatbot|zoominfobot)/;
 const GENERIC_BOT = /(bot|crawler|crawl|spider|scraper)/; // אחרי שניכינו את הטובים
 
 function classify(ua) {
