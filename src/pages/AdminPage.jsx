@@ -17,7 +17,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney,
+  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -37,6 +37,7 @@ const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
   { key: "live",     label: "🔴 שידור חי" },
+  { key: "traffic",  label: "📊 תנועה" },
   { key: "users",    label: "👤 משתמשים" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
@@ -70,7 +71,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "users", "jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "users", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -104,6 +105,47 @@ function downloadCsv(filename, rows) {
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
 }
 
+// 🎛️ דופק עליון — מרכז-בקרה קליקבילי. כל KPI → הטאב שמסביר אותו. מתרענן כל 30ש.
+function PulseBar({ goto }) {
+  const [p, setP] = useState(null);
+  useEffect(() => {
+    let live = true;
+    const tick = () => getPulse().then(x => live && setP(x || {})).catch(() => { });
+    tick(); const id = setInterval(tick, 30000);
+    return () => { live = false; clearInterval(id); };
+  }, []);
+  const num = n => Number(n || 0).toLocaleString("he");
+  const tiles = [
+    { icon: "👥", big: p ? num(p.online) : "—", lbl: "באתר עכשיו", to: "live", col: "#5fe08a", pulse: true },
+    { icon: "📈", big: p ? num(p.today_visitors) : "—", sub: p ? num(p.today_views) + " צפיות" : "", lbl: "מבקרים היום", to: "traffic", col: C.goldBright },
+    { icon: "🔍", big: p?.top_source ? p.top_source.name : "—", sub: p?.top_source ? num(p.top_source.n) : "", lbl: "מקור מוביל היום", to: "traffic", col: "#8ea2ff" },
+    { icon: "🤖", big: p ? "$" + Number(p.ai_cost_today || 0).toFixed(3) : "—", sub: p ? "סה״כ $" + Number(p.ai_cost_total || 0).toFixed(2) : "", lbl: "עלות AI היום", to: "users", col: "#e0c860" },
+    { icon: "🧭", big: p ? num(p.journeys_done) : "—", lbl: "מסעות שהושלמו היום", to: "journeys", col: "#7fd18a" },
+    { icon: "🆕", big: p ? num(p.new_today) : "—", sub: p ? num(p.registered_total) + " סה״כ" : "", lbl: "נרשמו היום", to: "users", col: "#ff9a9a" },
+  ];
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <style>{`@keyframes pb-blink{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(148px,1fr))", gap: 10 }}>
+        {tiles.map((t, i) => (
+          <button key={i} onClick={() => goto(t.to)} title={`פתח: ${t.lbl}`} style={{ cursor: "pointer", textAlign: "right", border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", background: "linear-gradient(135deg, rgba(212,175,55,0.06), rgba(8,5,2,0.42))", transition: "border-color .15s, transform .1s" }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = t.col; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = "none"; }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+              <span style={{ fontSize: 16 }}>{t.icon}</span>
+              {t.pulse && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#5fe08a", boxShadow: "0 0 6px #5fe08a", animation: "pb-blink 1.4s ease-in-out infinite" }} />}
+              <span style={{ flex: 1 }} />
+              <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>← פרטים</span>
+            </div>
+            <div style={{ color: t.col, fontFamily: F.mono, fontSize: 24, fontWeight: 800, lineHeight: 1.1, wordBreak: "break-word" }}>{t.big}{t.sub ? <span style={{ fontSize: 11, color: C.goldDim, fontFamily: F.body, fontWeight: 400 }}> · {t.sub}</span> : ""}</div>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginTop: 3 }}>{t.lbl}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const [tab, setTab] = useState("stats");
@@ -111,6 +153,8 @@ export default function AdminPage() {
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
   const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };
+  // 🎛️ ניווט מהדופק: כל KPI מוביל לטאב שמסביר אותו (מוצא את הקבוצה שמכילה את הטאב).
+  const gotoTab = (t) => { const g = GROUPS.find(gr => gr.subs.includes(t)); if (g) { setGroup(g.key); setTab(t); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* noop */ } } };
 
   if (loading) return <Center>טוען…</Center>;
   if (!user) return <Center>נדרשת התחברות. <Link to="/login" style={{ color: C.goldBright }}>כניסה →</Link></Center>;
@@ -126,6 +170,8 @@ export default function AdminPage() {
           padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, letterSpacing: 1,
         }}>✍️ פוסט חדש — עורך מתקדם + AI</a>
       </div>
+
+      <PulseBar goto={gotoTab} />
 
       {/* טאבי-על (7) — 🌳 עץ אחד: כל קבוצה פותחת שורת תת-טאבים */}
       <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 8, marginBottom: 12, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
@@ -156,6 +202,7 @@ export default function AdminPage() {
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
       {tab === "live" && <LiveVisitorsTab />}
+      {tab === "traffic" && <RealTrafficPanel />}
       {tab === "users" && <UsersTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
@@ -2576,7 +2623,6 @@ function JourneyExperimentsTab() {
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
-      <RealTrafficPanel />
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
           <div>

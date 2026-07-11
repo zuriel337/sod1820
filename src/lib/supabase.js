@@ -517,6 +517,12 @@ export async function getRealtimeNow(minutes = 5) {
   } catch { return null; }
 }
 
+// 🎛️ דופק עליון — כל מספרי הכותרת ממקור-האמת, קריאה אחת. מנהל בלבד. null בכשל.
+export async function getPulse() {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_pulse'); return data || null; } catch { return null; }
+}
+
 // 📈 מעקב כניסות אמיתיות לאורך זמן + מקורות (referrer), מסונן-בוטים. null בכשל.
 export async function getRealTraffic(days = 30) {
   if (!supabase) return null;
