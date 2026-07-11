@@ -87,7 +87,7 @@ export default function NavigationCenterPage() {
 
       {TIERS.map((tier, ti) => (
         <section key={tier.key} style={{ marginBottom: 40 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16, paddingInlineStart: 2 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16, paddingInlineStart: 2, flexWrap: "wrap" }}>
             <span style={{ fontSize: 24 }}>{tier.icon}</span>
             <h2 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 23, fontWeight: 700, margin: 0 }}>{tier.title}</h2>
             <span style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 12, letterSpacing: 2, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px" }}>{tier.tag}</span>

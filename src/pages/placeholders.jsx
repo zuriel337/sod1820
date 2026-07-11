@@ -28,7 +28,7 @@ const MEMBER_PERKS = [
 
 export function MembersPage() {
   return (
-    <div style={{ direction: "rtl", position: "relative", zIndex: 1, maxWidth: 940, margin: "0 auto", padding: "70px 22px 110px", textAlign: "center" }}>
+    <div style={{ direction: "rtl", position: "relative", zIndex: 1, maxWidth: 940, margin: "0 auto", padding: "70px 30px 110px", textAlign: "center" }}>
       {/* כתר + לוגו זוהר */}
       <div style={{ position: "relative", display: "inline-block", marginBottom: 22 }}>
         <span style={{ position: "absolute", top: -22, insetInline: 0, fontSize: 30, filter: "drop-shadow(0 0 10px rgba(232,200,74,0.6))" }}>👑</span>

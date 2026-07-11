@@ -383,7 +383,7 @@ export default function NumberDrawer({ hideLauncher = false } = {}) {
 
       <style>{`
         .nd-launcher {
-          position: fixed; right: 18px; bottom: 18px; z-index: 140;
+          position: fixed; right: 18px; bottom: calc(28px + env(safe-area-inset-bottom)); z-index: 140;
           width: 52px; height: 52px; border-radius: 999px; cursor: pointer;
           display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1;
           background: ${dark ? "linear-gradient(160deg, rgba(20,15,5,0.96), rgba(8,5,2,0.96))" : "linear-gradient(160deg, #fffdf6, #f1e8cf)"};
@@ -399,7 +399,7 @@ export default function NumberDrawer({ hideLauncher = false } = {}) {
           content: "מחשבון"; position: absolute; bottom: -16px; right: 50%; transform: translateX(50%);
           font-family: ${F.heading}; font-size: 9.5px; letter-spacing: 1px; color: ${P.accentDim}; white-space: nowrap;
         }
-        @media (max-width: 560px) { .nd-launcher { width: 46px; height: 46px; font-size: 21px; right: 12px; bottom: 12px; } }
+        @media (max-width: 560px) { .nd-launcher { width: 46px; height: 46px; font-size: 21px; right: 12px; bottom: calc(30px + env(safe-area-inset-bottom)); } }
       `}</style>
     </>
   );

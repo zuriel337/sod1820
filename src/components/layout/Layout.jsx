@@ -75,7 +75,10 @@ export default function Layout() {
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
-            <React.Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: dark ? "#9a8a66" : P.ink, fontFamily: F.body, opacity: 0.55 }}>טוען…</div>}>
+            <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>
+              <img src="/crown.png" alt="" aria-hidden className="logo-animated" style={{ width: 62, height: 62, objectFit: "contain", opacity: 0.9, filter: "drop-shadow(0 0 16px rgba(233,200,74,0.4))" }} />
+              <span style={{ fontFamily: F.heading, fontSize: 13, letterSpacing: 3, opacity: 0.7 }}>טוען…</span>
+            </div>}>
               <Outlet />
             </React.Suspense>
           </ErrorBoundary>

@@ -151,7 +151,7 @@ export default function ConvergenceGalaxy({ level = 1, clean = false }) {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "calc(100vh - 120px)", minHeight: 520, background: "radial-gradient(circle at 50% 40%, #0d0a04, #05030a)", direction: "rtl" }}>
-      <div style={{ position: "absolute", top: 18, insetInlineStart: 0, insetInlineEnd: 0, textAlign: "center", zIndex: 2, pointerEvents: "none" }}>
+      <div style={{ position: "absolute", top: 18, insetInlineStart: 0, insetInlineEnd: 0, textAlign: "center", zIndex: 2, pointerEvents: "none", padding: "0 18px" }}>
         {!clean && <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase" }}>סוד 1820 · ניסויים · גרסה {level}</div>}
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(22px,4vw,34px)", fontWeight: 800, margin: "4px 0 0", textShadow: `0 0 30px ${C.goldDeep}` }}>✦ {clean ? "עץ ההתכנסויות" : "גלקסיית ההתכנסות"}</h1>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>הצירים החזקים · קווים = הצטלבות · לחצו כדור{level >= 2 ? " · כוכבי-לוויין = המספרים" : ""}</div>
