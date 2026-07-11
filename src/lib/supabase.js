@@ -259,6 +259,15 @@ export async function adminWordsConsole({ scope = 'pending', q = null, limit = 5
     return data || null;
   } catch { return null; }
 }
+// 📊 מד-סטטיסטיקה למנוע-השפה (מאושר/ממתין · עברית+אנגלית)
+export async function getLangStats() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc('admin_lang_stats');
+    if (error || data?.error) return null;
+    return data || null;
+  } catch { return null; }
+}
 // 🌉 גשרי-שפה שממתינים לאישור (טאב אנגלית)
 export async function getPendingBridges() {
   if (!supabase) return [];

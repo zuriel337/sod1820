@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { Link } from "react-router-dom";
-import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge } from "../lib/supabase.js";
+import { supabase, adminWordsConsole, adminReviewWord, adminValueConvergence, scanDiscoveryEvents, discoveryPending, discoveryMark, sendNewsletter, addEnglishAlias, adminTriageCounts, adminBulkTriage, adminConvergenceTypes, adminAddWord, getWordWorlds, getWorldTagStats, applyWorldTag, getPendingBridges, verifyBridge, getLangStats } from "../lib/supabase.js";
 import { hebrewToLatin } from "../lib/translit.js";
 import { METHODS } from "../lib/gematria.js";
 import { englishSimple, hasLatin } from "../lib/englishGematria.js";
@@ -540,11 +540,14 @@ function WordsConsole({ srcLabel, initialScope = "pending", lockScope = false, h
                   </div>
                 )}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span title={w.rec?.why} style={{ flex: "1 1 auto", minWidth: 140, color: rec.c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{rec.e} {rec.t} — <span style={{ color: C.muted, fontWeight: 500 }}>{w.rec?.why}</span></span>
+                  {/* מאושרות: מציגים «✓ מאושר» ברור, לא המלצת-אישור מבלבלת. ממתינות: המלצת-המנוע. */}
+                  {w.is_verified
+                    ? <span style={{ flex: "1 1 auto", minWidth: 120, color: "#7bbf7b", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>✅ מאושרת ומפורסמת</span>
+                    : <span title={w.rec?.why} style={{ flex: "1 1 auto", minWidth: 140, color: rec.c, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{rec.e} {rec.t} — <span style={{ color: C.muted, fontWeight: 500 }}>{w.rec?.why}</span></span>}
                   <div style={{ display: "flex", gap: 5 }}>
                     <button onClick={() => openEn(w)} style={btn(enId === w.id ? "rgba(94,200,255,.2)" : "transparent", "#5ec8ff")}>🌍 EN</button>
                     {!w.is_verified && <button disabled={busy === w.id} onClick={() => doAction(w.id, "approve")} style={btn("#2f8f4e")}>✅ פרסם</button>}
-                    {w.is_verified && <button disabled={busy === w.id} onClick={() => doAction(w.id, "reject")} style={btn("transparent", C.muted)}>✖ הסתר</button>}
+                    {w.is_verified && <button disabled={busy === w.id} onClick={() => doAction(w.id, "reject")} style={btn("transparent", C.muted)}>🙈 הסתר</button>}
                     {!w.is_verified && w.state !== "rejected_by_admin" && <button disabled={busy === w.id} onClick={() => doAction(w.id, "reject")} style={btn("transparent", C.muted)}>✖ דחה</button>}
                     <button disabled={busy === w.id} onClick={() => doAction(w.id, "delete")} style={btn("transparent", "#d98a92")}>🗑</button>
                   </div>
@@ -699,6 +702,7 @@ function BridgesReview() {
 export default function LanguageEngineTab() {
   const [view, setView] = useState("approved");
   const [stats, setStats] = useState(null);
+  const [ls, setLs] = useState(null);   // 📊 מד-סטטיסטיקה (מאושר/ממתין)
   const [queue, setQueue] = useState([]);
   const [aliases, setAliases] = useState([]);
   const [translit, setTranslit] = useState([]);
@@ -726,6 +730,7 @@ export default function LanguageEngineTab() {
     setTranslit(sug.data || []); setQueue(wrq.data || []); setAliases(al.data || []);
   }, [qFilter]);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { getLangStats().then(setLs); }, []);
 
   const act = async (fn, args, key) => { setBusy(key); try { await supabase.rpc(fn, args); await load(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
   const resolveWord = (id, action) => act("resolve_word_review", { p_id: id, p_action: action, p_edit: editing[id] || null }, id);
@@ -740,15 +745,27 @@ export default function LanguageEngineTab() {
     <div>
       <H sub="כל המילים בכל השפות — מחולק לטאבים. מאושרות · לאישור · אנגלית · רוסית · מעבדת-מחקר.">🌍 מנוע השפה — מרכז בקרה</H>
 
-      {/* ══ סרגל-סטטיסטיקה קבוע ══ */}
-      <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginBottom: 14 }}>
-        <Stat label="👍 נמצא" value={stats.found} tone="#7bbf7b" />
-        <Stat label="👎 לא נמצא" value={stats.notFound} tone="#d98a92" />
-        <Stat label="הצלחה" value={stats.success + "%"} />
-        <Stat label="🌍 אנגלית מאושרות" value={stats.enVerified} tone="#7bbf7b" />
-        <Stat label="🌍 אנגלית ממתינות" value={stats.enPending} tone="#e0b34a" />
-        <Stat label="בתור-בקרה" value={queue.filter(w => w.status === "pending").length} tone="#e0b34a" />
-      </div>
+      {/* ══ 📊 מד-סטטיסטיקה ברור — מה מאושר, מה ממתין (עברית + אנגלית) ══ */}
+      {ls && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 14 }}>
+          <div style={{ ...card, padding: "12px 14px" }}>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🇮🇱 עברית</div>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+              <div><div style={{ color: "#7bbf7b", fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{(ls.he_approved || 0).toLocaleString("he")}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>✅ מאושרות</div></div>
+              <div><div style={{ color: "#e0b34a", fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{(ls.he_pending || 0).toLocaleString("he")}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>⏳ לאישור</div></div>
+              <div><div style={{ color: "#5ec8ff", fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{(ls.he_worlds || 0).toLocaleString("he")}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>🌍 מתויגות-עולם</div></div>
+            </div>
+          </div>
+          <div style={{ ...card, padding: "12px 14px" }}>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🇺🇸 אנגלית</div>
+            <div style={{ display: "flex", gap: 13, flexWrap: "wrap" }}>
+              <div><div style={{ color: "#7bbf7b", fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{(ls.bridges_approved || 0) + (ls.en_approved || 0)}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>✅ מאושרים</div></div>
+              <div><div style={{ color: (ls.bridges_pending ? "#e0b34a" : C.muted), fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{ls.bridges_pending || 0}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>🌉 גשרים לאישור</div></div>
+              <div><div style={{ color: "#e0b34a", fontFamily: F.mono, fontSize: 20, fontWeight: 800 }}>{ls.translit_pending || 0}</div><div style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>🔤 תעתוקים</div></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══ טאבים ══ */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 6, borderBottom: `1px solid ${C.border}`, paddingBottom: 12 }}>
