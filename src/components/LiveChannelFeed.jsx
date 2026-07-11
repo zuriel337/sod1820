@@ -35,6 +35,27 @@ function previewOf(u) {
   return cap || "💬 עדכון חדש";
 }
 
+// 🔗 הופך קישורים בטקסט ההודעה ללחיצים (כמו וואטסאפ אמיתי). מנקה HTML קודם,
+// מזהה http(s)://… ו-www.…, גוזר סימני-פיסוק נגררים, פותח בכרטיסייה חדשה.
+const URL_RE = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
+function linkify(text) {
+  const t = stripHtml(text || "");
+  if (!t) return null;
+  const out = []; let last = 0, m; const re = new RegExp(URL_RE);
+  while ((m = re.exec(t))) {
+    if (m.index > last) out.push(t.slice(last, m.index));
+    let url = m[0], trail = "";
+    const tm = url.match(/[).,!?;:،]+$/);
+    if (tm) { trail = tm[0]; url = url.slice(0, -trail.length); }
+    const href = /^https?:\/\//i.test(url) ? url : "https://" + url;
+    out.push(<a key={m.index} href={href} target="_blank" rel="noopener noreferrer" className="lcf-link" onClick={e => e.stopPropagation()}>{url}</a>);
+    if (trail) out.push(trail);
+    last = m.index + m[0].length;
+  }
+  if (last < t.length) out.push(t.slice(last));
+  return out;
+}
+
 // מגביל ערוץ לאחוז מקסימלי מהרשימה (אור הגאולה ≤20%) — משאיר את החדשים, מסמן שיש עוד בדף הערוץ.
 function applyCaps(list) {
   let out = [...list];
@@ -173,6 +194,7 @@ export default function LiveChannelFeed() {
         .lcf-ai{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:${dark ? "#7fe0c4" : "#027a5f"};margin-bottom:2px}
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
         .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+        .lcf-tx a.lcf-link{color:${dark ? "#53bdeb" : "#027eb5"};text-decoration:underline;text-underline-offset:2px;word-break:break-all;font-weight:600}
         .lcf-md{margin-top:5px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.16);border-radius:6px;padding:3px 9px;font-size:11px;opacity:.9}
         /* תמונה בבועה — תצוגה מקדימה, הקשה מגדילה */
         .lcf-imgw{display:block;margin:4px 0 3px;padding:0;border:none;background:none;cursor:pointer;width:100%;border-radius:7px;overflow:hidden;position:relative;line-height:0}
@@ -246,7 +268,7 @@ export default function LiveChannelFeed() {
                           </button>
                         )}
                         {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" &&
-                          <div className="lcf-tx">{stripHtml(u.text)}</div>}
+                          <div className="lcf-tx">{linkify(u.text)}</div>}
                         {u.image_url && isVideo(u.image_url) && (
                           <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", color: WA.recvInk, width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
                         )}
