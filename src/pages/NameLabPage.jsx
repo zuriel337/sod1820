@@ -78,16 +78,22 @@ function BridgeCard({ b, myWord }) {
         <span style={{ flex: 1 }} />
         <b style={{ fontFamily: F.m, color: C.blue, fontSize: 17 }}>{b.gematria_he}</b>
       </div>
+      {/* פרובננס — הגשר כישות מחקר: שפה·קשר · שיטה · רמת-ראיות · אימות. לא רק שוויון. */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "8px 0 6px" }}>
         <span style={{ background: "#eaf0fb", border: "1px solid #cfe0fb", borderRadius: 999, color: "#2c5fb3", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>{lang} · {rel}</span>
-        <span style={{ background: b.match === "word" ? "#e8f6ee" : "#fff4e0", border: `1px solid ${b.match === "word" ? "#bfe4cd" : "#f0dcae"}`, borderRadius: 999, color: b.match === "word" ? "#1f8a4c" : "#8a5a1f", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>
-          {b.match === "word" ? "🎯 השם עצמו" : `🔗 מתכנס בערך ${b.gematria_he}`}
-        </span>
+        {b.method && <span style={{ background: "#f2eefb", border: "1px solid #ddd0f2", borderRadius: 999, color: "#6a4fbf", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>📐 {b.method}</span>}
+        {b.evidence_level && <span style={{ background: b.evidence_level === "strong" ? "#e8f6ee" : "#fff8e6", border: `1px solid ${b.evidence_level === "strong" ? "#bfe4cd" : "#f0e2b8"}`, borderRadius: 999, color: b.evidence_level === "strong" ? "#1f8a4c" : "#8a5a1f", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>ראיות: {b.evidence_level === "strong" ? "חזקה" : b.evidence_level === "medium" ? "בינונית" : "ראשונית"}</span>}
+        <span style={{ background: b.human_verified ? "#e8f6ee" : "#f4f5f7", border: `1px solid ${b.human_verified ? "#bfe4cd" : C.line}`, borderRadius: 999, color: b.human_verified ? "#1f8a4c" : "#8a94a6", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }} title={b.human_verified ? "אושר ע\"י אוצר/צוריאל" : "נמצא ע\"י המנוע — ממתין לאימות אנושי"}>{b.human_verified ? "✓ מאומת" : "⏳ ממתין לאישור"}</span>
       </div>
       {b.note && <div style={{ color: "#3a4553", fontFamily: F.h, fontSize: 12.5, lineHeight: 1.65 }}>{b.note}</div>}
-      <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Link to={`/name-lab?w=${encodeURIComponent(cross)}`} style={{ textDecoration: "none", background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, color: C.blue, fontFamily: F.h, fontSize: 12, fontWeight: 800, padding: "5px 12px" }}>🔬 חקור את «{cross}»</Link>
-        <Link to={`/number/${b.gematria_he}`} style={{ textDecoration: "none", background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, color: C.dim, fontFamily: F.h, fontSize: 12, fontWeight: 700, padding: "5px 12px" }}>כל ה-{b.gematria_he} ←</Link>
+      {/* מסלול-חקירה: הגשר הוא צומת ברשת — לא סוף, אלא פתח */}
+      <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11, fontWeight: 700 }}>מסלול:</span>
+        <Link to={`/name-lab?w=${encodeURIComponent(cross)}`} style={{ textDecoration: "none", background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, color: C.blue, fontFamily: F.h, fontSize: 12, fontWeight: 800, padding: "5px 12px" }}>🔬 «{cross}»</Link>
+        <span style={{ color: "#c3c8d0" }}>→</span>
+        <Link to={`/number/${b.gematria_he}`} style={{ textDecoration: "none", background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, color: C.dim, fontFamily: F.h, fontSize: 12, fontWeight: 700, padding: "5px 12px" }}>ערך {b.gematria_he}</Link>
+        <span style={{ color: "#c3c8d0" }}>→</span>
+        <span style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11, fontWeight: 700 }}>מושגים · פוסטים · אוצרות</span>
       </div>
     </div>
   );

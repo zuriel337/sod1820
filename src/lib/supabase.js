@@ -2348,6 +2348,14 @@ export async function getNameResearch(word, value) {
   if (error) return null;
   return data || null;
 }
+
+// 🌉 גשרים חוצי-שפות מהגרף (עץ אחד) — לפי מילה עברית/לועזית או לפי ערך. משמש בכל משטח.
+export async function getGraphBridges(word, value) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('get_graph_bridges', { p_word: (word || '').trim() || null, p_value: value || null });
+  if (error) return [];
+  return data || [];
+}
 // 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
 export async function getRandomStartPhrase() {
   if (!supabase) return null;

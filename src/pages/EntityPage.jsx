@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/tracking.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
@@ -569,6 +569,44 @@ function SectionHead({ icon, title, count }) {
         </span>
       )}
       <span style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${P.borderStrong}, transparent)` }} />
+    </div>
+  );
+}
+
+// 🌉 גשרים חוצי-שפות מהגרף — מופיעים בכל דף-מספר/ביטוי (עץ אחד). ישות-מחקר עם פרובננס,
+// לא רק שוויון: שיטה · קשר · אימות. הגשר הוא צומת ברשת-הגילויים, פתח להמשך חקירה.
+function BridgesStrip({ term, value, P }) {
+  const numHref = useNumHref();
+  const [bridges, setBridges] = useState(null);
+  useEffect(() => {
+    let alive = true; setBridges(null);
+    getGraphBridges(term, value).then(b => alive && setBridges(b || [])).catch(() => alive && setBridges([]));
+    return () => { alive = false; };
+  }, [term, value]);
+  if (!bridges || !bridges.length) return null;
+  const REL = { shared_value: "ערך משותף", transliteration: "תעתוק", translation: "תרגום" };
+  const FLAG = { en: "🇺🇸", ru: "🇷🇺", ar: "🇸🇦", gr: "🇬🇷", la: "🏛️" };
+  return (
+    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 12, padding: "13px 15px", marginBottom: 16 }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 9 }}>🌉 גשרים חוצי-שפות</div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {bridges.map((b, i) => (
+          <div key={i} style={{ border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 11px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <Link to={numHref(encodeURIComponent(b.hebrew))} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>{b.hebrew}</Link>
+              <span style={{ color: P.accentDim }}>↔</span>
+              <Link to={`/name-lab?w=${encodeURIComponent(b.foreign_word)}`} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>{FLAG[b.lang] || "🌐"} {b.foreign_word}</Link>
+              <span style={{ flex: 1 }} />
+              <b style={{ fontFamily: F.mono, color: P.accentText }}>{b.gematria_he}</b>
+            </div>
+            {b.note && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.55, marginTop: 5 }}>{b.note}</div>}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6, alignItems: "center" }}>
+              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, fontWeight: 700 }}>{REL[b.relationship_type] || b.relationship_type}{b.method ? ` · ${b.method}` : ""}</span>
+              <span style={{ marginInlineStart: "auto", color: b.human_verified ? "#4caf7d" : P.inkSoft, fontFamily: F.body, fontSize: 11, fontWeight: 700 }} title={b.human_verified ? "אושר ע\"י אוצר" : "נמצא ע\"י המנוע — ממתין לאימות אנושי"}>{b.human_verified ? "✓ מאומת" : "⏳ ממתין לאישור"}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1588,6 +1626,9 @@ export default function EntityPage({ embedPhrase } = {}) {
             {allOpen ? "⊖ סגור הכל" : "⊕ פתח הכל"}
           </button>
         </div>
+
+        {/* ── 🌉 גשרים חוצי-שפות (מהגרף) — נדיר ומיוחד, לכן גבוה ובולט ── */}
+        <BridgesStrip term={term} value={value} P={P} />
 
         {/* ── 🧬 מד ההתכנסות — ראשון ובולט (ההתכנסות שחיפשת) ── */}
         <Acc id="dna" icon="🧬" title="מד ההתכנסות — איך המספר מתכנס" open={open} onToggle={toggleAcc} P={P}>
