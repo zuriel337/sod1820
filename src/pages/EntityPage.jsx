@@ -972,6 +972,90 @@ export default function EntityPage({ embedPhrase } = {}) {
     </div>
   );
 
+  // 🤖 כרטיס-ה-AI המלא — רכיב אחד לשני המצבים (עץ אחד): מצב קריאה ומצב מחקר מציגים את אותה חלונית,
+  // עם בחירת מנוע, «🔬 ניתוח עמוק», תג-התהודה וההצלבות הלחיצות. אין עותק מדולל.
+  const aiCard = (
+    <div style={{ maxWidth: 480, margin: "12px auto 4px", padding: "11px 13px", borderRadius: 13, background: P.card, border: "1px solid rgba(62,166,255,0.28)", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: aiText ? 9 : 7 }}>
+        <span style={{ fontSize: 15 }}>🤖</span>
+        <div style={{ textAlign: "start" }}>
+          <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+        </div>
+      </div>
+      {!aiText && !aiBusy && (
+        <div>
+          <div style={{ display: "flex", gap: 7 }}>
+            <button onClick={() => runAiNumber("claude")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+              🔵 Claude
+            </button>
+            <button onClick={() => runAiNumber("gemini")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+              🟣 Gemini
+            </button>
+          </div>
+          {/* 🔬 ניתוח עמוק — Sonnet, opt-in בלבד (נכנס למכסת-העומק). רק לדף-מילה, שם ההצלבה הבין-שיטתית משמעותית. */}
+          {!isNumber && (
+            <button onClick={() => runAiNumber("claude", true)} title="ניתוח מעמיק יותר על Sonnet — כל השיטות + הצלבות בין-שיטתיות"
+              style={{ width: "100%", cursor: "pointer", background: "transparent", color: P.accentText, border: `1px dashed ${P.accentText}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "7px 12px", marginTop: 7, boxSizing: "border-box" }}>
+              🔬 ניתוח עמוק · Sonnet
+            </button>
+          )}
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת{!isNumber ? " · «עמוק» = כל השיטות והצלבות" : ""}</div>
+        </div>
+      )}
+      {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק (Sonnet)…" : aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
+      {aiText && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
+            <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+              {aiEngine === "gemini" ? "🟣 Gemini" : aiDeep ? "🔬 Claude · עמוק" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {/* 🔬 העמק — Sonnet, רק אם עדיין לא רץ עמוק ויש מילה (הצלבה משמעותית) */}
+              {!aiDeep && !isNumber && (
+                <button onClick={() => runAiNumber("claude", true)} disabled={aiBusy} title="ניתוח מעמיק על Sonnet — כל השיטות + הצלבות"
+                  style={{ cursor: "pointer", background: "none", border: `1px dashed ${P.accentText}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "5px 12px" }}>
+                  🔬 העמק
+                </button>
+              )}
+              <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini", aiDeep)} disabled={aiBusy}
+                style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
+                {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+              </button>
+            </div>
+          </div>
+          <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
+          {/* 📊 מדד-תהודה (עובדת-מנוע) + 🔮 הצלבות כקישורי-פנים לחיצים — הדבק של לולאת הגילוי */}
+          {aiCross && (
+            <div style={{ marginTop: 11, textAlign: "start" }}>
+              {aiCross.resonance && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
+                  <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים חזקים</span>
+                </div>
+              )}
+              {aiCross.groups?.some(g => g.method !== "רגיל") && (
+                <div style={{ display: "grid", gap: 6 }}>
+                  {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
+                    <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>ב{g.method} ({g.value})</span>
+                      {g.matches.slice(0, 5).map((m, mi) => (
+                        <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" })} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
+                      ))}
+                    </div>
+                  ))}
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>כל מילה = הנסתר של «{term}» נופל על פניה. לחיצה = מסלול המשך.</div>
+                </div>
+              )}
+            </div>
+          )}
+          <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic", textAlign: "start" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
+          {funnelNudge}
+        </div>
+      )}
+    </div>
+  );
+
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
   useEffect(() => {
     if (!isNumber || !data || !story.ok) return;
@@ -1253,16 +1337,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🤖 תוצאת ה-AI במצב מחקר (מתחת לפס-הפעולות) — «נתח ב-AI» מפעיל את runAiNumber */}
-          {showBody && (aiBusy || aiText) && (
-            <div style={{ maxWidth: 580, margin: "12px auto 0", padding: "14px 18px", borderRadius: 16, background: P.card, border: "1.5px solid rgba(62,166,255,0.45)", textAlign: "start" }}>
-              <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 7 }}>{aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע</div>
-              {aiBusy && !aiText && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, padding: "4px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
-              {aiText && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>}
-              {aiText && <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>}
-              {aiText && funnelNudge}
-            </div>
-          )}
+          {/* 🤖 ה-AI במצב מחקר — אותו כרטיס מלא כמו במצב הפשוט (בחירת מנוע · 🔬 עמוק · תהודה · הצלבות לחיצות) */}
+          {showBody && aiCard}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
@@ -1284,86 +1360,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 ניתוח AI — כרטיס עדין וקומפקטי (ai_analyze_contract · kind=number · fast). מפרש עובדות-מנוע. */}
-            <div style={{ maxWidth: 480, margin: "12px auto 4px", padding: "11px 13px", borderRadius: 13, background: P.card, border: "1px solid rgba(62,166,255,0.28)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: aiText ? 9 : 7 }}>
-                <span style={{ fontSize: 15 }}>🤖</span>
-                <div style={{ textAlign: "start" }}>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>ניתוח AI {isNumber ? `למספר ${value}` : `לביטוי «${term}»`}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
-                </div>
-              </div>
-              {!aiText && !aiBusy && (
-                <div>
-                  <div style={{ display: "flex", gap: 7 }}>
-                    <button onClick={() => runAiNumber("claude")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
-                      🔵 Claude
-                    </button>
-                    <button onClick={() => runAiNumber("gemini")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
-                      🟣 Gemini
-                    </button>
-                  </div>
-                  {/* 🔬 ניתוח עמוק — Sonnet, opt-in בלבד (נכנס למכסת-העומק). רק לדף-מילה, שם ההצלבה הבין-שיטתית משמעותית. */}
-                  {!isNumber && (
-                    <button onClick={() => runAiNumber("claude", true)} title="ניתוח מעמיק יותר על Sonnet — כל השיטות + הצלבות בין-שיטתיות"
-                      style={{ width: "100%", cursor: "pointer", background: "transparent", color: P.accentText, border: `1px dashed ${P.accentText}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "7px 12px", marginTop: 7, boxSizing: "border-box" }}>
-                      🔬 ניתוח עמוק · Sonnet
-                    </button>
-                  )}
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת{!isNumber ? " · «עמוק» = כל השיטות והצלבות" : ""}</div>
-                </div>
-              )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק (Sonnet)…" : aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
-              {aiText && (
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
-                    <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-                      {aiEngine === "gemini" ? "🟣 Gemini" : aiDeep ? "🔬 Claude · עמוק" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
-                    </div>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {/* 🔬 העמק — Sonnet, רק אם עדיין לא רץ עמוק ויש מילה (הצלבה משמעותית) */}
-                      {!aiDeep && !isNumber && (
-                        <button onClick={() => runAiNumber("claude", true)} disabled={aiBusy} title="ניתוח מעמיק על Sonnet — כל השיטות + הצלבות"
-                          style={{ cursor: "pointer", background: "none", border: `1px dashed ${P.accentText}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "5px 12px" }}>
-                          🔬 העמק
-                        </button>
-                      )}
-                      <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini", aiDeep)} disabled={aiBusy}
-                        style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
-                        {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
-                      </button>
-                    </div>
-                  </div>
-                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
-                  {/* 📊 מדד-תהודה (עובדת-מנוע) + 🔮 הצלבות כקישורי-פנים לחיצים — הדבק של לולאת הגילוי */}
-                  {aiCross && (
-                    <div style={{ marginTop: 11 }}>
-                      {aiCross.resonance && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
-                          <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
-                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים חזקים</span>
-                        </div>
-                      )}
-                      {aiCross.groups?.some(g => g.method !== "רגיל") && (
-                        <div style={{ display: "grid", gap: 6 }}>
-                          {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
-                            <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>ב{g.method} ({g.value})</span>
-                              {g.matches.slice(0, 5).map((m, mi) => (
-                                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" })} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
-                              ))}
-                            </div>
-                          ))}
-                          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>כל מילה = הנסתר של «{term}» נופל על פניה. לחיצה = מסלול המשך.</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
-                  {funnelNudge}
-                </div>
-              )}
-            </div>
+            {/* 🤖 ניתוח AI — הכרטיס המשותף (זהה למצב מחקר — עץ אחד) */}
+            {aiCard}
 
             {/* 🔮 הצלבה נסתרת — הריבוע במרכז (שלב א', הכי חשוב: «הכל מתחבר») */}
             {!isNumber ? (
