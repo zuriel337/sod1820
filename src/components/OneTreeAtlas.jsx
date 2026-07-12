@@ -3,7 +3,7 @@
 // AtlasFindings (בית המדרש) — טאבים לפי יחס + 🌍 שפות. עקרונות: שקיפות (יחס+שיטה) ·
 // קריטריונים ("למה אושר?") · הדרגתיות (דרגות-תמיכה 🔵🟣🌍, לא בינארי) · "נבדק במחקר", לא "הוכח".
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { getOneTreeStats, getAtlasFindings, getVerifiedBridges, getMethodSemantics } from "../lib/supabase.js";
 
@@ -30,16 +30,19 @@ function useRelMeta() {
 export function OneTreeWidget() {
   const [stats, setStats] = useState(null);
   const rel = useRelMeta();
+  const nav = useNavigate();
   useEffect(() => { getOneTreeStats().then(setStats).catch(() => {}); }, []);
   const branches = useMemo(() => {
-    const by = stats?.by_relation || {};
-    return Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const by = { ...(stats?.by_relation || {}) };
+    // 🌍 המילים באנגלית שאושרו (גשרי-שפה) — ענף מלא בעץ, לא רק שורש
+    if (stats?.bridges > 0) by.bridges = stats.bridges;
+    return Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 7);
   }, [stats]);
   if (!stats || !branches.length) return null;
 
   const W = 340, H = 235, baseY = 205, trunkX = W / 2;
-  // מיקומי עלווה קבועים (עד 6 ענפים) — פרושים מעל הגזע
-  const POS = [[trunkX, 52], [trunkX - 92, 84], [trunkX + 92, 84], [trunkX - 52, 120], [trunkX + 52, 120], [trunkX, 128]];
+  // מיקומי עלווה קבועים (עד 7 ענפים) — פרושים מעל הגזע
+  const POS = [[trunkX, 52], [trunkX - 92, 84], [trunkX + 92, 84], [trunkX - 52, 120], [trunkX + 52, 120], [trunkX, 128], [trunkX - 118, 132]];
   const r = c => Math.min(34, 13 + Math.sqrt(c) * 4.2);
   const gold = "#d4af37", goldDim = "rgba(212,175,55,0.55)";
 
@@ -57,16 +60,16 @@ export function OneTreeWidget() {
         {/* ענפים + עלווה */}
         {branches.map(([type, count], i) => {
           const [x, y] = POS[i] || POS[POS.length - 1];
-          const m = rel[type] || { emoji: "•", label: type };
+          const m = type === "bridges" ? { emoji: "🌍", label: "גשרי-שפה" } : (rel[type] || { emoji: "•", label: type });
           const rad = r(count);
+          // ⚠️ ניווט ב-onClick (לא <Link> בתוך SVG — anchor של HTML בתוך svg לא מנווט אמין)
+          const go = () => nav(`/beit-midrash?atlas=${encodeURIComponent(type)}`);
           return (
-            <g key={type}>
+            <g key={type} onClick={go} style={{ cursor: "pointer" }} role="link" aria-label={`${m.label} — ${count} ממצאים`}>
               <line x1={trunkX} y1={baseY - 70} x2={x} y2={y + rad - 4} stroke={goldDim} strokeWidth="2" strokeLinecap="round" />
-              <Link to={`/beit-midrash?atlas=${encodeURIComponent(type)}`}>
-                <circle cx={x} cy={y} r={rad} fill="rgba(212,175,55,0.13)" stroke={gold} strokeWidth="1.4" style={{ cursor: "pointer" }} />
-                <text x={x} y={y - 3} textAnchor="middle" fontSize={Math.max(13, rad * 0.62)} style={{ cursor: "pointer" }}>{m.emoji}</text>
-                <text x={x} y={y + rad * 0.52} textAnchor="middle" fontSize="12" fontWeight="800" fill={gold} fontFamily="inherit" style={{ cursor: "pointer" }}>{count}</text>
-              </Link>
+              <circle cx={x} cy={y} r={rad} fill="rgba(212,175,55,0.13)" stroke={gold} strokeWidth="1.4" />
+              <text x={x} y={y - 3} textAnchor="middle" fontSize={Math.max(13, rad * 0.62)}>{m.emoji}</text>
+              <text x={x} y={y + rad * 0.52} textAnchor="middle" fontSize="12" fontWeight="800" fill={gold} fontFamily="inherit">{count}</text>
             </g>
           );
         })}
@@ -92,12 +95,17 @@ export function OneTreeWidget() {
 }
 
 // ===== 🌳 אטלס הממצאים בבית המדרש — טאבים לפי יחס + 🌍 שפות =====
-export function AtlasFindings({ P }) {
-  // P (פלטה) אופציונלי — ברירת-מחדל תואמת בית-מדרש כהה
-  const C0 = P || { ink: "#efe6cf", dim: "rgba(240,230,200,0.62)", card: "rgba(255,255,255,0.045)", border: "rgba(212,175,55,0.3)", acc: "#d4af37" };
+export function AtlasFindings({ mode = "light" }) {
+  // 🎨 חוק הדו-צבעיות (atlas_dual_theme_law): שני מצבים מובנים דרך פלטה scoped — לא inline קשיח.
+  // בבית-המדרש (משטח בהיר, research_workspace_law) → light; על משטח כהה → mode="dark".
+  const C0 = mode === "dark"
+    ? { ink: "#efe6cf", dim: "rgba(240,230,200,0.62)", card: "rgba(255,255,255,0.045)", border: "rgba(212,175,55,0.3)", acc: "#d4af37", accSoft: "rgba(212,175,55,0.16)" }
+    : { ink: "#1b1d22", dim: "#5b6472", card: "#ffffff", border: "#e3e6ec", acc: "#2f6df6", accSoft: "rgba(47,109,246,0.10)" };
   const [sp] = useSearchParams();
   const rel = useRelMeta();
   const [tab, setTab] = useState(() => sp.get("atlas") || "all");
+  // 🔗 ניווט מהעץ: שינוי ?atlas= (גם כשהעמוד כבר פתוח) מעדכן את הטאב הפנימי
+  useEffect(() => { const a = sp.get("atlas"); if (a && a !== tab) setTab(a); }, [sp]); // eslint-disable-line
   const [items, setItems] = useState([]);
   const [bridges, setBridges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,11 +127,16 @@ export function AtlasFindings({ P }) {
 
   return (
     <div>
+      {/* כותרת ברורה — כאן זה האטלס, לא המעבדה: מפריד ניווטית בין המדורים */}
+      <div style={{ textAlign: "center", marginBottom: 14 }}>
+        <div style={{ color: C0.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 800 }}>🌳 אטלס הממצאים</div>
+        <div style={{ color: C0.dim, fontFamily: F.body, fontSize: 13, marginTop: 3 }}>שכבת-הידע — קשרים שנבדקו ואושרו במחקר · לפי סוג-יחס · המחשבון והמעבדה במדורים שלצד</div>
+      </div>
       {/* טאבים */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 14 }}>
         {[["all", "🌳 הכל"], ...Object.entries(rel).filter(([k]) => ["mirror", "complement", "hidden", "inner", "progression", "calendar"].includes(k)).map(([k, v]) => [k, `${v.emoji} ${v.label}`]), ["bridges", "🌍 שפות"]].map(([k, label]) => (
           <button key={k} onClick={() => setTab(k)}
-            style={{ cursor: "pointer", background: tab === k ? "rgba(212,175,55,0.16)" : "transparent", border: `1px solid ${tab === k ? C0.acc : C0.border}`, color: tab === k ? C0.acc : C0.dim, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5 }}>
+            style={{ cursor: "pointer", background: tab === k ? C0.accSoft : "transparent", border: `1px solid ${tab === k ? C0.acc : C0.border}`, color: tab === k ? C0.acc : C0.dim, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5 }}>
             {label}
           </button>
         ))}
