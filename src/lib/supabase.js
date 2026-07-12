@@ -2467,6 +2467,21 @@ export async function getNumberResonanceStats(word, pairs) {
   } catch { return null; }
 }
 
+// 🧭 המודל הפרשני של SOD1820 (method_semantics) — שיטה→סוג-יחס (🪞 מראה · 💑 בן-זוג · 🔍 נסתר…).
+// פרשנות, לא עובדה: profile מאפשר אסכולות עתידיות. cache מודולרי (15 שורות, קריאה אחת לסשן).
+let _methodSemCache = null;
+export async function getMethodSemantics(profile = 'sod1820') {
+  if (_methodSemCache) return _methodSemCache;
+  if (!supabase) return {};
+  try {
+    const { data } = await supabase.from('method_semantics')
+      .select('method,relation_type,emoji,label_he,phrase_template,confidence_source,status,calculation_description,semantic_description,core_note,core_note_visibility,review_version')
+      .eq('profile', profile).eq('is_active', true);
+    _methodSemCache = Object.fromEntries((data || []).map(r => [r.method, r]));
+  } catch { _methodSemCache = {}; }
+  return _methodSemCache;
+}
+
 // 🧩 שכבת משפחות-העוגנים (anchor_families) — נתונים+מיפוי בלבד. שליטה ידנית של צוריאל.
 export async function discoverAnchorFamilies(minWords = 8, limit = 60) {
   if (!supabase) return [];

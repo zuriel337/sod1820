@@ -1001,13 +1001,16 @@ export default function EntityPage({ embedPhrase } = {}) {
         <div style={{ display: "grid", gap: 6 }}>
           {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
             <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>ב{g.method} ({g.value})</span>
+              {/* 🧭 סוג-היחס מהמודל הפרשני של סוד1820 (🪞 מראה · 💑 בן-זוג · 🔍 נסתר) — השיטה והערך נשארים גלויים */}
+              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>
+                {g.sem ? <>{g.sem.emoji} <b style={{ color: P.accentText }}>{g.sem.label_he}</b> · {g.method} {g.value}</> : <>ב{g.method} ({g.value})</>}
+              </span>
               {g.matches.slice(0, 5).map((m, mi) => (
                 <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" })} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
               ))}
             </div>
           ))}
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>כל מילה = הנסתר של «{term}» נופל על פניה. לחיצה = מסלול המשך.</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>הערכים = עובדה מהמנוע · סוגי-היחס = המודל הפרשני של סוד1820. לחיצה = מסלול המשך.</div>
         </div>
       )}
     </div>
