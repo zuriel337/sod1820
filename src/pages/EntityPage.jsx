@@ -7,8 +7,8 @@ import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges } from "../lib/supabase.js";
-import { getVisitorId } from "../lib/tracking.js";
-import { analyzeWordDeep } from "../lib/deepAnalysis.js";
+import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
+import { analyzeWordDeep, collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -883,11 +883,14 @@ export default function EntityPage({ embedPhrase } = {}) {
   async function runCombo() {
     if (comboBusy || researchItems.length < 2) return;
     setComboBusy(true); setComboText("");
-    const facts = researchItems.map(e => {
+    const itemsLine = researchItems.map(e => {
       if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;
       if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;
       return `• ${e.title}`;
     }).join("\n");
+    // 🫀 התכנסויות בין-שיטתיות באוסף (עובדת-מנוע) — כדי שה-AI לא יפספס משיח(מילוי)↔דבר-מתוך-דבר(רגיל).
+    const convs = collectionConvergences(researchItems);
+    const facts = itemsLine + (convs.length ? `\n\n🔮 התכנסויות בין-שיטתיות שהמנוע זיהה:\n${convergencesFactLine(convs)}` : "");
     let txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, fast: true });
     if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, again: true, fast: true }); }
     setComboText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
@@ -1338,7 +1341,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                       {aiCross.resonance && (
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
                           <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
-                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים חזקים</span>
+                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים · {aiCross.resonance.verified} מאומתים</span>
                         </div>
                       )}
                       {aiCross.groups?.some(g => g.method !== "רגיל") && (
@@ -1347,7 +1350,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                             <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                               <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>ב{g.method} ({g.value})</span>
                               {g.matches.slice(0, 5).map((m, mi) => (
-                                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
+                                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" })} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
                               ))}
                             </div>
                           ))}

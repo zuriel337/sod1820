@@ -2,20 +2,69 @@
 // עיקרון: המנוע (gematria.js + bidim) מחשב את כל השיטות ואת ההצלבות; ה-AI מפרש בלבד.
 // עדשה אחת → אותו עומק בכל מקום: דף מספר · מעבדת-השם (מחקר לפי שפות) · מרכז מחקר · השוואות.
 // ✅ לא מחשב מחדש — משתמש רק בערכי-המנוע הרשמיים ובהצלבות מ-bidim (number_cross_resonance).
-import { crossMethodPairs } from "./gematria.js";
+import { crossMethodPairs, METHODS, CROSS_METHODS } from "./gematria.js";
 import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis } from "./supabase.js";
+
+// 🫀 לב המערכת — זיהוי התכנסות בין-שיטתית בתוך אוסף (לא רק "שווים ברגיל").
+//    דוגמה נעולה: משיח(מילוי=878) ↔ «דבר מתוך דבר»(רגיל=878) ↔ «עולם הפוך ראיתי»(רגיל=878).
+//    המנוע מזהה; ה-AI מפרש. עובד על כל אוסף (מרכז-מחקר / השוואה / דף-מספר).
+// items: [{title|phrase, type?, metadata?}]. מחזיר [{value, crossMethod, members:[{phrase, methods[]}]}].
+export function collectionConvergences(items, { methods = CROSS_METHODS, minMembers = 2 } = {}) {
+  const byKey = Object.fromEntries(METHODS.map(m => [m.key, m]));
+  const reach = new Map();   // value → Map(phrase → Set(methods))
+  const add = (value, phrase, method) => {
+    if (!value || value < 10) return;
+    if (!reach.has(value)) reach.set(value, new Map());
+    const pm = reach.get(value);
+    if (!pm.has(phrase)) pm.set(phrase, new Set());
+    pm.get(phrase).add(method);
+  };
+  for (const it of items || []) {
+    const phrase = String(it?.title || it?.phrase || "").trim();
+    if (!phrase) continue;
+    if (it?.type === "number" || /^\d+$/.test(phrase)) {           // מספר = מגיע לערך עצמו
+      const v = parseInt(it?.metadata?.value ?? phrase, 10);
+      if (v) add(v, phrase, "המספר");
+      continue;
+    }
+    for (const mk of methods) { const m = byKey[mk]; if (m) add(m.fn(phrase), phrase, mk); }
+  }
+  const out = [];
+  for (const [value, pm] of reach) {
+    if (pm.size < minMembers) continue;                            // צריך ≥2 ישויות שונות
+    const members = [...pm.entries()].map(([phrase, ms]) => ({ phrase, methods: [...ms] }));
+    const allMethods = new Set(members.flatMap(m => m.methods));
+    out.push({ value, members, crossMethod: allMethods.size > 1 }); // crossMethod = הושג ביותר משיטה אחת
+  }
+  // דירוג: הצלבה בין-שיטתית קודם · יותר חברים · ערך
+  return out.sort((a, b) => (b.crossMethod - a.crossMethod) || (b.members.length - a.members.length) || (a.value - b.value));
+}
+
+// שורת-עובדות ל-AI מתוך ההתכנסויות (compact). "878 = משיח(מילוי) · דבר מתוך דבר(רגיל) · …"
+export function convergencesFactLine(convs, limit = 6) {
+  return (convs || []).slice(0, limit).map(c =>
+    `${c.value} = ${c.members.map(m => `${m.phrase}(${m.methods.join("/")})`).join(" · ")}${c.crossMethod ? " ⟵ הצלבת שיטות" : ""}`
+  ).join("\n");
+}
 
 const _cache = new Map();  // מילה → {methodsLine, crossLine, groups, stats} (ממוזג per-session, חוסך קריאות)
 
-// 📊 מדד-תהודה (0-100) — מחושב מעובדות-המנוע בלבד (שיטות/חיבורים/צמתים), לא AI.
-//    שקלול: שיטות 40% · חיבורים 35% (תקרה 80) · צמתים-חזקים 25% (תקרה 7). שקוף וקבוע.
+// 📊 מדד-תהודה (0-100) — מדד *טכני* של צפיפות-קשרים, לא "ציון רוחני". מחושב מעובדות-המנוע בלבד.
+//    שקלול שקוף: שיטות בלתי-תלויות 30% · חיבורים 20% (תקרה 80) · צמתים-חזקים 20% (תקרה 7) ·
+//    איכות-מקורות (התאמות מאומתות) 30% (תקרה 40). ה-AI מקבל את הפירוק — לא מחשב דבר בעצמו.
 export function resonanceScore(stats) {
   if (!stats) return null;
   const methods = Number(stats.n_methods) || 0;
   const conns = Number(stats.n_connections) || 0;
   const nodes = Number(stats.n_strong_nodes) || 0;
-  const score = Math.round(100 * (0.4 * Math.min(methods, 7) / 7 + 0.35 * Math.min(conns, 80) / 80 + 0.25 * Math.min(nodes, 7) / 7));
-  return { methods, connections: conns, strongNodes: nodes, score };
+  const verified = Number(stats.n_verified) || 0;
+  const score = Math.round(100 * (
+    0.30 * Math.min(methods, 7) / 7 +
+    0.20 * Math.min(conns, 80) / 80 +
+    0.20 * Math.min(nodes, 7) / 7 +
+    0.30 * Math.min(verified, 40) / 40
+  ));
+  return { methods, connections: conns, strongNodes: nodes, verified, score };
 }
 
 // מביא (וממזג) את שכבת-העומק הבין-שיטתית למילה עברית. ריק למספר/לועזית (אין אותיות).
@@ -51,7 +100,7 @@ export function appendDeepFacts(baseFacts, cross) {
   if (cross?.methodsLine) f += ` ערכי המילה בשיטות: ${cross.methodsLine}.`;
   if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (עובדה מהמנוע): ${cross.crossLine}.`;
   const r = cross?.resonance;
-  if (r) f += ` מדד-תהודה (עובדת-מנוע): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
+  if (r) f += ` מדד-תהודה (עובדת-מנוע, מדד טכני של צפיפות-קשרים): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים · ${r.verified} מאומתים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
   return f;
 }
 
