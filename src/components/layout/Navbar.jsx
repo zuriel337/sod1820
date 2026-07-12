@@ -22,8 +22,8 @@ import StreamSwitch from "../StreamSwitch.jsx";
 function DilugimIcon({ size = 24, accent = "#e0a53a" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      {/* רקע-ריבוע רך בגוון מגילה — עדין וחצי-שקוף, לא שובר את ה-currentColor */}
-      <rect x="2.5" y="2.5" width="27" height="27" rx="7.5" fill="rgba(140,96,44,0.22)" stroke="rgba(201,168,74,0.30)" strokeWidth="1" />
+      {/* רקע-ריבוע בגוון מגילה — נוכח ומגובש (כמו ריבועי האימוג'י), עם מסגרת-זהב */}
+      <rect x="2" y="2" width="28" height="28" rx="7.5" fill="#6a4a24" stroke="rgba(212,175,55,0.55)" strokeWidth="1.3" />
       {/* קו-הדילוג — האלכסון הדק שמחבר את שלוש האותיות */}
       <path d="M23 10 L11 25" stroke={accent} strokeWidth="1.7" strokeLinecap="round" opacity="0.7" />
       {/* שלוש אותיות עבריות = הטקסט (currentColor) */}
