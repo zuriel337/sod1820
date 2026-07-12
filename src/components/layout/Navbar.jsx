@@ -24,14 +24,14 @@ function DilugimIcon({ size = 24, accent = "#f5e7b2" }) {
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" style={{ display: "block" }}>
       {/* רקע-ריבוע בגוון מגילה — נוכח ומגובש (כמו ריבועי האימוג'י), עם מסגרת-זהב */}
       <rect x="2" y="2" width="28" height="28" rx="7.5" fill="#6a4a24" stroke="rgba(212,175,55,0.55)" strokeWidth="1.3" />
-      {/* קו-הדילוג — האלכסון הדק שמחבר את שלוש האותיות */}
-      <path d="M23 10 L11 25" stroke={accent} strokeWidth="1.7" strokeLinecap="round" opacity="0.7" />
       {/* שלוש אותיות עבריות = הטקסט (currentColor) */}
       <g fill="currentColor" fontFamily="'Heebo', sans-serif" fontWeight="800" fontSize="11.5">
         <text x="24" y="14" textAnchor="middle">א</text>
         <text x="17.5" y="21" textAnchor="middle">ב</text>
         <text x="11" y="28" textAnchor="middle">ג</text>
       </g>
+      {/* סימון האותיות שנמצאו — לולאה אלכסונית שמקיפה את הרצף (כמו שמקיפים תשובה) */}
+      <ellipse cx="17.5" cy="21" rx="10.6" ry="4.7" transform="rotate(-47 17.5 21)" stroke={accent} strokeWidth="1.6" fill="none" />
       {/* זכוכית-מגדלת קטנה = מחקר */}
       <circle cx="8" cy="8.5" r="4" stroke={accent} strokeWidth="1.7" fill="none" />
       <line x1="10.9" y1="11.4" x2="13.5" y2="14" stroke={accent} strokeWidth="1.7" strokeLinecap="round" />
