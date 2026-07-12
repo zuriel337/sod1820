@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { ELSSection } from "../features/els/Els.jsx";
+import ElsGrid from "../components/ElsGrid.jsx";
+import { rwCss } from "../lib/research/theme.js";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import { ELS_PUBLIC } from "../lib/hub/ready.js";
 
@@ -37,7 +38,19 @@ export default function CodePage() {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
   // 🔑 פתוח למנהל תמיד; לציבור רק כשדגל-המאסטר ELS_PUBLIC=true (אז גם המעבדה נפתחת).
-  // עד אז — דף «ייפתח בקרוב» + הרשמה לעדכונים. כשייפתח לציבור — מנהל רואה מלא,
-  // ציבור עם שער-מכסה/הרשמה (gated). תשתית מסודרת מראש.
-  return (isAdmin || ELS_PUBLIC) ? <ELSSection gated={!isAdmin} /> : <CodeClosed />;
+  // עד אז — דף «ייפתח בקרוב» + הרשמה לעדכונים.
+  // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים, ומרנדר את אותו מנוע-הדילוגים של אזור המחקר
+  // (ElsGrid) — מציירים פעם אחת, מפנים מכל מקום. עוטפים ב-`.rw` + rwCss() כדי לספק את
+  // פלטת סביבת-המחקר (משתני --acc/--bg/--ink/--line ומחלקות rw-*) בלי כל ה-chrome של השלד.
+  if (isAdmin || ELS_PUBLIC) {
+    return (
+      <div className="rw" dir="rtl" style={{ position: "relative", zIndex: 1 }}>
+        <style>{rwCss()}</style>
+        <div className="rw-work" style={{ maxWidth: 1120, margin: "0 auto", padding: "24px clamp(12px,3vw,28px) 90px" }}>
+          <ElsGrid />
+        </div>
+      </div>
+    );
+  }
+  return <CodeClosed />;
 }
