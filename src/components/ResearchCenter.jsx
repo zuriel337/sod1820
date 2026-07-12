@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
 import { getAiAnalysis } from "../lib/supabase.js";
-import { trackAi } from "../lib/tracking.js";
+import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
+import { trackAi, trackJourneyStep } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
 
 const heb = n => Number(n).toLocaleString("he");
@@ -136,6 +137,8 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const [aiText, setAiText] = useState(null);
   const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   const analyzeItems = [...pinned, ...cart];
+  // 🫀 לב המערכת — התכנסויות בין-שיטתיות באוסף (המנוע מזהה, לא ה-AI). מחושב תמיד, גם לפני ניתוח.
+  const convergences = useMemo(() => collectionConvergences(analyzeItems), [analyzeItems]);
   const runAnalyze = async (engine = "claude", { toggle = false } = {}) => {
     if (aiState === "busy") return;
     if (toggle && aiState === "done") { setAiState("idle"); setAiText(null); return; }   // «הסתר» = לחיצה שנייה
@@ -143,11 +146,16 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     setAiEngine(engine);
     setAiState("busy");
     trackAi("research", "personal");   // 📊 שימוש ב-AI — ניתוח המחקר האישי
-    const facts = analyzeItems.map(e => {
+    const itemsLine = analyzeItems.map(e => {
       if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;
       if (e.type === "phrase") return `• ביטוי «${e.title}»${e.metadata?.value != null ? ` = ${e.metadata.value}` : ""}`;
       return `• ${ENTITY_LABEL[e.type] || e.type}: ${e.title}`;
     }).join("\n");
+    // ההתכנסויות = העובדה המובילה. כך ה-AI מפרש את משיח(מילוי 878)↔דבר-מתוך-דבר(רגיל 878) ולא מפספס.
+    const convLine = convergences.length
+      ? `\n\n🔮 התכנסויות בין-שיטתיות שהמנוע זיהה (עובדה — פרש מה הן מרמזות יחד):\n${convergencesFactLine(convergences)}`
+      : "";
+    const facts = itemsLine + convLine;
     const a = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${analyzeItems.length} ישויות`, facts, engine });
     if (a) { setAiText(a); setAiState("done"); } else setAiState("off");
   };
@@ -206,6 +214,31 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 <div className="rw-sec-t" style={{ marginTop: pinned.length ? 10 : 0 }}>🔬 במחקר עכשיו</div>
                 {cart.map(e => <EntityRow key={e.id} e={e} onRemove={x => removeFromResearch?.(x.id)} />)}
               </>}
+              {/* 🫀 לב המערכת — התכנסויות בין-שיטתיות שהמנוע זיהה באוסף (עובדה, גם לפני AI). */}
+              {convergences.length > 0 && (
+                <div style={{ marginTop: 12, background: "rgba(47,109,246,0.06)", border: "1px solid rgba(47,109,246,0.25)", borderRadius: 12, padding: "10px 12px" }}>
+                  <div className="rw-sec-t" style={{ marginTop: 0 }}>🔮 התכנסויות שהמנוע זיהה</div>
+                  <div className="rw-muted" style={{ marginBottom: 8, fontSize: 12 }}>ערך משותף שנמצא באוסף — <b>גם בין שיטות שונות</b> (למשל משיח במילוי = דבר-מתוך-דבר ברגיל).</div>
+                  <div style={{ display: "grid", gap: 7 }}>
+                    {convergences.slice(0, 6).map((c, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                        <Link to={`/number/${c.value}`} style={{ textDecoration: "none", background: "linear-gradient(135deg,#2f6df6,#5b8bff)", color: "#fff", borderRadius: 999, padding: "2px 10px", fontWeight: 800, fontSize: 13 }}>{c.value}</Link>
+                        {c.crossMethod && <span style={{ background: "#ffe9b8", color: "#7a4d00", borderRadius: 999, padding: "1px 8px", fontSize: 10.5, fontWeight: 800 }}>הצלבת שיטות</span>}
+                        <span style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                          {c.members.map((m, mi) => (
+                            <React.Fragment key={mi}>
+                              {mi > 0 && <span style={{ color: "#9aa1ad" }}>·</span>}
+                              <Link to={`/number/${encodeURIComponent(m.phrase)}`} onClick={() => trackJourneyStep(c.value, m.phrase, { via: m.methods.join("/"), surface: "research_center" })} style={{ textDecoration: "none", color: "#1b1d22", fontWeight: 700, fontSize: 13 }}>
+                                {m.phrase}<span style={{ color: "#5b6472", fontWeight: 600, fontSize: 11 }}> ({m.methods.join("/")})</span>
+                              </Link>
+                            </React.Fragment>
+                          ))}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {aiState !== "done" && (
                 <>
                   <div className="rw-sec-t" style={{ marginTop: 12 }}>🤖 נתח את המספרים שלך ב-AI</div>

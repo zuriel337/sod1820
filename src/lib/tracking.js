@@ -52,6 +52,13 @@ export const trackImageClick = (imageId, value) =>
 export const trackAi = (kind, where = null) =>
   track("ai", kind, "use", { where });
 
+// 🧭 עקבת-מסע — כל מעבר בקישור-פנים (מילה→ערך→מילה) נשמר לניתוח התנהגותי עתידי:
+// אילו מספרים מושכים אנשים · אילו מילים הן שערים · איפה המסע נעצר · אילו צמתים חוזרים.
+// data-only (בלי UI), רוכב על visitor_events (עץ אחד, בלי טבלה מקבילה). from=מאיפה · to=לאן · via=דרך איזו שיטה.
+export const trackJourneyStep = (from, to, { via = null, surface = null } = {}) =>
+  track("journey_trace", to != null ? String(to).slice(0, 120) : null, "step",
+    { from: from != null ? String(from).slice(0, 120) : null, via, surface });
+
 // 🧠 שימוש באזור-המשתמש (עולם המשתמש / המחקר) — תופס גם אנונימיים (visitor_id). מפולח לפי action:
 //   open  — נפתח «עולם המשתמש» (סרגל/גיליון/פרופיל)
 //   save  — 🔖/⭐ שמירת ישות · add — ➕ הוסף למחקר · journey — מסע נשמר

@@ -2457,6 +2457,16 @@ export async function getNumberCrossResonance(word, pairs, { perGroup = 5, cap =
   } catch { return []; }
 }
 
+// 📊 מדד-תהודה — עובדת-מנוע (number_resonance_stats): {n_methods, n_connections, n_strong_nodes}.
+export async function getNumberResonanceStats(word, pairs) {
+  if (!supabase || !word || !pairs?.length) return null;
+  try {
+    const { data, error } = await supabase.rpc('number_resonance_stats', { p_self: word, p_pairs: pairs });
+    if (error || !data) return null;
+    return Array.isArray(data) ? (data[0] || null) : data;
+  } catch { return null; }
+}
+
 // 🧪 מעבדת השם — מחקר הקשר + גשרים חוצי-שפות לשם/מילה נתונה.
 export async function getNameResearch(word, value) {
   const w = (word || '').trim();
