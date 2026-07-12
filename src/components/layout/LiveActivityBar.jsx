@@ -4,6 +4,7 @@ import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { getSearchStatsToday, getGalleryUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
+import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
 // 📡 בונה חדשות-טיקר טריות. כל פריט = דבר שקרה היום/עכשיו, לחיץ, מוביל למקומו.
 // מקורות: עדכוני-פוסטים · תמונות חדשות בזרם המציאות · מדדים יומיים. מתחלף כל יום, בלי חזרות.
@@ -121,16 +122,20 @@ export default function LiveActivityBar() {
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
         /* 📱 טלפון: «עכשיו באתר» (הריבוע הימני) מוסתר לגמרי — ההודעה ממורכזת בכל הרוחב, בלי גניבת-שורה. */
+        /* 🌳 «מה חדש» — בגוטר השמאלי של הטיקר (אותה שורה, לא גוזל שורה) */
+        .lt-wn { position:absolute; inset-inline-end:12px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
         @media (max-width: 640px) {
-          .lt-bar { padding:7px 16px; }
+          .lt-bar { padding:7px 16px 7px 78px; }
           .lt-badge { display:none; }
           .lt-msg { font-size:11px; }
+          .lt-wn { inset-inline-end:8px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
 
       <div className="lt-bar" aria-label="חדשות טריות באתר">
         <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
+        <span className="lt-wn"><WhatsNewBadge /></span>
         {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר).
             עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
         {cur && (
