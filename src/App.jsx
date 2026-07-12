@@ -58,6 +58,7 @@ const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPa
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
+const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
 const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
 const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
 const ThemePreviewPage = React.lazy(() => import("./pages/ThemePreviewPage.jsx"));
@@ -261,7 +262,8 @@ export default function App() {
           <Route path="/name-lab" element={<NameLabPage />} />
           <Route path="/מעבדת-השם" element={<NameLabPage />} />
           <Route path="/code" element={<CodePage />} />
-          <Route path="/beit-midrash" element={<BeitMidrashToLab />} />
+          {/* 📚 בית המדרש — דף עצמאי (כמו שהיה): מי שנכנס — בבית המדרש, לא בשלד-המחקר */}
+          <Route path="/beit-midrash" element={<BeitMidrashPage />} />
           <Route path="/beit-midrash/:method" element={<MethodPage />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />

@@ -52,11 +52,11 @@ const AXIS_CSS = `
 
 const AI_BLUE = "#3ea6ff";
 
-function dotStyle(ev, active, P) {
+function dotStyle(ev, active, P, isNew) {
   const w = ev.weight || 1;
   const size = 11 + w * 3.2;
-  const strong = w >= 5;
-  const color = strong ? P.accent : w >= 4 ? VIOLET : P.accentDim;
+  // צבע אחיד לכל העיגולים (זהב); כחול **רק** אם זו תחנה טרייה (עדכון ב-4 הימים האחרונים).
+  const color = isNew ? AI_BLUE : P.accent;
   return {
     width: size, height: size, borderRadius: "50%", cursor: "pointer", border: "none",
     "--z": `${(w - 3) * 26}px`,
@@ -112,8 +112,8 @@ export default function RevelationAxis() {
         const tp = (y.tree_priority ?? -1) - (x.tree_priority ?? -1);   // גבוה=למעלה
         if (tp) return tp;
         return String(y.modified || "").localeCompare(String(x.modified || ""));
-      }).slice(0, 5);
-      setAiPosts(merged);
+      }).filter(p => withinFresh(p.modified, AXIS_FRESH_HOURS)).slice(0, 5);
+      setAiPosts(merged);   // רק עדכוני-AI *טריים* (כחולים) מופיעים; אין «3 כחולים» קבועים
     });
   }, []);
 
@@ -194,11 +194,12 @@ export default function RevelationAxis() {
         ))}
         {events.map(ev => {
           const active = hash === `#ev-${ev.id}` && pathname === "/timeline";
+          const evNew = withinFresh(ev.created_at, AXIS_FRESH_HOURS);
           return (
             <div key={ev.id} style={{ position: "relative", display: "flex", alignItems: "center" }}
               onMouseEnter={() => setHovered(ev)} onMouseLeave={() => setHovered(null)}>
-              <button className={"rev-axis-dot" + (withinFresh(ev.created_at, AXIS_FRESH_HOURS) ? " is-new" : "")} onClick={() => nav(`/timeline#ev-${ev.id}`)}
-                aria-label={stripHtml(ev.label || "")} style={dotStyle(ev, active || hovered?.id === ev.id, P)} />
+              <button className={"rev-axis-dot" + (evNew ? " is-new" : "")} onClick={() => nav(`/timeline#ev-${ev.id}`)}
+                aria-label={stripHtml(ev.label || "")} style={dotStyle(ev, active || hovered?.id === ev.id, P, evNew)} />
 
               {/* תצוגה מקדימה בריחוף */}
               {hovered?.id === ev.id && (
