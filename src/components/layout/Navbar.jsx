@@ -16,18 +16,23 @@ import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/instal
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
-// 🔍 סמל מותאם לדילוגי-אותיות: זכוכית-מגדלת שמאתרת שלוש אותיות באלכסון — הקוד החבוי ברצף.
-function DilugimIcon({ size = 24, accent = "#e6cf86" }) {
+// 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
+// אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
+// אוטומטית את צבע הטקסט (זהב/לבן) כך שיש «גרסה בהירה וכהה» בלי כפילות. אקסנט חם אחד לצבעוניות.
+function DilugimIcon({ size = 24, accent = "#e0a53a" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      <circle cx="10" cy="10" r="7.5" stroke={accent} strokeWidth="1.8" fill="none" />
-      <path d="M6 6 L14 14" stroke={accent} strokeWidth="1" opacity="0.45" strokeLinecap="round" />
-      <g fill={accent}>
-        <circle cx="6" cy="6" r="1.6" />
-        <circle cx="10" cy="10" r="1.6" />
-        <circle cx="14" cy="14" r="1.6" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" style={{ display: "block" }}>
+      {/* קו-הדילוג — האלכסון הדק שמחבר את שלוש האותיות */}
+      <path d="M23 10 L11 25" stroke={accent} strokeWidth="1.7" strokeLinecap="round" opacity="0.7" />
+      {/* שלוש אותיות עבריות = הטקסט (currentColor) */}
+      <g fill="currentColor" fontFamily="'Heebo', sans-serif" fontWeight="800" fontSize="11.5">
+        <text x="24" y="14" textAnchor="middle">א</text>
+        <text x="17.5" y="21" textAnchor="middle">ב</text>
+        <text x="11" y="28" textAnchor="middle">ג</text>
       </g>
-      <line x1="15.4" y1="15.4" x2="21" y2="21" stroke={accent} strokeWidth="2.3" strokeLinecap="round" />
+      {/* זכוכית-מגדלת קטנה = מחקר */}
+      <circle cx="8" cy="8.5" r="4" stroke={accent} strokeWidth="1.7" fill="none" />
+      <line x1="10.9" y1="11.4" x2="13.5" y2="14" stroke={accent} strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
@@ -669,7 +674,7 @@ export default function Navbar() {
                   {/* סרט «🔒 בבנייה» צף על קו-המסגרת — לא מוסיף גובה, כך שכל האריחים אחידים */}
                   <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 8, fontWeight: 900, borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap", border: `1px solid ${cc.borderGold}` }}>🔒 בבנייה</span>
                   {t.icon === "dilugim"
-                    ? <span className="sod-tile-e" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><DilugimIcon size={27} accent="#e6cf86" /></span>
+                    ? <span className="sod-tile-e" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#e6cf86" }}><DilugimIcon size={30} /></span>
                     : <span className="sod-tile-e">{t.e}</span>}
                   <span className="sod-tile-l">{t.l}</span>
                 </div>
