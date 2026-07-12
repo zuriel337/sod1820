@@ -12,10 +12,11 @@ export const NAV = [
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
   { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive?tab=galleries" },
-  { label: 'הצופן התנ"כי · בקרוב', emoji: "🔒", to: "/code" },
+  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "צ'אט", to: "/community/chat" },
+      { label: "הכתבים והחוקרים", to: "/community/researchers" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
       { label: "מחשבון מקצועי", to: "/research?tool=gematria" },
       { label: "תגובות", to: "/community/comments" },
@@ -26,10 +27,10 @@ export const NAV = [
   { label: "ניסויים · תלת-מימד", emoji: "🧪", to: "/lab" },
 ];
 
-// פריטים שמוצגים בשורת התפריט הראשית (השאר נגישים דרך מרכז הניווט / המבורגר)
+// שורת התפריט הראשית = מוצרים בלבד (דף עצמאי שראוי לחיפוש-גוגל משלו).
+// כלים חיים בתוך «היכל»; תוכן/קהילה נגישים דרך «עוד ▾» / מרכז הניווט.
 export const PRIMARY_KEYS = [
-  "/", "/start", "/timeline", "/numbers", "/beit-midrash", "/post",
-  "/code", "/community", "/members",
+  "/", "/number", "/code", "/beit-midrash", "/research", "/community",
 ];
 
 // SEO לכל route. דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם.

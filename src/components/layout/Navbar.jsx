@@ -16,32 +16,39 @@ import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/instal
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
-// קישורי ליבה בסרגל; השאר -> "עוד ▾". מבנה נקי לפי החזון.
-// «בית המדרש» הוסר מהליבה — הוחלף בכפתור «🔭 היכל הגילוי» הבולט (בית-המדרש חי בתוך המעבדה).
-// «ציר ההתגלות» ↔ «זרם המציאות» הוחלפו (בקשת צוריאל): הזרם בליבה, הציר ב"עוד ▾".
-const CORE_KEYS = ["/", "/archive?tab=reality", "/community"];
-const coreItems = NAV.filter(i => CORE_KEYS.includes(i.to));
-// הוסרו מהתפריט (לפי בקשת צוריאל): הצופן התנ"כי (/code · חי בהיכל), בני ההיכל (/members), ניסויים (/lab).
-const MORE_HIDE = ["/start", "/code", "/members", "/lab"];
+// 🧭 השורה הראשית = מוצרים בלבד (כלל צוריאל: «דף שראוי לחיפוש-גוגל משלו»).
+// דף המספר · דילוגי אותיות · בית המדרש — כל אחד מוצר עצמאי. «היכל» = הכניסה לכלים,
+// קהילה = השער החברתי. השאר (תוכן, ציר, זרם, שידורים, גלריות, עץ) → «עוד ▾».
+const productItems = [
+  { label: "בית", emoji: "🏠", to: "/" },
+  { label: "דף המספר", emoji: "🔢", to: "/number" },
+  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
+  { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
+];
+const communityItem = NAV.find(i => i.to === "/community");
+// מה שלא מוצר ולא היכל/קהילה — נגיש דרך «עוד ▾» / מרכז הניווט (לא מעורבב בשורה הראשית).
+const PRODUCT_KEYS = ["/", "/number", "/code", "/beit-midrash", "/research", "/community"];
+const MORE_HIDE = ["/start", "/members", "/lab"];
 const moreItems = [
-  ...NAV.filter(i => !CORE_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
+  ...NAV.filter(i => !PRODUCT_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
 // תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
 // הסמלים זהים לאלה שבתוך החלונות עצמם (מחשבון=🧮 כמו בבית המדרש · מנוע המספרים=🔢 כמו בדף המספר)
 // מסודר לפי קבוצות: מחקר (מחשבון · מספרים · היכל) → תוכן (פוסטים · גלריות · ציר) → קהילה → ניווט.
+// מובייל: מוצרים קודם (דילוגי-אותיות = דף עצמאי /code, לא דרך ההיכל), ואז תוכן וקהילה.
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
+  { e: "🔢", l: "דף המספר", to: "/number" },
+  { e: "🔠", l: "דילוגי אותיות · בקרוב", to: "/code" },
+  { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
+  { e: "🏛️", l: "היכל", to: "/research", soon: "🚧 בבנייה" },
   { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
-  { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
-  { e: "🔢", l: "מנוע המספרים", to: "/number" },
-  { e: "🏛️", l: "היכל הגילוי", to: "/research", soon: "🚧 בבנייה" },
-  { e: "📖", l: "פוסטים", to: "/post" },
+  { e: "💬", l: "קהילה", to: "/community" },
+  { e: "📜", l: "פוסטים", to: "/post" },
   { e: "🖼", l: "גלריות", to: "/archive" },
-  { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
-  { e: "💬", l: "הצ'אט הוותיק", to: "/community/chat" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
 const MOBILE_SOON = [
@@ -315,13 +322,13 @@ function LabMenu() {
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" onClick={() => setOpen(false)} aria-label="היכל הגילוי · בבנייה" style={{
+      <Link to="/research" onClick={() => setOpen(false)} aria-label="היכל · בבנייה" style={{
         display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none", textDecoration: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ היכל הגילוי
+      }}>🏛️ היכל
         <span style={{
           fontSize: 9.5, fontWeight: 900, letterSpacing: 0.3, lineHeight: 1,
           background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2.5px 6px",
@@ -435,12 +442,11 @@ export default function Navbar() {
 
         {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
 
-        {/* כפתור-העל «היכל הגילוי» — תפריט-מגה אופקי עם כלי המעבדה */}
-        <LabMenu />
-
-        {/* ליבה + עוד */}
+        {/* מוצרים ראשיים + «היכל» (הכניסה לכלים) + קהילה + «עוד ▾». לא מערבבים כלים/תוכן בשורה. */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {coreItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
+          {productItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
+          <LabMenu />
+          {communityItem && <NavLinkItem item={communityItem} pathname={pathname} />}
           <MoreMenu items={moreItems} pathname={pathname} />
         </div>
 
