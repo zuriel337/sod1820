@@ -207,7 +207,7 @@ export default function ElsGrid({ seed }) {
     if (!niqqud && !nqData) { setNqBusy(true); const d = await getTorahNiqqud(); setNqData(d); setNqBusy(false); if (!d) return; }
     setNiqqud(v => !v);
   };
-  const [raw, setRaw] = useState(seed || "ישראל");
+  const [raw, setRaw] = useState(seed || "");   // ריק כברירת-מחדל — בלי חיפוש-אוטומטי
   const [crossExtra, setCrossExtra] = useState([]); // מונחים נוספים (מוצלב) — מופיעים רק כשמוסיפים «➕ מילה»
   const [mode, setMode] = useState("torah");   // torah · tanakh · cross — שער-הכניסה
   const [entered, setEntered] = useState(false); // false=מסך-תוצאות פשוט · true=סביבת-המטריצה
@@ -237,7 +237,7 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false, noLimit: false });
+  const [q, setQ] = useState({ raw: seed || "", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false, noLimit: false });
 
   // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
   const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
@@ -882,6 +882,21 @@ export default function ElsGrid({ seed }) {
 
       {!letters && !err && <div className="rw-card rw-muted" style={{ marginTop: 12 }}>{needTanakh ? "טוען את התנ״ך המלא (פעם אחת)…" : "טוען את אותיות התורה…"}</div>}
       {err && <div className="rw-card" style={{ marginTop: 12, color: "#b4453a" }}>שגיאה בטעינת הטקסט.</div>}
+
+      {/* 🟦 מצב-מנוחה — תיבה ריקה + מטריצה ריקה (רוחב 50, מבראשית). נעלם ברגע שמחפשים. */}
+      {!searching && !res && !entered && torahLetters.length > 50 && (
+        <div className="rw-card" style={{ marginTop: 12, textAlign: "center" }}>
+          <div className="rw-sub" style={{ marginBottom: 10 }}>הקלידו מילה למעלה — הצופן ייפתח כאן.</div>
+          <div style={{ overflowX: "auto", display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(50, 17px)", gap: 2, direction: "rtl", opacity: 0.5 }}>
+              {[...torahLetters.slice(0, 50 * 12)].map((ch, i) => (
+                <span key={i} style={{ width: 17, height: 21, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, color: "var(--ink3, #9a8a5e)", fontFamily: "'Frank Ruhl Libre', serif" }}>{ch}</span>
+              ))}
+            </div>
+          </div>
+          <div className="rw-sub" style={{ marginTop: 8, fontSize: 11.5, opacity: 0.8 }}>רוחב 50 · מבראשית</div>
+        </div>
+      )}
 
       {/* ⏳ לוּדר חיפוש — לוגו מהבהב + אחוזים + עצירה */}
       {searching && (
