@@ -125,11 +125,12 @@ export default function RevelationAxis() {
 
   return (
     <div className="rev-axis" style={{
-      position: "fixed", top: 0, bottom: 0, left: 0, width: 86, zIndex: 40,
+      // top:112 — הציר מתחיל *מתחת* לטיקר החדשות (תפריט 64 + טיקר ~45), כדי שלא יתנגש
+      //           עם «מה חדש» שברצועה. הכותרת האנכית יורדת יחד איתו.
+      position: "fixed", top: 112, bottom: 0, left: 0, width: 86, zIndex: 40,
       flexDirection: "column", alignItems: "center", justifyContent: "center",
       pointerEvents: "none",
-      // מרווח שמור: הכוכבים ממורכזים בין הכותרת/הטיקר (למעלה) לכפתור 🌅 (למטה) — בלי התנגשות
-      padding: "120px 0 56px", boxSizing: "border-box",
+      padding: "48px 0 56px", boxSizing: "border-box",
     }}>
       <style>{AXIS_CSS}</style>
 
