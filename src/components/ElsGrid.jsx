@@ -435,7 +435,7 @@ export default function ElsGrid({ seed }) {
     const colMargin = Math.max(6, 5 * gridSize);
     // 🎯 framePos = אותיות-התוצאה (או המופע הממוקד). ביחיד: + **המופע-הקרוב של כל שכבה אם קרוב מספיק** →
     // המטריצה מתרחבת לבד כדי להראות את מה שחיפשת. העוגן/המוקד תמיד במרכז. במוצלב: מסגור על כל המונחים.
-    let framePos, colCenter, colWin, rowStart, rowEnd;
+    let framePos, colCenter, colWin, rowStart, rowEnd, clamped = false;
     if (res.mode === "single") {
       framePos = [...view.positions];
       const aCols = view.positions.map(p => ((p % W2) + W2) % W2);
@@ -459,15 +459,31 @@ export default function ElsGrid({ seed }) {
       const halfR = Math.max(padRows, Math.ceil(Math.max(aRowMid - Math.min(...frameRows), Math.max(...frameRows) - aRowMid)) + 1);
       rowStart = Math.floor(aRowMid - halfR); rowEnd = Math.ceil(aRowMid + halfR);
     } else {
+      const anchorPk = cl0.picks[0].hit;   // המונח הראשי — עוגן החלון
       framePos = cl0.picks.flatMap(p => p.hit.positions);
       const minP = Math.min(...framePos), maxP = Math.max(...framePos);
-      const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+      let firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+      // 🛟 תקרת-חלון (מונע הקפאה): אשכול שהמונחים שבו רחוקים זה מזה היה בונה מיליוני תאים
+      //    ומקפיא את הדפדפן. מגבילים גובה+רוחב סביב המונח הראשי; אם נחתך → clamped=true (הערה).
+      const MAX_ROWS = 140, MAX_COLS = 100;
+      if (lastRow - firstRow > MAX_ROWS) {
+        const aRow = Math.round(centerOf(anchorPk) / W2);
+        firstRow = aRow - Math.floor(MAX_ROWS / 2);
+        lastRow = aRow + Math.ceil(MAX_ROWS / 2);
+        clamped = true;
+      }
       rowStart = firstRow - padRows; rowEnd = lastRow + padRows;
       const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
       let cLo = Math.min(...colsOf), cHi = Math.max(...colsOf);
       if ((cHi - cLo) > W2 / 2) { cLo = 0; cHi = W2 - 1; }
       colCenter = (cLo + cHi) / 2;
       colWin = Math.min(W2, (cHi - cLo) + colMargin * 2);
+      if (colWin > MAX_COLS) {   // רוחב חורג → ממקדים על עמודות המונח הראשי
+        const aCols = anchorPk.positions.map(p => ((p % W2) + W2) % W2);
+        colCenter = aCols.reduce((a, b) => a + b, 0) / aCols.length;
+        colWin = MAX_COLS;
+        clamped = true;
+      }
     }
     let colStart = Math.round(colCenter - colWin / 2);
     // אוסף האינדקסים שבאמת נראים על המטריצה (לשימוש בסינון רשימת-ההצלבות לפי «מה גלוי»)
@@ -491,7 +507,7 @@ export default function ElsGrid({ seed }) {
       }
       rows.push(cells);
     }
-    return { rows, W: W2, skip: s, visible };
+    return { rows, W: W2, skip: s, visible, clamped };
   }, [res, anchorHit, focusHit, clusterIdx, letters, overlayData, gridSize]);
 
   // קבוצת-אותיות העוגן (לזיהוי «חיתוך אמיתי» — מופע שחולק תא עם התוצאה, כמו «בלעם» שנגע ב-ב)
@@ -1123,6 +1139,7 @@ export default function ElsGrid({ seed }) {
       )}
       {entered && grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {entered && grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
+      {entered && grid?.clamped && <div className="rw-sub" style={{ marginTop: 6, textAlign: "center", color: "#b07d12" }}>ℹ️ המונחים באשכול זה רחוקים זה מזה — מוצג חלון ממורכז על המונח הראשי (מונע האטה). בחרו אשכול קרוב יותר מהרשימה לצפייה מלאה.</div>}
       {entered && grid && <Help label="ℹ️ איך קוראים את המטריצה?">
         אותיות התנ״ך נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
       </Help>}
