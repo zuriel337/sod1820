@@ -849,11 +849,12 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [aiText, setAiText] = useState("");
   const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   const [aiDeep, setAiDeep] = useState(false);         // false=Haiku מהיר · true=Sonnet עמוק (מכסה)
+  const [aiCross, setAiCross] = useState(null);        // {groups, resonance, ...} — עדשת ההצלבה + מדד-התהודה
   const [comboBusy, setComboBusy] = useState(false);
   const [comboText, setComboText] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
-  useEffect(() => { setAiText(""); setAiBusy(false); setAiDeep(false); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
+  useEffect(() => { setAiText(""); setAiBusy(false); setAiDeep(false); setAiCross(null); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
   // 🤖 חיפוש-AI — כולם דרך המודול המשותף analyzeWordDeep (שכבת-העומק הבין-שיטתית נוספת אוטומטית).
   //    deep=false → Haiku (מהיר, נדיב) · deep=true → Sonnet (מדויק, נכנס למכסת-העומק). עומק חל רק לדף-מילה.
   async function runAiNumber(engine = "claude", deep = false) {
@@ -869,7 +870,8 @@ export default function EntityPage({ embedPhrase } = {}) {
       (convCount ? ` ${convCount} ישויות מתכנסות על הערך הזה.` : "") +
       (topics[0]?.title ? ` התכנסות מרכזית: ${topics[0].title}.` : "");
     // עומק בין-שיטתי נמשך רק כשיש מילה עברית (למספר בלבד אין אותיות → analyzeWordDeep מחזיר baseFacts כמות שהם).
-    const { text } = await analyzeWordDeep({ term: isNumber ? "" : term, subject, baseFacts, engine, deep });
+    const { text, cross } = await analyzeWordDeep({ term: isNumber ? "" : term, subject, baseFacts, engine, deep });
+    setAiCross(cross && (cross.groups?.length || cross.resonance) ? cross : null);
     setAiText(text || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
@@ -1330,6 +1332,30 @@ export default function EntityPage({ embedPhrase } = {}) {
                     </div>
                   </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
+                  {/* 📊 מדד-תהודה (עובדת-מנוע) + 🔮 הצלבות כקישורי-פנים לחיצים — הדבק של לולאת הגילוי */}
+                  {aiCross && (
+                    <div style={{ marginTop: 11 }}>
+                      {aiCross.resonance && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
+                          <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
+                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים חזקים</span>
+                        </div>
+                      )}
+                      {aiCross.groups?.some(g => g.method !== "רגיל") && (
+                        <div style={{ display: "grid", gap: 6 }}>
+                          {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
+                            <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>ב{g.method} ({g.value})</span>
+                              {g.matches.slice(0, 5).map((m, mi) => (
+                                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
+                              ))}
+                            </div>
+                          ))}
+                          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>כל מילה = הנסתר של «{term}» נופל על פניה. לחיצה = מסלול המשך.</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
                   {funnelNudge}
                 </div>
