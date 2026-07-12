@@ -30,8 +30,6 @@ function DilugimIcon({ size = 24, accent = "#f5e7b2" }) {
         <text x="17" y="19" textAnchor="middle">ב</text>
         <text x="12" y="25" textAnchor="middle">ג</text>
       </g>
-      {/* סימון האותיות שנמצאו — לולאה אלכסונית גדולה שמקיפה את הרצף מבחוץ (כמו שמקיפים תשובה) */}
-      <ellipse cx="17" cy="19" rx="11" ry="6.9" transform="rotate(-46 17 19)" stroke={accent} strokeWidth="1.6" fill="none" />
       {/* זכוכית-מגדלת קטנה = מחקר */}
       <circle cx="8" cy="8.5" r="4" stroke={accent} strokeWidth="1.7" fill="none" />
       <line x1="10.9" y1="11.4" x2="13.5" y2="14" stroke={accent} strokeWidth="1.7" strokeLinecap="round" />

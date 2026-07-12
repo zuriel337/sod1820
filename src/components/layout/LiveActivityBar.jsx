@@ -111,7 +111,7 @@ export default function LiveActivityBar() {
            כך «עכשיו באתר» מקביל לפינת-הכתר ו«מה חדש» מקביל לסוף-התפריט (מרחק שווה משני הצדדים). */
         .lt-bar { position:relative; display:flex; align-items:center; justify-content:center; pointer-events:none;
           overflow:hidden; max-width:100%; box-sizing:border-box; min-height:30px;
-          background:${barBg}; border-bottom:1px solid ${barBorder}; padding:7px 0; }
+          background:${barBg}; border-bottom:1px solid ${barBorder}; padding:7px 18px; }
         .lt-inner { position:relative; width:100%; max-width:1800px; margin:0 auto; box-sizing:border-box;
           padding:0 120px; display:flex; align-items:center; justify-content:center; min-height:30px; }
         .lt-badge { position:absolute; inset-inline-start:6px; top:50%; transform:translateY(-50%);
