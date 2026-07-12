@@ -19,18 +19,18 @@ import StreamSwitch from "../StreamSwitch.jsx";
 // 🧭 השורה הראשית = מוצרים בלבד (כלל צוריאל: «דף שראוי לחיפוש-גוגל משלו»).
 // דף המספר · דילוגי אותיות · בית המדרש — כל אחד מוצר עצמאי. «היכל» = הכניסה לכלים,
 // קהילה = השער החברתי. השאר (תוכן, ציר, זרם, שידורים, גלריות, עץ) → «עוד ▾».
+// אופציה א׳: «היכל» = העוגן הזהוב, ושלושת הכלים שלו יושבים לצידו כיחידה אחת.
+// הלוגו מוביל הביתה — לכן «בית» אינו קישור נפרד. סדר (RTL): היכל ▸ דף המספר · בית המדרש · דילוגים.
 const productItems = [
-  { label: "בית", emoji: "🏠", to: "/" },
   { label: "דף המספר", emoji: "🔢", to: "/number" },
-  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
   { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
+  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
 ];
-const communityItem = NAV.find(i => i.to === "/community");
-// מה שלא מוצר ולא היכל/קהילה — נגיש דרך «עוד ▾» / מרכז הניווט (לא מעורבב בשורה הראשית).
-const PRODUCT_KEYS = ["/", "/number", "/code", "/beit-midrash", "/research", "/community"];
+// כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
+const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
 const MORE_HIDE = ["/start", "/members", "/lab"];
 const moreItems = [
-  ...NAV.filter(i => !PRODUCT_KEYS.includes(i.to) && !MORE_HIDE.includes(i.to)),
+  ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
   { label: "צור קשר", emoji: "✉", to: "/contact" },
 ];
 
@@ -213,20 +213,22 @@ function NavLinkItem({ item, pathname, onNavigate }) {
   );
 }
 
-function MoreMenu({ items, pathname, onNavigate }) {
+function MoreMenu({ items, pathname, onNavigate, grid }) {
   const cc = chromeColors(useThemeMode());
   const [open, setOpen] = useState(false);
   const anyActive = items.some(i => isActive(pathname, i.to));
   return (
     <div style={{ position: "relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button className="nav-link" style={{
+      <button className="nav-link" title="עוד — כל השאר" aria-label="עוד — כל השאר" style={{
         background: anyActive ? cc.activeBg : "transparent",
         border: anyActive ? `1px solid ${cc.borderGold}` : "1px solid transparent",
         cursor: "pointer", color: anyActive ? cc.goldBright : cc.muted,
         fontFamily: F.royal, fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
-        padding: "7px 12px", borderRadius: 8, display: "inline-flex", alignItems: "center", gap: 5,
+        padding: grid ? "8px 10px" : "7px 12px", borderRadius: 8, display: "inline-flex", alignItems: "center", gap: grid ? 6 : 5,
         transition: "color 0.2s, background 0.2s",
-      }}>⋯ עוד <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></button>
+      }}>
+        {grid ? <GridIcon /> : "⋯ עוד"} <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>
+      </button>
       {open && <Dropdown items={items} onNavigate={onNavigate} />}
     </div>
   );
@@ -442,15 +444,14 @@ export default function Navbar() {
 
         {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
 
-        {/* מוצרים ראשיים + «היכל» (הכניסה לכלים) + קהילה + «עוד ▾». לא מערבבים כלים/תוכן בשורה. */}
-        <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {productItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
+        {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
+        <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
-          {communityItem && <NavLinkItem item={communityItem} pathname={pathname} />}
-          <MoreMenu items={moreItems} pathname={pathname} />
+          <span className="sod-heichal-arrow" aria-hidden>▸</span>
+          {productItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
         </div>
 
-        {/* חיפוש + הפתעה + כניסה */}
+        {/* חיפוש + הפתעה + כניסה + תפריט-רשת ⊞ (כל השאר במקום אחד — לא סרגל שני) */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
           <UniversalSearch />
           <SurpriseButton />
@@ -461,6 +462,7 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
+          <MoreMenu items={moreItems} pathname={pathname} grid />
         </div>
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
@@ -569,6 +571,14 @@ export default function Navbar() {
           background: linear-gradient(180deg, transparent, rgba(246,226,122,0.6), transparent); animation: nav-logo-scan 2.6s ease-in-out 2 forwards; }
 
         .nav-link:hover { color: ${cc.goldBright} !important; background: ${cc.hoverBg} !important; }
+
+        /* אופציה א׳ — קבוצת «היכל»: מסגרת עדינה שעוטפת את העוגן + שלושת הכלים כיחידה אחת */
+        .sod-heichal-group { align-items: center; gap: 2px;
+          border: 1px solid ${cc.border}; border-radius: 14px; padding: 3px 5px 3px 7px;
+          background: ${cc.chipBg}; transition: border-color 0.2s, box-shadow 0.2s; }
+        .sod-heichal-group:hover { border-color: ${cc.borderGold}; box-shadow: 0 0 16px rgba(212,175,55,0.12); }
+        .sod-heichal-arrow { color: ${cc.muted}; font-size: 12px; opacity: 0.6; margin: 0 2px; user-select: none; }
+        @media (min-width: 1041px) { .sod-heichal-group { display: flex; } }
 
         .nav-gem { display: inline-flex; align-items: center; gap: 4px; background: ${cc.chipBg};
           border: 1px solid ${cc.border}; border-radius: 999px; padding: 3px 6px 3px 4px; transition: border-color 0.2s, box-shadow 0.2s; }
