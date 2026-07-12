@@ -76,7 +76,7 @@ export default function RevelationAxis() {
       .eq("type", "event").eq("is_active", true)
       .order("weight", { ascending: false })
       .order("created_at", { ascending: false })
-      .limit(12)
+      .limit(8)   // פחות תחנות → הפס לא נדחס/גולש במסך רגיל
       .then(({ data }) => setEvents((data || []).map((e, i) => ({ ...e, _i: i }))));
 
     // עדכוני AI — הבהוב כחול בראש הציר. מערכתי: פוסט נכנס לציר אם הוא נושא
@@ -100,7 +100,7 @@ export default function RevelationAxis() {
         const tp = (y.tree_priority ?? -1) - (x.tree_priority ?? -1);   // גבוה=למעלה
         if (tp) return tp;
         return String(y.modified || "").localeCompare(String(x.modified || ""));
-      }).slice(0, 6);
+      }).slice(0, 5);
       setAiPosts(merged);
     });
   }, []);
@@ -116,6 +116,8 @@ export default function RevelationAxis() {
       position: "fixed", top: 0, bottom: 0, left: 0, width: 86, zIndex: 40,
       flexDirection: "column", alignItems: "center", justifyContent: "center",
       pointerEvents: "none",
+      // מרווח שמור: הכוכבים ממורכזים בין הכותרת/הטיקר (למעלה) לכפתור 🌅 (למטה) — בלי התנגשות
+      padding: "120px 0 56px", boxSizing: "border-box",
     }}>
       <style>{AXIS_CSS}</style>
 
@@ -134,16 +136,16 @@ export default function RevelationAxis() {
 
       {/* כותרת אנכית */}
       <div style={{
-        position: "absolute", top: "1.5%", left: 0, width: 86, textAlign: "center",
+        position: "absolute", top: 44, left: 0, width: 86, textAlign: "center",
         color: P.accentText, fontFamily: F.heading, fontSize: 10, letterSpacing: 3,
-        writingMode: "vertical-rl", margin: "0 auto", height: 110, lineHeight: "86px",
+        writingMode: "vertical-rl", margin: "0 auto", height: 100, lineHeight: "86px",
       }}>
         ציר ההתגלות
       </div>
 
       {/* התחנות — בתלת־ממד עדין: חזקות קרובות, חלשות רחוקות */}
       <div style={{
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 26,
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 18,
         perspective: 600, pointerEvents: "auto",
       }}>
         {/* עדכוני AI — הבהובים כחולים בראש הציר */}
