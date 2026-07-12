@@ -1,8 +1,9 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import { isToolReady } from "../lib/hub/ready.js";
+import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
@@ -114,6 +115,8 @@ export default function ResearchPage() {
   const [sp, setSp] = useSearchParams();
   // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
   const { isAdmin } = useAuth();
+  // 📱 בטלפון: דילוגי-אותיות (מטריצה רחבה) עדיפים כדף עצמאי /code, לא דחוסים בהיכל.
+  const wide = useMediaQuery("(min-width: 768px)");
   // 🔬 כלל-הכניסה: כניסה להיכל הגילוי מדליקה מצב discovery לכל האתר — כל Hub שנפתח מכאן יורש אותו.
   const { enterDiscovery } = useResearch();
   useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -144,7 +147,7 @@ export default function ResearchPage() {
   const subnav = (
     <div className="rw-subnav">
       <div className="rw-toolbar">
-        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל הגילוי</button>
+        <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל</button>
         {/* כלים פתוחים (לציבור: בית המדרש · למנהל: הכל) */}
         {READY_LAB.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
@@ -173,7 +176,7 @@ export default function ResearchPage() {
             הכלי הזה עדיין <b>בבנייה</b> — ייפתח בקרוב לכל החוקרים.<br />פתוחים עכשיו: מחשבון · דף המספר · בית המדרש · חיפוש בפסוקים · השוואת מילים · נוטריקון · ניתוח קובץ.
           </div>
           <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
-          <button className="rw-tchip" onClick={() => setTool(null)}>← היכל הגילוי</button>
+          <button className="rw-tchip" onClick={() => setTool(null)}>← היכל</button>
         </div>
       ) : (
         <>
@@ -182,7 +185,16 @@ export default function ResearchPage() {
           {tool === "name" && <NameStory />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
-          {tool === "els" && <ElsGrid seed={seed} />}
+          {tool === "els" && (wide ? <ElsGrid seed={seed} /> : (
+            <div className="rw-card" style={{ textAlign: "center", padding: "40px 22px" }}>
+              <div style={{ fontSize: 42, marginBottom: 12 }}>🔠</div>
+              <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>דילוגי אותיות — עדיף כדף מלא</div>
+              <div className="rw-muted" style={{ fontSize: 14, lineHeight: 1.75, maxWidth: 380, margin: "0 auto 18px" }}>
+                מטריצת הדילוגים רחבה — בטלפון הכלי נוח יותר בדף העצמאי. (בהיכל המלא, במחשב, הוא נפתח כאן בפנים.)
+              </div>
+              <Link to="/code" className="rw-tchip on" style={{ display: "inline-block", textDecoration: "none" }}>🔠 פתח דילוגי אותיות ←</Link>
+            </div>
+          ))}
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
           {tool === "notarikon" && <NotarikonTool />}
