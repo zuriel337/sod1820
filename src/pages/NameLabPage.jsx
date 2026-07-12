@@ -4,6 +4,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supabase.js";
+import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🧪 מעבדת השם — לא «מחשבון שמות» אלא מעבדת מחקר. השאלה: «מה אפשר לגלות על השם הזה?»
@@ -209,9 +210,13 @@ export default function NameLabPage() {
     const br = research && research.bridges ? research.bridges : [];
     const brLine = br.length ? `\nגשרים חוצי-שפות: ${br.map(b => `${b.hebrew}↔${b.foreign_word} (${LANG[b.lang] || b.lang}, ${REL[b.relationship_type] || b.relationship_type}, ${b.gematria_he})`).join(" · ")}` : "";
     const ctxLine = research ? `\nהקשר בגרף: ${research.posts_count || 0} פוסטים · ${research.treasures_count || 0} אוצרות · ${research.hints_count || 0} חידושים.` : "";
+    // 🔮 שכבת-עומק בין-שיטתית (אותה עדשה כמו דף המספר) — הנסתר של «${word}» = הפנים של מילים אחרות.
+    let crossLine = "";
+    try { crossLine = (await getWordCrossFacts(word)).crossLine; } catch { /* בלי עומק, לא שוברים */ }
+    const crossFacts = crossLine ? `\nהצלבות בין-שיטתיות (עובדה מהמנוע — פני מילה אחרת = ערך נסתר של השם): ${crossLine}` : "";
     const facts =
-      "[הנחיה: אתה חוקר שמלווה את המשתמש במעבדת-השם — לא מחשבון. כתוב פסקה קצרה (3-5 משפטים) שעונה: מה מיוחד בשם? אילו התכנסויות *מעניינות* נמצאו — ובעיקר **למה** הן מעניינות (התכנסות שהופיעה בשיטה אחת ולא באחרות = נקודת-מחקר; גשר עברית↔אנגלית = נדיר ומיוחד). לכל התכנסות שאתה מדגיש ציין מאיזו שיטה ומה מקורהּ (מסורת עברית / לטיני-היסטורי / מודרני). אם יש גשר חוצה-שפות — הדגש אותו, זה הדבר הנדיר. סיים בהכוונה: מה כדאי לחקור בהמשך. דבר כמו חוקר סקרן שמזמין להעמיק, לא כמו נוסחה. הפרד עובדה (הערך) מפרשנות (הרמז), בלי נבואות.]\n\n" +
-      `השם: ${word}\nערכים בעברית: ${topHeb}${enLine}${convLine}${brLine}${ctxLine}`;
+      "[הנחיה: אתה חוקר שמלווה את המשתמש במעבדת-השם — לא מחשבון. כתוב פסקה קצרה (3-5 משפטים) שעונה: מה מיוחד בשם? אילו התכנסויות *מעניינות* נמצאו — ובעיקר **למה** הן מעניינות (התכנסות שהופיעה בשיטה אחת ולא באחרות = נקודת-מחקר; גשר עברית↔אנגלית = נדיר ומיוחד; הצלבה בין-שיטתית = הנסתר של השם נופל על פני מילה אחרת). לכל התכנסות שאתה מדגיש ציין מאיזו שיטה ומה מקורהּ (מסורת עברית / לטיני-היסטורי / מודרני). אם יש גשר חוצה-שפות — הדגש אותו, זה הדבר הנדיר. סיים בהכוונה: מה כדאי לחקור בהמשך. דבר כמו חוקר סקרן שמזמין להעמיק, לא כמו נוסחה. הפרד עובדה (הערך) מפרשנות (הרמז), בלי נבואות.]\n\n" +
+      `השם: ${word}\nערכים בעברית: ${topHeb}${enLine}${convLine}${brLine}${crossFacts}${ctxLine}`;
     try {
       const res = await getAiAnalysis({ kind: "name_lab", subject: word, facts });
       setAi(res || null); setAiState(res ? "done" : "off");

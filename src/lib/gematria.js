@@ -68,6 +68,17 @@ export const METHODS = [
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 
+// 🔮 שיטות "קריאות" להצלבה בין-שיטתית (תואם bidim + RPC number_cross_resonance): פנים↔נסתר.
+// מדלגים על הכפלה/ריבוע/גדול/מילויים-עמוקים שמנפחים ערכים אקראיים ופחות לגישים לפרשנות.
+export const CROSS_METHODS = ["רגיל", "אתבש", "קדמי", "מילוי", "סידורי", "אלבם", "מסתתר"];
+// מחזיר [{method,value}] של המילה ב-7 השיטות הקריאות (ערכי-מנוע רשמיים בלבד; ≥10 כדי לסנן רעש).
+export function crossMethodPairs(word) {
+  const byKey = Object.fromEntries(METHODS.map(m => [m.key, m]));
+  return CROSS_METHODS
+    .map(k => ({ method: k, value: byKey[k] ? byKey[k].fn(word) : 0 }))
+    .filter(p => p.value >= 10);
+}
+
 // שם-תצוגה חיצוני בלבד (לא המפתח הפנימי): קדמי מוצג גם כ"משולש". המפתח "קדמי" נשאר ללוגיקה/DB.
 export const methodLabel = (key) => (key === "קדמי" ? "קדמי · משולש" : key);
 

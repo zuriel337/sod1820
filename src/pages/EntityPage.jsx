@@ -8,6 +8,7 @@ export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/tracking.js";
+import { analyzeWordDeep } from "../lib/deepAnalysis.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -847,26 +848,29 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
+  const [aiDeep, setAiDeep] = useState(false);         // false=Haiku מהיר · true=Sonnet עמוק (מכסה)
   const [comboBusy, setComboBusy] = useState(false);
   const [comboText, setComboText] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
-  useEffect(() => { setAiText(""); setAiBusy(false); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
-  async function runAiNumber(engine = "claude") {
+  useEffect(() => { setAiText(""); setAiBusy(false); setAiDeep(false); setComboText(""); setLeadStatus("idle"); }, [value, term]);  // מספר חדש → איפוס
+  // 🤖 חיפוש-AI — כולם דרך המודול המשותף analyzeWordDeep (שכבת-העומק הבין-שיטתית נוספת אוטומטית).
+  //    deep=false → Haiku (מהיר, נדיב) · deep=true → Sonnet (מדויק, נכנס למכסת-העומק). עומק חל רק לדף-מילה.
+  async function runAiNumber(engine = "claude", deep = false) {
     if (aiBusy) return;
-    setAiEngine(engine);
+    setAiEngine(engine); setAiDeep(deep);
     setAiBusy(true); setAiText("");
     const leads = (d.phrases || []).slice(0, 8).map(p => p.phrase).filter(Boolean);
     const subject = isNumber ? String(value) : term;
-    const facts =
+    const baseFacts =
       (isNumber ? `המספר ${value}` : `הביטוי "${term}" (ערך ${value})`) +
       (anchor?.fact ? ` — ${anchor.fact}` : (story?.meaning ? ` — ${story.meaning}` : "")) + "." +
       (leads.length ? ` שווה בגימטריה לביטויים: ${leads.join(", ")}.` : "") +
       (convCount ? ` ${convCount} ישויות מתכנסות על הערך הזה.` : "") +
       (topics[0]?.title ? ` התכנסות מרכזית: ${topics[0].title}.` : "");
-    let txt = await getAiAnalysis({ kind: "number", subject, facts, fast: true, engine });
-    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "number", subject, facts, again: true, fast: true, engine }); }
-    setAiText(txt || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
+    // עומק בין-שיטתי נמשך רק כשיש מילה עברית (למספר בלבד אין אותיות → analyzeWordDeep מחזיר baseFacts כמות שהם).
+    const { text } = await analyzeWordDeep({ term: isNumber ? "" : term, subject, baseFacts, engine, deep });
+    setAiText(text || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     setAiBusy(false);
   }
 
@@ -1294,20 +1298,36 @@ export default function EntityPage({ embedPhrase } = {}) {
                       🟣 Gemini
                     </button>
                   </div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת</div>
+                  {/* 🔬 ניתוח עמוק — Sonnet, opt-in בלבד (נכנס למכסת-העומק). רק לדף-מילה, שם ההצלבה הבין-שיטתית משמעותית. */}
+                  {!isNumber && (
+                    <button onClick={() => runAiNumber("claude", true)} title="ניתוח מעמיק יותר על Sonnet — כל השיטות + הצלבות בין-שיטתיות"
+                      style={{ width: "100%", cursor: "pointer", background: "transparent", color: P.accentText, border: `1px dashed ${P.accentText}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "7px 12px", marginTop: 7, boxSizing: "border-box" }}>
+                      🔬 ניתוח עמוק · Sonnet
+                    </button>
+                  )}
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת{!isNumber ? " · «עמוק» = כל השיטות והצלבות" : ""}</div>
                 </div>
               )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק (Sonnet)…" : aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
               {aiText && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
                     <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-                      {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+                      {aiEngine === "gemini" ? "🟣 Gemini" : aiDeep ? "🔬 Claude · עמוק" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
                     </div>
-                    <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiBusy}
-                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
-                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
-                    </button>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {/* 🔬 העמק — Sonnet, רק אם עדיין לא רץ עמוק ויש מילה (הצלבה משמעותית) */}
+                      {!aiDeep && !isNumber && (
+                        <button onClick={() => runAiNumber("claude", true)} disabled={aiBusy} title="ניתוח מעמיק על Sonnet — כל השיטות + הצלבות"
+                          style={{ cursor: "pointer", background: "none", border: `1px dashed ${P.accentText}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "5px 12px" }}>
+                          🔬 העמק
+                        </button>
+                      )}
+                      <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini", aiDeep)} disabled={aiBusy}
+                        style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
+                        {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                      </button>
+                    </div>
                   </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
                   <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
