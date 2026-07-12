@@ -1019,7 +1019,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         <div style={{ display: "grid", gap: 6 }}>
           {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
             <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {/* 🧭 סוג-היחס מהמודל הפרשני של סוד1820 (🪞 מראה · 💑 בן-זוג · 🔍 נסתר) — השיטה והערך נשארים גלויים */}
+              {/* 🧭 סוג-היחס מהמודל הפרשני של סוד1820 (🪞 מראה · 🌗 בן-זוג · 🔍 נסתר) — השיטה והערך נשארים גלויים */}
               <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>
                 {g.sem ? <>{g.sem.emoji} <b style={{ color: P.accentText }}>{g.sem.label_he}</b> · {g.method} {g.value}</> : <>ב{g.method} ({g.value})</>}
               </span>
