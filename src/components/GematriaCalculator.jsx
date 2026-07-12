@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { isAnon } from "../lib/privacy.js";
-import AnonToggle, { useAnon } from "./AnonToggle.jsx";
+import { setAnon } from "../lib/privacy.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
@@ -27,7 +26,9 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : ""); // ריק כברירת מחדל — לא מחשב "גאולה" אוטומטית
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
-  const anon = useAnon();   // 🕶️ מצב אנונימי — לרענון האפקט כשמשתנה
+  // «חיפוש אנונימי» בוטל (בקשת צוריאל) — מנקים כל מצב-אנונימי שנשאר מהעבר,
+  // כך שמעכשיו כל חיפוש נשמר לקיר הציבורי ולרשימת החיפושים.
+  useEffect(() => { setAnon(false); }, []);
 
   // 🌍 קלט אנגלית → מנוע התעתוק (Language Router lane). המילון-הנלמד (verified) גובר על האלגוריתם.
   const [lexicon, setLexicon] = useState(() => new Map());
@@ -131,13 +132,13 @@ export default function GematriaCalculator({ seed, onResult, research = false })
         if (research) {
           await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד
         } else {
-          if (!isAnon()) await addWallWord(word, ragilVal);
-          logSearch(word, ragilVal);                     // ציבורי (logSearch מגן עצמית במצב אנונימי)
+          await addWallWord(word, ragilVal);             // תמיד נשמר לקיר הציבורי (מצב אנונימי בוטל)
+          logSearch(word, ragilVal);                     // ציבורי — נרשם לרשימת החיפושים
         }
       } catch { /* שמירה נכשלה — התוצאה כבר הוצגה */ }
     }, 900);
     return () => clearTimeout(t);
-  }, [word, ragilVal, onResult, anon, research]);
+  }, [word, ragilVal, onResult, research]);
 
   // קיר פרטי לאדמין: שמירה ידנית + רשימה שרק האדמין רואה
   const [privSaved, setPrivSaved] = useState("");
@@ -272,13 +273,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               <FoundItFeedback context="search" query={word} inputNorm={normEn(word)} meta={{ kind: "translit" }}
                 options={translit.candidates.slice(1, 3).map(c => ({ label: c.hebrew, hebrew: c.hebrew }))} tone="light" />
             )}
-          </div>
-        )}
-
-        {/* 🕶️ חיפוש אנונימי — לא נשמר בהיסטוריה/בקיר (מצב ציבורי בלבד) */}
-        {!research && (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-            <AnonToggle size="sm" />
           </div>
         )}
 
