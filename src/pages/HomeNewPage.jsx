@@ -17,6 +17,7 @@ import { cleanName } from "../lib/galleryName.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
+import WhatsNewBadge from "../components/WhatsNewBadge.jsx";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import Fx from "../components/fx/Fx.jsx";
@@ -259,6 +260,11 @@ export default function HomeNewPage() {
         @media (max-width:820px){ .hn-grid6{grid-template-columns:repeat(3,1fr)} .hn-postgrid{grid-template-columns:repeat(2,1fr)} }
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-postgrid{grid-template-columns:1fr 1fr} }
       `}</style>
+
+      {/* 🌳 «מה חדש באתר» — תג עליון (שמאל), נפרד מ«עדכונים אחרונים» */}
+      <div className="hn-wrap" style={{ display: "flex", justifyContent: "flex-end", padding: "12px 18px 0" }}>
+        <WhatsNewBadge />
+      </div>
 
       {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
       <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
