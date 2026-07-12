@@ -22,3 +22,15 @@ alter table public.method_semantics enable row level security;
 drop policy if exists method_semantics_public_read on public.method_semantics;
 create policy method_semantics_public_read on public.method_semantics for select using (true);
 -- (שורות ה-seed הוזרמו במיגרציה בענן; ראה method_semantics_model)
+
+-- ── סבב-דיוק 2 (הכרעות צוריאל + GPT) ──
+-- שדות נפרדים: calculation_description (עובדה) / semantic_description (המודל) / core_note (ידע-ליבה פנימי).
+-- confidence: algorithm · traditional_source · sod1820_model · derived.
+-- אושרו: מסתתר (חכמה מסתתר=67=בינה, מאומת-מנוע) · אתבש (מצב הפוך) · אלבם (11+11 · בן-הזוג).
+-- ידע-ליבה «גדול»: אותיות גדולות = דין (שקר=600 · מנצפ״ך · ק=רגליה יורדות מוות) — מוזן ל-AI, לא הסבר חיצוני.
+-- נוספו: מילוי דמילוי · מילוי דמילוי גדול · משולש גדול · מסתתר גדול · הכפלה גדולה · ריבוע גדול.
+alter table public.method_semantics
+  add column if not exists calculation_description text,
+  add column if not exists semantic_description text,
+  add column if not exists core_note text;
+-- (עדכוני התוכן המלאים הוחלו במיגרציית-ענן method_semantics_round2)
