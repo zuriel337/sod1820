@@ -1436,10 +1436,10 @@ export default function EntityPage({ embedPhrase } = {}) {
                   {(() => {
                     const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 6));
                     return (
-                      <button onClick={() => enterDiscoveryWith("words")} title="פתחו את היכל הגילוי — כל המילים השוות"
+                      <button onClick={() => enterDiscoveryWith("words")} title="המשך במצב מחקר — כל המילים השוות"
                         style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
                           borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
-                        🔬 {more > 0 ? `עוד ${more.toLocaleString("he")} →` : "להיכל →"}
+                        🔬 {more > 0 ? `עוד ${more.toLocaleString("he")} →` : "למצב מחקר →"}
                       </button>
                     );
                   })()}
@@ -1598,13 +1598,13 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </Reveal>
                 )}
 
-                {/* 🔬 הכפתור הגדול — המשך להיכל הגילוי (שכבה 3) */}
+                {/* 🔬 הכפתור הגדול — המשך למצב מחקר (שכבה 3; שם פנימי: היכל הגילוי) */}
                 <Reveal delay={80}>
                   <div style={{ textAlign: "center", margin: "26px auto 8px" }}>
                     <button onClick={() => enterDiscoveryWith()}
                       style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 16,
                         fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "15px 34px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                      🔬 המשך להיכל הגילוי
+                      🔬 המשך במצב מחקר
                     </button>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>כל המילים · תמונות · פוסטים · DNA · משפחות · הצלבות · כלים</div>
                   </div>
