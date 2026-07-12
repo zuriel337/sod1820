@@ -860,16 +860,16 @@ export default function EntityPage({ embedPhrase } = {}) {
     const cached = loadAiCache(String(term ?? value));
     setAiText(cached?.text || ""); setAiEngine(cached?.engine || "claude"); setAiDeep(!!cached?.deep);
   }, [value, term]);
-  // 1️⃣ מצב מחקר: ההצלבות ומדד-התהודה הם עובדות-מנוע — נטענים מיד עם הדף, בלי להריץ AI.
-  //    (וגם כשיש ניתוח מהקאש — משלימים את שכבת-העובדות שלו. getWordCrossFacts ממוזג בזיכרון.)
+  // 🧹 החלטת צוריאל (12.7): עובדות-העומק נחשפות רק בלחיצה על ה-AI — לא נטענות מראש,
+  //    שהמסך לא יתמלא. חריג יחיד: ניתוח שחזר מהקאש משלים את שכבת-העובדות שלו.
   useEffect(() => {
     let live = true;
     const key = isNumber ? String(value || "") : (term || "");
-    if (key && (showBody || aiText)) {
+    if (key && aiText) {
       getWordCrossFacts(key).then(c => { if (live && c && (c.groups?.length || c.resonance)) setAiCross(c); }).catch(() => {});
     }
     return () => { live = false; };
-  }, [showBody, isNumber, term, value, aiText]);
+  }, [isNumber, term, value, aiText]);
   // 🤖 חיפוש-AI — כולם דרך המודול המשותף analyzeWordDeep (שכבת-העומק הבין-שיטתית נוספת אוטומטית).
   //    deep=false → Haiku (מהיר, נדיב) · deep=true → Sonnet (מדויק, נכנס למכסת-העומק). עומק חל רק לדף-מילה.
   async function runAiNumber(engine = "claude", deep = false) {
@@ -992,17 +992,17 @@ export default function EntityPage({ embedPhrase } = {}) {
   // וה-AI הוא שכבת-פרשנות אופציונלית מעליו. מוצג גם idle וגם אחרי ניתוח (בלוק אחד, שני מקומות).
   const aiCrossBlock = aiCross && (
     <div style={{ marginTop: 11, textAlign: "start" }}>
-      {/* 💥 ההצלבה החזקה ביותר (strongest_cross_law) — הזוג שנפגש בהכי הרבה שיטות, קודם להכל */}
+      {/* 🔗 מפגש רב-שיטתי — עובדה ניטרלית (בלי "הכי חזק" — צוריאל חזר בו מהקביעה, 12.7) */}
       {aiCross.top?.length > 0 && (
-        <div style={{ marginBottom: 10, padding: "9px 11px", borderRadius: 11, background: "linear-gradient(135deg,rgba(212,60,60,0.08),rgba(212,175,55,0.10))", border: "1.5px solid rgba(224,138,60,0.55)" }}>
-          <div style={{ color: "#e08a3c", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 6 }}>💥 ההצלבה החזקה ביותר</div>
+        <div style={{ marginBottom: 10, padding: "9px 11px", borderRadius: 11, background: P.cardSoft, border: `1px solid ${P.border}` }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 6 }}>🔗 נפגשים בכמה שיטות</div>
           {aiCross.top.slice(0, 2).map((t, ti) => (
             <div key={ti} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 5 }}>
               <b style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15 }}>{term}</b>
               <span style={{ color: P.accentDim }}>=</span>
               <Link to={numHref(encodeURIComponent(t.partner))} onClick={() => trackJourneyStep(term, t.partner, { via: "strongest", surface: "number_page" })}
                 style={{ textDecoration: "none", color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800, borderBottom: `1px dotted ${P.accentDim}` }}>{t.partner}</Link>
-              <span style={{ background: "rgba(224,138,60,0.15)", border: "1px solid rgba(224,138,60,0.5)", color: "#e08a3c", borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading }}>{t.n_methods} שיטות</span>
+              <span style={{ background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading }}>{t.n_methods} שיטות</span>
               <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{t.methods_detail}</span>
             </div>
           ))}
@@ -1079,8 +1079,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             </button>
           )}
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, textAlign: "center", fontStyle: "italic", marginTop: 6 }}>שני מנועים · כל אחד בזווית אחרת{!isNumber ? " · «עמוק» = כל השיטות והצלבות" : ""}</div>
-          {/* 1️⃣ עובדות-המנוע מוצגות עוד לפני ה-AI (במצב מחקר נטענות מיד) — המנוע קודם, ה-AI מדריך */}
-          {aiCrossBlock}
+          {/* 🧹 החלטת צוריאל: לפני לחיצה — מסך נקי. כל עובדות-העומק נפתחות רק עם הניתוח. */}
         </div>
       )}
       {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק (Sonnet)…" : aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
