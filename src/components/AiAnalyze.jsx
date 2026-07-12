@@ -3,6 +3,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getAiAnalysis } from "../lib/supabase.js";
 import { trackAi } from "../lib/tracking.js";
+import AiFeedback from "./AiFeedback.jsx";
 
 // 🤖 «נתח ב-AI» — רכיב לשימוש-חוזר לכל כלי מחקר (השוואה · נוטריקון · פסוק · פסוק-יומי).
 // מקבל kind + subject + facts (עובדות מאומתות מהמנוע) → כפתור → קריאת AI אחת → כרטיס פרשנות.
@@ -88,6 +89,8 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
               כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.
             </div>
           )}
+          {/* 🧪 משוב-בטא (ai_style_learning_law) — נצבר לדו"ח הסגנונות באדמין */}
+          <AiFeedback dim={P.accentDim} />
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, marginTop: 9, fontStyle: "italic" }}>
             הגימטריה עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).
           </div>

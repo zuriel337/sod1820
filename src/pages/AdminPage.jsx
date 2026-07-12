@@ -29,6 +29,7 @@ import ImageEditModal from "../components/ImageEditModal.jsx";
 import ViralIntelTab from "../components/ViralIntelTab.jsx";
 import AnchorFamiliesTab from "../components/AnchorFamiliesTab.jsx";
 import FindingsTab from "../components/FindingsTab.jsx";
+import AiStylesTab from "../components/AiStylesTab.jsx";
 import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
 import NumberHeatGrid from "../components/NumberHeatGrid.jsx";
 import { computePulse } from "../lib/reality.js";
@@ -38,6 +39,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
+  { key: "aistyles", label: "🧪 סגנונות AI" },
   { key: "live",     label: "🔴 שידור חי" },
   { key: "traffic",  label: "📊 תנועה" },
   { key: "retention",label: "🔁 חוזרים" },
@@ -75,7 +77,7 @@ const TABS = [
 
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
-  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "heatmap", "popularity", "viral", "searches", "meta"] },
+  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "meta"] },
   { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
@@ -206,6 +208,7 @@ export default function AdminPage() {
 
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
+      {tab === "aistyles" && <AiStylesTab />}
       {tab === "live" && <LiveVisitorsTab />}
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "retention" && <RetentionTab />}

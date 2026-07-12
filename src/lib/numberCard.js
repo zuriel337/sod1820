@@ -1,6 +1,7 @@
 import { C, calcGem } from "../theme.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { trackShare } from "./tracking.js";
+import { signalAiBehavior } from "./supabase.js";
 
 // ===== מחולל "תמונת מספר" — מייצר תמונה ממותגת לכל מספר עם טקסט ויראלי בתוכה =====
 // צד-לקוח בלבד (canvas), ללא תלות חיצונית. מתאים לשיתוף בוואטסאפ/אינסטגרם (1080×1080).
@@ -177,6 +178,7 @@ export async function shareNumberCard(value, phrases) {
 // נופל לשיתוף וואטסאפ של הקישור, שם תצוגת ה-OG ממילא מציגה את תמונת המספר שנוצרת בשרת.
 export async function shareNumberSmart(value, phrases) {
   await ensureFonts();
+  signalAiBehavior("share");   // 🧪 ai_style_learning_law — שיתוף אחרי ניתוח טרי = אות-איכות שקט
   try {
     const cv = buildNumberCard(value, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
