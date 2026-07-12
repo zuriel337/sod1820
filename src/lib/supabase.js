@@ -2436,6 +2436,27 @@ export async function getValuePhraseList(value, limit = 120) {
   return phrases.map(p => ({ phrase: p, world: worldMap[p] || null }));
 }
 
+// 🔮 הצלבה בין-שיטתית (number_cross_resonance) — עדשה על bidim לחיפוש-AI העמוק.
+// pairs: [{method,value}] מהמנוע (crossMethodPairs). מחזיר קבוצות לפי שיטת-המקור:
+//   [{ method, value, matches:[{phrase, via}] }] — via = השיטה בצד השני (בד״כ 'רגיל' = פני-המילה).
+export async function getNumberCrossResonance(word, pairs, { perGroup = 5, cap = 90 } = {}) {
+  if (!supabase || !word || !pairs?.length) return [];
+  try {
+    const { data, error } = await supabase.rpc('number_cross_resonance', { p_self: word, p_pairs: pairs, p_limit: cap });
+    if (error || !data) return [];
+    const groups = new Map();
+    for (const r of data) {
+      const g = groups.get(r.self_method) || { method: r.self_method, value: r.self_value, matches: [], seen: new Set() };
+      if (!g.seen.has(r.match_phrase) && g.matches.length < perGroup) {
+        g.seen.add(r.match_phrase);
+        g.matches.push({ phrase: r.match_phrase, via: r.match_method });
+      }
+      groups.set(r.self_method, g);
+    }
+    return [...groups.values()].map(({ seen, ...g }) => g).filter(g => g.matches.length);
+  } catch { return []; }
+}
+
 // 🧪 מעבדת השם — מחקר הקשר + גשרים חוצי-שפות לשם/מילה נתונה.
 export async function getNameResearch(word, value) {
   const w = (word || '').trim();
