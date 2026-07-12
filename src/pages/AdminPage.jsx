@@ -30,6 +30,7 @@ import ViralIntelTab from "../components/ViralIntelTab.jsx";
 import AnchorFamiliesTab from "../components/AnchorFamiliesTab.jsx";
 import FindingsTab from "../components/FindingsTab.jsx";
 import AiStylesTab from "../components/AiStylesTab.jsx";
+import SystemSuggestionsTab from "../components/SystemSuggestionsTab.jsx";
 import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
 import NumberHeatGrid from "../components/NumberHeatGrid.jsx";
 import { computePulse } from "../lib/reality.js";
@@ -40,6 +41,7 @@ const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
   { key: "aistyles", label: "🧪 סגנונות AI" },
+  { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
   { key: "traffic",  label: "📊 תנועה" },
   { key: "retention",label: "🔁 חוזרים" },
@@ -83,7 +85,7 @@ const GROUPS = [
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
   { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
-  { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "scanner", "utm", "push", "worklog"] },
+  { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
 ];
 const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
 const GROUP_OF = Object.fromEntries(GROUPS.flatMap(g => g.subs.map(s => [s, g.key])));
@@ -209,6 +211,7 @@ export default function AdminPage() {
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
       {tab === "aistyles" && <AiStylesTab />}
+      {tab === "suggest" && <SystemSuggestionsTab />}
       {tab === "live" && <LiveVisitorsTab />}
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "retention" && <RetentionTab />}

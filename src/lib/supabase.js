@@ -749,6 +749,34 @@ export async function adminAiStyleActivate(key) {
   catch { return false; }
 }
 
+// ===== 🧠 מנוע-ההמלצות (system_suggestions_law) — Observe→Detect→Suggest→Explain→Decide =====
+// «המערכת לעולם אינה משנה את עצמה. היא רק לומדת, מסבירה ומציעה.» כל שינוי = החלטת צוריאל.
+export async function adminSuggestionsList(status = 'pending', limit = 60) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_suggestions_list', { p_status: status, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function adminSuggestionDecide(id, status, note = null) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_suggestion_decide', { p_id: id, p_status: status, p_note: note }); return !error; }
+  catch { return false; }
+}
+export async function adminNotifyGet() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_notify_get'); return data || []; }
+  catch { return []; }
+}
+export async function adminNotifySet(channel, target, enabled) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_notify_set', { p_channel: channel, p_target: target, p_enabled: enabled }); return !error; }
+  catch { return false; }
+}
+export async function adminFireWatchman() {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_fire_watchman'); return !error; }
+  catch { return false; }
+}
+
 // 🔑 חלונות הגילוי — סטורי בראש דף הבית. קריאה ציבורית (RLS: active=true). מיון: sort↓ ואז חדש.
 export async function getStories(lim = 20) {
   if (!supabase) return [];
