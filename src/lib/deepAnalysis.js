@@ -134,10 +134,13 @@ export function saveAiCache(key, data) {
 export async function analyzeWordDeep({ term, subject, baseFacts = "", engine = "claude", deep = false, kind = "number", again = false } = {}) {
   const cross = await getWordCrossFacts(term);
   let facts = appendDeepFacts(baseFacts, cross);
-  // 🕯 ידע-ליבה (core_note) — רק בניתוח העמוק: המערכת "יודעת בפנים" (למשל: אותיות גדולות = דין),
-  //    אך מוזהרת לא לצטט זאת כהסבר חיצוני. בהתאם להנחיית צוריאל.
+  // 🕯 ידע-ליבה (core_note) — רק בניתוח העמוק, ורק כש-visibility מתיר (deep_ai_only):
+  //    המערכת "יודעת בפנים" (למשל: אותיות גדולות = דין) אך לא מצטטת כהסבר חיצוני.
+  //    internal_only/admin_only לעולם לא מגיעים ל-AI ולא לשום שכבת-תצוגה. הנחיית צוריאל.
   if (deep && cross?.groups?.length) {
-    const notes = [...new Set(cross.groups.map(g => g.sem?.core_note).filter(Boolean))].join(" · ").slice(0, 600);
+    const notes = [...new Set(cross.groups
+      .filter(g => g.sem?.core_note && (g.sem.core_note_visibility || "deep_ai_only") === "deep_ai_only")
+      .map(g => g.sem.core_note))].join(" · ").slice(0, 600);
     if (notes) facts += ` ידע-ליבה פנימי (להבנה בלבד — אל תצטט כהסבר): ${notes}`;
   }
   const fast = !deep;

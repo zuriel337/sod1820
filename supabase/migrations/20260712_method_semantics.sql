@@ -34,3 +34,9 @@ alter table public.method_semantics
   add column if not exists semantic_description text,
   add column if not exists core_note text;
 -- (עדכוני התוכן המלאים הוחלו במיגרציית-ענן method_semantics_round2)
+
+-- ── בקרת-גרסה + בקרת-חשיפה (האונטולוגיה של SOD1820) ──
+alter table public.method_semantics
+  add column if not exists review_version text not null default '2026.07',
+  add column if not exists core_note_visibility text not null default 'deep_ai_only'
+    check (core_note_visibility in ('internal_only','deep_ai_only','admin_only'));

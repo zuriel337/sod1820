@@ -2475,7 +2475,7 @@ export async function getMethodSemantics(profile = 'sod1820') {
   if (!supabase) return {};
   try {
     const { data } = await supabase.from('method_semantics')
-      .select('method,relation_type,emoji,label_he,phrase_template,confidence_source,status,calculation_description,semantic_description,core_note')
+      .select('method,relation_type,emoji,label_he,phrase_template,confidence_source,status,calculation_description,semantic_description,core_note,core_note_visibility,review_version')
       .eq('profile', profile).eq('is_active', true);
     _methodSemCache = Object.fromEntries((data || []).map(r => [r.method, r]));
   } catch { _methodSemCache = {}; }
