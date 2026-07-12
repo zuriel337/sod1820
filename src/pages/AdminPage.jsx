@@ -27,6 +27,7 @@ import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from ".
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import ViralIntelTab from "../components/ViralIntelTab.jsx";
+import AnchorFamiliesTab from "../components/AnchorFamiliesTab.jsx";
 import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
 import NumberHeatGrid from "../components/NumberHeatGrid.jsx";
 import { computePulse } from "../lib/reality.js";
@@ -47,6 +48,7 @@ const TABS = [
   { key: "conversions", label: "🎯 המרות" },
   { key: "viral",    label: "🔥 ויראליות" },
   { key: "research", label: "🧪 מעבדת צוריאל" },
+  { key: "anchors",  label: "🧩 עוגנים" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
@@ -77,7 +79,7 @@ const GROUPS = [
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
   { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
-  { key: "tools",     label: "🔧 כלים",     subs: ["research", "scanner", "utm", "push", "worklog"] },
+  { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "scanner", "utm", "push", "worklog"] },
 ];
 const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
 const GROUP_OF = Object.fromEntries(GROUPS.flatMap(g => g.subs.map(s => [s, g.key])));
@@ -213,6 +215,7 @@ export default function AdminPage() {
       {tab === "conversions" && <ConversionsTab />}
       {tab === "viral" && <ViralIntelTab />}
       {tab === "research" && <ResearchTab />}
+      {tab === "anchors" && <AnchorFamiliesTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
       {tab === "subs" && <SubscribersTab />}

@@ -58,14 +58,14 @@ export function resonanceScore(stats) {
   const methods = Number(stats.n_methods) || 0;
   const conns = Number(stats.n_connections) || 0;
   const nodes = Number(stats.n_strong_nodes) || 0;
-  const notable = Number(stats.n_notable) || 0;
+  const axis = Number(stats.n_axis ?? stats.n_notable) || 0;   // ציר בלבד (בלי תוכן ישן/גלם)
   const score = Math.round(100 * (
     0.28 * Math.min(methods, 7) / 7 +
     0.40 * Math.min(nodes, 7) / 7 +
     0.20 * Math.min(conns, 40) / 40 +
-    0.12 * Math.min(notable, 40) / 40
+    0.12 * Math.min(axis, 40) / 40
   ));
-  return { methods, connections: conns, strongNodes: nodes, notable, score };
+  return { methods, connections: conns, strongNodes: nodes, axis, score };
 }
 
 // מביא (וממזג) את שכבת-העומק הבין-שיטתית למילה עברית. ריק למספר/לועזית (אין אותיות).

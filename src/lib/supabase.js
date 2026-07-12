@@ -2467,6 +2467,30 @@ export async function getNumberResonanceStats(word, pairs) {
   } catch { return null; }
 }
 
+// 🧩 שכבת משפחות-העוגנים (anchor_families) — נתונים+מיפוי בלבד. שליטה ידנית של צוריאל.
+export async function discoverAnchorFamilies(minWords = 8, limit = 60) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('discover_anchor_families', { p_min_words: minWords, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function mapAnchorFamily(value) {
+  if (!supabase || value == null) return null;
+  try { const { data } = await supabase.rpc('map_anchor_family', { p_value: Number(value) }); return data || null; }
+  catch { return null; }
+}
+export async function getAnchorFamilies() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.from('anchor_families').select('*').order('evidence_count', { ascending: false }); return data || []; }
+  catch { return []; }
+}
+// קידום-סטטוס סדרתי (discovered→reviewed→approved_anchor→featured). מנהל בלבד (נאכף בשרת).
+export async function setAnchorFamilyStatus(root, status, notes = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('set_anchor_family_status', { p_root: Number(root), p_status: status, p_notes: notes });
+  if (error) throw error;
+  return data;
+}
+
 // 🧪 מעבדת השם — מחקר הקשר + גשרים חוצי-שפות לשם/מילה נתונה.
 export async function getNameResearch(word, value) {
   const w = (word || '').trim();
