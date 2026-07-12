@@ -992,6 +992,22 @@ export default function EntityPage({ embedPhrase } = {}) {
   // וה-AI הוא שכבת-פרשנות אופציונלית מעליו. מוצג גם idle וגם אחרי ניתוח (בלוק אחד, שני מקומות).
   const aiCrossBlock = aiCross && (
     <div style={{ marginTop: 11, textAlign: "start" }}>
+      {/* 💥 ההצלבה החזקה ביותר (strongest_cross_law) — הזוג שנפגש בהכי הרבה שיטות, קודם להכל */}
+      {aiCross.top?.length > 0 && (
+        <div style={{ marginBottom: 10, padding: "9px 11px", borderRadius: 11, background: "linear-gradient(135deg,rgba(212,60,60,0.08),rgba(212,175,55,0.10))", border: "1.5px solid rgba(224,138,60,0.55)" }}>
+          <div style={{ color: "#e08a3c", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 6 }}>💥 ההצלבה החזקה ביותר</div>
+          {aiCross.top.slice(0, 2).map((t, ti) => (
+            <div key={ti} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 5 }}>
+              <b style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15 }}>{term}</b>
+              <span style={{ color: P.accentDim }}>=</span>
+              <Link to={numHref(encodeURIComponent(t.partner))} onClick={() => trackJourneyStep(term, t.partner, { via: "strongest", surface: "number_page" })}
+                style={{ textDecoration: "none", color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800, borderBottom: `1px dotted ${P.accentDim}` }}>{t.partner}</Link>
+              <span style={{ background: "rgba(224,138,60,0.15)", border: "1px solid rgba(224,138,60,0.5)", color: "#e08a3c", borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading }}>{t.n_methods} שיטות</span>
+              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{t.methods_detail}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {/* 🌌 הקונסטלציה — הממצאים שנבדקו ואושרו במחקר (מהאטלס, מקור אחד, בלי כפילות עם הגולמי) */}
       {aiCross.atlas?.length > 0 && (
         <div style={{ marginBottom: 10, padding: "9px 11px", borderRadius: 11, background: "rgba(76,175,125,0.07)", border: "1px solid rgba(76,175,125,0.4)" }}>
