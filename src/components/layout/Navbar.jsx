@@ -234,6 +234,52 @@ function MoreMenu({ items, pathname, onNavigate, grid }) {
   );
 }
 
+// אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
+// מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
+function MenuPanel({ items, pathname, cc }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button className="nav-link" onClick={() => setOpen(o => !o)} aria-label="תפריט" aria-expanded={open} style={{
+        background: open ? cc.activeBg : "transparent",
+        border: `1px solid ${open ? cc.borderGold : cc.border}`,
+        cursor: "pointer", color: open ? cc.goldBright : cc.goldLight,
+        fontFamily: F.royal, fontSize: 14.5, fontWeight: 700, letterSpacing: 0.3,
+        padding: "8px 14px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 8,
+        transition: "color 0.2s, background 0.2s, border-color 0.2s",
+      }}>
+        <GridIcon /> תפריט <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>
+      </button>
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(720px, 88vw)",
+          background: cc.dropBg, backdropFilter: "blur(16px)",
+          border: `1px solid ${cc.borderGold}`, borderRadius: 18, padding: 14, zIndex: 250,
+          boxShadow: "0 20px 56px rgba(0,0,0,0.62)",
+        }}>
+          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
+          <div className="sod-tiles">
+            {items.map(it => (
+              <Link key={it.to} to={it.to} onClick={() => setOpen(false)} className="sod-tile"
+                style={{ borderColor: isActive(pathname, it.to) ? cc.borderGold : cc.border }}>
+                <span className="sod-tile-e">{it.emoji}</span>
+                <span className="sod-tile-l">{it.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Dropdown({ items, onNavigate }) {
   const cc = chromeColors(useThemeMode());
   return (
@@ -458,7 +504,7 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
-          <MoreMenu items={moreItems} pathname={pathname} grid />
+          <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
         </div>
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
