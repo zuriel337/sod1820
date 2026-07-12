@@ -4,7 +4,7 @@
 export const NAV = [
   { label: "בית", emoji: "🏠", to: "/" },
   { label: "כאן מתחילים", emoji: "🚀", to: "/start", highlight: true },
-  { label: "מרכז הניווט", emoji: "🏛", to: "/map" },
+  { label: "מרכז הניווט", emoji: "🗺️", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
   { label: "עץ ההתכנסויות", emoji: "🌳", to: "/numbers" },
   { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },

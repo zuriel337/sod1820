@@ -253,7 +253,7 @@ function MoreMenu({ items, pathname, onNavigate, grid }) {
 
 // אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
 // מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
-function MenuPanel({ pathname, cc }) {
+function MenuPanel({ items, pathname, cc }) {
   const mode = useThemeMode();
   const light = mode === "light";
   const [open, setOpen] = useState(false);
@@ -277,32 +277,6 @@ function MenuPanel({ pathname, cc }) {
     tileText: cc.goldLight, tileActive: cc.borderGold, favBg: "#20180a", favBorder: "rgba(212,175,55,0.55)",
     bannerBg: cc.activeBg, bannerBorder: cc.borderGold, bannerHover: cc.gold,
     bannerTitle: cc.goldBright, bannerSub: cc.muted, arrow: cc.goldLight,
-  };
-  // רכיב-אריח משותף לפאנל: תומך fav (מודגש-זהב + ⭐) ו-locked (מנעול + «בבנייה», לא-לחיץ).
-  const renderTile = (t, fav) => {
-    const active = isActive(pathname, t.to);
-    const base = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      gap: 7, borderRadius: 14, padding: "16px 6px", position: "relative" };
-    if (t.locked) return (
-      <div key={t.to} aria-disabled="true" title="בבנייה — בקרוב" style={{
-        ...base, background: fav ? pc.favBg : pc.tileBg, border: `1px dashed ${pc.tileBorder}`, opacity: 0.7, cursor: "not-allowed" }}>
-        <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
-        <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
-        <span style={{ fontSize: 9.5, fontWeight: 900, marginTop: 1, background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2px 7px" }}>🔒 בבנייה</span>
-      </div>
-    );
-    return (
-      <Link key={t.to} to={t.to} onClick={() => setOpen(false)} style={{
-        ...base, background: fav ? pc.favBg : pc.tileBg,
-        border: `1px solid ${fav ? pc.favBorder : (active ? pc.tileActive : pc.tileBorder)}`,
-        textDecoration: "none", transition: "transform 0.15s, border-color 0.15s, background 0.15s" }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = fav ? pc.favBorder : (active ? pc.tileActive : pc.tileBorder); e.currentTarget.style.background = fav ? pc.favBg : pc.tileBg; }}>
-        {fav && <span aria-hidden style={{ position: "absolute", top: 6, insetInlineEnd: 8, fontSize: 11 }}>⭐</span>}
-        <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
-        <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
-      </Link>
-    );
   };
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -338,13 +312,24 @@ function MenuPanel({ pathname, cc }) {
             </span>
             <span style={{ marginInlineStart: "auto", color: pc.arrow, fontSize: 18 }}>←</span>
           </Link>
-          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>⭐ הכלים הראשיים</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9, marginBottom: 14 }}>
-            {MOBILE_TILES.filter(t => t.fav).map(t => renderTile(t, true))}
-          </div>
-          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>כל המדורים</div>
+          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/start").map(t => renderTile(t, false))}
+            {items.map(it => {
+              const active = isActive(pathname, it.to);
+              return (
+                <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
+                  background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
+                  borderRadius: 14, padding: "16px 6px", textDecoration: "none",
+                  transition: "transform 0.15s, border-color 0.15s, background 0.15s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
+                  <span style={{ fontSize: 26, lineHeight: 1 }}>{it.emoji}</span>
+                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{it.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
@@ -579,7 +564,7 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
-          <MenuPanel pathname={pathname} cc={cc} />
+          <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
         </div>
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
@@ -636,29 +621,16 @@ export default function Navbar() {
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>🔭 היכל הגילוי</Link>
           )}
-          {/* ⭐ הכלים הראשיים — שלושת הפייבוריטים, מודגשים (זהב + ⭐); דילוגי-אותיות נעול (בבנייה, לא-לחיץ) */}
-          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "8px 8px 4px" }}>⭐ הכלים הראשיים</div>
+          {/* רשת אריחים אחת (מובייל — כמו שהיה); דילוגי-אותיות נעול (🔒 בבנייה, לא-לחיץ) */}
           <div className="sod-tiles">
-            {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
+            {MOBILE_TILES.map(t => t.locked ? (
               <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
-                style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.06)", opacity: 0.72, cursor: "not-allowed" }}>
+                style={{ borderColor: cc.border, borderStyle: "dashed", opacity: 0.65, cursor: "not-allowed" }}>
                 <span className="sod-tile-e">{t.e}</span>
                 <span className="sod-tile-l">{t.l}</span>
                 <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔒 בבנייה</span>
               </div>
             ) : (
-              <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
-                style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.06)", position: "relative" }}>
-                <span aria-hidden style={{ position: "absolute", top: 5, insetInlineEnd: 7, fontSize: 10 }}>⭐</span>
-                <span className="sod-tile-e">{t.e}</span>
-                <span className="sod-tile-l">{t.l}</span>
-              </Link>
-            ))}
-          </div>
-          {/* כל המדורים */}
-          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "12px 8px 4px" }}>כל המדורים</div>
-          <div className="sod-tiles">
-            {MOBILE_TILES.filter(t => !t.fav).map(t => (
               <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
                 style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
                 <span className="sod-tile-e">{t.e}</span>
