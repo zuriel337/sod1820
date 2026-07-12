@@ -25,13 +25,13 @@ function DilugimIcon({ size = 24, accent = "#f5e7b2" }) {
       {/* רקע-ריבוע בגוון מגילה — נוכח ומגובש (כמו ריבועי האימוג'י), עם מסגרת-זהב */}
       <rect x="2" y="2" width="28" height="28" rx="7.5" fill="#6a4a24" stroke="rgba(212,175,55,0.55)" strokeWidth="1.3" />
       {/* שלוש אותיות עבריות = הטקסט (currentColor) */}
-      <g fill="currentColor" fontFamily="'Heebo', sans-serif" fontWeight="800" fontSize="11.5">
-        <text x="24" y="14" textAnchor="middle">א</text>
-        <text x="17.5" y="21" textAnchor="middle">ב</text>
-        <text x="11" y="28" textAnchor="middle">ג</text>
+      <g fill="currentColor" fontFamily="'Heebo', sans-serif" fontWeight="800" fontSize="10.5">
+        <text x="22" y="13" textAnchor="middle">א</text>
+        <text x="17" y="19" textAnchor="middle">ב</text>
+        <text x="12" y="25" textAnchor="middle">ג</text>
       </g>
-      {/* סימון האותיות שנמצאו — לולאה אלכסונית שמקיפה את הרצף (כמו שמקיפים תשובה) */}
-      <ellipse cx="17.5" cy="21" rx="10.6" ry="4.7" transform="rotate(-47 17.5 21)" stroke={accent} strokeWidth="1.6" fill="none" />
+      {/* סימון האותיות שנמצאו — לולאה אלכסונית גדולה שמקיפה את הרצף מבחוץ (כמו שמקיפים תשובה) */}
+      <ellipse cx="17" cy="19" rx="11" ry="6.9" transform="rotate(-46 17 19)" stroke={accent} strokeWidth="1.6" fill="none" />
       {/* זכוכית-מגדלת קטנה = מחקר */}
       <circle cx="8" cy="8.5" r="4" stroke={accent} strokeWidth="1.7" fill="none" />
       <line x1="10.9" y1="11.4" x2="13.5" y2="14" stroke={accent} strokeWidth="1.7" strokeLinecap="round" />
