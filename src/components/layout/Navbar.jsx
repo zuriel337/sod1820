@@ -264,6 +264,21 @@ function MenuPanel({ items, pathname, cc }) {
           border: `1px solid ${cc.borderGold}`, borderRadius: 18, padding: 14, zIndex: 250,
           boxShadow: "0 20px 56px rgba(0,0,0,0.62)",
         }}>
+          {/* «כאן מתחילים» — באנר גדול נפרד בראש התפריט, לפני שאר המדורים */}
+          <Link to="/start" onClick={() => setOpen(false)} style={{
+            display: "flex", alignItems: "center", gap: 13, textDecoration: "none",
+            background: cc.activeBg, border: `1px solid ${cc.borderGold}`, borderRadius: 14,
+            padding: "14px 16px", marginBottom: 14, transition: "border-color 0.2s, transform 0.2s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = cc.gold; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = cc.borderGold; e.currentTarget.style.transform = "none"; }}>
+            <span style={{ fontSize: 30, lineHeight: 1 }}>🚀</span>
+            <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 18, fontWeight: 800 }}>כאן מתחילים</span>
+              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 12.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
+            </span>
+            <span style={{ marginInlineStart: "auto", color: cc.goldLight, fontSize: 18 }}>←</span>
+          </Link>
           <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
           <div className="sod-tiles">
             {items.map(it => (
