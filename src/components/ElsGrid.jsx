@@ -208,7 +208,7 @@ export default function ElsGrid({ seed }) {
     setNiqqud(v => !v);
   };
   const [raw, setRaw] = useState(seed || "ישראל");
-  const [crossExtra, setCrossExtra] = useState([""]); // מונחים נוספים בחיפוש מוצלב (שני · שלישי · רביעי)
+  const [crossExtra, setCrossExtra] = useState([]); // מונחים נוספים (מוצלב) — מופיעים רק כשמוסיפים «➕ מילה»
   const [mode, setMode] = useState("torah");   // torah · tanakh · cross — שער-הכניסה
   const [entered, setEntered] = useState(false); // false=מסך-תוצאות פשוט · true=סביבת-המטריצה
   const [showAll, setShowAll] = useState(false); // הצג את כל התוצאות (לא רק ה-7 הראשונות)
@@ -327,13 +327,14 @@ export default function ElsGrid({ seed }) {
 
   // החיפוש מתחשב במצב: רגיל = מונח אחד · מוצלב = שני מונחים יחד (אשכול-קרבה)
   const search = () => {
-    const qraw = mode === "cross" ? [raw, ...crossExtra].map(s => s.trim()).filter(Boolean).join(", ") : raw;
-    const bk = mode === "tanakh" ? (book === "torah" ? "all" : book) : (mode === "torah" && book !== "torah" && (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805 ? "torah" : book);
+    // מסך אחד פשוט: מונח ראשי + מונחים נוספים (אם מולאו) = חיפוש מוצלב אוטומטי.
+    // ההיקף = בורר-הספר בהגדרות (ברירת-מחדל: תורה) — לא «מצב» נפרד.
+    const qraw = [raw, ...crossExtra].map(s => s.trim()).filter(Boolean).join(", ");
     setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
     setEntered(false); setShowAll(false);
     const sMin = Math.max(1, parseInt(skipMin) || 1);
     const sMax = Math.max(sMin, parseInt(skipMax) || 100);
-    setQ({ raw: qraw, book: bk, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy, noLimit });
+    setQ({ raw: qraw, book, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy, noLimit });
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
@@ -812,68 +813,35 @@ export default function ElsGrid({ seed }) {
       <style>{ELS_CSS}</style>
       <div className="rw-h1">🔡 הצופן התנ״כי — דילוגי אותיות</div>
 
-      {/* ✦ ממצא נבחר — כל מי שנכנס רואה את הפלא, ובלחיצה פותח אותו במנוע */}
-      {FEATURED_FINDINGS.length > 0 && (
-        <div className="els-featured">
-          {FEATURED_FINDINGS.map((f, i) => (
-            <div key={i} className="els-feat-card">
-              <div className="els-feat-badge">✦ פלא נבחר</div>
-              <div className="els-feat-title">{f.title}</div>
-              <div className="els-feat-wonder">{f.wonder}</div>
-              <div className="els-feat-facts">🔢 {f.facts}</div>
-              <div className="els-feat-row">
-                <button className="els-feat-go" onClick={() => openFinding(f)}>✦ פתח את הממצא במנוע ←</button>
-                {f.by && <span className="els-feat-by">{f.by}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 🚪 שער-כניסה — 3 אפשרויות ברורות (תורה חינם · תנ״ך/מוצלב = טוקנים) */}
-      <div className="els-modes">
-        {[
-          { k: "torah", e: "📖", t: "חיפוש בתורה", s: "אמיתי וידוע" },
-          { k: "tanakh", e: "📜", t: "חיפוש בכל התנ״ך", s: "רחב יותר" },
-          { k: "cross", e: "✦", t: "חיפוש מוצלב", s: "שניים יחד" },
-        ].map(m => (
-          <button key={m.k} className={"els-mode" + (mode === m.k ? " on" : "")} onClick={() => switchMode(m.k)}>
-            <span className="els-mode-e">{m.e}</span>
-            <span className="els-mode-t">{m.t}</span>
-            <span className="els-mode-s">{m.s}</span>
-            <span className="els-mode-tok">{tokenLabel(m.k, isAdmin)}</span>
-          </button>
-        ))}
-      </div>
-      <div className="rw-sub" style={{ marginBottom: 10 }}>
-        {mode === "torah" ? "חיפוש דילוגים בכל התורה (304,805 אותיות) — הטקסט הקבוע והמאומת."
-          : mode === "tanakh" ? "חיפוש בכל 24 ספרי התנ״ך — רחב יותר, אך פחות ודאי (לא תמיד יודעים את המילים)."
-          : "שני מונחים יחד (שם+משפחה · שני שמות) — המנוע מוצא את הקרבה המקסימלית ביניהם בטקסט."}
-      </div>
-
+      {/* 🧹 מסך נקי: תיבת חיפוש אחת בלבד. «➕ מילה» מוסיף מונח שני (=חיפוש מוצלב אוטומטי).
+          ההיקף (תורה/תנ״ך) עבר להגדרות — ברירת-מחדל: תורה. אין עוד «מצבים» נפרדים. */}
       <div className="rw-card">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
+          <input style={{ ...ctl, flex: "1 1 220px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
             onChange={e => setRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
-            placeholder={mode === "cross" ? "מונח ראשון (שם)…" : "מילה · שם · ביטוי…"} aria-label="מונח לחיפוש" />
-          {mode === "cross" && crossExtra.map((val, i) => (
+            placeholder="מילה · שם · ביטוי…" aria-label="מונח לחיפוש" />
+          {crossExtra.map((val, i) => (
             <React.Fragment key={i}>
               <span style={{ color: C.acc, fontWeight: 800 }}>✦</span>
-              <input style={{ ...ctl, flex: "1 1 150px", textAlign: "center", fontSize: 17 }} dir="rtl" value={val}
+              <input style={{ ...ctl, flex: "1 1 160px", textAlign: "center", fontSize: 17 }} dir="rtl" value={val}
                 onChange={e => setCrossExtra(a => a.map((x, j) => j === i ? e.target.value : x))}
                 onKeyDown={e => e.key === "Enter" && search()}
-                placeholder={["מונח שני…", "מונח שלישי…", "מונח רביעי…"][i] || "מונח נוסף…"} aria-label={`מונח ${i + 2}`} />
-              {crossExtra.length > 1 && <button onClick={() => setCrossExtra(a => a.filter((_, j) => j !== i))} title="הסר מונח"
-                style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, borderRadius: 999, width: 34, height: 34, fontWeight: 800, fontFamily: "inherit" }}>✕</button>}
+                placeholder={["מילה שנייה…", "מילה שלישית…", "מילה רביעית…"][i] || "מילה נוספת…"} aria-label={`מונח ${i + 2}`} />
+              <button onClick={() => setCrossExtra(a => a.filter((_, j) => j !== i))} title="הסר"
+                style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, borderRadius: 999, width: 34, height: 34, fontWeight: 800, fontFamily: "inherit" }}>✕</button>
             </React.Fragment>
           ))}
-          {mode === "cross" && crossExtra.length < 3 && (
-            <button onClick={() => setCrossExtra(a => [...a, ""])} title="הוסף מונח שלישי/רביעי לחיפוש המוצלב"
-              style={{ cursor: "pointer", border: `1.5px dashed ${C.acc}`, background: C.bg, color: C.acc, borderRadius: 999, padding: "9px 15px", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>➕ מונח</button>
+          {crossExtra.length < 3 && (
+            <button onClick={() => setCrossExtra(a => [...a, ""])} title="הוסף מילה שנייה — חיפוש שני מונחים יחד"
+              style={{ cursor: "pointer", border: `1.5px dashed ${C.acc}`, background: C.bg, color: C.acc, borderRadius: 999, padding: "9px 15px", fontWeight: 800, fontSize: 14, fontFamily: "inherit", whiteSpace: "nowrap" }}>➕ מילה</button>
           )}
           <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 26px", fontFamily: "inherit" }}>🔍 חפש</button>
-          <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
         </div>
+        {FEATURED_FINDINGS[0] && (
+          <button className="els-adv-toggle" style={{ opacity: 0.7 }} onClick={() => openFinding(FEATURED_FINDINGS[0])}>
+            ✦ דוגמה לצפייה: «{FEATURED_FINDINGS[0].terms.join(" · ")}»
+          </button>
+        )}
         {savedSearches.length > 0 && (
           <div className="els-saved">
             <span className="els-saved-lb">שמורים:</span>
