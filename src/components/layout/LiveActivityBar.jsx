@@ -124,6 +124,8 @@ export default function LiveActivityBar() {
         /* 📱 טלפון: «עכשיו באתר» (הריבוע הימני) מוסתר לגמרי — ההודעה ממורכזת בכל הרוחב, בלי גניבת-שורה. */
         /* 🌳 «מה חדש» — בגוטר השמאלי של הטיקר (אותה שורה, לא גוזל שורה) */
         .lt-wn { position:absolute; inset-inline-end:12px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
+        /* ≥1380px: ציר ההתגלות רץ 86px משמאל — מזיזים את התג ימינה שלא יישב מתחתיו */
+        @media (min-width:1380px){ .lt-wn { inset-inline-end:98px; } }
         @media (max-width: 640px) {
           .lt-bar { padding:7px 16px 7px 78px; }
           .lt-badge { display:none; }
