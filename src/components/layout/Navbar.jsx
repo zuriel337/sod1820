@@ -31,7 +31,7 @@ const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
 const MORE_HIDE = ["/start", "/members", "/lab"];
 const moreItems = [
   ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
-  { label: "צור קשר", emoji: "✉", to: "/contact" },
+  { label: "צור קשר", emoji: "✉️", to: "/contact" },
 ];
 
 // תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
@@ -45,12 +45,12 @@ const MOBILE_TILES = [
   { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
-  { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
+  { e: "✉️", l: "צור קשר", to: "/contact" },
 ];
 const MOBILE_SOON = [
   { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
@@ -621,16 +621,40 @@ export default function Navbar() {
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>🔭 היכל הגילוי</Link>
           )}
-          {/* רשת אריחים אחת (מובייל — כמו שהיה); דילוגי-אותיות נעול (🔒 בבנייה, לא-לחיץ) */}
+          {/* 🏛️ ההיכל = האבא; שלוש התוכנות שבתוכו = הבנים. הקיבוץ (מסגרת-זהב + רכס + באנר-אב)
+              רומז בעדינות על ההיררכיה בלי לשבור את הרשת. */}
+          <div style={{ margin: "6px 4px 0", padding: "8px 9px 11px", borderInlineStart: `3px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.045)", borderRadius: 14 }}>
+            <Link to="/research" onClick={() => setDrawer(false)} style={{
+              display: "flex", alignItems: "center", gap: 11, textDecoration: "none",
+              background: "rgba(212,175,55,0.10)", border: `1px solid ${cc.borderGold}`, borderRadius: 12, padding: "10px 13px", marginBottom: 9 }}>
+              <span style={{ fontSize: 25, lineHeight: 1 }}>🏛️</span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 16, fontWeight: 800 }}>ההיכל</div>
+                <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4 }}>בית הכלים — שלוש התוכנות שבתוכו ↓</div>
+              </span>
+              <span style={{ color: cc.goldLight, fontSize: 17 }}>←</span>
+            </Link>
+            <div className="sod-tiles" style={{ padding: 0 }}>
+              {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
+                <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
+                  style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.07)", opacity: 0.72, cursor: "not-allowed" }}>
+                  <span className="sod-tile-e">{t.e}</span>
+                  <span className="sod-tile-l">{t.l}</span>
+                  <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔒 בבנייה</span>
+                </div>
+              ) : (
+                <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
+                  style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.07)" }}>
+                  <span className="sod-tile-e">{t.e}</span>
+                  <span className="sod-tile-l">{t.l}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          {/* כל המדורים */}
+          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "14px 8px 4px" }}>כל המדורים</div>
           <div className="sod-tiles">
-            {MOBILE_TILES.map(t => t.locked ? (
-              <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
-                style={{ borderColor: cc.border, borderStyle: "dashed", opacity: 0.65, cursor: "not-allowed" }}>
-                <span className="sod-tile-e">{t.e}</span>
-                <span className="sod-tile-l">{t.l}</span>
-                <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔒 בבנייה</span>
-              </div>
-            ) : (
+            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/research").map(t => (
               <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
                 style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
                 <span className="sod-tile-e">{t.e}</span>
