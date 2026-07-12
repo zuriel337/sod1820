@@ -47,7 +47,7 @@ const MOBILE_TILES = [
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
-  { e: "🖼", l: "גלריות", to: "/archive" },
+  { e: "📸", l: "גלריות", to: "/archive" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
   { e: "✉️", l: "צור קשר", to: "/contact" },
@@ -118,7 +118,7 @@ function UniversalSearch({ onDone, full }) {
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
     { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
     { e: "🏛️", l: "היכל הגילוי", to: "/research" },
-    { e: "🖼", l: "גלריות", to: "/archive" },
+    { e: "📸", l: "גלריות", to: "/archive" },
   ];
 
   return (
@@ -330,6 +330,17 @@ function MenuPanel({ items, pathname, cc }) {
                 </Link>
               );
             })}
+            {!isStandalone() && (
+              <button onClick={async () => { setOpen(false); if (canInstall()) { await promptInstall(); } else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»"); else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»"); }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
+                  background: pc.tileBg, border: `1px solid ${pc.tileBorder}`, borderRadius: 14, padding: "16px 6px", cursor: "pointer",
+                  transition: "transform 0.15s, border-color 0.15s, background 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
+                <span style={{ fontSize: 26, lineHeight: 1 }}>📲</span>
+                <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>הורדת האפליקציה</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -621,19 +632,17 @@ export default function Navbar() {
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>🔭 היכל הגילוי</Link>
           )}
-          {/* 🏛️ ההיכל = האבא; שלוש התוכנות שבתוכו = הבנים. הקיבוץ (מסגרת-זהב + רכס + באנר-אב)
-              רומז בעדינות על ההיררכיה בלי לשבור את הרשת. */}
-          <div style={{ margin: "6px 4px 0", padding: "8px 9px 11px", borderInlineStart: `3px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.045)", borderRadius: 14 }}>
-            <Link to="/research" onClick={() => setDrawer(false)} style={{
-              display: "flex", alignItems: "center", gap: 11, textDecoration: "none",
-              background: "rgba(212,175,55,0.10)", border: `1px solid ${cc.borderGold}`, borderRadius: 12, padding: "10px 13px", marginBottom: 9 }}>
-              <span style={{ fontSize: 25, lineHeight: 1 }}>🏛️</span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 16, fontWeight: 800 }}>ההיכל</div>
-                <div style={{ color: cc.muted, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4 }}>בית הכלים — שלוש התוכנות שבתוכו ↓</div>
-              </span>
-              <span style={{ color: cc.goldLight, fontSize: 17 }}>←</span>
+          {/* ההיכל = האב; שלוש התוכנות שבמסגרת = הבנים. צ'יפ-אב «🏛️ ההיכל» יושב על קו-המסגרת
+              (כמו legend) → הכלים שבתוכה שייכים לו. בלי מילים; המסגרת + הצ'יפ מספרים את ההיררכיה. */}
+          <div style={{ position: "relative", margin: "16px 6px 2px", padding: "18px 10px 12px",
+            border: `1.5px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.05)", borderRadius: 16 }}>
+            <Link to="/research" onClick={() => setDrawer(false)} aria-label="ההיכל" style={{
+              position: "absolute", top: -14, insetInlineStart: 16, display: "inline-flex", alignItems: "center", gap: 7,
+              background: cc.bgScrolled, border: `1.5px solid ${cc.borderGold}`, borderRadius: 999, padding: "4px 13px 4px 5px", textDecoration: "none" }}>
+              <span style={{ width: 23, height: 23, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🏛️</span>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800 }}>ההיכל</span>
             </Link>
+            <span style={{ position: "absolute", top: -11, insetInlineEnd: 14, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "3px 9px", color: cc.muted, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, whiteSpace: "nowrap" }}>💻 מיטבי במחשב</span>
             <div className="sod-tiles" style={{ padding: 0 }}>
               {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
                 <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
