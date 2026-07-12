@@ -3,7 +3,7 @@
 // עדשה אחת → אותו עומק בכל מקום: דף מספר · מעבדת-השם (מחקר לפי שפות) · מרכז מחקר · השוואות.
 // ✅ לא מחשב מחדש — משתמש רק בערכי-המנוע הרשמיים ובהצלבות מ-bidim (number_cross_resonance).
 import { crossMethodPairs, METHODS, CROSS_METHODS } from "./gematria.js";
-import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis } from "./supabase.js";
+import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis, getMethodSemantics } from "./supabase.js";
 
 // 🫀 לב המערכת — זיהוי התכנסות בין-שיטתית בתוך אוסף (לא רק "שווים ברגיל").
 //    דוגמה נעולה: משיח(מילוי=878) ↔ «דבר מתוך דבר»(רגיל=878) ↔ «עולם הפוך ראיתי»(רגיל=878).
@@ -79,14 +79,20 @@ export async function getWordCrossFacts(term) {
     const pairs = crossMethodPairs(w);              // [{method,value}] ב-7 שיטות קריאות (מהמנוע)
     if (pairs.length) {
       const methodsLine = pairs.map(p => `${p.method}=${p.value}`).join(" · ");
-      const [groups, stats] = await Promise.all([
+      const [groups, stats, sem] = await Promise.all([
         getNumberCrossResonance(w, pairs, { perGroup: 5 }),
         getNumberResonanceStats(w, pairs),
+        getMethodSemantics(),
       ]);
+      // 🧭 מצמידים לכל קבוצה את סוג-היחס מהמודל הפרשני (🪞 מראה · 💑 בן-זוג · 🔍 נסתר) — ל-UI ול-AI.
+      for (const g of groups) g.sem = sem[g.method] || null;
       const crossLine = groups
         .filter(g => g.method !== "רגיל")            // רגיל מיוצג ממילא ברשימת המילים-השוות של המשטח
         .slice(0, 5)
-        .map(g => `«${w}» ב${g.method} (${g.value}) = ${g.matches.map(m => m.phrase).join(", ")} ברגיל`)
+        .map(g => {
+          const rel = g.sem ? `${g.sem.emoji} ${g.sem.label_he} — ` : "";
+          return `${rel}«${w}» ב${g.method} (${g.value}) = ${g.matches.map(m => m.phrase).join(", ")} ברגיל`;
+        })
         .join(" · ");
       out = { methodsLine, crossLine, groups, stats, resonance: resonanceScore(stats) };
     }
@@ -99,7 +105,7 @@ export async function getWordCrossFacts(term) {
 export function appendDeepFacts(baseFacts, cross) {
   let f = baseFacts || "";
   if (cross?.methodsLine) f += ` ערכי המילה בשיטות: ${cross.methodsLine}.`;
-  if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (עובדה מהמנוע): ${cross.crossLine}.`;
+  if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (הערכים = עובדה מהמנוע; סוגי-היחס 🪞💑🔍 = המודל הפרשני של סוד1820): ${cross.crossLine}.`;
   const r = cross?.resonance;
   if (r) f += ` מדד-תהודה (עובדת-מנוע, מדד טכני של צפיפות-קשרים נחשבים): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
   return f;
