@@ -9,6 +9,7 @@ import PostFollowBox from "../components/PostFollowBox.jsx";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
+import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
@@ -4808,6 +4809,10 @@ function PostPageBySlug({ onNav }) {
                 return out;
               })()}
             </div>
+            {/* 🌳 העץ האחד חי בתוך הפוסט (מרקר data-sod-onetree) — אותו רכיב כמו בעמוד הבית, עץ אחד */}
+            {String(content).includes("data-sod-onetree") && (
+              <div id="post-one-tree" style={{ margin: "30px 0 6px", scrollMarginTop: 76 }}><OneTreeWidget /></div>
+            )}
             {/* 📅 יומן-העדכונים החי (מרקר data-sod-changelog בתוכן) — נשען על channel_updates,
                 המקור הקנוני של הטיקר: מתעדכן לבד עם כל פוסט/ממצא/עוגן חדש (עץ אחד, אפס תחזוקה) */}
             {String(content).includes("data-sod-changelog") && <SiteChangelog pc={pc} />}
