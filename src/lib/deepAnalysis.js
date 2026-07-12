@@ -105,6 +105,23 @@ export function appendDeepFacts(baseFacts, cross) {
   return f;
 }
 
+// 🧠 זיכרון-ניתוח פר-מילה (localStorage, LRU קטן) — חוזרים למילה ורואים את מה שכבר רץ, בלי לשלם שוב.
+const AI_CACHE_PREFIX = "sod_ai_num_v1:";
+const AI_CACHE_INDEX = "sod_ai_num_v1_idx";
+const AI_CACHE_MAX = 50;
+export function loadAiCache(key) {
+  try { const raw = localStorage.getItem(AI_CACHE_PREFIX + key); return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+export function saveAiCache(key, data) {
+  try {
+    localStorage.setItem(AI_CACHE_PREFIX + key, JSON.stringify({ ...data, at: Date.now() }));
+    const idx = JSON.parse(localStorage.getItem(AI_CACHE_INDEX) || "[]").filter(k => k !== key);
+    idx.push(key);
+    while (idx.length > AI_CACHE_MAX) localStorage.removeItem(AI_CACHE_PREFIX + idx.shift());
+    localStorage.setItem(AI_CACHE_INDEX, JSON.stringify(idx));
+  } catch { /* noop */ }
+}
+
 // 🎯 נקודת-הכניסה האחת לחיפוש-AI עמוק על מילה. המשטח מספק subject + baseFacts (ההקשר שלו),
 //    והמודול מוסיף את שכבת-העומק ומריץ. deep=true → Sonnet (עמוק, במכסה) · אחרת Haiku (מהיר, נדיב).
 //    מחזיר { text, cross } — cross זמין למשטח להצגת המילים המוצלבות כקישורי-פנים.
