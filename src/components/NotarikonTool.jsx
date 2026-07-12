@@ -166,7 +166,7 @@ export default function NotarikonTool() {
   const [dir, setDir] = useState("fwd"); // fwd=מהביטוי · rev=חיפוש הפוך
   return (
     <div className="rw-card">
-      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 12 }}>🔠 ראשי / אמצעי / סופי תיבות — מהביטוי לאותיות, או חיפוש הפוך בפסוקי התורה</div>
+      <div className="rw-muted" style={{ fontWeight: 700, marginBottom: 12 }}>🔠 נוטריקון — מהביטוי לראשי/אמצעי/סופי תיבות, או חיפוש הפוך בפסוקי התורה</div>
       <ToolGuide
         title="איך משתמשים בנוטריקון"
         intro="נוטריקון = יצירת מילה מאותיות-הקצה של ביטוי. שני כיוונים — מביטוי לאותיות, או חיפוש הפוך בתורה."

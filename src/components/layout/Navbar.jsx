@@ -446,9 +446,9 @@ const LAB_MENU = [
   { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
   { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
   { e: "🔀", l: "השוואת מילים", to: "/research?tool=compare" },
-  { e: "🔠", l: "ראשי / אמצעי / סופי תיבות", to: "/research?tool=notarikon" },
+  { e: "🔠", l: "נוטריקון", to: "/research?tool=notarikon" },
   { e: "📊", l: "ניתוח קובץ", to: "/research?tool=import" },
-  { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els" },
+  { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els", icon: "dilugim" },
   { e: "🧭", l: "מסע חיפוש", to: "/research?tool=journey" },
 ];
 // מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
@@ -483,7 +483,7 @@ function LabMenu() {
             }}
               onMouseEnter={e => { e.currentTarget.style.background = cc.surface; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}>
-              <span>{it.e} {it.l}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{it.icon === "dilugim" ? <DilugimIcon size={18} /> : <span>{it.e}</span>}<span>{it.l}</span></span>
               {isAdmin && it.to !== "/research?tool=midrash" && <span style={{ fontSize: 10, color: cc.muted }}>🔑</span>}
             </Link>
           ) : (
@@ -491,7 +491,7 @@ function LabMenu() {
               display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: cc.muted,
               fontFamily: F.royal, fontSize: 15, padding: "10px 13px", borderRadius: 5, whiteSpace: "nowrap", opacity: 0.65, cursor: "not-allowed",
             }}>
-              <span>{it.e} {it.l}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{it.icon === "dilugim" ? <DilugimIcon size={18} /> : <span>{it.e}</span>}<span>{it.l}</span></span>
               <span style={{ fontSize: 9.5, fontWeight: 800, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 6px" }}>🔒 בבנייה</span>
             </div>
           ))}
