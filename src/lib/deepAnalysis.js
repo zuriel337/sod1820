@@ -76,14 +76,30 @@ export async function getWordCrossFacts(term) {
   if (_cache.has(w)) return _cache.get(w);
   let out = { methodsLine: "", crossLine: "", groups: [], stats: null, resonance: null };
   try {
-    const pairs = crossMethodPairs(w);              // [{method,value}] ב-7 שיטות קריאות (מהמנוע)
+    // 🔢 דף-מספר (למשל 566): אין אותיות — העדשה מתהפכת: אילו מילים נופלות על N באחת השיטות
+    // (המסתתר/המראה/הפנימיות שלהן = המספר). כך גם דפי-מספר מקבלים יחסים וסמלים.
+    const pairs = /^\d+$/.test(w)
+      ? [{ method: "רגיל", value: parseInt(w, 10) }]
+      : crossMethodPairs(w);                        // [{method,value}] ב-7 שיטות קריאות (מהמנוע)
     if (pairs.length) {
       const methodsLine = pairs.map(p => `${p.method}=${p.value}`).join(" · ");
-      const [groups, stats, sem] = await Promise.all([
+      let [groups, stats, sem] = await Promise.all([
         getNumberCrossResonance(w, pairs, { perGroup: 5 }),
         getNumberResonanceStats(w, pairs),
         getMethodSemantics(),
       ]);
+      // דף-מספר: הקבוצה חוזרת כ'רגיל' (הצד שלנו) — מקבצים מחדש לפי שיטת הצד השני (via),
+      // כדי שהיחסים (🪞🔍🕯) יוצגו: "בתוך 566 — במסתתר של: X, Y".
+      if (/^\d+$/.test(w)) {
+        const byVia = new Map();
+        for (const g of groups) for (const m of g.matches) {
+          if (!m.via || m.via === "רגיל") continue;
+          const grp = byVia.get(m.via) || { method: m.via, value: g.value, matches: [] };
+          if (grp.matches.length < 5) grp.matches.push(m);
+          byVia.set(m.via, grp);
+        }
+        groups = [...byVia.values()];
+      }
       // 🧭 מצמידים לכל קבוצה את סוג-היחס מהמודל הפרשני (🪞 מראה · 💑 בן-זוג · 🔍 נסתר) — ל-UI ול-AI.
       for (const g of groups) g.sem = sem[g.method] || null;
       const crossLine = groups
@@ -108,6 +124,8 @@ export function appendDeepFacts(baseFacts, cross) {
   if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (הערכים = עובדה מהמנוע; סוגי-היחס 🪞💑🔍 = המודל הפרשני של סוד1820): ${cross.crossLine}.`;
   const r = cross?.resonance;
   if (r) f += ` מדד-תהודה (עובדת-מנוע, מדד טכני של צפיפות-קשרים נחשבים): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
+  // 🧭 שה-AI ידבר בשפת-היחסים עם הסמלים — קל לאנשים (הוראת צוריאל)
+  if (cross?.crossLine) f += ` בהסבר שלך: קרא לכל קשר בשם-היחס שלו עם הסמל (🪞 יחס-מראה · 💑 השלמה · 🔍 נסתר · 🕯 פנימיות · 🌱 התפתחות) — לא "התאמה מספרית".`;
   return f;
 }
 

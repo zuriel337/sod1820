@@ -864,11 +864,12 @@ export default function EntityPage({ embedPhrase } = {}) {
   //    (וגם כשיש ניתוח מהקאש — משלימים את שכבת-העובדות שלו. getWordCrossFacts ממוזג בזיכרון.)
   useEffect(() => {
     let live = true;
-    if (!isNumber && term && (showBody || aiText)) {
-      getWordCrossFacts(term).then(c => { if (live && c && (c.groups?.length || c.resonance)) setAiCross(c); }).catch(() => {});
+    const key = isNumber ? String(value || "") : (term || "");
+    if (key && (showBody || aiText)) {
+      getWordCrossFacts(key).then(c => { if (live && c && (c.groups?.length || c.resonance)) setAiCross(c); }).catch(() => {});
     }
     return () => { live = false; };
-  }, [showBody, isNumber, term, aiText]);
+  }, [showBody, isNumber, term, value, aiText]);
   // 🤖 חיפוש-AI — כולם דרך המודול המשותף analyzeWordDeep (שכבת-העומק הבין-שיטתית נוספת אוטומטית).
   //    deep=false → Haiku (מהיר, נדיב) · deep=true → Sonnet (מדויק, נכנס למכסת-העומק). עומק חל רק לדף-מילה.
   async function runAiNumber(engine = "claude", deep = false) {
@@ -883,8 +884,8 @@ export default function EntityPage({ embedPhrase } = {}) {
       (leads.length ? ` שווה בגימטריה לביטויים: ${leads.join(", ")}.` : "") +
       (convCount ? ` ${convCount} ישויות מתכנסות על הערך הזה.` : "") +
       (topics[0]?.title ? ` התכנסות מרכזית: ${topics[0].title}.` : "");
-    // עומק בין-שיטתי נמשך רק כשיש מילה עברית (למספר בלבד אין אותיות → analyzeWordDeep מחזיר baseFacts כמות שהם).
-    const { text, cross } = await analyzeWordDeep({ term: isNumber ? "" : term, subject, baseFacts, engine, deep });
+    // עומק בין-שיטתי: מילה → כל השיטות שלה; מספר → אילו מילים נופלות עליו בשיטות הנסתרות (עדשה הפוכה).
+    const { text, cross } = await analyzeWordDeep({ term: isNumber ? String(value) : term, subject, baseFacts, engine, deep });
     setAiCross(cross && (cross.groups?.length || cross.resonance) ? cross : null);
     setAiText(text || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
     if (text) saveAiCache(String(term ?? value), { text, engine, deep });   // 3️⃣ זיכרון פר-מילה
@@ -1010,7 +1011,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               ))}
             </div>
           ))}
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>הערכים = עובדה מהמנוע · סוגי-היחס = המודל הפרשני של סוד1820. לחיצה = מסלול המשך.</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>הערכים = עובדה מהמנוע · סוגי-היחס = המודל הפרשני של סוד1820 · «{term ?? value}» — לחיצה = מסלול המשך.</div>
         </div>
       )}
     </div>
