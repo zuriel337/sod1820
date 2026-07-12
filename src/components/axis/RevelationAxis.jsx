@@ -130,7 +130,8 @@ export default function RevelationAxis() {
       position: "fixed", top: 112, bottom: 0, left: 0, width: 86, zIndex: 40,
       flexDirection: "column", alignItems: "center", justifyContent: "center",
       pointerEvents: "none",
-      padding: "48px 0 56px", boxSizing: "border-box",
+      // padding-top גדול — דוחף את העיגולים מטה כדי שלא יידחקו לכותרת «ציר ההתגלות»
+      padding: "128px 0 56px", boxSizing: "border-box",
     }}>
       <style>{AXIS_CSS}</style>
 
@@ -149,7 +150,7 @@ export default function RevelationAxis() {
 
       {/* כותרת אנכית */}
       <div style={{
-        position: "absolute", top: 44, left: 0, width: 86, textAlign: "center",
+        position: "absolute", top: 18, left: 0, width: 86, textAlign: "center",
         color: P.accentText, fontFamily: F.heading, fontSize: 10, letterSpacing: 3,
         writingMode: "vertical-rl", margin: "0 auto", height: 100, lineHeight: "86px",
       }}>
