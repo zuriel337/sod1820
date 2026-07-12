@@ -16,6 +16,22 @@ import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/instal
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 
+// 🔍 סמל מותאם לדילוגי-אותיות: זכוכית-מגדלת שמאתרת שלוש אותיות באלכסון — הקוד החבוי ברצף.
+function DilugimIcon({ size = 24, accent = "#e6cf86" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "block" }}>
+      <circle cx="10" cy="10" r="7.5" stroke={accent} strokeWidth="1.8" fill="none" />
+      <path d="M6 6 L14 14" stroke={accent} strokeWidth="1" opacity="0.45" strokeLinecap="round" />
+      <g fill={accent}>
+        <circle cx="6" cy="6" r="1.6" />
+        <circle cx="10" cy="10" r="1.6" />
+        <circle cx="14" cy="14" r="1.6" />
+      </g>
+      <line x1="15.4" y1="15.4" x2="21" y2="21" stroke={accent} strokeWidth="2.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // 🧭 השורה הראשית = מוצרים בלבד (כלל צוריאל: «דף שראוי לחיפוש-גוגל משלו»).
 // דף המספר · דילוגי אותיות · בית המדרש — כל אחד מוצר עצמאי. «היכל» = הכניסה לכלים,
 // קהילה = השער החברתי. השאר (תוכן, ציר, זרם, שידורים, גלריות, עץ) → «עוד ▾».
@@ -24,7 +40,7 @@ import StreamSwitch from "../StreamSwitch.jsx";
 const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
   { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
-  { label: "דילוגי אותיות", emoji: "🔠", to: "/code", locked: true },
+  { label: "דילוגי אותיות", emoji: "🔠", to: "/code", locked: true, icon: "dilugim" },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
@@ -42,7 +58,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
   { e: "🔢", l: "דף המספר", to: "/number", fav: true },
-  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true },
+  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true, icon: "dilugim" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
@@ -223,7 +239,10 @@ function LockedNavItem({ item }) {
       color: cc.muted, opacity: 0.72, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
       padding: "7px 10px", borderRadius: 8, whiteSpace: "nowrap",
     }}>
-      <span>{item.emoji} {item.label}</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+        {item.icon === "dilugim" ? <DilugimIcon size={16} accent={cc.goldLight} /> : <span>{item.emoji}</span>}
+        <span>{item.label}</span>
+      </span>
       <span aria-hidden style={{ fontSize: 11 }}>🔒</span>
       <span style={{ fontSize: 8.5, fontWeight: 900, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 5px" }}>בבנייה</span>
     </span>
@@ -649,7 +668,9 @@ export default function Navbar() {
                   style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.07)", opacity: 0.72, cursor: "not-allowed", position: "relative", minHeight: 84 }}>
                   {/* סרט «🔒 בבנייה» צף על קו-המסגרת — לא מוסיף גובה, כך שכל האריחים אחידים */}
                   <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 8, fontWeight: 900, borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap", border: `1px solid ${cc.borderGold}` }}>🔒 בבנייה</span>
-                  <span className="sod-tile-e">{t.e}</span>
+                  {t.icon === "dilugim"
+                    ? <span className="sod-tile-e" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><DilugimIcon size={27} accent="#e6cf86" /></span>
+                    : <span className="sod-tile-e">{t.e}</span>}
                   <span className="sod-tile-l">{t.l}</span>
                 </div>
               ) : (
