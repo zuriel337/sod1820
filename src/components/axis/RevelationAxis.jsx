@@ -4,6 +4,11 @@ import { supabase } from "../../lib/supabase.js";
 import { C, F } from "../../theme.js";
 import { usePalette, PALETTES } from "../../lib/palette.js";
 import { stripHtml } from "../../lib/format.js";
+import { withinFresh } from "../../lib/crossesNew.js";
+
+// ⏳ «חדש בציר» = תחנה שנוספה/עודכנה ב-N השעות האחרונות (≈4 ימים). רק אלה פועמות;
+//    כל השאר סטטיות. כך הפעימה = «עדכון ציר טרי», לא רעש-רקע מתמיד.
+const AXIS_FRESH_HOURS = 96;
 
 // ===== ציר ההתגלות — הפס הקבוע =====
 // נוכחות קבועה בצד שמאל של המסך (דסקטופ רחב בלבד): חוט אור עם תחנות
@@ -24,14 +29,20 @@ const AXIS_CSS = `
     0%, 100% { transform: translateZ(var(--z)) scale(1); }
     50%      { transform: translateZ(var(--z)) scale(1.14); }
   }
-  .rev-axis-dot { animation: rev-breathe 4.6s ease-in-out infinite; }
-  .rev-axis-dot:hover { animation-play-state: paused; }
+  /* כברירת-מחדל הכוכבים סטטיים. רק «חדש» (עודכן ב-4 הימים האחרונים) פועם. */
+  @keyframes rev-new-breathe {
+    0%, 100% { transform: translateZ(var(--z)) scale(1); }
+    50%      { transform: translateZ(var(--z)) scale(1.16); }
+  }
+  .rev-axis-dot.is-new { animation: rev-new-breathe 1.6s ease-in-out infinite; }
+  .rev-axis-dot.is-new:hover { animation-play-state: paused; }
   @keyframes rev-ai-blink {
     0%, 100% { opacity: .5;  box-shadow: 0 0 5px #3ea6ff, 0 0 11px #3ea6ff55; }
     50%      { opacity: 1;   box-shadow: 0 0 14px #3ea6ff, 0 0 32px #3ea6ffaa, 0 0 52px #3ea6ff55; }
   }
-  .rev-ai-dot { animation: rev-ai-blink 1.5s ease-in-out infinite; }
-  .rev-ai-dot:hover { animation-play-state: paused; }
+  .rev-ai-dot.is-new { animation: rev-ai-blink 1.5s ease-in-out infinite; }
+  .rev-ai-dot.is-new:hover { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .rev-axis-dot.is-new, .rev-ai-dot.is-new { animation: none; } }
   @keyframes rev-thread-ai-glow {
     0%, 100% { box-shadow: 0 0 14px #8458ff66; }
     50%      { box-shadow: 0 0 16px #8458ff66, 0 0 12px #3ea6ff99, 0 0 30px #3ea6ff55; }
@@ -49,6 +60,7 @@ function dotStyle(ev, active, P) {
   return {
     width: size, height: size, borderRadius: "50%", cursor: "pointer", border: "none",
     "--z": `${(w - 3) * 26}px`,
+    transform: "translateZ(var(--z))",   // עומק סטטי — נשמר גם בלי אנימציה (רק «חדש» פועם)
     background: `radial-gradient(circle at 35% 30%, #fff8e1, ${color} 55%, ${color}55)`,
     boxShadow: active
       ? `0 0 18px ${color}, 0 0 44px ${color}aa, 0 0 70px ${color}55`
@@ -72,7 +84,7 @@ export default function RevelationAxis() {
 
   useEffect(() => {
     supabase.from("nodes")
-      .select("id,label,weight,hebrew_date,axis_theme,metadata,gallery_id")
+      .select("id,label,weight,hebrew_date,axis_theme,metadata,gallery_id,created_at")
       .eq("type", "event").eq("is_active", true)
       .order("weight", { ascending: false })
       .order("created_at", { ascending: false })
@@ -152,11 +164,12 @@ export default function RevelationAxis() {
         {aiPosts.map(p => (
           <div key={`ai-${p.wp_id}`} style={{ position: "relative", display: "flex", alignItems: "center" }}
             onMouseEnter={() => setHoveredAi(p)} onMouseLeave={() => setHoveredAi(null)}>
-            <button className="rev-ai-dot" onClick={() => nav(`/${p.slug}`)}
+            <button className={"rev-ai-dot" + (withinFresh(p.modified, AXIS_FRESH_HOURS) ? " is-new" : "")} onClick={() => nav(`/${p.slug}`)}
               aria-label={`עדכון AI: ${stripHtml(p.title || "")}`}
               style={{
                 width: 15, height: 15, borderRadius: "50%", cursor: "pointer", border: "none",
                 background: `radial-gradient(circle at 35% 30%, #eaf5ff, ${AI_BLUE} 58%, ${AI_BLUE}66)`,
+                boxShadow: "0 0 7px #3ea6ff77",   // זוהר סטטי עדין (כשלא «חדש»)
               }} />
             {hoveredAi?.wp_id === p.wp_id && (
               <div style={{
@@ -184,7 +197,7 @@ export default function RevelationAxis() {
           return (
             <div key={ev.id} style={{ position: "relative", display: "flex", alignItems: "center" }}
               onMouseEnter={() => setHovered(ev)} onMouseLeave={() => setHovered(null)}>
-              <button className="rev-axis-dot" onClick={() => nav(`/timeline#ev-${ev.id}`)}
+              <button className={"rev-axis-dot" + (withinFresh(ev.created_at, AXIS_FRESH_HOURS) ? " is-new" : "")} onClick={() => nav(`/timeline#ev-${ev.id}`)}
                 aria-label={stripHtml(ev.label || "")} style={dotStyle(ev, active || hovered?.id === ev.id, P)} />
 
               {/* תצוגה מקדימה בריחוף */}
