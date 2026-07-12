@@ -97,7 +97,7 @@ export default function WhatsNewBadge() {
 
       <button ref={btnRef} className="wn-btn" onClick={toggle} aria-label="מה חדש באתר" aria-expanded={open}
         style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer",
-          background: hasNew ? "linear-gradient(135deg,#ffe08a,#e6b53a)" : (light ? "rgba(150,110,20,0.16)" : "rgba(255,236,173,0.14)"),
+          background: hasNew ? "linear-gradient(135deg,#e0c77e,#c39a3a)" : (light ? "rgba(150,110,20,0.16)" : "rgba(255,236,173,0.14)"),
           border: `1px solid ${hasNew ? "#e0533f" : (light ? "rgba(90,66,12,0.55)" : "rgba(212,175,55,0.4)")}`, borderRadius: 999,
           padding: "5px 12px", fontFamily: F.heading, fontWeight: 900, fontSize: 12.5, letterSpacing: ".2px",
           color: hasNew ? "#1a0e00" : (light ? "#33260a" : "#ffe6ad"), whiteSpace: "nowrap", lineHeight: 1 }}>

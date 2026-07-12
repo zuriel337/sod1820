@@ -24,7 +24,7 @@ import StreamSwitch from "../StreamSwitch.jsx";
 const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
   { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
-  { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
+  { label: "דילוגי אותיות", emoji: "🔠", to: "/code", locked: true },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
@@ -37,12 +37,13 @@ const moreItems = [
 // תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
 // הסמלים זהים לאלה שבתוך החלונות עצמם (מחשבון=🧮 כמו בבית המדרש · מנוע המספרים=🔢 כמו בדף המספר)
 // מסודר לפי קבוצות: מחקר (מחשבון · מספרים · היכל) → תוכן (פוסטים · גלריות · ציר) → קהילה → ניווט.
-// מובייל: מוצרים קודם (דילוגי-אותיות = דף עצמאי /code, לא דרך ההיכל), ואז תוכן וקהילה.
+// מקור-אמת יחיד לאריחי התפריט (מובייל + פאנל-דסקטופ) — סמלים ונוסחים מתואמים בכל המקומות.
+// fav = שלושת הפייבוריטים (מודגשים). locked = בבנייה + מנעול, לא-לחיץ בכל המקומות.
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
-  { e: "🔢", l: "דף המספר", to: "/number" },
-  { e: "🔠", l: "דילוגי אותיות", to: "/code" },
-  { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
+  { e: "🔢", l: "דף המספר", to: "/number", fav: true },
+  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true },
+  { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
@@ -213,6 +214,22 @@ function NavLinkItem({ item, pathname, onNavigate }) {
   );
 }
 
+// פריט-סרגל נעול (בבנייה) — לא-לחיץ, עם מנעול + תגית «בבנייה». לדילוגי-אותיות בשורת המוצרים.
+function LockedNavItem({ item }) {
+  const cc = chromeColors(useThemeMode());
+  return (
+    <span aria-disabled="true" title="בבנייה — בקרוב" style={{
+      display: "inline-flex", alignItems: "center", gap: 5, cursor: "not-allowed",
+      color: cc.muted, opacity: 0.72, fontFamily: F.royal, fontSize: 15, fontWeight: 700,
+      padding: "7px 10px", borderRadius: 8, whiteSpace: "nowrap",
+    }}>
+      <span>{item.emoji} {item.label}</span>
+      <span aria-hidden style={{ fontSize: 11 }}>🔒</span>
+      <span style={{ fontSize: 8.5, fontWeight: 900, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 5px" }}>בבנייה</span>
+    </span>
+  );
+}
+
 function MoreMenu({ items, pathname, onNavigate, grid }) {
   const cc = chromeColors(useThemeMode());
   const [open, setOpen] = useState(false);
@@ -251,15 +268,41 @@ function MenuPanel({ pathname, cc }) {
   const pc = light ? {
     panelBg: "#fbf8f1", panelBorder: "rgba(160,120,30,0.40)", shadow: "0 20px 56px rgba(80,60,10,0.22)",
     heading: "#8a6a1a", tileBg: "#ffffff", tileBorder: "rgba(120,90,20,0.20)", tileHoverBg: "#f4ecda",
-    tileText: "#2a2013", tileActive: "#c9a84a",
+    tileText: "#2a2013", tileActive: "#c9a84a", favBg: "#fdf6e3", favBorder: "#d8b24a",
     bannerBg: "rgba(201,168,74,0.16)", bannerBorder: "rgba(160,120,30,0.45)", bannerHover: "#c9a84a",
     bannerTitle: "#6d4e0b", bannerSub: "#6b5f45", arrow: "#8a6a1a",
   } : {
     panelBg: "#0c0803", panelBorder: cc.borderGold, shadow: "0 20px 56px rgba(0,0,0,0.62)",
     heading: cc.muted, tileBg: "#1b1409", tileBorder: cc.border, tileHoverBg: "#26190c",
-    tileText: cc.goldLight, tileActive: cc.borderGold,
+    tileText: cc.goldLight, tileActive: cc.borderGold, favBg: "#20180a", favBorder: "rgba(212,175,55,0.55)",
     bannerBg: cc.activeBg, bannerBorder: cc.borderGold, bannerHover: cc.gold,
     bannerTitle: cc.goldBright, bannerSub: cc.muted, arrow: cc.goldLight,
+  };
+  // רכיב-אריח משותף לפאנל: תומך fav (מודגש-זהב + ⭐) ו-locked (מנעול + «בבנייה», לא-לחיץ).
+  const renderTile = (t, fav) => {
+    const active = isActive(pathname, t.to);
+    const base = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      gap: 7, borderRadius: 14, padding: "16px 6px", position: "relative" };
+    if (t.locked) return (
+      <div key={t.to} aria-disabled="true" title="בבנייה — בקרוב" style={{
+        ...base, background: fav ? pc.favBg : pc.tileBg, border: `1px dashed ${pc.tileBorder}`, opacity: 0.7, cursor: "not-allowed" }}>
+        <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
+        <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
+        <span style={{ fontSize: 9.5, fontWeight: 900, marginTop: 1, background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2px 7px" }}>🔒 בבנייה</span>
+      </div>
+    );
+    return (
+      <Link key={t.to} to={t.to} onClick={() => setOpen(false)} style={{
+        ...base, background: fav ? pc.favBg : pc.tileBg,
+        border: `1px solid ${fav ? pc.favBorder : (active ? pc.tileActive : pc.tileBorder)}`,
+        textDecoration: "none", transition: "transform 0.15s, border-color 0.15s, background 0.15s" }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = fav ? pc.favBorder : (active ? pc.tileActive : pc.tileBorder); e.currentTarget.style.background = fav ? pc.favBg : pc.tileBg; }}>
+        {fav && <span aria-hidden style={{ position: "absolute", top: 6, insetInlineEnd: 8, fontSize: 11 }}>⭐</span>}
+        <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
+        <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
+      </Link>
+    );
   };
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -295,24 +338,13 @@ function MenuPanel({ pathname, cc }) {
             </span>
             <span style={{ marginInlineStart: "auto", color: pc.arrow, fontSize: 18 }}>←</span>
           </Link>
-          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
+          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>⭐ הכלים הראשיים</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9, marginBottom: 14 }}>
+            {MOBILE_TILES.filter(t => t.fav).map(t => renderTile(t, true))}
+          </div>
+          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>כל המדורים</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {MOBILE_TILES.filter(t => t.to !== "/start").map(t => {
-              const active = isActive(pathname, t.to);
-              return (
-                <Link key={t.to} to={t.to} onClick={() => setOpen(false)} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
-                  borderRadius: 14, padding: "16px 6px", textDecoration: "none",
-                  transition: "transform 0.15s, border-color 0.15s, background 0.15s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                  <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
-                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
-                </Link>
-              );
-            })}
+            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/start").map(t => renderTile(t, false))}
           </div>
         </div>
       )}
@@ -411,11 +443,12 @@ function LabMenu() {
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <Link to="/research" onClick={() => setOpen(false)} aria-label="ההיכל" style={{
-        display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none", textDecoration: "none",
-        background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
+        display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", textDecoration: "none",
+        background: cc.activeBg, color: cc.goldBright,
+        border: "1.5px solid #c9a84a",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
-        padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
-        boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
+        padding: "8px 18px", borderRadius: 12, whiteSpace: "nowrap",
+        boxShadow: "0 2px 12px rgba(201,168,74,0.20)", marginInlineEnd: 4,
       }}>🏛️ ההיכל
         <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
       {open && (
@@ -530,7 +563,9 @@ export default function Navbar() {
         <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
           <span className="sod-heichal-arrow" aria-hidden>▸</span>
-          {productItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
+          {productItems.map(item => item.locked
+            ? <LockedNavItem key={item.to} item={item} />
+            : <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
         </div>
 
         {/* חיפוש + הפתעה + כניסה + תפריט-רשת ⊞ (כל השאר במקום אחד — לא סרגל שני) */}
@@ -601,27 +636,35 @@ export default function Navbar() {
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>🔭 היכל הגילוי</Link>
           )}
-          {/* רשת אריחים — המדורים הראשיים */}
+          {/* ⭐ הכלים הראשיים — שלושת הפייבוריטים, מודגשים (זהב + ⭐); דילוגי-אותיות נעול (בבנייה, לא-לחיץ) */}
+          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "8px 8px 4px" }}>⭐ הכלים הראשיים</div>
           <div className="sod-tiles">
-            {MOBILE_TILES.map(t => {
-              // ⛔ אריח נעול (היכל-הגילוי בבנייה) — לא לחיץ לציבור; המנהל מגיע דרך הקישור «🔭 היכל הגילוי» למעלה.
-              const locked = t.locked && !isAdmin;
-              const badge = t.soon && <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>{t.soon}</span>;
-              return locked ? (
-                <div key={t.to} className="sod-tile" aria-disabled="true" style={{ borderColor: cc.border, opacity: 0.6, cursor: "not-allowed" }}>
-                  <span className="sod-tile-e">{t.e}</span>
-                  <span className="sod-tile-l">{t.l}</span>
-                  {badge}
-                </div>
-              ) : (
-                <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
-                  style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
-                  <span className="sod-tile-e">{t.e}</span>
-                  <span className="sod-tile-l">{t.l}</span>
-                  {t.locked && isAdmin ? <span style={{ marginTop: 3, background: "#1f3a1f", color: "#9be29b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔑 אדמין</span> : badge}
-                </Link>
-              );
-            })}
+            {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
+              <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
+                style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.06)", opacity: 0.72, cursor: "not-allowed" }}>
+                <span className="sod-tile-e">{t.e}</span>
+                <span className="sod-tile-l">{t.l}</span>
+                <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔒 בבנייה</span>
+              </div>
+            ) : (
+              <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
+                style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.06)", position: "relative" }}>
+                <span aria-hidden style={{ position: "absolute", top: 5, insetInlineEnd: 7, fontSize: 10 }}>⭐</span>
+                <span className="sod-tile-e">{t.e}</span>
+                <span className="sod-tile-l">{t.l}</span>
+              </Link>
+            ))}
+          </div>
+          {/* כל המדורים */}
+          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "12px 8px 4px" }}>כל המדורים</div>
+          <div className="sod-tiles">
+            {MOBILE_TILES.filter(t => !t.fav).map(t => (
+              <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
+                style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
+                <span className="sod-tile-e">{t.e}</span>
+                <span className="sod-tile-l">{t.l}</span>
+              </Link>
+            ))}
             {/* 📲 הורדת האפליקציה — מוסתר כשכבר מותקנת; אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
             {!isStandalone() && (
               <button className="sod-tile" style={{ borderColor: cc.borderGold, background: "none", cursor: "pointer" }}
