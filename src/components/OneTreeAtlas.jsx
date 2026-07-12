@@ -27,6 +27,20 @@ function useRelMeta() {
 }
 
 // ===== 🌳 העץ בעמוד הבית — גרפיקה חיה של הצמיחה =====
+// 🎨 dual_theme_every_element_law: כל הצבעים דרך משתני-CSS scoped — כהה (ברירת-מחדל) + בהיר
+//    ([data-theme="light"]): טקסט חום-כהה קריא (§3 של city_background_dual_theme_law), בלי צהוב-על-בהיר.
+const TREE_CSS = `
+.one-tree { --otg:#d4af37; --otg-dim:rgba(212,175,55,.55); --ot-ink:rgba(240,230,200,.85); --ot-ink2:rgba(240,230,200,.72);
+  --ot-leaf:rgba(212,175,55,.14); --ot-leaf2:rgba(212,175,55,.05); --ot-trunk:#8a6a24; --ot-green:#7fd49a;
+  --ot-chipbg:rgba(212,175,55,.08); --ot-btn-ink:#1a0e00; }
+[data-theme="light"] .one-tree { --otg:#6d4e0b; --otg-dim:rgba(109,78,11,.6); --ot-ink:#33260a; --ot-ink2:#5a4310;
+  --ot-leaf:rgba(109,78,11,.10); --ot-leaf2:rgba(109,78,11,.03); --ot-trunk:#7a5c1e; --ot-green:#1d7a44;
+  --ot-chipbg:rgba(109,78,11,.07); --ot-btn-ink:#fffbe9; }
+.one-tree .ot-branch { stroke: var(--ot-trunk); }
+.one-tree .ot-leafc  { fill: var(--ot-leaf); stroke: var(--otg); transition: transform .25s ease; transform-box: fill-box; transform-origin: center; }
+.one-tree g:hover .ot-leafc { transform: scale(1.07); fill: var(--ot-leaf2); }
+.one-tree .ot-num    { fill: var(--otg); }
+`;
 export function OneTreeWidget() {
   const [stats, setStats] = useState(null);
   const rel = useRelMeta();
@@ -40,36 +54,40 @@ export function OneTreeWidget() {
   }, [stats]);
   if (!stats || !branches.length) return null;
 
-  const W = 340, H = 235, baseY = 205, trunkX = W / 2;
+  const W = 340, H = 238, baseY = 208, trunkX = W / 2, crownY = baseY - 78;
   // מיקומי עלווה קבועים (עד 7 ענפים) — פרושים מעל הגזע
-  const POS = [[trunkX, 52], [trunkX - 92, 84], [trunkX + 92, 84], [trunkX - 52, 120], [trunkX + 52, 120], [trunkX, 128], [trunkX - 118, 132]];
+  const POS = [[trunkX, 50], [trunkX - 94, 82], [trunkX + 94, 82], [trunkX - 54, 122], [trunkX + 54, 122], [trunkX, 128], [trunkX - 122, 134]];
   const r = c => Math.min(34, 13 + Math.sqrt(c) * 4.2);
-  const gold = "#d4af37", goldDim = "rgba(212,175,55,0.55)";
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-      <div style={{ color: goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, marginBottom: 4 }}>🌳 העץ האחד</div>
-      <div style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(19px,3.2vw,25px)", fontWeight: 800, marginBottom: 2 }}>כך המחקר גדל</div>
-      <div style={{ color: "rgba(240,230,200,0.75)", fontFamily: F.body, fontSize: 13, marginBottom: 10 }}>
-        כל ענף = סוג-יחס · כל עלה = ממצא שנבדק במחקר{stats.findings_week > 0 && <> · <b style={{ color: "#7fd49a" }}>🌿 +{stats.findings_week} השבוע</b></>}
+    <div className="one-tree" style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+      <style>{TREE_CSS}</style>
+      <div style={{ color: "var(--otg-dim)", fontFamily: F.heading, fontSize: 12, letterSpacing: 3, marginBottom: 4 }}>🌳 העץ האחד</div>
+      <div style={{ color: "var(--otg)", fontFamily: F.regal, fontSize: "clamp(19px,3.2vw,25px)", fontWeight: 800, marginBottom: 2 }}>כך המחקר גדל</div>
+      <div style={{ color: "var(--ot-ink2)", fontFamily: F.body, fontSize: 13, marginBottom: 10 }}>
+        כל ענף = סוג-יחס · כל עלה = ממצא שנבדק במחקר{stats.findings_week > 0 && <> · <b style={{ color: "var(--ot-green)" }}>🌿 +{stats.findings_week} השבוע</b></>}
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 420, overflow: "visible" }} role="img" aria-label="עץ הידע — ממצאים לפי סוג יחס">
-        {/* אדמה + גזע */}
-        <line x1={30} y1={baseY} x2={W - 30} y2={baseY} stroke={goldDim} strokeWidth="1.5" />
-        <path d={`M ${trunkX - 7} ${baseY} C ${trunkX - 5} ${baseY - 45}, ${trunkX - 3} ${baseY - 60}, ${trunkX} ${baseY - 75} C ${trunkX + 3} ${baseY - 60}, ${trunkX + 5} ${baseY - 45}, ${trunkX + 7} ${baseY} Z`} fill={goldDim} />
-        {/* ענפים + עלווה */}
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 430, overflow: "visible" }} role="img" aria-label="עץ הידע — ממצאים לפי סוג יחס">
+        {/* אדמה — צל רך + קו-קרקע */}
+        <ellipse cx={trunkX} cy={baseY + 3} rx={95} ry={7} fill="var(--ot-leaf)" />
+        <line x1={34} y1={baseY} x2={W - 34} y2={baseY} stroke="var(--otg-dim)" strokeWidth="1.5" strokeLinecap="round" />
+        {/* גזע מתעבה עם התפצלות עדינה */}
+        <path d={`M ${trunkX - 9} ${baseY} C ${trunkX - 7} ${baseY - 40}, ${trunkX - 4} ${baseY - 58}, ${trunkX - 1} ${crownY}
+                  L ${trunkX + 1} ${crownY} C ${trunkX + 4} ${baseY - 58}, ${trunkX + 7} ${baseY - 40}, ${trunkX + 9} ${baseY} Z`}
+          fill="var(--ot-trunk)" opacity="0.85" />
+        {/* ענפים מעוקלים + עלווה */}
         {branches.map(([type, count], i) => {
           const [x, y] = POS[i] || POS[POS.length - 1];
           const m = type === "bridges" ? { emoji: "🌍", label: "גשרי-שפה" } : (rel[type] || { emoji: "•", label: type });
           const rad = r(count);
-          // ⚠️ ניווט ב-onClick (לא <Link> בתוך SVG — anchor של HTML בתוך svg לא מנווט אמין)
+          const midX = (trunkX + x) / 2, midY = Math.min(crownY, y) - 14;   // עיקול כלפי מעלה
           const go = () => nav(`/beit-midrash?atlas=${encodeURIComponent(type)}`);
           return (
             <g key={type} onClick={go} style={{ cursor: "pointer" }} role="link" aria-label={`${m.label} — ${count} ממצאים`}>
-              <line x1={trunkX} y1={baseY - 70} x2={x} y2={y + rad - 4} stroke={goldDim} strokeWidth="2" strokeLinecap="round" />
-              <circle cx={x} cy={y} r={rad} fill="rgba(212,175,55,0.13)" stroke={gold} strokeWidth="1.4" />
-              <text x={x} y={y - 3} textAnchor="middle" fontSize={Math.max(13, rad * 0.62)}>{m.emoji}</text>
-              <text x={x} y={y + rad * 0.52} textAnchor="middle" fontSize="12" fontWeight="800" fill={gold} fontFamily="inherit">{count}</text>
+              <path d={`M ${trunkX} ${crownY} Q ${midX} ${midY} ${x} ${y + rad - 3}`} className="ot-branch" fill="none" strokeWidth="2.5" strokeLinecap="round" opacity="0.75" />
+              <circle cx={x} cy={y} r={rad} className="ot-leafc" strokeWidth="1.5" />
+              <text x={x} y={y - 3} textAnchor="middle" fontSize={Math.max(13, rad * 0.6)}>{m.emoji}</text>
+              <text x={x} y={y + rad * 0.52} textAnchor="middle" fontSize="12" fontWeight="800" className="ot-num" fontFamily="inherit">{count}</text>
             </g>
           );
         })}
@@ -82,12 +100,12 @@ export function OneTreeWidget() {
           { e: "🧩", t: `${stats.families_approved || 0} משפחות`, to: "/beit-midrash?atlas=all" },
           { e: "🌍", t: `${stats.bridges || 0} גשרי-שפה`, to: "/beit-midrash?atlas=bridges" },
         ].map((c, i) => (
-          <Link key={i} to={c.to} style={{ textDecoration: "none", color: "rgba(240,230,200,0.9)", background: "rgba(212,175,55,0.08)", border: `1px solid ${goldDim}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+          <Link key={i} to={c.to} style={{ textDecoration: "none", color: "var(--ot-ink)", background: "var(--ot-chipbg)", border: `1px solid var(--otg-dim)`, borderRadius: 999, padding: "5px 13px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
             {c.e} {c.t}
           </Link>
         ))}
       </div>
-      <Link to="/beit-midrash?atlas=all" style={{ display: "inline-block", marginTop: 12, textDecoration: "none", color: "#1a0e00", background: `linear-gradient(135deg, ${gold}, #f0d78c)`, borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+      <Link to="/beit-midrash?atlas=all" style={{ display: "inline-block", marginTop: 12, textDecoration: "none", color: "var(--ot-btn-ink)", background: `linear-gradient(135deg, var(--otg), var(--ot-trunk))`, borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
         🌳 לכל הממצאים שנבדקו — בבית המדרש ←
       </Link>
     </div>
