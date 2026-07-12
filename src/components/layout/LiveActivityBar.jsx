@@ -107,10 +107,14 @@ export default function LiveActivityBar() {
         /* הפס: התג «עכשיו באתר» מרחף בצד הימני (position:absolute). גוטר סימטרי בשני
            הצדדים (= רוחב התג) שומר על ההודעה ממורכזת באמת — קצרה «פשוט זזה» למרכז,
            ארוכה ממלאת את הרצועה שבין הגוטרים, ולעולם לא יושבת על הריבוע הימני. */
+        /* הרצועה = פס-רקע ברוחב מלא; אבל התוכן מיושר בתוך מיכל 1800 זהה לתפריט —
+           כך «עכשיו באתר» מקביל לפינת-הכתר ו«מה חדש» מקביל לסוף-התפריט (מרחק שווה משני הצדדים). */
         .lt-bar { position:relative; display:flex; align-items:center; justify-content:center; pointer-events:none;
           overflow:hidden; max-width:100%; box-sizing:border-box; min-height:30px;
-          background:${barBg}; border-bottom:1px solid ${barBorder}; padding:7px 104px; }
-        .lt-badge { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%);
+          background:${barBg}; border-bottom:1px solid ${barBorder}; padding:7px 0; }
+        .lt-inner { position:relative; width:100%; max-width:1800px; margin:0 auto; box-sizing:border-box;
+          padding:0 120px; display:flex; align-items:center; justify-content:center; min-height:30px; }
+        .lt-badge { position:absolute; inset-inline-start:6px; top:50%; transform:translateY(-50%);
           display:inline-flex; align-items:center; gap:6px;
           color:#241500; background:linear-gradient(135deg,#dcc079,#b8912f);
           font-family:${F.heading}; font-weight:900; font-size:11.5px; letter-spacing:.3px;
@@ -122,12 +126,10 @@ export default function LiveActivityBar() {
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
         /* 📱 טלפון: «עכשיו באתר» (הריבוע הימני) מוסתר לגמרי — ההודעה ממורכזת בכל הרוחב, בלי גניבת-שורה. */
-        /* 🌳 «מה חדש» — בגוטר השמאלי של הטיקר (אותה שורה, לא גוזל שורה) */
-        .lt-wn { position:absolute; inset-inline-end:12px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
-        /* ≥1380px: ציר ההתגלות רץ 86px משמאל — מזיזים את התג ימינה שלא יישב מתחתיו */
-        @media (min-width:1380px){ .lt-wn { inset-inline-end:98px; } }
+        /* 🌳 «מה חדש» — מיושר לקצה-השמאלי של המיכל (= סוף התפריט), מרוחק מציר-ההתגלות שיושב במרווח שמשמאל */
+        .lt-wn { position:absolute; inset-inline-end:6px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
         @media (max-width: 640px) {
-          .lt-bar { padding:7px 16px 7px 78px; }
+          .lt-inner { padding:0 16px 0 78px; }
           .lt-badge { display:none; }
           .lt-msg { font-size:11px; }
           .lt-wn { inset-inline-end:8px; }
@@ -136,19 +138,21 @@ export default function LiveActivityBar() {
       `}</style>
 
       <div className="lt-bar" aria-label="חדשות טריות באתר">
-        <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-        <span className="lt-wn"><WhatsNewBadge /></span>
-        {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר).
-            עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
-        {cur && (
-          <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
-            <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
-              <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-              {cur.text}
-              <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
-            </Link>
-          </div>
-        )}
+        <div className="lt-inner">
+          <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
+          <span className="lt-wn"><WhatsNewBadge /></span>
+          {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר).
+              עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
+          {cur && (
+            <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
+              <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
+                <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
+                {cur.text}
+                <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
