@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript } from "../lib/adsense.js";
+import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript, adCountryAllowed } from "../lib/adsense.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 
 // 🟦 מודעת צד אנכית 300×600 לדסקטופ — בדפי קריאה (פוסטים ישנים).
@@ -11,7 +11,7 @@ export default function SideRailAd({ side = "right", slot }) {
   const wideEnough = useMediaQuery("(min-width: 1500px)");   // מקום לשתי רצועות + עמודת-קריאה
   const pushed = useRef(false);
 
-  const live = ADSENSE_ENABLED && !!slotId && wideEnough;
+  const live = ADSENSE_ENABLED && !!slotId && wideEnough && adCountryAllowed();
 
   useEffect(() => {
     if (!live || pushed.current) return;

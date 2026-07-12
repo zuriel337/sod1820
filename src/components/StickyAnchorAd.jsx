@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript } from "../lib/adsense.js";
+import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript, adCountryAllowed } from "../lib/adsense.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 
 // 📌 מודעה נעוצה בתחתית המסך (anchor) — מובייל בלבד, בדפי קריאה (פוסטים/ארכיון).
@@ -18,7 +18,7 @@ export default function StickyAnchorAd({ slot }) {
   });
   const pushed = useRef(false);
 
-  const live = ADSENSE_ENABLED && !!slotId && !dismissed && isMobile;
+  const live = ADSENSE_ENABLED && !!slotId && !dismissed && isMobile && adCountryAllowed();
 
   // push יחיד ליחידה (גם תחת StrictMode) + הרמת הכפתורים הצפים בזמן שהרצועה פתוחה.
   useEffect(() => {

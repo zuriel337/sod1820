@@ -129,7 +129,9 @@ export default function PostEditorPage() {
 
   // 🆕 שדות-שליטה מתקדמים (post_editor_upgrade)
   const [theme, setTheme] = useState("auto");        // תמת-הפוסט: auto|light|dark
-  const [keepModified, setKeepModified] = useState(false);  // «שמור מיקום» — אל תקפיץ לראש
+  // «שמור מיקום» — דלוק כברירת-מחדל: עריכת פוסט לא תקפיץ אותו לראש «עדכונים אחרונים».
+  // חריג יחיד (מטופל ב-save): פרסום *ראשון* של טיוטה כן מקפיץ לראש. לבטל = הורדת הסימון.
+  const [keepModified, setKeepModified] = useState(true);   // «שמור מיקום» — אל תקפיץ לראש
   const [axisPin, setAxisPin] = useState(null);      // ציר ההתגלות: null=אוטו · 1=הצג · 0=הסתר
   const [treePriority, setTreePriority] = useState(null);   // מיקום ידני בציר (גבוה=למעלה)
   const [origModified, setOrigModified] = useState(null);   // modified המקורי (ל«החזר למקום»)
@@ -398,6 +400,10 @@ export default function PostEditorPage() {
     const baseTags = (tags || []).filter(t => t !== "טיוטה");
     const finalTags = asDraft ? [...baseTags, "טיוטה"] : baseTags;
     const cleanAuthors = (authors || []).map(a => String(a || "").trim()).filter(Boolean);
+    // «שמור מיקום» דלוק כברירת-מחדל → עריכה לא מקפיצה לראש. חריג: *פרסום ראשון* של טיוטה
+    // (wasDraft → פורסם) חייב לקפוץ לראש «עדכונים אחרונים», אז מבטלים keep באותה שמירה בלבד.
+    const publishingDraft = !asDraft && wasDraft;
+    const effectiveKeep = publishingDraft ? false : keepModified;
     const payload = {
       id: postId, title: title.trim(), slug: slug.trim() || null, content, excerpt,
       categories, tags: finalTags,
@@ -406,7 +412,7 @@ export default function PostEditorPage() {
       image_url: imageUrl.trim() || null,
       source: source || "ai", ai_touched: aiTouched,
       theme,                                  // תמת-הפוסט (auto|light|dark)
-      keepModified,                           // «שמור מיקום» — אל תקפיץ לראש
+      keepModified: effectiveKeep,            // «שמור מיקום» — אל תקפיץ לראש (חוץ מפרסום-טיוטה)
       axisPin,                                // ציר ההתגלות (null|0|1)
       treePriority,                           // מיקום ידני בציר
     };

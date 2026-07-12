@@ -32,6 +32,15 @@ export const ADSENSE_SLOTS = {
   sideLeft: import.meta.env.VITE_ADSENSE_SLOT_SIDE_LEFT || "",
 };
 
+// 🇮🇱 גידור-מדינה — מודעות מוצגות רק למבקרים מישראל (cookie vc שנקבע ב-middleware מ-
+//    x-vercel-ip-country). מבקר מחו״ל / מדינה לא-ידועה → אין מודעות כלל (בקשת צוריאל:
+//    פרסומות לא-צנועות הגיעו מתעבורה זרה). ברירת-מחדל זהירה: אם אין ודאות — לא מציגים.
+export function adCountryAllowed() {
+  if (typeof document === "undefined") return false;
+  const m = document.cookie.match(/(?:^|;\s*)vc=([A-Za-z]{2})/);
+  return m ? m[1].toUpperCase() === "IL" : false;
+}
+
 let scriptLoaded = false;
 
 // טעינת סקריפט ה-AdSense פעם אחת (נקרא מתוך AdSlot, לא גלובלית).

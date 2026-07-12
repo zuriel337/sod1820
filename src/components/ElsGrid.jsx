@@ -8,6 +8,7 @@ import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 import { LOGO_URL } from "../theme.js";
 import { tokenLabel } from "../lib/els/tokens.js";
+import { createElsRunner } from "../lib/els/runner.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -206,15 +207,16 @@ export default function ElsGrid({ seed }) {
     if (!niqqud && !nqData) { setNqBusy(true); const d = await getTorahNiqqud(); setNqData(d); setNqBusy(false); if (!d) return; }
     setNiqqud(v => !v);
   };
-  const [raw, setRaw] = useState(seed || "ישראל");
-  const [crossExtra, setCrossExtra] = useState([""]); // מונחים נוספים בחיפוש מוצלב (שני · שלישי · רביעי)
+  const [raw, setRaw] = useState(seed || "");   // ריק — דף ריק עד שמחפשים
+  const [crossExtra, setCrossExtra] = useState([]); // מונחים נוספים (מוצלב) — מופיעים רק כשמוסיפים «➕ מילה»
   const [mode, setMode] = useState("torah");   // torah · tanakh · cross — שער-הכניסה
   const [entered, setEntered] = useState(false); // false=מסך-תוצאות פשוט · true=סביבת-המטריצה
   const [showAll, setShowAll] = useState(false); // הצג את כל התוצאות (לא רק ה-7 הראשונות)
   const [advOpen, setAdvOpen] = useState(false); // הגדרות מתקדמות (דילוג/כיוון/ספר) — מקופל
   const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
-  const [skipMin, setSkipMin] = useState(1);
+  const [skipMin, setSkipMin] = useState(2);   // מ-2: מדלג על המילה כטקסט-רגיל (דילוג 1) → פחות רעש
   const [skipMax, setSkipMax] = useState(2000);
+  const [noLimit, setNoLimit] = useState(false);   // ♾️ חיפוש מדויק בלי הגבלת-מרחק
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
   const [fuzzy, setFuzzy] = useState(false);
@@ -235,7 +237,7 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "", book: "torah", skipMin: 2, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false, noLimit: false });
 
   // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
   const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
@@ -280,10 +282,13 @@ export default function ElsGrid({ seed }) {
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState(0);
   const cancelRef = useRef(false);
+  const runnerRef = useRef(null);
+  if (!runnerRef.current) runnerRef.current = createElsRunner();   // Web Worker — נוצר בפועל בחיפוש הראשון
+  useEffect(() => () => runnerRef.current?.cancel(), []);          // כיבוי ה-Worker ביציאה מהרכיב
   const [phraseIdx, setPhraseIdx] = useState(0);
-  const stopSearch = () => { cancelRef.current = true; setSearching(false); };
+  const stopSearch = () => { cancelRef.current = true; runnerRef.current?.cancel(); setSearching(false); };
   useEffect(() => {
-    if (!letters || !terms.length) { setRes(null); setSearching(false); return; }
+    if (!letters || !terms.length) { runnerRef.current?.cancel(); setRes(null); setSearching(false); return; }
     cancelRef.current = false;
     setSearching(true); setProgress(0);
     setPhraseIdx(i => (i + 1) % ELS_PHRASES.length);
@@ -291,14 +296,30 @@ export default function ElsGrid({ seed }) {
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
     const mm = q.fuzzy ? 1 : 0;
     const sMin = Math.max(1, q.skipMin ?? 1), sMax = Math.max(sMin, Math.max(3, q.skipMax));
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, sMin, sMax) };
+    const winFrom = bk.from, winTo = Math.min(letters.length, bk.to);
+
+    if (mm === 0) {
+      // ⚡ נתיב מהיר: Web Worker + אלגוריתם «שתי-האותיות-הנדירות» → תומך בחיפוש **בלי הגבלת מרחק**
+      //    ולעולם לא מקפיא (רץ מחוץ ל-thread). q.noLimit=true → סורק את כל הדילוגים האפשריים.
+      const skipSet = q.pattern && q.pattern !== "range"
+        ? [...buildSkipSet(q.pattern, sMin, q.noLimit ? winTo : sMax)] : null;
+      const opts = { winFrom, winTo, skipMin: sMin, skipMax: q.noLimit ? "inf" : sMax, dir: q.dir, cap: 300, skipSet };
+      runnerRef.current.run({
+        letters, lettersKey: needTanakh ? "tanakh" : "torah",
+        kind: isCluster ? "cluster" : "single", terms, opts,
+        onProgress: p => { if (alive) setProgress(p); },
+      }).then(m => { if (!alive) return; setRes(m); setSearching(false); })
+        .catch(() => { if (alive) setSearching(false); });
+      return () => { alive = false; };
+    }
+
+    // 〰️ «כולל קרובים» (fuzzy) — נתיב הסריקה הישן (מקטעים; טווח מוגבל, «בלי הגבלה» לא חל).
+    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, sMin, sMax) };
     if (isCluster) {
-      // מוצלב: אשכול-קרבה **לא-חוסם** (מקטעים+נשימה+ביטול) → הדפדפן לא נתקע, ויש לוּדר עם אחוזים ועצירה.
       elsClustersChunked(letters, terms, sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
         .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "cluster", ...r }); setSearching(false); });
       return () => { alive = false; cancelRef.current = true; };
     }
-    // יחיד: חיפוש מנותח-למקטעים → אחוזים + עצירה
     elsSearchChunked(letters, terms[0], sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
       .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "single", ...r }); setSearching(false); });
     return () => { alive = false; cancelRef.current = true; };
@@ -306,13 +327,14 @@ export default function ElsGrid({ seed }) {
 
   // החיפוש מתחשב במצב: רגיל = מונח אחד · מוצלב = שני מונחים יחד (אשכול-קרבה)
   const search = () => {
-    const qraw = mode === "cross" ? [raw, ...crossExtra].map(s => s.trim()).filter(Boolean).join(", ") : raw;
-    const bk = mode === "tanakh" ? (book === "torah" ? "all" : book) : (mode === "torah" && book !== "torah" && (TANAKH_BOOKS.find(b => b.key === book)?.to ?? 0) > 304805 ? "torah" : book);
+    // מסך אחד פשוט: מונח ראשי + מונחים נוספים (אם מולאו) = חיפוש מוצלב אוטומטי.
+    // ההיקף = בורר-הספר בהגדרות (ברירת-מחדל: תורה) — לא «מצב» נפרד.
+    const qraw = [raw, ...crossExtra].map(s => s.trim()).filter(Boolean).join(", ");
     setHitIdx(0); setClusterIdx(0); setOverlays([]); setLayersOpen(false); setSubRaw(""); setAiStruct(null);
     setEntered(false); setShowAll(false);
     const sMin = Math.max(1, parseInt(skipMin) || 1);
     const sMax = Math.max(sMin, parseInt(skipMax) || 100);
-    setQ({ raw: qraw, book: bk, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy });
+    setQ({ raw: qraw, book, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy, noLimit });
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
@@ -435,7 +457,7 @@ export default function ElsGrid({ seed }) {
     const colMargin = Math.max(6, 5 * gridSize);
     // 🎯 framePos = אותיות-התוצאה (או המופע הממוקד). ביחיד: + **המופע-הקרוב של כל שכבה אם קרוב מספיק** →
     // המטריצה מתרחבת לבד כדי להראות את מה שחיפשת. העוגן/המוקד תמיד במרכז. במוצלב: מסגור על כל המונחים.
-    let framePos, colCenter, colWin, rowStart, rowEnd;
+    let framePos, colCenter, colWin, rowStart, rowEnd, clamped = false;
     if (res.mode === "single") {
       framePos = [...view.positions];
       const aCols = view.positions.map(p => ((p % W2) + W2) % W2);
@@ -459,15 +481,31 @@ export default function ElsGrid({ seed }) {
       const halfR = Math.max(padRows, Math.ceil(Math.max(aRowMid - Math.min(...frameRows), Math.max(...frameRows) - aRowMid)) + 1);
       rowStart = Math.floor(aRowMid - halfR); rowEnd = Math.ceil(aRowMid + halfR);
     } else {
+      const anchorPk = cl0.picks[0].hit;   // המונח הראשי — עוגן החלון
       framePos = cl0.picks.flatMap(p => p.hit.positions);
       const minP = Math.min(...framePos), maxP = Math.max(...framePos);
-      const firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+      let firstRow = Math.floor(minP / W2), lastRow = Math.floor(maxP / W2);
+      // 🛟 תקרת-חלון (מונע הקפאה): אשכול שהמונחים שבו רחוקים זה מזה היה בונה מיליוני תאים
+      //    ומקפיא את הדפדפן. מגבילים גובה+רוחב סביב המונח הראשי; אם נחתך → clamped=true (הערה).
+      const MAX_ROWS = 140, MAX_COLS = 100;
+      if (lastRow - firstRow > MAX_ROWS) {
+        const aRow = Math.round(centerOf(anchorPk) / W2);
+        firstRow = aRow - Math.floor(MAX_ROWS / 2);
+        lastRow = aRow + Math.ceil(MAX_ROWS / 2);
+        clamped = true;
+      }
       rowStart = firstRow - padRows; rowEnd = lastRow + padRows;
       const colsOf = framePos.map(p => ((p % W2) + W2) % W2);
       let cLo = Math.min(...colsOf), cHi = Math.max(...colsOf);
       if ((cHi - cLo) > W2 / 2) { cLo = 0; cHi = W2 - 1; }
       colCenter = (cLo + cHi) / 2;
       colWin = Math.min(W2, (cHi - cLo) + colMargin * 2);
+      if (colWin > MAX_COLS) {   // רוחב חורג → ממקדים על עמודות המונח הראשי
+        const aCols = anchorPk.positions.map(p => ((p % W2) + W2) % W2);
+        colCenter = aCols.reduce((a, b) => a + b, 0) / aCols.length;
+        colWin = MAX_COLS;
+        clamped = true;
+      }
     }
     let colStart = Math.round(colCenter - colWin / 2);
     // אוסף האינדקסים שבאמת נראים על המטריצה (לשימוש בסינון רשימת-ההצלבות לפי «מה גלוי»)
@@ -491,7 +529,7 @@ export default function ElsGrid({ seed }) {
       }
       rows.push(cells);
     }
-    return { rows, W: W2, skip: s, visible };
+    return { rows, W: W2, skip: s, visible, clamped };
   }, [res, anchorHit, focusHit, clusterIdx, letters, overlayData, gridSize]);
 
   // קבוצת-אותיות העוגן (לזיהוי «חיתוך אמיתי» — מופע שחולק תא עם התוצאה, כמו «בלעם» שנגע ב-ב)
@@ -775,68 +813,35 @@ export default function ElsGrid({ seed }) {
       <style>{ELS_CSS}</style>
       <div className="rw-h1">🔡 הצופן התנ״כי — דילוגי אותיות</div>
 
-      {/* ✦ ממצא נבחר — כל מי שנכנס רואה את הפלא, ובלחיצה פותח אותו במנוע */}
-      {FEATURED_FINDINGS.length > 0 && (
-        <div className="els-featured">
-          {FEATURED_FINDINGS.map((f, i) => (
-            <div key={i} className="els-feat-card">
-              <div className="els-feat-badge">✦ פלא נבחר</div>
-              <div className="els-feat-title">{f.title}</div>
-              <div className="els-feat-wonder">{f.wonder}</div>
-              <div className="els-feat-facts">🔢 {f.facts}</div>
-              <div className="els-feat-row">
-                <button className="els-feat-go" onClick={() => openFinding(f)}>✦ פתח את הממצא במנוע ←</button>
-                {f.by && <span className="els-feat-by">{f.by}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 🚪 שער-כניסה — 3 אפשרויות ברורות (תורה חינם · תנ״ך/מוצלב = טוקנים) */}
-      <div className="els-modes">
-        {[
-          { k: "torah", e: "📖", t: "חיפוש בתורה", s: "אמיתי וידוע" },
-          { k: "tanakh", e: "📜", t: "חיפוש בכל התנ״ך", s: "רחב יותר" },
-          { k: "cross", e: "✦", t: "חיפוש מוצלב", s: "שניים יחד" },
-        ].map(m => (
-          <button key={m.k} className={"els-mode" + (mode === m.k ? " on" : "")} onClick={() => switchMode(m.k)}>
-            <span className="els-mode-e">{m.e}</span>
-            <span className="els-mode-t">{m.t}</span>
-            <span className="els-mode-s">{m.s}</span>
-            <span className="els-mode-tok">{tokenLabel(m.k, isAdmin)}</span>
-          </button>
-        ))}
-      </div>
-      <div className="rw-sub" style={{ marginBottom: 10 }}>
-        {mode === "torah" ? "חיפוש דילוגים בכל התורה (304,805 אותיות) — הטקסט הקבוע והמאומת."
-          : mode === "tanakh" ? "חיפוש בכל 24 ספרי התנ״ך — רחב יותר, אך פחות ודאי (לא תמיד יודעים את המילים)."
-          : "שני מונחים יחד (שם+משפחה · שני שמות) — המנוע מוצא את הקרבה המקסימלית ביניהם בטקסט."}
-      </div>
-
+      {/* 🧹 מסך נקי: תיבת חיפוש אחת בלבד. «➕ מילה» מוסיף מונח שני (=חיפוש מוצלב אוטומטי).
+          ההיקף (תורה/תנ״ך) עבר להגדרות — ברירת-מחדל: תורה. אין עוד «מצבים» נפרדים. */}
       <div className="rw-card">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input style={{ ...ctl, flex: "1 1 200px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
+          <input style={{ ...ctl, flex: "1 1 220px", textAlign: "center", fontSize: 17 }} dir="rtl" value={raw}
             onChange={e => setRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && search()}
-            placeholder={mode === "cross" ? "מונח ראשון (שם)…" : "מילה · שם · ביטוי…"} aria-label="מונח לחיפוש" />
-          {mode === "cross" && crossExtra.map((val, i) => (
+            placeholder="מילה · שם · ביטוי…" aria-label="מונח לחיפוש" />
+          {crossExtra.map((val, i) => (
             <React.Fragment key={i}>
               <span style={{ color: C.acc, fontWeight: 800 }}>✦</span>
-              <input style={{ ...ctl, flex: "1 1 150px", textAlign: "center", fontSize: 17 }} dir="rtl" value={val}
+              <input style={{ ...ctl, flex: "1 1 160px", textAlign: "center", fontSize: 17 }} dir="rtl" value={val}
                 onChange={e => setCrossExtra(a => a.map((x, j) => j === i ? e.target.value : x))}
                 onKeyDown={e => e.key === "Enter" && search()}
-                placeholder={["מונח שני…", "מונח שלישי…", "מונח רביעי…"][i] || "מונח נוסף…"} aria-label={`מונח ${i + 2}`} />
-              {crossExtra.length > 1 && <button onClick={() => setCrossExtra(a => a.filter((_, j) => j !== i))} title="הסר מונח"
-                style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, borderRadius: 999, width: 34, height: 34, fontWeight: 800, fontFamily: "inherit" }}>✕</button>}
+                placeholder={["מילה שנייה…", "מילה שלישית…", "מילה רביעית…"][i] || "מילה נוספת…"} aria-label={`מונח ${i + 2}`} />
+              <button onClick={() => setCrossExtra(a => a.filter((_, j) => j !== i))} title="הסר"
+                style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, borderRadius: 999, width: 34, height: 34, fontWeight: 800, fontFamily: "inherit" }}>✕</button>
             </React.Fragment>
           ))}
-          {mode === "cross" && crossExtra.length < 3 && (
-            <button onClick={() => setCrossExtra(a => [...a, ""])} title="הוסף מונח שלישי/רביעי לחיפוש המוצלב"
-              style={{ cursor: "pointer", border: `1.5px dashed ${C.acc}`, background: C.bg, color: C.acc, borderRadius: 999, padding: "9px 15px", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>➕ מונח</button>
+          {crossExtra.length < 3 && (
+            <button onClick={() => setCrossExtra(a => [...a, ""])} title="הוסף מילה שנייה — חיפוש שני מונחים יחד"
+              style={{ cursor: "pointer", border: `1.5px dashed ${C.acc}`, background: C.bg, color: C.acc, borderRadius: 999, padding: "9px 15px", fontWeight: 800, fontSize: 14, fontFamily: "inherit", whiteSpace: "nowrap" }}>➕ מילה</button>
           )}
           <button onClick={search} style={{ cursor: "pointer", border: "none", background: C.acc, color: "#fff", fontWeight: 800, fontSize: 15, borderRadius: 999, padding: "10px 26px", fontFamily: "inherit" }}>🔍 חפש</button>
-          <button onClick={saveCurrent} title="שמור את החיפוש הזה" style={{ cursor: "pointer", border: `1px solid ${C.line}`, background: C.bg, color: C.ink2, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "10px 16px", fontFamily: "inherit" }}>💾 שמור</button>
         </div>
+        {FEATURED_FINDINGS[0] && (
+          <button className="els-adv-toggle" style={{ opacity: 0.7 }} onClick={() => openFinding(FEATURED_FINDINGS[0])}>
+            ✦ דוגמה לצפייה: «{FEATURED_FINDINGS[0].terms.join(" · ")}»
+          </button>
+        )}
         {savedSearches.length > 0 && (
           <div className="els-saved">
             <span className="els-saved-lb">שמורים:</span>
@@ -864,7 +869,10 @@ export default function ElsGrid({ seed }) {
             <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center", gap: 4 }} title="טווח-דילוג: מ-X עד Y. לקיבוע מרחק מדויק — הזינו אותו מספר בשני השדות (למשל 10065–10065).">דילוג מ-
               <input style={{ ...ctl, width: 78 }} type="number" min="1" value={skipMin} onChange={e => setSkipMin(e.target.value)} />
               עד
-              <input style={{ ...ctl, width: 90 }} type="number" min="1" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
+              <input style={{ ...ctl, width: 90, opacity: noLimit ? 0.45 : 1 }} type="number" min="1" value={skipMax} disabled={noLimit} onChange={e => setSkipMax(e.target.value)} /></label>
+            <label className="els-chk" style={{ color: noLimit ? C.acc : C.ink2, fontWeight: 800 }} title="חיפוש בכל המרחקים האפשריים — מהיר בזכות אלגוריתם «שתי-האותיות-הנדירות» + Web Worker (חל על חיפוש מדויק; «כולל קרובים» נשאר מוגבל).">
+              <input type="checkbox" checked={noLimit} onChange={e => setNoLimit(e.target.checked)} /> ♾️ בלי הגבלת מרחק
+            </label>
             <label className="els-chk" style={{ color: C.ink2 }}>
               <input type="checkbox" checked={fuzzy} onChange={e => setFuzzy(e.target.checked)} /> כולל קרובים (±אות)
             </label>
@@ -896,7 +904,7 @@ export default function ElsGrid({ seed }) {
                   <div className="els-res-h">✦ נמצאו <b>{res.hits.length}{res.capped ? "+" : ""}</b> מופעים של «{elsNormalize(terms[0])}» — לחצו לפתיחת המטריצה</div>
                   <div className="els-res-list">
                     {res.hits.slice(0, showAll ? 60 : 7).map((h, i) => { const l = locOf(h.start); return (
-                      <button key={i} className="els-res-row" onClick={() => { setHitIdx(i); setEntered(true); }}>
+                      <button key={i} className="els-res-row" onClick={() => { setHitIdx(i); setEntered(true); setFull(true); }}>
                         <span className="els-rk">{i + 1}</span>
                         <span>דילוג <b>{Math.abs(h.skip).toLocaleString("he")}</b></span>
                         <span>{h.dir > 0 ? "→" : "←"}</span>
@@ -921,7 +929,7 @@ export default function ElsGrid({ seed }) {
                         const pct = Math.round(100 * Math.exp(-cl.span / 5000)); // קרבה: צמוד=גבוה
                         const tag = pct >= 70 ? { t: "🟢 צמוד", c: "#1f7a4d" } : pct >= 30 ? { t: "🟡 קרוב", c: "#b07d12" } : { t: "⚪ רחוק", c: "#8a8a8a" };
                         return (
-                          <button key={i} className="els-res-row" onClick={() => { setClusterIdx(i); setEntered(true); }}>
+                          <button key={i} className="els-res-row" onClick={() => { setClusterIdx(i); setEntered(true); setFull(true); }}>
                             <span className="els-rk">{i + 1}</span>
                             <span style={{ color: tag.c, fontWeight: 800 }}>{tag.t} · <b>{pct}%</b></span>
                             <span className="rw-muted">טווח {cl.span.toLocaleString("he")} · {l.label}</span>
@@ -1123,6 +1131,7 @@ export default function ElsGrid({ seed }) {
       )}
       {entered && grid && <div className="rw-card" style={{ marginTop: 12 }}><MatrixTools /><Matrix big={false} /></div>}
       {entered && grid && <div className="rw-sub" style={{ marginTop: 8, textAlign: "center" }}>הרשת ברוחב {grid.W.toLocaleString("he")} (דילוג {grid.skip.toLocaleString("he")}) — {isCluster ? "כל מונח בצבע משלו" : "המונח מודגש לאורך הדילוג"}.</div>}
+      {entered && grid?.clamped && <div className="rw-sub" style={{ marginTop: 6, textAlign: "center", color: "#b07d12" }}>ℹ️ המונחים באשכול זה רחוקים זה מזה — מוצג חלון ממורכז על המונח הראשי (מונע האטה). בחרו אשכול קרוב יותר מהרשימה לצפייה מלאה.</div>}
       {entered && grid && <Help label="ℹ️ איך קוראים את המטריצה?">
         אותיות התנ״ך נכתבות בשורות ברוחב קבוע (כאן {grid.W.toLocaleString("he")}). המילה שחיפשת מודגשת — כל אות שלה רחוקה מהקודמת בדיוק כמספר-הדילוג. הרוחב נבחר כך שהמטריצה תתמלא את הדף. ⚙️ בסרגל-התצוגה: <b>זום</b>, <b>רקע</b> לאותיות, ו<b>ניקוד</b> אופציונלי.
       </Help>}
@@ -1138,7 +1147,16 @@ export default function ElsGrid({ seed }) {
             <button className="els-x" onClick={() => setFull(false)}>✕ סגור (Esc)</button>
           </div>
           <div className="els-full-body">
-            <div className="els-full-grid"><div style={{ width: "100%" }}><MatrixTools /><Matrix big /></div></div>
+            <div className="els-full-grid"><div style={{ width: "100%" }}>
+              {res.mode === "single" && (
+                <div className="els-sub-bar" style={{ marginBottom: 8 }}>
+                  <input className="els-sub-in" dir="rtl" value={subRaw} onChange={e => setSubRaw(e.target.value)} onKeyDown={e => e.key === "Enter" && searchAndShow()}
+                    placeholder={`חפש מילה בתוך המטריצה (ליד «${elsNormalize(terms[0] || "")}»)…`} />
+                  <button className="els-sub-btn" onClick={searchAndShow} disabled={elsNormalize(subRaw).length < 2}>🔍 הצג</button>
+                  {overlays.length > 0 && <button className="els-sub-clear" onClick={() => setOverlays([])}>נקה</button>}
+                </div>
+              )}
+              <MatrixTools /><Matrix big /></div></div>
             <div className="els-full-side"><ResultsList /></div>
           </div>
         </div>

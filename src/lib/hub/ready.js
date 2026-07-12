@@ -8,6 +8,12 @@
 // **בבת-אחת, בשורה אחת** (READY_TOOLS למעבדה + CodePage ל-/code קוראים את אותו דגל).
 export const ELS_PUBLIC = false;
 
+// 👁 פתיחת-פרוביו: /code נפתח אוטומטית בלי התחברות בכל host שאינו הדומיין הפרודקשן
+// (Vercel preview / localhost) — כדי שצוריאל יראה את הדילוגים בפרוביו בלי סיסמה.
+// פרודקשן (sod1820.co.il) נשאר נעול לפי ELS_PUBLIC/אדמין — אין דליפה גם אם הענף ימוזג.
+export const ELS_PREVIEW_OPEN =
+  typeof window !== "undefined" && !/(^|\.)sod1820\.co\.il$/i.test(window.location.hostname);
+
 // 🔓 היכל-הגילוי נפתח בהדרגה. הכלים שברשימה פתוחים לציבור; השאר מסומנים «בבנייה».
 // (החלטת צוריאל 7.2026). המנהל ממשיך לעבוד על הכל דרך IMPLEMENTED_TOOLS. כשנפתח לציבור —
 // מחזירים כלים לרשימה כאן (number/gematria/verse/notarikon/els) בשורה אחת.

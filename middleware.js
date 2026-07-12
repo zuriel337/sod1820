@@ -120,5 +120,7 @@ export default function middleware(request, context) {
   }
 
   if (blocked) return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
-  return next();
+  // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:
+  //    פרסומות לא-צנועות הגיעו מתעבורה זרה). המודעות ממילא רק בפוסטים הישנים.
+  return next({ headers: { 'set-cookie': `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax` } });
 }

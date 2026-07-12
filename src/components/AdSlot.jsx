@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript } from "../lib/adsense.js";
+import { ADSENSE_CLIENT, ADSENSE_ENABLED, ADSENSE_SLOTS, ensureAdSenseScript, adCountryAllowed } from "../lib/adsense.js";
 
 // יחידת מודעה אחת של AdSense. ללא מזהה מפרסם/יחידה — לא מציג כלום (no-op).
 // • place — מיקום לוגי ("post"/"list") שממנו נשלף מזהה היחידה מ-env.
@@ -13,7 +13,7 @@ export default function AdSlot({ place = "post", slot, format = "auto", responsi
   const slotId = slot || ADSENSE_SLOTS[place] || "";
 
   useEffect(() => {
-    if (!ADSENSE_ENABLED || !slotId || pushed.current) return;
+    if (!ADSENSE_ENABLED || !slotId || !adCountryAllowed() || pushed.current) return;
     ensureAdSenseScript();
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -21,8 +21,8 @@ export default function AdSlot({ place = "post", slot, format = "auto", responsi
     } catch { /* AdSense עוד לא נטען — push יקרה כשהמערך יתרוקן */ }
   }, [slotId]);
 
-  // בלי מזהה מפרסם או בלי מזהה יחידה — לא מרנדרים כלום.
-  if (!ADSENSE_ENABLED || !slotId) return null;
+  // בלי מזהה מפרסם / בלי יחידה / מבקר לא-ישראלי — לא מרנדרים כלום.
+  if (!ADSENSE_ENABLED || !slotId || !adCountryAllowed()) return null;
 
   return (
     <div style={{ margin: "40px auto", maxWidth: 728, textAlign: "center", ...style }}>
