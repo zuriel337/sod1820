@@ -2527,6 +2527,13 @@ export async function updateResearcherDefinition(id, patch = {}) {
   return data;
 }
 
+// 💥 ההצלבה החזקה ביותר (strongest_cross_law) — עם מי המילה נפגשת בהכי הרבה שיטות.
+export async function getStrongestCrossings(word, min = 2, limit = 4) {
+  if (!supabase || !word) return [];
+  try { const { data } = await supabase.rpc('strongest_crossings', { p_self: word, p_min: min, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+
 // 🤖🌳 האטלס מדבר אל ה-AI: הממצאים המאושרים שנוגעים לישות (מילה או ערך) — משקל-בכורה בניתוח.
 export async function getAtlasFindingsForEntity(term, value = null, limit = 6) {
   if (!supabase) return [];
