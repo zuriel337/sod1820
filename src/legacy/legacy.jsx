@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
-import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref } from "../lib/supabase.js";
+import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4336,6 +4336,32 @@ const editInputStyle = {
   fontFamily: F.body, fontSize: 14, padding: "10px 12px", marginBottom: 16,
 };
 
+// 📅 יומן-העדכונים החי — עדשה על channel_updates (מקור-הטיקר): כל עדכון עם תאריך, מתעדכן לבד.
+function SiteChangelog({ pc }) {
+  const [rows, setRows] = useState([]);
+  useEffect(() => { getChannelUpdates(30, "main").then(r => setRows(r || [])).catch(() => {}); }, []);
+  if (!rows.length) return null;
+  return (
+    <div style={{ marginTop: 34, textAlign: "start", background: pc.faint, border: `1px solid ${pc.border}`, borderRadius: 14, padding: "16px 18px" }}>
+      <div style={{ color: pc.gold || pc.accent, fontFamily: F.heading, fontSize: 16, fontWeight: 800, marginBottom: 4 }}>📅 יומן העדכונים באתר</div>
+      <div style={{ color: pc.muted, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>מתעדכן אוטומטית — כל פוסט, ממצא ועוגן חדש נרשמים כאן מעצמם.</div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {rows.map((u, i) => (
+          <div key={u.id || i} style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", borderBottom: i < rows.length - 1 ? `1px dashed ${pc.border}` : "none", paddingBottom: 8 }}>
+            <span style={{ color: pc.muted, fontFamily: F.mono || F.heading, fontSize: 11.5, whiteSpace: "nowrap", direction: "ltr" }}>
+              {u.created_at ? new Date(u.created_at).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : ""}
+            </span>
+            {u.link_url
+              ? <a href={u.link_url} style={{ color: pc.gold || pc.accent, fontFamily: F.body, fontSize: 13.5, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${pc.border}` }}>{u.text}</a>
+              : <span style={{ color: pc.ink || "inherit", fontFamily: F.body, fontSize: 13.5 }}>{u.text}</span>}
+            {u.credit && <span style={{ color: pc.muted, fontSize: 11 }}>· מאת {u.credit}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PostPageBySlug({ onNav }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -4782,6 +4808,9 @@ function PostPageBySlug({ onNav }) {
                 return out;
               })()}
             </div>
+            {/* 📅 יומן-העדכונים החי (מרקר data-sod-changelog בתוכן) — נשען על channel_updates,
+                המקור הקנוני של הטיקר: מתעדכן לבד עם כל פוסט/ממצא/עוגן חדש (עץ אחד, אפס תחזוקה) */}
+            {String(content).includes("data-sod-changelog") && <SiteChangelog pc={pc} />}
             {/* 🖼 רצועת גישה לגלריה העריכה — התמונות המוטמעות נשארות; זו רק הפניה (עץ אחד) */}
             <PostGalleryLinks content={content} wpId={post?.wp_id} />
             {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
