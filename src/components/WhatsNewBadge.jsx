@@ -40,9 +40,11 @@ export default function WhatsNewBadge() {
       setOpen(false);
     };
     const esc = e => e.key === "Escape" && setOpen(false);
+    const onScroll = () => setOpen(false);   // גלילה = סגירה (לא נשאר תקוע על המסך)
     document.addEventListener("mousedown", out);
     document.addEventListener("keydown", esc);
-    return () => { document.removeEventListener("mousedown", out); document.removeEventListener("keydown", esc); };
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    return () => { document.removeEventListener("mousedown", out); document.removeEventListener("keydown", esc); window.removeEventListener("scroll", onScroll, { capture: true }); };
   }, [open]);
 
   if (!items.length) return null;
@@ -63,28 +65,28 @@ export default function WhatsNewBadge() {
 
   const panel = (
     <div ref={panelRef} role="menu" style={{ position: "fixed", top: pos.top, left: pos.left, width: "min(320px,90vw)", zIndex: 5000,
-      background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: 12,
-      boxShadow: "0 20px 54px rgba(0,0,0,.6)", direction: "rtl", textAlign: "start" }}>
-      <div style={{ color: P.accentText, fontFamily: F.regal, fontWeight: 800, fontSize: 15, marginBottom: 2 }}>🌳 מה חדש באתר</div>
-      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, letterSpacing: 1, marginBottom: 10 }}>עדכוני האתר · מתעדכן אוטומטית</div>
+      background: "#161009", border: "1px solid rgba(212,175,55,0.5)", borderRadius: 14, padding: 12,
+      boxShadow: "0 20px 54px rgba(0,0,0,.72)", backdropFilter: "blur(10px)", direction: "rtl", textAlign: "start" }}>
+      <div style={{ color: "#f6e27a", fontFamily: F.regal, fontWeight: 800, fontSize: 15, marginBottom: 2 }}>🌳 מה חדש באתר</div>
+      <div style={{ color: "#b8ad8a", fontFamily: F.body, fontSize: 10.5, letterSpacing: 1, marginBottom: 10 }}>עדכוני האתר · מתעדכן אוטומטית</div>
       <div style={{ display: "flex", flexDirection: "column", maxHeight: 320, overflowY: "auto" }}>
         {items.map((u, i) => {
           const inner = (
             <>
-              <div style={{ color: P.ink, fontFamily: F.royal, fontWeight: 700, fontSize: 13, lineHeight: 1.4 }}>{titleOf(u)}</div>
-              {subOf(u) && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.55, marginTop: 2 }}>{subOf(u).slice(0, 92)}</div>}
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, marginTop: 3 }}>{dateOf(u)}{u.credit ? ` · ${u.credit}` : ""}</div>
+              <div style={{ color: "#efe8d5", fontFamily: F.royal, fontWeight: 700, fontSize: 13, lineHeight: 1.4 }}>{titleOf(u)}</div>
+              {subOf(u) && <div style={{ color: "#c9bfa5", fontFamily: F.body, fontSize: 11.5, lineHeight: 1.55, marginTop: 2 }}>{subOf(u).slice(0, 92)}</div>}
+              <div style={{ color: "#9a8f70", fontFamily: F.heading, fontSize: 10, marginTop: 3 }}>{dateOf(u)}{u.credit ? ` · ${u.credit}` : ""}</div>
             </>
           );
           const style = { textDecoration: "none", display: "block", padding: "9px 4px",
-            borderBottom: i < items.length - 1 ? `1px solid ${P.border}` : "none" };
+            borderBottom: i < items.length - 1 ? "1px solid rgba(212,175,55,0.16)" : "none" };
           return u.link_url
             ? <Link key={u.id} to={u.link_url} onClick={() => setOpen(false)} style={style}>{inner}</Link>
             : <div key={u.id} style={style}>{inner}</div>;
         })}
       </div>
       <Link to="/broadcasts" onClick={() => setOpen(false)} style={{ display: "block", textAlign: "center", marginTop: 10,
-        color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, textDecoration: "none" }}>כל עדכוני האתר →</Link>
+        color: "#f6e27a", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, textDecoration: "none" }}>כל עדכוני האתר →</Link>
     </div>
   );
 

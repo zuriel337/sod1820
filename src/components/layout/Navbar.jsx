@@ -66,6 +66,7 @@ const MOBILE_TILES = [
   { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true, icon: "dilugim" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
+  { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "📸", l: "גלריות", to: "/archive" },
@@ -658,15 +659,15 @@ export default function Navbar() {
           )}
           {/* ההיכל = האב; שלוש התוכנות שבמסגרת = הבנים. צ'יפ-אב «🏛️ ההיכל» יושב על קו-המסגרת
               (כמו legend) → הכלים שבתוכה שייכים לו. בלי מילים; המסגרת + הצ'יפ מספרים את ההיררכיה. */}
-          <div style={{ position: "relative", margin: "16px 6px 2px", padding: "18px 10px 12px",
-            border: `1.5px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.05)", borderRadius: 16 }}>
+          <div style={{ position: "relative", margin: "18px 8px 2px", padding: "24px 6px 10px",
+            border: `1px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.05)", borderRadius: 14 }}>
             <Link to="/research" onClick={() => setDrawer(false)} aria-label="ההיכל" style={{
-              position: "absolute", top: -14, insetInlineStart: 16, display: "inline-flex", alignItems: "center", gap: 7,
-              background: cc.bgScrolled, border: `1.5px solid ${cc.borderGold}`, borderRadius: 999, padding: "4px 13px 4px 5px", textDecoration: "none" }}>
-              <span style={{ width: 23, height: 23, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🏛️</span>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800 }}>ההיכל</span>
+              position: "absolute", top: -12, insetInlineStart: 12, display: "inline-flex", alignItems: "center", gap: 5,
+              background: cc.bgScrolled, border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "2px 10px 2px 3px", textDecoration: "none" }}>
+              <span style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🏛️</span>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל</span>
             </Link>
-            <span style={{ position: "absolute", top: -11, insetInlineEnd: 14, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "3px 9px", color: cc.muted, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, whiteSpace: "nowrap" }}>💻 חוויה מלאה במחשב</span>
+            <span style={{ position: "absolute", top: -10, insetInlineEnd: 12, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "2px 8px", color: cc.muted, fontFamily: F.heading, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap" }}>💻 חוויה מלאה במחשב</span>
             <div className="sod-tiles" style={{ padding: 0 }}>
               {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
                 <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
@@ -697,8 +698,8 @@ export default function Navbar() {
                 <span className="sod-tile-l">{t.l}</span>
               </Link>
             ))}
-            {/* 📲 הורדת האפליקציה — מוסתר כשכבר מותקנת; אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
-            {!isStandalone() && (
+            {/* 📲 הורדת האפליקציה — תמיד מוצג (בקשת צוריאל); אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
+            {(
               <button className="sod-tile" style={{ borderColor: cc.borderGold, background: "none", cursor: "pointer" }}
                 onClick={async () => {
                   setDrawer(false);
