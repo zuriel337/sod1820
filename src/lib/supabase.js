@@ -2500,11 +2500,34 @@ export async function listRelationEvidence(status = null, limit = 60) {
     const { data } = await q; return data || [];
   } catch { return []; }
 }
-export async function setRelationEvidence(method, a, b, value, status, note = null) {
+export async function setRelationEvidence(method, a, b, value, status, note = null, reason = null) {
   if (!supabase) throw new Error('no supabase');
-  const { data, error } = await supabase.rpc('set_relation_evidence', { p_method: method, p_a: a, p_b: b, p_value: value, p_status: status, p_note: note });
+  const { data, error } = await supabase.rpc('set_relation_evidence', { p_method: method, p_a: a, p_b: b, p_value: value, p_status: status, p_note: note, p_reason: reason });
   if (error) throw error;
   return data;
+}
+
+// 🌳 שכבת-הידע הציבורית של האטלס — ממצאים שנבדקו (דרגות-תמיכה מחושבות) + סטטיסטיקת העץ-האחד.
+export async function getAtlasFindings(relation = null, limit = 80) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('atlas_findings', { p_relation: relation, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function getOneTreeStats() {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('one_tree_stats'); return data || null; } catch { return null; }
+}
+// 🌍 גשרי-שפות מאומתים (עברית↔לועזית) — לשכבת-הידע ולעץ.
+export async function getVerifiedBridges(limit = 60) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from('word_aliases')
+      .select('alias,lang,verified,gematria_words(phrase,ragil)')
+      .eq('verified', true).limit(limit);
+    return (data || [])
+      .filter(r => !['he', 'heb', 'עברית'].includes(r.lang || 'he'))
+      .map(r => ({ alias: r.alias, lang: r.lang, hebrew: r.gematria_words?.phrase, value: r.gematria_words?.ragil }));
+  } catch { return []; }
 }
 
 // 🧩 שכבת משפחות-העוגנים (anchor_families) — נתונים+מיפוי בלבד. שליטה ידנית של צוריאל.

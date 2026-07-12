@@ -18,6 +18,9 @@ export default function FindingsTab() {
   const [loading, setLoading] = useState(true);
   const [busyKey, setBusyKey] = useState(null);
   const [msg, setMsg] = useState("");
+  const [rejectKey, setRejectKey] = useState(null);   // מועמד שנפתחו לו סיבות-דחייה
+  // הדחויים חשובים: מהסיבות נלמד אילו חיבורים המנוע מייצר לשווא (שיפור האלגוריתם).
+  const REJECT_REASONS = ["צד שני חסר משמעות", "חיבור יחיד", "אין תמיכה נוספת", "כפילות"];
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -34,11 +37,11 @@ export default function FindingsTab() {
 
   const relLabel = (m) => sem[m] ? `${sem[m].emoji} ${sem[m].label_he}` : m;
 
-  const decide = async (c, status) => {
+  const decide = async (c, status, reason = null) => {
     const key = `${c.method}|${c.a_phrase}|${c.b_phrase}`;
-    setBusyKey(key); setMsg("");
+    setBusyKey(key); setMsg(""); setRejectKey(null);
     try {
-      await setRelationEvidence(c.method, c.a_phrase, c.b_phrase, c.value, status);
+      await setRelationEvidence(c.method, c.a_phrase, c.b_phrase, c.value, status, null, reason);
       setCands(cs => cs.filter(x => `${x.method}|${x.a_phrase}|${x.b_phrase}` !== key));
       if (status === "confirmed") setConfirmed(cf => [{ ...c, status }, ...cf]);
       const [st] = await Promise.all([getRelationEvidenceStats()]);
@@ -99,9 +102,19 @@ export default function FindingsTab() {
                   <span style={{ marginInlineStart: "auto", display: "flex", gap: 6 }}>
                     <button onClick={() => decide(c, "confirmed")} disabled={busyKey === key}
                       style={{ cursor: "pointer", background: "#4caf7d", border: "none", color: "#0d0d0f", borderRadius: 8, padding: "5px 14px", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>✓ אשר</button>
-                    <button onClick={() => decide(c, "rejected")} disabled={busyKey === key}
-                      style={{ cursor: "pointer", background: "transparent", border: "1px solid #e0645a", color: "#e0645a", borderRadius: 8, padding: "5px 12px", fontFamily: F.heading, fontWeight: 700, fontSize: 12 }}>✗ דחה</button>
+                    <button onClick={() => setRejectKey(rejectKey === key ? null : key)} disabled={busyKey === key}
+                      style={{ cursor: "pointer", background: rejectKey === key ? "rgba(224,100,90,0.14)" : "transparent", border: "1px solid #e0645a", color: "#e0645a", borderRadius: 8, padding: "5px 12px", fontFamily: F.heading, fontWeight: 700, fontSize: 12 }}>✗ דחה</button>
                   </span>
+                  {/* סיבת-דחייה — נשמרת כדי ללמוד אילו חיבורים המנוע מייצר לשווא */}
+                  {rejectKey === key && (
+                    <span style={{ flexBasis: "100%", display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
+                      <span style={{ color: C.muted, fontSize: 11.5, alignSelf: "center" }}>סיבה:</span>
+                      {REJECT_REASONS.map((r, ri) => (
+                        <button key={ri} onClick={() => decide(c, "rejected", r)}
+                          style={{ cursor: "pointer", background: "transparent", border: `1px solid ${C.border}`, color: C.goldLight, borderRadius: 999, padding: "3px 11px", fontFamily: F.body, fontSize: 11.5 }}>{r}</button>
+                      ))}
+                    </span>
+                  )}
                 </div>
               );
             })}

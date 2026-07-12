@@ -24,6 +24,7 @@ import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
 const GematriaCalculator3D = React.lazy(() => import("../components/GematriaCalculator3D.jsx"));
 import GematriaCalculator from "../components/GematriaCalculator.jsx";
+import { AtlasFindings } from "../components/OneTreeAtlas.jsx";
 
 // פלטה בהירה מקומית (רק לבית המדרש)
 const L = {
@@ -40,6 +41,7 @@ const SECTIONS = [
   { key: "methods", icon: "📐", label: "שיטות הגימטריה", group: "tools" },
   { key: "crosses", icon: "✨", label: "חידושי הצלבות", group: "tools" },
   // 📚 מחקר ותוכן
+  { key: "atlas", icon: "🌳", label: "אטלס הממצאים", group: "research" },
   { key: "convergence", icon: "🌐", label: "צירי התכנסות", group: "research" },
   { key: "searches", icon: "🔎", label: "מה נחקר", group: "research" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true, group: "research" },
@@ -1072,7 +1074,8 @@ export default function BeitMidrashPage() {
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
   // ברירת-מחדל: מי שנכנס לבית-המדרש נוחת על «מחשבון הגימטריה» (הכלי המרכזי). מדור תקף מה-URL גובר.
-  const [tab, setTab] = useState(SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc");
+  // ?atlas=<יחס> (מהעץ בעמוד הבית) → נחיתה ישירה על אטלס-הממצאים.
+  const [tab, setTab] = useState(params.get("atlas") ? "atlas" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
@@ -1237,6 +1240,7 @@ export default function BeitMidrashPage() {
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab />}
+            {tab === "atlas" && <AtlasFindings />}
             {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
