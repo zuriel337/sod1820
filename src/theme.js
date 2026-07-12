@@ -30,8 +30,8 @@ export const GALLERY_BG_BASE = "#0d0a07";
 
 export const F = {
   royal:   "'Heebo', sans-serif",
-  regal:   "'Cinzel', 'Heebo', sans-serif",
-  cinzel:  "'Cinzel', serif",
+  regal:   "'Heebo', sans-serif",
+  cinzel:  "'Heebo', sans-serif",
   heading: "'Heebo', sans-serif",
   body:    "'Heebo', sans-serif",
   mono:    "'Courier New', monospace",

@@ -57,7 +57,7 @@ const C = {
 const F = {
   royal:   "'Heebo', sans-serif",
   regal:   "'Heebo', serif",
-  cinzel:  "'Cinzel', serif",
+  cinzel:  "'Heebo', sans-serif",
   heading: "'Heebo', sans-serif",
   body:    "'Heebo', serif",
   mono:    "'Courier New', monospace",

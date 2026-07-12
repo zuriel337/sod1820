@@ -91,7 +91,7 @@ export function buildNumberCard(value, phrases = []) {
   drawDivider(g, S / 2, 292, 300);
 
   // המספר הענק — זהב בהיר וברור (צל רך, לא מטשטש)
-  const fontNum = px => `800 ${px}px 'Cinzel', 'Heebo', serif`;
+  const fontNum = px => `800 ${px}px 'Heebo', serif`;
   const numPx = fitFont(g, String(value), S - 240, 330, fontNum, 110);
   g.save();
   g.shadowColor = "rgba(212,175,55,0.55)"; g.shadowBlur = 26; g.shadowOffsetY = 2;

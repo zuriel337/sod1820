@@ -81,7 +81,7 @@ export default function GalaxyRoom() {
   if (!isAdmin) return (
     <Full>
       <div style={{ fontSize: 50 }}>🔒</div>
-      <div style={{ color: GOLD, fontFamily: "'Cinzel','Heebo',sans-serif", fontSize: "clamp(22px,5vw,38px)", fontWeight: 800, textShadow: "0 0 26px #000" }}>חדר הגלקסיות</div>
+      <div style={{ color: GOLD, fontFamily: "'Heebo',sans-serif", fontSize: "clamp(22px,5vw,38px)", fontWeight: 800, textShadow: "0 0 26px #000" }}>חדר הגלקסיות</div>
       <div style={{ color: INK, fontFamily: "'Heebo',sans-serif", fontSize: 17, fontWeight: 700 }}>🚧 בבנייה מתקדמת</div>
       <div style={{ color: SUB, fontFamily: "'Heebo',sans-serif", fontSize: 14, maxWidth: 430, lineHeight: 1.75 }}>החדר פתוח כרגע לניהול בלבד. בקרוב ייפתח לכולם.</div>
       <button onClick={() => nav("/היכל")} style={{ marginTop: 8, cursor: "pointer", background: "rgba(8,5,2,.72)", color: GOLD, border: "1px solid rgba(212,175,55,.42)", borderRadius: 999, padding: "10px 24px", fontFamily: "'Heebo',sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(4px)" }}>← חזרה להיכל השערים</button>
@@ -109,7 +109,7 @@ export default function GalaxyRoom() {
         <button onClick={() => nav("/היכל")} className="gr-arrow" style={{ width: "auto", height: "auto", borderRadius: 999, padding: "8px 16px", fontSize: 14, fontFamily: "'Heebo',sans-serif", fontWeight: 700 }}>← היכל</button>
         <div style={{ flex: 1, textAlign: "center" }}>
           <div style={{ color: GOLD_DIM, fontFamily: "'Heebo',sans-serif", fontSize: 11, letterSpacing: 3 }}>🌌 חדר הגלקסיות · 🚧 בבנייה מתקדמת · אדמין</div>
-          <div style={{ color: GOLD, fontFamily: "'Cinzel','Heebo',sans-serif", fontSize: "clamp(18px,3.4vw,28px)", fontWeight: 800, textShadow: "0 0 24px #000" }}>
+          <div style={{ color: GOLD, fontFamily: "'Heebo',sans-serif", fontSize: "clamp(18px,3.4vw,28px)", fontWeight: 800, textShadow: "0 0 24px #000" }}>
             {topic ? txt(topic.title) : "טוען…"}
           </div>
         </div>

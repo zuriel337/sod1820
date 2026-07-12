@@ -19,7 +19,7 @@ import StreamSwitch from "../StreamSwitch.jsx";
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
 // אוטומטית את צבע הטקסט (זהב/לבן) כך שיש «גרסה בהירה וכהה» בלי כפילות. אקסנט חם אחד לצבעוניות.
-function DilugimIcon({ size = 24, accent = "#e0a53a" }) {
+function DilugimIcon({ size = 24, accent = "#f5e7b2" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" style={{ display: "block" }}>
       {/* רקע-ריבוע בגוון מגילה — נוכח ומגובש (כמו ריבועי האימוג'י), עם מסגרת-זהב */}
