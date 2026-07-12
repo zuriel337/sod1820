@@ -2561,17 +2561,12 @@ export async function getOneTreeStats() {
   if (!supabase) return null;
   try { const { data } = await supabase.rpc('one_tree_stats'); return data || null; } catch { return null; }
 }
-// 🌍 גשרי-שפות מאומתים (עברית↔לועזית) — לשכבת-הידע ולעץ.
+// 🌍 גשרי-שפות מאומתים (עברית↔לועזית) — דרך RPC definer: הגשר מאומת גם כשמילת-התעתיק
+// עצמה לא is_verified (מדיניות anon חסמה את ההצמדה והטאב נראה ריק — תוקן 12.7).
 export async function getVerifiedBridges(limit = 60) {
   if (!supabase) return [];
-  try {
-    const { data } = await supabase.from('word_aliases')
-      .select('alias,lang,verified,gematria_words(phrase,ragil)')
-      .eq('verified', true).limit(limit);
-    return (data || [])
-      .filter(r => !['he', 'heb', 'עברית'].includes(r.lang || 'he'))
-      .map(r => ({ alias: r.alias, lang: r.lang, hebrew: r.gematria_words?.phrase, value: r.gematria_words?.ragil }));
-  } catch { return []; }
+  try { const { data } = await supabase.rpc('verified_bridges', { p_limit: limit }); return data || []; }
+  catch { return []; }
 }
 
 // 🧩 שכבת משפחות-העוגנים (anchor_families) — נתונים+מיפוי בלבד. שליטה ידנית של צוריאל.
