@@ -168,13 +168,21 @@ export function AtlasFindings({ mode = "light" }) {
       {loading ? <div style={{ color: C0.dim, textAlign: "center", padding: 14 }}>טוען את הממצאים…</div> : tab === "bridges" ? (
         <div style={{ display: "grid", gap: 8 }}>
           {bridges.map((b, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", background: C0.card, border: `1px solid ${C0.border}`, borderRadius: 12, padding: "10px 14px" }}>
-              <span style={chip("rgba(76,175,125,0.12)", "rgba(76,175,125,0.55)", "#7fd49a")}>✓ גשר מאומת</span>
-              <b style={{ color: C0.ink, fontFamily: F.heading, fontSize: 15 }} dir="ltr">{b.alias}</b>
-              <span style={{ color: C0.dim }}>↔</span>
-              <Link to={`/number/${encodeURIComponent(b.hebrew || "")}`} style={{ textDecoration: "none", color: C0.acc, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>{b.hebrew}</Link>
-              {b.value != null && <span style={{ color: C0.dim, fontSize: 12 }}>({b.value})</span>}
-              <span style={{ color: C0.dim, fontSize: 11, marginInlineStart: "auto" }}>{b.lang}</span>
+            <div key={i} style={{ background: C0.card, border: `1px solid ${C0.border}`, borderRadius: 12, padding: "10px 14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+                {b.evidence === "strong"
+                  ? <span style={chip("rgba(76,175,125,0.12)", "rgba(76,175,125,0.55)", mode === "dark" ? "#7fd49a" : "#1f7a45")}>🌍 גשר חי · ערך משותף</span>
+                  : b.evidence === "interpretive"
+                    ? <span style={chip(C0.accSoft, C0.acc, C0.acc)}>💡 חידוש</span>
+                    : <span style={chip("rgba(120,130,150,0.1)", C0.border, C0.dim)}>✓ גשר</span>}
+                <b style={{ color: C0.ink, fontFamily: F.heading, fontSize: 15 }} dir="ltr">{b.alias}</b>
+                <span style={{ color: C0.dim }}>↔</span>
+                <Link to={`/number/${encodeURIComponent(b.hebrew || "")}`} style={{ textDecoration: "none", color: C0.acc, fontFamily: F.heading, fontWeight: 800, fontSize: 15 }}>{b.hebrew}</Link>
+                {b.value != null && <span style={{ color: C0.dim, fontSize: 12 }}>({b.value})</span>}
+                {b.method && <span style={{ color: C0.dim, fontSize: 11 }}>· {b.method}</span>}
+                <span style={{ color: C0.dim, fontSize: 11, marginInlineStart: "auto" }}>{b.lang}</span>
+              </div>
+              {b.note && <div style={{ color: C0.dim, fontFamily: F.body, fontSize: 12, marginTop: 5, lineHeight: 1.55 }}>{b.note}</div>}
             </div>
           ))}
           {!bridges.length && <div style={{ color: C0.dim, textAlign: "center" }}>גשרי-שפה מאומתים יופיעו כאן.</div>}
