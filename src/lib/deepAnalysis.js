@@ -3,7 +3,7 @@
 // עדשה אחת → אותו עומק בכל מקום: דף מספר · מעבדת-השם (מחקר לפי שפות) · מרכז מחקר · השוואות.
 // ✅ לא מחשב מחדש — משתמש רק בערכי-המנוע הרשמיים ובהצלבות מ-bidim (number_cross_resonance).
 import { crossMethodPairs, METHODS, CROSS_METHODS } from "./gematria.js";
-import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis, getMethodSemantics } from "./supabase.js";
+import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis, getMethodSemantics, getAtlasFindingsForEntity } from "./supabase.js";
 
 // 🫀 לב המערכת — זיהוי התכנסות בין-שיטתית בתוך אוסף (לא רק "שווים ברגיל").
 //    דוגמה נעולה: משיח(מילוי=878) ↔ «דבר מתוך דבר»(רגיל=878) ↔ «עולם הפוך ראיתי»(רגיל=878).
@@ -83,10 +83,11 @@ export async function getWordCrossFacts(term) {
       : crossMethodPairs(w);                        // [{method,value}] ב-7 שיטות קריאות (מהמנוע)
     if (pairs.length) {
       const methodsLine = pairs.map(p => `${p.method}=${p.value}`).join(" · ");
-      let [groups, stats, sem] = await Promise.all([
+      let [groups, stats, sem, atlas] = await Promise.all([
         getNumberCrossResonance(w, pairs, { perGroup: 5 }),
         getNumberResonanceStats(w, pairs),
         getMethodSemantics(),
+        getAtlasFindingsForEntity(w),   // 🤖🌳 הממצאים שצוריאל אישר על הישות — משקל-בכורה ל-AI
       ]);
       // דף-מספר: הקבוצה חוזרת כ'רגיל' (הצד שלנו) — מקבצים מחדש לפי שיטת הצד השני (via),
       // כדי שהיחסים (🪞🔍🕯) יוצגו: "בתוך 566 — במסתתר של: X, Y".
@@ -110,7 +111,11 @@ export async function getWordCrossFacts(term) {
           return `${rel}«${w}» ב${g.method} (${g.value}) = ${g.matches.map(m => m.phrase).join(", ")} ברגיל`;
         })
         .join(" · ");
-      out = { methodsLine, crossLine, groups, stats, resonance: resonanceScore(stats) };
+      // שורת-האטלס: ממצאים מאושרים עם שם-היחס+השיטה (relation_display_law)
+      const atlasLine = (atlas || []).slice(0, 6)
+        .map(f => `${(sem && Object.values(sem).find(s => s.relation_type === f.relation_type)?.emoji) || "✓"} ${f.a_phrase}↔${f.b_phrase} (${f.method}${f.value ? ` ${f.value}` : ""})`)
+        .join(" · ");
+      out = { methodsLine, crossLine, atlasLine, atlas, groups, stats, resonance: resonanceScore(stats) };
     }
   } catch { /* נפילה בחן — בלי עומק, לא שוברים את המשטח */ }
   _cache.set(w, out);
@@ -120,6 +125,8 @@ export async function getWordCrossFacts(term) {
 // מוסיף את שכבת-העומק על גבי baseFacts שהמשטח סיפק (ההקשר הייחודי שלו נשמר).
 export function appendDeepFacts(baseFacts, cross) {
   let f = baseFacts || "";
+  // 🤖🌳 שכבת-הידע המאושרת קודמת לגולמי: מה שצוריאל בדק ואישר מקבל משקל-בכורה בניתוח.
+  if (cross?.atlasLine) f += ` ממצאים שנבדקו ואושרו במחקר (תן להם משקל-בכורה והתייחס אליהם קודם): ${cross.atlasLine}.`;
   if (cross?.methodsLine) f += ` ערכי המילה בשיטות: ${cross.methodsLine}.`;
   if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (הערכים = עובדה מהמנוע; סוגי-היחס 🪞💑🔍 = המודל הפרשני של סוד1820): ${cross.crossLine}.`;
   const r = cross?.resonance;
