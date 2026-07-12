@@ -15,3 +15,7 @@ drop policy if exists rd_admin_all on public.researcher_definitions;
 create policy rd_admin_all on public.researcher_definitions for all
   using (exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin'))
   with check (exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin'));
+
+-- 🔧 תיקון 12.7: גישה דרך RPC-ים SECURITY DEFINER (rd_add/rd_list/rd_update + rd_is_admin) —
+-- policy ישיר שתלוי ב-select על users נכשל בשקט מהלקוח (rls_client_read_protocol).
+-- ראה מיגרציית-ענן researcher_definitions_rpcs.

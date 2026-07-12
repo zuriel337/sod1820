@@ -2507,21 +2507,22 @@ export async function setRelationEvidence(method, a, b, value, status, note = nu
   return data;
 }
 
-// 📜 תיבת-ההגדרות של צוריאל — כותב הגדרות באתר, ה-AI עונה, סוכן עתידי מיישם.
+// 📜 תיבת-ההגדרות של צוריאל — דרך RPC-ים SECURITY DEFINER (הדפוס הקנוני admin_*):
+// policy ישיר שתלוי ב-select על users נכשל בשקט מהלקוח (rls_client_read_protocol) — תוקן 12.7.
 export async function listResearcherDefinitions(limit = 30) {
   if (!supabase) return [];
-  try { const { data } = await supabase.from('researcher_definitions').select('*').order('created_at', { ascending: false }).limit(limit); return data || []; }
+  try { const { data } = await supabase.rpc('rd_list', { p_limit: limit }); return data || []; }
   catch { return []; }
 }
 export async function addResearcherDefinition(content, context = null) {
   if (!supabase) throw new Error('no supabase');
-  const { data, error } = await supabase.from('researcher_definitions').insert({ content, context }).select().maybeSingle();
+  const { data, error } = await supabase.rpc('rd_add', { p_content: content, p_context: context });
   if (error) throw error;
   return data;
 }
-export async function updateResearcherDefinition(id, patch) {
+export async function updateResearcherDefinition(id, patch = {}) {
   if (!supabase) throw new Error('no supabase');
-  const { data, error } = await supabase.from('researcher_definitions').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
+  const { data, error } = await supabase.rpc('rd_update', { p_id: id, p_ai_reply: patch.ai_reply ?? null, p_status: patch.status ?? null, p_applied_note: patch.applied_note ?? null });
   if (error) throw error;
   return data;
 }
