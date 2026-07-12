@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getChannelUpdates } from "../lib/supabase.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { usePalette } from "../lib/palette.js";
+import { useThemeMode } from "../lib/themeMode.js";
 import { F } from "../theme.js";
 
 // 🌳 «מה חדש באתר» — תג קטן בתוך הטיקר העליון (בלי לגזול שורה). נקודה פועמת פר-משתמש
@@ -14,6 +15,7 @@ const SEEN_KEY = "home-whatsnew";
 
 export default function WhatsNewBadge() {
   const P = usePalette();
+  const light = useThemeMode() === "light";
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [hasNew, setHasNew] = useState(false);
@@ -95,11 +97,11 @@ export default function WhatsNewBadge() {
 
       <button ref={btnRef} className="wn-btn" onClick={toggle} aria-label="מה חדש באתר" aria-expanded={open}
         style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer",
-          background: hasNew ? "linear-gradient(135deg,#ffe08a,#e6b53a)" : "rgba(255,236,173,0.14)",
-          border: `1px solid ${hasNew ? "#e0533f" : "rgba(212,175,55,0.4)"}`, borderRadius: 999,
-          padding: "4px 11px", fontFamily: F.heading, fontWeight: 900, fontSize: 11, letterSpacing: ".2px",
-          color: hasNew ? "#1a0e00" : "#ffe6ad", whiteSpace: "nowrap", lineHeight: 1 }}>
-        <span className={hasNew ? "wn-dot" : ""} style={{ width: 7, height: 7, borderRadius: "50%", background: hasNew ? "#9c1322" : "rgba(255,230,173,0.6)", flex: "0 0 auto" }} />
+          background: hasNew ? "linear-gradient(135deg,#ffe08a,#e6b53a)" : (light ? "rgba(150,110,20,0.16)" : "rgba(255,236,173,0.14)"),
+          border: `1px solid ${hasNew ? "#e0533f" : (light ? "rgba(90,66,12,0.55)" : "rgba(212,175,55,0.4)")}`, borderRadius: 999,
+          padding: "5px 12px", fontFamily: F.heading, fontWeight: 900, fontSize: 12.5, letterSpacing: ".2px",
+          color: hasNew ? "#1a0e00" : (light ? "#33260a" : "#ffe6ad"), whiteSpace: "nowrap", lineHeight: 1 }}>
+        <span className={hasNew ? "wn-dot" : ""} style={{ width: 7, height: 7, borderRadius: "50%", background: hasNew ? "#9c1322" : (light ? "rgba(120,90,20,0.6)" : "rgba(255,230,173,0.6)"), flex: "0 0 auto" }} />
         <span aria-hidden style={{ fontSize: 12 }}>🌳</span>
         <span className="wn-txt">מה חדש</span>
       </button>

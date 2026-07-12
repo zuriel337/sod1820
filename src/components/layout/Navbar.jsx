@@ -43,9 +43,9 @@ const MOBILE_TILES = [
   { e: "🔢", l: "דף המספר", to: "/number" },
   { e: "🔠", l: "דילוגי אותיות", to: "/code" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
-  { e: "🏛️", l: "היכל", to: "/research" },
+  { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
-  { e: "💬", l: "קהילה", to: "/community" },
+  { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
@@ -236,7 +236,7 @@ function MoreMenu({ items, pathname, onNavigate, grid }) {
 
 // אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
 // מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
-function MenuPanel({ items, pathname, cc }) {
+function MenuPanel({ pathname, cc }) {
   const mode = useThemeMode();
   const light = mode === "light";
   const [open, setOpen] = useState(false);
@@ -255,8 +255,8 @@ function MenuPanel({ items, pathname, cc }) {
     bannerBg: "rgba(201,168,74,0.16)", bannerBorder: "rgba(160,120,30,0.45)", bannerHover: "#c9a84a",
     bannerTitle: "#6d4e0b", bannerSub: "#6b5f45", arrow: "#8a6a1a",
   } : {
-    panelBg: cc.dropBg, panelBorder: cc.borderGold, shadow: "0 20px 56px rgba(0,0,0,0.62)",
-    heading: cc.muted, tileBg: cc.catBg, tileBorder: cc.border, tileHoverBg: cc.surface,
+    panelBg: "#0c0803", panelBorder: cc.borderGold, shadow: "0 20px 56px rgba(0,0,0,0.62)",
+    heading: cc.muted, tileBg: "#1b1409", tileBorder: cc.border, tileHoverBg: "#26190c",
     tileText: cc.goldLight, tileActive: cc.borderGold,
     bannerBg: cc.activeBg, bannerBorder: cc.borderGold, bannerHover: cc.gold,
     bannerTitle: cc.goldBright, bannerSub: cc.muted, arrow: cc.goldLight,
@@ -297,10 +297,10 @@ function MenuPanel({ items, pathname, cc }) {
           </Link>
           <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {items.map(it => {
-              const active = isActive(pathname, it.to);
+            {MOBILE_TILES.filter(t => t.to !== "/start").map(t => {
+              const active = isActive(pathname, t.to);
               return (
-                <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
+                <Link key={t.to} to={t.to} onClick={() => setOpen(false)} style={{
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
                   background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
                   borderRadius: 14, padding: "16px 6px", textDecoration: "none",
@@ -308,8 +308,8 @@ function MenuPanel({ items, pathname, cc }) {
                 }}
                   onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                  <span style={{ fontSize: 26, lineHeight: 1 }}>{it.emoji}</span>
-                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{it.label}</span>
+                  <span style={{ fontSize: 26, lineHeight: 1 }}>{t.e}</span>
+                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{t.l}</span>
                 </Link>
               );
             })}
@@ -410,13 +410,13 @@ function LabMenu() {
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" onClick={() => setOpen(false)} aria-label="היכל" style={{
+      <Link to="/research" onClick={() => setOpen(false)} aria-label="ההיכל" style={{
         display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none", textDecoration: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
-      }}>🏛️ היכל
+      }}>🏛️ ההיכל
         <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
       {open && (
         <div style={{
@@ -544,7 +544,7 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
-          <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
+          <MenuPanel pathname={pathname} cc={cc} />
         </div>
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}

@@ -113,7 +113,7 @@ export default function LiveActivityBar() {
         .lt-badge { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%);
           display:inline-flex; align-items:center; gap:6px;
           color:#1a0e00; background:linear-gradient(135deg,#ffd86b,#d4a017);
-          font-family:${F.heading}; font-weight:900; font-size:10.5px; letter-spacing:.3px;
+          font-family:${F.heading}; font-weight:900; font-size:11.5px; letter-spacing:.3px;
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
