@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
 import { discoverAnchorFamilies, getAnchorFamilies, mapAnchorFamily, setAnchorFamilyStatus } from "../lib/supabase.js";
+import DefinitionsInbox from "./DefinitionsInbox.jsx";
 
 const NEXT = { discovered: "reviewed", reviewed: "approved_anchor", approved_anchor: "featured", featured: null };
 const STATUS_HE = { discovered: "התגלה", reviewed: "נבדק", approved_anchor: "אושר כעוגן", featured: "מובלט", rejected: "נדחה" };
@@ -56,6 +57,8 @@ export default function AnchorFamiliesTab() {
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
+      {/* 📜 תיבת-ההגדרות — צוריאל כותב למערכת כאן, ה-AI עונה, הסוכן מיישם בעבודה הבאה */}
+      <DefinitionsInbox />
       <div style={box}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 17, fontWeight: 800 }}>🧩 משפחות-עוגנים</div>

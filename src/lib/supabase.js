@@ -2507,6 +2507,25 @@ export async function setRelationEvidence(method, a, b, value, status, note = nu
   return data;
 }
 
+// 📜 תיבת-ההגדרות של צוריאל — כותב הגדרות באתר, ה-AI עונה, סוכן עתידי מיישם.
+export async function listResearcherDefinitions(limit = 30) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.from('researcher_definitions').select('*').order('created_at', { ascending: false }).limit(limit); return data || []; }
+  catch { return []; }
+}
+export async function addResearcherDefinition(content, context = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('researcher_definitions').insert({ content, context }).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
+export async function updateResearcherDefinition(id, patch) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.from('researcher_definitions').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 // 🌳 שכבת-הידע הציבורית של האטלס — ממצאים שנבדקו (דרגות-תמיכה מחושבות) + סטטיסטיקת העץ-האחד.
 export async function getAtlasFindings(relation = null, limit = 80) {
   if (!supabase) return [];
