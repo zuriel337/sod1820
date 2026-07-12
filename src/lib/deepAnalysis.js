@@ -111,11 +111,15 @@ export async function getWordCrossFacts(term) {
           return `${rel}«${w}» ב${g.method} (${g.value}) = ${g.matches.map(m => m.phrase).join(", ")} ברגיל`;
         })
         .join(" · ");
-      // שורת-האטלס: ממצאים מאושרים עם שם-היחס+השיטה (relation_display_law)
-      const atlasLine = (atlas || []).slice(0, 6)
-        .map(f => `${(sem && Object.values(sem).find(s => s.relation_type === f.relation_type)?.emoji) || "✓"} ${f.a_phrase}↔${f.b_phrase} (${f.method}${f.value ? ` ${f.value}` : ""})`)
-        .join(" · ");
-      out = { methodsLine, crossLine, atlasLine, atlas, groups, stats, resonance: resonanceScore(stats) };
+      // 🌌 העשרת ממצאי-האטלס לתצוגה (emoji+label לפי יחס) + שורת-עובדות ל-AI (relation_display_law)
+      const relMeta = (rt) => Object.values(sem || {}).find(s => s.relation_type === rt) || null;
+      const atlasRich = (atlas || []).map(f => ({ ...f, emoji: relMeta(f.relation_type)?.emoji || "✓", label: relMeta(f.relation_type)?.label_he || f.relation_type }));
+      const atlasLine = atlasRich.slice(0, 6).map(f => `${f.emoji} ${f.a_phrase}↔${f.b_phrase} (${f.method}${f.value ? ` ${f.value}` : ""})`).join(" · ");
+      // בלי כפילויות: זוג שכבר מאושר באטלס לא חוזר גם ברשימה הגולמית
+      const approvedPair = new Set(atlasRich.flatMap(f => [`${f.method}|${f.a_phrase}|${f.b_phrase}`, `${f.method}|${f.b_phrase}|${f.a_phrase}`]));
+      for (const g of groups) g.matches = g.matches.filter(m => !approvedPair.has(`${g.method}|${w}|${m.phrase}`) && !approvedPair.has(`${m.via || "רגיל"}|${w}|${m.phrase}`));
+      const dedupGroups = groups.filter(g => g.matches.length);
+      out = { methodsLine, crossLine, atlasLine, atlas: atlasRich, groups: dedupGroups, stats, resonance: resonanceScore(stats) };
     }
   } catch { /* נפילה בחן — בלי עומק, לא שוברים את המשטח */ }
   _cache.set(w, out);
