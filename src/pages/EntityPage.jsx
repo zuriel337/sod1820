@@ -992,6 +992,23 @@ export default function EntityPage({ embedPhrase } = {}) {
   // וה-AI הוא שכבת-פרשנות אופציונלית מעליו. מוצג גם idle וגם אחרי ניתוח (בלוק אחד, שני מקומות).
   const aiCrossBlock = aiCross && (
     <div style={{ marginTop: 11, textAlign: "start" }}>
+      {/* 🌌 הקונסטלציה — הממצאים שנבדקו ואושרו במחקר (מהאטלס, מקור אחד, בלי כפילות עם הגולמי) */}
+      {aiCross.atlas?.length > 0 && (
+        <div style={{ marginBottom: 10, padding: "9px 11px", borderRadius: 11, background: "rgba(76,175,125,0.07)", border: "1px solid rgba(76,175,125,0.4)" }}>
+          <div style={{ color: "#4caf7d", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 6 }}>🌌 נבדק ואושר במחקר</div>
+          <div style={{ display: "grid", gap: 5 }}>
+            {aiCross.atlas.slice(0, 6).map((f, fi) => (
+              <div key={fi} title={f.note || ""} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 118 }}>{f.emoji} {f.label} · {f.method}{f.value ? ` ${f.value}` : ""}</span>
+                <Link to={numHref(encodeURIComponent(f.a_phrase))} onClick={() => trackJourneyStep(term ?? value, f.a_phrase, { via: f.method, surface: "constellation" })} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.a_phrase}</Link>
+                <span style={{ color: P.accentDim, fontSize: 11 }}>↔</span>
+                <Link to={numHref(encodeURIComponent(f.b_phrase))} onClick={() => trackJourneyStep(term ?? value, f.b_phrase, { via: f.method, surface: "constellation" })} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.b_phrase}</Link>
+                <span style={{ color: "#4caf7d", fontSize: 10.5, fontWeight: 800 }}>✓</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {aiCross.resonance && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
           <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
