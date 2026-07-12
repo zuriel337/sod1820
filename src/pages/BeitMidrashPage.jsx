@@ -1081,6 +1081,8 @@ export default function BeitMidrashPage() {
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
   // אפס תלות: הקיר פולט midrash:nav, בית-המדרש מאזין ומחליף מדור (ולשיטה — גם גולל אליה).
   useEffect(() => { if (tab === "searches" && !isAdmin) setTab("calc"); }, [tab, isAdmin]); // eslint-disable-line
+  // 🌳 ניווט מהעץ בעמוד הבית: ?atlas= מנחית ישר על אטלס-הממצאים — גם כשהעמוד כבר טעון (SPA)
+  useEffect(() => { if (new URLSearchParams(loc.search).get("atlas")) setTab("atlas"); }, [loc.search]);
   useEffect(() => on(EVENTS.MIDRASH_NAV, ({ tab: t, method } = {}) => {
     if (t) setTab(t);
     if (method) setTimeout(() => document.getElementById(`bm-method-${method}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 160);
