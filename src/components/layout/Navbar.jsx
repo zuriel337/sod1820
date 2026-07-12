@@ -642,18 +642,19 @@ export default function Navbar() {
               <span style={{ width: 23, height: 23, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🏛️</span>
               <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 14, fontWeight: 800 }}>ההיכל</span>
             </Link>
-            <span style={{ position: "absolute", top: -11, insetInlineEnd: 14, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "3px 9px", color: cc.muted, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, whiteSpace: "nowrap" }}>💻 מיטבי במחשב</span>
+            <span style={{ position: "absolute", top: -11, insetInlineEnd: 14, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "3px 9px", color: cc.muted, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, whiteSpace: "nowrap" }}>💻 חוויה מלאה במחשב</span>
             <div className="sod-tiles" style={{ padding: 0 }}>
               {MOBILE_TILES.filter(t => t.fav).map(t => t.locked ? (
                 <div key={t.to} className="sod-tile" aria-disabled="true" title="בבנייה — בקרוב"
-                  style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.07)", opacity: 0.72, cursor: "not-allowed" }}>
+                  style={{ borderColor: cc.borderGold, borderStyle: "dashed", background: "rgba(212,175,55,0.07)", opacity: 0.72, cursor: "not-allowed", position: "relative", minHeight: 84 }}>
+                  {/* סרט «🔒 בבנייה» צף על קו-המסגרת — לא מוסיף גובה, כך שכל האריחים אחידים */}
+                  <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 8, fontWeight: 900, borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap", border: `1px solid ${cc.borderGold}` }}>🔒 בבנייה</span>
                   <span className="sod-tile-e">{t.e}</span>
                   <span className="sod-tile-l">{t.l}</span>
-                  <span style={{ marginTop: 3, background: "#3a2400", color: "#ffd86b", fontFamily: F.heading, fontSize: 9, fontWeight: 900, borderRadius: 5, padding: "2px 6px" }}>🔒 בבנייה</span>
                 </div>
               ) : (
                 <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
-                  style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.07)" }}>
+                  style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.07)", minHeight: 84 }}>
                   <span className="sod-tile-e">{t.e}</span>
                   <span className="sod-tile-l">{t.l}</span>
                 </Link>
