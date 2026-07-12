@@ -444,8 +444,8 @@ export default function HomeNewPage() {
         </section>
       )}
 
-      {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש) ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 44px" }}>
+      {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש; עוגן-גלילה מהפוסט) ===== */}
+      <section id="one-tree" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
         <OneTreeWidget />
       </section>
 

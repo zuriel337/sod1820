@@ -105,7 +105,19 @@ function RouteEffects() {
   useEffect(() => { startPresence({ uid: user?.id || null, path: pathname }); }, [user?.id]);
   useEffect(() => { updatePresence({ uid: user?.id || null, path: pathname }); }, [pathname, user?.id]);
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
+    // ⚓ ניווט עם עוגן (#one-tree וכד') — גוללים אל האלמנט אחרי שהדף נטען; אחרת לראש הדף.
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    if (hash && hash.length > 1) {
+      let tries = 0;
+      const tryScroll = () => {
+        const el = document.getElementById(decodeURIComponent(hash.slice(1)));
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        else if (++tries < 20) setTimeout(tryScroll, 150);   // מחכים לרינדור אסינכרוני (עד ~3ש')
+      };
+      setTimeout(tryScroll, 120);
+    } else {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
