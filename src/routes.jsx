@@ -12,7 +12,7 @@ export const NAV = [
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
   { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
   { label: "ארכיון ההתגלות", emoji: "🖼", to: "/archive?tab=galleries" },
-  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
+  { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "צ'אט", to: "/community/chat" },

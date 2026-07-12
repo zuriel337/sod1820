@@ -24,7 +24,7 @@ import StreamSwitch from "../StreamSwitch.jsx";
 const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
   { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
-  { label: "דילוגי אותיות · בקרוב", emoji: "🔠", to: "/code" },
+  { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
@@ -41,9 +41,9 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
   { e: "🔢", l: "דף המספר", to: "/number" },
-  { e: "🔠", l: "דילוגי אותיות · בקרוב", to: "/code" },
+  { e: "🔠", l: "דילוגי אותיות", to: "/code" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
-  { e: "🏛️", l: "היכל", to: "/research", soon: "🚧 בבנייה" },
+  { e: "🏛️", l: "היכל", to: "/research" },
   { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
   { e: "💬", l: "קהילה", to: "/community" },
   { e: "📜", l: "פוסטים", to: "/post" },
@@ -324,17 +324,13 @@ function LabMenu() {
   return (
     <div className="sod-nav-desktop" style={{ position: "relative" }}
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" onClick={() => setOpen(false)} aria-label="היכל · בבנייה" style={{
+      <Link to="/research" onClick={() => setOpen(false)} aria-label="היכל" style={{
         display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", border: "none", textDecoration: "none",
         background: "linear-gradient(135deg,#f6dd92,#d4af37)", color: "#1a0e00",
         fontFamily: F.heading, fontWeight: 800, fontSize: 14.5, letterSpacing: 0.3,
         padding: "9px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 4px 16px rgba(212,175,55,0.4)", marginInlineEnd: 4,
       }}>🏛️ היכל
-        <span style={{
-          fontSize: 9.5, fontWeight: 900, letterSpacing: 0.3, lineHeight: 1,
-          background: "#3a2400", color: "#ffd86b", borderRadius: 5, padding: "2.5px 6px",
-        }}>🚧 בבנייה</span>
         <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
       {open && (
         <div style={{
@@ -439,7 +435,7 @@ export default function Navbar() {
       borderBottom: `1px solid ${scrolled ? cc.borderGold : cc.border}`,
       padding: "0 18px", direction: "rtl", transition: "all 0.35s",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1360, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1800, margin: "0 auto" }}>
         <Brand />
 
         {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
