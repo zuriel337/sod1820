@@ -32,6 +32,7 @@ import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/fee
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
+import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -442,6 +443,11 @@ export default function HomeNewPage() {
           </Link>
         </section>
       )}
+
+      {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש) ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 44px" }}>
+        <OneTreeWidget />
+      </section>
 
       {/* ===== גלריית הסרטים — שורה אחת (הוחזרה מ"שולחן העבודה") ===== */}
       <section style={{ padding: "0 0 36px" }}>
