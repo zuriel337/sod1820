@@ -6,7 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import ElsGrid from "../components/ElsGrid.jsx";
 import { rwCss } from "../lib/research/theme.js";
 import UpdatesBox from "../components/UpdatesBox.jsx";
-import { ELS_PUBLIC } from "../lib/hub/ready.js";
+import { ELS_PUBLIC, ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
 
 // דף סגור (לא-אדמין) — מלכותי, מזמין הרשמה
 function CodeClosed() {
@@ -42,7 +42,7 @@ export default function CodePage() {
   // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים, ומרנדר את אותו מנוע-הדילוגים של אזור המחקר
   // (ElsGrid) — מציירים פעם אחת, מפנים מכל מקום. עוטפים ב-`.rw` + rwCss() כדי לספק את
   // פלטת סביבת-המחקר (משתני --acc/--bg/--ink/--line ומחלקות rw-*) בלי כל ה-chrome של השלד.
-  if (isAdmin || ELS_PUBLIC) {
+  if (isAdmin || ELS_PUBLIC || ELS_PREVIEW_OPEN) {
     return (
       <div className="rw" dir="rtl" style={{ position: "relative", zIndex: 1 }}>
         <style>{rwCss()}</style>
