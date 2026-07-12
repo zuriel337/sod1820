@@ -662,8 +662,8 @@ export default function Navbar() {
           <div style={{ position: "relative", margin: "18px 8px 2px", padding: "24px 6px 10px",
             border: `1px solid ${cc.borderGold}`, background: "rgba(212,175,55,0.05)", borderRadius: 14 }}>
             <Link to="/research" onClick={() => setDrawer(false)} aria-label="ההיכל" style={{
-              position: "absolute", top: -12, insetInlineStart: 12, display: "inline-flex", alignItems: "center", gap: 5,
-              background: cc.bgScrolled, border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "2px 10px 2px 3px", textDecoration: "none" }}>
+              position: "absolute", top: -12, insetInlineStart: 12, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+              background: cc.bgScrolled, border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "3px 12px", textDecoration: "none" }}>
               <span style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🏛️</span>
               <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל</span>
             </Link>
