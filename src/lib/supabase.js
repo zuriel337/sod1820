@@ -675,8 +675,106 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine 
       return null;
     }
     if (data?.error) { try { console.warn('[ai-analyze] server:', data.error, data.detail || ''); } catch { /* noop */ } }
+    // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
+    // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
+    if (data?.analysis) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis });
     return data?.analysis || null;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
+}
+
+// ===== 🧪 מעבדת-הסגנון (ai_style_learning_law) =====
+// העיקרון (החלטת צוריאל 12.7.2026): המנוע מייצר נתונים → המערכת מסכמת מגמות → האדם מחליט.
+// המשוב משנה סגנון והגשה בלבד — לעולם לא עובדות. אין שום למידה אוטומטית שמשנה סגנון.
+export async function logAiAnalysis({ kind, subject, styleKey, engine, model, content }) {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.rpc('ai_log_analysis', {
+      p_kind: kind || '', p_subject: subject || '', p_style: styleKey || 'balanced_v1',
+      p_engine: engine || 'claude', p_model: model || '', p_content: content || '', p_visitor: aiVisitorId(),
+    });
+    if (data) {
+      try {
+        window.__sodAiLog = { id: data, subject: subject || '', at: Date.now() };
+        window.dispatchEvent(new CustomEvent('sod:ai-logged', { detail: { id: data, kind, subject, styleKey } }));
+      } catch { /* noop */ }
+    }
+    return data || null;
+  } catch { return null; }
+}
+export async function sendAiSignal(id, signal) {
+  if (!supabase || !id) return;
+  try { await supabase.rpc('ai_signal', { p_id: id, p_signal: signal }); } catch { /* noop */ }
+}
+// איתות-התנהגות שקט: המשיך לחקור / הוסיף למחקר / שיתף — אחרי ניתוח טרי (חלון 10 דקות).
+// זה המדד שצוריאל הכי מאמין בו: לא "לייק" אלא "האם המשכת לחקור?".
+export function signalAiBehavior(signal) {
+  try {
+    const l = window.__sodAiLog;
+    if (l && Date.now() - l.at < 10 * 60 * 1000) sendAiSignal(l.id, signal);
+  } catch { /* noop */ }
+}
+export async function listAiStyles() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.from('ai_style_profiles').select('*').order('created_at'); return data || []; }
+  catch { return []; }
+}
+export async function adminAiRecent(limit = 40) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_ai_recent', { p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function adminAiRate(id, rating, reason = null) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_ai_rate', { p_id: id, p_rating: rating, p_reason: reason }); return !error; }
+  catch { return false; }
+}
+export async function adminAiStyleReport() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_ai_style_report'); return data || []; }
+  catch { return []; }
+}
+export async function adminAiStyleSave(p) {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase.rpc('admin_ai_style_save', {
+      p_key: p.style_key, p_name: p.name, p_depth: p.depth || '', p_facts: p.facts_level || '',
+      p_interp: p.interpretation_level || '', p_length: p.length_pref || '', p_directives: p.directives || '', p_notes: p.notes || null,
+    });
+    return !error;
+  } catch { return false; }
+}
+export async function adminAiStyleActivate(key) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_ai_style_activate', { p_key: key }); return !error; }
+  catch { return false; }
+}
+
+// ===== 🧠 מנוע-ההמלצות (system_suggestions_law) — Observe→Detect→Suggest→Explain→Decide =====
+// «המערכת לעולם אינה משנה את עצמה. היא רק לומדת, מסבירה ומציעה.» כל שינוי = החלטת צוריאל.
+export async function adminSuggestionsList(status = 'pending', limit = 60) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_suggestions_list', { p_status: status, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function adminSuggestionDecide(id, status, note = null) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_suggestion_decide', { p_id: id, p_status: status, p_note: note }); return !error; }
+  catch { return false; }
+}
+export async function adminNotifyGet() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('admin_notify_get'); return data || []; }
+  catch { return []; }
+}
+export async function adminNotifySet(channel, target, enabled) {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_notify_set', { p_channel: channel, p_target: target, p_enabled: enabled }); return !error; }
+  catch { return false; }
+}
+export async function adminFireWatchman() {
+  if (!supabase) return false;
+  try { const { error } = await supabase.rpc('admin_fire_watchman'); return !error; }
+  catch { return false; }
 }
 
 // 🔑 חלונות הגילוי — סטורי בראש דף הבית. קריאה ציבורית (RLS: active=true). מיון: sort↓ ואז חדש.

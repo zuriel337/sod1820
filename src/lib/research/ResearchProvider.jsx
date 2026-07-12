@@ -3,6 +3,7 @@ import { emit, EVENTS } from "./eventBus.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
+import { signalAiBehavior } from "../supabase.js";
 
 // 🧠 ResearchProvider — סביבת המחקר הגלובלית (Local-first). מחזיק את «המחקר הפעיל»
 // (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
@@ -91,6 +92,7 @@ export default function ResearchProvider({ children }) {
     logHistory(entity);
     emit(EVENTS.RESEARCH_ADD, entity);
     trackResearch("add", { type: entity.type });
+    signalAiBehavior("research");   // 🧪 ai_style_learning_law — "האם המשכת לחקור?" אחרי ניתוח טרי
   }, [logHistory]);
   const removeFromResearch = useCallback((id) => setCart(c => c.filter(e => e.id !== id)), []);
   const clearResearch = useCallback(() => { setCart([]); emit(EVENTS.RESEARCH_CLEAR); }, []);

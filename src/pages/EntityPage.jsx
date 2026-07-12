@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
@@ -21,6 +21,7 @@ import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
+import AiFeedback from "../components/AiFeedback.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import LeadOrderEditor from "../components/LeadOrderEditor.jsx";
@@ -1000,7 +1001,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             <div key={ti} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 5 }}>
               <b style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15 }}>{term}</b>
               <span style={{ color: P.accentDim }}>=</span>
-              <Link to={numHref(encodeURIComponent(t.partner))} onClick={() => trackJourneyStep(term, t.partner, { via: "strongest", surface: "number_page" })}
+              <Link to={numHref(encodeURIComponent(t.partner))} onClick={() => { trackJourneyStep(term, t.partner, { via: "strongest", surface: "number_page" }); signalAiBehavior("continue"); }}
                 style={{ textDecoration: "none", color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800, borderBottom: `1px dotted ${P.accentDim}` }}>{t.partner}</Link>
               <span style={{ background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, padding: "1px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading }}>{t.n_methods} שיטות</span>
               <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{t.methods_detail}</span>
@@ -1016,9 +1017,9 @@ export default function EntityPage({ embedPhrase } = {}) {
             {aiCross.atlas.slice(0, 6).map((f, fi) => (
               <div key={fi} title={f.note || ""} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                 <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 118 }}>{f.emoji} {f.label} · {f.method}{f.value ? ` ${f.value}` : ""}</span>
-                <Link to={numHref(encodeURIComponent(f.a_phrase))} onClick={() => trackJourneyStep(term ?? value, f.a_phrase, { via: f.method, surface: "constellation" })} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.a_phrase}</Link>
+                <Link to={numHref(encodeURIComponent(f.a_phrase))} onClick={() => { trackJourneyStep(term ?? value, f.a_phrase, { via: f.method, surface: "constellation" }); signalAiBehavior("continue"); }} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.a_phrase}</Link>
                 <span style={{ color: P.accentDim, fontSize: 11 }}>↔</span>
-                <Link to={numHref(encodeURIComponent(f.b_phrase))} onClick={() => trackJourneyStep(term ?? value, f.b_phrase, { via: f.method, surface: "constellation" })} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.b_phrase}</Link>
+                <Link to={numHref(encodeURIComponent(f.b_phrase))} onClick={() => { trackJourneyStep(term ?? value, f.b_phrase, { via: f.method, surface: "constellation" }); signalAiBehavior("continue"); }} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>{f.b_phrase}</Link>
                 <span style={{ color: "#4caf7d", fontSize: 10.5, fontWeight: 800 }}>✓</span>
               </div>
             ))}
@@ -1040,7 +1041,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                 {g.sem ? <>{g.sem.emoji} <b style={{ color: P.accentText }}>{g.sem.label_he}</b> · {g.method} {g.value}</> : <>ב{g.method} ({g.value})</>}
               </span>
               {g.matches.slice(0, 5).map((m, mi) => (
-                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" })} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
+                <Link key={mi} to={numHref(encodeURIComponent(m.phrase))} onClick={() => { trackJourneyStep(term, m.phrase, { via: g.method, surface: "number_page" }); signalAiBehavior("continue"); }} style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{m.phrase}</Link>
               ))}
             </div>
           ))}
@@ -1111,6 +1112,8 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line", textAlign: "start" }}>{aiText}</div>
           {/* 📊 עובדות-המנוע (תהודה + הצלבות) — מתחת לפרשנות */}
           {aiCrossBlock}
+          {/* 🧪 משוב-בטא (ai_style_learning_law) — נצבר לדו"ח הסגנונות באדמין */}
+          <AiFeedback dim={P.accentDim} />
           <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic", textAlign: "start" }}>כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.</div>
           {funnelNudge}
         </div>
