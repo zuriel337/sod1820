@@ -8,6 +8,7 @@ import { getTorahNiqqud } from "../lib/research/torah.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 import { LOGO_URL } from "../theme.js";
 import { tokenLabel } from "../lib/els/tokens.js";
+import { createElsRunner } from "../lib/els/runner.js";
 
 // המרת צבע hex לשקיפות — ל«צבע שמתחלש ככל שמתרחקים» (חיפוש משני)
 const hexA = (hex, a) => {
@@ -215,6 +216,7 @@ export default function ElsGrid({ seed }) {
   const [book, setBook] = useState("torah"); // ברירת-מחדל: תורה (מהיר). תנ״ך = בחירה מפורשת.
   const [skipMin, setSkipMin] = useState(1);
   const [skipMax, setSkipMax] = useState(2000);
+  const [noLimit, setNoLimit] = useState(false);   // ♾️ חיפוש מדויק בלי הגבלת-מרחק
   const [pattern, setPattern] = useState("range");
   const [dir, setDir] = useState("both");
   const [fuzzy, setFuzzy] = useState(false);
@@ -235,7 +237,7 @@ export default function ElsGrid({ seed }) {
   const [paintOpen, setPaintOpen] = useState(null); // איזה מונח פתוח-לבחירת-צבע
   const [savedSearches, setSavedSearches] = useState(() => { try { return JSON.parse(localStorage.getItem("els_saved") || "[]"); } catch { return []; } });
   const persistSaved = arr => { setSavedSearches(arr); try { localStorage.setItem("els_saved", JSON.stringify(arr)); } catch { /**/ } };
-  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false });
+  const [q, setQ] = useState({ raw: seed || "ישראל", book: "torah", skipMin: 1, skipMax: 2000, pattern: "range", dir: "both", fuzzy: false, noLimit: false });
 
   // האם ההיקף הנבחר חורג מהתורה (304,805) → צריך את קובץ-התנ״ך המלא
   const needTanakh = (TANAKH_BOOKS.find(b => b.key === q.book)?.to ?? 0) > 304805;
@@ -280,10 +282,13 @@ export default function ElsGrid({ seed }) {
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState(0);
   const cancelRef = useRef(false);
+  const runnerRef = useRef(null);
+  if (!runnerRef.current) runnerRef.current = createElsRunner();   // Web Worker — נוצר בפועל בחיפוש הראשון
+  useEffect(() => () => runnerRef.current?.cancel(), []);          // כיבוי ה-Worker ביציאה מהרכיב
   const [phraseIdx, setPhraseIdx] = useState(0);
-  const stopSearch = () => { cancelRef.current = true; setSearching(false); };
+  const stopSearch = () => { cancelRef.current = true; runnerRef.current?.cancel(); setSearching(false); };
   useEffect(() => {
-    if (!letters || !terms.length) { setRes(null); setSearching(false); return; }
+    if (!letters || !terms.length) { runnerRef.current?.cancel(); setRes(null); setSearching(false); return; }
     cancelRef.current = false;
     setSearching(true); setProgress(0);
     setPhraseIdx(i => (i + 1) % ELS_PHRASES.length);
@@ -291,14 +296,30 @@ export default function ElsGrid({ seed }) {
     const bk = TANAKH_BOOKS.find(b => b.key === q.book) || TANAKH_BOOKS[0];
     const mm = q.fuzzy ? 1 : 0;
     const sMin = Math.max(1, q.skipMin ?? 1), sMax = Math.max(sMin, Math.max(3, q.skipMax));
-    const opts = { winFrom: bk.from, winTo: Math.min(letters.length, bk.to), skips: buildSkipSet(q.pattern, sMin, sMax) };
+    const winFrom = bk.from, winTo = Math.min(letters.length, bk.to);
+
+    if (mm === 0) {
+      // ⚡ נתיב מהיר: Web Worker + אלגוריתם «שתי-האותיות-הנדירות» → תומך בחיפוש **בלי הגבלת מרחק**
+      //    ולעולם לא מקפיא (רץ מחוץ ל-thread). q.noLimit=true → סורק את כל הדילוגים האפשריים.
+      const skipSet = q.pattern && q.pattern !== "range"
+        ? [...buildSkipSet(q.pattern, sMin, q.noLimit ? winTo : sMax)] : null;
+      const opts = { winFrom, winTo, skipMin: sMin, skipMax: q.noLimit ? "inf" : sMax, dir: q.dir, cap: 5000, skipSet };
+      runnerRef.current.run({
+        letters, lettersKey: needTanakh ? "tanakh" : "torah",
+        kind: isCluster ? "cluster" : "single", terms, opts,
+        onProgress: p => { if (alive) setProgress(p); },
+      }).then(m => { if (!alive) return; setRes(m); setSearching(false); })
+        .catch(() => { if (alive) setSearching(false); });
+      return () => { alive = false; };
+    }
+
+    // 〰️ «כולל קרובים» (fuzzy) — נתיב הסריקה הישן (מקטעים; טווח מוגבל, «בלי הגבלה» לא חל).
+    const opts = { winFrom, winTo, skips: buildSkipSet(q.pattern, sMin, sMax) };
     if (isCluster) {
-      // מוצלב: אשכול-קרבה **לא-חוסם** (מקטעים+נשימה+ביטול) → הדפדפן לא נתקע, ויש לוּדר עם אחוזים ועצירה.
       elsClustersChunked(letters, terms, sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
         .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "cluster", ...r }); setSearching(false); });
       return () => { alive = false; cancelRef.current = true; };
     }
-    // יחיד: חיפוש מנותח-למקטעים → אחוזים + עצירה
     elsSearchChunked(letters, terms[0], sMin, sMax, q.dir, mm, opts, p => { if (alive) setProgress(p); }, cancelRef)
       .then(r => { if (!alive || cancelRef.current) return; setRes({ mode: "single", ...r }); setSearching(false); });
     return () => { alive = false; cancelRef.current = true; };
@@ -312,7 +333,7 @@ export default function ElsGrid({ seed }) {
     setEntered(false); setShowAll(false);
     const sMin = Math.max(1, parseInt(skipMin) || 1);
     const sMax = Math.max(sMin, parseInt(skipMax) || 100);
-    setQ({ raw: qraw, book: bk, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy });
+    setQ({ raw: qraw, book: bk, skipMin: sMin, skipMax: sMax, pattern, dir, fuzzy, noLimit });
   };
   // החלפת-מצב משער-הכניסה: קובעת היקף-ברירת-מחדל (תורה/תנ״ך) ומאפסת תוצאה
   const switchMode = m => { setMode(m); setEntered(false); if (m === "tanakh") setBook("all"); else setBook("torah"); };
@@ -880,7 +901,10 @@ export default function ElsGrid({ seed }) {
             <label style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, display: "flex", alignItems: "center", gap: 4 }} title="טווח-דילוג: מ-X עד Y. לקיבוע מרחק מדויק — הזינו אותו מספר בשני השדות (למשל 10065–10065).">דילוג מ-
               <input style={{ ...ctl, width: 78 }} type="number" min="1" value={skipMin} onChange={e => setSkipMin(e.target.value)} />
               עד
-              <input style={{ ...ctl, width: 90 }} type="number" min="1" value={skipMax} onChange={e => setSkipMax(e.target.value)} /></label>
+              <input style={{ ...ctl, width: 90, opacity: noLimit ? 0.45 : 1 }} type="number" min="1" value={skipMax} disabled={noLimit} onChange={e => setSkipMax(e.target.value)} /></label>
+            <label className="els-chk" style={{ color: noLimit ? C.acc : C.ink2, fontWeight: 800 }} title="חיפוש בכל המרחקים האפשריים — מהיר בזכות אלגוריתם «שתי-האותיות-הנדירות» + Web Worker (חל על חיפוש מדויק; «כולל קרובים» נשאר מוגבל).">
+              <input type="checkbox" checked={noLimit} onChange={e => setNoLimit(e.target.checked)} /> ♾️ בלי הגבלת מרחק
+            </label>
             <label className="els-chk" style={{ color: C.ink2 }}>
               <input type="checkbox" checked={fuzzy} onChange={e => setFuzzy(e.target.checked)} /> כולל קרובים (±אות)
             </label>
