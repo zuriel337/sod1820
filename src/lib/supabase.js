@@ -2482,6 +2482,31 @@ export async function getMethodSemantics(profile = 'sod1820') {
   return _methodSemCache;
 }
 
+// 🔁 לולאת-האימות — "ממצאים" (relation_evidence): המנוע מגלה, צוריאל מאשר/דוחה.
+export async function getRelationEvidenceStats() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('relation_evidence_stats'); return data || []; } catch { return []; }
+}
+export async function discoverRelationCandidates(method = null, limit = 40) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc('discover_relation_candidates', { p_method: method, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+export async function listRelationEvidence(status = null, limit = 60) {
+  if (!supabase) return [];
+  try {
+    let q = supabase.from('relation_evidence').select('*').order('updated_at', { ascending: false }).limit(limit);
+    if (status) q = q.eq('status', status);
+    const { data } = await q; return data || [];
+  } catch { return []; }
+}
+export async function setRelationEvidence(method, a, b, value, status, note = null) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('set_relation_evidence', { p_method: method, p_a: a, p_b: b, p_value: value, p_status: status, p_note: note });
+  if (error) throw error;
+  return data;
+}
+
 // 🧩 שכבת משפחות-העוגנים (anchor_families) — נתונים+מיפוי בלבד. שליטה ידנית של צוריאל.
 export async function discoverAnchorFamilies(minWords = 8, limit = 60) {
   if (!supabase) return [];
