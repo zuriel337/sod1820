@@ -237,6 +237,8 @@ function MoreMenu({ items, pathname, onNavigate, grid }) {
 // אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
 // מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
 function MenuPanel({ items, pathname, cc }) {
+  const mode = useThemeMode();
+  const light = mode === "light";
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
@@ -245,6 +247,20 @@ function MenuPanel({ items, pathname, cc }) {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, [open]);
+  // אופציה 3: חלון-התפריט בהיר ביום (הסרגל עצמו נשאר «כריכה» כהה). בלילה — צבעי ה-chrome הכהים.
+  const pc = light ? {
+    panelBg: "#fbf8f1", panelBorder: "rgba(160,120,30,0.40)", shadow: "0 20px 56px rgba(80,60,10,0.22)",
+    heading: "#8a6a1a", tileBg: "#ffffff", tileBorder: "rgba(120,90,20,0.20)", tileHoverBg: "#f4ecda",
+    tileText: "#2a2013", tileActive: "#c9a84a",
+    bannerBg: "rgba(201,168,74,0.16)", bannerBorder: "rgba(160,120,30,0.45)", bannerHover: "#c9a84a",
+    bannerTitle: "#6d4e0b", bannerSub: "#6b5f45", arrow: "#8a6a1a",
+  } : {
+    panelBg: cc.dropBg, panelBorder: cc.borderGold, shadow: "0 20px 56px rgba(0,0,0,0.62)",
+    heading: cc.muted, tileBg: cc.catBg, tileBorder: cc.border, tileHoverBg: cc.surface,
+    tileText: cc.goldLight, tileActive: cc.borderGold,
+    bannerBg: cc.activeBg, bannerBorder: cc.borderGold, bannerHover: cc.gold,
+    bannerTitle: cc.goldBright, bannerSub: cc.muted, arrow: cc.goldLight,
+  };
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button className="nav-link" onClick={() => setOpen(o => !o)} aria-label="תפריט" aria-expanded={open} style={{
@@ -260,34 +276,43 @@ function MenuPanel({ items, pathname, cc }) {
       {open && (
         <div style={{
           position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(720px, 88vw)",
-          background: cc.dropBg, backdropFilter: "blur(16px)",
-          border: `1px solid ${cc.borderGold}`, borderRadius: 18, padding: 14, zIndex: 250,
-          boxShadow: "0 20px 56px rgba(0,0,0,0.62)",
+          background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
+          border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
+          boxShadow: pc.shadow,
         }}>
           {/* «כאן מתחילים» — באנר גדול נפרד בראש התפריט, לפני שאר המדורים */}
           <Link to="/start" onClick={() => setOpen(false)} style={{
             display: "flex", alignItems: "center", gap: 13, textDecoration: "none",
-            background: cc.activeBg, border: `1px solid ${cc.borderGold}`, borderRadius: 14,
+            background: pc.bannerBg, border: `1px solid ${pc.bannerBorder}`, borderRadius: 14,
             padding: "14px 16px", marginBottom: 14, transition: "border-color 0.2s, transform 0.2s",
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = cc.gold; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = cc.borderGold; e.currentTarget.style.transform = "none"; }}>
+            onMouseEnter={e => { e.currentTarget.style.borderColor = pc.bannerHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = pc.bannerBorder; e.currentTarget.style.transform = "none"; }}>
             <span style={{ fontSize: 30, lineHeight: 1 }}>🚀</span>
             <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 18, fontWeight: 800 }}>כאן מתחילים</span>
-              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 12.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
+              <span style={{ color: pc.bannerTitle, fontFamily: F.royal, fontSize: 18, fontWeight: 800 }}>כאן מתחילים</span>
+              <span style={{ color: pc.bannerSub, fontFamily: F.body, fontSize: 12.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
             </span>
-            <span style={{ marginInlineStart: "auto", color: cc.goldLight, fontSize: 18 }}>←</span>
+            <span style={{ marginInlineStart: "auto", color: pc.arrow, fontSize: 18 }}>←</span>
           </Link>
-          <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
-          <div className="sod-tiles">
-            {items.map(it => (
-              <Link key={it.to} to={it.to} onClick={() => setOpen(false)} className="sod-tile"
-                style={{ borderColor: isActive(pathname, it.to) ? cc.borderGold : cc.border }}>
-                <span className="sod-tile-e">{it.emoji}</span>
-                <span className="sod-tile-l">{it.label}</span>
-              </Link>
-            ))}
+          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
+            {items.map(it => {
+              const active = isActive(pathname, it.to);
+              return (
+                <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
+                  background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
+                  borderRadius: 14, padding: "16px 6px", textDecoration: "none",
+                  transition: "transform 0.15s, border-color 0.15s, background 0.15s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
+                  <span style={{ fontSize: 26, lineHeight: 1 }}>{it.emoji}</span>
+                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{it.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
