@@ -122,8 +122,13 @@ export function AtlasFindings({ mode = "light" }) {
   const [sp] = useSearchParams();
   const rel = useRelMeta();
   const [tab, setTab] = useState(() => sp.get("atlas") || "all");
+  const rootRef = React.useRef(null);
   // 🔗 ניווט מהעץ: שינוי ?atlas= (גם כשהעמוד כבר פתוח) מעדכן את הטאב הפנימי
   useEffect(() => { const a = sp.get("atlas"); if (a && a !== tab) setTab(a); }, [sp]); // eslint-disable-line
+  // 🎯 נחיתה מהעץ (?atlas=) — גוללים ישר אל תוך מדור-האטלס, לא רק פותחים את הטאב
+  useEffect(() => {
+    if (sp.get("atlas")) setTimeout(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 250);
+  }, []); // eslint-disable-line
   const [items, setItems] = useState([]);
   const [bridges, setBridges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +149,7 @@ export function AtlasFindings({ mode = "light" }) {
   const chip = (bg, bd, c) => ({ display: "inline-block", background: bg, border: `1px solid ${bd}`, color: c, borderRadius: 999, padding: "2px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading });
 
   return (
-    <div>
+    <div ref={rootRef} style={{ scrollMarginTop: 76 }}>
       {/* כותרת ברורה — כאן זה האטלס, לא המעבדה: מפריד ניווטית בין המדורים */}
       <div style={{ textAlign: "center", marginBottom: 14 }}>
         <div style={{ color: C0.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 800 }}>🌳 אטלס הממצאים</div>
