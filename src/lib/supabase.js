@@ -2527,6 +2527,23 @@ export async function updateResearcherDefinition(id, patch = {}) {
   return data;
 }
 
+// 🤖🌳 האטלס מדבר אל ה-AI: הממצאים המאושרים שנוגעים לישות (מילה או ערך) — משקל-בכורה בניתוח.
+export async function getAtlasFindingsForEntity(term, value = null, limit = 6) {
+  if (!supabase) return [];
+  try {
+    const w = String(term || '').trim();
+    let q = supabase.from('relation_evidence')
+      .select('relation_type,method,a_phrase,b_phrase,value,note')
+      .eq('status', 'confirmed').limit(limit);
+    if (/^\d+$/.test(w)) q = q.eq('value', parseInt(w, 10));
+    else if (w) q = q.or(`a_phrase.eq.${w},b_phrase.eq.${w}${value ? `,value.eq.${Number(value)}` : ''}`);
+    else if (value) q = q.eq('value', Number(value));
+    else return [];
+    const { data } = await q;
+    return data || [];
+  } catch { return []; }
+}
+
 // 🌳 שכבת-הידע הציבורית של האטלס — ממצאים שנבדקו (דרגות-תמיכה מחושבות) + סטטיסטיקת העץ-האחד.
 export async function getAtlasFindings(relation = null, limit = 80) {
   if (!supabase) return [];
