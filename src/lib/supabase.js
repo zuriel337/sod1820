@@ -2467,7 +2467,7 @@ export async function getNumberResonanceStats(word, pairs) {
   } catch { return null; }
 }
 
-// 🧭 המודל הפרשני של SOD1820 (method_semantics) — שיטה→סוג-יחס (🪞 מראה · 💑 בן-זוג · 🔍 נסתר…).
+// 🧭 המודל הפרשני של SOD1820 (method_semantics) — שיטה→סוג-יחס (🪞 מראה · 🌗 בן-זוג · 🔍 נסתר…).
 // פרשנות, לא עובדה: profile מאפשר אסכולות עתידיות. cache מודולרי (15 שורות, קריאה אחת לסשן).
 let _methodSemCache = null;
 export async function getMethodSemantics(profile = 'sod1820') {

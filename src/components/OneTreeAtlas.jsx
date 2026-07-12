@@ -9,7 +9,7 @@ import { getOneTreeStats, getAtlasFindings, getVerifiedBridges, getMethodSemanti
 
 // מטא-יחסים: relation_type → {emoji, label} — נבנה מהמודל הפרשני (method_semantics), עם נפילה עדינה.
 const REL_FALLBACK = {
-  mirror: { emoji: "🪞", label: "יחס מראה" }, complement: { emoji: "💑", label: "השלמה" },
+  mirror: { emoji: "🪞", label: "יחס מראה" }, complement: { emoji: "🌗", label: "השלמה" },
   hidden: { emoji: "🔍", label: "נסתר" }, inner: { emoji: "🕯", label: "פנימיות" },
   progression: { emoji: "🌱", label: "התפתחות" }, calendar: { emoji: "📅", label: "שנה כפולה" },
   revealed: { emoji: "🔆", label: "גלוי" }, order: { emoji: "🔢", label: "סדר" }, scale: { emoji: "🔭", label: "קנה-מידה" },
