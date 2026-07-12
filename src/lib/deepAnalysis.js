@@ -50,21 +50,22 @@ export function convergencesFactLine(convs, limit = 6) {
 const _cache = new Map();  // מילה → {methodsLine, crossLine, groups, stats} (ממוזג per-session, חוסך קריאות)
 
 // 📊 מדד-תהודה (0-100) — מדד *טכני* של צפיפות-קשרים, לא "ציון רוחני". מחושב מעובדות-המנוע בלבד.
-//    שקלול שקוף: שיטות בלתי-תלויות 30% · חיבורים 20% (תקרה 80) · צמתים-חזקים 20% (תקרה 7) ·
-//    איכות-מקורות (התאמות מאומתות) 30% (תקרה 40). ה-AI מקבל את הפירוק — לא מחשב דבר בעצמו.
+//    ⚠️ נספרות רק התאמות *נחשבות* (notable: מובילה/תמטית/בגרף/מפוסט) — כי bidim צפוף וכל ערך מוצא
+//    התאמות מילוניות. כך מילה חזקה (משיח) מקבלת ציון גבוה ומילה חלשה (מלגזה) נמוך — בלי תהודה מלאכותית.
+//    שקלול שקוף (מוטה לצמתים+שיטות, המבחינים): שיטות 28% · צמתים-חזקים 40% · חיבורים 20% · איכות 12%.
 export function resonanceScore(stats) {
   if (!stats) return null;
   const methods = Number(stats.n_methods) || 0;
   const conns = Number(stats.n_connections) || 0;
   const nodes = Number(stats.n_strong_nodes) || 0;
-  const verified = Number(stats.n_verified) || 0;
+  const notable = Number(stats.n_notable) || 0;
   const score = Math.round(100 * (
-    0.30 * Math.min(methods, 7) / 7 +
-    0.20 * Math.min(conns, 80) / 80 +
-    0.20 * Math.min(nodes, 7) / 7 +
-    0.30 * Math.min(verified, 40) / 40
+    0.28 * Math.min(methods, 7) / 7 +
+    0.40 * Math.min(nodes, 7) / 7 +
+    0.20 * Math.min(conns, 40) / 40 +
+    0.12 * Math.min(notable, 40) / 40
   ));
-  return { methods, connections: conns, strongNodes: nodes, verified, score };
+  return { methods, connections: conns, strongNodes: nodes, notable, score };
 }
 
 // מביא (וממזג) את שכבת-העומק הבין-שיטתית למילה עברית. ריק למספר/לועזית (אין אותיות).
@@ -100,7 +101,7 @@ export function appendDeepFacts(baseFacts, cross) {
   if (cross?.methodsLine) f += ` ערכי המילה בשיטות: ${cross.methodsLine}.`;
   if (cross?.crossLine)   f += ` הצלבות בין-שיטתיות (עובדה מהמנוע): ${cross.crossLine}.`;
   const r = cross?.resonance;
-  if (r) f += ` מדד-תהודה (עובדת-מנוע, מדד טכני של צפיפות-קשרים): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים · ${r.verified} מאומתים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
+  if (r) f += ` מדד-תהודה (עובדת-מנוע, מדד טכני של צפיפות-קשרים נחשבים): ${r.methods} שיטות · ${r.connections} חיבורים · ${r.strongNodes} צמתים חזקים (ציון ${r.score}/100). נתח את *מבנה* הרשת — לא רק ערך בודד.`;
   return f;
 }
 

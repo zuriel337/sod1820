@@ -1341,7 +1341,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                       {aiCross.resonance && (
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: aiCross.groups?.some(g => g.method !== "רגיל") ? 9 : 0 }}>
                           <span style={{ background: "linear-gradient(135deg,rgba(62,166,255,0.14),rgba(124,58,237,0.14))", border: `1px solid ${P.accentText}`, borderRadius: 999, padding: "4px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✦ תהודה {aiCross.resonance.score}/100</span>
-                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים · {aiCross.resonance.verified} מאומתים</span>
+                          <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{aiCross.resonance.methods} שיטות · {aiCross.resonance.connections} חיבורים · {aiCross.resonance.strongNodes} צמתים חזקים</span>
                         </div>
                       )}
                       {aiCross.groups?.some(g => g.method !== "רגיל") && (
