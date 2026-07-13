@@ -697,24 +697,23 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          {/* סגירת התפריט — צור קשר + הורדת האפליקציה (החליף את «בקרוב: עץ ההתכנסויות») */}
-          <div className="sod-tiles" style={{ paddingTop: 12 }}>
-            <Link to="/contact" onClick={() => setDrawer(false)} className="sod-tile"
-              style={{ borderColor: isActive(pathname, "/contact") ? cc.borderGold : cc.border }}>
-              <span className="sod-tile-e">✉️</span>
-              <span className="sod-tile-l">צור קשר</span>
-            </Link>
+          {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
+            <Link to="/contact" onClick={() => setDrawer(false)} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, color: cc.goldLight, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 12px", borderRadius: 8,
+            }}>✉️ צור קשר</Link>
+            <span style={{ color: cc.muted, opacity: 0.5 }}>·</span>
             {/* 📲 הורדת האפליקציה — אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
-            <button className="sod-tile" style={{ borderColor: cc.borderGold, background: "none", cursor: "pointer" }}
-              onClick={async () => {
-                setDrawer(false);
-                if (canInstall()) { await promptInstall(); }
-                else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»");
-                else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»");
-              }}>
-              <span className="sod-tile-e">📲</span>
-              <span className="sod-tile-l">הורדת האפליקציה</span>
-            </button>
+            <button onClick={async () => {
+              setDrawer(false);
+              if (canInstall()) { await promptInstall(); }
+              else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»");
+              else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»");
+            }} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer",
+              color: cc.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 12px", borderRadius: 8,
+            }}>📲 הורדת האפליקציה</button>
           </div>
         </div>
       )}
