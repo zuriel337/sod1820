@@ -6,6 +6,7 @@ import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supabase.js";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { emit, EVENTS } from "../lib/research/eventBus.js";
 
 // 🧪 מעבדת השם — לא «מחשבון שמות» אלא מעבדת מחקר. השאלה: «מה אפשר לגלות על השם הזה?»
 // הסדר (החלטת צוריאל): שם → סיכום-AI (חוקר מלווה) → מחקר → התכנסויות → גשרים → הקשר → אישי → לאן ממשיכים.
@@ -133,9 +134,10 @@ function DepthGauge({ depth }) {
   );
 }
 
-export default function NameLabPage() {
+// embedded=true → מוטמע בתוך היכל הגילוי: לא נוגע ב-URL (לא דורס tool=name) ובלי עטיפת רקע-מלא.
+export default function NameLabPage({ embedded = false }) {
   const [sp, setSp] = useSearchParams();
-  const [word, setWord] = useState((sp.get("w") || "").trim());
+  const [word, setWord] = useState((embedded ? "" : (sp.get("w") || "")).trim());
   const [editing, setEditing] = useState(!word);
   const [openKey, setOpen] = useState(null);
   const [ai, setAi] = useState(null);
@@ -150,6 +152,10 @@ export default function NameLabPage() {
 
   const hebVals = useMemo(() => word ? HEB.map(m => ({ ...m, value: m.fn(word) })) : [], [word]);
   const regVal = hebVals[0]?.value || 0;
+
+  // 🎯 שידור הישות שבמוקד → הפאנל ההקשרי של ההיכל (רק במצב מוטמע)
+  useEffect(() => { if (embedded && word && regVal) emit(EVENTS.ENTITY_FOCUS, { title: word, word, value: regVal }); }, [embedded, word, regVal]);
+  useEffect(() => () => { if (embedded) emit(EVENTS.ENTITY_BLUR); }, [embedded]);
   const heInput = !!word && !hasLatin(word);           // קלט עברי טהור → מציעים תעתוק לאנגלית
   const translitOpts = useMemo(() => heInput ? hebrewLatinOptions(word) : [], [heInput, word]);
 
@@ -223,7 +229,7 @@ export default function NameLabPage() {
     } catch { setAiState("off"); }
   }, [word, hebVals, enVals, conv, regVal, research, aiState, enWord, heInput, liveBridge, enOrdinal]);
 
-  const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); if (w) setSp({ w }, { replace: true }); };
+  const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); if (w && !embedded) setSp({ w }, { replace: true }); };
 
   // 🌳 ישות-השם למחקר האישי (Research Bus).
   const entity = useMemo(() => word ? { id: "name:" + word, type: "name", title: word, value: regVal, meta: { en: enVals[0]?.value } } : null, [word, regVal, enVals]);
@@ -245,8 +251,8 @@ export default function NameLabPage() {
   }, [word, research, conv, enVals, regVal]);
 
   return (
-    <div dir="rtl" style={{ background: C.bg, minHeight: "100vh", color: C.ink }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "26px 16px 90px", display: "grid", gap: 16 }}>
+    <div dir="rtl" style={embedded ? { color: C.ink } : { background: C.bg, minHeight: "100vh", color: C.ink }}>
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: embedded ? "4px 0 24px" : "26px 16px 90px", display: "grid", gap: 16 }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ color: C.dim, fontFamily: F.h, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>🧪 מעבדת השם</div>
           <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 13, marginTop: 3 }}>מה אפשר לגלות על השם הזה?</div>

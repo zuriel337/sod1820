@@ -2,12 +2,12 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
-import { isToolReady } from "../lib/hub/ready.js";
+import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
-import NameStory from "../components/NameStory.jsx";
+import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import ElsGrid from "../components/ElsGrid.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
@@ -16,6 +16,7 @@ import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
+import DatesTool from "../components/DatesTool.jsx";
 import ToolGuide from "../components/research/ToolGuide.jsx";
 
 // ❓ הדרכות «איך משתמשים» לכלי-המעבדה — מוצגות מעל הכלי הפעיל. כלי שיש לו הסבר משלו
@@ -87,6 +88,17 @@ const GUIDES = {
     ],
     tip: "זו נקודת-הפתיחה הטובה ביותר כשלא יודעים מאיפה להתחיל.",
   },
+  dates: {
+    title: "איך משתמשים בתאריכים עבריים",
+    intro: "ממירים תאריך לועזי לתאריך העברי המקביל — ומגלים את הגימטריה שלו.",
+    steps: [
+      "בחרו תאריך לועזי בשדה התאריך.",
+      "אם האירוע היה אחרי השקיעה — סמנו «אחרי השקיעה» (עובר ליום העברי הבא).",
+      "מתקבל התאריך העברי המלא (למשל «כ״ב סִיוָן תש״נ») והערך הגימטרי שלו.",
+      "לחיצה על הערך → דף-המספר עם כל ההצלבות וההתכנסויות.",
+    ],
+    tip: "נסו תאריך לידה, או תאריך אירוע — וראו אם הערך נופל על מספר-מפתח.",
+  },
   import: {
     title: "איך משתמשים בניתוח קובץ",
     intro: "מעלים קובץ עם רשימת שמות/ביטויים — והמנוע מחשב גימטריה לכולם ומאתר התכנסויות.",
@@ -121,9 +133,16 @@ export default function ResearchPage() {
   const { enterDiscovery } = useResearch();
   useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const ready = id => isToolReady(id, isAdmin);
-  // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
-  const READY_LAB = TOOLS.filter(t => ready(t.id));
+  const [soonOpen, setSoonOpen] = useState(false);
+  // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «בקרוב ▾»
+  // דגלים ראשונים (דף המספר · מחשבון · מנוע השמות), אחר-כך השאר — סרגל נקי (המלצת ניקוי ההיכל).
+  const FLAG_ORDER = ["number", "midrash", "name"];
+  const rank = t => { const i = FLAG_ORDER.indexOf(t.id); return i < 0 ? 99 : i; };
+  // מיזוג הכפילות: «מחשבון גימטריה» ו«בית המדרש» פותחים אותו מסך (בית המדרש נפתח בטאב המחשבון
+  // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
+  const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
+  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -148,19 +167,35 @@ export default function ResearchPage() {
     <div className="rw-subnav">
       <div className="rw-toolbar">
         <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל</button>
-        {/* כלים פתוחים (לציבור: בית המדרש · למנהל: הכל) */}
-        {READY_LAB.map(t => (
-          <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-            {t.icon} {t.title}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
-          </button>
-        ))}
-        {/* כלים בבנייה — מוצגים «בבנייה», לא לחיצים */}
-        {FUTURE_LAB.map(t => (
-          <button key={t.id} className="rw-tchip" disabled title="בבנייה" style={{ opacity: 0.5, cursor: "not-allowed" }}>
-            🚧 {t.icon} {t.title} · <span style={{ fontSize: 11, fontWeight: 800 }}>בבנייה</span>
-          </button>
-        ))}
+        {/* כלים פתוחים — דגלים ראשונים (לציבור: הפתוחים · למנהל: הכל) */}
+        {READY_LAB.map(t => {
+          const c = chipOf(t);
+          return (
+            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
+              {c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
+            </button>
+          );
+        })}
       </div>
+      {/* כלים בבנייה — מקובצים תחת «בקרוב ▾» יחיד (במקום 7 צ'יפים שמעמיסים את הסרגל) */}
+      {FUTURE_LAB.length > 0 && (
+        <div className="rw-more-wrap">
+          <button className="rw-tchip" onClick={() => setSoonOpen(o => !o)} title="כלים בבנייה — בקרוב">
+            🔜 בקרוב <span style={{ fontSize: 10, opacity: 0.7, fontWeight: 800 }}>({FUTURE_LAB.length})</span>
+          </button>
+          {soonOpen && (
+            <>
+              <div className="rw-more-back" onClick={() => setSoonOpen(false)} />
+              <div className="rw-more-pop">
+                <div className="rw-more-h">בבנייה — ייפתחו בקרוב</div>
+                {FUTURE_LAB.map(t => (
+                  <div key={t.id} className="rw-more-item" style={{ cursor: "default", opacity: 0.72 }}>🚧 {t.icon} {t.title}</div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -182,7 +217,7 @@ export default function ResearchPage() {
         <>
           {GUIDES[tool] && <ToolGuide {...GUIDES[tool]} />}
           {tool === "journey" && <SearchJourney onOpenTool={openTool} />}
-          {tool === "name" && <NameStory />}
+          {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
           {tool === "els" && (wide ? <ElsGrid seed={seed} /> : (
@@ -198,6 +233,7 @@ export default function ResearchPage() {
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
           {tool === "notarikon" && <NotarikonTool />}
+          {tool === "dates" && <DatesTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (

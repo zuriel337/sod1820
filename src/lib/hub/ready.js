@@ -25,6 +25,8 @@ export const READY_TOOLS = new Set([
   "verse",      // 🔓 חיפוש בפסוקים
   "import",     // 🔓 ניתוח קובץ
   "notarikon",  // 🔓 ראשי / אמצעי / סופי תיבות
+  "name",       // 🔓 מנוע השמות (מעבדת השם — כל המנועים + התכנסויות + גשרים)
+  "dates",      // 🔓 תאריכים עבריים (לועזי → עברי + גימטריה, hebcal)
 ]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי
@@ -35,7 +37,7 @@ export const FLAGSHIP_TOOLS = ["number", "gematria"];
 // אינם כאן → גם למנהל מציגים «בשדרוג» (כדי לא להציג מסך ריק).
 export const IMPLEMENTED_TOOLS = new Set([
   "number", "gematria", "verse", "midrash", "notarikon",
-  "els", "journey", "name", "family", "compare", "life", "import",
+  "els", "journey", "name", "family", "compare", "life", "import", "dates",
 ]);
 
 // שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות).

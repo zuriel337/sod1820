@@ -67,15 +67,13 @@ const MOBILE_TILES = [
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
+  { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
+  { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "📸", l: "גלריות", to: "/archive" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
-  { e: "✉️", l: "צור קשר", to: "/contact" },
-];
-const MOBILE_SOON = [
-  { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
 ];
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
@@ -698,26 +696,24 @@ export default function Navbar() {
                 <span className="sod-tile-l">{t.l}</span>
               </Link>
             ))}
-            {/* 📲 הורדת האפליקציה — תמיד מוצג (בקשת צוריאל); אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
-            {(
-              <button className="sod-tile" style={{ borderColor: cc.borderGold, background: "none", cursor: "pointer" }}
-                onClick={async () => {
-                  setDrawer(false);
-                  if (canInstall()) { await promptInstall(); }
-                  else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»");
-                  else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»");
-                }}>
-                <span className="sod-tile-e">📲</span>
-                <span className="sod-tile-l">הורדת האפליקציה</span>
-              </button>
-            )}
           </div>
-          {/* בקרוב — מעומעם */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "12px 6px 4px" }}>
-            <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>בקרוב:</span>
-            {MOBILE_SOON.map(s => (
-              <span key={s.to} style={{ color: cc.muted, fontFamily: F.royal, fontSize: 13.5, opacity: 0.6 }}>🔒 {s.l}</span>
-            ))}
+          {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
+            <Link to="/contact" onClick={() => setDrawer(false)} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, color: cc.goldLight, textDecoration: "none",
+              fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 12px", borderRadius: 8,
+            }}>✉️ צור קשר</Link>
+            <span style={{ color: cc.muted, opacity: 0.5 }}>·</span>
+            {/* 📲 הורדת האפליקציה — אנדרואיד=חלון-התקנה, אייפון=הנחיה */}
+            <button onClick={async () => {
+              setDrawer(false);
+              if (canInstall()) { await promptInstall(); }
+              else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»");
+              else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»");
+            }} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer",
+              color: cc.goldLight, fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 12px", borderRadius: 8,
+            }}>📲 הורדת האפליקציה</button>
           </div>
         </div>
       )}
