@@ -21,7 +21,7 @@ export const TOOLS = [
   { id: "import", icon: "📊", cat: "tool", title: "ניתוח קובץ", desc: "העלו אקסל/CSV עם רשימת שמות או ביטויים — המנוע מחשב גימטריה לכולם ומוצא התכנסויות.", status: "live" },
   { id: "cross", icon: "✨", cat: "engine", title: "מחולל הצלבות", desc: "חברו ביטויים בעלי אותו ערך — וגלו הצלבות חדשות.", status: "soon" },
   { id: "notarikon", icon: "🔠", cat: "tool", title: "נוטריקון", desc: "מהביטוי → ראשי · אמצעי · סופי תיבות + ערך והתכנסות. או חיפוש הפוך: רצף-אותיות → פסוקים בתורה.", status: "live" },
-  { id: "dates", icon: "📅", cat: "tool", title: "תאריכים עבריים", desc: "גימטריה של שנים ואירועים — חיבור ציר הזמן למספרים.", status: "soon" },
+  { id: "dates", icon: "📅", cat: "tool", title: "תאריכים עבריים", desc: "תאריך לועזי → התאריך העברי המקביל + הגימטריה שלו. חיבור ציר הזמן למספרים.", status: "live" },
   { id: "ai", icon: "🤖", cat: "ai", title: "מנוע AI", desc: "נתחו את «המחקר הפעיל» — ה-AI מחבר את הקשרים בשבילכם.", status: "soon" },
 ];
 

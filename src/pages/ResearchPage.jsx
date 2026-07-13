@@ -16,6 +16,7 @@ import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
+import DatesTool from "../components/DatesTool.jsx";
 import ToolGuide from "../components/research/ToolGuide.jsx";
 
 // ❓ הדרכות «איך משתמשים» לכלי-המעבדה — מוצגות מעל הכלי הפעיל. כלי שיש לו הסבר משלו
@@ -86,6 +87,17 @@ const GUIDES = {
       "מכל מקטע אפשר לקפוץ לכלי המתאים כדי להמשיך לעומק.",
     ],
     tip: "זו נקודת-הפתיחה הטובה ביותר כשלא יודעים מאיפה להתחיל.",
+  },
+  dates: {
+    title: "איך משתמשים בתאריכים עבריים",
+    intro: "ממירים תאריך לועזי לתאריך העברי המקביל — ומגלים את הגימטריה שלו.",
+    steps: [
+      "בחרו תאריך לועזי בשדה התאריך.",
+      "אם האירוע היה אחרי השקיעה — סמנו «אחרי השקיעה» (עובר ליום העברי הבא).",
+      "מתקבל התאריך העברי המלא (למשל «כ״ב סִיוָן תש״נ») והערך הגימטרי שלו.",
+      "לחיצה על הערך → דף-המספר עם כל ההצלבות וההתכנסויות.",
+    ],
+    tip: "נסו תאריך לידה, או תאריך אירוע — וראו אם הערך נופל על מספר-מפתח.",
   },
   import: {
     title: "איך משתמשים בניתוח קובץ",
@@ -221,6 +233,7 @@ export default function ResearchPage() {
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
           {tool === "notarikon" && <NotarikonTool />}
+          {tool === "dates" && <DatesTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (
