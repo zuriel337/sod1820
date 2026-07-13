@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
-import { isToolReady } from "../lib/hub/ready.js";
+import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -121,8 +121,12 @@ export default function ResearchPage() {
   const { enterDiscovery } = useResearch();
   useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const ready = id => isToolReady(id, isAdmin);
-  // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «עוד»
-  const READY_LAB = TOOLS.filter(t => ready(t.id));
+  const [soonOpen, setSoonOpen] = useState(false);
+  // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «בקרוב ▾»
+  // דגלים ראשונים (דף המספר · מחשבון · מנוע השמות), אחר-כך השאר — סרגל נקי (המלצת ניקוי ההיכל).
+  const FLAG_ORDER = [...FLAGSHIP_TOOLS, "name"];
+  const rank = t => { const i = FLAG_ORDER.indexOf(t.id); return i < 0 ? 99 : i; };
+  const READY_LAB = TOOLS.filter(t => ready(t.id)).sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
@@ -148,19 +152,32 @@ export default function ResearchPage() {
     <div className="rw-subnav">
       <div className="rw-toolbar">
         <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל</button>
-        {/* כלים פתוחים (לציבור: בית המדרש · למנהל: הכל) */}
+        {/* כלים פתוחים — דגלים ראשונים (לציבור: הפתוחים · למנהל: הכל) */}
         {READY_LAB.map(t => (
           <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
             {t.icon} {t.title}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
           </button>
         ))}
-        {/* כלים בבנייה — מוצגים «בבנייה», לא לחיצים */}
-        {FUTURE_LAB.map(t => (
-          <button key={t.id} className="rw-tchip" disabled title="בבנייה" style={{ opacity: 0.5, cursor: "not-allowed" }}>
-            🚧 {t.icon} {t.title} · <span style={{ fontSize: 11, fontWeight: 800 }}>בבנייה</span>
-          </button>
-        ))}
       </div>
+      {/* כלים בבנייה — מקובצים תחת «בקרוב ▾» יחיד (במקום 7 צ'יפים שמעמיסים את הסרגל) */}
+      {FUTURE_LAB.length > 0 && (
+        <div className="rw-more-wrap">
+          <button className="rw-tchip" onClick={() => setSoonOpen(o => !o)} title="כלים בבנייה — בקרוב">
+            🔜 בקרוב <span style={{ fontSize: 10, opacity: 0.7, fontWeight: 800 }}>({FUTURE_LAB.length})</span>
+          </button>
+          {soonOpen && (
+            <>
+              <div className="rw-more-back" onClick={() => setSoonOpen(false)} />
+              <div className="rw-more-pop">
+                <div className="rw-more-h">בבנייה — ייפתחו בקרוב</div>
+                {FUTURE_LAB.map(t => (
+                  <div key={t.id} className="rw-more-item" style={{ cursor: "default", opacity: 0.72 }}>🚧 {t.icon} {t.title}</div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 
