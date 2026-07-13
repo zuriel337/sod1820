@@ -124,10 +124,13 @@ export default function ResearchPage() {
   const [soonOpen, setSoonOpen] = useState(false);
   // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «בקרוב ▾»
   // דגלים ראשונים (דף המספר · מחשבון · מנוע השמות), אחר-כך השאר — סרגל נקי (המלצת ניקוי ההיכל).
-  const FLAG_ORDER = [...FLAGSHIP_TOOLS, "name"];
+  const FLAG_ORDER = ["number", "midrash", "name"];
   const rank = t => { const i = FLAG_ORDER.indexOf(t.id); return i < 0 ? 99 : i; };
-  const READY_LAB = TOOLS.filter(t => ready(t.id)).sort((a, b) => rank(a) - rank(b));
+  // מיזוג הכפילות: «מחשבון גימטריה» ו«בית המדרש» פותחים אותו מסך (בית המדרש נפתח בטאב המחשבון
+  // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
+  const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
+  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -153,11 +156,14 @@ export default function ResearchPage() {
       <div className="rw-toolbar">
         <button className={"rw-tchip" + (tool ? "" : " on")} onClick={() => setTool(null)}>🏛️ היכל</button>
         {/* כלים פתוחים — דגלים ראשונים (לציבור: הפתוחים · למנהל: הכל) */}
-        {READY_LAB.map(t => (
-          <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-            {t.icon} {t.title}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
-          </button>
-        ))}
+        {READY_LAB.map(t => {
+          const c = chipOf(t);
+          return (
+            <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
+              {c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
+            </button>
+          );
+        })}
       </div>
       {/* כלים בבנייה — מקובצים תחת «בקרוב ▾» יחיד (במקום 7 צ'יפים שמעמיסים את הסרגל) */}
       {FUTURE_LAB.length > 0 && (
