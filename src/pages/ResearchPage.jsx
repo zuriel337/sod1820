@@ -7,7 +7,7 @@ import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
-import NameStory from "../components/NameStory.jsx";
+import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import ElsGrid from "../components/ElsGrid.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
@@ -182,7 +182,7 @@ export default function ResearchPage() {
         <>
           {GUIDES[tool] && <ToolGuide {...GUIDES[tool]} />}
           {tool === "journey" && <SearchJourney onOpenTool={openTool} />}
-          {tool === "name" && <NameStory />}
+          {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
           {tool === "els" && (wide ? <ElsGrid seed={seed} /> : (

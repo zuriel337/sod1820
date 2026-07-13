@@ -1,9 +1,9 @@
 import React from "react";
 
-// ❓ הדרכת-כלי אחידה להיכל הגילוי — «איך משתמשים בכלי». מתקפלת (פתוחה כברירת-מחדל),
-// כדי שכל אחד יבין מיד מה הכלי עושה ואיך מפעילים אותו. עיצוב בהיר-נקי (research_workspace_law).
-// שימוש: <ToolGuide title intro steps={[...]} tip />. כל כלי בהיכל מקבל הדרכה משלו.
-export default function ToolGuide({ title = "איך משתמשים בכלי", intro, steps = [], tip, defaultOpen = true }) {
+// ❓ הדרכת-כלי אחידה להיכל הגילוי — «איך משתמשים בכלי». מתקפלת ו**סגורה כברירת-מחדל**
+// (החלטת צוריאל): ההוראות לא «מול הפרצוף» — הכלי עצמו בולט, וההסבר נפתח בלחיצה למי שרוצה.
+// עיצוב בהיר-נקי (research_workspace_law). שימוש: <ToolGuide title intro steps={[...]} tip />.
+export default function ToolGuide({ title = "איך משתמשים בכלי", intro, steps = [], tip, defaultOpen = false }) {
   return (
     <details className="rw-guide" open={defaultOpen}>
       <summary>❓ {title}</summary>
