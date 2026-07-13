@@ -25,6 +25,8 @@ export const EVENTS = {
   PIN_REMOVE: "pin:remove",
   SEARCH_GEMATRIA: "search:gematria",
   PAGE_NUMBER_OPEN: "page:number:open",
+  ENTITY_FOCUS: "entity:focus",   // 🎯 הכלי הפעיל משדר את הישות שבמוקד → הפאנל הימני מציג את הפירוק המלא. payload: {title, word?, value}
+  ENTITY_BLUR: "entity:blur",     // הכלי איבד מוקד (עזיבה/איפוס) → הפאנל מתרוקן
   AI_ANALYZE: "ai:analyze",
   ELS_STATE: "els:state",   // ElsGrid מפרסם את תוצאותיו → הקיר הימני מציג
   ELS_LOAD: "els:load",     // הקיר הימני מבקש לטעון חיפוש שמור → ElsGrid מיישם

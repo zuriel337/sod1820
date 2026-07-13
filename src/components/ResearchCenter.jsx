@@ -358,7 +358,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     ) },
   ];
 
-  const ids = variant === "tools" ? ["ai", "whatsnew"]
+  const ids = variant === "tools" ? ["whatsnew"]   // «ai» הוסתר עד שיהיה מוכן (לא «בבנייה» מול הפרצוף)
     // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
     // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
     : variant === "context" ? ["notes", "active", "history", "journeys", "saved", "roadmap"]

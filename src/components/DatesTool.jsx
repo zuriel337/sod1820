@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { calcGem } from "../theme.js";
+import { emit, EVENTS } from "../lib/research/eventBus.js";
 
 // 📅 תאריכים עבריים — תאריך לועזי → התאריך העברי המקביל (hebcal) + הגימטריה שלו.
 // עדשה על העץ האחד: הערך מקשר ל-/number/:value (לא משכפל). @hebcal/core נטען דינמית.
@@ -25,12 +26,16 @@ export default function DatesTool() {
         const rendered = hd.renderGematriya();          // «כ״ב סִיוָן תש״נ»
         const pretty = rendered.replace(/[֑-ׇ]/g, ""); // בלי ניקוד/טעמים
         const clean = rendered.replace(/[^א-ת]/g, "");  // רק אותיות — לגימטריה
-        if (alive) setHeb({ pretty, clean, value: calcGem(clean) });
+        const value = calcGem(clean);
+        if (alive) { setHeb({ pretty, clean, value }); emit(EVENTS.ENTITY_FOCUS, { title: pretty, word: clean, value }); }
       } catch { if (alive) setHeb(null); }
       finally { if (alive) setBusy(false); }
     })();
     return () => { alive = false; };
   }, [gDate, afterSunset]);
+
+  // עזיבת הכלי → מרוקן את הפאנל ההקשרי
+  useEffect(() => () => emit(EVENTS.ENTITY_BLUR), []);
 
   return (
     <div className="rw-card" style={{ maxWidth: 560, margin: "0 auto", display: "grid", gap: 16 }}>

@@ -1,7 +1,9 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
 import { NumHrefCtx } from "../lib/numHrefCtx.js";
 import NumberEngineLogo from "./NumberEngineLogo.jsx";
+import { emit, EVENTS } from "../lib/research/eventBus.js";
+import { calcGem } from "../theme.js";
 
 // 🔢 כלי «דף המספר» בתוך המעבדה — «הגוגל של המספרים». מטמיע את דף-המספר הקנוני (EntityPage)
 // *בתוך* השלד, כך שהמטייל בין מספרים/מילים נשאר במעבדה. מקבל מספר *או* מילה/משפט —
@@ -22,6 +24,15 @@ export default function NumberTool() {
     const val = String(v ?? q).trim();
     if (val) setSp({ tool: "number", n: val });
   };
+
+  // 🎯 שידור הישות שבמוקד → הפאנל ההקשרי (מספר או ביטוי; ביטוי-עברי מציג את כל השיטות)
+  useEffect(() => {
+    if (!n) { emit(EVENTS.ENTITY_BLUR); return; }
+    const isNum = /^\d+$/.test(n.trim());
+    const word = /[א-ת]/.test(n) ? n : null;
+    emit(EVENTS.ENTITY_FOCUS, { title: n, word, value: isNum ? Number(n) : calcGem(word || n) });
+  }, [n]);
+  useEffect(() => () => emit(EVENTS.ENTITY_BLUR), []);
 
   // ערך נבחר (מספר או ביטוי) → דף-המספר מוטמע במעבדה
   if (n) {

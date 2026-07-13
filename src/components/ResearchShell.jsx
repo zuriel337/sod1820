@@ -5,6 +5,7 @@ import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import ElsResultsPanel from "./ElsResultsPanel.jsx";
+import ActiveEntityPanel from "./ActiveEntityPanel.jsx";
 import Navbar from "./layout/Navbar.jsx";
 import { setForcedMode } from "../lib/themeMode.js";
 
@@ -133,6 +134,8 @@ export default function ResearchShell({ children, subnav }) {
   const RightPanel = () => (
     <aside className="rw-pwrap" style={{ width: rightW }}>
       <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
+      {/* 🎯 הישות הפעילה — הפאנל ההקשרי: מציג את הפירוק המלא של מה שהכלי משדר (Event Bus) */}
+      <ActiveEntityPanel />
       {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
       {tool === "midrash" && <MidrashNav />}
       {/* פאנל «מה הכלי יודע» הוסר — חפף עם «❓ איך משתמשים» (ToolGuide). הכלי עצמו + ההדרכה המקופלת מספיקים. */}

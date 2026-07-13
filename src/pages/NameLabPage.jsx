@@ -6,6 +6,7 @@ import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supabase.js";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { emit, EVENTS } from "../lib/research/eventBus.js";
 
 // 🧪 מעבדת השם — לא «מחשבון שמות» אלא מעבדת מחקר. השאלה: «מה אפשר לגלות על השם הזה?»
 // הסדר (החלטת צוריאל): שם → סיכום-AI (חוקר מלווה) → מחקר → התכנסויות → גשרים → הקשר → אישי → לאן ממשיכים.
@@ -151,6 +152,10 @@ export default function NameLabPage({ embedded = false }) {
 
   const hebVals = useMemo(() => word ? HEB.map(m => ({ ...m, value: m.fn(word) })) : [], [word]);
   const regVal = hebVals[0]?.value || 0;
+
+  // 🎯 שידור הישות שבמוקד → הפאנל ההקשרי של ההיכל (רק במצב מוטמע)
+  useEffect(() => { if (embedded && word && regVal) emit(EVENTS.ENTITY_FOCUS, { title: word, word, value: regVal }); }, [embedded, word, regVal]);
+  useEffect(() => () => { if (embedded) emit(EVENTS.ENTITY_BLUR); }, [embedded]);
   const heInput = !!word && !hasLatin(word);           // קלט עברי טהור → מציעים תעתוק לאנגלית
   const translitOpts = useMemo(() => heInput ? hebrewLatinOptions(word) : [], [heInput, word]);
 
