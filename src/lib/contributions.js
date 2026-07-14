@@ -63,6 +63,20 @@ export async function getContributionLinks(fromId) {
   } catch { return []; }
 }
 
+// 🌐 הפורום — העדשה הגלובלית: כל התרומות המאושרות מכל האתר (top-level בלבד), החדשות ראשונות.
+export async function getForumContributions({ intent = null, limit = 80 } = {}) {
+  if (!supabase) return [];
+  try {
+    let q = supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,author_contributor_id,intent,origin,research_state,status,target_type,target_id,title,body,created_at")
+      .eq("status", "approved").is("parent_id", null)
+      .order("created_at", { ascending: false }).limit(limit);
+    if (intent) q = q.eq("intent", intent);
+    const { data } = await q;
+    return data || [];
+  } catch { return []; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;
