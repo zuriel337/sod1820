@@ -18,6 +18,7 @@ import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
 import DatesTool from "../components/DatesTool.jsx";
+import { NumHrefCtx } from "../lib/numHrefCtx.js";
 import ToolGuide from "../components/research/ToolGuide.jsx";
 
 // ❓ הדרכות «איך משתמשים» לכלי-המעבדה — מוצגות מעל הכלי הפעיל. כלי שיש לו הסבר משלו
@@ -148,7 +149,7 @@ export default function ResearchPage() {
   // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
   const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
-  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, label: t.title };
+  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, img: t.img, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -178,7 +179,7 @@ export default function ResearchPage() {
           const c = chipOf(t);
           return (
             <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-              {c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
+              {c.img ? <img src={c.img} alt="" style={{ width: 16, height: 16, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "-3px", marginInlineEnd: 3 }} /> : c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
             </button>
           );
         })}
@@ -215,6 +216,8 @@ export default function ResearchPage() {
 
   return (
     <ResearchShell subnav={subnav}>
+      {/* 🔗 כל קישורי-המספר בכל כלי נשארים בתוך ההיכל (/research?tool=number) — לא יוצאים לדף העצמאי */}
+      <NumHrefCtx.Provider value={n => `/research?tool=number&n=${n}`}>
       {!wide && !hideMobNote && (
         <div className="rw-card" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", padding: "11px 13px" }}>
           <span style={{ fontSize: 20 }}>💻</span>
@@ -264,6 +267,7 @@ export default function ResearchPage() {
           )}
         </>
       )}
+      </NumHrefCtx.Provider>
     </ResearchShell>
   );
 }

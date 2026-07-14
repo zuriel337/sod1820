@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 
 // 🔗 כתובת-מספר תלוית-הקשר — חי במודול זעיר נפרד (lib/numHrefCtx) כדי ש-NumberTool
 // יוכל לייבא אותו בלי לגרור את כל EntityPage. כאן רק שימוש + re-export לתאימות.
-import { NumHrefCtx, useNumHref } from "../lib/numHrefCtx.js";
+import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
@@ -336,6 +336,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
 // כפתורי שיתוף — השיתוף הראשי מייצר תמונה אוטומטית ומשתף אותה (לולאת ויראליות)
 function ShareButtons({ value, term, phrases, copyText, onPreview }) {
   const P = usePalette();
+  const H = useHubHrefs();
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   async function share() {
@@ -350,7 +351,7 @@ function ShareButtons({ value, term, phrases, copyText, onPreview }) {
         style={{ cursor: busy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 26px", borderRadius: 999 }}>
         {busy ? "מכין…" : "✦ שתפו"}
       </button>
-      <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף"
+      <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף"
         style={{ textDecoration: "none", cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px" }}>🎲 מסע</Link>
       <button onClick={onPreview} title="תצוגה מקדימה" aria-label="תצוגה מקדימה" style={icoBtn}>🖼</button>
       <button onClick={() => { navigator.clipboard?.writeText(copyText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
@@ -598,7 +599,7 @@ function BridgesStrip({ term, value, P }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <Link to={numHref(encodeURIComponent(b.hebrew))} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>{b.hebrew}</Link>
               <span style={{ color: P.accentDim }}>↔</span>
-              <Link to={`/name-lab?w=${encodeURIComponent(b.foreign_word)}`} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>{FLAG[b.lang] || "🌐"} {b.foreign_word}</Link>
+              <Link to={numHref(encodeURIComponent(b.foreign_word))} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>{FLAG[b.lang] || "🌐"} {b.foreign_word}</Link>
               <span style={{ flex: 1 }} />
               <b style={{ fontFamily: F.mono, color: P.accentText }}>{b.gematria_he}</b>
             </div>
@@ -620,6 +621,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   const phrase = embedPhrase != null ? String(embedPhrase) : params.phrase;
   const embedded = embedPhrase != null;
   const numHref = embedded ? (n => `/research?tool=number&n=${n}`) : (n => `/number/${n}`);
+  const H = useHubHrefs(); // כתובות-שלד מודעות-היכל (מסע · מחשבון · מנוע-מספרים) — לא לצאת מהמעבדה
   const nav = useNavigate();
   const P = usePalette();
   const [sp] = useSearchParams();
@@ -1051,7 +1053,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         <div style={{ display: "grid", gap: 6 }}>
           {aiCross.groups.filter(g => g.method !== "רגיל").slice(0, 4).map((g, gi) => (
             <div key={gi} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {/* 🧭 סוג-היחס מהמודל הפרשני של סוד1820 (🪞 מראה · 🌗 בן-זוג · 🔍 נסתר) — השיטה והערך נשארים גלויים */}
+              {/* 🧭 סוג-היחס מהמודל הפרשני של סוד 1820 (🪞 מראה · 🌗 בן-זוג · 🔍 נסתר) — השיטה והערך נשארים גלויים */}
               <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, minWidth: 92 }}>
                 {g.sem ? <>{g.sem.emoji} <b style={{ color: P.accentText }}>{g.sem.label_he}</b> · {g.method} {g.value}</> : <>ב{g.method} ({g.value})</>}
               </span>
@@ -1060,7 +1062,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               ))}
             </div>
           ))}
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>הערכים = עובדה מהמנוע · סוגי-היחס = המודל הפרשני של סוד1820 · «{term ?? value}» — לחיצה = מסלול המשך.</div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic" }}>הערכים = עובדה מהמנוע · סוגי-היחס = המודל הפרשני של סוד 1820 · «{term ?? value}» — לחיצה = מסלול המשך.</div>
         </div>
       )}
     </div>
@@ -1236,8 +1238,8 @@ export default function EntityPage({ embedPhrase } = {}) {
           .ep-silver-banner{animation:silver-pulse 1.8s ease-in-out infinite;}
         `}</style>
         <div className="ep-toprow">
-          <Link to="/number" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
-          <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
+          <Link to={H.root} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>← 🔢 מנוע המספרים</Link>
+          <Link to={H.calc} style={{ textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{fromCalc ? "← 🧮 חזרה למחשבון גימטריה" : "🧮 מחשבון גימטריה"}</Link>
           {/* 🔬 מתג-מצב סגמנטד — שני המצבים גלויים תמיד, הפעיל מודגש (כמו מתג iOS). ברור מיידית. */}
           {!embedded && (() => {
             const inResearch = mode === "discovery" || layer >= 3;
@@ -1384,7 +1386,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               </p>
               {!showBody && (
                 <div style={{ marginTop: 13 }}>
-                  <Link to={`/journey?from=${encodeURIComponent(value)}`} onClick={() => { try { track("number", String(value), "journey_cta"); } catch { /* noop */ } }}
+                  <Link to={H.journey(value)} onClick={() => { try { track("number", String(value), "journey_cta"); } catch { /* noop */ } }}
                     style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "9px 20px", borderRadius: 999, border: `1px solid ${P.borderStrong}`, background: P.card, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14.5 }}>
                     ✨ קחו את המספר הזה למסע ←
                   </Link>
@@ -1414,7 +1416,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             onAnalyze={runAiNumber}
             style={{ "--ink": P.ink, "--card": P.cardSoft, "--line": P.border, "--acc": P.accentText, "--accS": P.glow, "--onAcc": P.onAccent || "#1a0e00" }}
             extra={<>
-              <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
+              <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
           {/* 🤖 ה-AI במצב מחקר — אותו כרטיס מלא כמו במצב הפשוט (בחירת מנוע · 🔬 עמוק · תהודה · הצלבות לחיצות) */}
@@ -1503,7 +1505,7 @@ export default function EntityPage({ embedPhrase } = {}) {
 
             {/* ✨ פעולה ראשית — המסע (אחרי הגימטריה הרגילה של שלב א') */}
             <div style={{ textAlign: "center", marginTop: 20 }}>
-              <Link to={`/journey?from=${encodeURIComponent(term ?? value)}`} style={{ textDecoration: "none" }}>
+              <Link to={H.journey(term ?? value)} style={{ textDecoration: "none" }}>
                 <span style={{ display: "inline-block", minWidth: 280, maxWidth: "92%", background: P.accentBtn, color: P.onAccent,
                   borderRadius: 16, fontFamily: F.heading, fontWeight: 800, fontSize: 16.5, padding: "15px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
                   ✨ המסע מתחיל כאן
@@ -1787,7 +1789,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
           <NumberFamilies value={value} highlight={sp.get("method")} term={term} isNumber={isNumber} />
           <div style={{ marginTop: 14 }}>
-            <Link to={`/numbers?n=${value}`} style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+            <Link to={H.numbers(value)} style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
               פתחו את {value} בעץ ההתכנסויות התלת-מימדי →
             </Link>
           </div>
@@ -1835,7 +1837,7 @@ export default function EntityPage({ embedPhrase } = {}) {
                 </Link>
               ))}
             </div>
-            <Link to="/number" style={{ display: "block", marginTop: 16, color: P.accentText, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>
+            <Link to={H.root} style={{ display: "block", marginTop: 16, color: P.accentText, fontFamily: F.heading, fontSize: 13, textDecoration: "none" }}>
               🔢 חיפוש חדש →
             </Link>
           </div>
@@ -1953,7 +1955,7 @@ export default function EntityPage({ embedPhrase } = {}) {
 
             {/* גרף ועץ — הקשרים המלאים */}
             <section style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-              <Link to="/numbers" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+              <Link to={H.root} style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                 <div style={{ fontSize: 26, marginBottom: 6 }}>🌳</div>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>עץ ההתכנסויות התלת-מימדי</div>
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>{value} בגרף הקשרים</div>

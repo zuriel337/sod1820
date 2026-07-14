@@ -49,3 +49,6 @@ export const isAdminOnlyTool = (id, isAdmin = false) =>
   isAdmin && !READY_TOOLS.has(id) && IMPLEMENTED_TOOLS.has(id);
 
 export const UPGRADE_MSG = "🔬 הכלי בשדרוג — ייפתח בקרוב לכל החוקרים";
+
+// 🔡 לוגו «דילוגי אותיות» (זכוכית-מגדלת זהב) — סמל-תמונה שמחליף את האימוג'י/SVG בתפריטים ובהיכל.
+export const ELS_LOGO = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/icons/els-dilugim-logo.png";

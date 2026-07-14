@@ -201,7 +201,7 @@ export async function shareNumberSmart(value, phrases) {
 // לגלות את המספר שלו. תיוג ?src=journey למדידה (מי הגיע דרך שיתוף-מסע). מתעד slug=journey/<root>
 // כדי שדשבורד הניהול יראה «מי שיתף מסע». התמונה = כרטיס-המספר הקיים (כרטיס-מסע מעוצב = בהמשך).
 const journeyShareText = (root, meaning) =>
-  `✨ יצאתי למסע בעץ המספרים של סוד1820.\nעברתי בין ביטויים שנראים שונים לגמרי — וכולם התכנסו אל מספר אחד: ${root}${meaning ? ` · ${meaning}` : ""}.\nגם לכם יש מספר שמחכה. גלו את שלכם 👇\nhttps://sod1820.co.il/number/${root}?src=journey`;
+  `✨ יצאתי למסע בעץ המספרים של סוד 1820.\nעברתי בין ביטויים שנראים שונים לגמרי — וכולם התכנסו אל מספר אחד: ${root}${meaning ? ` · ${meaning}` : ""}.\nגם לכם יש מספר שמחכה. גלו את שלכם 👇\nhttps://sod1820.co.il/number/${root}?src=journey`;
 
 export async function shareJourney(root, phrases, meaning) {
   await ensureFonts();

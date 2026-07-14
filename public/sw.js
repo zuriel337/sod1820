@@ -10,7 +10,7 @@ self.addEventListener("push", (event) => {
   try { data = event.data ? event.data.json() : {}; }
   catch { data = { body: event.data ? event.data.text() : "" }; }
 
-  const title = data.title || "סוד1820";
+  const title = data.title || "סוד 1820";
   const options = {
     body: data.body || "",
     icon: data.icon || "/logo.png",
