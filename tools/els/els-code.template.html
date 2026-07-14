@@ -1959,11 +1959,21 @@
     const mR=2,mC=2;
     let r0=Math.max(base.r0,rMin-mR),r1=Math.min(base.r1,rMax+mR);
     let c0=Math.max(base.c0,cMin-mC),c1=Math.min(base.c0+base.cw,cMax+mC+1),cw=Math.max(1,c1-c0);
-    // רוחב-מינימום מותאם-מסך: בדסקטוב מציגים יותר עמודות-הקשר כדי שהמטריצה תמלא את הרוחב
-    // (אחרת תא-מקסימום 48px משאיר צופן קטן במסך רחב); במובייל נשאר 8 עמודות.
+    // 🖥️ רוחב מלא כמו בדמו: ממלאים את *כל* רוחב-העמוד בשדה-אותיות צפוף (~32 עמודות בדסקטופ),
+    //    כשעמודת-הצופן במרכז והממצאים אלכסונים סביבו. מספר-העמודות נגזר מרוחב-המסך ומגודל-תא קריא
+    //    (לא מספר-קבוע) → נכנס בדיוק לרוחב בלי גלילה אופקית, בכל מכשיר.
     const vw=(typeof window!=="undefined"?window.innerWidth:800)||800;
-    const minW=vw>=1200?22:vw>=980?18:vw>=760?13:8;
-    if(cw<minW){c0=Math.max(base.c0,c0-Math.ceil((minW-cw)/2));cw=Math.min(base.c0+base.cw-c0,minW);}       // מינימום רוחב
+    const availW=Math.min(vw,1280)-40;                      // רוחב-שימושי (פחות שוליים)
+    const targetCell=vw>=980?34:vw>=600?24:18;              // גודל-תא קריא ליעד (כולל מרווח)
+    const minW=Math.max(12,Math.floor(availW/(targetCell+2)));   // כמה עמודות ממלאות את הרוחב
+    if(cw<minW){                                            // הרחבה לרוחב-מלא, ממורכזת על עמודת-הצופן
+      const want=Math.min(minW,base.cw);
+      let nc0=Math.round(base.mainCol-want/2);
+      if(nc0>cMin)nc0=cMin;                                 // לא לחתוך ממצא מימין
+      if(nc0+want<=cMax)nc0=cMax-want+1;                    // ולא משמאל
+      nc0=Math.max(base.c0,Math.min(base.c0+base.cw-want,nc0));
+      c0=nc0;cw=want;
+    }
     if(r1-r0<6){r0=Math.max(base.r0,r0-Math.ceil((6-(r1-r0))/2));r1=Math.min(base.r1,r0+6);}        // מינימום גובה
     return {S,mainCol:base.mainCol,c0,cw,r0,r1,rMin:base.rMin,rMax:base.rMax,mr:Math.round((r0+r1)/2)};
   }
