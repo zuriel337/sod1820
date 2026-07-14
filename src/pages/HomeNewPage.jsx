@@ -47,6 +47,9 @@ const HERO_SLIDES = [
   { img: HERO_IMG, alt: "כי לה' המלוכה · סוד 1820 — שער המספר הגדול", to: "/start", cta: "✨ כאן מתחילים", label: "מתחילים" },
 ];
 
+// התכנסויות שלא מוצגות ב«עדכונים אחרונים» (נשארות בעץ ההתכנסויות/בית-המדרש) — לבקשת צוריאל
+const HOME_FEED_HIDE_CONV = new Set(["atzirut-hageula", "ezor-hayetzia-geula"]);
+
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
   { icon: "🌳", label: "עץ ההתכנסויות", to: "/numbers" },
@@ -302,7 +305,8 @@ export default function HomeNewPage() {
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
         <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
-        <LatestUpdatesRail posts={posts} convergences={cards} hints={hints} />
+        {/* התכנסויות אזור-הגוף (עצירות/יציאות) מוסתרות מ«עדכונים אחרונים» בלבד — נשארות בעץ ההתכנסויות ובבית-המדרש */}
+        <LatestUpdatesRail posts={posts} convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} hints={hints} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
