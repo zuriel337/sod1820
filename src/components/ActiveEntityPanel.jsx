@@ -2,6 +2,48 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
+import { getContributions, intentMeta } from "../lib/contributions.js";
+
+// 🔬 מחקר-קהילתי בקונסטרוקציה הימנית — משקף בפאנל את התרומות על הישות הפעילה (אותה מערכת
+// research_contributions; אפס כפילות). לחיצה → קפיצה למדור «מחקר קהילתי» במרכז (Event Bus).
+function CommunityMini({ targetType, targetId }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let live = true;
+    if (!targetId) { setItems([]); return; }
+    getContributions(targetType, String(targetId)).then(d => { if (live) setItems(d); }).catch(() => { if (live) setItems([]); });
+    return () => { live = false; };
+  }, [targetType, targetId]);
+
+  const list = items || [];
+  const n = k => list.filter(c => c.intent === k).length;
+  const chips = [["💡", n("חידוש")], ["🧩", n("השערה")], ["📚", n("מקור")], ["❓", n("שאלה")], ["🔍", n("תצפית")]].filter(c => c[1] > 0);
+  const total = list.length;
+  return (
+    <div style={{ marginTop: 12, paddingTop: 11, borderTop: "1px solid var(--line,#e4e7ec)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ink,#1b1d22)" }}>🔬 מחקר קהילתי</span>
+        {total > 0 && <span style={{ fontSize: 11, fontWeight: 800, color: "var(--acc,#2f6df6)", fontFamily: "ui-monospace,monospace" }}>{total}</span>}
+      </div>
+      {items === null ? (
+        <div style={{ fontSize: 11.5, color: "var(--ink3,#8a94a6)" }}>טוען…</div>
+      ) : total === 0 ? (
+        <div style={{ fontSize: 11.5, color: "var(--ink3,#8a94a6)", lineHeight: 1.6, marginBottom: 8 }}>עדיין אין — היו הראשונים לתרום ✨</div>
+      ) : (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          {chips.map(([e, v]) => (
+            <span key={e} style={{ fontSize: 12, fontWeight: 700, color: "var(--ink2,#5b6472)" }}>{e} {v}</span>
+          ))}
+        </div>
+      )}
+      <button onClick={() => emit(EVENTS.ENTITY_SECTION, "comments")} style={{
+        display: "block", width: "100%", cursor: "pointer", textAlign: "center", textDecoration: "none",
+        background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", borderRadius: 10,
+        padding: "8px", fontSize: 12.5, fontWeight: 800, color: "var(--acc,#2f6df6)", fontFamily: "inherit",
+      }}>{total > 0 ? "→ למחקר הקהילתי" : "➕ הוסף תרומה"}</button>
+    </div>
+  );
+}
 
 // 🎯 הישות הפעילה — הפאנל ההקשרי בצד ימין של ההיכל (research_workspace_law: «הפאנלים מאזינים ל-Bus»).
 // כל כלי משדר ENTITY_FOCUS על מה שבמוקד → כאן מוצג הפירוק, חי. שני מצבים:
@@ -71,6 +113,7 @@ function NumberTower({ ent }) {
             </button>
           ))}
         </div>
+        <CommunityMini targetType="number" targetId={v} />
       </div>
     </div>
   );
@@ -99,6 +142,7 @@ function WordMethods({ ent }) {
         <Link to={`/number/${encodeURIComponent(ent.value)}`} className="rw-tchip on" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "9px" }}>
           🔢 דף המספר {ent.value} ←
         </Link>
+        <CommunityMini targetType="phrase" targetId={ent.title || ent.word} />
       </div>
     </div>
   );
