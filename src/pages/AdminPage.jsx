@@ -260,31 +260,42 @@ function StatusBadge({ s }) {
 }
 function SubRow({ r, onApprove, onReject, busy }) {
   const m = METHODS.find(x => x.key === r.method) || METHODS[0];
+  // זוג-גימטריה = שני ביטויים שהוזנו. הטופס הנוכחי שולח חידוש-טקסט חופשי (בלי זוג) → אין ריבוע.
+  const hasPair = !!(r.phrase_a && r.phrase_b);
   const va = m.fn(r.phrase_a || ""), vb = m.fn(r.phrase_b || "");
   const ok = va > 0 && va === vb;
+  // ניתן לאשר: זוג-גימטריה שמאומת, או חידוש-טקסט חופשי עם תוכן.
+  const canApprove = hasPair ? ok : !!(r.body || r.title);
   return (
     <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 16px", background: "rgba(8,5,2,0.4)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <span style={{ flex: 1, minWidth: 0, color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>{r.title}</span>
         <StatusBadge s={r.status} />
       </div>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: ok ? "rgba(63,174,90,0.12)" : "rgba(160,31,46,0.14)", border: `1px solid ${ok ? "#3fae5a55" : "#a01f2e55"}`, borderRadius: 10, padding: "7px 12px", marginBottom: 8 }}>
-        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_a}»</span>
-        <b style={{ color: C.goldBright, fontFamily: F.mono }}>{va}</b>
-        <span style={{ color: C.goldDim }}>=</span>
-        <b style={{ color: C.goldBright, fontFamily: F.mono }}>{vb}</b>
-        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_b}»</span>
-        <span style={{ color: C.goldDim, fontSize: 12 }}>· {r.method}</span>
-        <span style={{ color: ok ? "#5fd07a" : "#ff9a8a", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>{ok ? "✓ מאומת מנוע" : "✗ לא שווה!"}</span>
-      </div>
-      {r.body && <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, margin: "0 0 8px" }}>{r.body}</p>}
+      {hasPair ? (
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: ok ? "rgba(63,174,90,0.12)" : "rgba(160,31,46,0.14)", border: `1px solid ${ok ? "#3fae5a55" : "#a01f2e55"}`, borderRadius: 10, padding: "7px 12px", marginBottom: 8 }}>
+          <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_a}»</span>
+          <b style={{ color: C.goldBright, fontFamily: F.mono }}>{va}</b>
+          <span style={{ color: C.goldDim }}>=</span>
+          <b style={{ color: C.goldBright, fontFamily: F.mono }}>{vb}</b>
+          <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14 }}>«{r.phrase_b}»</span>
+          <span style={{ color: C.goldDim, fontSize: 12 }}>· {r.method}</span>
+          <span style={{ color: ok ? "#5fd07a" : "#ff9a8a", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>{ok ? "✓ מאומת מנוע" : "✗ לא שווה!"}</span>
+        </div>
+      ) : (
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(212,175,55,0.10)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "5px 11px", marginBottom: 8 }}>
+          <span style={{ fontSize: 13 }}>✍️</span>
+          <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>חידוש טקסט חופשי — יתפרסם ב«חידושי הקהילה» ללא חותמת «מאומת מנוע»</span>
+        </div>
+      )}
+      {r.body && <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, margin: "0 0 8px", whiteSpace: "pre-wrap" }}>{r.body}</p>}
       <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, marginBottom: r.status === "pending" ? 12 : 0 }}>
         ✍️ {r.author_name || "—"} · <span dir="ltr">{r.author_email || ""}</span> · {fmtDate(r.created_at)}
       </div>
       {r.status === "pending" && (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button disabled={busy || !ok} onClick={() => onApprove(r.id)} title={ok ? "" : "הגימטריה לא שווה — לא ניתן לאשר"} style={{
-            cursor: busy || !ok ? "not-allowed" : "pointer", opacity: ok ? 1 : 0.5, border: "none", borderRadius: 999, padding: "9px 20px",
+          <button disabled={busy || !canApprove} onClick={() => onApprove(r.id)} title={canApprove ? "" : (hasPair ? "הגימטריה לא שווה — לא ניתן לאשר" : "אין תוכן לאישור")} style={{
+            cursor: busy || !canApprove ? "not-allowed" : "pointer", opacity: canApprove ? 1 : 0.5, border: "none", borderRadius: 999, padding: "9px 20px",
             background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 13.5 }}>
             {busy ? "…" : "✅ אשר ופרסם"}
           </button>
@@ -302,6 +313,7 @@ function ChiddushReviewTab() {
   const [rows, setRows] = useState(null);
   const [filter, setFilter] = useState("pending");
   const [toast, setToast] = useState(null);
+  const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(null);
 
   const load = useCallback(() => {
@@ -320,7 +332,25 @@ function ChiddushReviewTab() {
 
   async function approve(id) {
     setBusy(id);
-    try { await supabase.rpc("approve_chiddush", { p_id: id }); setRows(prev => prev.map(r => r.id === id ? { ...r, status: "approved" } : r)); }
+    const row = rows.find(r => r.id === id);
+    try {
+      // 1) אישור: יוצר את החידוש + התראה-באתר לשולח, מחזיר את מזהה החידוש (=«המיקום»)
+      const { data: insightId, error } = await supabase.rpc("approve_chiddush", { p_id: id });
+      if (error) throw error;
+      setRows(prev => prev.map(r => r.id === id ? { ...r, status: "approved", insight_id: insightId } : r));
+      // 2) מייל לשולח (Resend) — «החידוש שלך אושר» עם כפתור למיקום. לא חוסם את האישור אם נכשל.
+      const email = row?.author_email;
+      if (email && insightId) {
+        supabase.functions.invoke("notify-approval", {
+          body: { email, name: row?.author_name || "", title: row?.title || "", link: `/research?tool=midrash&tab=community&insight=${insightId}` },
+        }).then(({ data }) => {
+          if (data?.ok) setMsg(`✅ אושר — ומייל נשלח ל־${email}`);
+          else if (data?.error === "not_configured") setMsg("✅ אושר — התראה נשמרה באתר (מייל: חסר RESEND_API_KEY)");
+          else setMsg(`✅ אושר — התראה נשמרה באתר (מייל לא נשלח: ${data?.error || "שגיאה"})`);
+          setTimeout(() => setMsg(null), 9000);
+        }).catch(() => { setMsg("✅ אושר — התראה נשמרה באתר (מייל לא נשלח)"); setTimeout(() => setMsg(null), 9000); });
+      }
+    }
     catch (e) { alert("שגיאה באישור: " + (e.message || e)); }
     finally { setBusy(null); }
   }
@@ -342,6 +372,11 @@ function ChiddushReviewTab() {
       {toast && (
         <div style={{ background: "linear-gradient(160deg, rgba(30,22,6,0.98), rgba(10,7,0,0.98))", border: `1px solid ${C.borderGold}`, borderRadius: 12, padding: "10px 16px", marginBottom: 14, color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
           ✍️ הגשת חידוש חדשה מאת <span style={{ color: C.goldLight }}>{toast}</span> — ממתינה לאישורך
+        </div>
+      )}
+      {msg && (
+        <div style={{ background: "linear-gradient(160deg, rgba(10,26,12,0.98), rgba(4,12,5,0.98))", border: "1px solid #3fae5a66", borderRadius: 12, padding: "10px 16px", marginBottom: 14, color: "#8fe0a2", fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
+          {msg}
         </div>
       )}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>

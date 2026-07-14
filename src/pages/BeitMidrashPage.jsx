@@ -50,7 +50,7 @@ const SECTIONS = [
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות", group: "research" },
   // 👥 קהילה
   { key: "submit", icon: "✍️", label: "הגשת חידוש", group: "community" },
-  { key: "community", icon: "👥", label: "חידושי גולשים", group: "community", soon: true },
+  { key: "community", icon: "👥", label: "חידושי הקהילה", group: "community" },
 ];
 const BM_GROUPS = [
   { key: "tools", label: "כלים" },
@@ -394,30 +394,54 @@ function CrossesTab() {
   );
 }
 
-// 👥 חידושי גולשים — חידושים מהקהילה (תג "חידושי גולשים"), מוצגים עם שם הכותב
-function CommunityTab() {
+// 👥 חידושי הקהילה — חידושים מהקהילה (תג-מנוע פנימי "חידושי גולשים"), מוצגים עם שם הכותב.
+// highlightId (מפרמטר ?insight=) = «המיקום» — גוללים ומדגישים בדיוק את הכרטיס שאושר (מהתראה/מייל).
+function CommunityTab({ highlightId }) {
   const [items, setItems] = useState(null);
+  const [flash, setFlash] = useState(null);
   useEffect(() => {
     let live = true;
     supabase.from("insights")
-      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified")
+      .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified,created_at")
       .contains("tags", ["חידושי גולשים"]).eq("is_active", true)
       .order("convergence_score", { ascending: false }).order("created_at", { ascending: false }).limit(60)
       .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
     return () => { live = false; };
   }, []);
+  // אחרי טעינה — גלילה + הדגשה זמנית לכרטיס שאליו הופנה הגולש
+  useEffect(() => {
+    if (!highlightId || !items || !items.length) return;
+    if (!items.some(it => it.id === highlightId)) return;
+    setFlash(highlightId);
+    const t = setTimeout(() => {
+      document.getElementById(`comm-${highlightId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+    const t2 = setTimeout(() => setFlash(null), 3200);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, [highlightId, items]);
   if (items === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={{ background: "linear-gradient(135deg, #fffdf6, #fbf3da)", border: `1px solid ${L.gold}`, borderRadius: 12, padding: "13px 16px" }}>
-        <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 3 }}>👥 חידושי גולשים</div>
+        <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 3 }}>👥 חידושי הקהילה</div>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>
-          חידושים ששלחו חוקרים מהקהילה — נבדקו ואומתו במנוע הרשמי. רוצים לשתף חידוש משלכם? <Link to="/research?tool=midrash&tab=submit" style={{ color: L.goldDeep, fontWeight: 700 }}>שלחו חידוש →</Link>
+          חידושים ששלחו חוקרים מהקהילה, שאושרו ופורסמו. רוצים לשתף חידוש משלכם? <Link to="/research?tool=midrash&tab=submit" style={{ color: L.goldDeep, fontWeight: 700 }}>שלחו חידוש →</Link>
         </p>
       </div>
       {!items.length
-        ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי גולשים — היו הראשונים לשתף.</div>
-        : items.map(it => <CrossCard key={it.id} item={it} />)}
+        ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי קהילה — היו הראשונים לשתף.</div>
+        : items.map(it => (
+          <div key={it.id} id={`comm-${it.id}`} style={{
+            borderRadius: 16, transition: "box-shadow .4s, background .4s",
+            boxShadow: flash === it.id ? `0 0 0 3px ${L.gold}, 0 8px 30px rgba(154,120,24,0.28)` : "none",
+            background: flash === it.id ? "rgba(212,175,55,0.06)" : "transparent",
+          }}>
+            {flash === it.id && (
+              <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "4px 6px 8px" }}>✨ הנה החידוש שלך — פורסם כאן!</div>
+            )}
+            <CrossCard item={it} />
+          </div>
+        ))}
     </div>
   );
 }
@@ -469,7 +493,7 @@ function SubmitTab() {
       <div style={{ fontSize: 46, marginBottom: 8 }}>✨</div>
       <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 22, fontWeight: 700, marginBottom: 8 }}>תודה! החידוש נשלח לבדיקה</div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>
-        הגימטריה תיבדק במנוע הרשמי, ואם תאושר — החידוש יתפרסם במדור «חידושי גולשים» <b style={{ color: L.goldDeep }}>עם שמכם</b>.
+        החידוש ייבדק, ואם יאושר — יתפרסם במדור «חידושי הקהילה» <b style={{ color: L.goldDeep }}>עם שמכם</b>, ותקבלו הודעה עם קישור ישיר לצפייה בו.
       </p>
     </div>
   );
@@ -1083,6 +1107,7 @@ export default function BeitMidrashPage() {
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
+  const insightParam = params.get("insight");  // «המיקום» — כרטיס חידוש-קהילה להדגשה (מהתראה/מייל)
   // ברירת-מחדל: מי שנכנס לבית-המדרש נוחת על «מחשבון הגימטריה» (הכלי המרכזי). מדור תקף מה-URL גובר.
   // ?atlas=<יחס> (מהעץ בעמוד הבית) → נחיתה ישירה על אטלס-הממצאים.
   const [tab, setTab] = useState(params.get("atlas") ? "atlas" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
@@ -1258,7 +1283,7 @@ export default function BeitMidrashPage() {
             {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
-            {tab === "community" && <CommunityTab />}
+            {tab === "community" && <CommunityTab highlightId={insightParam} />}
             {tab === "submit" && <SubmitTab />}
           </main>
         </div>
