@@ -11,7 +11,7 @@ import SubscribeGate from "./SubscribeGate.jsx";
 //    (1) מעדכן את דרגת-המשתמש לכלי, (2) רושם כל חיפוש דרך track הקיים (events/visitor_events —
 //    בלי טבלה מקבילה), (3) מציג את SubscribeGate הקיים כשמגיעים לשער.
 export default function TzofenEmbed({ seed = "", full = false }) {
-  const { isAdmin, verified } = useAuth();
+  const { isAdmin, verified, user } = useAuth();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
@@ -64,7 +64,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
         try {
           track("els", (d.term || "").slice(0, 80),
             d.kind === "cross" ? "cross_search" : "search",
-            { kind: d.kind, skip: d.skip || 0, scope: d.scope || "torah" });
+            { kind: d.kind, skip: d.skip || 0, scope: d.scope || "torah", uid: user?.id || null });
         } catch { /* noop */ }
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
