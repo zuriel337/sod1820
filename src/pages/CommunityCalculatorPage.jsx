@@ -7,6 +7,7 @@ import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
 import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
 import { buildMessages } from "../lib/numberMessage.js";
+import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 
@@ -660,25 +661,25 @@ export default function CommunityCalculatorPage() {
               </div>
               {!aiText && !aiBusy && (
                 <div style={{ display: "grid", gap: 8 }}>
-                  <button onClick={() => runAi("claude")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    {r2 ? "🔵 מה Claude אומר על החיבור?" : "🔵 ניתוח ב-Claude"}
+                  <button onClick={() => runAi("claude")} title={AI_ENGINES.claude.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    {r2 ? `🔵 מה ${engName("claude")} אומר על החיבור?` : `🔵 ניתוח עם ${engName("claude")}`}
                   </button>
-                  <button onClick={() => runAi("gemini")} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
-                    {r2 ? "🟣 מה Gemini אומר על החיבור?" : "🟣 ניתוח ב-Gemini"}
+                  <button onClick={() => runAi("gemini")} title={AI_ENGINES.gemini.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                    {r2 ? `🟣 מה ${engName("gemini")} אומר על החיבור?` : `🟣 ניתוח עם ${engName("gemini")}`}
                   </button>
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
                 </div>
               )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? `🟣 ${engName("gemini")} חושב…` : `🔵 ${engName("claude")} חושב…`}</div>}
               {aiText && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
                     <span style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-                      {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+                      {aiEngine === "gemini" ? `🟣 ${engName("gemini")}` : `🔵 ${engName("claude")}`} · פרשנות מאומתת מהמנוע
                     </span>
                     <button onClick={() => runAi(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiBusy}
                       style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
-                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                      {aiEngine === "gemini" ? `🔵 השווה מול ${engName("claude")}` : `🟣 השווה מול ${engName("gemini")}`}
                     </button>
                   </div>
                   <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>

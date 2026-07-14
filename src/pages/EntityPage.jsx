@@ -9,6 +9,7 @@ import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
+import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
@@ -1087,11 +1088,11 @@ export default function EntityPage({ embedPhrase } = {}) {
       {!aiText && !aiBusy && (
         <div>
           <div style={{ display: "flex", gap: 7 }}>
-            <button onClick={() => runAiNumber("claude")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
-              🔵 Claude
+            <button onClick={() => runAiNumber("claude")} title={AI_ENGINES.claude.tagline} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+              🔵 {AI_ENGINES.claude.name}
             </button>
-            <button onClick={() => runAiNumber("gemini")} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
-              🟣 Gemini
+            <button onClick={() => runAiNumber("gemini")} title={AI_ENGINES.gemini.tagline} style={{ flex: 1, cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 12px", boxSizing: "border-box" }}>
+              🟣 {AI_ENGINES.gemini.name}
             </button>
           </div>
           {/* 🔬 ניתוח עמוק — Sonnet, opt-in בלבד (נכנס למכסת-העומק). רק לדף-מילה, שם ההצלבה הבין-שיטתית משמעותית. */}
@@ -1105,12 +1106,12 @@ export default function EntityPage({ embedPhrase } = {}) {
           {/* 🧹 החלטת צוריאל: לפני לחיצה — מסך נקי. כל עובדות-העומק נפתחות רק עם הניתוח. */}
         </div>
       )}
-      {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק (Sonnet)…" : aiEngine === "gemini" ? "🟣 Gemini חושב…" : "🔵 Claude חושב…"}</div>}
+      {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiDeep ? "🔬 ניתוח עמוק ממוזג…" : aiEngine === "gemini" ? `🟣 ${engName("gemini")} חושב…` : `🔵 ${engName("claude")} חושב…`}</div>}
       {aiText && (
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
             <div style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-              {aiEngine === "gemini" ? "🟣 Gemini" : aiDeep ? "🔬 Claude · עמוק" : "🔵 Claude"} · פרשנות מאומתת מהמנוע
+              {aiEngine === "gemini" ? `🟣 ${engName("gemini")}` : aiDeep ? `🔬 ${engName("claude")} · עמוק ממוזג` : `🔵 ${engName("claude")}`} · פרשנות מאומתת מהמנוע
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {/* 🔬 העמק — Sonnet, רק אם עדיין לא רץ עמוק ויש מילה (הצלבה משמעותית) */}
@@ -1122,7 +1123,7 @@ export default function EntityPage({ embedPhrase } = {}) {
               )}
               <button onClick={() => runAiNumber(aiEngine === "gemini" ? "claude" : "gemini", aiDeep)} disabled={aiBusy}
                 style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
-                {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                {aiEngine === "gemini" ? `🔵 השווה מול ${engName("claude")}` : `🟣 השווה מול ${engName("gemini")}`}
               </button>
               {/* ↻ ריצה טרייה — רלוונטי במיוחד לניתוח שנטען מזיכרון-המילה */}
               <button onClick={() => runAiNumber(aiEngine, aiDeep)} disabled={aiBusy} title="הרץ ניתוח טרי"

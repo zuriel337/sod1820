@@ -6,6 +6,7 @@ import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
 import { getAiAnalysis } from "../lib/supabase.js";
 import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
+import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
 
@@ -250,11 +251,11 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                   <button className="b1" onClick={() => runAnalyze(aiEngine, { toggle: true })} title="הסתר ניתוח">🤖 הסתר ניתוח</button>
                 ) : (
                   <>
-                    <button className="b1" onClick={() => runAnalyze("claude")} disabled={aiState === "busy"} title="ניתוח AI באמצעות Claude — פרשנות סיפורית">
-                      {aiState === "busy" && aiEngine === "claude" ? "✍️ Claude…" : "🔵 נתח ב-Claude"}
+                    <button className="b1" onClick={() => runAnalyze("claude")} disabled={aiState === "busy"} title={`${AI_ENGINES.claude.name} — ${AI_ENGINES.claude.tagline}`}>
+                      {aiState === "busy" && aiEngine === "claude" ? `✍️ ${engName("claude")}…` : `🔵 נתח עם ${engName("claude")}`}
                     </button>
-                    <button className="b1" onClick={() => runAnalyze("gemini")} disabled={aiState === "busy"} title="ניתוח AI באמצעות Gemini — זווית אנליטית" style={{ background: "linear-gradient(135deg,#8a63f4,#6d3ff0)" }}>
-                      {aiState === "busy" && aiEngine === "gemini" ? "✍️ Gemini…" : "🟣 נתח ב-Gemini"}
+                    <button className="b1" onClick={() => runAnalyze("gemini")} disabled={aiState === "busy"} title={`${AI_ENGINES.gemini.name} — ${AI_ENGINES.gemini.tagline}`} style={{ background: "linear-gradient(135deg,#8a63f4,#6d3ff0)" }}>
+                      {aiState === "busy" && aiEngine === "gemini" ? `✍️ ${engName("gemini")}…` : `🟣 נתח עם ${engName("gemini")}`}
                     </button>
                   </>
                 )}
@@ -263,10 +264,10 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
               {aiState === "done" && aiText && (
                 <div className="rw-ai-box">
                   <div className="rw-ai-h" style={{ color: aiEngine === "gemini" ? "#8a63f4" : undefined }}>
-                    {aiEngine === "gemini" ? "🟣 Gemini" : "🔵 Claude"} · פרשנות
+                    {aiEngine === "gemini" ? `🟣 ${engName("gemini")}` : `🔵 ${engName("claude")}`} · פרשנות
                     <button onClick={() => runAnalyze(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiState === "busy"}
                       style={{ cursor: "pointer", marginInlineStart: 8, background: "none", border: "1px solid currentColor", borderRadius: 999, color: "inherit", fontSize: 11, fontWeight: 700, padding: "2px 9px", opacity: 0.85 }}>
-                      {aiEngine === "gemini" ? "🔵 השווה מול Claude" : "🟣 השווה מול Gemini"}
+                      {aiEngine === "gemini" ? `🔵 השווה מול ${engName("claude")}` : `🟣 השווה מול ${engName("gemini")}`}
                     </button>
                   </div>
                   <p className="rw-ai-t">{aiText}</p>

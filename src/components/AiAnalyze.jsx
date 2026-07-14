@@ -3,6 +3,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getAiAnalysis } from "../lib/supabase.js";
 import { trackAi } from "../lib/tracking.js";
+import { AI_ENGINES } from "../lib/aiEngines.js";
 import AiFeedback from "./AiFeedback.jsx";
 
 // 🤖 «נתח ב-AI» — רכיב לשימוש-חוזר לכל כלי מחקר (השוואה · נוטריקון · פסוק · פסוק-יומי).
@@ -32,8 +33,8 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
     padding: compact ? "7px 15px" : "9px 20px", boxShadow: "0 4px 14px rgba(62,166,255,0.3)",
   };
 
-  // תווית/צבע לפי המנוע הפעיל (במצב compare)
-  const ENG = { claude: { name: "Claude", color: "#3ea6ff" }, gemini: { name: "Gemini", color: "#8a63f4" } };
+  // תווית/צבע לפי המנוע הפעיל (במצב compare) — שמות לפי המהות: הפרשן / האנליטי
+  const ENG = AI_ENGINES;
   const eng = ENG[engine] || ENG.claude;
   const engBtn = (key) => ({
     cursor: "pointer", border: "none", borderRadius: 999,
@@ -49,11 +50,11 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
         <div style={{ textAlign: "center" }}>
           {compare ? (
             <div style={{ display: "flex", gap: 9, justifyContent: "center", flexWrap: "wrap" }}>
-              <button onClick={() => run("claude")} disabled={state === "busy"} style={engBtn("claude")}>
-                {state === "busy" && engine === "claude" ? "✍️ Claude מנתח…" : "🔵 נתח ב-Claude"}
+              <button onClick={() => run("claude")} disabled={state === "busy"} title={ENG.claude.tagline} style={engBtn("claude")}>
+                {state === "busy" && engine === "claude" ? `✍️ ${ENG.claude.name} מנתח…` : `🔵 נתח עם ${ENG.claude.name}`}
               </button>
-              <button onClick={() => run("gemini")} disabled={state === "busy"} style={engBtn("gemini")}>
-                {state === "busy" && engine === "gemini" ? "✍️ Gemini מנתח…" : "🟣 נתח ב-Gemini"}
+              <button onClick={() => run("gemini")} disabled={state === "busy"} title={ENG.gemini.tagline} style={engBtn("gemini")}>
+                {state === "busy" && engine === "gemini" ? `✍️ ${ENG.gemini.name} מנתח…` : `🟣 נתח עם ${ENG.gemini.name}`}
               </button>
             </div>
           ) : (
@@ -79,8 +80,8 @@ export default function AiAnalyze({ kind, subject, facts, label = "🤖 נתח �
           <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{text}</p>
           {compare && (
             <div style={{ display: "flex", gap: 9, marginTop: 11, flexWrap: "wrap" }}>
-              <button onClick={() => run("claude")} style={engBtn("claude")}>🔵 Claude</button>
-              <button onClick={() => run("gemini")} style={engBtn("gemini")}>🟣 Gemini</button>
+              <button onClick={() => run("claude")} title={ENG.claude.tagline} style={engBtn("claude")}>🔵 {ENG.claude.name}</button>
+              <button onClick={() => run("gemini")} title={ENG.gemini.tagline} style={engBtn("gemini")}>🟣 {ENG.gemini.name}</button>
               <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, alignSelf: "center" }}>החלף מנוע — אותן עובדות</span>
             </div>
           )}
