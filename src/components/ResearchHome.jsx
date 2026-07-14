@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS, ELS_LOGO } from "../lib/hub/ready.js";
 import { useViewAsUser } from "../lib/hub/viewAs.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
@@ -15,7 +15,7 @@ export const TOOLS = [
   { id: "family", icon: "👨‍👩‍👧", cat: "tool", title: "הקשרים במשפחה", desc: "גלו את ההתכנסויות הנסתרות בין שמות בני המשפחה — עובדה מחושבת, לא ניחוש.", status: "live" },
   { id: "compare", icon: "🔀", cat: "tool", title: "השוואת מילים", desc: "שני ביטויים זה מול זה — היכן הם נפגשים בערך (אותה שיטה = חזק · חוצה-שיטות = עקיף).", status: "live" },
   { id: "gematria", icon: "🧮", cat: "engine", title: "מחשבון גימטריה", desc: "כל 17 השיטות, מאומת מול המנוע — רגיל · מילוי · אתב״ש · ריבוע ועוד.", status: "live" },
-  { id: "els", icon: "🔡", cat: "engine", title: "דילוגי אותיות (ELS)", desc: "מסך רשת-אותיות — מצא שם/מילה כדילוג בתורה, ראה מיקום ומרחק. עדשת חקירה.", status: "live" },
+  { id: "els", icon: "🔡", img: ELS_LOGO, cat: "engine", title: "דילוגי אותיות (ELS)", desc: "מסך רשת-אותיות — מצא שם/מילה כדילוג בתורה, ראה מיקום ומרחק. עדשת חקירה.", status: "live" },
   { id: "number", icon: "🔢", cat: "tool", title: "דף המספר", desc: "פתחו מספר וראו הכל — גימטריאות, הצלבות, התכנסויות, אירועים. זהו דף-המספר הקבוע של האתר, מוטמע כאן.", status: "live" },
   { id: "midrash", icon: "📖", cat: "midrash", title: "בית המדרש", desc: "מרחב-לימוד: כל שיטות החישוב (רגיל · מילוי · אתב״ש · אלב״ם · המסתתר…) מוסברות ומודגמות. כאן לומדים, לא רק משתמשים.", status: "live" },
   { id: "life", icon: "🧬", cat: "engine", title: "מפת שדה (ניתוח חיים)", desc: "קלט אחד → מנועים מרובים → פלט להשוואה. מפת-שדה מחושבת + חריצי AI. תשתית הזהות-בזמן.", status: "live" },
@@ -48,7 +48,7 @@ function BigTile({ t, onOpen, isAdmin }) {
     boxShadow: "0 2px 10px rgba(20,25,40,.05)", transition: "transform .15s, border-color .15s, box-shadow .15s", cursor: ready ? "pointer" : "default", fontFamily: "inherit" };
   const inner = (
     <>
-      <div style={{ fontSize: 42, lineHeight: 1 }}>{ready ? t.icon : "🔒"}</div>
+      <div style={{ fontSize: 42, lineHeight: 1 }}>{t.img ? <img src={t.img} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: "cover", display: "block", margin: "0 auto" }} /> : (ready ? t.icon : "🔒")}</div>
       <div style={{ fontSize: 19, fontWeight: 800, color: "var(--ink,#1b1d22)" }}>{t.title.replace(/\s*\(ELS\)/, "")}</div>
       <div style={{ fontSize: 12.5, color: "var(--ink2,#5b6472)", lineHeight: 1.55, maxWidth: 240 }}>{t.desc}</div>
       {!ready && <span style={{ fontSize: 11, fontWeight: 800, color: "#b07d12" }}>🔒 בשדרוג — בקרוב</span>}
@@ -105,9 +105,10 @@ export default function ResearchHome({ onOpen }) {
           <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {restTools.map(t => {
               const ready = isToolReady(t.id, isAdmin);
+              const ic = t.img ? <img src={t.img} alt="" style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "middle" }} /> : t.icon;
               return ready
-                ? <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{t.icon}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>
-                : <span key={t.id} className="rw-quick-chip" style={{ opacity: 0.5, cursor: "default" }} title="בשדרוג — בקרוב"><span className="qc-ic">🔒</span> {t.title}</span>;
+                ? <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{ic}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>
+                : <span key={t.id} className="rw-quick-chip" style={{ opacity: 0.5, cursor: "default" }} title="בשדרוג — בקרוב"><span className="qc-ic">{t.img ? ic : "🔒"}</span> {t.title}</span>;
             })}
           </div>
         </>

@@ -149,7 +149,7 @@ export default function ResearchPage() {
   // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
   const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
-  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, label: t.title };
+  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, img: t.img, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
@@ -179,7 +179,7 @@ export default function ResearchPage() {
           const c = chipOf(t);
           return (
             <button key={t.id} className={"rw-tchip" + (tool === t.id ? " on" : "")} onClick={() => setTool(t.id)} title={t.title}>
-              {c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
+              {c.img ? <img src={c.img} alt="" style={{ width: 16, height: 16, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "-3px", marginInlineEnd: 3 }} /> : c.icon} {c.label}{isAdmin && t.id !== "midrash" ? " 🔑" : ""}
             </button>
           );
         })}

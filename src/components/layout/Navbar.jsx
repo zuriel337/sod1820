@@ -11,7 +11,7 @@ import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
-import { isToolReady } from "../../lib/hub/ready.js";
+import { isToolReady, ELS_LOGO } from "../../lib/hub/ready.js";
 import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/install.js";
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
@@ -19,21 +19,11 @@ import StreamSwitch from "../StreamSwitch.jsx";
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
 // אוטומטית את צבע הטקסט (זהב/לבן) כך שיש «גרסה בהירה וכהה» בלי כפילות. אקסנט חם אחד לצבעוניות.
-function DilugimIcon({ size = 24, accent = "#f5e7b2" }) {
+// 🔡 סמל «דילוגי אותיות» — לוגו הזכוכית-מגדלת (תמונה) במקום ה-SVG הישן. בכל התפריטים.
+function DilugimIcon({ size = 24 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      {/* רקע-ריבוע בגוון מגילה — נוכח ומגובש (כמו ריבועי האימוג'י), עם מסגרת-זהב */}
-      <rect x="2" y="2" width="28" height="28" rx="7.5" fill="#6a4a24" stroke="rgba(212,175,55,0.55)" strokeWidth="1.3" />
-      {/* שלוש אותיות עבריות = הטקסט (currentColor) */}
-      <g fill="currentColor" fontFamily="'Heebo', sans-serif" fontWeight="800" fontSize="10.5">
-        <text x="22" y="13" textAnchor="middle">א</text>
-        <text x="17" y="19" textAnchor="middle">ב</text>
-        <text x="12" y="25" textAnchor="middle">ג</text>
-      </g>
-      {/* זכוכית-מגדלת קטנה = מחקר */}
-      <circle cx="8" cy="8.5" r="4" stroke={accent} strokeWidth="1.7" fill="none" />
-      <line x1="10.9" y1="11.4" x2="13.5" y2="14" stroke={accent} strokeWidth="1.7" strokeLinecap="round" />
-    </svg>
+    <img src={ELS_LOGO} alt="דילוגי אותיות" width={size} height={size}
+      style={{ display: "block", borderRadius: Math.round(size * 0.22), objectFit: "cover" }} />
   );
 }
 
