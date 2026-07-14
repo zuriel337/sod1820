@@ -4,7 +4,7 @@ import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
 import { canInstall, promptInstall, onInstallChange, isStandalone, isIOS, installSnoozed, snoozeInstall } from "../lib/install.js";
 
-// כפתור התקנה מותאם — «📲 התקן את סוד1820». מובייל: פס עליון; דסקטופ: פס תחתון.
+// כפתור התקנה מותאם — «📲 התקן את סוד 1820». מובייל: פס עליון; דסקטופ: פס תחתון.
 // אנדרואיד/כרום: כפתור «התקן עכשיו» שמפעיל את ההצעה ומודד accept/dismiss.
 // iOS: אין beforeinstallprompt — מציג הנחיה ידנית («הוסף למסך הבית»).
 // לא מופיע אם כבר מותקן (standalone) או נדחה לאחרונה (snooze 14 יום).
@@ -69,7 +69,7 @@ export default function InstallPrompt() {
     }}>
       <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
         <span style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 14.5, fontWeight: 700 }}>
-          📲 התקן את סוד1820
+          📲 התקן את סוד 1820
         </span>
         <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 13 }}>
           {ios ? "הוסף למסך הבית — גישה מהירה, בלי חנות אפליקציות." : "אפליקציה מלאה במסך הבית — נטענת מהר, גם בלי רשת."}

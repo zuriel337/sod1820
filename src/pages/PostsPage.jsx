@@ -31,7 +31,7 @@ function RealityHintCard({ h, onOpen, P }) {
         <span style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontFamily: F.heading, fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "2px 9px" }}>🕒 {timeAgoHe(h.created_at || h.occurred_at)}</span>
         <div style={{ position: "absolute", insetInline: 0, bottom: 0, display: "flex", alignItems: "center", gap: 8, padding: "14px 10px 6px", background: "linear-gradient(0deg, rgba(18,12,3,0.94), rgba(18,12,3,0))" }}>
           {v != null && <span style={{ fontFamily: F.mono, fontWeight: 900, fontSize: 24, lineHeight: 1, color: "#f6e27a", textShadow: "0 1px 7px rgba(0,0,0,0.8)" }}>{v}</span>}
-          <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#e8c84a", letterSpacing: 1.5 }}>✦ סוד1820</span>
+          <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, color: "#e8c84a", letterSpacing: 1.5 }}>✦ סוד 1820</span>
         </div>
       </div>
       <div style={{ padding: "10px 12px" }}>
