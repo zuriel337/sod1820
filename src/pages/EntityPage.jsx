@@ -19,6 +19,7 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import GiluyTreasures from "../components/GiluyTreasures.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import Discourse from "../components/Discourse.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
@@ -1951,10 +1952,15 @@ export default function EntityPage({ embedPhrase } = {}) {
           </section>
         )}
 
-        {/* ── 💬 דיוני קהילה ── */}
+        {/* 🔬 מחקר קהילתי — תרומות-המחקר של הקהילה על הישות (research_contribution_law) */}
+        <section id="research-community" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
+          <Discourse target={{ type: isNumber ? "number" : "phrase", id: isNumber ? String(value) : term }} origin="number" />
+        </section>
+
+        {/* ── 💬 דיוני קהילה (ארכיון WordPress) ── */}
         {d.comments?.length > 0 && (
           <section id="comments" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-            <SectionHead icon="💬" title="דיוני קהילה" count={d.commentsCount} />
+            <SectionHead icon="💬" title="דיוני קהילה (ארכיון)" count={d.commentsCount} />
             <div style={{ display: "grid", gap: 10 }}>
               {d.comments.map(c => (
                 <div key={c.wp_id} style={card}>

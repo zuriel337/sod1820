@@ -1,0 +1,222 @@
+import React, { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import {
+  INTENTS, intentMeta, stateMeta, getContributions, addContribution,
+  linkContribution, approveContribution, moderateContribution,
+} from "../lib/contributions.js";
+
+// 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
+// «מחקר קהילתי», לא «תגובות» (research_contribution_law). שיחה חיה · ידע מבוקר · רשת-קשרים.
+// מקור-אמת אחד — אותו רכיב בכל דף. theme-aware דרך usePalette.
+
+function timeAgo(ts) {
+  try {
+    const d = (Date.now() - new Date(ts)) / 1000;
+    if (d < 60) return "עכשיו";
+    if (d < 3600) return `לפני ${Math.floor(d / 60)} דק׳`;
+    if (d < 86400) return `לפני ${Math.floor(d / 3600)} שע׳`;
+    if (d < 604800) return `לפני ${Math.floor(d / 86400)} ימים`;
+    return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+  } catch { return ""; }
+}
+
+// כרטיס תרומה בודד (+ ילדיו כתגובות, רמה אחת)
+function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onChanged }) {
+  const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
+  const [busy, setBusy] = useState(false);
+  const [linking, setLinking] = useState(false);
+  const [linkVal, setLinkVal] = useState("");
+  const pending = c.status === "pending";
+  const mine = user && c.author_user_id === user.id;
+
+  async function approve() { setBusy(true); try { await approveContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function hide() { setBusy(true); try { await moderateContribution(c.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function doLink() {
+    const v = linkVal.trim(); if (!v) return;
+    setBusy(true);
+    try { await linkContribution({ fromId: c.id, targetType: "number", targetId: v, relation: "related" }); setLinking(false); setLinkVal(""); onChanged(); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); }
+  }
+
+  const badge = (bg, col, txt) => (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: bg, color: col, borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{txt}</span>
+  );
+
+  return (
+    <div style={{ background: P.cardGrad, border: `1px solid ${pending ? P.borderStrong : P.border}`, borderRadius: 13, padding: "13px 15px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
+        {badge("transparent", P.accentText, `${im.emoji} ${im.label}`)}
+        {badge("transparent", P.accentDim, `${sm.emoji} ${sm.label}`)}
+        {pending && badge("rgba(212,175,55,0.16)", P.accentText, "⏳ ממתין לאישור")}
+        <span style={{ flex: 1 }} />
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.created_at)}</span>
+      </div>
+      {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{c.title}</div>}
+      {c.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{c.body}</div>}
+      {/* שורת-קרדיט — הכותב מופרד מהתוכן */}
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginTop: 8 }}>
+        ✍️ נכתב על ידי <b style={{ color: P.accentText }}>{c.author_name || "חבר הקהילה"}</b>
+      </div>
+      {/* פעולות */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
+        {user && <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>}
+        {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
+        {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
+        {isAdmin && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
+      </div>
+      {linking && (
+        <div style={{ display: "flex", gap: 7, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={linkVal} onChange={e => setLinkVal(e.target.value)} placeholder="מספר/עוגן לקישור (למשל 116)"
+            style={{ flex: 1, minWidth: 140, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "7px 10px", color: P.ink, fontFamily: F.body, fontSize: 13, outline: "none" }} />
+          <button disabled={busy} onClick={doLink} style={goldBtn(P)}>חבר לגרף</button>
+        </div>
+      )}
+      {/* תגובות (רמה אחת) */}
+      {kids?.length > 0 && (
+        <div style={{ marginTop: 11, paddingInlineStart: 12, borderInlineStart: `2px solid ${P.border}`, display: "grid", gap: 9 }}>
+          {kids.map(k => {
+            const kim = intentMeta(k.intent);
+            return (
+              <div key={k.id}>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>— {k.author_name || "חבר הקהילה"} · {timeAgo(k.created_at)}{k.status === "pending" ? " · ⏳" : ""}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function linkBtn(P) {
+  return { cursor: "pointer", background: "transparent", border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "5px 12px" };
+}
+function goldBtn(P) {
+  return { cursor: "pointer", background: P.accentBtn, border: "none", color: P.onAccent || "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px" };
+}
+
+// ── מלחין: הוספת תרומה ──
+function Composer({ P, origin, target, replyTo, onDone }) {
+  const [intent, setIntent] = useState(replyTo ? "תגובה" : "חידוש");
+  const [body, setBody] = useState("");
+  const [st, setSt] = useState("idle");
+  const live = intentMeta(intent).live;
+
+  async function submit() {
+    const t = body.trim(); if (!t) return;
+    setSt("sending");
+    try {
+      await addContribution({ intent, origin, body: t, targetType: target.type, targetId: target.id, parentId: replyTo || null });
+      setBody(""); setSt("done"); onDone?.(live);
+      setTimeout(() => setSt("idle"), 2500);
+    } catch (e) { setSt("idle"); alert("שגיאה בשליחה: " + (e.message || e)); }
+  }
+
+  return (
+    <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
+      {!replyTo && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
+          {INTENTS.map(i => (
+            <button key={i.key} onClick={() => setIntent(i.key)} style={{
+              cursor: "pointer", borderRadius: 999, padding: "4px 11px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700,
+              border: `1px solid ${intent === i.key ? P.borderStrong : P.border}`,
+              background: intent === i.key ? "rgba(212,175,55,0.15)" : "transparent",
+              color: intent === i.key ? P.accentText : P.accentDim,
+            }}>{i.emoji} {i.label}</button>
+          ))}
+        </div>
+      )}
+      <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus={!!replyTo}
+        placeholder={replyTo ? "הוסיפו תגובה…" : `שתפו ${intentMeta(intent).label} — התרומה תיכנס ל«מחקר הקהילתי»`}
+        style={{ width: "100%", boxSizing: "border-box", minHeight: replyTo ? 64 : 92, resize: "vertical",
+          background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px",
+          color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, outline: "none" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9, flexWrap: "wrap" }}>
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, flex: 1 }}>
+          {live ? "💬 תגובה — עולה מיד" : "🔒 ידע — יעבור אישור לפני פרסום"}
+        </span>
+        {st === "done" && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{live ? "✓ פורסם" : "✓ נשלח לאישור"}</span>}
+        <button onClick={submit} disabled={st === "sending" || !body.trim()} style={{ ...goldBtn(P), opacity: body.trim() ? 1 : 0.5, padding: "8px 22px", fontSize: 13.5 }}>
+          {st === "sending" ? "שולח…" : "✦ שלח"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function Discourse({ target, origin = "number" }) {
+  const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  const [items, setItems] = useState(null);
+  const [replyTo, setReplyTo] = useState(null);
+
+  const load = useCallback(() => {
+    if (!target?.id) return;
+    getContributions(target.type, target.id).then(setItems).catch(() => setItems([]));
+  }, [target?.type, target?.id]);
+  useEffect(() => { load(); }, [load]);
+
+  if (!target?.id) return null;
+  const list = items || [];
+  const roots = list.filter(c => !c.parent_id);
+  const kidsOf = id => list.filter(c => c.parent_id === id);
+  const n = intent => list.filter(c => c.intent === intent).length;
+  const validated = list.filter(c => ["validated", "canonical"].includes(c.research_state)).length;
+
+  const counts = [
+    ["💡", n("חידוש"), "חידושים"], ["🧩", n("השערה"), "השערות"],
+    ["📚", n("מקור"), "מקורות"], ["❓", n("שאלה"), "שאלות"], ["⭐", validated, "אושרו"],
+  ].filter(c => c[1] > 0);
+
+  return (
+    <div style={{ display: "grid", gap: 13 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ color: P.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>🔬 מחקר קהילתי</span>
+        {counts.length > 0 && (
+          <span style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+            {counts.map(([e, v, l]) => (
+              <span key={l} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{e} {v} {l}</span>
+            ))}
+          </span>
+        )}
+      </div>
+
+      {user ? (
+        <Composer P={P} origin={origin} target={target} onDone={load} />
+      ) : (
+        <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "16px 15px", textAlign: "center" }}>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
+            הצטרפו כדי לתרום למחקר — חידוש, השערה, מקור או שאלה על {target.id}.
+          </div>
+          <Link to="/login" style={{ ...goldBtn(P), textDecoration: "none", padding: "9px 22px", fontSize: 13.5 }}>✨ התחברות / הרשמה חינם</Link>
+        </div>
+      )}
+
+      {items === null ? (
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, padding: 12 }}>טוען…</div>
+      ) : !roots.length ? (
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, padding: "6px 4px" }}>
+          עדיין אין מחקר קהילתי על {target.id} — היו הראשונים לתרום. ✨
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 11 }}>
+          {roots.map(c => (
+            <div key={c.id}>
+              <ContribCard c={c} kids={kidsOf(c.id)} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target}
+                onReply={id => setReplyTo(replyTo === id ? null : id)} onChanged={load} />
+              {replyTo === c.id && (
+                <div style={{ marginTop: 8, paddingInlineStart: 12 }}>
+                  <Composer P={P} origin={origin} target={target} replyTo={c.id} onDone={() => { setReplyTo(null); load(); }} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
