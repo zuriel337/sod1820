@@ -9,6 +9,7 @@ import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
+import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
@@ -844,6 +845,20 @@ export default function EntityPage({ embedPhrase } = {}) {
   // מגיע מ-state topics (לא מה-bundle). leadingPhrases = ביטויי-הזהב המובילים כקישורי-פנים.
   const storyCounts = { words: d.phrasesCount || d.phrases?.length || 0, posts: d.postsCount || 0, galleries: d.galleriesCount || 0, events: d.eventsCount || 0, topics: topics.length || 0, insights: d.insightsCount || 0 };
   const story = buildStory({ term, value, isNumber, phrases: d.phrases || [], goldLabels: gold.labels, counts: storyCounts });
+
+  // 🎯 במצב מוטמע (היכל) — משדר את המספר שבמוקד לפאנל ההקשרי (מגדל-הבקרה), ומאזין לבקשות קפיצה למקטע.
+  useEffect(() => {
+    if (!embedded) return;
+    emit(EVENTS.ENTITY_FOCUS, {
+      title: term ?? value, value, kind: isNumber ? "number" : "word", word: isNumber ? null : term,
+      meter: convScore,
+      counts: { words: storyCounts.words, topics: storyCounts.topics, galleries: storyCounts.galleries, posts: storyCounts.posts },
+    });
+  }, [embedded, value, term, isNumber, convScore, storyCounts.words, storyCounts.topics, storyCounts.galleries, storyCounts.posts]);
+  useEffect(() => {
+    if (!embedded) return;
+    return on(EVENTS.ENTITY_SECTION, id => goChip(id)); // הפאנל ביקש לקפוץ למקטע → פותח אקורדיון + גולל
+  }, [embedded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 🤖 ניתוח AI לדף המספר (ai-analyze · kind=number · fast=Haiku). מפרש עובדות-מנוע בלבד.
   const [aiBusy, setAiBusy] = useState(false);
