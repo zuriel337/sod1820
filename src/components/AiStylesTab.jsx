@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
 import { engName } from "../lib/aiEngines.js";
-import { listAiStyles, adminAiRecent, adminAiRate, adminAiStyleReport, adminAiStyleSave, adminAiStyleActivate, adminAiPulse } from "../lib/supabase.js";
+import { listAiStyles, adminAiRecent, adminAiRate, adminAiStyleReport, adminAiStyleSave, adminAiStyleActivate, adminAiPulse, adminResearchMap } from "../lib/supabase.js";
 
 const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "15px 16px" };
 const pill = (c) => ({ display: "inline-block", background: c + "22", border: `1px solid ${c}`, color: c, borderRadius: 999, padding: "1px 9px", fontSize: 11, fontWeight: 800, fontFamily: F.heading });
@@ -36,6 +36,7 @@ function Level({ emoji, title, tint, children }) {
 
 export default function AiStylesTab() {
   const [pulse, setPulse] = useState(null);
+  const [rmap, setRmap] = useState(null);          // 🧭 מפת-מחקר: מה חיפשו + מסעות
   const [styles, setStyles] = useState([]);
   const [report, setReport] = useState([]);
   const [recent, setRecent] = useState([]);
@@ -48,8 +49,8 @@ export default function AiStylesTab() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [pl, st, rep, rec] = await Promise.all([adminAiPulse(30), listAiStyles(), adminAiStyleReport(), adminAiRecent(40)]);
-    setPulse(pl); setStyles(st); setReport(rep); setRecent(rec);
+    const [pl, rm, st, rep, rec] = await Promise.all([adminAiPulse(30), adminResearchMap(30), listAiStyles(), adminAiStyleReport(), adminAiRecent(40)]);
+    setPulse(pl); setRmap(rm); setStyles(st); setReport(rep); setRecent(rec);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -137,6 +138,53 @@ export default function AiStylesTab() {
         </div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, fontStyle: "italic", marginTop: 9, lineHeight: 1.6 }}>
           «יצרו מחקר» נמדד על <b>כל</b> ניתוח — לא רק על מי שהצביע 👍. זה המדד האמיתי: האם התשובה פתחה כיוון.
+        </div>
+      </div>
+
+      {/* 🧭 מסעות מחקר — מה חיפשו + לאן הלכו אחר כך */}
+      <div style={box}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 11 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>🧭 מסעות מחקר</div>
+          <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{Number(rmap?.total_searches ?? 0).toLocaleString("he-IL")} חיפושים · 30 יום</span>
+        </div>
+
+        {/* מה הכי חיפשו */}
+        <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 7 }}>🔎 מה הכי חיפשו</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 15 }}>
+          {(rmap?.top_searches || []).map((s, i) => (
+            <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.body, fontSize: 12.5, color: C.goldLight }}>
+              <b style={{ color: C.goldBright, fontFamily: F.heading }}>{s.term}</b>
+              <span style={{ color: C.muted, fontSize: 11 }}>×{s.hits}</span>
+            </span>
+          ))}
+          {!(rmap?.top_searches || []).length && <span style={{ color: C.muted, fontSize: 12 }}>אין עדיין חיפושים בחלון הזה.</span>}
+        </div>
+
+        {/* המסעות — לאן הלכו אחר כך */}
+        <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 7 }}>
+          🧭 לאן הלכו אחר כך <span style={{ color: C.muted, fontWeight: 400, fontSize: 11 }}>(כל צעד: מאיפה → לאן · דרך איזו שיטה)</span>
+        </div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {(rmap?.trails || []).map((t, ti) => {
+            const nodes = [];
+            (t.path || []).forEach((s, i) => { if (i === 0 && s.from) nodes.push({ label: s.from, via: null }); nodes.push({ label: s.to, via: s.via }); });
+            return (
+              <div key={ti} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 11, padding: "9px 12px" }}>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginBottom: 6 }}>
+                  {t.steps} צעדים · {new Date(t.last_at).toLocaleString("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · חוקר #{t.visitor}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 5 }}>
+                  {nodes.map((n, i) => (
+                    <React.Fragment key={i}>
+                      {i > 0 && <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>→{n.via ? ` ${n.via}` : ""}</span>}
+                      <span style={{ background: "rgba(212,175,55,0.10)", border: `1px solid ${C.borderGold}`, borderRadius: 8, padding: "3px 9px", color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{n.label}</span>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          {!(rmap?.trails || []).length && <div style={{ color: C.muted, fontSize: 12, padding: "4px 0" }}>עוד לא נרשמו מסעות בחלון הזה (המעקב חדש — יגדל עם הזמן).</div>}
         </div>
       </div>
 

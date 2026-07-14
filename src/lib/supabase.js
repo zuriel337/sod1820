@@ -755,6 +755,12 @@ export async function adminAiPulse(days = 30) {
   try { const { data } = await supabase.rpc('admin_ai_pulse', { p_days: days }); return data || null; }
   catch { return null; }
 }
+// 🧭 מפת-מחקר (admin): מה הכי חיפשו (search_log) + מסעות אמיתיים (journey_trace: מאיפה→לאן→דרך איזו שיטה).
+export async function adminResearchMap(days = 30) {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_research_map', { p_days: days }); return data || null; }
+  catch { return null; }
+}
 
 // ===== 🧠 מנוע-ההמלצות (system_suggestions_law) — Observe→Detect→Suggest→Explain→Decide =====
 // «המערכת לעולם אינה משנה את עצמה. היא רק לומדת, מסבירה ומציעה.» כל שינוי = החלטת צוריאל.
