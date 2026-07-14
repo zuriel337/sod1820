@@ -165,7 +165,7 @@ export default function ResearchShell({ children, subnav }) {
         {leftOpen
           ? <><Grip side="left" />
               <aside className="rw-pwrap left" style={{ width: leftW }}>
-                <div className="rw-phead"><span>עולם המשתמש</span>
+                <div className="rw-phead"><span>🧠 המחקר שלי</span>
                   <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
                     {/* 👤 גשר לאזור-האישי הגלובלי — אותו דפוס כמו בדף-המספר (EntityHubRails) */}
                     <button className="rw-me-btn" onClick={openMe} title={user ? "האזור האישי" : "התחברות / הרשמה"} aria-label="האזור האישי">👤</button>

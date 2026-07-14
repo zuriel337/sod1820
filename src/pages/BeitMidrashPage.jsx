@@ -17,7 +17,8 @@ import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import BeitMidrashOverview from "../components/BeitMidrashOverview.jsx";
-import { useNumHref } from "../lib/numHrefCtx.js";
+import { useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
+import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 
@@ -1072,6 +1073,9 @@ function ConvergenceSection() {
 export default function BeitMidrashPage() {
   const loc = useLocation();
   const { isAdmin } = useAuth();
+  // 🧠 «המחקר שלי» — הרכיב הקנוני (EntityHubRails), אותו אחד כמו בדף-המספר. מוצג רק בבית-המדרש
+  // העצמאי; בתוך ההיכל (hub=true) השלד (ResearchShell) כבר מספק את אותו קיר — לא מכפילים.
+  const { hub } = useHubHrefs();
   // 🔒 «מה נחקר» (חיפושי הגולשים) — לאדמין בלבד; לציבור המדור לא קיים כלל (פרטיות)
   const sections = SECTIONS.filter(s => s.key !== "searches" || isAdmin);
   const params = new URLSearchParams(loc.search);
@@ -1180,6 +1184,8 @@ export default function BeitMidrashPage() {
 
   return (
     <div style={{ background: L.bg, minHeight: "100vh", direction: "rtl", position: "relative", zIndex: 1 }}>
+      {/* 🧠 «המחקר שלי» — אותו קיר-צד קנוני כמו בדף-המספר (עץ אחד). עצמאי בלבד. */}
+      {!hub && <EntityHubRails />}
       <div className="bm-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 22px 90px" }}>
         {/* כותרת */}
         <div style={{ borderBottom: `2px solid ${L.line}`, paddingBottom: 18, marginBottom: 22 }}>
