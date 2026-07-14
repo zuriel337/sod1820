@@ -9,6 +9,7 @@ import { englishSimple, hasLatin } from "../lib/englishGematria.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useSubscribed } from "./SubscribeGate.jsx";
 import ActivityPulse from "./ActivityPulse.jsx";
+import RecentNumbers from "./RecentNumbers.jsx";
 
 // ✦ רובריקה אחת לבית המדרש — מה נחקר + הצלבות המנוע, ללא תמונות (שורות בלבד).
 // דסקטופ: 11 חיפושים + 2 הצלבות. מובייל: רק 2 חיפושים בשורה אחת (בלי הצלבות).
@@ -107,6 +108,10 @@ export default function BeitMidrashOverview() {
           ) : (
             <ActivityPulse light title="🟢 מי חוקר עכשיו" />
           )}
+          {/* 🔢 אילו דפי-מספר נפתחו בפועל (לא חיפושים אישיים) */}
+          <div style={{ marginTop: 12 }}>
+            <RecentNumbers light title="🔢 מספרים שנפתחו עכשיו" />
+          </div>
         </div>
 
         {/* 🌍 מילים חדשות באנגלית — דסקטופ (החלטת צוריאל: רק אנגלית כאן, לא מילים אוטומטיות) */}

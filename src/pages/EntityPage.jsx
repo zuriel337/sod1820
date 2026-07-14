@@ -627,6 +627,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [sp] = useSearchParams();
   const fromCalc = sp.get("from") === "calc";
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
+  // 🤖 חסימת בוטים: דף-מספר טהור מעל 4 ספרות (≥10000) = כמעט תמיד סריקת-זבל של בוט
+  // (/number/<מספר-אקראי>). כזה עמוד → noindex + לא נרשם ל-page_views. דפי-ביטוי (מילים) לא מושפעים.
+  const bigNumberPage = isNumber && Number(value) > 9999;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -682,13 +685,14 @@ export default function EntityPage({ embedPhrase } = {}) {
       description: epDesc,
       path: epPath,
       image: DEFAULT_IMAGE,
+      noindex: bigNumberPage,   // 🤖 מספר מעל 4 ספרות (זבל-בוטים) → noindex
     });
     // נעילת צוריאל #2 — JSON-LD ישות (DefinedTerm+WebPage+BreadcrumbList), לא Article.
     setEntityJsonLd({ term, value, isNumber, path: epPath, description: epDesc, image: DEFAULT_IMAGE });
     if (term) logSearch(term, value);
     if (value) {
-      logView("number", value);
-      track("number", String(value));
+      // ⛔ לא רושמים ערכי-ענק (בוטים שסורקים /number/<מספר-אקראי>) — מנקה את page_views במקור
+      if (!bigNumberPage) { logView("number", value); track("number", String(value)); }
       getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});
     }
     Promise.all([
@@ -1142,7 +1146,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   useEffect(() => {
     if (!isNumber || !data || !story.ok) return;
     const p = `/number/${encodeURIComponent(phrase)}`;
-    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE });
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: bigNumberPage });
     setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
   }, [story.seoDescription, data, term, value, isNumber, phrase]); // eslint-disable-line
 

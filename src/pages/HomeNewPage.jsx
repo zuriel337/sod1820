@@ -21,6 +21,7 @@ import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
 import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
+import RecentNumbers from "../components/RecentNumbers.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import CrossInsightsBox from "../components/CrossInsightsBox.jsx";
 import StartHereCard from "../components/StartHereCard.jsx";
@@ -396,6 +397,10 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
         <HomeHeader title="🔎 מה קורה באתר עכשיו" sub="החיפושים האחרונים של הגולשים · המספרים החמים ביותר לפי מפת-החום" />
         <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+        {/* 🔢 אילו דפי-מספר נפתחו בפועל (לא חיפושים אישיים) — מספר = נתון ציבורי */}
+        <div style={{ marginTop: 16 }}>
+          <RecentNumbers max={8} light={P.mode === "light"} />
+        </div>
         {/* 🔥 המספרים החמים באתר — אותה מפת-חום כמו בקצה הנהר (search_log, 7 ימים) */}
         {hotNums.length > 0 && (
           <div style={{ marginTop: 16, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "15px 16px" }}>

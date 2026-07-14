@@ -1384,6 +1384,17 @@ export async function getActivityPulse() {
   } catch { return null; }
 }
 
+// 🔢 מספרים שנפתחו לאחרונה (דפי-מספר בפועל, לא חיפושים אישיים). מספר = לא-פרטי → קריא-לציבור.
+// מקור: RPC recent_number_opens (SECURITY DEFINER) — מסונן למספרים משמעותיים (יש להם ביטויים במאגר).
+export async function getRecentNumbers(limit = 8) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("recent_number_opens", { lim: limit });
+    if (error) return [];
+    return data || [];
+  } catch { return []; }
+}
+
 export async function getTickerMessages() {
   if (!supabase) return [];
   try {
