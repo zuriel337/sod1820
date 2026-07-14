@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { useViewAsUser, setViewAsUser } from "../lib/hub/viewAs.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -126,7 +127,10 @@ export default function ResearchPage() {
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
   // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
-  const { isAdmin } = useAuth();
+  // 👁 «תצוגת משתמש»: כשמופעל, המנהל רואה בדיוק כמו משתמש רגיל (isAdmin אפקטיבי = false).
+  const { isAdmin: realAdmin } = useAuth();
+  const viewAsUser = useViewAsUser();
+  const isAdmin = realAdmin && !viewAsUser;
   // 📱 בטלפון: דילוגי-אותיות (מטריצה רחבה) עדיפים כדף עצמאי /code, לא דחוסים בהיכל.
   const wide = useMediaQuery("(min-width: 768px)");
   // 🔬 כלל-הכניסה: כניסה להיכל הגילוי מדליקה מצב discovery לכל האתר — כל Hub שנפתח מכאן יורש אותו.
@@ -195,6 +199,14 @@ export default function ResearchPage() {
             </>
           )}
         </div>
+      )}
+      {/* 👁 מתג «תצוגת משתמש» — גלוי רק לאדמין אמיתי; מראה את ההיכל בדיוק כמו משתמש רגיל */}
+      {realAdmin && (
+        <button className="rw-tchip" onClick={() => setViewAsUser(!viewAsUser)}
+          title={viewAsUser ? "חזור לתצוגת מנהל (כלים נעולים גלויים)" : "ראה את ההיכל בדיוק כמו משתמש רגיל"}
+          style={{ marginInlineStart: "auto", flex: "none", borderStyle: viewAsUser ? "solid" : "dashed", whiteSpace: "nowrap" }}>
+          {viewAsUser ? "🔑 חזרה לתצוגת מנהל" : "👁 תצוגת משתמש"}
+        </button>
       )}
     </div>
   );
