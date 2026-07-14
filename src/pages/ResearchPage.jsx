@@ -18,6 +18,7 @@ import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
 import DatesTool from "../components/DatesTool.jsx";
+import { NumHrefCtx } from "../lib/numHrefCtx.js";
 import ToolGuide from "../components/research/ToolGuide.jsx";
 
 // ❓ הדרכות «איך משתמשים» לכלי-המעבדה — מוצגות מעל הכלי הפעיל. כלי שיש לו הסבר משלו
@@ -215,6 +216,8 @@ export default function ResearchPage() {
 
   return (
     <ResearchShell subnav={subnav}>
+      {/* 🔗 כל קישורי-המספר בכל כלי נשארים בתוך ההיכל (/research?tool=number) — לא יוצאים לדף העצמאי */}
+      <NumHrefCtx.Provider value={n => `/research?tool=number&n=${n}`}>
       {!wide && !hideMobNote && (
         <div className="rw-card" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", padding: "11px 13px" }}>
           <span style={{ fontSize: 20 }}>💻</span>
@@ -264,6 +267,7 @@ export default function ResearchPage() {
           )}
         </>
       )}
+      </NumHrefCtx.Provider>
     </ResearchShell>
   );
 }
