@@ -310,18 +310,22 @@ export const rwCss = (t = RW) => `
   /* בית-מגירה במובייל (ChatGPT) */
   .rw-fab{display:none}.rw-sheet,.rw-backdrop{display:none}
   @media (max-width:760px){
-    .rw-stage{padding:12px;padding-bottom:90px}
+    .rw-stage{padding:12px}
     .rw-pwrap,.rw-grip,.rw-rail,.rw-nav,.rw-rc,.rw-ptog{display:none}
     .rw-work{padding:0}
-    .rw-fab{display:flex;position:fixed;bottom:14px;left:12px;right:12px;height:52px;border-radius:16px;
-      background:var(--ink);color:var(--card);align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:16px;
-      box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:40;border:none;cursor:pointer}
+    /* «בקרוב» ומתג-המנהל לא נעוצים במובייל (הוסתרו — שייכים לחוויית הדסקטופ) */
+    .rw-more-wrap,.rw-adminview{display:none !important}
+    /* «המחקר שלי» — לשונית בצד שמאל (inline-end ב-RTL) + מגירה שנפתחת מהצד, כמו בכל האתר (לא bottom-sheet) */
+    .rw-fab{display:flex;position:fixed;left:0;top:auto;bottom:96px;flex-direction:column;align-items:center;gap:4px;
+      writing-mode:vertical-rl;text-orientation:mixed;padding:16px 7px;border-radius:0 14px 14px 0;
+      background:var(--ink);color:var(--card);font-weight:800;font-size:14px;letter-spacing:.5px;
+      box-shadow:4px 6px 20px rgba(0,0,0,.28);z-index:40;border:none;cursor:pointer}
     .rw-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:45}
-    .rw-sheet{display:block;position:fixed;left:0;right:0;bottom:-100%;background:var(--card);border-radius:20px 20px 0 0;
-      box-shadow:0 -8px 30px rgba(0,0,0,.25);z-index:46;max-height:82vh;overflow:auto;padding:8px 12px calc(20px + env(safe-area-inset-bottom));
-      transition:bottom .28s ease}
-    .rw-sheet.open{bottom:0}
-    .rw-grab{width:42px;height:5px;border-radius:999px;background:var(--line);margin:8px auto 12px}
+    .rw-sheet{display:block;position:fixed;left:-100%;top:0;bottom:0;width:min(86vw,360px);background:var(--card);border-radius:0 20px 20px 0;
+      box-shadow:8px 0 30px rgba(0,0,0,.25);z-index:46;overflow:auto;padding:14px 12px calc(16px + env(safe-area-inset-bottom));
+      transition:left .28s ease}
+    .rw-sheet.open{left:0}
+    .rw-grab{width:42px;height:5px;border-radius:999px;background:var(--line);margin:2px auto 12px}
     .rw-sheet .rw-panel{margin-bottom:10px}
   }
 `;

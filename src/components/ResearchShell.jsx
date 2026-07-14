@@ -164,7 +164,7 @@ export default function ResearchShell({ children, subnav }) {
           : <Rail side="left" tabs={LEFT_TABS} dot={leftDot} onPick={openLeftTo} onOpen={() => setLeftOpen(true)} />}
       </div>
 
-      <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ▲</button>
+      <button className="rw-fab" onClick={() => setSheet(true)}>🧠 המחקר שלי ◀</button>
       <div className={"rw-backdrop" + (sheet ? " open" : "")} onClick={() => setSheet(false)} />
       <div className={"rw-sheet" + (sheet ? " open" : "")}>
         <div className="rw-grab" onClick={() => setSheet(false)} />
