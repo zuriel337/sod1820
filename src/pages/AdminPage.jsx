@@ -5,6 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
+import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -69,6 +70,7 @@ const TABS = [
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
   { key: "searches", label: "🔍 חיפושי גולשים" },
+  { key: "els",      label: "🔠 הצופן (דילוגים)" },
   { key: "language", label: "🌍 מנוע שפה" },
   { key: "utm",      label: "🔗 בונה קישורים" },
   { key: "push",     label: "🔔 שליחת התראה" },
@@ -79,7 +81,7 @@ const TABS = [
 
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
-  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "meta"] },
+  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
   { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
@@ -239,6 +241,7 @@ export default function AdminPage() {
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
       {tab === "searches" && <SearchesTab />}
+      {tab === "els" && <ElsStatsTab />}
       {tab === "language" && <LanguageEngineTab />}
       {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
