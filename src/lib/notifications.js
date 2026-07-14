@@ -46,3 +46,47 @@ export function gatesToTopics(gateKeys = []) {
   ONBOARDING_GATES.forEach(g => { if (gateKeys.includes(g.key)) g.topics.forEach(t => set.add(t)); });
   return [...set];
 }
+
+// ===== 🔔 תיבת ההתראות האישית (inbox) — עדשה על user_notifications =====
+// RLS מסננת אוטומטית לשורות של המשתמש המחובר. נכתב רק בצד-השרת (approve_chiddush
+// ועתידיים); הלקוח קורא ומסמן «נקרא» בלבד. אותה מערכת לכל התראה עתידית — לא מקביל.
+import { supabase } from "./supabase.js";
+
+// שם-התצוגה של מדור חידושי-הקהילה — מקור-אמת אחד (החלטת שם: «חידושי הקהילה»).
+// הערה: תגית-המנוע נשארת 'חידושי גולשים' כמפתח-סינון פנימי יציב (לא מוצג למשתמש).
+export const COMMUNITY_LABEL = "חידושי הקהילה";
+
+export async function getMyNotifications(limit = 30) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase
+      .from("user_notifications")
+      .select("id,kind,title,body,link,read_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
+export async function getUnreadCount() {
+  if (!supabase) return 0;
+  try {
+    const { count } = await supabase
+      .from("user_notifications")
+      .select("id", { count: "exact", head: true })
+      .is("read_at", null);
+    return count || 0;
+  } catch { return 0; }
+}
+
+export async function markNotificationRead(id) {
+  if (!supabase || !id) return;
+  try { await supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null); }
+  catch { /* noop */ }
+}
+
+export async function markAllRead() {
+  if (!supabase) return;
+  try { await supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null); }
+  catch { /* noop */ }
+}

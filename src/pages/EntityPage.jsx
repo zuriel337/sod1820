@@ -19,6 +19,7 @@ import NumberFamilies from "../components/NumberFamilies.jsx";
 import GiluyTreasures from "../components/GiluyTreasures.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import Discourse from "../components/Discourse.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
@@ -1951,20 +1952,11 @@ export default function EntityPage({ embedPhrase } = {}) {
           </section>
         )}
 
-        {/* ── 💬 דיוני קהילה ── */}
-        {d.comments?.length > 0 && (
-          <section id="comments" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
-            <SectionHead icon="💬" title="דיוני קהילה" count={d.commentsCount} />
-            <div style={{ display: "grid", gap: 10 }}>
-              {d.comments.map(c => (
-                <div key={c.wp_id} style={card}>
-                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8 }}>{stripHtml(c.content || "").slice(0, 220)}</div>
-                  {c.author_name && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 6 }}>— {c.author_name}</div>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* 🔬 מחקר קהילתי — תרומות-המחקר של הקהילה על הישות (research_contribution_law).
+            דיוני-הוורדפרס הישנים (d.comments) מקופלים בתוך הרכיב כארכיון — מדור אחד, לא שניים. */}
+        <section id="comments" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
+          <Discourse target={{ type: isNumber ? "number" : "phrase", id: isNumber ? String(value) : term }} origin="number" archive={d.comments || []} />
+        </section>
 
         {/* ── 🔍 דילוגי אותיות + 🎥 סרטונים ── */}
         <section style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>

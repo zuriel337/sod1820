@@ -15,6 +15,7 @@ import { isToolReady, ELS_LOGO } from "../../lib/hub/ready.js";
 import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/install.js";
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
+import NotificationBell from "../NotificationBell.jsx";
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -581,6 +582,7 @@ export default function Navbar() {
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
           <UniversalSearch />
           <SurpriseButton />
+          {user && <NotificationBell />}
           {user ? (
             <UserMenu user={user} profile={profile} cc={cc} />
           ) : (
@@ -593,6 +595,8 @@ export default function Navbar() {
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
+        {/* פעמון התראות במובייל (למחוברים) — גלוי בסרגל העליון גם בטלפון */}
+        {user && <span className="sod-nav-mobile-only"><NotificationBell /></span>}
 
         {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור) */}
         <StreamSwitch />

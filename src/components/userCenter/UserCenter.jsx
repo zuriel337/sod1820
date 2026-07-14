@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
@@ -8,6 +8,7 @@ import HintsPanel from "./HintsPanel.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
+import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -34,15 +35,18 @@ const DARK  = { bg: "#12141a", card: "#1b1e26", ink: "#eef0f4", sub: "#9aa2b1", 
 export default function UserCenter() {
   const { user, profile, isAdmin, signOut } = useAuth();
   const P = usePalette();
+  const nav = useNavigate();
   const { isOpen, active, open, close, setActive } = useUserCenter();
   const dark = P?.mode !== "light";
   const T = dark ? DARK : LIGHT;
   const [center, setCenter] = useState(null); // my_center RPC
+  const [unread, setUnread] = useState(0);     // 🔔 התראות שלא-נקראו
 
   useEffect(() => {
     if (!isOpen || !user || !supabase) return;
     let alive = true;
     supabase.rpc("my_center").then(({ data }) => { if (alive) setCenter(data || {}); }).catch(() => {});
+    getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
     return () => { alive = false; };
   }, [isOpen, user]);
 
@@ -54,7 +58,8 @@ export default function UserCenter() {
   }, [isOpen]);
 
   if (!user) return null;
-  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut });
+  const goto = (link) => { close(); if (link) nav(link); };
+  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
   const isPublisher = center?.is_publisher;
@@ -179,11 +184,13 @@ function Row({ T, k, v }) {
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
-export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
+export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto }) {
   const c = center || {};
   const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים ───
+    { id: "notifications", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
+      render: () => <NotificationsPanel T={T} onUnread={onUnread} goto={goto} /> },
     { id: "profile", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <Row T={T} k="סטטוס" v={c.is_publisher ? "👑 כותב · VIP" : "חוקר רשום"} />
@@ -222,6 +229,67 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut }) {
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
     { id: "roadmap", icon: "🗺️", title: "מה בקרוב", status: "soon", render: () => <Roadmap T={T} /> },
   ];
+}
+
+// ── 🔔 פאנל ההתראות — אותה עדשה כמו הפעמון בסרגל, בתוך האזור-האישי (מקור-אמת אחד) ──
+function relTime(ts) {
+  try {
+    const diff = (Date.now() - new Date(ts)) / 1000;
+    if (diff < 60) return "עכשיו";
+    if (diff < 3600) return `לפני ${Math.floor(diff / 60)} דק׳`;
+    if (diff < 86400) return `לפני ${Math.floor(diff / 3600)} שע׳`;
+    if (diff < 604800) return `לפני ${Math.floor(diff / 86400)} ימים`;
+    return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+  } catch { return ""; }
+}
+function NotificationsPanel({ T, onUnread, goto }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => { getMyNotifications().then(setItems).catch(() => setItems([])); }, []);
+
+  async function pick(n) {
+    if (!n.read_at) { await markNotificationRead(n.id); onUnread?.(u => Math.max(0, (u || 1) - 1)); }
+    if (n.link) goto?.(n.link);
+  }
+  async function readAll() {
+    await markAllRead();
+    onUnread?.(0);
+    setItems(list => (list || []).map(n => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
+  }
+
+  if (items === null) return <div style={{ color: T.sub, fontSize: 13, padding: 14 }}>טוען…</div>;
+  if (!items.length) return (
+    <div style={{ textAlign: "center", padding: "28px 16px", color: T.sub, fontSize: 13.5, lineHeight: 1.7 }}>
+      <div style={{ fontSize: 28, marginBottom: 6, opacity: 0.7 }}>🌱</div>
+      אין התראות עדיין.<br />כאן יופיעו עדכונים אישיים — כמו אישור חידוש ששלחתם.
+    </div>
+  );
+  const anyUnread = items.some(n => !n.read_at);
+  return (
+    <div>
+      {anyUnread && (
+        <div style={{ textAlign: "left", marginBottom: 8 }}>
+          <button onClick={readAll} style={{ background: "none", border: "none", cursor: "pointer", color: T.acc, fontSize: 12.5, fontWeight: 700 }}>סמן הכל כנקרא</button>
+        </div>
+      )}
+      <div style={{ display: "grid", gap: 9 }}>
+        {items.map(n => (
+          <button key={n.id} onClick={() => pick(n)} style={{
+            textAlign: "right", cursor: n.link ? "pointer" : "default", width: "100%",
+            background: n.read_at ? T.card : T.accSoft, border: `1px solid ${n.read_at ? T.line : T.acc}`,
+            borderRadius: 12, padding: "12px 13px", color: T.ink,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
+              {!n.read_at && <span style={{ width: 7, height: 7, borderRadius: "50%", background: T.acc, flexShrink: 0 }} />}
+              <span style={{ flex: 1, fontWeight: 800, fontSize: 13.5 }}>{n.title}</span>
+              <span style={{ color: T.sub, fontSize: 10.5, whiteSpace: "nowrap" }}>{relTime(n.created_at)}</span>
+            </div>
+            {n.body && <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>{n.body}</div>}
+            {n.link && <div style={{ color: T.acc, fontSize: 11.5, fontWeight: 700, marginTop: 5 }}>לצפייה ←</div>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ── פאנל הגדרות — עורך-פרופיל קנוני (ProfileSettings), אותו רכיב כמו בעמוד /profile ──
