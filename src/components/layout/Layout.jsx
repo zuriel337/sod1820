@@ -83,7 +83,8 @@ export default function Layout() {
             </React.Suspense>
           </ErrorBoundary>
         </main>
-        <Footer />
+        {/* 🔠 בדף הדילוגים הכלי ממלא מסך-מלא (iframe) — בלי פוטר, כדי שלא ייווצר פס-גלילה שני בדף */}
+        {pathname !== "/code" && <Footer />}
       </div>
       {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
       <NumberDrawer hideLauncher={liveChrome} />

@@ -34,6 +34,22 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     if (verified) setGate(null);
   }, [postTier, verified]);
 
+  // 📏 מסך-מלא: מכוונים את גובה ה-iframe בדיוק לחלל שמתחת לסרגל — כך הדף עצמו לא נגלל,
+  //    ורק הכלי (iframe) נגלל בפנים → פס-גלילה אחד במקום שניים.
+  useEffect(() => {
+    if (!full) return;
+    const el = iframeRef.current;
+    const fit = () => {
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      el.style.height = Math.max(560, Math.round(window.innerHeight - top)) + "px";
+    };
+    fit();
+    const timers = [setTimeout(fit, 150), setTimeout(fit, 500)];
+    window.addEventListener("resize", fit);
+    return () => { window.removeEventListener("resize", fit); timers.forEach(clearTimeout); };
+  }, [full]);
+
   // האזנה להודעות הכלי: רישום חיפושים + בקשת-שער
   useEffect(() => {
     function onMsg(e) {
