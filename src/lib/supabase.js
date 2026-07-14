@@ -214,6 +214,33 @@ export async function getUpdatesByReporterNames(names, limit = 60) {
     .limit(limit);
   return data || [];
 }
+// 🎗 כתבים מודגשים (contributors.feature_media) לרצועת «עדכונים אחרונים» בדף הבית —
+// כרטיס-כתב עם התמונה האחרונה שלו מהשידורים, שמקפיץ את דף-הכתב כשעולה עדכון-תמונה חדש.
+// עדשה על עץ אחד: contributors ⨯ channel_updates (לפי credit=display_name) — לא עותק.
+export async function getFeaturedResearchers(limit = 6) {
+  if (!supabase) return [];
+  try {
+    const { data: cons } = await supabase.from('contributors')
+      .select('slug,code,display_name,avatar_url,role')
+      .eq('feature_media', true);
+    if (!cons?.length) return [];
+    const out = [];
+    for (const c of cons) {
+      const name = (c.display_name || '').trim();
+      if (!name) continue;
+      const { data: ups } = await supabase.from('channel_updates')
+        .select('id,image_url,created_at')
+        .eq('status', 'live').eq('credit', name)
+        .not('image_url', 'is', null)
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+        .order('created_at', { ascending: false }).limit(1);
+      const u = ups?.[0];
+      if (!u) continue;
+      out.push({ ...c, latest_image: u.image_url, latest_at: u.created_at });
+    }
+    return out.sort((a, b) => +new Date(b.latest_at) - +new Date(a.latest_at)).slice(0, limit);
+  } catch { return []; }
+}
 // 🔖 שמירת-מסע ל-DB (visitor_id + השורש + השביל) — כדי לראות בניהול מי שמר איזה מסע.
 export async function logJourneySave(visitor, { root, path = [], world = null }) {
   if (!supabase || root == null) return;

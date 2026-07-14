@@ -15,20 +15,22 @@ import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל 
 
 const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/i;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [] }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [] }) {
   const P = usePalette();
   const light = P.mode === "light";
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
   const cPost = light ? "#c76a1f" : "#e8c15a";
+  const cResearcher = light ? "#128a4f" : "#3ddc84";   // 🎗 כתב מיוחד (עדכוני-שידור) — ירוק וואטסאפ
 
   const items = useMemo(() => {
     const out = [];
     (posts || []).forEach(p => out.push({ type: "post", when: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: effDate(h) || +new Date(h.created_at || h.occurred_at || 0), data: h }));
+    (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     return out.sort((a, b) => b.when - a.when).slice(0, 20);
-  }, [posts, convergences, hints]);
+  }, [posts, convergences, hints, researchers]);
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
@@ -61,6 +63,18 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
             <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>
         </button>
+      );
+    }
+    if (it.type === "researcher") {
+      // 🎗 כתב מודגש (feature_media) → דף-הכתב הקנוני. עדשה על עץ אחד: התמונה האחרונה מהשידורים.
+      const href = `/community/researcher/${d.code || d.slug}`;
+      return (
+        <Link key={"c" + (d.slug || d.code)} to={href} className="lur-card" style={{ "--acc": cResearcher }}>
+          <div className="lur-media">{d.latest_image ? <span className="lur-img" style={{ backgroundImage: `url(${thumb(d.latest_image, 200)})` }} /> : <span className="lur-em">✍️</span>}</div>
+          <div className="lur-body"><Tag acc={cResearcher} logo={<span className="lur-lem">✍️</span>}>כתב מיוחד · דף הכתב</Tag>
+            <h3 className="lur-title">{d.display_name}{d.role ? ` · ${d.role}` : ""}</h3>
+            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cResearcher }}>לדף הכתב ←</span></div></div>
+        </Link>
       );
     }
     // conv → היכל הגילוי · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל הגילוי» בנאב/למעלה).

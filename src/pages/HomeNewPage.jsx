@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
+import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getFeaturedResearchers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
@@ -89,6 +89,7 @@ export default function HomeNewPage() {
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
+  const [researchers, setResearchers] = useState([]); // 🎗 כתבים מודגשים (feature_media) — כרטיס-כתב ב«עדכונים אחרונים»
   const [imgCount, setImgCount] = useState(0); // סך תמונות הארכיון — לבאנר האוצר
   const [topNums, setTopNums] = useState([]);   // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל
   const [selHint, setSelHint] = useState(null); // התמונה הנבחרת בתצוגה הגדולה (ברירת מחדל: האחרונה)
@@ -131,6 +132,7 @@ export default function HomeNewPage() {
   // (מגודר בתוכו, site_flags_lock_law) מציג לאנונימי את טיזר-ההרשמה במקום הזרם.
   useEffect(() => {
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    getFeaturedResearchers(6).then(r => setResearchers(r || [])).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -306,7 +308,7 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
         <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
         {/* התכנסויות אזור-הגוף (עצירות/יציאות) מוסתרות מ«עדכונים אחרונים» בלבד — נשארות בעץ ההתכנסויות ובבית-המדרש */}
-        <LatestUpdatesRail posts={posts} convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} hints={hints} />
+        <LatestUpdatesRail posts={posts} convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} hints={hints} researchers={researchers} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
