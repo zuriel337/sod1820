@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
+import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
 import { ELS_PUBLIC, ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
 
 // דף סגור (לא-אדמין) — מלכותי, מזמין הרשמה
@@ -33,6 +34,7 @@ function CodeClosed() {
 export default function CodePage() {
   const P = usePalette();
   const { isAdmin, loading } = useAuth();
+  const [galleryOpen, setGalleryOpen] = useState(false);
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
@@ -44,18 +46,28 @@ export default function CodePage() {
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <TzofenEmbed full />
-      {/* 🗄️ קישור-ארכיון דיסקרטי — מנוע הדילוגים הקודם, נשמר ולא אבד */}
-      <Link
-        to="/code/ארכיון"
-        title="הגרסה הקודמת של מנוע הדילוגים"
-        style={{
-          position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30,
-          background: "rgba(8,5,2,.66)", color: "#c9b06a",
-          border: "1px solid rgba(212,175,55,.34)", borderRadius: 999,
-          padding: "5px 12px", fontFamily: "'Heebo', sans-serif", fontWeight: 700,
-          fontSize: 12, textDecoration: "none", backdropFilter: "blur(4px)",
-        }}
-      >🗄️ ארכיון</Link>
+      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף) במקום הארכיון (בקשת צוריאל) */}
+      <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
+        <button
+          onClick={() => setGalleryOpen(true)}
+          title="גלריית המטריצות השמורות"
+          style={{
+            background: "rgba(8,5,2,.72)", color: "#f0d879", cursor: "pointer",
+            border: "1px solid rgba(212,175,55,.42)", borderRadius: 999,
+            padding: "6px 14px", fontFamily: "'Heebo', sans-serif", fontWeight: 800,
+            fontSize: 12.5, backdropFilter: "blur(4px)",
+          }}
+        >🖼️ מטריצות שמורות</button>
+        {/* ארכיון המנוע הישן — לאדמין בלבד */}
+        {isAdmin && (
+          <Link to="/code/ארכיון" title="הגרסה הקודמת של מנוע הדילוגים (אדמין)"
+            style={{ display: "inline-flex", alignItems: "center", background: "rgba(8,5,2,.66)", color: "#9a8657",
+              border: "1px solid rgba(212,175,55,.24)", borderRadius: 999, padding: "5px 11px",
+              fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: 11.5, textDecoration: "none", backdropFilter: "blur(4px)" }}
+          >🗄️</Link>
+        )}
+      </div>
+      <SavedMatricesGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
   );
 }
