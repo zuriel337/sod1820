@@ -55,12 +55,14 @@ export default function TzofenEmbed({ seed = "", full = false }) {
   }, [verified]);
 
   const gateTitle =
-    gate?.reason === "cross"
-      ? "חיפוש מוצלב פתוח לרשומים"
+    gate?.reason === "cross" ? "חיפוש מוצלב פתוח לרשומים"
+      : gate?.reason === "tanakh" ? "חיפוש בכל התנ״ך פתוח לרשומים"
       : "סיימת 5 חיפושים חינם";
   const gateSub =
     gate?.reason === "cross"
       ? "חיפוש שני מונחים שנפגשים באותו ציר שמור לחוקרים רשומים. הרשמה חינם — ואז גם חיפוש-מוצלב וגם חיפושים ללא הגבלה."
+      : gate?.reason === "tanakh"
+      ? "חיפוש דילוגים בכל 24 ספרי התנ״ך (מעבר לתורה) שמור לחוקרים רשומים. הרשמה חינם פותחת אותו — וגם חיפושים ללא הגבלה."
       : "רישום חד-פעמי עם אימות במייל פותח חיפושים ללא הגבלה — וגם חיפוש-מוצלב, שמירות ושיתוף.";
 
   return (
@@ -95,7 +97,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
         >
           <div style={{ maxWidth: 520, width: "100%" }}>
             <div style={{ textAlign: "center", marginBottom: 4, color: "#f4c84a", fontSize: 34 }}>
-              {gate.reason === "cross" ? "🔀" : "🔓"}
+              {gate.reason === "cross" ? "🔀" : gate.reason === "tanakh" ? "📜" : "🔓"}
             </div>
             <div style={{ textAlign: "center", color: "#f4c84a", fontFamily: "'Frank Ruhl Libre', serif", fontSize: 21, fontWeight: 800, marginBottom: 6 }}>
               {gateTitle}
