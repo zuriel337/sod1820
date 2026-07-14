@@ -42,7 +42,7 @@ const LIGHT_ROUTES = [
 ];
 
 export default function Layout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
   const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
@@ -87,7 +87,8 @@ export default function Layout() {
         {pathname !== "/code" && <Footer />}
       </div>
       {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
-      <NumberDrawer hideLauncher={liveChrome} />
+      {/* 🔠 מגירת-המספר מוסתרת בדף הצופן (בקשת צוריאל) — /code + היכל?tool=els */}
+      <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
       {liveChrome && <LiveChannelFeed />}
       <JoinCelebration />
     </div>

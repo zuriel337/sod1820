@@ -44,18 +44,21 @@ export default function CodePage() {
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <TzofenEmbed full />
-      {/* 🗄️ קישור-ארכיון דיסקרטי — מנוע הדילוגים הקודם, נשמר ולא אבד */}
-      <Link
-        to="/code/ארכיון"
-        title="הגרסה הקודמת של מנוע הדילוגים"
-        style={{
-          position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30,
-          background: "rgba(8,5,2,.66)", color: "#c9b06a",
-          border: "1px solid rgba(212,175,55,.34)", borderRadius: 999,
-          padding: "5px 12px", fontFamily: "'Heebo', sans-serif", fontWeight: 700,
-          fontSize: 12, textDecoration: "none", backdropFilter: "blur(4px)",
-        }}
-      >🗄️ ארכיון</Link>
+      {/* 🗄️ ארכיון המנוע הישן — לאדמין בלבד (בקשת צוריאל: הציבור לא רואה ארכיון; המקום מיועד
+          ל«מטריצות שמורות» — els_records, בבנייה). */}
+      {isAdmin && (
+        <Link
+          to="/code/ארכיון"
+          title="הגרסה הקודמת של מנוע הדילוגים (אדמין)"
+          style={{
+            position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30,
+            background: "rgba(8,5,2,.66)", color: "#c9b06a",
+            border: "1px solid rgba(212,175,55,.34)", borderRadius: 999,
+            padding: "5px 12px", fontFamily: "'Heebo', sans-serif", fontWeight: 700,
+            fontSize: 12, textDecoration: "none", backdropFilter: "blur(4px)",
+          }}
+        >🗄️ ארכיון (אדמין)</Link>
+      )}
     </div>
   );
 }
