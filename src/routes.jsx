@@ -15,6 +15,7 @@ export const NAV = [
   { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
+      { label: "🌐 פורום המחקר", to: "/forum" },
       { label: "צ'אט", to: "/community/chat" },
       { label: "הכתבים והחוקרים", to: "/community/researchers" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
