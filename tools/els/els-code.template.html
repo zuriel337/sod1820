@@ -1060,7 +1060,7 @@
   const freeCount=()=>{try{return parseInt(localStorage.getItem(FREEKEY)||"0")||0;}catch(e){return 0;}};
   const bumpFree=()=>{try{localStorage.setItem(FREEKEY,String(freeCount()+1));}catch(e){}};
   const postHost=m=>{try{if(window.parent&&window.parent!==window)window.parent.postMessage(Object.assign({source:"tzofen"},m),"*");}catch(e){}};
-  const isAnon=()=>st.tier==="anon";
+  const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   const canCross=()=>!isAnon();
   const canRegular=()=>!isAnon()||freeCount()<FREE_LIMIT;
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
@@ -1068,12 +1068,16 @@
   function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{return Math.abs(occ().skip);}catch(e){return 0;}})(),scope:st.scope});}
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
   window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host")return;
-    if(d.type==="tier"&&typeof d.tier==="string"){st.tier=d.tier;
+    if(d.type==="tier"&&typeof d.tier==="string"){st.tierKnown=true;st.tier=d.tier;
       if(d.tier==="admin"&&!st.admin&&typeof setAdmin==="function")setAdmin(true);
       try{updateLockUI();}catch(_){}
       try{updateScopeUI();}catch(_){}   // רענון מנעול «כל התנ״ך» לפי הדרגה
+      try{if(st.res)render();}catch(_){}  // דרגה עודכנה אחרי חיפוש → רענון הרשאות
     }});
-  if(EMBED)st.tier="anon";   // במצב מוטמע — מתחילים כאנונימי עד שהעוטף מעדכן דרגה
+  // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
+  //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
+  if(EMBED){st.tier="anon";st.tierKnown=false;
+    let n=0;const ping=()=>{postHost({type:"ready"});if(!st.tierKnown&&++n<8)setTimeout(ping,350);};ping();}
 
   function run(preserveWords){
     const w=q.value.trim(),t=norm(w);
@@ -2859,7 +2863,7 @@
     if(q)q.placeholder=tan?"למשל: משיח בן דוד":"למשל: יום משיח בא";
   }
   // «כל התנ״ך» נעול לכל מי שאינו רשום/מנהל — הנתונים הכבדים (1.2M) לא מפוענחים כלל עד שנפתח
-  function tanakhLocked(){return st.tier==="anon";}
+  function tanakhLocked(){return isAnon();}   // מנהל/רשום → פתוח; רק אנונימי נעול
   document.querySelectorAll(".scopebtn").forEach(b=>b.onclick=()=>{
     if(b.dataset.scope==="tanakh"&&tanakhLocked()){   // 🔒 חסום — לא מחליף היקף, לא טוען תנ״ך
       postHost({type:"gate",reason:"tanakh"});

@@ -50,12 +50,16 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     return () => { window.removeEventListener("resize", fit); timers.forEach(clearTimeout); };
   }, [full]);
 
-  // האזנה להודעות הכלי: רישום חיפושים + בקשת-שער
+  // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער
   useEffect(() => {
     function onMsg(e) {
       if (e.origin !== window.location.origin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
+      if (d.type === "ready") {
+        postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
+        return;
+      }
       if (d.type === "search") {
         try {
           track("els", (d.term || "").slice(0, 80),
@@ -68,7 +72,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified]);
+  }, [verified, postTier]);
 
   const gateTitle =
     gate?.reason === "cross" ? "חיפוש מוצלב פתוח לרשומים"
