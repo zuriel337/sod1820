@@ -11,7 +11,7 @@ export const NAV = [
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
   { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
-  { label: "גלריות", emoji: "🖼", to: "/archive?tab=galleries" },
+  { label: "גלריות", emoji: "🖼️", to: "/archive?tab=galleries" },
   { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
