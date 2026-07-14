@@ -16,6 +16,7 @@ import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/instal
 import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
+import { getUnreadCount } from "../../lib/notifications.js";
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -545,9 +546,10 @@ export default function Navbar() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
   const { user, profile, isAdmin } = useAuth();
-  const { open: openCenter } = useUserCenter();
+  const { open: openCenter, isOpen: centerOpen } = useUserCenter();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [unread, setUnread] = useState(0);   // 🔔 להתראות במובייל — נקודה על כפתור האזור-האישי
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 30);
@@ -555,6 +557,16 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", h);
   }, []);
   useEffect(() => { setDrawer(false); }, [pathname]);
+  // ספירת התראות שלא-נקראו (למחוברים) — לבאדג׳ במובייל; מתרענן בפוקוס ובסגירת מרכז-השליטה
+  useEffect(() => {
+    if (!user) { setUnread(0); return; }
+    const load = () => getUnreadCount().then(setUnread).catch(() => {});
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [user]);
+  useEffect(() => { if (!centerOpen && user) getUnreadCount().then(setUnread).catch(() => {}); }, [centerOpen, user]);
 
   return (
     <nav style={{
@@ -595,8 +607,7 @@ export default function Navbar() {
 
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
-        {/* פעמון התראות במובייל (למחוברים) — גלוי בסרגל העליון גם בטלפון */}
-        {user && <span className="sod-nav-mobile-only"><NotificationBell /></span>}
+        {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
 
         {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור) */}
         <StreamSwitch />
@@ -626,6 +637,11 @@ export default function Navbar() {
             }}>
               <Avatar profile={profile} user={user} size={26} onDark />
               {profile?.display_name || profile?.username || "מרכז השליטה שלי"}
+              {unread > 0 && (
+                <span style={{ marginInlineStart: "auto", background: "#d64545", color: "#fff", borderRadius: 999, minWidth: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "0 6px" }}>
+                  🔔 {unread > 9 ? "9+" : unread}
+                </span>
+              )}
             </button>
           ) : (
             <Link to="/login" onClick={() => setDrawer(false)} style={{
