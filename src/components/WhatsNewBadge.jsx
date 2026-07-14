@@ -40,7 +40,12 @@ export default function WhatsNewBadge() {
       setOpen(false);
     };
     const esc = e => e.key === "Escape" && setOpen(false);
-    const onScroll = () => setOpen(false);   // גלילה = סגירה (לא נשאר תקוע על המסך)
+    // גלילת-העמוד = סגירה (לא נשאר תקוע). ⚠️ אבל גלילה *בתוך* הפאנל (רשימת העדכונים) לא תסגור —
+    // אחרת בנייד כל ניסיון-גלילה סוגר את החלונית (הבאג שצוריאל דיווח).
+    const onScroll = e => {
+      if (panelRef.current && e.target instanceof Node && panelRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
     document.addEventListener("mousedown", out);
     document.addEventListener("keydown", esc);
     window.addEventListener("scroll", onScroll, { passive: true, capture: true });
@@ -69,7 +74,7 @@ export default function WhatsNewBadge() {
       boxShadow: "0 20px 54px rgba(0,0,0,.72)", backdropFilter: "blur(10px)", direction: "rtl", textAlign: "start" }}>
       <div style={{ color: "#f6e27a", fontFamily: F.regal, fontWeight: 800, fontSize: 15, marginBottom: 2 }}>🌳 מה חדש באתר</div>
       <div style={{ color: "#b8ad8a", fontFamily: F.body, fontSize: 10.5, letterSpacing: 1, marginBottom: 10 }}>עדכוני האתר · מתעדכן אוטומטית</div>
-      <div style={{ display: "flex", flexDirection: "column", maxHeight: 320, overflowY: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", maxHeight: 320, overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", touchAction: "pan-y" }}>
         {items.map((u, i) => {
           const inner = (
             <>
