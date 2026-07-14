@@ -148,11 +148,12 @@ function Composer({ P, origin, target, replyTo, onDone }) {
   );
 }
 
-export default function Discourse({ target, origin = "number" }) {
+export default function Discourse({ target, origin = "number", archive = [] }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
+  const [showArchive, setShowArchive] = useState(false);
 
   const load = useCallback(() => {
     if (!target?.id) return;
@@ -215,6 +216,25 @@ export default function Discourse({ target, origin = "number" }) {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 💬 ארכיון דיוני-וורדפרס — מקופל בתוך אותו מדור (לא מערכת נפרדת; לא מועתק) */}
+      {archive?.length > 0 && (
+        <div style={{ marginTop: 4 }}>
+          <button onClick={() => setShowArchive(v => !v)} style={{ ...linkBtn(P), width: "100%", textAlign: "center", padding: "8px 12px" }}>
+            {showArchive ? "▴ הסתר" : "▾ הצג"} 💬 דיונים מהארכיון (וורדפרס) · {archive.length}
+          </button>
+          {showArchive && (
+            <div style={{ display: "grid", gap: 9, marginTop: 9 }}>
+              {archive.map((c, i) => (
+                <div key={c.wp_id || i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 11, padding: "11px 13px" }}>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{(c.content || "").replace(/<[^>]+>/g, "").slice(0, 260)}</div>
+                  {c.author_name && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 5 }}>— {c.author_name} · ארכיון</div>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
