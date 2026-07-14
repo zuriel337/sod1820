@@ -201,7 +201,8 @@ function LegacyRedirect() {
 // (/research) כדי שהמסך יישאר נקי לגמרי. האפקטים (אנליטיקס/הפניות) ממשיכים לרוץ.
 function GlobalChrome({ children }) {
   const { pathname } = useLocation();
-  if (pathname === "/research") return null;
+  // 🔬 מוסתר בסביבת המחקר (/research) ובדף הדילוגים (/code) — מסך נקי לגמרי לכלי במסך-מלא.
+  if (pathname === "/research" || /^\/code(\/|$)/.test(pathname)) return null;
   return <>{children}</>;
 }
 
