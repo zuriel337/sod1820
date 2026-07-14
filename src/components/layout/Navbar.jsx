@@ -61,7 +61,7 @@ const MOBILE_TILES = [
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
-  { e: "📸", l: "גלריות", to: "/archive" },
+  { e: "🖼", l: "גלריות", to: "/archive" },
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
   { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
@@ -128,7 +128,7 @@ function UniversalSearch({ onDone, full }) {
   { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
     { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
     { e: "🏛️", l: "היכל הגילוי", to: "/research" },
-    { e: "📸", l: "גלריות", to: "/archive" },
+    { e: "🖼", l: "גלריות", to: "/archive" },
   ];
 
   return (
