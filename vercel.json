@@ -38,6 +38,10 @@
   ],
   "rewrites": [
     {
+      "source": "/favicon.ico",
+      "destination": "/crown-favicon.png"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
