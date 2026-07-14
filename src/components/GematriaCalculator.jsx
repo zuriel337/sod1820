@@ -11,6 +11,7 @@ import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/trans
 import { englishSimple, hasLatin, EN_METHODS, englishAll, EN_TAGS } from "../lib/englishGematria.js";
 import { getAliasLexicon, logTranslitQuery } from "../lib/feedback.js";
 import FoundItFeedback from "./FoundItFeedback.jsx";
+import { useNumHref } from "../lib/numHrefCtx.js";
 
 // ===== מחשבון גימטריה מלא — בהיר/תלמודי, כל 19 השיטות, מאומת מול המנוע =====
 // לחיצה על שיטה → דף המספר שלה (עם חזרה למחשבון). מובייל: מלבנים קומפקטיים.
@@ -23,6 +24,10 @@ const L = {
 
 export default function GematriaCalculator({ seed, onResult, research = false }) {
   const { isAdmin } = useAuth();
+  // 🔗 כתובת-מספר מודעת-הקשר: בתוך ההיכל נשאר בפנים (/research?tool=number&n=…), עצמאי → /number/:n.
+  // כל קישור-מספר במחשבון עובר דרך זה → מי שהגיע דרך ההיכל לא נזרק החוצה בלחיצה על ערך.
+  const numHref = useNumHref();
+  const nlink = (v, extra) => { const b = numHref(v); return extra ? b + (b.includes("?") ? "&" : "?") + extra : b; };
   const [q, setQ] = useState(seed != null && seed !== "" ? String(seed) : ""); // ריק כברירת מחדל — לא מחשב "גאולה" אוטומטית
   useEffect(() => { if (seed != null && seed !== "") setQ(String(seed)); }, [seed]);
   const word = q.trim();
@@ -379,25 +384,25 @@ export default function GematriaCalculator({ seed, onResult, research = false })
               <div style={{ marginTop: 11 }}>
                 {action === "none" && (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {v1 > 0 && <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.res}>→ {v1} ({m1})</Link>}
-                    {v2 > 0 && <Link to={`/number/${v2}?from=calc&focus=dna`} style={cs.res}>→ {v2} ({m2})</Link>}
+                    {v1 > 0 && <Link to={nlink(v1, 'from=calc&focus=dna')} style={cs.res}>→ {v1} ({m1})</Link>}
+                    {v2 > 0 && <Link to={nlink(v2, 'from=calc&focus=dna')} style={cs.res}>→ {v2} ({m2})</Link>}
                   </div>
                 )}
                 {action === "one" && (isCross ? (
                   <div>
                     <div style={cs.cross}>✦ הצלבה! «{q1.trim()}» ({m1}) = «{q2.trim()}» ({m2}) = {v1}{heb(v1) && ` · ${heb(v1)}`}</div>
-                    <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.go}>פתח את ההצלבה {v1} ←</Link>
+                    <Link to={nlink(v1, 'from=calc&focus=dna')} style={cs.go}>פתח את ההצלבה {v1} ←</Link>
                   </div>
                 ) : (
                   <div>
                     <div style={cs.sum}>{v1} + {v2} = <b style={{ color: L.goldDeep }}>{v1 + v2}</b>{heb(v1 + v2) && <span style={{ ...cs.heb, marginInlineStart: 6 }}>{heb(v1 + v2)}</span>}</div>
-                    <Link to={`/number/${v1 + v2}?from=calc`} style={cs.go}>פתח את {v1 + v2} בדף המספר ←</Link>
+                    <Link to={nlink(v1 + v2, 'from=calc')} style={cs.go}>פתח את {v1 + v2} בדף המספר ←</Link>
                   </div>
                 ))}
                 {action === "split" && (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {v1 > 0 && <Link to={`/number/${v1}?from=calc&focus=dna`} style={cs.go}>→ {v1} ({m1})</Link>}
-                    {v2 > 0 && <Link to={`/number/${v2}?from=calc&focus=dna`} style={cs.go}>→ {v2} ({m2})</Link>}
+                    {v1 > 0 && <Link to={nlink(v1, 'from=calc&focus=dna')} style={cs.go}>→ {v1} ({m1})</Link>}
+                    {v2 > 0 && <Link to={nlink(v2, 'from=calc&focus=dna')} style={cs.go}>→ {v2} ({m2})</Link>}
                   </div>
                 )}
               </div>
@@ -430,7 +435,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft, ...(sameAsBase ? { opacity: 0.72 } : {}) };
             // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
             return word ? (
-              <Link key={r.key} to={`/number/${r.value}?from=calc&focus=dna&method=${encodeURIComponent(r.key)}`} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
+              <Link key={r.key} to={nlink(r.value, `from=calc&focus=dna&method=${encodeURIComponent(r.key)}`)} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
                 position: "relative", textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
               }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
@@ -458,7 +463,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
         {word ? (
           <>
             <div style={{ textAlign: "center", marginTop: 15 }}>
-              <Link to={`/number/${ragilVal}?from=calc`} style={{
+              <Link to={nlink(ragilVal, 'from=calc')} style={{
                 display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
                 background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
                 fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,

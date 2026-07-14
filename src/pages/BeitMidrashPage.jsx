@@ -17,6 +17,7 @@ import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import BeitMidrashOverview from "../components/BeitMidrashOverview.jsx";
+import { useNumHref } from "../lib/numHrefCtx.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 
@@ -129,6 +130,7 @@ function StudyCard({ item, ai }) {
 const ANCHORS = [1820, 1237, 776, 358, 541, 318, 1202, 86, 45, 26];
 const COLS = ["רגיל", "מילוי", "מסתתר", "קדמי", "אתבש"];
 function NumbersTab({ initial }) {
+  const numHref = useNumHref();
   const [val, setVal] = useState(initial || 1820);
   const [rows, setRows] = useState(null);
   const gold = useGold();
@@ -170,7 +172,7 @@ function NumbersTab({ initial }) {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  <td style={td}><Link to={`/number/${encodeURIComponent(r.phrase)}`} style={{ color: L.goldDeep, textDecoration: "none", fontWeight: 700 }}>{r.phrase}</Link></td>
+                  <td style={td}><Link to={numHref(encodeURIComponent(r.phrase))} style={{ color: L.goldDeep, textDecoration: "none", fontWeight: 700 }}>{r.phrase}</Link></td>
                   {COLS.map(c => <td key={c} style={num}>{r.vals[c] ?? "—"}</td>)}
                 </tr>
               ))}
@@ -289,6 +291,7 @@ function MirrorPanel({ gp }) {
   return null;
 }
 function CrossCard({ item }) {
+  const numHref = useNumHref();
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null);   // dataURL לתצוגה מקדימה לפני שיתוף
   const [pvBusy, setPvBusy] = useState(false);
@@ -322,7 +325,7 @@ function CrossCard({ item }) {
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
         {nums.slice(0, 5).map(n => (
-          <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</Link>
+          <Link key={n} to={numHref(n)} style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</Link>
         ))}
         {(item.method_tags || []).map(m => (
           <span key={m} style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 999, border: `1px solid ${L.line}`, color: L.sub }}>{m}</span>
@@ -519,6 +522,7 @@ const actBody = { color: "#3a342a", fontFamily: F.body, fontSize: 16.5, lineHeig
 
 // 📜 מסע 1820 — סיפור נגלל חי. כל המידע נקרא מהגרף (חתימות · מד התכנסות · כרטיסים · תמונות).
 function Sod1820Tab() {
+  const numHref = useNumHref();
   const [sigs, setSigs] = useState([]);
   const [meter, setMeter] = useState(null);
   const [cards, setCards] = useState([]);
@@ -668,7 +672,7 @@ function Sod1820Tab() {
               {sortGoldFirst(phrases.map(p => ({ phrase: p })), p => gold.labels.has(p.phrase)).slice(0, 50).map((p, i) => {
                 const isG = gold.labels.has(p.phrase);
                 return (
-                  <Link key={i} to={`/number/${encodeURIComponent(p.phrase)}`} style={{
+                  <Link key={i} to={numHref(encodeURIComponent(p.phrase))} style={{
                     textDecoration: "none", color: isG ? L.goldDeep : L.ink, fontFamily: F.body, fontSize: 13.5,
                     background: isG ? "#fbf3da" : L.soft, border: `1px solid ${isG ? L.gold : L.line}`, borderRadius: 999,
                     padding: "5px 12px", fontWeight: isG ? 700 : 400,
@@ -690,6 +694,7 @@ function Sod1820Tab() {
 
 // פאנל תוצאות למספר נבחר — מילים שוות מהמאגר.
 function NumberResults({ value, term }) {
+  const numHref = useNumHref();
   const [eq, setEq] = useState(null);
   const [pulse, setPulse] = useState(null);
   useEffect(() => {
@@ -710,13 +715,13 @@ function NumberResults({ value, term }) {
         {term && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700 }}>{term}<span style={{ color: L.sub, fontFamily: F.mono, fontWeight: 700 }}> = </span></span>}
         <span style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 28, fontWeight: 800 }}>{value}</span>
         {KEY_NUMBERS[value] && <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 16 }}>{KEY_NUMBERS[value]}</span>}
-        <Link to={`/number/${encodeURIComponent(term || value)}`} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הדף המלא →</Link>
+        <Link to={numHref(encodeURIComponent(term || value))} style={{ marginInlineStart: "auto", color: L.goldDeep, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>הדף המלא →</Link>
       </div>
 
       <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>מילים שוות</div>
       {eq === null ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>מחשב…</div> :
         eq.length === 0 ? <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>אין מילים בערך זה במאגר.</div> :
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{eq.map((p, i) => <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={chip}>{p}</Link>)}</div>}
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{eq.map((p, i) => <Link key={i} to={numHref(encodeURIComponent(p))} style={chip}>{p}</Link>)}</div>}
     </div>
   );
 }
