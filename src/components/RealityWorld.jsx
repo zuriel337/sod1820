@@ -20,7 +20,7 @@ import Lightbox from "./Lightbox.jsx";
 // מומלצות צפות גם לדף הבית, לעדכונים האחרונים ולדף הגלריות. חוק העץ האחד.
 // forceDark = כפיית פלטה כהה (בתוך הארכיון/הגלריה שתמיד שחורים). בבית — הבורר הרגיל.
 
-export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false, windowed = false, hideHeader = false }) {
+export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false, windowed = false, hideHeader = false, centered = false }) {
   const auto = usePalette();
   const P = forceDark ? PALETTES.dark : auto;
   const { user, isAdmin } = useAuth();
@@ -325,6 +325,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         cutoff={cutoff}
         palette={P}
         windowed={windowed}
+        centered={centered}
         max={compact ? 8 : 20}
         onOpen={i => setLbIdx((showHero ? 1 : 0) + i)}
         onEdit={isAdmin ? h => setEditImg(h) : null}

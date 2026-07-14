@@ -29,7 +29,8 @@ function dayBucket(h, now = Date.now()) {
   return "מוקדם יותר";
 }
 
-export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, onMove, max = MAX_RIVER, windowed = false }) {
+// centered=true → תבנית-הכרטיס המרכזית של הבית (כיתוב-צ'יפ מעל הקו) **בלי** אשנב-הגלילה — לגלריה במסך מלא.
+export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, onEdit, onMove, max = MAX_RIVER, windowed = false, centered = false }) {
   const list = hints.slice(0, Math.min(max, MAX_RIVER));
   const [ratios, setRatios] = useState({});     // id → w/h (לזיהוי «גשר» מאוזן)
   const [passed, setPassed] = useState([]);     // רמזים שגללת מעבר להם — מוצגים במגירה למעלה
@@ -253,7 +254,7 @@ export default function RiverStream({ hints = [], cutoff, palette: P, onOpen, on
       `}</style>
 
       {/* 🕹 מצב-חלון (הבית): מוט-ענק + אשנב פנימי; במצב רגיל — העטיפות שקופות */}
-      <div className={windowed ? "rvw" : undefined} style={windowed ? { display: "flex", gap: 14 } : undefined}>
+      <div className={(windowed || centered) ? "rvw" : undefined} style={windowed ? { display: "flex", gap: 14 } : undefined}>
         {windowed && (
           <div className="rvw-rod" ref={rodRef}
             onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); rodDrag(e); }}
