@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS, ELS_LOGO } from "../lib/hub/ready.js";
+import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS, ELS_LOGO, ELS_PUBLIC } from "../lib/hub/ready.js";
+
+// 🔒 ELS עדיין לא ציבורי — בהיכל הוא מוצג כאריח-תצוגה בלבד, לא-לחיץ (גם למנהל).
+// כש-ELS_PUBLIC יהפוך ל-true — האריח נפתח אוטומטית, בלי שינוי קוד נוסף.
+const elsLocked = id => id === "els" && !ELS_PUBLIC;
 import { useViewAsUser } from "../lib/hub/viewAs.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
@@ -42,7 +46,7 @@ const BIG = ["midrash", "els", "number"];
 
 // אריח גדול — כלי-דגל בראש ההיכל. נעול → מוצג עמום עם 🔒 (לא לחיץ).
 function BigTile({ t, onOpen, isAdmin }) {
-  const ready = isToolReady(t.id, isAdmin);
+  const ready = isToolReady(t.id, isAdmin) && !elsLocked(t.id);
   const base = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, textAlign: "center",
     background: "var(--card,#fff)", border: "1.5px solid var(--line,#e4e7ec)", borderRadius: 18, padding: "26px 14px", minHeight: 158,
     boxShadow: "0 2px 10px rgba(20,25,40,.05)", transition: "transform .15s, border-color .15s, box-shadow .15s", cursor: ready ? "pointer" : "default", fontFamily: "inherit" };
@@ -104,7 +108,7 @@ export default function ResearchHome({ onOpen }) {
           <div className="rw-cat-h" style={{ marginBottom: 8 }}><span className="rw-cat-ic">🧰</span> כל הכלים <span className="rw-cat-n">{restTools.length}</span></div>
           <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {restTools.map(t => {
-              const ready = isToolReady(t.id, isAdmin);
+              const ready = isToolReady(t.id, isAdmin) && !elsLocked(t.id);
               const ic = t.img ? <img src={t.img} alt="" style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "middle" }} /> : t.icon;
               return ready
                 ? <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{ic}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>

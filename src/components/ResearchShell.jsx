@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { rwCss } from "../lib/research/theme.js";
 import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -8,6 +8,8 @@ import ElsResultsPanel from "./ElsResultsPanel.jsx";
 import ActiveEntityPanel from "./ActiveEntityPanel.jsx";
 import Navbar from "./layout/Navbar.jsx";
 import { setForcedMode } from "../lib/themeMode.js";
+import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
 // ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
@@ -76,8 +78,13 @@ function MidrashNav() {
 
 export default function ResearchShell({ children, subnav }) {
   const { cart = [] } = useResearch();
+  const { open: openPersonal } = useUserCenter();   // 🧑 «האזור האישי» — אותה מגירה גלובלית של כל האתר
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [sp] = useSearchParams();
   const tool = sp.get("tool");
+  // גשר-זהות אחיד (כמו EntityHubRails בדף-המספר): סוגר את הגיליון ואז פותח את האזור האישי · אורח → התחברות
+  const openMe = () => { setSheet(false); user ? openPersonal() : navigate("/login"); };
   const eng = tool && TOOL_ENGINES[tool];
   const rightTitle = eng ? eng.title : "ארגז הכלים";
 
@@ -158,7 +165,13 @@ export default function ResearchShell({ children, subnav }) {
         {leftOpen
           ? <><Grip side="left" />
               <aside className="rw-pwrap left" style={{ width: leftW }}>
-                <div className="rw-phead"><span>עולם המשתמש</span><button onClick={() => setLeftOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
+                <div className="rw-phead"><span>עולם המשתמש</span>
+                  <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                    {/* 👤 גשר לאזור-האישי הגלובלי — אותו דפוס כמו בדף-המספר (EntityHubRails) */}
+                    <button className="rw-me-btn" onClick={openMe} title={user ? "האזור האישי" : "התחברות / הרשמה"} aria-label="האזור האישי">👤</button>
+                    <button onClick={() => setLeftOpen(false)} title="קפל סרגל"><PanelIcon /></button>
+                  </span>
+                </div>
                 <ResearchCenter variant="context" tabbed activeTab={leftTab} onTab={setLeftTab} />
               </aside></>
           : <Rail side="left" tabs={LEFT_TABS} dot={leftDot} onPick={openLeftTo} onOpen={() => setLeftOpen(true)} />}
@@ -168,6 +181,11 @@ export default function ResearchShell({ children, subnav }) {
       <div className={"rw-backdrop" + (sheet ? " open" : "")} onClick={() => setSheet(false)} />
       <div className={"rw-sheet" + (sheet ? " open" : "")}>
         <div className="rw-grab" onClick={() => setSheet(false)} />
+        {/* 📱 נייד — האזור האישי מוטמע בראש הגיליון, בדיוק כמו בדף-המספר ובכל האתר */}
+        <div className="rw-sheet-head">
+          <b>🧠 המחקר שלי</b>
+          <button className="rw-sheet-me" onClick={openMe}>👤 האזור האישי</button>
+        </div>
         <ResearchCenter />
       </div>
     </div>

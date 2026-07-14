@@ -308,6 +308,13 @@ export const rwCss = (t = RW) => `
   .rw-h1{font-weight:800;font-size:22px;margin:2px 0 3px}
   .rw-sub{color:var(--ink2);font-size:13.5px;line-height:1.6;margin-bottom:16px}
   /* בית-מגירה במובייל (ChatGPT) */
+  /* 👤 גשר-האזור-האישי בסרגל-השמאל (דסקטופ) + בראש גיליון-המובייל */
+  .rw-me-btn{font-size:15px !important}
+  .rw-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 12px}
+  .rw-sheet-head b{font-size:15px;color:var(--ink)}
+  .rw-sheet-me{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+    border-radius:999px;padding:8px 13px;font-family:inherit;font-size:13px;font-weight:800;white-space:nowrap}
+  .rw-sheet-me:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
   .rw-fab{display:none}.rw-sheet,.rw-backdrop{display:none}
   @media (max-width:760px){
     .rw-stage{padding:12px}
