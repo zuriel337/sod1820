@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
 import { useViewAsUser } from "../lib/hub/viewAs.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
 // כל כלי = כרטיס. live = נפתח בתוך השלד · open = דף קיים (פתיחה חוצה) · soon = בקרוב.
@@ -36,154 +37,88 @@ export const LIBRARIES = [
   { icon: "🌍", title: "קשרים בין שפות", desc: "אשף מחקר — קשרים בין עברית לשפות אחרות, מסווגים לפי סוג (תעתוק/תרגום/שורש/רעיון). הזינו וצפו.", to: "/languages" },
 ];
 
-// סדר וכותרות הקטגוריות (טקסונומיית-ממשק). בית-המדרש = מרחב-לימוד, לא מנוע.
-const CATS = [
-  { key: "engine", icon: "🧠", label: "מנועי מחקר", sub: "מערכות שמייצרות תוצאה" },
-  { key: "tool", icon: "🧰", label: "כלי מחקר", sub: "כלים נקודתיים" },
-  { key: "midrash", icon: "📖", label: "בית המדרש", sub: "מרחב-לימוד — כאן לומדים את השיטות" },
-  { key: "ai", icon: "🤖", label: "AI", sub: "ניתוח חכם" },
-];
+// 👑 שלושת הכלים הגדולים בראש (החלטת צוריאל): בית המדרש · דילוגי אותיות · דף המספר.
+const BIG = ["midrash", "els", "number"];
 
-function ToolCard({ t, onOpen, isAdmin }) {
+// אריח גדול — כלי-דגל בראש ההיכל. נעול → מוצג עמום עם 🔒 (לא לחיץ).
+function BigTile({ t, onOpen, isAdmin }) {
   const ready = isToolReady(t.id, isAdmin);
-  const adminOnly = isAdminOnlyTool(t.id, isAdmin); // פתוח רק בזכות הרשאת-מנהל
-  const flag = FLAGSHIP_TOOLS.includes(t.id); // כלי-דגל — בולט
-  const badge = !ready ? <span className="bg soon">🔒 בשדרוג</span>
-    : adminOnly ? <span className="bg flag">🔑 אדמין · בדיקה</span>
-    : flag ? <span className="bg flag">👑 כלי מרכזי</span>
-    : t.status === "open" ? <span className="bg open">פתח »</span>
-    : <span className="bg live">● פעיל</span>;
+  const base = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, textAlign: "center",
+    background: "var(--card,#fff)", border: "1.5px solid var(--line,#e4e7ec)", borderRadius: 18, padding: "26px 14px", minHeight: 158,
+    boxShadow: "0 2px 10px rgba(20,25,40,.05)", transition: "transform .15s, border-color .15s, box-shadow .15s", cursor: ready ? "pointer" : "default", fontFamily: "inherit" };
   const inner = (
     <>
-      <div className="ic">{ready ? t.icon : "🔒"}</div>
-      <div className="tt">{t.title}</div>
-      <div className="ds">{t.desc}</div>
-      {badge}
+      <div style={{ fontSize: 42, lineHeight: 1 }}>{ready ? t.icon : "🔒"}</div>
+      <div style={{ fontSize: 19, fontWeight: 800, color: "var(--ink,#1b1d22)" }}>{t.title.replace(/\s*\(ELS\)/, "")}</div>
+      <div style={{ fontSize: 12.5, color: "var(--ink2,#5b6472)", lineHeight: 1.55, maxWidth: 240 }}>{t.desc}</div>
+      {!ready && <span style={{ fontSize: 11, fontWeight: 800, color: "#b07d12" }}>🔒 בשדרוג — בקרוב</span>}
     </>
   );
-  const cls = "rw-tool" + (flag ? " flag" : "");
-  if (!ready) return <div className="rw-tool dis" title="בשדרוג — ייפתח בקרוב">{inner}</div>;
-  if (t.status === "open") return <Link className={cls} to={t.to}>{inner}</Link>;
-  return <button className={cls} onClick={() => onOpen(t.id)}>{inner}</button>;
+  const hov = on => e => { if (!ready) return; e.currentTarget.style.transform = on ? "translateY(-3px)" : "none"; e.currentTarget.style.borderColor = on ? "var(--acc,#2f6df6)" : "var(--line,#e4e7ec)"; e.currentTarget.style.boxShadow = on ? "0 14px 30px -12px rgba(47,109,246,.35)" : "0 2px 10px rgba(20,25,40,.05)"; };
+  if (!ready) return <div style={{ ...base, opacity: 0.6 }} title="בשדרוג — ייפתח בקרוב">{inner}</div>;
+  return <button style={base} onClick={() => onOpen(t.id)} onMouseEnter={hov(true)} onMouseLeave={hov(false)}>{inner}</button>;
 }
 
-// בתוך קטגוריה: מוכנים תחילה, נעולים אחריהם.
-const catRank = (t, isAdmin) => (isToolReady(t.id, isAdmin) ? 0 : 1);
-
 export default function ResearchHome({ onOpen }) {
-  // 🔑 מנהל רואה את כל הכלים הממומשים כפתוחים (לבדיקות); לציבור נשאר הגיטינג הרגיל.
-  // 👁 «תצוגת משתמש» מבטלת את הרשאת-המנהל האפקטיבית → המנהל רואה בדיוק כמו כולם.
+  // 🔑 מנהל רואה את כל הכלים הממומשים; 👁 «תצוגת משתמש» מבטלת את הרשאת-המנהל האפקטיבית.
   const { isAdmin: realAdmin } = useAuth();
   const isAdmin = realAdmin && !useViewAsUser();
   const navigate = useNavigate();
-  // 💡 פאנל-הסבר: פתוח בכניסה ראשונה, נסגר ונזכר, ניתן לפתיחה חוזרת ב-«❓ הסבר».
-  const [explainOpen, setExplainOpen] = useState(() => { try { return localStorage.getItem("rw_explain_seen") !== "1"; } catch { return true; } });
-  const closeExplain = () => { setExplainOpen(false); try { localStorage.setItem("rw_explain_seen", "1"); } catch { /* noop */ } };
-  // 🔎 שדה-חיפוש חופשי בשער — «הגוגל של המספרים»: מספר *או* מילה/משפט → דף-המספר,
-  // שם רואים את כל הגימטריות ברשימה + ההצלבות וההתכנסויות. EntityPage פותר אוטומטית.
+  const { open: openCenter } = useUserCenter();
+  const [tab, setTab] = useState("tools"); // tools | lib
+  // 🔎 שדה-חיפוש חופשי: מספר / מילה / ביטוי → דף-המספר בתוך ההיכל.
   const [gateQ, setGateQ] = useState("");
-  const gateGo = e => {
-    e.preventDefault();
-    const v = gateQ.trim();
-    if (!v) return;
-    navigate(`/research?tool=number&n=${encodeURIComponent(v)}`);
-  };
+  const gateGo = e => { e.preventDefault(); const v = gateQ.trim(); if (v) navigate(`/research?tool=number&n=${encodeURIComponent(v)}`); };
+
+  const bigTools = BIG.map(id => TOOLS.find(t => t.id === id)).filter(Boolean);
+  const restTools = TOOLS.filter(t => !BIG.includes(t.id)); // כולל נעולים/בקרוב — קטנים מתחת
+
+  const tabBtn = active => ({ cursor: "pointer", background: active ? "var(--acc,#2f6df6)" : "var(--card,#fff)", color: active ? "#fff" : "var(--ink2,#5b6472)",
+    border: `1px solid ${active ? "var(--acc,#2f6df6)" : "var(--line,#e4e7ec)"}`, borderRadius: 999, padding: "8px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800 });
+
   return (
     <div>
-      <div className="rw-h1-row">
-        <div className="rw-h1">🏛️ היכל הגילוי</div>
-        {!explainOpen && <button className="rw-explain-reopen" onClick={() => setExplainOpen(true)} title="מה זה היכל הגילוי?">❓ הסבר</button>}
-      </div>
-      <div className="rw-sub">שני שערים אל אותו גרף-ידע אחד: <b>בית המדרש</b> — להבין את התורה במספר ובטקסט · <b>חקר עצמי</b> — המסע האישי שלך (בקרוב). או פשוט חפשו למטה.</div>
-      {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור הם עדיין נעולים).</div>}
+      <div className="rw-h1-row"><div className="rw-h1">🏛️ היכל הגילוי</div></div>
+      {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור נעולים).</div>}
 
-      {/* 🚪 שער הכניסה — שתי דלתות + שדה-חיפוש. בית המדרש פתוח (ללא שינוי); חקר עצמי אטום (בקרוב). */}
-      <div className="rw-gate">
-        <div className="rw-doors">
-          <button className="rw-door open" onClick={() => onOpen("midrash")}>
-            <div className="rw-door-ic">📖</div>
-            <div className="rw-door-t">בית המדרש</div>
-            <div className="rw-door-d">להבין את התורה — במספר ובטקסט. כל שיטות הגימטריה, מוסברות ומודגמות. כאן לומדים.</div>
-            <div className="rw-door-cta">היכנסו ←</div>
-          </button>
-          <div className="rw-door locked" aria-disabled="true">
-            <span className="rw-door-lock">🔒</span>
-            <div className="rw-door-ic">🪞</div>
-            <div className="rw-door-t">חקר עצמי</div>
-            <div className="rw-door-d">המסע האישי שלך במספרים — שם · חיים · משפחה. דלת זו עוד אטומה.</div>
-            <div className="rw-door-cta soon">בקרוב</div>
-          </div>
-        </div>
-        <form className="rw-gate-search" onSubmit={gateGo}>
-          <input value={gateQ} onChange={e => setGateQ(e.target.value)}
-            placeholder="🔎 מה אתה רוצה לגלות? מספר, שם או ביטוי…" aria-label="חיפוש חופשי" />
-          <button type="submit" disabled={!gateQ.trim()} style={!gateQ.trim() ? { opacity: 0.5 } : undefined}>גלו ←</button>
-        </form>
+      {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
+      <form className="rw-gate-search" onSubmit={gateGo} style={{ marginBottom: 14 }}>
+        <input value={gateQ} onChange={e => setGateQ(e.target.value)} placeholder="🔎 מה תרצו לגלות? מספר · שם · ביטוי…" aria-label="חיפוש חופשי" />
+        <button type="submit" disabled={!gateQ.trim()} style={!gateQ.trim() ? { opacity: 0.5 } : undefined}>גלו ←</button>
+      </form>
+
+      {/* טאבים — כלים (ברירת-מחדל) · מאגרים · אזור-אישי (אותה מגירה כמו בכל האתר) */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+        <button style={tabBtn(tab === "tools")} onClick={() => setTab("tools")}>🧰 הכלים</button>
+        <button style={tabBtn(tab === "lib")} onClick={() => setTab("lib")}>📚 מאגרים</button>
+        <button style={tabBtn(false)} onClick={() => openCenter()}>👤 אזור אישי</button>
       </div>
 
-      {/* 💡 פאנל-הסבר מתקפל — «מה זה המעבדה ואיך מתחילים» (research_workspace_law: הסבר אינטראקטיבי) */}
-      {explainOpen && (
-        <div className="rw-explain">
-          <button className="rw-explain-x" onClick={closeExplain} aria-label="סגור הסבר">✕</button>
-          <div className="rw-explain-h">👋 ברוכים הבאים — זו סביבת-מחקר אחת, לא אוסף עמודים</div>
-          <div className="rw-explain-sub">כל כלי מזין את אותו «מחקר» שלך, והכל מחובר. בוחרים, חוקרים, ואוספים — וזה נשאר איתכם.</div>
-          <div className="rw-explain-steps">
-            <div className="rw-estep"><span className="ei">1</span><div><b>בוחרים כלי</b><span>מחשבון · דף-מספר · פסוקים · דילוגים · בית-המדרש</span></div></div>
-            <div className="rw-estep"><span className="ei">2</span><div><b>חוקרים לעומק</b><span>כל תוצאה מקושרת — לוחצים וממשיכים פנימה</span></div></div>
-            <div className="rw-estep"><span className="ei">3</span><div><b>אוספים</b><span>➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — נשאר בצד</span></div></div>
+      {tab === "tools" ? (
+        <>
+          {/* 👑 שלושת הגדולים */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
+            {bigTools.map(t => <BigTile key={t.id} t={t} onOpen={onOpen} isAdmin={isAdmin} />)}
           </div>
-          <div className="rw-explain-foot">💡 אפשר לסגור — וייפתח שוב ב-<b>❓ הסבר</b> למעלה מתי שתרצו.</div>
-        </div>
-      )}
-
-      {/* ✅ עובד עכשיו — רצועת-זינוק לכלים הפעילים, בולטת למעלה. המפה המלאה (הפילוח לעתיד) נשארת מתחת. */}
-      {(() => {
-        const working = TOOLS
-          .filter(t => isToolReady(t.id, isAdmin))
-          .sort((a, b) => (FLAGSHIP_TOOLS.includes(a.id) ? 0 : 1) - (FLAGSHIP_TOOLS.includes(b.id) ? 0 : 1));
-        if (!working.length) return null;
-        return (
-          <div className="rw-quick">
-            <div className="rw-quick-h">✅ עובד עכשיו · התחילו כאן</div>
-            <div className="rw-quick-row">
-              {working.map(t => (
-                <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}>
-                  <span className="qc-ic">{t.icon}</span> {t.title}
-                  {FLAGSHIP_TOOLS.includes(t.id) && <span className="qc-flag">👑</span>}
-                </button>
-              ))}
-            </div>
+          {/* שאר הכלים — קטנים */}
+          <div className="rw-cat-h" style={{ marginBottom: 8 }}><span className="rw-cat-ic">🧰</span> כל הכלים <span className="rw-cat-n">{restTools.length}</span></div>
+          <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {restTools.map(t => {
+              const ready = isToolReady(t.id, isAdmin);
+              return ready
+                ? <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{t.icon}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>
+                : <span key={t.id} className="rw-quick-chip" style={{ opacity: 0.5, cursor: "default" }} title="בשדרוג — בקרוב"><span className="qc-ic">🔒</span> {t.title}</span>;
+            })}
           </div>
-        );
-      })()}
-
-      {CATS.map(c => {
-        const items = TOOLS.filter(t => t.cat === c.key).sort((a, b) => catRank(a, isAdmin) - catRank(b, isAdmin));
-        if (!items.length) return null;
-        return (
-          <div key={c.key} className="rw-cat">
-            <div className="rw-cat-h"><span className="rw-cat-ic">{c.icon}</span> {c.label} <span className="rw-cat-n">{items.length}</span><span className="rw-cat-sub">{c.sub}</span></div>
-            <div className="rw-tools">
-              {items.map(t => <ToolCard key={t.id} t={t} onOpen={onOpen} isAdmin={isAdmin} />)}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* 📚 מאגרי מידע — לא כלים, אלא מאגרים לעיון */}
-      <div className="rw-cat">
-        <div className="rw-cat-h"><span className="rw-cat-ic">📚</span> מאגרי מידע <span className="rw-cat-n">{LIBRARIES.length}</span><span className="rw-cat-sub">לעיון, לא לשימוש</span></div>
-        <div className="rw-tools">
+        </>
+      ) : (
+        /* 📚 מאגרי מידע — לעיון (הישן, מוסתר בטאב) */
+        <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {LIBRARIES.map(l => (
-            <Link key={l.title} className="rw-tool" to={l.to}>
-              <div className="ic">{l.icon}</div>
-              <div className="tt">{l.title}</div>
-              <div className="ds">{l.desc}</div>
-              <span className="bg open">פתח »</span>
-            </Link>
+            <Link key={l.title} className="rw-quick-chip" to={l.to} title={l.desc}><span className="qc-ic">{l.icon}</span> {l.title}</Link>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
