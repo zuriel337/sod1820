@@ -39,7 +39,7 @@
   "rewrites": [
     {
       "source": "/favicon.ico",
-      "destination": "/crown-favicon.png"
+      "destination": "/logo.png"
     },
     {
       "source": "/sitemap.xml",

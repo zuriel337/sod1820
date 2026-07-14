@@ -107,7 +107,7 @@ export default function RoyalShareWidget() {
       {/* לשונית סגורה — כתר למעלה, צמודה לקצה הימני */}
       {!open && (
         <button className="rsw-tab" onClick={() => setOpen(true)} aria-label="שתפו את העמוד">
-          <img className="rsw-tab-logo" src="/crown-icon.png" alt="" aria-hidden />
+          <img className="rsw-tab-logo" src="/logo.png" alt="" aria-hidden />
           <span className="rsw-tab-lbl">שתפו</span>
         </button>
       )}
