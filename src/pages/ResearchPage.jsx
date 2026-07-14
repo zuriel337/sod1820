@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
 import { isToolReady, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { useViewAsUser, setViewAsUser } from "../lib/hub/viewAs.js";
 import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -126,9 +127,14 @@ export default function ResearchPage() {
   // אינה מפורסמת → דה-פקטו פרטית, אבל עובדת לכל מי שנכנס בלי צורך להתחבר.
   const [sp, setSp] = useSearchParams();
   // 🔑 מנהל (role=admin) פותח את כל הכלים הממומשים — גם הנעולים — לבדיקות. לציבור נשאר סגור.
-  const { isAdmin } = useAuth();
+  // 👁 «תצוגת משתמש»: כשמופעל, המנהל רואה בדיוק כמו משתמש רגיל (isAdmin אפקטיבי = false).
+  const { isAdmin: realAdmin } = useAuth();
+  const viewAsUser = useViewAsUser();
+  const isAdmin = realAdmin && !viewAsUser;
   // 📱 בטלפון: דילוגי-אותיות (מטריצה רחבה) עדיפים כדף עצמאי /code, לא דחוסים בהיכל.
   const wide = useMediaQuery("(min-width: 768px)");
+  // 💻 הודעת-מובייל: ההיכל מיטבי במחשב (נדחית — נשמר ב-localStorage)
+  const [hideMobNote, setHideMobNote] = useState(() => { try { return localStorage.getItem("sod_hub_mobnote") === "1"; } catch { return false; } });
   // 🔬 כלל-הכניסה: כניסה להיכל הגילוי מדליקה מצב discovery לכל האתר — כל Hub שנפתח מכאן יורש אותו.
   const { enterDiscovery } = useResearch();
   useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -196,11 +202,26 @@ export default function ResearchPage() {
           )}
         </div>
       )}
+      {/* 👁 מתג «תצוגת משתמש» — גלוי רק לאדמין אמיתי; מראה את ההיכל בדיוק כמו משתמש רגיל */}
+      {realAdmin && (
+        <button className="rw-tchip rw-adminview" onClick={() => setViewAsUser(!viewAsUser)}
+          title={viewAsUser ? "חזור לתצוגת מנהל (כלים נעולים גלויים)" : "ראה את ההיכל בדיוק כמו משתמש רגיל"}
+          style={{ marginInlineStart: "auto", flex: "none", borderStyle: viewAsUser ? "solid" : "dashed", whiteSpace: "nowrap" }}>
+          {viewAsUser ? "🔑 חזרה לתצוגת מנהל" : "👁 תצוגת משתמש"}
+        </button>
+      )}
     </div>
   );
 
   return (
     <ResearchShell subnav={subnav}>
+      {!wide && !hideMobNote && (
+        <div className="rw-card" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", padding: "11px 13px" }}>
+          <span style={{ fontSize: 20 }}>💻</span>
+          <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "var(--ink,#1b1d22)", lineHeight: 1.5 }}>ההיכל עובד בצורה מיטבית דרך המחשב — במובייל חלק מהכלים והפאנלים מוצגים מצומצם.</span>
+          <button onClick={() => { setHideMobNote(true); try { localStorage.setItem("sod_hub_mobnote", "1"); } catch { /* noop */ } }} title="הבנתי" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 17, color: "var(--ink2,#5b6472)", lineHeight: 1 }}>✕</button>
+        </div>
+      )}
       {!tool ? (
         <ResearchHome onOpen={setTool} />
       ) : !ready(tool) ? (

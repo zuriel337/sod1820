@@ -25,8 +25,9 @@ export const EVENTS = {
   PIN_REMOVE: "pin:remove",
   SEARCH_GEMATRIA: "search:gematria",
   PAGE_NUMBER_OPEN: "page:number:open",
-  ENTITY_FOCUS: "entity:focus",   // 🎯 הכלי הפעיל משדר את הישות שבמוקד → הפאנל הימני מציג את הפירוק המלא. payload: {title, word?, value}
+  ENTITY_FOCUS: "entity:focus",   // 🎯 הכלי הפעיל משדר את הישות שבמוקד → הפאנל הימני מציג את הפירוק. payload: {title, word?, value, kind?, meter?, counts?}
   ENTITY_BLUR: "entity:blur",     // הכלי איבד מוקד (עזיבה/איפוס) → הפאנל מתרוקן
+  ENTITY_SECTION: "entity:section", // 🧭 הפאנל מבקש מדף-המספר לקפוץ למקטע (words/dna/galleries/posts/roots) → EntityPage גולל
   AI_ANALYZE: "ai:analyze",
   ELS_STATE: "els:state",   // ElsGrid מפרסם את תוצאותיו → הקיר הימני מציג
   ELS_LOAD: "els:load",     // הקיר הימני מבקש לטעון חיפוש שמור → ElsGrid מיישם

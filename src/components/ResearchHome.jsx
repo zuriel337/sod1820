@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { isToolReady, isAdminOnlyTool, FLAGSHIP_TOOLS } from "../lib/hub/ready.js";
+import { useViewAsUser } from "../lib/hub/viewAs.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 // 🧰 בית-הכלים — מסך הפתיחה של «סביבת המחקר». מרכז את כל האפליקציות במקום אחד.
@@ -71,7 +72,9 @@ const catRank = (t, isAdmin) => (isToolReady(t.id, isAdmin) ? 0 : 1);
 
 export default function ResearchHome({ onOpen }) {
   // 🔑 מנהל רואה את כל הכלים הממומשים כפתוחים (לבדיקות); לציבור נשאר הגיטינג הרגיל.
-  const { isAdmin } = useAuth();
+  // 👁 «תצוגת משתמש» מבטלת את הרשאת-המנהל האפקטיבית → המנהל רואה בדיוק כמו כולם.
+  const { isAdmin: realAdmin } = useAuth();
+  const isAdmin = realAdmin && !useViewAsUser();
   const navigate = useNavigate();
   // 💡 פאנל-הסבר: פתוח בכניסה ראשונה, נסגר ונזכר, ניתן לפתיחה חוזרת ב-«❓ הסבר».
   const [explainOpen, setExplainOpen] = useState(() => { try { return localStorage.getItem("rw_explain_seen") !== "1"; } catch { return true; } });
