@@ -1216,8 +1216,9 @@ export default function EntityPage({ embedPhrase } = {}) {
     <Shell P={P}>
       {/* 🏛️ פס-הזמנה דביק (מחשב בלבד) — «המספר הזה הוא עדשה אחת על עץ אחד».
           מעביר לאותו מספר בתוך שלד ההיכל (unified_graph_law) כדי שיבינו את הקונסטרוקציה.
-          מוסתר בנייד (שם ההיכל מצומצם ממילא) וכשכבר בתוך ההיכל (embedded). */}
-      {!embedded && (
+          מוסתר בנייד (שם ההיכל מצומצם ממילא) וכשכבר בתוך ההיכל (embedded).
+          ⛔ מושבת זמנית (בקשת צוריאל 14.7) — עד שההיכל + הקונסטרוקציה הימנית מוכנים. להחזיר: false→true. */}
+      {false && !embedded && (
         <>
           <style>{`
             .num-hub-strip{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:center;gap:16px;
