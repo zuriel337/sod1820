@@ -1209,6 +1209,29 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   return (
     <Shell P={P}>
+      {/* 🏛️ פס-הזמנה דביק (מחשב בלבד) — «המספר הזה הוא עדשה אחת על עץ אחד».
+          מעביר לאותו מספר בתוך שלד ההיכל (unified_graph_law) כדי שיבינו את הקונסטרוקציה.
+          מוסתר בנייד (שם ההיכל מצומצם ממילא) וכשכבר בתוך ההיכל (embedded). */}
+      {!embedded && (
+        <>
+          <style>{`
+            .num-hub-strip{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:center;gap:16px;
+              padding:9px 20px;background:linear-gradient(90deg,${P.cardSoft},${P.card});
+              border-bottom:1px solid ${P.border};backdrop-filter:blur(6px);font-family:${F.heading}}
+            .num-hub-strip .nhs-txt{color:${P.accentDim};font-size:13px;font-weight:700;line-height:1.4}
+            .num-hub-strip .nhs-txt b{color:${P.accentText}}
+            .num-hub-strip .nhs-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap;
+              background:${P.accentBtn};color:${P.onAccent};border-radius:999px;font-size:13px;font-weight:800;
+              padding:7px 17px;box-shadow:0 2px 10px ${P.glow};transition:transform .15s ease}
+            .num-hub-strip .nhs-btn:hover{transform:translateY(-1px)}
+            @media (max-width:859px){ .num-hub-strip{display:none} }
+          `}</style>
+          <div className="num-hub-strip">
+            <span className="nhs-txt">🏛️ המספר הזה הוא <b>עדשה אחת על עץ אחד</b> — כל מספר, פסוק ושם מחוברים בסביבת המחקר</span>
+            <Link className="nhs-btn" to={`/research?tool=number&n=${encodeURIComponent(term || value)}`}>ראה את הקונסטרוקציה בהיכל →</Link>
+          </div>
+        </>
+      )}
       {/* 🫧 RealityHint (בועת-הרמזים הצפה) הוסרה מדף המספר לבקשת צוריאל — הפריעה בנייד. */}
       {/* 💌 הודעה אישית מבעל האתר (owner_note_law) — פופ-אפ + כפתור צף לפתיחה חוזרת */}
       {ownerNote && noteOpen && (
