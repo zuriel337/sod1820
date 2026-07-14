@@ -10,7 +10,8 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
 import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
-import ElsGrid from "../components/ElsGrid.jsx";
+import ElsGrid from "../components/ElsGrid.jsx"; // נשמר (הסוכן השני) — לא בשימוש כרגע ב-/research, נשאר זמין
+import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
@@ -244,7 +245,7 @@ export default function ResearchPage() {
           {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
-          {tool === "els" && (wide ? <ElsGrid seed={seed} /> : (
+          {tool === "els" && (wide ? <TzofenEmbed seed={seed} /> : (
             <div className="rw-card" style={{ textAlign: "center", padding: "40px 22px" }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🔠</div>
               <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>דילוגי אותיות — עדיף כדף מלא</div>

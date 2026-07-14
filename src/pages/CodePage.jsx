@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import ElsGrid from "../components/ElsGrid.jsx";
-import { rwCss } from "../lib/research/theme.js";
+import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import { ELS_PUBLIC, ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
 
@@ -39,16 +38,13 @@ export default function CodePage() {
   }
   // 🔑 פתוח למנהל תמיד; לציבור רק כשדגל-המאסטר ELS_PUBLIC=true (אז גם המעבדה נפתחת).
   // עד אז — דף «ייפתח בקרוב» + הרשמה לעדכונים.
-  // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים, ומרנדר את אותו מנוע-הדילוגים של אזור המחקר
-  // (ElsGrid) — מציירים פעם אחת, מפנים מכל מקום. עוטפים ב-`.rw` + rwCss() כדי לספק את
-  // פלטת סביבת-המחקר (משתני --acc/--bg/--ink/--line ומחלקות rw-*) בלי כל ה-chrome של השלד.
+  // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים. מציג את «הצופן התנ״כי» — הכלי העצמאי (public/tzofen.html)
+  // דרך TzofenEmbed. אותו כלי בדיוק משוכפל בהיכל (/research?tool=els). מנוע ה-ElsGrid של הסוכן השני
+  // נשמר בקוד (src/components/ElsGrid.jsx) ולא נמחק — רק הרינדור הקנוני עבר לכלי החדש.
   if (isAdmin || ELS_PUBLIC || ELS_PREVIEW_OPEN) {
     return (
-      <div className="rw" dir="rtl" style={{ position: "relative", zIndex: 1 }}>
-        <style>{rwCss()}</style>
-        <div className="rw-work" style={{ maxWidth: 1120, margin: "0 auto", padding: "24px clamp(12px,3vw,28px) 90px" }}>
-          <ElsGrid />
-        </div>
+      <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
+        <TzofenEmbed full />
       </div>
     );
   }
