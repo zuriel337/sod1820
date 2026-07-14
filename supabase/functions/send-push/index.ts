@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     });
 
     const payload = JSON.stringify({
-      title: title || "סוד1820",
+      title: title || "סוד 1820",
       body: body || "",
       url: url || "/",
     });
