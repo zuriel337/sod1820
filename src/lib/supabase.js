@@ -749,6 +749,12 @@ export async function adminAiStyleActivate(key) {
   try { const { error } = await supabase.rpc('admin_ai_style_activate', { p_key: key }); return !error; }
   catch { return false; }
 }
+// 📊 ביצועי ניתוח-ה-AI (הממוזג) בשלוש רמות — אהבו · יצרו מחקר · יצרו ידע. תואם לדוח השבועי של «השומר».
+export async function adminAiPulse(days = 30) {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_ai_pulse', { p_days: days }); return data || null; }
+  catch { return null; }
+}
 
 // ===== 🧠 מנוע-ההמלצות (system_suggestions_law) — Observe→Detect→Suggest→Explain→Decide =====
 // «המערכת לעולם אינה משנה את עצמה. היא רק לומדת, מסבירה ומציעה.» כל שינוי = החלטת צוריאל.

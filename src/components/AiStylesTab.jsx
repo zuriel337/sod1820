@@ -1,20 +1,41 @@
-// 🧪 מעבדת-הסגנון (ai_style_learning_law) — החלטת צוריאל 12.7.2026:
-// המנוע מייצר נתונים → המערכת מסכמת מגמות (דוחות בלבד!) → צוריאל מעצב את הסגנון ומחליט.
-// אין שום למידה אוטומטית שמשנה סגנון. משוב = סגנון והגשה בלבד — לעולם לא עובדות.
-// כל פרופיל קריא לבן-אדם (שם + עומק/עובדות/פרשנות/אורך), לא רק style_v7.
+// 📊 ביצועי ניתוח-ה-AI (admin) — «מקום עדכוני ה-AI» באזור הבקרה.
+// עודכן 14.7: מציג את ביצועי הניתוח *הממוזג* (חם + עמוק) בשלוש רמות —
+//   ❤️ אהבו · 🔬 יצרו מחקר · 📚 יצרו ידע — תואם לדוח השבועי של «השומר».
+// מובייל-ראשון (כרטיסים גמישים, בלי טבלה שנגללת לצדדים). המנוע מסכם נתונים בלבד; צוריאל מחליט.
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
-import { listAiStyles, adminAiRecent, adminAiRate, adminAiStyleReport, adminAiStyleSave, adminAiStyleActivate } from "../lib/supabase.js";
+import { engName } from "../lib/aiEngines.js";
+import { listAiStyles, adminAiRecent, adminAiRate, adminAiStyleReport, adminAiStyleSave, adminAiStyleActivate, adminAiPulse } from "../lib/supabase.js";
 
-const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 18px" };
+const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "15px 16px" };
 const pill = (c) => ({ display: "inline-block", background: c + "22", border: `1px solid ${c}`, color: c, borderRadius: 999, padding: "1px 9px", fontSize: 11, fontWeight: 800, fontFamily: F.heading });
-const th = { color: C.goldBright, fontFamily: F.heading, fontSize: 12, fontWeight: 700, textAlign: "right", padding: "7px 10px", borderBottom: `1px solid ${C.borderGold}`, whiteSpace: "nowrap" };
-const td = { color: C.goldLight, fontFamily: F.body, fontSize: 13, padding: "7px 10px", borderBottom: `1px solid ${C.border}` };
 
 // סיבות-הדירוג — מהן נבנה הסיכום שממנו צוריאל מעצב את הסגנון הבא
 const RATE_REASONS = ["ארוך מדי", "פרשנות חזקה מדי", "שטחי", "חסר עוגן/הצלבה", "לא בעברית טובה", "מצוין ככה"];
 
+// 🧱 כרטיס-מדד יחיד (מובייל-ראשון) — מספר גדול + תווית
+function Stat({ value, label, accent = C.goldBright }) {
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 8px", textAlign: "center", minWidth: 0 }}>
+      <div style={{ color: accent, fontFamily: F.heading, fontSize: 21, fontWeight: 800, lineHeight: 1.05, whiteSpace: "nowrap" }}>{value}</div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.35 }}>{label}</div>
+    </div>
+  );
+}
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(104px,1fr))", gap: 7 };
+
+// 🎚 שכבת-מדידה (❤️/🔬/📚) עם כותרת צבעונית
+function Level({ emoji, title, tint, children }) {
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px" }}>
+      <div style={{ color: tint, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>{emoji} {title}</div>
+      <div style={grid}>{children}</div>
+    </div>
+  );
+}
+
 export default function AiStylesTab() {
+  const [pulse, setPulse] = useState(null);
   const [styles, setStyles] = useState([]);
   const [report, setReport] = useState([]);
   const [recent, setRecent] = useState([]);
@@ -27,8 +48,8 @@ export default function AiStylesTab() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [st, rep, rec] = await Promise.all([listAiStyles(), adminAiStyleReport(), adminAiRecent(40)]);
-    setStyles(st); setReport(rep); setRecent(rec);
+    const [pl, st, rep, rec] = await Promise.all([adminAiPulse(30), listAiStyles(), adminAiStyleReport(), adminAiRecent(40)]);
+    setPulse(pl); setStyles(st); setReport(rep); setRecent(rec);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -46,7 +67,7 @@ export default function AiStylesTab() {
     if (ok) { setEditing(null); load(); }
   };
 
-  // 📋 "המערכת מסכמת את הנתונים" — משפטי-מגמה פשוטים מהדו"ח (לא הצעת סגנון!)
+  // 📋 משפטי-מגמה פשוטים לכל סגנון (המערכת מסכמת, לא מציעה)
   const trendLines = (r) => {
     const out = [];
     const rated = (r.admin_good || 0) + (r.admin_bad || 0);
@@ -67,107 +88,70 @@ export default function AiStylesTab() {
   };
 
   const emptyStyle = { style_key: "", name: "", depth: "בינוני", facts_level: "גבוה", interpretation_level: "בינונית", length_pref: "קצר (2-4 משפטים)", directives: "", notes: "" };
+  const P = pulse || {};
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div style={{ display: "grid", gap: 14 }}>
+      {/* כותרת — ממוזג, לא A/B */}
       <div style={box}>
-        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 16, fontWeight: 800, marginBottom: 4 }}>🧪 מעבדת הסגנון של ה-AI</div>
-        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
-          המנוע מייצר → המערכת <b>מסכמת נתונים בלבד</b> → אתה מעצב את הסגנון ומחליט. המשוב משנה סגנון והגשה — לעולם לא עובדות.
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 16, fontWeight: 800, marginBottom: 4 }}>🤖 ניתוח-ה-AI · ביצועים ומדדים</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}>
+          הניתוח העמוק כיום הוא <b>ממוזג</b> — פרשנות חמה <i>ועומק בין-שיטתי יחד</i>. למטה: איך הוא מתפקד ב-3 רמות
+          (אהבו · יצרו מחקר · יצרו ידע) — אותם מדדים שמגיעים אליך בדוח השבועי של «השומר».
         </div>
       </div>
 
       {loading ? <div style={{ color: C.muted, textAlign: "center", padding: 20 }}>טוען…</div> : <>
 
-      {/* 1. הפרופילים — קריאים לבן-אדם */}
+      {/* 📊 ביצועי הניתוח הממוזג — 3 רמות (מובייל-ראשון) */}
       <div style={box}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>🎨 פרופילי סגנון</div>
-          <button onClick={() => setEditing(emptyStyle)} style={{ cursor: "pointer", background: "rgba(212,175,55,0.14)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "5px 14px", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>➕ סגנון חדש</button>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 11 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>📊 ביצועי ניתוח-ה-AI</div>
+          <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>30 יום אחרונים</span>
         </div>
-        <div style={{ display: "grid", gap: 8 }}>
-          {styles.map(s => (
-            <div key={s.style_key} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: C.surface, border: `1px solid ${s.is_active ? C.borderGold : C.border}`, borderRadius: 11, padding: "9px 13px" }}>
-              {s.is_active && <span style={pill("#4caf7d")}>● פעיל</span>}
-              <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14 }}>{s.name}</b>
-              <span style={{ color: C.muted, fontSize: 11.5, fontFamily: F.body }} dir="ltr">{s.style_key}</span>
-              <span style={{ color: C.goldLight, fontSize: 12, fontFamily: F.body }}>עומק: {s.depth} · עובדות: {s.facts_level} · פרשנות: {s.interpretation_level} · אורך: {s.length_pref}</span>
-              <span style={{ marginInlineStart: "auto", display: "flex", gap: 6 }}>
-                <button onClick={() => setEditing({ ...s })} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "3px 11px", fontSize: 11.5, fontFamily: F.heading }}>✏️ ערוך</button>
-                {!s.is_active && <button onClick={async () => { await adminAiStyleActivate(s.style_key); load(); }} style={{ cursor: "pointer", background: "rgba(76,175,125,0.12)", border: "1px solid rgba(76,175,125,0.5)", color: "#7fd49a", borderRadius: 999, padding: "3px 11px", fontSize: 11.5, fontWeight: 800, fontFamily: F.heading }}>הפעל</button>}
-              </span>
-            </div>
-          ))}
-        </div>
-        {editing && (
-          <div style={{ marginTop: 12, background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 11, padding: 13, display: "grid", gap: 8 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 8 }}>
-              {[["style_key", "מפתח (אנגלית, למשל short_v2)"], ["name", "שם קריא (למשל: קצר וממוקד)"], ["depth", "עומק"], ["facts_level", "עובדות"], ["interpretation_level", "פרשנות"], ["length_pref", "אורך"]].map(([k, ph]) => (
-                <input key={k} value={editing[k] || ""} onChange={e => setEditing(v => ({ ...v, [k]: e.target.value }))} placeholder={ph} dir={k === "style_key" ? "ltr" : "rtl"}
-                  style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, color: C.goldLight, fontFamily: F.body, fontSize: 13, padding: "8px 11px" }} />
-              ))}
-            </div>
-            <textarea value={editing.directives || ""} onChange={e => setEditing(v => ({ ...v, directives: e.target.value }))} rows={3}
-              placeholder="הנחיות-הסגנון שיצורפו לחוקי הברזל (למשל: כתוב 2-3 משפטים בלבד; פחות פרשנות, יותר הפניות להצלבות; פתח תמיד בעובדה)"
-              style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, color: C.goldLight, fontFamily: F.body, fontSize: 13, padding: "8px 11px", resize: "vertical" }} />
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <button onClick={saveStyle} style={{ cursor: "pointer", background: "rgba(76,175,125,0.14)", border: "1px solid rgba(76,175,125,0.55)", color: "#7fd49a", borderRadius: 999, padding: "6px 18px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>💾 שמור</button>
-              <button onClick={() => setEditing(null)} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5 }}>בטל</button>
-              {msg && <span style={{ color: C.muted, fontSize: 12 }}>{msg}</span>}
-            </div>
+        <div style={{ display: "grid", gap: 9 }}>
+          {/* כמות + מנועים */}
+          <div style={grid}>
+            <Stat value={P.analyses ?? 0} label="ניתוחים" />
+            <Stat value={P.deep ?? 0} label="עמוקים-ממוזגים" />
+            <Stat value={P.claude ?? 0} label="🔵 הפרשן" accent="#3ea6ff" />
+            <Stat value={P.gemini ?? 0} label="🟣 האנליטי" accent="#b49af0" />
+            <Stat value={P.avg_len ?? 0} label="אורך ממוצע (תווים)" />
+            <Stat value={P.users ?? 0} label="משתמשים" />
           </div>
-        )}
-      </div>
-
-      {/* 2. הדו"ח — המערכת מסכמת, לא מציעה */}
-      <div style={box}>
-        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, marginBottom: 10 }}>📊 מה מספרים הנתונים (לפי סגנון)</div>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 640 }}>
-            <thead><tr>
-              <th style={th}>סגנון</th><th style={th}>ניתוחים</th><th style={th}>👍/👎 שלי</th><th style={th}>👍/👎 גולשים</th>
-              <th style={th}>המשיכו לחקור</th><th style={th}>הוסיפו למחקר</th><th style={th}>שיתפו</th>
-            </tr></thead>
-            <tbody>
-              {report.map(r => (
-                <tr key={r.style_key}>
-                  <td style={td}>{r.is_active ? "● " : ""}{r.name}</td>
-                  <td style={td}>{r.analyses}</td>
-                  <td style={td}>{r.admin_good || 0} / {r.admin_bad || 0}</td>
-                  <td style={td}>{r.user_up || 0} / {r.user_down || 0}</td>
-                  <td style={td}>{r.continue_rate != null ? `${r.continue_rate}%` : "—"}</td>
-                  <td style={td}>{r.research_rate != null ? `${r.research_rate}%` : "—"}</td>
-                  <td style={td}>{r.share_rate != null ? `${r.share_rate}%` : "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Level emoji="❤️" title="אהבו את התשובה" tint="#e0819e">
+            <Stat value={P.up ?? 0} label="👍 גולשים" accent="#7fd49a" />
+            <Stat value={P.down ?? 0} label="👎 גולשים" accent="#e08a8a" />
+            <Stat value={`${P.admin_good ?? 0} / ${P.admin_bad ?? 0}`} label="דירוג שלך 👍/👎" />
+            <Stat value={P.pending_ratings ?? 0} label="ממתינים לדירוג" />
+          </Level>
+          <Level emoji="🔬" title="יצרו מחקר — גם בלי הצבעה" tint="#6cc6d6">
+            <Stat value={`${P.continue_rate ?? 0}%`} label="המשיכו לחקור" />
+            <Stat value={`${P.research_rate ?? 0}%`} label="הוסיפו למחקר" />
+            <Stat value={`${P.share_rate ?? 0}%`} label="שיתפו" />
+          </Level>
+          <Level emoji="📚" title="יצרו ידע" tint="#d4af37">
+            <Stat value={P.ai_insights ?? 0} label="חידושי-AI חדשים בגרף" />
+            <Stat value={P.knowledge_contributions ?? 0} label="תרומות-חוקרים" />
+          </Level>
         </div>
-        {report.map(r => (
-          <div key={r.style_key} style={{ marginTop: 10, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 11, padding: "10px 13px" }}>
-            <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13 }}>{r.name}:</b>
-            <ul style={{ margin: "5px 0 0", paddingInlineStart: 18, color: C.goldLight, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75 }}>
-              {trendLines(r).map((t, i) => <li key={i}>{t}</li>)}
-            </ul>
-          </div>
-        ))}
-        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, fontStyle: "italic", marginTop: 8 }}>
-          המערכת מסכמת בלבד. יצירת סגנון חדש (style_v2…) — ההחלטה והעיצוב שלך, בכפתור «➕ סגנון חדש».
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, fontStyle: "italic", marginTop: 9, lineHeight: 1.6 }}>
+          «יצרו מחקר» נמדד על <b>כל</b> ניתוח — לא רק על מי שהצביע 👍. זה המדד האמיתי: האם התשובה פתחה כיוון.
         </div>
       </div>
 
-      {/* 3. ניתוחים אחרונים — הדירוג שלך */}
+      {/* 📝 ניתוחים אחרונים — דרג ולמד את המערכת */}
       <div style={box}>
-        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, marginBottom: 10 }}>📝 ניתוחים אחרונים — דרג ולמד את המערכת</div>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, marginBottom: 10 }}>📝 ניתוחים אחרונים — דרג</div>
         <div style={{ display: "grid", gap: 8 }}>
           {recent.map(l => (
-            <div key={l.id} style={{ background: C.surface, border: `1px solid ${l.admin_rating === 1 ? "rgba(76,175,125,0.5)" : l.admin_rating === -1 ? "rgba(220,90,90,0.5)" : C.border}`, borderRadius: 11, padding: "9px 13px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+            <div key={l.id} style={{ background: C.surface, border: `1px solid ${l.admin_rating === 1 ? "rgba(76,175,125,0.5)" : l.admin_rating === -1 ? "rgba(220,90,90,0.5)" : C.border}`, borderRadius: 11, padding: "9px 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                 <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5 }}>{l.subject || "—"}</b>
                 <span style={pill(C.goldBright)}>{l.kind}</span>
-                <span style={{ color: C.muted, fontSize: 11 }}>{l.engine} · {l.style_key}</span>
+                <span style={{ color: C.muted, fontSize: 11 }}>{engName(l.engine)}</span>
                 <span style={{ color: C.muted, fontSize: 11 }}>{new Date(l.created_at).toLocaleString("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
-                {(l.up_votes > 0 || l.down_votes > 0) && <span style={{ color: C.muted, fontSize: 11 }}>גולשים: {l.up_votes}👍 {l.down_votes}👎</span>}
+                {(l.up_votes > 0 || l.down_votes > 0) && <span style={{ color: C.muted, fontSize: 11 }}>{l.up_votes}👍 {l.down_votes}👎</span>}
                 {l.continue_ct > 0 && <span style={pill("#3ea6ff")}>המשיכו ×{l.continue_ct}</span>}
                 <span style={{ marginInlineStart: "auto", display: "flex", gap: 5, alignItems: "center" }}>
                   {l.admin_rating === 1 && <span style={pill("#4caf7d")}>👍 {l.admin_reason || ""}</span>}
@@ -194,6 +178,58 @@ export default function AiStylesTab() {
           {!recent.length && <div style={{ color: C.muted, textAlign: "center", padding: 12 }}>ניתוחים חדשים יופיעו כאן אוטומטית (כל ניתוח AI באתר נרשם).</div>}
         </div>
       </div>
+
+      {/* 🎨 פרופילי סגנון — משני (מוזג לניתוח אחד; מקום לניסויי-סגנון עתידיים) */}
+      <details style={box}>
+        <summary style={{ cursor: "pointer", color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 800, listStyle: "none" }}>
+          🎨 פרופילי סגנון · לימוד-סגנון מתקדם <span style={{ color: C.muted, fontSize: 11.5, fontWeight: 400 }}>(פתח להרחבה)</span>
+        </summary>
+        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>המערכת מסכמת נתונים בלבד — יצירת/עיצוב סגנון = ההחלטה שלך.</span>
+            <button onClick={() => setEditing(emptyStyle)} style={{ cursor: "pointer", background: "rgba(212,175,55,0.14)", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "5px 14px", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>➕ סגנון חדש</button>
+          </div>
+          {styles.map(s => (
+            <div key={s.style_key} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: C.surface, border: `1px solid ${s.is_active ? C.borderGold : C.border}`, borderRadius: 11, padding: "9px 12px" }}>
+              {s.is_active && <span style={pill("#4caf7d")}>● פעיל</span>}
+              <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14 }}>{s.name}</b>
+              <span style={{ color: C.muted, fontSize: 11.5, fontFamily: F.body }} dir="ltr">{s.style_key}</span>
+              <span style={{ color: C.goldLight, fontSize: 11.5, fontFamily: F.body }}>עומק {s.depth} · עובדות {s.facts_level} · פרשנות {s.interpretation_level}</span>
+              <span style={{ marginInlineStart: "auto", display: "flex", gap: 6 }}>
+                <button onClick={() => setEditing({ ...s })} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "3px 11px", fontSize: 11.5, fontFamily: F.heading }}>✏️ ערוך</button>
+                {!s.is_active && <button onClick={async () => { await adminAiStyleActivate(s.style_key); load(); }} style={{ cursor: "pointer", background: "rgba(76,175,125,0.12)", border: "1px solid rgba(76,175,125,0.5)", color: "#7fd49a", borderRadius: 999, padding: "3px 11px", fontSize: 11.5, fontWeight: 800, fontFamily: F.heading }}>הפעל</button>}
+              </span>
+            </div>
+          ))}
+          {editing && (
+            <div style={{ marginTop: 4, background: C.surface, border: `1px solid ${C.borderGold}`, borderRadius: 11, padding: 13, display: "grid", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 8 }}>
+                {[["style_key", "מפתח (אנגלית, למשל short_v2)"], ["name", "שם קריא (למשל: קצר וממוקד)"], ["depth", "עומק"], ["facts_level", "עובדות"], ["interpretation_level", "פרשנות"], ["length_pref", "אורך"]].map(([k, ph]) => (
+                  <input key={k} value={editing[k] || ""} onChange={e => setEditing(v => ({ ...v, [k]: e.target.value }))} placeholder={ph} dir={k === "style_key" ? "ltr" : "rtl"}
+                    style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, color: C.goldLight, fontFamily: F.body, fontSize: 16, padding: "9px 11px" }} />
+                ))}
+              </div>
+              <textarea value={editing.directives || ""} onChange={e => setEditing(v => ({ ...v, directives: e.target.value }))} rows={3}
+                placeholder="הנחיות-הסגנון שיצורפו לחוקי הברזל (למשל: כתוב 2-3 משפטים בלבד; פחות פרשנות, יותר הפניות להצלבות; פתח תמיד בעובדה)"
+                style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, color: C.goldLight, fontFamily: F.body, fontSize: 16, padding: "9px 11px", resize: "vertical" }} />
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <button onClick={saveStyle} style={{ cursor: "pointer", background: "rgba(76,175,125,0.14)", border: "1px solid rgba(76,175,125,0.55)", color: "#7fd49a", borderRadius: 999, padding: "7px 18px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>💾 שמור</button>
+                <button onClick={() => setEditing(null)} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "7px 14px", fontFamily: F.heading, fontSize: 12.5 }}>בטל</button>
+                {msg && <span style={{ color: C.muted, fontSize: 12 }}>{msg}</span>}
+              </div>
+            </div>
+          )}
+          {/* סיכום לפי סגנון — כרטיסים (בלי טבלה שנגללת) */}
+          {report.map(r => (
+            <div key={r.style_key} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 11, padding: "10px 12px" }}>
+              <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13 }}>{r.is_active ? "● " : ""}{r.name} <span style={{ color: C.muted, fontWeight: 400, fontSize: 11.5 }}>· {r.analyses} ניתוחים</span></b>
+              <ul style={{ margin: "5px 0 0", paddingInlineStart: 18, color: C.goldLight, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+                {trendLines(r).map((t, i) => <li key={i}>{t}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
       </>}
     </div>
   );

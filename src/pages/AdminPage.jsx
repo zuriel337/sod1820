@@ -41,7 +41,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
-  { key: "aistyles", label: "🧪 סגנונות AI" },
+  { key: "aistyles", label: "🤖 ניתוחי AI" },
   { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
   { key: "traffic",  label: "📊 תנועה" },
