@@ -563,6 +563,16 @@
   .mc.sel{outline:3px solid #fff;outline-offset:-1px;box-shadow:0 0 12px rgba(255,255,255,.7);z-index:2}
   body.classic .mc.sel{outline-color:#111;box-shadow:0 0 10px rgba(0,0,0,.4)}
   .mc.start::after{content:"";position:absolute;inset:-2px;border:2px solid var(--goldBright);border-radius:6px;pointer-events:none}
+  /* 🧊 תלת-מימד — פרספקטיבה + עומק; עמודת-הצופן בולטת החוצה וזוהרת (CSS-3D, בלי ספרייה) */
+  .matrix-box.d3{perspective:1150px;perspective-origin:50% 38%;overflow:visible;touch-action:none;cursor:grab}
+  .matrix-box.d3.grab{cursor:grabbing}
+  .matrix-box.d3 .matrix{transform-style:preserve-3d;transform:rotateX(var(--rx,44deg)) rotateZ(var(--rz,0deg));transition:transform .05s linear;will-change:transform}
+  .matrix-box.d3 .mc{transform-style:preserve-3d;transition:transform .3s ease,box-shadow .3s ease,opacity .3s ease}
+  .matrix-box.d3 .mc.bg{opacity:.5}
+  .matrix-box.d3 .mc.ov{transform:translateZ(22px);box-shadow:0 10px 16px rgba(0,0,0,.45)}
+  .matrix-box.d3 .mc.main{transform:translateZ(46px);box-shadow:0 0 0 1px var(--mainRing),0 0 26px 6px var(--mainGlow),0 26px 30px rgba(0,0,0,.55)}
+  .matrix-box.d3 .mc.main .l,.matrix-box.d3 .mc.ov .l{text-shadow:0 4px 10px rgba(0,0,0,.6)}
+  .mact.d3-act.on{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;border-color:transparent}
   .empty{text-align:center;color:var(--ink2);padding:44px 18px;font-size:14.5px;line-height:1.8}.empty b{color:var(--goldBright)}
   .hintbar{font-size:11px;color:var(--ink3);text-align:center;padding:7px;border-top:1px solid var(--line)}
 
@@ -2233,14 +2243,14 @@
     const mbWrap=document.createElement("div");
     const mb=document.createElement("div");mb.className="matrix-box";
     mb.appendChild(buildMatrix());
-    enablePan(mb);
+    if(st3d.on)enable3D(mb);else enablePan(mb);
     const hb=document.createElement("div");hb.className="hintbar";
     hb.innerHTML='<span class="ht">📍 הקש אות למיקום בתורה · '+(st.fit?"מותאם למסך · צבוט/± להגדיל":"גרור · צבוט להגדיל")+'</span>'+
       '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
-      '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
+      '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
@@ -2251,6 +2261,7 @@
     mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);work.appendChild(mbWrap);
     acts.querySelector(".share-act").onclick=shareLink;
     acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)
+    acts.querySelector(".d3-act").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
     acts.querySelector(".img-act").onclick=downloadMatrixPNG;
     const pa=acts.querySelector(".post-act");if(pa)pa.onclick=()=>{try{window.open(encodeURI(st.postUrl),"_blank","noopener");}catch(e){toast("הקישור: "+st.postUrl);}};
     const la=acts.querySelector(".link-act");if(la)la.onclick=linkToPost;
@@ -2280,6 +2291,7 @@
   }
 
   let lastGrid=null,lastBlock=null,lastPX=26,lastCw=26,dragMoved=false,lastHeat=null;
+  let st3d={on:false,rx:44,rz:0};   // 🧊 מצב תלת-מימד + זוויות-סיבוב (CSS vars)
   // 🖥️ התאמה-למסך: מגדיל/מקטין את התאים כך שכל הצופן המסומן ממלא את רוחב-המסך (בלי גלילה אופקית)
   function fitMatrixToScreen(){
     if(!st.fit||!lastGrid)return;
@@ -2458,6 +2470,25 @@
     const colFromRight=(b.c0+b.cw-1)-mc;
     mb.scrollLeft=Math.max(0,pad+colFromRight*(PX+gap)-mb.clientWidth/2+PX/2);
     mb.scrollTop=Math.max(0,pad+(mr-b.r0)*(PX+gap)-mb.clientHeight/2+PX/2);
+  }
+  // 🧊 מצב תלת-מימד — גרירה מסובבת את המטריצה (rotateX/rotateZ), עמודת-הצופן בולטת החוצה.
+  //    ההקשה על אות (מיקום בתורה) עדיין עובדת — dragMoved חוסם רק אחרי גרירה אמיתית.
+  function enable3D(mb){
+    mb.classList.add("d3");
+    const grid=mb.querySelector(".matrix");if(!grid)return;
+    const setv=()=>{grid.style.setProperty("--rx",st3d.rx+"deg");grid.style.setProperty("--rz",st3d.rz+"deg");};
+    setv();
+    let down=false,px=0,py=0;
+    const start=(x,y)=>{down=true;px=x;py=y;dragMoved=false;mb.classList.add("grab");};
+    const move=(x,y)=>{if(!down)return;const dx=x-px,dy=y-py;if(Math.abs(dx)+Math.abs(dy)>3)dragMoved=true;px=x;py=y;
+      st3d.rz+=dx*0.4;st3d.rx=Math.max(6,Math.min(84,st3d.rx-dy*0.4));setv();};
+    const end=()=>{down=false;mb.classList.remove("grab");};
+    mb.addEventListener("mousedown",e=>{if(e.button!==0)return;start(e.clientX,e.clientY);e.preventDefault();});
+    window.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
+    window.addEventListener("mouseup",end);
+    mb.addEventListener("touchstart",e=>{if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}},{passive:false});
+    mb.addEventListener("touchmove",e=>{if(down&&e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}},{passive:false});
+    mb.addEventListener("touchend",end);
   }
   function enablePan(mb){
     let down=false,sx,sy,sl,stp,pinch=null;
