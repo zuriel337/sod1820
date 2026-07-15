@@ -44,6 +44,18 @@ export async function saveMatrix({ term, scope = "torah", skip = null, direction
   return data;
 }
 
+// 👤 שמירה למשתמש לא-רשום (אנונימי) — נשמר עם visitor_id, נכנס כ«ממתין לאישור»
+// (status=pending, source=community) ומופיע לאדמין בטאב-האישור. לא ציבורי עד אישור.
+export async function saveMatrixAnon({ visitorId, authorName = null, term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null }) {
+  const { data, error } = await supabase.rpc("save_els_matrix_anon", {
+    p_visitor_id: visitorId, p_term: term, p_scope: scope, p_skip: skip,
+    p_direction: direction, p_positions: positions, p_image_url: imageUrl,
+    p_title: title, p_note: note, p_author_name: authorName,
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function moderateMatrix(id, status) {
   const { error } = await supabase.rpc("moderate_els_matrix", { p_id: id, p_status: status });
   if (error) throw error;

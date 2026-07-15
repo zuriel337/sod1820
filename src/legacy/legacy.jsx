@@ -3828,9 +3828,10 @@ function ContactPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-      setErr("נא למלא שם, אימייל והודעה"); return;
-    }
+    // ולידציה תואמת מדיניות ה-RLS contact_insert (name 1-100, email 3-200, message 1-3000)
+    const name = form.name.trim(), email = form.email.trim(), message = form.message.trim();
+    if (!name || !email || !message) { setErr("נא למלא שם, אימייל והודעה"); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setErr("נא להזין כתובת אימייל תקינה"); return; }
     setSending(true); setErr("");
     try {
       await sendContactMessage(form);

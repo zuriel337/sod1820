@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { track } from "../lib/tracking.js";
-import { saveMatrix, getSavedMatrices } from "../lib/elsMatrices.js";
+import { track, getVisitorId } from "../lib/tracking.js";
+import { saveMatrix, saveMatrixAnon, getSavedMatrices } from "../lib/elsMatrices.js";
 import { supabase } from "../lib/supabase.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
@@ -97,23 +97,29 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   }, []);
 
   // 💾 שמירת-מטריצה לענן (els_records) — קלאוד בלבד, בלי שמירה-למכשיר.
-  //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → שער-הרשמה.
+  //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → נשמר עם visitor_id, ממתין לאישור.
+  //    (החלטת צוריאל: גם לא-רשום יכול לשמור — הצופן נכנס לתור-האישור באדמין, לא מתפרסם מיד.)
   const saveToCloud = useCallback(async (d) => {
-    if (!user) { setGate({ reason: "save" }); postToTool({ type: "saved", ok: false, reason: "login" }); return; }
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
       const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
-      await saveMatrix({
+      const common = {
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
         // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
         positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
           quality: d.quality || null, shapeUrl: shapeUrl || null },
         title: d.postTitle || d.term, note: null, imageUrl,
-        fromTopic: fromTopic || null,   // 🔁 round-trip: צופן שנוצר מהתכנסות חוזר אליה כראיה
-      });
-      postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
-      if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
+      };
+      if (user) {
+        await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
+        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
+        if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
+      } else {
+        // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
+        await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
+        postToTool({ type: "saved", ok: true, status: "pending" });
+      }
     } catch {
       postToTool({ type: "saved", ok: false });
     }
