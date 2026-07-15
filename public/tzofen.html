@@ -1196,8 +1196,8 @@
   const bumpFree=()=>{try{localStorage.setItem(FREEKEY,String(freeCount()+1));}catch(e){}};
   const postHost=m=>{try{if(window.parent&&window.parent!==window)window.parent.postMessage(Object.assign({source:"tzofen"},m),"*");}catch(e){}};
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
-  const canCross=()=>!isAnon();
-  const canRegular=()=>!isAnon()||freeCount()<FREE_LIMIT;
+  const canCross=()=>true;   // 🔓 חיפוש מוצלב פתוח לכולם (החלטת צוריאל 7.2026)
+  const canRegular=()=>true;  // 🔓 חיפוש רגיל פתוח לכולם — בלי הגבלת-5 (החלטת צוריאל 7.2026). תנ״ך נשאר לרשומים (tanakhLocked)
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
   function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{return Math.abs(occ().skip);}catch(e){return 0;}})(),scope:st.scope});}
