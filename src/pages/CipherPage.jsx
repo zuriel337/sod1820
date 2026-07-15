@@ -72,8 +72,9 @@ export default function CipherPage() {
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 14px 8px" }}>
         <div style={{ textAlign: "center", marginBottom: 8 }}>
           <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, letterSpacing: 3, textTransform: "uppercase" }}>דילוגי אותיות · ELS</div>
-          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 800, margin: "4px 0 6px" }}>
-            🔠 {m.title || m.search_term}
+          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 800, margin: "4px 0 6px", display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <img src="/els-icon.png" alt="" width="38" height="38" style={{ borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />
+            <span>{m.title || m.search_term}</span>
           </h1>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             <span>דילוג <b style={{ color: P.accentText }}>{m.skip_distance}</b></span>
@@ -138,9 +139,10 @@ export default function CipherPage() {
           ].filter(Boolean).join("\n");
           const gen = async (again) => {
             setAi(a => ({ ...a, loading: true, err: "", saved: false }));
-            const r = await getAiAnalysis({ kind: "els", subject: m.search_term, facts: factsStr, long: true, again });
-            if (r?.analysis) setAi({ loading: false, text: r.analysis.replace(/^#+\s.*$/gm, "").trim(), saved: false, err: "" });
-            else setAi(a => ({ ...a, loading: false, err: r?.message || "לא התקבל הסבר — נסה שוב" }));
+            // getAiAnalysis מחזיר את מחרוזת-הניתוח (או null) — לא אובייקט. בלי long → מהיר ואמין (סינתזה עד 6 משפטים).
+            const r = await getAiAnalysis({ kind: "els", subject: m.search_term, facts: factsStr, again });
+            if (r && typeof r === "string") setAi({ loading: false, text: r.replace(/^#+\s.*$/gm, "").trim(), saved: false, err: "" });
+            else setAi(a => ({ ...a, loading: false, err: "המנוע עמוס כרגע — נסו שוב בעוד רגע" }));
           };
           const save = async () => {
             try { await supabase.rpc("set_els_meta", { p_id: m.id, p_description: ai.text }); setAi(a => ({ ...a, saved: true })); setM(x => ({ ...x, description: ai.text })); }

@@ -42,10 +42,12 @@ export default function ShareActions({ type = "page", url, title = "", image = n
       )}
       {channels.filter(c => CH[c]).map(c => {
         const m = CH[c];
+        // עיצוב אחיד ונקי לכל הערוצים (canonical_ui_components_law) — האימוג׳י נותן זיהוי-מותג,
+        // בלי גבולות/צבעים מתנגשים («קשת» של צבעים). הכפתור הראשי «שתף» נשאר הזהב.
         return (
           <a key={c} href={m.href(fullUrl, text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
-            title={m.label} style={{ ...btn, color: m.color, borderColor: `color-mix(in srgb, ${m.color} 45%, ${P.border})` }}>
-            {m.emoji} {label(m.label)}
+            title={m.label} style={btn}>
+            <span style={{ fontSize: 15, lineHeight: 1 }}>{m.emoji}</span> {label(m.label)}
           </a>
         );
       })}
