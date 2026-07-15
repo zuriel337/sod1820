@@ -116,6 +116,13 @@ export default async function handler(req) {
     ? `מה מסתתר ב"${w}"?`
     : 'מה המספרים יודעים עליך?';
 
+  // ✍️ שורת-החתימה בתחתית — הוו הוויראלי:
+  //   ברירת-מחדל = הצופן («חפש את שמך בתורה») — זה ה-WOW של האתר.
+  //   דפי-מספר (n) ודף-השם (sig=gem) → וו-גימטריה («מה מסתתר בשם שלך?»).
+  const sig = (searchParams.get('sig') || '').trim();
+  const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
+  const signature = sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
+
   const font = await fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) =>
     r.arrayBuffer()
   );
@@ -243,7 +250,7 @@ export default async function handler(req) {
         },
       },
       h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800 } }, rev(teaser)),
-      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev('תתחילו לגלות') + ' · sod1820.co.il')
+      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev(signature) + ' · sod1820.co.il')
     )
   );
 
