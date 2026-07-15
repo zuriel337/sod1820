@@ -106,6 +106,10 @@ export function buildCrossCard(item) {
   fitFont(g, poetic, S - 200, 40, px => `italic 600 ${px}px 'Heebo', 'Heebo', serif`, 20);
   g.fillStyle = "#cdb7e8"; g.fillText(poetic, S / 2, 858);
 
+  // ✍️ חתימה — וו הצופן (ה-WOW): «חפש את שמך בתורה»
+  g.fillStyle = "#e8c840"; g.font = "700 30px 'Heebo', sans-serif"; g.direction = "rtl";
+  g.fillText("חפש את שמך בתורה", S / 2, 950);
+
   // פוטר
   g.fillStyle = "#c9a227"; g.font = "700 28px 'Heebo', sans-serif"; g.direction = "ltr";
   g.fillText("sod1820.co.il/beit-midrash", S / 2, S - 72);

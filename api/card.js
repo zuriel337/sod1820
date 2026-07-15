@@ -116,13 +116,41 @@ export default async function handler(req) {
     ? `מה מסתתר ב"${w}"?`
     : 'מה המספרים יודעים עליך?';
 
+  // ✍️ שורת-החתימה בתחתית — הוו הוויראלי:
+  //   ברירת-מחדל = הצופן («חפש את שמך בתורה») — זה ה-WOW של האתר.
+  //   דפי-מספר (n) ודף-השם (sig=gem) → וו-גימטריה («מה מסתתר בשם שלך?»).
+  const sig = (searchParams.get('sig') || '').trim();
+  const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
+  const signature = sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
+
   const font = await fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) =>
     r.arrayBuffer()
   );
 
-  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי)
-  const heroSize = hero.length <= 4 ? 320 : hero.length <= 8 ? 200 : hero.length <= 14 ? 120
-                 : hero.length <= 22 ? 88 : hero.length <= 34 ? 66 : 52;
+  // 👑 הלוגו האמיתי (הכתר + «כי לה' המלוכה») — מוטמע כ-data URI מתוך _assets, בלי תלות-רשת בזמן רינדור.
+  //    logo_integrity_law: המקור היחיד /logo.png (512×512 מרובע) — מוצג contain, בלי חיתוך המילים.
+  const logoDataUri = await fetch(new URL('./_assets/logo.png', import.meta.url))
+    .then((r) => r.arrayBuffer())
+    .then((buf) => {
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      }
+      return 'data:image/png;base64,' + btoa(bin);
+    })
+    .catch(() => null);
+  const logoSize = story ? 150 : 104;
+
+  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי).
+  // ⚠️ כשיש שורת-משנה (sub) מקטינים את הגיבור — אחרת המספר/המילה הענקיים «דורסים» את הכיתוב שמתחת (צמידות).
+  const hasSub = !!sub;
+  const heroSize = hero.length <= 4 ? (hasSub ? 236 : 300)
+                 : hero.length <= 8 ? (hasSub ? 168 : 196)
+                 : hero.length <= 14 ? (hasSub ? 108 : 120)
+                 : hero.length <= 22 ? 84
+                 : hero.length <= 34 ? 62
+                 : 50;
   // גודל שורת הגימטריה — שורה אחת תמיד (מתכווץ לפי אורך)
   const subSize = sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.length <= 38 ? 34 : sub.length <= 52 ? 27 : 22;
 
@@ -141,21 +169,17 @@ export default async function handler(req) {
         position: 'relative',
       },
     },
-    // מסגרת זהב עדינה
-    h('div', {
-      style: {
-        position: 'absolute',
-        top: '28px',
-        left: '28px',
-        right: '28px',
-        bottom: '28px',
-        border: '2px solid rgba(212,175,55,0.45)',
-        borderRadius: '24px',
-        display: 'flex',
-      },
-    }),
-    // כתר + מותג עליון
-    h('div', { style: { display: 'flex', fontSize: '56px', marginBottom: '2px' } }, '👑'),
+    // ⚠️ אין מסגרת-זהב פנימית: קו-מסגרת בהיסט קבוע נחתך לקו-שבור כשהכרטיס נגזר (objectFit cover / תמונה-מרובעת).
+    //    הרקע-הרדיאלי לבדו נותן גבול רך שנגזר יפה בכל מקום. אם רוצים מסגרת — רק full-bleed בלי היסט.
+    // כתר + מותג עליון — הלוגו האמיתי (עם נפילה ל-👑 אם הטמעת התמונה נכשלה, כדי שהכרטיס לעולם לא ייפול)
+    logoDataUri
+      ? h('img', {
+          src: logoDataUri,
+          width: logoSize,
+          height: logoSize,
+          style: { display: 'block', marginBottom: '2px', objectFit: 'contain' },
+        })
+      : h('div', { style: { display: 'flex', fontSize: '56px', marginBottom: '2px' } }, '👑'),
     h(
       'div',
       {
@@ -200,7 +224,7 @@ export default async function handler(req) {
               display: 'flex',
               fontSize: `${subSize}px`,
               color: '#f3ead0',
-              marginTop: '24px',
+              marginTop: '32px',
               whiteSpace: 'nowrap',
               textAlign: 'center',
             },
@@ -221,7 +245,7 @@ export default async function handler(req) {
         },
       },
       h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800 } }, rev(teaser)),
-      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev('תתחילו לגלות') + ' · sod1820.co.il')
+      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev(signature) + ' · sod1820.co.il')
     )
   );
 

@@ -11,15 +11,20 @@ const SITE_NAME = 'SOD1820';
 const DEFAULT_DESC = "אתר כי לה' המלוכה – רמזי הגאולה הגדול בעולם. 13 שנות מחקר, תוכנת דילוגי אותיות, מחשבון גימטריה, עץ המספרים, מאגר חי של צפנים, חידושי AI וכלים לקריאת המציאות בשפת המספרים.";
 const DEFAULT_IMAGE = SITE + '/logo.png';
 
-// בונה כתובת לתמונת שיתוף דינמית (כרטיס 1200×630) — w=גיבור · sub=שורת משנה · cap=טיזר
+// בונה כתובת לתמונת שיתוף דינמית (כרטיס 1200×630) — w=גיבור · sub=שורת משנה · cap=טיזר · sig=חתימה
 const cardUrl = (o = {}) => {
   const p = new URLSearchParams();
   if (o.w) p.set('w', o.w);
   if (o.n != null) p.set('n', String(o.n));
   if (o.sub) p.set('sub', o.sub);
   if (o.cap) p.set('cap', o.cap);
+  if (o.sig) p.set('sig', o.sig);
   return `${SITE}/api/card?${p.toString()}`;
 };
+
+// גימטריה רגילה (יסוד) — פונקציה טהורה, סופיות מקופלות לבסיס (method_hierarchy_ragil_foundation).
+const RAGIL = { 'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400 };
+const ragil = (s) => Array.from(String(s || '')).reduce((a, c) => a + (RAGIL[c] || 0), 0);
 
 // עמודים סטטיים — כותרת/תיאור + כרטיס שיתוף ייעודי (card) כדי שכל לינק יביא תמונה יפה ומסבירה
 const STATIC = {
@@ -115,18 +120,32 @@ export default async function handler(req, res) {
     } else {
       title = "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · " + SITE_NAME;
       desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
-      image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}`;
+      image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}&sig=gem`;
     }
   } else if (key === '/number') {
     // "הגוגל של המספרים" — דף הנחיתה
     title = "מנוע המספרים — הגוגל של המספרים · " + SITE_NAME;
     desc = "הקלידו מספר, שם או פסוק — וגלו את עץ הקשרים הנסתר שלו. המנוע מזהה לבד.";
-    image = `${SITE}/api/card?w=${encodeURIComponent('מנוע המספרים')}&sub=${encodeURIComponent('הגוגל של המספרים')}&cap=${encodeURIComponent('הקלידו מספר או שם — וגלו את עץ הקשרים')}`;
+    image = `${SITE}/api/card?w=${encodeURIComponent('מנוע המספרים')}&sub=${encodeURIComponent('הגוגל של המספרים')}&cap=${encodeURIComponent('הקלידו מספר או שם — וגלו את עץ הקשרים')}&sig=gem`;
   } else if (key === '/name' || key === '/שם') {
     // השער הויראלי — "מה השם שלך מסתיר?"
     title = "מה השם שלך מסתיר? · " + SITE_NAME;
     desc = "הקלידו את שמכם וגלו את הסוד הגימטרי שמאחוריו — מה השם שלכם אומר עליכם.";
-    image = `${SITE}/api/card?w=${encodeURIComponent('מה השם שלך מסתיר?')}&sub=${encodeURIComponent('הקלידו שם · גלו את הסוד')}&cap=${encodeURIComponent('בדקו את השם שלכם · סוד 1820')}`;
+    image = `${SITE}/api/card?w=${encodeURIComponent('מה השם שלך מסתיר?')}&sub=${encodeURIComponent('הקלידו שם · גלו את הסוד')}&cap=${encodeURIComponent('בדקו את השם שלכם · סוד 1820')}&sig=gem`;
+  } else if (key === '/name-lab' || key === '/מעבדת-השם') {
+    // 🔬 מעבדת-השם — עמוד-התוצאה שאותו משתפים (?w=<שם>). זו הלולאה הוויראלית:
+    //    מישהו מחפש את שמו ומשתף → הצופה רואה «<שם> = <ערך>» + «מה מסתתר בשם שלך?» → מחפש את שלו.
+    const w = String((req.query && req.query.w) || '').trim();
+    if (w) {
+      const val = ragil(w);
+      title = `${w} = ${val} · ${SITE_NAME}`;
+      desc = `הסוד שמאחורי השם "${w}" — ${w} = ${val} בגימטריה. מה מסתתר בשם שלך? גלו במעבדת-השם של סוד 1820.`;
+      image = `${SITE}/api/card?w=${encodeURIComponent(w)}&sub=${encodeURIComponent(w + ' = ' + val)}&sig=gem`;
+    } else {
+      title = "מעבדת השם — גלו את הסוד שבשם שלכם · " + SITE_NAME;
+      desc = "הקלידו את שמכם וגלו את הסוד הגימטרי שמאחוריו — גשרים, השוואות והקשרים נסתרים.";
+      image = `${SITE}/api/card?w=${encodeURIComponent('מעבדת השם')}&sub=${encodeURIComponent('גלו את הסוד שבשם שלכם')}&sig=gem`;
+    }
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;

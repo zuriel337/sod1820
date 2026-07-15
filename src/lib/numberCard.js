@@ -115,6 +115,10 @@ export function buildNumberCard(value, phrases = []) {
   g.fillStyle = "#cdb7e8";
   g.fillText(poetic, S / 2, 880);
 
+  // ✍️ חתימה — וו גימטריה (דף-מספר): «מה מסתתר בשם שלך?»
+  g.fillStyle = "#e8c840"; g.font = "700 32px 'Heebo', sans-serif"; g.direction = "rtl";
+  g.fillText("מה מסתתר בשם שלך?", S / 2, 952);
+
   // פוטר
   g.fillStyle = "#c9a227"; g.font = "700 30px 'Heebo', sans-serif"; g.direction = "ltr";
   g.fillText(`sod1820.co.il/number/${value}`, S / 2, S - 72);

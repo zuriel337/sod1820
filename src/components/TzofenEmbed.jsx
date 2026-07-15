@@ -101,10 +101,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (!user) { setGate({ reason: "save" }); postToTool({ type: "saved", ok: false, reason: "login" }); return; }
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
+      const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
       await saveMatrix({
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
-        positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "" },
+        // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
+        positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+          quality: d.quality || null, shapeUrl: shapeUrl || null },
         title: d.postTitle || d.term, note: null, imageUrl,
         fromTopic: fromTopic || null,   // 🔁 round-trip: צופן שנוצר מהתכנסות חוזר אליה כראיה
       });
