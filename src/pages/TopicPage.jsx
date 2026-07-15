@@ -137,11 +137,14 @@ export default function TopicPage() {
           <div style={{ display: "grid", gap: 8 }}>
             {ents.map(e => {
               const gold = e.metadata?.tier === "gold";
-              // convergence_number_method_law: כל מספר עם שיטתו — אף פעם לא ערך עירום.
-              // הערך+השיטה ספציפיים להתכנסות (יושבים על ה-edge); נפילה לרגיל רק כשאין ערך שמור.
+              // convergence_number_method_law: מספר מוצג רק כשהוא ראיה אמיתית (שיטה שמתלכדת בעוגן),
+              // ותמיד עם שם השיטה. הערך+השיטה ספציפיים להתכנסות ויושבים על ה-edge.
+              // ישות-נושא (קשורה תמטית, לא בערך) — מוצגת בלי מספר, כדי לא להטעות.
               const stored = e.edgeValue ?? e.metadata?.value ?? null;
-              const val = stored ?? (calcGem(e.label) || null);
-              const method = e.edgeMethod || (stored == null ? "רגיל" : null);
+              const rag = calcGem(e.label) || null;
+              const ragMatches = rag != null && (card.numbers || []).includes(rag);
+              const val = stored ?? (ragMatches ? rag : null);
+              const method = e.edgeMethod || (stored == null && ragMatches ? "רגיל" : null);
               return (
                 <Link key={e.label} to={`/number/${encodeURIComponent(val ?? e.label)}`} style={{ textDecoration: "none",
                   display: "block", padding: "10px 13px", borderRadius: 10,
