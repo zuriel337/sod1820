@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track } from "../lib/tracking.js";
 import { saveMatrix, getSavedMatrices } from "../lib/elsMatrices.js";
+import { supabase } from "../lib/supabase.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
@@ -25,6 +27,7 @@ function rowToItem(m) {
 
 export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null }) {
   const { isAdmin, verified, user } = useAuth();
+  const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
@@ -80,16 +83,29 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     } catch { /* noop */ }
   }, [postToTool]);
 
+  // 🎴 מעלה את כרטיס-הצופן (dataURL מהכלי) ל-Storage (bucket gallery, קריאה-ציבורית) → מחזיר URL קבוע.
+  //    מקור-אמת אחד לתמונה: שורה · ספרייה · OG-שיתוף, כולם מושכים את אותו image_url.
+  const uploadCipherCard = useCallback(async (dataUrl) => {
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const name = `sod1820/ciphers/c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.png`;
+      const { error } = await supabase.storage.from("gallery").upload(name, blob, { contentType: "image/png", upsert: false });
+      if (error) return null;
+      return supabase.storage.from("gallery").getPublicUrl(name).data?.publicUrl || null;
+    } catch { return null; }
+  }, []);
+
   // 💾 שמירת-מטריצה לענן (els_records) — קלאוד בלבד, בלי שמירה-למכשיר.
   //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → שער-הרשמה.
   const saveToCloud = useCallback(async (d) => {
     if (!user) { setGate({ reason: "save" }); postToTool({ type: "saved", ok: false, reason: "login" }); return; }
     try {
+      const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
       await saveMatrix({
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
         positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "" },
-        title: d.postTitle || d.term, note: null,
+        title: d.postTitle || d.term, note: null, imageUrl,
         fromTopic: fromTopic || null,   // 🔁 round-trip: צופן שנוצר מהתכנסות חוזר אליה כראיה
       });
       postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
@@ -97,7 +113,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     } catch {
       postToTool({ type: "saved", ok: false });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
@@ -119,13 +135,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "navigate" && typeof d.to === "string") {
+        navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש
   useEffect(() => {

@@ -61,6 +61,7 @@ const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const CodeArchivePage = React.lazy(() => import("./pages/CodeArchivePage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
+const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
 const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
 const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
 const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
@@ -268,7 +269,8 @@ export default function App() {
           <Route path="/code" element={<CodePage />} />
           <Route path="/code/ארכיון" element={<CodeArchivePage />} />
           <Route path="/code-archive" element={<CodeArchivePage />} />
-          {/* הפרדה: /code = הכלי · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
+          {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
+          <Route path="/codes" element={<CiphersLibraryPage />} />
           <Route path="/codes/:slug" element={<CipherPage />} />
           {/* 📚 בית המדרש — דף עצמאי (כמו שהיה): מי שנכנס — בבית המדרש, לא בשלד-המחקר */}
           <Route path="/beit-midrash" element={<BeitMidrashPage />} />
