@@ -2931,7 +2931,8 @@
               '<div class="mc-note">מודל: אותו טקסט, אותה גאומטריה (רוחב-דילוג + גובה-חלון), עמודת-ציר במיקום מוסט אקראית. מודד כמה נדיר שהמילים האלה ייפלו צמוד-לציר במקרה. <b>עדות סטטיסטית — לא הוכחה ולא ניבוי.</b></div></div>';}
         } else {mcArea.innerHTML='<button class="mc-run">📊 בדוק מובהקות (Monte-Carlo)</button><div class="mc-hint">משווה את צפיפות-האשכול סביב הציר ל־400 מקומות אקראיים באותו טקסט — ונותן מספר: כמה זה נדיר.</div>';}
         const rb=mcArea.querySelector(".mc-run");if(rb)rb.onclick=()=>{st.mc={running:true};renderMC();
-          setTimeout(()=>{const res=runMonteCarlo();st.mc={...res,sig:mcSig(),done:true};updateQuality();},20);};  // updateQuality → הכוכבים ננעלים על הנדירות המדודה
+          setTimeout(()=>{const res=runMonteCarlo();st.mc={...res,sig:mcSig(),done:true};updateQuality();
+            try{postHost({type:"quality",quality:st.lastQuality});}catch(e){}},20);};  // updateQuality → הכוכבים ננעלים; + צריבה חזרה לרשומה שמורה (host)
       }
       renderMC();
     }

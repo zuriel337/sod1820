@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
@@ -20,10 +20,14 @@ const ragil = (s) => [...String(s || "")].reduce((a, c) => a + (GEM[c] || 0), 0)
 export default function CipherPage() {
   const { slug } = useParams();
   const P = usePalette();
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [m, setM] = useState(undefined); // undefined=טוען · null=לא נמצא
   const [contribCount, setContribCount] = useState(0);
-  const [ai, setAi] = useState({ loading: false, text: "", saved: false, err: "" });
+  const [desc, setDesc] = useState(null);       // תוכן-העורך (null עד טעינת הצופן → m.description)
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMsg, setAiMsg] = useState("");        // שגיאה/סטטוס
+  const [savedMsg, setSavedMsg] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -32,6 +36,9 @@ export default function CipherPage() {
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
   }, [slug]);
+
+  // מזין את עורך-התיאור פעם אחת מהתיאור השמור (אחר-כך desc הוא מקור-האמת של העורך)
+  useEffect(() => { if (m && typeof m === "object" && desc === null) setDesc(m.description || ""); }, [m, desc]);
 
   // SEO קנוני לכל צופן (כמו EntityPage/TopicPage). לא-נמצא → noindex.
   useEffect(() => {
@@ -127,7 +134,7 @@ export default function CipherPage() {
           </div>
         </div>
 
-        {/* ✨ הסבר-AI (אדמין) — מושך עובדות-מנוע → טיוטת הסבר לאישור/עריכה → נצרב ל-description */}
+        {/* 🛠️ ניהול הצופן (אדמין) — עורך-תיאור חופשי (כתוב/AI/מחק) + סטטוס (פרסם/טיוטה/הסתר) + מחיקה */}
         {isAdmin && (() => {
           const gemVal = ragil(m.search_term);
           const factsStr = [
@@ -137,35 +144,53 @@ export default function CipherPage() {
             mcTxt ? `מובהקות מונטה-קרלו: ${mcTxt}` : (q && q.stars ? `איכות: ${q.stars} כוכבים (הערכה)` : null),
             q && q.axisOcc === 1 ? `הציר «${m.search_term}» יחיד בתורה` : null,
           ].filter(Boolean).join("\n");
-          const gen = async (again) => {
-            setAi(a => ({ ...a, loading: true, err: "", saved: false }));
-            // getAiAnalysis מחזיר את מחרוזת-הניתוח (או null) — לא אובייקט. בלי long → מהיר ואמין (סינתזה עד 6 משפטים).
+          const genAI = async (again) => {
+            setAiBusy(true); setAiMsg("");
+            // getAiAnalysis מחזיר מחרוזת (או null) — ממלא את העורך; אפשר לערוך/למחוק אחרי.
             const r = await getAiAnalysis({ kind: "els", subject: m.search_term, facts: factsStr, again });
-            if (r && typeof r === "string") setAi({ loading: false, text: r.replace(/^#+\s.*$/gm, "").trim(), saved: false, err: "" });
-            else setAi(a => ({ ...a, loading: false, err: "המנוע עמוס כרגע — נסו שוב בעוד רגע" }));
+            setAiBusy(false);
+            if (r && typeof r === "string") { setDesc(r.replace(/^#+\s.*$/gm, "").trim()); setSavedMsg(false); }
+            else setAiMsg("המנוע עמוס כרגע — נסו שוב בעוד רגע");
           };
-          const save = async () => {
-            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_description: ai.text }); setAi(a => ({ ...a, saved: true })); setM(x => ({ ...x, description: ai.text })); }
-            catch (e) { setAi(a => ({ ...a, err: "שמירה נכשלה: " + (e?.message || "") })); }
+          const saveDesc = async () => {
+            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_description: desc || "" }); setSavedMsg(true); setAiMsg(""); }
+            catch (e) { setAiMsg("שמירה נכשלה: " + (e?.message || "")); }
           };
+          const setStatus = async (st) => {
+            setAiMsg("");
+            try { await supabase.rpc("moderate_els_matrix", { p_id: m.id, p_status: st }); setM(x => ({ ...x, status: st })); }
+            catch (e) { setAiMsg("שינוי-סטטוס נכשל: " + (e?.message || "")); }
+          };
+          const del = async () => {
+            if (typeof window !== "undefined" && !window.confirm(`למחוק לצמיתות את הצופן «${m.title || m.search_term}»? לא ניתן לשחזר.`)) return;
+            try { await supabase.rpc("delete_els_matrix", { p_id: m.id }); navigate("/codes"); }
+            catch (e) { setAiMsg("מחיקה נכשלה: " + (e?.message || "")); }
+          };
+          const st = m.status || "published";
+          const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";
           return (
             <div style={{ background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 13, padding: "13px 15px", margin: "0 0 6px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: ai.text ? 10 : 0 }}>
-                <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>✨ הסבר-AI (אדמין)</span>
-                <button onClick={() => gen(false)} disabled={ai.loading} style={aiBtn(P, true)}>{ai.loading ? "…מנתח" : ai.text ? "↻ נסח מחדש" : "✨ צור הסבר מעובדות-המנוע"}</button>
-                {ai.text && <button onClick={() => gen(true)} disabled={ai.loading} style={aiBtn(P, false)}>זווית אחרת</button>}
-                {ai.err && <span style={{ color: "#c98a7a", fontSize: 12 }}>{ai.err}</span>}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
+                <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🛠️ ניהול הצופן (אדמין)</span>
+                <span style={{ color: st === "published" ? "#3fae5f" : "#d0a24a", fontSize: 11.5, fontWeight: 700 }}>● {stLabel}</span>
               </div>
-              {ai.text && (
-                <>
-                  <textarea value={ai.text} onChange={e => setAi(a => ({ ...a, text: e.target.value, saved: false }))}
-                    style={{ width: "100%", minHeight: 130, background: P.pageBg, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 9, padding: 10, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, direction: "rtl", resize: "vertical" }} />
-                  <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
-                    <button onClick={save} disabled={ai.saved} style={aiBtn(P, true)}>{ai.saved ? "✓ נשמר לתיאור" : "💾 שמור כתיאור הצופן"}</button>
-                    <span style={{ color: P.accentDim, fontSize: 11.5 }}>עדות — לא ניבוי · עובדה מופרדת מפרשנות · ניתן לעריכה לפני שמירה</span>
-                  </div>
-                </>
-              )}
+              <textarea value={desc || ""} onChange={e => { setDesc(e.target.value); setSavedMsg(false); }}
+                placeholder="כתוב כאן חופשי את הסבר הצופן — או תן ל-AI לנסח, ואז ערוך/מחק כרצונך…"
+                style={{ width: "100%", minHeight: 118, background: P.pageBg, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 9, padding: 10, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, direction: "rtl", resize: "vertical" }} />
+              <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <button onClick={() => genAI(false)} disabled={aiBusy} style={aiBtn(P, false)}>{aiBusy ? "…מנסח" : "✨ נסח ב-AI"}</button>
+                {desc && <button onClick={() => genAI(true)} disabled={aiBusy} style={aiBtn(P, false)}>↻ זווית אחרת</button>}
+                <button onClick={() => { setDesc(""); setSavedMsg(false); }} style={aiBtn(P, false)}>🧹 נקה טקסט</button>
+                <button onClick={saveDesc} style={aiBtn(P, true)}>💾 שמור תיאור</button>
+                {savedMsg && <span style={{ color: "#3fae5f", fontSize: 12, fontWeight: 800 }}>✓ נשמר</span>}
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center", borderTop: `1px solid ${P.border}`, paddingTop: 11 }}>
+                {st !== "published" && <button onClick={() => setStatus("published")} style={statusBtn("#1c7a38", "#eafff0")}>✅ פרסם</button>}
+                {st !== "pending" && <button onClick={() => setStatus("pending")} style={statusBtn(P.card, P.ink, P.border)}>📝 העבר לטיוטה</button>}
+                {st !== "hidden" && <button onClick={() => setStatus("hidden")} style={statusBtn(P.card, P.ink, P.border)}>🙈 הסתר</button>}
+                <button onClick={del} style={statusBtn("transparent", "#c0563f", "#c0563f")}>🗑 מחק לצמיתות</button>
+                {aiMsg && <span style={{ color: "#c98a7a", fontSize: 12 }}>{aiMsg}</span>}
+              </div>
             </div>
           );
         })()}
@@ -190,5 +215,11 @@ function aiBtn(P, primary) {
     border: primary ? "none" : `1px solid ${P.border}`,
     background: primary ? P.accentBtn : "transparent",
     color: primary ? P.onAccent : P.accentDim,
+  };
+}
+function statusBtn(bg, color, borderColor) {
+  return {
+    cursor: "pointer", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, padding: "7px 14px", minHeight: 34,
+    border: `1px solid ${borderColor || bg}`, background: bg, color,
   };
 }

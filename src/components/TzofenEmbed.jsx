@@ -17,6 +17,7 @@ import SubscribeGate from "./SubscribeGate.jsx";
 function rowToItem(m) {
   if (!m) return null;
   return {
+    id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
@@ -140,13 +141,16 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         saveToCloud(d);
       } else if (d.type === "navigate" && typeof d.to === "string") {
         navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
+      } else if (d.type === "quality" && d.quality && matrix?.id && isAdmin) {
+        // 🏆 המשתמש חישב מונטה-קרלו על צופן שמור → צורבים את המד חזרה לרשומה (בלי כפילות)
+        try { supabase.rpc("set_els_quality", { p_id: matrix.id, p_quality: d.quality }); } catch { /* noop */ }
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש
   useEffect(() => {

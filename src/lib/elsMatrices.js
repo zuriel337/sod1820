@@ -13,12 +13,13 @@ export async function getSavedMatrices(limit = 100) {
   } catch { return []; }
 }
 
-// 🔗 עמוד קנוני לצופן — שליפה לפי slug (רק מפורסם; RLS מתירה קריאה ציבורית)
+// 🔗 עמוד קנוני לצופן — שליפה לפי slug. בלי סינון-סטטוס בצד-לקוח: ה-RLS מחליט —
+// אנונימי רואה רק published+public; בעל-הצופן/אדמין רואים גם טיוטה/מוסתר (לניהול מהעמוד).
 export async function getMatrixBySlug(slug) {
   if (!supabase || !slug) return null;
   try {
-    const { data } = await supabase.from("els_records").select(COLS)
-      .eq("slug", slug).eq("status", "published").maybeSingle();
+    const { data } = await supabase.from("els_records").select(COLS + ",status")
+      .eq("slug", slug).maybeSingle();
     return data || null;
   } catch { return null; }
 }
