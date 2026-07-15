@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -33,8 +33,15 @@ function CodeClosed() {
 // הצופן התנ"כי — סגור. המנוע המלא פתוח לאדמין בלבד; לכל השאר דף "ייפתח בקרוב" + הרשמה לעדכונים.
 export default function CodePage() {
   const P = usePalette();
-  const { isAdmin, loading } = useAuth();
+  const { loading } = useAuth();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  // 🔠 Deep-link קנוני גם בדף העצמאי: /code?term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
+  const [sp] = useSearchParams();
+  const elsTerm = sp.get("term") || sp.get("q") || "";
+  const elsSkip = sp.get("skip");
+  const elsMatrix = useMemo(
+    () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: sp.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null } : null,
+    [elsTerm, elsSkip, sp]);
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
@@ -45,8 +52,8 @@ export default function CodePage() {
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
-      <TzofenEmbed full />
-      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף) במקום הארכיון (בקשת צוריאל) */}
+      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
+      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button
           onClick={() => setGalleryOpen(true)}
@@ -58,14 +65,6 @@ export default function CodePage() {
             fontSize: 12.5, backdropFilter: "blur(4px)",
           }}
         >🖼️ מטריצות שמורות</button>
-        {/* ארכיון המנוע הישן — לאדמין בלבד */}
-        {isAdmin && (
-          <Link to="/code/ארכיון" title="הגרסה הקודמת של מנוע הדילוגים (אדמין)"
-            style={{ display: "inline-flex", alignItems: "center", background: "rgba(8,5,2,.66)", color: "#9a8657",
-              border: "1px solid rgba(212,175,55,.24)", borderRadius: 999, padding: "5px 11px",
-              fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: 11.5, textDecoration: "none", backdropFilter: "blur(4px)" }}
-          >🗄️</Link>
-        )}
       </div>
       <SavedMatricesGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>

@@ -4,6 +4,7 @@ import { trackShare } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
+import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 
 // 👑 RoyalShareWidget — לשונית שיתוף מלכותית צפה (ימין), נייד + מחשב.
 // סגול-שחור עמוק + זהב + לוגו האתר. משתפת את העמוד הנוכחי (קישור + כותרת).
@@ -65,12 +66,13 @@ export default function RoyalShareWidget() {
   const isHome = pathname === "/" || pathname === "/home-new" || pathname === "/בית-חדש";
   const numberId = (pathname.match(/^\/number\/(\d+)/) || [])[1] || null;
   const enc = encodeURIComponent;
-  const canNative = typeof navigator !== "undefined" && !!navigator.share;
+  const canNative = canNativeShare();
 
+  // ערוצי-הליבה (wa/tg/fb) דרך לוגיקת-השיתוף הקנונית (lib/share.js); X/אימייל = תוספות-הווידג׳ט
   const SOCIALS = [
-    { key: "whatsapp", label: "וואטסאפ", href: `https://wa.me/?text=${enc(text + " " + url)}` },
-    { key: "telegram", label: "טלגרם", href: `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}` },
-    { key: "facebook", label: "פייסבוק", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+    { key: "whatsapp", label: "וואטסאפ", href: waHref(url, text) },
+    { key: "telegram", label: "טלגרם", href: tgHref(url, text) },
+    { key: "facebook", label: "פייסבוק", href: fbHref(url) },
     { key: "x", label: "X", href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(text)}` },
     { key: "email", label: "אימייל", href: `mailto:?subject=${enc(title)}&body=${enc(text + "\n" + url)}` },
   ];
@@ -85,10 +87,10 @@ export default function RoyalShareWidget() {
     window.open(href, "_blank", "noopener,noreferrer");
   }, [slug, bumpPostShare]);
 
-  const copyLink = useCallback(() => {
+  const copyLink = useCallback(async () => {
     trackShare("copy", slug); bumpPostShare();
-    try { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); }
-    catch { window.prompt("העתיקו את הקישור:", url); }
+    if (await sCopyLink(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    else window.prompt("העתיקו את הקישור:", url);
   }, [slug, url, bumpPostShare]);
 
   const shareImage = useCallback(() => {
@@ -97,7 +99,7 @@ export default function RoyalShareWidget() {
 
   const nativeShare = useCallback(() => {
     trackShare("native", slug); bumpPostShare();
-    try { navigator.share?.({ title, text, url }).catch(() => {}); } catch { /* noop */ }
+    sNativeShare({ title, text, url });   // לוגיקת-שיתוף קנונית (lib/share.js)
   }, [slug, title, text, url, bumpPostShare]);
 
   if (HIDE.test(pathname)) return null;

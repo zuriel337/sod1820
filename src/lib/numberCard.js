@@ -1,4 +1,5 @@
 import { C, calcGem } from "../theme.js";
+import { waHref, canShareFile, shareImageFile } from "./share.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { trackShare } from "./tracking.js";
 import { signalAiBehavior } from "./supabase.js";
@@ -157,9 +158,9 @@ export async function shareNumberCard(value, phrases) {
     const cv = buildNumberCard(value, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (canShareFile(file)) {
       trackShare("native", `number/${value}`);
-      await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
+      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return true;
     }
     const url = URL.createObjectURL(blob);
@@ -183,9 +184,9 @@ export async function shareNumberSmart(value, phrases) {
     const cv = buildNumberCard(value, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(value), { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (canShareFile(file)) {
       trackShare("native", `number/${value}`);
-      await navigator.share({ files: [file], title: `המספר ${value} · סוד 1820`, text: shareText(value) });
+      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value) });
       return "image";
     }
   } catch (e) {
@@ -193,7 +194,7 @@ export async function shareNumberSmart(value, phrases) {
   }
   // דסקטופ / אין שיתוף קבצים → וואטסאפ עם הקישור (תצוגת ה-OG מציגה תמונה)
   trackShare("whatsapp", `number/${value}`);
-  window.open(`https://wa.me/?text=${encodeURIComponent(shareText(value))}`, "_blank", "noopener,noreferrer");
+  window.open(waHref("", shareText(value)), "_blank", "noopener,noreferrer");
   return "link";
 }
 
@@ -210,15 +211,15 @@ export async function shareJourney(root, phrases, meaning) {
     const cv = buildNumberCard(root, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(root), { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (canShareFile(file)) {
       trackShare("native", `journey/${root}`);
-      await navigator.share({ files: [file], title: `המסע אל ${root} · סוד 1820`, text });
+      await shareImageFile(file, { title: `המסע אל ${root} · סוד 1820`, text });
       return "image";
     }
   } catch (e) {
     if (e && e.name === "AbortError") return "cancel";
   }
   trackShare("whatsapp", `journey/${root}`);
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  window.open(waHref("", text), "_blank", "noopener,noreferrer");
   return "link";
 }

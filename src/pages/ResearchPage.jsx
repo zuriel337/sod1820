@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, useMemo, Suspense, lazy } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import ResearchShell from "../components/ResearchShell.jsx";
 import ResearchHome, { TOOLS } from "../components/ResearchHome.jsx";
@@ -155,6 +155,14 @@ export default function ResearchPage() {
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
   const seed = sp.get("q") || "";
+  // 🔠 Deep-link קנוני ל-ELS מהתכנסות/כל מקום: /research?tool=els&term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
+  //    term (עם fallback ל-q) פותח את המונח; skip פותח את הדילוג המדויק דרך load-matrix (בלי skip → דילוג ברירת-מחדל).
+  const elsTerm = sp.get("term") || seed || "";
+  const elsSkip = sp.get("skip");
+  const elsScope = sp.get("scope") === "tanakh" ? "tanakh" : "torah";
+  const elsMatrix = useMemo(
+    () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: elsScope, positions: null } : null,
+    [elsTerm, elsSkip, elsScope]);
   // 🧮 איחוד המחשבונים: «gematria» אינו כלי נפרד — הוא הבית הקנוני בבית-המדרש (טאב מחשבון).
   // כל בקשה ל-tool=gematria מנותבת ל-tool=midrash&tab=calc (עם w=מונח-הזריעה אם יש).
   const setTool = t => t === "gematria" ? setSp({ tool: "midrash", tab: "calc" }) : setSp(t ? { tool: t } : {});
@@ -245,7 +253,7 @@ export default function ResearchPage() {
           {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
-          {tool === "els" && (wide ? <TzofenEmbed seed={seed} /> : (
+          {tool === "els" && (wide ? <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} /> : (
             <div className="rw-card" style={{ textAlign: "center", padding: "40px 22px" }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🔠</div>
               <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>דילוגי אותיות — עדיף כדף מלא</div>

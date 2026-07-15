@@ -5,6 +5,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 import { METHODS, onlyHeb, hebrewNumeral } from "../lib/gematria.js";
 import { makeNameCard } from "../lib/research/nameCard.js";
+import { canShareFile, shareImageFile } from "../lib/share.js";
 
 // 🪪 סיפור השם שלך — עדשה אישית: שלד מחקרי מדויק (מנוע הגימטריה + פסוקי התורה),
 // עור רגשי, שפה של גילוי-זהות. «זה אני» לא «זה המספר שלי». בלי ניחוש/עתידות —
@@ -90,8 +91,8 @@ export default function NameStory() {
     if (!card) return;
     const file = new File([card.blob], `sod1820-${name}.png`, { type: "image/png" });
     try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: `${name} = ${main}`, text: `סיפור השם שלי · sod1820.co.il/research` });
+      if (canShareFile(file)) {
+        await shareImageFile(file, { title: `${name} = ${main}`, text: `סיפור השם שלי · sod1820.co.il/research` });
         return;
       }
     } catch { /* בוטל ע״י המשתמש */ }

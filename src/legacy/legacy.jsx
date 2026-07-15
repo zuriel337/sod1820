@@ -21,6 +21,7 @@ import MatrixRain from "../components/MatrixRain.jsx";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
+import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
@@ -2439,30 +2440,27 @@ function ShareBar({ url, title, text }) {
   const [copied, setCopied] = useState(false);
   const enc = encodeURIComponent;
   const body = (text || title || "").trim();
-  const wa = `https://wa.me/?text=${enc((body ? body + "\n" : "") + url)}`;
-  const tg = `https://t.me/share/url?url=${enc(url)}&text=${enc(body)}`;
-  const fb = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+  // ערוצי-הליבה דרך לוגיקת-השיתוף הקנונית (lib/share.js) — X נשאר תוספת מקומית
   const x  = `https://twitter.com/intent/tweet?text=${enc(body)}&url=${enc(url)}`;
 
   const slug = (() => { try { return new URL(url).pathname.replace(/^\//, ""); } catch { return url; } })();
   const btns = [
-    { label: "וואטסאפ", emoji: "💬", href: wa, bg: "#1faa55", platform: "whatsapp" },
-    { label: "טלגרם", emoji: "✈️", href: tg, bg: "#2aabee", platform: "telegram" },
-    { label: "פייסבוק", emoji: "👍", href: fb, bg: "#1877f2", platform: "facebook" },
+    { label: "וואטסאפ", emoji: "💬", href: waHref(url, body), bg: "#1faa55", platform: "whatsapp" },
+    { label: "טלגרם", emoji: "✈️", href: tgHref(url, body), bg: "#2aabee", platform: "telegram" },
+    { label: "פייסבוק", emoji: "👍", href: fbHref(url), bg: "#1877f2", platform: "facebook" },
     { label: "X", emoji: "𝕏", href: x, bg: "#111", platform: "x" },
   ];
 
-  function copy() {
+  async function copy() {
     track("share", slug, "share", { platform: "copy" });
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
-    } else { window.prompt("העתיקו את הקישור:", url); }
+    if (await sCopyLink(url)) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    else window.prompt("העתיקו את הקישור:", url);
   }
   function native() {
     track("share", slug, "share", { platform: "native" });
-    if (navigator.share) navigator.share({ title, text: body, url }).catch(() => {});
+    sNativeShare({ title, text: body, url });
   }
-  const canNative = typeof navigator !== "undefined" && !!navigator.share;
+  const canNative = canNativeShare();
 
   const base = {
     display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none",

@@ -2,7 +2,7 @@
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
 import { supabase } from "./supabase.js";
 
-const COLS = "id,title,search_term,scope,skip_distance,image_url,description,author_name,primary_number,anchor_numbers,created_at";
+const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,created_at";
 
 export async function getSavedMatrices(limit = 100) {
   if (!supabase) return [];
@@ -11,6 +11,16 @@ export async function getSavedMatrices(limit = 100) {
       .eq("status", "published").order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }
+}
+
+// 🔗 עמוד קנוני לצופן — שליפה לפי slug (רק מפורסם; RLS מתירה קריאה ציבורית)
+export async function getMatrixBySlug(slug) {
+  if (!supabase || !slug) return null;
+  try {
+    const { data } = await supabase.from("els_records").select(COLS)
+      .eq("slug", slug).eq("status", "published").maybeSingle();
+    return data || null;
+  } catch { return null; }
 }
 
 // אדמין — מטריצות ממתינות לאישור
@@ -23,10 +33,11 @@ export async function getPendingMatrices(limit = 100) {
   } catch { return []; }
 }
 
-export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null }) {
+export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null }) {
   const { data, error } = await supabase.rpc("save_els_matrix", {
     p_term: term, p_scope: scope, p_skip: skip, p_direction: direction,
     p_positions: positions, p_image_url: imageUrl, p_title: title, p_note: note,
+    p_public: isPublic, p_from_topic: fromTopic,
   });
   if (error) throw error;
   return data;

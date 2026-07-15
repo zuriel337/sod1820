@@ -9,7 +9,8 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import RealityStream from "../components/RealityStream.jsx";
 import DocActions from "../components/DocActions.jsx";
-import { track, trackShare } from "../lib/tracking.js";
+import ShareActions from "../components/ShareActions.jsx";
+import { track } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
@@ -104,24 +105,12 @@ export default function TopicPage() {
           {evMethods.size >= 2 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5 }}>· {evMethods.size} שיטות עצמאיות</span>}
         </div>
         {card.subtitle && <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.7, margin: "10px 0 0" }}>{card.subtitle}</p>}
-        {/* שיתוף ההתכנסות — מחובר למעקב (trackShare → visitor_events, עם rid) */}
-        <button
-          onClick={() => {
-            const sid = `topic/${slug}`;
-            const url = withRid(`${typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il"}/topic/${slug}`);
-            const text = `${card.title} · התכנסות בסוד 1820 👑`;
-            if (typeof navigator !== "undefined" && navigator.share) {
-              trackShare("native", sid);
-              navigator.share({ title: card.title, text, url }).catch(() => {});
-            } else {
-              trackShare("whatsapp", sid);
-              window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank", "noopener,noreferrer");
-            }
-          }}
-          style={{ marginTop: 14, cursor: "pointer", border: `1px solid ${P.accent}`, borderRadius: 999,
-            background: P.glow, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14,
-            padding: "9px 22px", display: "inline-flex", alignItems: "center", gap: 8 }}
-        >📲 שתפו את ההתכנסות</button>
+        {/* שיתוף ההתכנסות — רכיב-השיתוף הקנוני (canonical_ui_components_law), עם rid למעקב-התפשטות */}
+        <div style={{ marginTop: 14 }}>
+          <ShareActions type="topic"
+            url={withRid(`${typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il"}/topic/${slug}`)}
+            title={`${card.title} · התכנסות בסוד 1820 👑`} />
+        </div>
         {/* 🖨️ הדפסה + 💾 שמירה פרטית לדף העבודה */}
         <div style={{ marginTop: 12 }}>
           <DocActions kind="convergence" refId={slug} title={`${card.title} — מרכז ההתכנסות`} link={`/topic/${slug}`} contentRef={contentRef} />

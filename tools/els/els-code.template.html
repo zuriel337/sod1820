@@ -95,11 +95,64 @@
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
+  /* 🧭 «איך מחפשים» — מדריך-צעדים ממוספר, תמיד גלוי, מעל תיבת-החיפוש. מחליף את הוראות-הכניסה.
+     כל צעד גם *פעיל*: לחיצה מקפיצה לפקד המתאים (מיקוד תיבה / פתיחת מוצלב / גלילה למטריצה). */
+  .howto{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 12px;position:relative}
+  .howto .ht-step{flex:1 1 190px;min-width:158px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:start;
+     background:linear-gradient(160deg,rgba(232,200,74,.10),var(--panel2));border:1px solid var(--line2);border-radius:13px;padding:10px 13px;
+     font-family:inherit;transition:border-color .15s,transform .12s}
+  .howto .ht-step:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .howto .ht-step:active{transform:translateY(0)}
+  .howto .ht-n{flex:0 0 auto;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px;
+     background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;font-family:var(--serif)}
+  .howto .ht-t{display:flex;flex-direction:column;line-height:1.32;min-width:0}
+  .howto .ht-t b{color:var(--goldBright);font-size:13.5px}
+  .howto .ht-t span{color:var(--ink2);font-size:11px}
+  .howto .ht-x{position:absolute;top:-7px;inset-inline-start:-3px;background:var(--panel);border:1px solid var(--line2);color:var(--ink3);
+     border-radius:999px;font-size:10.5px;line-height:1;cursor:pointer;padding:3px 9px;font-family:inherit}
+  .howto .ht-x:hover{color:var(--ink);border-color:var(--gold)}
+  /* תג-מספר «1» על תיבת-החיפוש עצמה — מחבר את הצעד לפקד («איפה מחפשים») */
+  .bar{position:relative}
+  .bar .step1{position:absolute;top:-11px;inset-inline-start:14px;z-index:2;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+     font-weight:900;font-size:13px;font-family:var(--serif);background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;box-shadow:0 2px 9px rgba(0,0,0,.4)}
+  /* מצביע-המשך: «ואיך מחפשים בתוך הצופן? גללו למטה» */
+  .howto .ht-more{flex:1 1 100%;cursor:pointer;text-align:center;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink2);
+     background:linear-gradient(160deg,rgba(232,200,74,.06),transparent);border:1px dashed var(--line2);border-radius:11px;padding:9px 12px;transition:border-color .15s,color .15s}
+  .howto .ht-more:hover{border-color:var(--gold);color:var(--ink)}
+  .howto .ht-more b{color:var(--goldBright)}
+  /* 📖 מדריך «חיפוש בתוך הצופן» — אקורדיון נפתח, מתחת למטריצה */
+  .ginside{margin:16px 0 4px;background:linear-gradient(160deg,rgba(232,200,74,.05),var(--panel2));border:1px solid var(--line2);border-radius:14px;overflow:hidden}
+  .ginside>summary{cursor:pointer;list-style:none;padding:14px 16px;font-family:var(--serif);font-size:16px;font-weight:800;color:var(--goldBright);display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .ginside>summary::-webkit-details-marker{display:none}
+  .ginside>summary::after{content:"▾";color:var(--ink3);font-size:14px;transition:transform .2s}
+  .ginside[open]>summary::after{transform:rotate(180deg)}
+  .ginside .gin-body{padding:2px 16px 16px}
+  .ginside .gin-sec{border-top:1px solid var(--line);padding:12px 0}
+  .ginside .gin-sec:first-child{border-top:none}
+  .ginside .gin-h{color:var(--ink);font-weight:800;font-size:14px;margin-bottom:5px;font-family:var(--serif)}
+  .ginside .gin-t{color:var(--ink2);font-size:12.8px;line-height:1.75}
+  .ginside .gin-t b{color:var(--goldBright)}
   /* 📁 הגלריה — רצועת מטריצות ציבורית, בולטת ליד הראש */
-  .gallery{margin-top:12px}
-  .gallery .gal-lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:7px}
+  .gallery{margin:0 0 12px}
+  .gallery .gal-lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:8px}
   .gallery .gal-lbl b{color:var(--goldBright)}
   .gallery .gal-lbl-r{display:inline-flex;gap:7px;align-items:center;flex-wrap:wrap}
+  /* גלריית-תצוגות: 2 בשורה, כרטיס עם תצוגה-מקדימה, הקש לפתיחת הצופן */
+  .gallery .gal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .gallery .gal-cardp{cursor:pointer;display:flex;flex-direction:column;text-align:start;background:linear-gradient(160deg,rgba(232,200,74,.08),var(--panel2));
+     border:1px solid var(--line2);border-radius:12px;overflow:hidden;font-family:inherit;transition:border-color .15s,transform .12s}
+  .gallery .gal-cardp:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .gallery .gcp-thumb{height:92px;display:grid;place-items:center;background:linear-gradient(135deg,#160f03,#0a0700);overflow:hidden;position:relative}
+  body.classic .gallery .gcp-thumb,body.klaf .gallery .gcp-thumb{background:linear-gradient(135deg,var(--panel2),var(--field))}
+  .gallery .gcp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .gallery .gcp-term{font-family:var(--serif);font-size:20px;font-weight:800;color:var(--goldBright);text-align:center;padding:6px;line-height:1.2}
+  .gallery .gcp-name{color:var(--ink);font-weight:800;font-size:13px;padding:8px 11px 2px;font-family:var(--serif)}
+  .gallery .gcp-sub{color:var(--ink3);font-size:10.5px;padding:0 11px 9px}
+  .gallery .gcp-badge{position:absolute;top:6px;inset-inline-end:6px;background:rgba(8,5,2,.7);color:#f0d879;border-radius:999px;font-size:9.5px;font-weight:800;padding:2px 8px}
+  .gallery .gal-close{cursor:pointer;background:none;border:1px solid var(--line2);color:var(--ink2);border-radius:999px;min-width:28px;height:28px;font-size:13px;line-height:1;padding:0 6px;font-family:inherit}
+  .gallery .gal-close:hover{border-color:var(--gold);color:var(--ink)}
+  .gallery .gal-reopen{cursor:pointer;width:100%;background:linear-gradient(160deg,rgba(232,200,74,.08),var(--panel2));border:1px dashed var(--line2);color:var(--ink2);border-radius:11px;padding:10px;font-family:inherit;font-size:12.5px;font-weight:800}
+  .gallery .gal-reopen:hover{border-color:var(--gold);color:var(--ink)}
   .gallery .gal-add{cursor:pointer;background:rgba(232,200,74,.1);border:1px solid var(--gold);color:var(--goldBright);border-radius:999px;padding:4px 12px;font-family:inherit;font-size:11.5px;font-weight:700}
   .gallery .gal-add:hover{background:var(--gold);color:#1a0e00}
   .gallery .gal-namesearch{cursor:pointer;background:linear-gradient(160deg,rgba(47,109,246,.16),var(--panel2));border:1px solid rgba(90,140,240,.5);color:#bcd2ff;border-radius:999px;padding:5px 13px;font-family:inherit;font-size:11.5px;font-weight:800}
@@ -510,6 +563,16 @@
   .mc.sel{outline:3px solid #fff;outline-offset:-1px;box-shadow:0 0 12px rgba(255,255,255,.7);z-index:2}
   body.classic .mc.sel{outline-color:#111;box-shadow:0 0 10px rgba(0,0,0,.4)}
   .mc.start::after{content:"";position:absolute;inset:-2px;border:2px solid var(--goldBright);border-radius:6px;pointer-events:none}
+  /* 🧊 תלת-מימד — פרספקטיבה + עומק; עמודת-הצופן בולטת החוצה וזוהרת (CSS-3D, בלי ספרייה) */
+  .matrix-box.d3{perspective:1150px;perspective-origin:50% 38%;overflow:visible;touch-action:none;cursor:grab}
+  .matrix-box.d3.grab{cursor:grabbing}
+  .matrix-box.d3 .matrix{transform-style:preserve-3d;transform:rotateX(var(--rx,44deg)) rotateZ(var(--rz,0deg));transition:transform .05s linear;will-change:transform}
+  .matrix-box.d3 .mc{transform-style:preserve-3d;transition:transform .3s ease,box-shadow .3s ease,opacity .3s ease}
+  .matrix-box.d3 .mc.bg{opacity:.5}
+  .matrix-box.d3 .mc.ov{transform:translateZ(22px);box-shadow:0 10px 16px rgba(0,0,0,.45)}
+  .matrix-box.d3 .mc.main{transform:translateZ(46px);box-shadow:0 0 0 1px var(--mainRing),0 0 26px 6px var(--mainGlow),0 26px 30px rgba(0,0,0,.55)}
+  .matrix-box.d3 .mc.main .l,.matrix-box.d3 .mc.ov .l{text-shadow:0 4px 10px rgba(0,0,0,.6)}
+  .mact.d3-act.on{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;border-color:transparent}
   .empty{text-align:center;color:var(--ink2);padding:44px 18px;font-size:14.5px;line-height:1.8}.empty b{color:var(--goldBright)}
   .hintbar{font-size:11px;color:var(--ink3);text-align:center;padding:7px;border-top:1px solid var(--line)}
 
@@ -713,11 +776,20 @@
     <p>רשום מילה או צירוף — המנוע מוצא אותו כדילוג בתורה ופורש אותו כעמודה. <b style="color:var(--ink)">גרור את המטריצה</b> לחקור אותה, <b style="color:var(--ink)">הוסף ממצאים בצבעים</b>, ושמור.</p>
   </div>
 
+  <div class="howto" id="howto">
+    <button type="button" class="ht-x" id="howtoX" title="הבנתי — הסתר">הבנתי ✕</button>
+    <div class="ht-step" id="htStep1"><span class="ht-n">1</span><div class="ht-t"><b>כותבים שם או מילה</b><span>בתיבה למטה, ולוחצים «חפש»</span></div></div>
+    <div class="ht-step" id="htStep2"><span class="ht-n">2</span><div class="ht-t"><b>רוצים מפגש? מונח שני</b><span>«🔀 חיפוש מוצלב» — איפה שניהם נפגשים</span></div></div>
+    <div class="ht-step" id="htStep3"><span class="ht-n">3</span><div class="ht-t"><b>חוקרים ושומרים</b><span>גוררים · מסמנים ממצאים · «💾 שמור»</span></div></div>
+    <button type="button" class="ht-more" id="htMore">⬇️ ואיך מחפשים <b>בתוך</b> הצופן עצמו? גללו למטה — <b>מדריך מלא + כל ההגדרות המתקדמות</b></button>
+  </div>
   <div class="bar">
-    <input id="q" maxlength="40" placeholder="למשל: יום משיח בא" value="יום משיח בא">
+    <span class="step1" aria-hidden="true">1</span>
+    <input id="q" maxlength="40" placeholder="כתבו כאן שם או מילה — למשל «יום משיח בא»" value="יום משיח בא">
     <input id="qb" class="qb" maxlength="40" placeholder="🔀 מונח שני — למצוא מפגש" style="display:none">
     <button class="go" id="go">חפש בתורה ◆</button>
   </div>
+  <div class="gallery" id="gallery"></div>
   <div class="crossrow">
     <button class="crosstoggle" id="crosstoggle">🔀 חיפוש מוצלב — שני מונחים</button>
     <button class="crosstoggle advt" id="advtoggle">🧬 מתקדם + AI</button>
@@ -753,11 +825,39 @@
     <button class="xbridge" id="xbridge">🌉 גשר — איזו מילה מחברת שני מונחים?</button>
     <div class="xbridge-note">הצלבה הפוכה: כתוב ציר עליון + מונח אחד (או שני מונחים), והמנוע ימצא לבד את מילת-הציר שסביבה <b>שניהם</b> מתכנסים.</div>
   </div>
-  <div class="gallery" id="gallery"></div>
   <div class="gem" id="gem"></div>
   <div class="sugg" id="sugg"></div>
 
   <div id="out"></div>
+
+  <!-- 📖 מדריך «חיפוש בתוך הצופן» — כל ההגדרות המתקדמות במקום אחד -->
+  <details class="ginside" id="guideInside">
+    <summary>📖 איך מחפשים בתוך הצופן — מדריך מלא + כל ההגדרות</summary>
+    <div class="gin-body">
+      <div class="gin-sec"><div class="gin-h">🔲 המטריצה עצמה</div><div class="gin-t">
+        רוחב-הטבלה = <b>מרחק-הדילוג</b>. <b>גררו</b> את הטבלה כדי לחקור מסביב, ו<b>הקישו על כל אות</b> כדי לראות איפה היא בדיוק בתנ״ך — ספר · פרק · פסוק, עם הפסוק המלא. כלים: <b>🖥️ התאם</b> (הכל למסך) · <b>＋ / −</b> זום · <b>🌡️ חום</b> (מפת-צפיפות) · <b>✏️ סימון</b> ידני.
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">🎨 הוספת ממצאים בצבעים</div><div class="gin-t">
+        בשדה <b>«הוסף ממצא»</b> כותבים מילה נוספת — המנוע מסמן בצבע איפה היא <b>נחתכת</b> עם הצופן. <b>מד-הקרבה</b> מסנן לפי כמה הממצא צמוד לציר, כדי לשמור על תוצאות נקיות.
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">🔀 חיפוש מוצלב — שני מונחים ומעלה</div><div class="gin-t">
+        מוצא <b>איפה שני מונחים (או יותר) נפגשים</b> סביב אותו ציר. סרגל <b>«טוהר ההתכנסות»</b> קובע כמה צמוד לציר לחפש — טהור (צמוד) מול מרחב רחב.
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">🧬 מתקדם + AI</div><div class="gin-t">
+        הצלבה של כמה מונחים סביב <b>ציר מרכזי</b>, מילוי לפי <b>גימטריה-יעד</b>, ו<b>🌉 גשר</b> — המנוע מוצא לבד איזו מילה מחברת שני מונחים.
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">🔬 עדשות מחקר</div><div class="gin-t">
+        כלים לחקירה מעמיקה של התוצאה: חיפוש <b>תבנית</b> (עם ?), <b>מילים-קרובות</b>, <b>«החוקר»</b> (סריקה מעמיקה בכל השיטות) ו<b>«גלה אזורים»</b> (המנוע סורק לבד את כל התורה).
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">📖 היקף החיפוש</div><div class="gin-t">
+        למעלה בוחרים: <b>📖 תורה</b> (מהיר) או <b>📜 כל התנ״ך</b> (24 הספרים — לרשומים).
+      </div></div>
+      <div class="gin-sec"><div class="gin-h">💾 שמירה ושיתוף</div><div class="gin-t">
+        <b>💾 שמור בגלריה</b> → נשמר בגלריית-הענן (מופיע למעלה, הקש לפתיחה) · <b>🖼️ תמונה</b> להורדה · <b>🔗 שתף קישור</b> · <b>🎬 סרט-הצופן</b> (הצופן נבנה כאנימציה).
+      </div></div>
+      <div class="gin-sec"><div class="gin-t"><b>עדות — לא ניבוי.</b> הכלי מיועד ללימוד והתבוננות בטקסט.</div></div>
+    </div>
+  </details>
 
   <div class="foot">טקסט המקור: חמשת חומשי התורה · <b id="Ncount"></b> אותיות · <b>עדות — לא ניבוי.</b> כלי לימוד והתבוננות.</div>
 </div>
@@ -909,19 +1009,25 @@
   const saveProp=a=>{try{localStorage.setItem(PKEY,JSON.stringify(a))}catch{}};
   const hiddenList=()=>{try{return JSON.parse(localStorage.getItem(HKEY)||"[]")}catch{return[]}};
   const saveHidden=a=>{try{localStorage.setItem(HKEY,JSON.stringify(a))}catch{}};
-  // 📁 גלריה אחת מאוחדת: מטריצות מוטמעות (ציבורי — כולם רואים) + תוספות/עריכות במכשיר. ממוזג לפי שם, בלי כפילויות.
+  // 📁 גלריה אחת: מטריצות מוטמעות (מובנות) + מטריצות-הענן ששלח האתר (els_records published).
+  //    עדשה על מקור אחד — לא עותק. ממוזג לפי שם, בלי כפילויות.
+  let CLOUD_MATRICES=[];   // מוזרם מהאתר דרך postMessage 'saved-matrices'
   function galleryItems(){
-    const hidden=new Set(hiddenList()),byName=new Map();
-    SYSTEM_MATRICES.forEach(m=>{if(!hidden.has(m.name))byName.set(m.name,{...m,builtin:true});});
-    globalList().forEach(m=>byName.set(m.name,{...m,builtin:false}));   // עריכה/תוספת מקומית דורסת מוטמע באותו שם
+    const byName=new Map();
+    SYSTEM_MATRICES.forEach(m=>byName.set(m.name,{...m,builtin:true}));
+    CLOUD_MATRICES.forEach(m=>{if(m&&m.term)byName.set(m.name||m.term,{...m,cloud:true});});
     return [...byName.values()];
   }
   function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
+  // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
+  // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → האתר מבקש הרשמה.
   function addCurrentToGallery(){
-    if(!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
-    const item=galleryCurrentItem();let g=globalList().filter(x=>x.name!==item.name);g.unshift(item);saveGlobal(g);
-    saveHidden(hiddenList().filter(n=>n!==item.name));
-    renderGallery();toast("📁 «"+item.name+"» נשמר בגלריה ("+st.words.length+" ממצאים)");
+    const h=(()=>{try{return occ();}catch(e){return null;}})();
+    if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
+    const it=galleryCurrentItem();
+    postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle});
+    toast("💾 שומר בגלריית-הענן…");
   }
   function removeFromGallery(it){
     const hadOverlay=globalList().some(x=>x.name===it.name),isBuiltin=SYSTEM_MATRICES.some(m=>m.name===it.name);
@@ -931,23 +1037,33 @@
     return (isBuiltin&&hadOverlay)?"reset":"removed";
   }
   function scrollToMatrix(){try{document.getElementById("out").scrollIntoView({behavior:"smooth",block:"start"});}catch{}}
+  const GALCLOSEKEY="tzofen_gal_closed_v1";
   function renderGallery(){
     const el=document.getElementById("gallery");if(!el)return;
     const items=galleryItems();
-    let html='<div class="gal-lbl"><span>📁 <b>הגלריה</b> — מטריצות לחקירה</span><span class="gal-lbl-r"><button class="gal-namesearch">🔎 חפש את השם שלך</button>'+(st.admin?'<button class="gal-add">＋ הוסף את הנוכחית</button>':'')+'</span></div>';
-    if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות בגלריה. חפש מילה, סמן ממצאים, ולחץ «שמור מטריצה».</div>';el.innerHTML=html;return;}
-    html+='<div class="gal-row">'+items.map((it,i)=>'<div class="gal-card" data-i="'+i+'"><button class="gal-name">'+it.name+'</button>'+
-      (st.admin?'<span class="gal-acts"><button class="gal-edit" title="ערוך במטריצה">✏️</button><button class="gal-del" title="הסר מהגלריה">🗑</button></span>':'')+'</div>').join("")+'</div>';
-    if(st.admin)html+='<div class="gal-note">עריכות נשמרות במכשירך. כדי שכל המבקרים יראו מטריצה — תגיד לי ואטמיע אותה בקובץ.</div>';
+    // מצב-מוסתר נזכר → רצועת «הצג» דקה בלבד
+    let closed=false;try{closed=localStorage.getItem(GALCLOSEKEY)==="1";}catch(e){}
+    if(closed){
+      el.innerHTML='<button class="gal-reopen">📁 מטריצות שמורות'+(items.length?" ("+heb(items.length)+")":"")+' — הצג ▾</button>';
+      const rb=el.querySelector(".gal-reopen");if(rb)rb.onclick=()=>{try{localStorage.removeItem(GALCLOSEKEY);}catch(e){}renderGallery();};
+      return;
+    }
+    let html='<div class="gal-lbl"><span>📁 <b>מטריצות שמורות</b> — הקש לפתיחת הצופן</span>'+
+      '<span class="gal-lbl-r"><button class="gal-namesearch">🔎 חפש שם</button><button class="gal-close" title="הסתר את הגלריה">✕</button></span></div>';
+    const closeWire=()=>{const cl=el.querySelector(".gal-close");if(cl)cl.onclick=()=>{try{localStorage.setItem(GALCLOSEKEY,"1");}catch(e){}renderGallery();toast("📁 הגלריה הוסתרה — «הצג» למעלה מחזיר");};
+      const ns=el.querySelector(".gal-namesearch");if(ns)ns.onclick=startNameSearch;};
+    if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות שמורות. חפשו מילה, סמנו ממצאים, ולחצו «💾 שמור בגלריה».</div>';el.innerHTML=html;closeWire();return;}
+    html+='<div class="gal-grid">'+items.map((it,i)=>{
+      const thumb=it.image?'<img src="'+it.image+'" alt="" loading="lazy">':'<span class="gcp-term">'+(it.term||it.name)+'</span>';
+      const badge=it.cloud?(it.author?'<span class="gcp-badge">✍️ '+it.author+'</span>':''):'<span class="gcp-badge">מובנה</span>';
+      const sub=(it.skip?('דילוג '+heb(it.skip)):'')+((it.scope==="tanakh")?' · כל התנ״ך':(it.skip?' · תורה':''));
+      return '<button class="gal-cardp" data-i="'+i+'"><span class="gcp-thumb">'+thumb+badge+'</span>'+
+        '<span class="gcp-name">'+(it.name||it.term)+'</span>'+(sub?'<span class="gcp-sub">'+sub+'</span>':'')+'</button>';
+    }).join("")+'</div>';
     el.innerHTML=html;
-    el.querySelectorAll(".gal-card").forEach(c=>{const it=items[+c.dataset.i];
-      const open=()=>{loadMatrix(it);scrollToMatrix();};
-      c.querySelector(".gal-name").onclick=()=>{open();toast("נטען «"+it.name+"»");};
-      const e=c.querySelector(".gal-edit");if(e)e.onclick=ev=>{ev.stopPropagation();open();toast("✏️ «"+it.name+"» נטען — ערוך ממצאים ולחץ «שמור מטריצה»");};
-      const d=c.querySelector(".gal-del");if(d)d.onclick=ev=>{ev.stopPropagation();const r=removeFromGallery(it);renderGallery();toast(r==="reset"?("↩️ «"+it.name+"» אופס לגרסה המקורית"):("🗑 «"+it.name+"» הוסר מהגלריה"));};
-    });
-    const add=el.querySelector(".gal-add");if(add)add.onclick=addCurrentToGallery;
-    const ns=el.querySelector(".gal-namesearch");if(ns)ns.onclick=startNameSearch;
+    el.querySelectorAll(".gal-cardp").forEach(c=>{const it=items[+c.dataset.i];
+      c.onclick=()=>{loadMatrix(it);scrollToMatrix();toast("נטען «"+(it.name||it.term)+"»");};});
+    closeWire();
   }
 
   const q=document.getElementById("q"),go=document.getElementById("go"),gemEl=document.getElementById("gem"),out=document.getElementById("out");
@@ -1073,6 +1189,17 @@
       try{updateLockUI();}catch(_){}
       try{updateScopeUI();}catch(_){}   // רענון מנעול «כל התנ״ך» לפי הדרגה
       try{if(st.res)render();}catch(_){}  // דרגה עודכנה אחרי חיפוש → רענון הרשאות
+    }
+    if(d.type==="saved"){   // תוצאת שמירה-לענן מהאתר
+      if(d.ok)toast(d.status==="published"?"✅ נשמר ופורסם בגלריית-הענן":"✅ נשמר — ממתין לאישור בגלריית-הענן");
+      else if(d.reason==="login")toast("🔒 שמירה לענן פתוחה לרשומים — הירשמו בחינם");
+      else toast("לא ניתן לשמור כרגע — נסו שוב");
+    }
+    if(d.type==="saved-matrices"&&Array.isArray(d.items)){   // מטריצות-הענן שהאתר שלף (els_records)
+      CLOUD_MATRICES=d.items;try{renderGallery();}catch(e){}
+    }
+    if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
+      try{loadMatrix(d.item,0);}catch(e){}
     }});
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
@@ -2116,14 +2243,14 @@
     const mbWrap=document.createElement("div");
     const mb=document.createElement("div");mb.className="matrix-box";
     mb.appendChild(buildMatrix());
-    enablePan(mb);
+    if(st3d.on)enable3D(mb);else enablePan(mb);
     const hb=document.createElement("div");hb.className="hintbar";
     hb.innerHTML='<span class="ht">📍 הקש אות למיקום בתורה · '+(st.fit?"מותאם למסך · צבוט/± להגדיל":"גרור · צבוט להגדיל")+'</span>'+
       '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
-      '<button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
+      '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
@@ -2133,6 +2260,8 @@
       '<button class="fb-x" title="סגור">✕</button>';
     mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);work.appendChild(mbWrap);
     acts.querySelector(".share-act").onclick=shareLink;
+    acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)
+    acts.querySelector(".d3-act").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
     acts.querySelector(".img-act").onclick=downloadMatrixPNG;
     const pa=acts.querySelector(".post-act");if(pa)pa.onclick=()=>{try{window.open(encodeURI(st.postUrl),"_blank","noopener");}catch(e){toast("הקישור: "+st.postUrl);}};
     const la=acts.querySelector(".link-act");if(la)la.onclick=linkToPost;
@@ -2162,6 +2291,7 @@
   }
 
   let lastGrid=null,lastBlock=null,lastPX=26,lastCw=26,dragMoved=false,lastHeat=null;
+  let st3d={on:false,rx:44,rz:0};   // 🧊 מצב תלת-מימד + זוויות-סיבוב (CSS vars)
   // 🖥️ התאמה-למסך: מגדיל/מקטין את התאים כך שכל הצופן המסומן ממלא את רוחב-המסך (בלי גלילה אופקית)
   function fitMatrixToScreen(){
     if(!st.fit||!lastGrid)return;
@@ -2340,6 +2470,25 @@
     const colFromRight=(b.c0+b.cw-1)-mc;
     mb.scrollLeft=Math.max(0,pad+colFromRight*(PX+gap)-mb.clientWidth/2+PX/2);
     mb.scrollTop=Math.max(0,pad+(mr-b.r0)*(PX+gap)-mb.clientHeight/2+PX/2);
+  }
+  // 🧊 מצב תלת-מימד — גרירה מסובבת את המטריצה (rotateX/rotateZ), עמודת-הצופן בולטת החוצה.
+  //    ההקשה על אות (מיקום בתורה) עדיין עובדת — dragMoved חוסם רק אחרי גרירה אמיתית.
+  function enable3D(mb){
+    mb.classList.add("d3");
+    const grid=mb.querySelector(".matrix");if(!grid)return;
+    const setv=()=>{grid.style.setProperty("--rx",st3d.rx+"deg");grid.style.setProperty("--rz",st3d.rz+"deg");};
+    setv();
+    let down=false,px=0,py=0;
+    const start=(x,y)=>{down=true;px=x;py=y;dragMoved=false;mb.classList.add("grab");};
+    const move=(x,y)=>{if(!down)return;const dx=x-px,dy=y-py;if(Math.abs(dx)+Math.abs(dy)>3)dragMoved=true;px=x;py=y;
+      st3d.rz+=dx*0.4;st3d.rx=Math.max(6,Math.min(84,st3d.rx-dy*0.4));setv();};
+    const end=()=>{down=false;mb.classList.remove("grab");};
+    mb.addEventListener("mousedown",e=>{if(e.button!==0)return;start(e.clientX,e.clientY);e.preventDefault();});
+    window.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
+    window.addEventListener("mouseup",end);
+    mb.addEventListener("touchstart",e=>{if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}},{passive:false});
+    mb.addEventListener("touchmove",e=>{if(down&&e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}},{passive:false});
+    mb.addEventListener("touchend",end);
   }
   function enablePan(mb){
     let down=false,sx,sy,sl,stp,pinch=null;
@@ -2921,6 +3070,19 @@
   function openGuide(){_gi=0;renderGuide();}
   function closeGuide(){const ov=document.getElementById("guideov");if(ov)ov.remove();try{localStorage.setItem(GUIDEKEY,"1");}catch(e){}}
   const gb=document.getElementById("guidebtn");if(gb)gb.onclick=openGuide;
-  try{if(!localStorage.getItem(GUIDEKEY)&&!_firstVisit)setTimeout(openGuide,700);}catch(e){}   // בביקור-ראשון מנגנים סרט, לא הדרכה
+  // 🧭 מדריך-הצעדים הממוספר מחליף את הוראות-הכניסה שקפצו — לא פותחים חלון אוטומטי יותר.
+  //    ה-❓ הדרכה נשאר זמין למי שרוצה הסבר מלא. הצעדים עצמם פעילים (מקפיצים לפקד).
+  (function(){
+    const HKEY="tzofen_howto_hidden_v1",hw=document.getElementById("howto");
+    if(!hw)return;
+    try{if(localStorage.getItem(HKEY))hw.style.display="none";}catch(e){}
+    const s1=document.getElementById("htStep1"),s2=document.getElementById("htStep2"),s3=document.getElementById("htStep3"),hx=document.getElementById("howtoX");
+    if(s1)s1.onclick=()=>{try{q.focus();q.select();q.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}};
+    if(s2)s2.onclick=()=>{try{const ct=document.getElementById("crosstoggle");if(ct){ct.click();ct.scrollIntoView({behavior:"smooth",block:"center"});}}catch(e){}};
+    if(s3)s3.onclick=()=>{try{document.getElementById("out").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}};
+    const hm=document.getElementById("htMore");
+    if(hm)hm.onclick=()=>{try{const g=document.getElementById("guideInside");if(g){g.open=true;g.scrollIntoView({behavior:"smooth",block:"start"});}}catch(e){}};
+    if(hx)hx.onclick=()=>{hw.style.display="none";try{localStorage.setItem(HKEY,"1");}catch(e){}};
+  })();
 })();
 </script>
