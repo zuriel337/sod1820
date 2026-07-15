@@ -2,7 +2,7 @@
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
 import { supabase } from "./supabase.js";
 
-const COLS = "id,title,search_term,scope,skip_distance,image_url,description,author_name,primary_number,anchor_numbers,created_at";
+const COLS = "id,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,created_at";
 
 export async function getSavedMatrices(limit = 100) {
   if (!supabase) return [];

@@ -53,7 +53,7 @@ export default function SavedMatricesGallery({ open, onClose }) {
               <span style={{ color: "#9a8f6a", fontSize: 14 }}>כאן יופיעו מטריצות-דילוג שנשמרו ואושרו — של המערכת ושל חוקרי הקהילה.</span>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 13 }}>
               {list.map(m => (
                 <div key={m.id} style={{ background: "rgba(20,14,4,0.7)", border: "1px solid rgba(212,175,55,0.25)", borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                   {m.image_url ? (

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track } from "../lib/tracking.js";
-import { saveMatrix } from "../lib/elsMatrices.js";
+import { saveMatrix, getSavedMatrices } from "../lib/elsMatrices.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
@@ -59,6 +59,21 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     } catch { /* noop */ }
   }, []);
 
+  // 🖼️ שולף את מטריצות-הענן המאושרות (els_records published) ומזרים אותן לכלי לגלריה
+  const pushSavedMatrices = useCallback(async () => {
+    try {
+      const rows = await getSavedMatrices(60);
+      const items = (rows || []).map(m => ({
+        name: m.title || m.search_term, term: m.search_term,
+        skip: m.skip_distance || 0, scope: m.scope || "torah",
+        words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
+        postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
+        image: m.image_url || "", author: m.author_name || "",
+      }));
+      postToTool({ type: "saved-matrices", items });
+    } catch { /* noop */ }
+  }, [postToTool]);
+
   // 💾 שמירת-מטריצה לענן (els_records) — קלאוד בלבד, בלי שמירה-למכשיר.
   //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → שער-הרשמה.
   const saveToCloud = useCallback(async (d) => {
@@ -71,10 +86,11 @@ export default function TzofenEmbed({ seed = "", full = false }) {
         title: d.postTitle || d.term, note: null,
       });
       postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
+      if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
     } catch {
       postToTool({ type: "saved", ok: false });
     }
-  }, [user, isAdmin, postToTool]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
@@ -84,6 +100,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
       if (!d || d.source !== "tzofen") return;
       if (d.type === "ready") {
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
+        pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
         return;
       }
       if (d.type === "search") {
@@ -100,7 +117,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices]);
 
   const gateTitle =
     gate?.reason === "cross" ? "חיפוש מוצלב פתוח לרשומים"

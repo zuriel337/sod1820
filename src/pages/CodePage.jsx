@@ -33,7 +33,7 @@ function CodeClosed() {
 // הצופן התנ"כי — סגור. המנוע המלא פתוח לאדמין בלבד; לכל השאר דף "ייפתח בקרוב" + הרשמה לעדכונים.
 export default function CodePage() {
   const P = usePalette();
-  const { isAdmin, loading } = useAuth();
+  const { loading } = useAuth();
   const [galleryOpen, setGalleryOpen] = useState(false);
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
@@ -46,7 +46,7 @@ export default function CodePage() {
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <TzofenEmbed full />
-      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף) במקום הארכיון (בקשת צוריאל) */}
+      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button
           onClick={() => setGalleryOpen(true)}
@@ -58,14 +58,6 @@ export default function CodePage() {
             fontSize: 12.5, backdropFilter: "blur(4px)",
           }}
         >🖼️ מטריצות שמורות</button>
-        {/* ארכיון המנוע הישן — לאדמין בלבד */}
-        {isAdmin && (
-          <Link to="/code/ארכיון" title="הגרסה הקודמת של מנוע הדילוגים (אדמין)"
-            style={{ display: "inline-flex", alignItems: "center", background: "rgba(8,5,2,.66)", color: "#9a8657",
-              border: "1px solid rgba(212,175,55,.24)", borderRadius: 999, padding: "5px 11px",
-              fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: 11.5, textDecoration: "none", backdropFilter: "blur(4px)" }}
-          >🗄️</Link>
-        )}
       </div>
       <SavedMatricesGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
