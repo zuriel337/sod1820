@@ -25,7 +25,7 @@ export default function ElsModerationTab() {
   return (
     <div dir="rtl" style={{ marginBottom: 22 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <span style={{ color: "#f0d879", fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>🔠 צפנים ממתינים לאישור</span>
+        <span style={{ color: "#f0d879", fontFamily: F.regal, fontSize: 18, fontWeight: 800 }}>🔍 צפנים ממתינים לאישור</span>
         {list.length > 0 && <span style={{ background: "#c0563f", color: "#fff", borderRadius: 999, fontSize: 12, fontWeight: 800, padding: "2px 9px" }}>{list.length}</span>}
         <button onClick={load} style={{ marginInlineStart: "auto", ...btn("rgba(212,175,55,0.14)", "#f0d879") }}>↻ רענן</button>
       </div>
@@ -44,7 +44,7 @@ export default function ElsModerationTab() {
               <div key={m.id} style={card}>
                 {m.image_url
                   ? <img src={m.image_url} alt="" style={{ width: 90, height: 72, objectFit: "cover", borderRadius: 8, background: "#0a0700", flexShrink: 0 }} loading="lazy" />
-                  : <div style={{ width: 90, height: 72, display: "grid", placeItems: "center", background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", borderRadius: 8, fontSize: 14, fontWeight: 800, flexShrink: 0, textAlign: "center", padding: 4 }}>🔠 {m.search_term}</div>}
+                  : <div style={{ width: 90, height: 72, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", borderRadius: 8, fontSize: 12, fontWeight: 800, flexShrink: 0, textAlign: "center", padding: 4 }}><img src="/els-icon.png" alt="" width="28" height="28" style={{ borderRadius: 6, objectFit: "cover" }} />{m.search_term}</div>}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ color: "#f0d879", fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>{m.title || m.search_term}</div>
                   <div style={{ color: "#9a8f6a", fontSize: 12, marginTop: 2 }}>

@@ -37,7 +37,7 @@ export default function CiphersLibraryPage() {
           </p>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             <ShareActions type="codes" url="https://sod1820.co.il/codes" title="📚 ספריית הצפנים — דילוגי אותיות בתורה · סוד 1820" />
-            <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 18px", minHeight: 40 }}>🔠 חפשו צופן משלכם ←</Link>
+            <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 18px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ export default function CiphersLibraryPage() {
                 {m.image_url ? (
                   <img src={m.image_url} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
                 ) : (
-                  <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "grid", placeItems: "center", background: P.cardGrad || P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>🔠 {m.search_term}</div>
+                  <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}><img src="/els-icon.png" alt="" width="44" height="44" style={{ borderRadius: 10, objectFit: "cover" }} />{m.search_term}</div>
                 )}
                 <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
                   <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{m.title || m.search_term}</div>

@@ -441,7 +441,7 @@ export default function HomeNewPage() {
                 style={{ flex: "0 0 auto", width: 200, scrollSnapAlign: "start", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column" }}>
                 {c.image_url
                   ? <img src={c.image_url} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
-                  : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "grid", placeItems: "center", background: P.card, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>🔠 {c.search_term}</div>}
+                  : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, background: P.card, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}><img src="/els-icon.png" alt="" width="40" height="40" style={{ borderRadius: 9, objectFit: "cover" }} />{c.search_term}</div>}
                 <div style={{ padding: "9px 11px" }}>
                   <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title || c.search_term}</div>
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>{c.skip_distance ? `דילוג ${c.skip_distance}` : ""}{c.scope === "tanakh" ? " · תנ״ך" : c.skip_distance ? " · תורה" : ""}</div>

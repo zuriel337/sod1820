@@ -53,8 +53,8 @@ export default function SavedMatricesGallery({ open, onClose }) {
                     {m.image_url ? (
                       <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} loading="lazy" />
                     ) : (
-                      <div style={{ width: "100%", aspectRatio: "1.3", display: "grid", placeItems: "center", background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>
-                        🔠 {m.search_term}
+                      <div style={{ width: "100%", aspectRatio: "1.3", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>
+                        <img src="/els-icon.png" alt="" width="42" height="42" style={{ borderRadius: 10, objectFit: "cover" }} />{m.search_term}
                       </div>
                     )}
                   </Link>

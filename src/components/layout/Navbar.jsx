@@ -37,7 +37,7 @@ function DilugimIcon({ size = 24 }) {
 const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
   { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
-  { label: "דילוגי אותיות", emoji: "🔠", to: "/code", locked: true, icon: "dilugim" },
+  { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim" },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
@@ -55,7 +55,7 @@ const moreItems = [
 const MOBILE_TILES = [
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
   { e: "🔢", l: "דף המספר", to: "/number", fav: true },
-  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, locked: true, icon: "dilugim" },
+  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
