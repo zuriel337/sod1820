@@ -1148,7 +1148,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   useEffect(() => {
     if (!isNumber || !data || !story.ok) return;
     const p = `/number/${encodeURIComponent(phrase)}`;
-    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: bigNumberPage });
+    // מספר-גדול עם תוכן (מילים/פוסטים/גלריות/גילויים) → מאונדקס; מספר-גדול ריק → noindex (בקשת צוריאל)
+    const bigEmpty = bigNumberPage && !((data.phrases?.length || 0) || data.postsCount || data.galleriesCount || data.insightsCount || data.eventsCount);
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: bigEmpty });
     setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
   }, [story.seoDescription, data, term, value, isNumber, phrase]); // eslint-disable-line
 

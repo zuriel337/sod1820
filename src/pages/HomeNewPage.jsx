@@ -307,8 +307,9 @@ export default function HomeNewPage() {
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
         <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
-        {/* התכנסויות אזור-הגוף (עצירות/יציאות) מוסתרות מ«עדכונים אחרונים» בלבד — נשארות בעץ ההתכנסויות ובבית-המדרש */}
-        <LatestUpdatesRail posts={posts} convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} hints={hints} researchers={researchers} />
+        {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
+            נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
+        <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
