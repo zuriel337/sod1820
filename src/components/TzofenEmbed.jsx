@@ -11,7 +11,19 @@ import SubscribeGate from "./SubscribeGate.jsx";
 //    רשום/אדמין → ללא הגבלה. הכלי (iframe) אוכף את הספירה ופולט postMessage; העוטף כאן:
 //    (1) מעדכן את דרגת-המשתמש לכלי, (2) רושם כל חיפוש דרך track הקיים (events/visitor_events —
 //    בלי טבלה מקבילה), (3) מציג את SubscribeGate הקיים כשמגיעים לשער.
-export default function TzofenEmbed({ seed = "", full = false }) {
+// ממפה שורת els_records לפריט שהכלי מבין (loadMatrix)
+function rowToItem(m) {
+  if (!m) return null;
+  return {
+    name: m.title || m.search_term, term: m.search_term,
+    skip: m.skip_distance || 0, scope: m.scope || "torah",
+    words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
+    postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
+    image: m.image_url || "", author: m.author_name || "",
+  };
+}
+
+export default function TzofenEmbed({ seed = "", full = false, matrix = null }) {
   const { isAdmin, verified, user } = useAuth();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
@@ -63,13 +75,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
   const pushSavedMatrices = useCallback(async () => {
     try {
       const rows = await getSavedMatrices(60);
-      const items = (rows || []).map(m => ({
-        name: m.title || m.search_term, term: m.search_term,
-        skip: m.skip_distance || 0, scope: m.scope || "torah",
-        words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
-        postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
-        image: m.image_url || "", author: m.author_name || "",
-      }));
+      const items = (rows || []).map(rowToItem).filter(Boolean);
       postToTool({ type: "saved-matrices", items });
     } catch { /* noop */ }
   }, [postToTool]);
@@ -101,6 +107,7 @@ export default function TzofenEmbed({ seed = "", full = false }) {
       if (d.type === "ready") {
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
         pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
+        if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
         return;
       }
       if (d.type === "search") {
@@ -117,7 +124,12 @@ export default function TzofenEmbed({ seed = "", full = false }) {
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool]);
+
+  // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש
+  useEffect(() => {
+    if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });
+  }, [matrix, postToTool]);
 
   const gateTitle =
     gate?.reason === "cross" ? "חיפוש מוצלב פתוח לרשומים"

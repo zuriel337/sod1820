@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
 
 // 🖼️ גלריית-המטריצות השמורות של הצופן — נפתחת מהכפתור התחתון בדף הצופן.
@@ -6,7 +7,7 @@ import { getSavedMatrices } from "../lib/elsMatrices.js";
 // עיצוב כהה עצמאי (עובד מעל הכלי הכהה). מקור: els_records (published).
 
 async function shareMatrix(m) {
-  const url = `${window.location.origin}/code?m=${m.id}`;
+  const url = `${window.location.origin}/codes/${encodeURIComponent(m.slug || m.id)}`;
   const text = `🔠 מטריצת דילוג: «${m.title || m.search_term}»${m.skip_distance ? ` · דילוג ${m.skip_distance}` : ""} — סוד 1820`;
   try {
     if (navigator.share) { await navigator.share({ title: "מטריצת דילוג · סוד 1820", text, url }); return; }

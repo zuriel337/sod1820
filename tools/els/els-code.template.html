@@ -1187,6 +1187,9 @@
     }
     if(d.type==="saved-matrices"&&Array.isArray(d.items)){   // מטריצות-הענן שהאתר שלף (els_records)
       CLOUD_MATRICES=d.items;try{renderGallery();}catch(e){}
+    }
+    if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
+      try{loadMatrix(d.item,0);}catch(e){}
     }});
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
