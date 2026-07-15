@@ -52,7 +52,7 @@ export default function CodePage() {
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
-      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} />
+      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button

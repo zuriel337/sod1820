@@ -23,7 +23,7 @@ function rowToItem(m) {
   };
 }
 
-export default function TzofenEmbed({ seed = "", full = false, matrix = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null }) {
   const { isAdmin, verified, user } = useAuth();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
@@ -90,13 +90,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null }) 
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
         positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "" },
         title: d.postTitle || d.term, note: null,
+        fromTopic: fromTopic || null,   // 🔁 round-trip: צופן שנוצר מהתכנסות חוזר אליה כראיה
       });
       postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
       if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
     } catch {
       postToTool({ type: "saved", ok: false });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {

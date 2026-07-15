@@ -33,10 +33,11 @@ export async function getPendingMatrices(limit = 100) {
   } catch { return []; }
 }
 
-export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true }) {
+export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null }) {
   const { data, error } = await supabase.rpc("save_els_matrix", {
     p_term: term, p_scope: scope, p_skip: skip, p_direction: direction,
-    p_positions: positions, p_image_url: imageUrl, p_title: title, p_note: note, p_public: isPublic,
+    p_positions: positions, p_image_url: imageUrl, p_title: title, p_note: note,
+    p_public: isPublic, p_from_topic: fromTopic,
   });
   if (error) throw error;
   return data;

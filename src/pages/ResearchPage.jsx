@@ -253,7 +253,7 @@ export default function ResearchPage() {
           {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
-          {tool === "els" && (wide ? <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} /> : (
+          {tool === "els" && (wide ? <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} /> : (
             <div className="rw-card" style={{ textAlign: "center", padding: "40px 22px" }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🔠</div>
               <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>דילוגי אותיות — עדיף כדף מלא</div>
