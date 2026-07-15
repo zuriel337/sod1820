@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -35,6 +35,13 @@ export default function CodePage() {
   const P = usePalette();
   const { loading } = useAuth();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  // 🔠 Deep-link קנוני גם בדף העצמאי: /code?term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
+  const [sp] = useSearchParams();
+  const elsTerm = sp.get("term") || sp.get("q") || "";
+  const elsSkip = sp.get("skip");
+  const elsMatrix = useMemo(
+    () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: sp.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null } : null,
+    [elsTerm, elsSkip, sp]);
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
@@ -45,7 +52,7 @@ export default function CodePage() {
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
-      <TzofenEmbed full />
+      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button
