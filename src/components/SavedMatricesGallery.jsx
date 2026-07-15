@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
 
 // 🖼️ גלריית-המטריצות השמורות של הצופן — נפתחת מהכפתור התחתון בדף הצופן.
-// «כמו גלריה/סרט» — כרטיסי-מטריצה מאושרים (של צוריאל + מאושרי-קהילה), עם שיתוף.
+// «כמו גלריה/סרט» — כרטיסי-מטריצה מאושרים (של המערכת + מאושרי-קהילה), עם שיתוף.
 // עיצוב כהה עצמאי (עובד מעל הכלי הכהה). מקור: els_records (published).
 
 async function shareMatrix(m) {
@@ -50,7 +50,7 @@ export default function SavedMatricesGallery({ open, onClose }) {
             <div style={{ color: "#cdbf9f", textAlign: "center", padding: "60px 24px", lineHeight: 1.9 }}>
               <div style={{ fontSize: 44, marginBottom: 10, opacity: 0.7 }}>🌱</div>
               עדיין אין מטריצות שמורות בגלריה.<br />
-              <span style={{ color: "#9a8f6a", fontSize: 14 }}>כאן יופיעו מטריצות-דילוג שנשמרו ואושרו — של צוריאל ושל חוקרי הקהילה.</span>
+              <span style={{ color: "#9a8f6a", fontSize: 14 }}>כאן יופיעו מטריצות-דילוג שנשמרו ואושרו — של המערכת ושל חוקרי הקהילה.</span>
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>

@@ -917,11 +917,15 @@
     return [...byName.values()];
   }
   function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
+  // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
+  // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → האתר מבקש הרשמה.
   function addCurrentToGallery(){
-    if(!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
-    const item=galleryCurrentItem();let g=globalList().filter(x=>x.name!==item.name);g.unshift(item);saveGlobal(g);
-    saveHidden(hiddenList().filter(n=>n!==item.name));
-    renderGallery();toast("📁 «"+item.name+"» נשמר בגלריה ("+st.words.length+" ממצאים)");
+    const h=(()=>{try{return occ();}catch(e){return null;}})();
+    if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
+    const it=galleryCurrentItem();
+    postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle});
+    toast("💾 שומר בגלריית-הענן…");
   }
   function removeFromGallery(it){
     const hadOverlay=globalList().some(x=>x.name===it.name),isBuiltin=SYSTEM_MATRICES.some(m=>m.name===it.name);
@@ -938,7 +942,7 @@
     if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות בגלריה. חפש מילה, סמן ממצאים, ולחץ «שמור מטריצה».</div>';el.innerHTML=html;return;}
     html+='<div class="gal-row">'+items.map((it,i)=>'<div class="gal-card" data-i="'+i+'"><button class="gal-name">'+it.name+'</button>'+
       (st.admin?'<span class="gal-acts"><button class="gal-edit" title="ערוך במטריצה">✏️</button><button class="gal-del" title="הסר מהגלריה">🗑</button></span>':'')+'</div>').join("")+'</div>';
-    if(st.admin)html+='<div class="gal-note">עריכות נשמרות במכשירך. כדי שכל המבקרים יראו מטריצה — תגיד לי ואטמיע אותה בקובץ.</div>';
+    html+='<div class="gal-note">💾 «שמור בגלריה» שומר לגלריית-הענן המשותפת (לא למכשיר). אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור. המטריצות השמורות נפתחות מכפתור «🖼️ מטריצות שמורות».</div>';
     el.innerHTML=html;
     el.querySelectorAll(".gal-card").forEach(c=>{const it=items[+c.dataset.i];
       const open=()=>{loadMatrix(it);scrollToMatrix();};
@@ -1073,6 +1077,11 @@
       try{updateLockUI();}catch(_){}
       try{updateScopeUI();}catch(_){}   // רענון מנעול «כל התנ״ך» לפי הדרגה
       try{if(st.res)render();}catch(_){}  // דרגה עודכנה אחרי חיפוש → רענון הרשאות
+    }
+    if(d.type==="saved"){   // תוצאת שמירה-לענן מהאתר
+      if(d.ok)toast(d.status==="published"?"✅ נשמר ופורסם בגלריית-הענן":"✅ נשמר — ממתין לאישור בגלריית-הענן");
+      else if(d.reason==="login")toast("🔒 שמירה לענן פתוחה לרשומים — הירשמו בחינם");
+      else toast("לא ניתן לשמור כרגע — נסו שוב");
     }});
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
@@ -2123,7 +2132,7 @@
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
-      '<button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
+      '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
@@ -2133,6 +2142,7 @@
       '<button class="fb-x" title="סגור">✕</button>';
     mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);work.appendChild(mbWrap);
     acts.querySelector(".share-act").onclick=shareLink;
+    acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)
     acts.querySelector(".img-act").onclick=downloadMatrixPNG;
     const pa=acts.querySelector(".post-act");if(pa)pa.onclick=()=>{try{window.open(encodeURI(st.postUrl),"_blank","noopener");}catch(e){toast("הקישור: "+st.postUrl);}};
     const la=acts.querySelector(".link-act");if(la)la.onclick=linkToPost;
