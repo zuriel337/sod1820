@@ -95,6 +95,26 @@
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
+  /* 🧭 «איך מחפשים» — מדריך-צעדים ממוספר, תמיד גלוי, מעל תיבת-החיפוש. מחליף את הוראות-הכניסה.
+     כל צעד גם *פעיל*: לחיצה מקפיצה לפקד המתאים (מיקוד תיבה / פתיחת מוצלב / גלילה למטריצה). */
+  .howto{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 12px;position:relative}
+  .howto .ht-step{flex:1 1 190px;min-width:158px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:start;
+     background:linear-gradient(160deg,rgba(232,200,74,.10),var(--panel2));border:1px solid var(--line2);border-radius:13px;padding:10px 13px;
+     font-family:inherit;transition:border-color .15s,transform .12s}
+  .howto .ht-step:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .howto .ht-step:active{transform:translateY(0)}
+  .howto .ht-n{flex:0 0 auto;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px;
+     background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;font-family:var(--serif)}
+  .howto .ht-t{display:flex;flex-direction:column;line-height:1.32;min-width:0}
+  .howto .ht-t b{color:var(--goldBright);font-size:13.5px}
+  .howto .ht-t span{color:var(--ink2);font-size:11px}
+  .howto .ht-x{position:absolute;top:-7px;inset-inline-start:-3px;background:var(--panel);border:1px solid var(--line2);color:var(--ink3);
+     border-radius:999px;font-size:10.5px;line-height:1;cursor:pointer;padding:3px 9px;font-family:inherit}
+  .howto .ht-x:hover{color:var(--ink);border-color:var(--gold)}
+  /* תג-מספר «1» על תיבת-החיפוש עצמה — מחבר את הצעד לפקד («איפה מחפשים») */
+  .bar{position:relative}
+  .bar .step1{position:absolute;top:-11px;inset-inline-start:14px;z-index:2;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+     font-weight:900;font-size:13px;font-family:var(--serif);background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;box-shadow:0 2px 9px rgba(0,0,0,.4)}
   /* 📁 הגלריה — רצועת מטריצות ציבורית, בולטת ליד הראש */
   .gallery{margin-top:12px}
   .gallery .gal-lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:7px}
@@ -713,8 +733,15 @@
     <p>רשום מילה או צירוף — המנוע מוצא אותו כדילוג בתורה ופורש אותו כעמודה. <b style="color:var(--ink)">גרור את המטריצה</b> לחקור אותה, <b style="color:var(--ink)">הוסף ממצאים בצבעים</b>, ושמור.</p>
   </div>
 
+  <div class="howto" id="howto">
+    <button type="button" class="ht-x" id="howtoX" title="הבנתי — הסתר">הבנתי ✕</button>
+    <div class="ht-step" id="htStep1"><span class="ht-n">1</span><div class="ht-t"><b>כותבים שם או מילה</b><span>בתיבה למטה, ולוחצים «חפש»</span></div></div>
+    <div class="ht-step" id="htStep2"><span class="ht-n">2</span><div class="ht-t"><b>רוצים מפגש? מונח שני</b><span>«🔀 חיפוש מוצלב» — איפה שניהם נפגשים</span></div></div>
+    <div class="ht-step" id="htStep3"><span class="ht-n">3</span><div class="ht-t"><b>חוקרים ושומרים</b><span>גוררים · מסמנים ממצאים · «💾 שמור»</span></div></div>
+  </div>
   <div class="bar">
-    <input id="q" maxlength="40" placeholder="למשל: יום משיח בא" value="יום משיח בא">
+    <span class="step1" aria-hidden="true">1</span>
+    <input id="q" maxlength="40" placeholder="כתבו כאן שם או מילה — למשל «יום משיח בא»" value="יום משיח בא">
     <input id="qb" class="qb" maxlength="40" placeholder="🔀 מונח שני — למצוא מפגש" style="display:none">
     <button class="go" id="go">חפש בתורה ◆</button>
   </div>
@@ -2931,6 +2958,17 @@
   function openGuide(){_gi=0;renderGuide();}
   function closeGuide(){const ov=document.getElementById("guideov");if(ov)ov.remove();try{localStorage.setItem(GUIDEKEY,"1");}catch(e){}}
   const gb=document.getElementById("guidebtn");if(gb)gb.onclick=openGuide;
-  try{if(!localStorage.getItem(GUIDEKEY)&&!_firstVisit)setTimeout(openGuide,700);}catch(e){}   // בביקור-ראשון מנגנים סרט, לא הדרכה
+  // 🧭 מדריך-הצעדים הממוספר מחליף את הוראות-הכניסה שקפצו — לא פותחים חלון אוטומטי יותר.
+  //    ה-❓ הדרכה נשאר זמין למי שרוצה הסבר מלא. הצעדים עצמם פעילים (מקפיצים לפקד).
+  (function(){
+    const HKEY="tzofen_howto_hidden_v1",hw=document.getElementById("howto");
+    if(!hw)return;
+    try{if(localStorage.getItem(HKEY))hw.style.display="none";}catch(e){}
+    const s1=document.getElementById("htStep1"),s2=document.getElementById("htStep2"),s3=document.getElementById("htStep3"),hx=document.getElementById("howtoX");
+    if(s1)s1.onclick=()=>{try{q.focus();q.select();q.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}};
+    if(s2)s2.onclick=()=>{try{const ct=document.getElementById("crosstoggle");if(ct){ct.click();ct.scrollIntoView({behavior:"smooth",block:"center"});}}catch(e){}};
+    if(s3)s3.onclick=()=>{try{document.getElementById("out").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}};
+    if(hx)hx.onclick=()=>{hw.style.display="none";try{localStorage.setItem(HKEY,"1");}catch(e){}};
+  })();
 })();
 </script>
