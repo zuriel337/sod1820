@@ -107,6 +107,10 @@ export default function middleware(request, context) {
   if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
   else if (kind === 'bot') blocked = true;
   if (kind !== 'goodbot' && kind !== 'ai' && BLOCKED_COUNTRIES.has(country)) blocked = true;
+  // 🤖 דף-מספר טהור מעל 4 ספרות (/number/<5+ ספרות>) = סריקת-זבל של בוט (/number/<אקראי>).
+  //    חוסמים כל בוט (כולל goodbot/ai) בקצה: הכלל הקליינטי (noindex ב-EntityPage) לא מגיע
+  //    לבוטים חסרי-JS, לכן האכיפה חייבת לקרות כאן. דפי-ביטוי (עברית) ומספרים ≤4 ספרות לא מושפעים.
+  if (isBot && /^\/number\/\d{5,}$/.test(path)) blocked = true;
 
   // 📊 Crawl Intelligence — לבוטים בלבד: שם-בוט + דלי-תוכן + נחסם (crawl_daily, UPSERT מצטבר)
   if (isBot) {
