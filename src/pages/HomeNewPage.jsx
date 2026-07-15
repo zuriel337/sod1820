@@ -306,28 +306,6 @@ export default function HomeNewPage() {
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
 
-      {/* ===== 🔠 צפנים חדשים — רצועה אופקית מעל «עדכונים אחרונים» (els_records published) ===== */}
-      {ciphers.length > 0 && (
-        <section className="hn-wrap" style={{ padding: "18px 18px 4px" }}>
-          <HomeHeader title="🔠 צפנים חדשים" sub="דילוגי אותיות (ELS) שנחקרו ואומתו — כל צופן בעמוד משלו · עדות, לא ניבוי" />
-          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 10, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
-            {ciphers.map(c => (
-              <Link key={c.id} to={`/codes/${encodeURIComponent(c.slug || c.id)}`}
-                style={{ flex: "0 0 auto", width: 200, scrollSnapAlign: "start", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column" }}>
-                {c.image_url
-                  ? <img src={c.image_url} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
-                  : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "grid", placeItems: "center", background: P.card, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>🔠 {c.search_term}</div>}
-                <div style={{ padding: "9px 11px" }}>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title || c.search_term}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>{c.skip_distance ? `דילוג ${c.skip_distance}` : ""}{c.scope === "tanakh" ? " · תנ״ך" : c.skip_distance ? " · תורה" : ""}</div>
-                </div>
-              </Link>
-            ))}
-            <Link to="/codes" style={{ flex: "0 0 auto", width: 128, scrollSnapAlign: "start", background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 14, textDecoration: "none", display: "grid", placeItems: "center", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, textAlign: "center", padding: 10 }}>כל הצפנים →</Link>
-          </div>
-        </section>
-      )}
-
       {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
@@ -455,14 +433,32 @@ export default function HomeNewPage() {
       {/* ===== 🔓 הצופן — צפנים (דילוגי אותיות / ELS) · יעד גלילה מ«עדכונים אחרונים» · בקרוב.
           ממוקם כאן (לא צמוד להתכנסויות) כדי שכרטיס-התכנסות ינחת על סקשן ההתכנסויות, לא על הצפנים. ===== */}
       <section id="ciphers-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
-        <HomeHeader title="🔓 הצופן — צפנים" sub="דילוגי אותיות בתורה ובתנ״ך — התכנסויות נסתרות" />
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
-          <div style={{ fontSize: 30, marginBottom: 8 }}>🔓</div>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>הצופן נפתח בקרוב</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, marginTop: 8, maxWidth: 440, marginInline: "auto" }}>
-            כאן יופיעו צפני דילוגי-האותיות (ELS) — התכנסויות נסתרות בתורה ובתנ״ך, מאומתות במנוע. בהכנה 🛠️
+        <HomeHeader title="🔓 הצופן — צפנים חדשים" sub="דילוגי אותיות (ELS) שנחקרו ואומתו — כל צופן בעמוד משלו · עדות, לא ניבוי" />
+        {ciphers.length > 0 ? (
+          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 10, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+            {ciphers.map(c => (
+              <Link key={c.id} to={`/codes/${encodeURIComponent(c.slug || c.id)}`}
+                style={{ flex: "0 0 auto", width: 200, scrollSnapAlign: "start", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column" }}>
+                {c.image_url
+                  ? <img src={c.image_url} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
+                  : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "grid", placeItems: "center", background: P.card, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>🔠 {c.search_term}</div>}
+                <div style={{ padding: "9px 11px" }}>
+                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title || c.search_term}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>{c.skip_distance ? `דילוג ${c.skip_distance}` : ""}{c.scope === "tanakh" ? " · תנ״ך" : c.skip_distance ? " · תורה" : ""}</div>
+                </div>
+              </Link>
+            ))}
+            <Link to="/codes" style={{ flex: "0 0 auto", width: 128, scrollSnapAlign: "start", background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 14, textDecoration: "none", display: "grid", placeItems: "center", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, textAlign: "center", padding: 10 }}>כל הצפנים →</Link>
           </div>
-        </div>
+        ) : (
+          <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 16, padding: "30px 22px" }}>
+            <div style={{ fontSize: 30, marginBottom: 8 }}>🔓</div>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>הצופן נפתח בקרוב</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, marginTop: 8, maxWidth: 440, marginInline: "auto" }}>
+              כאן יופיעו צפני דילוגי-האותיות (ELS) — התכנסויות נסתרות בתורה ובתנ״ך, מאומתות במנוע. בהכנה 🛠️
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ===== מהארכיון — אירוע "לפני N שנים" ===== */}
