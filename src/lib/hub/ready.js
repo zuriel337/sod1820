@@ -51,4 +51,4 @@ export const isAdminOnlyTool = (id, isAdmin = false) =>
 export const UPGRADE_MSG = "🔬 הכלי בשדרוג — ייפתח בקרוב לכל החוקרים";
 
 // 🔡 לוגו «דילוגי אותיות» (זכוכית-מגדלת זהב) — סמל-תמונה שמחליף את האימוג'י/SVG בתפריטים ובהיכל.
-export const ELS_LOGO = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/icons/els-dilugim-logo.png";
+export const ELS_LOGO = "/els-icon.png";   // סמל הצפנים הרשמי (זכוכית-מגדלת + אותיות עבריות) — לא אותיות אנגלית

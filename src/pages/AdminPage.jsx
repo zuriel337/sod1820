@@ -71,7 +71,7 @@ const TABS = [
   { key: "classify", label: "🏷️ סיווג תמונות" },
   { key: "meta",     label: "📡 מעקב Meta" },
   { key: "searches", label: "🔍 חיפושי גולשים" },
-  { key: "els",      label: "🔠 הצופן (דילוגים)" },
+  { key: "els",      label: "🔍 הצופן (דילוגים)" },
   { key: "language", label: "🌍 מנוע שפה" },
   { key: "utm",      label: "🔗 בונה קישורים" },
   { key: "push",     label: "🔔 שליחת התראה" },
