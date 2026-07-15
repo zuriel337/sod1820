@@ -81,7 +81,25 @@ function bucketOf(p) {
   return 'other';
 }
 
-export default function middleware(request, context) {
+// 🔢 allowlist של מספרים-גדולים-עם-תוכן (>4 ספרות) — נשמר ב-cache ברמת-המודול (רענון כל שעה).
+// מספר-גדול שיש לו תוכן (מילה/צופן/עוגן) → מותר לבוטים ואינדוקס; מספר-גדול ריק → נחסם.
+let BIG_OK = null, BIG_OK_AT = 0;
+async function bigContentSet() {
+  const now = Date.now();
+  if (BIG_OK && now - BIG_OK_AT < 3600000) return BIG_OK;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/content_big_numbers`, {
+      method: 'POST',
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    const arr = await r.json();
+    if (Array.isArray(arr)) { BIG_OK = new Set(arr.map(Number)); BIG_OK_AT = now; }
+  } catch { /* אם נכשל — נשארים עם ה-cache הקודם (או null → fail-closed בבדיקה) */ }
+  return BIG_OK;
+}
+
+export default async function middleware(request, context) {
   const country = request.headers.get('x-vercel-ip-country') || 'XX';
   const uaRaw = request.headers.get('user-agent') || '';
   const kind = classify(uaRaw.toLowerCase());
@@ -107,6 +125,14 @@ export default function middleware(request, context) {
   if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
   else if (kind === 'bot') blocked = true;
   if (kind !== 'goodbot' && kind !== 'ai' && BLOCKED_COUNTRIES.has(country)) blocked = true;
+  // 🤖 דף-מספר טהור מעל 4 ספרות: חוסמים בוט רק אם המספר **ריק** (לא ב-allowlist התוכן).
+  //    מספר-גדול עם תוכן (מילה/צופן/עוגן) → מותר ומאונדקס (בקשת צוריאל). דף-ריק → נחסם.
+  //    הכלל הקליינטי (noindex) לא מגיע לבוטים חסרי-JS, לכן האכיפה כאן בקצה.
+  const bigNum = isBot && /^\/number\/\d{5,}$/.test(path) ? Number(path.slice(8)) : null;
+  if (bigNum != null) {
+    const ok = await bigContentSet();
+    if (!ok || !ok.has(bigNum)) blocked = true;   // אין תוכן (או cache לא זמין) → חסום
+  }
 
   // 📊 Crawl Intelligence — לבוטים בלבד: שם-בוט + דלי-תוכן + נחסם (crawl_daily, UPSERT מצטבר)
   if (isBot) {
