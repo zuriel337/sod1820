@@ -142,9 +142,15 @@ export default async function handler(req) {
     .catch(() => null);
   const logoSize = story ? 150 : 104;
 
-  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי)
-  const heroSize = hero.length <= 4 ? 320 : hero.length <= 8 ? 200 : hero.length <= 14 ? 120
-                 : hero.length <= 22 ? 88 : hero.length <= 34 ? 66 : 52;
+  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי).
+  // ⚠️ כשיש שורת-משנה (sub) מקטינים את הגיבור — אחרת המספר/המילה הענקיים «דורסים» את הכיתוב שמתחת (צמידות).
+  const hasSub = !!sub;
+  const heroSize = hero.length <= 4 ? (hasSub ? 236 : 300)
+                 : hero.length <= 8 ? (hasSub ? 168 : 196)
+                 : hero.length <= 14 ? (hasSub ? 108 : 120)
+                 : hero.length <= 22 ? 84
+                 : hero.length <= 34 ? 62
+                 : 50;
   // גודל שורת הגימטריה — שורה אחת תמיד (מתכווץ לפי אורך)
   const subSize = sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.length <= 38 ? 34 : sub.length <= 52 ? 27 : 22;
 
@@ -229,7 +235,7 @@ export default async function handler(req) {
               display: 'flex',
               fontSize: `${subSize}px`,
               color: '#f3ead0',
-              marginTop: '24px',
+              marginTop: '32px',
               whiteSpace: 'nowrap',
               textAlign: 'center',
             },
