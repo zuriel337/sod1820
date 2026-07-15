@@ -6,6 +6,7 @@ import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
+import ElsModerationTab from "../components/ElsModerationTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 
@@ -241,7 +242,7 @@ export default function AdminPage() {
       {tab === "classify" && <ClassifyTab />}
       {tab === "meta" && <MetaTab />}
       {tab === "searches" && <SearchesTab />}
-      {tab === "els" && <ElsStatsTab />}
+      {tab === "els" && <><ElsModerationTab /><ElsStatsTab /></>}
       {tab === "language" && <LanguageEngineTab />}
       {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
