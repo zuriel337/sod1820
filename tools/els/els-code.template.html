@@ -1026,7 +1026,7 @@
     if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
     const it=galleryCurrentItem();
     postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
-      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle});
+      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,image:cipherCardDataURL()});
     toast("💾 שומר בגלריית-הענן…");
   }
   function removeFromGallery(it){
@@ -2000,8 +2000,9 @@
   }
   // 🖼️ ציור הצופן הנוכחי ל-canvas והורדה כ-PNG (עובד לגמרי בכלי, בלי רשת).
   function roundRectP(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
-  function downloadMatrixPNG(){
-    if(!lastBlock||!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
+  // 🎴 מנוע-כרטיס-הצופן — בונה את הכרטיס המעוצב ל-canvas ומחזיר אותו (מקור אחד לתמונה: הורדה · שמירה · OG).
+  function buildCipherCanvas(){
+    if(!lastBlock||!st.res||!st.res.hits.length)return null;
     const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
     const CELL=34,GAP=3,PAD=26,HEAD=64,cols=b.cw,rows=(b.r1-b.r0+1);
     const gridW=cols*CELL+(cols-1)*GAP,gridH=rows*CELL+(rows-1)*GAP;
@@ -2040,9 +2041,15 @@
     if(srcSpan){x.fillStyle=PP.src;x.font="600 13px Arial,sans-serif";x.fillText("📍 "+srcSpan,W/2,H-48);}
     x.fillStyle=PP.cta;x.font="700 17px Georgia,serif";x.fillText("חפש את השם שלך בתנ״ך",W/2,H-30);
     x.fillStyle=PP.site;x.font="600 13px Arial,sans-serif";x.fillText("sod1820.co.il",W/2,H-12);
+    return c;
+  }
+  function downloadMatrixPNG(){
+    const c=buildCipherCanvas();if(!c){toast("חפש מטריצה קודם");return;}
     try{const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="הצופן-"+(st.raw||"code").replace(/\s+/g,"-")+".png";document.body.appendChild(a);a.click();a.remove();
       toast("🖼️ התמונה נשמרה — אפשר לשלוח בוואטסאפ/רשתות");}catch(e){toast("לא ניתן לשמור תמונה בדפדפן הזה");}
   }
+  // מחזיר dataURL של כרטיס-הצופן (לשמירה-לענן → העלאה ל-Storage → image_url). null אם אין מטריצה.
+  function cipherCardDataURL(){try{const c=buildCipherCanvas();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
   // 🎬 סרט-הצופן — חשיפה מדורגת: הציר ואז כל ממצא נדלק אחד-אחד עד התמונה המלאה. מהירות נשלטת (st.filmSpeed).
   let _revealTimers=[];
   function stopReveal(){_revealTimers.forEach(clearTimeout);_revealTimers=[];if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));}
