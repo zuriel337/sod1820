@@ -55,6 +55,10 @@ export default function CipherPage() {
   );
 
   const findings = Array.isArray(m.positions?.findings) ? m.positions.findings : [];
+  const q = m.positions?.quality || null;   // 🏆 מד-איכות שנצרב בשמירה (מונטה-קרלו + כוכבים)
+  const mcTxt = q && (q.rarity || q.rarityCapped)
+    ? (q.rarityCapped ? `נדיר מ־1 ל־${q.trials || 400}` : `נדיר בערך 1 ל־${q.rarity}`) + (q.percentile != null ? ` · חזק מ־${q.percentile}%` : "")
+    : null;
   return (
     <div style={wrap}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 14px 8px" }}>
@@ -88,7 +92,15 @@ export default function CipherPage() {
           <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
             <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 9 }}>🎖️ רמת מחקר</div>
             <div style={{ display: "grid", gap: 6, color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.5 }}>
+              {q && q.stars ? (
+                <span style={{ color: P.accentText, fontSize: 15, letterSpacing: 1 }} title={q.verified ? "כוכבים נגזרים ממובהקות מונטה-קרלו מדודה" : "הערכה מהירה — לא הורצה מובהקות"}>
+                  {"★".repeat(q.stars)}<span style={{ opacity: 0.35 }}>{"☆".repeat(5 - q.stars)}</span>
+                  <span style={{ color: P.inkSoft, fontSize: 11.5, marginInlineStart: 7, fontFamily: F.body }}>{q.verified ? "מובהקות מדודה" : "הערכה"}</span>
+                </span>
+              ) : null}
               <span>✓ נמצא במנוע — דילוג {m.skip_distance} ב{m.scope === "tanakh" ? "תנ״ך" : "תורה"}</span>
+              {mcTxt && <span>✓ מונטה-קרלו: {mcTxt}</span>}
+              {q && q.axisOcc === 1 && <span>✓ הציר «{m.search_term}» — יחיד בתורה</span>}
               <span>✓ עבר אישור ופורסם</span>
               {findings.length > 0 && <span>✓ {findings.length} ממצאים מוצלבים</span>}
               {contribCount > 0 && <span>✓ {contribCount} חידושי-קהילה</span>}

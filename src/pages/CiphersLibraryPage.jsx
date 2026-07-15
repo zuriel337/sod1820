@@ -65,6 +65,11 @@ export default function CiphersLibraryPage() {
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>
                     {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
                   </div>
+                  {m.positions?.quality?.stars ? (
+                    <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 12.5, letterSpacing: 0.5 }} title={m.positions.quality.verified ? "מובהקות מונטה-קרלו מדודה" : "הערכת איכות"}>
+                      {"★".repeat(m.positions.quality.stars)}<span style={{ opacity: 0.3 }}>{"☆".repeat(5 - m.positions.quality.stars)}</span>
+                    </div>
+                  ) : null}
                   {m.author_name && <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>✍️ {m.author_name}</div>}
                 </div>
               </Link>

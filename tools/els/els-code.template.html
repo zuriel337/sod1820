@@ -1035,9 +1035,18 @@
   function addCurrentToGallery(){
     const h=(()=>{try{return occ();}catch(e){return null;}})();
     if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
+    // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
+    //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions. כך לא צריך לבדוק כל צופן.
+    try{
+      if(st.words.length && !(st.mc&&st.mc.done&&!st.mc.err&&st.mc.sig===mcSig())){
+        const r=runMonteCarlo(); if(r&&!r.err){st.mc={...r,sig:mcSig(),done:true};}
+      }
+      if(st._refreshQuality)st._refreshQuality();
+    }catch(e){}
     const it=galleryCurrentItem();
     postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
-      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,image:cipherCardDataURL()});
+      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,
+      image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null});
     toast("💾 שומר בגלריית-הענן…");
   }
   function removeFromGallery(it){
@@ -2060,6 +2069,29 @@
   }
   // מחזיר dataURL של כרטיס-הצופן (לשמירה-לענן → העלאה ל-Storage → image_url). null אם אין מטריצה.
   function cipherCardDataURL(){try{const c=buildCipherCanvas();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
+  // 🔲 צורת-הצופן הגולמית — רק רשת-האותיות הצבועה, בלי כותרת/מקור/מקרא/חתימה. לתצוגת «צורה בלבד» בספרייה.
+  function buildCipherGrid(){
+    if(!lastBlock||!st.res||!st.res.hits.length)return null;
+    const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
+    const CELL=34,GAP=3,PAD=16,cols=b.cw,rows=(b.r1-b.r0+1);
+    const gridW=cols*CELL+(cols-1)*GAP,gridH=rows*CELL+(rows-1)*GAP,W=PAD*2+gridW,H=PAD*2+gridH;
+    const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+    const PP=st.theme==="royal"?{bg:"#0b0805",cellBg:"#0e0a04",cellFg:"#6f6347",edge:"#f4c84a"}
+      :st.theme==="klaf"?{bg:"#f3e9d1",cellBg:"#ece0c6",cellFg:"#6b5734",edge:"#7c560d"}
+      :{bg:"#f6f7f9",cellBg:"#e6eaf1",cellFg:"#5b6472",edge:"#8a6d1b"};
+    x.fillStyle=PP.bg;x.fillRect(0,0,W,H);x.textAlign="center";x.textBaseline="middle";
+    const oy=PAD;
+    for(let r=b.r0;r<=b.r1;r++)for(let cc=0;cc<cols;cc++){
+      const col=b.c0+cc,idx=r*S+col,gx=W-PAD-CELL-cc*(CELL+GAP),gy=oy+(r-b.r0)*(CELL+GAP);
+      let bg=PP.cellBg,fg=PP.cellFg;
+      if(idx>=0&&idx<N){const kind=colorMap.get(idx);if(kind==="main"){bg="#7a1220";fg="#ffe0e0";}else if(kind){bg=kind;fg="#0c0c0c";}}
+      x.fillStyle=bg;roundRectP(x,gx,gy,CELL,CELL,5);x.fill();
+      if(startSet.has(idx)){x.strokeStyle=PP.edge;x.lineWidth=2;roundRectP(x,gx+1.5,gy+1.5,CELL-3,CELL-3,4);x.stroke();}
+      if(idx>=0&&idx<N){x.fillStyle=fg;x.font="600 20px Georgia,serif";x.fillText(T[idx],gx+CELL/2,gy+CELL/2+1);}
+    }
+    return c;
+  }
+  function cipherGridDataURL(){try{const c=buildCipherGrid();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
   // 🎬 סרט-הצופן — חשיפה מדורגת: הציר ואז כל ממצא נדלק אחד-אחד עד התמונה המלאה. מהירות נשלטת (st.filmSpeed).
   let _revealTimers=[];
   function stopReveal(){_revealTimers.forEach(clearTimeout);_revealTimers=[];if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));}
@@ -2857,6 +2889,11 @@
       const vScore=mc?verifiedScore(mc,Q):Q.total;
       const stars=mc?starsFromTotal(vScore):(zoneMatch?st.zoneStars:Q.stars);
       const verified=!!mc;
+      // 🏆 צריבת-מד: תמונת-מצב של האיכות שנשמרת עם הצופן (כדי שלא יצטרכו לבדוק כל צופן מחדש)
+      st.lastQuality={ stars, score:vScore, verified,
+        rarity: mc?(mc.capped?null:mc.rar):null, rarityCapped: mc?!!mc.capped:false,
+        percentile: mc?mc.perc:null, trials: mc?mc.TR:null,
+        axisOcc: Q.mh, axisLen: Q.Lm, words: st.words.length };
       const badge=verified?'<span class="ql-verified" title="הכוכבים נגזרים מהמובהקות הסטטיסטית שמדדת">🔵 מאומת</span>':'<span class="ql-est" title="הערכה מהירה — לחץ 📊 בדוק מובהקות לאימות סטטיסטי">הערכה</span>';
       const starsHtml='<b class="stars">'+"★".repeat(stars)+'<span>'+"☆".repeat(5-stars)+'</span></b>'+badge;
       if(!st.qualityOpen){
@@ -2898,6 +2935,7 @@
       }
       renderMC();
     }
+    st._refreshQuality=updateQuality;   // חשיפה: מאפשר לרענן ולצרוב את st.lastQuality בזמן שמירה (מחוץ לסגור)
     function renderList(){
       updateQuality();
       list.innerHTML="";
