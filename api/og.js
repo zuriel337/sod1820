@@ -169,6 +169,25 @@ export default async function handler(req, res) {
       // תמונת שיתוף דינמית: המספר ענק + הביטויים השווים לו + כיתוב ויראלי.
       image = `${SITE}/api/card?n=${n}`;
     }
+  } else if (key.startsWith('/codes/')) {
+    // 🔠 עמוד-צופן קנוני (els_records) — כרטיס-שיתוף ממותג עם המונח והדילוג.
+    // מקור-התמונה: image_url של הצופן (מנוע-הכרטיס) אם קיים, אחרת כרטיס /api/card ממותג.
+    let slug = key.slice('/codes/'.length);
+    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
+      const rows = await r.json();
+      const c = Array.isArray(rows) && rows[0];
+      if (c) {
+        const scopeTxt = c.scope === 'tanakh' ? 'כל התנ״ך' : 'התורה';
+        const findings = (c.positions && Array.isArray(c.positions.findings)) ? c.positions.findings.map(f => f && f.t).filter(Boolean) : [];
+        title = `הצופן «${stripHtml(c.title || c.search_term)}» — דילוג ${c.skip_distance} · ${SITE_NAME}`;
+        desc = cleanDesc(`דילוג-האותיות (ELS) של «${c.search_term}» ב${scopeTxt}, בדילוג ${c.skip_distance}${findings.length ? ' · ' + findings.slice(0, 6).join(' · ') : ''}. עדות — לא ניבוי · סוד 1820.`, 180) || DEFAULT_DESC;
+        type = 'article';
+        image = c.image_url ? waSafeImage(c.image_url)
+          : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}`;
+      }
+    } catch { /* fallback to defaults */ }
   } else {
     // לטפל כ-slug של פוסט.
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים

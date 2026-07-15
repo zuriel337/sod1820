@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
+import ShareActions from "./ShareActions.jsx";
 
 // 🖼️ גלריית-המטריצות השמורות של הצופן — נפתחת מהכפתור התחתון בדף הצופן.
 // «כמו גלריה/סרט» — כרטיסי-מטריצה מאושרים (של המערכת + מאושרי-קהילה), עם שיתוף.
 // עיצוב כהה עצמאי (עובד מעל הכלי הכהה). מקור: els_records (published).
-
-async function shareMatrix(m) {
-  const url = `${window.location.origin}/codes/${encodeURIComponent(m.slug || m.id)}`;
-  const text = `🔠 מטריצת דילוג: «${m.title || m.search_term}»${m.skip_distance ? ` · דילוג ${m.skip_distance}` : ""} — סוד 1820`;
-  try {
-    if (navigator.share) { await navigator.share({ title: "מטריצת דילוג · סוד 1820", text, url }); return; }
-  } catch { /* fallthrough to copy */ }
-  try { await navigator.clipboard.writeText(`${text}\n${url}`); alert("הקישור הועתק ✓"); } catch { /* noop */ }
-}
 
 export default function SavedMatricesGallery({ open, onClose }) {
   const [items, setItems] = useState(null);
@@ -57,22 +49,28 @@ export default function SavedMatricesGallery({ open, onClose }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 13 }}>
               {list.map(m => (
                 <div key={m.id} style={{ background: "rgba(20,14,4,0.7)", border: "1px solid rgba(212,175,55,0.25)", borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                  {m.image_url ? (
-                    <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700" }} loading="lazy" />
-                  ) : (
-                    <div style={{ width: "100%", aspectRatio: "1.3", display: "grid", placeItems: "center", background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>
-                      🔠 {m.search_term}
-                    </div>
-                  )}
+                  <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} onClick={onClose} style={{ textDecoration: "none" }}>
+                    {m.image_url ? (
+                      <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} loading="lazy" />
+                    ) : (
+                      <div style={{ width: "100%", aspectRatio: "1.3", display: "grid", placeItems: "center", background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>
+                        🔠 {m.search_term}
+                      </div>
+                    )}
+                  </Link>
                   <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", gap: 5, flex: 1 }}>
-                    <div style={{ color: "#f0d879", fontSize: 15, fontWeight: 700 }}>{m.title || m.search_term}</div>
+                    <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} onClick={onClose} style={{ color: "#f0d879", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>{m.title || m.search_term}</Link>
                     <div style={{ color: "#9a8f6a", fontSize: 12 }}>
                       {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
                     </div>
                     {m.description && <div style={{ color: "#cdbf9f", fontSize: 12.5, lineHeight: 1.6 }}>{String(m.description).slice(0, 120)}</div>}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 6, flexWrap: "wrap" }}>
                       {m.author_name && <span style={{ color: "#8a8270", fontSize: 11 }}>✍️ {m.author_name}</span>}
-                      <button onClick={() => shareMatrix(m)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontWeight: 800, fontSize: 12, padding: "5px 14px" }}>🔗 שתף</button>
+                      <span style={{ marginInlineStart: "auto" }}>
+                        <ShareActions type="code" compact channels={["native", "whatsapp", "copy"]}
+                          url={`https://sod1820.co.il/codes/${encodeURIComponent(m.slug || m.id)}`}
+                          title={`🔠 צופן דילוג: «${m.title || m.search_term}»${m.skip_distance ? ` · דילוג ${m.skip_distance}` : ""} — סוד 1820`} image={m.image_url || undefined} />
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { getMatrixBySlug } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import Discourse from "../components/Discourse.jsx";
+import ShareActions from "../components/ShareActions.jsx";
 
 // 🔗 עמוד קנוני יחיד לכל צופן שמור (/code/:slug) — עדשה על els_records (published).
 // unified_graph_law: מקור אחד; גלריה/שיתוף מפנים לכאן, לא משכפלים. SEO+OG לכל צופן.
@@ -42,13 +43,6 @@ export default function CipherPage() {
     });
   }, [m, slug]);
 
-  const share = async () => {
-    const url = `https://sod1820.co.il/codes/${encodeURIComponent(slug)}`;
-    const text = `🔠 צופן דילוג: «${m?.title || m?.search_term}» · דילוג ${m?.skip_distance} — סוד 1820`;
-    try { if (navigator.share) return await navigator.share({ title: "צופן דילוג · סוד 1820", text, url }); } catch { /* noop */ }
-    try { await navigator.clipboard.writeText(`${text}\n${url}`); alert("הקישור הועתק ✓"); } catch { /* noop */ }
-  };
-
   const wrap = { direction: "rtl", background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };
 
   if (m === undefined) return <div style={wrap}><div style={{ textAlign: "center", padding: 70, color: P.accentDim, fontFamily: F.body }}>טוען צופן…</div></div>;
@@ -83,8 +77,9 @@ export default function CipherPage() {
           )}
           {m.description && <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 620, margin: "10px auto 0" }}>{m.description}</p>}
           <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
-            <button onClick={share} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 20px", minHeight: 40 }}>🔗 שתפו את הצופן</button>
-            <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px" }}>🔍 חפשו צופן משלכם ←</Link>
+            <ShareActions type="code" url={`https://sod1820.co.il/codes/${encodeURIComponent(slug)}`}
+              title={`🔠 צופן דילוג: «${m.title || m.search_term}» · דילוג ${m.skip_distance} — סוד 1820`} image={m.image_url || undefined} />
+            <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
           </div>
         </div>
 
