@@ -1979,6 +1979,21 @@ export async function getConvergenceEntities(nodeId) {
     .sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
 }
 
+// 🔠 צפנים (ELS) שמתלכדים על מספרי ההתכנסות/המספר — דרך הדילוג או המספר-הדומיננטי.
+// els_research_layer_law: צופן = ראיית-ELS. round-trip: צופן בדילוג N מופיע לבד בהתכנסות/מספר N.
+export async function getElsForNumbers(numbers) {
+  if (!supabase || !numbers?.length) return [];
+  const nums = [...new Set(numbers.map(Number).filter(n => Number.isFinite(n) && n > 0))];
+  if (!nums.length) return [];
+  const list = nums.join(',');
+  const { data } = await supabase.from('els_records')
+    .select('slug,title,search_term,skip_distance,primary_number,anchor_numbers,torah_book,direction')
+    .eq('visibility', 'public').eq('status', 'published')
+    .or(`skip_distance.in.(${list}),primary_number.in.(${list}),anchor_numbers.ov.{${list}}`)
+    .limit(12);
+  return data || [];
+}
+
 // ===== אצירת תמונות — דירוג (importance) + הסתרה (curator_hidden). מיון: חזק קודם, ואז תאריך =====
 export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
   if (!supabase) return [];

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, setImageCuration } from "../lib/supabase.js";
+import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, getElsForNumbers, setImageCuration } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -28,6 +28,7 @@ export default function TopicPage() {
   const [card, setCard] = useState(undefined); // undefined=loading, null=not found
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
+  const [ciphers, setCiphers] = useState([]); // 🔠 צפנים (ELS) שמתלכדים על מספרי ההתכנסות (round-trip)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
   const { isAdmin } = useAuth();        // עריכת תמונה בדף ההתכנסויות — מנהל בלבד
   const crossLock = useSiteFlag("lock_cross");  // כפתורי «הצלבה» מובילים ל-/cross — מוסתרים כשהוא נעול
@@ -46,7 +47,7 @@ export default function TopicPage() {
 
   useEffect(() => {
     let live = true;
-    setCard(undefined); setImgs([]); setEnts([]);
+    setCard(undefined); setImgs([]); setEnts([]); setCiphers([]);
     getTopicCardBySlug(slug).then(async c => {
       if (!live) return;
       setCard(c);
@@ -69,6 +70,7 @@ export default function TopicPage() {
         if (c.node_id) {
           try { setEnts(await getConvergenceEntities(c.node_id)); } catch { /* ignore */ }
         }
+        try { setCiphers(await getElsForNumbers(c.numbers || [])); } catch { /* ignore */ }
       }
     }).catch(() => live && setCard(null));
     return () => { live = false; };
@@ -93,6 +95,7 @@ export default function TopicPage() {
     if (m) String(m).split(/[·/]/).forEach(x => { const t = x.trim(); if (t && t !== "—") evMethods.add(t); });
   });
   ents.forEach(e => { if (e.edgeMethod) evMethods.add(e.edgeMethod); });
+  if (ciphers.length) evMethods.add("דילוג ELS");   // convergence_evidence_law: צופן = ראיה עצמאית
   const meterStars = card.meter_score ? Math.round(card.meter_score / 20) : 0;
   const convStars = Math.max(1, Math.min(5, Math.max(evMethods.size, evCount >= 5 ? 5 : evCount, meterStars)));
 
@@ -183,6 +186,29 @@ export default function TopicPage() {
           </div>
         </div>
       )}
+
+      {/* 🔠 צפנים · ראיות ELS — צופן שמתלכד על מספר ההתכנסות (round-trip: צופן בדילוג N → מופיע כאן) */}
+      <div style={{ ...box, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: ciphers.length ? 10 : 6 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>🔠 צפנים · ראיות בתורה</div>
+          <Link to={`/research?tool=els${hot.size ? `&skip=${[...hot][0]}` : ""}&from=topic:${encodeURIComponent(slug)}`}
+            style={{ textDecoration: "none", border: `1px solid ${P.accent}`, borderRadius: 999, background: P.glow, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "7px 16px" }}>🔠 צור צופן →</Link>
+        </div>
+        {ciphers.length === 0 ? (
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>עדיין אין צופן שמתלכד על המספרים כאן. «צור צופן» יפתח את מנוע הדילוגים — וכשיישמר, יופיע כאן אוטומטית כראיה.</div>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {ciphers.map(c => (
+              <Link key={c.slug} to={`/codes/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", display: "block", padding: "10px 13px", borderRadius: 10, background: P.cardSoft, border: `1px solid ${P.border}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>«{c.search_term || c.title}»</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>= {c.skip_distance} (דילוג ELS)</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* רמז משלים */}
       {f.hint && (
