@@ -313,7 +313,7 @@ export default function App() {
           {/* תצוגה מקדימה — דף בית חדש (לא מחליף את הקיים) */}
           <Route path="/home-new" element={<HomeNewPage />} />
           <Route path="/בית-חדש" element={<HomeNewPage />} />
-          <Route path="/cross" element={<CrossMethodPage />} />
+          <Route path="/cross" element={<Locked flag="lock_cross"><CrossMethodPage /></Locked>} />
           <Route path="/verse-gematria" element={<VerseGematriaPage />} />
           <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
