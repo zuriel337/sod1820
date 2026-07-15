@@ -41,7 +41,6 @@ const subSizeOf = (sub) => sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.l
 async function render({ hero, heroIsNumber = false, sub = '', teaser, signature }) {
   const W = 1200, H = 630, hasSub = !!sub, heroSize = heroSizeOf(hero, hasSub), subSize = subSizeOf(sub);
   const tree = h('div', { style: { width: W + 'px', height: H + 'px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at 50% 38%, #1a1340 0%, #0b0820 45%, #05030d 100%)', fontFamily: 'Heebo', position: 'relative' } },
-    h('div', { style: { position: 'absolute', top: '28px', left: '28px', right: '28px', bottom: '28px', border: '2px solid rgba(212,175,55,0.45)', borderRadius: '24px', display: 'flex' } }),
     h('img', { src: logo, width: 104, height: 104, style: { display: 'block', marginBottom: '2px', objectFit: 'contain' } }),
     h('div', { style: { display: 'flex', alignItems: 'center', gap: '14px', color: '#d4af37', fontSize: '34px', letterSpacing: '6px', marginBottom: '8px' } }, h('span', null, rev('סוד 1820'))),
     h('div', { style: { display: 'flex', fontSize: heroSize + 'px', fontWeight: 800, color: '#ffe9a8', lineHeight: 1.12, padding: '4px 24px', maxWidth: (W - 120) + 'px', textAlign: 'center' } }, heroIsNumber ? hero : rev(hero)),

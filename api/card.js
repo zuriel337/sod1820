@@ -169,19 +169,8 @@ export default async function handler(req) {
         position: 'relative',
       },
     },
-    // מסגרת זהב עדינה
-    h('div', {
-      style: {
-        position: 'absolute',
-        top: '28px',
-        left: '28px',
-        right: '28px',
-        bottom: '28px',
-        border: '2px solid rgba(212,175,55,0.45)',
-        borderRadius: '24px',
-        display: 'flex',
-      },
-    }),
+    // ⚠️ אין מסגרת-זהב פנימית: קו-מסגרת בהיסט קבוע נחתך לקו-שבור כשהכרטיס נגזר (objectFit cover / תמונה-מרובעת).
+    //    הרקע-הרדיאלי לבדו נותן גבול רך שנגזר יפה בכל מקום. אם רוצים מסגרת — רק full-bleed בלי היסט.
     // כתר + מותג עליון — הלוגו האמיתי (עם נפילה ל-👑 אם הטמעת התמונה נכשלה, כדי שהכרטיס לעולם לא ייפול)
     logoDataUri
       ? h('img', {
