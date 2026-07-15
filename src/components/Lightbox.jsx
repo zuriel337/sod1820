@@ -5,6 +5,7 @@ import { F, KEY_NUMBERS } from "../theme.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
 import { trackShare } from "../lib/tracking.js";
+import { shareOrCopy } from "../lib/share.js";
 
 // onEdit(image) — אם מסופק, מציג כפתור ✏️ (למנהלים בלבד).
 // לייטבוקס מועשר: תמונה + פאנל-מידע (צד בדסקטופ, מתחת במובייל) עם כל המספרים
@@ -21,13 +22,9 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
     const url = image?.image_url || window.location.href;
     const title = cleanName(image?.name) || 'SOD1820';
     const slug = `gallery-${image?.id ?? domNum(image) ?? ""}`;
-    if (navigator.share) {
-      trackShare("native", slug);
-      try { await navigator.share({ title, url }); } catch {}
-    } else {
-      trackShare("copy", slug);
-      try { await navigator.clipboard.writeText(url); setShared(true); setTimeout(() => setShared(false), 2000); } catch {}
-    }
+    const via = await shareOrCopy({ title, url });   // לוגיקת-שיתוף קנונית אחת (lib/share.js)
+    trackShare(via === "native" ? "native" : "copy", slug);
+    if (via === "copy") { setShared(true); setTimeout(() => setShared(false), 2000); }
   }
 
   useEffect(() => { setIdx(initialIndex); }, [initialIndex]);

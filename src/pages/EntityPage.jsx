@@ -21,6 +21,7 @@ import GiluyTreasures from "../components/GiluyTreasures.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import Discourse from "../components/Discourse.jsx";
+import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
@@ -339,25 +340,22 @@ function EntityConvergence({ term, isNumber, ragil }) {
 function ShareButtons({ value, term, phrases, copyText, onPreview }) {
   const P = usePalette();
   const H = useHubHrefs();
-  const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
-  async function share() {
+  async function shareImg() {
     if (busy) return;
     setBusy(true);
     try { await shareNumberSmart(value, phrases); } finally { setBusy(false); }
   }
-  const icoBtn = { cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, width: 40, height: 40, fontSize: 16, display: "inline-flex", alignItems: "center", justifyContent: "center" };
+  const icoBtn = { cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, minWidth: 40, height: 40, padding: "0 12px", fontSize: 14, fontWeight: 800, fontFamily: F.heading, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 };
+  // 🔗 רכיב-השיתוף הקנוני (canonical_ui_components_law) + «שתף כתמונה» כפעולה-נוספת (extra)
   return (
     <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginTop: 16 }}>
-      <button onClick={share} disabled={busy}
-        style={{ cursor: busy ? "wait" : "pointer", background: P.accentBtn, color: P.onAccent, border: "none", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, padding: "11px 26px", borderRadius: 999 }}>
-        {busy ? "מכין…" : "✦ שתפו"}
-      </button>
+      <ShareActions type="number" url={copyText || `https://sod1820.co.il/number/${encodeURIComponent(term ?? value)}`}
+        title={`המספר ${value} · סוד 1820`} image={`https://sod1820.co.il/api/card?n=${value}`}
+        extra={<button onClick={shareImg} disabled={busy} title="שתף כתמונה מעוצבת" style={{ ...icoBtn, background: P.accentBtn, color: P.onAccent, border: "none" }}>{busy ? "מכין…" : "🖼 תמונה"}</button>} />
       <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף"
         style={{ textDecoration: "none", cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px" }}>🎲 מסע</Link>
       <button onClick={onPreview} title="תצוגה מקדימה" aria-label="תצוגה מקדימה" style={icoBtn}>🖼</button>
-      <button onClick={() => { navigator.clipboard?.writeText(copyText); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-        title="העתק קישור" aria-label="העתק קישור" style={icoBtn}>{copied ? "✓" : "🔗"}</button>
     </div>
   );
 }

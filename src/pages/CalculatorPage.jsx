@@ -5,7 +5,7 @@ import GematriaCalculator from "../components/GematriaCalculator.jsx";
 import { getWallRecent, getWallPopular, getWallCount } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { maskGibberish } from "../lib/nameMask.js";
-import { trackShare } from "../lib/tracking.js";
+import ShareActions from "../components/ShareActions.jsx";
 
 // ===== מחשבון הגימטריה (ניסוי ויראלי) — דף לבן עצמאי =====
 // כל מילה/שם שמחשבים נרשם ל"קיר החי" (gematria_wall) ומופיע לכולם.
@@ -30,7 +30,6 @@ function timeAgo(iso) {
 }
 
 function ShareBox({ word, ragil }) {
-  const [copied, setCopied] = useState(false);
   const [imgOk, setImgOk] = useState(true);
   useEffect(() => { setImgOk(true); }, [word, ragil]);
   if (!word || !ragil) return null;
@@ -39,17 +38,6 @@ function ShareBox({ word, ragil }) {
   const url = `${origin}/gematria?w=${encodeURIComponent(word)}&n=${ragil}`;
   const cardSrc = `/api/card?w=${encodeURIComponent(word)}&n=${ragil}`;
   const text = `"${word}" = ${ragil} בגימטריה 🔯  מה המספר אומר עליכם? בדקו גם את השם שלכם 👇`;
-
-  const shareId = `gematria:${word}`;
-  const doShare = async () => {
-    if (navigator.share) {
-      trackShare("native", shareId);
-      try { await navigator.share({ title: "סוד 1820 — מחשבון גימטריה", text, url }); return; } catch { /* בוטל */ }
-    }
-    trackShare("copy", shareId);
-    try { await navigator.clipboard.writeText(`${text}\n${url}`); setCopied(true); setTimeout(() => setCopied(false), 2200); } catch { /* */ }
-  };
-  const waHref = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
 
   const btn = (bg, color, border) => ({
     cursor: "pointer", textDecoration: "none", border: border || "none", background: bg, color,
@@ -79,13 +67,9 @@ function ShareBox({ word, ragil }) {
         />
       )}
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-        <button onClick={doShare} style={btn("linear-gradient(135deg,#e9c84a,#9a7818)", "#1a0e00")}>
-          {copied ? "✓ הקישור הועתק!" : "שתפו את התוצאה"}
-        </button>
-        <a href={waHref} target="_blank" rel="noopener noreferrer" onClick={() => trackShare("whatsapp", shareId)} style={btn("#25D366", "#04210f")}>
-          וואטסאפ
-        </a>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+        <ShareActions type="gematria" url={url} title={text} image={`${origin}${cardSrc}`}
+          channels={["native", "whatsapp", "facebook", "copy"]} />
         <Link to={`/number/${ragil}`} style={btn(L.soft, L.goldDeep, `1px solid ${L.line}`)}>
           ✨ גלה הכל על {ragil}
         </Link>

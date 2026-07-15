@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { getChannelUpdates, getPostsFromSupabase } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { trackShare } from "../lib/tracking.js";
+import { waHref, nativeShare as sNativeShare } from "../lib/share.js";
 import ReporterLink from "./ReporterLink.jsx";
 
 // וידאו מהקבוצה? (mp4/webm/mov) → 🎬 ונגן במקום תמונה. נטען רק בהקשה — לא שורף תעבורה.
@@ -16,10 +17,12 @@ export const isConvergenceUpdate = u => /^\/topic\//.test(u?.link_url || "");
 // ↗ שיתוף עדכון ישירות מהאתר: Web Share (מובייל) → נפילה לוואטסאפ. נמדד ב-share tracking.
 // הקישור ויראלי-עמוק: ?u=<id> מנחית את המקבל בדיוק על אותו עדכון בדף השידורים.
 export async function shareUpdate(u, brandTitle) {
-  const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}\n\n🔗 https://sod1820.co.il/broadcasts?u=${u.id}&src=share`;
+  // קישור ויראלי-עמוק: ?u=<id> מנחית בדיוק על השידור הזה (או על הכתב דרך ReporterLink בעמוד).
+  const url = `https://sod1820.co.il/broadcasts?u=${u.id}&src=share`;
+  const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}`;
   try { trackShare("broadcast", "bc-" + u.id); } catch { /* ignore */ }
-  try { if (navigator.share) { await navigator.share({ text }); return; } } catch { return; }
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  if (await sNativeShare({ text: `${text}\n\n🔗 ${url}`, url })) return;   // לוגיקת-שיתוף קנונית
+  window.open(waHref(url, text), "_blank", "noopener");
 }
 
 // 📡 טיקר ממותג — רצועת עדכונים חיה לערוץ מסוים («אור הגאולה» / «קוד המציאות»).

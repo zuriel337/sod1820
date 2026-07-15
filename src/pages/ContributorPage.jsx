@@ -6,6 +6,7 @@ import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import ShareActions from "../components/ShareActions.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
@@ -216,13 +217,6 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [c?.tags]);
 
-  // 🔗 שיתוף הדף — לכל משתמש (גם אנונימי)
-  const sharePage = useCallback(async () => {
-    const url = `https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`;
-    const title = `${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`;
-    try { if (navigator.share) return await navigator.share({ title, url }); } catch { /* בוטל */ }
-    try { await navigator.clipboard.writeText(url); alert("הקישור הועתק 📋"); } catch { /* noop */ }
-  }, [slug, c?.display_name]);
 
   // SEO קנוני לדף דינמי (כמו EntityPage/TopicPage) — כותרת + קנוניקל לפי החוקר
   useEffect(() => {
@@ -326,12 +320,13 @@ export default function ContributorPage() {
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
           </div>
         )}
-        {/* 🔗 שיתוף הדף — לכל אחד */}
+        {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
-          <button onClick={sharePage} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 20px", minHeight: 40 }}>
-            🔗 שתפו את הדף
-          </button>
-          <a href="/community/researchers" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px" }}>
+          <ShareActions type="researcher"
+            url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
+            title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
+            image={(Array.isArray(c?.media) ? c.media.find(e => e.url)?.url : undefined)} />
+          <a href="/community/researchers" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>
             📜 כל הכתבים ←
           </a>
         </div>

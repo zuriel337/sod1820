@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
+import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink } from "../lib/share.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -11,35 +12,22 @@ import { track } from "../lib/tracking.js";
 //   image  — תמונת ה-OG (הרובוטים מושכים אותה דרך /api/og; נשמר כאן להקשר/עתיד)
 //   channels — אילו ערוצים להציג (ברירת-מחדל: כולם) · compact — אייקונים בלבד · extra — פעולות נוספות
 // שינוי אייקון/טקסט/ערוץ/באג = פעם אחת כאן → מתעדכן בכל האתר.
-const SITE = "https://sod1820.co.il";
 const ALL = ["native", "whatsapp", "telegram", "facebook", "copy"];
-
-const CH = {
-  whatsapp: { label: "וואטסאפ", emoji: "💬", color: "#25d366", href: (u, t) => `https://wa.me/?text=${encodeURIComponent(t + " " + u)}` },
-  telegram: { label: "טלגרם", emoji: "✈️", color: "#2aabee", href: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
-  facebook: { label: "פייסבוק", emoji: "📘", color: "#1877f2", href: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
-};
 
 export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, style }) {
   const P = usePalette();
   const [copied, setCopied] = useState(false);
   const fullUrl = url || (typeof window !== "undefined" ? window.location.href : SITE);
   const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
-  const canNative = typeof navigator !== "undefined" && !!navigator.share;
+  const canNative = canNativeShare();
 
   const logShare = useCallback((channel) => { try { track("share", String(type), channel, { url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, fullUrl, image]);
 
-  const native = useCallback(async () => {
-    logShare("native");
-    try { if (navigator.share) { await navigator.share({ title: text, url: fullUrl }); return; } } catch { /* cancelled */ }
-  }, [text, fullUrl, logShare]);
+  const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: fullUrl }); }, [text, fullUrl, logShare]);
 
   const copy = useCallback(async () => {
     logShare("copy");
-    try { await navigator.clipboard.writeText(fullUrl); setCopied(true); setTimeout(() => setCopied(false), 1600); }
-    catch {
-      try { const ta = document.createElement("textarea"); ta.value = fullUrl; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* noop */ }
-    }
+    if (await copyLink(fullUrl)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
   }, [fullUrl, logShare]);
 
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",

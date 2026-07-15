@@ -2,6 +2,7 @@ import React from "react";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
 import { withRid } from "../lib/propagation.js";
+import { shareOrCopy } from "../lib/share.js";
 
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // ➕ הוסף למחקר · ⭐ שמור · 📌 הצמד · 🔗 שתף · 📋 העתק · 🤖 AI — אותו מקום ועיצוב בכל Hub.
@@ -16,12 +17,9 @@ export default function QuickActions({ entity, onShare, onAnalyze, extra, style 
   const share = () => {
     emit(EVENTS.ITEM_SHARE, entity);
     if (onShare) return onShare();
+    // לוגיקת-שיתוף קנונית אחת (lib/share.js) — הקישור הקנוני של העמוד + rid למדידת ויראליות
     const url = typeof window !== "undefined" ? withRid(window.location.href) : "https://sod1820.co.il";
-    const title = entity.title || "סוד 1820";
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title, url }).catch(() => {});
-      else navigator.clipboard?.writeText(url);
-    } catch { /* noop */ }
+    shareOrCopy({ title: entity.title || "סוד 1820", url });
   };
   const copy = () => { emit(EVENTS.ITEM_COPY, entity); try { navigator.clipboard?.writeText(entity.title); } catch { /* noop */ } };
   // style = משתני-תמה מהדף (P) → צבעים נקראים נכון בבהיר ובכהה (לא נשענים על fallback מעומעם).
