@@ -10,6 +10,7 @@ import { supabase, addWallWord } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { METHODS as GEM_METHODS, onlyHeb } from "../lib/gematria.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
+import { waHref } from "../lib/share.js";
 
 export function ArchivePage() {
   return <UnderConstruction emoji="🖼" title="ארכיון ההתגלות"
@@ -236,7 +237,7 @@ export function CommunityCalculatorPage() {
           )}
 
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 2 }}>
-            <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
+            <a href={waHref("", shareText)} target="_blank" rel="noopener noreferrer"
               style={{ background: "#25D366", color: "#06310f", fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "12px 26px", borderRadius: 999, textDecoration: "none" }}>
               🟢 שתפו בוואטסאפ
             </a>

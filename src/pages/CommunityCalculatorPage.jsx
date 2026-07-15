@@ -9,6 +9,7 @@ import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.
 import { buildMessages } from "../lib/numberMessage.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
+import { waHref } from "../lib/share.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
@@ -250,7 +251,7 @@ function BabyNameTool({ P }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
               <Link to={`/number/${a.value}`} style={{ ...chip, background: P.accentBtn, color: P.onAccent }}>🔢 דף המספר {a.value}</Link>
               <Link to={`/journey?from=${a.value}`} style={{ ...chip, background: P.card, color: P.accentText, border: `1px solid ${P.border}` }}>🎲 צאו למסע</Link>
-              <a href={`https://wa.me/?text=${encodeURIComponent(`בדקתי את השם "${a.name}" בגימטריה ✨ רגיל ${a.value}\n${SITE_URL}/community/calculator`)}`} target="_blank" rel="noopener noreferrer" style={{ ...chip, background: "#25D366", color: "#06310f" }}>🟢 שתפו</a>
+              <a href={waHref("", `בדקתי את השם "${a.name}" בגימטריה ✨ רגיל ${a.value}\n${SITE_URL}/community/calculator`)} target="_blank" rel="noopener noreferrer" style={{ ...chip, background: "#25D366", color: "#06310f" }}>🟢 שתפו</a>
             </div>
           </div>
         );
@@ -563,7 +564,7 @@ export default function CommunityCalculatorPage() {
                 <button onClick={() => { setName1(heb.clean); setDateMode(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={pillBtn(P.accentBtn, P.onAccent)}>
                   🔢 כל 19 השיטות לתאריך שלי
                 </button>
-                <a href={`https://wa.me/?text=${encodeURIComponent(`התאריך העברי שלי: ${heb.pretty} = ${heb.value} בגימטריה ✨\nגלו את שלכם:\n${SITE_URL}/community/calculator`)}`} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו</a>
+                <a href={waHref("", `התאריך העברי שלי: ${heb.pretty} = ${heb.value} בגימטריה ✨\nגלו את שלכם:\n${SITE_URL}/community/calculator`)} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו</a>
               </div>
             </div>
           )}
@@ -604,7 +605,7 @@ export default function CommunityCalculatorPage() {
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 9, justifyContent: "center", flexWrap: "wrap", marginTop: 13 }}>
-                  <a href={`https://wa.me/?text=${encodeURIComponent(blurb)}`} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו את התגלית</a>
+                  <a href={waHref("", blurb)} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו את התגלית</a>
                   <button onClick={() => { navigator.clipboard?.writeText(blurb); setCopied(true); setTimeout(() => setCopied(false), 1500); }} style={pillBtn(P.card, P.accentText)}>{copied ? "✓ הועתק" : "📋 העתקה"}</button>
                 </div>
               </div>
@@ -692,7 +693,7 @@ export default function CommunityCalculatorPage() {
 
           {/* שיתוף */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו בוואטסאפ</a>
+            <a href={waHref("", shareText)} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו בוואטסאפ</a>
             <button onClick={() => { navigator.clipboard?.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 1500); }} style={pillBtn(P.card, P.accentText)}>
               {copied ? "✓ הועתק" : "🔗 העתק קישור"}
             </button>

@@ -7,6 +7,7 @@ import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCar
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
+import { waHref } from "../lib/share.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromInsight, entityFromPhrase } from "../lib/research/entity.js";
@@ -74,7 +75,7 @@ function ShareRow({ text, url }) {
   const btn = { cursor: "pointer", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 11px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 };
   return (
     <div style={{ display: "flex", gap: 7, marginTop: 10 }}>
-      <a href={`https://wa.me/?text=${encodeURIComponent(full)}`} target="_blank" rel="noopener noreferrer" style={btn}>🟢 שיתוף</a>
+      <a href={waHref("", full)} target="_blank" rel="noopener noreferrer" style={btn}>🟢 שיתוף</a>
       <button onClick={() => { navigator.clipboard?.writeText(full); setCopied(true); setTimeout(() => setCopied(false), 1500); }} style={btn}>
         {copied ? "✓ הועתק" : "🔗 העתק"}
       </button>
@@ -120,7 +121,7 @@ function StudyCard({ item, ai }) {
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${L.line}` }}>
         <SaveActions entity={entityFromInsight(item)} />
         <span style={{ marginInlineStart: "auto", display: "inline-flex", gap: 7 }}>
-          <a href={`https://wa.me/?text=${encodeURIComponent(item.title)}`} target="_blank" rel="noopener noreferrer" style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 11px", textDecoration: "none" }}>🟢 שתף</a>
+          <a href={waHref("", item.title)} target="_blank" rel="noopener noreferrer" style={{ cursor: "pointer", background: L.soft, border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "4px 11px", textDecoration: "none" }}>🟢 שתף</a>
         </span>
       </div>
     </div>

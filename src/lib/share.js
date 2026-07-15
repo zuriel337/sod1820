@@ -42,3 +42,8 @@ export async function shareOrCopy({ title = "", url, text = "" } = {}) {
   if (await nativeShare({ title, url, text })) return "native";
   return (await copyLink(url)) ? "copy" : "none";
 }
+
+// 🖼️ שיתוף-קובץ-תמונה (כרטיס-PNG מיוצר) — יכולת נבדלת משיתוף-קישור, גם היא מרוכזת כאן.
+// זורק AbortError אם המשתמש ביטל (כדי שהקורא יטפל כמו קודם). מקור-אמת יחיד ל-navigator.share.
+export const canShareFile = (file) => typeof navigator !== "undefined" && !!navigator.canShare && navigator.canShare({ files: [file] });
+export const shareImageFile = (file, { title = "", text = "" } = {}) => navigator.share({ files: [file], title, text });

@@ -7,6 +7,7 @@ import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supab
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
+import { shareOrCopy } from "../lib/share.js";
 
 // 🧪 מעבדת השם — לא «מחשבון שמות» אלא מעבדת מחקר. השאלה: «מה אפשר לגלות על השם הזה?»
 // הסדר (החלטת צוריאל): שם → סיכום-AI (חוקר מלווה) → מחקר → התכנסויות → גשרים → הקשר → אישי → לאן ממשיכים.
@@ -413,7 +414,7 @@ export default function NameLabPage({ embedded = false }) {
               <button onClick={() => entity && addToResearch?.(entity)} style={{ cursor: "pointer", background: C.blue, border: "none", borderRadius: 999, color: "#fff", fontFamily: F.h, fontSize: 13.5, fontWeight: 800, padding: "10px 18px", minHeight: 44 }}>➕ הוסף למחקר</button>
               <button onClick={() => entity && saveItem?.(entity)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, color: C.ink, fontFamily: F.h, fontSize: 13.5, fontWeight: 800, padding: "10px 18px", minHeight: 44 }}>⭐ שמור לעץ</button>
               <button onClick={() => entity && togglePin?.(entity)} style={{ cursor: "pointer", background: pinned ? "#fff4e0" : "#fff", border: `1px solid ${pinned ? "#f0dcae" : C.line}`, borderRadius: 999, color: pinned ? "#8a5a1f" : C.dim, fontFamily: F.h, fontSize: 13.5, fontWeight: 800, padding: "10px 18px", minHeight: 44 }}>{pinned ? "📌 מוצמד" : "📌 הצמד"}</button>
-              <button onClick={() => { const url = `${location.origin}/name-lab?w=${encodeURIComponent(word)}`; try { navigator.share ? navigator.share({ title: `מעבדת השם — ${word}`, url }) : navigator.clipboard?.writeText(url); } catch { /* noop */ } }} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, color: C.ink, fontFamily: F.h, fontSize: 13.5, fontWeight: 800, padding: "10px 18px", minHeight: 44 }}>🔗 שתף</button>
+              <button onClick={() => shareOrCopy({ title: `מעבדת השם — ${word}`, url: `${location.origin}/name-lab?w=${encodeURIComponent(word)}` })} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, color: C.ink, fontFamily: F.h, fontSize: 13.5, fontWeight: 800, padding: "10px 18px", minHeight: 44 }}>🔗 שתף</button>
             </div>
           </Section>
 
