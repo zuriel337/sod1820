@@ -12,7 +12,8 @@ import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, co
 // (העתק קישור / תמונה מעוצבת / שיתוף מערכת), ובקרוב (סרטון מפוסט / רשת תמונות).
 // מונה קהילתי מוצג רק מעל 20. כל שיתוף מתועד דרך trackShare.
 // /number — לדף המספר יש שיתוף-הירו עשיר משלו (תמונת-מספר), אז הצף מוסתר שם (בלי כפילות).
-const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number)/;
+// ⛔ מסתירים את הצף בעמודים שיש להם שיתוף עשיר משלהם (בלי כפילות): מספר, צופן (/code + /codes), היכל…
+const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code)/;
 
 // אייקוני מותג — נתיבי SVG (simple-icons), מרונדרים בצבע לבן על רקע המותג.
 const ICON_PATHS = {

@@ -38,6 +38,7 @@ const STATIC = [
   { loc: '/journey',      priority: '0.5', changefreq: 'monthly' },
   { loc: '/beit-midrash', priority: '0.8', changefreq: 'weekly'  },
   { loc: '/code',         priority: '0.6', changefreq: 'monthly' },
+  { loc: '/codes',        priority: '0.7', changefreq: 'weekly'  },
   { loc: '/post',         priority: '0.9', changefreq: 'daily'   },
   { loc: '/archive',      priority: '0.8', changefreq: 'weekly'  },
   { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },
@@ -106,6 +107,16 @@ export default async function handler(req, res) {
       urls.push({ loc: '/topic/' + encodeURIComponent(t.slug), lastmod, changefreq: 'weekly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי התכנסויות */ }
+
+  // ── צפנים מאושרים → /codes/:slug (els_records published) ──
+  try {
+    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published');
+    for (const c of codes) {
+      if (!c.slug) continue;
+      const lastmod = (c.created_at || '').slice(0, 10) || undefined;
+      urls.push({ loc: '/codes/' + encodeURIComponent(c.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
+    }
+  } catch (e) { /* ממשיכים גם בלי צפנים */ }
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
