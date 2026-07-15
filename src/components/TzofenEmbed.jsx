@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track } from "../lib/tracking.js";
 import { saveMatrix, getSavedMatrices } from "../lib/elsMatrices.js";
@@ -26,6 +27,7 @@ function rowToItem(m) {
 
 export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null }) {
   const { isAdmin, verified, user } = useAuth();
+  const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
@@ -133,13 +135,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "navigate" && typeof d.to === "string") {
+        navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש
   useEffect(() => {
