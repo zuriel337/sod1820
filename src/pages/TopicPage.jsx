@@ -79,6 +79,20 @@ export default function TopicPage() {
   const hot = new Set(card.highlight_numbers || []);
   const nums = card.numbers || [];
 
+  // convergence_evidence_law: עוצמת ההתכנסות = מספר השיטות/הראיות העצמאיות המתלכדות בעוגן.
+  // הכוכבים נגזרים מהעוצמה האמיתית לפי העץ — לא מ-quality שהוזן ידנית.
+  const evRows = Array.isArray(f) ? f : (f.rows || []);
+  const evMethods = new Set();
+  let evCount = 0;
+  evRows.forEach(r => {
+    if (r && (r.n != null || r.v != null)) evCount++;
+    const m = r && (r.method || r.note);
+    if (m) String(m).split(/[·/]/).forEach(x => { const t = x.trim(); if (t && t !== "—") evMethods.add(t); });
+  });
+  ents.forEach(e => { if (e.edgeMethod) evMethods.add(e.edgeMethod); });
+  const meterStars = card.meter_score ? Math.round(card.meter_score / 20) : 0;
+  const convStars = Math.max(1, Math.min(5, Math.max(evMethods.size, evCount >= 5 ? 5 : evCount, meterStars)));
+
   return (
     <div ref={contentRef} style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "40px 22px 90px", background: P.pageBg, color: P.inkSoft }}>
       {/* כותרת */}
@@ -86,7 +100,8 @@ export default function TopicPage() {
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>🧠 מרכז ההתכנסות</div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
           <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>{card.title}</h1>
-          <span style={{ color: P.accent, fontSize: 15, letterSpacing: 2 }}>{stars(card.quality)}</span>
+          <span style={{ color: P.accent, fontSize: 15, letterSpacing: 2 }}>{"★".repeat(convStars) + "☆".repeat(5 - convStars)}</span>
+          {evMethods.size >= 2 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5 }}>· {evMethods.size} שיטות עצמאיות</span>}
         </div>
         {card.subtitle && <p style={{ color: P.ink, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.7, margin: "10px 0 0" }}>{card.subtitle}</p>}
         {/* שיתוף ההתכנסות — מחובר למעקב (trackShare → visitor_events, עם rid) */}
