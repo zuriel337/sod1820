@@ -6,6 +6,7 @@ import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, setI
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "../components/MaintenanceLock.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import RealityStream from "../components/RealityStream.jsx";
 import DocActions from "../components/DocActions.jsx";
@@ -29,6 +30,7 @@ export default function TopicPage() {
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
   const { isAdmin } = useAuth();        // עריכת תמונה בדף ההתכנסויות — מנהל בלבד
+  const crossLock = useSiteFlag("lock_cross");  // כפתורי «הצלבה» מובילים ל-/cross — מוסתרים כשהוא נעול
   const [editImg, setEditImg] = useState(null);
 
   // 💾 שמירת עריכת-תמונה (מנהל) — מעדכן במאגר + אופטימי ברשימה. אותו מנגנון של הגלריות (עץ אחד).
@@ -78,6 +80,7 @@ export default function TopicPage() {
   const f = card.findings || {};
   const hot = new Set(card.highlight_numbers || []);
   const nums = card.numbers || [];
+  const crossHidden = crossLock.lock?.enabled && !isAdmin;   // /cross נעול → לא להראות כפתורי-הצלבה מתים
 
   // convergence_evidence_law: עוצמת ההתכנסות = מספר השיטות/הראיות העצמאיות המתלכדות בעוגן.
   // הכוכבים נגזרים מהעוצמה האמיתית לפי העץ — לא מ-quality שהוזן ידנית.
@@ -135,7 +138,8 @@ export default function TopicPage() {
               color: hot.has(n) ? P.accentText : P.accentDim }}>{n}</Link>
           ))}
         </div>
-        {/* גשר ל-/cross — הצלבת השיטות של המספרים המודגשים */}
+        {/* גשר ל-/cross — הצלבת השיטות של המספרים המודגשים (מוסתר כל עוד /cross נעול) */}
+        {!crossHidden && (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
           {(card.highlight_numbers || nums.slice(0, 3)).map(n => (
             <Link key={`x${n}`} to={`/cross?n=${n}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
@@ -143,6 +147,7 @@ export default function TopicPage() {
               color: P.ink, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>⟡ הצלבת {n} →</Link>
           ))}
         </div>
+        )}
       </div>
 
       {/* 👑 ישויות מחוברות בגרף (חתימות זהב) */}
@@ -159,7 +164,8 @@ export default function TopicPage() {
               const rag = calcGem(e.label) || null;
               const ragMatches = rag != null && (card.numbers || []).includes(rag);
               const val = stored ?? (ragMatches ? rag : null);
-              const method = e.edgeMethod || (stored == null && ragMatches ? "רגיל" : null);
+              // תווית שיטה: מה-edge, אחרת «רגיל» כשהערך המוצג שווה לרגיל — לעולם לא מספר בלי שיטה
+              const method = e.edgeMethod || (val != null && val === rag ? "רגיל" : null);
               return (
                 <Link key={e.label} to={`/number/${encodeURIComponent(val ?? e.label)}`} style={{ textDecoration: "none",
                   display: "block", padding: "10px 13px", borderRadius: 10,
