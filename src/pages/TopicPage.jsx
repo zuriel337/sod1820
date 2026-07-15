@@ -137,17 +137,20 @@ export default function TopicPage() {
           <div style={{ display: "grid", gap: 8 }}>
             {ents.map(e => {
               const gold = e.metadata?.tier === "gold";
-              // no_row_without_number_law: לעולם לא שורה בלי מספר — אם אין ערך שמור, מחשבים במנוע
-              const val = e.metadata?.value ?? (calcGem(e.label) || null);
+              // convergence_number_method_law: כל מספר עם שיטתו — אף פעם לא ערך עירום.
+              // הערך+השיטה ספציפיים להתכנסות (יושבים על ה-edge); נפילה לרגיל רק כשאין ערך שמור.
+              const stored = e.edgeValue ?? e.metadata?.value ?? null;
+              const val = stored ?? (calcGem(e.label) || null);
+              const method = e.edgeMethod || (stored == null ? "רגיל" : null);
               return (
-                <Link key={e.label} to={`/number/${encodeURIComponent(e.label)}`} style={{ textDecoration: "none",
+                <Link key={e.label} to={`/number/${encodeURIComponent(val ?? e.label)}`} style={{ textDecoration: "none",
                   display: "block", padding: "10px 13px", borderRadius: 10,
                   background: gold ? P.cardGrad : P.cardSoft,
                   border: `1px solid ${gold ? P.accent : P.border}` }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     {gold && <span title="חתימת זהב">👑</span>}
                     <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16.5, fontWeight: 700 }}>{e.metadata?.display || e.label}</span>
-                    {val != null && <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>= {val}</span>}
+                    {val != null && <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>= {val}{method ? ` (${method})` : ""}</span>}
                   </div>
                   {e.metadata?.claim_note && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginTop: 4 }}>⚖️ {e.metadata.claim_note}</div>}
                 </Link>

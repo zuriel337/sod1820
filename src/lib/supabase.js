@@ -1968,11 +1968,15 @@ export async function getTopicCardBySlug(slug) {
 // ישויות (זהב/חתימות) המחוברות לציר ההתכנסות בגרף — דרך edges related מה-node של הכרטיס
 export async function getConvergenceEntities(nodeId) {
   if (!supabase || !nodeId) return [];
-  const { data: eg } = await supabase.from('edges').select('to_node').eq('from_node', nodeId).eq('relation_type', 'related');
+  // convergence_number_method_law: הערך+השיטה ספציפיים להתכנסות ויושבים על ה-edge (לא על הישות)
+  const { data: eg } = await supabase.from('edges').select('to_node, metadata').eq('from_node', nodeId).eq('relation_type', 'related');
   const ids = [...new Set((eg || []).map(x => x.to_node))];
   if (!ids.length) return [];
-  const { data } = await supabase.from('nodes').select('label,description,metadata').eq('type', 'entity').in('id', ids);
-  return (data || []).sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
+  const edgeMeta = Object.fromEntries((eg || []).map(x => [x.to_node, x.metadata || {}]));
+  const { data } = await supabase.from('nodes').select('id,label,description,metadata').eq('type', 'entity').in('id', ids);
+  return (data || [])
+    .map(n => ({ ...n, edgeValue: edgeMeta[n.id]?.value ?? null, edgeMethod: edgeMeta[n.id]?.method ?? null }))
+    .sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
 }
 
 // ===== אצירת תמונות — דירוג (importance) + הסתרה (curator_hidden). מיון: חזק קודם, ואז תאריך =====
