@@ -55,9 +55,17 @@ export const trackAi = (kind, where = null) =>
 // 🧭 עקבת-מסע — כל מעבר בקישור-פנים (מילה→ערך→מילה) נשמר לניתוח התנהגותי עתידי:
 // אילו מספרים מושכים אנשים · אילו מילים הן שערים · איפה המסע נעצר · אילו צמתים חוזרים.
 // data-only (בלי UI), רוכב על visitor_events (עץ אחד, בלי טבלה מקבילה). from=מאיפה · to=לאן · via=דרך איזו שיטה.
-export const trackJourneyStep = (from, to, { via = null, surface = null } = {}) =>
-  track("journey_trace", to != null ? String(to).slice(0, 120) : null, "step",
-    { from: from != null ? String(from).slice(0, 120) : null, via, surface });
+export const trackJourneyStep = (from, to, { via = null, surface = null } = {}) => {
+  // 🔗 ייחוס-מדויק: אם הצעד בא זמן קצר אחרי ניתוח-AI טרי — חותמים את מזהה-הניתוח ונושאו,
+  //    כדי לדעת *איזה* ניתוח הוביל לאיזה מסע (window.__sodAiLog מוגדר ב-logAiAnalysis, חלון 10 דק').
+  let ai_log = null, ai_subject = null;
+  try {
+    const l = typeof window !== "undefined" ? window.__sodAiLog : null;
+    if (l && Date.now() - l.at < 10 * 60 * 1000) { ai_log = l.id ?? null; ai_subject = l.subject || null; }
+  } catch { /* noop */ }
+  return track("journey_trace", to != null ? String(to).slice(0, 120) : null, "step",
+    { from: from != null ? String(from).slice(0, 120) : null, via, surface, ...(ai_log ? { ai_log, ai_subject } : {}) });
+};
 
 // 🧠 שימוש באזור-המשתמש (עולם המשתמש / המחקר) — תופס גם אנונימיים (visitor_id). מפולח לפי action:
 //   open  — נפתח «עולם המשתמש» (סרגל/גיליון/פרופיל)

@@ -173,6 +173,11 @@ export default function AiStylesTab() {
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginBottom: 6 }}>
                   {t.steps} צעדים · {new Date(t.last_at).toLocaleString("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · חוקר #{t.visitor}
                 </div>
+                {t.ai_trigger && (
+                  <div style={{ marginBottom: 6 }}>
+                    <span style={{ display: "inline-block", background: "rgba(62,166,255,0.12)", border: "1px solid rgba(62,166,255,0.5)", color: "#7cbcf5", borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>🤖 אחרי ניתוח «{t.ai_trigger}»</span>
+                  </div>
+                )}
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 5 }}>
                   {nodes.map((n, i) => (
                     <React.Fragment key={i}>
