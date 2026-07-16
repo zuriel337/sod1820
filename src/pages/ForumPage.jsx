@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
@@ -97,6 +98,7 @@ function PostCard({ c, P }) {
 
 export default function ForumPage() {
   const P = usePalette();
+  const mode = useThemeMode();
   const [items, setItems] = useState(null);
   const [type, setType] = useState(null);      // null=הכל · "post" · intent
   const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
@@ -118,6 +120,15 @@ export default function ForumPage() {
 
   return (
     <div dir="rtl" style={{ maxWidth: 780, margin: "0 auto", padding: "26px 16px 90px", position: "relative", zIndex: 1 }}>
+      {/* 🌗 מתג מראה — בהיר/כהה, כמו בשאר האתר. אופציה גלויה גם מכאן. */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+        <button onClick={toggleTheme} title="מצב יום / לילה" aria-label="החלפת מצב בהיר/כהה"
+          style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, background: "transparent",
+            border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 999, padding: "5px 12px",
+            fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+          {mode === "light" ? "🌙 מצב כהה" : "☀️ מצב בהיר"}
+        </button>
+      </div>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>מחקר קהילתי · פורום</div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,40px)", fontWeight: 800, margin: "0 0 8px" }}>🌐 פורום המחקר</h1>

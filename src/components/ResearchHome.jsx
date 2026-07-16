@@ -96,6 +96,7 @@ export default function ResearchHome({ onOpen }) {
         <button style={tabBtn(tab === "tools")} onClick={() => setTab("tools")}>🧰 הכלים</button>
         <button style={tabBtn(tab === "lib")} onClick={() => setTab("lib")}>📚 מאגרים</button>
         <button style={tabBtn(false)} onClick={() => openCenter()}>👤 אזור אישי</button>
+        <Link to="/forum" style={{ ...tabBtn(false), textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>🌐 פורום המחקר</Link>
       </div>
 
       {tab === "tools" ? (

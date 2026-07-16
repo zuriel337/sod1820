@@ -429,6 +429,7 @@ function CommunityTab({ highlightId }) {
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>
           חידושים ששלחו חוקרים מהקהילה, שאושרו ופורסמו. רוצים לשתף חידוש משלכם? <Link to="/research?tool=midrash&tab=submit" style={{ color: L.goldDeep, fontWeight: 700 }}>שלחו חידוש →</Link>
         </p>
+        <Link to="/forum" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 9, color: L.blue, background: L.blueBg, border: `1px solid ${L.blueLine}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🌐 לפורום המחקר המלא — חידושי הקהילה ומאמרי הכתבים →</Link>
       </div>
       {!items.length
         ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי קהילה — היו הראשונים לשתף.</div>
