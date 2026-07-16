@@ -42,6 +42,7 @@ import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "
 const TABS = [
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
+  { key: "agents",   label: "🤖 סוכנים ועלויות" },
   { key: "aistyles", label: "🤖 ניתוחי AI" },
   { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
@@ -213,6 +214,7 @@ export default function AdminPage() {
 
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
+      {tab === "agents" && <AgentsCostTab />}
       {tab === "aistyles" && <AiStylesTab />}
       {tab === "suggest" && <SystemSuggestionsTab />}
       {tab === "live" && <LiveVisitorsTab />}
@@ -319,6 +321,79 @@ function SubRow({ r, onApprove, onReject, busy }) {
     </div>
   );
 }
+// 🤖 סוכנים ועלויות — registry-driven: כל סוכן שרושם ל-ai_token_log או מוגדר ב-bot_settings
+// נכנס אוטומטית. עלויות מחושבות מ-api_pricing (admin_agents view דרך RPC admin_agents_dashboard).
+function AgentsCostTab() {
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    supabase.rpc("admin_agents_dashboard")
+      .then(({ data, error }) => { if (error) setErr(error.message || "שגיאה"); else setRows(data || []); })
+      .catch(e => setErr(String(e)));
+  }, []);
+
+  if (err) return <div style={{ ...card, color: "#d98a92" }}>שגיאה: {err}</div>;
+  if (rows === null) return <Center>טוען…</Center>;
+
+  const num = n => Number(n || 0).toLocaleString("he");
+  const ils = n => "₪" + Number(n || 0).toLocaleString("he", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const totIls = rows.reduce((s, r) => s + Number(r.cost_ils_all || 0), 0);
+  const totIls30 = rows.reduce((s, r) => s + Number(r.cost_ils_30d || 0), 0);
+  const totCalls = rows.reduce((s, r) => s + Number(r.calls_all || 0), 0);
+
+  const th = { textAlign: "right", padding: "8px 10px", color: C.goldDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", borderBottom: `1px solid ${C.border}` };
+  const td = { padding: "9px 10px", color: C.goldLight, fontFamily: F.body, fontSize: 13, whiteSpace: "nowrap", borderBottom: `1px solid ${C.border}55` };
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 18, fontWeight: 800 }}>🤖 סוכנים ועלויות</span>
+        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13 }}>{rows.length} סוכנים · {num(totCalls)} קריאות</span>
+        <span style={{ marginInlineStart: "auto", color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>
+          סה"כ: {ils(totIls)} <span style={{ color: C.goldDim, fontSize: 12, fontWeight: 400 }}>(30 יום: {ils(totIls30)})</span>
+        </span>
+      </div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginBottom: 12, lineHeight: 1.7 }}>
+        עדשה אחת על <b>ai_token_log × api_pricing</b>. כל סוכן עתידי (source חדש ב-ai_token_log או bot_settings node) נכנס אוטומטית. שער: usd_to_ils ב-api_pricing.
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+          <thead>
+            <tr>
+              <th style={th}>סוכן</th>
+              <th style={th}>קריאות</th>
+              <th style={th}>טוקנים (in/out)</th>
+              <th style={th}>מודלים</th>
+              <th style={th}>עלות (סה"כ)</th>
+              <th style={th}>30 יום</th>
+              <th style={th}>היום</th>
+              <th style={th}>פעילות אחרונה</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.agent}>
+                <td style={td}>
+                  <span style={{ fontWeight: 700, color: C.goldBright }}>{r.display_name}</span>
+                  {r.is_registered_bot && <span style={{ marginInlineStart: 6, background: "rgba(212,175,55,0.16)", color: C.gold, borderRadius: 999, padding: "1px 7px", fontSize: 10.5, fontWeight: 700 }}>בוט</span>}
+                  {r.role && <div style={{ color: C.goldDim, fontSize: 11 }}>{r.role}</div>}
+                </td>
+                <td style={td}>{num(r.calls_all)}</td>
+                <td style={{ ...td, fontFamily: F.mono, fontSize: 12 }}>{num(r.in_tokens)} / {num(r.out_tokens)}</td>
+                <td style={{ ...td, fontSize: 11, color: C.goldDim, whiteSpace: "normal" }}>{r.models || "—"}</td>
+                <td style={{ ...td, fontWeight: 800, color: C.goldBright }}>{ils(r.cost_ils_all)}</td>
+                <td style={td}>{ils(r.cost_ils_30d)}</td>
+                <td style={td}>{ils(r.cost_ils_1d)}</td>
+                <td style={{ ...td, color: C.goldDim, fontSize: 11 }}>{r.last_activity ? new Date(r.last_activity).toLocaleString("he-IL", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function ChiddushReviewTab() {
   const [rows, setRows] = useState(null);
   const [filter, setFilter] = useState("pending");
