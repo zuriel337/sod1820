@@ -22,6 +22,7 @@ import { useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
+import Discourse from "../components/Discourse.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -431,18 +432,36 @@ function CommunityTab({ highlightId }) {
       </div>
       {!items.length
         ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי קהילה — היו הראשונים לשתף.</div>
-        : items.map(it => (
-          <div key={it.id} id={`comm-${it.id}`} style={{
-            borderRadius: 16, transition: "box-shadow .4s, background .4s",
-            boxShadow: flash === it.id ? `0 0 0 3px ${L.gold}, 0 8px 30px rgba(154,120,24,0.28)` : "none",
-            background: flash === it.id ? "rgba(212,175,55,0.06)" : "transparent",
-          }}>
-            {flash === it.id && (
-              <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "4px 6px 8px" }}>✨ הנה החידוש שלך — פורסם כאן!</div>
-            )}
-            <CrossCard item={it} />
+        : items.map(it => <CommunityCard key={it.id} it={it} flash={flash === it.id} />)}
+    </div>
+  );
+}
+
+// כרטיס חידוש-קהילה בודד + מדור תגובות (Discourse הקנוני), נטען לפי דרישה (toggle).
+// עץ אחד: התגובות = research_contributions על target insight (לא מערכת נפרדת).
+function CommunityCard({ it, flash }) {
+  const [showDisc, setShowDisc] = useState(false);
+  return (
+    <div id={`comm-${it.id}`} style={{
+      borderRadius: 16, transition: "box-shadow .4s, background .4s",
+      boxShadow: flash ? `0 0 0 3px ${L.gold}, 0 8px 30px rgba(154,120,24,0.28)` : "none",
+      background: flash ? "rgba(212,175,55,0.06)" : "transparent",
+    }}>
+      {flash && (
+        <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "4px 6px 8px" }}>✨ הנה החידוש שלך — פורסם כאן!</div>
+      )}
+      <CrossCard item={it} />
+      <div style={{ marginTop: 8, paddingInlineStart: 4 }}>
+        <button onClick={() => setShowDisc(v => !v)} style={{
+          cursor: "pointer", background: "transparent", border: `1px solid ${L.gold}`, color: L.goldDeep,
+          borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "5px 14px",
+        }}>💬 {showDisc ? "הסתר תגובות" : "תגובות והגב"}</button>
+        {showDisc && (
+          <div style={{ marginTop: 12 }}>
+            <Discourse target={{ type: "insight", id: it.id }} origin="community" />
           </div>
-        ))}
+        )}
+      </div>
     </div>
   );
 }
