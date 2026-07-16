@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { isToolReady, UPGRADE_MSG } from "../../lib/hub/ready.js";
+import { isToolReady, UPGRADE_MSG, ELS_LOGO } from "../../lib/hub/ready.js";
 
 // 🧪 LabDock — דוק-כלים תחתון קבוע (Research OS · Shell גלובלי).
 // «אותם דפים, מעטפת אחת»: הדוק חי מחוץ לראוטים → לא קופץ במעבר בין כלים.
@@ -48,7 +48,9 @@ export default function LabDock() {
         return (
           <button key={t.id} className={`ld-item${activeId === t.id ? " on" : ""}${locked ? " locked" : ""}`}
             onClick={() => onPick(t)} title={locked ? "בשדרוג — בקרוב" : t.label}>
-            <span className="ld-i">{locked ? "🔒" : t.icon}</span>
+            <span className="ld-i">{locked ? "🔒" : (t.id === "els"
+              ? <img src={ELS_LOGO} alt="" width="19" height="19" style={{ borderRadius: 4, objectFit: "cover", display: "block" }} />
+              : t.icon)}</span>
             <span className="ld-l">{t.label}</span>
           </button>
         );

@@ -13,6 +13,7 @@ export const NAV = [
   { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
   { label: "גלריות", emoji: "🖼️", to: "/archive?tab=galleries" },
   { label: "דילוגי אותיות", emoji: "🔠", to: "/code" },
+  { label: "פורום המחקר", emoji: "🌐", to: "/forum" },
   {
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "🌐 פורום המחקר", to: "/forum" },

@@ -43,6 +43,7 @@ const COLUMNS = [
   {
     title: "הקהילה והשער",
     links: [
+      { label: "🌐 פורום המחקר", to: "/forum" },
       { label: "צ'אט האתר", to: "/community/chat" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
       { label: "כאן מתחילים", to: "/start" },

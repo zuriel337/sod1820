@@ -61,6 +61,7 @@ const MOBILE_TILES = [
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
+  { e: "🌐", l: "פורום המחקר", to: "/forum" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "🖼️", l: "גלריות", to: "/archive" },
@@ -218,7 +219,10 @@ function NavLinkItem({ item, pathname, onNavigate }) {
     <div style={{ position: "relative" }}
       onMouseEnter={() => hasChildren && setOpen(true)} onMouseLeave={() => hasChildren && setOpen(false)}>
       <Link to={item.to} className="nav-link" style={linkStyle} onClick={onNavigate}>
-        <span>{item.emoji} {item.label}</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          {item.icon === "dilugim" ? <DilugimIcon size={17} /> : (item.emoji ? <span>{item.emoji}</span> : null)}
+          <span>{item.label}</span>
+        </span>
         {hasChildren && <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>}
       </Link>
       {hasChildren && open && <Dropdown items={item.children} onNavigate={onNavigate} />}
@@ -690,7 +694,9 @@ export default function Navbar() {
               ) : (
                 <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
                   style={{ borderColor: cc.borderGold, background: "rgba(212,175,55,0.07)", minHeight: 84 }}>
-                  <span className="sod-tile-e">{t.e}</span>
+                  {t.icon === "dilugim"
+                    ? <span className="sod-tile-e" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><DilugimIcon size={30} /></span>
+                    : <span className="sod-tile-e">{t.e}</span>}
                   <span className="sod-tile-l">{t.l}</span>
                 </Link>
               ))}

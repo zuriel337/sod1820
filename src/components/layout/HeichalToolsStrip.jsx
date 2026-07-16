@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F } from "../../theme.js";
+import { ELS_LOGO } from "../../lib/hub/ready.js";
 
 // 🏛️ רצועת «כלי ההיכל» — נוכחות קבועה של כלי-הליבה בכל האתר (לא רק בהיכל).
 // לא-סטיקית: יושבת מתחת לטיקר, נגללת עם התוכן. עץ אחד — הכל מצביע פנימה להיכל.
@@ -8,7 +9,7 @@ import { F } from "../../theme.js";
 const TOOLS = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
   { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
-  { e: "🔍", l: 'הצופן התנ"כי', to: "/code" },
+  { e: "🔍", l: 'הצופן התנ"כי', to: "/code", img: ELS_LOGO },
 ];
 
 export default function HeichalToolsStrip() {
@@ -24,7 +25,10 @@ export default function HeichalToolsStrip() {
         <div className="hts-pills">
           {TOOLS.map(t => (
             <Link key={t.to} to={t.to} className="hts-pill">
-              <span className="hts-e" aria-hidden>{t.e}</span>{t.l}
+              {t.img
+                ? <img className="hts-e" src={t.img} alt="" width="16" height="16" style={{ borderRadius: 4, objectFit: "cover" }} />
+                : <span className="hts-e" aria-hidden>{t.e}</span>}
+              {t.l}
             </Link>
           ))}
         </div>
