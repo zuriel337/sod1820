@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { C, F } from "../theme.js";
 import { requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { subscribeEmail } from "../lib/supabase.js";
@@ -10,6 +10,8 @@ import { broadcastJoin } from "../lib/joinEvents.js";
  * שלב 1: אימייל → נשלח קוד. שלב 2: הזנת הקוד → המשתמש מאומת (session).
  * onVerified() נקרא כשהאימות הצליח. source = מקור ההרשמה לרשימת התפוצה.
  */
+
+const RESEND_COOLDOWN = 30; // שניות בין שליחות קוד, למניעת הצפה
 
 const inputStyle = {
   width: "100%", padding: "12px 14px", borderRadius: 10,
@@ -28,6 +30,15 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [resendIn, setResendIn] = useState(0); // ספירה-לאחור עד שאפשר לשלוח שוב
+  const [resendNote, setResendNote] = useState("");
+
+  // טיימר ההמתנה של כפתור "שלח שוב"
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
 
   async function sendCode(e) {
     e?.preventDefault?.();
@@ -42,8 +53,26 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
       subscribeEmail({ email, source }).catch(() => {}); // גם לרשימת התפוצה
       trackSubscribe({ source });   // GA4 + מטא (Lead)
       setStep("code");
+      setResendIn(RESEND_COOLDOWN);
     } catch {
       setErr("לא הצלחנו לשלוח קוד כרגע — נסו שוב בעוד רגע");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // שליחת קוד מחדש (בשלב הזנת הקוד) — עם ההמתנה למניעת הצפה
+  async function resendCode() {
+    if (busy || resendIn > 0) return;
+    setErr("");
+    setResendNote("");
+    setBusy(true);
+    try {
+      await requestEmailOtp(email);
+      setResendNote("קוד חדש נשלח ✓");
+      setResendIn(RESEND_COOLDOWN);
+    } catch {
+      setErr("לא הצלחנו לשלוח קוד חדש כרגע — נסו שוב בעוד רגע");
     } finally {
       setBusy(false);
     }
@@ -80,10 +109,30 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
           style={{ ...inputStyle, letterSpacing: 6, fontSize: 22, fontWeight: 700 }} />
         <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <button type="submit" disabled={busy} style={btnStyle(busy)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>
-          <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); }}
+          <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); setResendNote(""); }}
             style={{ padding: "12px 18px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontFamily: F.heading, fontSize: 13, cursor: "pointer" }}>
             ← מייל אחר
           </button>
+        </div>
+        {/* לא קיבלת? שלח שוב (עם המתנה) + תזכורת ספאם */}
+        <div style={{ marginTop: 14, textAlign: "center" }}>
+          <button
+            type="button" onClick={resendCode} disabled={busy || resendIn > 0}
+            style={{
+              background: "transparent", border: "none", padding: 4,
+              color: resendIn > 0 ? C.muted : C.goldLight,
+              fontFamily: F.body, fontSize: 13,
+              cursor: (busy || resendIn > 0) ? "default" : "pointer",
+              textDecoration: resendIn > 0 ? "none" : "underline",
+            }}>
+            {resendIn > 0 ? `אפשר לשלוח שוב בעוד ${resendIn}…` : "לא קיבלתם? שלחו קוד חדש"}
+          </button>
+          {resendNote && (
+            <div style={{ color: C.gold, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>{resendNote}</div>
+          )}
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 6, lineHeight: 1.6 }}>
+            לא רואים? בדקו גם בתיקיית הספאם / קידומים
+          </div>
         </div>
         {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12, textAlign: "center" }}>{err}</div>}
       </form>
