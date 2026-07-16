@@ -77,6 +77,58 @@ export async function getForumContributions({ intent = null, limit = 80 } = {}) 
   } catch { return []; }
 }
 
+// כותבים שאינם כתבים-אישיים — מוחרגים מהפורום (עץ אחד: הזרם של צוריאל חי בדף-הבית,
+// «מזכה הרבים» = מדור התחזקות נפרד, «מערכת כי לה׳…» = מנוע-הצלבות, לא אדם).
+export const FORUM_EXCLUDE_AUTHORS = ["המערכת", "מזכה הרבים", "מערכת כי לה׳ המלוכה"];
+export const FORUM_CONTRIB_INTENTS = ["חידוש", "השערה", "תצפית", "מקור", "שאלה", "תיקון"];
+
+// 🌐 פיד-הפורום המאוחד (החדשים למעלה) — ממזג שני זרמים בלי לשכפל:
+//   1. תרומות-מחקר (research_contributions).
+//   2. פוסטים של הכתבים בעלי-השם — ככרטיס-מצביע לפוסט הקנוני (/<slug>), לא העתק.
+// type: null=הכל · "post"=מאמרי-כתבים בלבד · אחד מ-FORUM_CONTRIB_INTENTS=תרומות מסוג זה בלבד.
+// writer: סינון פוסטים לפי שם-כתב (רלוונטי כש-type="post").
+export async function getForumFeed({ type = null, writer = null, limit = 80 } = {}) {
+  if (!supabase) return [];
+  const wantContrib = !type || FORUM_CONTRIB_INTENTS.includes(type);
+  const wantPosts = !type || type === "post";
+  const tasks = [];
+
+  if (wantContrib) {
+    let q = supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,created_at")
+      .eq("status", "approved").is("parent_id", null)
+      .order("created_at", { ascending: false }).limit(limit);
+    if (type && type !== "post") q = q.eq("intent", type);
+    tasks.push(q.then(({ data }) => (data || []).map(c => ({
+      kind: "contribution", id: "c_" + c.id, ts: c.created_at,
+      author_name: c.author_name, intent: c.intent, research_state: c.research_state,
+      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
+    }))).catch(() => []));
+  }
+
+  if (wantPosts) {
+    const notInList = '("' + FORUM_EXCLUDE_AUTHORS.join('","') + '")';
+    let q = supabase.from("posts")
+      .select("id,title,slug,excerpt,author,date,image_url,categories")
+      .not("author", "is", null).neq("author", "").not("author", "in", notInList)
+      .order("date", { ascending: false }).limit(limit);
+    if (writer) q = q.eq("author", writer);
+    tasks.push(q.then(({ data }) => (data || [])
+      .filter(p => { const a = (p.author || "").trim(); return a && !FORUM_EXCLUDE_AUTHORS.includes(a); })
+      .map(p => ({
+        kind: "post", id: "p_" + p.id, ts: p.date,
+        author_name: (p.author || "").trim(), title: p.title, excerpt: p.excerpt,
+        slug: p.slug, image_url: p.image_url, categories: p.categories,
+      }))).catch(() => []));
+  }
+
+  const parts = await Promise.all(tasks);
+  return parts.flat()
+    .filter(x => x.ts)
+    .sort((a, b) => new Date(b.ts) - new Date(a.ts))   // 🆕 החדשים למעלה
+    .slice(0, limit);
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;

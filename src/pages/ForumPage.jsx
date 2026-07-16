@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
-import { INTENTS, intentMeta, stateMeta, getForumContributions } from "../lib/contributions.js";
+import { thumb } from "../lib/img.js";
+import { resolveAuthor } from "../lib/authors.js";
+import { INTENTS, intentMeta, stateMeta, getForumFeed } from "../lib/contributions.js";
 
-// 🌐 הפורום — העדשה הגלובלית על כל תרומות-המחקר של הקהילה (research_contribution_law).
-// לא «פורום» של פטפוט — פורום מחקר: חידושים, השערות, מקורות, שאלות — מכל האתר, במקום אחד.
+// 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד): תרומות-הקהילה
+// יחד עם פוסטי-הכתבים בעלי-השם, ממוזגים לפי תאריך (החדשים למעלה). פוסט = כרטיס-מצביע
+// לפוסט הקנוני (/<slug>), לעולם לא העתק. הזרם של צוריאל («המערכת») נשאר בדף-הבית.
 function timeAgo(ts) {
   try {
     const s = (Date.now() - new Date(ts)) / 1000;
@@ -24,12 +27,15 @@ function targetHref(t) {
   return null;
 }
 
-function Card({ c, P }) {
+const stripHtml = (s) => (s || "").replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: col, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{txt}</span>;
+
+// כרטיס תרומת-מחקר (research_contributions)
+function ContribCard({ c, P }) {
   const [open, setOpen] = useState(false);
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);
   const long = (c.body || "").length > 420;
-  const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: col, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{txt}</span>;
   return (
     <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
@@ -37,7 +43,7 @@ function Card({ c, P }) {
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         {c.target_id && <Link to={href || "#"} style={{ textDecoration: "none" }}>{badge(P.accent, `${c.target_type === "number" ? "🔢" : "🔖"} ${c.target_id}`)}</Link>}
         <span style={{ flex: 1 }} />
-        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.created_at)}</span>
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
       {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>{c.title}</div>}
       {c.body && (
@@ -54,16 +60,61 @@ function Card({ c, P }) {
   );
 }
 
+// כרטיס פוסט-של-כתב — מצביע לפוסט הקנוני (לא העתק). אווטאר + תפקיד מ-authors.js.
+function PostCard({ c, P }) {
+  const a = resolveAuthor(c.author_name);
+  const to = `/${c.slug}`;
+  const preview = stripHtml(c.excerpt);
+  const cat = Array.isArray(c.categories) && c.categories.length ? c.categories[0] : null;
+  return (
+    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        {badge(P.accentText, "📜 מאמר")}
+        {cat && <Link to={`/category/${encodeURIComponent(cat)}`} style={{ textDecoration: "none" }}>{badge(P.accent, `🏷️ ${cat}`)}</Link>}
+        <span style={{ flex: 1 }} />
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
+      </div>
+      <Link to={to} style={{ textDecoration: "none", display: "flex", gap: 13, alignItems: "flex-start" }}>
+        {c.image_url && (
+          <img src={thumb(c.image_url, 200)} alt="" loading="lazy"
+            style={{ width: 74, height: 74, objectFit: "cover", borderRadius: 11, flex: "0 0 auto", border: `1px solid ${P.border}` }} />
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5, lineHeight: 1.4 }}>{c.title}</div>}
+          {preview && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>{preview.length > 240 ? preview.slice(0, 240) + "…" : preview}</div>}
+        </div>
+      </Link>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 11 }}>
+        <img src={a.avatar} alt="" style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", border: `1px solid ${P.border}` }} />
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, lineHeight: 1.3 }}>
+          <b style={{ color: P.accentText }}>{a.name}</b>{a.role ? <span style={{ display: "block", fontSize: 10.5, color: P.accentDim, fontWeight: 400 }}>{a.role}</span> : null}
+        </span>
+        <Link to={to} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>📖 קרא את הפוסט המלא ←</Link>
+      </div>
+    </div>
+  );
+}
+
 export default function ForumPage() {
   const P = usePalette();
   const [items, setItems] = useState(null);
-  const [intent, setIntent] = useState(null);
+  const [type, setType] = useState(null);      // null=הכל · "post" · intent
+  const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
 
-  useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות ומקורות הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
-  useEffect(() => { setItems(null); getForumContributions({ intent }).then(setItems).catch(() => setItems([])); }, [intent]);
+  useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
+  useEffect(() => { setItems(null); getForumFeed({ type, writer }).then(setItems).catch(() => setItems([])); }, [type, writer]);
+
+  // רשימת-כתבים לצ׳יפים — נגזרת מהפריטים שכבר נטענו (בלי שאילתה נוספת)
+  const writers = useMemo(() => {
+    if (!items) return [];
+    const seen = new Map();
+    items.forEach(it => { if (it.kind === "post" && it.author_name) seen.set(it.author_name, (seen.get(it.author_name) || 0) + 1); });
+    return [...seen.entries()].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
+  }, [items]);
 
   const chip = (on) => ({ cursor: "pointer", borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
     border: `1px solid ${on ? P.borderStrong : P.border}`, background: on ? "rgba(212,175,55,0.15)" : "transparent", color: on ? P.accentText : P.accentDim });
+  const pickType = (t) => { setType(t); if (t !== "post") setWriter(null); };
 
   return (
     <div dir="rtl" style={{ maxWidth: 780, margin: "0 auto", padding: "26px 16px 90px", position: "relative", zIndex: 1 }}>
@@ -71,27 +122,39 @@ export default function ForumPage() {
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>מחקר קהילתי · פורום</div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,40px)", fontWeight: 800, margin: "0 0 8px" }}>🌐 פורום המחקר</h1>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.8, maxWidth: 560, margin: "0 auto" }}>
-          כל חידושי, השערות, מקורות ושאלות הקהילה — מכל האתר, במקום אחד. לחיצה על תרומה מובילה לדיון המלא בהקשר שלה.
+          חידושי הקהילה ומאמרי הכתבים — מכל האתר, במקום אחד, החדשים למעלה. לחיצה מובילה לפוסט או לדיון המלא.
         </p>
       </div>
 
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
-        <button onClick={() => setIntent(null)} style={chip(!intent)}>הכל</button>
+      {/* שורה 1 — סוג */}
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
+        <button onClick={() => pickType(null)} style={chip(!type)}>הכל</button>
+        <button onClick={() => pickType("post")} style={chip(type === "post")}>📜 מאמרי כתבים</button>
         {INTENTS.filter(i => i.key !== "תגובה").map(i => (
-          <button key={i.key} onClick={() => setIntent(i.key)} style={chip(intent === i.key)}>{i.emoji} {i.label}</button>
+          <button key={i.key} onClick={() => pickType(i.key)} style={chip(type === i.key)}>{i.emoji} {i.label}</button>
         ))}
       </div>
+
+      {/* שורה 2 — כתבים (רק במצב מאמרים) */}
+      {type === "post" && writers.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
+          <button onClick={() => setWriter(null)} style={{ ...chip(!writer), fontSize: 12 }}>כל הכתבים</button>
+          {writers.map(w => (
+            <button key={w.name} onClick={() => setWriter(w.name)} style={{ ...chip(writer === w.name), fontSize: 12 }}>{w.name}</button>
+          ))}
+        </div>
+      )}
 
       {items === null ? (
         <div style={{ color: P.accentDim, fontFamily: F.body, textAlign: "center", padding: 40 }}>טוען…</div>
       ) : !items.length ? (
         <div style={{ color: P.accentDim, fontFamily: F.body, textAlign: "center", padding: "50px 20px", lineHeight: 1.8 }}>
           <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.7 }}>🌱</div>
-          עדיין אין תרומות בקטגוריה הזו — היו הראשונים לתרום מדף מספר או מבית המדרש.
+          עדיין אין פריטים בקטגוריה הזו — היו הראשונים לתרום מדף מספר או מבית המדרש.
         </div>
       ) : (
         <div style={{ display: "grid", gap: 13 }}>
-          {items.map(c => <Card key={c.id} c={c} P={P} />)}
+          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} />)}
         </div>
       )}
     </div>
