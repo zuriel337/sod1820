@@ -13,6 +13,7 @@ import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
+import ForumUpdatesBox from "../components/ForumUpdatesBox.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
@@ -4263,28 +4264,47 @@ function SpotimChatPage() {
   }, []);
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "52px 16px 96px" }}>
-      {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail). */}
+    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "52px 16px 96px" }}>
+      {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail).
+          פריסת-הצ'אט: דסקטופ = ריבוע-הפורום בצד ימין (DOM ראשון → ב-RTL יושב מימין) + הצ'אט משמאל;
+          מובייל (≤900px) = טור אחד, ריבוע-הפורום למעלה מעל הצ'אט. */}
       <style>{`
         html.sod-chat-scroll { scrollbar-width: none; }
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
+        .sod-chat-layout { display: flex; gap: 22px; align-items: flex-start; }
+        .sod-chat-aside { flex: 0 0 300px; position: sticky; top: 78px; }
+        .sod-chat-main { flex: 1 1 auto; min-width: 0; }
+        @media (max-width: 900px) {
+          .sod-chat-layout { flex-direction: column; gap: 18px; }
+          .sod-chat-aside { position: static; flex: none; width: 100%; }
+        }
       `}</style>
       <ChatScrollRail />
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
-          דף צ'אט
-        </h1>
-        <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
-      </div>
 
-      {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
-      <div
-        data-spotim-module="conversation"
-        data-post-id="POST_ID_GOES_HERE"
-        data-post-url="https://sod1820.co.il/community/chat"
-        style={{ minHeight: 400 }}
-      />
+      <div className="sod-chat-layout">
+        {/* 📋 עדכונים אחרונים מהפורום — ימין בדסקטופ / למעלה במובייל */}
+        <aside className="sod-chat-aside">
+          <ForumUpdatesBox limit={7} />
+        </aside>
+
+        <div className="sod-chat-main">
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
+              דף צ'אט
+            </h1>
+            <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+          </div>
+
+          {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
+          <div
+            data-spotim-module="conversation"
+            data-post-id="POST_ID_GOES_HERE"
+            data-post-url="https://sod1820.co.il/community/chat"
+            style={{ minHeight: 400 }}
+          />
+        </div>
+      </div>
 
     </div>
   );
