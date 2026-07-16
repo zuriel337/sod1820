@@ -8,6 +8,7 @@ export const AUTHORS = {
   "הרב יקותיאל דטבריה": { avatar: "/logo.png", role: "דברי תורה" },
   "ציון סיבוני": { avatar: "/authors/siboni.jpg", role: "כתב מיוחד" },
   "יניב לוי": { avatar: "/authors/yaniv.jpg", role: "כתב" },
+  "אלון לוי": { avatar: "/logo.png", role: "השפה הסמלית של הבורא" },
   "שמעון חיימוב": { avatar: "/logo.png", role: "כתב" },
   // עלון «סוד החשמל» — לחיצה על הכותב מובילה לכל הקטגוריה שלו (cat), לא לפוסטים לפי-כותב.
   "סוד החשמל": { avatar: "/authors/sod-hachashmal.svg", role: "עלון סוד החשמל · פנימיות התורה", cat: "סוד החשמל" },
