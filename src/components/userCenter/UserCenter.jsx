@@ -9,6 +9,7 @@ import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
+import { getMyMatrices } from "../../lib/elsMatrices.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -100,13 +101,14 @@ export default function UserCenter() {
             </div>
             <button onClick={close} aria-label="סגור" style={{ background: "none", border: "none", color: T.sub, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>✕</button>
           </div>
-          {/* פס-סטטוס — נתונים אמיתיים בלבד (my_center) */}
+          {/* פס-סטטוס — נתונים אמיתיים בלבד (my_center). לחיצים → פותחים את המודול הרלוונטי. */}
           <div style={{ display: "flex", gap: 8, marginTop: 13 }}>
-            <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} />
-            <Stat T={T} label="שמורים" val={center?.saved ?? "—"} />
-            <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} />
+            <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} onClick={() => setActive("research")} />
+            <Stat T={T} label="שמורים" val={center?.saved ?? "—"}
+              onClick={() => { try { localStorage.setItem("rw_hub_tab", "saved"); } catch { /* noop */ } setActive("research"); }} />
+            <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("stats")} />
             {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
-            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold />}
+            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("stats")} />}
           </div>
         </div>
 
@@ -143,12 +145,17 @@ export default function UserCenter() {
   );
 }
 
-function Stat({ T, label, val, gold }) {
-  return (
-    <div style={{ flex: 1, textAlign: "center", background: gold ? T.goldSoft : T.accSoft, borderRadius: 11, padding: "7px 4px" }}>
+function Stat({ T, label, val, gold, onClick }) {
+  const base = { flex: 1, textAlign: "center", background: gold ? T.goldSoft : T.accSoft, borderRadius: 11, padding: "7px 4px" };
+  const inner = (
+    <>
       <div style={{ fontWeight: 800, fontSize: 17, color: gold ? T.gold : T.acc }}>{typeof val === "number" ? val.toLocaleString("he") : val}</div>
       <div style={{ fontSize: 10.5, color: T.sub, marginTop: 1 }}>{label}</div>
-    </div>
+    </>
+  );
+  if (!onClick) return <div style={base}>{inner}</div>;
+  return (
+    <button onClick={onClick} style={{ ...base, border: "none", cursor: "pointer", fontFamily: "inherit" }}>{inner}</button>
   );
 }
 
@@ -224,11 +231,63 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       </div>
     ) },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
+    { id: "codes", icon: "🔠", title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
     { id: "roadmap", icon: "🗺️", title: "מה בקרוב", status: "soon", render: () => <Roadmap T={T} /> },
   ];
+}
+
+// ── 🔠 הצפנים שלי — כל מטריצות-הדילוג ששמרתי (els_records שבבעלותי), עם סטטוס ──
+// עץ אחד: כרטיס = עדשה שמקשרת לעמוד הקנוני /codes/:slug (לפורסמו), לא משכפלת תוכן.
+function codeBadge(status) {
+  if (status === "published") return { t: "✓ פורסם", c: "#1a7f37", b: "#e6f4ea" };
+  if (status === "hidden") return { t: "🔒 מוסתר", c: "#8a8270", b: "rgba(0,0,0,0.05)" };
+  return { t: "⏳ ממתין לאישור", c: "#9a6b00", b: "#fdf3d7" };
+}
+function MyCodesPanel({ T, user, goto }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => { getMyMatrices(user?.id).then(setItems).catch(() => setItems([])); }, [user]);
+
+  if (items === null) return <div style={{ color: T.sub, fontSize: 13.5, padding: "8px 0" }}>טוען…</div>;
+  if (!items.length) return (
+    <div style={{ textAlign: "center", padding: "26px 12px", color: T.sub }}>
+      <div style={{ fontSize: 34, marginBottom: 8 }}>🔠</div>
+      <div style={{ fontSize: 13.5, lineHeight: 1.7, marginBottom: 14 }}>
+        עוד לא שמרת צפנים. חפש דילוג בכלי «הצופן התנ״כי» ולחץ «שמור» — הוא יופיע כאן, ותוכל לעקוב אם אושר ופורסם.
+      </div>
+      <button onClick={() => goto("/code")} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 9, padding: "10px 18px", fontWeight: 800, fontSize: 13.5, cursor: "pointer" }}>🔍 לכלי הצופן ←</button>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+      <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 2 }}>{items.length} צפנים שמרת. לחיצה על צופן שפורסם פותחת את עמודו.</div>
+      {items.map(m => {
+        const bd = codeBadge(m.status);
+        const inner = (
+          <div style={{ display: "flex", gap: 11, alignItems: "center", padding: 9, borderRadius: 12, border: `1px solid ${T.line}`, background: T.card, width: "100%" }}>
+            {m.image_url ? (
+              <img src={m.image_url} alt="" loading="lazy" style={{ width: 46, height: 46, borderRadius: 9, objectFit: "cover", flex: "none", border: `1px solid ${T.line}` }} />
+            ) : (
+              <div style={{ width: 46, height: 46, borderRadius: 9, flex: "none", display: "grid", placeItems: "center", fontSize: 20, background: T.accSoft }}>🔠</div>
+            )}
+            <div style={{ flex: 1, minWidth: 0, textAlign: "right" }}>
+              <div style={{ fontWeight: 700, fontSize: 13.5, color: T.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title || m.search_term}</div>
+              <div style={{ fontSize: 11.5, color: T.sub, marginTop: 2 }}>
+                {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
+              </div>
+              <span style={{ display: "inline-block", marginTop: 5, fontSize: 10.5, fontWeight: 800, color: bd.c, background: bd.b, borderRadius: 999, padding: "1px 8px" }}>{bd.t}</span>
+            </div>
+          </div>
+        );
+        return m.status === "published"
+          ? <button key={m.id} onClick={() => goto(`/codes/${encodeURIComponent(m.slug || m.id)}`)} style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }}>{inner}</button>
+          : <div key={m.id}>{inner}</div>;
+      })}
+    </div>
+  );
 }
 
 // ── 🔔 פאנל ההתראות — אותה עדשה כמו הפעמון בסרגל, בתוך האזור-האישי (מקור-אמת אחד) ──

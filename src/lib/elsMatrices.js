@@ -24,6 +24,18 @@ export async function getMatrixBySlug(slug) {
   } catch { return null; }
 }
 
+// 🔠 הצפנים שלי — כל המטריצות ששמרתי (els_records שבבעלותי), בכל הסטטוסים.
+// RLS els_owner_read מתיר לבעלים לקרוא את שלו (כולל pending/private). עדשה אישית — מקשרת
+// לעמוד הקנוני /codes/:slug (לפורסמו), לא משכפלת. עץ אחד.
+export async function getMyMatrices(uid, limit = 100) {
+  if (!supabase || !uid) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status,visibility")
+      .eq("owner_user_id", uid).order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // אדמין — מטריצות ממתינות לאישור
 export async function getPendingMatrices(limit = 100) {
   if (!supabase) return [];
