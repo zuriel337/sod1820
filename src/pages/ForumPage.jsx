@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { useThemeMode, toggleTheme } from "../lib/themeMode.js";
+import { useThemeMode, setForcedMode } from "../lib/themeMode.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
@@ -104,6 +104,9 @@ export default function ForumPage() {
   const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
 
   useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
+  // 🌞 הפורום נפתח במצב בהיר כברירת-מחדל (כמו בית המדרש), עם אפשרות לעבור לכהה.
+  // כפיית-מצב מקומית — לא משנה את העדפת היום/לילה הגלובלית של המשתמש; משוחזר ביציאה.
+  useEffect(() => { setForcedMode("light"); return () => setForcedMode(null); }, []);
   useEffect(() => { setItems(null); getForumFeed({ type, writer }).then(setItems).catch(() => setItems([])); }, [type, writer]);
 
   // רשימת-כתבים לצ׳יפים — נגזרת מהפריטים שכבר נטענו (בלי שאילתה נוספת)
@@ -122,7 +125,7 @@ export default function ForumPage() {
     <div dir="rtl" style={{ maxWidth: 780, margin: "0 auto", padding: "26px 16px 90px", position: "relative", zIndex: 1 }}>
       {/* 🌗 מתג מראה — בהיר/כהה, כמו בשאר האתר. אופציה גלויה גם מכאן. */}
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-        <button onClick={toggleTheme} title="מצב יום / לילה" aria-label="החלפת מצב בהיר/כהה"
+        <button onClick={() => setForcedMode(mode === "light" ? "dark" : "light")} title="מצב יום / לילה" aria-label="החלפת מצב בהיר/כהה"
           style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, background: "transparent",
             border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 999, padding: "5px 12px",
             fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>

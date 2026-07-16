@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
@@ -229,7 +230,7 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
             <div style={{ display: "grid", gap: 9, marginTop: 9 }}>
               {archive.map((c, i) => (
                 <div key={c.wp_id || i} style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 11, padding: "11px 13px" }}>
-                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{(c.content || "").replace(/<[^>]+>/g, "").slice(0, 260)}</div>
+                  <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{stripHtml(c.content).slice(0, 260)}</div>
                   {c.author_name && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 5 }}>— {c.author_name} · ארכיון</div>}
                 </div>
               ))}
