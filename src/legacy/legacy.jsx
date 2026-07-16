@@ -4266,16 +4266,13 @@ function SpotimChatPage() {
   return (
     <div style={{ direction: "rtl", maxWidth: 900, margin: "0 auto", padding: "52px 16px 96px" }}>
       {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail).
-          פריסת-הצ'אט (טור אחד): דסקטופ = הצ'אט למעלה + ריבוע-הפורום למטה;
-          מובייל (≤900px) = column-reverse → ריבוע-הפורום למעלה מעל הצ'אט. */}
+          פריסת-הצ'אט (טור אחד): הצ'אט למעלה + ריבוע-הפורום למטה — גם בדסקטופ וגם במובייל. */}
       <style>{`
         html.sod-chat-scroll { scrollbar-width: none; }
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
         .sod-chat-layout { display: flex; flex-direction: column; gap: 30px; }
         .sod-chat-aside, .sod-chat-main { width: 100%; }
-        @media (max-width: 900px) {
-          .sod-chat-layout { flex-direction: column-reverse; gap: 20px; }
-        }
+        @media (max-width: 900px) { .sod-chat-layout { gap: 20px; } }
       `}</style>
       <ChatScrollRail />
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}

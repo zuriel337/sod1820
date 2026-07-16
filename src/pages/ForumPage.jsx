@@ -99,7 +99,7 @@ function PostCard({ c, P }) {
 export default function ForumPage() {
   const P = usePalette();
   const mode = useThemeMode();
-  const [items, setItems] = useState(null);
+  const [allItems, setAllItems] = useState(null);
   const [type, setType] = useState(null);      // null=הכל · "post" · intent
   const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
 
@@ -107,18 +107,34 @@ export default function ForumPage() {
   // 🌞 הפורום נפתח במצב בהיר כברירת-מחדל (כמו בית המדרש), עם אפשרות לעבור לכהה.
   // כפיית-מצב מקומית — לא משנה את העדפת היום/לילה הגלובלית של המשתמש; משוחזר ביציאה.
   useEffect(() => { setForcedMode("light"); return () => setForcedMode(null); }, []);
-  useEffect(() => { setItems(null); getForumFeed({ type, writer }).then(setItems).catch(() => setItems([])); }, [type, writer]);
+  // שליפה אחת מלאה — הסינון נעשה בצד-לקוח, כך גם ידועות הכמויות לכל טאב (טאב ריק = לא-לחיץ).
+  useEffect(() => { getForumFeed({ type: null, writer: null, limit: 200 }).then(setAllItems).catch(() => setAllItems([])); }, []);
 
-  // רשימת-כתבים לצ׳יפים — נגזרת מהפריטים שכבר נטענו (בלי שאילתה נוספת)
+  // כמויות לכל סוג — קובעות אילו טאבים לחיצים (אפס → לא-לחיץ)
+  const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
+  const intentCount = useMemo(() => {
+    const m = {};
+    (allItems || []).forEach(it => { if (it.kind === "contribution" && it.intent) m[it.intent] = (m[it.intent] || 0) + 1; });
+    return m;
+  }, [allItems]);
+
+  // הפריטים המוצגים — סינון בצד-לקוח לפי הטאב הנבחר
+  const items = useMemo(() => {
+    if (!allItems) return null;
+    if (type === "post") return allItems.filter(it => it.kind === "post" && (!writer || it.author_name === writer));
+    if (type) return allItems.filter(it => it.kind === "contribution" && it.intent === type);
+    return allItems;
+  }, [allItems, type, writer]);
+
+  // רשימת-כתבים לצ׳יפים — כל הכתבים שיש להם מאמר (נגזר מהמאגר המלא)
   const writers = useMemo(() => {
-    if (!items) return [];
     const seen = new Map();
-    items.forEach(it => { if (it.kind === "post" && it.author_name) seen.set(it.author_name, (seen.get(it.author_name) || 0) + 1); });
+    (allItems || []).forEach(it => { if (it.kind === "post" && it.author_name) seen.set(it.author_name, (seen.get(it.author_name) || 0) + 1); });
     return [...seen.entries()].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
-  }, [items]);
+  }, [allItems]);
 
-  const chip = (on) => ({ cursor: "pointer", borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
-    border: `1px solid ${on ? P.borderStrong : P.border}`, background: on ? "rgba(212,175,55,0.15)" : "transparent", color: on ? P.accentText : P.accentDim });
+  const chip = (on, disabled) => ({ cursor: disabled ? "default" : "pointer", borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 13, fontWeight: 700,
+    border: `1px solid ${on ? P.borderStrong : P.border}`, background: on ? "rgba(212,175,55,0.15)" : "transparent", color: on ? P.accentText : P.accentDim, opacity: disabled ? 0.38 : 1 });
   const pickType = (t) => { setType(t); if (t !== "post") setWriter(null); };
 
   return (
@@ -140,13 +156,20 @@ export default function ForumPage() {
         </p>
       </div>
 
-      {/* שורה 1 — סוג */}
+      {/* שורה 1 — סוג. טאב ריק (0 פריטים) = לא-לחיץ, רק טאב עם תוכן לחיץ. */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
-        <button onClick={() => pickType(null)} style={chip(!type)}>הכל</button>
-        <button onClick={() => pickType("post")} style={chip(type === "post")}>📜 מאמרי כתבים</button>
-        {INTENTS.filter(i => i.key !== "תגובה").map(i => (
-          <button key={i.key} onClick={() => pickType(i.key)} style={chip(type === i.key)}>{i.emoji} {i.label}</button>
-        ))}
+        <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
+        <button disabled={postCount === 0} onClick={postCount === 0 ? undefined : () => pickType("post")}
+          title={postCount === 0 ? "אין עדיין מאמרי כתבים" : undefined} style={chip(type === "post", postCount === 0)}>📜 מאמרי כתבים</button>
+        {INTENTS.filter(i => i.key !== "תגובה").map(i => {
+          const cnt = intentCount[i.key] || 0;
+          return (
+            <button key={i.key} disabled={cnt === 0} onClick={cnt === 0 ? undefined : () => pickType(i.key)}
+              title={cnt === 0 ? "אין עדיין פריטים בקטגוריה זו" : undefined} style={chip(type === i.key, cnt === 0)}>
+              {i.emoji} {i.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* שורה 2 — כתבים (רק במצב מאמרים) */}
