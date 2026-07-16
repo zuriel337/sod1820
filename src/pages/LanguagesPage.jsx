@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -121,6 +122,16 @@ export default function LanguagesPage() {
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,32px)", fontWeight: 800 }}>🌍 קשרים בין שפות</div>
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, maxWidth: 520, margin: "8px auto 0" }}>
           מרחב מחקר לקשרים בין עברית לשפות אחרות. <b style={{ color: P.accentText }}>כל קשר מסווג</b> — תעתוק, תרגום, שורש או רעיון — כדי שיהיה ברור וישר. כל הזנה ממתינה לאישור לפני שהיא מוצגת לכולם.
+        </div>
+      </div>
+
+      {/* 📖 סדרת «שבילי שפה» — קישור לשני הפוסטים (המבוא + ההמשך של שמעון). מצביע, לא משכפל. */}
+      <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 20 }}>
+        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 4 }}>📖 סדרת «שבילי שפה» — הרקע לקשרים</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, marginBottom: 11 }}>איך כל השפות שבות ומתכנסות אל מספר אחד — המבוא, וההמשך של שמעון חיימוב.</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link to="/chibur-bein-hasafot-mafteach-lagan" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.glow, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, borderRadius: 999, padding: "8px 15px", textDecoration: "none" }}>🗝️ המבוא · חיבור בין השפות</Link>
+          <Link to="/shimon-haimov-english-gold" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.glow, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, borderRadius: 999, padding: "8px 15px", textDecoration: "none" }}>🥇 הזהב של שמעון חיימוב</Link>
         </div>
       </div>
 
