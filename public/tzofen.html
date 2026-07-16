@@ -407,6 +407,21 @@
   .rhead .crosschip{color:var(--ink2)}
   .rhead .crosschip b{color:var(--goldBright)}
   .rhead .crosschip button{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--goldBright);border-radius:6px;width:22px;height:22px;font-weight:800;font-size:13px;padding:0}
+  /* 🔀 באנר-מפגש בולט מעל התוצאה — מחליף את שבב-המספר הקטן והלא-ברור. מראה בבירור כמה מפגשים נמצאו + ניווט גדול. */
+  .crossbanner{margin:12px auto 0;max-width:640px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+     background:linear-gradient(180deg,rgba(47,109,246,.16),rgba(47,109,246,.06));border:1px solid rgba(90,140,240,.5);border-radius:14px;padding:11px 15px}
+  body.klaf .crossbanner{background:linear-gradient(180deg,rgba(166,118,26,.16),rgba(166,118,26,.05));border-color:rgba(140,90,18,.45)}
+  .crossbanner .cb-main{font-family:var(--serif);font-size:16px;color:var(--ink);font-weight:700;text-align:center;line-height:1.5}
+  .crossbanner .cb-main .cb-n{font-size:22px;color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
+  .crossbanner .cb-main .cb-t{color:var(--goldBright)}
+  .crossbanner .cb-nav{display:inline-flex;align-items:center;gap:8px}
+  .crossbanner .cb-nav button{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--goldBright);border-radius:9px;min-width:34px;height:34px;font-weight:800;font-size:18px;padding:0}
+  .crossbanner .cb-nav button:disabled{opacity:.4;cursor:default}
+  .crossbanner .cb-nav .cb-pos{font-size:13px;color:var(--ink2);font-weight:700;min-width:74px;text-align:center}
+  /* 🔀 «הצלב את התוצאה» — כפתור-פעולה בולט אחרי חיפוש רגיל (מנוע-התגלית של המוצלב) */
+  .matacts .cross-act{background:linear-gradient(180deg,#2f6df6,#255ad6);border-color:transparent;color:#fff;font-weight:800}
+  body.klaf .matacts .cross-act{background:linear-gradient(180deg,#b0791a,#8a5a12)}
+  .matacts .cross-act:hover{filter:brightness(1.08)}
   .gem{text-align:center;color:var(--ink2);font-size:12.5px;margin-top:9px}.gem b{color:var(--goldBright)}
   .sugg{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:11px}
   .sugg button{cursor:pointer;background:rgba(232,200,74,.06);border:1px solid var(--line);color:var(--ink2);
@@ -1120,6 +1135,17 @@
     const on=!simpleOpen();qb.style.display=on?"":"none";crosstoggle.classList.toggle("on",on);
     if(on){qb.focus();closeLab();if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}else qb.value="";};
   qb.addEventListener("keydown",e=>{if(e.key==="Enter")run();});
+  // 🔀 «הצלב את התוצאה» — פותח מצב-מוצלב פשוט אחרי חיפוש רגיל, עם המונח הנוכחי כציר. מנוע-התגלית:
+  //    הופך כל חיפוש רגיל לשער-כניסה למוצלב (הבעיה הגדולה הייתה תגלית — מעטים ידעו שהמוצלב קיים).
+  function openSimpleCross(){
+    if(!canCross()){gate("cross");return;}
+    if(!simpleOpen()){qb.style.display="";crosstoggle.classList.add("on");closeLab();
+      if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}
+    qb.value="";
+    try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){try{window.scrollTo(0,0);}catch(_){}}
+    setTimeout(()=>{try{qb.focus();}catch(e){}},280);
+    toast("🔀 הקלד מונח שני — נמצא איפה «"+(q.value.trim()||"המונח")+"» נפגש איתו בתורה");
+  }
   // 🧬 מתקדם + AI — פאנל נפרד
   advtoggle.onclick=()=>{if(isLocked()){lockToast();return;}const on=!advOpen();crosspanel.style.display=on?"":"none";advtoggle.classList.toggle("on",on);
     if(on){renderXTerms();setCrossAnchor();updateXrunLabel();updateCrossHint();closeLab();if(simpleOpen()){qb.style.display="none";qb.value="";crosstoggle.classList.remove("on");}}};
@@ -2278,13 +2304,21 @@
     const head=document.createElement("div");head.className="rhead";
     head.innerHTML=
       '<span class="found">נמצא <b>'+st.raw+'</b></span>'+
-      (st.crossMeetings?'<span class="chip crosschip">'+(st.crossSimple?'🔀 מפגש עם <b>'+st.crossB+'</b>':'🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים')+' · <button class="mprev">‹</button> '+(st.crossSimple?"מפגש ":"אזור ")+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
+      (st.crossMeetings&&!st.crossSimple?'<span class="chip crosschip">🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים · <button class="mprev">‹</button> אזור '+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
       '<button class="chip occbtn">מופעים <b>'+heb(n)+(r.capped?"+":"")+'</b> '+(st.occOpen?"▴":"▾")+'</button>'+
       '<span class="chip">דילוג <b>'+heb(S)+'</b> · '+(h.dir===1?"↓ קדימה":"↑ אחורה")+'</span>'+
       '<span class="chip">גימטריה <b>'+heb(gem(r.t))+'</b></span>'+
       (()=>{const vs=verseSpan(h.positions);return vs?('<span class="chip vs-chip" title="מאילו פסוקים שזור הצופן">📍 '+(vs.from===vs.to?vs.fromRef:(vs.fromRef+' → '+vs.toRef+' · '+heb(vs.count)+' פס׳'))+'</span>'):('<span class="chip">'+bookOf(st0)+'</span>');})()+
       '<span class="spacer"></span>'+
       '<span class="nav"><button class="pv" '+(n<2?"disabled":"")+'>‹</button><span class="pos">מופע '+(st.occ+1)+' / '+heb(n)+'</span><button class="nx" '+(n<2?"disabled":"")+'>›</button></span>';
+    // 🔀 באנר-מפגש בולט מעל התוצאה (מחליף את שבב-המספר הקטן שהיה «לא ברור») — רק במוצלב-פשוט
+    if(st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
+      const nM=st.crossMeetings.length,banner=document.createElement("div");banner.className="crossbanner";
+      banner.innerHTML='<span class="cb-main">🔀 נמצאו <span class="cb-n">'+heb(nM)+'</span> מפגשים של <span class="cb-t">«'+st.raw+'»</span> עם <span class="cb-t">«'+st.crossB+'»</span></span>'+
+        (nM>1?'<span class="cb-nav"><button class="cb-prev" title="מפגש קודם">‹</button><span class="cb-pos">מפגש '+(st.crossIdx+1)+' מתוך '+heb(nM)+'</span><button class="cb-next" title="מפגש הבא">›</button></span>':'');
+      wrap.appendChild(banner);
+      if(nM>1){banner.querySelector(".cb-prev").onclick=()=>openMeeting(st.crossIdx-1);banner.querySelector(".cb-next").onclick=()=>openMeeting(st.crossIdx+1);}
+    }
     wrap.appendChild(head);
     wrap.appendChild(buildOccPanel());
     if(st.crossMeetings&&!st.crossSimple)wrap.appendChild(buildCrossResults());
@@ -2299,6 +2333,8 @@
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
+      // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
+      (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
       '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
@@ -2309,6 +2345,7 @@
       '<button class="fb-x" title="סגור">✕</button>';
     mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);work.appendChild(mbWrap);
     acts.querySelector(".share-act").onclick=shareLink;
+    const xAct=acts.querySelector(".cross-act");if(xAct)xAct.onclick=openSimpleCross;   // 🔀 פתח מוצלב עם המונח הנוכחי כציר
     acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)
     acts.querySelector(".d3-act").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
     acts.querySelector(".img-act").onclick=downloadMatrixPNG;
@@ -2330,7 +2367,7 @@
     hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
-    if(st.crossMeetings){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
+    if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
     // מעבר בין מופעים = מטריצה חדשה → מאפס את החיפושים שהוספת (לא גוררים ממצא קודם)
     head.querySelector(".pv").onclick=()=>{st.occ=(st.occ-1+n)%n;st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();};
     head.querySelector(".nx").onclick=()=>{st.occ=(st.occ+1)%n;st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();};
