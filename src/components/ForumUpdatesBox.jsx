@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getForumFeed, intentMeta } from "../lib/contributions.js";
 import { resolveAuthor } from "../lib/authors.js";
+import { stripHtml } from "../lib/format.js";
 
 // 📋 עדכונים אחרונים מהפורום — רכיב קנוני קטן (עדשה על getForumFeed, החדשים למעלה).
 // מצביע: פוסט → /<slug> · תרומה → /forum. לא משכפל תוכן. ניתן להצבה בכל מקום (צ'אט, סייד-רייל…).
@@ -36,7 +37,7 @@ export default function ForumUpdatesBox({ limit = 6, style }) {
           {items.map((it, i) => {
             const isPost = it.kind === "post";
             const to = isPost ? `/${it.slug}` : "/forum";
-            const title = it.title || (it.body ? it.body.replace(/\s+/g, " ").trim().slice(0, 60) : "תרומת מחקר");
+            const title = stripHtml(it.title || it.body || "תרומת מחקר");
             const who = isPost ? resolveAuthor(it.author_name).name : (it.author_name || "חבר הקהילה");
             const em = isPost ? "📜" : (intentMeta(it.intent).emoji || "💡");
             const last = i === items.length - 1;

@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
+import { stripHtml } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { INTENTS, intentMeta, stateMeta, getForumFeed } from "../lib/contributions.js";
 
@@ -27,7 +28,6 @@ function targetHref(t) {
   return null;
 }
 
-const stripHtml = (s) => (s || "").replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
 const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: col, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{txt}</span>;
 
 // כרטיס תרומת-מחקר (research_contributions)
@@ -80,7 +80,7 @@ function PostCard({ c, P }) {
             style={{ width: 74, height: 74, objectFit: "cover", borderRadius: 11, flex: "0 0 auto", border: `1px solid ${P.border}` }} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5, lineHeight: 1.4 }}>{c.title}</div>}
+          {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5, lineHeight: 1.4 }}>{stripHtml(c.title)}</div>}
           {preview && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>{preview.length > 240 ? preview.slice(0, 240) + "…" : preview}</div>}
         </div>
       </Link>
