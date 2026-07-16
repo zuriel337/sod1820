@@ -261,6 +261,7 @@ function StatusBadge({ s }) {
 }
 function SubRow({ r, onApprove, onReject, busy }) {
   const m = METHODS.find(x => x.key === r.method) || METHODS[0];
+  const [replyMsg, setReplyMsg] = useState("");
   // זוג-גימטריה = שני ביטויים שהוזנו. הטופס הנוכחי שולח חידוש-טקסט חופשי (בלי זוג) → אין ריבוע.
   const hasPair = !!(r.phrase_a && r.phrase_b);
   const va = m.fn(r.phrase_a || ""), vb = m.fn(r.phrase_b || "");
@@ -294,18 +295,26 @@ function SubRow({ r, onApprove, onReject, busy }) {
         ✍️ {r.author_name || "—"} · <span dir="ltr">{r.author_email || ""}</span> · {fmtDate(r.created_at)}
       </div>
       {r.status === "pending" && (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button disabled={busy || !canApprove} onClick={() => onApprove(r.id)} title={canApprove ? "" : (hasPair ? "הגימטריה לא שווה — לא ניתן לאשר" : "אין תוכן לאישור")} style={{
-            cursor: busy || !canApprove ? "not-allowed" : "pointer", opacity: canApprove ? 1 : 0.5, border: "none", borderRadius: 999, padding: "9px 20px",
-            background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 13.5 }}>
-            {busy ? "…" : "✅ אשר ופרסם"}
-          </button>
-          <button disabled={busy} onClick={() => onReject(r.id)} style={{
-            cursor: "pointer", border: `1px solid ${C.border}`, borderRadius: 999, padding: "9px 18px",
-            background: "transparent", color: "#d98a92", fontFamily: F.heading, fontWeight: 700, fontSize: 13.5 }}>
-            ✖ דחה
-          </button>
-        </div>
+        <>
+          {/* ✍️ תגובה אישית לשולח — נכנסת גם להתראה באתר וגם למייל האישור (אופציונלי) */}
+          <textarea value={replyMsg} onChange={e => setReplyMsg(e.target.value)}
+            placeholder="✍️ תגובה אישית לשולח (אופציונלי) — תיכנס להתראה באתר ולמייל האישור"
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 50, resize: "vertical", marginBottom: 10,
+              background: "rgba(8,5,2,0.6)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px",
+              color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, outline: "none" }} />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button disabled={busy || !canApprove} onClick={() => onApprove(r.id, replyMsg.trim() || null)} title={canApprove ? "" : (hasPair ? "הגימטריה לא שווה — לא ניתן לאשר" : "אין תוכן לאישור")} style={{
+              cursor: busy || !canApprove ? "not-allowed" : "pointer", opacity: canApprove ? 1 : 0.5, border: "none", borderRadius: 999, padding: "9px 20px",
+              background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 13.5 }}>
+              {busy ? "…" : "✅ אשר ופרסם"}
+            </button>
+            <button disabled={busy} onClick={() => onReject(r.id)} style={{
+              cursor: "pointer", border: `1px solid ${C.border}`, borderRadius: 999, padding: "9px 18px",
+              background: "transparent", color: "#d98a92", fontFamily: F.heading, fontWeight: 700, fontSize: 13.5 }}>
+              ✖ דחה
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
@@ -331,19 +340,19 @@ function ChiddushReviewTab() {
     return () => { try { supabase.removeChannel(ch); } catch { /* noop */ } };
   }, []);
 
-  async function approve(id) {
+  async function approve(id, message) {
     setBusy(id);
     const row = rows.find(r => r.id === id);
     try {
-      // 1) אישור: יוצר את החידוש + התראה-באתר לשולח, מחזיר את מזהה החידוש (=«המיקום»)
-      const { data: insightId, error } = await supabase.rpc("approve_chiddush", { p_id: id });
+      // 1) אישור: יוצר את החידוש + התראה-באתר לשולח (כולל תגובת-אדמין), מחזיר את מזהה החידוש (=«המיקום»)
+      const { data: insightId, error } = await supabase.rpc("approve_chiddush", { p_id: id, p_message: message || null });
       if (error) throw error;
       setRows(prev => prev.map(r => r.id === id ? { ...r, status: "approved", insight_id: insightId } : r));
-      // 2) מייל לשולח (Resend) — «החידוש שלך אושר» עם כפתור למיקום. לא חוסם את האישור אם נכשל.
+      // 2) מייל לשולח (Resend) — «החידוש שלך אושר» + תגובת-האדמין. לא חוסם את האישור אם נכשל.
       const email = row?.author_email;
       if (email && insightId) {
         supabase.functions.invoke("notify-approval", {
-          body: { email, name: row?.author_name || "", title: row?.title || "", link: `/research?tool=midrash&tab=community&insight=${insightId}` },
+          body: { email, name: row?.author_name || "", title: row?.title || "", link: `/research?tool=midrash&tab=community&insight=${insightId}`, message: message || "" },
         }).then(({ data }) => {
           if (data?.ok) setMsg(`✅ אושר — ומייל נשלח ל־${email}`);
           else if (data?.error === "not_configured") setMsg("✅ אושר — התראה נשמרה באתר (מייל: חסר RESEND_API_KEY)");
