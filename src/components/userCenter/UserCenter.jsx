@@ -231,7 +231,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       </div>
     ) },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
-    { id: "codes", icon: "🔠", title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
+    { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
@@ -253,7 +253,7 @@ function MyCodesPanel({ T, user, goto }) {
   if (items === null) return <div style={{ color: T.sub, fontSize: 13.5, padding: "8px 0" }}>טוען…</div>;
   if (!items.length) return (
     <div style={{ textAlign: "center", padding: "26px 12px", color: T.sub }}>
-      <div style={{ fontSize: 34, marginBottom: 8 }}>🔠</div>
+      <img src="/els-icon.png" alt="" style={{ width: 54, height: 54, borderRadius: 12, objectFit: "cover", marginBottom: 10 }} />
       <div style={{ fontSize: 13.5, lineHeight: 1.7, marginBottom: 14 }}>
         עוד לא שמרת צפנים. חפש דילוג בכלי «הצופן התנ״כי» ולחץ «שמור» — הוא יופיע כאן, ותוכל לעקוב אם אושר ופורסם.
       </div>
@@ -271,7 +271,7 @@ function MyCodesPanel({ T, user, goto }) {
             {m.image_url ? (
               <img src={m.image_url} alt="" loading="lazy" style={{ width: 46, height: 46, borderRadius: 9, objectFit: "cover", flex: "none", border: `1px solid ${T.line}` }} />
             ) : (
-              <div style={{ width: 46, height: 46, borderRadius: 9, flex: "none", display: "grid", placeItems: "center", fontSize: 20, background: T.accSoft }}>🔠</div>
+              <img src="/els-icon.png" alt="" style={{ width: 46, height: 46, borderRadius: 9, objectFit: "cover", flex: "none", border: `1px solid ${T.line}` }} />
             )}
             <div style={{ flex: 1, minWidth: 0, textAlign: "right" }}>
               <div style={{ fontWeight: 700, fontSize: 13.5, color: T.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title || m.search_term}</div>
