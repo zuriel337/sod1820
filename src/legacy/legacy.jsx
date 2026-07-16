@@ -4264,30 +4264,23 @@ function SpotimChatPage() {
   }, []);
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "52px 16px 96px" }}>
+    <div style={{ direction: "rtl", maxWidth: 900, margin: "0 auto", padding: "52px 16px 96px" }}>
       {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail).
-          פריסת-הצ'אט: דסקטופ = ריבוע-הפורום בצד ימין (DOM ראשון → ב-RTL יושב מימין) + הצ'אט משמאל;
-          מובייל (≤900px) = טור אחד, ריבוע-הפורום למעלה מעל הצ'אט. */}
+          פריסת-הצ'אט (טור אחד): דסקטופ = הצ'אט למעלה + ריבוע-הפורום למטה;
+          מובייל (≤900px) = column-reverse → ריבוע-הפורום למעלה מעל הצ'אט. */}
       <style>{`
         html.sod-chat-scroll { scrollbar-width: none; }
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
-        .sod-chat-layout { display: flex; gap: 22px; align-items: flex-start; }
-        .sod-chat-aside { flex: 0 0 300px; position: sticky; top: 78px; }
-        .sod-chat-main { flex: 1 1 auto; min-width: 0; }
+        .sod-chat-layout { display: flex; flex-direction: column; gap: 30px; }
+        .sod-chat-aside, .sod-chat-main { width: 100%; }
         @media (max-width: 900px) {
-          .sod-chat-layout { flex-direction: column; gap: 18px; }
-          .sod-chat-aside { position: static; flex: none; width: 100%; }
+          .sod-chat-layout { flex-direction: column-reverse; gap: 20px; }
         }
       `}</style>
       <ChatScrollRail />
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
       <div className="sod-chat-layout">
-        {/* 📋 עדכונים אחרונים מהפורום — ימין בדסקטופ / למעלה במובייל */}
-        <aside className="sod-chat-aside">
-          <ForumUpdatesBox limit={7} />
-        </aside>
-
         <div className="sod-chat-main">
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
@@ -4304,6 +4297,11 @@ function SpotimChatPage() {
             style={{ minHeight: 400 }}
           />
         </div>
+
+        {/* 📋 עדכונים אחרונים מהפורום — למטה בדסקטופ / למעלה במובייל */}
+        <aside className="sod-chat-aside">
+          <ForumUpdatesBox limit={7} />
+        </aside>
       </div>
 
     </div>
