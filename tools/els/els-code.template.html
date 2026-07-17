@@ -1060,10 +1060,17 @@
   //    עדשה על מקור אחד — לא עותק. ממוזג לפי שם, בלי כפילויות.
   let CLOUD_MATRICES=[];   // מוזרם מהאתר דרך postMessage 'saved-matrices'
   function galleryItems(){
-    const byName=new Map();
-    SYSTEM_MATRICES.forEach(m=>byName.set(m.name,{...m,builtin:true}));
-    CLOUD_MATRICES.forEach(m=>{if(m&&m.term)byName.set(m.name||m.term,{...m,cloud:true});});
-    return [...byName.values()];
+    // 🔑 מפתח לפי זהות-הצופן (מונח+דילוג+היקף) ולא לפי שם — כדי שכפילויות/שמות-זהים לא ידרסו זה את זה.
+    //    באג שתוקן: מיפוי-לפי-שם + last-write-wins גרם לכרטיס לפתוח את הגרסה הישנה/המחוקה של צופן ששוכפל.
+    const byKey=new Map();
+    const keyOf=m=>norm(m.term||m.name||"")+"|"+(Math.abs(+m.skip||0))+"|"+(m.scope==="tanakh"?"tanakh":"torah");
+    SYSTEM_MATRICES.forEach(m=>byKey.set(keyOf(m),{...m,builtin:true}));
+    // ☁️ מטריצות-הענן מגיעות חדש→ישן (created_at desc). הראשון לכל צופן = החדש ביותר;
+    //    כפילות ישנה של אותו צופן נדלגת, וצופן-ענן מחליף מטריצת-מערכת זהה. → כרטיס תמיד פותח את החדש.
+    const seen=new Set();
+    CLOUD_MATRICES.forEach(m=>{if(!m||!m.term)return;const k=keyOf(m);
+      if(seen.has(k))return;seen.add(k);byKey.set(k,{...m,cloud:true});});
+    return [...byKey.values()];
   }
   function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
   // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
