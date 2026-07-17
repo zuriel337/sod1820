@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -46,7 +46,7 @@ const WORLDS = [
 
 // 🧠 «מה כדאי לי לעשות עכשיו?» — הכרטיס הראשון (personal_command_center_law: החוויה לפני התשתית).
 // לא תפריט — כיוון. + badge יתרת-קרדיטים (בהרצה). מוקרן בראש האזור-האישי.
-function NextActionCard({ T, dark, profile, myProfile, nextActions, setActive, goto }) {
+function NextActionCard({ T, dark, profile, myProfile, myLevel, nextActions, setActive, goto }) {
   const name = (profile?.display_name || profile?.username || "").trim().split(" ")[0] || "חוקר";
   const h = new Date().getHours();
   const greeting = h < 12 ? "בוקר טוב" : h < 18 ? "צהריים טובים" : "ערב טוב";
@@ -60,11 +60,20 @@ function NextActionCard({ T, dark, profile, myProfile, nextActions, setActive, g
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
         <span style={{ fontSize: 15.5, fontWeight: 800 }}>🧠 {greeting}, {name}</span>
         {myProfile && (
-          <span title="קרדיטים — בהרצה, עדיין ללא מחירים" style={{ marginInlineStart: "auto", background: T.goldSoft, color: T.gold, borderRadius: 999, fontSize: 11.5, fontWeight: 800, padding: "3px 10px", whiteSpace: "nowrap" }}>
-            ◆ {(myProfile.credits || 0).toLocaleString("he-IL")} · בהרצה
-          </span>
+          <button onClick={() => setActive("credits")} title="הקרדיטים שלי" style={{ marginInlineStart: "auto", background: T.goldSoft, color: T.gold, border: "none", cursor: "pointer", borderRadius: 999, fontSize: 11.5, fontWeight: 800, padding: "3px 10px", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+            ◆ {(myProfile.credits || 0).toLocaleString("he-IL")}
+          </button>
         )}
       </div>
+      {/* 🌳 דרגת-חוקר — לחיצה פותחת «הדרגה שלי» */}
+      {myLevel && (
+        <button onClick={() => setActive("level")} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: dark ? "#20242e" : "#f3f6ff", border: `1px solid ${T.line}`, borderRadius: 10, padding: "7px 11px", cursor: "pointer", color: T.ink, fontFamily: "inherit", margin: "6px 0 10px" }}>
+          <span style={{ fontSize: 16 }}>{(LEVELS.find(l => l.n === myLevel.level) || {}).icon || "🌱"}</span>
+          <span style={{ fontWeight: 800, fontSize: 12.5 }}>{myLevel.label}</span>
+          <span style={{ fontSize: 11, color: T.sub }}>דרגה {myLevel.level}</span>
+          {myLevel.next_label && <span style={{ marginInlineStart: "auto", fontSize: 11, color: T.acc, fontWeight: 700 }}>עוד {((myLevel.next_xp || 0) - (myLevel.xp || 0)).toLocaleString("he-IL")} XP ←</span>}
+        </button>
+      )}
       <div style={{ color: T.sub, fontSize: 12.5, marginBottom: 10 }}>מה כדאי לך לעשות עכשיו?</div>
       {nextActions == null ? (
         <div style={{ color: T.sub, fontSize: 12.5, padding: "4px 0" }}>טוען…</div>
@@ -97,6 +106,7 @@ export default function UserCenter() {
   const [center, setCenter] = useState(null); // my_center RPC
   const [unread, setUnread] = useState(0);     // 🔔 התראות שלא-נקראו
   const [myProfile, setMyProfile] = useState(null); // 💰 קרדיטים/דרגה (beta)
+  const [myLevel, setMyLevel] = useState(null);     // 🌳 דרגת-חוקר (מנוע-הגדילה)
   const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
 
   useEffect(() => {
@@ -106,6 +116,8 @@ export default function UserCenter() {
     getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
     // 🎁 מענק-מייסד ממתין + ☀️ קרדיט-יומי → נתבעים אוטומטית (idempotent), ואז טוענים את היתרה
     Promise.all([claimFoundingGrants(), claimDailyCredit(), claimWaActivityCredits()]).then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
+    // 🌳 מנוע-הגדילה — מחשב ושומר דרגה/XP, ומזין את הצ׳יפ בכרטיס-הפתיחה
+    getMyResearchLevel().then(l => { if (alive) setMyLevel(l); }).catch(() => {});
     return () => { alive = false; };
   }, [isOpen, user]);
 
@@ -190,7 +202,7 @@ export default function UserCenter() {
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: 14 }}>
           {!activeMod ? (
             <>
-              <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} nextActions={nextActions} setActive={setActive} goto={goto} />
+              <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
               {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
               {WORLDS.map(w => {
                 const mods = MODULES.filter(m => !m.hidden && (m.world || "me") === w.key);
@@ -359,6 +371,63 @@ function BotsTeamPanel({ T, goto }) {
       <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>
         הצוות רק מתחיל להכיר אתכם — ככל שתחקרו, כך ייטב.{" "}
         <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>יש שאלה או רעיון? כתבו לנו ←</button>
+      </div>
+    </div>
+  );
+}
+
+// 🌳 הדרגה שלי — מנוע-הגדילה (my_research_level). דרגה + XP + מה מרכיב + הדרך קדימה.
+const LEVELS = [
+  { n: 1, icon: "🌱", label: "מתחיל" }, { n: 2, icon: "🌿", label: "חוקר מתעורר" },
+  { n: 3, icon: "🔬", label: "חוקר" }, { n: 4, icon: "🎓", label: "חוקר בכיר" }, { n: 5, icon: "👑", label: "חוקר היכל" },
+];
+const PART_META = [
+  ["gematria", "🧮 חיפושי גימטריה"], ["research", "🧠 פריטי מחקר"], ["days", "📅 ימים פעילים"],
+  ["contrib", "🤝 תרומות שאושרו"], ["ai", "🤖 ניתוחי AI"], ["whatsapp", "💬 הודעות וואטסאפ"], ["referrals", "👥 חברים שהזמנת"],
+];
+function LevelPanel({ T }) {
+  const [lv, setLv] = useState(undefined);
+  useEffect(() => { getMyResearchLevel().then(setLv).catch(() => setLv(null)); }, []);
+  if (lv === undefined) return <div style={{ color: T.sub, fontSize: 12.5, padding: "6px 0" }}>טוען…</div>;
+  if (!lv) return <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7 }}>התחילו לחקור — חיפוש, מחקר, שיתוף — והדרגה שלכם תיבנה כאן.</div>;
+  const cur = LEVELS.find(l => l.n === lv.level) || LEVELS[0];
+  const pct = lv.next_xp ? Math.min(100, Math.max(3, Math.round(((lv.xp - lv.floor) / (lv.next_xp - lv.floor)) * 100))) : 100;
+  const toNext = lv.next_xp ? lv.next_xp - lv.xp : 0;
+  return (
+    <div>
+      <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 16, padding: "16px 15px", textAlign: "center", marginBottom: 14 }}>
+        <div style={{ fontSize: 34 }}>{cur.icon}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: T.gold, marginTop: 2 }}>{cur.label}</div>
+        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 2 }}>דרגה {lv.level} מתוך 5 · {(lv.xp || 0).toLocaleString("he-IL")} XP</div>
+        <div style={{ height: 9, background: T.card, borderRadius: 999, marginTop: 11, overflow: "hidden", border: `1px solid ${T.line}` }}>
+          <div style={{ width: pct + "%", height: "100%", background: `linear-gradient(90deg,${T.acc},${T.gold})` }} />
+        </div>
+        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 6 }}>
+          {lv.next_label ? <>עוד <b style={{ color: T.acc }}>{toNext.toLocaleString("he-IL")} XP</b> עד «{lv.next_label}»</> : "הגעת לדרגה הגבוהה ביותר 👑"}
+        </div>
+      </div>
+      <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>מה בונה את הדרגה שלך</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {PART_META.map(([k, lbl]) => (
+          <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.line}` }}>
+            <span style={{ fontSize: 12.5, color: T.ink }}>{lbl}</span>
+            <span style={{ fontWeight: 800, fontSize: 12.5, color: (lv.parts?.[k] || 0) > 0 ? T.ink : T.sub }}>{(lv.parts?.[k] || 0).toLocaleString("he-IL")}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontWeight: 800, fontSize: 13, margin: "16px 0 7px" }}>הדרך שלך</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {LEVELS.map(l => {
+          const done = l.n < lv.level, here = l.n === lv.level;
+          return (
+            <div key={l.n} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 11px", borderRadius: 10,
+              background: here ? T.accSoft : "transparent", border: `1px solid ${here ? T.acc : T.line}`, opacity: done ? 0.55 : 1 }}>
+              <span style={{ fontSize: 17 }}>{l.icon}</span>
+              <span style={{ flex: 1, fontWeight: here ? 800 : 600, fontSize: 13, color: T.ink }}>{l.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: done ? "#2e9e5b" : here ? T.acc : T.sub }}>{done ? "✓ הושלם" : here ? "אתם כאן" : "בהמשך"}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -623,6 +692,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
       </div>
     ) },
+    { id: "level", world: "me", icon: "🌳", title: "הדרגה שלי", status: "live", render: () => <LevelPanel T={T} /> },
     { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
       <div>
         {/* סביבת המחקר המלאה בתוך האזור האישי — סביבה אחת (החלטת צוריאל 9.7.2026) */}

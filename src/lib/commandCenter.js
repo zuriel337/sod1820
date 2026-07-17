@@ -50,6 +50,12 @@ export async function getMyReferralStats() {
   try { const { data } = await supabase.rpc("my_referral_stats"); return data || { invited: 0 }; } catch { return { invited: 0 }; }
 }
 
+// 🌳 מנוע-הגדילה — דרגת-חוקר + XP + מה-מרכיב-אותה + כמה עד הדרגה הבאה. מחשב ושומר ב-profiles.
+export async function getMyResearchLevel() {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc("my_research_level"); return data?.ok ? data : null; } catch { return null; }
+}
+
 // 🧠 «מה כדאי לי לעשות עכשיו?» — עד 3 פעולות, מנתונים קיימים בלבד (בלי RPC חדש).
 // module → פותח מודול במגירה · link → ניווט. center = תוצאת my_center שכבר נטענה.
 export async function getNextActions({ center } = {}) {
