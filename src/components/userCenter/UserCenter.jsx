@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyAgentMemory, getMyCreditLedger } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -290,7 +290,9 @@ function BotsTeamPanel({ T, goto }) {
     let alive = true;
     getAgentRoster().then(r => { if (alive) setRoster(r); }).catch(() => { if (alive) setRoster([]); });
     getAgentStats().then(s => { if (alive) setStats(s); }).catch(() => {});
-    getMyAgentMemory(8).then(m => { if (alive) setMem(m); }).catch(() => { if (alive) setMem([]); });
+    // הזיכרון מפתוח לפי טלפון (agent_user_memory.user_ref) → עדשת get_my_wa_memory דרך wa_account_links.
+    // ריק עד שהמשתמש מקשר וואטסאפ (מודול «הוואטסאפ שלי»).
+    getMyWaMemory(8).then(m => { if (alive) setMem(m); }).catch(() => { if (alive) setMem([]); });
     return () => { alive = false; };
   }, []);
   // מטטרון ראשון, אחריו מומחים
@@ -367,6 +369,140 @@ function CreditsPanel({ T }) {
   );
 }
 
+// ── 🟢 הוואטסאפ שלי — חיבור מאומת (OTP) בין החשבון למספר הוואטסאפ ──
+// למה: הבוט (רזיאל) והסוכן האישי מזהים אותך לפי מספר הטלפון. חיבור מאומת = הזיכרון
+// והשיחות שלך בוואטסאפ מתחברים לפרופיל כאן. אימות-בעלות חובה (קוד נשלח בוואטסאפ) —
+// לא מניחים שמספר שייך לך בלי הוכחה. עובד לכל מספר, גם אם עוד לא דיברת עם הבוט.
+const WA_ERR = {
+  auth_required: "צריך להיות מחובר לחשבון.",
+  bad_phone: "מספר לא תקין — בדוק והזן שוב.",
+  phone_taken: "המספר הזה כבר מקושר לחשבון אחר.",
+  rate_limited: "יותר מדי בקשות. נסה שוב בעוד שעה.",
+  no_code: "לא נמצא קוד פעיל — בקש קוד חדש.",
+  expired: "הקוד פג תוקף — בקש קוד חדש.",
+  too_many_attempts: "יותר מדי ניסיונות — בקש קוד חדש.",
+  wrong_code: "קוד שגוי. נסה שוב.",
+  no_client: "אין חיבור לשרת כרגע.",
+};
+function waErr(e) { return WA_ERR[e] || "משהו השתבש. נסה שוב."; }
+
+function WhatsAppPanel({ T, goto }) {
+  const [linked, setLinked] = useState(null);   // רשימת טלפונים מקושרים
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState("idle");      // idle | code_sent
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);          // {kind:'ok'|'err', text}
+  const [masked, setMasked] = useState("");
+
+  const reload = useCallback(() => {
+    getMyLinkedPhones().then(l => setLinked(l)).catch(() => setLinked([]));
+  }, []);
+  useEffect(() => { reload(); }, [reload]);
+
+  async function sendCode() {
+    if (busy) return;
+    setMsg(null); setBusy(true);
+    const r = await requestWaLinkCode(phone);
+    setBusy(false);
+    if (r.already_linked) { setMsg({ kind: "ok", text: "המספר כבר מקושר לחשבון שלך ✓" }); reload(); return; }
+    if (!r.ok) { setMsg({ kind: "err", text: waErr(r.error) }); return; }
+    setMasked(r.masked || "");
+    setStep("code_sent");
+    setMsg({ kind: "ok", text: "שלחנו קוד בן 6 ספרות בוואטסאפ. הזן אותו כאן." });
+  }
+  async function verify() {
+    if (busy) return;
+    setMsg(null); setBusy(true);
+    const r = await verifyWaLinkCode(phone, code);
+    setBusy(false);
+    if (!r.ok) { setMsg({ kind: "err", text: waErr(r.error) }); return; }
+    setMsg({ kind: "ok", text: "🎉 הוואטסאפ חובר בהצלחה! מעכשיו הבוט מזהה אותך." });
+    setStep("idle"); setPhone(""); setCode(""); setMasked("");
+    reload();
+  }
+
+  const input = {
+    width: "100%", boxSizing: "border-box", background: T.card, color: T.ink,
+    border: `1px solid ${T.line}`, borderRadius: 10, padding: "11px 12px",
+    fontSize: 16 /* ≥16 כדי למנוע zoom אוטומטי באייפון */, fontFamily: "inherit", direction: "ltr", textAlign: "center",
+  };
+  const btn = (bg, disabled) => ({
+    width: "100%", background: disabled ? T.line : bg, color: "#fff", border: "none",
+    borderRadius: 10, padding: "12px", fontWeight: 800, fontSize: 14.5,
+    cursor: disabled ? "default" : "pointer", fontFamily: "inherit", marginTop: 10,
+  });
+
+  return (
+    <div>
+      {/* למה זה חשוב */}
+      <div style={{ background: "#e9f9ef", border: "1px solid #bfe9cd", borderRadius: 12, padding: "11px 13px", marginBottom: 13 }}>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: "#1a7f37" }}>🟢 חבר את הוואטסאפ שלך</div>
+        <div style={{ fontSize: 12.5, color: "#2f6b46", lineHeight: 1.6, marginTop: 3 }}>
+          כשמחברים, הבוט של סוד1820 (רזיאל) והסוכן האישי מזהים אותך — הרמזים והשיחות שלך בוואטסאפ מתחברים לפרופיל כאן. שולחים לך קוד בוואטסאפ לאימות שהמספר באמת שלך.
+        </div>
+      </div>
+
+      {/* מספרים מקושרים */}
+      {linked && linked.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>מקושרים לחשבון שלי</div>
+          <div style={{ display: "grid", gap: 7 }}>
+            {linked.map((l, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ fontSize: 15 }}>🟢</span>
+                <span style={{ flex: 1, fontWeight: 700, fontSize: 13.5, direction: "ltr", textAlign: "left" }}>+{l.phone}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#1a7f37", background: "#e6f4ea", borderRadius: 999, padding: "2px 9px" }}>מחובר ✓</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* טופס חיבור */}
+      <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>
+        {linked && linked.length ? "חיבור מספר נוסף" : "חיבור מספר וואטסאפ"}
+      </div>
+
+      {step === "idle" ? (
+        <>
+          <input dir="ltr" inputMode="tel" type="tel" placeholder="05X-XXX-XXXX" value={phone}
+            onChange={e => setPhone(e.target.value)} style={input} />
+          <button onClick={sendCode} disabled={busy || phone.replace(/\D/g, "").length < 9} style={btn("#25D366", busy || phone.replace(/\D/g, "").length < 9)}>
+            {busy ? "שולח…" : "📩 שלח לי קוד בוואטסאפ"}
+          </button>
+        </>
+      ) : (
+        <>
+          <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 8, lineHeight: 1.6 }}>
+            שלחנו קוד למספר {masked ? <b dir="ltr" style={{ direction: "ltr" }}>+{masked}</b> : "שלך"}. לא הגיע? ייתכן שהמספר לא רשום בוואטסאפ — {" "}
+            <button onClick={() => { setStep("idle"); setCode(""); setMsg(null); }} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>שנה מספר</button>.
+          </div>
+          <input dir="ltr" inputMode="numeric" type="text" maxLength={6} placeholder="––––––" value={code}
+            onChange={e => setCode(e.target.value.replace(/\D/g, ""))} style={{ ...input, letterSpacing: "0.4em", fontSize: 22, fontWeight: 800 }} />
+          <button onClick={verify} disabled={busy || code.length < 4} style={btn(T.acc, busy || code.length < 4)}>
+            {busy ? "מאמת…" : "✅ אמת וחבר"}
+          </button>
+          <button onClick={sendCode} disabled={busy} style={{ width: "100%", background: "none", border: "none", color: T.sub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", marginTop: 8, fontFamily: "inherit" }}>שלח קוד שוב</button>
+        </>
+      )}
+
+      {msg && (
+        <div style={{ marginTop: 12, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
+          background: msg.kind === "ok" ? "#e9f9ef" : "#fdecea", color: msg.kind === "ok" ? "#1a7f37" : "#b3261e",
+          border: `1px solid ${msg.kind === "ok" ? "#bfe9cd" : "#f5c6c0"}` }}>
+          {msg.text}
+        </div>
+      )}
+
+      <div style={{ marginTop: 14, fontSize: 11.5, color: T.sub, lineHeight: 1.7 }}>
+        🔒 המספר נשמר מאובטח ומשמש רק לזיהוי מול הבוט. תוכל לנתק בכל עת.{" "}
+        <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 11.5 }}>שאלה? דבר איתנו ←</button>
+      </div>
+    </div>
+  );
+}
+
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
@@ -412,6 +548,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "bots", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
+    { id: "whatsapp", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} /> },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 

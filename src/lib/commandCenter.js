@@ -103,3 +103,44 @@ export async function getMyCreditLedger(limit = 15) {
     return data || [];
   } catch { return []; }
 }
+
+// 🔗 הטלפונים המקושרים לחשבון שלי (RLS owner-read על wa_account_links).
+export async function getMyLinkedPhones() {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("wa_account_links")
+      .select("phone,verified_at").order("verified_at", { ascending: false });
+    return data || [];
+  } catch { return []; }
+}
+
+// 🔐 בקשת קוד-אימות בוואטסאפ למספר שהמשתמש הזין (השרת שולח דרך wa_send).
+// מחזיר {ok, sent?, already_linked?, masked?, error?}.
+export async function requestWaLinkCode(phone) {
+  if (!supabase) return { ok: false, error: "no_client" };
+  try {
+    const { data, error } = await supabase.rpc("request_wa_link_code", { p_phone: phone });
+    if (error) return { ok: false, error: error.message };
+    return data || { ok: false, error: "empty" };
+  } catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
+
+// ✅ אימות הקוד → יוצר קישור user_id↔phone. מחזיר {ok, linked?, phone?, error?}.
+export async function verifyWaLinkCode(phone, code) {
+  if (!supabase) return { ok: false, error: "no_client" };
+  try {
+    const { data, error } = await supabase.rpc("verify_wa_link_code", { p_phone: phone, p_code: code });
+    if (error) return { ok: false, error: error.message };
+    return data || { ok: false, error: "empty" };
+  } catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
+
+// 🧠 הזיכרון שהבוטים צברו על הטלפון המקושר שלי (עדשת get_my_wa_memory — join דרך wa_account_links).
+// עדיף על getMyAgentMemory כי user_ref הוא טלפון, לא auth.uid.
+export async function getMyWaMemory(limit = 30) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.rpc("get_my_wa_memory", { p_limit: limit });
+    return Array.isArray(data) ? data : [];
+  } catch { return []; }
+}
