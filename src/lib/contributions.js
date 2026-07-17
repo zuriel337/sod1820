@@ -169,6 +169,12 @@ export async function getPendingContributions(limit = 100) {
   try { const { data } = await supabase.rpc("admin_pending_contributions", { p_limit: limit }); return data || []; }
   catch { return []; }
 }
+// מרכז-התגובות: כל התגובות לפי סטטוס ('pending'|'approved'|'hidden'|'all')
+export async function getAllContributions(status = "pending", limit = 200) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("admin_all_contributions", { p_status: status, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
 export async function approveContribution(id, { canonical = false, project = true } = {}) {
   const { data, error } = await supabase.rpc("approve_contribution", { p_id: id, p_canonical: canonical, p_project: project });
   if (error) throw error;

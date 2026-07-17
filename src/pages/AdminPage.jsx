@@ -24,7 +24,7 @@ import {
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
-import { getPendingContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
+import { getAllContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
@@ -63,7 +63,7 @@ const TABS = [
   { key: "findings", label: "🔬 ממצאים" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
-  { key: "contribmod", label: "💬 אישור תגובות" },
+  { key: "contribmod", label: "💬 מרכז התגובות" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -2536,22 +2536,29 @@ function UsersTab() {
 }
 
 // 💬 אישור תגובות — תור התרומות הממתינות (כולל אנונימיות). אישור → פומבי · הסתרה → נדחה.
+const CONTRIB_FILTERS = [["pending", "⏳ ממתינות"], ["approved", "✅ אושרו"], ["hidden", "🔒 מוסתרות"], ["all", "הכל"]];
 function ContribModTab() {
   const [rows, setRows] = useState(null);
   const [busy, setBusy] = useState(null);
-  const load = () => getPendingContributions(150).then(r => setRows(Array.isArray(r) ? r : [])).catch(() => setRows([]));
-  useEffect(() => { load(); }, []);
-  const approve = async (id) => { setBusy(id); try { await approveContribution(id); setRows(rs => rs.filter(r => r.id !== id)); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
-  const hide = async (id) => { setBusy(id); try { await moderateContribution(id, "hidden"); setRows(rs => rs.filter(r => r.id !== id)); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  const [status, setStatus] = useState("pending");
+  const load = (st = status) => { setRows(null); getAllContributions(st, 200).then(r => setRows(Array.isArray(r) ? r : [])).catch(() => setRows([])); };
+  useEffect(() => { load(status); /* eslint-disable-next-line */ }, [status]);
+  const approve = async (id) => { setBusy(id); try { await approveContribution(id); load(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  const hide = async (id) => { setBusy(id); try { await moderateContribution(id, "hidden"); load(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div style={card}>
-        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>💬 אישור תגובות {rows ? `· ${rows.length}` : ""}</h3>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>💬 מרכז התגובות {rows ? `· ${rows.length}` : ""}</h3>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
-          תרומות ממתינות מכל האתר — כולל <b style={{ color: C.goldLight }}>תגובות אורחים (לא-רשומים)</b>. אורח מוגבל ל-5 תגובות לשעה. אישור → מופיע פומבי · הסתרה → נדחה.
+          כל התגובות והתרומות מכל האתר — מספרים, פוסטים, כותבים, צ'אט — במקום אחד. כולל <b style={{ color: C.goldLight }}>תגובות אורחים</b> (מוגבל 5/שעה). אישור → פומבי · הסתרה → נדחה.
+        </div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 11 }}>
+          {CONTRIB_FILTERS.map(([k, lbl]) => (
+            <button key={k} onClick={() => setStatus(k)} style={segBtn(status === k)}>{lbl}</button>
+          ))}
         </div>
       </div>
-      {!rows ? <Loading /> : rows.length === 0 ? <Empty>אין תגובות ממתינות. ✓</Empty> : (
+      {!rows ? <Loading /> : rows.length === 0 ? <Empty>אין תגובות בקטגוריה זו.</Empty> : (
         <div style={{ display: "grid", gap: 8 }}>
           {rows.map(r => {
             const im = intentMeta(r.intent);
@@ -2565,9 +2572,12 @@ function ContribModTab() {
                 </div>
                 {r.title && <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }} dir="rtl">{r.title}</div>}
                 <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }} dir="rtl">{r.body}</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button disabled={busy === r.id} onClick={() => approve(r.id)} style={{ ...segBtn(true) }}>{busy === r.id ? "…" : "✅ אשר"}</button>
-                  <button disabled={busy === r.id} onClick={() => hide(r.id)} style={{ ...segBtn(false), color: "#e0796f", borderColor: "rgba(224,121,111,0.4)" }}>✖ הסתר</button>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  {r.status !== "approved" && <button disabled={busy === r.id} onClick={() => approve(r.id)} style={{ ...segBtn(true) }}>{busy === r.id ? "…" : r.status === "hidden" ? "↩️ שחזר" : "✅ אשר"}</button>}
+                  {r.status !== "hidden" && <button disabled={busy === r.id} onClick={() => hide(r.id)} style={{ ...segBtn(false), color: "#e0796f" }}>✖ הסתר</button>}
+                  <span style={{ marginInlineStart: "auto", fontFamily: F.mono, fontSize: 10.5, color: r.status === "approved" ? "#7fd18a" : r.status === "hidden" ? "#8a7a4a" : C.gold }}>
+                    {r.status === "approved" ? "✓ פומבי" : r.status === "hidden" ? "🔒 מוסתר" : "⏳ ממתין"}
+                  </span>
                 </div>
               </div>
             );
