@@ -154,12 +154,22 @@ export default function ContributorPage() {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug]);
+
+  // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
+  const [level, setLevel] = useState(null);
+  useEffect(() => {
+    if (!c?.user_id) return;
+    let alive = true;
+    supabase.rpc("research_level_of", { p_user: c.user_id })
+      .then(({ data }) => { if (alive) setLevel(data || null); }).catch(() => {});
+    return () => { alive = false; };
+  }, [c?.user_id]);
 
   // דף נעול / בבנייה לא נכנס לאינדקס של גוגל
   useEffect(() => {
@@ -316,6 +326,16 @@ export default function ContributorPage() {
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
+        {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
+        {level?.level && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+            <span style={{ fontSize: 16 }}>{["🌱", "🌿", "🔬", "🎓", "👑"][level.level - 1] || "🌱"}</span>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{level.label}</span>
+            <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+              {[level.posts > 0 ? `📝 ${level.posts}` : null, level.whatsapp > 0 ? `💬 ${level.whatsapp.toLocaleString("he-IL")}` : null].filter(Boolean).join(" · ")}
+            </span>
+          </div>
+        )}
         {header?.stats && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
