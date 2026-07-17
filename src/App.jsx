@@ -7,7 +7,7 @@ import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { initAppInstallTracking, captureArrivalSource } from "./lib/tracking.js";
 import { initInstall } from "./lib/install.js";
-import { captureArrival } from "./lib/propagation.js";
+import { captureArrival, captureRef } from "./lib/propagation.js";
 import { initClarity } from "./lib/clarity.js";
 import { startPresence, updatePresence } from "./lib/presence.js";
 import { useAuth } from "./lib/AuthContext.jsx";
@@ -105,7 +105,7 @@ function RouteEffects() {
   const labTool = pathname === "/research" ? new URLSearchParams(search).get("tool") : null;
   const trackPath = labTool ? `/research?tool=${labTool}` : pathname;
   const { user } = useAuth();
-  useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); captureArrivalSource(); initClarity(); }, []);
+  useEffect(() => { initGA(); initMarketing(); initAppInstallTracking(); initInstall(); captureArrival(); captureRef(); captureArrivalSource(); initClarity(); }, []);
   // 🟢 נוכחות חיה — כל דפדפן פתוח מצטרף לערוץ אחד; מדווח uid (למחובר) + נתיב נוכחי.
   useEffect(() => { startPresence({ uid: user?.id || null, path: pathname }); }, [user?.id]);
   useEffect(() => { updatePresence({ uid: user?.id || null, path: pathname }); }, [pathname, user?.id]);

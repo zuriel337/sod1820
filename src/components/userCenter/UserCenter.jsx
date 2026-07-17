@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -365,16 +365,24 @@ function BotsTeamPanel({ T, goto }) {
 }
 
 // ◆ הקרדיטים שלי — יתרה + ספר-תנועות (בהרצה). credit_ledger own-read.
-const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", wa_activity: "💬 הודעות בקבוצות", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
+const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", wa_activity: "💬 הודעות בקבוצות", daily: "☀️ פעילות יומית", share: "🔗 שיתוף", referral: "👥 חבר שהזמנת נרשם", referral_welcome: "🎁 בונוס-קבלה", spend: "שימוש", earn: "צבירה" };
+const ZURIEL_WA = "972556651237"; // רכישת קרדיטים = פנייה אישית בוואטסאפ
 function CreditsPanel({ T }) {
+  const { user } = useAuth();
   const [ledger, setLedger] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [invited, setInvited] = useState(null);
+  const [copied, setCopied] = useState(false);
   useEffect(() => {
     let alive = true;
     getMyProfile().then(p => { if (alive) setProfile(p); }).catch(() => {});
     getMyCreditLedger(15).then(l => { if (alive) setLedger(l); }).catch(() => { if (alive) setLedger([]); });
+    getMyReferralStats().then(s => { if (alive) setInvited(s?.invited ?? 0); }).catch(() => {});
     return () => { alive = false; };
   }, []);
+  const inviteUrl = user ? `${typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il"}/?ref=${user.id}` : "";
+  const inviteMsg = `בוא לגלות את הקוד שמאחורי המספרים ב-סוד 1820 👑\n${inviteUrl}`;
+  const copyInvite = () => { try { navigator.clipboard.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* noop */ } };
   return (
     <div>
       <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "14px 15px", marginBottom: 12, textAlign: "center" }}>
@@ -397,10 +405,26 @@ function CreditsPanel({ T }) {
       ) : (
         <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7 }}>עדיין אין תנועות. פעילות באתר תתחיל לצבור קרדיטים (בהרצה).</div>
       )}
-      {/* איך צוברים — שקיפות על אירועי-הצבירה החיים (בהרצה) */}
+      {/* 👥 הזמן חברים — צבירה אמיתית (הכי משתלמת) */}
+      <div style={{ marginTop: 16, background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "13px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <span style={{ fontWeight: 800, fontSize: 13.5, color: T.acc }}>👥 הזמן חברים</span>
+          {invited > 0 && <span style={{ marginInlineStart: "auto", fontSize: 11, fontWeight: 800, color: T.acc, background: T.card, borderRadius: 999, padding: "2px 9px" }}>{invited} הצטרפו</span>}
+        </div>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, margin: "5px 0 10px" }}>
+          שתף את הקישור שלך — כל חבר שנרשם מזכה אותך ב-<b style={{ color: T.acc }}>100 קרדיטים</b>, והוא מקבל <b style={{ color: T.acc }}>50</b> לפתיחה.
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <a href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer"
+            style={{ flex: 1, minWidth: 130, textAlign: "center", background: "#25D366", color: "#fff", borderRadius: 10, padding: "10px", fontWeight: 800, fontSize: 13, textDecoration: "none" }}>🟢 שתף בוואטסאפ</a>
+          <button onClick={copyInvite} style={{ flex: 1, minWidth: 110, background: T.card, color: T.ink, border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px", fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>{copied ? "✓ הועתק" : "📋 העתק קישור"}</button>
+        </div>
+      </div>
+
+      {/* איך צוברים */}
       <div style={{ marginTop: 16, fontWeight: 800, fontSize: 13, marginBottom: 7 }}>איך צוברים</div>
       <div style={{ display: "grid", gap: 6 }}>
-        {[["🟢 חיבור וואטסאפ", "+100", "פעם אחת"], ["💬 הודעה בקבוצת וואטסאפ", "+3", "לכל הודעה"], ["☀️ כניסה יומית", "+5", "כל יום"], ["🏛️ מענק חוקר מייסד", "+5,000", "לחוקרים ותיקים"]].map(([k, v, note], i) => (
+        {[["👥 חבר שהזמנת נרשם", "+100", "לכל חבר"], ["🔗 שיתוף", "+5", "עד 3 ליום"], ["🟢 חיבור וואטסאפ", "+100", "פעם אחת"], ["💬 הודעה בקבוצת וואטסאפ", "+3", "לכל הודעה"], ["☀️ כניסה יומית", "+5", "כל יום"], ["🏛️ מענק חוקר מייסד", "+5,000", "לחוקרים ותיקים"]].map(([k, v, note], i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: `1px solid ${T.line}` }}>
             <span style={{ fontSize: 12.5, color: T.ink, flex: 1 }}>{k}</span>
             <span style={{ fontSize: 10.5, color: T.sub }}>{note}</span>
@@ -408,7 +432,14 @@ function CreditsPanel({ T }) {
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 8, fontSize: 11, color: T.sub, lineHeight: 1.6 }}>עוד דרכי-צבירה (מחקר, שיתוף, רמזים) — בקרוב. הכל בהרצה כדי ללמוד מה עובד.</div>
+
+      {/* 💳 רכישת קרדיטים — כרגע פנייה אישית בוואטסאפ */}
+      <div style={{ marginTop: 16, background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "13px 14px" }}>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold, marginBottom: 4 }}>💳 רכישת קרדיטים</div>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginBottom: 10 }}>רוצה עוד קרדיטים עכשיו? שלח לי הודעה אישית בוואטסאפ ונסדר.</div>
+        <a href={`https://wa.me/${ZURIEL_WA}?text=${encodeURIComponent("היי, אשמח לרכוש קרדיטים ל-סוד 1820")}`} target="_blank" rel="noreferrer"
+          style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", borderRadius: 10, padding: "11px", fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>🟢 לרכישה — הודעה בוואטסאפ</a>
+      </div>
     </div>
   );
 }

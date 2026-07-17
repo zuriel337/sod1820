@@ -32,6 +32,24 @@ export async function claimWaActivityCredits() {
   try { const { data } = await supabase.rpc("claim_wa_activity_credits"); return data || { ok: false, awarded: 0 }; } catch { return { ok: false, awarded: 0 }; }
 }
 
+// 🔗 קרדיט על שיתוף (תקרה 3/יום, נאכף בשרת). fire-and-forget מזרימת-השיתוף.
+export async function awardShareCredit() {
+  if (!supabase) return { ok: false };
+  try { const { data } = await supabase.rpc("award_share_credit"); return data || { ok: false }; } catch { return { ok: false }; }
+}
+
+// 👥 רישום הזמנה (החבר נרשם דרך קישור שלי) → מזמין +100, חבר +50. idempotent.
+export async function recordReferral(refId) {
+  if (!supabase || !refId) return { ok: false };
+  try { const { data } = await supabase.rpc("record_referral", { p_ref: refId }); return data || { ok: false }; } catch { return { ok: false }; }
+}
+
+// 👥 כמה חברים הזמנתי (לתצוגה).
+export async function getMyReferralStats() {
+  if (!supabase) return { invited: 0 };
+  try { const { data } = await supabase.rpc("my_referral_stats"); return data || { invited: 0 }; } catch { return { invited: 0 }; }
+}
+
 // 🧠 «מה כדאי לי לעשות עכשיו?» — עד 3 פעולות, מנתונים קיימים בלבד (בלי RPC חדש).
 // module → פותח מודול במגירה · link → ניווט. center = תוצאת my_center שכבר נטענה.
 export async function getNextActions({ center } = {}) {
