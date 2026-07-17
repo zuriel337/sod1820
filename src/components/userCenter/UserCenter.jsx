@@ -382,7 +382,7 @@ const LEVELS = [
   { n: 3, icon: "🔬", label: "חוקר" }, { n: 4, icon: "🎓", label: "חוקר בכיר" }, { n: 5, icon: "👑", label: "חוקר היכל" },
 ];
 const PART_META = [
-  ["gematria", "🧮 חיפושי גימטריה"], ["research", "🧠 פריטי מחקר"], ["days", "📅 ימים פעילים"],
+  ["posts", "📝 פוסטים שפרסמת"], ["gematria", "🧮 חיפושי גימטריה"], ["research", "🧠 פריטי מחקר"], ["days", "📅 ימים פעילים"],
   ["contrib", "🤝 תרומות שאושרו"], ["ai", "🤖 ניתוחי AI"], ["whatsapp", "💬 הודעות וואטסאפ"], ["referrals", "👥 חברים שהזמנת"],
 ];
 function LevelPanel({ T }) {
