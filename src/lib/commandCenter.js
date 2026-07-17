@@ -20,6 +20,12 @@ export async function claimFoundingGrants() {
   try { const { data } = await supabase.rpc("claim_my_founding_grants"); return data || 0; } catch { return 0; }
 }
 
+// ☀️ קרדיט יומי (חד-פעמי ליום UTC). מחזיר {ok, awarded, already?}. נקרא בפתיחת האזור-האישי.
+export async function claimDailyCredit() {
+  if (!supabase) return { ok: false, awarded: 0 };
+  try { const { data } = await supabase.rpc("claim_daily_credit"); return data || { ok: false, awarded: 0 }; } catch { return { ok: false, awarded: 0 }; }
+}
+
 // 🧠 «מה כדאי לי לעשות עכשיו?» — עד 3 פעולות, מנתונים קיימים בלבד (בלי RPC חדש).
 // module → פותח מודול במגירה · link → ניווט. center = תוצאת my_center שכבר נטענה.
 export async function getNextActions({ center } = {}) {
@@ -41,6 +47,15 @@ export async function getNextActions({ center } = {}) {
       }
     } catch { /* noop */ }
   }
+
+  // 1.5) אונבורדינג לסוכן האישי — חבר וואטסאפ (רק אם מחובר-חשבון ואין עדיין טלפון מקושר).
+  // פעולה חד-פעמית: נעלמת ברגע שמחברים. מזינה את «עולם הסוכן האישי».
+  try {
+    const linked = await getMyLinkedPhones();
+    if (Array.isArray(linked) && linked.length === 0) {
+      out.push({ icon: "🟢", text: "חבר את הוואטסאפ שלך — כדי שהסוכן האישי יזהה אותך", cta: "לחיבור", module: "whatsapp" });
+    }
+  } catch { /* noop */ }
 
   // 2) מחקר פעיל (מ-my_center שכבר נטען)
   if ((center?.research_items ?? 0) > 0) {

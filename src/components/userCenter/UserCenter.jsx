@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -94,8 +94,8 @@ export default function UserCenter() {
     let alive = true;
     supabase.rpc("my_center").then(({ data }) => { if (alive) setCenter(data || {}); }).catch(() => {});
     getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
-    // 🎁 מענק-מייסד ממתין → נתבע אוטומטית (idempotent), ואז טוענים את היתרה
-    claimFoundingGrants().then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
+    // 🎁 מענק-מייסד ממתין + ☀️ קרדיט-יומי → נתבעים אוטומטית (idempotent), ואז טוענים את היתרה
+    Promise.all([claimFoundingGrants(), claimDailyCredit()]).then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
     return () => { alive = false; };
   }, [isOpen, user]);
 
@@ -116,7 +116,7 @@ export default function UserCenter() {
 
   if (!user) return null;
   const goto = (link) => { close(); if (link) nav(link); };
-  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto });
+  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto, setActive });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
   const isPublisher = center?.is_publisher;
@@ -333,7 +333,7 @@ function BotsTeamPanel({ T, goto }) {
 }
 
 // ◆ הקרדיטים שלי — יתרה + ספר-תנועות (בהרצה). credit_ledger own-read.
-const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
+const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
 function CreditsPanel({ T }) {
   const [ledger, setLedger] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -365,6 +365,18 @@ function CreditsPanel({ T }) {
       ) : (
         <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7 }}>עדיין אין תנועות. פעילות באתר תתחיל לצבור קרדיטים (בהרצה).</div>
       )}
+      {/* איך צוברים — שקיפות על אירועי-הצבירה החיים (בהרצה) */}
+      <div style={{ marginTop: 16, fontWeight: 800, fontSize: 13, marginBottom: 7 }}>איך צוברים</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {[["🟢 חיבור וואטסאפ", "+100", "פעם אחת"], ["☀️ כניסה יומית", "+5", "כל יום"], ["🏛️ מענק חוקר מייסד", "+5,000", "לחוקרים ותיקים"]].map(([k, v, note], i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: `1px solid ${T.line}` }}>
+            <span style={{ fontSize: 12.5, color: T.ink, flex: 1 }}>{k}</span>
+            <span style={{ fontSize: 10.5, color: T.sub }}>{note}</span>
+            <span style={{ fontWeight: 800, color: "#2e9e5b", fontSize: 12.5, minWidth: 52, textAlign: "left" }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 8, fontSize: 11, color: T.sub, lineHeight: 1.6 }}>עוד דרכי-צבירה (מחקר, שיתוף, רמזים) — בקרוב. הכל בהרצה כדי ללמוד מה עובד.</div>
     </div>
   );
 }
@@ -386,8 +398,9 @@ const WA_ERR = {
 };
 function waErr(e) { return WA_ERR[e] || "משהו השתבש. נסה שוב."; }
 
-function WhatsAppPanel({ T, goto }) {
+function WhatsAppPanel({ T, goto, setActive }) {
   const [linked, setLinked] = useState(null);   // רשימת טלפונים מקושרים
+  const [mem, setMem] = useState(null);          // 🧬 מה הסוכן כבר יודע (get_my_wa_memory)
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState("idle");      // idle | code_sent
@@ -396,7 +409,11 @@ function WhatsAppPanel({ T, goto }) {
   const [masked, setMasked] = useState("");
 
   const reload = useCallback(() => {
-    getMyLinkedPhones().then(l => setLinked(l)).catch(() => setLinked([]));
+    getMyLinkedPhones().then(l => {
+      setLinked(l);
+      if (Array.isArray(l) && l.length) getMyWaMemory(6).then(setMem).catch(() => setMem([]));
+      else setMem([]);
+    }).catch(() => setLinked([]));
   }, []);
   useEffect(() => { reload(); }, [reload]);
 
@@ -462,6 +479,23 @@ function WhatsAppPanel({ T, goto }) {
         </div>
       )}
 
+      {/* 🧬 הסוכן כבר מכיר אותך — תגמול על החיבור (מזכיר שהזיכרון נפתח) */}
+      {linked && linked.length > 0 && mem && mem.length > 0 && (
+        <div style={{ background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <span style={{ fontSize: 15 }}>🧬</span>
+            <span style={{ fontWeight: 800, fontSize: 13, color: T.acc }}>הסוכן האישי כבר מכיר אותך</span>
+            <span style={{ marginInlineStart: "auto", fontSize: 11, fontWeight: 800, color: T.acc, background: T.card, borderRadius: 999, padding: "2px 9px" }}>{mem.length}+ דברים</span>
+          </div>
+          <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.55, marginTop: 6 }}>
+            «{((mem[0].topic ? mem[0].topic + " — " : "") + (mem[0].content || "")).slice(0, 90)}…»
+          </div>
+          {setActive && (
+            <button onClick={() => setActive("bots")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: "6px 0 0", fontFamily: "inherit", fontSize: 12.5 }}>🧠 מה הבוטים זוכרים עליי ←</button>
+          )}
+        </div>
+      )}
+
       {/* טופס חיבור */}
       <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>
         {linked && linked.length ? "חיבור מספר נוסף" : "חיבור מספר וואטסאפ"}
@@ -509,7 +543,7 @@ function WhatsAppPanel({ T, goto }) {
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
-export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto }) {
+export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto, setActive }) {
   const c = center || {};
   const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
   return [
@@ -551,7 +585,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "bots", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
-    { id: "whatsapp", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} /> },
+    { id: "whatsapp", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
