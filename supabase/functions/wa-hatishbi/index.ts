@@ -61,10 +61,11 @@ async function optGematria(text: string): Promise<string> {
   return lines.length?`גימטריה (להתייחס במילים אם רלוונטי):\n`+lines.join('\n'):'';
 }
 
+// v4: קורא מ-agent_user_memory (זיכרון אישי מאוחד, פרטי) במקום yiska_* — נתונים זהים, אפס הבדל למשתמש.
 async function yiskaContext(): Promise<string> {
   const p: string[]=[];
-  try { const {data}=await sb.from('yiska_method_notes').select('topic,claim').order('created_at',{ascending:false}).limit(6); if(data?.length) p.push('מה שכבר ידוע על יסכה:\n'+data.map((r:any)=>`• ${r.topic}: ${(r.claim||'').slice(0,80)}`).join('\n')); } catch {}
-  try { const {data}=await sb.from('yiska_research_questions').select('question_text').eq('open_thread',true).order('asked_at',{ascending:false}).limit(4); if(data?.length) p.push('שאלות פתוחות (אל תחזור):\n'+data.map((r:any)=>`• ${r.question_text}`).join('\n')); } catch {}
+  try { const {data}=await sb.from('agent_user_memory').select('topic,content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','research_note').order('created_at',{ascending:false}).limit(6); if(data?.length) p.push('מה שכבר ידוע על יסכה:\n'+data.map((r:any)=>`• ${r.topic}: ${(r.content||'').slice(0,80)}`).join('\n')); } catch {}
+  try { const {data}=await sb.from('agent_user_memory').select('content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','conversation').order('created_at',{ascending:false}).limit(4); if(data?.length) p.push('שאלות פתוחות (אל תחזור):\n'+data.map((r:any)=>`• ${r.content}`).join('\n')); } catch {}
   return p.join('\n\n');
 }
 
@@ -104,8 +105,8 @@ function extractParts(raw: string): {reply:string;learnings:any[];question:strin
 }
 
 async function saveLearnings(learnings:any[],question:string|null) {
-  for(const l of learnings.slice(0,4)){if(!l?.topic)continue;try{await sb.rpc('fn_record_yiska_note',{p_topic:String(l.topic).slice(0,100),p_claim:String(l.claim||'').slice(0,500),p_interpretation:String(l.interpretation||'').slice(0,800)});}catch{}}
-  if(question){try{await sb.rpc('fn_add_yiska_question',{p_question:question.slice(0,500)});}catch{}}
+  for(const l of learnings.slice(0,4)){if(!l?.topic)continue;try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'research_note',p_content:String(l.claim||'').slice(0,500),p_topic:String(l.topic).slice(0,100),p_visibility:'private',p_source:'wa',p_data:{interpretation:String(l.interpretation||'').slice(0,800)}});}catch{}}
+  if(question){try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'conversation',p_content:question.slice(0,500),p_visibility:'private',p_source:'wa'});}catch{}}
 }
 
 function thread(msgs:any[],uptoTs:number):string{

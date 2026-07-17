@@ -139,24 +139,19 @@ const URIEL_SYSTEM =
   "\nפורמט: קודם המענה המלא כטקסט רגיל. אחר ###למידות###\n" +
   '{"learnings":[{"word":"מילה","decomposed_form":"הצורה","interpretation":"מה למדנו"}],"question_asked":"השאלה"}';
 
-async function letterKey(): Promise<string> {
-  try {
-    const { data } = await sb.from("christina_decomposition_rules").select("hebrew_letter, meaning_in_her_system").order("hebrew_letter");
-    if (data?.length) return "מפתח האותיות שלה:\n" + data.map((r: any) => `${r.hebrew_letter}=${(r.meaning_in_her_system || "").slice(0, 60)}`).join(" | ");
-  } catch { return ""; }
-  return "";
-}
+// v13: קורא מ-agent_user_memory (זיכרון אישי מאוחד) במקום christina_* — נתונים זהים, אפס הבדל למשתמש.
 async function buildContext(text: string): Promise<string> {
   const parts: string[] = [];
-  const key = await letterKey(); if (key) parts.push(key);
-  try {
-    const { data } = await sb.from("christina_letter_combinations").select("hebrew_word, decomposed_form, interpretation").order("created_at", { ascending: false }).limit(8);
-    if (data?.length) parts.push("פירוקים אחרונים:\n" + data.map((r: any) => `• ${r.hebrew_word} = ${r.decomposed_form}: ${(r.interpretation||"").slice(0,120)}`).join("\n"));
-  } catch { /* noop */ }
-  try {
-    const { data } = await sb.from("christina_research_questions").select("question_text").order("asked_at", { ascending: false }).limit(6);
-    if (data?.length) parts.push("שאלות שכבר נשאלו (אל תחזור):\n" + data.map((r: any) => `• ${r.question_text}`).join("\n"));
-  } catch { /* noop */ }
+  const { data: md } = await sb.from("agent_user_memory").select("topic,content,data,created_at")
+    .eq("agent", "uriel").eq("user_ref", CHRISTINA).eq("memory_type", "method_discovery");
+  const rows = md || [];
+  const rules = rows.filter((r: any) => r.data?.subtype === "letter_rule").sort((a: any, b: any) => String(a.topic).localeCompare(String(b.topic)));
+  if (rules.length) parts.push("מפתח האותיות שלה:\n" + rules.map((r: any) => `${r.topic}=${(r.content || "").slice(0, 60)}`).join(" | "));
+  const combos = rows.filter((r: any) => r.data?.subtype === "word_decomposition").sort((a: any, b: any) => (a.created_at < b.created_at ? 1 : -1)).slice(0, 8);
+  if (combos.length) parts.push("פירוקים אחרונים:\n" + combos.map((r: any) => `• ${r.topic} = ${r.data?.decomposed_form || ""}: ${(r.content || "").slice(0,120)}`).join("\n"));
+  const { data: q } = await sb.from("agent_user_memory").select("content,created_at")
+    .eq("agent", "uriel").eq("user_ref", CHRISTINA).eq("memory_type", "conversation").order("created_at", { ascending: false }).limit(6);
+  if (q?.length) parts.push("שאלות שכבר נשאלו (אל תחזור):\n" + q.map((r: any) => `• ${r.content}`).join("\n"));
   const gem = await optionalGematria(text); if (gem) parts.push(gem);
   return parts.join("\n\n");
 }
@@ -210,9 +205,9 @@ async function urielReply(text: string, thread: string): Promise<{ reply: string
 async function saveLearnings(learnings: any[], question: string | null) {
   for (const l of learnings.slice(0, 5)) {
     if (!l?.word) continue;
-    try { await sb.rpc("fn_record_christina_word_decomposition", { p_word: String(l.word).slice(0,100), p_decomposed_form: String(l.decomposed_form||"").slice(0,300), p_interpretation: String(l.interpretation||"").slice(0,800), p_context: "auto-learned by uriel" }); } catch { /* noop */ }
+    try { await sb.rpc("fn_mem_add", { p_user: CHRISTINA, p_agent: "uriel", p_memory_type: "method_discovery", p_content: String(l.interpretation||"").slice(0,800), p_topic: String(l.word).slice(0,100), p_visibility: "private", p_source: "wa", p_data: { decomposed_form: String(l.decomposed_form||"").slice(0,300), subtype: "word_decomposition" } }); } catch { /* noop */ }
   }
-  if (question) { try { await sb.rpc("fn_add_research_question", { p_question: question.slice(0,500), p_category: "decomposition_logic" }); } catch { /* noop */ } }
+  if (question) { try { await sb.rpc("fn_mem_add", { p_user: CHRISTINA, p_agent: "uriel", p_memory_type: "conversation", p_content: question.slice(0,500), p_visibility: "private", p_source: "wa" }); } catch { /* noop */ } }
 }
 
 async function autoReply(nowSec: number): Promise<number> {
