@@ -1,4 +1,6 @@
-// 🤖 wa-christina (רזיאל) — v20 — 17.7.2026 — + שכבת זהות+זיכרון (Memory≠Response)
+// 🤖 wa-christina (רזיאל) — v22 — 17.7.2026 — welcome יזום + שומר «לא לשלוח למי שכבר דיברנו איתו»
+// v22: sendProactiveWelcomes מדלג על מקושר עם היסטוריית raziel_dm קיימת (לא לשלוח פעמיים למי שדיברנו).
+// v21: sendProactiveWelcomes — מקושר חדש (wa_account_links.welcomed_at is null) מקבל DM-פתיחה פעם אחת.
 // v20: DM-concierge למקושרים (welcome + זיכרון אישי מלא) · קבוצות היברידי (טריגר + יוזמה חכמה) ·
 //      זיכרון פסיבי לכולם (fn_raziel_remember) · הקשר לפני תשובה (fn_raziel_context, פרטיות אכופה).
 // v19: sendVerified + bot_outbox — שליחה שנכשלת נשלחת שוב, לא אובדת.
@@ -282,11 +284,38 @@ async function handleDM(nowSec: number): Promise<number> {
   return n;
 }
 
+// === welcome יזום על קישור — פעם אחת לכל מקושר חדש (opt-in: המשתמש קישר בעצמו) ===
+async function sendProactiveWelcomes(): Promise<number> {
+  const { data: links } = await sb.from("wa_account_links").select("phone").is("welcomed_at", null).limit(10);
+  let n = 0;
+  const now = new Date().toISOString();
+  for (const l of (links || [])) {
+    const phone = (l as any).phone as string; if (!phone) continue;
+    const chatId = phone + "@c.us";
+    // ⛔ אל תשלח welcome למי שכבר דיברנו איתו ב-DM — סמן welcomed ודלג
+    const { data: prior } = await sb.from("wa_bot_log").select("id").eq("group_id", chatId).eq("action", "raziel_dm").limit(1).maybeSingle();
+    if (prior) { await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null); continue; }
+    // מסמנים ראשון (אטומי: רק אם עדיין null) כדי שלא יישלח פעמיים בין ריצות
+    const { data: claimed } = await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null).select("phone");
+    if (!claimed || !claimed.length) continue; // ריצה אחרת כבר תפסה
+    const msg = "שלום 🙏 חיברת את הוואטסאפ לחשבון שלך בסוד 1820.\nאני רזיאל — השער למערכת המחקר. אפשר לחקור איתי מספרים, מילים, שפות והצלבות ועוד.\nבמה נתחיל?\n— רזיאל · סוד 1820";
+    const okId = await sendVerified({ chatId, message: msg });
+    if (okId) {
+      await logBot({ group_id: chatId, msg_id: "welcome:"+phone, sender: phone, sender_name: "DM", text_in: "[link]", reply_out: "[proactive-welcome]", action: "raziel_dm" });
+      n++;
+    } else {
+      await enqueueOutbox("raziel-welcome:"+phone, chatId, msg, "[link]"); // נכשל → יישלח שוב דרך התור
+    }
+  }
+  return n;
+}
+
 Deno.serve(async(req)=>{
   const u=new URL(req.url);
   if (u.searchParams.get("s")!==SECRET) return new Response("forbidden",{status:403});
   trace=[]; const nowSec=Date.now()/1000; let n=0;
   try { await retryOutbox(); } catch(e){ trace.push({src:"outbox",e:String(e)}); }
+  try { n+=await sendProactiveWelcomes(); } catch(e){ trace.push({src:"welcome",e:String(e)}); }
   try { n+=await handleDM(nowSec); } catch(e){ trace.push({src:"dm",e:String(e)}); }
   for (const g of OPEN_GROUPS) { try { n+=await handleGroup(g,nowSec); } catch(e){ trace.push({group:g,e:String(e)}); } }
   try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); }
