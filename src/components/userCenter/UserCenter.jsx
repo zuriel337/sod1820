@@ -293,7 +293,7 @@ function AgentCard({ T, a, stats }) {
           <div style={{ fontWeight: 800, fontSize: 13.5 }}>
             {a.name}
             {isOrch && <span style={{ marginInlineStart: 6, fontSize: 10.5, fontWeight: 800, color: T.gold, background: T.goldSoft, borderRadius: 999, padding: "1px 7px" }}>מתאם</span>}
-            {a.phase === "beta" && <span style={{ marginInlineStart: 6, fontSize: 10, fontWeight: 700, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 7px" }}>בהרצה</span>}
+            {a.phase === "beta" && <span style={{ marginInlineStart: 6, fontSize: 10, fontWeight: 700, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 7px" }}>לומד</span>}
           </div>
           <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, marginTop: 2 }}>{a.domain}</div>
         </div>
@@ -332,8 +332,8 @@ function BotsTeamPanel({ T, goto }) {
   return (
     <div>
       <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px", marginBottom: 12 }}>
-        <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold }}>🧪 בהרצה — מעבדת המחקר החיה</div>
-        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginTop: 3 }}>צוות חוקרי-AI, כל אחד בהתמחות שלו, שכולם תורמים לאותו עץ-ידע. מטטרון מתאם.</div>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold }}>🔬 צוות המחקר שלך</div>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginTop: 3 }}>כמה עוזרי-מחקר חכמים עובדים מאחורי הקלעים — כל אחד מתמחה בתחום אחר. ככל שתחקרו יותר, כך הם מכירים אתכם טוב יותר ועוזרים לגלות.</div>
       </div>
       {roster == null ? (
         <div style={{ color: T.sub, fontSize: 12.5, padding: "6px 0" }}>טוען…</div>
@@ -345,7 +345,7 @@ function BotsTeamPanel({ T, goto }) {
       {/* 🧠 מה הבוטים זוכרים עליי — פרטי (RLS own-read). מוצג רק אם יש. */}
       {mem && mem.length > 0 && (
         <div style={{ marginTop: 14 }}>
-          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>🧠 מה הבוטים זוכרים עליי <span style={{ fontSize: 10.5, fontWeight: 700, color: T.sub }}>(פרטי)</span></div>
+          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>🧠 מה הצוות זוכר עליי <span style={{ fontSize: 10.5, fontWeight: 700, color: T.sub }}>(פרטי — רק אני רואה)</span></div>
           <div style={{ display: "grid", gap: 7 }}>
             {mem.map(m => (
               <div key={m.id} style={{ background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "8px 11px" }}>
@@ -357,8 +357,8 @@ function BotsTeamPanel({ T, goto }) {
         </div>
       )}
       <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>
-        המערכת בהרצה. רוצה יותר מידע?{" "}
-        <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>דבר עם צוריאל ←</button>
+        הצוות רק מתחיל להכיר אתכם — ככל שתחקרו, כך ייטב.{" "}
+        <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>יש שאלה או רעיון? כתבו לנו ←</button>
       </div>
     </div>
   );
