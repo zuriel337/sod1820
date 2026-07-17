@@ -119,7 +119,15 @@ export default function UserCenter() {
   const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto, setActive });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
-  const isPublisher = center?.is_publisher;
+  // 🪪 זהות: חוקר (is_researcher) · כותב (is_writer) — משולבים. אדמין גובר.
+  const identityLabel = (() => {
+    if (isAdmin) return "👑 מנהל";
+    const r = center?.is_researcher, w = center?.is_writer;
+    if (r && w) return "🔬 חוקר · ✍️ כותב";
+    if (r) return "🔬 חוקר היכל";
+    if (w) return "✍️ כותב";
+    return "חוקר רשום";
+  })();
 
   return (
     <>
@@ -152,7 +160,7 @@ export default function UserCenter() {
                 {profile?.display_name || profile?.username || "החוקר"}
               </div>
               <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>
-                {isPublisher ? "👑 כותב · VIP" : isAdmin ? "👑 מנהל" : "חוקר רשום"}
+                {identityLabel}
               </div>
             </div>
             <button onClick={close} aria-label="סגור" style={{ background: "none", border: "none", color: T.sub, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>✕</button>
@@ -552,7 +560,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       render: () => <NotificationsPanel T={T} onUnread={onUnread} goto={goto} /> },
     { id: "profile", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
-        <Row T={T} k="סטטוס" v={c.is_publisher ? "👑 כותב · VIP" : "חוקר רשום"} />
+        <Row T={T} k="סטטוס" v={isAdmin ? "👑 מנהל" : (c.is_researcher && c.is_writer) ? "🔬 חוקר · ✍️ כותב" : c.is_researcher ? "🔬 חוקר היכל" : c.is_writer ? "✍️ כותב" : "חוקר רשום"} />
         {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="שמורים" v={c.saved ?? 0} />

@@ -73,6 +73,10 @@ export function AuthProvider({ children }) {
       const sv = localStorage.getItem('sod_visitor');
       if (sv) supabase.rpc('link_visitor_identity', { p_visitor: sv });
     } catch { /* ignore */ }
+    // ◆ קרדיטים בהתחברות (idempotent) — מענק-מייסד ממתין + קרדיט-יומי. כך הם מוחלים
+    // גם למי שלא פותח את האזור-האישי (במקום להסתמך רק על פתיחת-המגירה).
+    try { supabase.rpc('claim_my_founding_grants'); } catch { /* ignore */ }
+    try { supabase.rpc('claim_daily_credit'); } catch { /* ignore */ }
   }, [user]);
 
   const value = {
