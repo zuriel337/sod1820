@@ -24,6 +24,7 @@ import {
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
+import { getPendingContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
@@ -62,6 +63,7 @@ const TABS = [
   { key: "findings", label: "🔬 ממצאים" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
+  { key: "contribmod", label: "💬 אישור תגובות" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -88,7 +90,7 @@ const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
   { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "walink", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
-  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
+  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "contribmod", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
   { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
   { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
@@ -235,6 +237,7 @@ export default function AdminPage() {
       {tab === "findings" && <FindingsTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
+      {tab === "contribmod" && <ContribModTab />}
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
@@ -2526,6 +2529,49 @@ function UsersTab() {
               <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 💬 אישור תגובות — תור התרומות הממתינות (כולל אנונימיות). אישור → פומבי · הסתרה → נדחה.
+function ContribModTab() {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const load = () => getPendingContributions(150).then(r => setRows(Array.isArray(r) ? r : [])).catch(() => setRows([]));
+  useEffect(() => { load(); }, []);
+  const approve = async (id) => { setBusy(id); try { await approveContribution(id); setRows(rs => rs.filter(r => r.id !== id)); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  const hide = async (id) => { setBusy(id); try { await moderateContribution(id, "hidden"); setRows(rs => rs.filter(r => r.id !== id)); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>💬 אישור תגובות {rows ? `· ${rows.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          תרומות ממתינות מכל האתר — כולל <b style={{ color: C.goldLight }}>תגובות אורחים (לא-רשומים)</b>. אורח מוגבל ל-5 תגובות לשעה. אישור → מופיע פומבי · הסתרה → נדחה.
+        </div>
+      </div>
+      {!rows ? <Loading /> : rows.length === 0 ? <Empty>אין תגובות ממתינות. ✓</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map(r => {
+            const im = intentMeta(r.intent);
+            return (
+              <div key={r.id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.4)", display: "grid", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+                  <span style={{ ...pill(C.gold) }}>{im.emoji} {im.label}</span>
+                  <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700 }} dir="rtl">✍️ {r.author_name || "אורח"}{!r.author_user_id && <span style={{ color: C.goldDim, fontWeight: 400 }}> · אורח</span>}</span>
+                  {r.target_id && <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5 }}>{r.target_type === "number" ? "🔢" : "🔖"} {r.target_id}</span>}
+                  <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, marginInlineStart: "auto" }}>{timeAgoTs(r.created_at)}</span>
+                </div>
+                {r.title && <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }} dir="rtl">{r.title}</div>}
+                <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }} dir="rtl">{r.body}</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button disabled={busy === r.id} onClick={() => approve(r.id)} style={{ ...segBtn(true) }}>{busy === r.id ? "…" : "✅ אשר"}</button>
+                  <button disabled={busy === r.id} onClick={() => hide(r.id)} style={{ ...segBtn(false), color: "#e0796f", borderColor: "rgba(224,121,111,0.4)" }}>✖ הסתר</button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

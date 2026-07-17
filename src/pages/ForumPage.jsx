@@ -96,6 +96,35 @@ function PostCard({ c, P }) {
   );
 }
 
+// כרטיס חידוש בית-המדרש (insights) — מצביע לחידוש הקנוני בבית המדרש (לא העתק)
+function InsightCard({ c, P }) {
+  const [open, setOpen] = useState(false);
+  const body = stripHtml(c.body || "");
+  const long = body.length > 420;
+  return (
+    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        {badge(P.accentText, "💡 חידוש")}
+        {c.verified && badge(P.accent, "🔵 מאומת")}
+        {c.has_1820 && badge(P.accent, "✦ 1820")}
+        <span style={{ flex: 1 }} />
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
+      </div>
+      {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>{stripHtml(c.title)}</div>}
+      {body && (
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
+          {open || !long ? body : body.slice(0, 420) + "…"}
+        </div>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <b style={{ color: P.accentText }}>{c.author_name || "בית המדרש"}</b></span>
+        {long && <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>{open ? "▴ הסתר" : "▾ קרא עוד"}</button>}
+        <Link to={c.link || "/research?tool=midrash"} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>לחידוש המלא ←</Link>
+      </div>
+    </div>
+  );
+}
+
 export default function ForumPage() {
   const P = usePalette();
   const mode = useThemeMode();
@@ -112,6 +141,7 @@ export default function ForumPage() {
 
   // כמויות לכל סוג — קובעות אילו טאבים לחיצים (אפס → לא-לחיץ)
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
+  const insightCount = useMemo(() => (allItems || []).filter(it => it.kind === "insight").length, [allItems]);
   const intentCount = useMemo(() => {
     const m = {};
     (allItems || []).forEach(it => { if (it.kind === "contribution" && it.intent) m[it.intent] = (m[it.intent] || 0) + 1; });
@@ -122,6 +152,7 @@ export default function ForumPage() {
   const items = useMemo(() => {
     if (!allItems) return null;
     if (type === "post") return allItems.filter(it => it.kind === "post" && (!writer || it.author_name === writer));
+    if (type === "insight") return allItems.filter(it => it.kind === "insight");
     if (type) return allItems.filter(it => it.kind === "contribution" && it.intent === type);
     return allItems;
   }, [allItems, type, writer]);
@@ -161,6 +192,8 @@ export default function ForumPage() {
         <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
         <button disabled={postCount === 0} onClick={postCount === 0 ? undefined : () => pickType("post")}
           title={postCount === 0 ? "אין עדיין מאמרי כתבים" : undefined} style={chip(type === "post", postCount === 0)}>📜 מאמרי כתבים</button>
+        <button disabled={insightCount === 0} onClick={insightCount === 0 ? undefined : () => pickType("insight")}
+          title={insightCount === 0 ? "אין עדיין חידושים" : undefined} style={chip(type === "insight", insightCount === 0)}>💡 חידושי בית המדרש</button>
         {INTENTS.filter(i => i.key !== "תגובה").map(i => {
           const cnt = intentCount[i.key] || 0;
           return (
@@ -191,7 +224,7 @@ export default function ForumPage() {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 13 }}>
-          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} />)}
+          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} />)}
         </div>
       )}
     </div>

@@ -106,7 +106,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [st, setSt] = useState("idle");
-  const live = intentMeta(intent).live;
+  const live = anon ? false : intentMeta(intent).live;   // אנונימי → תמיד עובר אישור (לא מיידי)
 
   async function submit() {
     const t = body.trim(); if (!t) return;
@@ -116,7 +116,11 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
         authorName: anon ? (name.trim() || null) : null });
       setBody(""); setSt("done"); onDone?.(live);
       setTimeout(() => setSt("idle"), 2500);
-    } catch (e) { setSt("idle"); alert("שגיאה בשליחה: " + (e.message || e)); }
+    } catch (e) {
+      setSt("idle");
+      const m = String(e?.message || e);
+      alert(m.includes("rate_limited") ? "שלחת כמה תגובות ברצף — נסה שוב בעוד שעה 🙂" : "שגיאה בשליחה: " + m);
+    }
   }
 
   return (
@@ -146,7 +150,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
           color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, outline: "none" }} />
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9, flexWrap: "wrap" }}>
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, flex: 1 }}>
-          {live ? "💬 תגובה — עולה מיד" : "🔒 ידע — יעבור אישור לפני פרסום"}
+          {anon ? "🔒 כאורח — התגובה תופיע אחרי אישור מהיר" : live ? "💬 תגובה — עולה מיד" : "🔒 ידע — יעבור אישור לפני פרסום"}
         </span>
         {st === "done" && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{live ? "✓ פורסם" : "✓ נשלח לאישור"}</span>}
         <button onClick={submit} disabled={st === "sending" || !body.trim()} style={{ ...goldBtn(P), opacity: body.trim() ? 1 : 0.5, padding: "8px 22px", fontSize: 13.5 }}>
