@@ -6,7 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
-  linkContribution, approveContribution, moderateContribution,
+  linkContribution, approveContribution, moderateContribution, getForumFeed,
 } from "../lib/contributions.js";
 
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
@@ -63,7 +63,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       </div>
       {/* פעולות */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
-        {user && <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>}
+        <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>
         {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
         {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
         {isAdmin && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
@@ -100,10 +100,11 @@ function goldBtn(P) {
   return { cursor: "pointer", background: P.accentBtn, border: "none", color: P.onAccent || "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px" };
 }
 
-// ── מלחין: הוספת תרומה ──
-function Composer({ P, origin, target, replyTo, onDone }) {
-  const [intent, setIntent] = useState(replyTo ? "תגובה" : "חידוש");
+// ── מלחין: הוספת תרומה (רשומים + אנונימי) ──
+function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
+  const [intent, setIntent] = useState(replyTo ? "תגובה" : (anon ? "תגובה" : "חידוש"));
   const [body, setBody] = useState("");
+  const [name, setName] = useState("");
   const [st, setSt] = useState("idle");
   const live = intentMeta(intent).live;
 
@@ -111,7 +112,8 @@ function Composer({ P, origin, target, replyTo, onDone }) {
     const t = body.trim(); if (!t) return;
     setSt("sending");
     try {
-      await addContribution({ intent, origin, body: t, targetType: target.type, targetId: target.id, parentId: replyTo || null });
+      await addContribution({ intent, origin, body: t, targetType: target.type, targetId: target.id, parentId: replyTo || null,
+        authorName: anon ? (name.trim() || null) : null });
       setBody(""); setSt("done"); onDone?.(live);
       setTimeout(() => setSt("idle"), 2500);
     } catch (e) { setSt("idle"); alert("שגיאה בשליחה: " + (e.message || e)); }
@@ -119,7 +121,13 @@ function Composer({ P, origin, target, replyTo, onDone }) {
 
   return (
     <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
-      {!replyTo && (
+      {/* אנונימי — שם להצגה (לא חובה, ברירת-מחדל «אורח») */}
+      {anon && (
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="השם שלך (לא חובה) — יוצג ליד התגובה"
+          maxLength={40} style={{ width: "100%", boxSizing: "border-box", marginBottom: 9, background: P.card, border: `1px solid ${P.border}`,
+            borderRadius: 9, padding: "9px 12px", color: P.ink, fontFamily: F.body, fontSize: 13.5, outline: "none" }} />
+      )}
+      {!replyTo && !anon && (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
           {INTENTS.map(i => (
             <button key={i.key} onClick={() => setIntent(i.key)} style={{
@@ -132,7 +140,7 @@ function Composer({ P, origin, target, replyTo, onDone }) {
         </div>
       )}
       <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus={!!replyTo}
-        placeholder={replyTo ? "הוסיפו תגובה…" : `שתפו ${intentMeta(intent).label} — התרומה תיכנס ל«מחקר הקהילתי»`}
+        placeholder={replyTo ? "הוסיפו תגובה…" : anon ? "כתבו תגובה…" : `שתפו ${intentMeta(intent).label} — התרומה תיכנס ל«מחקר הקהילתי»`}
         style={{ width: "100%", boxSizing: "border-box", minHeight: replyTo ? 64 : 92, resize: "vertical",
           background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px",
           color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, outline: "none" }} />
@@ -155,12 +163,15 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
   const [items, setItems] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [showArchive, setShowArchive] = useState(false);
+  const [lastForum, setLastForum] = useState(null);   // ההודעה האחרונה בפורום (למצב-ריק)
 
   const load = useCallback(() => {
     if (!target?.id) return;
     getContributions(target.type, target.id).then(setItems).catch(() => setItems([]));
   }, [target?.type, target?.id]);
   useEffect(() => { load(); }, [load]);
+  // מצב-ריק → מציג את ההודעה האחרונה בפורום (מצביע, לא משכפל)
+  useEffect(() => { getForumFeed({ limit: 1 }).then(f => setLastForum(f && f[0])).catch(() => {}); }, []);
 
   if (!target?.id) return null;
   const list = items || [];
@@ -187,23 +198,33 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
         )}
       </div>
 
-      {user ? (
-        <Composer P={P} origin={origin} target={target} onDone={load} />
-      ) : (
-        <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "16px 15px", textAlign: "center" }}>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
-            הצטרפו כדי לתרום למחקר — חידוש, השערה, מקור או שאלה על {target.id}.
-          </div>
-          <Link to="/login" style={{ ...goldBtn(P), textDecoration: "none", padding: "9px 22px", fontSize: 13.5 }}>✨ התחברות / הרשמה חינם</Link>
+      {/* מלחין — פתוח לכולם. אנונימי מקבל שדה-שם ומגיב מיד; רשומים מקבלים את כל סוגי-הידע. */}
+      <Composer P={P} origin={origin} target={target} onDone={load} anon={!user} />
+      {!user && (
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, textAlign: "center", marginTop: -4 }}>
+          מגיבים כאורח — או <Link to="/login" style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }}>התחברו לפרופיל קבוע ✨</Link>
         </div>
       )}
 
       {items === null ? (
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, padding: 12 }}>טוען…</div>
       ) : !roots.length ? (
-        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, padding: "6px 4px" }}>
-          עדיין אין מחקר קהילתי על {target.id} — היו הראשונים לתרום. ✨
-        </div>
+        // מצב-ריק: במקום «אין מחקר» — ההודעה האחרונה בפורום, לחיצה עוברת לפורום
+        lastForum ? (
+          <Link to="/forum" style={{ textDecoration: "none", display: "block" }}>
+            <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 13, padding: "12px 15px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>🌐 מהפורום</span>
+                <span style={{ flex: 1 }} />
+                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{timeAgo(lastForum.created_at || lastForum.date)}</span>
+              </div>
+              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
+                {stripHtml(lastForum.title || lastForum.body || "").slice(0, 120) || "דיון חדש בפורום"}
+              </div>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 7 }}>לפורום המחקר ←</div>
+            </div>
+          </Link>
+        ) : null
       ) : (
         <div style={{ display: "grid", gap: 11 }}>
           {roots.map(c => (
@@ -212,7 +233,7 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
                 onReply={id => setReplyTo(replyTo === id ? null : id)} onChanged={load} />
               {replyTo === c.id && (
                 <div style={{ marginTop: 8, paddingInlineStart: 12 }}>
-                  <Composer P={P} origin={origin} target={target} replyTo={c.id} onDone={() => { setReplyTo(null); load(); }} />
+                  <Composer P={P} origin={origin} target={target} replyTo={c.id} anon={!user} onDone={() => { setReplyTo(null); load(); }} />
                 </div>
               )}
             </div>
