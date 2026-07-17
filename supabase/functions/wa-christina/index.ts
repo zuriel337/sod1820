@@ -1,4 +1,8 @@
-// 🤖 wa-christina (רזיאל) — v28 — 17.7.2026 — פתיח «שער למערכת המחקר» + תפריט אמוג'י אינטראקטיבי + מכסה מותאמת-אישית
+// 🤖 wa-christina (רזיאל) — v29 — 17.7.2026 — חיבור-חשבון בשיחה («יש לי כבר חשבון» → מייל → קוד → מקושר)
+// v29: אם אנונימי כותב «יש לי כבר חשבון» — רזיאל שואל מייל, שולח קוד-אימות (Supabase OTP למייל), ובאישור הקוד
+//      מקשר טלפון↔חשבון (wa_account_links) → הופך למקושר, בלי הגבלה, המחקר נשמר. State ב-raziel_link_flow.
+//      פרטיות: מאמת בעלות-מייל לפני קישור (לא קישור עיוור). לקוח-auth נפרד (anon) שלא מזהם את service_role.
+//      הבלוק רץ לפני ניתוב-אנגלית והשער (מייל/קוד לא ינותבו לגבריאל ולא ייחסמו במכסה). «ביטול» עוצר.
 // v28: פתיח חדש (בקשת צוריאל) — «אני השער למערכת המחקר של SOD1820» + 7 אפשרויות פתיחה עם אמוג'י (מספר/שם/פסוק/שפות/מילים/רמז/מחקר). חל על פתיח-אנונימי + פתיח-יזום-על-קישור.
 //      + raziel_quota: מכסה יומית מותאמת-אישית לאנונימי (למשל נאוה 972543204244 = 7 במקום 3). גוברת על free_per_day_anon בשער ובפתיח.
 // v27: פתיח משדר עוצמה (עולם רמזים, לא רק «מילה»). תיקון: מקושר לא נחסם בגלל פתירת-זהות מהבהבת (בדיקה ישירה מול הקישורים).
@@ -29,6 +33,12 @@ const RAZIEL_TRIGGER = /^(רזיאל[,:\s]|@רזיאל)/i;
 const LEARN_INTENT = /(ללמוד|תלמד|למד אותי|איך מחשב|שיטות|מה זה גימטרי|רוצה ללמוד)/i;
 const SERVICES_INTENT = /(מה אתה|מה אפשר|מה יש|שירות|יכולות|מה המערכ|מה זה סוד|תפריט|מה יש לכם|מה יש כאן|במה תוכל)/i;
 const EN_DOMINANT = (t: string) => (t.match(/[a-zA-Z]/g)||[]).length > (t.match(/[א-ת]/g)||[]).length * 1.5;
+// חיבור-חשבון בשיחה: מזהה «יש לי כבר חשבון» → מבקש מייל → קוד-אימות → מקשר טלפון↔חשבון (פרטיות: אימות בעלות-מייל)
+const ACCOUNT_INTENT = /(יש לי (כבר )?חשבון|כבר יש לי חשבון|כבר נרשמתי|כבר רשומ|יש לי משתמש|יש לי מנוי|רשומ באתר|נרשמתי לאתר|יש לי כרטיס|קיים לי חשבון|כבר חבר)/i;
+const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
+const CODE_RE = /\b(\d{6})\b/;
+const CANCEL_RE = /^(ביטול|בטל|עצור|לא עכשיו|אחר כך)\b/;
+const LINK_FLOW_TTL_MIN = 20;
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 let trace: any[] = [];
@@ -291,6 +301,35 @@ async function servicesText(): Promise<string> {
   } catch { return ""; }
 }
 
+// === חיבור-חשבון בשיחה (מאומת במייל) — state ב-raziel_link_flow ===
+// לקוח-auth נפרד (anon key, בלי persist) כדי לא לזהם את לקוח ה-service_role של הבוט
+function authClient() {
+  return createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { auth: { persistSession: false, autoRefreshToken: false } });
+}
+async function clearLinkFlow(phone: string) { try { await sb.from("raziel_link_flow").delete().eq("phone", phone); } catch { /* noop */ } }
+async function getLinkFlow(phone: string): Promise<any | null> {
+  const { data } = await sb.from("raziel_link_flow").select("*").eq("phone", phone).maybeSingle();
+  if (!data) return null;
+  if ((Date.now() - new Date((data as any).updated_at).getTime()) / 60000 > LINK_FLOW_TTL_MIN) { await clearLinkFlow(phone); return null; }
+  return data;
+}
+async function setLinkFlow(phone: string, state: string, email?: string | null, attempts = 0) {
+  try { await sb.from("raziel_link_flow").upsert({ phone, state, email: email ?? null, attempts, updated_at: new Date().toISOString() }, { onConflict: "phone" }); } catch { /* noop */ }
+}
+async function startEmailOtp(email: string): Promise<boolean> {
+  try { const { error } = await authClient().auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); return !error; } catch { return false; }
+}
+async function verifyEmailOtpAndLink(phone: string, email: string, code: string): Promise<boolean> {
+  try {
+    const { data, error } = await authClient().auth.verifyOtp({ email, token: code.replace(/[^0-9]/g, ""), type: "email" });
+    const uid = (data as any)?.user?.id;
+    if (error || !uid) return false;
+    const nowIso = new Date().toISOString();
+    await sb.from("wa_account_links").upsert({ phone, user_id: uid, verified_at: nowIso, welcomed_at: nowIso }, { onConflict: "phone" });
+    return true;
+  } catch { return false; }
+}
+
 // === שער ציבורי: DM מכל שולח, לפי raziel_dm_policy ===
 async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   let hist; try { hist = await waAdminGet("lastIncomingMessages", {}); } catch { return 0; }
@@ -323,6 +362,66 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (!linked) {
       if (!policy?.answer_everyone) continue;
       if (goLive === null || Number(m.timestamp||0) <= goLive) continue;
+    }
+
+    // === חיבור-חשבון בשיחה (לפני ניתוב-אנגלית והשער — מייל/קוד לא ינותבו לגבריאל ולא ייחסמו במכסה) ===
+    const regUrlLink = policy.register_url || (SITE + "/login?src=raziel");
+    if (!linked) {
+      const flow = await getLinkFlow(phone);
+      if (flow && CANCEL_RE.test(text.trim())) {
+        await clearLinkFlow(phone);
+        const msg = `בסדר גמור, עצרנו את החיבור 🙂 אפשר להמשיך לחקור חופשי, ולחבר מתי שתרצה. במה נתחיל?\n— רזיאל · סוד 1820`;
+        const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
+        await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-cancel]", action: "raziel_dm" });
+        continue;
+      }
+      if (flow?.state === "awaiting_email") {
+        const em = (text.match(EMAIL_RE) || [])[0];
+        let msg: string;
+        if (em) {
+          const sent = await startEmailOtp(em.toLowerCase());
+          if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין 🙏 שלחתי קוד בן 6 ספרות למייל ${em}. מה הקוד? (תקף לכמה דקות)\nאם זה לא המייל הנכון — שלח/י מייל אחר, או 'ביטול'.\n— רזיאל · סוד 1820`; }
+          else { await clearLinkFlow(phone); msg = `לא הצלחתי למצוא חשבון עם ${em} 🤔 אם יש לך מייל אחר בחשבון — שלח/י אותו ונחבר. ואם עוד אין חשבון, ההרשמה כאן ורגע וזה מוכן: ${regUrlLink}\n— רזיאל · סוד 1820`; }
+        } else {
+          msg = `כדי לחבר את הוואטסאפ לחשבון — מה המייל שאיתו נרשמת לאתר? (או 'ביטול')\n— רזיאל · סוד 1820`;
+        }
+        const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
+        await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-email]", action: "raziel_dm" });
+        continue;
+      }
+      if (flow?.state === "awaiting_code") {
+        const code = (text.match(CODE_RE) || [])[1];
+        const otherEmail = (text.match(EMAIL_RE) || [])[0];
+        let msg: string; let outcome = "[link-code]";
+        if (code && flow.email) {
+          if (await verifyEmailOtpAndLink(phone, flow.email, code)) {
+            await clearLinkFlow(phone);
+            msg = `מחובר! 🎉 מעכשיו אתה מזוהה — בלי הגבלת שאלות, וכל המחקר שלך נשמר בחשבון. אז ספר לי: איזה מספר, שם או רמז מסקרן אותך עכשיו?\n— רזיאל · סוד 1820`;
+            outcome = "[link-ok]";
+          } else {
+            const att = (flow.attempts || 0) + 1;
+            if (att >= 4) { await clearLinkFlow(phone); msg = `הקוד לא הסתדר כמה פעמים 🙏 אפשר לנסות שוב מאוחר יותר, או לחבר דרך האתר: ${regUrlLink}\nבינתיים אני כאן לכל שאלה.\n— רזיאל · סוד 1820`; outcome = "[link-fail]"; }
+            else { await setLinkFlow(phone, "awaiting_code", flow.email, att); msg = `הקוד לא תואם 🤔 נסה/י שוב — מה 6 הספרות שהגיעו למייל? (או 'ביטול')\n— רזיאל · סוד 1820`; outcome = "[link-code-retry]"; }
+          }
+        } else if (otherEmail) {
+          const sent = await startEmailOtp(otherEmail.toLowerCase());
+          if (sent) { await setLinkFlow(phone, "awaiting_code", otherEmail.toLowerCase()); msg = `שלחתי קוד חדש ל-${otherEmail}. מה 6 הספרות?\n— רזיאל · סוד 1820`; }
+          else { await clearLinkFlow(phone); msg = `לא מצאתי חשבון עם ${otherEmail} 🤔 להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
+          outcome = "[link-email]";
+        } else {
+          msg = `כמעט שם 🙏 שלחתי קוד בן 6 ספרות למייל שלך — מה הקוד? (או 'ביטול')\n— רזיאל · סוד 1820`;
+        }
+        const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
+        await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: outcome, action: "raziel_dm" });
+        continue;
+      }
+      if (!flow && ACCOUNT_INTENT.test(text)) {
+        await setLinkFlow(phone, "awaiting_email");
+        const msg = `מעולה 🙏 בוא נחבר את הוואטסאפ לחשבון הקיים שלך — מה המייל שאיתו נרשמת לאתר? אשלח קוד קצר לאימות, ורגע וזה מחובר (בלי הגבלה, וכל המחקר נשמר).\n— רזיאל · סוד 1820`;
+        const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
+        await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-start]", action: "raziel_dm" });
+        continue;
+      }
     }
 
     // ניתוב אנגלית → גבריאל
