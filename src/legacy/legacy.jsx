@@ -14,6 +14,7 @@ import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
 import ForumUpdatesBox from "../components/ForumUpdatesBox.jsx";
+import Discourse from "../components/Discourse.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
@@ -4286,7 +4287,7 @@ function SpotimChatPage() {
             <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
           </div>
 
-          {/* אלמנט השיחה התקני של Spot.IM — נשמר אותו post-id כמו באתר הישן כדי לטעון את אותה שיחה */}
+          {/* הצ'אט הקהילתי (Spot.IM) — «מחקר קהילתי» הוסר מכאן לבקשת צוריאל (17.7.2026). */}
           <div
             data-spotim-module="conversation"
             data-post-id="POST_ID_GOES_HERE"
@@ -4891,6 +4892,12 @@ function PostPageBySlug({ onNav }) {
 
             {/* מעקב בתוך הפוסט — הרשמה לעדכונים לפי קטגוריה/כותב (עץ אחד: subscribers + notification_prefs) */}
             <PostFollowBox categories={cats} author={author} pc={pc} />
+
+            {/* 💬 מבנה-התגובות שלנו (Discourse הקנוני) — מעל הצ'אט הישן, לא במקומו. תגובה על הפוסט.
+                בלי archive (התגובות הישנות מרונדרות במקטע הנפרד למטה) — כדי לא לשכפל. */}
+            <div style={{ marginTop: 48 }}>
+              <Discourse target={{ type: "post", id: String(post.wp_id) }} origin="post" archive={[]} />
+            </div>
 
             <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
             {/* ── COMMENTS ── */}

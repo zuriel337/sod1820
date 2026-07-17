@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
@@ -7,6 +7,7 @@ import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
@@ -111,6 +112,7 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
 
 export default function ContributorPage() {
   const { slug } = useParams();
+  const nav = useNavigate();
   const P = usePalette();
   const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
@@ -153,12 +155,28 @@ export default function ContributorPage() {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
-      .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
+      .then(({ data, error }) => {
+        if (!alive) return;
+        if (error || !data) { setErr(true); return; }
+        // 🌳 עץ אחד: דף-כותב שאוחד → הפניה לעמוד הקנוני
+        if (data.merged_into && data.merged_into !== slug) { nav(`/community/researcher/${data.merged_into}`, { replace: true }); return; }
+        setC(data);
+      })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
-  }, [slug]);
+  }, [slug, nav]);
+
+  // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
+  const [level, setLevel] = useState(null);
+  useEffect(() => {
+    if (!c?.user_id) return;
+    let alive = true;
+    supabase.rpc("research_level_of", { p_user: c.user_id })
+      .then(({ data }) => { if (alive) setLevel(data || null); }).catch(() => {});
+    return () => { alive = false; };
+  }, [c?.user_id]);
 
   // דף נעול / בבנייה לא נכנס לאינדקס של גוגל
   useEffect(() => {
@@ -315,6 +333,16 @@ export default function ContributorPage() {
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
+        {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
+        {level?.level && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+            <span style={{ fontSize: 16 }}>{["🌱", "🌿", "🔬", "🎓", "👑"][level.level - 1] || "🌱"}</span>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{level.label}</span>
+            <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+              {[level.posts > 0 ? `📝 ${level.posts}` : null, level.whatsapp > 0 ? `💬 ${level.whatsapp.toLocaleString("he-IL")}` : null].filter(Boolean).join(" · ")}
+            </span>
+          </div>
+        )}
         {header?.stats && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
@@ -574,6 +602,11 @@ export default function ContributorPage() {
 
       <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
         הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
+      </div>
+
+      {/* 💬 תגובות על החוקר/הכתב — מבנה-התגובות הקנוני (Discourse). «להגיב על משתמש». */}
+      <div style={{ marginTop: 36 }}>
+        <Discourse target={{ type: "contributor", id: slug }} origin="profile" archive={[]} />
       </div>
     </div>
     </div>

@@ -1630,10 +1630,10 @@
     box.querySelector(".pat-go").onclick=run;inp.addEventListener("keydown",e=>{if(e.key==="Enter")run();});
     if(st.lensPat)run();
   }
-  // ⚓ עדשת עוגנים — מלבישה את מערכת-העוגנים של סוד1820 על מפת-הדילוגים: גימטריה/דילוג שהם מספר-עוגן מוכר.
+  // ⚓ עדשת עוגנים — מלבישה את מערכת-העוגנים של סוד 1820 על מפת-הדילוגים: גימטריה/דילוג שהם מספר-עוגן מוכר.
   const ANCHORS={26:"הוי״ה",86:"אלהים",13:"אחד / אהבה",25:"יהי",72:"חסד · ע״ב",91:"אמן",112:"יב״ק",
     182:"יעקב",232:"ד׳ שמות",248:"אברהם · רמ״ח",314:"שדי",345:"משה · השם",358:"משיח · נחש",541:"ישראל",
-    611:"תורה",620:"כתר",1820:"שם הוי״ה בתורה · סוד1820"};
+    611:"תורה",620:"כתר",1820:"שם הוי״ה בתורה · סוד 1820"};
   function lensAnchor(box){
     if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     const anchOf=v=>ANCHORS[v]||(SIGNIFICANT.has(v)?"מספר מוכר":null);
@@ -2033,7 +2033,7 @@
     ov.querySelector(".sh-copy").onclick=()=>{if(copyText(url))toast("🔗 הקישור הועתק — הדבק ושלח");else{inp.select();toast("בחר והעתק ידנית");}};
     const close=()=>ov.remove();ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
   }
-  // 🔗 מנהל — קשירת המטריצה לפוסט באתר (סוד1820). נשמר עם המטריצה בגלריה.
+  // 🔗 מנהל — קשירת המטריצה לפוסט באתר (סוד 1820). נשמר עם המטריצה בגלריה.
   function linkToPost(){
     const ov=document.createElement("div");ov.className="shareov";
     ov.innerHTML='<div class="sharebox"><h3>🔗 קשר לפוסט באתר</h3><p>הדבק קישור לפוסט ב-sod1820.co.il שמדבר על הצופן. יופיע כפתור «📖 לקריאת הפוסט» על המטריצה. אחר-כך לחץ «שמור מטריצה» כדי לקבע.</p>'+

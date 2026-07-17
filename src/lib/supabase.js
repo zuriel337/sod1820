@@ -622,6 +622,22 @@ export async function getUserJourney(email) {
   try { const { data } = await supabase.rpc('admin_user_journey', { p_email: email }); return data || null; } catch { return null; }
 }
 
+// 🟢 קישור וואטסאפ ↔ חשבון — כלי אדמין (admin_wa_candidates/link/unlink). מנהל בלבד.
+export async function getWaCandidates() {
+  if (!supabase) return null;
+  try { const { data } = await supabase.rpc('admin_wa_candidates'); return Array.isArray(data) ? data : []; } catch { return null; }
+}
+export async function adminLinkWa(phone, email) {
+  if (!supabase) return { ok: false, error: 'no_client' };
+  try { const { data, error } = await supabase.rpc('admin_link_wa', { p_phone: phone, p_email: email }); if (error) return { ok: false, error: error.message }; return data || { ok: false }; }
+  catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
+export async function adminUnlinkWa(phone) {
+  if (!supabase) return { ok: false, error: 'no_client' };
+  try { const { data, error } = await supabase.rpc('admin_unlink_wa', { p_phone: phone }); if (error) return { ok: false, error: error.message }; return data || { ok: false }; }
+  catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
+
 // 🔴 שידור חי — מי באתר עכשיו + כל הפרטים (דף, שובל, מקור, מכשיר, זהות). null בכשל.
 export async function getLiveVisitors(minutes = 10) {
   if (!supabase) return null;

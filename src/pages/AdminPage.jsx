@@ -20,9 +20,11 @@ import {
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
   getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse, getRetention,
+  getWaCandidates, adminLinkWa, adminUnlinkWa,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
+import { getAllContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
@@ -49,6 +51,7 @@ const TABS = [
   { key: "traffic",  label: "📊 תנועה" },
   { key: "retention",label: "🔁 חוזרים" },
   { key: "users",    label: "👤 משתמשים" },
+  { key: "walink",   label: "🟢 חיבור וואטסאפ" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
@@ -60,6 +63,7 @@ const TABS = [
   { key: "findings", label: "🔬 ממצאים" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
+  { key: "contribmod", label: "💬 מרכז התגובות" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -84,9 +88,9 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "walink", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
-  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
+  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "contribmod", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
   { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
   { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
@@ -221,6 +225,7 @@ export default function AdminPage() {
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "retention" && <RetentionTab />}
       {tab === "users" && <UsersTab />}
+      {tab === "walink" && <WhatsAppLinkTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
@@ -232,6 +237,7 @@ export default function AdminPage() {
       {tab === "findings" && <FindingsTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
+      {tab === "contribmod" && <ContribModTab />}
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
@@ -2523,6 +2529,142 @@ function UsersTab() {
               <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 💬 אישור תגובות — תור התרומות הממתינות (כולל אנונימיות). אישור → פומבי · הסתרה → נדחה.
+const CONTRIB_FILTERS = [["pending", "⏳ ממתינות"], ["approved", "✅ אושרו"], ["hidden", "🔒 מוסתרות"], ["all", "הכל"]];
+function ContribModTab() {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const [status, setStatus] = useState("pending");
+  const load = (st = status) => { setRows(null); getAllContributions(st, 200).then(r => setRows(Array.isArray(r) ? r : [])).catch(() => setRows([])); };
+  useEffect(() => { load(status); /* eslint-disable-next-line */ }, [status]);
+  const approve = async (id) => { setBusy(id); try { await approveContribution(id); load(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  const hide = async (id) => { setBusy(id); try { await moderateContribution(id, "hidden"); load(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); } };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>💬 מרכז התגובות {rows ? `· ${rows.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          כל התגובות והתרומות מכל האתר — מספרים, פוסטים, כותבים, צ'אט — במקום אחד. כולל <b style={{ color: C.goldLight }}>תגובות אורחים</b> (מוגבל 5/שעה). אישור → פומבי · הסתרה → נדחה.
+        </div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 11 }}>
+          {CONTRIB_FILTERS.map(([k, lbl]) => (
+            <button key={k} onClick={() => setStatus(k)} style={segBtn(status === k)}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+      {!rows ? <Loading /> : rows.length === 0 ? <Empty>אין תגובות בקטגוריה זו.</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map(r => {
+            const im = intentMeta(r.intent);
+            return (
+              <div key={r.id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.4)", display: "grid", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+                  <span style={{ ...pill(C.gold) }}>{im.emoji} {im.label}</span>
+                  <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700 }} dir="rtl">✍️ {r.author_name || "אורח"}{!r.author_user_id && <span style={{ color: C.goldDim, fontWeight: 400 }}> · אורח</span>}</span>
+                  {r.target_id && <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11.5 }}>{r.target_type === "number" ? "🔢" : "🔖"} {r.target_id}</span>}
+                  <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, marginInlineStart: "auto" }}>{timeAgoTs(r.created_at)}</span>
+                </div>
+                {r.title && <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }} dir="rtl">{r.title}</div>}
+                <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }} dir="rtl">{r.body}</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  {r.status !== "approved" && <button disabled={busy === r.id} onClick={() => approve(r.id)} style={{ ...segBtn(true) }}>{busy === r.id ? "…" : r.status === "hidden" ? "↩️ שחזר" : "✅ אשר"}</button>}
+                  {r.status !== "hidden" && <button disabled={busy === r.id} onClick={() => hide(r.id)} style={{ ...segBtn(false), color: "#e0796f" }}>✖ הסתר</button>}
+                  <span style={{ marginInlineStart: "auto", fontFamily: F.mono, fontSize: 10.5, color: r.status === "approved" ? "#7fd18a" : r.status === "hidden" ? "#8a7a4a" : C.gold }}>
+                    {r.status === "approved" ? "✓ פומבי" : r.status === "hidden" ? "🔒 מוסתר" : "⏳ ממתין"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🟢 חיבור וואטסאפ ↔ חשבון — כלי אדמין. האמון של צוריאל = עוגן-האימות (בלי OTP למי שהוא מכיר).
+// מסלול OTP (המשתמש מחבר את עצמו) חי במקביל בדף-המשתמש. כאן: המספרים שכבר יש לנו + קישור ידני.
+function WaCandidateRow({ c, onLink, onUnlink }) {
+  const [email, setEmail] = useState(c.suggested_email || "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const num = n => Number(n || 0).toLocaleString("he");
+  const link = async () => {
+    if (!email.trim() || busy) return;
+    setBusy(true); setMsg("");
+    const r = await onLink(c.phone, email.trim());
+    setBusy(false);
+    if (!r.ok) setMsg(r.error === "no_user" ? "אין משתמש רשום עם המייל הזה" : r.error === "bad_phone" ? "מספר לא תקין" : "שגיאה: " + (r.error || ""));
+  };
+  const unlink = async () => { if (busy) return; setBusy(true); await onUnlink(c.phone); setBusy(false); };
+  const linked = !!c.linked_email;
+  return (
+    <div style={{ border: `1px solid ${linked ? "rgba(95,224,138,0.45)" : C.border}`, borderRadius: 12, padding: "11px 14px", background: "rgba(8,5,2,0.4)", display: "grid", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 16 }}>🟢</span>
+        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, fontWeight: 700, minWidth: 120 }} dir="rtl">{c.name || "—"}</span>
+        <a href={"https://wa.me/" + String(c.phone).replace(/\D/g, "")} target="_blank" rel="noreferrer" style={{ color: "#25d366", fontFamily: F.mono, fontSize: 12.5, textDecoration: "none", direction: "ltr" }}>+{c.phone}</a>
+        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>⚡ {num(c.events)}</span>
+        <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, marginInlineStart: "auto" }}>{timeAgoTs(c.last_seen)}</span>
+      </div>
+      {linked ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ ...pill("#5fe08a"), color: "#5fe08a" }}>✓ מקושר</span>
+          <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, direction: "ltr" }}>{c.linked_email}</span>
+          <button onClick={unlink} disabled={busy} style={{ ...segBtn(false), marginInlineStart: "auto", color: "#e0796f", borderColor: "rgba(224,121,111,0.4)" }}>{busy ? "…" : "🔗 נתק"}</button>
+        </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="מייל של משתמש רשום"
+            dir="ltr" style={{ flex: "1 1 200px", background: "rgba(8,5,2,0.6)", border: `1px solid ${c.suggested_email ? "rgba(240,216,120,0.5)" : C.border}`, borderRadius: 9, padding: "9px 11px", color: C.goldLight, fontFamily: F.body, fontSize: 13 }} />
+          {c.suggested_email && <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 10.5 }}>הצעה אוטומטית ✨</span>}
+          <button onClick={link} disabled={busy || !email.trim()} style={{ ...segBtn(true), opacity: email.trim() ? 1 : 0.5 }}>{busy ? "מקשר…" : "🔗 קשר"}</button>
+        </div>
+      )}
+      {msg && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 12 }}>{msg}</div>}
+    </div>
+  );
+}
+function WhatsAppLinkTab() {
+  const [cands, setCands] = useState(null);
+  const [err, setErr] = useState("");
+  const [q, setQ] = useState("");
+  const load = () => getWaCandidates().then(x => setCands(Array.isArray(x) ? x : [])).catch(e => setErr(String(e?.message || e)));
+  useEffect(() => { load(); }, []);
+  const onLink = async (phone, email) => {
+    const r = await adminLinkWa(phone, email);
+    if (r.ok) setCands(list => (list || []).map(c => c.phone === phone ? { ...c, linked_email: email } : c));
+    return r;
+  };
+  const onUnlink = async (phone) => {
+    const r = await adminUnlinkWa(phone);
+    if (r.ok) setCands(list => (list || []).map(c => c.phone === phone ? { ...c, linked_email: null } : c));
+    return r;
+  };
+  const filtered = (cands || []).filter(c => !q.trim() || (c.name || "").includes(q) || (c.phone || "").includes(q) || (c.linked_email || "").includes(q));
+  const linkedCount = (cands || []).filter(c => c.linked_email).length;
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>🟢 חיבור וואטסאפ ↔ חשבון {cands ? `· ${cands.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          כל המספרים שכבר דיברו עם הבוט. <b style={{ color: C.goldLight }}>קישור ידני כאן = בלי קוד</b> — האישור שלך הוא האימות (אתה מכיר את האנשים). מי שמחבר את עצמו באתר עובר אימות-קוד בוואטסאפ. אחרי קישור, הזיכרון של הבוט על אותו מספר נפתח למשתמש באזור-האישי שלו.
+          {cands && <> <b style={{ color: "#5fe08a" }}>{linkedCount}</b> מקושרים.</>}
+          <br />💡 «הצעה אוטומטית ✨» = התאמנו את המספר למשתמש רשום לפי הטלפון בפרופיל שלו.
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>שגיאה: {err}</div>}
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍 חיפוש לפי שם / מספר / מייל" dir="rtl"
+          style={{ width: "100%", boxSizing: "border-box", marginTop: 10, background: "rgba(8,5,2,0.6)", border: `1px solid ${C.border}`, borderRadius: 9, padding: "9px 12px", color: C.goldLight, fontFamily: F.body, fontSize: 13 }} />
+      </div>
+      {!cands ? <Loading /> : filtered.length === 0 ? <Empty>אין מספרים תואמים.</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {filtered.map((c, i) => <WaCandidateRow key={c.phone || i} c={c} onLink={onLink} onUnlink={onUnlink} />)}
         </div>
       )}
     </div>

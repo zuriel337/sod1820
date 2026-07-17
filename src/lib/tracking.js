@@ -41,6 +41,8 @@ export const trackShare = (platform, slug) => {
   const m = (() => { try { return appMeta(); } catch { return {}; } })();
   track("share", slug, "share", { platform, ...m });
   try { trackConversion("share", { platform, source: m.source, device: m.device }); } catch { /* noop */ }
+  // ◆ קרדיט על שיתוף למשתמש מחובר (תקרה 3/יום נאכפת בשרת; אנונימי → no-op). fire-and-forget.
+  try { supabase?.rpc("award_share_credit"); } catch { /* noop */ }
 };
 
 export const trackImageClick = (imageId, value) =>

@@ -14,6 +14,18 @@ export function withRid(url) {
   } catch { return url; }
 }
 
+// 👥 הזמנת-חברים: אם הגענו דרך קישור-הזמנה עם ?ref=<user_id של המזמין> → שומרים אותו.
+// אחרי שהמבקר יירשם/יתחבר, AuthContext קורא ל-record_referral → מזמין +100, החבר +50.
+export function captureRef() {
+  if (typeof window === "undefined") return;
+  try {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (!ref) return;
+    // לא לדרוס הזמנה קיימת שטרם נוצלה (הראשון שהזמין זוכה)
+    if (!localStorage.getItem("sod_ref")) localStorage.setItem("sod_ref", ref);
+  } catch { /* noop */ }
+}
+
 // נקרא בעליית האפליקציה: אם הגענו דרך קישור עם ?rid → רושמים arrival (פעם אחת ל-rid ל-session).
 export function captureArrival() {
   if (typeof window === "undefined") return;

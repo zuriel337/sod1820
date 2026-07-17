@@ -73,6 +73,18 @@ export function AuthProvider({ children }) {
       const sv = localStorage.getItem('sod_visitor');
       if (sv) supabase.rpc('link_visitor_identity', { p_visitor: sv });
     } catch { /* ignore */ }
+    // ◆ קרדיטים בהתחברות (idempotent) — מענק-מייסד ממתין + קרדיט-יומי. כך הם מוחלים
+    // גם למי שלא פותח את האזור-האישי (במקום להסתמך רק על פתיחת-המגירה).
+    try { supabase.rpc('claim_my_founding_grants'); } catch { /* ignore */ }
+    try { supabase.rpc('claim_daily_credit'); } catch { /* ignore */ }
+    try { supabase.rpc('claim_wa_activity_credits'); } catch { /* ignore */ }
+    // 👥 הזמנת-חברים: אם המשתמש הגיע דרך קישור-הזמנה — רושמים (מזמין +100, הוא +50). פעם אחת.
+    try {
+      const ref = localStorage.getItem('sod_ref');
+      if (ref && ref !== user.id) {
+        supabase.rpc('record_referral', { p_ref: ref }).finally(() => { try { localStorage.removeItem('sod_ref'); } catch { /* noop */ } });
+      } else if (ref) { try { localStorage.removeItem('sod_ref'); } catch { /* noop */ } }
+    } catch { /* ignore */ }
   }, [user]);
 
   const value = {

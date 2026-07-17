@@ -36,11 +36,12 @@ export async function getContributions(targetType, targetId, limit = 120) {
   } catch { return []; }
 }
 
-export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null }) {
+export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
   const { data, error } = await supabase.rpc("add_contribution", {
     p_intent: intent, p_origin: origin, p_body: body,
     p_target_type: targetType, p_target_id: targetId != null ? String(targetId) : null,
     p_parent_id: parentId, p_title: title, p_gematria_claim: gematriaClaim,
+    p_author_name: authorName,   // 💬 שם לאנונימי (רשומים — נגזר מהחשבון בשרת)
   });
   if (error) throw error;
   return data; // מזהה התרומה החדשה
@@ -87,11 +88,34 @@ export const FORUM_CONTRIB_INTENTS = ["חידוש", "השערה", "תצפית", 
 //   2. פוסטים של הכתבים בעלי-השם — ככרטיס-מצביע לפוסט הקנוני (/<slug>), לא העתק.
 // type: null=הכל · "post"=מאמרי-כתבים בלבד · אחד מ-FORUM_CONTRIB_INTENTS=תרומות מסוג זה בלבד.
 // writer: סינון פוסטים לפי שם-כתב (רלוונטי כש-type="post").
+// שם-מחבר לחידוש (insights) לפי origin
+function insightAuthor(origin) {
+  if (origin === "ai") return "בית המדרש · AI";
+  if (!origin || origin === "system") return "בית המדרש";
+  return origin; // «צוריאל» וכו'
+}
+
 export async function getForumFeed({ type = null, writer = null, limit = 80 } = {}) {
   if (!supabase) return [];
   const wantContrib = !type || FORUM_CONTRIB_INTENTS.includes(type);
   const wantPosts = !type || type === "post";
+  const wantInsights = !type || type === "insight";   // 💡 חידושי בית המדרש (insights)
   const tasks = [];
+
+  if (wantInsights) {
+    const q = supabase.from("insights")
+      .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }).limit(limit);
+    tasks.push(q.then(({ data }) => (data || []).map(x => ({
+      kind: "insight", id: "i_" + x.id, ts: x.created_at,
+      author_name: insightAuthor(x.origin), origin: x.origin,
+      title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,
+      verified: x.verified, has_1820: x.has_1820, convergence_score: x.convergence_score,
+      // מצביע לעמוד הקנוני של החידוש בבית המדרש (לא עותק)
+      link: `/research?tool=midrash&tab=community&insight=${x.id}`,
+    }))).catch(() => []));
+  }
 
   if (wantContrib) {
     let q = supabase.from("research_contributions")
@@ -139,6 +163,18 @@ export async function getReputation(userId = null) {
 }
 
 // ── מנהל ──
+// תור-אישור: תרומות ממתינות (כולל אנונימיות) — דרך RPC מגודר-אדמין (RLS חוסם קריאה ישירה).
+export async function getPendingContributions(limit = 100) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("admin_pending_contributions", { p_limit: limit }); return data || []; }
+  catch { return []; }
+}
+// מרכז-התגובות: כל התגובות לפי סטטוס ('pending'|'approved'|'hidden'|'all')
+export async function getAllContributions(status = "pending", limit = 200) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("admin_all_contributions", { p_status: status, p_limit: limit }); return data || []; }
+  catch { return []; }
+}
 export async function approveContribution(id, { canonical = false, project = true } = {}) {
   const { data, error } = await supabase.rpc("approve_contribution", { p_id: id, p_canonical: canonical, p_project: project });
   if (error) throw error;
