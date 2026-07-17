@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -33,6 +33,16 @@ function DrawerResearch() {
 // ── פלטה מודרנית scoped (בהיר כברירת-מחדל, כהה נצמד לגלובלי) ──
 const LIGHT = { bg: "#f6f7f9", card: "#ffffff", ink: "#1b1d22", sub: "#5b6472", line: "#e6e8ec", acc: "#2f6df6", accSoft: "#eaf1ff", gold: "#c79a2e", goldSoft: "#faf4e2" };
 const DARK  = { bg: "#12141a", card: "#1b1e26", ink: "#eef0f4", sub: "#9aa2b1", line: "#2a2e38", acc: "#5b8cff", accSoft: "#1c2740", gold: "#d8b75e", goldSoft: "#2a2417" };
+
+// 🌍 5 העולמות (personal_command_center_law) — מסגרת-על מעל אותם מודולים (עץ אחד: קיבוץ, לא שכתוב).
+// כל מודול נושא world; הגריד מרונדר מקובץ לפי סדר זה. עולם ריק לא מוצג. writerOnly מוסתר ללא-כותבים.
+const WORLDS = [
+  { key: "me",        icon: "🌍", title: "העולם שלי",   sub: "הזהות, ההתקדמות והקרדיטים" },
+  { key: "lab",       icon: "🔬", title: "המעבדה שלי",  sub: "מחקר, צפנים ורמזים" },
+  { key: "agent",     icon: "🧬", title: "הסוכן האישי", sub: "מי שמכיר אותך — וואטסאפ ובוטים" },
+  { key: "community", icon: "👥", title: "הקהילה שלי",  sub: "תרומות ודיון משותף" },
+  { key: "create",    icon: "✍️", title: "היצירה שלי",  sub: "מה שכתבת ופרסמת", writerOnly: true },
+];
 
 // 🧠 «מה כדאי לי לעשות עכשיו?» — הכרטיס הראשון (personal_command_center_law: החוויה לפני התשתית).
 // לא תפריט — כיוון. + badge יתרת-קרדיטים (בהרצה). מוקרן בראש האזור-האישי.
@@ -95,7 +105,7 @@ export default function UserCenter() {
     supabase.rpc("my_center").then(({ data }) => { if (alive) setCenter(data || {}); }).catch(() => {});
     getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
     // 🎁 מענק-מייסד ממתין + ☀️ קרדיט-יומי → נתבעים אוטומטית (idempotent), ואז טוענים את היתרה
-    Promise.all([claimFoundingGrants(), claimDailyCredit()]).then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
+    Promise.all([claimFoundingGrants(), claimDailyCredit(), claimWaActivityCredits()]).then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
     return () => { alive = false; };
   }, [isOpen, user]);
 
@@ -181,20 +191,34 @@ export default function UserCenter() {
           {!activeMod ? (
             <>
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} nextActions={nextActions} setActive={setActive} goto={goto} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {MODULES.filter(m => !m.hidden).map(m => (
-                  <button key={m.id} onClick={() => setActive(m.id)} style={{
-                    textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
-                    padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
-                    display: "flex", flexDirection: "column", gap: 4, color: T.ink,
-                  }}>
-                    <span style={{ fontSize: 22 }}>{m.icon}</span>
-                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
-                    {m.badge != null && <span style={{ position: "absolute", top: 10, left: 10, background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 8px" }}>{m.badge}</span>}
-                    {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
-                  </button>
-                ))}
-              </div>
+              {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
+              {WORLDS.map(w => {
+                const mods = MODULES.filter(m => !m.hidden && (m.world || "me") === w.key);
+                if (!mods.length) return null;
+                return (
+                  <div key={w.key} style={{ marginBottom: 18 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "2px 2px 9px" }}>
+                      <span style={{ fontSize: 15 }}>{w.icon}</span>
+                      <span style={{ fontWeight: 800, fontSize: 14.5 }}>{w.title}</span>
+                      <span style={{ fontSize: 11, color: T.sub }}>{w.sub}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      {mods.map(m => (
+                        <button key={m.id} onClick={() => setActive(m.id)} style={{
+                          textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
+                          padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
+                          display: "flex", flexDirection: "column", gap: 4, color: T.ink,
+                        }}>
+                          <span style={{ fontSize: 22 }}>{m.icon}</span>
+                          <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
+                          {m.badge != null && <span style={{ position: "absolute", top: 10, left: 10, background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 8px" }}>{m.badge}</span>}
+                          {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </>
           ) : (
             <div>
@@ -341,7 +365,7 @@ function BotsTeamPanel({ T, goto }) {
 }
 
 // ◆ הקרדיטים שלי — יתרה + ספר-תנועות (בהרצה). credit_ledger own-read.
-const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
+const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", wa_activity: "💬 הודעות בקבוצות", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
 function CreditsPanel({ T }) {
   const [ledger, setLedger] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -376,7 +400,7 @@ function CreditsPanel({ T }) {
       {/* איך צוברים — שקיפות על אירועי-הצבירה החיים (בהרצה) */}
       <div style={{ marginTop: 16, fontWeight: 800, fontSize: 13, marginBottom: 7 }}>איך צוברים</div>
       <div style={{ display: "grid", gap: 6 }}>
-        {[["🟢 חיבור וואטסאפ", "+100", "פעם אחת"], ["☀️ כניסה יומית", "+5", "כל יום"], ["🏛️ מענק חוקר מייסד", "+5,000", "לחוקרים ותיקים"]].map(([k, v, note], i) => (
+        {[["🟢 חיבור וואטסאפ", "+100", "פעם אחת"], ["💬 הודעה בקבוצת וואטסאפ", "+3", "לכל הודעה"], ["☀️ כניסה יומית", "+5", "כל יום"], ["🏛️ מענק חוקר מייסד", "+5,000", "לחוקרים ותיקים"]].map(([k, v, note], i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: `1px solid ${T.line}` }}>
             <span style={{ fontSize: 12.5, color: T.ink, flex: 1 }}>{k}</span>
             <span style={{ fontSize: 10.5, color: T.sub }}>{note}</span>
@@ -554,11 +578,12 @@ function WhatsAppPanel({ T, goto, setActive }) {
 export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto, setActive }) {
   const c = center || {};
   const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
+  const isWriter = !!(c.is_writer || c.is_publisher);
   return [
-    // ─── LIVE — פאנלים אמיתיים עם נתונים ───
-    { id: "notifications", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
+    // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
+    { id: "notifications", world: "me", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
       render: () => <NotificationsPanel T={T} onUnread={onUnread} goto={goto} /> },
-    { id: "profile", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
+    { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <Row T={T} k="סטטוס" v={isAdmin ? "👑 מנהל" : (c.is_researcher && c.is_writer) ? "🔬 חוקר · ✍️ כותב" : c.is_researcher ? "🔬 חוקר היכל" : c.is_writer ? "✍️ כותב" : "חוקר רשום"} />
         {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
@@ -567,21 +592,21 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
       </div>
     ) },
-    { id: "research", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
+    { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
       <div>
         {/* סביבת המחקר המלאה בתוך האזור האישי — סביבה אחת (החלטת צוריאל 9.7.2026) */}
         <DrawerResearch />
         <Link to="/research" style={{ display: "inline-block", marginTop: 14, color: T.acc, textDecoration: "none", fontWeight: 700, fontSize: 13 }}>למעבדה המלאה (מסך רחב) ←</Link>
       </div>
     ) },
-    { id: "contrib", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
+    { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
         <Row T={T} k="מהמילים שלך במנוע" v={c.contributions ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: כמה נכנסו ל«אוצרות» · כמה משתמשים השתמשו · כמה צפיות קיבלו.</div>
       </div>
     ) },
-    { id: "stats", icon: "📊", title: "סטטיסטיקות", status: "live", render: () => (
+    { id: "stats", world: "me", icon: "📊", title: "סטטיסטיקות", status: "live", render: () => (
       <div>
         <Row T={T} k="חיפושים" v={c.searched ?? 0} />
         {hasPosts && <Row T={T} k="פוסטים" v={c.posts} />}
@@ -590,15 +615,24 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>
       </div>
     ) },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
-    { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
-    { id: "bots", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
-    { id: "whatsapp", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
-    { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
+    { id: "hints", world: "lab", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
+    { id: "codes", world: "lab", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
+    { id: "bots", world: "agent", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
+    { id: "whatsapp", world: "agent", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
+    { id: "credits", world: "me", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
+    { id: "settings", world: "me", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
+
+    // ─── היצירה שלי — לכותבים בלבד (writerOnly) ───
+    ...(isWriter ? [{ id: "myposts", world: "create", icon: "📝", title: "הפוסטים שלי", status: "live", render: () => (
+      <div>
+        <Row T={T} k="פוסטים שפרסמת" v={c.posts ?? 0} />
+        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>היצירה שלך באתר. בקרוב: עריכה מהירה · צפיות ותגובות לכל פוסט · טיוטות.</div>
+        <button onClick={() => goto("/post")} style={{ marginTop: 12, background: T.acc, color: "#fff", border: "none", borderRadius: 9, padding: "9px 16px", fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>לכל הפוסטים ←</button>
+      </div>
+    ) }] : []),
 
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
-    { id: "roadmap", icon: "🗺️", title: "מה בקרוב", status: "soon", render: () => <Roadmap T={T} /> },
+    { id: "roadmap", world: "me", icon: "🗺️", title: "מה בקרוב", status: "soon", render: () => <Roadmap T={T} /> },
   ];
 }
 

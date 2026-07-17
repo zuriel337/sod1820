@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
     // גם למי שלא פותח את האזור-האישי (במקום להסתמך רק על פתיחת-המגירה).
     try { supabase.rpc('claim_my_founding_grants'); } catch { /* ignore */ }
     try { supabase.rpc('claim_daily_credit'); } catch { /* ignore */ }
+    try { supabase.rpc('claim_wa_activity_credits'); } catch { /* ignore */ }
   }, [user]);
 
   const value = {

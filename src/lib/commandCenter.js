@@ -26,6 +26,12 @@ export async function claimDailyCredit() {
   try { const { data } = await supabase.rpc("claim_daily_credit"); return data || { ok: false, awarded: 0 }; } catch { return { ok: false, awarded: 0 }; }
 }
 
+// 💬 קרדיטים על הודעות בקבוצות הוואטסאפ (wa_bot_log). idempotent — מונה פר-טלפון. מחזיר {ok, awarded}.
+export async function claimWaActivityCredits() {
+  if (!supabase) return { ok: false, awarded: 0 };
+  try { const { data } = await supabase.rpc("claim_wa_activity_credits"); return data || { ok: false, awarded: 0 }; } catch { return { ok: false, awarded: 0 }; }
+}
+
 // 🧠 «מה כדאי לי לעשות עכשיו?» — עד 3 פעולות, מנתונים קיימים בלבד (בלי RPC חדש).
 // module → פותח מודול במגירה · link → ניווט. center = תוצאת my_center שכבר נטענה.
 export async function getNextActions({ center } = {}) {
