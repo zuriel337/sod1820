@@ -7,6 +7,7 @@ import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
@@ -574,6 +575,11 @@ export default function ContributorPage() {
 
       <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
         הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
+      </div>
+
+      {/* 💬 תגובות על החוקר/הכתב — מבנה-התגובות הקנוני (Discourse). «להגיב על משתמש». */}
+      <div style={{ marginTop: 36 }}>
+        <Discourse target={{ type: "contributor", id: slug }} origin="profile" archive={[]} />
       </div>
     </div>
     </div>

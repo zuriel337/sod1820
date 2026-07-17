@@ -247,6 +247,39 @@ function Row({ T, k, v }) {
   return <div style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: `1px solid ${T.line}` }}><span style={{ color: T.sub, fontSize: 13.5 }}>{k}</span><span style={{ fontWeight: 800 }}>{typeof v === "number" ? v.toLocaleString("he") : v}</span></div>;
 }
 
+// 🤖 צוות הסוכנים — פאנל בהרצה (agents_team_law). לא רשימת בוטים אלא «צוות מחקר»:
+// כל סוכן עם התמחות; מטטרון מתאם. תפקידים שטרם נקבעו = «בהרצה». «רוצה יותר? דבר עם צוריאל».
+const AGENTS_TEAM = [
+  { e: "👑", name: "מטטרון", role: "מתאם הצוות — רואה את התמונה כולה, מחבר בין התחומים", defined: true },
+  { e: "🌍", name: "גבריאל", role: "שפות וגשרים בין-לשוניים — מומחה השפות של המערכת", defined: true },
+  { e: "🔮", name: "עוד סוכנים", role: "גימטריה · מקורות · אימות · רמזים — התפקידים נקבעים בהרצה", defined: false },
+];
+function BotsTeamPanel({ T, goto }) {
+  return (
+    <div>
+      <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px", marginBottom: 12 }}>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold }}>🧪 בהרצה — מעבדת המחקר החיה</div>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginTop: 3 }}>צוות חוקרי-AI, כל אחד בהתמחות שלו, שכולם תורמים לאותו עץ-ידע. מטטרון מתאם.</div>
+      </div>
+      <div style={{ display: "grid", gap: 9 }}>
+        {AGENTS_TEAM.map(a => (
+          <div key={a.name} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 12px", opacity: a.defined ? 1 : 0.72 }}>
+            <span style={{ fontSize: 22, lineHeight: 1 }}>{a.e}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 800, fontSize: 13.5 }}>{a.name}{!a.defined && <span style={{ marginInlineStart: 6, fontSize: 10.5, fontWeight: 700, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 7px" }}>בהרצה</span>}</div>
+              <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, marginTop: 2 }}>{a.role}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>
+        המערכת בהרצה — בקרוב יוצגו לכל סוכן ההישגים והתגליות שנצברו. רוצה יותר מידע?{" "}
+        <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>דבר עם צוריאל ←</button>
+      </div>
+    </div>
+  );
+}
+
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
@@ -291,6 +324,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     ) },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
+    { id: "bots", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
