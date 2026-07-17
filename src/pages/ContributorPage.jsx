@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
@@ -112,6 +112,7 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
 
 export default function ContributorPage() {
   const { slug } = useParams();
+  const nav = useNavigate();
   const P = usePalette();
   const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
@@ -154,12 +155,18 @@ export default function ContributorPage() {
     let alive = true;
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id")
+    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
-      .then(({ data, error }) => { if (!alive) return; if (error || !data) setErr(true); else setC(data); })
+      .then(({ data, error }) => {
+        if (!alive) return;
+        if (error || !data) { setErr(true); return; }
+        // 🌳 עץ אחד: דף-כותב שאוחד → הפניה לעמוד הקנוני
+        if (data.merged_into && data.merged_into !== slug) { nav(`/community/researcher/${data.merged_into}`, { replace: true }); return; }
+        setC(data);
+      })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
-  }, [slug]);
+  }, [slug, nav]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
   const [level, setLevel] = useState(null);
