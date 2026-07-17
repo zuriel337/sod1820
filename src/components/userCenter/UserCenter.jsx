@@ -10,6 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
+import { getMyProfile, claimFoundingGrants, getNextActions } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -33,6 +34,49 @@ function DrawerResearch() {
 const LIGHT = { bg: "#f6f7f9", card: "#ffffff", ink: "#1b1d22", sub: "#5b6472", line: "#e6e8ec", acc: "#2f6df6", accSoft: "#eaf1ff", gold: "#c79a2e", goldSoft: "#faf4e2" };
 const DARK  = { bg: "#12141a", card: "#1b1e26", ink: "#eef0f4", sub: "#9aa2b1", line: "#2a2e38", acc: "#5b8cff", accSoft: "#1c2740", gold: "#d8b75e", goldSoft: "#2a2417" };
 
+// 🧠 «מה כדאי לי לעשות עכשיו?» — הכרטיס הראשון (personal_command_center_law: החוויה לפני התשתית).
+// לא תפריט — כיוון. + badge יתרת-קרדיטים (בהרצה). מוקרן בראש האזור-האישי.
+function NextActionCard({ T, dark, profile, myProfile, nextActions, setActive, goto }) {
+  const name = (profile?.display_name || profile?.username || "").trim().split(" ")[0] || "חוקר";
+  const h = new Date().getHours();
+  const greeting = h < 12 ? "בוקר טוב" : h < 18 ? "צהריים טובים" : "ערב טוב";
+  const row = {
+    display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "right",
+    background: dark ? "#20242e" : "#f3f6ff", border: `1px solid ${T.line}`, borderRadius: 11,
+    padding: "10px 12px", cursor: "pointer", color: T.ink, fontFamily: "inherit", fontSize: 13,
+  };
+  return (
+    <div style={{ background: T.card, border: `1px solid ${T.line}`, borderRadius: 16, padding: "14px 15px", marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+        <span style={{ fontSize: 15.5, fontWeight: 800 }}>🧠 {greeting}, {name}</span>
+        {myProfile && (
+          <span title="קרדיטים — בהרצה, עדיין ללא מחירים" style={{ marginInlineStart: "auto", background: T.goldSoft, color: T.gold, borderRadius: 999, fontSize: 11.5, fontWeight: 800, padding: "3px 10px", whiteSpace: "nowrap" }}>
+            ◆ {(myProfile.credits || 0).toLocaleString("he-IL")} · בהרצה
+          </span>
+        )}
+      </div>
+      <div style={{ color: T.sub, fontSize: 12.5, marginBottom: 10 }}>מה כדאי לך לעשות עכשיו?</div>
+      {nextActions == null ? (
+        <div style={{ color: T.sub, fontSize: 12.5, padding: "4px 0" }}>טוען…</div>
+      ) : nextActions.length ? (
+        <div style={{ display: "grid", gap: 8 }}>
+          {nextActions.map((a, i) => (
+            <button key={i} onClick={() => a.module ? setActive(a.module) : goto(a.link)} style={row}>
+              <span style={{ fontSize: 16 }}>{a.icon}</span>
+              <span style={{ flex: 1 }}>{a.text}</span>
+              <span style={{ color: T.acc, fontWeight: 800, whiteSpace: "nowrap" }}>{a.cta} ←</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7 }}>
+          עדיין לא התחלת לחקור — נסה מספר כמו <button onClick={() => goto("/number/1820")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>1820 ←</button>, ואחזור עם המלצות אישיות.
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UserCenter() {
   const { user, profile, isAdmin, signOut } = useAuth();
   const P = usePalette();
@@ -42,14 +86,26 @@ export default function UserCenter() {
   const T = dark ? DARK : LIGHT;
   const [center, setCenter] = useState(null); // my_center RPC
   const [unread, setUnread] = useState(0);     // 🔔 התראות שלא-נקראו
+  const [myProfile, setMyProfile] = useState(null); // 💰 קרדיטים/דרגה (beta)
+  const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
 
   useEffect(() => {
     if (!isOpen || !user || !supabase) return;
     let alive = true;
     supabase.rpc("my_center").then(({ data }) => { if (alive) setCenter(data || {}); }).catch(() => {});
     getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
+    // 🎁 מענק-מייסד ממתין → נתבע אוטומטית (idempotent), ואז טוענים את היתרה
+    claimFoundingGrants().then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
     return () => { alive = false; };
   }, [isOpen, user]);
+
+  // 🧠 «הצעד הבא» — תלוי ב-center (משתמש ב-research_items שכבר נטען)
+  useEffect(() => {
+    if (!isOpen || !user || center == null) return;
+    let alive = true;
+    getNextActions({ center }).then(a => { if (alive) setNextActions(a); }).catch(() => { if (alive) setNextActions([]); });
+    return () => { alive = false; };
+  }, [isOpen, user, center]);
 
   // נעילת גלילה של הרקע כשהמגירה פתוחה
   useEffect(() => {
@@ -115,20 +171,23 @@ export default function UserCenter() {
         {/* body — grid של מודולים או מודול פעיל */}
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: 14 }}>
           {!activeMod ? (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {MODULES.filter(m => !m.hidden).map(m => (
-                <button key={m.id} onClick={() => setActive(m.id)} style={{
-                  textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
-                  padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
-                  display: "flex", flexDirection: "column", gap: 4, color: T.ink,
-                }}>
-                  <span style={{ fontSize: 22 }}>{m.icon}</span>
-                  <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
-                  {m.badge != null && <span style={{ position: "absolute", top: 10, left: 10, background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 8px" }}>{m.badge}</span>}
-                  {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
-                </button>
-              ))}
-            </div>
+            <>
+              <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} nextActions={nextActions} setActive={setActive} goto={goto} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {MODULES.filter(m => !m.hidden).map(m => (
+                  <button key={m.id} onClick={() => setActive(m.id)} style={{
+                    textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
+                    padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
+                    display: "flex", flexDirection: "column", gap: 4, color: T.ink,
+                  }}>
+                    <span style={{ fontSize: 22 }}>{m.icon}</span>
+                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
+                    {m.badge != null && <span style={{ position: "absolute", top: 10, left: 10, background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 8px" }}>{m.badge}</span>}
+                    {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
+                  </button>
+                ))}
+              </div>
+            </>
           ) : (
             <div>
               <button onClick={() => setActive(null)} style={{ background: "none", border: "none", color: T.acc, fontWeight: 700, fontSize: 13.5, cursor: "pointer", padding: "2px 0 12px", display: "inline-flex", alignItems: "center", gap: 5 }}>→ חזרה</button>
