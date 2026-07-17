@@ -60,3 +60,46 @@ export async function getNextActions({ center } = {}) {
 
   return out.slice(0, 3);
 }
+
+// 🤖 רוסטר-הצוות מ-agent_identity (public read · agents_team_law v2). מטטרון(orchestrator) ראשון.
+export async function getAgentRoster() {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("agent_identity")
+      .select("agent_id,name,role,layer,domain,phase,user_facing").eq("active", true);
+    return data || [];
+  } catch { return []; }
+}
+
+// 📈 «מה הסוכן למד» — agent_research_stats (מיושר ל-4 השכבות). מקובץ בצד-לקוח לפי agent.
+export async function getAgentStats() {
+  if (!supabase) return {};
+  try {
+    const { data } = await supabase.from("agent_research_stats")
+      .select("agent,metric_key,label,value,detail,sort").order("sort", { ascending: true });
+    const by = {};
+    (data || []).forEach(r => { (by[r.agent] = by[r.agent] || []).push(r); });
+    return by;
+  } catch { return {}; }
+}
+
+// 🧠 הזיכרון שלי מול הבוטים — agent_user_memory (RLS own-read: רק השורות שלי). פרטיות = הלב.
+export async function getMyAgentMemory(limit = 20) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("agent_user_memory")
+      .select("id,agent,topic,content,memory_type,visibility,created_at")
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
+// ◆ ספר-הקרדיטים שלי — credit_ledger (RLS owner-read).
+export async function getMyCreditLedger(limit = 15) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("credit_ledger")
+      .select("amount,reason,meta,created_at").order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}

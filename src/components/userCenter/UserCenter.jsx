@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, getNextActions } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyAgentMemory, getMyCreditLedger } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -247,35 +247,122 @@ function Row({ T, k, v }) {
   return <div style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: `1px solid ${T.line}` }}><span style={{ color: T.sub, fontSize: 13.5 }}>{k}</span><span style={{ fontWeight: 800 }}>{typeof v === "number" ? v.toLocaleString("he") : v}</span></div>;
 }
 
-// 🤖 צוות הסוכנים — פאנל בהרצה (agents_team_law). לא רשימת בוטים אלא «צוות מחקר»:
-// כל סוכן עם התמחות; מטטרון מתאם. תפקידים שטרם נקבעו = «בהרצה». «רוצה יותר? דבר עם צוריאל».
-const AGENTS_TEAM = [
-  { e: "👑", name: "מטטרון", role: "מתאם הצוות — רואה את התמונה כולה, מחבר בין התחומים", defined: true },
-  { e: "🌍", name: "גבריאל", role: "שפות וגשרים בין-לשוניים — מומחה השפות של המערכת", defined: true },
-  { e: "🔮", name: "עוד סוכנים", role: "גימטריה · מקורות · אימות · רמזים — התפקידים נקבעים בהרצה", defined: false },
-];
+// 🤖 צוות הסוכנים — פאנל בהרצה (agents_team_law v2). לא רשימת בוטים אלא «צוות מחקר»:
+// רוסטר חי מ-agent_identity · «מה למד» מ-agent_research_stats · מטטרון = שכבת-תזמור.
+const LAYER_ICON = { orchestrator: "👑", expert: "🔬", interface: "💬", assistant: "🛠️" };
+function AgentCard({ T, a, stats }) {
+  const [open, setOpen] = useState(false);
+  const isOrch = a.layer === "orchestrator";
+  return (
+    <div style={{ background: T.card, border: `1px solid ${isOrch ? T.gold : T.line}`, borderRadius: 12, padding: "11px 12px" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <span style={{ fontSize: 22, lineHeight: 1 }}>{LAYER_ICON[a.layer] || "🤖"}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 800, fontSize: 13.5 }}>
+            {a.name}
+            {isOrch && <span style={{ marginInlineStart: 6, fontSize: 10.5, fontWeight: 800, color: T.gold, background: T.goldSoft, borderRadius: 999, padding: "1px 7px" }}>מתאם</span>}
+            {a.phase === "beta" && <span style={{ marginInlineStart: 6, fontSize: 10, fontWeight: 700, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 7px" }}>בהרצה</span>}
+          </div>
+          <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, marginTop: 2 }}>{a.domain}</div>
+        </div>
+        {stats && stats.length > 0 && (
+          <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, fontSize: 12, cursor: "pointer", padding: "2px 4px", whiteSpace: "nowrap" }}>{open ? "▴" : "▾ מה למד"}</button>
+        )}
+      </div>
+      {open && stats && (
+        <div style={{ marginTop: 9, borderTop: `1px solid ${T.line}`, paddingTop: 9, display: "grid", gap: 6 }}>
+          {stats.map((s, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 12 }}>
+              <span style={{ color: T.sub }}>{s.label}</span>
+              <span style={{ fontWeight: 800, color: T.ink, textAlign: "left" }}>{s.value != null ? s.value : (s.detail || "—")}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 function BotsTeamPanel({ T, goto }) {
+  const [roster, setRoster] = useState(null);
+  const [stats, setStats] = useState({});
+  const [mem, setMem] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getAgentRoster().then(r => { if (alive) setRoster(r); }).catch(() => { if (alive) setRoster([]); });
+    getAgentStats().then(s => { if (alive) setStats(s); }).catch(() => {});
+    getMyAgentMemory(8).then(m => { if (alive) setMem(m); }).catch(() => { if (alive) setMem([]); });
+    return () => { alive = false; };
+  }, []);
+  // מטטרון ראשון, אחריו מומחים
+  const ordered = (roster || []).slice().sort((a, b) => (b.layer === "orchestrator") - (a.layer === "orchestrator"));
   return (
     <div>
       <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px", marginBottom: 12 }}>
         <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold }}>🧪 בהרצה — מעבדת המחקר החיה</div>
         <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginTop: 3 }}>צוות חוקרי-AI, כל אחד בהתמחות שלו, שכולם תורמים לאותו עץ-ידע. מטטרון מתאם.</div>
       </div>
-      <div style={{ display: "grid", gap: 9 }}>
-        {AGENTS_TEAM.map(a => (
-          <div key={a.name} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 12px", opacity: a.defined ? 1 : 0.72 }}>
-            <span style={{ fontSize: 22, lineHeight: 1 }}>{a.e}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: 13.5 }}>{a.name}{!a.defined && <span style={{ marginInlineStart: 6, fontSize: 10.5, fontWeight: 700, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 7px" }}>בהרצה</span>}</div>
-              <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, marginTop: 2 }}>{a.role}</div>
-            </div>
+      {roster == null ? (
+        <div style={{ color: T.sub, fontSize: 12.5, padding: "6px 0" }}>טוען…</div>
+      ) : (
+        <div style={{ display: "grid", gap: 9 }}>
+          {ordered.map(a => <AgentCard key={a.agent_id} T={T} a={a} stats={stats[a.agent_id]} />)}
+        </div>
+      )}
+      {/* 🧠 מה הבוטים זוכרים עליי — פרטי (RLS own-read). מוצג רק אם יש. */}
+      {mem && mem.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>🧠 מה הבוטים זוכרים עליי <span style={{ fontSize: 10.5, fontWeight: 700, color: T.sub }}>(פרטי)</span></div>
+          <div style={{ display: "grid", gap: 7 }}>
+            {mem.map(m => (
+              <div key={m.id} style={{ background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "8px 11px" }}>
+                <div style={{ fontSize: 12.5, color: T.ink, lineHeight: 1.5 }}>{(m.topic ? m.topic + " — " : "") + (m.content || "").slice(0, 120)}</div>
+                <div style={{ fontSize: 10.5, color: T.sub, marginTop: 3 }}>{m.agent}{m.memory_type ? " · " + m.memory_type : ""}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
       <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>
-        המערכת בהרצה — בקרוב יוצגו לכל סוכן ההישגים והתגליות שנצברו. רוצה יותר מידע?{" "}
+        המערכת בהרצה. רוצה יותר מידע?{" "}
         <button onClick={() => goto("/contact")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>דבר עם צוריאל ←</button>
       </div>
+    </div>
+  );
+}
+
+// ◆ הקרדיטים שלי — יתרה + ספר-תנועות (בהרצה). credit_ledger own-read.
+const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", daily: "☀️ פעילות יומית", spend: "שימוש", earn: "צבירה" };
+function CreditsPanel({ T }) {
+  const [ledger, setLedger] = useState(null);
+  const [profile, setProfile] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getMyProfile().then(p => { if (alive) setProfile(p); }).catch(() => {});
+    getMyCreditLedger(15).then(l => { if (alive) setLedger(l); }).catch(() => { if (alive) setLedger([]); });
+    return () => { alive = false; };
+  }, []);
+  return (
+    <div>
+      <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "14px 15px", marginBottom: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 11.5, color: T.sub, fontWeight: 700 }}>היתרה שלי · בהרצה</div>
+        <div style={{ fontSize: 30, fontWeight: 800, color: T.gold, marginTop: 2 }}>◆ {(profile?.credits || 0).toLocaleString("he-IL")}</div>
+        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.6 }}>הקרדיטים בהרצה — עדיין ללא מחירים. מחלקים כדי ללמוד מה עובד; ההגדרה הסופית בקרוב.</div>
+      </div>
+      <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>תנועות אחרונות</div>
+      {ledger == null ? (
+        <div style={{ color: T.sub, fontSize: 12.5, padding: "6px 0" }}>טוען…</div>
+      ) : ledger.length ? (
+        <div style={{ display: "grid", gap: 6 }}>
+          {ledger.map((l, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.line}` }}>
+              <span style={{ fontSize: 12.5, color: T.sub }}>{CREDIT_REASON[l.reason] || l.reason}</span>
+              <span style={{ fontWeight: 800, color: l.amount >= 0 ? "#2e9e5b" : "#c0564a" }}>{l.amount >= 0 ? "+" : ""}{l.amount.toLocaleString("he-IL")}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7 }}>עדיין אין תנועות. פעילות באתר תתחיל לצבור קרדיטים (בהרצה).</div>
+      )}
     </div>
   );
 }
@@ -325,6 +412,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "hints", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "codes", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "bots", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
     { id: "settings", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
     // ─── ROADMAP — מפת-דרך אחת (במקום עשרות מודולים נעולים). «בקרוב = התוכנית האמיתית» ───
