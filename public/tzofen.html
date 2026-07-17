@@ -157,6 +157,13 @@
   .gallery .gal-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
   .gallery .gal-scard{flex:0 0 auto;width:118px;cursor:pointer;display:flex;flex-direction:column;background:linear-gradient(160deg,rgba(232,200,74,.08),var(--panel2));border:1px solid var(--line2);border-radius:12px;overflow:hidden;font-family:inherit;transition:border-color .15s,transform .12s}
   .gallery .gal-scard:hover{border-color:var(--gold);transform:translateY(-2px)}
+  /* 🗑 מחיקת צופן שמור (אדמין) — כפתור-על בפינת הכרטיס */
+  .gallery .gal-cardwrap{position:relative;flex:0 0 auto}
+  .gallery .gal-del{position:absolute;top:5px;inset-inline-start:5px;z-index:2;cursor:pointer;padding:0;
+     width:26px;height:26px;border-radius:999px;font-size:13px;line-height:1;display:grid;place-items:center;
+     background:rgba(20,10,6,.74);border:1px solid rgba(210,120,90,.6);color:#ff9f8a}
+  .gallery .gal-del:hover{background:#b5342a;color:#fff;border-color:transparent}
+  body.classic .gallery .gal-del,body.klaf .gallery .gal-del{background:rgba(255,255,255,.86);color:#b5342a;border-color:rgba(181,52,42,.5)}
   .gallery .gsc-thumb{height:80px;display:grid;place-items:center;background:linear-gradient(135deg,#160f03,#0a0700);overflow:hidden}
   body.classic .gallery .gsc-thumb,body.klaf .gallery .gsc-thumb{background:linear-gradient(135deg,var(--panel2),var(--field))}
   .gallery .gsc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1117,13 +1124,21 @@
       const ns=el.querySelector(".gal-namesearch");if(ns)ns.onclick=startNameSearch;};
     if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות שמורות. חפשו מילה, סמנו ממצאים, ולחצו «💾 שמור בגלריה».</div>';el.innerHTML=html;closeWire();return;}
     // שורה אופקית: תמונות-צפנים קטנות (הקש → פתיחה) + כרטיס «📚 כל הצפנים →» שמנווט לספרייה הקנונית /codes
+    //    אדמין → כפתור 🗑 על כל צופן-ענן (מסיר אותו מהגלריה, דרך האתר). מטריצת-מערכת מובנית אינה נמחקת.
+    const canDel=!!st.admin;
     html+='<div class="gal-strip">'+items.map((it,i)=>{
       const thumb=it.image?'<img src="'+it.image+'" alt="" loading="lazy">':'<span class="gsc-term">'+(it.term||it.name)+'</span>';
-      return '<button class="gal-scard" data-i="'+i+'"><span class="gsc-thumb">'+thumb+'</span><span class="gsc-name">'+(it.name||it.term)+'</span></button>';
+      const delb=(canDel&&it.cloud&&it.id)?'<button class="gal-del" data-i="'+i+'" title="מחק את הצופן מהגלריה">🗑</button>':'';
+      return '<div class="gal-cardwrap">'+delb+'<button class="gal-scard" data-i="'+i+'"><span class="gsc-thumb">'+thumb+'</span><span class="gsc-name">'+(it.name||it.term)+'</span></button></div>';
     }).join("")+'<button class="gal-all">📚<br>כל הצפנים →</button></div>';
     el.innerHTML=html;
     el.querySelectorAll(".gal-scard").forEach(c=>{const it=items[+c.dataset.i];
       c.onclick=()=>{loadMatrix(it);scrollToMatrix();toast("נטען «"+(it.name||it.term)+"»");};});
+    el.querySelectorAll(".gal-del").forEach(b=>{const it=items[+b.dataset.i];
+      b.onclick=e=>{e.stopPropagation();if(!it||!it.id)return;
+        if(!confirm("למחוק את הצופן «"+(it.name||it.term)+"» מהגלריה?"))return;
+        postHost({type:"delete",id:it.id,name:it.name||it.term});
+        toast("🗑 מוחק «"+(it.name||it.term)+"»…");};});
     const allb=el.querySelector(".gal-all");if(allb)allb.onclick=()=>{postHost({type:"navigate",to:"/codes"});};
     closeWire();
   }
@@ -1270,6 +1285,9 @@
     }
     if(d.type==="saved-matrices"&&Array.isArray(d.items)){   // מטריצות-הענן שהאתר שלף (els_records)
       CLOUD_MATRICES=d.items;try{renderGallery();}catch(e){}
+    }
+    if(d.type==="deleted"){   // תוצאת מחיקת-צופן (אדמין) — האתר מרענן את הגלריה מיד אחרי
+      toast(d.ok?"🗑 הצופן נמחק מהגלריה":"לא ניתן למחוק כרגע — נסו שוב");
     }
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
       try{loadMatrix(d.item,0);}catch(e){}

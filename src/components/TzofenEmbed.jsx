@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
-import { saveMatrix, saveMatrixAnon, getSavedMatrices } from "../lib/elsMatrices.js";
+import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
 import { supabase } from "../lib/supabase.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
@@ -145,6 +145,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "delete" && d.id) {
+        // 🗑 מחיקת-צופן מהגלריה (אדמין בלבד) — הסתרה הפיכה (status=hidden) דרך moderate_els_matrix,
+        //    ואז ריענון מיידי של מטריצות-הענן בכלי כך שהכרטיס נעלם.
+        if (!isAdmin) { postToTool({ type: "deleted", ok: false }); return; }
+        moderateMatrix(d.id, "hidden")
+          .then(() => { postToTool({ type: "deleted", ok: true }); pushSavedMatrices(); })
+          .catch(() => postToTool({ type: "deleted", ok: false }));
       } else if (d.type === "navigate" && typeof d.to === "string") {
         navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
       } else if (d.type === "quality" && d.quality && matrix?.id && isAdmin) {
