@@ -1,6 +1,8 @@
-// 🤖 wa-christina (רזיאל) — v24 — 17.7.2026 — מוד-מהיר לשיחה-פעילה + שירותים קנוניים
-// v24: ?fast=1 (cron 30ש') מטפל רק בצ'אטים פעילים (raziel_dm ב-ACTIVE_WINDOW) → תגובה מהירה בהיכרות ·
-//      הודעת-מוד לחדשים (זמני-תגובה שונים) · כוונת-שירותים (site_services) → רזיאל מספר מה יש באתר.
+// 🤖 wa-christina (רזיאל) — v26 — 17.7.2026 — allowlist ללא-הגבלה (raziel_unlimited) + v25
+// v26: raziel_unlimited (טבלה) = מספרים שעוקפים שער-מכסה («עד הודעה חדשה», למשל ציון סיבוני).
+// v25: הוסר מוד-מהיר והודעת-זמני-התגובה. דילוג על מספרי בוטים-אישיים (התשבי/אוריאל/מיכאל). קצב = קרון 2 דק'.
+//      רזיאל מדלג על מספרים בבעלות בוט אישי (התשבי=יסקה, אוריאל=כריסטינה, מיכאל=צוריאל) — הם מטופלים לפי התקנון, בלי הגבלה.
+//      נשמר: כוונת-שירותים (site_services) → רזיאל מספר מה יש באתר.
 // v23: handleAllDMs (lastIncomingMessages → כל שולח) · raziel_dm_policy (מי·מה·כמה·למה) ·
 //      ליבת-חוכמה: עוגן-מנוע(buildFacts)+יודע-הגרף(convergences)+זוכר(context)+מנתב(EN→גבריאל) ·
 //      מכסה 3/יום לאנונימי→שער-הרשמה · מצב-לימוד (מלמד שיטות לפי השאלות).
@@ -20,7 +22,6 @@ const MAX_PER_RUN = 2;
 const MAX_DM_CHATS_PER_RUN = 8;   // תקרת-עלות: כמה צ'אטים חדשים לטפל בכל ריצה
 const MAX_SEND_RETRIES = 4;
 const INITIATIVE_COOLDOWN_MIN = 60;
-const ACTIVE_WINDOW_MIN = 12;   // צ'אט "פעיל" (מוד-מהיר) אם ענינו לו ב-12 הדק' האחרונות
 const RAZIEL_TRIGGER = /^(רזיאל[,:\s]|@רזיאל)/i;
 const LEARN_INTENT = /(ללמוד|תלמד|למד אותי|איך מחשב|שיטות|מה זה גימטרי|רוצה ללמוד)/i;
 const SERVICES_INTENT = /(מה אתה|מה אפשר|מה יש|שירות|יכולות|מה המערכ|מה זה סוד|תפריט|מה יש לכם|מה יש כאן|במה תוכל)/i;
@@ -255,11 +256,18 @@ async function answersToday(chatId: string): Promise<number> {
 async function touchReferral(phone: string) {
   try { await sb.rpc("fn_bot_referral_touch", { p_phone: phone, p_source: "raziel" }); } catch { /* noop */ }
 }
-// צ'אטים פעילים (מוד-מהיר): כאלה שענינו להם ב-ACTIVE_WINDOW האחרונות
-async function activeChatIds(): Promise<Set<string>> {
-  const since = new Date(Date.now() - ACTIVE_WINDOW_MIN*60*1000).toISOString();
-  const { data } = await sb.from("wa_bot_log").select("group_id").eq("action","raziel_dm").eq("reply_out","[dm-sent]").gte("created_at", since);
-  return new Set((data||[]).map((r:any)=>String(r.group_id)));
+// מספרים בבעלות בוט אישי (התשבי=יסקה, אוריאל=כריסטינה, מיכאל=צוריאל) — רזיאל לא נוגע (חולקים מספר Green אחד)
+async function ownedNumbers(): Promise<Set<string>> {
+  const since = new Date(Date.now() - 30*24*3600*1000).toISOString();
+  const { data } = await sb.from("wa_bot_log").select("sender").in("action",["uriel_auto","hatishbi","michael"]).gte("created_at", since).limit(2000);
+  const s = new Set<string>();
+  for (const r of (data||[])) { const p = String((r as any).sender||"").replace(/[^0-9]/g,""); if (p) s.add(p); }
+  return s;
+}
+// מספרים ללא הגבלת-מכסה (עוקפים שער-הרשמה) — «עד הודעה חדשה»
+async function unlimitedNumbers(): Promise<Set<string>> {
+  const { data } = await sb.from("raziel_unlimited").select("phone");
+  return new Set((data||[]).map((r:any)=>String(r.phone).replace(/[^0-9]/g,"")));
 }
 // שירותי/מערכות האתר — מקור קנוני (site_services)
 async function servicesText(): Promise<string> {
@@ -272,22 +280,25 @@ async function servicesText(): Promise<string> {
 }
 
 // === שער ציבורי: DM מכל שולח, לפי raziel_dm_policy ===
-async function handleAllDMs(nowSec: number, policy: any, onlyChats?: Set<string>): Promise<number> {
+async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   let hist; try { hist = await waAdminGet("lastIncomingMessages", {}); } catch { return 0; }
   const goLive = policy?.go_live_at ? Math.floor(new Date(policy.go_live_at).getTime() / 1000) : null;
+  const owned = await ownedNumbers();
+  const unlimited = await unlimitedNumbers();
   const dms = pick(hist).filter((m:any)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
   // הודעה אחרונה לכל צ'אט (עלות: תשובה אחת לצ'אט לריצה)
   const byChat: Record<string, any> = {};
   for (const m of dms) { const c=m.chatId; if (!byChat[c] || Number(m.timestamp) > Number(byChat[c].timestamp)) byChat[c]=m; }
   let n = 0;
   for (const chatId of Object.keys(byChat).slice(0, MAX_DM_CHATS_PER_RUN)) {
-    if (onlyChats && !onlyChats.has(chatId)) continue;   // מוד-מהיר: רק צ'אטים פעילים
     const m = byChat[chatId];
     const msgId = m.idMessage; if (!msgId || await alreadyDone(msgId, "raziel_dm")) continue;
     const text = m.textMessage || m.extendedTextMessageData?.text || "";
     if (clean(text).length < 1) continue;
     const phone = chatId.replace("@c.us","");
+    if (owned.has(phone)) continue;                 // בבעלות בוט אישי (התשבי/אוריאל/מיכאל) — לפי התקנון, לא רזיאל
     const idn = await resolveIdentity(chatId);
+    if (!idn) continue;                             // זהות לא נפתרה (שגיאה זמנית) — דלג ונסה שוב, לא לחסום בטעות
     const linked = idn?.linked === true;
     const userRef = idn?.user_ref || ("wa:"+phone);
 
@@ -306,8 +317,8 @@ async function handleAllDMs(nowSec: number, policy: any, onlyChats?: Set<string>
       continue;
     }
 
-    // מכסה: אנונימי מעל free_per_day → שער-הרשמה
-    if (!linked && policy.after_gate !== "unlimited") {
+    // מכסה: אנונימי מעל free_per_day → שער-הרשמה (מדלג על מספרי ללא-הגבלה)
+    if (!linked && policy.after_gate !== "unlimited" && !unlimited.has(phone)) {
       const used = await answersToday(chatId);
       if (used >= policy.free_per_day_anon) {
         const regUrl = policy.register_url || (SITE + "/login?src=raziel");
@@ -329,7 +340,7 @@ async function handleAllDMs(nowSec: number, policy: any, onlyChats?: Set<string>
     if (!last) {
       welcome = linked
         ? "שלום 🙏 שמח שחזרת. שאל אותי כל מילה או ביטוי — או בקש «תלמד אותי גימטריה».\n\n"
-        : `שלום 🙏 אני רזיאל, השער למחקר של סוד 1820. שאל אותי כל מילה ואחשב לך את הגימטריה מהמנוע — או כתוב «תלמד אותי גימטריה» ונתחיל צעד-צעד. אפשר גם לשאול «מה יש באתר?».\n🟢 כרגע אנחנו בהיכרות ואני עונה מהר (עד ~30 שניות). בהמשך, מחוץ למהלך, ייתכן שאענה לאט יותר (עד כמה דקות) — זה תקין, פשוט מוד אחר.\n(לא-רשומים: ${policy.free_per_day_anon} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+        : `שלום 🙏 אני רזיאל, השער למחקר של סוד 1820. שאל אותי כל מילה ואחשב לך את הגימטריה מהמנוע — או כתוב «תלמד אותי גימטריה» ונתחיל צעד-צעד. אפשר גם לשאול «מה יש באתר?».\n(לא-רשומים: ${policy.free_per_day_anon} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
       if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date((last as any).created_at).getTime()) / 3.6e6;
@@ -371,13 +382,6 @@ Deno.serve(async(req)=>{
   trace=[]; const nowSec=Date.now()/1000; let n=0;
   const { data: policy } = await sb.from("raziel_dm_policy").select("*").eq("id",1).maybeSingle();
   const pol = policy || { answer_everyone:true, free_per_day_anon:3, after_gate:"invite_link", scope:"smart", teach_mode:true, en_to_gabriel:true };
-  // ⚡ מוד-מהיר (cron 30ש'): רק צ'אטים פעילים (בהיכרות). זול — אם אין פעילים, יוצא מיד בלי Green.
-  if (u.searchParams.get("fast")==="1") {
-    const active = await activeChatIds();
-    let fn = 0;
-    if (active.size) { try { fn = await handleAllDMs(nowSec, pol, active); } catch(e){ trace.push({src:"fast",e:String(e)}); } }
-    return new Response(JSON.stringify({fast:true, active:active.size, replied:fn, trace:u.searchParams.get("debug")==="1"?trace:undefined}),{headers:{"Content-Type":"application/json"}});
-  }
   try { await retryOutbox(); } catch(e){ trace.push({src:"outbox",e:String(e)}); }
   try { n+=await sendProactiveWelcomes(); } catch(e){ trace.push({src:"welcome",e:String(e)}); }
   try { n+=await handleAllDMs(nowSec, pol); } catch(e){ trace.push({src:"dm",e:String(e)}); }
