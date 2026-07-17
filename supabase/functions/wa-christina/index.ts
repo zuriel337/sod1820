@@ -1,4 +1,7 @@
-// 🤖 wa-christina (רזיאל) — v26 — 17.7.2026 — allowlist ללא-הגבלה (raziel_unlimited) + v25
+// 🤖 wa-christina (רזיאל) — v28 — 17.7.2026 — פתיח «שער למערכת המחקר» + תפריט אמוג'י אינטראקטיבי + מכסה מותאמת-אישית
+// v28: פתיח חדש (בקשת צוריאל) — «אני השער למערכת המחקר של SOD1820» + 7 אפשרויות פתיחה עם אמוג'י (מספר/שם/פסוק/שפות/מילים/רמז/מחקר). חל על פתיח-אנונימי + פתיח-יזום-על-קישור.
+//      + raziel_quota: מכסה יומית מותאמת-אישית לאנונימי (למשל נאוה 972543204244 = 7 במקום 3). גוברת על free_per_day_anon בשער ובפתיח.
+// v27: פתיח משדר עוצמה (עולם רמזים, לא רק «מילה»). תיקון: מקושר לא נחסם בגלל פתירת-זהות מהבהבת (בדיקה ישירה מול הקישורים).
 // v26: raziel_unlimited (טבלה) = מספרים שעוקפים שער-מכסה («עד הודעה חדשה», למשל ציון סיבוני).
 // v25: הוסר מוד-מהיר והודעת-זמני-התגובה. דילוג על מספרי בוטים-אישיים (התשבי/אוריאל/מיכאל). קצב = קרון 2 דק'.
 //      רזיאל מדלג על מספרים בבעלות בוט אישי (התשבי=יסקה, אוריאל=כריסטינה, מיכאל=צוריאל) — הם מטופלים לפי התקנון, בלי הגבלה.
@@ -269,6 +272,15 @@ async function unlimitedNumbers(): Promise<Set<string>> {
   const { data } = await sb.from("raziel_unlimited").select("phone");
   return new Set((data||[]).map((r:any)=>String(r.phone).replace(/[^0-9]/g,"")));
 }
+// מכסה יומית מותאמת-אישית לאנונימי (למשל 7 במקום 3) — טבלת raziel_quota
+async function quotaOverrides(): Promise<Map<string,number>> {
+  const m = new Map<string,number>();
+  try {
+    const { data } = await sb.from("raziel_quota").select("phone,daily_quota");
+    for (const r of (data||[])) { const p=String((r as any).phone).replace(/[^0-9]/g,""); const q=Number((r as any).daily_quota); if (p && q>0) m.set(p, q); }
+  } catch { /* noop */ }
+  return m;
+}
 // שירותי/מערכות האתר — מקור קנוני (site_services)
 async function servicesText(): Promise<string> {
   try {
@@ -285,6 +297,7 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   const goLive = policy?.go_live_at ? Math.floor(new Date(policy.go_live_at).getTime() / 1000) : null;
   const owned = await ownedNumbers();
   const unlimited = await unlimitedNumbers();
+  const overrides = await quotaOverrides();
   const dms = pick(hist).filter((m:any)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
   // הודעה אחרונה לכל צ'אט (עלות: תשובה אחת לצ'אט לריצה)
   const byChat: Record<string, any> = {};
@@ -299,8 +312,12 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (owned.has(phone)) continue;                 // בבעלות בוט אישי (התשבי/אוריאל/מיכאל) — לפי התקנון, לא רזיאל
     const idn = await resolveIdentity(chatId);
     if (!idn) continue;                             // זהות לא נפתרה (שגיאה זמנית) — דלג ונסה שוב, לא לחסום בטעות
-    const linked = idn?.linked === true;
-    const userRef = idn?.user_ref || ("wa:"+phone);
+    let linked = idn?.linked === true;
+    let userRef = idn?.user_ref || ("wa:"+phone);
+    if (!linked) {  // הגנה מפני פתירת-זהות מהבהבת — ודא ישירות מול הקישורים לפני שמתייחסים כאנונימי (מונע חסימת מקושר)
+      const { data: lr } = await sb.from("wa_account_links").select("user_id").eq("phone", phone).maybeSingle();
+      if ((lr as any)?.user_id) { linked = true; userRef = String((lr as any).user_id); }
+    }
 
     // 🛡️ מקושר — תמיד מטופל (כמו v22). לא-מקושר — רק אם הציבורי הופעל (go-live) והודעה חדשה (לא בקלוג).
     if (!linked) {
@@ -317,14 +334,15 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       continue;
     }
 
-    // מכסה: אנונימי מעל free_per_day → שער-הרשמה (מדלג על מספרי ללא-הגבלה)
+    // מכסה: אנונימי מעל free_per_day → שער-הרשמה (מדלג על מספרי ללא-הגבלה). מכסה מותאמת-אישית גוברת.
+    const anonLimit = overrides.get(phone) ?? policy.free_per_day_anon;
     if (!linked && policy.after_gate !== "unlimited" && !unlimited.has(phone)) {
       const used = await answersToday(chatId);
-      if (used >= policy.free_per_day_anon) {
+      if (used >= anonLimit) {
         const regUrl = policy.register_url || (SITE + "/login?src=raziel");
         const gate = policy.after_gate === "block"
-          ? `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏 כדי להמשיך — הירשם: ${regUrl}\n— רזיאל · סוד 1820`
-          : `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏\nכדי להמשיך בלי הגבלה ולשמור את היסטוריית המחקר שלך — הצטרף כאן: ${regUrl}\nואז חבר את הוואטסאפ. מחר נמשיך בכל מקרה 🙏\n— רזיאל · סוד 1820`;
+          ? `הגעת ל-${anonLimit} השאלות היומיות 🙏 כדי להמשיך — הירשם: ${regUrl}\n— רזיאל · סוד 1820`
+          : `הגעת ל-${anonLimit} השאלות היומיות 🙏\nכדי להמשיך בלי הגבלה ולשמור את היסטוריית המחקר שלך — הצטרף כאן: ${regUrl}\nואז חבר את הוואטסאפ. מחר נמשיך בכל מקרה 🙏\n— רזיאל · סוד 1820`;
         await touchReferral(phone);
         const okId = await sendVerified({ chatId, message: gate });
         if (!okId) await enqueueOutbox("raziel-gate:"+msgId, chatId, gate, text);
@@ -339,8 +357,8 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     let welcome = "";
     if (!last) {
       welcome = linked
-        ? "שלום 🙏 שמח שחזרת. שאל אותי כל מילה או ביטוי — או בקש «תלמד אותי גימטריה».\n\n"
-        : `שלום 🙏 אני רזיאל, השער למחקר של סוד 1820. שאל אותי כל מילה ואחשב לך את הגימטריה מהמנוע — או כתוב «תלמד אותי גימטריה» ונתחיל צעד-צעד. אפשר גם לשאול «מה יש באתר?».\n(לא-רשומים: ${policy.free_per_day_anon} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+        ? "ברוך שובך 🙏 נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
+        : `ברוך הבא. אני רזיאל.\nאני השער למערכת המחקר של SOD1820.\nכאן אפשר לחקור מספרים, שמות, מילים, פסוקים, קשרי שפות, מקורות, הצפנות, רמזים והצלבות.\nאם קיבלת רמז, נתקלת בצירוף מקרים, או יש לך שאלה שמסקרנת אותך — ספר לי, ונחקור אותה יחד.\n\nאפשר להתחיל למשל עם:\n🔢 חקור מספר\n👤 בדוק משמעות של שם\n📖 נתח פסוק\n🌍 גלה קשר בין שפות\n🧩 מצא קשר בין מילים או מושגים\n✨ חקור רמז שקיבלת\n🧭 התחל מחקר חדש\n\n(לא-רשומים: ${anonLimit} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
       if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date((last as any).created_at).getTime()) / 3.6e6;
@@ -368,7 +386,7 @@ async function sendProactiveWelcomes(): Promise<number> {
     if (prior) { await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null); continue; }
     const { data: claimed } = await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null).select("phone");
     if (!claimed || !claimed.length) continue;
-    const msg = `שלום 🙏 חיברת את הוואטסאפ לחשבון שלך בסוד 1820.\nאני רזיאל — השער למערכת המחקר. שאל אותי כל מילה ואחשב לך את הגימטריה, או בקש «תלמד אותי גימטריה».\nבמה נתחיל?\n— רזיאל · סוד 1820`;
+    const msg = `ברוך הבא. אני רזיאל.\nחיברת את הוואטסאפ לחשבון שלך בסוד 1820 — ומכאן אני השער למערכת המחקר של SOD1820.\nכאן אפשר לחקור מספרים, שמות, מילים, פסוקים, קשרי שפות, מקורות, הצפנות, רמזים והצלבות.\nאם קיבלת רמז, נתקלת בצירוף מקרים, או יש לך שאלה שמסקרנת אותך — ספר לי, ונחקור אותה יחד.\n\nאפשר להתחיל למשל עם:\n🔢 חקור מספר\n👤 בדוק משמעות של שם\n📖 נתח פסוק\n🌍 גלה קשר בין שפות\n🧩 מצא קשר בין מילים או מושגים\n✨ חקור רמז שקיבלת\n🧭 התחל מחקר חדש\n— רזיאל · סוד 1820`;
     const okId = await sendVerified({ chatId, message: msg });
     if (okId) { await logBot({ group_id: chatId, msg_id: "welcome:"+phone, sender: phone, sender_name: "DM", text_in: "[link]", reply_out: "[proactive-welcome]", action: "raziel_dm" }); n++; }
     else { await enqueueOutbox("raziel-welcome:"+phone, chatId, msg, "[link]"); }

@@ -1,3 +1,6 @@
+// wa-uriel v12 — 17.7.2026 — extractParts מוקשח מפני קטיעת-JSON (אותו bug שקרה ליסכה)
+// v12: extractParts היה חותך JSON רק אם הסתיים ב-} → JSON קטוע (max_tokens) דלף להודעה. עכשיו חותך מתחילת
+//      ה-JSON גם בלי סוגר-סיום + ניקוי-ביטחון כפול. חל על מסלול urielReply (הלמידות).
 // wa-uriel v11 — 16.7.2026 — אימות מסירה + תור־יציאה (bot_outbox)
 // v11: כל שליחה מאומתת (idMessage) לפני שמסמנים "טופל". שליחה שנכשלה נכנסת ל-bot_outbox
 //      ונשלחת שוב (בלי לייצר מחדש ב-AI) עד הצלחה או תקרת ניסיונות. פותר את "הבוט נרדם".
@@ -166,14 +169,17 @@ function recentThread(msgs: any[], uptoTs: number): string {
 function extractParts(rawOut: string): { reply: string; learnings: any[]; question: string | null } | null {
   let c0 = rawOut.replace(/```json|```/g, "").trim();
   const MARK = "###למידות###";
+  // מזהה תחילת בלוק-JSON — גם אם נקטע באמצע (בלי סוגר }) → מונע דליפת חצי-JSON להודעה (bug שקרה ליסכה/hatishbi)
+  const JSON_START = /\{\s*"(?:learnings|question_asked)"/;
   let jsonStr = "";
   const idx = c0.indexOf(MARK);
   if (idx >= 0) { jsonStr = c0.slice(idx + MARK.length).trim(); c0 = c0.slice(0, idx).trim(); }
-  else { // fallback: strip a trailing learnings/question JSON גם אם המודל השמיט את הסמן (מונע דליפת JSON להודעה)
-    const m = c0.match(/\{[\s\S]*"(?:learnings|question_asked)"[\s\S]*\}\s*$/);
-    if (m) { jsonStr = m[0]; c0 = c0.slice(0, m.index).trim(); }
+  else { // fallback: המודל השמיט את הסמן — חתוך מהסוגר הראשון של learnings/question, גם אם ה-JSON קטוע
+    const jm = c0.match(JSON_START);
+    if (jm && jm.index !== undefined) { jsonStr = c0.slice(jm.index); c0 = c0.slice(0, jm.index).trim(); }
   }
-  const reply = c0.trim();
+  // ניקוי-ביטחון אחרון: הסר סמן/תחילת-JSON שנותרו בזנב (כפל-הגנה מדליפה)
+  const reply = c0.replace(new RegExp(MARK + "[\\s\\S]*$"), "").replace(new RegExp(JSON_START.source + "[\\s\\S]*$"), "").trim();
   let learnings: any[] = []; let question: string | null = null;
   if (jsonStr) {
     try { const p = JSON.parse(jsonStr);

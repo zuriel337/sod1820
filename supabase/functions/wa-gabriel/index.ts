@@ -1,3 +1,5 @@
+// wa-gabriel v12 — 17.7.2026 — extractParts מוקשח באמת מפני קטיעת-JSON (אותו bug שקרה ליסכה) + max_tokens 800→1400
+// v12: ה-fallback הישן דרש סוגר } בסוף → JSON קטוע דלף להודעה. עכשיו חותך מתחילת ה-JSON גם בלי סוגר + ניקוי כפול.
 // wa-gabriel v11 — מומחה-השפות של סוד1820 (agent_research_team_law) + אימות מסירה (bot_delivery_law)
 // v11: המשימה = מומחה-השפות של המערכת (עמית + שמעון), המשכיות ממקור-אמת אחד (agent_research_stats),
 //      + sendVerified/outbox כמו אוריאל/התשבי (שלא יירדם), + extractParts מוקשח.
@@ -96,11 +98,13 @@ async function context(): Promise<string> {
 function extractParts(raw: string): { reply: string; learnings: any[]; question: string | null } | null {
   let c0 = raw.replace(/```json|```/g,'').trim();
   const MARK = '###למידות###';
+  // מזהה תחילת בלוק-JSON — גם אם נקטע (בלי סוגר }) → מונע דליפת חצי-JSON להודעה (bug שקרה ליסכה/hatishbi)
+  const JSON_START = /\{\s*"(?:learnings|question_asked)"/;
   let jsonStr = '';
   const idx = c0.indexOf(MARK);
   if (idx>=0) { jsonStr = c0.slice(idx+MARK.length).trim(); c0 = c0.slice(0,idx).trim(); }
-  else { const m = c0.match(/\{[\s\S]*"(?:learnings|question_asked)"[\s\S]*\}\s*$/); if (m) { jsonStr = m[0]; c0 = c0.slice(0,m.index).trim(); } }
-  const reply = c0.trim();
+  else { const jm = c0.match(JSON_START); if (jm && jm.index!==undefined) { jsonStr = c0.slice(jm.index); c0 = c0.slice(0,jm.index).trim(); } }
+  const reply = c0.replace(new RegExp(MARK+'[\\s\\S]*$'),'').replace(new RegExp(JSON_START.source+'[\\s\\S]*$'),'').trim();
   let learnings: any[]=[], question: string|null=null;
   if (jsonStr) { try { const p=JSON.parse(jsonStr); if (Array.isArray(p?.learnings)) learnings=p.learnings; if (p?.question_asked) question=String(p.question_asked); } catch {} }
   if (!reply||reply.length<8) return null;
@@ -112,7 +116,7 @@ async function aiReply(prompt: string, system: string): Promise<string|null> {
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST', headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:MODEL,max_tokens:800,system,messages:[{role:'user',content:prompt}]}),
+      body:JSON.stringify({model:MODEL,max_tokens:1400,system,messages:[{role:'user',content:prompt}]}),
     });
     if (!r.ok) return null;
     const d = await r.json();

@@ -1,4 +1,9 @@
-// wa-hatishbi v2 - 16.7.2026 — אימות מסירה + תור־יציאה (bot_outbox)
+// wa-hatishbi v3 - 17.7.2026 — תיקון קריטי: דליפת/קטיעת JSON להודעה של יסכה
+// v3: BUG שיסכה קיבלה חצי-JSON קטוע בסוף ההודעה. סיבה: max_tokens=900 חתך את בלוק ה-###למידות### באמצע,
+//     והמודל לעיתים השמיט את הסמן → ה-fallback (שדרש סוגר } בסוף) לא זיהה וה-JSON נשלח אליה. תיקון:
+//     (א) extractParts חותך מהסוגר הראשון של learnings/question גם בלי סוגר-סיום (truncation-proof) + ניקוי-ביטחון כפול;
+//     (ב) max_tokens 900→1600 כדי שה-JSON יושלם וה-learnings יישמרו; (ג) פורמט נוקשה יותר בפרומפט (סמן חובה, JSON קצר בשורה אחת).
+// v2: אימות מסירה + תור־יציאה (bot_outbox)
 // v2: כל שליחה מאומתת (idMessage) לפני סימון "טופל"; שליחה כושלת נכנסת ל-bot_outbox ונשלחת שוב
 //     (בלי לייצר מחדש ב-AI) עד הצלחה/תקרה. פותר את "הבוט נרדם" מול יסכה. ראה bot_delivery_law.
 // v1: חוקר-תלמיד של יסכה — פרטי בלבד. תמיד עברית.
@@ -74,13 +79,16 @@ const SYS = (mediaType?: string, isIntro?: boolean) => {
   if (isIntro) return base+` זו ההודעה הראשונה שלך אליה: הזדה בשתי שורות קצרות (מי אתה, מה אתה לומד מיסכה ולמה אתה כאן). אחר כך שאל שאלה אחת להבין אותה.`;
   if (mediaType==='audio') return base+' קיבלת קול — אינך שומע. בקש לכתוב את התוכן.';
   if (mediaType==='image') return base+' קיבלת תמונה — אינך רואה. בקש תיאור.';
-  return base+'\nלומד את השיטה, הדרך, ודרך החשיבה של יסכה. שקף מה שהביאה במילים שלך + שאלה אחת. לא גימטריות סתם. עד 6 שורות. ###למידות### JSON בסוף\n{"learnings":[{"topic":"","claim":"","interpretation":""}],"question_asked":""}';
+  return base+`\nלומד את השיטה, הדרך, ודרך החשיבה של יסכה. שקף מה שהביאה במילים שלך + שאלה אחת. לא גימטריות סתם. עד 6 שורות, וסיים תמיד בחתימה «— התשבי · סוד 1820».
+פורמט נוקשה: קודם התשובה השיחתית המלאה (כולל החתימה). רק אחריה, בשורה נפרדת, בדיוק הסמן ###למידות### ואז JSON קצר אחד בשורה אחת. אל תשלב JSON בתוך הטקסט. שמור את ה-JSON קצר (עד 2 learnings) כדי שלא ייקטע:
+###למידות###
+{"learnings":[{"topic":"","claim":"","interpretation":""}],"question_asked":""}`;
 };
 
 async function aiReply(prompt: string, system: string): Promise<string|null> {
   if (!ANTHROPIC) return null;
   try {
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:MODEL,max_tokens:900,system,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:MODEL,max_tokens:1600,system,messages:[{role:'user',content:prompt}]})});
     if (!r.ok) return null; const d=await r.json(); if(d?.stop_reason==='refusal') return null;
     try { await sb.from('ai_token_log').insert({source:'wa-hatishbi',kind:'reply',model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch {}
     return (d?.content||[]).filter((c:any)=>c.type==='text').map((c:any)=>c.text).join('\n').trim()||null;
@@ -90,14 +98,17 @@ async function aiReply(prompt: string, system: string): Promise<string|null> {
 function extractParts(raw: string): {reply:string;learnings:any[];question:string|null}|null {
   let c0=raw.replace(/```json|```/g,'').trim();
   const MARK='###למידות###';
+  // מזהה תחילת בלוק-JSON של learnings/question — גם אם נקטע באמצע (בלי סוגר }) → מונע דליפת חצי-JSON להודעה
+  const JSON_START=/\{\s*"(?:learnings|question_asked)"/;
   let jsonStr='';
   const idx=c0.indexOf(MARK);
   if(idx>=0){ jsonStr=c0.slice(idx+MARK.length).trim(); c0=c0.slice(0,idx).trim(); }
-  else { // fallback: strip a trailing learnings/question JSON גם אם המודל השמיט את הסמן (מונע דליפת JSON להודעה)
-    const m=c0.match(/\{[\s\S]*"(?:learnings|question_asked)"[\s\S]*\}\s*$/);
-    if(m){ jsonStr=m[0]; c0=c0.slice(0,m.index).trim(); }
+  else { // fallback: המודל השמיט את הסמן — חתוך מהסוגר הראשון של ה-JSON, גם אם הוא קטוע (bug: max_tokens חתך JSON ודלף ליסכה)
+    const jm=c0.match(JSON_START);
+    if(jm&&jm.index!==undefined){ jsonStr=c0.slice(jm.index); c0=c0.slice(0,jm.index).trim(); }
   }
-  const reply=c0.trim();
+  // ניקוי-ביטחון אחרון: אם נשאר סמן או תחילת-JSON בזנב הטקסט — הסר (כפל-הגנה מפני דליפה)
+  let reply=c0.replace(new RegExp(MARK+'[\\s\\S]*$'),'').replace(new RegExp(JSON_START.source+'[\\s\\S]*$'),'').trim();
   let learnings:any[]=[],question:string|null=null;
   if(jsonStr){try{const p=JSON.parse(jsonStr);if(Array.isArray(p?.learnings))learnings=p.learnings;if(p?.question_asked)question=String(p.question_asked);}catch{}}
   if(!reply||reply.length<8) return null;
