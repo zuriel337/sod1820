@@ -16,6 +16,7 @@ Disallow: /
 # ── כל השאר (מנועי-חיפוש: Googlebot/Bingbot/Applebot/… + בוטי-AI: GPTBot/ClaudeBot/PerplexityBot/…) ──
 # תוכן ציבורי פתוח; מסלולים יקרים/פרטיים חסומים.
 User-agent: *
+Crawl-delay: 10
 Allow: /
 Disallow: /admin
 Disallow: /traffic
