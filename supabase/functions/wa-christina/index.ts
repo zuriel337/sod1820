@@ -1,4 +1,8 @@
-// 🤖 wa-christina (רזיאל) — v30 — 17.7.2026 — עומק «שכבה על שכבה» (כל השיטות + התכנסות רב-שיטתית)
+// 🤖 wa-christina (רזיאל) — v31 — 17.7.2026 — מייל מאומת בלינק → מצטרף לניוזלטר (subscribers), בלי כפילות
+// v31: כשרזיאל מאמת מייל בחיבור-חשבון — המייל נוסף לרשימת התפוצה הקנונית (subscribers, source='raziel', deduped),
+//      והמשתמש מיודע בהודעת-ההצלחה (ביטול דרך קישור-ההסרה במייל). בקשת צוריאל «מיילים במערכת לניוזלטר».
+//      מנגנון-הלינק: נשאר בבוט (מסלול מייל) — הוא נקודת-לכידת-המייל; מתואם עם הפרונט ביומן.
+// v30 — 17.7.2026 — עומק «שכבה על שכבה» (כל השיטות + התכנסות רב-שיטתית)
 // v30: buildFacts מביא לרזיאל את כל השיטות (רגיל·גדול·סידורי·מילוי·אתבש·קדמי) לכל מילה, מזהה התכנסויות
 //      רב-שיטתיות בין המילים (אותה מילה שווה גם ב-2+ שיטות = הלב), ומביא ביטויים מאומתים מהליבה. max_tokens
 //      900→1500 + פרומפט בנוי (עובדה ✅ רב-שכבתית → ביטויי-מאגר → רמז ✦). בקשת צוריאל אחרי דוגמת 248 (אברהם/רחם/במדבר).
@@ -348,15 +352,27 @@ async function setLinkFlow(phone: string, state: string, email?: string | null, 
 async function startEmailOtp(email: string): Promise<boolean> {
   try { const { error } = await authClient().auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); return !error; } catch { return false; }
 }
-async function verifyEmailOtpAndLink(phone: string, email: string, code: string): Promise<boolean> {
+// ניוזלטר: מייל מאומת (בעל-חשבון) → מתווסף לרשימת התפוצה הקנונית (subscribers), בלי כפילות. מקור='raziel'.
+async function subscribeToNewsletter(email: string, name: string | null = null): Promise<boolean> {
+  const e = (email || "").trim().toLowerCase();
+  if (!e || !EMAIL_RE.test(e)) return false;
+  try {
+    const { data: exists } = await sb.from("subscribers").select("id").eq("email", e).maybeSingle();
+    if (exists) return false;
+    await sb.from("subscribers").insert({ email: e, name, source: "raziel", active: true });
+    return true;
+  } catch { return false; }
+}
+async function verifyEmailOtpAndLink(phone: string, email: string, code: string): Promise<{ ok: boolean; subscribed: boolean }> {
   try {
     const { data, error } = await authClient().auth.verifyOtp({ email, token: code.replace(/[^0-9]/g, ""), type: "email" });
     const uid = (data as any)?.user?.id;
-    if (error || !uid) return false;
+    if (error || !uid) return { ok: false, subscribed: false };
     const nowIso = new Date().toISOString();
     await sb.from("wa_account_links").upsert({ phone, user_id: uid, verified_at: nowIso, welcomed_at: nowIso }, { onConflict: "phone" });
-    return true;
-  } catch { return false; }
+    const subscribed = await subscribeToNewsletter(email.toLowerCase());
+    return { ok: true, subscribed };
+  } catch { return { ok: false, subscribed: false }; }
 }
 
 // === שער ציבורי: DM מכל שולח, לפי raziel_dm_policy ===
@@ -423,9 +439,11 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
         const otherEmail = (text.match(EMAIL_RE) || [])[0];
         let msg: string; let outcome = "[link-code]";
         if (code && flow.email) {
-          if (await verifyEmailOtpAndLink(phone, flow.email, code)) {
+          const res = await verifyEmailOtpAndLink(phone, flow.email, code);
+          if (res.ok) {
             await clearLinkFlow(phone);
-            msg = `מחובר! 🎉 מעכשיו אתה מזוהה — בלי הגבלת שאלות, וכל המחקר שלך נשמר בחשבון. אז ספר לי: איזה מספר, שם או רמז מסקרן אותך עכשיו?\n— רזיאל · סוד 1820`;
+            const nl = res.subscribed ? "\nוצירפתי אותך גם לעדכוני המייל של סוד 1820 (אפשר לבטל בכל עת מקישור-ההסרה שבתחתית המייל)." : "";
+            msg = `מחובר! 🎉 מעכשיו אתה מזוהה — בלי הגבלת שאלות, וכל המחקר שלך נשמר בחשבון.${nl}\nאז ספר לי: איזה מספר, שם או רמז מסקרן אותך עכשיו?\n— רזיאל · סוד 1820`;
             outcome = "[link-ok]";
           } else {
             const att = (flow.attempts || 0) + 1;
