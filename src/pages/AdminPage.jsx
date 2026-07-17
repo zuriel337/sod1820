@@ -20,6 +20,7 @@ import {
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
   getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse, getRetention,
+  getWaCandidates, adminLinkWa, adminUnlinkWa,
   supabase,
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
@@ -49,6 +50,7 @@ const TABS = [
   { key: "traffic",  label: "📊 תנועה" },
   { key: "retention",label: "🔁 חוזרים" },
   { key: "users",    label: "👤 משתמשים" },
+  { key: "walink",   label: "🟢 חיבור וואטסאפ" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
@@ -84,7 +86,7 @@ const TABS = [
 // 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
 const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "jexp", "journeys"] },
+  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "walink", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
@@ -221,6 +223,7 @@ export default function AdminPage() {
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "retention" && <RetentionTab />}
       {tab === "users" && <UsersTab />}
+      {tab === "walink" && <WhatsAppLinkTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
@@ -2523,6 +2526,89 @@ function UsersTab() {
               <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🟢 חיבור וואטסאפ ↔ חשבון — כלי אדמין. האמון של צוריאל = עוגן-האימות (בלי OTP למי שהוא מכיר).
+// מסלול OTP (המשתמש מחבר את עצמו) חי במקביל בדף-המשתמש. כאן: המספרים שכבר יש לנו + קישור ידני.
+function WaCandidateRow({ c, onLink, onUnlink }) {
+  const [email, setEmail] = useState(c.suggested_email || "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const num = n => Number(n || 0).toLocaleString("he");
+  const link = async () => {
+    if (!email.trim() || busy) return;
+    setBusy(true); setMsg("");
+    const r = await onLink(c.phone, email.trim());
+    setBusy(false);
+    if (!r.ok) setMsg(r.error === "no_user" ? "אין משתמש רשום עם המייל הזה" : r.error === "bad_phone" ? "מספר לא תקין" : "שגיאה: " + (r.error || ""));
+  };
+  const unlink = async () => { if (busy) return; setBusy(true); await onUnlink(c.phone); setBusy(false); };
+  const linked = !!c.linked_email;
+  return (
+    <div style={{ border: `1px solid ${linked ? "rgba(95,224,138,0.45)" : C.border}`, borderRadius: 12, padding: "11px 14px", background: "rgba(8,5,2,0.4)", display: "grid", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 16 }}>🟢</span>
+        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, fontWeight: 700, minWidth: 120 }} dir="rtl">{c.name || "—"}</span>
+        <a href={"https://wa.me/" + String(c.phone).replace(/\D/g, "")} target="_blank" rel="noreferrer" style={{ color: "#25d366", fontFamily: F.mono, fontSize: 12.5, textDecoration: "none", direction: "ltr" }}>+{c.phone}</a>
+        <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5 }}>⚡ {num(c.events)}</span>
+        <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, marginInlineStart: "auto" }}>{timeAgoTs(c.last_seen)}</span>
+      </div>
+      {linked ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ ...pill("#5fe08a"), color: "#5fe08a" }}>✓ מקושר</span>
+          <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 12.5, direction: "ltr" }}>{c.linked_email}</span>
+          <button onClick={unlink} disabled={busy} style={{ ...segBtn(false), marginInlineStart: "auto", color: "#e0796f", borderColor: "rgba(224,121,111,0.4)" }}>{busy ? "…" : "🔗 נתק"}</button>
+        </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="מייל של משתמש רשום"
+            dir="ltr" style={{ flex: "1 1 200px", background: "rgba(8,5,2,0.6)", border: `1px solid ${c.suggested_email ? "rgba(240,216,120,0.5)" : C.border}`, borderRadius: 9, padding: "9px 11px", color: C.goldLight, fontFamily: F.body, fontSize: 13 }} />
+          {c.suggested_email && <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 10.5 }}>הצעה אוטומטית ✨</span>}
+          <button onClick={link} disabled={busy || !email.trim()} style={{ ...segBtn(true), opacity: email.trim() ? 1 : 0.5 }}>{busy ? "מקשר…" : "🔗 קשר"}</button>
+        </div>
+      )}
+      {msg && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 12 }}>{msg}</div>}
+    </div>
+  );
+}
+function WhatsAppLinkTab() {
+  const [cands, setCands] = useState(null);
+  const [err, setErr] = useState("");
+  const [q, setQ] = useState("");
+  const load = () => getWaCandidates().then(x => setCands(Array.isArray(x) ? x : [])).catch(e => setErr(String(e?.message || e)));
+  useEffect(() => { load(); }, []);
+  const onLink = async (phone, email) => {
+    const r = await adminLinkWa(phone, email);
+    if (r.ok) setCands(list => (list || []).map(c => c.phone === phone ? { ...c, linked_email: email } : c));
+    return r;
+  };
+  const onUnlink = async (phone) => {
+    const r = await adminUnlinkWa(phone);
+    if (r.ok) setCands(list => (list || []).map(c => c.phone === phone ? { ...c, linked_email: null } : c));
+    return r;
+  };
+  const filtered = (cands || []).filter(c => !q.trim() || (c.name || "").includes(q) || (c.phone || "").includes(q) || (c.linked_email || "").includes(q));
+  const linkedCount = (cands || []).filter(c => c.linked_email).length;
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>🟢 חיבור וואטסאפ ↔ חשבון {cands ? `· ${cands.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          כל המספרים שכבר דיברו עם הבוט. <b style={{ color: C.goldLight }}>קישור ידני כאן = בלי קוד</b> — האישור שלך הוא האימות (אתה מכיר את האנשים). מי שמחבר את עצמו באתר עובר אימות-קוד בוואטסאפ. אחרי קישור, הזיכרון של הבוט על אותו מספר נפתח למשתמש באזור-האישי שלו.
+          {cands && <> <b style={{ color: "#5fe08a" }}>{linkedCount}</b> מקושרים.</>}
+          <br />💡 «הצעה אוטומטית ✨» = התאמנו את המספר למשתמש רשום לפי הטלפון בפרופיל שלו.
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>שגיאה: {err}</div>}
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍 חיפוש לפי שם / מספר / מייל" dir="rtl"
+          style={{ width: "100%", boxSizing: "border-box", marginTop: 10, background: "rgba(8,5,2,0.6)", border: `1px solid ${C.border}`, borderRadius: 9, padding: "9px 12px", color: C.goldLight, fontFamily: F.body, fontSize: 13 }} />
+      </div>
+      {!cands ? <Loading /> : filtered.length === 0 ? <Empty>אין מספרים תואמים.</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {filtered.map((c, i) => <WaCandidateRow key={c.phone || i} c={c} onLink={onLink} onUnlink={onUnlink} />)}
         </div>
       )}
     </div>

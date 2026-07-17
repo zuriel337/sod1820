@@ -125,6 +125,16 @@ export async function requestWaLinkCode(phone) {
   } catch (e) { return { ok: false, error: String(e?.message || e) }; }
 }
 
+// ✂️ ניתוק-עצמי של טלפון מקושר שלי.
+export async function unlinkMyWa(phone) {
+  if (!supabase) return { ok: false, error: "no_client" };
+  try {
+    const { data, error } = await supabase.rpc("unlink_my_wa", { p_phone: phone });
+    if (error) return { ok: false, error: error.message };
+    return data || { ok: false };
+  } catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
+
 // ✅ אימות הקוד → יוצר קישור user_id↔phone. מחזיר {ok, linked?, phone?, error?}.
 export async function verifyWaLinkCode(phone, code) {
   if (!supabase) return { ok: false, error: "no_client" };

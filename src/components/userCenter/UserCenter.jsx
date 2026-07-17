@@ -10,7 +10,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -453,6 +453,9 @@ function WhatsAppPanel({ T, goto }) {
                 <span style={{ fontSize: 15 }}>🟢</span>
                 <span style={{ flex: 1, fontWeight: 700, fontSize: 13.5, direction: "ltr", textAlign: "left" }}>+{l.phone}</span>
                 <span style={{ fontSize: 11, fontWeight: 800, color: "#1a7f37", background: "#e6f4ea", borderRadius: 999, padding: "2px 9px" }}>מחובר ✓</span>
+                <button onClick={async () => { if (busy) return; setBusy(true); await unlinkMyWa(l.phone); setBusy(false); reload(); }}
+                  disabled={busy} title="נתק מספר זה"
+                  style={{ background: "none", border: "none", color: T.sub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", padding: "0 2px", fontFamily: "inherit" }}>נתק</button>
               </div>
             ))}
           </div>
