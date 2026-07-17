@@ -247,6 +247,10 @@ async function answersToday(chatId: string): Promise<number> {
     .eq("group_id", chatId).eq("action", "raziel_dm").eq("reply_out", "[dm-sent]").gte("created_at", since.toISOString());
   return count || 0;
 }
+// מעקב הפניה: רושם שהבוט הזמין את הטלפון להירשם (→ bot_referral_funnel)
+async function touchReferral(phone: string) {
+  try { await sb.rpc("fn_bot_referral_touch", { p_phone: phone, p_source: "raziel" }); } catch { /* noop */ }
+}
 
 // === שער ציבורי: DM מכל שולח, לפי raziel_dm_policy ===
 async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
@@ -286,9 +290,11 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (!linked && policy.after_gate !== "unlimited") {
       const used = await answersToday(chatId);
       if (used >= policy.free_per_day_anon) {
+        const regUrl = policy.register_url || (SITE + "/login?src=raziel");
         const gate = policy.after_gate === "block"
-          ? `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏 כדי להמשיך — הירשם באתר ${SITE}\n— רזיאל · סוד 1820`
-          : `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏\nכדי להמשיך בלי הגבלה ולשמור את היסטוריית המחקר שלך — הצטרף באתר ${SITE} וחבר את הוואטסאפ.\nמחר נמשיך בכל מקרה 🙏\n— רזיאל · סוד 1820`;
+          ? `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏 כדי להמשיך — הירשם: ${regUrl}\n— רזיאל · סוד 1820`
+          : `הגעת ל-${policy.free_per_day_anon} השאלות היומיות 🙏\nכדי להמשיך בלי הגבלה ולשמור את היסטוריית המחקר שלך — הצטרף כאן: ${regUrl}\nואז חבר את הוואטסאפ. מחר נמשיך בכל מקרה 🙏\n— רזיאל · סוד 1820`;
+        await touchReferral(phone);
         const okId = await sendVerified({ chatId, message: gate });
         if (!okId) await enqueueOutbox("raziel-gate:"+msgId, chatId, gate, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM", text_in: text.slice(0,500), reply_out: "[dm-gate]", action: "raziel_dm" });
@@ -303,7 +309,8 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (!last) {
       welcome = linked
         ? "שלום 🙏 שמח שחזרת. שאל אותי כל מילה או ביטוי — או בקש «תלמד אותי גימטריה».\n\n"
-        : `שלום 🙏 אני רזיאל, השער למחקר של סוד 1820. שאל אותי כל מילה ואחשב לך את הגימטריה מהמנוע — או כתוב «תלמד אותי גימטריה» ונתחיל צעד-צעד.\n(לא-רשומים: ${policy.free_per_day_anon} שאלות ביום; להרשמה מלאה — ${SITE})\n\n`;
+        : `שלום 🙏 אני רזיאל, השער למחקר של סוד 1820. שאל אותי כל מילה ואחשב לך את הגימטריה מהמנוע — או כתוב «תלמד אותי גימטריה» ונתחיל צעד-צעד.\n(לא-רשומים: ${policy.free_per_day_anon} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+      if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date((last as any).created_at).getTime()) / 3.6e6;
       if (hrs > 6) {
