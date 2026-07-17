@@ -1,4 +1,8 @@
-// 🤖 wa-christina (רזיאל) — v29 — 17.7.2026 — חיבור-חשבון בשיחה («יש לי כבר חשבון» → מייל → קוד → מקושר)
+// 🤖 wa-christina (רזיאל) — v30 — 17.7.2026 — עומק «שכבה על שכבה» (כל השיטות + התכנסות רב-שיטתית)
+// v30: buildFacts מביא לרזיאל את כל השיטות (רגיל·גדול·סידורי·מילוי·אתבש·קדמי) לכל מילה, מזהה התכנסויות
+//      רב-שיטתיות בין המילים (אותה מילה שווה גם ב-2+ שיטות = הלב), ומביא ביטויים מאומתים מהליבה. max_tokens
+//      900→1500 + פרומפט בנוי (עובדה ✅ רב-שכבתית → ביטויי-מאגר → רמז ✦). בקשת צוריאל אחרי דוגמת 248 (אברהם/רחם/במדבר).
+// v29: חיבור-חשבון בשיחה («יש לי כבר חשבון» → מייל → קוד → מקושר)
 // v29: אם אנונימי כותב «יש לי כבר חשבון» — רזיאל שואל מייל, שולח קוד-אימות (Supabase OTP למייל), ובאישור הקוד
 //      מקשר טלפון↔חשבון (wa_account_links) → הופך למקושר, בלי הגבלה, המחקר נשמר. State ב-raziel_link_flow.
 //      פרטיות: מאמת בעלות-מייל לפני קישור (לא קישור עיוור). לקוח-auth נפרד (anon) שלא מזהם את service_role.
@@ -115,28 +119,48 @@ async function retryOutbox() {
 async function ragil(p: string): Promise<number | null> {
   try { const { data } = await sb.rpc("fn_ragil", { phrase: p }); return typeof data === "number" ? data : null; } catch { return null; }
 }
+// שיטות שמוצגות לרזיאל לעומק — «שכבה על שכבה» (רגיל=יסוד; ראה method_hierarchy_ragil_foundation)
+const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
+async function allMethods(w: string): Promise<Record<string,number> | null> {
+  try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && (data as any)["רגיל"]) ? (data as any) : null; } catch { return null; }
+}
 async function buildFacts(text: string): Promise<{ facts: string; convergence: boolean; values: number[] }> {
-  const ws = [...new Set(clean(text).split(" ").filter((w:string)=>w.length>=2&&w.length<=24))].slice(0,16);
-  const vals: Record<string,number> = {};
-  for (const w of ws) { const v=await ragil(w); if (v) vals[w]=v; }
-  const byVal: Record<number,string[]> = {};
-  for (const [w,v] of Object.entries(vals)) { (byVal[v]??=[]).push(w); }
-  const conv = Object.entries(byVal).filter(([,ws2])=>ws2.length>=2).map(([v,ws2])=>`${v}: ${ws2.join(" = ")}`);
-  const topVals = [...new Set(Object.values(vals))].slice(0,4);
+  const ws = [...new Set(clean(text).split(" ").filter((w:string)=>w.length>=2&&w.length<=24))].slice(0,8);
+  const perWord: Record<string, Record<string,number>> = {};
+  for (const w of ws) { const m = await allMethods(w); if (m) perWord[w] = m; }
+  const words = Object.keys(perWord);
+  // שורת-עומק לכל מילה (כל השיטות)
+  const wordLines = words.map((w)=>{
+    const m = perWord[w];
+    const parts = METHOD_KEYS.filter((k)=>m[k]!=null).map((k)=>`${k} ${m[k]}`);
+    return `${w}: ${parts.join(" · ")}`;
+  });
+  // התכנסויות רב-שיטתיות בין המילים ששלח — זה הלב (אותה מילה שווה גם ב-2+ שיטות)
+  const convLines: string[] = [];
+  let anyConv = false;
+  for (const method of METHOD_KEYS) {
+    const byVal: Record<number,string[]> = {};
+    for (const w of words) { const v = perWord[w][method]; if (v!=null) (byVal[v]??=[]).push(w); }
+    for (const [v, group] of Object.entries(byVal)) {
+      if (group.length >= 2) { anyConv = true; convLines.push(`${method} ${v}: ${group.join(" = ")}`); }
+    }
+  }
+  // ערכי רגיל → ביטויים מאומתים מהמאגר באותו ערך (הליבה בלבד, לפי lead_rank)
+  const ragilVals = [...new Set(words.map((w)=>perWord[w]["רגיל"]).filter(Boolean) as number[])].slice(0,4);
   const matches: string[] = [];
-  for (const v of topVals) {
+  for (const v of ragilVals) {
     try {
-      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil",v).order("lead_rank",{ascending:true,nullsFirst:false}).order("is_verified",{ascending:false}).limit(6);
-      const ph=(data||[]).map((r:any)=>r.phrase).filter((p:string)=>p&&!ws.includes(p));
-      if (ph.length) matches.push(`${v} שווה גם ל: ${ph.slice(0,5).join(", ")}`);
+      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil",v).eq("is_verified",true).eq("space","core").order("lead_rank",{ascending:true,nullsFirst:false}).limit(9);
+      const ph=(data||[]).map((r:any)=>r.phrase).filter((p:string)=>p&&!words.includes(p));
+      if (ph.length) matches.push(`${v} (רגיל) — במאגר גם: ${ph.slice(0,7).join(", ")}`);
     } catch { /* noop */ }
   }
   const facts = [
-    Object.keys(vals).length ? `מילים וערכן: ${Object.entries(vals).map(([w,v])=>`${w}=${v}`).join(" · ")}` : "",
-    conv.length ? `שוויונות: ${conv.join(" | ")}` : "",
-    matches.length ? `במאגר: ${matches.join(" | ")}` : "",
-  ].filter(Boolean).join("\n");
-  return { facts, convergence: conv.length > 0, values: topVals };
+    wordLines.length ? `ערכים מהמנוע (כל השיטות):\n${wordLines.join("\n")}` : "",
+    convLines.length ? `התכנסויות רב-שיטתיות בין המילים (זה הלב — הדגש «שכבה על שכבה»):\n${convLines.join("\n")}` : "",
+    matches.length ? `ביטויים מאומתים באותו ערך (בחר 2-3 היפים והבֵא אותם):\n${matches.join("\n")}` : "",
+  ].filter(Boolean).join("\n\n");
+  return { facts, convergence: anyConv, values: ragilVals };
 }
 // יודע-הגרף: התכנסויות חזקות מהמנוע (מטטרון) לערכים שעלו
 async function convergenceInsight(values: number[]): Promise<string> {
@@ -158,7 +182,12 @@ const SYSTEM_BASE =
 2. הפרד עובדה (✅) מרמז (✦). בלי נבואות.
 3. חם, מדויק, עברית. חתום: — רזיאל · סוד 1820.
 4. אם יש זיכרון-רקע על המשתמש — התייחס בטבעיות (רק ב-DM). בקבוצה לעולם אל תחשוף היסטוריה אישית.
-5. חכם ורחב: חבר בין המילה, ערכה, ביטויים שווים והתכנסויות שסופקו — צייר תמונה, אל תזרוק מספר יבש.`;
+5. חכם, רחב ומעמיק — «שכבה על שכבה»: כשיש התכנסות, אל תסתפק בערך אחד. בנֵה תשובה בנויה:
+   (א) פתיח קצר שאומר «יש כאן התכנסות/שכבות».
+   (ב) קופסת עובדה ✅ — הערכים המאומתים (רגיל קודם; ואם אותה מילה מתכנסת גם בשיטה נוספת — גדול/סידורי/מילוי — הדגש «לא רק ברגיל»).
+   (ג) 2-3 ביטויים מאומתים מהמאגר שסופקו לך באותו ערך — הבֵא אותם.
+   (ד) שכבת רמז ✦ (פרשנות בלבד, בלי נבואות) — קשור בין המילים לתמונה אחת.
+   רק ערכים שסופקו לך מהמנוע. אל תמציא, אל תחשב לבד. אם אין התכנסות — ענה קצר וישר, בלי לנפח.`;
 const TEACH_ADDON =
   `\nמצב-לימוד: אם המשתמש רוצה ללמוד — לַמֵּד גימטריה צעד-צעד לפי השאלות שלו. הסבר איזו שיטה השתמשת (רגיל=כל אות ערכה; מספר קטן; מילוי; אתבש), הראה את החישוב מהמנוע, והצע את הצעד הבא ("רוצה שנבדוק ביטוי שני?"). סבלני, כמו מורה.`;
 
@@ -175,7 +204,7 @@ async function razielRespond(text: string, chatId: string, quotedId: string | un
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC,"anthropic-version":"2023-06-01"},
-      body:JSON.stringify({model:MODEL,max_tokens:900,system,messages:[{role:"user",content:user}]}),
+      body:JSON.stringify({model:MODEL,max_tokens:1500,system,messages:[{role:"user",content:user}]}),
     });
     if (!resp.ok) return false;
     const d = await resp.json();
