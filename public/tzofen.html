@@ -673,7 +673,7 @@
   .addrow input{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);color:var(--ink);
      border-radius:8px;padding:10px 11px;font-family:var(--serif);font-size:16px;text-align:center;outline:none}
   .addrow input:focus{border-color:var(--gold)}
-  .mini{cursor:pointer;border:none;background:var(--gold);color:#1a0e00;border-radius:8px;padding:0 15px;font-weight:800;font-size:13px}
+  .mini{cursor:pointer;border:none;background:var(--gold);color:#1a0e00;border-radius:8px;padding:0 15px;font-weight:800;font-size:13px;white-space:nowrap}
   .wlist{display:flex;flex-direction:column;gap:7px;margin-top:11px}
   .witem{display:flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
   .witem .dot{width:14px;height:14px;border-radius:4px;flex:none;cursor:pointer;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
@@ -885,7 +885,7 @@
         רוחב-הטבלה = <b>מרחק-הדילוג</b>. <b>גררו</b> את הטבלה כדי לחקור מסביב, ו<b>הקישו על כל אות</b> כדי לראות איפה היא בדיוק בתנ״ך — ספר · פרק · פסוק, עם הפסוק המלא. כלים: <b>🖥️ התאם</b> (הכל למסך) · <b>＋ / −</b> זום · <b>🌡️ חום</b> (מפת-צפיפות) · <b>✏️ סימון</b> ידני.
       </div></div>
       <div class="gin-sec"><div class="gin-h">🎨 הוספת ממצאים בצבעים</div><div class="gin-t">
-        בשדה <b>«הוסף ממצא»</b> כותבים מילה נוספת — המנוע מסמן בצבע איפה היא <b>נחתכת</b> עם הצופן. <b>מד-הקרבה</b> מסנן לפי כמה הממצא צמוד לציר, כדי לשמור על תוצאות נקיות.
+        בשדה <b>«חפש מילה במטריצה»</b> כותבים מילה נוספת — המנוע מסמן בצבע איפה היא <b>נחתכת</b> עם הצופן. אם היא לא נמצאת בחלון — תופיע הודעה (גררו/הרחיבו את המטריצה). <b>מד-הקרבה</b> מסנן לפי כמה הממצא צמוד לציר, כדי לשמור על תוצאות נקיות.
       </div></div>
       <div class="gin-sec"><div class="gin-h">🔀 חיפוש מוצלב — שני מונחים ומעלה</div><div class="gin-t">
         מוצא <b>איפה שני מונחים (או יותר) נפגשים</b> סביב אותו ציר. סרגל <b>«טוהר ההתכנסות»</b> קובע כמה צמוד לציר לחפש — טהור (צמוד) מול מרחב רחב.
@@ -2862,9 +2862,9 @@
     const side=document.createElement("div");side.className="side";
     const card=document.createElement("div");card.className="card";
     card.innerHTML='<h3>ממצאים במטריצה <span class="n">'+st.words.length+'</span></h3>'+
+      '<div class="sub">חפש מילה נוספת <b>בתוך הצופן הזה</b> — היא תיצבע בכל מקום שהיא מופיעה בחלון (עמודה מקבילה, שורה חוצה, או אלכסון). מילה בתוך מילה תיראה גם היא. לכל ממצא צבע — לחץ על העיגול להחליף.</div>'+
+      '<div class="addrow"><input maxlength="26" placeholder="חפש מילה במטריצה…"><button class="mini add">🔎 חפש</button></div>'+
       '<div class="quality"></div>'+
-      '<div class="sub">הקלד מילה — היא תיצבע בכל מקום שהיא מופיעה בחלון (עמודה מקבילה, שורה חוצה, או אלכסון). מילה בתוך מילה תיראה גם היא. לכל ממצא צבע — לחץ על העיגול להחליף.</div>'+
-      '<div class="addrow"><input maxlength="26" placeholder="הוסף ממצא…"><button class="mini add">הוסף</button></div>'+
       '<button class="suggest-btn">🤖 הצע אשכול — מצא מילים קרובות</button>'+
       '<div class="suggests"></div>'+
       '<div class="meter"><div class="lbl"><span>מד קרבה — כמה מופעים לכל ממצא</span><b class="mv">'+st.showN+'</b></div>'+
@@ -2873,11 +2873,14 @@
       '<div class="rowbtns"><button class="clear">🧹 נקה הכל</button><button class="save">💾 שמור מטריצה</button></div>';
     const inp=card.querySelector("input"),addb=card.querySelector(".add"),list=card.querySelector(".wlist");
     const add=()=>{const t=norm(inp.value);if(t.length<1)return;
-      if(st.words.some(w=>w.t===t)){toast("«"+t+"» כבר קיים");inp.value="";return;}
+      if(st.words.some(w=>w.t===t)){toast("«"+t+"» כבר מסומן במטריצה");inp.value="";return;}
       if(st.words.length>=12){toast("עד 12 ממצאים בבת אחת");return;}
       const used=st.words.map(w=>w.color);
       const color=PALETTE.find(c=>!used.includes(c))||PALETTE[st.words.length%PALETTE.length];
-      st.words.push({t,color,hits:[],total:0});inp.value="";render();};
+      st.words.push({t,color,hits:[],total:0});inp.value="";render();
+      // «ואם אין כלום?» — משוב ברור כשהמילה לא נמצאה בחלון-המטריצה הנוכחי (במקום שתיתקע כ«לא נמצא» שקט)
+      const nw=st.words[st.words.length-1];
+      if(nw&&!nw.total)toast("«"+t+"» לא נמצאה בחלון הזה — גררו/הרחיבו את המטריצה או הגדילו את «מד-הקרבה»");};
     addb.onclick=add;inp.addEventListener("keydown",e=>{if(e.key==="Enter")add();});
     // 🤖 «הצע אשכול» — סורק מונחים קרובים לאשכול ומציע להוסיף
     const mkWord=term=>{const used=st.words.map(w=>w.color);return {t:norm(term),color:PALETTE.find(c=>!used.includes(c))||PALETTE[st.words.length%PALETTE.length],hits:[],total:0};};
@@ -3178,8 +3181,8 @@
       "<li><b>🧊 תלת-מימד</b> — הופך את המטריצה למרחב תלת-ממדי; גררו כדי לסובב, ועמודת-הצופן בולטת החוצה וזוהרת. הקשה שנייה חוזרת לתצוגה רגילה.</li>"+
       "<li><b>◌ ניקוד</b> — הצגת ניקוד התורה על האותיות.</li></ul>"},
     {id:"finds",e:"🎨",t:"ממצאים בצבעים",h:
-      "בשדה <b>«הוסף ממצא»</b> כותבים מילה נוספת, והמנוע מסמן <b>בצבע</b> איפה היא נחתכת עם הצופן הנוכחי. אפשר להוסיף כמה מילים בצבעים שונים ולראות אילו מהן מתלכדות סביב הציר."+
-      "<div class='gc-tip'>🎯 <b>מד-הקרבה</b> מסנן לפי כמה הממצא <b>צמוד</b> לציר — כדי לשמור על תוצאות נקיות ולא מקריות.</div>"},
+      "בפאנל <b>«ממצאים במטריצה»</b> (מתחת למטריצה) יש שדה <b>«חפש מילה במטריצה»</b> — כותבים מילה נוספת ולוחצים <b>«🔎 חפש»</b>, והמנוע מסמן <b>בצבע</b> איפה היא נחתכת עם הצופן הנוכחי. אפשר להוסיף כמה מילים בצבעים שונים ולראות אילו מהן מתלכדות סביב הציר."+
+      "<div class='gc-tip'>🎯 <b>מד-הקרבה</b> מסנן לפי כמה הממצא <b>צמוד</b> לציר. ואם המילה <b>לא נמצאת</b> בחלון — תופיע הודעה, ואפשר לגרור/להרחיב את המטריצה ולנסות שוב.</div>"},
     {id:"cross",e:"🔀",t:"חיפוש מוצלב",h:
       "<b>🔀 חיפוש מוצלב</b> מוצא <b>איפה שני מונחים (או יותר) נפגשים</b> סביב אותו ציר — הצורה החזקה ביותר של עדות."+
       "<ul><li><b>הדרך הקצרה:</b> אחרי חיפוש רגיל לחצו על כפתור <b>«🔀 הצלב את התוצאה»</b> שמופיע מעל המטריצה — המונח הנוכחי נקבע כציר, ואתם רק מוסיפים מונח שני.</li>"+
