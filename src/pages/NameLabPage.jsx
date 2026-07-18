@@ -291,8 +291,36 @@ export default function NameLabPage({ embedded = false }) {
         </Section>
 
         {word && (<>
-          {/* 2 · סיכום AI — הדבר הראשון */}
-          <Section n="02" icon="🤖" title="סיכום המחקר" sub="חוקר מלווה — מה מיוחד, אילו התכנסויות מעניינות ולמה, ומה כדאי לחקור בהמשך.">
+          {/* 02 · סיכום הבדיקה — מבט-על מאוחד על כל המנועים (בלי שמות-סוכנים). עובדות בלבד; הפרשנות בסיכום ה-AI מתחת. */}
+          <section style={{ background: "linear-gradient(180deg,#ffffff,#f6f9ff)", border: `1px solid #d9e5ff`, borderRadius: 16, padding: "16px 20px", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
+              <span style={{ color: "#c3c8d0", fontFamily: F.m, fontSize: 13, fontWeight: 700 }}>02</span>
+              <h2 style={{ color: C.ink, fontFamily: F.h, fontSize: 19, fontWeight: 800, margin: 0 }}>🔎 סיכום הבדיקה</h2>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {[
+                { on: regVal > 0, ic: "🔢", label: "ערך רגיל", n: regVal, to: `/number/${regVal}` },
+                { on: enVals.length > 0, ic: "🔤", label: "ערך אנגלית", n: enVals[0]?.value },
+                { on: (dossier && dossier.sources && dossier.sources.count > 0), ic: "📜", label: "הופעות בתנ״ך", n: dossier?.sources?.count },
+                { on: convCount > 0, ic: "💎", label: "התכנסויות", n: convCount, to: `/number/${regVal}` },
+                { on: (research && research.bridges && research.bridges.length > 0), ic: "🌉", label: "גשרי-שפות", n: research?.bridges?.length },
+                { on: (dossier && dossier.patterns && dossier.patterns.neighbors?.length > 0), ic: "🕸️", label: "שכנים", n: dossier?.patterns?.neighbors?.length },
+                { on: (dossier && dossier.cross && dossier.cross.meeting_points?.length > 0), ic: "🔗", label: "נקודות-מפגש", n: dossier?.cross?.meeting_points?.length },
+                { on: (research && research.posts_count > 0), ic: "📚", label: "פוסטים", n: research?.posts_count },
+              ].filter(s => s.on).map((s, i) => {
+                const inner = (<><span style={{ fontSize: 15 }}>{s.ic}</span><span style={{ color: C.dim, fontFamily: F.h, fontSize: 12, fontWeight: 700 }}>{s.label}</span><b style={{ fontFamily: F.m, color: C.blue, fontSize: 16 }}>{s.n}</b></>);
+                const st = { display: "inline-flex", alignItems: "center", gap: 7, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, padding: "7px 13px", textDecoration: "none" };
+                return s.to ? <Link key={i} to={s.to} style={st}>{inner}</Link> : <span key={i} style={st}>{inner}</span>;
+              })}
+              {dossier === null && <span style={{ color: C.dim, fontFamily: F.h, fontSize: 13 }}>אוסף את הבדיקה מכל המנועים…</span>}
+            </div>
+            <div style={{ color: "#8a94a6", fontFamily: F.h, fontSize: 11.5, lineHeight: 1.6, marginTop: 11 }}>
+              הבדיקה מריצה את «{word}» דרך כל מנועי-המערכת ומאחדת את הממצאים. כל מספר = עובדה מהמנוע; הפרשנות בסיכום שמתחת. לחיצה על מדד פותחת את מקורו.
+            </div>
+          </section>
+
+          {/* 3 · סיכום AI — פרשנות מלווה */}
+          <Section n="03" icon="🤖" title="סיכום המחקר" sub="חוקר מלווה — מה מיוחד, אילו התכנסויות מעניינות ולמה, ומה כדאי לחקור בהמשך.">
             {aiState === "done" && ai ? (
               <div style={{ color: C.ink, fontFamily: F.h, fontSize: 15.5, lineHeight: 1.85, background: "#f3f7ff", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "14px 16px" }}>{ai}</div>
             ) : aiState === "busy" ? (
