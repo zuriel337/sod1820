@@ -3,7 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
-import { getAiAnalysis, getValuePhraseList, getNameResearch } from "../lib/supabase.js";
+import { getAiAnalysis, getValuePhraseList, getNameDossier } from "../lib/supabase.js";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
@@ -145,7 +145,12 @@ export default function NameLabPage({ embedded = false }) {
   const [aiState, setAiState] = useState("idle"); // idle|busy|done|off
   const [conv, setConv] = useState(null);
   const [convCount, setConvCount] = useState(0);
-  const [research, setResearch] = useState(null); // {bridges,posts,treasures,hints,...} | false=err
+  const [research, setResearch] = useState(null); // {bridges,posts,treasures,hints,...} | false=err (תאימות-לאחור לתיק)
+  const [dossier, setDossier] = useState(null);    // 👑 תיק-השם המלא (getNameDossier) — כל מנועי-השם
+  const [surname, setSurname] = useState("");       // הצלבה מורחבת: שם-משפחה (committed → מריץ RPC)
+  const [birthdate, setBirthdate] = useState("");   // הצלבה מורחבת: תאריך-לידה (committed)
+  const [crossSurname, setCrossSurname] = useState(""); // קלט זמני (לא מריץ RPC עד לחיצה)
+  const [crossBirth, setCrossBirth] = useState("");     // קלט זמני
   const [enWord, setEnWord] = useState(null);      // איות-אנגלית שנבחר לשם עברי (תעתוק מוצהר)
   const { addToResearch, saveItem, isPinned, togglePin } = useResearch();
 
@@ -199,12 +204,23 @@ export default function NameLabPage({ embedded = false }) {
     return { score, parts: parts.filter(p => p.n > 0) };
   }, [word, research, convCount, liveBridge]);
 
-  // 🌉📚 מחקר הקשר + גשרים — RPC אחד (עץ אחד: השם כשער לגרף).
+  // 👑 תיק-השם — כל מנועי-השם בקריאה אחת (עץ אחד: השם כשער לגרף).
+  //   מזין את `dossier` (המדורים החדשים: מקורות · דפוסים · הצלבה) ואת `research` (תאימות-לאחור: גשרים · הקשר).
   useEffect(() => {
-    let live = true; setResearch(null);
-    if (word) getNameResearch(word, regVal).then(r => live && setResearch(r || false)).catch(() => live && setResearch(false));
+    let live = true; setResearch(null); setDossier(null);
+    if (!word) return;
+    getNameDossier(word, { surname, birthdate }).then(d => {
+      if (!live) return;
+      setDossier(d || false);
+      setResearch(d ? {
+        bridges: d.language?.bridges || [],
+        posts: d.context?.posts || [], posts_count: d.context?.posts_count || 0,
+        treasures: d.context?.treasures || [], treasures_count: d.context?.treasures_count || 0,
+        hints: d.context?.hints || [], hints_count: d.context?.hints_count || 0,
+      } : false);
+    }).catch(() => { if (live) { setResearch(false); setDossier(false); } });
     return () => { live = false; };
-  }, [word, regVal]);
+  }, [word, regVal, surname, birthdate]);
 
   const analyze = useCallback(async () => {
     if (!word || aiState === "busy") return;
@@ -230,7 +246,7 @@ export default function NameLabPage({ embedded = false }) {
     } catch { setAiState("off"); }
   }, [word, hebVals, enVals, conv, regVal, research, aiState, enWord, heInput, liveBridge, enOrdinal]);
 
-  const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); if (w && !embedded) setSp({ w }, { replace: true }); };
+  const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); setSurname(""); setBirthdate(""); setCrossSurname(""); setCrossBirth(""); if (w && !embedded) setSp({ w }, { replace: true }); };
 
   // 🌳 ישות-השם למחקר האישי (Research Bus).
   const entity = useMemo(() => word ? { id: "name:" + word, type: "name", title: word, value: regVal, meta: { en: enVals[0]?.value } } : null, [word, regVal, enVals]);
@@ -343,8 +359,81 @@ export default function NameLabPage({ embedded = false }) {
               )}
           </Section>
 
-          {/* 5 · הגשרים — חוצי-שפות (העדיפות העליונה) */}
-          <Section n="05" icon="🌉" title="הגשרים" sub="עברית ↔ אנגלית ↔ שפות — לא רק ערך שווה, אלא התכנסות בין־שפתית אמיתית. אחד הדברים שאין כמעט בשום מקום.">
+          {/* 4.5 · בתנ״ך ובמקורות — עדשת-מקורות (הופעות השם + פסוקים) */}
+          <Section n="05" icon="📜" title="בתנ״ך ובמקורות" sub="היכן מופיע השם בתנ״ך, כמה פעמים, ובאילו ספרים — עובדה מהמנוע.">
+            {dossier === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>בודק במקורות…</div> :
+              (dossier && dossier.sources && dossier.sources.count > 0) ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ background: "#f3f7ff", border: `1px solid #d9e5ff`, borderRadius: 999, padding: "6px 14px", fontFamily: F.h, fontSize: 13.5, fontWeight: 800, color: C.ink }}>📖 {dossier.sources.count} הופעות בתנ״ך</span>
+                    {dossier.sources.first?.ref && <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5 }}>ראשונה: <b style={{ color: C.blue }}>{dossier.sources.first.ref}</b></span>}
+                    {dossier.sources.last?.ref && <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5 }}>אחרונה: <b style={{ color: C.blue }}>{dossier.sources.last.ref}</b></span>}
+                  </div>
+                  {Array.isArray(dossier.sources.books) && dossier.sources.books.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {dossier.sources.books.map((b, i) => (
+                        <span key={i} style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.h, fontSize: 12, fontWeight: 700, color: C.dim }}>{b.book} <b style={{ color: C.blue }}>{b.n}</b></span>
+                      ))}
+                    </div>
+                  )}
+                  {Array.isArray(dossier.sources.samples) && dossier.sources.samples.length > 0 && (
+                    <div style={{ display: "grid", gap: 7 }}>
+                      {dossier.sources.samples.slice(0, 3).map((v, i) => (
+                        <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" }}>
+                          <div style={{ color: C.blue, fontFamily: F.h, fontSize: 11.5, fontWeight: 800, marginBottom: 3 }}>{v.ref}</div>
+                          <div style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, lineHeight: 1.7 }}>{v.text}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, lineHeight: 1.7, background: "#f6f7f9", border: `1px dashed ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>«{word}» לא נמצא ככתיב-מלא בתנ״ך. זה לא אומר שאין לו שורש — נסה כתיב אחר או צלול דרך הגימטריה.</div>
+              )}
+          </Section>
+
+          {/* 4.7 · דפוסים ורשת-קשרים — עדשת-דפוסים (שכנים · ביטויים · אנגרמות) */}
+          {dossier && dossier.patterns && (
+            (dossier.patterns.neighbors?.length || dossier.patterns.expressions?.length || dossier.patterns.anagrams?.length) ? (
+              <Section n="06" icon="🕸️" title="דפוסים ורשת-קשרים" sub="עם אילו מילים השם נפגש בתנ״ך, אילו ביטויים מכילים אותו, ואנגרמות — זוויות-מחקר, לא אמת נסתרת.">
+                <div style={{ display: "grid", gap: 14 }}>
+                  {dossier.patterns.neighbors?.length > 0 && (
+                    <div>
+                      <div style={{ color: C.ink, fontFamily: F.h, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>🔗 שכנים בתנ״ך <span style={{ color: "#9aa1ad", fontWeight: 600 }}>(מילים שמופיעות ליד «{word}»)</span></div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {dossier.patterns.neighbors.slice(0, 12).map((nb, i) => (
+                          <Link key={i} to={`/number/${encodeURIComponent(nb.word)}`} style={{ textDecoration: "none", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 999, padding: "5px 12px", color: C.ink, fontFamily: F.h, fontSize: 13, fontWeight: 700 }}>{nb.word} <span style={{ color: "#9aa1ad", fontFamily: F.m, fontSize: 11 }}>×{nb.co}</span></Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {dossier.patterns.expressions?.length > 0 && (
+                    <div>
+                      <div style={{ color: C.ink, fontFamily: F.h, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>💬 ביטויים שמכילים את השם</div>
+                      <div style={{ display: "grid", gap: 5 }}>
+                        {dossier.patterns.expressions.slice(0, 6).map((ex, i) => (
+                          <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 8, padding: "6px 11px", color: "#3a4553", fontFamily: F.h, fontSize: 13, fontWeight: 600 }}>{ex}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {dossier.patterns.anagrams?.length > 0 && (
+                    <div>
+                      <div style={{ color: C.ink, fontFamily: F.h, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>🔀 אנגרמות</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {dossier.patterns.anagrams.slice(0, 12).map((a, i) => (
+                          <span key={i} style={{ background: "#faf6ff", border: "1px solid #e6d8f7", borderRadius: 999, padding: "5px 12px", color: "#6a4fbf", fontFamily: F.h, fontSize: 13, fontWeight: 700 }}>{typeof a === "string" ? a : a.word}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Section>
+            ) : null
+          )}
+
+          {/* 7 · הגשרים — חוצי-שפות (העדיפות העליונה) */}
+          <Section n="07" icon="🌉" title="הגשרים" sub="עברית ↔ אנגלית ↔ שפות — לא רק ערך שווה, אלא התכנסות בין־שפתית אמיתית. אחד הדברים שאין כמעט בשום מקום.">
             {research === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>מחפש גשרים…</div> :
               (research && research.bridges && research.bridges.length) ? (
                 <div style={{ display: "grid", gap: 10 }}>
@@ -355,6 +444,32 @@ export default function NameLabPage({ embedded = false }) {
                   לא נמצא עדיין גשר חוצה-שפות מאומת ל«{word}» (ערך {regVal}).{enVals.length ? ` הערך באנגלית הוא ${enVals[0].value} — גשר אמיתי נרשם רק לאחר אימות ידני.` : ""} מאגר הגשרים גדל עם המחקר 🌱
                 </div>
               )}
+          </Section>
+
+          {/* 8 · הצלבה מורחבת — שם + שם-משפחה + תאריך (fn_cross_research) */}
+          <Section n="08" icon="🔗" title="הצלבה מורחבת" sub="הוסף שם-משפחה ותאריך-לידה — והמנוע מחפש נקודות-מפגש בין כולם בכל השיטות. נקודת-מפגש = עובדה, המשמעות = השערה לבדיקה.">
+            <form onSubmit={e => { e.preventDefault(); setSurname(crossSurname.trim()); setBirthdate(crossBirth.trim()); }} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: (dossier && dossier.cross) ? 14 : 0 }}>
+              <input value={crossSurname} onChange={e => setCrossSurname(e.target.value)} placeholder="שם-משפחה (לא חובה)…" style={{ flex: 1, minWidth: 130, fontFamily: F.h, fontSize: 15, fontWeight: 700, padding: "10px 13px", borderRadius: 10, border: `1px solid ${C.line}`, background: "#fff", color: C.ink }} />
+              <input value={crossBirth} onChange={e => setCrossBirth(e.target.value)} placeholder="תאריך/מילה נוספת…" style={{ flex: 1, minWidth: 130, fontFamily: F.h, fontSize: 15, fontWeight: 700, padding: "10px 13px", borderRadius: 10, border: `1px solid ${C.line}`, background: "#fff", color: C.ink }} />
+              <button style={{ cursor: "pointer", background: C.blue, border: "none", borderRadius: 10, color: "#fff", fontFamily: F.h, fontSize: 14, fontWeight: 800, padding: "0 20px" }}>הצלב ←</button>
+            </form>
+            {dossier && dossier.cross && Array.isArray(dossier.cross.meeting_points) && dossier.cross.meeting_points.length > 0 ? (
+              <div style={{ display: "grid", gap: 8 }}>
+                {dossier.cross.meeting_points.map((mp, i) => (
+                  <div key={i} style={{ background: "linear-gradient(180deg,#fbfdff,#f3f7ff)", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "11px 14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <b style={{ fontFamily: F.m, color: C.blue, fontSize: 18 }}>{mp.value}</b>
+                      <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5, fontWeight: 700 }}>{mp.hits} נקודות-מפגש{mp.across_items > 1 ? ` · ${mp.across_items} פריטים` : ""}</span>
+                      {mp.tanach_verses > 0 && <span style={{ background: "#e8f6ee", border: "1px solid #bfe4cd", borderRadius: 999, color: "#1f8a4c", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>📜 {mp.tanach_verses} פסוקים</span>}
+                    </div>
+                    {mp.equals && <div style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, lineHeight: 1.6, marginTop: 5 }}>= {mp.equals}</div>}
+                    {Array.isArray(mp.from) && mp.from.length > 0 && <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5, marginTop: 4 }}>{mp.from.join(" · ")}</div>}
+                  </div>
+                ))}
+              </div>
+            ) : (surname || birthdate) ? (
+              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, background: "#f6f7f9", border: `1px dashed ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>לא נמצאה נקודת-מפגש משותפת בין הפריטים בשיטות שנבדקו.</div>
+            ) : null}
           </Section>
 
           {/* 6 · ההקשר — השם כשער לגרף */}
