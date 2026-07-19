@@ -108,6 +108,17 @@ export default function UserCenter() {
   const [myProfile, setMyProfile] = useState(null); // 💰 קרדיטים/דרגה (beta)
   const [myLevel, setMyLevel] = useState(null);     // 🌳 דרגת-חוקר (מנוע-הגדילה)
   const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
+  // 🪗 Progressive Disclosure (research_workspace_law: «פשוט בהתחלה») — עולמות-הליבה פתוחים,
+  //    השאר מקופלים בהקשה (עם מונה + נקודת-פעילות). הבחירה נזכרת בין ביקורים.
+  const [openWorlds, setOpenWorlds] = useState(() => {
+    try { const s = localStorage.getItem("uc_worlds_open"); if (s) return new Set(JSON.parse(s)); } catch { /* noop */ }
+    return new Set(["me", "lab"]);
+  });
+  const toggleWorld = (key) => setOpenWorlds(prev => {
+    const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key);
+    try { localStorage.setItem("uc_worlds_open", JSON.stringify([...next])); } catch { /* noop */ }
+    return next;
+  });
 
   useEffect(() => {
     if (!isOpen || !user || !supabase) return;
@@ -207,13 +218,21 @@ export default function UserCenter() {
               {WORLDS.map(w => {
                 const mods = MODULES.filter(m => !m.hidden && (m.world || "me") === w.key);
                 if (!mods.length) return null;
+                const isOpen = openWorlds.has(w.key);
+                const hasActivity = mods.some(m => m.badge != null);
                 return (
-                  <div key={w.key} style={{ marginBottom: 18 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "2px 2px 9px" }}>
+                  <div key={w.key} style={{ marginBottom: 14 }}>
+                    <button onClick={() => toggleWorld(w.key)} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: "none", border: "none", cursor: "pointer", color: T.ink, fontFamily: "inherit", padding: "3px 2px", margin: "0 0 9px" }}>
                       <span style={{ fontSize: 15 }}>{w.icon}</span>
                       <span style={{ fontWeight: 800, fontSize: 14.5 }}>{w.title}</span>
                       <span style={{ fontSize: 11, color: T.sub }}>{w.sub}</span>
-                    </div>
+                      <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 7 }}>
+                        {!isOpen && hasActivity && <span title="יש פעילות חדשה" style={{ width: 7, height: 7, borderRadius: "50%", background: T.acc }} />}
+                        {!isOpen && <span style={{ fontSize: 11, fontWeight: 800, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 8px" }}>{mods.length}</span>}
+                        <span style={{ fontSize: 12, color: T.sub, width: 12, textAlign: "center" }}>{isOpen ? "▴" : "▾"}</span>
+                      </span>
+                    </button>
+                    {isOpen && (
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       {mods.map(m => (
                         <button key={m.id} onClick={() => setActive(m.id)} style={{
@@ -228,6 +247,7 @@ export default function UserCenter() {
                         </button>
                       ))}
                     </div>
+                    )}
                   </div>
                 );
               })}
