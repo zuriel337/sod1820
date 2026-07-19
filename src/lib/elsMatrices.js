@@ -2,13 +2,28 @@
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
 import { supabase } from "./supabase.js";
 
-const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,created_at";
+const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at";
 
+// ספריית-הצפנים הראשית (וגם גלריית-הכלי/בית) — מאושרות, **בלי תיקיית-המחקר** (source='research').
+// אלה חיים רק בתיקייה הנסתרת /codes/מחקר (getResearchMatrices). כך המחקר לא מוצג לכל מי שנכנס.
 export async function getSavedMatrices(limit = 100) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("els_records").select(COLS)
-      .eq("status", "published").order("created_at", { ascending: false }).limit(limit);
+      .eq("status", "published").or("source.is.null,source.neq.research")
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
+// 🔬 תיקיית-המחקר (נסתרת) — רק צפני-מחקר מאושרים. עדשה על els_records where source='research'.
+// לא מקושרת מהתפריט/בית/כלי — רק מי שנכנס לכתובת /codes/מחקר רואה (unlisted).
+export async function getResearchMatrices(limit = 100) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS)
+      .eq("status", "published").eq("source", "research")
+      .order("importance", { ascending: false }).order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }
 }
