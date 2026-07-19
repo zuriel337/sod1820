@@ -916,7 +916,7 @@
         למעלה בוחרים: <b>📖 תורה</b> (מהיר) או <b>📜 כל התנ״ך</b> (24 הספרים — לרשומים).
       </div></div>
       <div class="gin-sec"><div class="gin-h">💾 שמירה ושיתוף</div><div class="gin-t">
-        <b>💾 שמור בגלריה</b> → נשמר בגלריית-הענן (מופיע למעלה, הקש לפתיחה) · <b>🖼️ תמונה</b> להורדה · <b>🔗 שתף קישור</b> · <b>🎬 סרט-הצופן</b> (הצופן נבנה כאנימציה).
+        <b>💾 שמור בגלריה</b> → נשמר בגלריה (מופיע למעלה, הקש לפתיחה) · <b>🖼️ תמונה</b> להורדה · <b>🔗 שתף קישור</b> · <b>🎬 סרט-הצופן</b> (הצופן נבנה כאנימציה).
       </div></div>
       <div class="gin-sec"><div class="gin-t"><b>עדות — לא ניבוי.</b> הכלי מיועד ללימוד והתבוננות בטקסט.</div></div>
     </div>
@@ -1094,19 +1094,25 @@
   function addCurrentToGallery(){
     const h=(()=>{try{return occ();}catch(e){return null;}})();
     if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
-    // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
-    //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions. כך לא צריך לבדוק כל צופן.
-    try{
-      if(st.words.length && !(st.mc&&st.mc.done&&!st.mc.err&&st.mc.sig===mcSig())){
-        const r=runMonteCarlo(); if(r&&!r.err){st.mc={...r,sig:mcSig(),done:true};}
-      }
-      if(st._refreshQuality)st._refreshQuality();
-    }catch(e){}
-    const it=galleryCurrentItem();
-    postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
-      findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,
-      image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null});
-    toast("💾 שומר בגלריית-הענן…");
+    // 👁️ חיווי מיידי — מונטה-קרלו (למטה) חוסם את ה-UI לשנייה-שתיים; בלי חיווי מוקדם המשתמש
+    //    חושב שכלום לא קרה. משנים את הכפתור מיד, ומריצים את החישוב-הכבד ב-setTimeout כדי שה-UI ייצבע קודם.
+    const sb=document.querySelector(".save-act");
+    if(sb){sb.textContent="⏳ שומר…";sb.disabled=true;}
+    toast("💾 שומר בגלריה…");
+    setTimeout(()=>{
+      // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
+      //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions.
+      try{
+        if(st.words.length && !(st.mc&&st.mc.done&&!st.mc.err&&st.mc.sig===mcSig())){
+          const r=runMonteCarlo(); if(r&&!r.err){st.mc={...r,sig:mcSig(),done:true};}
+        }
+        if(st._refreshQuality)st._refreshQuality();
+      }catch(e){}
+      const it=galleryCurrentItem();
+      postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+        findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,
+        image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null});
+    },30);
   }
   function removeFromGallery(it){
     const hadOverlay=globalList().some(x=>x.name===it.name),isBuiltin=SYSTEM_MATRICES.some(m=>m.name===it.name);
@@ -1287,10 +1293,17 @@
       try{updateScopeUI();}catch(_){}   // רענון מנעול «כל התנ״ך» לפי הדרגה
       try{if(st.res)render();}catch(_){}  // דרגה עודכנה אחרי חיפוש → רענון הרשאות
     }
-    if(d.type==="saved"){   // תוצאת שמירה-לענן מהאתר
-      if(d.ok)toast(d.status==="published"?"✅ נשמר ופורסם בגלריית-הענן":"✅ נשמר — ממתין לאישור בגלריית-הענן");
-      else if(d.reason==="login")toast("🔒 שמירה לענן פתוחה לרשומים — הירשמו בחינם");
-      else toast("לא ניתן לשמור כרגע — נסו שוב");
+    if(d.type==="saved"){   // תוצאת שמירה מהאתר
+      const sb=document.querySelector(".save-act");
+      if(d.ok){
+        toast(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר — ממתין לאישור מנהל");
+        // 🟢 חיווי-הצלחה בולט על הכפתור עצמו (2.6 שניות) — כדי שלא יפספסו את ההצלחה
+        if(sb){sb.textContent="✅ נשמר בגלריה";sb.disabled=false;setTimeout(()=>{try{if(sb)sb.textContent="💾 שמור בגלריה";}catch(e){}},2600);}
+      }else{
+        if(sb){sb.textContent="💾 שמור בגלריה";sb.disabled=false;}
+        if(d.reason==="login")toast("🔒 שמירה פתוחה לרשומים — הירשמו בחינם");
+        else toast("לא ניתן לשמור כרגע — נסו שוב");
+      }
     }
     if(d.type==="saved-matrices"&&Array.isArray(d.items)){   // מטריצות-הענן שהאתר שלף (els_records)
       CLOUD_MATRICES=d.items;try{renderGallery();}catch(e){}
@@ -2095,11 +2108,11 @@
   // 🔗 מנהל — קשירת המטריצה לפוסט באתר (סוד 1820). נשמר עם המטריצה בגלריה.
   function linkToPost(){
     const ov=document.createElement("div");ov.className="shareov";
-    ov.innerHTML='<div class="sharebox"><h3>🔗 קשר לפוסט באתר</h3><p>הדבק קישור לפוסט ב-sod1820.co.il שמדבר על הצופן. יופיע כפתור «📖 לקריאת הפוסט» על המטריצה. אחר-כך לחץ «שמור מטריצה» כדי לקבע.</p>'+
+    ov.innerHTML='<div class="sharebox"><h3>🔗 קשר לפוסט באתר</h3><p>הדבק קישור לפוסט ב-sod1820.co.il שמדבר על הצופן. יופיע כפתור «📖 לקריאת הפוסט» על המטריצה. אחר-כך לחץ «שמור בגלריה» כדי לקבע.</p>'+
       '<input class="sh-url" placeholder="https://sod1820.co.il/…"><input class="sh-url sh-title" placeholder="כותרת הפוסט (רשות)" style="margin-top:8px;direction:rtl;text-align:right"><div class="sh-row"><button class="sh-copy">🔗 קשר</button><button class="sh-close">בטל</button></div></div>';
     document.body.appendChild(ov);
     const inp=ov.querySelector(".sh-url"),ti=ov.querySelector(".sh-title");inp.value=st.postUrl||"";ti.value=st.postTitle||"";inp.focus();
-    ov.querySelector(".sh-copy").onclick=()=>{const u=inp.value.trim();if(u&&!/^https?:\/\//.test(u)){toast("קישור חייב להתחיל ב-http/https");return;}st.postUrl=u;st.postTitle=ti.value.trim();ov.remove();render();toast(u?"🔗 קושר — לחץ «שמור מטריצה» כדי לקבע":"הקישור הוסר");};
+    ov.querySelector(".sh-copy").onclick=()=>{const u=inp.value.trim();if(u&&!/^https?:\/\//.test(u)){toast("קישור חייב להתחיל ב-http/https");return;}st.postUrl=u;st.postTitle=ti.value.trim();ov.remove();render();toast(u?"🔗 קושר — לחץ «שמור בגלריה» כדי לקבע":"הקישור הוסר");};
     const close=()=>ov.remove();ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
   }
   // 🖼️ ציור הצופן הנוכחי ל-canvas והורדה כ-PNG (עובד לגמרי בכלי, בלי רשת).
@@ -2914,7 +2927,7 @@
       '<div class="meter"><div class="lbl"><span>מד קרבה — כמה מופעים לכל ממצא</span><b class="mv">'+st.showN+'</b></div>'+
         '<input type="range" min="1" max="15" value="'+st.showN+'"><div class="ends"><span>רק הקרוב ביותר</span><span>הרחק יותר ◄</span></div></div>'+
       '<div class="wlist"></div>'+
-      '<div class="rowbtns"><button class="clear">🧹 נקה הכל</button><button class="save">💾 שמור מטריצה</button></div>';
+      '<div class="rowbtns"><button class="clear">🧹 נקה הכל</button><button class="save">💾 שמור בגלריה</button></div>';
     const inp=card.querySelector("input"),addb=card.querySelector(".add"),list=card.querySelector(".wlist");
     const add=()=>{const t=norm(inp.value);if(t.length<1)return;
       if(st.words.some(w=>w.t===t)){toast("«"+t+"» כבר מסומן במטריצה");inp.value="";return;}
@@ -3256,7 +3269,7 @@
       "<li><b>🎬 סרט-הצופן</b> — כל פתיחת-צופן נבנית כאנימציה: הציר ואז כל ממצא נדלק אחד-אחד עד התמונה המלאה. נהדר לשיתוף.</li>"+
       "<li><b>◌ ניקוד</b> — הצגת ניקוד התורה על אותיות המטריצה.</li></ul>"},
     {id:"save",e:"💾",t:"שמירה לחשבון ושיתוף",h:
-      "<b>השמירה היא לחשבון שלך בענן — לא למכשיר.</b> כך תחזור לכל צופן ששמרת <b>מכל מכשיר</b>, ותוכל לשתף אותו."+
+      "<b>השמירה היא לחשבון שלך — לא למכשיר.</b> כך תחזור לכל צופן ששמרת <b>מכל מכשיר</b>, ותוכל לשתף אותו."+
       "<ul><li><b>💾 שמור בגלריה</b> — הצופן נשמר בחשבון, ומופיע בשורת <b>«📁 מטריצות שמורות»</b> למעלה (הקש לפתיחה מחדש עם כל הממצאים).</li>"+
       "<li><b>📚 כל הצפנים →</b> — מעבר ל<b>ספריית-הצפנים הציבורית</b> של האתר, שם מתפרסמים הצפנים המאושרים לעיון הקהילה.</li>"+
       "<li><b>🖼️ שמור תמונה</b> — כרטיס-צופן מעוצב להורדה ולשליחה בוואטסאפ/רשתות.</li>"+
