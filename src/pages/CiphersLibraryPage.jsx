@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
-import { getSavedMatrices, getDraftMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { getSavedMatrices, getDraftMatrices, moderateMatrix, deleteMatrix } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 
@@ -30,6 +30,25 @@ export default function CiphersLibraryPage() {
       setDrafts(list => (list || []).filter(x => x.id !== m.id));  // עזב את תיקיית-הניהול
       setItems(null); getSavedMatrices(200).then(setItems).catch(() => setItems([]));  // רענון הראשי
     } catch { /* ignore — נשאר בטיוטות */ }
+    setBusyId(null);
+  };
+  // 🙈/📝 מעבר בין מוסתר לטיוטה — נשאר בתיקיית-הניהול, רק משנה סטטוס
+  const setDraftStatus = async (m, status) => {
+    setBusyId(m.id);
+    try {
+      await moderateMatrix(m.id, status);
+      setDrafts(list => (list || []).map(x => x.id === m.id ? { ...x, status } : x));
+    } catch { /* ignore */ }
+    setBusyId(null);
+  };
+  // 🗑 מחיקה-לצמיתות — עם אישור כפול (לא ניתן לשחזר)
+  const deleteForever = async (m) => {
+    if (typeof window !== "undefined" && !window.confirm(`למחוק לצמיתות את «${m.title || m.search_term}»?\nהצופן יימחק מהמערכת ולא ניתן יהיה לשחזר אותו.`)) return;
+    setBusyId(m.id);
+    try {
+      await deleteMatrix(m.id);
+      setDrafts(list => (list || []).filter(x => x.id !== m.id));
+    } catch { /* ignore */ }
     setBusyId(null);
   };
 
@@ -92,10 +111,16 @@ export default function CiphersLibraryPage() {
                         {m.source && m.source !== "admin" ? ` · ${m.source}` : ""}
                       </div>
                     </div>
-                    <button onClick={() => publishDraft(m)} disabled={busyId === m.id}
-                      style={{ cursor: busyId === m.id ? "default" : "pointer", color: "#eafff0", background: "#1c7a38", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "8px 15px", minHeight: 38, opacity: busyId === m.id ? 0.6 : 1 }}>
-                      {busyId === m.id ? "…מפרסם" : "⬆️ לראשי"}
-                    </button>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                      <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} style={draftBtn(P.card, P.ink, P.border)}>✏️ ערוך</Link>
+                      <button onClick={() => publishDraft(m)} disabled={busyId === m.id} style={draftBtn("#1c7a38", "#eafff0")}>
+                        {busyId === m.id ? "…" : "⬆️ לראשי"}
+                      </button>
+                      {m.status === "pending"
+                        ? <button onClick={() => setDraftStatus(m, "hidden")} disabled={busyId === m.id} style={draftBtn(P.card, P.ink, P.border)}>🙈 הסתר</button>
+                        : <button onClick={() => setDraftStatus(m, "pending")} disabled={busyId === m.id} style={draftBtn(P.card, P.ink, P.border)}>📝 לטיוטה</button>}
+                      <button onClick={() => deleteForever(m)} disabled={busyId === m.id} style={draftBtn("transparent", "#c0563f", "#c0563f")}>🗑 מחק לנצח</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -141,4 +166,14 @@ export default function CiphersLibraryPage() {
       </div>
     </div>
   );
+}
+
+// כפתור-פעולה קטן בתיקיית-הניהול (עקבי בין ✏️/⬆️/🙈/🗑)
+function draftBtn(bg, color, border) {
+  return {
+    display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+    color, background: bg, border: `1px solid ${border || bg}`, borderRadius: 999,
+    fontFamily: "inherit", fontSize: 12, fontWeight: 800, padding: "7px 12px", minHeight: 36,
+    textDecoration: "none", whiteSpace: "nowrap",
+  };
 }

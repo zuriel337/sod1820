@@ -98,3 +98,9 @@ export async function moderateMatrix(id, status) {
   const { error } = await supabase.rpc("moderate_els_matrix", { p_id: id, p_status: status });
   if (error) throw error;
 }
+
+// 🗑 מחיקה-לצמיתות (אדמין) — delete_els_matrix (SECURITY DEFINER). לא ניתן לשחזר.
+export async function deleteMatrix(id) {
+  const { error } = await supabase.rpc("delete_els_matrix", { p_id: id });
+  if (error) throw error;
+}
