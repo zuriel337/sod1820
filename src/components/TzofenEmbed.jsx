@@ -31,6 +31,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
+  const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
 
   const src =
@@ -165,9 +166,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     return () => window.removeEventListener("message", onMsg);
   }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin]);
 
-  // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש
+  // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
+  //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
+  //    אחרת שינוי-סטטוס היה מריץ מחדש את כל הצופן + סרט-הצופן ללא צורך.
   useEffect(() => {
-    if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });
+    if (!matrix) { lastKeyRef.current = null; return; }
+    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope].join("|");
+    if (lastKeyRef.current === key) return;
+    lastKeyRef.current = key;
+    postToTool({ type: "load-matrix", item: rowToItem(matrix) });
   }, [matrix, postToTool]);
 
   const gateTitle =

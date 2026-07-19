@@ -31,7 +31,9 @@ export default function CipherPage() {
 
   useEffect(() => {
     let alive = true;
-    setM(undefined); setContribCount(0);
+    // ⚠️ איפוס מלא בין צפנים — אחרת עורך-האדמין (desc) של הצופן הקודם דולף לחדש
+    //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
+    setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
