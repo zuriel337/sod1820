@@ -170,6 +170,13 @@ export default function UserCenter() {
         transform: isOpen ? "translateX(0)" : "translateX(-104%)", transition: "transform .26s cubic-bezier(.4,0,.2,1)",
         fontFamily: "'Heebo','Assistant',sans-serif",
       }}>
+        <style>{`
+          .uc-whd{border-radius:10px;transition:background .14s}
+          .uc-whd:hover{background:${dark ? "#20242e" : "#f1f3f7"}}
+          .uc-whd:active{background:${T.accSoft}}
+          .uc-wgrid{animation:uc-in .2s ease both}
+          @keyframes uc-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+        `}</style>
         {/* header */}
         <div style={{ padding: "18px 18px 14px", borderBottom: `1px solid ${T.line}`, background: T.card }}>
           {/* 🧑 מיתוג האזור — «האזור האישי» = הזהות (איחוד האזורים, החלטת צוריאל 9.7.2026).
@@ -216,7 +223,7 @@ export default function UserCenter() {
                 const hasActivity = mods.some(m => m.badge != null);
                 return (
                   <div key={w.key} style={{ marginBottom: 14 }}>
-                    <button onClick={() => toggleWorld(w.key)} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: "none", border: "none", cursor: "pointer", color: T.ink, fontFamily: "inherit", padding: "3px 2px", margin: "0 0 9px" }}>
+                    <button className="uc-whd" onClick={() => toggleWorld(w.key)} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: "none", border: "none", cursor: "pointer", color: T.ink, fontFamily: "inherit", padding: "6px 6px", margin: "0 -4px 7px" }}>
                       <span style={{ fontSize: 15 }}>{w.icon}</span>
                       <span style={{ fontWeight: 800, fontSize: 14.5 }}>{w.title}</span>
                       <span style={{ fontSize: 11, color: T.sub }}>{w.sub}</span>
@@ -227,7 +234,7 @@ export default function UserCenter() {
                       </span>
                     </button>
                     {isOpen && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div className="uc-wgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       {mods.map(m => (
                         <button key={m.id} onClick={() => setActive(m.id)} style={{
                           textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
@@ -246,7 +253,7 @@ export default function UserCenter() {
                 );
               })}
               {/* 🗺️ מה בקרוב — פוטר דק בתחתית (מפת-הדרך, לא פיצ׳ר חי) */}
-              <button onClick={() => setActive("roadmap")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer", color: T.sub, fontFamily: "inherit", marginTop: 4 }}>
+              <button className="uc-whd" onClick={() => setActive("roadmap")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer", color: T.sub, fontFamily: "inherit", marginTop: 4 }}>
                 <span style={{ fontSize: 16 }}>🗺️</span>
                 <span style={{ fontWeight: 700, fontSize: 13 }}>מה בקרוב</span>
                 <span style={{ fontSize: 11.5 }}>הארכיטקטורה המלאה שנבנית</span>
