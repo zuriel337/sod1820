@@ -152,15 +152,8 @@ export default function UserCenter() {
   const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto, setActive });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
-  // 🪪 זהות: חוקר (is_researcher) · כותב (is_writer) — משולבים. אדמין גובר.
-  const identityLabel = (() => {
-    if (isAdmin) return "👑 מנהל";
-    const r = center?.is_researcher, w = center?.is_writer;
-    if (r && w) return "🔬 חוקר · ✍️ כותב";
-    if (r) return "🔬 חוקר היכל";
-    if (w) return "✍️ כותב";
-    return "חוקר רשום";
-  })();
+  // 🪪 זהות: חוקר (is_researcher) · כותב (is_writer) — משולבים. אדמין גובר. (מקור-אמת: identityOf)
+  const identityLabel = identityOf(center, isAdmin);
 
   return (
     <>
@@ -216,7 +209,8 @@ export default function UserCenter() {
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
               {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
               {WORLDS.map(w => {
-                const mods = MODULES.filter(m => !m.hidden && (m.world || "me") === w.key);
+                // 🗺️ «מה בקרוב» (roadmap) לא אריח בין הפיצ׳רים החיים — מוצג כפוטר-דק בתחתית
+                const mods = MODULES.filter(m => !m.hidden && m.id !== "roadmap" && (m.world || "me") === w.key);
                 if (!mods.length) return null;
                 const isOpen = openWorlds.has(w.key);
                 const hasActivity = mods.some(m => m.badge != null);
@@ -251,6 +245,13 @@ export default function UserCenter() {
                   </div>
                 );
               })}
+              {/* 🗺️ מה בקרוב — פוטר דק בתחתית (מפת-הדרך, לא פיצ׳ר חי) */}
+              <button onClick={() => setActive("roadmap")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer", color: T.sub, fontFamily: "inherit", marginTop: 4 }}>
+                <span style={{ fontSize: 16 }}>🗺️</span>
+                <span style={{ fontWeight: 700, fontSize: 13 }}>מה בקרוב</span>
+                <span style={{ fontSize: 11.5 }}>הארכיטקטורה המלאה שנבנית</span>
+                <span style={{ marginInlineStart: "auto", color: T.acc, fontWeight: 800, fontSize: 12.5 }}>←</span>
+              </button>
             </>
           ) : (
             <div>
@@ -266,6 +267,16 @@ export default function UserCenter() {
       </aside>
     </>
   );
+}
+
+// 🪪 תווית-הזהות — מקור-אמת אחד (שימוש בכותרת וגם בפאנל-הפרופיל). אדמין גובר.
+function identityOf(center, isAdmin) {
+  if (isAdmin) return "👑 מנהל";
+  const r = center?.is_researcher, w = center?.is_writer;
+  if (r && w) return "🔬 חוקר · ✍️ כותב";
+  if (r) return "🔬 חוקר היכל";
+  if (w) return "✍️ כותב";
+  return "חוקר רשום";
 }
 
 function Stat({ T, label, val, gold, onClick }) {
@@ -705,7 +716,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       render: () => <NotificationsPanel T={T} onUnread={onUnread} goto={goto} /> },
     { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
-        <Row T={T} k="סטטוס" v={isAdmin ? "👑 מנהל" : (c.is_researcher && c.is_writer) ? "🔬 חוקר · ✍️ כותב" : c.is_researcher ? "🔬 חוקר היכל" : c.is_writer ? "✍️ כותב" : "חוקר רשום"} />
+        <Row T={T} k="סטטוס" v={identityOf(c, isAdmin)} />
         {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="שמורים" v={c.saved ?? 0} />
