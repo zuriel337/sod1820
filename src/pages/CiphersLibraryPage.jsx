@@ -4,14 +4,34 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
-import { getSavedMatrices } from "../lib/elsMatrices.js";
+import { getSavedMatrices, getDraftMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 
 // 📚 ספריית הצפנים — העדשה הקנונית על כל הצפנים המאושרים (els_records published).
 // unified_graph_law: מקור אחד; כל צופן = כרטיס-תמונה שמפנה לעמוד הקנוני /codes/:slug (לא משכפל).
 export default function CiphersLibraryPage() {
   const P = usePalette();
+  const { isAdmin } = useAuth();
   const [items, setItems] = useState(null);
+  // 🗂️ תיקיית-הניהול (אדמין) — טיוטות ומוסתרים, נטענת בלחיצה
+  const [drafts, setDrafts] = useState(null);   // null=לא-נטען · []=ריק · [...]=רשימה
+  const [draftsOpen, setDraftsOpen] = useState(false);
+  const [busyId, setBusyId] = useState(null);
+
+  const loadDrafts = () => {
+    setDraftsOpen(o => !o);
+    if (drafts === null) getDraftMatrices(200).then(setDrafts).catch(() => setDrafts([]));
+  };
+  const publishDraft = async (m) => {
+    setBusyId(m.id);
+    try {
+      await moderateMatrix(m.id, "published");
+      setDrafts(list => (list || []).filter(x => x.id !== m.id));  // עזב את תיקיית-הניהול
+      setItems(null); getSavedMatrices(200).then(setItems).catch(() => setItems([]));  // רענון הראשי
+    } catch { /* ignore — נשאר בטיוטות */ }
+    setBusyId(null);
+  };
 
   useEffect(() => {
     track("codes-library");
@@ -40,8 +60,48 @@ export default function CiphersLibraryPage() {
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 18px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
             {/* 🔬 כניסה לתיקיית-המחקר — אוסף נפרד, פתוח לכולם (לא מעורבב ברשימה הכללית) */}
             <Link to="/codes/מחקר" style={{ display: "inline-flex", alignItems: "center", color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔬 תיקיית מחקר ←</Link>
+            {/* 🗂️ תיקיית-הניהול — אדמין בלבד: טיוטות ומוסתרים */}
+            {isAdmin && (
+              <button onClick={loadDrafts} style={{ display: "inline-flex", alignItems: "center", cursor: "pointer", color: "#d0a24a", border: `1px solid ${draftsOpen ? "#d0a24a" : P.border}`, background: "transparent", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>
+                🗂️ טיוטות ומוסתרים {drafts?.length ? `(${drafts.length})` : ""} {draftsOpen ? "▲" : "▼"}
+              </button>
+            )}
           </div>
         </div>
+
+        {/* 🗂️ תיקיית-הניהול (אדמין) — כל הטיוטות/מוסתרים, פרסום-לראשי בלחיצה */}
+        {isAdmin && draftsOpen && (
+          <div style={{ background: P.card, border: `1px dashed #d0a24a`, borderRadius: 14, padding: "14px 16px", margin: "0 0 20px" }}>
+            <div style={{ color: "#d0a24a", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 10 }}>🗂️ טיוטות ומוסתרים — לחיצה על «⬆️ לראשי» מפרסמת מיד לספרייה</div>
+            {drafts === null ? (
+              <div style={{ color: P.accentDim, fontFamily: F.body, padding: 14, textAlign: "center" }}>טוען…</div>
+            ) : !drafts.length ? (
+              <div style={{ color: P.accentDim, fontFamily: F.body, padding: 14, textAlign: "center" }}>אין טיוטות או צפנים מוסתרים.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {drafts.map(m => (
+                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: P.pageBg, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                    {m.image_url
+                      ? <img src={m.image_url} alt="" style={{ width: 46, height: 26, objectFit: "cover", borderRadius: 5, border: `1px solid ${P.border}`, flexShrink: 0 }} />
+                      : <span style={{ width: 46, height: 26, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 5, background: P.cardSoft, flexShrink: 0 }}>🔠</span>}
+                    <div style={{ flex: 1, minWidth: 140 }}>
+                      <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} style={{ color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{m.title || m.search_term}</Link>
+                      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+                        {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · תנ״ך" : m.skip_distance ? " · תורה" : ""}
+                        {" · "}<span style={{ color: m.status === "pending" ? "#d0a24a" : "#c98a7a", fontWeight: 700 }}>{m.status === "pending" ? "טיוטה" : "מוסתר"}</span>
+                        {m.source && m.source !== "admin" ? ` · ${m.source}` : ""}
+                      </div>
+                    </div>
+                    <button onClick={() => publishDraft(m)} disabled={busyId === m.id}
+                      style={{ cursor: busyId === m.id ? "default" : "pointer", color: "#eafff0", background: "#1c7a38", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "8px 15px", minHeight: 38, opacity: busyId === m.id ? 0.6 : 1 }}>
+                      {busyId === m.id ? "…מפרסם" : "⬆️ לראשי"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {items === null ? (
           <div style={{ color: P.accentDim, fontFamily: F.body, textAlign: "center", padding: 50 }}>טוען…</div>

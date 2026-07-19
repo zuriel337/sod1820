@@ -161,33 +161,50 @@ export default function CipherPage() {
             if (r && typeof r === "string") { setDesc(r.replace(/^#+\s.*$/gm, "").trim()); setSavedMsg(false); }
             else setAiMsg("המנוע עמוס כרגע — נסו שוב בעוד רגע");
           };
+          // ⚠️ supabase.rpc אינו זורק על שגיאת-DB — הוא מחזיר {error}. בלי בדיקת error
+          //    ה-catch לעולם לא תופס וכל שמירה "מצליחה" בשקט (✓ נשמר) גם כשה-DB דחה.
           const saveDesc = async () => {
-            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_description: desc || "" }); setSavedMsg(true); setAiMsg(""); }
-            catch (e) { setAiMsg("שמירה נכשלה: " + (e?.message || "")); }
+            try {
+              const { error } = await supabase.rpc("set_els_meta", { p_id: m.id, p_description: desc || "" });
+              if (error) throw error;
+              setM(x => ({ ...x, description: desc || "" })); setSavedMsg(true); setAiMsg("");
+            } catch (e) { setSavedMsg(false); setAiMsg("שמירה נכשלה: " + (e?.message || "")); }
           };
           const setStatus = async (st) => {
             setAiMsg("");
-            try { await supabase.rpc("moderate_els_matrix", { p_id: m.id, p_status: st }); setM(x => ({ ...x, status: st })); }
-            catch (e) { setAiMsg("שינוי-סטטוס נכשל: " + (e?.message || "")); }
+            try {
+              const { error } = await supabase.rpc("moderate_els_matrix", { p_id: m.id, p_status: st });
+              if (error) throw error;
+              setM(x => ({ ...x, status: st }));
+            } catch (e) { setAiMsg("שינוי-סטטוס נכשל: " + (e?.message || "")); }
           };
           const del = async () => {
             if (typeof window !== "undefined" && !window.confirm(`למחוק לצמיתות את הצופן «${m.title || m.search_term}»? לא ניתן לשחזר.`)) return;
-            try { await supabase.rpc("delete_els_matrix", { p_id: m.id }); navigate("/codes"); }
-            catch (e) { setAiMsg("מחיקה נכשלה: " + (e?.message || "")); }
+            try {
+              const { error } = await supabase.rpc("delete_els_matrix", { p_id: m.id });
+              if (error) throw error;
+              navigate("/codes");
+            } catch (e) { setAiMsg("מחיקה נכשלה: " + (e?.message || "")); }
           };
           // ✏️ שינוי-שם (title) · 🖼️ בחירת תמונת-תצוגה — דרך set_els_meta (SECURITY DEFINER, אדמין)
           const saveTitle = async () => {
             const t = (titleEdit || "").trim();
             if (!t) { setMetaMsg("שם ריק"); return; }
-            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_title: t }); setM(x => ({ ...x, title: t })); setMetaMsg("✓ שם נשמר"); }
-            catch (e) { setMetaMsg("שמירת-שם נכשלה: " + (e?.message || "")); }
+            try {
+              const { error } = await supabase.rpc("set_els_meta", { p_id: m.id, p_title: t });
+              if (error) throw error;
+              setM(x => ({ ...x, title: t })); setMetaMsg("✓ שם נשמר");
+            } catch (e) { setMetaMsg("שמירת-שם נכשלה: " + (e?.message || "")); }
           };
           // 🎴 כרטיס מרונדר = תמונת-שיתוף ממותגת (/api/card) · 🔲 תמונת הצופן = צורת-המטריצה הגולמית (positions.shapeUrl)
           const cardUrl = `https://sod1820.co.il/api/card?w=${encodeURIComponent(m.title || m.search_term)}&sub=${encodeURIComponent("דילוג " + m.skip_distance + (m.scope === "tanakh" ? " · תנ״ך" : " · תורה"))}&cap=${encodeURIComponent("דילוגי אותיות · ELS")}`;
           const shapeUrl = m.positions?.shapeUrl || null;
           const setImage = async (url, label) => {
-            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_image_url: url }); setM(x => ({ ...x, image_url: url })); setMetaMsg("✓ תמונה: " + label); }
-            catch (e) { setMetaMsg("עדכון-תמונה נכשל: " + (e?.message || "")); }
+            try {
+              const { error } = await supabase.rpc("set_els_meta", { p_id: m.id, p_image_url: url });
+              if (error) throw error;
+              setM(x => ({ ...x, image_url: url })); setMetaMsg("✓ תמונה: " + label);
+            } catch (e) { setMetaMsg("עדכון-תמונה נכשל: " + (e?.message || "")); }
           };
           const st = m.status || "published";
           const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";

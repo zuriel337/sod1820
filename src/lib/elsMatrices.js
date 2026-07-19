@@ -61,6 +61,17 @@ export async function getPendingMatrices(limit = 100) {
   } catch { return []; }
 }
 
+// 🗂️ אדמין — כל הטיוטות והמוסתרים (status != published). RLS admin_all_els מתיר לאדמין
+// לקרוא הכל; ללא-אדמין הפוליסי חוסם → מוחזר ריק. עדשה לתיקיית-הניהול בספריית-הצפנים.
+export async function getDraftMatrices(limit = 200) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status,visibility")
+      .neq("status", "published").order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null }) {
   const { data, error } = await supabase.rpc("save_els_matrix", {
     p_term: term, p_scope: scope, p_skip: skip, p_direction: direction,
