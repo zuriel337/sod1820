@@ -203,7 +203,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       <iframe
         ref={iframeRef}
         onLoad={postTier}
-        key={seed || "els"}
+        // 🔑 מפתח לפי זהות-הצופן: מעבר לצופן אחר (id שונה) → iframe נטען מחדש נקי, בלי מצב-כלי ישן דולף.
+        //    כך צופן שנמחק ונוצר-מחדש עם אותו מונח/דילוג לא מציג את הגרסה הישנה שהכלי שמר בזיכרון.
+        //    שינויי-שדה באותו צופן (סטטוס/איכות) לא מחליפים id → אין טעינה-מחדש מיותרת.
+        key={matrix?.id ? "els-" + matrix.id : (seed || "els")}
         src={src}
         title="הצופן התנ״כי — דילוגי אותיות (ELS)"
         loading="lazy"
