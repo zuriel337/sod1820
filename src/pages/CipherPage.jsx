@@ -9,6 +9,7 @@ import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import SubscribeGate from "../components/SubscribeGate.jsx";
 import Discourse from "../components/Discourse.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 
@@ -21,7 +22,7 @@ export default function CipherPage() {
   const { slug } = useParams();
   const P = usePalette();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, verified } = useAuth();
   const [m, setM] = useState(undefined); // undefined=טוען · null=לא נמצא
   const [contribCount, setContribCount] = useState(0);
   const [desc, setDesc] = useState(null);       // תוכן-העורך (null עד טעינת הצופן → m.description)
@@ -31,13 +32,14 @@ export default function CipherPage() {
   const [titleEdit, setTitleEdit] = useState(null);  // עורך-שם (null עד טעינה → m.title)
   const [metaMsg, setMetaMsg] = useState("");         // משוב שם/תמונה
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
+  const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
 
   useEffect(() => {
     let alive = true;
     // ⚠️ איפוס מלא בין צפנים — אחרת עורך-האדמין (desc) של הצופן הקודם דולף לחדש
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
-    setTitleEdit(null); setMetaMsg(""); setShowTool(false);
+    setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
@@ -235,22 +237,33 @@ export default function CipherPage() {
           עד אז מוצגת תמונת-הצופן כתצוגה-מקדימה. 🏆 onQuality: צריבת-MC מעדכנת m מיד (AI רואה). */}
       {showTool ? (
         <TzofenEmbed matrix={m} onQuality={q => setM(prev => (prev && typeof prev === "object") ? { ...prev, positions: { ...(prev.positions || {}), quality: q } } : prev)} />
-      ) : (
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "8px 14px 4px" }}>
-          <button onClick={() => setShowTool(true)} aria-label="פתח את הכלי החי"
-            style={{ position: "relative", cursor: "pointer", display: "block", width: "100%", padding: 0, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", background: P.cardGrad || P.cardSoft }}>
-            {m.image_url
-              ? <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", display: "block", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700" }} />
-              : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", alignItems: "center", justifyContent: "center", color: P.accentText, fontFamily: F.regal, fontSize: 26, fontWeight: 800 }}>{m.title || m.search_term}</div>}
-            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,4,14,0.34)" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, borderRadius: 999, padding: "13px 26px", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, boxShadow: "0 6px 22px rgba(0,0,0,0.5)" }}>🔍 חקור במטריצה החיה</span>
-            </span>
-          </button>
-          <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>
-            {m.scope === "tanakh" ? "טעינת כל התנ״ך מתחילה רק בלחיצה — כדי שהכניסה תהיה מהירה." : "לחצו לפתיחת הכלי החי."}
+      ) : gate ? (
+        <div style={{ maxWidth: 620, margin: "12px auto 4px", padding: "0 14px" }}>
+          <SubscribeGate source="els-research" onUnlock={() => { setGate(false); setShowTool(true); }} />
+          <div style={{ textAlign: "center", marginTop: 8 }}>
+            <button onClick={() => setGate(false)} style={{ background: "transparent", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>← חזרה</button>
           </div>
         </div>
-      )}
+      ) : (() => {
+        // 🔐 חקירת המטריצה החיה של צפני-המחקר שמורה לרשומים (בקשת צוריאל) — צפייה בכרטיס פתוחה לכולם.
+        const needReg = m.source === "research" && !verified && !isAdmin;
+        return (
+          <div style={{ maxWidth: 900, margin: "0 auto", padding: "8px 14px 4px" }}>
+            <button onClick={() => needReg ? setGate(true) : setShowTool(true)} aria-label="פתח את הכלי החי"
+              style={{ position: "relative", cursor: "pointer", display: "block", width: "100%", padding: 0, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", background: P.cardGrad || P.cardSoft }}>
+              {m.image_url
+                ? <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", display: "block", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700" }} />
+                : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", alignItems: "center", justifyContent: "center", color: P.accentText, fontFamily: F.regal, fontSize: 26, fontWeight: 800 }}>{m.title || m.search_term}</div>}
+              <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,4,14,0.34)" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, borderRadius: 999, padding: "13px 26px", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, boxShadow: "0 6px 22px rgba(0,0,0,0.5)" }}>{needReg ? "🔒" : "🔍"} חקור במטריצה החיה</span>
+              </span>
+            </button>
+            <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>
+              {needReg ? "חקירת המטריצה החיה של צפני-המחקר שמורה לרשומים — הרשמה חינם פותחת." : (m.scope === "tanakh" ? "טעינת כל התנ״ך מתחילה רק בלחיצה — כדי שהכניסה תהיה מהירה." : "לחצו לפתיחת הכלי החי.")}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 🔬 מחקר קהילתי — העמוד «חי»: חידושים/עדויות/הצלבות מצטברים על הצופן (research_contribution_law) */}
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "22px 14px 70px" }}>
