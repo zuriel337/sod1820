@@ -510,6 +510,10 @@
   .matacts .mact:hover{border-color:var(--gold);background:var(--panel2)}
   .matacts .play-act{border-color:rgba(139,92,246,.5);color:#cbb3ff}
   .matacts .play-act:hover{background:linear-gradient(160deg,#8b5cf6,#7c3aed);color:#fff;border-color:transparent}
+  /* 📖 הסבר-הצופן — מתחת למטריצה (דסקטופ + נייד), נטען עם מטריצה שמורה שיש לה תיאור */
+  .descbar{margin-top:10px;background:linear-gradient(160deg,rgba(232,200,74,.06),var(--panel));border:1px solid var(--line2);border-radius:12px;padding:13px 16px}
+  .descbar .db-t{color:var(--goldBright);font-family:var(--serif);font-size:14px;font-weight:800;margin-bottom:6px}
+  .descbar .db-x{color:var(--ink);font-size:14px;line-height:1.85;white-space:pre-wrap;max-height:280px;overflow:auto}
   .matacts .post-act{flex:1 1 auto;background:linear-gradient(160deg,rgba(232,200,74,.07),var(--panel));color:var(--ink2);border-color:var(--line2);font-weight:700;font-size:12px}
   .matacts .post-act:hover{border-color:var(--gold);color:var(--goldBright);background:var(--panel2)}
   .matacts .link-act{border-style:dashed;color:var(--ink2)}
@@ -1030,7 +1034,7 @@
   ];
   // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
-  const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",scope:"torah",tier:"unlimited"};
+  const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",scope:"torah",tier:"unlimited"};
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
   // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
   function shownHitsOf(w){
@@ -1321,7 +1325,7 @@
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
-      st.postUrl="";st.postTitle="";   // 📖 חיפוש חדש = צופן חדש → אין קישור-פוסט של הצופן הקודם
+      st.postUrl="";st.postTitle="";st.desc="";   // 📖 חיפוש חדש = צופן חדש → אין קישור/הסבר של הצופן הקודם
       if(!preserveWords)st.words=savedWordsInit();
       go.disabled=false;go.textContent=goLabel();updGem();render();
       logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
@@ -2054,6 +2058,7 @@
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
     st.postUrl=item.postUrl||"";st.postTitle=item.postTitle||"";   // 📖 קישור-לפוסט של המטריצה
+    st.desc=item.desc||"";   // 📖 הסבר-הצופן (מוצג מתחת למטריצה, שמור באתר)
     q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
     if(!st.res.hits.length){updGem();render();return;}
     let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
@@ -2397,7 +2402,13 @@
       '<button class="fb-s'+(st.filmSpeed>0.5&&st.filmSpeed<4?" on":"")+'" data-s="1">רגיל</button>'+
       '<button class="fb-s'+(st.filmSpeed<=0.5?" on":"")+'" data-s="0.5">מהיר</button>'+
       '<button class="fb-x" title="סגור">✕</button>';
-    mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);work.appendChild(mbWrap);
+    mbWrap.appendChild(mb);mbWrap.appendChild(hb);mbWrap.appendChild(selbar);mbWrap.appendChild(acts);mbWrap.appendChild(filmbar);
+    // 📖 הסבר-הצופן — מוצג מתחת לכפתורים כשטעונה מטריצה שמורה שיש לה תיאור (דסקטופ + נייד)
+    if(st.desc&&st.desc.trim()){const db=document.createElement("div");db.className="descbar";
+      const dt=document.createElement("div");dt.className="db-t";dt.textContent="📖 הסבר הצופן";
+      const dx=document.createElement("div");dx.className="db-x";dx.textContent=st.desc;
+      db.appendChild(dt);db.appendChild(dx);mbWrap.appendChild(db);}
+    work.appendChild(mbWrap);
     acts.querySelector(".share-act").onclick=shareLink;
     const xAct=acts.querySelector(".cross-act");if(xAct)xAct.onclick=openSimpleCross;   // 🔀 פתח מוצלב עם המונח הנוכחי כציר
     acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)

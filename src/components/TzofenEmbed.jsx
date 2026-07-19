@@ -22,6 +22,7 @@ function rowToItem(m) {
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
+    desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
     image: m.image_url || "", author: m.author_name || "",
   };
 }

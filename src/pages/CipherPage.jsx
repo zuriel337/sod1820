@@ -8,7 +8,6 @@ import { getContributions } from "../lib/contributions.js";
 import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import SubscribeGate from "../components/SubscribeGate.jsx";
 import Discourse from "../components/Discourse.jsx";
@@ -24,8 +23,6 @@ export default function CipherPage() {
   const P = usePalette();
   const navigate = useNavigate();
   const { isAdmin, verified } = useAuth();
-  const { isOpen: userCenterOpen } = useUserCenter();
-  const [descSheet, setDescSheet] = useState(false);  // 📖 מגירת-הסבר תחתונה (מובייל — לקרוא תוך צפייה במטריצה)
   const [m, setM] = useState(undefined); // undefined=טוען · null=לא נמצא
   const [contribCount, setContribCount] = useState(0);
   const [desc, setDesc] = useState(null);       // תוכן-העורך (null עד טעינת הצופן → m.description)
@@ -42,7 +39,7 @@ export default function CipherPage() {
     // ⚠️ איפוס מלא בין צפנים — אחרת עורך-האדמין (desc) של הצופן הקודם דולף לחדש
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
-    setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false); setDescSheet(false);
+    setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
@@ -291,43 +288,6 @@ export default function CipherPage() {
         <Discourse target={{ type: "els", id: slug }} origin="els" archive={[]} />
       </div>
 
-      {/* 📖 מובייל: התיאור בראש-העמוד והמטריצה הרבה מתחת — כפתור-צף פותח מגירה תחתונה
-          כדי לקרוא את ההסבר תוך כדי צפייה בצופן. מוסתר בדסקטופ (התיאור ממילא גלוי) ובזמן מגירת-המשתמש. */}
-      {m.description && !userCenterOpen && (
-        <>
-          <style>{`@media (min-width:900px){.cipher-desc-fab{display:none!important}}`}</style>
-          {!descSheet && (
-            <button className="cipher-desc-fab" onClick={() => setDescSheet(true)} aria-label="קרא את הסבר הצופן"
-              style={{ position: "fixed", insetInlineStart: "50%", transform: "translateX(-50%)", bottom: 18, zIndex: 3600,
-                display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",
-                background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999,
-                fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "12px 22px", minHeight: 46,
-                boxShadow: "0 8px 26px rgba(0,0,0,0.55)" }}>
-              📖 הסבר הצופן
-            </button>
-          )}
-          {descSheet && (
-            <>
-              <div onClick={() => setDescSheet(false)} style={{ position: "fixed", inset: 0, zIndex: 3700, background: "rgba(4,3,10,0.55)" }} />
-              <div role="dialog" aria-label="הסבר הצופן" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 3701,
-                background: P.card, borderTop: `1px solid ${P.border}`, borderRadius: "18px 18px 0 0",
-                boxShadow: "0 -10px 40px rgba(0,0,0,0.5)", maxHeight: "72vh", display: "flex", flexDirection: "column",
-                paddingBottom: "env(safe-area-inset-bottom)" }}>
-                <div style={{ padding: "10px 0 4px", display: "flex", justifyContent: "center", flexShrink: 0 }}>
-                  <span style={{ width: 40, height: 4, borderRadius: 999, background: P.border }} />
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2px 18px 10px", flexShrink: 0, borderBottom: `1px solid ${P.border}` }}>
-                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>📖 {m.title || m.search_term}</span>
-                  <button onClick={() => setDescSheet(false)} aria-label="סגור" style={{ background: "none", border: "none", color: P.inkSoft, fontSize: 26, lineHeight: 1, cursor: "pointer" }}>×</button>
-                </div>
-                <div style={{ overflowY: "auto", padding: "14px 18px 22px", color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, whiteSpace: "pre-wrap", direction: "rtl" }}>
-                  {m.description}
-                </div>
-              </div>
-            </>
-          )}
-        </>
-      )}
     </div>
   );
 }
