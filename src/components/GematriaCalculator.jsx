@@ -164,7 +164,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const numCell = { ...tdS, fontFamily: F.mono, fontWeight: 700, textAlign: "center", color: L.goldDeep };
 
   const cs = {
-    open: { cursor: "pointer", background: "none", border: `1px dashed ${L.gold}`, color: L.goldDeep, borderRadius: 999, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "7px 16px" },
+    open: { cursor: "pointer", background: "none", border: "none", color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "5px 10px", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" },
     row: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" },
     lbl: { color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 800, minWidth: 44 },
     term: { flex: "1 1 110px", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "7px 12px", color: L.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, textAlign: "center" },
@@ -308,17 +308,84 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           </div>
         )}
 
+        {/* כל 19 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
+        <>
+        {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+          <input type="checkbox" checked={showHebNum} onChange={e => setShowHebNum(e.target.checked)} style={{ accentColor: L.gold, width: 15, height: 15, cursor: "pointer" }} />
+          הצג את הערך באותיות (מ״ה) · מתקדם
+        </label>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
+          {res.map(r => {
+            // 🔒 חוק gadol_equals_ragil_when_no_sofiot: כשאין סופיות, שיטה-גדולה = הבסיס שלה.
+            // לא מציגים אותה כ«ממצא נפרד» — מסמנים «≡ זהה ל…» כדי שלא ייקרא כהפרש.
+            const sameAsBase = word && GADOL_BASE[r.key] && !hasSofiot(word);
+            const inner = (
+              <>
+                <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
+                <div style={{ color: word ? (sameAsBase ? L.sub : L.goldDeep) : "#cabfa3", fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
+                {showHebNum && word && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
+                {sameAsBase
+                  ? <div title="אין אותיות סופיות בביטוי — הערך הגדול זהה לרגיל (חוק נעול)" style={{ color: "#9a8a5e", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, marginTop: 2 }}>≡ זהה ל{GADOL_BASE[r.key]}</div>
+                  : (word && <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>)}
+              </>
+            );
+            const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft, ...(sameAsBase ? { opacity: 0.72 } : {}) };
+            // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
+            return word ? (
+              <Link key={r.key} to={nlink(r.value, `from=calc&focus=dna&method=${encodeURIComponent(r.key)}`)} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
+                position: "relative", textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
+                {/* ⭐ שמור רק את המספר הזה — לא מנווט (עוצר את הלינק). משוב «✓» רגעי. */}
+                {!sameAsBase && (
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); saveNum(r); }}
+                    title={`שמור את ${r.value} (${methodLabel(r.key)}) ל⭐ שמורים`}
+                    aria-label={`שמור את ${r.value}`}
+                    style={{ position: "absolute", top: 2, insetInlineStart: 2, zIndex: 2, cursor: "pointer",
+                      background: "none", border: "none", padding: 2, lineHeight: 1, fontSize: 12.5,
+                      color: savedFlash === r.key ? "#1f9d57" : "#c9b678", opacity: savedFlash === r.key ? 1 : 0.7 }}>
+                    {savedFlash === r.key ? "✓" : "⭐"}
+                  </button>
+                )}
+                {inner}
+              </Link>
+            ) : (
+              <div key={r.key} style={{ ...boxStyle, opacity: 0.92 }}>{inner}</div>
+            );
+          })}
+        </div>
+
+        {word ? (
+          <>
+            <div style={{ textAlign: "center", marginTop: 15 }}>
+              <Link to={nlink(ragilVal, 'from=calc')} style={{
+                display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+                background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
+                fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
+                boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
+              }}>✨ גלה הכל על {ragilVal} ←</Link>
+            </div>
+            <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה · ⭐ בפינת האריח שומר רק את המספר</div>
+          </>
+        ) : (
+          <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 19 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
+        )}
+        </>
+
         {/* 🔍 חיפוש מורכב — רמות: שורה אחת / שתיים, עצמאיות מהעליונה */}
         {!advOpen ? (
           <div style={{ textAlign: "center", marginTop: 10 }}>
-            <button onClick={openAdvanced} style={cs.open}>➕ חיפוש מורכב — חישוב לפי שיטות</button>
+            <button onClick={openAdvanced} style={cs.open}>▾ מצב מתקדם — השוואת שיטות ושורות</button>
           </div>
         ) : (
           <div style={{ marginTop: 12, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 13px" }}>
             <style>{`@keyframes gc-glow{0%,100%{box-shadow:0 0 0 0 rgba(154,120,24,0)}50%{box-shadow:0 0 0 4px rgba(154,120,24,0.42)}}`}</style>
             {/* כותרת + הסבר + סגירה */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-              <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🔍 חיפוש מורכב</span>
+              <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🧮 מצב מתקדם — השוואת שיטות</span>
               <button onClick={() => { setAdvHelp(h => !h); setAdvBlink(false); }} title="הסבר על המצב המורחב" style={{ cursor: "pointer", background: advBlink ? L.active : "none", border: `1px solid ${advBlink ? L.gold : L.line}`, borderRadius: 999, color: L.goldDeep, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px" }}>{advHelp ? "▴ הסבר" : "❔ איך זה עובד?"}</button>
               <button onClick={closeAdvanced} title="סגור מצב מתקדם" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 13px" }}>▲ סגור</button>
             </div>
@@ -409,73 +476,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             </>)}
           </div>
         )}
-
-        {/* כל 19 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
-        <>
-        {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
-        <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-          <input type="checkbox" checked={showHebNum} onChange={e => setShowHebNum(e.target.checked)} style={{ accentColor: L.gold, width: 15, height: 15, cursor: "pointer" }} />
-          הצג את הערך באותיות (מ״ה) · מתקדם
-        </label>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
-          {res.map(r => {
-            // 🔒 חוק gadol_equals_ragil_when_no_sofiot: כשאין סופיות, שיטה-גדולה = הבסיס שלה.
-            // לא מציגים אותה כ«ממצא נפרד» — מסמנים «≡ זהה ל…» כדי שלא ייקרא כהפרש.
-            const sameAsBase = word && GADOL_BASE[r.key] && !hasSofiot(word);
-            const inner = (
-              <>
-                <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{methodLabel(r.key)}</div>
-                <div style={{ color: word ? (sameAsBase ? L.sub : L.goldDeep) : "#cabfa3", fontFamily: F.mono, fontSize: 19, fontWeight: 800, lineHeight: 1.15 }}>{r.value}</div>
-                {showHebNum && word && <div style={{ color: L.gold, fontFamily: F.regal, fontSize: 11, fontWeight: 700, lineHeight: 1.2, marginTop: 1 }}>{hebrewNumeral(r.value)}</div>}
-                {sameAsBase
-                  ? <div title="אין אותיות סופיות בביטוי — הערך הגדול זהה לרגיל (חוק נעול)" style={{ color: "#9a8a5e", fontFamily: F.heading, fontSize: 9.5, fontWeight: 800, marginTop: 2 }}>≡ זהה ל{GADOL_BASE[r.key]}</div>
-                  : (word && <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700, marginTop: 2 }}>נמצאו {counts[r.key] ?? "…"}</div>)}
-              </>
-            );
-            const boxStyle = { textAlign: "center", borderRadius: 10, padding: "8px 6px", border: `1px solid ${L.line}`, background: L.soft, ...(sameAsBase ? { opacity: 0.72 } : {}) };
-            // ריק → תיבה לא-לחיצה (לא מקשרים ל-/number/0); מלא → לחיצה לדף-המספר
-            return word ? (
-              <Link key={r.key} to={nlink(r.value, `from=calc&focus=dna&method=${encodeURIComponent(r.key)}`)} title={`${r.key} = ${r.value} · פתח את ${r.value} (צירי ההתכנסות)`} style={{
-                position: "relative", textDecoration: "none", transition: "border-color .15s, background .15s", ...boxStyle,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = L.gold; e.currentTarget.style.background = L.active; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = L.line; e.currentTarget.style.background = L.soft; }}>
-                {/* ⭐ שמור רק את המספר הזה — לא מנווט (עוצר את הלינק). משוב «✓» רגעי. */}
-                {!sameAsBase && (
-                  <button
-                    onClick={e => { e.preventDefault(); e.stopPropagation(); saveNum(r); }}
-                    title={`שמור את ${r.value} (${methodLabel(r.key)}) ל⭐ שמורים`}
-                    aria-label={`שמור את ${r.value}`}
-                    style={{ position: "absolute", top: 2, insetInlineStart: 2, zIndex: 2, cursor: "pointer",
-                      background: "none", border: "none", padding: 2, lineHeight: 1, fontSize: 12.5,
-                      color: savedFlash === r.key ? "#1f9d57" : "#c9b678", opacity: savedFlash === r.key ? 1 : 0.7 }}>
-                    {savedFlash === r.key ? "✓" : "⭐"}
-                  </button>
-                )}
-                {inner}
-              </Link>
-            ) : (
-              <div key={r.key} style={{ ...boxStyle, opacity: 0.92 }}>{inner}</div>
-            );
-          })}
-        </div>
-
-        {word ? (
-          <>
-            <div style={{ textAlign: "center", marginTop: 15 }}>
-              <Link to={nlink(ragilVal, 'from=calc')} style={{
-                display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
-                background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00",
-                fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px", borderRadius: 999,
-                boxShadow: "0 2px 10px rgba(154,120,24,0.35)",
-              }}>✨ גלה הכל על {ragilVal} ←</Link>
-            </div>
-            <div style={{ textAlign: "center", marginTop: 7, color: L.sub, fontFamily: F.body, fontSize: 12 }}>לחצו על שיטה כדי לפתוח את דף המספר שלה · ⭐ בפינת האריח שומר רק את המספר</div>
-          </>
-        ) : (
-          <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 19 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
-        )}
-        </>
       </div>
 
       {/* פירוט אות-אות */}

@@ -323,10 +323,13 @@ export const rwCss = (t = RW) => `
     /* «בקרוב» ומתג-המנהל לא נעוצים במובייל (הוסתרו — שייכים לחוויית הדסקטופ) */
     .rw-more-wrap,.rw-adminview{display:none !important}
     /* «המחקר שלי» — לשונית בצד שמאל (inline-end ב-RTL) + מגירה שנפתחת מהצד, כמו בכל האתר (לא bottom-sheet) */
+    /* אחיד עם רצועת-הדסקטופ (.rw-rail): אותה שפה בהירה — כרטיס, מסגרת עדינה, אקסנט-זהב. לא כהה. */
     .rw-fab{display:flex;position:fixed;left:0;top:auto;bottom:96px;flex-direction:column;align-items:center;gap:4px;
-      writing-mode:vertical-rl;text-orientation:mixed;padding:16px 7px;border-radius:0 14px 14px 0;
-      background:var(--ink);color:var(--card);font-weight:800;font-size:14px;letter-spacing:.5px;
-      box-shadow:4px 6px 20px rgba(0,0,0,.28);z-index:40;border:none;cursor:pointer}
+      writing-mode:vertical-rl;text-orientation:mixed;padding:16px 8px;border-radius:0 14px 14px 0;
+      background:var(--card);color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.5px;
+      border:1px solid var(--line);border-inline-start:3px solid var(--acc);
+      box-shadow:4px 6px 20px rgba(60,46,16,.18);z-index:40;cursor:pointer}
+    .rw-fab:active{background:var(--accS)}
     .rw-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:45}
     .rw-sheet{display:block;position:fixed;left:-100%;top:0;bottom:0;width:min(86vw,360px);background:var(--card);border-radius:0 20px 20px 0;
       box-shadow:8px 0 30px rgba(0,0,0,.25);z-index:46;overflow:auto;padding:14px 12px calc(16px + env(safe-area-inset-bottom));
