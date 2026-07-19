@@ -56,12 +56,6 @@ export default function CipherPage() {
       path: `/codes/${encodeURIComponent(slug)}`,
       image: m.image_url || undefined,
     });
-    // 🙈 צופן-מחקר (תיקייה נסתרת) — נגיש בקישור-ישיר אך לא נאנדקס בגוגל (unlisted)
-    if (m.source === "research") {
-      const t = document.createElement("meta"); t.name = "robots"; t.content = "noindex, nofollow";
-      document.head.appendChild(t);
-      return () => { try { document.head.removeChild(t); } catch { /* noop */ } };
-    }
   }, [m, slug]);
 
   const wrap = { direction: "rtl", background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };

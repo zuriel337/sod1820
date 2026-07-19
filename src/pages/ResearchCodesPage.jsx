@@ -7,9 +7,9 @@ import { track } from "../lib/tracking.js";
 import { getResearchMatrices } from "../lib/elsMatrices.js";
 import ShareActions from "../components/ShareActions.jsx";
 
-// 🔬 תיקיית-המחקר (unlisted) — עדשה על els_records where source='research'.
-// לא מקושרת מהתפריט/בית/כלי; מוסתרת מ-/codes הראשי (getSavedMatrices מסנן research).
-// רק מי שנכנס לכתובת רואה. noindex — לא נכנס לגוגל (share_placement/legacy_content לא רלוונטי).
+// 🔬 תיקיית-המחקר — עדשה על els_records where source='research'. אוסף **נפרד וציבורי**:
+// מוצג בעמוד משלו (לא ברשימה הכללית של /codes — getSavedMatrices מסנן research), אבל פתוח לכולם
+// ומאונדקס בגוגל (בקשת צוריאל: «לא לחסום מהקהל/מגוגל, רק לא ברשימה הכללית»).
 export default function ResearchCodesPage() {
   const P = usePalette();
   const [items, setItems] = useState(null);
@@ -18,14 +18,9 @@ export default function ResearchCodesPage() {
     track("codes-research");
     applySeo({
       title: "תיקיית המחקר — צירים ארוכים (ELS) בתנ״ך · סוד 1820",
-      description: "אוסף-מחקר פנימי של דילוגי-אותיות ארוכים שנמצאו בתנ״ך. עדות — לא ניבוי.",
+      description: "אוסף דילוגי-אותיות ארוכים שנמצאו בכל התנ״ך — עד 9 אותיות, כולל «משיח בן דוד». עדות — לא ניבוי.",
       path: "/codes/מחקר",
     });
-    // 🙈 unlisted — לא נאנדקס בגוגל
-    const meta = document.createElement("meta");
-    meta.name = "robots"; meta.content = "noindex, nofollow";
-    document.head.appendChild(meta);
-    return () => { try { document.head.removeChild(meta); } catch { /* noop */ } };
   }, []);
 
   useEffect(() => { getResearchMatrices(200).then(setItems).catch(() => setItems([])); }, []);
@@ -35,7 +30,7 @@ export default function ResearchCodesPage() {
     <div dir="rtl" style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "26px 16px 90px" }}>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>אוסף פנימי · unlisted</div>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>אוסף מחקר · דילוגי אותיות</div>
           <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 800, margin: "0 0 8px" }}>🔬 תיקיית המחקר</h1>
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.8, maxWidth: 600, margin: "0 auto 14px" }}>
             הצירים הארוכים ביותר שנמצאו כדילוגי-אותיות בכל התנ״ך — אוסף-מחקר שאינו מוצג בספרייה הראשית. <b style={{ color: P.accentText }}>עדות — לא ניבוי.</b>
