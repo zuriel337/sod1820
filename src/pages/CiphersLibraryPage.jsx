@@ -6,11 +6,13 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
 import ShareActions from "../components/ShareActions.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // 📚 ספריית הצפנים — העדשה הקנונית על כל הצפנים המאושרים (els_records published).
 // unified_graph_law: מקור אחד; כל צופן = כרטיס-תמונה שמפנה לעמוד הקנוני /codes/:slug (לא משכפל).
 export default function CiphersLibraryPage() {
   const P = usePalette();
+  const { isAdmin } = useAuth();
   const [items, setItems] = useState(null);
 
   useEffect(() => {
@@ -38,6 +40,8 @@ export default function CiphersLibraryPage() {
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             <ShareActions type="codes" url="https://sod1820.co.il/codes" title="📚 ספריית הצפנים — דילוגי אותיות בתורה · סוד 1820" />
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 18px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
+            {/* 🔬 כניסת-אדמין דיסקרטית לתיקיית-המחקר (unlisted) — רק אדמין רואה; גולשים רגילים לא */}
+            {isAdmin && <Link to="/codes/מחקר" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px dashed ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔬 תיקיית מחקר</Link>}
           </div>
         </div>
 

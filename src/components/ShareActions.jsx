@@ -16,7 +16,8 @@ import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLi
 // שינוי אייקון/טקסט/ערוץ/באג = פעם אחת כאן → מתעדכן בכל האתר.
 // 👑 share_placement_law: הבלוק מרנדר את עצמו **רק היכן שהווידג׳ט-הצף נעדר** (floatingShareShown=false)
 //    → אפס כפילות עם הלשונית הצפה, ושורה-אחת נקייה. אף דף לא צריך להחליט — זה קורה לבד.
-const ALL = ["native", "whatsapp", "telegram", "facebook", "copy"];
+// הערוצים באים מ-CHANNELS (lib/share.js) — אותו מקור-אמת של הלשונית הצפה. עריכה שם → מתעדכן בשניהם.
+const ALL = ["native", ...Object.keys(CH), "copy"];
 
 export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, force = false, style }) {
   const P = usePalette();
@@ -51,12 +52,13 @@ export default function ShareActions({ type = "page", url, title = "", image = n
       )}
       {channels.filter(c => CH[c]).map(c => {
         const m = CH[c];
-        // עיצוב אחיד ונקי לכל הערוצים (canonical_ui_components_law) — האימוג׳י נותן זיהוי-מותג,
-        // בלי גבולות/צבעים מתנגשים («קשת» של צבעים). הכפתור הראשי «שתף» נשאר הזהב.
+        // אייקון-מותג SVG בתוך תג-צבע (זהה ללשונית הצפה) — נשען על CHANNELS (svg+brand) כמקור-אמת יחיד.
         return (
           <a key={c} href={m.href(fullUrl, text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
             title={m.label} style={btn}>
-            <span style={{ fontSize: 15, lineHeight: 1 }}>{m.emoji}</span> {label(m.label)}
+            <span style={{ width: 22, height: 22, borderRadius: "50%", background: m.brand, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden focusable="false"><path d={m.svg} /></svg>
+            </span> {label(m.label)}
           </a>
         );
       })}
