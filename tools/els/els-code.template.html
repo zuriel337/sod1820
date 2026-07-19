@@ -1309,6 +1309,9 @@
     if(simpleOpen()){const B=qb.value.trim();if(norm(B).length>=2){
       if(!canCross()){gate("cross");return;}
       runCrossSimple(w,B);logSearch("cross",w+" × "+B);return;}}
+    // 📜 צפייה בצופן-תנ״ך שמור פתוחה לכולם (loadMatrix), אבל *חיפוש* בתנ״ך נעול לאנונימי —
+    //    בלי זה, אנונימי שצפה בצופן-תנ״ך (שהעביר scope=tanakh) היה יכול לחפש בתנ״ך בעקיפה.
+    if(st.scope==="tanakh"&&tanakhLocked()){gate("tanakh");return;}
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
