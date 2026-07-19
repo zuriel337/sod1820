@@ -1870,6 +1870,19 @@ const POST_CONTENT_CSS = `
     opacity: 0.85;
   }
   .sod-post-content a:visited { color: ${C.goldLight} !important; }
+  /* 👑 sod-post-cta — כפתור קריאה-לפעולה קנוני בפוסטים (post_cta_law). תיבת-זהב מלאה + טקסט כהה,
+     קריא בשני המצבים כי הוא דורס את «.sod-post-content a» שצובע כל קישור זהב (זהב-על-זהב=נעלם).
+     שימוש: <a class="sod-post-cta" href="/codes">📚 טקסט ←</a>. ⚠️ קנוני בשני עותקי
+     POST_CONTENT_CSS: legacy.jsx + theme.js — לעדכן את שניהם. */
+  .sod-post-content a.sod-post-cta {
+    display: inline-flex !important; align-items: center; gap: 8px;
+    background: linear-gradient(180deg, #e8c84a, #c9a227) !important;
+    color: #1a0e00 !important; text-decoration: none !important;
+    border: none !important; border-radius: 999px; padding: 13px 28px; margin: 8px auto;
+    font-weight: 800; font-size: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.28);
+    transform: none !important; text-shadow: none !important;
+  }
+  .sod-post-content a.sod-post-cta:hover { color: #1a0e00 !important; filter: brightness(1.06); transform: translateY(-1px) !important; text-shadow: none !important; }
   .sod-post-content img {
     max-width: 100%;
     height: auto;
@@ -2184,6 +2197,9 @@ const POST_CONTENT_CSS = `
   [data-theme="light"] .sod-post-content.clean a:visited { color: #7a4a12 !important; }
   [data-theme="light"] .sod-post-content.clean a:hover,
   [data-theme="light"] .sod-post-content.clean a:focus { color: #c8102e !important; }
+  /* 👑 sod-post-cta במצב בהיר — נשאר תיבת-זהב עם טקסט כהה (דורס את «.clean a» הבהיר בזכות ספציפיות גבוהה יותר) */
+  [data-theme="light"] .sod-post-content.clean a.sod-post-cta,
+  [data-theme="light"] .sod-post-content a.sod-post-cta { color: #1a0e00 !important; background: linear-gradient(180deg, #e8c84a, #c9a227) !important; }
   [data-theme="light"] .sod-post-content.clean figcaption { color: #6b6250; }
   [data-theme="light"] .sod-post-content.clean .post-author { color: #7a4a12; }
   [data-theme="light"] .sod-post-content.clean td { color: #33301f; }
