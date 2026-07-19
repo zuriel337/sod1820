@@ -28,12 +28,15 @@ export default function CipherPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiMsg, setAiMsg] = useState("");        // שגיאה/סטטוס
   const [savedMsg, setSavedMsg] = useState(false);
+  const [titleEdit, setTitleEdit] = useState(null);  // עורך-שם (null עד טעינה → m.title)
+  const [metaMsg, setMetaMsg] = useState("");         // משוב שם/תמונה
 
   useEffect(() => {
     let alive = true;
     // ⚠️ איפוס מלא בין צפנים — אחרת עורך-האדמין (desc) של הצופן הקודם דולף לחדש
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
+    setTitleEdit(null); setMetaMsg("");
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
@@ -41,6 +44,7 @@ export default function CipherPage() {
 
   // מזין את עורך-התיאור פעם אחת מהתיאור השמור (אחר-כך desc הוא מקור-האמת של העורך)
   useEffect(() => { if (m && typeof m === "object" && desc === null) setDesc(m.description || ""); }, [m, desc]);
+  useEffect(() => { if (m && typeof m === "object" && titleEdit === null) setTitleEdit(m.title || m.search_term || ""); }, [m, titleEdit]);
 
   // SEO קנוני לכל צופן (כמו EntityPage/TopicPage). לא-נמצא → noindex.
   useEffect(() => {
@@ -168,6 +172,20 @@ export default function CipherPage() {
             try { await supabase.rpc("delete_els_matrix", { p_id: m.id }); navigate("/codes"); }
             catch (e) { setAiMsg("מחיקה נכשלה: " + (e?.message || "")); }
           };
+          // ✏️ שינוי-שם (title) · 🖼️ בחירת תמונת-תצוגה — דרך set_els_meta (SECURITY DEFINER, אדמין)
+          const saveTitle = async () => {
+            const t = (titleEdit || "").trim();
+            if (!t) { setMetaMsg("שם ריק"); return; }
+            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_title: t }); setM(x => ({ ...x, title: t })); setMetaMsg("✓ שם נשמר"); }
+            catch (e) { setMetaMsg("שמירת-שם נכשלה: " + (e?.message || "")); }
+          };
+          // 🎴 כרטיס מרונדר = תמונת-שיתוף ממותגת (/api/card) · 🔲 תמונת הצופן = צורת-המטריצה הגולמית (positions.shapeUrl)
+          const cardUrl = `https://sod1820.co.il/api/card?w=${encodeURIComponent(m.title || m.search_term)}&sub=${encodeURIComponent("דילוג " + m.skip_distance + (m.scope === "tanakh" ? " · תנ״ך" : " · תורה"))}&cap=${encodeURIComponent("דילוגי אותיות · ELS")}`;
+          const shapeUrl = m.positions?.shapeUrl || null;
+          const setImage = async (url, label) => {
+            try { await supabase.rpc("set_els_meta", { p_id: m.id, p_image_url: url }); setM(x => ({ ...x, image_url: url })); setMetaMsg("✓ תמונה: " + label); }
+            catch (e) { setMetaMsg("עדכון-תמונה נכשל: " + (e?.message || "")); }
+          };
           const st = m.status || "published";
           const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";
           return (
@@ -175,6 +193,20 @@ export default function CipherPage() {
               <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
                 <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🛠️ ניהול הצופן (אדמין)</span>
                 <span style={{ color: st === "published" ? "#3fae5f" : "#d0a24a", fontSize: 11.5, fontWeight: 700 }}>● {stLabel}</span>
+              </div>
+              {/* ✏️ שינוי-שם הצופן */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <input value={titleEdit || ""} onChange={e => { setTitleEdit(e.target.value); setMetaMsg(""); }} placeholder="שם הצופן"
+                  style={{ flex: 1, minWidth: 150, background: P.pageBg, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 9, padding: "9px 11px", fontFamily: F.heading, fontSize: 14, fontWeight: 700, direction: "rtl" }} />
+                <button onClick={saveTitle} style={aiBtn(P, true)}>✏️ שמור שם</button>
+              </div>
+              {/* 🖼️ תמונת-תצוגה: כרטיס מרונדר (שיתוף) / תמונת-הצופן */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ color: P.accentDim, fontSize: 12, fontWeight: 700 }}>🖼️ תצוגה:</span>
+                {m.image_url && <img src={m.image_url} alt="" style={{ width: 54, height: 30, objectFit: "cover", borderRadius: 5, border: `1px solid ${P.border}` }} />}
+                <button onClick={() => setImage(cardUrl, "כרטיס מרונדר")} style={aiBtn(P, false)}>🎴 כרטיס מרונדר</button>
+                {shapeUrl && <button onClick={() => setImage(shapeUrl, "תמונת הצופן")} style={aiBtn(P, false)}>🔲 תמונת הצופן</button>}
+                {metaMsg && <span style={{ color: metaMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700 }}>{metaMsg}</span>}
               </div>
               <textarea value={desc || ""} onChange={e => { setDesc(e.target.value); setSavedMsg(false); }}
                 placeholder="כתוב כאן חופשי את הסבר הצופן — או תן ל-AI לנסח, ואז ערוך/מחק כרצונך…"
