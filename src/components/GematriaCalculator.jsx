@@ -71,6 +71,26 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
 
+  // 🔑 שיטת המפתח (lab) — עדשת פירוק-אותיות פרשנית מהמנוע (fn_maftech_decompose).
+  // מפריד עובדה (רגיל/מסתתר/קדמי — מאומת) מהשערה (משמעות-אות/מראה/חיתוך). נטען לפי בקשה, לא בכל הקשה.
+  const [maftechOpen, setMaftechOpen] = useState(false);
+  const [maftechData, setMaftechData] = useState(null);
+  const [maftechLoading, setMaftechLoading] = useState(false);
+  const [maftechErr, setMaftechErr] = useState(false);
+  useEffect(() => {
+    if (!maftechOpen || !letters.length) { setMaftechData(null); return; }
+    let live = true; setMaftechLoading(true); setMaftechErr(false);
+    const t = setTimeout(() => {
+      supabase.rpc("fn_maftech_decompose", { word }).then(({ data, error }) => {
+        if (!live) return;
+        if (error) { setMaftechErr(true); setMaftechData(null); } else setMaftechData(data);
+        setMaftechLoading(false);
+      }).catch(() => { if (live) { setMaftechErr(true); setMaftechLoading(false); } });
+    }, 350);
+    return () => { live = false; clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maftechOpen, word]);
+
   // חיפוש מורכב — רמות: 0=סגור · 1=שורה אחת · 2=שתי שורות. השורה העליונה (q) עצמאית = "צופה 19 השיטות".
   const [m1, setM1] = useState("רגיל");
   const [advLevel, setAdvLevel] = useState(0);
@@ -374,6 +394,81 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           <div style={{ textAlign: "center", marginTop: 13, color: L.sub, fontFamily: F.body, fontSize: 13 }}>☝️ הקלידו מילה או ביטוי למעלה — כל 19 השיטות יחושבו מיד, וכל תיבה תהפוך ללחיצה אל דף-המספר.</div>
         )}
         </>
+
+        {/* 🔑 שיטת המפתח — עדשת פירוק-אותיות פרשנית (lab). עובדה (מנוע) מופרדת מהשערה. */}
+        {letters.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            {!maftechOpen ? (
+              <div style={{ textAlign: "center" }}>
+                <button onClick={() => setMaftechOpen(true)} style={cs.open}>🔑 פרק את «{word}» בשיטת המפתח</button>
+              </div>
+            ) : (
+              <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 12, padding: "13px 14px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>🔑 שיטת המפתח — «{word}»</span>
+                  <span title="שיטה פרשנית — השערה, לא אמת מוחלטת" style={{ background: "#eef3fb", border: "1px solid #cfe0fb", color: "#2c5fb3", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>השערה · lab</span>
+                  <button onClick={() => setMaftechOpen(false)} title="סגור" style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${L.line}`, borderRadius: 999, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>▲ סגור</button>
+                </div>
+
+                {maftechLoading && <div style={{ textAlign: "center", color: L.sub, fontFamily: F.body, fontSize: 13, padding: "6px 0" }}>מפרק…</div>}
+                {maftechErr && <div style={{ textAlign: "center", color: "#a3402f", fontFamily: F.body, fontSize: 13, padding: "6px 0" }}>לא ניתן לפרק כרגע — נסו שוב.</div>}
+
+                {maftechData && !maftechLoading && (() => {
+                  const FT = maftechData.FACT || {}, IN = maftechData.INTERPRETATION || {}, segs = maftechData.segments_real_words || [];
+                  return (
+                    <>
+                      {/* ✅ עובדה — מאומת במנוע */}
+                      <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px" }}>
+                        <div style={{ color: "#1f9d57", fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 5 }}>✅ עובדה — מאומת במנוע</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["קדמי", FT.kadmi]].map(([k, v]) => (
+                            <span key={k} style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 800, color: L.goldDeep, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 9px" }}>{k} <span style={{ color: L.ink }}>{v ?? "—"}</span></span>
+                          ))}
+                        </div>
+                        {FT.hidden_vs_revealed && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>מוסתר↔גלוי: {FT.hidden_vs_revealed}</div>}
+                      </div>
+
+                      {/* 🔑 השערה — מפתח האותיות */}
+                      <div style={{ marginTop: 9, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px" }}>
+                        <div style={{ color: "#2c5fb3", fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 6 }}>🔑 מפתח האותיות — השערה</div>
+                        <div style={{ display: "grid", gap: 5 }}>
+                          {(IN.letters || []).map((l, i) => (
+                            <div key={i} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+                              <span style={{ fontFamily: F.regal, fontSize: 18, fontWeight: 800, color: L.goldDeep, minWidth: 22, textAlign: "center" }}>{l.letter}</span>
+                              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.5 }}>{l.meaning}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                          {(IN.mirror || []).map((m, i) => (
+                            <span key={i} style={{ fontFamily: F.mono, fontSize: 12, fontWeight: 700, color: "#7a4fb3", background: "#f4eefb", border: "1px solid #e2d3f5", borderRadius: 999, padding: "2px 10px" }}>מראה {m}</span>
+                          ))}
+                          {IN.sparks_yod > 0 && <span style={{ fontFamily: F.heading, fontSize: 12, fontWeight: 700, color: L.gold, background: L.active, border: `1px solid ${L.line}`, borderRadius: 999, padding: "2px 10px" }}>✦ ניצוצות-יוד: {IN.sparks_yod}</span>}
+                        </div>
+                      </div>
+
+                      {/* חיתוך תת-מילים מאומתות */}
+                      {segs.length > 0 && (
+                        <div style={{ marginTop: 9 }}>
+                          <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 5 }}>✂️ תת-מילים במאגר</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {segs.map((s, i) => (
+                              <Link key={i} to={nlink(s.ragil, "from=maftech")} style={{ textDecoration: "none", fontFamily: F.regal, fontSize: 14, fontWeight: 700, color: L.ink, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999, padding: "3px 11px" }}>
+                                {s.sub} <span style={{ fontFamily: F.mono, color: L.goldDeep, fontWeight: 800 }}>{s.ragil}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11, marginTop: 9, lineHeight: 1.6 }}>המספרים = עובדות מנוע. משמעות-האותיות, המראה והחיתוך = שיטה פרשנית («המפתח») במצב lab — השערה, לא אמת מוחלטת.</div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 🔍 חיפוש מורכב — רמות: שורה אחת / שתיים, עצמאיות מהעליונה */}
         {!advOpen ? (
