@@ -222,7 +222,6 @@ export default function GematriaCalculator({ seed, onResult, research = false })
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />
-        {advOpen && <div style={{ textAlign: "center", marginTop: 5, color: L.sub, fontFamily: F.body, fontSize: 11.5 }}>↑ השורה העליונה עצמאית — מלאו אותה מ-⤴ באחת השורות, או הקלידו ידנית</div>}
 
         {/* 🌍 עזר-אנגלית: קלט אנגלי לעולם לא רואה 0. תעתוק עברי (אם קיים) + English Simple (תמיד). */}
         {inputType === "english" && word && enSimple != null && (
@@ -310,12 +309,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
 
         {/* כל 19 השיטות — תמיד מוצגות (גם בלי קלט, מציגות 0), כדי שברור מיד שזה מחשבון חי */}
         <>
-        {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
-        <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 12, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-          <input type="checkbox" checked={showHebNum} onChange={e => setShowHebNum(e.target.checked)} style={{ accentColor: L.gold, width: 15, height: 15, cursor: "pointer" }} />
-          הצג את הערך באותיות (מ״ה) · מתקדם
-        </label>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 9 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(94px, 1fr))", gap: 7, marginTop: 12 }}>
           {res.map(r => {
             // 🔒 חוק gadol_equals_ragil_when_no_sofiot: כשאין סופיות, שיטה-גדולה = הבסיס שלה.
             // לא מציגים אותה כ«ממצא נפרד» — מסמנים «≡ זהה ל…» כדי שלא ייקרא כהפרש.
@@ -357,6 +351,12 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             );
           })}
         </div>
+
+        {/* אופציה מתקדמת — הצגת ערך כל שיטה באותיות (מ״ה) */}
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", marginTop: 11, color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+          <input type="checkbox" checked={showHebNum} onChange={e => setShowHebNum(e.target.checked)} style={{ accentColor: L.gold, width: 15, height: 15, cursor: "pointer" }} />
+          הצג את הערך באותיות (מ״ה) · מתקדם
+        </label>
 
         {word ? (
           <>
