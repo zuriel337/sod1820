@@ -514,6 +514,18 @@
   .descbar{margin-top:10px;background:linear-gradient(160deg,rgba(232,200,74,.06),var(--panel));border:1px solid var(--line2);border-radius:12px;padding:13px 16px}
   .descbar .db-t{color:var(--goldBright);font-family:var(--serif);font-size:14px;font-weight:800;margin-bottom:6px}
   .descbar .db-x{color:var(--ink);font-size:14px;line-height:1.85;white-space:pre-wrap;max-height:280px;overflow:auto}
+  /* ⏳ מד-חיווי לחיפוש בתנ״ך (כבד — 1.2M אותיות) — מראה שהחיפוש רץ + זמן שחלף */
+  .searchload{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;background:rgba(6,5,13,.5);backdrop-filter:blur(2px);padding:20px}
+  .searchload.on{display:flex}
+  .searchload .sl-box{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .searchload .sl-t{color:var(--goldBright);font-family:var(--serif);font-size:16px;font-weight:800;margin-bottom:6px}
+  .searchload .sl-s{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-bottom:13px}
+  .searchload .sl-bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+  .searchload .sl-bar i{display:block;height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--goldBright));animation:slmove 1.05s ease-in-out infinite}
+  .searchload.done .sl-bar i{animation:none;width:100%;margin-left:0}
+  @keyframes slmove{0%{margin-left:-40%}100%{margin-left:102%}}
+  .searchload .sl-time{color:var(--ink3);font-size:12.5px;margin-top:11px;font-variant-numeric:tabular-nums}
+  .searchload.done .sl-time{color:var(--goldBright);font-weight:800}
   .matacts .post-act{flex:1 1 auto;background:linear-gradient(160deg,rgba(232,200,74,.07),var(--panel));color:var(--ink2);border-color:var(--line2);font-weight:700;font-size:12px}
   .matacts .post-act:hover{border-color:var(--gold);color:var(--goldBright);background:var(--panel2)}
   .matacts .link-act{border-style:dashed;color:var(--ink2)}
@@ -1319,6 +1331,23 @@
   if(EMBED){st.tier="anon";st.tierKnown=false;
     let n=0;const ping=()=>{postHost({type:"ready"});if(!st.tierKnown&&++n<8)setTimeout(ping,350);};ping();}
 
+  // ⏳ מד-חיווי לחיפוש בתנ״ך — החיפוש בתנ״ך כבד (1.2M אותיות) ולוקח רגע; מראים שהוא רץ + הזמן שחלף.
+  let _sl=null,_slInt=null,_slT0=0;
+  const _now=()=>(window.performance&&performance.now?performance.now():Date.now());
+  function showSearchLoad(){
+    if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
+      _sl.innerHTML='<div class="sl-box"><div class="sl-t">🔍 מחפש בכל התנ״ך</div><div class="sl-s">24 ספרי התנ״ך · '+heb(N)+' אותיות — מעט איטי יותר מהתורה</div><div class="sl-bar"><i></i></div><div class="sl-time">מחפש… 0.0 שניות</div></div>';
+      document.body.appendChild(_sl);}
+    const tm=_sl.querySelector(".sl-time");tm.textContent="מחפש… 0.0 שניות";
+    _sl.classList.remove("done");_sl.classList.add("on");_slT0=_now();
+    clearInterval(_slInt);_slInt=setInterval(()=>{tm.textContent="מחפש… "+((_now()-_slT0)/1000).toFixed(1)+" שניות";},90);
+  }
+  function doneSearchLoad(nhits){
+    if(!_sl)return;clearInterval(_slInt);
+    _sl.classList.add("done");
+    _sl.querySelector(".sl-time").textContent="✓ נמצא ב-"+((_now()-_slT0)/1000).toFixed(1)+" שניות · "+heb(nhits||0)+" מופעים";
+    setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
+  }
   function run(preserveWords){
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
@@ -1333,6 +1362,7 @@
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
     st.raw=w;go.disabled=true;go.textContent="מחפש…";
+    const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(()=>{
       st.res=findAll(w,4000);
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
@@ -1341,6 +1371,7 @@
       st.postUrl="";st.postTitle="";st.desc="";   // 📖 חיפוש חדש = צופן חדש → אין קישור/הסבר של הצופן הקודם
       if(!preserveWords)st.words=savedWordsInit();
       go.disabled=false;go.textContent=goLabel();updGem();render();
+      if(_slow)doneSearchLoad(st.res?st.res.hits.length:0);   // ⏳ סיום — מציג את הזמן שחלף + מספר המופעים
       logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
       // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
       if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
