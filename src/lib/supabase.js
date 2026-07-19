@@ -2786,6 +2786,48 @@ export async function getNameResearch(word, value) {
   return data || null;
 }
 
+// 👑 תיק-השם (Name Dossier) — משטח «בדיקת השם»: מאחד את כל מנועי-השם בקריאה אחת מקבילה.
+//   fn_name_research = מנוע-העל (גימטריה עמוקה · תנ״ך · שכנים · same_value · ביטויים · אנגרמות),
+//   name_lab_research = גשרים חוצי-שפות + הקשר (פוסטים/אוצרות/חידושים, כבר מחווט),
+//   fn_cross_research  = הצלבת שם + שם-משפחה + תאריך (רק כשיש יותר מפריט אחד).
+// ⚠️ החלטת-מוצר (18.7): שמות-הסוכנים הפנימיים לא נחשפים ללקוח. ה-API מחזיר מפתחות-תפקיד
+//   ניטרליים בלבד (gematria/sources/patterns/language/context/cross) — אף שם-מלאך לא חוצה.
+//   לכן גם *לא* קוראים כאן ל-fn_metatron_route (הוא מחזיר name/agent_id של סוכן).
+export async function getNameDossier(name, { surname, birthdate } = {}) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const items = [w, (surname || '').trim(), (birthdate || '').trim()].filter(Boolean);
+  const rpc = (fn, args) => supabase.rpc(fn, args).then(r => (r.error ? null : r.data)).catch(() => null);
+  const [research, lab, cross] = await Promise.all([
+    rpc('fn_name_research', { p_name: w }),
+    rpc('name_lab_research', { p_word: w, p_value: null }),
+    items.length > 1 ? rpc('fn_cross_research', { p_items: items }) : Promise.resolve(null),
+  ]);
+  const g = research?.gematria || {};
+  const value = (typeof g['רגיל'] === 'number') ? g['רגיל'] : null;
+  return {
+    name: w,
+    value,
+    gematria: research ? { methods: research.gematria || {}, letters: research.letters || [] } : null,
+    sources: research ? { ...(research.tanach || {}), verses_same_gematria: research.verses_same_gematria || null } : null,
+    patterns: research ? {
+      neighbors: research.neighbors || [],
+      same_value: research.same_value || [],
+      anagrams: research.anagrams || [],
+      transforms: research.transforms || null,
+      expressions: research.expressions || [],
+    } : null,
+    language: lab ? { bridges: lab.bridges || [] } : null,
+    context: lab ? {
+      posts: lab.posts || [], posts_count: lab.posts_count || 0,
+      treasures: lab.treasures || [], treasures_count: lab.treasures_count || 0,
+      hints: lab.hints || [], hints_count: lab.hints_count || 0,
+    } : null,
+    cross: cross || null,
+    principle: research?.principle || null,
+  };
+}
+
 // 🌉 גשרים חוצי-שפות מהגרף (עץ אחד) — לפי מילה עברית/לועזית או לפי ערך. משמש בכל משטח.
 export async function getGraphBridges(word, value) {
   if (!supabase) return [];
