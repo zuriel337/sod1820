@@ -26,7 +26,7 @@ function rowToItem(m) {
   };
 }
 
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -156,15 +156,20 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       } else if (d.type === "navigate" && typeof d.to === "string") {
         navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
       } else if (d.type === "quality" && d.quality && matrix?.id && isAdmin) {
-        // 🏆 המשתמש חישב מונטה-קרלו על צופן שמור → צורבים את המד חזרה לרשומה (בלי כפילות)
-        try { supabase.rpc("set_els_quality", { p_id: matrix.id, p_quality: d.quality }); } catch { /* noop */ }
+        // 🏆 המשתמש חישב מונטה-קרלו על צופן שמור → צורבים את המד חזרה לרשומה (בלי כפילות),
+        //    ומעדכנים מיד את ה-m של העמוד (onQuality) כך ש«רמת מחקר» וה-AI רואים את ה-MC בלי רענון-דף.
+        try {
+          supabase.rpc("set_els_quality", { p_id: matrix.id, p_quality: d.quality })
+            .then(() => { if (onQuality) onQuality(d.quality); })
+            .catch(() => { /* noop */ });
+        } catch { /* noop */ }
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),

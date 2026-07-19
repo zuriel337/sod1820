@@ -198,8 +198,9 @@ export default function CipherPage() {
         })()}
       </div>
 
-      {/* הכלי טעון על הצופן הזה — המבקר רואה אותו מיד ויכול לחקור */}
-      <TzofenEmbed matrix={m} />
+      {/* הכלי טעון על הצופן הזה — המבקר רואה אותו מיד ויכול לחקור.
+          🏆 onQuality: כשה-MC נצרב לרשומה, מעדכנים את m מיד → «רמת מחקר» וה-AI רואים את המונטה-קרלו בלי רענון. */}
+      <TzofenEmbed matrix={m} onQuality={q => setM(prev => (prev && typeof prev === "object") ? { ...prev, positions: { ...(prev.positions || {}), quality: q } } : prev)} />
 
       {/* 🔬 מחקר קהילתי — העמוד «חי»: חידושים/עדויות/הצלבות מצטברים על הצופן (research_contribution_law) */}
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "22px 14px 70px" }}>
