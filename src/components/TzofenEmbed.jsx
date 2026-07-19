@@ -159,8 +159,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 🏆 המשתמש חישב מונטה-קרלו על צופן שמור → צורבים את המד חזרה לרשומה (בלי כפילות),
         //    ומעדכנים מיד את ה-m של העמוד (onQuality) כך ש«רמת מחקר» וה-AI רואים את ה-MC בלי רענון-דף.
         try {
+          // ⚠️ rpc מחזיר {error} (לא זורק) — בלי בדיקה onQuality היה נקרא גם כשהצריבה נכשלה,
+          //    וה-MC "נראה שמור" עד רענון-דף שמגלה שנעלם. מעדכנים את ה-m רק על צריבה אמיתית.
           supabase.rpc("set_els_quality", { p_id: matrix.id, p_quality: d.quality })
-            .then(() => { if (onQuality) onQuality(d.quality); })
+            .then(({ error }) => { if (!error && onQuality) onQuality(d.quality); })
             .catch(() => { /* noop */ });
         } catch { /* noop */ }
       } else if (d.type === "gate") {
