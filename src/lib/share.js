@@ -16,6 +16,13 @@ export const CHANNELS = {
   facebook: { label: "פייסבוק", emoji: "📘", color: "#1877f2", href: (u) => fbHref(u) },
 };
 
+// 👑 מקום-השיתוף הקנוני (share_placement_law) — מקור-אמת יחיד להיכן חי הווידג׳ט-הצף.
+// כלל-על: יש ווידג׳ט צף → אין בלוק אינליין. אין צף → שורת-שיתוף אחת. תמיד, בכל דף, אוטומטי.
+// הצף (RoyalShareWidget) מוסתר בדפים שיש להם שיתוף עשיר משלהם; ShareActions עושה את ההיפך —
+// מרנדר רק היכן שהצף נעדר → אף פעם אין כפילות, ואף דף חדש לא צריך להגדיר כלום.
+const FLOATING_HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code)/;
+export const floatingShareShown = (pathname = "") => !FLOATING_HIDE.test(pathname || "");
+
 export function canNativeShare() {
   return typeof navigator !== "undefined" && !!navigator.share;
 }

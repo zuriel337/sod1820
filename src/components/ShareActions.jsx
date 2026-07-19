@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
-import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink } from "../lib/share.js";
+import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown } from "../lib/share.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -11,11 +12,15 @@ import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLi
 //   title  — הכותרת/טקסט השיתוף
 //   image  — תמונת ה-OG (הרובוטים מושכים אותה דרך /api/og; נשמר כאן להקשר/עתיד)
 //   channels — אילו ערוצים להציג (ברירת-מחדל: כולם) · compact — אייקונים בלבד · extra — פעולות נוספות
+//   force — לכפות הצגה גם היכן שהווידג׳ט-הצף קיים (חריג נדיר; ברירת-מחדל: כבוי)
 // שינוי אייקון/טקסט/ערוץ/באג = פעם אחת כאן → מתעדכן בכל האתר.
+// 👑 share_placement_law: הבלוק מרנדר את עצמו **רק היכן שהווידג׳ט-הצף נעדר** (floatingShareShown=false)
+//    → אפס כפילות עם הלשונית הצפה, ושורה-אחת נקייה. אף דף לא צריך להחליט — זה קורה לבד.
 const ALL = ["native", "whatsapp", "telegram", "facebook", "copy"];
 
-export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, style }) {
+export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, force = false, style }) {
   const P = usePalette();
+  const { pathname } = useLocation();
   const [copied, setCopied] = useState(false);
   const fullUrl = url || (typeof window !== "undefined" ? window.location.href : SITE);
   const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
@@ -30,13 +35,17 @@ export default function ShareActions({ type = "page", url, title = "", image = n
     if (await copyLink(fullUrl)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
   }, [fullUrl, logShare]);
 
+  // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
+  if (!force && floatingShareShown(pathname)) return null;
+
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
     background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
-    fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 40, whiteSpace: "nowrap" };
+    fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 40, whiteSpace: "nowrap", flexShrink: 0 };
   const label = (t) => compact ? null : <span>{t}</span>;
 
   return (
-    <div dir="rtl" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", ...style }}>
+    // שורה אחת: לא נשבר; במסך צר נגלל אופקית עדין (WebkitOverflowScrolling) במקום להתפזר ל-2-3 שורות
+    <div dir="rtl" style={{ display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
         <button onClick={native} title="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}>🔗 {label("שתף")}</button>
       )}

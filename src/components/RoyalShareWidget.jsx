@@ -4,7 +4,7 @@ import { trackShare } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
-import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
+import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink, floatingShareShown } from "../lib/share.js";
 
 // 👑 RoyalShareWidget — לשונית שיתוף מלכותית צפה (ימין), נייד + מחשב.
 // סגול-שחור עמוק + זהב + לוגו האתר. משתפת את העמוד הנוכחי (קישור + כותרת).
@@ -12,8 +12,8 @@ import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, co
 // (העתק קישור / תמונה מעוצבת / שיתוף מערכת), ובקרוב (סרטון מפוסט / רשת תמונות).
 // מונה קהילתי מוצג רק מעל 20. כל שיתוף מתועד דרך trackShare.
 // /number — לדף המספר יש שיתוף-הירו עשיר משלו (תמונת-מספר), אז הצף מוסתר שם (בלי כפילות).
-// ⛔ מסתירים את הצף בעמודים שיש להם שיתוף עשיר משלהם (בלי כפילות): מספר, צופן (/code + /codes), היכל…
-const HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code)/;
+// ⛔ היכן הצף מוסתר = מקור-האמת היחיד `floatingShareShown` ב-lib/share.js (share_placement_law).
+//    ShareActions קורא לאותה פונקציה ועושה את ההיפך → מנגנון אחד, אפס כפילות, אפס הגדרה-לכל-דף.
 
 // אייקוני מותג — נתיבי SVG (simple-icons), מרונדרים בצבע לבן על רקע המותג.
 const ICON_PATHS = {
@@ -103,7 +103,7 @@ export default function RoyalShareWidget() {
     sNativeShare({ title, text, url });   // לוגיקת-שיתוף קנונית (lib/share.js)
   }, [slug, title, text, url, bumpPostShare]);
 
-  if (HIDE.test(pathname)) return null;
+  if (!floatingShareShown(pathname)) return null;
 
   return (
     <>
