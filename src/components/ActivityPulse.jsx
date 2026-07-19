@@ -11,7 +11,8 @@ const TYPES = [
   { key: "numbers",  dot: "#57c98a", e: "🔢", label: "מישהו חוקר מספר" },
   { key: "names",    dot: "#e8c84a", e: "🔤", label: "מישהו חוקר שם או ביטוי" },
   { key: "verses",   dot: "#b07df6", e: "📖", label: "מישהו מחפש בפסוקים" },
-  // 🧩 דילוגי-אותיות (els) — מוסתר עד שצוריאל פותח את ה-ELS לציבור (הנתון קיים ב-RPC, רק לא מוצג)
+  // 🔠 דילוגי-אותיות (els) — הצופן התנכי פתוח לציבור; הנתון מגיע מ-RPC activity_pulse (path /code% או tool=els)
+  { key: "els",      dot: "#57a9e8", e: "🔠", label: "מישהו חוקר בצופן התנכי" },
   { key: "journeys", dot: "#ff9b6b", e: "🧭", label: "מישהו יצא למסע" },
   { key: "research", dot: "#e0779b", e: "🔬", label: "מישהו לומד בהיכל הגילוי" },
 ];
@@ -24,7 +25,7 @@ const ROTATION = [
   { key: "events_month", e: "📚", txt: n => `${n.toLocaleString("he")} חקירות בחודש האחרון` },
 ];
 
-export default function ActivityPulse({ light, title = "🟢 פעילות חיה עכשיו" }) {
+export default function ActivityPulse({ light, title = "🟢 פעילות חיה עכשיו", compact = false }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [pulse, setPulse] = useState(null);
@@ -58,6 +59,24 @@ export default function ActivityPulse({ light, title = "🟢 פעילות חיה
   if (!pulse || (!pulse.active && !active.length)) return null;
   const hiKey = active.length ? active[hi % active.length].key : null;
   const rotItem = rotItems.length ? rotItems[rot % rotItems.length] : null;
+
+  // 📏 מצב-קומפקטי (בית המדרש) — הכל בשורה אחת בלבד: נקודה-נושמת + סוג-פעילות מתחלף + מונה-חקירות.
+  //    בלי רשימת-בועות רב-שורתית ובלי הערת-פרטיות בשורה נפרדת (הפרטיות נשמרת ב-tooltip).
+  if (compact) {
+    const t = active.length ? active[hi % active.length] : null;
+    const dot = t ? t.dot : "#57c98a";
+    return (
+      <div title="מטעמי פרטיות מוצג רק סוג הפעילות — לא מה שחיפשו" style={{ display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap", overflow: "hidden",
+        background: pal.card, border: `1px solid ${pal.border}`, borderRadius: 999, padding: "7px 14px", direction: "rtl" }}>
+        <style>{`@keyframes ap-breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}@keyframes ap-in{from{opacity:0}to{opacity:1}}`}</style>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot, boxShadow: `0 0 7px ${dot}`, animation: "ap-breathe 2.2s ease-in-out infinite", flexShrink: 0 }} />
+        {t
+          ? <span key={t.key} style={{ color: pal.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", animation: "ap-in .4s ease both" }}>{t.e} {t.label}…</span>
+          : <span style={{ color: pal.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600 }}>🟢 פעילות חיה עכשיו</span>}
+        {rotItem && <span style={{ marginInlineStart: "auto", color: pal.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>{rotItem.e} {rotItem.txt(pulse[rotItem.key])}</span>}
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: pal.card, border: `1px solid ${pal.border}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>

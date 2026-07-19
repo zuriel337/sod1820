@@ -106,7 +106,7 @@ export default function BeitMidrashOverview() {
               )}
             </>
           ) : (
-            <ActivityPulse light title="🟢 מי חוקר עכשיו" />
+            <ActivityPulse light compact title="🟢 מי חוקר עכשיו" />
           )}
           {/* 🔢 אילו דפי-מספר נפתחו בפועל (לא חיפושים אישיים) */}
           <div style={{ marginTop: 12 }}>
