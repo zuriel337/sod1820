@@ -250,9 +250,10 @@ export default function CipherPage() {
         })()}
       </div>
 
-      {/* ⚡ כלי-הצופן טוען ומפענח את כל התנ״ך (~2.2MB) — לכן נטען **רק בלחיצה** כדי שהכניסה תהיה מהירה.
-          עד אז מוצגת תמונת-הצופן כתצוגה-מקדימה. 🏆 onQuality: צריבת-MC מעדכנת m מיד (AI רואה). */}
-      {showTool ? (
+      {/* צפני-הספרייה הרגילים — המטריצה החיה נטענת ישר (כמו קודם).
+          רק צפני-תיקיית-המחקר (source='research') נפתחים בלחיצה («חקור במטריצה החיה») + שער-הרשמה —
+          שם הכניסה כבדה (כל התנ״ך ~2.2MB) והחקירה שמורה לרשומים (בקשת צוריאל). 🏆 onQuality: צריבת-MC מעדכנת m מיד. */}
+      {(m.source !== "research" || showTool) ? (
         <TzofenEmbed matrix={m} onQuality={q => setM(prev => (prev && typeof prev === "object") ? { ...prev, positions: { ...(prev.positions || {}), quality: q } } : prev)} />
       ) : gate ? (
         <div style={{ maxWidth: 620, margin: "12px auto 4px", padding: "0 14px" }}>
