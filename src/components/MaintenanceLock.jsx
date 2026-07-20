@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
+import EmailVerify from "./EmailVerify.jsx";
 
 // ===== שער-נעילה זמני (תחזוקה/שדרוגים) — מבוסס-דגל DB =====
 // עוטף ראוט: אם הדגל (site_flags.<flag>.enabled) פעיל — מציג מסך-נעילה במקום התוכן.
@@ -12,7 +13,9 @@ import { LOGO_URL } from "../theme.js";
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
 
-export function MaintenanceLock({ message, showLogin = false }) {
+// inlineRegister=true → טופס הרשמה/אימות-מייל *במקום* (לא הפניה ל-/login). ה-OTP עובד גם
+// למשתמש חדש וגם לרשום קיים, ואחרי אימות ה-session מתעדכן וה-Locked נפתח לבד (onAuthStateChange).
+export function MaintenanceLock({ message, showLogin = false, inlineRegister = false, onVerified }) {
   return (
     <div className="mlock" role="status" aria-live="polite">
       <style>{`
@@ -44,7 +47,14 @@ export function MaintenanceLock({ message, showLogin = false }) {
       `}</style>
       <img src={LOGO_URL} alt="סוד 1820" />
       <h1>{message || DEFAULT_MSG}</h1>
-      {showLogin ? (
+      {inlineRegister ? (
+        <>
+          <p>ההרשמה חינם ולוקחת חצי דקה — הזינו מייל וקוד יישלח אליכם, וזה פותח את הגלריות, שמירת מחקר, מועדפים והתראות. אין צורך לעזוב את העמוד.</p>
+          <div style={{ marginTop: 20, width: "100%", maxWidth: 480 }}>
+            <EmailVerify source="gallery-lock" cta="הירשמו וכנסו" onVerified={onVerified} />
+          </div>
+        </>
+      ) : showLogin ? (
         <>
           <p>ההרשמה חינם ולוקחת חצי דקה — והיא פותחת גם שמירת מחקר, מועדפים והתראות על רמזים חדשים.</p>
           <Link className="mlock-cta" to="/login">✨ התחברות / הרשמה חינם</Link>
@@ -103,6 +113,8 @@ export default function Locked({ flag, children }) {
   const { loading, lock } = useSiteFlag(flag);
   if (loading) return null;                            // הבהוב קצר עד שהדגל נטען
   const blocked = lock?.enabled && !isAdmin && !(lock.mode === "anon" && user);
-  if (blocked) return <MaintenanceLock message={lock.message} showLogin={lock.mode === "anon"} />;
+  // mode='anon' → הרשמה במקום (טופס מייל אינליין), לא הפניה ל-/login. אחרי אימות ה-session
+  // מתעדכן, useAuth נדלק מחדש ו-blocked הופך ל-false → התוכן נפתח לבד.
+  if (blocked) return <MaintenanceLock message={lock.message} inlineRegister={lock.mode === "anon"} />;
   return children;
 }

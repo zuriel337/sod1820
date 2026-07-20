@@ -883,8 +883,10 @@ export default function ArchivePage() {
         </div>
       )}
 
-      {/* 🔒 נעילת גלריות — חלה על אוצרות/גלריות/מאגר בלבד; הזרם (reality) נשאר פתוח לרשומים */}
-      {galBlocked && ["cascade", "galleries", "pool"].includes(tab) && <MaintenanceLock message={galLock?.message} />}
+      {/* 🔒 נעילת גלריות — חלה על אוצרות/גלריות/מאגר בלבד; הזרם (reality) נשאר פתוח לרשומים.
+          הרשמה במקום (inlineRegister) — לא מפנים לעמוד אחר; אחרי אימות ה-session נדלק וה-lock נפתח. */}
+      {galBlocked && ["cascade", "galleries", "pool"].includes(tab) &&
+        <MaintenanceLock message={galLock?.message} inlineRegister={galLock?.mode === "anon"} />}
 
       {/* ============ 👑 טאב אוצרות הגילוי — ציר-הערך, שער-המוזיאון ללא-חיתוך ============ */}
       {tab === "cascade" && !galBlocked && <CascadeCompare isAdmin={isAdmin} onEdit={isAdmin ? h => setEditImg(h) : null} />}
