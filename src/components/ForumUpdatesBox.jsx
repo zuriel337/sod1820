@@ -36,10 +36,11 @@ export default function ForumUpdatesBox({ limit = 6, style }) {
         <div style={{ display: "grid", gap: 9 }}>
           {items.map((it, i) => {
             const isPost = it.kind === "post";
-            const to = isPost ? `/${it.slug}` : "/forum";
+            const isCipher = it.kind === "cipher";
+            const to = isPost ? `/${it.slug}` : isCipher ? `/codes/${encodeURIComponent(it.slug || "")}` : "/forum";
             const title = stripHtml(it.title || it.body || "תרומת מחקר");
             const who = isPost ? resolveAuthor(it.author_name).name : (it.author_name || "חבר הקהילה");
-            const em = isPost ? "📜" : (intentMeta(it.intent).emoji || "💡");
+            const em = isPost ? "📜" : isCipher ? "🆕" : it.kind === "insight" ? "💡" : (intentMeta(it.intent).emoji || "💡");
             const last = i === items.length - 1;
             return (
               <Link key={it.id} to={to} style={{ textDecoration: "none", display: "block", borderBottom: last ? "none" : `1px dashed ${P.border}`, paddingBottom: last ? 0 : 9 }}>

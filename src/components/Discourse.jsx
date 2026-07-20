@@ -14,14 +14,25 @@ import {
 // מקור-אמת אחד — אותו רכיב בכל דף. theme-aware דרך usePalette.
 
 function timeAgo(ts) {
-  try {
-    const d = (Date.now() - new Date(ts)) / 1000;
-    if (d < 60) return "עכשיו";
-    if (d < 3600) return `לפני ${Math.floor(d / 60)} דק׳`;
-    if (d < 86400) return `לפני ${Math.floor(d / 3600)} שע׳`;
-    if (d < 604800) return `לפני ${Math.floor(d / 86400)} ימים`;
-    return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
-  } catch { return ""; }
+  if (!ts) return "";
+  const t = new Date(ts).getTime();
+  if (!Number.isFinite(t)) return "";   // ⛔ תאריך חסר/שגוי → ריק, לא «Invalid Date»
+  const d = (Date.now() - t) / 1000;
+  if (d < 60) return "עכשיו";
+  if (d < 3600) return `לפני ${Math.floor(d / 60)} דק׳`;
+  if (d < 86400) return `לפני ${Math.floor(d / 3600)} שע׳`;
+  if (d < 604800) return `לפני ${Math.floor(d / 86400)} ימים`;
+  return new Date(t).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+}
+
+// 🌐 «מהפורום» — נגזרת-תצוגה אחידה לפריט-פורום (getForumFeed): אימוג'י · תווית-סוג · יעד-עומק.
+function forumItemMeta(lf) {
+  if (!lf) return { em: "🌐", label: "פורום", to: "/forum" };
+  if (lf.kind === "cipher") return { em: "🆕", label: "צופן חדש מגולש", to: `/codes/${encodeURIComponent(lf.slug || "")}` };
+  if (lf.kind === "post") return { em: "📜", label: "מאמר חדש", to: `/${lf.slug || ""}` };
+  if (lf.kind === "insight") return { em: "💡", label: "חידוש", to: lf.link || "/research?tool=midrash" };
+  const im = intentMeta(lf.intent);
+  return { em: im.emoji || "💬", label: im.label || "תרומת מחקר", to: "/forum" };
 }
 
 // כרטיס תרומה בודד (+ ילדיו כתגובות, רמה אחת)
@@ -214,21 +225,27 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, padding: 12 }}>טוען…</div>
       ) : !roots.length ? (
         // מצב-ריק: במקום «אין מחקר» — ההודעה האחרונה בפורום, לחיצה עוברת לפורום
-        lastForum ? (
-          <Link to="/forum" style={{ textDecoration: "none", display: "block" }}>
-            <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 13, padding: "12px 15px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>🌐 מהפורום</span>
-                <span style={{ flex: 1 }} />
-                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{timeAgo(lastForum.created_at || lastForum.date)}</span>
+        lastForum ? (() => {
+          const meta = forumItemMeta(lastForum);
+          const when = timeAgo(lastForum.ts || lastForum.created_at || lastForum.date);
+          const who = lastForum.author_name || "חבר הקהילה";
+          const text = stripHtml(lastForum.title || lastForum.body || "").slice(0, 120) || meta.label;
+          return (
+            <Link to={meta.to} style={{ textDecoration: "none", display: "block" }}>
+              <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 13, padding: "12px 15px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🌐 מהפורום</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px" }}>{meta.em} {meta.label}</span>
+                  <span style={{ flex: 1 }} />
+                  {when && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{when}</span>}
+                </div>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>{text}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 5 }}>✍️ {who}</div>
+                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 7 }}>לפורום המחקר ←</div>
               </div>
-              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
-                {stripHtml(lastForum.title || lastForum.body || "").slice(0, 120) || "דיון חדש בפורום"}
-              </div>
-              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginTop: 7 }}>לפורום המחקר ←</div>
-            </div>
-          </Link>
-        ) : null
+            </Link>
+          );
+        })() : null
       ) : (
         <div style={{ display: "grid", gap: 11 }}>
           {roots.map(c => (
