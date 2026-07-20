@@ -8,7 +8,7 @@ import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
-import { INTENTS, intentMeta, stateMeta, getForumFeed } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed } from "../lib/contributions.js";
 import ResearcherLink from "../components/ResearcherLink.jsx";
 import ResearcherBadge from "../components/ResearcherBadge.jsx";
 
@@ -33,6 +33,10 @@ function targetHref(t) {
 }
 
 const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: col, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{txt}</span>;
+
+// ⭐ מובהקות — דירוג לפי מצב-המחקר (קנוני > אומת > בבדיקה > בדיון > רעיון) + אימות + 1820.
+const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2, idea: 1 };
+const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
 
 // כרטיס תרומת-מחקר (research_contributions)
 function ContribCard({ c, P }) {
@@ -169,6 +173,8 @@ export default function ForumPage() {
   const [allItems, setAllItems] = useState(null);
   const [type, setType] = useState(null);      // null=הכל · "post" · intent
   const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
+  const [state, setState] = useState(null);    // מצב-מחקר (research_state) · null=הכל
+  const [sort, setSort] = useState("new");     // "new" (חדש) · "significance" (מובהקות)
 
   useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
   // 🌞 הפורום נפתח במצב בהיר כברירת-מחדל (כמו בית המדרש), עם אפשרות לעבור לכהה.
@@ -187,15 +193,26 @@ export default function ForumPage() {
     return m;
   }, [allItems]);
 
-  // הפריטים המוצגים — סינון בצד-לקוח לפי הטאב הנבחר
+  // כמות לכל מצב-מחקר (רק לתרומות שיש להן מצב) — קובע אילו צ׳יפי-מצב מוצגים
+  const stateCounts = useMemo(() => {
+    const m = {};
+    (allItems || []).forEach(it => { if (it.research_state) m[it.research_state] = (m[it.research_state] || 0) + 1; });
+    return m;
+  }, [allItems]);
+
+  // הפריטים המוצגים — סינון (סוג → כתב/מצב) ומיון (חדש / מובהקות)
   const items = useMemo(() => {
     if (!allItems) return null;
-    if (type === "post") return allItems.filter(it => it.kind === "post" && (!writer || it.author_name === writer));
-    if (type === "insight") return allItems.filter(it => it.kind === "insight");
-    if (type === "cipher") return allItems.filter(it => it.kind === "cipher");
-    if (type) return allItems.filter(it => it.kind === "contribution" && it.intent === type);
-    return allItems;
-  }, [allItems, type, writer]);
+    let out;
+    if (type === "post") out = allItems.filter(it => it.kind === "post" && (!writer || it.author_name === writer));
+    else if (type === "insight") out = allItems.filter(it => it.kind === "insight");
+    else if (type === "cipher") out = allItems.filter(it => it.kind === "cipher");
+    else if (type) out = allItems.filter(it => it.kind === "contribution" && it.intent === type);
+    else out = allItems;
+    if (state) out = out.filter(it => it.research_state === state);
+    if (sort === "significance") out = [...out].sort((a, b) => sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
+    return out;
+  }, [allItems, type, writer, state, sort]);
 
   // רשימת-כתבים לצ׳יפים — כל הכתבים שיש להם מאמר (נגזר מהמאגר המלא)
   const writers = useMemo(() => {
@@ -245,6 +262,24 @@ export default function ForumPage() {
             </button>
           );
         })}
+      </div>
+
+      {/* שורה 1.5 — מצב-מחקר + מיון (מה שהופך אותו לפורום-מחקר, לא צ׳אט) */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 18 }}>
+        {Object.keys(STATE_META).some(k => (stateCounts[k] || 0) > 0) && (
+          <>
+            <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מצב:</span>
+            <button onClick={() => setState(null)} style={{ ...chip(!state), fontSize: 12, padding: "4px 11px" }}>הכל</button>
+            {Object.keys(STATE_META).filter(k => (stateCounts[k] || 0) > 0).map(k => {
+              const sm = STATE_META[k];
+              return <button key={k} onClick={() => setState(state === k ? null : k)} style={{ ...chip(state === k), fontSize: 12, padding: "4px 11px" }}>{sm.emoji} {sm.label} {stateCounts[k]}</button>;
+            })}
+            <span style={{ width: 1, height: 15, background: P.border, margin: "0 5px" }} />
+          </>
+        )}
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מיון:</span>
+        <button onClick={() => setSort("new")} style={{ ...chip(sort === "new"), fontSize: 12, padding: "4px 11px" }}>🆕 חדש</button>
+        <button onClick={() => setSort("significance")} style={{ ...chip(sort === "significance"), fontSize: 12, padding: "4px 11px" }}>⭐ מובהקות</button>
       </div>
 
       {/* שורה 2 — כתבים (רק במצב מאמרים) */}
