@@ -59,6 +59,7 @@ const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
+const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
 const CodeArchivePage = React.lazy(() => import("./pages/CodeArchivePage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
 const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
@@ -75,6 +76,7 @@ const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx
 const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
 const VerseGematriaPage = React.lazy(() => import("./pages/VerseGematriaPage.jsx"));
 const BroadcastsPage = React.lazy(() => import("./pages/BroadcastsPage.jsx"));
+const SiteUpdatesPage = React.lazy(() => import("./pages/SiteUpdatesPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const JourneyPageV2 = React.lazy(() => import("./pages/JourneyPageV2.jsx")); // 🧪 גרסה-2 ניסיונית (נגן-אוטומטי/שם-ראשון/דופק) — /journey-beta, מגן-קרדיט פעיל
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
@@ -95,6 +97,8 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
+// 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
+const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -256,6 +260,9 @@ export default function App() {
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           {/* 🔬 סביבת המחקר — שלד חדש (שלב 1), מחוץ ל-Layout הקיים (סביבה בהירה נקייה) */}
           <Route path="/research" element={<ResearchPage />} />
+          {/* 🧪 מעבדה להבנת משמעות — דף פרטי חבוי (מסך נקי, בלי צ'רום). לא מקושר בשום מקום. */}
+          <Route path="/meaning-lab" element={<MeaningLabPage />} />
+          <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/reality" element={<Locked flag="lock_reality"><HomeReality /></Locked>} />
@@ -315,6 +322,7 @@ export default function App() {
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/:id" element={<ForumThreadPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
           <Route path="/gematria" element={<GematriaToLab />} />
           <Route path="/גימטריה" element={<GematriaToLab />} />
@@ -325,6 +333,7 @@ export default function App() {
           <Route path="/verse-gematria" element={<VerseGematriaPage />} />
           <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
+          <Route path="/whats-new" element={<SiteUpdatesPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
           <Route path="/מסע" element={<JourneyPage />} />

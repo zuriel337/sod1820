@@ -4,6 +4,8 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import ResearcherBadge from "./ResearcherBadge.jsx";
+import ResearcherLink from "./ResearcherLink.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
   linkContribution, approveContribution, moderateContribution, getForumFeed, forumItemMeta,
@@ -61,7 +63,9 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       {c.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{c.body}</div>}
       {/* שורת-קרדיט — הכותב מופרד מהתוכן */}
       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginTop: 8 }}>
-        ✍️ נכתב על ידי <b style={{ color: P.accentText }}>{c.author_name || "חבר הקהילה"}</b>
+        {c.author_name
+          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={22} /></span>
+          : <>✍️ נכתב על ידי <b style={{ color: P.accentText }}>חבר הקהילה</b></>}
       </div>
       {/* פעולות */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
@@ -85,7 +89,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
             return (
               <div key={k.id}>
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>— {k.author_name || "חבר הקהילה"} · {timeAgo(k.created_at)}{k.status === "pending" ? " · ⏳" : ""}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{k.status === "pending" ? " · ⏳" : ""}</div>
               </div>
             );
           })}
@@ -163,7 +167,8 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   );
 }
 
-export default function Discourse({ target, origin = "number", archive = [] }) {
+// focusId — מיקוד לשרשור אחד (עמוד-הפורום /forum/:id): מציג רק את התרומה הזו + תגובותיה.
+export default function Discourse({ target, origin = "number", archive = [], focusId = null }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
@@ -181,7 +186,8 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
 
   if (!target?.id) return null;
   const list = items || [];
-  const roots = list.filter(c => !c.parent_id);
+  // מיקוד-שרשור: רק התרומה הממוקדת (root יחיד). אחרת — כל ה-roots של הישות.
+  const roots = focusId ? list.filter(c => c.id === focusId) : list.filter(c => !c.parent_id);
   const kidsOf = id => list.filter(c => c.parent_id === id);
   const n = intent => list.filter(c => c.intent === intent).length;
   const validated = list.filter(c => ["validated", "canonical"].includes(c.research_state)).length;
@@ -204,9 +210,10 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
         )}
       </div>
 
-      {/* מלחין — פתוח לכולם. אנונימי מקבל שדה-שם ומגיב מיד; רשומים מקבלים את כל סוגי-הידע. */}
-      <Composer P={P} origin={origin} target={target} onDone={load} anon={!user} />
-      {!user && (
+      {/* מלחין — פתוח לכולם. אנונימי מקבל שדה-שם ומגיב מיד; רשומים מקבלים את כל סוגי-הידע.
+          במצב-שרשור (focusId) מוסתר: הפעולה שם היא «הגב לדיון הזה» (המלחין שמתחת לכרטיס), לא תרומה חדשה. */}
+      {!focusId && <Composer P={P} origin={origin} target={target} onDone={load} anon={!user} />}
+      {!focusId && !user && (
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, textAlign: "center", marginTop: -4 }}>
           מגיבים כאורח — או <Link to="/login" style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }}>התחברו לפרופיל קבוע ✨</Link>
         </div>

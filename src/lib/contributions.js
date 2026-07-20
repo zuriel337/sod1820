@@ -67,6 +67,17 @@ export async function getContributions(targetType, targetId, limit = 120) {
   } catch { return []; }
 }
 
+// תרומה יחידה לפי id — לעמוד-השרשור בפורום (/forum/:id). RLS: מאושרת גלויה לכולם.
+export async function getContributionById(id) {
+  if (!supabase || !id) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,created_at")
+      .eq("id", id).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
 export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
   const { data, error } = await supabase.rpc("add_contribution", {
     p_intent: intent, p_origin: origin, p_body: body,
@@ -151,12 +162,14 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
 
   if (wantInsights) {
     const q = supabase.from("insights")
-      .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score")
+      .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score,panel_data")
       .eq("is_active", true)
       .order("created_at", { ascending: false }).limit(limit);
     tasks.push(q.then(({ data }) => (data || []).map(x => ({
       kind: "insight", id: "i_" + x.id, ts: x.created_at,
-      author_name: insightAuthor(x.origin), origin: x.origin,
+      // 🖋️ חידוש-קהילה מקודם ל-insights עם origin='צוריאל' (המאשר) — המחבר האמיתי ב-panel_data.author.
+      author_name: (x.panel_data?.community && x.panel_data?.author) ? x.panel_data.author : insightAuthor(x.origin),
+      origin: x.origin,
       title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,
       verified: x.verified, has_1820: x.has_1820, convergence_score: x.convergence_score,
       // מצביע לעמוד הקנוני של החידוש בבית המדרש (לא עותק)
@@ -171,8 +184,8 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
     tasks.push(q.then(({ data }) => (data || []).map(c => ({
-      kind: "contribution", id: "c_" + c.id, ts: c.created_at,
-      author_name: c.author_name, intent: c.intent, research_state: c.research_state,
+      kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
+      author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
       target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
     }))).catch(() => []));
   }
@@ -198,6 +211,24 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
     .filter(x => x.ts)
     .sort((a, b) => new Date(b.ts) - new Date(a.ts))   // 🆕 החדשים למעלה
     .slice(0, limit);
+}
+
+// 👤 פרופיל-חוקר רשום (לא-אצור) — עדשה על research_contributions לפי שם-מחבר.
+// מזין את דף-החוקר הקל (ResearcherProfile) כשאין שורת-contributor אצורה. עץ אחד: אותו דף,
+// אצור או אוטומטי. מחזיר null אם אין ולו חידוש-מאושר אחד (אז אין פרופיל).
+export async function getResearcherProfile(name, limit = 40) {
+  if (!supabase || !name) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,origin,research_state,target_type,target_id,title,body,created_at")
+      .eq("author_name", name).eq("status", "approved").is("parent_id", null)
+      .order("created_at", { ascending: false }).limit(limit);
+    const items = data || [];
+    if (!items.length) return null;
+    const uid = items.find((x) => x.author_user_id)?.author_user_id || null;
+    const joined = items.reduce((min, x) => (!min || x.created_at < min ? x.created_at : min), null);
+    return { name, uid, count: items.length, joined, items };
+  } catch { return null; }
 }
 
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
