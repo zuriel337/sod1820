@@ -17,6 +17,7 @@ import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import SearchJourney from "../components/SearchJourney.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
+import MaftechShowcase from "../components/MaftechShowcase.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
 import DatesTool from "../components/DatesTool.jsx";
 import { NumHrefCtx } from "../lib/numHrefCtx.js";
@@ -265,6 +266,7 @@ export default function ResearchPage() {
           ))}
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
+          {tool === "maftech" && <MaftechShowcase />}
           {tool === "notarikon" && <NotarikonTool />}
           {tool === "dates" && <DatesTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}

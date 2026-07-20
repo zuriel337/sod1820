@@ -27,6 +27,7 @@ export const READY_TOOLS = new Set([
   "notarikon",  // 🔓 ראשי / אמצעי / סופי תיבות
   "name",       // 🔓 מנוע השמות (מעבדת השם — כל המנועים + התכנסויות + גשרים)
   "dates",      // 🔓 תאריכים עבריים (לועזי → עברי + גימטריה, hebcal)
+  "maftech",    // 🔓 שיטת המפתח (lab) — נפתח לציבור באישור כריסטינה (20.7.2026)
 ]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי
@@ -38,6 +39,7 @@ export const FLAGSHIP_TOOLS = ["number", "gematria"];
 export const IMPLEMENTED_TOOLS = new Set([
   "number", "gematria", "verse", "midrash", "notarikon",
   "els", "journey", "name", "family", "compare", "life", "import", "dates",
+  "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
 ]);
 
 // שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות).

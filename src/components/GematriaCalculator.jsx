@@ -5,6 +5,7 @@ import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate }
 import { useAuth } from "../lib/AuthContext.jsx";
 import { setAnon } from "../lib/privacy.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { emit, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/translit.js";
@@ -70,6 +71,16 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   const [showLetters, setShowLetters] = useState(false);
   const [showHebNum, setShowHebNum] = useState(false);   // אותיות הערך (מ״ה) — אופציה מתקדמת
   const letters = onlyHeb(word);
+
+  // 🎯 משדר את הישות הפעילה לפאנל הימני של ההיכל (research_workspace_law) —
+  // כך שחיפוש גימטריה מציג בטור הימני את כל המילים השוות לאותו ערך. debounce קטן.
+  useEffect(() => {
+    if (/[א-ת]/.test(word) && ragilVal) {
+      const t = setTimeout(() => emit(EVENTS.ENTITY_FOCUS, { title: word, word, value: ragilVal, kind: "word" }), 350);
+      return () => clearTimeout(t);
+    }
+    emit(EVENTS.ENTITY_BLUR);
+  }, [word, ragilVal]);
 
   // 🔑 שיטת המפתח (lab) — עדשת פירוק-אותיות פרשנית מהמנוע (fn_maftech_decompose).
   // מפריד עובדה (רגיל/מסתתר/קדמי — מאומת) מהשערה (משמעות-אות/מראה/חיתוך). נטען לפי בקשה, לא בכל הקשה.

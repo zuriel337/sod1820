@@ -3,6 +3,114 @@ import { Link } from "react-router-dom";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { getContributions, intentMeta } from "../lib/contributions.js";
+import { getGematriaByValue, getGematriaCountByValue, getConvergenceForValue, proposeCommunityWord } from "../lib/supabase.js";
+
+// 🌳 מילים שוות — מרכז-המחקר המתקדם של הערך, בטור הימני (מסך-מלא): כל הביטויים השווים,
+// מד-נדירות, סינון חוצה-שיטות (רגיל/מסתתר/קדמי), «עוד», התכנסות רשומה, והצעת ביטוי חדש.
+// לחיצה על ביטוי → ממקדת אותו (ENTITY_FOCUS) לראות את כל שיטותיו. מקור קנוני: getGematriaByValue.
+const METHOD_TABS = [{ key: "ragil", label: "רגיל" }, { key: "misratar", label: "מסתתר" }, { key: "kadmi", label: "קדמי" }];
+const methodHe = k => (METHOD_TABS.find(t => t.key === k) || {}).label || k;
+function rarity(count) {
+  if (count == null || count <= 0) return null;
+  if (count <= 2) return { txt: "💎 נדיר מאוד", color: "#b8901f" };
+  if (count <= 6) return { txt: "נדיר", color: "var(--acc,#2f6df6)" };
+  if (count <= 15) return { txt: "בינוני", color: "var(--ink2,#5b6472)" };
+  return { txt: "שכיח", color: "var(--ink3,#8a94a6)" };
+}
+
+function EqualPhrases({ value, activeWord }) {
+  const [method, setMethod] = useState("ragil");
+  const [limit, setLimit] = useState(12);
+  const [list, setList] = useState(null);
+  const [count, setCount] = useState(null);
+  const [conv, setConv] = useState(null);
+  const [proposed, setProposed] = useState(null); // null | 'sending' | ok|pending|exists|invalid|error
+
+  useEffect(() => { setMethod("ragil"); setLimit(12); setProposed(null); }, [value]);
+
+  useEffect(() => {
+    let live = true;
+    if (!value) { setList([]); setCount(0); return; }
+    setList(null);
+    getGematriaByValue(value, { method, limit }).then(d => { if (live) setList(d || []); }).catch(() => { if (live) setList([]); });
+    getGematriaCountByValue(value, method).then(c => { if (live) setCount(c); }).catch(() => { if (live) setCount(0); });
+    return () => { live = false; };
+  }, [value, method, limit]);
+
+  useEffect(() => {
+    let live = true; setConv(null);
+    if (value) getConvergenceForValue(value).then(c => { if (live) setConv(c); }).catch(() => { });
+    return () => { live = false; };
+  }, [value]);
+
+  const rar = rarity(count);
+  const inList = activeWord && (list || []).some(w => w.phrase === activeWord);
+  const canPropose = method === "ragil" && activeWord && /[א-ת]/.test(activeWord) && count != null && !inList;
+  const propose = async () => { setProposed("sending"); setProposed(await proposeCommunityWord(activeWord, value, "רגיל")); };
+
+  return (
+    <div style={{ marginTop: 12, paddingTop: 11, borderTop: "1px solid var(--line,#e4e7ec)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ink,#1b1d22)" }}>🌳 מילים שוות ל-{value}</span>
+        <span style={{ display: "flex", gap: 7, alignItems: "center" }}>
+          {rar && <span style={{ fontSize: 10.5, fontWeight: 800, color: rar.color }}>{rar.txt}</span>}
+          {count != null && <span style={{ fontSize: 11, fontWeight: 800, color: "var(--acc,#2f6df6)", fontFamily: "ui-monospace,monospace" }}>{count}</span>}
+        </span>
+      </div>
+
+      {/* #5 התכנסות רשומה */}
+      {conv && conv.group_size >= 2 && (
+        <Link to={`/number/${value}`} style={convTag}>✦ התכנסות מזוהה · {conv.group_size} ביטויים{conv.method && conv.method !== "ragil" ? ` (${conv.method})` : ""} →</Link>
+      )}
+
+      {/* #3 סינון חוצה-שיטות */}
+      <div style={{ display: "flex", gap: 5, marginBottom: 9 }}>
+        {METHOD_TABS.map(t => (
+          <button key={t.key} onClick={() => { setMethod(t.key); setLimit(12); }} style={{ ...methodTab, ...(method === t.key ? methodTabOn : null) }}>{t.label}</button>
+        ))}
+      </div>
+
+      {list === null ? (
+        <div style={{ fontSize: 11.5, color: "var(--ink3,#8a94a6)" }}>טוען…</div>
+      ) : list.length === 0 ? (
+        <div style={{ fontSize: 11.5, color: "var(--ink3,#8a94a6)", lineHeight: 1.6, marginBottom: 8 }}>אין ביטוי שווה ב{methodHe(method)} במאגר.</div>
+      ) : (
+        <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+            {list.map(w => (
+              <button key={w.phrase} onClick={() => emit(EVENTS.ENTITY_FOCUS, { title: w.phrase, word: w.phrase, value: w.ragil, kind: "word" })}
+                title={`הצג את «${w.phrase}»`} style={eqChip}>{w.phrase}</button>
+            ))}
+          </div>
+          {/* #2 עוד */}
+          {count != null && list.length < count && (
+            <button onClick={() => setLimit(l => l + 24)} style={moreBtn}>עוד {Math.min(24, count - list.length)} ↓</button>
+          )}
+        </>
+      )}
+
+      {/* #4 הצעת ביטוי חדש (רגיל בלבד) */}
+      {canPropose && (
+        (proposed === "ok" || proposed === "pending") ? (
+          <div style={{ fontSize: 11.5, color: "#1f9d57", fontWeight: 800, marginTop: 8 }}>✓ «{activeWord}» נשלח לאישור</div>
+        ) : proposed === "exists" ? null : (
+          <button onClick={propose} disabled={proposed === "sending"} style={proposeBtn}>
+            {proposed === "sending" ? "שולח…" : proposed === "invalid" || proposed === "error" ? "לא ניתן כרגע — נסו שוב" : `➕ הצע «${activeWord}» כביטוי שווה`}
+          </button>
+        )
+      )}
+
+      <Link to={`/number/${value}`} style={numLink}>→ דף המספר {value} — הכל</Link>
+    </div>
+  );
+}
+const eqChip = { cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 700, color: "var(--ink,#1b1d22)", background: "var(--chip,#f2f4f8)", border: "1px solid var(--line,#e4e7ec)", borderRadius: 999, padding: "5px 11px" };
+const methodTab = { flex: 1, cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 800, color: "var(--ink2,#5b6472)", background: "var(--card,#fff)", border: "1px solid var(--line,#e4e7ec)", borderRadius: 8, padding: "6px 4px" };
+const methodTabOn = { color: "#fff", background: "var(--acc,#2f6df6)", borderColor: "var(--acc,#2f6df6)" };
+const convTag = { display: "block", textAlign: "center", textDecoration: "none", background: "#fbf3da", border: "1px solid #ecd9a0", borderRadius: 8, padding: "6px 8px", marginBottom: 9, fontSize: 11.5, fontWeight: 800, color: "#8a6d12", fontFamily: "inherit" };
+const moreBtn = { width: "100%", cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 800, color: "var(--ink2,#5b6472)", background: "var(--chip,#f2f4f8)", border: "1px solid var(--line,#e4e7ec)", borderRadius: 8, padding: "7px", marginBottom: 8 };
+const proposeBtn = { width: "100%", cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: 800, color: "var(--acc,#2f6df6)", background: "var(--accS,#eef3ff)", border: "1px dashed var(--acc,#2f6df6)", borderRadius: 10, padding: "9px", marginTop: 6, marginBottom: 8 };
+const numLink = { display: "block", textAlign: "center", textDecoration: "none", background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", borderRadius: 10, padding: "8px", fontSize: 12.5, fontWeight: 800, color: "var(--acc,#2f6df6)", fontFamily: "inherit" };
 
 // 🔬 מחקר-קהילתי בקונסטרוקציה הימנית — משקף בפאנל את התרומות על הישות הפעילה (אותה מערכת
 // research_contributions; אפס כפילות). לחיצה → קפיצה למדור «מחקר קהילתי» במרכז (Event Bus).
@@ -113,6 +221,7 @@ function NumberTower({ ent }) {
             </button>
           ))}
         </div>
+        <EqualPhrases value={v} />
         <CommunityMini targetType="number" targetId={v} />
       </div>
     </div>
@@ -142,6 +251,7 @@ function WordMethods({ ent }) {
         <Link to={`/number/${encodeURIComponent(ent.value)}`} className="rw-tchip on" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "9px" }}>
           🔢 דף המספר {ent.value} ←
         </Link>
+        <EqualPhrases value={ent.value} activeWord={ent.title || ent.word} />
         <CommunityMini targetType="phrase" targetId={ent.title || ent.word} />
       </div>
     </div>
