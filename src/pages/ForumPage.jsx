@@ -10,6 +10,7 @@ import { stripHtml, formatDateHe } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { INTENTS, intentMeta, stateMeta, getForumFeed } from "../lib/contributions.js";
 import ResearcherLink from "../components/ResearcherLink.jsx";
+import ResearcherBadge from "../components/ResearcherBadge.jsx";
 
 // 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד): תרומות-הקהילה
 // יחד עם פוסטי-הכתבים בעלי-השם, ממוזגים לפי תאריך (החדשים למעלה). פוסט = כרטיס-מצביע
@@ -55,9 +56,9 @@ function ContribCard({ c, P }) {
         </div>
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נכתב על ידי {c.author_name
-          ? <ResearcherLink name={c.author_name} style={{ color: P.accentText, fontWeight: 800, textDecoration: "underline", textUnderlineOffset: 2 }}>{c.author_name}</ResearcherLink>
-          : <b style={{ color: P.accentText }}>חבר הקהילה</b>}</span>
+        {c.author_name
+          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={22} /></span>
+          : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נכתב על ידי <b style={{ color: P.accentText }}>חבר הקהילה</b></span>}
         {long && <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>{open ? "▴ הסתר" : "▾ קרא עוד"}</button>}
         {href && <Link to={href} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>המשך בדיון ←</Link>}
       </div>

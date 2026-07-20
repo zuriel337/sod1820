@@ -174,7 +174,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
     if (type && type !== "post") q = q.eq("intent", type);
     tasks.push(q.then(({ data }) => (data || []).map(c => ({
       kind: "contribution", id: "c_" + c.id, ts: c.created_at,
-      author_name: c.author_name, intent: c.intent, research_state: c.research_state,
+      author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
       target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
     }))).catch(() => []));
   }
