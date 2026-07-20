@@ -30,38 +30,46 @@ const C = {
   teal: "#1f9d8f", amber: "#d9902a", green: "#1f9d57",
 };
 
+const clean = (s) => (s || "").replace(/[^א-ת]/g, "");
+
 export default function MaftechShowcase() {
   const numHref = useNumHref();
   const [idx, setIdx] = useState(0);
+  const [custom, setCustom] = useState("");     // מילה שהמשתמש הקליד
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(false);
   const [paused, setPaused] = useState(false);
   const cache = useRef({});
 
-  const active = DEMO[idx];
-  const go = (i) => { setPaused(true); setIdx(i); };
+  // המילה הפעילה: הקלט של המשתמש גובר על מילות-ההדגמה. פחות מ-2 אותיות עבריות = עדיין בהדגמה.
+  const customClean = clean(custom);
+  const isCustom = customClean.length >= 2;
+  const active = isCustom ? { word: customClean, note: "🔍 פירוק חי — מילה שלכם, ישר מהמנוע" } : DEMO[idx];
+  const go = (i) => { setPaused(true); setCustom(""); setIdx(i); };
 
-  // סיבוב-אוטומטי בין מילות-ההדגמה (נעצר בריחוף/מגע/פוקוס).
+  // סיבוב-אוטומטי בין מילות-ההדגמה (נעצר בריחוף/מגע/פוקוס/הקלדה).
   useEffect(() => {
-    if (paused) return;
+    if (paused || isCustom) return;
     const t = setInterval(() => setIdx(i => (i + 1) % DEMO.length), ROTATE_MS);
     return () => clearInterval(t);
-  }, [paused]);
+  }, [paused, isCustom]);
 
-  // טעינה חיה מהמנוע, עם מטמון-מילה כדי לא לחזור ל-RPC על אותה מילה.
+  // טעינה חיה מהמנוע (debounce קטן לקלט-חופשי), עם מטמון-מילה כדי לא לחזור ל-RPC.
   useEffect(() => {
     const word = active.word;
     if (cache.current[word]) { setData(cache.current[word]); setLoading(false); setErr(false); return; }
     let live = true; setLoading(true); setErr(false);
-    supabase.rpc("fn_maftech_decompose", { word }).then(({ data, error }) => {
-      if (!live) return;
-      if (error || !data || data.error) { setErr(true); setData(null); }
-      else { cache.current[word] = data; setData(data); }
-      setLoading(false);
-    }).catch(() => { if (live) { setErr(true); setLoading(false); } });
-    return () => { live = false; };
-  }, [idx]); // eslint-disable-line react-hooks/exhaustive-deps
+    const t = setTimeout(() => {
+      supabase.rpc("fn_maftech_decompose", { word }).then(({ data, error }) => {
+        if (!live) return;
+        if (error || !data || data.error) { setErr(true); setData(null); }
+        else { cache.current[word] = data; setData(data); }
+        setLoading(false);
+      }).catch(() => { if (live) { setErr(true); setLoading(false); } });
+    }, isCustom ? 400 : 0);
+    return () => { live = false; clearTimeout(t); };
+  }, [active.word]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const FT = data?.FACT || {};
   const IN = data?.INTERPRETATION || {};
@@ -87,22 +95,43 @@ export default function MaftechShowcase() {
         </div>
       </div>
 
-      {/* בורר מילות-הדגמה + נקודות-התקדמות */}
-      <div style={S.chips} role="tablist" aria-label="מילות הדגמה">
-        {DEMO.map((d, i) => (
-          <button key={d.word} role="tab" aria-selected={i === idx} onClick={() => go(i)}
-            style={{ ...S.chip, ...(i === idx ? S.chipOn : null) }}>{d.word}</button>
-        ))}
-        <span style={S.dots} aria-hidden="true">
-          {DEMO.map((_, i) => (
-            <span key={i} style={{ ...S.dot, ...(i === idx ? S.dotOn : null) }} />
-          ))}
-        </span>
-        <button onClick={() => setPaused(p => !p)} style={S.playBtn}
-          title={paused ? "המשך סבב אוטומטי" : "השהה סבב אוטומטי"} aria-label={paused ? "המשך" : "השהה"}>
-          {paused ? "▶" : "⏸"}
-        </button>
+      {/* שדה-קלט — פרקו מילה משלכם, ישר בכרטיס */}
+      <div style={S.inputRow}>
+        <span style={S.inputIcon} aria-hidden="true">🔑</span>
+        <input
+          value={custom}
+          onChange={e => setCustom(e.target.value)}
+          onFocus={() => setPaused(true)}
+          placeholder="פרקו מילה משלכם בעברית…"
+          aria-label="מילה לפירוק בשיטת המפתח"
+          inputMode="text"
+          style={S.input}
+        />
+        {custom && (
+          <button onClick={() => { setCustom(""); setPaused(false); }} style={S.clearBtn} title="נקה" aria-label="נקה">✕</button>
+        )}
       </div>
+      {custom && !isCustom && <div style={S.hint}>הקלידו לפחות 2 אותיות בעברית…</div>}
+
+      {/* בורר מילות-הדגמה (מוסתר כשמקלידים) */}
+      {!isCustom && (
+        <div style={S.chips} role="tablist" aria-label="מילות הדגמה">
+          <span style={{ fontFamily: F.body, fontSize: 12, fontWeight: 700, color: C.ink2 }}>או נסו הדגמה:</span>
+          {DEMO.map((d, i) => (
+            <button key={d.word} role="tab" aria-selected={i === idx} onClick={() => go(i)}
+              style={{ ...S.chip, ...(i === idx ? S.chipOn : null) }}>{d.word}</button>
+          ))}
+          <span style={S.dots} aria-hidden="true">
+            {DEMO.map((_, i) => (
+              <span key={i} style={{ ...S.dot, ...(i === idx ? S.dotOn : null) }} />
+            ))}
+          </span>
+          <button onClick={() => setPaused(p => !p)} style={S.playBtn}
+            title={paused ? "המשך סבב אוטומטי" : "השהה סבב אוטומטי"} aria-label={paused ? "המשך" : "השהה"}>
+            {paused ? "▶" : "⏸"}
+          </button>
+        </div>
+      )}
 
       {/* למה המילה הזאת — נרטיב קצר לכל הדגמה */}
       <div style={S.note}>{active.note}</div>
@@ -179,9 +208,9 @@ export default function MaftechShowcase() {
         </div>
       )}
 
-      {/* עץ אחד — פירוק-מילה-משלך במחשבון (לא משכפל את המנוע כאן) */}
+      {/* עץ אחד — המחשבון המלא (כל 19 השיטות) לצד הפירוק כאן */}
       <div style={{ textAlign: "center", marginTop: 13 }}>
-        <Link to="/research?tool=gematria" style={S.cta}>🔑 רוצים לפרק מילה משלכם? למחשבון ←</Link>
+        <Link to="/research?tool=gematria" style={S.cta}>🧮 למחשבון המלא — כל השיטות ←</Link>
       </div>
     </div>
   );
@@ -216,6 +245,11 @@ const S = {
   wrap: { maxWidth: 560, margin: "0 auto", background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: "0 2px 14px rgba(20,25,40,.06)", direction: "rtl" },
   head: { borderBottom: `1px solid ${C.line}`, paddingBottom: 12, marginBottom: 12 },
   labBadge: { marginInlineStart: "auto", background: C.blueSoft, border: `1px solid ${C.blueLine}`, color: C.blue, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 10px" },
+  inputRow: { display: "flex", alignItems: "center", gap: 8, background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "0 12px", marginBottom: 9, minHeight: 46 },
+  inputIcon: { fontSize: 17, flex: "none", opacity: 0.85 },
+  input: { flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: F.regal, fontSize: 16, fontWeight: 700, color: C.ink, padding: "11px 0", minWidth: 0 },
+  clearBtn: { flex: "none", cursor: "pointer", background: C.soft, border: `1px solid ${C.line}`, borderRadius: 999, color: C.ink2, fontSize: 12, fontWeight: 800, width: 26, height: 26, lineHeight: 1 },
+  hint: { fontFamily: F.body, fontSize: 12, color: C.ink2, margin: "-3px 4px 10px" },
   chips: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 8 },
   chip: { cursor: "pointer", fontFamily: F.regal, fontSize: 16, fontWeight: 700, color: C.ink2, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "0 16px", minHeight: 40 },
   chipOn: { color: "#fff", background: C.gold, borderColor: C.gold, boxShadow: "0 2px 8px -2px rgba(154,120,24,.5)" },
