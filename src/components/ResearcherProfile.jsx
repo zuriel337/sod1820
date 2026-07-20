@@ -12,14 +12,6 @@ import { getResearcherProfile } from "../lib/contributions.js";
 // עץ אחד: מוצג דרך ContributorPage כ-fallback → אותו דף לכל חוקר, אצור או אוטומטי.
 // noindex — פרופיל-אוטומטי לא נכנס לאינדקס (פרטיות; דפי-חוקר אצורים כן נאינדקסים).
 
-// יעד-עומק לחידוש לפי סוג-היעד
-function targetHref(t) {
-  if (!t?.target_id) return "/forum";
-  if (t.target_type === "number" || t.target_type === "phrase") return `/number/${encodeURIComponent(t.target_id)}#comments`;
-  if (t.target_type === "els") return `/codes/${encodeURIComponent(t.target_id)}`;
-  return "/forum";
-}
-
 function Stat({ P, big, label }) {
   return (
     <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textAlign: "center", minWidth: 92 }}>
@@ -102,7 +94,7 @@ export default function ResearcherProfile({ name, onNotFound }) {
           {prof.items.map((it) => {
             const txt = (it.title || it.body || "").toString().replace(/<[^>]+>/g, " ").trim();
             return (
-              <Link key={it.id} to={targetHref(it)} style={{ textDecoration: "none", display: "block", background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
+              <Link key={it.id} to={`/forum/${it.id}`} style={{ textDecoration: "none", display: "block", background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
                   <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>💡 {it.intent || "חידוש"}</span>
                   {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
