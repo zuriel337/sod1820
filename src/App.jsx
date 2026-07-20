@@ -95,6 +95,8 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
+// 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
+const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -256,6 +258,9 @@ export default function App() {
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           {/* 🔬 סביבת המחקר — שלד חדש (שלב 1), מחוץ ל-Layout הקיים (סביבה בהירה נקייה) */}
           <Route path="/research" element={<ResearchPage />} />
+          {/* 🧪 מעבדה להבנת משמעות — דף פרטי חבוי (מסך נקי, בלי צ'רום). לא מקושר בשום מקום. */}
+          <Route path="/meaning-lab" element={<MeaningLabPage />} />
+          <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/reality" element={<Locked flag="lock_reality"><HomeReality /></Locked>} />
