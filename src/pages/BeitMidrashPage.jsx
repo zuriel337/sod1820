@@ -12,6 +12,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromInsight, entityFromPhrase } from "../lib/research/entity.js";
 import QuickActions from "../components/QuickActions.jsx";
+import ReporterLink from "../components/ReporterLink.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -319,7 +320,9 @@ function CrossCard({ item }) {
             <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>📅 {crossDate(item.created_at)}</span>
           )}
           {author && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✍️ מאת {author}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>
+              ✍️ מאת <ReporterLink credit={author} style={{ color: L.goldDeep, fontWeight: 800, textDecoration: "underline", textUnderlineOffset: 2 }}>{author}</ReporterLink>
+            </span>
           )}
           {item.verified && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: L.blueBg, border: `1px solid ${L.blueLine}`, color: L.blue, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>✓ מאומת מנוע</span>
