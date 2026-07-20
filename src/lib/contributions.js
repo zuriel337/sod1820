@@ -60,7 +60,7 @@ export async function getContributions(targetType, targetId, limit = 120) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
@@ -182,14 +182,14 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
 
   if (wantContrib) {
     let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,created_at")
+      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,reactions,created_at")
       .eq("status", "approved").is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
     tasks.push(q.then(({ data }) => (data || []).map(c => ({
       kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
       author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
-      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
+      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
     }))).catch(() => []));
   }
 

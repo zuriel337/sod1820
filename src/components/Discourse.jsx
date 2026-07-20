@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ResearcherLink from "./ResearcherLink.jsx";
+import ReactionBar from "./ReactionBar.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
   linkContribution, approveContribution, moderateContribution, getForumFeed, forumItemMeta,
@@ -67,6 +68,8 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={22} /></span>
           : <>✍️ נכתב על ידי <b style={{ color: P.accentText }}>חבר הקהילה</b></>}
       </div>
+      {/* 👍 ריאקציות */}
+      <div style={{ marginTop: 9 }}><ReactionBar id={c.id} reactions={c.reactions} /></div>
       {/* פעולות */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
         <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>
@@ -172,7 +175,8 @@ export default function Discourse({ target, origin = "number", archive = [], foc
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
-  const [replyTo, setReplyTo] = useState(null);
+  const [replyTo, setReplyTo] = useState(focusId || null);   // 💬 במצב-שרשור המלחין פתוח כברירת-מחדל (מזמין תגובה)
+  useEffect(() => { setReplyTo(focusId || null); }, [focusId]);
   const [showArchive, setShowArchive] = useState(false);
   const [lastForum, setLastForum] = useState(null);   // ההודעה האחרונה בפורום (למצב-ריק)
 

@@ -11,6 +11,7 @@ import { resolveAuthor } from "../lib/authors.js";
 import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed } from "../lib/contributions.js";
 import ResearcherLink from "../components/ResearcherLink.jsx";
 import ResearcherBadge from "../components/ResearcherBadge.jsx";
+import ReactionBar from "../components/ReactionBar.jsx";
 
 // 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד): תרומות-הקהילה
 // יחד עם פוסטי-הכתבים בעלי-השם, ממוזגים לפי תאריך (החדשים למעלה). פוסט = כרטיס-מצביע
@@ -38,33 +39,31 @@ const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "
 const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2, idea: 1 };
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
 
-// כרטיס תרומת-מחקר (research_contributions)
+// כרטיס תרומת-מחקר — קומפקטי (רשימת-פורום): כותרת + תקציר 2-שורות, נפתח לשרשור מלא. עץ אחד.
 function ContribCard({ c, P }) {
-  const [open, setOpen] = useState(false);
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);                                   // 🎯 היעד (מספר/פסוק/צופן)
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;   // 💬 עמוד-השרשור (תגובה מתוך הפורום)
-  const long = (c.body || "").length > 420;
+  const snippet = (c.body || "").replace(/\s+/g, " ").trim();
+  const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   return (
-    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         {c.target_id && <Link to={href || "#"} style={{ textDecoration: "none" }}>{badge(P.accent, `${c.target_type === "number" ? "🔢" : c.target_type === "els" ? "🔠" : "🔖"} ${c.target_id}`)}</Link>}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
-      {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>{c.title}</div>}
-      {c.body && (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-          {open || !long ? c.body : c.body.slice(0, 420) + "…"}
-        </div>
-      )}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
+      <Link to={threadHref} style={{ textDecoration: "none", display: "block" }}>
+        <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 3 }}>{titleText}</div>
+        {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
+      </Link>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 9 }}>
         {c.author_name
-          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={22} /></span>
-          : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נכתב על ידי <b style={{ color: P.accentText }}>חבר הקהילה</b></span>}
-        {long && <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>{open ? "▴ הסתר" : "▾ קרא עוד"}</button>}
+          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={20} /></span>
+          : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
+        <ReactionBar id={c.contribId} reactions={c.reactions} compact />
         <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>💬 המשך בדיון ←</Link>
       </div>
     </div>
