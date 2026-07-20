@@ -7,6 +7,7 @@ import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
+import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
@@ -771,6 +772,17 @@ export default function EntityPage({ embedPhrase } = {}) {
   const hasGate = isNumber && sigs.length > 0;
   const gold = useGold();
   const { isAdmin, user } = useAuth();         // 👑 מנהל → כלי סידור-מובילים · user → נהג-המרה (הירשם לשמור)
+
+  // 🔠 עץ אחד — צפני-דילוג המחוברים למספר הזה (primary_number/anchor_numbers). עדשה הפוכה: /number/103 → «מלך ישראל בדילוג 103».
+  const [ciphers, setCiphers] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    setCiphers([]);
+    if (isNumber && value > 0) {
+      getCiphersForNumber(value).then(c => { if (alive) setCiphers(c || []); }).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, [value, isNumber]);
 
   // ✦ topic_cards שמכילים מספר זה — גילוי התכנסויות קשורות
   const [topics, setTopics] = useState([]);
@@ -1959,6 +1971,37 @@ export default function EntityPage({ embedPhrase } = {}) {
         <section id="comments" style={{ marginBottom: 44, scrollMarginTop: 80 }}>
           <Discourse target={{ type: isNumber ? "number" : "phrase", id: isNumber ? String(value) : term }} origin="number" archive={d.comments || []} />
         </section>
+
+        {/* ── 🔠 נמצא בצופן — צפני-דילוג המחוברים למספר הזה (עץ אחד: הצופן מפנה לעמודו, לא משכפל) ── */}
+        {isNumber && ciphers.length > 0 && (
+          <section style={{ marginTop: 8, marginBottom: 8 }}>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 4 }}>🔠 נמצא בצופן</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>
+              דילוגי-אותיות (ELS) שבהם <b style={{ color: P.accentText }}>{value}</b> הוא הדילוג — או ערך שנמצא בהצלבה. <b>עדות — לא ניבוי.</b>
+            </div>
+            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+              {ciphers.map(c => {
+                const isSkip = c.primary_number === value;
+                return (
+                  <Link key={c.id} to={`/codes/${encodeURIComponent(c.slug || c.id)}`}
+                    style={{ flex: "0 0 auto", width: 190, scrollSnapAlign: "start", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column" }}
+                    onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+                    {c.image_url
+                      ? <img src={c.image_url} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
+                      : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}><img src="/els-icon.png" alt="" width="30" height="30" style={{ borderRadius: 7, objectFit: "cover" }} />{c.search_term}</div>}
+                    <div style={{ padding: "9px 11px" }}>
+                      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 14.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title || c.search_term}</div>
+                      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>
+                        <span style={{ color: isSkip ? P.accentText : P.accentDim, fontWeight: isSkip ? 800 : 400 }}>{isSkip ? `⏭️ דילוג ${value}` : "🔗 בהצלבה"}</span>
+                        {c.scope === "tanakh" ? " · תנ״ך" : c.skip_distance ? " · תורה" : ""}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ── 🔍 דילוגי אותיות + 🎥 סרטונים ── */}
         <section style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>

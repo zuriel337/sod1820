@@ -51,6 +51,21 @@ export async function getMyMatrices(uid, limit = 100) {
   } catch { return []; }
 }
 
+// 🌳 עץ אחד — הצפנים שמחוברים למספר הזה: primary_number=המספר (הדילוג) או שהמספר בין
+// anchor_numbers (דילוג/גימטריית-המונח/גימטריית-הממצאים). עדשה הפוכה לדף-המספר (/number/:n).
+// כך צופן «מלך ישראל בדילוג 103» מופיע גם ב-/number/103 וגם ב-/number/631 — לא משכפל, מפנה ל-/codes/:slug.
+export async function getCiphersForNumber(n, limit = 12) {
+  const num = parseInt(n, 10);
+  if (!supabase || !Number.isFinite(num) || num <= 0) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS)
+      .eq("status", "published")
+      .or(`primary_number.eq.${num},anchor_numbers.cs.{${num}}`)
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // אדמין — מטריצות ממתינות לאישור
 export async function getPendingMatrices(limit = 100) {
   if (!supabase) return [];
