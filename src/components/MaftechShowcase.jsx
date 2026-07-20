@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
-import { supabase } from "../lib/supabase.js";
+import { supabase, getAiAnalysis } from "../lib/supabase.js";
 import { useNumHref } from "../lib/numHrefCtx.js";
+import { trackAi } from "../lib/tracking.js";
 import QuickActions from "./QuickActions.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
@@ -77,6 +78,34 @@ export default function MaftechShowcase() {
   const meterMax = Math.max(FT.ragil || 0, FT.misratar || 0, 1);
   const hiddenOver = (FT.misratar || 0) > (FT.ragil || 0); // מוסתר>גלוי → קליפה (ענבר); אחרת שקיפות/ריפוי (טורקיז)
 
+  // 🤖 פרשנות-AI — מפרש עובדות-מנוע בלבד (ai_analyze_contract): עובדה מופרדת מרמז, בלי נבואות.
+  const [aiState, setAiState] = useState("idle"); // idle | busy | done | off
+  const [aiText, setAiText] = useState(null);
+  // מילה חדשה → מנקה ניתוח ישן.
+  useEffect(() => { setAiState("idle"); setAiText(null); }, [active.word]);
+
+  // בונה מחרוזת-עובדות לפרומפט: עובדות-מנוע מסומנות ✅, שכבת-המפתח מסומנת השערה.
+  const buildAiFacts = () => {
+    const lines = [`מילה: ${active.word}`];
+    lines.push(`עובדות מנוע (מאומת): רגיל=${FT.ragil}, מסתתר=${FT.misratar}, קדמי=${FT.kadmi}.`);
+    if (FT.hidden_vs_revealed) lines.push(`מוסתר↔גלוי: ${FT.hidden_vs_revealed}`);
+    if ((IN.letters || []).length) lines.push(`שיטת המפתח (השערה פרשנית, לא עובדה) — מפתח האותיות: ${IN.letters.map(l => `${l.letter}=${l.meaning || "?"}`).join(" · ")}`);
+    if ((IN.mirror || []).length) lines.push(`מראה (השערה): ${IN.mirror.join(", ")}`);
+    if (IN.sparks_yod > 0) lines.push(`ניצוצות-יוד (השערה): ${IN.sparks_yod}`);
+    if (segs.length) lines.push(`תת-מילים במאגר (עובדה): ${segs.map(s => `${s.sub}=${s.ragil}`).join(", ")}`);
+    return lines.join("\n");
+  };
+
+  const runAi = async () => {
+    if (aiState === "busy") return;
+    if (aiState === "done") { setAiState("idle"); setAiText(null); return; } // לחיצה שנייה = הסתר
+    setAiState("busy"); trackAi("research");
+    const subject = active.word, facts = buildAiFacts();
+    let txt = await getAiAnalysis({ kind: "research", subject, facts, fast: true });
+    if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "research", subject, facts, again: true, fast: true }); }
+    if (txt) { setAiText(txt); setAiState("done"); } else setAiState("off");
+  };
+
   return (
     <div style={S.wrap}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
@@ -146,7 +175,11 @@ export default function MaftechShowcase() {
             <div style={{ ...S.layerH, color: C.green }}>✅ עובדה — מאומת במנוע</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
               {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["קדמי", FT.kadmi]].map(([k, v]) => (
-                <span key={k} style={S.factChip}>{k} <span style={{ color: C.ink }}>{v ?? "—"}</span></span>
+                v ? (
+                  <Link key={k} to={numHref(v)} title={`דף המספר ${v}`} style={{ ...S.factChip, textDecoration: "none" }}>
+                    {k} <span style={{ color: C.ink }}>{v}</span> <span style={{ opacity: 0.5, fontSize: 10 }}>↗</span>
+                  </Link>
+                ) : <span key={k} style={S.factChip}>{k} —</span>
               ))}
             </div>
             {/* מד: גלוי (רגיל) מול מוסתר (מסתתר) — טורקיז=שקיפות/ריפוי · ענבר=קליפה */}
@@ -203,8 +236,24 @@ export default function MaftechShowcase() {
             <b style={{ color: C.green }}>המספרים = עובדת-מנוע.</b> משמעות-האותיות, המראה והחיתוך = שיטה פרשנית («המפתח») במצב <b>lab</b> — השערה, לא אמת מוחלטת. ✦ סוד 1820
           </div>
 
-          {/* 3 פעולות אחידות (research_workspace_law) — על המילה הפעילה */}
-          <QuickActions entity={entityFromPhrase(active.word, FT.ragil)} />
+          {/* 3 פעולות אחידות (research_workspace_law) — על המילה הפעילה. 🤖 נתח = פרשנות עובדות-המנוע. */}
+          <QuickActions entity={entityFromPhrase(active.word, FT.ragil)} onAnalyze={runAi} />
+
+          {/* 🤖 פרשנות-AI — מבוססת עובדות-מנוע בלבד (רמז משלים, לא עובדה) */}
+          {aiState === "busy" && <div style={S.state}><span style={S.spinner} /> המנוע מנתח את «{active.word}»…</div>}
+          {aiState === "off" && <div style={{ ...S.state, color: "#a3402f", padding: "12px 0" }}>הניתוח אינו זמין כרגע — נסו שוב מאוחר יותר.</div>}
+          {aiState === "done" && aiText && (
+            <div className="mft-fade" style={S.aiCard}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                <span style={{ color: "#2c5fb3", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🔵 ניתוח AI · פרשנות</span>
+                <button onClick={runAi} title="הסתר" style={{ cursor: "pointer", background: "none", border: "none", color: C.ink2, fontSize: 13 }}>▴</button>
+              </div>
+              <p style={{ margin: 0, color: C.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{aiText}</p>
+              <div style={{ color: C.ink2, fontFamily: F.body, fontSize: 10.5, marginTop: 9, fontStyle: "italic" }}>
+                הגימטריה = עובדה מאומתת במנוע · הפרשנות נכתבה ב-AI (רמז משלים, לא עובדה).
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -268,5 +317,6 @@ const S = {
   sparkChip: { fontFamily: F.heading, fontSize: 12, fontWeight: 800, color: C.gold, background: C.goldSoft, border: `1px solid ${C.line}`, borderRadius: 999, padding: "2px 10px" },
   segChip: { textDecoration: "none", fontFamily: F.regal, fontSize: 14, fontWeight: 700, color: C.ink, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "3px 12px" },
   seal: { fontFamily: F.body, fontSize: 11.5, color: C.ink2, lineHeight: 1.65, background: C.soft, border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" },
+  aiCard: { background: C.blueSoft, border: `1.5px solid ${C.blueLine}`, borderRadius: 12, padding: "12px 14px" },
   cta: { display: "inline-block", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, color: C.goldDeep, background: C.goldSoft, border: `1px solid ${C.line}`, borderRadius: 999, padding: "9px 18px", minHeight: 44, lineHeight: "26px" },
 };
