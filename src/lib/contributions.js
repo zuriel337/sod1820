@@ -151,12 +151,14 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
 
   if (wantInsights) {
     const q = supabase.from("insights")
-      .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score")
+      .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score,panel_data")
       .eq("is_active", true)
       .order("created_at", { ascending: false }).limit(limit);
     tasks.push(q.then(({ data }) => (data || []).map(x => ({
       kind: "insight", id: "i_" + x.id, ts: x.created_at,
-      author_name: insightAuthor(x.origin), origin: x.origin,
+      // 🖋️ חידוש-קהילה מקודם ל-insights עם origin='צוריאל' (המאשר) — המחבר האמיתי ב-panel_data.author.
+      author_name: (x.panel_data?.community && x.panel_data?.author) ? x.panel_data.author : insightAuthor(x.origin),
+      origin: x.origin,
       title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,
       verified: x.verified, has_1820: x.has_1820, convergence_score: x.convergence_score,
       // מצביע לעמוד הקנוני של החידוש בבית המדרש (לא עותק)

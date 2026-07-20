@@ -75,6 +75,7 @@ const VerifiedPostsPage = React.lazy(() => import("./pages/VerifiedPostsPage.jsx
 const CrossMethodPage = React.lazy(() => import("./pages/CrossMethodPage.jsx"));
 const VerseGematriaPage = React.lazy(() => import("./pages/VerseGematriaPage.jsx"));
 const BroadcastsPage = React.lazy(() => import("./pages/BroadcastsPage.jsx"));
+const SiteUpdatesPage = React.lazy(() => import("./pages/SiteUpdatesPage.jsx"));
 const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const JourneyPageV2 = React.lazy(() => import("./pages/JourneyPageV2.jsx")); // 🧪 גרסה-2 ניסיונית (נגן-אוטומטי/שם-ראשון/דופק) — /journey-beta, מגן-קרדיט פעיל
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
@@ -325,6 +326,7 @@ export default function App() {
           <Route path="/verse-gematria" element={<VerseGematriaPage />} />
           <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
+          <Route path="/whats-new" element={<SiteUpdatesPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
           <Route path="/journey" element={<JourneyPage />} />
           <Route path="/מסע" element={<JourneyPage />} />

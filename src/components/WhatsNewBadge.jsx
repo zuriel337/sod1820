@@ -90,7 +90,7 @@ export default function WhatsNewBadge() {
             : <div key={u.id} style={style}>{inner}</div>;
         })}
       </div>
-      <Link to="/broadcasts" onClick={() => setOpen(false)} style={{ display: "block", textAlign: "center", marginTop: 10,
+      <Link to="/whats-new" onClick={() => setOpen(false)} style={{ display: "block", textAlign: "center", marginTop: 10,
         color: "#f6e27a", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, textDecoration: "none" }}>כל עדכוני האתר →</Link>
     </div>
   );
