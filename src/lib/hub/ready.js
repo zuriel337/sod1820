@@ -27,6 +27,7 @@ export const READY_TOOLS = new Set([
   "notarikon",  // 🔓 ראשי / אמצעי / סופי תיבות
   "name",       // 🔓 מנוע השמות (מעבדת השם — כל המנועים + התכנסויות + גשרים)
   "dates",      // 🔓 תאריכים עבריים (לועזי → עברי + גימטריה, hebcal)
+  "maftech",    // 🔓 שיטת המפתח (lab) — נפתח לציבור באישור כריסטינה (20.7.2026)
 ]);
 
 // 👑 כלי-הדגל — מוצגים ראשונים ובולטים במרכז-הגילוי
@@ -41,16 +42,9 @@ export const IMPLEMENTED_TOOLS = new Set([
   "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
 ]);
 
-// 🔑 שיטת המפתח (lab) — פתוחה לצפייה בפרוביו (כל host שאינו הפרודקשן) בלי אדמין,
-// כדי שצוריאל יראה וילטש בלי להתחבר. בפרודקשן נשארת אדמין-בלבד עד אישור כריסטינה
-// (READY_TOOLS). אותו דגל-host כמו ELS_PREVIEW_OPEN — אין דליפה גם אם הענף ימוזג.
-export const MAFTECH_PREVIEW_OPEN = ELS_PREVIEW_OPEN;
-
-// שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות), או maftech בפרוביו.
+// שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות).
 export const isToolReady = (id, isAdmin = false) =>
-  READY_TOOLS.has(id) ||
-  (id === "maftech" && MAFTECH_PREVIEW_OPEN) ||
-  (isAdmin && IMPLEMENTED_TOOLS.has(id));
+  READY_TOOLS.has(id) || (isAdmin && IMPLEMENTED_TOOLS.has(id));
 
 // כלי שפתוח רק בזכות הרשאת-מנהל (להצגת תווית «🔑 אדמין» בלבד).
 export const isAdminOnlyTool = (id, isAdmin = false) =>
