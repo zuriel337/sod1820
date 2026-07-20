@@ -7,6 +7,7 @@ import { getMatrixBySlug } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
 import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
+import { formatDateHe } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import SubscribeGate from "../components/SubscribeGate.jsx";
@@ -96,6 +97,7 @@ export default function CipherPage() {
             <span>דילוג <b style={{ color: P.accentText }}>{m.skip_distance}</b></span>
             <span>· {m.scope === "tanakh" ? "כל התנ״ך" : "התורה"}</span>
             {m.author_name && <span>· ✍️ {m.author_name}</span>}
+            {m.created_at && <span>· 🕐 {formatDateHe(m.created_at)}</span>}
           </div>
           {findings.length > 0 && (
             <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>

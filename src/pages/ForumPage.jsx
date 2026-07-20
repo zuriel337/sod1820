@@ -6,7 +6,7 @@ import { useThemeMode, setForcedMode } from "../lib/themeMode.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, formatDateHe } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { INTENTS, intentMeta, stateMeta, getForumFeed } from "../lib/contributions.js";
 
@@ -134,7 +134,7 @@ function CipherCard({ c, P }) {
   return (
     <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-        {badge(P.accentText, "🔠 צופן גולש")}
+        {badge(P.accentText, "🆕 צופן חדש מגולש")}
         {c.skip_distance ? badge(P.accent, `⏭️ דילוג ${c.skip_distance}`) : null}
         {badge(P.accentDim, `📖 ${scopeTxt}`)}
         <span style={{ flex: 1 }} />
@@ -151,7 +151,7 @@ function CipherCard({ c, P }) {
         </div>
       </Link>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 11 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נמצא על ידי <b style={{ color: P.accentText }}>{c.author_name || "גולש"}</b></span>
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נמצא על ידי <b style={{ color: P.accentText }}>{c.author_name || "גולש"}</b>{c.ts ? ` · 🕐 ${formatDateHe(c.ts)}` : ""}</span>
         <Link to={to} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🔍 לצופן ולמחקר ←</Link>
       </div>
     </div>
