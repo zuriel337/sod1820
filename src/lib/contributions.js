@@ -200,6 +200,24 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
     .slice(0, limit);
 }
 
+// 👤 פרופיל-חוקר רשום (לא-אצור) — עדשה על research_contributions לפי שם-מחבר.
+// מזין את דף-החוקר הקל (ResearcherProfile) כשאין שורת-contributor אצורה. עץ אחד: אותו דף,
+// אצור או אוטומטי. מחזיר null אם אין ולו חידוש-מאושר אחד (אז אין פרופיל).
+export async function getResearcherProfile(name, limit = 40) {
+  if (!supabase || !name) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,origin,research_state,target_type,target_id,title,body,created_at")
+      .eq("author_name", name).eq("status", "approved").is("parent_id", null)
+      .order("created_at", { ascending: false }).limit(limit);
+    const items = data || [];
+    if (!items.length) return null;
+    const uid = items.find((x) => x.author_user_id)?.author_user_id || null;
+    const joined = items.reduce((min, x) => (!min || x.created_at < min ? x.created_at : min), null);
+    return { name, uid, count: items.length, joined, items };
+  } catch { return null; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;

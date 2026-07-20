@@ -7,6 +7,7 @@ import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
@@ -117,6 +118,7 @@ export default function ContributorPage() {
   const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
+  const [lightName, setLightName] = useState(null);   // 👤 שם לפרופיל-חוקר קל (כשאין שורת-contributor אצורה)
   const [cat, setCat] = useState("all");
   const [limit, setLimit] = useState(24);
   const [hidden, setHidden] = useState(loadHidden);
@@ -153,13 +155,16 @@ export default function ContributorPage() {
 
   useEffect(() => {
     let alive = true;
+    setC(null); setErr(false); setLightName(null);   // איפוס בין slugs (כולל מעבר אצור↔קל)
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into")
       .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
       .then(({ data, error }) => {
         if (!alive) return;
-        if (error || !data) { setErr(true); return; }
+        if (error) { setErr(true); return; }
+        // אין שורת-contributor אצורה → פרופיל-חוקר קל לפי שם (identity_architecture_law)
+        if (!data) { let nm = slug; try { nm = decodeURIComponent(slug); } catch { /* raw */ } setLightName(nm); return; }
         // 🌳 עץ אחד: דף-כותב שאוחד → הפניה לעמוד הקנוני
         if (data.merged_into && data.merged_into !== slug) { nav(`/community/researcher/${data.merged_into}`, { replace: true }); return; }
         setC(data);
@@ -282,6 +287,8 @@ export default function ContributorPage() {
   // בכהה — שקוף (הקוסמוס נשאר). לעולם לא נשענים על תמונת-הרקע של האתר בבהיר.
   const pageWrap = { background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };
 
+  // 👤 אין שורת-contributor אצורה → פרופיל-חוקר קל לפי שם. onNotFound (אין חידושים) → נופל לשגיאה.
+  if (!c && lightName) return <ResearcherProfile name={lightName} onNotFound={() => { setLightName(null); setErr(true); }} />;
   if (err) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>החוקר לא נמצא.</div></div>;
   if (!c) return <div style={pageWrap}><div style={{ direction: "rtl", textAlign: "center", padding: 60, color: P.inkSoft, fontFamily: F.body }}>טוען…</div></div>;
 

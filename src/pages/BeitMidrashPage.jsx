@@ -12,7 +12,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromInsight, entityFromPhrase } from "../lib/research/entity.js";
 import QuickActions from "../components/QuickActions.jsx";
-import ReporterLink from "../components/ReporterLink.jsx";
+import ResearcherLink from "../components/ResearcherLink.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -321,7 +321,7 @@ function CrossCard({ item }) {
           )}
           {author && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>
-              ✍️ מאת <ReporterLink credit={author} style={{ color: L.goldDeep, fontWeight: 800, textDecoration: "underline", textUnderlineOffset: 2 }}>{author}</ReporterLink>
+              ✍️ מאת <ResearcherLink name={author} style={{ color: L.goldDeep, fontWeight: 800, textDecoration: "underline", textUnderlineOffset: 2 }}>{author}</ResearcherLink>
             </span>
           )}
           {item.verified && (
