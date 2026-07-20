@@ -38,7 +38,8 @@ const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "
 function ContribCard({ c, P }) {
   const [open, setOpen] = useState(false);
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
-  const href = targetHref(c);
+  const href = targetHref(c);                                   // 🎯 היעד (מספר/פסוק/צופן)
+  const threadHref = c.contribId ? `/forum/${c.contribId}` : href;   // 💬 עמוד-השרשור (תגובה מתוך הפורום)
   const long = (c.body || "").length > 420;
   return (
     <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
@@ -60,7 +61,7 @@ function ContribCard({ c, P }) {
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={22} /></span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נכתב על ידי <b style={{ color: P.accentText }}>חבר הקהילה</b></span>}
         {long && <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>{open ? "▴ הסתר" : "▾ קרא עוד"}</button>}
-        {href && <Link to={href} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>המשך בדיון ←</Link>}
+        <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>💬 המשך בדיון ←</Link>
       </div>
     </div>
   );

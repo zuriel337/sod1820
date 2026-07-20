@@ -59,6 +59,7 @@ const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
+const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
 const CodeArchivePage = React.lazy(() => import("./pages/CodeArchivePage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
 const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
@@ -316,6 +317,7 @@ export default function App() {
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/:id" element={<ForumThreadPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
           <Route path="/gematria" element={<GematriaToLab />} />
           <Route path="/גימטריה" element={<GematriaToLab />} />

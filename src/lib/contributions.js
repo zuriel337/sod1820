@@ -67,6 +67,17 @@ export async function getContributions(targetType, targetId, limit = 120) {
   } catch { return []; }
 }
 
+// תרומה יחידה לפי id — לעמוד-השרשור בפורום (/forum/:id). RLS: מאושרת גלויה לכולם.
+export async function getContributionById(id) {
+  if (!supabase || !id) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,created_at")
+      .eq("id", id).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
 export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
   const { data, error } = await supabase.rpc("add_contribution", {
     p_intent: intent, p_origin: origin, p_body: body,
@@ -173,7 +184,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
     tasks.push(q.then(({ data }) => (data || []).map(c => ({
-      kind: "contribution", id: "c_" + c.id, ts: c.created_at,
+      kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
       author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
       target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
     }))).catch(() => []));
