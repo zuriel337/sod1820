@@ -4,6 +4,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameDossier } from "../lib/supabase.js";
+import MethodAnalyze from "../components/MethodAnalyze.jsx";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
@@ -375,6 +376,9 @@ export default function NameLabPage({ embedded = false }) {
           </Section>
 
           {/* 4 · התכנסויות */}
+          {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — ניתוח-AI ממוקד לשיטה אחת מתוך ה-20 */}
+          <MethodAnalyze word={word} />
+
           <Section n="04" icon="💎" title="ההתכנסויות" sub={`מילים וביטויים ששווים לערך הרגיל (${regVal}) — «בתוך המספר». מאומת במנוע.`}>
             {conv === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>טוען…</div> :
               conv.length === 0 ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>לא נמצאו התכנסויות לערך זה.</div> : (

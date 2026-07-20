@@ -10,6 +10,7 @@ import { entityFromNumber } from "../lib/research/entity.js";
 import { METHODS, DEPTH_METHODS, LETTER_COLS, methodLabel, onlyHeb, mistater, GEM, methodLetters, hebrewNumeral, methodResultText, miluiValueV, miluiTextV, miluiDemiluyValueV, miluiDemiluyTextV, miluiLettersV, MILUI_VAR_OPTS, MILUI_VAR_DEFAULT, hasSofiot, GADOL_BASE } from "../lib/gematria.js";
 import { classifyInput, transliterate, buildLexicon, normEn } from "../lib/translit.js";
 import { englishSimple, hasLatin, EN_METHODS, englishAll, EN_TAGS } from "../lib/englishGematria.js";
+import MethodAnalyze from "./MethodAnalyze.jsx";
 import { getAliasLexicon, logTranslitQuery } from "../lib/feedback.js";
 import FoundItFeedback from "./FoundItFeedback.jsx";
 import { useNumHref } from "../lib/numHrefCtx.js";
@@ -480,6 +481,9 @@ export default function GematriaCalculator({ seed, onResult, research = false })
             )}
           </div>
         )}
+
+        {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — בוחרים שיטה אחת מ-20 השיטות → ניתוח-AI ממוקד לאותה שיטה */}
+        {letters.length > 0 && <MethodAnalyze word={word} />}
 
         {/* 🔍 חיפוש מורכב — רמות: שורה אחת / שתיים, עצמאיות מהעליונה */}
         {!advOpen ? (

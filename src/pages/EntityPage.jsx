@@ -27,6 +27,7 @@ import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import AiFeedback from "../components/AiFeedback.jsx";
+import MethodAnalyze from "../components/MethodAnalyze.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import LeadOrderEditor from "../components/LeadOrderEditor.jsx";
@@ -1087,6 +1088,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   // 🤖 כרטיס-ה-AI המלא — רכיב אחד לשני המצבים (עץ אחד): מצב קריאה ומצב מחקר מציגים את אותה חלונית,
   // עם בחירת מנוע, «🔬 ניתוח עמוק», תג-התהודה וההצלבות הלחיצות. אין עותק מדולל.
   const aiCard = (
+    <>
     <div style={{ maxWidth: 480, margin: "12px auto 4px", padding: "11px 13px", borderRadius: 13, background: P.card, border: "1px solid rgba(62,166,255,0.28)", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: aiText ? 9 : 7 }}>
         <span style={{ fontSize: 15 }}>🤖</span>
@@ -1152,6 +1154,9 @@ export default function EntityPage({ embedPhrase } = {}) {
         </div>
       )}
     </div>
+    {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — רק בדף-מילה: ניתוח-AI ממוקד לשיטה אחת מ-20 השיטות */}
+    {!isNumber && term && <MethodAnalyze word={term} defaultMethod="מסתתר" />}
+    </>
   );
 
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
