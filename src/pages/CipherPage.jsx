@@ -252,10 +252,11 @@ export default function CipherPage() {
         })()}
       </div>
 
-      {/* צפני-הספרייה הרגילים — המטריצה החיה נטענת ישר (כמו קודם).
-          רק צפני-תיקיית-המחקר (source='research') נפתחים בלחיצה («חקור במטריצה החיה») + שער-הרשמה —
-          שם הכניסה כבדה (כל התנ״ך ~2.2MB) והחקירה שמורה לרשומים (בקשת צוריאל). 🏆 onQuality: צריבת-MC מעדכנת m מיד. */}
-      {(m.source !== "research" || showTool) ? (
+      {/* 🔍 סטטי-קודם, מנוע-לפי-בקשה (כל הצפנים): כברירת-מחדל מציגים כרטיס-תצוגה, והמנוע הכבד
+          (כל התנ״ך ~2.2MB) נטען רק בלחיצה על «חקור במטריצה החיה» — כניסה מיָידית, והעמוד לא תלוי
+          בטעינת המטריצה כדי להראות צופן (תיקון: צופן בלי-תמונה כבר לא נופל למסך-פתיחה גנרי).
+          צפני-מחקר: החקירה עדיין שמורה לרשומים (שער-הרשמה). 🏆 onQuality: צריבת-MC מעדכנת m מיד. */}
+      {showTool ? (
         <TzofenEmbed matrix={m} onQuality={q => setM(prev => (prev && typeof prev === "object") ? { ...prev, positions: { ...(prev.positions || {}), quality: q } } : prev)} />
       ) : gate ? (
         <div style={{ maxWidth: 620, margin: "12px auto 4px", padding: "0 14px" }}>
@@ -273,7 +274,11 @@ export default function CipherPage() {
               style={{ position: "relative", cursor: "pointer", display: "block", width: "100%", padding: 0, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", background: P.cardGrad || P.cardSoft }}>
               {m.image_url
                 ? <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", display: "block", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700" }} />
-                : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", alignItems: "center", justifyContent: "center", color: P.accentText, fontFamily: F.regal, fontSize: 26, fontWeight: 800 }}>{m.title || m.search_term}</div>}
+                : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: P.accentText, fontFamily: F.regal, fontWeight: 800, padding: 16, textAlign: "center" }}>
+                    <img src="/els-icon.png" alt="" width="52" height="52" style={{ borderRadius: 12, objectFit: "cover" }} />
+                    <div style={{ fontSize: 26 }}>{m.title || m.search_term}</div>
+                    <div style={{ fontSize: 13.5, color: P.inkSoft, fontFamily: F.body, fontWeight: 400 }}>דילוג {m.skip_distance} · {m.scope === "tanakh" ? "תנ״ך" : "תורה"}{findings.length ? ` · ${findings.length} ממצאים` : ""}</div>
+                  </div>}
               <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,4,14,0.34)" }}>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, borderRadius: 999, padding: "13px 26px", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, boxShadow: "0 6px 22px rgba(0,0,0,0.5)" }}>{needReg ? "🔒" : "🔍"} חקור במטריצה החיה</span>
               </span>
