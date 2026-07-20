@@ -125,16 +125,45 @@ export async function getGematriaByPhrases(phrases) {
   return data ?? [];
 }
 
-// Get gematria words matching a specific value
-export async function getGematriaByValue(value) {
+// Get gematria words matching a specific value.
+// opts.method = 'ragil' | 'misratar' | 'kadmi' (עמודת-ההשוואה, לסינון חוצה-שיטות) · opts.limit (ברירת-מחדל 12).
+// תאימות-לאחור: קריאה עם ערך בלבד → רגיל, 12.
+const GEM_METHOD_COL = { ragil: 'ragil', misratar: 'misratar', kadmi: 'kadmi' };
+export async function getGematriaByValue(value, opts = {}) {
   if (!supabase || !value) return [];
+  const col = GEM_METHOD_COL[opts.method] || 'ragil';
   const { data } = await supabase
     .from('gematria_words')
-    .select('phrase, ragil')
-    .eq('ragil', value)
+    .select('phrase, ragil, misratar, kadmi')
+    .eq(col, value)
     .order('created_at', { ascending: false, nullsFirst: false })   // ביטוי חדש שהוסף — תמיד למעלה
-    .limit(12);
+    .limit(opts.limit || 12);
   return data ?? [];
+}
+
+// כמה ביטויים במאגר שווים לערך בשיטה נתונה (למד-הנדירות) — count בלבד, בלי להביא שורות.
+export async function getGematriaCountByValue(value, method = 'ragil') {
+  if (!supabase || !value) return 0;
+  const col = GEM_METHOD_COL[method] || 'ragil';
+  const { count } = await supabase
+    .from('gematria_words')
+    .select('*', { count: 'exact', head: true })
+    .eq(col, value);
+  return count || 0;
+}
+
+// התכנסות רשומה חזקה לערך (fn_convergence_for_value — SECURITY DEFINER; convergences אינה קריאה-לקוח).
+export async function getConvergenceForValue(value) {
+  if (!supabase || !value) return null;
+  try { const { data } = await supabase.rpc('fn_convergence_for_value', { p_value: value }); return data || null; }
+  catch { return null; }
+}
+
+// הצעת ביטוי-קהילתי חדש לערך (pending — ממתין לאישור אדמין). מחזיר: ok|exists|pending|invalid|error.
+export async function proposeCommunityWord(phrase, value, method = 'רגיל') {
+  if (!supabase) return 'error';
+  try { const { data } = await supabase.rpc('propose_community_word', { p_phrase: String(phrase).trim(), p_value: value, p_method: method }); return data || 'ok'; }
+  catch { return 'error'; }
 }
 
 // הצלבה-המונית: לכל ערך ברשימה — אילו ביטויים במאגר האתר שווים לו (לכלי «ניתוח קובץ»).
