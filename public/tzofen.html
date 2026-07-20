@@ -543,6 +543,10 @@
   .sharebox .sh-row{display:flex;gap:8px;margin-top:11px}
   .sharebox .sh-copy{flex:1;cursor:pointer;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;border:none;border-radius:9px;padding:11px;font-weight:800;font-size:14px}
   .sharebox .sh-close{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--ink2);border-radius:9px;padding:11px 16px;font-weight:700}
+  .sharebox .sh-desc{width:100%;box-sizing:border-box;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:11px 13px;font-family:inherit;font-size:13.5px;line-height:1.7;outline:none;direction:rtl;text-align:right;resize:vertical;min-height:96px}
+  .sharebox .sh-desc:focus{border-color:var(--gold)}
+  .sharebox .sh-deschint{font-size:11px;color:var(--ink3);margin-top:6px;min-height:14px}
+  .sharebox .sh-copy:disabled{opacity:.5;cursor:not-allowed}
   .zoomctl button{cursor:pointer;width:30px;height:28px;white-space:nowrap;background:var(--panel);border:1px solid var(--line2);color:var(--goldBright);
      border-radius:7px;font-size:16px;font-weight:800;line-height:1}
   .zoomctl button:hover{background:var(--panel2)}
@@ -1102,10 +1106,34 @@
   }
   function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
   // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
-  // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → האתר מבקש הרשמה.
+  // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → נשמר כ«ממתין לאישור».
+  // 📝 חובה (בקשת צוריאל 20.7.2026): כל שומר-צופן כותב תחילה «מה רואים בצופן» — אין שמירה בלי הסבר.
   function addCurrentToGallery(){
     const h=(()=>{try{return occ();}catch(e){return null;}})();
     if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
+    askCipherDescription(()=>performSaveToGallery(h));
+  }
+  // 📝 חלון חובת-הסבר — נפתח לפני כל שמירה, חוסם עד שנכתב הסבר קצר. גם שדה-שם (רשות) לזיהוי המחבר.
+  function askCipherDescription(onConfirm){
+    const ov=document.createElement("div");ov.className="shareov";
+    ov.innerHTML='<div class="sharebox"><h3>📝 מה רואים בצופן?</h3>'+
+      '<p>כדי לשמור, ספרו במילים שלכם מה מצאתם — אילו מילים מצטלבות ומה המשמעות. חובה — כך הצופן מובן לכל מי שיראה אותו.</p>'+
+      '<textarea class="sh-desc" placeholder="למשל: «משיח» חוצה את «מלך» באותו אזור ובדילוג זהה…"></textarea>'+
+      '<input class="sh-url sh-name" placeholder="השם שלך (רשות — יוצג כמחבר הצופן)" style="margin-top:8px;direction:rtl;text-align:right">'+
+      '<div class="sh-deschint"></div>'+
+      '<div class="sh-row"><button class="sh-copy sh-save" disabled>💾 שמור בגלריה</button><button class="sh-close">בטל</button></div></div>';
+    document.body.appendChild(ov);
+    const ta=ov.querySelector(".sh-desc"),nm=ov.querySelector(".sh-name"),btn=ov.querySelector(".sh-save"),hint=ov.querySelector(".sh-deschint");
+    ta.value=st.desc||"";nm.value=st.author||"";
+    const MIN=12;
+    const upd=()=>{const n=ta.value.trim().length;btn.disabled=n<MIN;hint.textContent=n<MIN?("✍️ עוד "+heb(MIN-n)+" תווים לפחות כדי לשמור":"✓ אפשר לשמור");};
+    ta.addEventListener("input",upd);upd();setTimeout(()=>{try{ta.focus();}catch(e){}},40);
+    const close=()=>ov.remove();
+    ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
+    btn.onclick=()=>{const d=ta.value.trim();if(d.length<MIN){toast("כתוב מה רואים בצופן כדי לשמור");return;}
+      st.desc=d;st.author=nm.value.trim();ov.remove();render();onConfirm();};
+  }
+  function performSaveToGallery(h){
     // 👁️ חיווי מיידי — מונטה-קרלו (למטה) חוסם את ה-UI לשנייה-שתיים; בלי חיווי מוקדם המשתמש
     //    חושב שכלום לא קרה. משנים את הכפתור מיד, ומריצים את החישוב-הכבד ב-setTimeout כדי שה-UI ייצבע קודם.
     const sb=document.querySelector(".save-act");
@@ -1122,7 +1150,7 @@
       }catch(e){}
       const it=galleryCurrentItem();
       postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
-        findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,
+        findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
         image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null});
     },30);
   }
@@ -2103,6 +2131,7 @@
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
     st.postUrl=item.postUrl||"";st.postTitle=item.postTitle||"";   // 📖 קישור-לפוסט של המטריצה
     st.desc=item.desc||"";   // 📖 הסבר-הצופן (מוצג מתחת למטריצה, שמור באתר)
+    st.author=item.author||"";   // ✍️ שם-המחבר (לפרֵה-מילוי חלון חובת-ההסבר בשמירה חוזרת)
     q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
     if(!st.res.hits.length){updGem();render();return;}
     let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;

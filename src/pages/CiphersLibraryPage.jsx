@@ -64,6 +64,35 @@ export default function CiphersLibraryPage() {
 
   useEffect(() => { getSavedMatrices(200).then(setItems).catch(() => setItems([])); }, []);
   const list = items || [];
+  // 🙋 הפרדת-מקור (unified_graph_law: אותה עדשה, שני מדורים): צפנים אצורים (אדמין/מנוע) מול צפני-גולשים.
+  const community = list.filter(m => m.source === "community");
+  const curated = list.filter(m => m.source !== "community");
+
+  // כרטיס-צופן קנוני — משמש בשני המדורים (אצורים + גולשים), מפנה לעמוד /codes/:slug (לא משכפל).
+  const cipherCard = (m) => (
+    <Link key={m.id} to={`/codes/${encodeURIComponent(m.slug || m.id)}`}
+      style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column", transition: "border-color .15s, transform .12s" }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; e.currentTarget.style.transform = "translateY(-3px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; e.currentTarget.style.transform = "none"; }}>
+      {m.image_url ? (
+        <img src={m.image_url} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
+      ) : (
+        <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}><img src="/els-icon.png" alt="" width="44" height="44" style={{ borderRadius: 10, objectFit: "cover" }} />{m.search_term}</div>
+      )}
+      <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{m.title || m.search_term}</div>
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>
+          {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
+        </div>
+        {m.positions?.quality?.stars ? (
+          <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 12.5, letterSpacing: 0.5 }} title={m.positions.quality.verified ? "מובהקות מונטה-קרלו מדודה" : "הערכת איכות"}>
+            {"★".repeat(m.positions.quality.stars)}<span style={{ opacity: 0.3 }}>{"☆".repeat(5 - m.positions.quality.stars)}</span>
+          </div>
+        ) : null}
+        {m.author_name && <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>✍️ {m.author_name}</div>}
+      </div>
+    </Link>
+  );
 
   return (
     <div dir="rtl" style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>
@@ -136,32 +165,30 @@ export default function CiphersLibraryPage() {
             עדיין אין צפנים בספרייה — היו הראשונים לחפש ולשמור צופן.
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 15 }}>
-            {list.map(m => (
-              <Link key={m.id} to={`/codes/${encodeURIComponent(m.slug || m.id)}`}
-                style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column", transition: "border-color .15s, transform .12s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; e.currentTarget.style.transform = "translateY(-3px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; e.currentTarget.style.transform = "none"; }}>
-                {m.image_url ? (
-                  <img src={m.image_url} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
-                ) : (
-                  <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}><img src="/els-icon.png" alt="" width="44" height="44" style={{ borderRadius: 10, objectFit: "cover" }} />{m.search_term}</div>
-                )}
-                <div style={{ padding: "11px 13px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>{m.title || m.search_term}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>
-                    {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
-                  </div>
-                  {m.positions?.quality?.stars ? (
-                    <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 12.5, letterSpacing: 0.5 }} title={m.positions.quality.verified ? "מובהקות מונטה-קרלו מדודה" : "הערכת איכות"}>
-                      {"★".repeat(m.positions.quality.stars)}<span style={{ opacity: 0.3 }}>{"☆".repeat(5 - m.positions.quality.stars)}</span>
-                    </div>
-                  ) : null}
-                  {m.author_name && <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>✍️ {m.author_name}</div>}
+          <>
+            {curated.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 15 }}>
+                {curated.map(cipherCard)}
+              </div>
+            )}
+
+            {/* 🙋 צפני גולשים — הצפנים ששלחה הקהילה (source='community'), במדור נפרד וברור.
+                אותה עדשה על els_records, מקור מסומן; כל צופן מפנה לעמוד הקנוני שלו. */}
+            {community.length > 0 && (
+              <div style={{ marginTop: curated.length ? 34 : 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "0 0 6px", flexWrap: "wrap" }}>
+                  <h2 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 800, margin: 0 }}>🙋 צפני גולשים</h2>
+                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px" }}>{community.length}</span>
                 </div>
-              </Link>
-            ))}
-          </div>
+                <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: "0 0 14px", maxWidth: 620 }}>
+                  צפנים שגילתה ושלחה הקהילה — כל אחד עם הסבר של מגלה-הצופן: מה רואים בו. <b style={{ color: P.accentText }}>עדות — לא ניבוי.</b>
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 15 }}>
+                  {community.map(cipherCard)}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

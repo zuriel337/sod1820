@@ -100,7 +100,23 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
   const wantContrib = !type || FORUM_CONTRIB_INTENTS.includes(type);
   const wantPosts = !type || type === "post";
   const wantInsights = !type || type === "insight";   // 💡 חידושי בית המדרש (insights)
+  const wantCiphers = !type || type === "cipher";     // 🔠 צפני-גולשים (els_records source='community')
   const tasks = [];
+
+  // 🔠 צפני-גולשים — כל צופן שגולש שמר ואושר (published) עולה לפורום ככרטיס-מצביע לעמוד /codes/:slug.
+  //    עץ אחד: אותו els_records, לא העתק; הכרטיס פותח את הצופן הקנוני עם המחקר הקהילתי שעליו.
+  if (wantCiphers) {
+    const q = supabase.from("els_records")
+      .select("id,slug,title,search_term,skip_distance,scope,image_url,description,author_name,created_at")
+      .eq("status", "published").eq("source", "community")
+      .order("created_at", { ascending: false }).limit(limit);
+    tasks.push(q.then(({ data }) => (data || []).map(x => ({
+      kind: "cipher", id: "cf_" + x.id, ts: x.created_at,
+      author_name: x.author_name || "גולש", title: x.title || x.search_term,
+      search_term: x.search_term, skip_distance: x.skip_distance, scope: x.scope,
+      image_url: x.image_url, description: x.description, slug: x.slug,
+    }))).catch(() => []));
+  }
 
   if (wantInsights) {
     const q = supabase.from("insights")

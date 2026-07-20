@@ -111,7 +111,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
         positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
           quality: d.quality || null, shapeUrl: shapeUrl || null },
-        title: d.postTitle || d.term, note: null, imageUrl,
+        // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
+        title: d.postTitle || d.term, note: d.desc || null, imageUrl,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
