@@ -161,7 +161,7 @@ export async function getRecentCommunityWords(limit = 4) {
   // «נוסף למאגר» = הפך לגלוי. מילה שאושרה/נחשפה עכשיו (visibility_changed_at) קופצת לראש —
   // גם אם ה-created_at שלה ישן. מושכים לפי שני הצירים וממזגים לפי «רגע-החשיפה» האפקטיבי.
   const clean = arr => (arr ?? []).filter(r => r.phrase && !/^[\d\s.,-]+$/.test(r.phrase.trim()) && r.ragil > 0);
-  const sel = 'phrase, ragil, created_at, visibility_changed_at';
+  const sel = 'phrase, ragil, created_at, visibility_changed_at, vip_source';
   const [byCreated, byVis] = await Promise.all([
     supabase.from('gematria_words').select(sel).eq('is_verified', true)
       .not('created_at', 'is', null).order('created_at', { ascending: false, nullsFirst: false }).limit(limit * 3),

@@ -37,9 +37,13 @@ export default function CommunityWordsBox({ light, max = 4, title = "✦ מיל�
       </div>
       <div style={{ display: "grid", gap: 8 }}>
         {rows.map((r, i) => (
-          <Link key={i} to={`/number/${encodeURIComponent(r.phrase)}`} title={`${r.phrase} = ${r.ragil}`}
+          <Link key={i} to={`/number/${encodeURIComponent(r.phrase)}`} title={`${r.phrase} = ${r.ragil}${r.vip_source ? ` · מאת ${r.vip_source}` : ""}`}
             style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
-            <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.phrase}</span>
+            {/* ביטוי + קרדיט-הכתב מתחתיו (מאיפה הגיע) — עץ אחד: המקור נשמר ומוצג ליד הגימטריה */}
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.phrase}</span>
+              {r.vip_source && <span style={{ display: "block", color: L.sub, fontFamily: F.body, fontSize: 10.5, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>✍️ מאת {r.vip_source}</span>}
+            </span>
             <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", flex: "0 0 auto" }}>{r.ragil}</span>
             {r.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(r.created_at)}</span>}
           </Link>
