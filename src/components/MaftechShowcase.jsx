@@ -108,6 +108,23 @@ export default function MaftechShowcase() {
     if (txt) { setAiText(txt); setAiState("done"); } else setAiState("off");
   };
 
+  // 🕘 היסטוריית-מילים (זיכרון-שריר) — נשמרת מקומית, נרשמת רק ב«סיום» (Enter/יציאה), לא בכל הקשה.
+  const [history, setHistory] = useState([]);
+  useEffect(() => {
+    try { const h = JSON.parse(localStorage.getItem("maftech_history") || "[]"); if (Array.isArray(h)) setHistory(h.slice(0, 10)); } catch { /* noop */ }
+  }, []);
+  const pushHistory = (w) => {
+    const word = clean(w);
+    if (word.length < 2) return;
+    setHistory(prev => {
+      const next = [word, ...prev.filter(x => x !== word)].slice(0, 10);
+      try { localStorage.setItem("maftech_history", JSON.stringify(next)); } catch { /* noop */ }
+      return next;
+    });
+  };
+  const commitCustom = () => { if (isCustom) pushHistory(customClean); };
+  const clearHistory = () => { setHistory([]); try { localStorage.removeItem("maftech_history"); } catch { /* noop */ } };
+
   return (
     <div style={S.wrap}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
@@ -133,6 +150,8 @@ export default function MaftechShowcase() {
           value={custom}
           onChange={e => setCustom(e.target.value)}
           onFocus={() => setPaused(true)}
+          onBlur={commitCustom}
+          onKeyDown={e => { if (e.key === "Enter") { commitCustom(); e.currentTarget.blur(); } }}
           placeholder="פרקו מילה משלכם בעברית…"
           aria-label="מילה לפירוק בשיטת המפתח"
           inputMode="text"
@@ -143,6 +162,17 @@ export default function MaftechShowcase() {
         )}
       </div>
       {custom && !isCustom && <div style={S.hint}>הקלידו לפחות 2 אותיות בעברית…</div>}
+
+      {/* 🕘 מילים אחרונות — חזרה מהירה (זיכרון-שריר) */}
+      {history.length > 0 && (
+        <div style={S.histRow}>
+          <span style={{ fontFamily: F.body, fontSize: 11.5, fontWeight: 700, color: C.ink2 }}>🕘 אחרונות:</span>
+          {history.map(w => (
+            <button key={w} onClick={() => { setPaused(true); setCustom(w); }} style={{ ...S.histChip, ...(isCustom && customClean === w ? S.histChipOn : null) }}>{w}</button>
+          ))}
+          <button onClick={clearHistory} style={S.histClear} title="נקה היסטוריה" aria-label="נקה היסטוריה">נקה</button>
+        </div>
+      )}
 
       {/* בורר מילות-הדגמה (מוסתר כשמקלידים) */}
       {!isCustom && (
@@ -315,6 +345,10 @@ const S = {
   input: { flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: F.regal, fontSize: 16, fontWeight: 700, color: C.ink, padding: "11px 0", minWidth: 0 },
   clearBtn: { flex: "none", cursor: "pointer", background: C.soft, border: `1px solid ${C.line}`, borderRadius: 999, color: C.ink2, fontSize: 12, fontWeight: 800, width: 26, height: 26, lineHeight: 1 },
   hint: { fontFamily: F.body, fontSize: 12, color: C.ink2, margin: "-3px 4px 10px" },
+  histRow: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 11 },
+  histChip: { cursor: "pointer", fontFamily: F.regal, fontSize: 13.5, fontWeight: 700, color: C.goldDeep, background: C.goldSoft, border: `1px solid ${C.line}`, borderRadius: 999, padding: "5px 13px", minHeight: 34 },
+  histChipOn: { color: "#fff", background: C.gold, borderColor: C.gold },
+  histClear: { cursor: "pointer", fontFamily: F.body, fontSize: 11, fontWeight: 700, color: C.ink2, background: "none", border: "none", textDecoration: "underline", padding: "5px 4px" },
   chips: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 8 },
   chip: { cursor: "pointer", fontFamily: F.regal, fontSize: 16, fontWeight: 700, color: C.ink2, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "0 16px", minHeight: 40 },
   chipOn: { color: "#fff", background: C.gold, borderColor: C.gold, boxShadow: "0 2px 8px -2px rgba(154,120,24,.5)" },
