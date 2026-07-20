@@ -6,7 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
-  linkContribution, approveContribution, moderateContribution, getForumFeed,
+  linkContribution, approveContribution, moderateContribution, getForumFeed, forumItemMeta,
 } from "../lib/contributions.js";
 
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
@@ -25,15 +25,6 @@ function timeAgo(ts) {
   return new Date(t).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
 }
 
-// 🌐 «מהפורום» — נגזרת-תצוגה אחידה לפריט-פורום (getForumFeed): אימוג'י · תווית-סוג · יעד-עומק.
-function forumItemMeta(lf) {
-  if (!lf) return { em: "🌐", label: "פורום", to: "/forum" };
-  if (lf.kind === "cipher") return { em: "🆕", label: "צופן חדש מגולש", to: `/codes/${encodeURIComponent(lf.slug || "")}` };
-  if (lf.kind === "post") return { em: "📜", label: "מאמר חדש", to: `/${lf.slug || ""}` };
-  if (lf.kind === "insight") return { em: "💡", label: "חידוש", to: lf.link || "/research?tool=midrash" };
-  const im = intentMeta(lf.intent);
-  return { em: im.emoji || "💬", label: im.label || "תרומת מחקר", to: "/forum" };
-}
 
 // כרטיס תרומה בודד (+ ילדיו כתגובות, רמה אחת)
 function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onChanged }) {
@@ -227,11 +218,11 @@ export default function Discourse({ target, origin = "number", archive = [] }) {
         // מצב-ריק: במקום «אין מחקר» — ההודעה האחרונה בפורום, לחיצה עוברת לפורום
         lastForum ? (() => {
           const meta = forumItemMeta(lastForum);
-          const when = timeAgo(lastForum.ts || lastForum.created_at || lastForum.date);
-          const who = lastForum.author_name || "חבר הקהילה";
-          const text = stripHtml(lastForum.title || lastForum.body || "").slice(0, 120) || meta.label;
+          const when = timeAgo(meta.when);
+          const who = meta.who;
+          const text = stripHtml(meta.text).slice(0, 120) || meta.label;
           return (
-            <Link to={meta.to} style={{ textDecoration: "none", display: "block" }}>
+            <Link to={meta.href} style={{ textDecoration: "none", display: "block" }}>
               <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 13, padding: "12px 15px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
                   <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🌐 מהפורום</span>

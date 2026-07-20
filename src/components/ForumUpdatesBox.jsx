@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getForumFeed, intentMeta } from "../lib/contributions.js";
+import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { stripHtml } from "../lib/format.js";
 
@@ -35,19 +35,16 @@ export default function ForumUpdatesBox({ limit = 6, style }) {
       ) : (
         <div style={{ display: "grid", gap: 9 }}>
           {items.map((it, i) => {
-            const isPost = it.kind === "post";
-            const isCipher = it.kind === "cipher";
-            const to = isPost ? `/${it.slug}` : isCipher ? `/codes/${encodeURIComponent(it.slug || "")}` : "/forum";
-            const title = stripHtml(it.title || it.body || "תרומת מחקר");
-            const who = isPost ? resolveAuthor(it.author_name).name : (it.author_name || "חבר הקהילה");
-            const em = isPost ? "📜" : isCipher ? "🆕" : it.kind === "insight" ? "💡" : (intentMeta(it.intent).emoji || "💡");
+            const m = forumItemMeta(it);
+            const title = stripHtml(m.text) || m.label;
+            const who = it.kind === "post" ? resolveAuthor(it.author_name).name : m.who;
             const last = i === items.length - 1;
             return (
-              <Link key={it.id} to={to} style={{ textDecoration: "none", display: "block", borderBottom: last ? "none" : `1px dashed ${P.border}`, paddingBottom: last ? 0 : 9 }}>
+              <Link key={it.id} to={m.href} style={{ textDecoration: "none", display: "block", borderBottom: last ? "none" : `1px dashed ${P.border}`, paddingBottom: last ? 0 : 9 }}>
                 <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 700, lineHeight: 1.55, marginBottom: 3 }}>
-                  {em} {title.length > 66 ? title.slice(0, 66) + "…" : title}
+                  {m.em} {title.length > 66 ? title.slice(0, 66) + "…" : title}
                 </div>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>{who} · {ago(it.ts)}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>{who} · {ago(m.when)}</div>
               </Link>
             );
           })}

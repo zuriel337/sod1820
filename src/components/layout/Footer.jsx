@@ -5,6 +5,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import { useStream } from "../../lib/stream.js";
 import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
+import ForumLastStrip from "../ForumLastStrip.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (המנועים) · מה חדש (המנועים האחרונים) · הגנזך (תוכן) · הקהילה והשער
 // «בני ההיכל» הוסר (בקשת צוריאל 2.7.2026); «מה חדש» מרכז את המנועים החדשים.
@@ -172,6 +173,9 @@ export default function Footer() {
   return (
     <footer className="foot">
       <style>{FOOTER_CSS(cc)}</style>
+
+      {/* 🌐 פעולה אחרונה מהפורום — רצועה גלובלית בכל דף (מקור-אמת יחיד, עמיד-לעתיד) */}
+      <ForumLastStrip />
 
       {/* הרשמה במייל בפוטר — מוסתרת בעמוד הבית (שם יש כבר את הקריאה הראשית מעל) */}
       {pathname !== "/" && <StayUpdatedCTA variant="footer" />}

@@ -14,6 +14,37 @@ export const INTENTS = [
 ];
 export const intentMeta = k => INTENTS.find(i => i.key === k) || { key: k, emoji: "•", label: k };
 
+// 🌐 מקור-הגדרה קנוני לכל פריט-פורום (getForumFeed) — אימוג'י · תווית-סוג · יעד-עומק.
+// ⭐ עמיד-לעתיד (בקשת צוריאל): כל kind חדש שיתווסף לפורום — «ערוץ», «רעיון», או כל דבר —
+//    מקבל תצוגה סבירה אוטומטית דרך ה-DEFAULT, בלי לשבור אף רכיב. להגדיר סוג חדש = שורה
+//    אחת ב-FORUM_KINDS כאן, וכל המשטחים (רצועת-הפוטר, «מהפורום», עדכונים) מתעדכנים יחד.
+export const FORUM_KINDS = {
+  cipher:  { em: "🆕", label: "צופן חדש מגולש", href: it => `/codes/${encodeURIComponent(it.slug || "")}` },
+  post:    { em: "📜", label: "מאמר", href: it => `/${it.slug || ""}` },
+  insight: { em: "💡", label: "חידוש", href: it => it.link || "/research?tool=midrash" },
+  channel: { em: "📡", label: "עדכון ערוץ", href: it => it.link || "/broadcasts" },
+  idea:    { em: "💡", label: "רעיון", href: () => "/forum" },
+  // contribution: אימוג'י/תווית נגזרים מכוונת-התרומה (intent) — ראה forumItemMeta
+};
+const FORUM_KIND_DEFAULT = { em: "🌐", label: "עדכון מהפורום", href: () => "/forum" };
+
+// נגזרת-תצוגה בטוחה לפריט-פורום יחיד. תמיד מחזירה שדות תקינים (גם לפריט ריק/סוג-לא-מוכר).
+export function forumItemMeta(it) {
+  if (!it) return { em: "🌐", label: "פורום", href: "/forum", when: null, who: "", text: "" };
+  const base = FORUM_KINDS[it.kind] || null;
+  const im = intentMeta(it.intent);
+  const em = (base && base.em) || im.emoji || "💬";
+  const label = (base && base.label) || im.label || FORUM_KIND_DEFAULT.label;
+  const hrefFn = (base && base.href) || FORUM_KIND_DEFAULT.href;
+  const href = typeof hrefFn === "function" ? hrefFn(it) : (hrefFn || "/forum");
+  return {
+    em, label, href,
+    when: it.ts || it.created_at || it.date || null,   // ⛔ שדה-תאריך אחיד — מונע «Invalid Date»
+    who: it.author_name || "חבר הקהילה",
+    text: (it.title || it.body || "").toString(),
+  };
+}
+
 // research_state — מסע-המחקר (לא מודרציה)
 export const STATE_META = {
   idea:          { emoji: "🟡", label: "רעיון" },
