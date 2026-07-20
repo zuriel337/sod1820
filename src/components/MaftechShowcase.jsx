@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, getAiAnalysis } from "../lib/supabase.js";
 import { useNumHref } from "../lib/numHrefCtx.js";
 import { trackAi } from "../lib/tracking.js";
+import { shareOrCopy } from "../lib/share.js";
+import { withRid } from "../lib/propagation.js";
 import QuickActions from "./QuickActions.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
@@ -124,6 +126,23 @@ export default function MaftechShowcase() {
   };
   const commitCustom = () => { if (isCustom) pushHistory(customClean); };
   const clearHistory = () => { setHistory([]); try { localStorage.removeItem("maftech_history"); } catch { /* noop */ } };
+
+  // 🔗 Deep-link: /research?tool=maftech&w=<מילה> נפתח ישר על אותה מילה (דואליות-עמוד + לולאת-שיתוף).
+  const [sp] = useSearchParams();
+  useEffect(() => {
+    const w0 = clean(sp.get("w") || "");
+    if (w0.length >= 2) { setCustom(w0); setPaused(true); }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 🔗 שיתוף המילה — URL קנוני עם &w= (OG מזריק כרטיס-תמונה ל-api/og), עם rid למדידת ויראליות.
+  const shareWord = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
+    const url = withRid(`${origin}/research?tool=maftech&w=${encodeURIComponent(active.word)}`);
+    shareOrCopy({ title: `«${active.word}» בשיטת המפתח · סוד 1820`, url });
+  };
+
+  // ❓ אקורדיון «איך זה עובד» (Progressive Disclosure)
+  const [howOpen, setHowOpen] = useState(false);
 
   return (
     <div style={S.wrap}
@@ -282,8 +301,8 @@ export default function MaftechShowcase() {
             <b style={{ color: C.green }}>המספרים = עובדת-מנוע.</b> משמעות-האותיות, המראה והחיתוך = שיטה פרשנית («המפתח») במצב <b>lab</b> — השערה, לא אמת מוחלטת. ✦ סוד 1820
           </div>
 
-          {/* 3 פעולות אחידות (research_workspace_law) — על המילה הפעילה. 🤖 נתח = פרשנות עובדות-המנוע. */}
-          <QuickActions entity={entityFromPhrase(active.word, FT.ragil)} onAnalyze={runAi} />
+          {/* 3 פעולות אחידות (research_workspace_law) — על המילה הפעילה. 🤖 נתח = פרשנות עובדות-המנוע. 🔗 = שיתוף המילה. */}
+          <QuickActions entity={entityFromPhrase(active.word, FT.ragil)} onAnalyze={runAi} onShare={shareWord} />
 
           {/* 🤖 פרשנות-AI — מבוססת עובדות-מנוע בלבד (רמז משלים, לא עובדה) */}
           {aiState === "busy" && <div style={S.state}><span style={S.spinner} /> המנוע מנתח את «{active.word}»…</div>}
@@ -306,6 +325,22 @@ export default function MaftechShowcase() {
       {/* עץ אחד — המחשבון המלא (כל 19 השיטות) לצד הפירוק כאן */}
       <div style={{ textAlign: "center", marginTop: 13 }}>
         <Link to="/research?tool=gematria" style={S.cta}>🧮 למחשבון המלא — כל השיטות ←</Link>
+      </div>
+
+      {/* ❓ איך זה עובד — Progressive Disclosure (פשוט→עמוק) */}
+      <div style={{ marginTop: 12 }}>
+        <button onClick={() => setHowOpen(o => !o)} style={S.howToggle} aria-expanded={howOpen}>
+          <span>❓ איך זה עובד?</span>
+          <span style={{ transform: howOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+        </button>
+        {howOpen && (
+          <div className="mft-fade" style={S.howBody}>
+            <p style={S.howP}><b style={{ color: C.green }}>✅ עובדה — מהמנוע הרשמי.</b> רגיל · מסתתר · קדמי מחושבים במנוע. <b>מד מוסתר↔גלוי</b> משווה את הערך הגלוי (רגיל) לנסתר (מסתתר): מוסתר נמוך = שקיפות/ריפוי (טורקיז), מוסתר גבוה = קליפה נושאת יותר (ענבר).</p>
+            <p style={S.howP}><b style={{ color: C.blue }}>🔑 מפתח האותיות — השערה.</b> לכל אות משמעות בשיטה. <b>מראה</b> = אותיות שמשקפות זו את זו (ק↔א · ר↔ב · ש↔ג). <b>ניצוצות-יוד</b> = אותיות יוד כניצוץ פנימי.</p>
+            <p style={S.howP}><b>✂️ חיתוך · 🔁 היפוך.</b> המילה מכילה תת-מילים מהמאגר והתנ״ך (📖). <b>היפוך</b> = תת-מילה שנקראת אחורה כמילה מוכרת.</p>
+            <p style={{ ...S.howP, marginBottom: 0, color: C.goldDeep }}><b>יושר:</b> המספרים = עובדה מאומתת. משמעות-האותיות, המראה, החיתוך וההיפוך = <b>פרשנות</b> («שיטת המפתח», lab) — רמז, לא אמת מוחלטת.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -369,4 +404,7 @@ const S = {
   seal: { fontFamily: F.body, fontSize: 11.5, color: C.ink2, lineHeight: 1.65, background: C.soft, border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" },
   aiCard: { background: C.blueSoft, border: `1.5px solid ${C.blueLine}`, borderRadius: 12, padding: "12px 14px" },
   cta: { display: "inline-block", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, color: C.goldDeep, background: C.goldSoft, border: `1px solid ${C.line}`, borderRadius: 999, padding: "9px 18px", minHeight: 44, lineHeight: "26px" },
+  howToggle: { width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", background: C.soft, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 13px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, color: C.ink2, minHeight: 44 },
+  howBody: { background: C.card, border: `1px solid ${C.line}`, borderTop: "none", borderRadius: "0 0 10px 10px", padding: "11px 13px", marginTop: -2 },
+  howP: { margin: "0 0 9px", fontFamily: F.body, fontSize: 12.5, color: C.ink, lineHeight: 1.65 },
 };

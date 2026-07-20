@@ -122,6 +122,25 @@ export default async function handler(req, res) {
       desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
       image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}&sig=gem`;
     }
+  } else if (key === '/research') {
+    // 🔑 שיטת המפתח — עדשת פירוק-אותיות. שיתוף מילה (?tool=maftech&w=<מילה>) → כרטיס ממותג.
+    const tool = String((req.query && req.query.tool) || '').trim();
+    if (tool === 'maftech') {
+      const w = String((req.query && req.query.w) || '').trim();
+      if (w) {
+        title = `«${w}» בשיטת המפתח · ${SITE_NAME}`;
+        desc = `פירוק «${w}» בשיטת המפתח — עובדת-מנוע (רגיל · מסתתר · קדמי) לצד שכבת-פרשנות. גלו את השכבות בסוד 1820.`;
+        image = `${SITE}/api/card?w=${encodeURIComponent(w)}&sub=${encodeURIComponent('שיטת המפתח · פירוק אותיות')}&cap=${encodeURIComponent('כל מילה נפתחת לשכבותיה · סוד 1820')}&sig=gem`;
+      } else {
+        title = `שיטת המפתח — פירוק אותיות · ${SITE_NAME}`;
+        desc = 'עדשת פירוק-אותיות: כל מילה נפתחת לשכבותיה — עובדת-מנוע לצד פרשנות. סוד 1820.';
+        image = `${SITE}/api/card?w=${encodeURIComponent('שיטת המפתח')}&sub=${encodeURIComponent('פירוק אותיות · כל מילה נפתחת לשכבותיה')}&cap=${encodeURIComponent('סוד 1820')}&sig=gem`;
+      }
+    } else {
+      title = 'היכל הגילוי — סביבת המחקר · ' + SITE_NAME;
+      desc = 'כל כלי המחקר של סוד 1820 במקום אחד — גימטריה, דילוגי אותיות, דף המספר, פסוקים ועוד.';
+      image = `${SITE}/api/card?w=${encodeURIComponent('היכל הגילוי')}&sub=${encodeURIComponent('סביבת המחקר של סוד 1820')}&sig=gem`;
+    }
   } else if (key === '/number') {
     // "הגוגל של המספרים" — דף הנחיתה
     title = "מנוע המספרים — הגוגל של המספרים · " + SITE_NAME;
