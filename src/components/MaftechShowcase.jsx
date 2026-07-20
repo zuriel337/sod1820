@@ -74,7 +74,9 @@ export default function MaftechShowcase() {
 
   const FT = data?.FACT || {};
   const IN = data?.INTERPRETATION || {};
+  const SP = IN.sparks || {};                    // v2: {count, positions, adjacent}
   const segs = data?.segments_real_words || [];
+  const revs = data?.reversals || [];            // v2: מילים שנקראות הפוך
   const meterMax = Math.max(FT.ragil || 0, FT.misratar || 0, 1);
   const hiddenOver = (FT.misratar || 0) > (FT.ragil || 0); // מוסתר>גלוי → קליפה (ענבר); אחרת שקיפות/ריפוי (טורקיז)
 
@@ -212,19 +214,33 @@ export default function MaftechShowcase() {
                 {(IN.mirror || []).map((m, i) => (
                   <span key={i} style={S.mirrorChip}>מראה {m}</span>
                 ))}
-                {IN.sparks_yod > 0 && <span style={S.sparkChip}>✦ ניצוצות-יוד: {IN.sparks_yod}</span>}
+                {IN.sparks_yod > 0 && <span style={S.sparkChip} title={SP.positions?.length ? `מיקומי-יוד: ${SP.positions.join(", ")}` : undefined}>✦ ניצוצות-יוד: {IN.sparks_yod}{SP.adjacent ? " · אשכול" : ""}</span>}
               </div>
             )}
           </section>
 
-          {/* שכבה 3 — ✂️ חיתוך תת-מילים */}
+          {/* שכבה 3 — ✂️ חיתוך תת-מילים (לקסיקון רחב: ליבה + תנ״ך) */}
           {segs.length > 0 && (
             <section style={S.layer}>
-              <div style={{ ...S.layerH, color: C.ink2 }}>✂️ חיתוך — תת-מילים במאגר</div>
+              <div style={{ ...S.layerH, color: C.ink2 }}>✂️ חיתוך — תת-מילים במאגר <span style={{ fontWeight: 600, color: C.ink2 }}>(📖 = מופיעה בתנ״ך)</span></div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {segs.map((s, i) => (
                   <Link key={i} to={numHref(s.ragil) + (numHref(s.ragil).includes("?") ? "&" : "?") + "from=maftech"} style={S.segChip}>
-                    {s.sub} <span style={{ fontFamily: F.mono, color: C.goldDeep, fontWeight: 800 }}>{s.ragil}</span>
+                    {s.in_tanach ? "📖 " : ""}{s.sub} <span style={{ fontFamily: F.mono, color: C.goldDeep, fontWeight: 800 }}>{s.ragil}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* שכבה 4 (v2) — 🔁 היפוך: תת-מילה שנקראת הפוך כמילה מוכרת */}
+          {revs.length > 0 && (
+            <section style={S.layer}>
+              <div style={{ ...S.layerH, color: "#7a4fb3" }}>🔁 היפוך — נקראות הפוך <span style={{ fontWeight: 600, color: C.ink2 }}>(רמז ✦)</span></div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {revs.map((r, i) => (
+                  <Link key={i} to={numHref(r.ragil) + (numHref(r.ragil).includes("?") ? "&" : "?") + "from=maftech"} style={{ ...S.segChip, borderColor: "#e2d3f5", background: "#faf7fe" }} title={`«${r.sub}» הפוך = «${r.reversed}»`}>
+                    {r.sub} <span style={{ color: "#7a4fb3", fontWeight: 800 }}>→ {r.reversed}</span> <span style={{ fontFamily: F.mono, color: C.goldDeep, fontWeight: 800 }}>{r.ragil}</span>
                   </Link>
                 ))}
               </div>
