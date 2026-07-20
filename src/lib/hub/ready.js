@@ -38,6 +38,7 @@ export const FLAGSHIP_TOOLS = ["number", "gematria"];
 export const IMPLEMENTED_TOOLS = new Set([
   "number", "gematria", "verse", "midrash", "notarikon",
   "els", "journey", "name", "family", "compare", "life", "import", "dates",
+  "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
 ]);
 
 // שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות).
