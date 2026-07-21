@@ -7,7 +7,7 @@ import { shareOrCopy } from "../lib/share.js";
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // ➕ הוסף למחקר · ⭐ שמור · 📌 הצמד · 🔗 שתף · 📋 העתק · 🤖 AI — אותו מקום ועיצוב בכל Hub.
 // כל פעולה פולטת Event ל-Bus → הפאנלים מאזינים. עובד על כל type (לא תלוי-דף).
-export default function QuickActions({ entity, onShare, onAnalyze, extra, style }) {
+export default function QuickActions({ entity, onShare, onAnalyze, extra, style, hideAnalyze }) {
   const { addToResearch, saveItem, togglePin, isPinned } = useResearch();
   if (!entity) return null;
   const pinned = isPinned?.(entity.id);
@@ -36,9 +36,10 @@ export default function QuickActions({ entity, onShare, onAnalyze, extra, style 
       <button onClick={copy}>📋 העתק</button>
       {/* 🤖 מנוע ה-AI — פעיל כשהדף מספק onAnalyze (מבוסס עובדות-מנוע, ai_analyze_contract).
           בדפים שעוד לא חיברו — נשאר «בבנייה» מושבת (לא פולט Event לריק). */}
-      {onAnalyze
+      {/* 🤖 כפתור-AI מוסתר (hideAnalyze) בדפים שכבר יש בהם כרטיס-AI מלא — למנוע כפילות («נתח ב-AI» + כרטיס מתחתיו) */}
+      {!hideAnalyze && (onAnalyze
         ? <button onClick={() => { emit(EVENTS.AI_ANALYZE, entity); onAnalyze(); }} title="🤖 ניתוח AI — מבוסס עובדות המנוע">🤖 נתח ב-AI</button>
-        : <button className="soon" disabled title="🤖 ניתוח AI — בבנייה, ייפתח בקרוב לכל החוקרים">🤖 AI · בבנייה</button>}
+        : <button className="soon" disabled title="🤖 ניתוח AI — בבנייה, ייפתח בקרוב לכל החוקרים">🤖 AI · בבנייה</button>)}
       {extra}
     </div>
   );

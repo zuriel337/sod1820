@@ -1357,7 +1357,7 @@ export default function EntityPage({ embedPhrase } = {}) {
           {showBody && <QuickActions
             entity={entity}
             onShare={() => shareNumberSmart(value, data?.phrases || [])}
-            onAnalyze={runAiNumber}
+            hideAnalyze
             style={{ "--ink": P.ink, "--card": P.cardSoft, "--line": P.border, "--acc": P.accentText, "--accS": P.glow, "--onAcc": P.onAccent || "#1a0e00" }}
             extra={<>
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
