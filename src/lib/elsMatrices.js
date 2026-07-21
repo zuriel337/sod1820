@@ -83,6 +83,18 @@ export async function getCiphersForNumber(n, limit = 12) {
   } catch { return []; }
 }
 
+// 🔀 אדמין — כל ה«גרסאות» הממתינות (positions.variantOf קיים, לא-מוסתרות), לתור-האישור המרוכז.
+// כל גרסה נושאת variantOfSlug (נשמר ב-#2) → קישור לעמוד-המקור למיזוג.
+export async function getAllVariants(limit = 100) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status")
+      .not("positions->>variantOf", "is", null).neq("status", "hidden")
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // אדמין — מטריצות ממתינות לאישור
 export async function getPendingMatrices(limit = 100) {
   if (!supabase) return [];
