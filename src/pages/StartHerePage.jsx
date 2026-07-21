@@ -1,18 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { SectionHeader, GoldButton } from "../components/ui.jsx";
 import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
+import GematriaMiniDemo from "../components/GematriaMiniDemo.jsx";
+import SiteCountsStrip from "../components/SiteCountsStrip.jsx";
 
 // "כאן מתחילים" — מסע התחלה קצר לפי מודל העץ האחד: שורש → לב → עדשות → הצטרפות.
 // כל צעד מסומן בשכבה שלו, כך שמההתחלה מבינים את המבנה של האתר.
 const STEPS = [
   { tier: "🌱 השורש", emoji: "🔢", title: "מהו סוד 1820",
     body: "14 שנות מחקר שמחברות תורה, גימטריה ורמזי גאולה לשפה אחת. כל האתר הוא גרף ידע אחד — לא אוסף עמודים נפרדים.",
+    how: "שם הוי\"ה (יהוה) מופיע בתורה כולה בדיוק 1820 פעם — עובדה סְפִירָה, לא פרשנות. משם נפתח כל השאר: כל מספר, ביטוי ואירוע הופכים ל«צומת» אחד בגרף, וכל עמוד באתר הוא עדשה שמסתכלת על אותו גרף מזווית אחרת.",
     to: "/סוד-1820" },
   { tier: "🫀 הלב", emoji: "🏛️", title: "היכל — כל הכלים במקום אחד", badge: "חדש",
     body: "מחשבון גימטריה (20 שיטות · חינם), דף-המספר, חיפוש בפסוקים, דילוגי-אותיות ובית-המדרש — סביבת-מחקר אחת שנשארת פתוחה לאורך כל המסע.",
+    how: "ההיכל הוא «שולחן-העבודה»: פותחים כלי, מוסיפים ממצא ל«מחקר הפעיל», עוברים לכלי אחר — וההקשר נשמר. לא מתחילים מאפס בכל מסך.",
     to: "/research",
     links: [
       { label: "📖 בית המדרש", to: "/research?tool=midrash" },
@@ -23,24 +27,31 @@ const STEPS = [
     ] },
   { tier: "🫀 הלב", emoji: "🌊", title: "זרם המציאות — תיעוד רמזי הגאולה", badge: "חדש",
     body: "תיעוד חי של רמזי הגאולה כפי שהם מופיעים במציאות: כל רמז חדש שעולה נכנס לזרם — תמונה, מספר דומיננטי ותאריך האירוע. כל מספר מוביל לדף-המספר שלו בגרף.",
+    how: "כל תמונה מתויגת במספר הדומיננטי שלה; לחיצה על המספר פותחת את דף-המספר עם כל ההצלבות. כך «משהו שקרה בחדשות» מתחבר מיד לגימטריה ולעץ.",
     to: "/archive?tab=reality" },
   { tier: "🫀 הלב", emoji: "👑", title: "אוצרות הגילוי", badge: "חדש",
     body: "בחירת העורך — הרמזים החזקים ביותר שנבחרו ביד, מוצגים כתערוכת מוזיאון. שער הכניסה לאוספי התמונות והסטים.",
+    how: "בעוד שהזרם הוא הכל-כרונולוגי, «אוצרות הגילוי» הם המובחרים — מה שצוריאל בחר כחזק במיוחד, כדי להתחיל מהפסגה ולא מהעומס.",
     to: "/archive?tab=cascade" },
   { tier: "🫀 הלב", emoji: "🧬", title: "דף המספר + מד ההתכנסות", badge: "חדש",
     body: "לכל מספר וביטוי דף-DNA: כמה שכבות בלתי-תלויות מתכנסות אליו (ציון 0-100 · 🥉🥈🥇), ישויות הזהב, וכרטיסי ההתכנסות. נסו את 1820.",
+    how: "«מד ההתכנסות» סופר כמה מקורות בלתי-תלויים מצביעים על אותו מספר (גימטריה, פסוק, אירוע, תמונה). ככל שיותר שכבות — הציון גבוה יותר. עובדה מדידה, לא תחושה.",
     to: "/number/1820" },
   { tier: "🫀 הלב", emoji: "⟡", title: "הצלבת שיטות וצירי התכנסות", badge: "חדש",
     body: "הזינו מספר — וראו את כל הביטויים המאומתים שנופלים עליו בכל השיטות, ומה מתחבר למה.",
+    how: "«נחש» ו«משיח» שווים שניהם 358 בשיטה הרגילה — זו הצלבה חזקה. הכלי מראה לכם את כל הביטויים שנופלים על ערך אחד, בכל 20 השיטות, ומסמן את החזקות.",
     to: "/cross" },
   { tier: "🔭 העדשות", emoji: "📡", title: "מרכז השידורים — כל מה שחי באתר", badge: "חדש",
     body: "מוקד אחד לכל הפעילות החיה: הפורום (חידושי הגולשים), הערוצים, עדכוני האתר וחדשות הבנייה — כל זרם כטאב, ותמיד מצביע לתמונה המלאה. כאן רואים «מה חדש» מכל האתר במקום אחד.",
+    how: "במקום לרדוף אחרי עדכונים בכמה מקומות — הכל זורם לכאן, כל ערוץ כטאב. כל פריט הוא «מצביע» לעמוד הקנוני שלו, אף פעם לא עותק.",
     to: "/broadcasts" },
   { tier: "🔭 העדשות", emoji: "📖", title: "פוסטים, חיפוש בכל התנ\"ך והצופן", badge: "חדש",
     body: "מאות תיעודים ברשת אחת, חיפוש ביטוי/ערך בכל 24 ספרי התנ\"ך, ודילוגי-אותיות עם מובהקות סטטיסטית — כולם עדשות על אותו גרף.",
+    how: "הצופן התנ\"כי (ELS) מחפש מילה כ«דילוג» באותיות התורה, עם חישוב מובהקות — כמה נדיר שהצירוף הזה יופיע במקרה. עדות מדידה, לא ניבוי.",
     to: "/post" },
   { tier: "👑 ההצטרפות", emoji: "👑", title: "הצטרפו לבני ההיכל",
     body: "גישה לתכנים מתקדמים, כלים בלעדיים וצפנים — וההתגלויות החדשות שמתווספות כל הזמן.",
+    how: "המחשבון ובית-המדרש פתוחים לכולם חינם. «בני ההיכל» נותן את השכבה המתקדמת — כלים בלעדיים, צפנים והתגלויות חדשות שממשיכות להתווסף.",
     to: "/members" },
 ];
 
@@ -51,9 +62,62 @@ const badgeStyle = (P) => ({
   letterSpacing: 0.3, whiteSpace: "nowrap",
 });
 
-export default function StartHerePage() {
+// כרטיס-צעד עם הסבר-אינטראקטיבי «▾ איך זה עובד» (עיגול→ריבוע, לפי research_workspace_law).
+function StepCard({ s, i }) {
   const P = usePalette();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{
+      background: P.cardSoft, border: `1px solid ${P.border}`, borderInlineStart: `3px solid ${P.accent}`,
+      borderRadius: 10, padding: "20px 22px", transition: "border-color 0.2s",
+    }}>
+      <Link to={s.to} style={{ display: "flex", gap: 18, alignItems: "flex-start", textDecoration: "none" }}
+        onMouseEnter={e => { e.currentTarget.closest("div").style.borderInlineStartColor = P.borderStrong; }}
+        onMouseLeave={e => { e.currentTarget.closest("div").style.borderInlineStartColor = P.accent; }}
+      >
+        <div style={{ fontSize: 30, lineHeight: 1 }}>{s.emoji}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
+            {i + 1}. {s.title}
+            {s.badge && <span style={badgeStyle(P)}>{s.badge}</span>}
+          </div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85 }}>{s.body}</div>
+        </div>
+      </Link>
+
+      {/* קישורי-משנה + מתג «איך זה עובד» — לא-מנווטים, מיושרים מתחת לטקסט */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12, alignItems: "center", paddingInlineStart: 48 }}>
+        {s.links && s.links.map(l => (
+          <button key={l.to} onClick={() => navigate(l.to)} style={{
+            background: P.card, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999,
+            padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}
+          >{l.label}</button>
+        ))}
+        {s.how && (
+          <button onClick={() => setOpen(o => !o)} style={{
+            background: "transparent", color: P.accentDim, border: `1px dashed ${P.border}`, borderRadius: 999,
+            padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+          }}>{open ? "▴ סגור" : "▾ איך זה עובד"}</button>
+        )}
+      </div>
+
+      {open && s.how && (
+        <div style={{
+          marginTop: 12, paddingInlineStart: 48, paddingTop: 12, borderTop: `1px solid ${P.border}`,
+          color: P.inkSoft, fontFamily: F.body, fontSize: 13.8, lineHeight: 1.95,
+        }}>{s.how}</div>
+      )}
+    </div>
+  );
+}
+
+export default function StartHerePage() {
+  const P = usePalette();
   return (
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="ברוכים הבאים" title="כאן מתחילים" />
@@ -63,6 +127,12 @@ export default function StartHerePage() {
         <br />
         <span style={{ color: P.accentText }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
       </p>
+
+      {/* 🧮 טעימה חיה מהמנוע — הקלד מילה, ראה ערך מיָּד */}
+      <GematriaMiniDemo />
+
+      {/* 📊 מוני-אתר חיים — עובדות מהמאגר */}
+      <SiteCountsStrip />
 
       {/* 🔢 הגוגל של המספרים — מנוע החיפוש (הפניה ראשית עם הלוגו המתאים) */}
       <Link to="/number" style={{
@@ -84,43 +154,7 @@ export default function StartHerePage() {
       </Link>
 
       <div style={{ display: "grid", gap: 16 }}>
-        {STEPS.map((s, i) => (
-          <Link key={s.title} to={s.to} style={{
-            display: "flex", gap: 18, alignItems: "flex-start", textDecoration: "none",
-            background: P.cardSoft, border: `1px solid ${P.border}`, borderInlineStart: `3px solid ${P.accent}`,
-            borderRadius: 10, padding: "20px 22px", transition: "border-color 0.2s, transform 0.2s",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = P.borderStrong; e.currentTarget.style.transform = "translateX(-3px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; e.currentTarget.style.borderInlineStartColor = P.accent; e.currentTarget.style.transform = "none"; }}
-          >
-            <div style={{ fontSize: 30, lineHeight: 1 }}>{s.emoji}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
-                {i + 1}. {s.title}
-                {s.badge && <span style={badgeStyle(P)}>{s.badge}</span>}
-              </div>
-              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85 }}>{s.body}</div>
-              {s.links && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-                  {s.links.map(l => (
-                    <span key={l.to} role="link" tabIndex={0} style={{
-                      display: "inline-block", background: P.card, color: P.accentText,
-                      border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px",
-                      fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 0.2,
-                      cursor: "pointer", whiteSpace: "nowrap",
-                    }}
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(l.to); }}
-                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); navigate(l.to); } }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = P.accent; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}
-                    >{l.label}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Link>
-        ))}
+        {STEPS.map((s, i) => <StepCard key={s.title} s={s} i={i} />)}
       </div>
 
       {/* כל המערכות במבט-על */}
