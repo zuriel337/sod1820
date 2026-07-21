@@ -1126,7 +1126,7 @@
     const ta=ov.querySelector(".sh-desc"),nm=ov.querySelector(".sh-name"),btn=ov.querySelector(".sh-save"),hint=ov.querySelector(".sh-deschint");
     ta.value=st.desc||"";nm.value=st.author||"";
     const MIN=12;
-    const upd=()=>{const n=ta.value.trim().length;btn.disabled=n<MIN;hint.textContent=n<MIN?("✍️ עוד "+heb(MIN-n)+" תווים לפחות כדי לשמור":"✓ אפשר לשמור");};
+    const upd=()=>{const n=ta.value.trim().length;btn.disabled=n<MIN;hint.textContent=n<MIN?("✍️ עוד "+heb(MIN-n)+" תווים לפחות כדי לשמור"):"✓ אפשר לשמור";};
     ta.addEventListener("input",upd);upd();setTimeout(()=>{try{ta.focus();}catch(e){}},40);
     const close=()=>ov.remove();
     ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
