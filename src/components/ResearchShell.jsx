@@ -102,6 +102,16 @@ export default function ResearchShell({ children, subnav }) {
   const leftDot = !leftOpen && cart.length > leftSeen;
   // פתיחת השמאל ישירות לטאב מבוקש (מהמסילה) — מהלך משוכלל: אייקון במסילה = קיצור לטאב
   const openLeftTo = id => { if (id) setLeftTab(id); setLeftOpen(true); };
+  // 💡 שמירה/הוספה בהיכל → הסרגל השמאלי נפתח לטאב המתאים (משוב מיידי «נחת אצלי»):
+  //    ➕ הוסף-למחקר / 📌 הצמד → «מחקר» · ⭐ שמור → «שמורים». (דסקטופ; במובייל ה-FAB עם נקודת-חדש.)
+  useEffect(() => {
+    const offs = [
+      on(EVENTS.RESEARCH_ADD, () => openLeftTo("active")),
+      on(EVENTS.PIN_ADD, () => openLeftTo("active")),
+      on(EVENTS.ITEM_SAVE, () => openLeftTo("saved")),
+    ];
+    return () => offs.forEach(f => f());
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // תוצאות חיות מהכלי הפעיל (כרגע ELS) → מוצגות בקיר הימני (Event Bus)
   const [elsState, setElsState] = useState(null);
