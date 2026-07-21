@@ -7,6 +7,7 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { stripHtml } from "../lib/format.js";
 import Discourse from "../components/Discourse.jsx";
+import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import { getContributionById } from "../lib/contributions.js";
 
 // 💬 עמוד-שרשור בפורום (/forum/:id) — תגובה על מחקר מתוך הפורום, בלי לצאת לדף-הישות.
@@ -51,6 +52,8 @@ export default function ForumThreadPage() {
           </div>
         )}
       </div>
+      {/* 🌳 עץ אחד — ספירת-קהילה מאוחדת (שמירות + חידושים) על ה-node, אותו רכיב כמו דף-המספר */}
+      {hasTarget && <CollectiveBadge type={c.target_type} refv={c.target_id} label="את זה" />}
       {hasTarget
         ? <Discourse target={{ type: c.target_type, id: c.target_id }} focusId={c.id} origin="forum" />
         : (
