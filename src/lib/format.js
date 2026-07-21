@@ -73,5 +73,18 @@ export function timeAgoHe(dateStr) {
   return formatDateHe(dateStr);
 }
 
+// 🎬 מזהה-וידאו יוטיוב מתוך טקסט חופשי (youtu.be/ID · watch?v=ID · embed/ID · shorts/ID).
+// מחזיר את המזהה הראשון שנמצא, או null. משמש להטמעת נגן בפורום (עמוד-שרשור + כרטיס-פיד).
+export function youtubeId(text = "") {
+  if (!text) return null;
+  const m = String(text).match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^&\s]*&)*v=|embed\/|shorts\/|v\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+// 🔗 ה-URL הראשון של יוטיוב בטקסט (להסרה מהטקסט לאחר הטמעת הנגן — לא להציג קישור-כפול).
+export function youtubeUrl(text = "") {
+  const m = String(text || "").match(/https?:\/\/(?:www\.)?(?:youtu\.be|youtube(?:-nocookie)?\.com)\/\S+/);
+  return m ? m[0] : null;
+}
+
 export const cleanLabel = s =>
   s ? s.replace(/&quot;/g, '"').replace(/&#8211;/g, '–').replace(/&#\d+;/g, '').trim() : '';

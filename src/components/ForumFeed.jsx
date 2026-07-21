@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { thumb } from "../lib/img.js";
-import { stripHtml, formatDateHe } from "../lib/format.js";
+import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -39,7 +39,9 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;
-  const snippet = (c.body || "").replace(/\s+/g, " ").trim();
+  const ytId = youtubeId(c.body || "");                         // 🎬 קליפ מוטמע — כרטיס-וידאו
+  const snippetSrc = ytId ? (c.body || "").replace(youtubeUrl(c.body || "") || "", "") : (c.body || "");
+  const snippet = snippetSrc.replace(/\s+/g, " ").trim();
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   const [pinBusy, setPinBusy] = useState(false);
   async function togglePin(e) {
@@ -54,6 +56,7 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
     <div style={{ background: P.cardGrad, border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 14, padding: "13px 16px", boxShadow: c.pinned ? `0 0 0 1px ${P.accentText} inset` : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
         {c.pinned && badge(P.accentText, "📌 מוצמד")}
+        {ytId && badge(P.accentText, "🎬 סרטון")}
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         <span style={{ flex: 1 }} />
@@ -61,6 +64,15 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
       </div>
       <Link to={threadHref} style={{ textDecoration: "none", display: "block" }}>
         <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 3 }}>{titleText}</div>
+        {ytId && (
+          <div style={{ position: "relative", width: "100%", maxWidth: 340, aspectRatio: "16/9", borderRadius: 11, overflow: "hidden", border: `1px solid ${P.border}`, background: "#000", margin: "8px 0" }}>
+            <img src={`https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`} alt={titleText} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.5))" }} />
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 46, height: 46, borderRadius: "50%", background: "rgba(212,175,55,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(212,175,55,0.6)" }}>
+              <span style={{ color: "#1a1400", fontSize: 18, marginInlineStart: 3 }}>▶</span>
+            </div>
+          </div>
+        )}
         {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
       </Link>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 9 }}>
