@@ -44,7 +44,7 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
 // 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
 const HERO_SLIDES = [
-  { graphic: true, alt: "שבילי שפה — כל השפות מתכנסות אל מספר אחד", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ פוסט המבוא", label: "פוסט המבוא" },
+  { img: SHVILEI_IMG, emblem: true, alt: "שבילי שפה — כל השפות מתכנסות אל מספר אחד", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ שבילי שפה", label: "שבילי שפה" },
   { img: HERO_IMG, alt: "כי לה' המלוכה · סוד 1820 — שער המספר הגדול", to: "/start", cta: "✨ כאן מתחילים", label: "מתחילים" },
 ];
 
@@ -87,6 +87,7 @@ export default function HomeNewPage() {
   const nav = useNavigate();
   const { isAdmin } = useAuth();
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
+  const [gateImg, setGateImg] = useState(null); // 🖼️ תמונת-שער (שבילי שפה / כאן מתחילים) — נגיעה מגדילה
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
@@ -339,6 +340,18 @@ export default function HomeNewPage() {
           padding:10px 22px; border-radius:999px; border:1px solid rgba(212,175,55,.55); color:#d4af37; }
         .hn-cta2.primary { background:linear-gradient(135deg,#d4af37,#b8901f); color:#1a0e00;
           border-color:transparent; box-shadow:0 6px 22px rgba(212,175,55,.3); }
+        .hn-gates { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
+        .hn-gate-col { display:flex; flex-direction:column; align-items:center; gap:9px; }
+        .hn-thumb-btn { position:relative; cursor:pointer; padding:0; border:1px solid rgba(212,175,55,.5);
+          border-radius:12px; overflow:hidden; background:#000; line-height:0;
+          box-shadow:0 6px 20px rgba(0,0,0,.45); transition:transform .15s, border-color .15s; }
+        .hn-thumb-btn:hover { transform:translateY(-2px); border-color:#d4af37; }
+        .hn-thumb-img { width:150px; height:96px; object-fit:cover; display:block; }
+        .hn-thumb-img.emblem { object-fit:contain; background:#000; }
+        .hn-thumb-zoom { position:absolute; inset:auto 6px 6px auto; background:rgba(9,7,14,.72);
+          color:#f0d879; border:1px solid rgba(212,175,55,.4); border-radius:999px; font-size:10.5px;
+          font-family:${F.heading}; font-weight:800; padding:2px 9px; }
+        @media (max-width:520px){ .hn-thumb-img{ width:132px; height:84px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
 
@@ -362,10 +375,16 @@ export default function HomeNewPage() {
             {hotNums[0] && <Link to={`/number/${hotNums[0].n}`} className="hn-pchip">🔥 המספר החם <b>{hotNums[0].n}</b></Link>}
             {posts[0] && <Link to={`/${posts[0].slug}`} className="hn-pchip">📜 חדש: <b>{decodeHtml(posts[0].title || "").slice(0, 24)}</b></Link>}
           </div>
-          {/* שערי-הכניסה כ-CTA משני (במקום הקרוסלה): פוסט המבוא · כאן מתחילים */}
-          <div className="hn-gate-cta">
+          {/* שערי-הכניסה: תמונה קטנה (נגיעה = הגדלה) + כפתור-כניסה מתחתיה. שבילי שפה · כאן מתחילים */}
+          <div className="hn-gates">
             {HERO_SLIDES.map((s, i) => (
-              <Link key={i} to={s.to} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
+              <div className="hn-gate-col" key={i}>
+                <button type="button" className="hn-thumb-btn" onClick={() => setGateImg(s.img)} aria-label={"הגדלת התמונה: " + s.label}>
+                  <img src={thumb(s.img, 280)} alt={s.alt} className={"hn-thumb-img" + (s.emblem ? " emblem" : "")} loading="lazy" decoding="async" />
+                  <span className="hn-thumb-zoom" aria-hidden="true">🔍 הגדל</span>
+                </button>
+                <Link to={s.to} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
+              </div>
             ))}
           </div>
         </div>
@@ -602,6 +621,10 @@ export default function HomeNewPage() {
         <Lightbox images={[lbImg]} onClose={() => setLbImg(null)}
           note="🌊 בקרוב בזרם המציאות · גלריות דוד המלך לשעבר"
           onEdit={isAdmin ? (im) => { setLbImg(null); setEditImg(im); } : null} />
+      )}
+      {/* 🖼️ תמונת-שער מוגדלת (נגיעה על התמונה הקטנה בשער) */}
+      {gateImg && (
+        <Lightbox images={[{ image_url: gateImg }]} onClose={() => setGateImg(null)} />
       )}
       {editImg && (
         <ImageEditModal image={editImg} onClose={() => setEditImg(null)}
