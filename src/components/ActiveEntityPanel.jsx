@@ -4,6 +4,8 @@ import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { getContributions, intentMeta } from "../lib/contributions.js";
 import { getGematriaByValue, getGematriaCountByValue, getConvergenceForValue, proposeCommunityWord } from "../lib/supabase.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { collectionConvergences } from "../lib/deepAnalysis.js";
 
 // 🌳 מילים שוות — מרכז-המחקר המתקדם של הערך, בטור הימני (מסך-מלא): כל הביטויים השווים,
 // מד-נדירות, סינון חוצה-שיטות (רגיל/מסתתר/קדמי), «עוד», התכנסות רשומה, והצעת ביטוי חדש.
@@ -271,8 +273,52 @@ export default function ActiveEntityPanel() {
     return () => { offF(); offB(); };
   }, []);
 
-  if (!ent) return null;
+  if (!ent) return <DefaultTower />;
   const isNum = ent.kind === "number" || (!ent.word && /^\d+$/.test(String(ent.value)));
   const hasWord = ent.word && /[א-ת]/.test(ent.word);
   return isNum && !hasWord ? <NumberTower ent={ent} /> : <WordMethods ent={ent} />;
+}
+
+// 🎯 מגדל ברירת-מחדל — כשאין ישות במוקד, הקיר לא נשאר ריק: «המחקר הפעיל» + «חזרה למקום שעצרת».
+// «מה מחפשים עכשיו» (חם) חי בפאנל whatsnew למטה — כאן רק האישי/הקשרי (אפס כפילות).
+function DefaultTower() {
+  const { history = [], pinned = [], cart = [] } = useResearch();
+  const active = [...(pinned || []), ...(cart || [])];
+  const recent = (history || []).slice(0, 5);
+  const topConv = active.length >= 2 ? (collectionConvergences(active)[0] || null) : null;
+  const towerH = { fontSize: 12, fontWeight: 800, color: "var(--ink2,#5b6472)", marginBottom: 7 };
+  const nHref = it => `/research?tool=number&n=${encodeURIComponent(it?.title ?? it?.value ?? "")}`;
+  return (
+    <div className="rw-panel">
+      <div className="rw-ph"><span>🎯 מגדל הבקרה</span></div>
+      <div className="rw-pb" style={{ display: "grid", gap: 13 }}>
+        {active.length > 0 && (
+          <div>
+            <div style={towerH}>🧠 המחקר הפעיל · {active.length} ישויות</div>
+            {topConv
+              ? <div style={{ ...chip, display: "inline-block" }}>🔮 {topConv.members?.length || 2} נפגשים על {topConv.value}{topConv.crossMethod ? " · חוצה-שיטות" : ""}</div>
+              : <div className="rw-muted" style={{ fontSize: 12.5 }}>הוסיפו עוד ישות כדי לראות התכנסות משותפת.</div>}
+          </div>
+        )}
+        {recent.length > 0 && (
+          <div>
+            <div style={towerH}>🕘 חזרה למקום שעצרת</div>
+            <div style={{ display: "grid", gap: 6 }}>
+              {recent.map((it, i) => (
+                <Link key={it.id || i} to={nHref(it)} style={{ ...navBtn, textDecoration: "none" }}>
+                  <span>{it.type === "phrase" ? "🔤" : "🔢"} {it.title}</span>
+                  {it.type === "phrase" && (it.metadata?.value ?? it.value) != null && <span style={chip}>{it.metadata?.value ?? it.value}</span>}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+        {!active.length && !recent.length && (
+          <div className="rw-muted" style={{ fontSize: 13, lineHeight: 1.7 }}>
+            בחרו מספר או מילה — וכל השיטות, ההצלבות וההתכנסויות יופיעו כאן. ולמטה 👇 מה שהכי מחפשים עכשיו.
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

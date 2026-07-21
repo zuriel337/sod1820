@@ -4,7 +4,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
-import { getAiAnalysis } from "../lib/supabase.js";
+import { getAiAnalysis, getHotNumbers } from "../lib/supabase.js";
 import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
@@ -115,6 +115,31 @@ function Panel({ icon, title, extra, children, bare }) {
     <div className="rw-panel">
       <div className="rw-ph"><span>{icon} {title}</span>{extra != null && <span className="rw-muted" style={{ fontWeight: 600 }}>{extra}</span>}</div>
       <div className="rw-pb">{children}</div>
+    </div>
+  );
+}
+
+// 🔥 «מה מחפשים עכשיו» — מספרים חמים חיים (getHotNumbers מ-search_log, 7 ימים). כל צ׳יפ → דף-המספר בהיכל.
+function HotNumbers() {
+  const [hot, setHot] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    getHotNumbers(7, 8).then(r => { if (alive) { setHot(Array.isArray(r) ? r : []); setLoaded(true); } }).catch(() => { if (alive) setLoaded(true); });
+    return () => { alive = false; };
+  }, []);
+  if (!loaded) return <div className="rw-muted" style={{ fontSize: 12.5 }}>טוען…</div>;
+  if (!hot.length) return <div className="rw-muted" style={{ fontSize: 12.5 }}>עדיין אין מספיק חיפושים היום.</div>;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      {hot.map((h, i) => (
+        <Link key={h.n ?? i} to={`/research?tool=number&n=${h.n}`} className="rw-chip"
+          style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+          {i === 0 && <span>🔥</span>}
+          <b>{Number(h.n).toLocaleString("he")}</b>
+          <span className="rw-muted" style={{ fontSize: 10.5 }}>{h.count}</span>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -339,7 +364,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     ) },
     { id: "whatsnew", icon: "🔔", label: "חדש", render: bare => (
       <Panel icon="🔔" title="מה מחפשים עכשיו" bare={bare}>
-        <div className="rw-hot">🔥 הכי מחופש היום: 86</div>
+        <HotNumbers />
       </Panel>
     ) },
     { id: "ai", icon: "🤖", label: "AI", render: bare => (
