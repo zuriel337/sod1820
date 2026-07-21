@@ -44,7 +44,7 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
 // 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
 const HERO_SLIDES = [
-  { graphic: true, alt: "שבילי שפה — כל השפות מתכנסות אל מספר אחד", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ פוסט המבוא", label: "פוסט המבוא" },
+  { img: SHVILEI_IMG, emblem: true, alt: "שבילי שפה — כל השפות מתכנסות אל מספר אחד", to: "/chibur-bein-hasafot-mafteach-lagan", cta: "🗝️ שבילי שפה", label: "שבילי שפה" },
   { img: HERO_IMG, alt: "כי לה' המלוכה · סוד 1820 — שער המספר הגדול", to: "/start", cta: "✨ כאן מתחילים", label: "מתחילים" },
 ];
 
@@ -87,6 +87,7 @@ export default function HomeNewPage() {
   const nav = useNavigate();
   const { isAdmin } = useAuth();
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
+  const [gateImg, setGateImg] = useState(null); // 🖼️ תמונת-שער (שבילי שפה / כאן מתחילים) — נגיעה מגדילה
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
@@ -105,6 +106,34 @@ export default function HomeNewPage() {
   // 🎠 קרוסלת הירו
   const heroRef = useRef(null);
   const [heroIdx, setHeroIdx] = useState(0);
+  // 🔠 רקע-צופן קולנועי לשער-החי: רשת-אותיות דהויה עם ציר מודגש + מילה מוצלבת. מצויר פעם אחת
+  //    (הזחילה דרך CSS על הקנבס — זול). מכבד prefers-reduced-motion (הזחילה נעצרת ב-CSS).
+  const matrixRef = useRef(null);
+  useEffect(() => {
+    const cv = matrixRef.current; if (!cv) return;
+    const L = "אבגדהוזחטיכלמנסעפצקרשתםןץףך";
+    const draw = () => {
+      const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = w * dpr; cv.height = h * dpr;
+      const x = cv.getContext("2d"); if (!x) return;
+      x.scale(dpr, dpr); x.clearRect(0, 0, w, h);
+      x.font = "16px 'Frank Ruhl Libre','David Libre',serif"; x.textAlign = "center"; x.textBaseline = "middle";
+      const cell = 22, cols = Math.ceil(w / cell), rows = Math.ceil(h / cell);
+      const axis = Math.round(cols * 0.6), crossR = Math.round(rows * 0.5);
+      let seed = 7; const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const ch = L[Math.floor(rnd() * L.length)];
+        if (c === axis) x.fillStyle = "rgba(244,217,138,.5)";                          // ציר-הדילוג
+        else if (r === crossR && c > axis - 6 && c < axis + 7) x.fillStyle = "rgba(240,164,140,.5)"; // מילה מוצלבת
+        else x.fillStyle = "rgba(230,207,134,.12)";
+        x.fillText(ch, c * cell + cell / 2, r * cell + cell / 2);
+      }
+    };
+    draw();
+    window.addEventListener("resize", draw);
+    return () => window.removeEventListener("resize", draw);
+  }, []);
   const onHeroScroll = () => { const el = heroRef.current; if (!el || !el.clientWidth) return; setHeroIdx(Math.max(0, Math.min(HERO_SLIDES.length - 1, Math.round(Math.abs(el.scrollLeft) / el.clientWidth)))); };
   const goHero = i => { const el = heroRef.current; el?.children[i]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); };
 
@@ -267,36 +296,98 @@ export default function HomeNewPage() {
         .hn-postgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
         @media (max-width:820px){ .hn-grid6{grid-template-columns:repeat(3,1fr)} .hn-postgrid{grid-template-columns:repeat(2,1fr)} }
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-postgrid{grid-template-columns:1fr 1fr} }
+
+        /* ===== 🔠 השער החי — רקע-צופן · חיפוש-לב · דופק (מחויב לעולם הכהה-מלכותי, כמו זרם המציאות) ===== */
+        .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
+          background: radial-gradient(1000px 520px at 50% -12%, #1a1330 0%, #0b0916 58%, #09080f 100%);
+          border-bottom:1px solid rgba(212,175,55,.22); }
+        .hn-matrix { position:absolute; inset:-8%; width:116%; height:116%; z-index:0; display:block;
+          animation:hn-drift 34s ease-in-out infinite; will-change:transform; }
+        @keyframes hn-drift { 0%,100%{ transform:scale(1.02) translate(0,0); } 50%{ transform:scale(1.09) translate(-1.4%,-1.1%); } }
+        .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
+          radial-gradient(circle at 50% 44%, rgba(11,9,22,.28), rgba(9,8,15,.86) 78%),
+          linear-gradient(180deg, rgba(9,8,15,.5) 0%, rgba(9,8,15,.1) 30%, rgba(9,8,15,.72) 100%); }
+        .hn-gate-inner { position:relative; z-index:2; max-width:680px; margin:0 auto;
+          padding:58px 18px 46px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+        .hn-emblem { color:#d4af37; font-family:${F.regal}; font-size:12px; letter-spacing:4px;
+          text-transform:uppercase; opacity:.92; }
+        .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
+          font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
+          text-shadow:0 2px 24px rgba(0,0,0,.5); }
+        .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:470px;
+          background:rgba(9,7,14,.72); border:1px solid rgba(212,175,55,.55); border-radius:16px;
+          padding:5px 8px 5px 16px; box-shadow:0 12px 34px rgba(0,0,0,.5); backdrop-filter:blur(3px); }
+        .hn-search:focus-within { border-color:#d4af37; }
+        .hn-mag { color:#d4af37; font-size:18px; }
+        .hn-search-in { flex:1; min-width:0; background:transparent; border:none; outline:none;
+          color:#e8dcc0; font-family:${F.body}; font-size:16px; padding:12px 4px; text-align:start; }
+        .hn-search-in::placeholder { color:#93876a; }
+        .hn-search-go { cursor:pointer; background:linear-gradient(135deg,#d4af37,#b8901f); color:#1a0e00;
+          border:none; border-radius:11px; font-family:${F.heading}; font-weight:800; font-size:15px;
+          padding:11px 20px; white-space:nowrap; }
+        .hn-pulse { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
+        .hn-live { display:inline-flex; align-items:center; gap:6px; color:#e0556a;
+          font-family:${F.heading}; font-weight:800; font-size:12.5px; }
+        .hn-livedot { width:8px; height:8px; border-radius:50%; background:#e0556a; animation:hn-ping 1.9s ease-out infinite; }
+        @keyframes hn-ping { 0%{box-shadow:0 0 0 0 rgba(224,85,106,.5)} 100%{box-shadow:0 0 0 9px rgba(224,85,106,0)} }
+        .hn-pchip { text-decoration:none; color:#c9bd9c; background:rgba(212,175,55,.10);
+          border:1px solid rgba(212,175,55,.28); border-radius:999px; padding:4px 12px;
+          font-family:${F.body}; font-size:12.5px; white-space:nowrap; transition:border-color .15s; }
+        .hn-pchip:hover { border-color:#d4af37; }
+        .hn-pchip b { color:#f0d879; font-weight:800; }
+        .hn-gate-cta { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:2px; }
+        .hn-cta2 { text-decoration:none; font-family:${F.heading}; font-weight:800; font-size:14px;
+          padding:10px 22px; border-radius:999px; border:1px solid rgba(212,175,55,.55); color:#d4af37; }
+        .hn-cta2.primary { background:linear-gradient(135deg,#d4af37,#b8901f); color:#1a0e00;
+          border-color:transparent; box-shadow:0 6px 22px rgba(212,175,55,.3); }
+        .hn-gates { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
+        .hn-gate-col { display:flex; flex-direction:column; align-items:center; gap:9px; }
+        .hn-thumb-btn { position:relative; cursor:pointer; padding:0; border:1px solid rgba(212,175,55,.5);
+          border-radius:12px; overflow:hidden; background:#000; line-height:0;
+          box-shadow:0 6px 20px rgba(0,0,0,.45); transition:transform .15s, border-color .15s; }
+        .hn-thumb-btn:hover { transform:translateY(-2px); border-color:#d4af37; }
+        .hn-thumb-img { width:150px; height:96px; object-fit:cover; display:block; }
+        .hn-thumb-img.emblem { object-fit:contain; background:#000; }
+        .hn-thumb-zoom { position:absolute; inset:auto 6px 6px auto; background:rgba(9,7,14,.72);
+          color:#f0d879; border:1px solid rgba(212,175,55,.4); border-radius:999px; font-size:10.5px;
+          font-family:${F.heading}; font-weight:800; padding:2px 9px; }
+        @media (max-width:520px){ .hn-thumb-img{ width:132px; height:84px; } }
+        @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
 
-      {/* ===== HERO — השער (הבאנר עצמו) + כפתור כניסה ===== */}
-      <section className="hn-wrap" style={{ textAlign: "center", padding: "26px 16px 8px" }}>
-        <div className="hn-carousel" ref={heroRef} onScroll={onHeroScroll}>
-          {HERO_SLIDES.map((s, i) => (
-            <div className="hn-slide" key={i}>
-              <div className={"hn-gate" + (s.graphic ? " graphic" : "")}>
-                {s.graphic
-                  ? <Link to={s.to} className="lc-link" aria-label={s.alt}><LanguageCosmos /></Link>
-                  : <img src={thumb(s.img, 900)} alt={s.alt} className={"hn-gate-img" + (s.emblem ? " emblem" : "")}
-                      fetchpriority={i === 0 ? "high" : "auto"} decoding="async" />}
-                <Link to={s.to} className="hn-cta hn-cta-big hn-enter">{s.cta}</Link>
+      {/* ===== 🔠 השער החי — רקע-צופן קולנועי · חיפוש במרכז · דופק חי ===== */}
+      <section className="hn-livegate">
+        <canvas className="hn-matrix" ref={matrixRef} aria-hidden="true" />
+        <div className="hn-mx-scrim" aria-hidden="true" />
+        <div className="hn-gate-inner">
+          <div className="hn-emblem">✦ דילוגי אותיות · גימטריה · הצופן ✦</div>
+          <h1 className="hn-gate-title">כל מילה מסתירה מספר — כל מספר, סוד.</h1>
+          <form onSubmit={go} className="hn-search">
+            <span className="hn-mag" aria-hidden="true">🔍</span>
+            <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
+              placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
+            <button type="submit" className="hn-search-go">✦ גלו</button>
+          </form>
+          {/* דופק חי — מנתונים אמיתיים שכבר נשלפו (צופן אחרון · מספר חם · פוסט חדש). מוסתר עד שיש נתון. */}
+          <div className="hn-pulse">
+            <span className="hn-live"><span className="hn-livedot" />עכשיו באתר</span>
+            {ciphers[0] && <Link to={`/codes/${encodeURIComponent(ciphers[0].slug || ciphers[0].id)}`} className="hn-pchip">🔠 הצופן האחרון «<b>{ciphers[0].title || ciphers[0].search_term}</b>»</Link>}
+            {hotNums[0] && <Link to={`/number/${hotNums[0].n}`} className="hn-pchip">🔥 המספר החם <b>{hotNums[0].n}</b></Link>}
+            {posts[0] && <Link to={`/${posts[0].slug}`} className="hn-pchip">📜 חדש: <b>{decodeHtml(posts[0].title || "").slice(0, 24)}</b></Link>}
+          </div>
+          {/* שערי-הכניסה: תמונה קטנה (נגיעה = הגדלה) + כפתור-כניסה מתחתיה. שבילי שפה · כאן מתחילים */}
+          <div className="hn-gates">
+            {HERO_SLIDES.map((s, i) => (
+              <div className="hn-gate-col" key={i}>
+                <button type="button" className="hn-thumb-btn" onClick={() => setGateImg(s.img)} aria-label={"הגדלת התמונה: " + s.label}>
+                  <img src={thumb(s.img, 280)} alt={s.alt} className={"hn-thumb-img" + (s.emblem ? " emblem" : "")} loading="lazy" decoding="async" />
+                  <span className="hn-thumb-zoom" aria-hidden="true">🔍 הגדל</span>
+                </button>
+                <Link to={s.to} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <div className="hn-dots">
-          {HERO_SLIDES.map((s, i) => (
-            <button key={i} type="button" onClick={() => goHero(i)} className={"hn-dot" + (heroIdx === i ? " on" : "")}>{s.label}</button>
-          ))}
-        </div>
-        <div className="hn-swipe-hint">← החליקו לגלות עוד</div>
-
-        {/* חיפוש גימטריה + כניסה משנית */}
-        <form onSubmit={go} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 460, margin: "44px auto 12px" }}>
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="חשבו שם · מילה · מספר…" dir="rtl"
-            style={{ flex: 1, minWidth: 180, background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink, fontFamily: F.body, fontSize: 15, padding: "11px 18px", outline: "none", textAlign: "center" }} />
-          <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 22px", whiteSpace: "nowrap" }}>✦ גלו</button>
-        </form>
       </section>
 
       {/* ===== 🔑 חלונות הגילוי — הוסרו מעמוד הבית «בשלב זה» (בקשת צוריאל 10.7.2026).
@@ -530,6 +621,10 @@ export default function HomeNewPage() {
         <Lightbox images={[lbImg]} onClose={() => setLbImg(null)}
           note="🌊 בקרוב בזרם המציאות · גלריות דוד המלך לשעבר"
           onEdit={isAdmin ? (im) => { setLbImg(null); setEditImg(im); } : null} />
+      )}
+      {/* 🖼️ תמונת-שער מוגדלת (נגיעה על התמונה הקטנה בשער) */}
+      {gateImg && (
+        <Lightbox images={[{ image_url: gateImg }]} onClose={() => setGateImg(null)} />
       )}
       {editImg && (
         <ImageEditModal image={editImg} onClose={() => setEditImg(null)}
