@@ -25,7 +25,7 @@ export default function HomeForumTile() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 9 : 0 }}>
         <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>🌐 מהפורום</span>
         <Link to="/forum" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>כל הפורום ←</Link>
-        <Link to="/beit-midrash" style={{
+        <Link to="/forum?write=1" style={{
           marginInlineStart: "auto", whiteSpace: "nowrap", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
           fontFamily: F.heading, fontWeight: 800, fontSize: 12, borderRadius: 999, padding: "7px 14px",
         }}>✍️ שתפו חידוש ←</Link>

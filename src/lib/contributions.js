@@ -172,7 +172,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
       //    ושרשור. מציגים רק את גרסת-התרומה → אפס כפילות, דרגה עקבית. insights שנשארים = מערכת/AI/צוריאל.
       .filter(x => !x.panel_data?.community)
       .map(x => ({
-      kind: "insight", id: "i_" + x.id, ts: x.created_at,
+      kind: "insight", id: "i_" + x.id, insightId: x.id, ts: x.created_at,   // insightId = uuid גולמי למודרציה
       author_name: insightAuthor(x.origin),
       origin: x.origin,
       title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,

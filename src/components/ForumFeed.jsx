@@ -159,7 +159,7 @@ function InsightCard({ c, P, isAdmin, onChanged }) {
       </div>
       {isAdmin && (
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${P.border}` }}>
-          <AdminModerate kind="insight" id={c.id} onDone={onChanged} />
+          <AdminModerate kind="insight" id={c.insightId} onDone={onChanged} />
         </div>
       )}
     </div>
@@ -205,7 +205,10 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [writer, setWriter] = useState(null);
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
-  const [writing, setWriting] = useState(false);   // ✍️ «דף ריק לכתוב חידוש» — אותה מתכונת כמו בבית-המדרש
+  // ✍️ «דף ריק לכתוב חידוש» — נפתח אוטומטית בהגעה מ-/forum?write=1 (כפתור «שתפו חידוש» בדף הבית)
+  const [writing, setWriting] = useState(() => {
+    try { return new URLSearchParams(window.location.search).get("write") === "1"; } catch { return false; }
+  });
 
   // 🌳 עץ אחד: הפורום = קהילה בלבד (בלי פוסטים) — פוסטים חיים ב«פעילות האתר», אפס כפילות.
   const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(setAllItems).catch(() => setAllItems([])); }, []);
