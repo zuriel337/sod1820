@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { setForcedMode } from "../lib/themeMode.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, youtubeId, youtubeUrl } from "../lib/format.js";
 import Discourse from "../components/Discourse.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import { getContributionById } from "../lib/contributions.js";
@@ -41,6 +41,10 @@ export default function ForumThreadPage() {
   );
 
   const hasTarget = !!c.target_id;
+  // 🎬 קליפ מוטמע — אם גוף-התרומה מכיל קישור יוטיוב, מנגנים אותו בנגן ומסירים את ה-URL מהטקסט
+  // (עץ אחד: אותו דפוס iframe קנוני כמו VideoGallery — youtube-nocookie, בלי לשכפל רכיב).
+  const ytId = youtubeId(c.body || "");
+  const bodyText = ytId ? stripHtml((c.body || "").replace(youtubeUrl(c.body || "") || "", "").trim()) : stripHtml(c.body || "");
   return (
     <div style={wrap}>
       <div style={{ marginBottom: 14 }}>
@@ -54,14 +58,22 @@ export default function ForumThreadPage() {
       </div>
       {/* 🌳 עץ אחד — ספירת-קהילה מאוחדת (שמירות + חידושים) על ה-node, אותו רכיב כמו דף-המספר */}
       {hasTarget && <CollectiveBadge type={c.target_type} refv={c.target_id} label="את זה" />}
+      {/* 🎬 נגן-וידאו מוטמע — מוצג כשגוף-התרומה מכיל קישור יוטיוב (גם עם יעד וגם בלי) */}
+      {ytId && (
+        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 14, overflow: "hidden", border: `1px solid ${P.border}`, background: "#000", marginBottom: 14, boxShadow: "0 10px 40px rgba(0,0,0,0.35)" }}>
+          <iframe title={stripHtml(c.title || "וידאו")} src={`https://www.youtube-nocookie.com/embed/${ytId}?rel=0`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+        </div>
+      )}
       {hasTarget
         ? <Discourse target={{ type: c.target_type, id: c.target_id }} focusId={c.id} origin="forum" />
-        : (
+        : (bodyText || c.title) ? (
           <div style={{ color: P.inkSoft, fontFamily: F.body, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: 16, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
             {c.title && <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>{c.title}</div>}
-            {stripHtml(c.body || "")}
+            {bodyText}
           </div>
-        )}
+        ) : null}
     </div>
   );
 }
