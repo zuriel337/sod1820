@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { METHODS, DEPTH_METHODS, methodLabel, onlyHeb, methodResultText } from "../lib/gematria.js";
 import { getGematriaByValue, getAiAnalysis } from "../lib/supabase.js";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
@@ -10,7 +11,9 @@ import { emit, EVENTS } from "../lib/research/eventBus.js";
 
 const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];
 
-export default function MethodAnalyze({ word, defaultMethod = "רגיל", title = "🔬 נתח שיטה בודדת" }) {
+// hrefFor(value) → נתיב לדף-המספר של ערך-השיטה. כשמסופק, כל שיטה מקבלת «→» למעבר —
+// כך הרכיב מאחד את «כל השיטות» (ערכים + מעבר) עם ניתוח-AI לכל שיטה (unified, canonical).
+export default function MethodAnalyze({ word, defaultMethod = "רגיל", title = "🔬 נתח שיטה בודדת", hrefFor = null }) {
   const term = String(word || "").trim();
   const heb = onlyHeb(term);
 
@@ -76,17 +79,27 @@ export default function MethodAnalyze({ word, defaultMethod = "רגיל", title 
         {values.map(r => {
           const on = r.key === sel.key;
           return (
-            <button key={r.key} type="button" onClick={() => { setMethod(r.key); setText(""); setMatches([]); }}
-              title={r.soul || ""}
-              style={{
-                cursor: "pointer", borderRadius: 999, padding: "5px 11px", fontSize: 12.5,
-                fontWeight: on ? 800 : 600, fontFamily: "inherit",
-                border: on ? "1px solid rgba(201,162,75,.9)" : "1px solid rgba(140,140,140,.35)",
-                background: on ? "rgba(201,162,75,.9)" : "transparent",
-                color: on ? "#1b1400" : "inherit",
-              }}>
-              {methodLabel(r.key)} <b style={{ opacity: on ? .95 : .6 }}>{r.value}</b>
-            </button>
+            <span key={r.key} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <button type="button" onClick={() => { setMethod(r.key); setText(""); setMatches([]); }}
+                title={r.soul || ""}
+                style={{
+                  cursor: "pointer", borderRadius: 999, padding: "5px 11px", fontSize: 12.5,
+                  fontWeight: on ? 800 : 600, fontFamily: "inherit",
+                  border: on ? "1px solid rgba(201,162,75,.9)" : "1px solid rgba(140,140,140,.35)",
+                  background: on ? "rgba(201,162,75,.9)" : "transparent",
+                  color: on ? "#1b1400" : "inherit",
+                }}>
+                {methodLabel(r.key)} <b style={{ opacity: on ? .95 : .6 }}>{r.value}</b>
+              </button>
+              {hrefFor && (
+                <Link to={hrefFor(r.value)} title={`פתח את דף המספר ${r.value}`} onClick={e => e.stopPropagation()}
+                  style={{
+                    display: "inline-flex", alignItems: "center", textDecoration: "none",
+                    borderRadius: 999, padding: "4px 8px", fontSize: 12, fontWeight: 800, color: "inherit",
+                    border: "1px solid rgba(140,140,140,.3)", opacity: .7,
+                  }}>→</Link>
+              )}
+            </span>
           );
         })}
       </div>

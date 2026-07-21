@@ -1077,13 +1077,12 @@ export default function EntityPage({ embedPhrase } = {}) {
         </div>
       )}
     </div>
-    {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — ניתוח-AI ממוקד לשיטה אחת מ-20 השיטות.
-        בדף-מילה: על המילה עצמה. בדף-מספר: על הביטוי-השווה המוביל (למספר אין אותיות לפרק לשיטות). */}
-    {(() => {
-      const maWord = isNumber ? (story.leads?.[0] || d.phrases?.[0]?.phrase) : term;
+    {/* 🔬 נתח שיטה בודדת — בדף-מספר בלבד (על הביטוי-השווה המוביל; למספר אין אותיות לפרק).
+        בדף-מילה האיחוד עבר לתוך «כל השיטות» באקורדיון «שורשי המספר» (בקשת צוריאל — לא לשכפל). */}
+    {isNumber && (() => {
+      const maWord = story.leads?.[0] || d.phrases?.[0]?.phrase;
       if (!maWord) return null;
-      return <MethodAnalyze word={maWord} defaultMethod="מסתתר"
-        title={isNumber ? `🔬 נתח שיטה — על «${maWord}» (=${value})` : undefined} />;
+      return <MethodAnalyze word={maWord} defaultMethod="מסתתר" title={`🔬 נתח שיטה — על «${maWord}» (=${value})`} />;
     })()}
     </>
   );
@@ -1814,20 +1813,10 @@ export default function EntityPage({ embedPhrase } = {}) {
             {!isNumber && (
               <section style={{ marginBottom: 40 }}>
                 <SectionHead icon="🧮" title="כל השיטות" count={ALL_METHODS.length} />
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 8 }}>
-                  {ALL_METHODS.map(m => {
-                    const mv = m.fn(term);
-                    return (
-                      <Link key={m.key} to={numHref(mv)} title={`פתח את ${mv}`} style={{ ...card, padding: "10px 12px" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{methodLabel(m.key)}</span>
-                          <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{mv} <span style={{ color: P.accentDim, fontSize: 11 }}>→</span></span>
-                        </div>
-                        {m.soul && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.4 }}>{m.soul}</div>}
-                      </Link>
-                    );
-                  })}
-                </div>
+                {/* 🌳 מאוחד (בקשת צוריאל): רכיב קנוני אחד MethodAnalyze — ערך לכל שיטה + «→» מעבר לדף +
+                    «🤖 נתח» AI ממוקד לכל שיטה. מחליף את הגריד הישן + את «נתח שיטה בודדת» שהיה למעלה. */}
+                <MethodAnalyze word={term} defaultMethod="רגיל" hrefFor={numHref}
+                  title={`🧮 כל השיטות של «${term}» — ערך · מעבר לדף · ניתוח AI לכל שיטה`} />
               </section>
             )}
 
