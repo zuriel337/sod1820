@@ -1104,7 +1104,9 @@
       if(seen.has(k))return;seen.add(k);byKey.set(k,{...m,cloud:true});});
     return [...byKey.values()];
   }
-  function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
+  // sh = מפתחות ההופעות שהמשתמש בחר להציג (skip_dir_start). נשמר כדי שהסתרת הופעה רחוקה
+  //      תשוחזר בפתיחה (אחרת הכלי מוצא מחדש את *כל* ההופעות והרחוקה חוזרת). הבאג המדובר.
+  function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color,sh:shownHitsOf(w).map(hitKey)})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
   // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
   // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → נשמר כ«ממתין לאישור».
   // 📝 חובה (בקשת צוריאל 20.7.2026): כל שומר-צופן כותב תחילה «מה רואים בצופן» — אין שמירה בלי הסבר.
@@ -2140,7 +2142,7 @@
     let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
     if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;st.hideMain=false;
-    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0};});
+    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
     updGem();render();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
     // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
@@ -2362,6 +2364,15 @@
       hits.forEach(h=>{h.cost=cost(h);});
       hits.sort((a,b2)=>a.cost-b2.cost);
       w.total=hits.length;w.inwin=hits.length;w.hits=hits.slice(0,30);
+      // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו
+      //    ל-off/extra מול ברירת-המחדל, כך שהופעה רחוקה שהמשתמש הסתיר לא תחזור בפתיחת הצופן.
+      if(w._savedShown){
+        const defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
+        const shownSet=new Set(w._savedShown);
+        w.off=new Set([...defKeys].filter(k=>!shownSet.has(k)));
+        w.extra=new Set([...shownSet].filter(k=>!defKeys.has(k)));
+        w._savedShown=null;
+      }
     });
   }
 
