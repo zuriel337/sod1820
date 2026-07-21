@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getChannelUpdates } from "../lib/supabase.js";
+import { getChannelUpdates, getRealityHints } from "../lib/supabase.js";
+import { getForumFeed } from "../lib/contributions.js";
+import { hintNums } from "../lib/reality.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
@@ -19,8 +21,13 @@ const CH = {
   "reality-code":  { name: "קוד המציאות", em: "🎬", c: "#9d7bff" },
   "sod-hachashmal":{ name: "סוד החשמל", em: "⚡", c: "#5ec8e0" },
   "or-geula":      { name: "אור הגאולה", em: "✨", c: "#f0b232", cap: 0.2, to: "/broadcasts" },
+  // 🌳 עץ אחד: גם «הדברים החדשים» מכל האתר זורמים לטיקר — לא רק הערוצים.
+  "forum":         { name: "פורום", em: "💬", c: "#3fb98f", cap: 0.28, to: "/broadcasts?tab=forum" },
+  "activity":      { name: "פעילות האתר", em: "✨", c: "#caa63a", cap: 0.28, to: "/broadcasts?tab=activity" },
 };
-const CH_KEYS = Object.keys(CH);
+// ערוצי-הוואטסאפ בלבד (אלה שנשלפים דרך getChannelUpdates) — נפרד מ«שולחי-האתר» (forum/activity).
+const CHANNEL_KEYS = ["torat-haremez", "gilui-yomi", "site-news", "reality-code", "sod-hachashmal", "or-geula"];
+const CH_KEYS = Object.keys(CH);   // כל השולחים (ערוצים + פורום + פעילות) — לשבבים/סינון/מכסות
 const DESKTOP_MQ = "(min-width:900px)";
 const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
 // מענה-AI: מסומן דרך source או קרדיט הבוט (רזיאל). תיוג-אמת מהאינג'סט: source='ai'.
@@ -33,6 +40,25 @@ function previewOf(u) {
   if (u.image_url && isVideo(u.image_url)) return cap ? `🎥 ${cap}` : "🎥 סרטון חדש";
   if (u.image_url) return cap ? `📷 ${cap}` : "📷 תמונה חדשה";
   return cap || "💬 עדכון חדש";
+}
+
+// 🌳 «הדברים החדשים» מכל האתר → שורות-פיד (אותה צורה כמו עדכון-ערוץ: {ch,text,image_url,credit,created_at,to}).
+const evText = it => (it.title || stripHtml(it.body || "") || it.search_term || "עדכון").slice(0, 140);
+function forumToMsg(it) {
+  if (!it || !it.ts) return null;
+  const to = it.kind === "cipher" ? `/codes/${encodeURIComponent(it.slug || "")}`
+    : it.kind === "post" ? `/${it.slug || ""}`
+      : it.kind === "insight" ? (it.link || "/forum")
+        : `/forum/${it.contribId}`;
+  return { id: "fev_" + it.id, ch: "forum", created_at: it.ts, credit: it.author_display || it.author_name || "קהילה",
+    text: evText(it), image_url: (it.kind === "post" || it.kind === "cipher") ? (it.image_url || null) : null, to };
+}
+function hintToMsg(h) {
+  const n = (hintNums(h) || [])[0];
+  const when = h.occurred_at || h.created_at;
+  if (!when) return null;
+  return { id: "rev_" + (h.id || ""), ch: "activity", created_at: when, credit: h.author_name || "זרם המציאות",
+    text: h.name || (n ? `רמז · ${n}` : "רמז חדש"), image_url: h.image_url || null, to: n ? `/number/${n}` : "/archive" };
 }
 
 // 🔗 הופך קישורים בטקסט ההודעה ללחיצים (כמו וואטסאפ אמיתי). מנקה HTML קודם,
@@ -103,9 +129,15 @@ export default function LiveChannelFeed() {
     let live = true;
     const load = async () => {
       try {
-        const arr = await Promise.all(CH_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k })))));
+        // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
+        const [chanArr, forum, hints] = await Promise.all([
+          Promise.all(CHANNEL_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
+          getForumFeed({ limit: 15 }).catch(() => []),
+          getRealityHints(10).catch(() => []),
+        ]);
         if (!live) return;
-        const all = arr.flat().filter(u => u.text || u.image_url);
+        const siteEvents = [...(forum || []).map(forumToMsg), ...(hints || []).map(hintToMsg)].filter(Boolean);
+        const all = [...chanArr.flat(), ...siteEvents].filter(u => u.text || u.image_url);
         const newestTs = Math.max(0, ...all.map(u => +new Date(u.created_at || 0)));
         setUnseen(u => (seenTop.current && newestTs > seenTop.current ? u + 1 : u));
         setRaw(all);
@@ -241,7 +273,7 @@ export default function LiveChannelFeed() {
               <span className="ava" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.728-.977zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
               </span>
-              <div><div className="nm">עדכונים מכל הערוצים</div><div className="st"><i />מחובר · עכשיו</div></div>
+              <div><div className="nm">כל מה שחדש באתר</div><div className="st"><i />ערוצים · פורום · פעילות · עכשיו</div></div>
               <button className="x" onClick={() => setOpen(false)} aria-label={docked ? "מזער" : "סגור"}>{docked ? "–" : "✕"}</button>
             </div>
             <div className="lcf-chips">
@@ -272,6 +304,7 @@ export default function LiveChannelFeed() {
                         {u.image_url && isVideo(u.image_url) && (
                           <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", color: WA.recvInk, width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
                         )}
+                        {u.to && !u.capMore && <Link to={u.to} className="lcf-ptr" onClick={() => { if (!docked) setOpen(false); }}>← לצפייה</Link>}
                         {u.capMore && c.to && <Link to={c.to} className="lcf-ptr" onClick={() => { if (!docked) setOpen(false); }}>→ לעוד עדכוני {c.name} · דף הערוץ</Link>}
                         <div className="lcf-meta">{timeAgoHe(u.created_at)}{ai && <span className="lcf-ck">✓✓</span>}</div>
                       </div>
