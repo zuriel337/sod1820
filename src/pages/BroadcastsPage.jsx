@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getChannelUpdates } from "../lib/supabase.js";
+import { getChannelUpdates, getRealityHints } from "../lib/supabase.js";
+import { getForumFeed } from "../lib/contributions.js";
+import { hintNums, effDate } from "../lib/reality.js";
+import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { timeAgoHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
@@ -10,48 +13,142 @@ import { track } from "../lib/tracking.js";
 import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
 import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
 
-// 📡 «מרכז השידורים» — פיד מאוחד של כל הערוצים, החדשים למעלה, בטורים (≥4 בדסקטוב רחב).
-// עדשה אחת על channel_updates (עץ אחד) — אותו מקור של «העדכונים החיים» בבית/בצ'אט.
-const CHANNELS = ["gilui-yomi", "torat-haremez", "site-news", "sod-hachashmal", "reality-code", "or-geula"];
+// 📡 «מרכז השידורים» — בית אחד, 4 טאבים (עץ אחד). כל טאב = עדשה על מקור-אמת אחד שכבר חי:
+//   💬 פורום       — getForumFeed (חידושים · דיונים · תגובות · צפני-גולשים · הודעות גולשים)
+//   📢 ערוצים      — channel_updates (שידורי הוואטסאפ, בלי site-news)
+//   ✨ פעילות האתר — עדכונים אחרונים (פוסטים) + זרם המציאות (getRealityHints)
+//   🛠️ פיתוח האתר  — channel_updates ערוץ site-news (שדרוגים/פיצ׳רים)
+// המספר על כל טאב = «חדש מאז ביקורך» (whats_new_law, seenCutoff פר-משתמש). אין טבלה חדשה — רק סינון.
+const REAL_CHANNELS = ["gilui-yomi", "torat-haremez", "sod-hachashmal", "reality-code", "or-geula"];
+const DEV_CHANNEL = "site-news";
+const TABS = [
+  { key: "forum", emoji: "💬", title: "פורום", acc: "#4fd6a8", sub: "חידושים · דיונים · תגובות מכל האתר · הודעות גולשים" },
+  { key: "channels", emoji: "📢", title: "ערוצים", acc: "#37d67a", sub: "שידורים חיים מכל הערוצים — לייב מקבוצות הוואטסאפ" },
+  { key: "activity", emoji: "✨", title: "פעילות האתר", acc: "#e8c84a", sub: "עדכונים אחרונים · תמונות מזרם המציאות" },
+  { key: "dev", emoji: "🛠️", title: "פיתוח האתר", acc: "#a78bfa", sub: "שדרוגים ופיצ׳רים חדשים באתר" },
+];
+
+const toMs = v => { const t = v ? new Date(v).getTime() : NaN; return Number.isFinite(t) ? t : 0; };
 const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
+const snip = (s, n = 90) => { const t = String(s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n) + "…" : t; };
+
+// ── ממפה כל פריט-מקור לשורת-אירוע אחידה: {id, ico, acc, title, who, time, href} ──
+function forumRow(x) {
+  if (x.kind === "cipher") return { id: x.id, ico: "🔠", title: x.title || x.search_term || "צופן", who: x.author_name, time: x.ts, href: `/codes/${encodeURIComponent(x.slug || "")}`, tag: "צופן גולש" };
+  if (x.kind === "insight") return { id: x.id, ico: "💡", title: x.title || snip(x.body), who: x.author_name, time: x.ts, href: x.link || "/forum", tag: "חידוש" };
+  // contribution (חידוש/דיון/הודעת-גולש)
+  return { id: x.id, ico: x.intent === "דיון" ? "🗨️" : "💬", title: x.title || snip(x.body), who: x.author_display || x.author_name, time: x.ts, href: `/forum/${x.contribId}`, tag: x.intent || "חידוש" };
+}
+function postRow(x) {
+  return { id: x.id, ico: "📜", title: x.title || "פוסט", who: x.author_name, time: x.ts, href: `/${x.slug || ""}`, image: x.image_url, tag: "עדכון אחרון" };
+}
+function hintRow(h) {
+  const nums = hintNums(h) || [];
+  const n = nums[0];
+  return { id: "rh_" + (h.id || Math.random()), ico: "🖼️", title: h.name || (n ? `רמז · ${n}` : "רמז חדש"), who: h.author_name, time: effDate(h) || h.created_at, href: n ? `/number/${n}` : "/archive", image: h.image_url, tag: "זרם המציאות" };
+}
 
 export default function BroadcastsPage() {
   const P = usePalette();
-  const [params] = useSearchParams();
-  const focusId = params.get("u");   // קישור ויראלי: ?u=<id>
-  const [all, setAll] = useState(null);
-  const [filter, setFilter] = useState("all");
+  const [params, setParams] = useSearchParams();
+  const focusId = params.get("u");
+  const initTab = TABS.some(t => t.key === params.get("tab")) ? params.get("tab") : (params.get("c") ? "channels" : "forum");
+  const [tab, setTab] = useState(initTab);
+  const [data, setData] = useState(null);
+  const [chanFilter, setChanFilter] = useState(params.get("c") || "all");
   const [lb, setLb] = useState(null);
 
+  // צילום-קבוע של סף-«הנראה» בכל טאב, לפני שמסמנים — כדי שהמונים יישארו יציבים לאורך הסשן
+  const cutoffs = useRef(null);
+  if (!cutoffs.current) cutoffs.current = Object.fromEntries(TABS.map(t => [t.key, toMs(seenCutoff("bc-" + t.key))]));
+
   useEffect(() => {
-    applySeo({ title: "מרכז השידורים — עדכונים חיים", description: "שידורים חיים ועדכונים מכל הערוצים — תורת הרמז, הגילוי היומי, קוד המציאות, אור הגאולה וסוד החשמל — רמזים, מסרים וסרטונים במקום אחד, לייב מקבוצות הוואטסאפ.", path: "/broadcasts" });
+    applySeo({ title: "מרכז השידורים — כל מה שקורה באתר", description: "בית אחד לכל מה שקורה בסוד 1820: פורום ותגובות, שידורי הערוצים, פעילות האתר וזרם המציאות, ושדרוגי-הפיתוח — הכול במקום אחד, החדשים למעלה.", path: "/broadcasts" });
     track("broadcasts");
   }, []);
 
   useEffect(() => {
     let live = true;
-    Promise.all(CHANNELS.map(ch => getChannelUpdates(40, ch, true).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => [])))
-      .then(arr => { if (!live) return; const merged = arr.flat().sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)); setAll(merged); })
-      .catch(() => live && setAll([]));
+    (async () => {
+      const [forum, hints, chanArrays, dev] = await Promise.all([
+        getForumFeed({ limit: 60 }).catch(() => []),
+        getRealityHints(40).catch(() => []),
+        Promise.all(REAL_CHANNELS.map(ch => getChannelUpdates(40, ch, true).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => []))),
+        getChannelUpdates(60, DEV_CHANNEL, true).catch(() => []),
+      ]);
+      if (!live) return;
+      setData({ forum: forum || [], hints: hints || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
+    })();
     return () => { live = false; };
   }, []);
 
-  const items = useMemo(() => (all || []).filter(u => filter === "all" || u.ch === filter), [all, filter]);
-  const counts = useMemo(() => { const m = {}; (all || []).forEach(u => { m[u.ch] = (m[u.ch] || 0) + 1; }); return m; }, [all]);
+  // מסמנים את הטאב הפעיל כ«נראה» (מאפס את המונה שלו לביקור הבא) — לא נוגע בצילום-הקבוע של הסשן
+  useEffect(() => { if (data) markSeenKey("bc-" + tab); }, [tab, data]);
+
+  const rows = useMemo(() => {
+    if (!data) return { forum: [], activity: [], dev: [] };
+    const forum = data.forum.filter(x => x.kind !== "post").map(forumRow);
+    const activity = [...data.forum.filter(x => x.kind === "post").map(postRow), ...data.hints.map(hintRow)]
+      .sort((a, b) => toMs(b.time) - toMs(a.time));
+    const dev = data.dev.map(u => ({ id: u.id, ico: "🛠️", title: (u.text || "").split("\n")[0] || "עדכון", who: u.credit, time: u.created_at, href: u.link_url || "/whats-new", body: (u.text || "").split("\n").slice(1).join(" ").trim(), tag: "שדרוג" }));
+    return { forum, activity, dev };
+  }, [data]);
+
+  const counts = useMemo(() => {
+    if (!data) return {};
+    const nc = (arr, key) => arr.filter(r => toMs(r.time) > cutoffs.current[key]).length;
+    return {
+      forum: nc(rows.forum, "forum"),
+      channels: data.channels.filter(u => toMs(u.created_at) > cutoffs.current.channels).length,
+      activity: nc(rows.activity, "activity"),
+      dev: nc(rows.dev, "dev"),
+    };
+  }, [data, rows]);
+
+  const goTab = k => { setTab(k); const p = new URLSearchParams(params); p.set("tab", k); p.delete("u"); setParams(p, { replace: true }); };
+
+  const channelItems = useMemo(() => {
+    if (!data) return [];
+    return data.channels.filter(u => chanFilter === "all" || u.ch === chanFilter);
+  }, [data, chanFilter]);
+  const chanCounts = useMemo(() => { const m = {}; (data?.channels || []).forEach(u => { m[u.ch] = (m[u.ch] || 0) + 1; }); return m; }, [data]);
 
   const dark = P.mode !== "light";
+  const active = TABS.find(t => t.key === tab) || TABS[0];
+
   return (
-    <div style={{ direction: "rtl", maxWidth: 1320, margin: "0 auto", padding: "34px 16px 90px" }}>
+    <div style={{ direction: "rtl", maxWidth: 1180, margin: "0 auto", padding: "30px 15px 90px" }}>
       <style>{`
-        .bc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:15px;align-items:start}
+        .hub-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0 6px}
+        .hub-tab{cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:1px solid ${P.border};background:${P.card};
+          border-radius:999px;padding:8px 15px;font-family:${F.heading};font-size:13.5px;font-weight:800;color:${P.inkSoft};min-height:40px;transition:transform .1s}
+        .hub-tab:hover{transform:translateY(-1px)}
+        .hub-tab.on{color:#140d06;border-color:transparent}
+        .hub-tab .cnt{border-radius:999px;font-size:11.5px;font-weight:900;padding:1px 8px;font-variant-numeric:tabular-nums;background:${dark ? "rgba(255,255,255,.14)" : "rgba(0,0,0,.10)"}}
+        .hub-tab.on .cnt{background:rgba(0,0,0,.22);color:#fff}
+        .hub-sub{text-align:center;color:${P.inkSoft};font-family:${F.body};font-size:13px;margin:0 0 20px}
+        .bc-rows{display:grid;gap:10px;max-width:760px;margin:0 auto}
+        .bc-row{display:flex;gap:12px;align-items:flex-start;background:${P.card};border:1px solid ${P.border};
+          border-radius:13px;padding:12px 14px;border-inline-start:3px solid var(--acc);text-decoration:none;transition:transform .1s,box-shadow .15s}
+        .bc-row:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,${dark ? ".4" : ".12"})}
+        .bc-row .ico{font-size:20px;flex:0 0 auto;line-height:1.3}
+        .bc-row .thumb{width:52px;height:52px;border-radius:9px;object-fit:cover;flex:0 0 auto;background:#0a0710}
+        .bc-row .bd{flex:1;min-width:0}
+        .bc-row .ti{color:${P.ink};font-family:${F.heading};font-size:14.5px;font-weight:800;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+        .bc-row .bodyt{color:${P.inkSoft};font-family:${F.body};font-size:12.5px;line-height:1.6;margin-top:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+        .bc-row .mt{margin-top:5px;display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:${P.inkSoft};font-family:${F.heading};font-size:11px}
+        .bc-row .mt .who{color:${P.accentDim};font-weight:800}
+        .bc-row .mt .fresh{color:#140d06;background:var(--acc);border-radius:999px;font-weight:900;font-size:10px;padding:1px 8px}
+        .bc-row .mt .tg{border:1px solid ${P.border};border-radius:999px;padding:1px 8px;font-size:10px}
+        .bc-empty{text-align:center;color:${P.inkSoft};font-family:${F.body};font-style:italic;padding:44px 0}
+        .bc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:15px;align-items:start}
         .bc-card{display:flex;flex-direction:column;background:${P.card};border:1px solid ${P.border};border-top:3px solid var(--acc);
           border-radius:15px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .15s;text-align:start}
         .bc-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,${dark ? ".45" : ".14"})}
         .bc-media{position:relative;width:100%;aspect-ratio:16/10;background:#0a0710;overflow:hidden}
-        .bc-media img,.bc-media video{width:100%;height:100%;object-fit:cover;display:block}
-        .bc-media .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);color:#fff;font-size:30px;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+        .bc-media img{width:100%;height:100%;object-fit:cover;display:block}
         .bc-vidph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#141018,#0a0710);color:#cbb6ff}
-        .bc-vidph .play{position:static;background:none;font-size:34px}
+        .bc-vidph .play{font-size:34px}
         .bc-vidph .vlbl{font-family:${F.heading};font-size:11px;font-weight:800;opacity:.8}
         .bc-in{padding:11px 13px 12px;display:flex;flex-direction:column;gap:7px;flex:1}
         .bc-badge{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;font-family:${F.heading};font-size:10.5px;font-weight:800;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border-radius:999px;padding:2px 9px}
@@ -60,42 +157,88 @@ export default function BroadcastsPage() {
         .bc-meta{margin-top:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.heading};font-size:10.5px}
         .bc-share{cursor:pointer;background:none;border:1px solid var(--acc);color:var(--acc);border-radius:999px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 10px}
         .bc-link{text-decoration:none;background:var(--acc);color:#191008;font-family:${F.heading};font-size:10px;font-weight:900;border-radius:999px;padding:3px 11px}
-        .bc-chip{cursor:pointer;display:inline-flex;align-items:center;gap:5px;text-decoration:none;border-radius:999px;padding:6px 14px;
-          font-family:${F.heading};font-size:12.5px;font-weight:800;min-height:34px;border:1px solid var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+        .bc-chip{cursor:pointer;display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 13px;
+          font-family:${F.heading};font-size:12px;font-weight:800;min-height:32px;border:1px solid var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent)}
         .bc-chip.on{color:#191008;background:var(--acc)}
-        @keyframes bc-focus{0%,100%{transform:none}50%{transform:scale(1.02)}}
-        .bc-card.focus{box-shadow:0 0 26px var(--acc);animation:bc-focus 1.6s ease 2}
       `}</style>
 
-      <header style={{ textAlign: "center", marginBottom: 22 }}>
+      <header style={{ textAlign: "center", marginBottom: 4 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>שידור חי</div>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(23px,4.4vw,34px)", fontWeight: 800, margin: "6px 0 8px", textShadow: `0 0 40px ${P.glow}` }}>
+        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(23px,4.4vw,34px)", fontWeight: 800, margin: "6px 0 2px", textShadow: `0 0 40px ${P.glow}` }}>
           📡 מרכז השידורים
         </h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, maxWidth: 520, margin: "0 auto" }}>
-          כל העדכונים מכל הערוצים בזרם אחד — החדשים למעלה.
-          <br /><span style={{ color: "#25d366", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>💬 מגיע אוטומטית · לייב מקבוצות הוואטסאפ</span>
-        </p>
       </header>
 
-      {/* מסנן ערוצים — «הכל» ואז ערוץ-ערוץ */}
-      <nav style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 22 }}>
-        <button className={"bc-chip" + (filter === "all" ? " on" : "")} style={{ "--acc": P.accentText }} onClick={() => setFilter("all")}>📡 הכל{all ? ` · ${all.length}` : ""}</button>
-        {CHANNELS.map(ch => {
+      {/* טאבים + מונה «חדש מאז ביקורך» */}
+      <nav className="hub-tabs">
+        {TABS.map(t => (
+          <button key={t.key} className={"hub-tab" + (tab === t.key ? " on" : "")}
+            style={tab === t.key ? { background: t.acc } : { "--acc": t.acc }} onClick={() => goTab(t.key)}>
+            <span>{t.emoji} {t.title}</span>
+            {counts[t.key] > 0 && <span className="cnt">{counts[t.key]}</span>}
+          </button>
+        ))}
+      </nav>
+      <p className="hub-sub">{active.sub}</p>
+
+      {data === null ? (
+        <div className="bc-empty">טוען…</div>
+      ) : tab === "channels" ? (
+        <ChannelsView P={P} items={channelItems} all={data.channels} chanCounts={chanCounts} filter={chanFilter} setFilter={setChanFilter} focusId={focusId} onOpen={setLb} />
+      ) : (
+        <RowsView rows={rows[tab] || []} acc={active.acc} cutoff={cutoffs.current[tab]} />
+      )}
+
+      {lb && <UpdateModal u={lb} brand={BRANDS[lb.ch] || BRANDS["reality-code"]} onClose={() => setLb(null)} />}
+    </div>
+  );
+}
+
+// ── רשימת-אירועים אחידה (פורום · פעילות · פיתוח) ──
+function RowsView({ rows, acc, cutoff }) {
+  if (!rows.length) return <div className="bc-empty">אין עדיין פריטים כאן — בקרוב.</div>;
+  return (
+    <div className="bc-rows">
+      {rows.map(r => {
+        const fresh = toMs(r.time) > cutoff;
+        return (
+          <Link key={r.id} to={r.href} className="bc-row" style={{ "--acc": acc }}>
+            {r.image ? <img className="thumb" src={thumb(r.image, 120)} alt="" loading="lazy" /> : <span className="ico">{r.ico}</span>}
+            <div className="bd">
+              <div className="ti">{r.title}</div>
+              {r.body && <div className="bodyt">{r.body}</div>}
+              <div className="mt">
+                {fresh && <span className="fresh">חדש</span>}
+                {r.who && <span className="who">✍️ {r.who}</span>}
+                {r.tag && <span className="tg">{r.tag}</span>}
+                {r.time && <span>🕒 {timeAgoHe(r.time)}</span>}
+              </div>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── גריד-הערוצים (כמו שהיה — מדיה + שיתוף + מודל), עם מסנן ערוץ-ערוץ ──
+function ChannelsView({ P, items, all, chanCounts, filter, setFilter, focusId, onOpen }) {
+  return (
+    <>
+      <nav style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
+        <button className={"bc-chip" + (filter === "all" ? " on" : "")} style={{ "--acc": P.accentText }} onClick={() => setFilter("all")}>📡 הכל · {all.length}</button>
+        {REAL_CHANNELS.map(ch => {
           const b = BRANDS[ch]; if (!b) return null;
           return (
             <button key={ch} className={"bc-chip" + (filter === ch ? " on" : "")} style={{ "--acc": b.accent }} onClick={() => setFilter(ch)}>
-              {b.logo ? <img src={b.logo} alt="" style={{ width: 16, height: 16, borderRadius: "50%", display: "block" }} /> : <span>{b.emoji}</span>}
-              {b.title}{counts[ch] ? ` · ${counts[ch]}` : ""}
+              {b.logo ? <img src={b.logo} alt="" style={{ width: 15, height: 15, borderRadius: "50%", display: "block" }} /> : <span>{b.emoji}</span>}
+              {b.title}{chanCounts[ch] ? ` · ${chanCounts[ch]}` : ""}
             </button>
           );
         })}
       </nav>
-
-      {all === null ? (
-        <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: "40px 0" }}>טוען עדכונים…</div>
-      ) : items.length === 0 ? (
-        <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, fontStyle: "italic", padding: "40px 0" }}>אין עדכונים פעילים כרגע — בקרוב.</div>
+      {items.length === 0 ? (
+        <div className="bc-empty">אין עדכונים פעילים כרגע — בקרוב.</div>
       ) : (
         <div className="bc-grid">
           {items.map(u => {
@@ -105,14 +248,12 @@ export default function BroadcastsPage() {
             const focused = focusId && u.id === focusId;
             const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
             return (
-              <div key={u.id} className={"bc-card" + (focused ? " focus" : "")} style={{ "--acc": b.accent }}
+              <div key={u.id} className="bc-card" style={{ "--acc": b.accent, boxShadow: focused ? `0 0 26px ${b.accent}` : undefined }}
                 ref={focused ? el => { if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 300); } : undefined}
-                onClick={() => setLb(u)} title="לחצו לפתיחה במסך מלא">
+                onClick={() => onOpen(u)} title="לחצו לפתיחה במסך מלא">
                 {u.image_url && (
                   <div className="bc-media">
-                    {/* וידאו — לא נטען בגריד (עומס/Egress); תצוגה = שלט + הקש לפתיחה במסך מלא */}
-                    {vid
-                      ? <div className="bc-vidph"><span className="play">▶</span><span className="vlbl">וידאו · הקש לצפייה</span></div>
+                    {vid ? <div className="bc-vidph"><span className="play">▶</span><span className="vlbl">וידאו · הקש לצפייה</span></div>
                       : <img src={thumb(u.image_url, 420)} alt="" loading="lazy" />}
                   </div>
                 )}
@@ -132,7 +273,6 @@ export default function BroadcastsPage() {
           })}
         </div>
       )}
-      {lb && <UpdateModal u={lb} brand={BRANDS[lb.ch] || BRANDS["reality-code"]} onClose={() => setLb(null)} />}
-    </div>
+    </>
   );
 }
