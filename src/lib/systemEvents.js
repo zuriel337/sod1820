@@ -86,7 +86,7 @@ async function growthEvents(limit = 40) {
     evs.push({
       source: "reality", impact: "growth", type: "רמז",
       title: h.name || (nums[0] ? `רמז · ${nums[0]}` : "רמז חדש"), author: h.author_name || null,
-      url: nums[0] ? `/number/${nums[0]}` : "/archive", time: effDate(h) || h.created_at || null,
+      url: nums[0] ? `/archive?q=${nums[0]}` : "/archive", time: effDate(h) || h.created_at || null,   // 🌊 רמז → זרם המציאות, לא דף-המספר
       numbers: nums,
     });
   }

@@ -51,7 +51,8 @@ function postRow(p) {
 function hintRow(h) {
   const nums = hintNums(h) || [];
   const n = nums[0];
-  return { id: "rh_" + (h.id || Math.random()), ico: "🖼️", title: h.name || (n ? `רמז · ${n}` : "רמז חדש"), who: h.author_name, time: effDate(h) || h.created_at, href: n ? `/number/${n}` : "/archive", image: h.image_url, tag: "זרם המציאות" };
+  // 🌊 רמז-מציאות → זרם המציאות (/archive), לא דף-המספר. עם ?q=<מספר> לדיפ-לינק לפריט (תיקון: היה /number).
+  return { id: "rh_" + (h.id || Math.random()), ico: "🖼️", title: h.name || (n ? `רמז · ${n}` : "רמז חדש"), who: h.author_name, time: effDate(h) || h.created_at, href: n ? `/archive?q=${n}` : "/archive", image: h.image_url, tag: "זרם המציאות" };
 }
 // 🔠 צופן-מערכת (admin published) → זרם-הפעילות הקנוני. צפני-קהילה נשארים בפורום.
 function sysCipherRow(c) {

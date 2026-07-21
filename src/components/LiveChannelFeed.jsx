@@ -58,7 +58,7 @@ function hintToMsg(h) {
   const when = h.occurred_at || h.created_at;
   if (!when) return null;
   return { id: "rev_" + (h.id || ""), ch: "activity", created_at: when, credit: h.author_name || "זרם המציאות",
-    text: h.name || (n ? `רמז · ${n}` : "רמז חדש"), image_url: h.image_url || null, to: n ? `/number/${n}` : "/archive" };
+    text: h.name || (n ? `רמז · ${n}` : "רמז חדש"), image_url: h.image_url || null, to: n ? `/archive?q=${n}` : "/archive" };
 }
 
 // 🔗 הופך קישורים בטקסט ההודעה ללחיצים (כמו וואטסאפ אמיתי). מנקה HTML קודם,

@@ -85,7 +85,9 @@ export default function ArchivePage() {
   const [filterMode, setFilterMode] = useState("OR");     // "OR" | "AND"
   const [dominantOnly, setDominantOnly] = useState(false); // only primary_value
   const [yearFilter, setYearFilter] = useState(null);
-  const [query, setQuery] = useState("");
+  // 🔗 דיפ-לינק: /archive?q=<מספר> פותח את הזרם מסונן לאותו מספר (קליק מרמז-מציאות במרכז השידורים/טיקר)
+  const [query, setQuery] = useState(() => { try { return new URLSearchParams(loc.search).get("q") || ""; } catch { return ""; } });
+  useEffect(() => { try { const q = new URLSearchParams(loc.search).get("q"); if (q != null) setQuery(q); } catch { /* noop */ } }, [loc.search]);
   const [ocrMatch, setOcrMatch] = useState(null); // {imgs:Set, gals:Set} מחיפוש OCR בשרת
   const [sortMode, setSortMode] = useState("date");   // date (חדש→ישן, ברירת מחדל) | gallery | cross
   const [viewMode, setViewMode] = useState("images"); // images (רשת תמונות, ברירת-מחדל) | galleries (אקורדיון)
