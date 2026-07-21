@@ -42,6 +42,9 @@ import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
+// 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
+// כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
+const CIPHER_FEED_SINCE = new Date("2026-07-21T12:30:00Z").getTime();
 const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
 // 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
 const HERO_SLIDES = [
@@ -167,8 +170,8 @@ export default function HomeNewPage() {
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getFeaturedResearchers(6).then(r => setResearchers(r || [])).catch(() => {});
     getSavedMatrices(20).then(r => setCiphers(r || [])).catch(() => {});
-    // 🔠 «עדכונים אחרונים» מציג צפני-מערכת חדשים — כרגע רק של 24 השעות האחרונות (לא כל הצפנים)
-    getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) > Date.now() - 24 * 3600 * 1000))).catch(() => {});
+    // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מהעוגן ואילך (CIPHER_FEED_SINCE) — קבוע, נשאר תמיד, לא חלון-זמן
+    getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) >= CIPHER_FEED_SINCE))).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
