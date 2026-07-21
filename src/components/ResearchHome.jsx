@@ -66,7 +66,7 @@ function BigTile({ t, onOpen, isAdmin }) {
 
 export default function ResearchHome({ onOpen }) {
   // 🔑 מנהל רואה את כל הכלים הממומשים; 👁 «תצוגת משתמש» מבטלת את הרשאת-המנהל האפקטיבית.
-  const { isAdmin: realAdmin } = useAuth();
+  const { isAdmin: realAdmin, user } = useAuth();
   const isAdmin = realAdmin && !useViewAsUser();
   const navigate = useNavigate();
   const { open: openCenter } = useUserCenter();
@@ -96,7 +96,8 @@ export default function ResearchHome({ onOpen }) {
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
         <button style={tabBtn(tab === "tools")} onClick={() => setTab("tools")}>🧰 הכלים</button>
         <button style={tabBtn(tab === "lib")} onClick={() => setTab("lib")}>📚 מאגרים</button>
-        <button style={tabBtn(false)} onClick={() => openCenter()}>👤 אזור אישי</button>
+        {/* 🧑 גשר-זהות קנוני: מחובר → מגירת «האזור האישי» · אורח → התחברות (המגירה לא מרונדרת לאורח, אחרת «מת»). */}
+        <button style={tabBtn(false)} onClick={() => (user ? openCenter() : navigate("/login"))}>👤 אזור אישי</button>
         <Link to="/forum" style={{ ...tabBtn(false), textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>🌐 פורום המחקר</Link>
       </div>
 

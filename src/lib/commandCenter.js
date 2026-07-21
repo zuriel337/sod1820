@@ -58,7 +58,25 @@ export async function getMyResearchLevel() {
 
 // 🧠 «מה כדאי לי לעשות עכשיו?» — עד 3 פעולות, מנתונים קיימים בלבד (בלי RPC חדש).
 // module → פותח מודול במגירה · link → ניווט. center = תוצאת my_center שכבר נטענה.
-export async function getNextActions({ center } = {}) {
+// 🔔 נדנודי-זהות (profile nudges) — המקור היחיד ל«השלם את הפרופיל»: שם-תצוגה + חיבור-וואטסאפ.
+// משמש גם את הפופ-אפ הצף (ProfileNudge) וגם את «מה כדאי לעשות» במגירה. עמיד-לעתיד: מוסיפים נדנוד = שורה.
+export async function getProfileNudges({ profile } = {}) {
+  const out = [];
+  // 1) שם-תצוגה חסר → מוצג כ-username. שיבחר שם אנושי.
+  if (profile && !((profile.display_name || "").trim())) {
+    out.push({ id: "set-name", icon: "✍️", text: "בחר שם-תצוגה — כך יראו אותך בקהילה ובפורום, במקום שם-המשתמש.", cta: "בחר שם", module: "settings" });
+  }
+  // 2) וואטסאפ לא מחובר — אולי כבר איתנו בוואטסאפ בלי קשר לחשבון.
+  try {
+    const linked = await getMyLinkedPhones();
+    if (Array.isArray(linked) && linked.length === 0) {
+      out.push({ id: "link-wa", icon: "🟢", text: "חבר את הוואטסאפ שלך — אולי אתה כבר איתנו בוואטסאפ, בלי קשר לחשבון. נחבר ביניהם?", cta: "לחיבור", module: "whatsapp" });
+    }
+  } catch { /* noop */ }
+  return out;
+}
+
+export async function getNextActions({ center, profile } = {}) {
   const out = [];
   const vid = (() => { try { return getVisitorId(); } catch { return null; } })();
 
@@ -76,6 +94,11 @@ export async function getNextActions({ center } = {}) {
         out.push({ icon: "↩️", text: `המשך מהמקום שעצרת — «${e.slug}»`, cta: "פתח", link });
       }
     } catch { /* noop */ }
+  }
+
+  // 1.4) בחר שם-תצוגה (אם חסר) — כדי שיראו אותך בשם ולא בשם-משתמש.
+  if (profile && !((profile.display_name || "").trim())) {
+    out.push({ icon: "✍️", text: "בחר שם-תצוגה — כך יראו אותך בקהילה", cta: "בחר שם", module: "settings" });
   }
 
   // 1.5) אונבורדינג לסוכן האישי — חבר וואטסאפ (רק אם מחובר-חשבון ואין עדיין טלפון מקושר).

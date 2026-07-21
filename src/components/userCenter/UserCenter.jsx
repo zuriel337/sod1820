@@ -136,9 +136,9 @@ export default function UserCenter() {
   useEffect(() => {
     if (!isOpen || !user || center == null) return;
     let alive = true;
-    getNextActions({ center }).then(a => { if (alive) setNextActions(a); }).catch(() => { if (alive) setNextActions([]); });
+    getNextActions({ center, profile }).then(a => { if (alive) setNextActions(a); }).catch(() => { if (alive) setNextActions([]); });
     return () => { alive = false; };
-  }, [isOpen, user, center]);
+  }, [isOpen, user, center, profile]);
 
   // נעילת גלילה של הרקע כשהמגירה פתוחה
   useEffect(() => {

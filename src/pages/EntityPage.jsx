@@ -1871,6 +1871,12 @@ export default function EntityPage({ embedPhrase } = {}) {
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>
               דילוגי-אותיות (ELS) שבהם <b style={{ color: P.accentText }}>{value}</b> הוא הדילוג — או ערך שנמצא בהצלבה. <b>עדות — לא ניבוי.</b>
             </div>
+            {/* 🔠 התכנסות-צפנים — כשמספר צפנים שונים מצביעים על אותו מספר (סף 3, כמו האות-הקהילתי). עובדה, לא ניבוי. */}
+            {ciphers.length >= 3 && (
+              <div style={{ background: P.glow, border: `1px solid ${P.border}`, borderRadius: 12, padding: "9px 14px", marginBottom: 10, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+                🔠 התכנסות-צפנים — {ciphers.length} צפנים מצביעים על המספר הזה
+              </div>
+            )}
             <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
               {ciphers.map(c => {
                 const isSkip = c.primary_number === value;
