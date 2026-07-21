@@ -13,10 +13,10 @@ import { waHref } from "../lib/share.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
-// אחיו המקצועי (19 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
+// אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
 // כאן: רגש · שיתוף · «מה השם שלך מסתיר?» — כל תוצאה מפנה לעץ האחד (/number/:value), לא משכפלת.
 
-const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 19 שיטות
+const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 20 שיטות (14 ליבה + 6 עומק)
 // 3 השיטות המרכזיות עם ההסבר הנעול (gematria.js soul + הגדרות ה-DB): גוף/נשמה/נסתר.
 const CORE3_KEYS = ["רגיל", "מילוי", "מסתתר"];
 const CORE3_INFO = {
@@ -394,11 +394,11 @@ export default function CommunityCalculatorPage() {
   // ✨ תגליות מפתיעות (#2) — המקבילות מדורגות לפי הפתעה (ביטוי-מושג שלם ורחוק) לראש.
   const discoveries = useMemo(() => rankBySurprise(phrases1, name1.trim()), [phrases1, name1]);
 
-  // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-19 השיטות מתכנסות לאותו ערך.
+  // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-20 השיטות מתכנסות לאותו ערך.
   // הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).
   const compat = useMemo(() => {
     if (!r1 || !r2) return null;
-    const total = r1.all.length;              // 19 שיטות המנוע
+    const total = r1.all.length;              // 20 שיטות המנוע
     const count = matches.length;
     const sameRagil = r1.value === r2.value;
     const note = sameRagil
@@ -446,7 +446,7 @@ export default function CommunityCalculatorPage() {
           </div>
         )}
 
-        {/* 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל 19. */}
+        {/* 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל 20. */}
         {!showAll ? (
           <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
             {core3.map(a => {
@@ -477,7 +477,7 @@ export default function CommunityCalculatorPage() {
         )}
         <div style={{ textAlign: "center", marginTop: 10, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
-            {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל 19 השיטות"}
+            {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל 20 השיטות"}
           </button>
           <Link to="/research?tool=gematria" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
         </div>
@@ -724,7 +724,7 @@ export default function CommunityCalculatorPage() {
       {/* גשר למקצועי */}
       <div style={{ marginTop: 26, textAlign: "center" }}>
         <Link to="/research?tool=gematria" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
-          רוצים לעומק? המחשבון המקצועי — 19 שיטות, הצלבות ומנוע מלא →
+          רוצים לעומק? המחשבון המקצועי — 20 שיטות, הצלבות ומנוע מלא →
         </Link>
       </div>
     </div>

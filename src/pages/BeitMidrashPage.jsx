@@ -959,7 +959,7 @@ function HowToGuide() {
         </div>
       </div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
-        זו השיטה הבסיסית ("רגיל"). למטה — עוד 16 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד 19 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
       </p>
     </div>
   );

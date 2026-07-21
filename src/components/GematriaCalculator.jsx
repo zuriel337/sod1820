@@ -250,7 +250,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
     <div style={{ textAlign: "right" }}>
       {/* קלט */}
       <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder={advOpen ? "התוצאה תופיע כאן — או הקלידו (19 שיטות)…" : "הקלידו מילה או ביטוי…"} dir="rtl" style={{
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder={advOpen ? "התוצאה תופיע כאן — או הקלידו (20 שיטות)…" : "הקלידו מילה או ביטוי…"} dir="rtl" style={{
           width: "100%", boxSizing: "border-box", background: L.soft, border: `1px solid ${L.gold}`, borderRadius: 10, color: L.ink,
           fontFamily: F.regal, fontSize: 23, fontWeight: 700, padding: "11px 16px", outline: "none", textAlign: "center",
         }} />

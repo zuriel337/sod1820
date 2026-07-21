@@ -181,7 +181,7 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
   );
 }
 
-import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
+import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
 import { SITE_URL, applySeo, DEFAULT_IMAGE, setEntityJsonLd } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages, buildStory } from "../lib/numberMessage.js";
@@ -250,7 +250,7 @@ function FlagshipSeals({ cfg }) {
 }
 const BASE8 = ["רגיל", "מסתתר", "מילוי", "קדמי", "סידורי", "אתבש", "אלבם", "ריבוע"]
   .map(k => METHODS.find(m => m.key === k)).filter(Boolean);   // 8 שיטות יציבות (תמיד נבדלות) → סריג 4×2
-const ALL14 = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
+const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];   // כל השיטות — לשכבת השורשים
 
 // מתג התמה גלובלי בנאבבר (הוסר מדף המספר — כפילות)
 
@@ -276,7 +276,7 @@ function EntityConvergence({ term, isNumber, ragil }) {
                   border: `1px solid ${on ? P.accent : anc ? P.borderStrong : P.border}`,
                   background: on ? "rgba(201,162,39,0.18)" : anc ? "rgba(201,162,39,0.08)" : P.card,
                 }}>
-                  <div className="em-key" style={{ color: anc ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{x.key}</div>
+                  <div className="em-key" style={{ color: anc ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 9.5, fontWeight: 700 }}>{anc ? "✨ " : ""}{methodLabel(x.key)}</div>
                   <div className="em-val" style={{ color: on ? P.ink : P.accentText, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}><span style={{ color: P.accentDim, fontWeight: 700 }}>= </span>{x.v}</div>
                   {x.sub && <div className="em-sub" style={{ color: P.accentDim, fontFamily: F.body, fontSize: 8.5, lineHeight: 1.25, marginTop: 2, maxWidth: 96, opacity: 0.85 }}>{x.sub}</div>}
                 </button>
@@ -1919,14 +1919,14 @@ export default function EntityPage({ embedPhrase } = {}) {
             {/* כל השיטות (לביטוי בלבד — למספר אין אותיות) */}
             {!isNumber && (
               <section style={{ marginBottom: 40 }}>
-                <SectionHead icon="🧮" title="כל השיטות" count={ALL14.length} />
+                <SectionHead icon="🧮" title="כל השיטות" count={ALL_METHODS.length} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 8 }}>
-                  {ALL14.map(m => {
+                  {ALL_METHODS.map(m => {
                     const mv = m.fn(term);
                     return (
                       <Link key={m.key} to={numHref(mv)} title={`פתח את ${mv}`} style={{ ...card, padding: "10px 12px" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{m.key}</span>
+                          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{methodLabel(m.key)}</span>
                           <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 16, fontWeight: 800 }}>{mv} <span style={{ color: P.accentDim, fontSize: 11 }}>→</span></span>
                         </div>
                         {m.soul && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11, marginTop: 3, lineHeight: 1.4 }}>{m.soul}</div>}

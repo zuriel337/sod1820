@@ -21,7 +21,7 @@ export default function FamilyCross() {
   const del = i => setPeople(p => p.filter((_, x) => x !== i));
 
   // יושר: התכנסות "אמיתית" = אותה שיטה (במיוחד רגיל). חוצה-שיטות = קשר משני בלבד
-  // (עם 17 שיטות כמעט תמיד יש איזושהי חפיפה — לא ניפוח אותה לרגע-וואו).
+  // (עם 20 שיטות כמעט תמיד יש איזושהי חפיפה — לא ניפוח אותה לרגע-וואו).
   const { strong, weak } = useMemo(() => {
     const valid = people.filter(p => p.name.trim()).map(p => ({ ...p, name: p.name.trim(), core: computeEntity(p.name.trim()) }));
     const strong = [], weak = [];
