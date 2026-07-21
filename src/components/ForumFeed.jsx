@@ -9,6 +9,7 @@ import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContributi
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
+import SubmitChidush from "./SubmitChidush.jsx";
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -193,6 +194,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [writer, setWriter] = useState(null);
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
+  const [writing, setWriting] = useState(false);   // ✍️ «דף ריק לכתוב חידוש» — אותה מתכונת כמו בבית-המדרש
 
   // 🌳 עץ אחד: הפורום = קהילה בלבד (בלי פוסטים) — פוסטים חיים ב«פעילות האתר», אפס כפילות.
   const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(setAllItems).catch(() => setAllItems([])); }, []);
@@ -238,6 +240,28 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
 
   return (
     <div style={{ maxWidth, margin: "0 auto" }}>
+      {/* ✍️ דף ריק לכתוב חידוש — המתכונת הקנונית (SubmitChidush), זהה לבית-המדרש ולהיכל */}
+      <div style={{ marginBottom: 16 }}>
+        {writing ? (
+          <div style={{ background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 16px 18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+              <span style={{ color: P.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>✍️ כתיבת חידוש חדש</span>
+              <button onClick={() => setWriting(false)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>✕ סגור</button>
+            </div>
+            <SubmitChidush compact onDone={load} />
+          </div>
+        ) : (
+          <button onClick={() => setWriting(true)} style={{ cursor: "pointer", width: "100%", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(212,175,55,0.06))", border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, textAlign: "right" }}>
+            <span style={{ fontSize: 22 }}>✍️</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>כתוב חידוש חדש</span>
+              <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 2 }}>דף ריק — חופשי לגמרי. השורה הראשונה תהיה הכותרת.</span>
+            </span>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>פתח דף ←</span>
+          </button>
+        )}
+      </div>
+
       {/* שורה 1 — סוג. טאב ריק (0 פריטים) = לא-לחיץ. */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
         <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
