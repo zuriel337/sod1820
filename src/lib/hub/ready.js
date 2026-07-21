@@ -3,10 +3,10 @@
 // כשכלי מוכן לציבור — מוסיפים אותו ל-READY_TOOLS, בלי שינוי קוד אחר.
 
 // 🔓 דגל-מאסטר יחיד לפתיחת דילוגי-האותיות (ELS) לציבור.
-// כרגע false → ELS אדמין-בלבד: גם כלי-המעבדה (/research?tool=els) וגם העמוד /code.
-// היום למנהל הכל עובד ומסודר; ביום שתחליט — הופכים ל-true והשניים נפתחים לציבור
-// **בבת-אחת, בשורה אחת** (READY_TOOLS למעבדה + CodePage ל-/code קוראים את אותו דגל).
-export const ELS_PUBLIC = false;
+// true → ELS פתוח לכולם: גם כלי-המעבדה בהיכל (/research?tool=els) וגם העמוד /code — **בבת-אחת**.
+// isToolReady קורא את הדגל ישירות (ראו למטה) → האריח בהיכל, הצ'יפ בסרגל ו-CodePage כולם נפתחים יחד.
+// שער-ההדרכה («איך מחפשים נכון» + הרשמה לחיפוש-מוצלח) חי בתוך tzofen.html עצמו → מגן על שתי הכניסות.
+export const ELS_PUBLIC = true;
 
 // 👁 פתיחת-פרוביו: /code נפתח אוטומטית בלי התחברות בכל host שאינו הדומיין הפרודקשן
 // (Vercel preview / localhost) — כדי שצוריאל יראה את הדילוגים בפרוביו בלי סיסמה.
@@ -42,13 +42,14 @@ export const IMPLEMENTED_TOOLS = new Set([
   "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
 ]);
 
-// שער-המוכנוּת: פתוח אם ציבורי, או — למנהל — אם הכלי ממומש (לבדיקות).
+// שער-המוכנוּת: פתוח אם ציבורי, אם ELS פתוח לציבור (דגל-המאסטר), או — למנהל — אם הכלי ממומש (לבדיקות).
 export const isToolReady = (id, isAdmin = false) =>
-  READY_TOOLS.has(id) || (isAdmin && IMPLEMENTED_TOOLS.has(id));
+  READY_TOOLS.has(id) || (id === "els" && ELS_PUBLIC) || (isAdmin && IMPLEMENTED_TOOLS.has(id));
 
 // כלי שפתוח רק בזכות הרשאת-מנהל (להצגת תווית «🔑 אדמין» בלבד).
+// נגזר ממוכנוּת-הציבור (isToolReady ללא-אדמין) → els הפתוח-לציבור לא מסומן בטעות כאדמין-בלבד.
 export const isAdminOnlyTool = (id, isAdmin = false) =>
-  isAdmin && !READY_TOOLS.has(id) && IMPLEMENTED_TOOLS.has(id);
+  isAdmin && !isToolReady(id, false) && IMPLEMENTED_TOOLS.has(id);
 
 export const UPGRADE_MSG = "🔬 הכלי בשדרוג — ייפתח בקרוב לכל החוקרים";
 
