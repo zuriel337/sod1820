@@ -19,6 +19,7 @@ export default function HomeForumTile() {
   return (
     <div style={{
       marginTop: 12, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "12px 15px",
+      maxWidth: "100%", overflow: "hidden", boxSizing: "border-box",
     }}>
       {/* כותרת + כתיבת-חידוש */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 9 : 0 }}>
@@ -32,14 +33,14 @@ export default function HomeForumTile() {
 
       {/* 3 הפריטים האחרונים */}
       {items.length ? (
-        <div style={{ display: "grid", gap: 2 }}>
+        <div style={{ display: "grid", gap: 2, gridTemplateColumns: "minmax(0, 1fr)" }}>
           {items.map((it, i) => {
             const m = forumItemMeta(it);
             const text = stripHtml(m.text || "").slice(0, 70) || m.label;
             return (
               <Link key={it.id || i} to={m.href} style={{
                 display: "flex", alignItems: "center", gap: 8, textDecoration: "none", padding: "7px 2px",
-                borderTop: i ? `1px solid ${P.border}` : "none",
+                borderTop: i ? `1px solid ${P.border}` : "none", minWidth: 0, overflow: "hidden",
               }}>
                 <span style={{ flexShrink: 0, fontSize: 13 }}>{m.em}</span>
                 <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
