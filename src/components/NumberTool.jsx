@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
 import { NumHrefCtx } from "../lib/numHrefCtx.js";
+import { PaletteProvider, PALETTES } from "../lib/palette.js";
 import NumberEngineLogo from "./NumberEngineLogo.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
 import { calcGem } from "../theme.js";
@@ -40,9 +41,12 @@ export default function NumberTool() {
       <div>
         <button className="rw-tchip" onClick={() => setSp({ tool: "number" })} style={{ marginBottom: 12 }}>← חיפוש חדש</button>
         <NumHrefCtx.Provider value={labHref}>
-          <Suspense fallback={<div className="rw-card rw-muted">טוען דף המספר…</div>}>
-            <EntityPage embedPhrase={n} />
-          </Suspense>
+          {/* 🧪 עור «מעבדה» — דף-המספר המוטמע בהיכל מקבל פלטה בהירה-נקייה (כחול-לבן), scoped לתת-העץ בלבד */}
+          <PaletteProvider value={PALETTES.lab}>
+            <Suspense fallback={<div className="rw-card rw-muted">טוען דף המספר…</div>}>
+              <EntityPage embedPhrase={n} />
+            </Suspense>
+          </PaletteProvider>
         </NumHrefCtx.Provider>
       </div>
     );

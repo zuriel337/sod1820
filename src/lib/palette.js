@@ -1,3 +1,4 @@
+import React, { createContext, useContext } from "react";
 import { useThemeMode } from "./themeMode.js";
 
 // ===== פלטות סמנטיות לדפי התוכן (בהיר/כהה) =====
@@ -43,8 +44,37 @@ export const PALETTES = {
     glow: "rgba(212,175,55,0.40)",
     labBg: "linear-gradient(160deg, rgba(20,15,12,0.6), rgba(8,5,2,0.45))",
   },
+  // ===== עור «מעבדה» (research_workspace_law) — בהיר-נקי, אקסנט כחול + נגיעת זהב =====
+  // משמש רק בדף-המספר כשהוא מוטמע בהיכל (embedded). דף-הבית/תוכן נשארים מלכותיים (canonical_colors_law).
+  lab: {
+    mode: "light",
+    pageBg: "#f6f7f9",
+    card: "#ffffff",
+    cardSoft: "#eef2f8",
+    cardGrad: "linear-gradient(135deg, #ffffff, #f1f5fb)",
+    border: "#e4e7ec",
+    borderStrong: "#cdd6e4",
+    ink: "#1b1d22",
+    inkSoft: "#5b6472",
+    accent: "#2f6df6",          // כחול — אקסנט המעבדה
+    accentText: "#1c4bbf",      // כחול קריא לטקסט
+    accentDim: "#8a93a3",
+    heroNum: "#12325f",         // מספר עמוק-כחול על רקע נקי
+    accentBtn: "linear-gradient(135deg, #2f6df6, #4f86ff)",
+    onAccent: "#ffffff",
+    glow: "rgba(47,109,246,0.16)",
+    labBg: "linear-gradient(160deg, #eef2f8, #e5ecf6)",
+  },
 };
 
+// 🎨 override-context: עוטף תת-עץ בפלטה ספציפית (למשל דף-המספר המוטמע בהיכל → «lab»),
+// כך שכל רכיבי-המשנה שקוראים usePalette() מקבלים את אותה פלטה — בלי להעביר props לכל אחד.
+const PaletteCtx = createContext(null);
+export function PaletteProvider({ value, children }) {
+  return React.createElement(PaletteCtx.Provider, { value }, children);
+}
 export function usePalette() {
-  return PALETTES[useThemeMode()] || PALETTES.light;
+  const override = useContext(PaletteCtx);
+  const mode = useThemeMode();
+  return override || PALETTES[mode] || PALETTES.light;
 }
