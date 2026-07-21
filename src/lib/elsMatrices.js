@@ -1,6 +1,6 @@
 // 🖼️ מטריצות-דילוג שמורות (els_records) — עדשת-לקוח על הטבלה הקיימת. שיתופיות ולשיתוף.
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
-import { supabase } from "./supabase.js";
+import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 
 const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at";
 
@@ -30,13 +30,30 @@ export async function getResearchMatrices(limit = 100) {
 
 // 🔗 עמוד קנוני לצופן — שליפה לפי slug. בלי סינון-סטטוס בצד-לקוח: ה-RLS מחליט —
 // אנונימי רואה רק published+public; בעל-הצופן/אדמין רואים גם טיוטה/מוסתר (לניהול מהעמוד).
+// 🔄 עוקף קאש-דפדפן (cache:no-store): PostgREST מחזיר את התגובה בלי Cache-Control, ולכן אחרי
+//    עריכה/שמירה-מחדש הדפדפן עלול להגיש את ה-JSON הישן (הבאג «בחלון-סתר מופיעה הגרסה הישנה»).
+//    fetch ישיר עם no-store מבטיח שהעמוד תמיד מקבל את הרשומה הטרייה. RLS נשמר: משתמש מחובר
+//    שולח את access_token שלו (רואה גם טיוטה/פרטי משלו), אנונימי שולח anon (רק published+public).
 export async function getMatrixBySlug(slug) {
   if (!supabase || !slug) return null;
   try {
-    const { data } = await supabase.from("els_records").select(COLS + ",status")
-      .eq("slug", slug).maybeSingle();
-    return data || null;
-  } catch { return null; }
+    let token = SUPABASE_ANON;
+    try { const { data: s } = await supabase.auth.getSession(); if (s?.session?.access_token) token = s.session.access_token; } catch { /* אנונימי */ }
+    const url = `${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&select=${COLS},status&limit=1`;
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${token}`, Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error("rest " + res.status);
+    const rows = await res.json();
+    return (Array.isArray(rows) ? rows[0] : rows) || null;
+  } catch {
+    // נפילה ל-supabase-js אם ה-fetch נכשל (רשת/CORS חריג) — לפחות נטען, גם אם דרך הקאש
+    try {
+      const { data } = await supabase.from("els_records").select(COLS + ",status").eq("slug", slug).maybeSingle();
+      return data || null;
+    } catch { return null; }
+  }
 }
 
 // 🔠 הצפנים שלי — כל המטריצות ששמרתי (els_records שבבעלותי), בכל הסטטוסים.
