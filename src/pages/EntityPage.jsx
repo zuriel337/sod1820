@@ -338,30 +338,6 @@ function EntityConvergence({ term, isNumber, ragil }) {
   );
 }
 
-// כפתורי שיתוף — השיתוף הראשי מייצר תמונה אוטומטית ומשתף אותה (לולאת ויראליות)
-function ShareButtons({ value, term, phrases, copyText, onPreview }) {
-  const P = usePalette();
-  const H = useHubHrefs();
-  const [busy, setBusy] = useState(false);
-  async function shareImg() {
-    if (busy) return;
-    setBusy(true);
-    try { await shareNumberSmart(value, phrases); } finally { setBusy(false); }
-  }
-  const icoBtn = { cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, minWidth: 40, height: 40, padding: "0 12px", fontSize: 14, fontWeight: 800, fontFamily: F.heading, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 };
-  // 🔗 רכיב-השיתוף הקנוני (canonical_ui_components_law) + «שתף כתמונה» כפעולה-נוספת (extra)
-  return (
-    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginTop: 16 }}>
-      <ShareActions type="number" url={copyText || `https://sod1820.co.il/number/${encodeURIComponent(term ?? value)}`}
-        title={`המספר ${value} · סוד 1820`} image={`https://sod1820.co.il/api/card?n=${value}`}
-        extra={<button onClick={shareImg} disabled={busy} title="שתף כתמונה מעוצבת" style={{ ...icoBtn, background: P.accentBtn, color: P.onAccent, border: "none" }}>{busy ? "מכין…" : "🖼 תמונה"}</button>} />
-      <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף"
-        style={{ textDecoration: "none", cursor: "pointer", background: P.cardSoft, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "11px 18px" }}>🎲 מסע</Link>
-      <button onClick={onPreview} title="תצוגה מקדימה" aria-label="תצוגה מקדימה" style={icoBtn}>🖼</button>
-    </div>
-  );
-}
-
 // 💌 הודעה אישית מבעל האתר — פופ-אפ שקופץ בדף מספר אישי (owner_note_law).
 // שלב read: ההודעה של צוריאל + CTA · שלב form: טופס יצירת-קשר · שלב done: תודה.
 function OwnerNoteModal({ note, number, onClose }) {
@@ -505,59 +481,6 @@ function Acc({ id, icon, title, count, open, onToggle, P, children }) {
         <span style={{ color: P.accent, fontSize: 12, animation: isOpen ? "none" : "acc-blink 1.6s ease-in-out infinite" }}>{isOpen ? "▲" : "▼"}</span>
       </button>
       {isOpen && <div style={{ marginTop: 12 }}>{children}</div>}
-    </div>
-  );
-}
-
-// ❤️‍🔥 דופק המספר — עוצמה רגשית (כוכבים + הילה פועמת) מציון ההתכנסות (0-100). מזמין לחקור.
-function NumberPulse({ value, onExplore }) {
-  const P = usePalette();
-  const [score, setScore] = useState(null);
-  useEffect(() => {
-    if (!value || value < 10) { setScore(null); return; }
-    let live = true;
-    getScore(value).then(s => { if (live) setScore(s); }).catch(() => { if (live) setScore(null); });
-    return () => { live = false; };
-  }, [value]);
-  if (score == null) return null;
-  const stars = Math.max(1, Math.min(5, Math.round(score / 20)));
-  const label = score >= 85 ? "נדיר · יסודי" : score >= 55 ? "עוצמה גבוהה" : score >= 25 ? "מתעורר" : "נוכחות שקטה";
-  return (
-    <button onClick={onExplore} title="גלו למה המספר הזה חזק"
-      style={{ cursor: "pointer", background: "none", border: "none", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4, margin: "12px auto 0" }}>
-      <style>{`@keyframes np-pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.1);opacity:1}}`}</style>
-      <div style={{ display: "inline-flex", gap: 3, fontSize: 21, color: P.accent,
-        filter: `drop-shadow(0 0 ${5 + score / 6}px ${P.glow})`, animation: "np-pulse 2.6s ease-in-out infinite" }}>
-        {[0, 1, 2, 3, 4].map(i => <span key={i} style={{ opacity: i < stars ? 1 : 0.22 }}>★</span>)}
-      </div>
-      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.3 }}>
-        {label} · {score}/100 ↓
-      </span>
-    </button>
-  );
-}
-
-// 🔆 מנורה קטנה — טבעת-מד עם המספר הגולמי במרכז (קישוריות / נצפה). לצד «דופק המספר».
-// ה-value (0-100) מניע את מילוי הטבעת; raw = המספר האמיתי שמוצג (בלי לזייף).
-function MiniGauge({ value, raw, label, color, size = 62 }) {
-  const P = usePalette();
-  const p = Math.max(0, Math.min(100, Math.round(value)));
-  const stroke = Math.max(5, Math.round(size * 0.09));
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const off = c * (1 - p / 100);
-  return (
-    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
-      <div style={{ position: "relative", width: size, height: size }}>
-        <svg width={size} height={size} style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 6px ${color}55)` }}>
-          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={P.border} strokeWidth={stroke} />
-          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
-            strokeDasharray={c} strokeDashoffset={off} style={{ transition: "stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)" }} />
-        </svg>
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          color: P.ink, fontFamily: F.mono, fontSize: Math.round(size * 0.28), fontWeight: 800 }}>{raw}</div>
-      </div>
-      <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>{label}</span>
     </div>
   );
 }
@@ -1154,8 +1077,14 @@ export default function EntityPage({ embedPhrase } = {}) {
         </div>
       )}
     </div>
-    {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — רק בדף-מילה: ניתוח-AI ממוקד לשיטה אחת מ-20 השיטות */}
-    {!isNumber && term && <MethodAnalyze word={term} defaultMethod="מסתתר" />}
+    {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — ניתוח-AI ממוקד לשיטה אחת מ-20 השיטות.
+        בדף-מילה: על המילה עצמה. בדף-מספר: על הביטוי-השווה המוביל (למספר אין אותיות לפרק לשיטות). */}
+    {(() => {
+      const maWord = isNumber ? (story.leads?.[0] || d.phrases?.[0]?.phrase) : term;
+      if (!maWord) return null;
+      return <MethodAnalyze word={maWord} defaultMethod="מסתתר"
+        title={isNumber ? `🔬 נתח שיטה — על «${maWord}» (=${value})` : undefined} />;
+    })()}
     </>
   );
 
@@ -1232,30 +1161,6 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   return (
     <Shell P={P}>
-      {/* 🏛️ פס-הזמנה דביק (מחשב בלבד) — «המספר הזה הוא עדשה אחת על עץ אחד».
-          מעביר לאותו מספר בתוך שלד ההיכל (unified_graph_law) כדי שיבינו את הקונסטרוקציה.
-          מוסתר בנייד (שם ההיכל מצומצם ממילא) וכשכבר בתוך ההיכל (embedded).
-          ⛔ מושבת זמנית (בקשת צוריאל 14.7) — עד שההיכל + הקונסטרוקציה הימנית מוכנים. להחזיר: false→true. */}
-      {false && !embedded && (
-        <>
-          <style>{`
-            .num-hub-strip{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:center;gap:16px;
-              padding:9px 20px;background:linear-gradient(90deg,${P.cardSoft},${P.card});
-              border-bottom:1px solid ${P.border};backdrop-filter:blur(6px);font-family:${F.heading}}
-            .num-hub-strip .nhs-txt{color:${P.accentDim};font-size:13px;font-weight:700;line-height:1.4}
-            .num-hub-strip .nhs-txt b{color:${P.accentText}}
-            .num-hub-strip .nhs-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap;
-              background:${P.accentBtn};color:${P.onAccent};border-radius:999px;font-size:13px;font-weight:800;
-              padding:7px 17px;box-shadow:0 2px 10px ${P.glow};transition:transform .15s ease}
-            .num-hub-strip .nhs-btn:hover{transform:translateY(-1px)}
-            @media (max-width:859px){ .num-hub-strip{display:none} }
-          `}</style>
-          <div className="num-hub-strip">
-            <span className="nhs-txt">🏛️ המספר הזה הוא <b>עדשה אחת על עץ אחד</b> — כל מספר, פסוק ושם מחוברים בסביבת המחקר</span>
-            <Link className="nhs-btn" to={`/research?tool=number&n=${encodeURIComponent(term || value)}`}>ראה את הקונסטרוקציה בהיכל →</Link>
-          </div>
-        </>
-      )}
       {/* 🫧 RealityHint (בועת-הרמזים הצפה) הוסרה מדף המספר לבקשת צוריאל — הפריעה בנייד. */}
       {/* 💌 הודעה אישית מבעל האתר (owner_note_law) — פופ-אפ + כפתור צף לפתיחה חוזרת */}
       {ownerNote && noteOpen && (
@@ -1431,14 +1336,6 @@ export default function EntityPage({ embedPhrase } = {}) {
                   </>
                 )}
               </p>
-              {!showBody && (
-                <div style={{ marginTop: 13 }}>
-                  <Link to={H.journey(value)} onClick={() => { try { track("number", String(value), "journey_cta"); } catch { /* noop */ } }}
-                    style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "9px 20px", borderRadius: 999, border: `1px solid ${P.borderStrong}`, background: P.card, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14.5 }}>
-                    ✨ קחו את המספר הזה למסע ←
-                  </Link>
-                </div>
-              )}
             </div>
           ) : (
             msgs[0] && (
@@ -1525,19 +1422,19 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🌳 מילים שוות — גימטריה רגילה, לפני היציאה למסע (שלב א' עשיר בגימטריה) */}
+            {/* 🌳 מילים שוות — גימטריה רגילה, מלא ומיד בהתחלה (בקשת צוריאל: מלא גימטריות בראש) */}
             {d.phrases?.length > tasteStart && (
               <div style={{ marginTop: 16, textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
-                  {d.phrases.slice(tasteStart, tasteStart + 6).map((p, i) => (
+                  {d.phrases.slice(tasteStart, tasteStart + 24).map((p, i) => (
                     <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
                       style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
                         borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
                   ))}
                   {/* 🔬 קצה שמאל — כמה עוד מילים יש, קפיצה ישירה להיכל הגילוי (כל המילים) */}
                   {(() => {
-                    const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 6));
+                    const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 24));
                     return (
                       <button onClick={() => enterDiscoveryWith("words")} title="המשך במצב מחקר — כל המילים השוות"
                         style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
@@ -1550,24 +1447,14 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* ✨ פעולה ראשית — המסע (אחרי הגימטריה הרגילה של שלב א') */}
-            <div style={{ textAlign: "center", marginTop: 20 }}>
-              <Link to={H.journey(term ?? value)} style={{ textDecoration: "none" }}>
-                <span style={{ display: "inline-block", minWidth: 280, maxWidth: "92%", background: P.accentBtn, color: P.onAccent,
-                  borderRadius: 16, fontFamily: F.heading, fontWeight: 800, fontSize: 16.5, padding: "15px 30px", boxShadow: `0 8px 26px ${P.glow}` }}>
-                  ✨ המסע מתחיל כאן
-                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 700, opacity: 0.85, marginTop: 3 }}>צאו למסע בגרף מ-{value} →</span>
-                </span>
-              </Link>
-            </div>
-
-            {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋). ★ שמור נשמר לכוכבי-העוצמה בלבד */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 15 }}>
+            {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋 🎲). המסע = פעולה משנית עדינה, לא הדגשה. */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
               {[
                 { e: "📌", l: isPinned?.(entity.id) ? "מוצמד" : "הצמד", on: () => togglePin?.(entity) },
                 { e: "🔖", l: "שמור", on: () => saveItem?.(entity) },
                 { e: "🔗", l: "שתף", on: () => shareNumberSmart(value, d.phrases || []) },
                 { e: "📋", l: "העתק", on: () => { try { navigator.clipboard?.writeText(String(term ?? value)); } catch { /* noop */ } } },
+                { e: "🎲", l: "מסע", on: () => nav(H.journey(term ?? value)) },
               ].map((a, i) => (
                 <button key={i} onClick={a.on}
                   style={{ cursor: "pointer", background: "none", border: "none", display: "flex", flexDirection: "column",

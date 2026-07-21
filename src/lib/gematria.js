@@ -84,7 +84,7 @@ export function crossMethodPairs(word) {
 }
 
 // שם-תצוגה חיצוני בלבד (לא המפתח הפנימי): קדמי מוצג כ"משולש" (בקשת צוריאל). המפתח "קדמי" נשאר ללוגיקה/DB.
-export const methodLabel = (key) => (key === "קדמי" ? "משולש" : key);
+export const methodLabel = (key) => (key === "קדמי" ? "קדמי · משולש" : key);
 
 // מסתתר גדול (mistater_gadol_def): הפרשים מילה-מילה על ערכי גדול (סופיות 500-900). מלך=480
 const gv = c => FINAL[c] || GEM[c] || 0;
