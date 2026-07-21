@@ -36,7 +36,7 @@ export default function HomeForumTile() {
         whiteSpace: "nowrap", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
         fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, borderRadius: 999, padding: "8px 16px",
       }}>
-        ✍️ כתוב חידוש ←
+        ✍️ שתפו חידוש ←
       </Link>
     </div>
   );

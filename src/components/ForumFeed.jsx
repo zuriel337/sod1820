@@ -245,7 +245,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         {writing ? (
           <div style={{ background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 16px 18px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-              <span style={{ color: P.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>✍️ כתיבת חידוש חדש</span>
+              <span style={{ color: P.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>✍️ שיתוף חידוש — מדור חידושי הגולשים</span>
               <button onClick={() => setWriting(false)} style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 12px" }}>✕ סגור</button>
             </div>
             <SubmitChidush compact onDone={load} />
@@ -254,10 +254,10 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
           <button onClick={() => setWriting(true)} style={{ cursor: "pointer", width: "100%", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(212,175,55,0.06))", border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, textAlign: "right" }}>
             <span style={{ fontSize: 22 }}>✍️</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>כתוב חידוש חדש</span>
-              <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 2 }}>דף ריק — חופשי לגמרי. השורה הראשונה תהיה הכותרת.</span>
+              <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>שתפו חידוש משלכם</span>
+              <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 2 }}>מדור «חידושי הגולשים» פתוח לכל חוקר — גיליתם רמז, גימטריה או הצלבה? כתבו בחופשיות, והשורה הראשונה תהיה הכותרת.</span>
             </span>
-            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>פתח דף ←</span>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>פתחו דף ←</span>
           </button>
         )}
       </div>

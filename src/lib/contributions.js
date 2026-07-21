@@ -5,7 +5,7 @@ import { supabase } from "./supabase.js";
 // intent — מה המשתמש רצה לתרום. «תגובה» עולה מיד; השאר דורש אישור.
 export const INTENTS = [
   { key: "תגובה", emoji: "💬", label: "תגובה", live: true },
-  { key: "חידוש", emoji: "💡", label: "חידוש" },
+  { key: "חידוש", emoji: "💡", label: "חידושי גולשים" },   // תווית-תצוגה בלבד; המפתח (ערך-DB) נשאר "חידוש"
   { key: "השערה", emoji: "🧩", label: "השערה" },
   { key: "תצפית", emoji: "🔍", label: "תצפית" },
   { key: "מקור",  emoji: "📚", label: "מקור" },
