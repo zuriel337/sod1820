@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -8,7 +8,8 @@ import { applySeo } from "../lib/seo.js";
 import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
-import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution } from "../lib/contributions.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherLink from "../components/ResearcherLink.jsx";
 import ResearcherBadge from "../components/ResearcherBadge.jsx";
 import ReactionBar from "../components/ReactionBar.jsx";
@@ -40,15 +41,26 @@ const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
 
 // כרטיס תרומת-מחקר — קומפקטי (רשימת-פורום): כותרת + תקציר 2-שורות, נפתח לשרשור מלא. עץ אחד.
-function ContribCard({ c, P }) {
+// 📌 אדמין יכול להצמיד הודעה — מוצמד עולה לראש הפיד ומקבל תג + מסגרת מודגשת.
+function ContribCard({ c, P, isAdmin, onChanged }) {
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);                                   // 🎯 היעד (מספר/פסוק/צופן)
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;   // 💬 עמוד-השרשור (תגובה מתוך הפורום)
   const snippet = (c.body || "").replace(/\s+/g, " ").trim();
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
+  const [pinBusy, setPinBusy] = useState(false);
+  async function togglePin(e) {
+    e.preventDefault(); e.stopPropagation();
+    if (pinBusy || !c.contribId) return;
+    setPinBusy(true);
+    try { await pinContribution(c.contribId, !c.pinned); onChanged && onChanged(); }
+    catch (err) { alert("שגיאה בהצמדה: " + (err.message || err)); }
+    finally { setPinBusy(false); }
+  }
   return (
-    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 16px" }}>
+    <div style={{ background: P.cardGrad, border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 14, padding: "13px 16px", boxShadow: c.pinned ? `0 0 0 1px ${P.accentText} inset` : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
+        {c.pinned && badge(P.accentText, "📌 מוצמד")}
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         {/* 🌳 עץ אחד: תגית-היעד (מספר/ביטוי) לא מוצגת בפיד — הקשר חי במקור ההודעה (עמוד השרשור /forum/:id «סביב …»). */}
@@ -64,6 +76,12 @@ function ContribCard({ c, P }) {
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} uid={c.author_user_id} size={20} /></span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
         <ReactionBar id={c.contribId} reactions={c.reactions} compact />
+        {isAdmin && (
+          <button onClick={togglePin} disabled={pinBusy} title={c.pinned ? "בטל הצמדה" : "הצמד לראש הפורום"}
+            style={{ cursor: pinBusy ? "wait" : "pointer", background: "none", border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 999, color: c.pinned ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>
+            {c.pinned ? "📌 בטל הצמדה" : "📌 הצמד"}
+          </button>
+        )}
         <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>💬 המשך בדיון ←</Link>
       </div>
     </div>
@@ -169,6 +187,7 @@ function CipherCard({ c, P }) {
 export default function ForumPage() {
   const P = usePalette();
   const mode = useThemeMode();
+  const { isAdmin } = useAuth();
   const [allItems, setAllItems] = useState(null);
   const [type, setType] = useState(null);      // null=הכל · "post" · intent
   const [writer, setWriter] = useState(null);  // סינון-כתב (רק כש-type==="post")
@@ -180,7 +199,8 @@ export default function ForumPage() {
   // כפיית-מצב מקומית — לא משנה את העדפת היום/לילה הגלובלית של המשתמש; משוחזר ביציאה.
   useEffect(() => { setForcedMode("light"); return () => setForcedMode(null); }, []);
   // שליפה אחת מלאה — הסינון נעשה בצד-לקוח, כך גם ידועות הכמויות לכל טאב (טאב ריק = לא-לחיץ).
-  useEffect(() => { getForumFeed({ type: null, writer: null, limit: 200 }).then(setAllItems).catch(() => setAllItems([])); }, []);
+  const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200 }).then(setAllItems).catch(() => setAllItems([])); }, []);
+  useEffect(() => { load(); }, [load]);
 
   // כמויות לכל סוג — קובעות אילו טאבים לחיצים (אפס → לא-לחיץ)
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
@@ -209,7 +229,8 @@ export default function ForumPage() {
     else if (type) out = allItems.filter(it => it.kind === "contribution" && it.intent === type);
     else out = allItems;
     if (state) out = out.filter(it => it.research_state === state);
-    if (sort === "significance") out = [...out].sort((a, b) => sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
+    // 📌 מוצמדים תמיד ראשונים (בכל מיון). «חדש» כבר מגיע מוצמד-ראשון מ-getForumFeed; ב«מובהקות» נשמר כאן.
+    if (sort === "significance") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
     return out;
   }, [allItems, type, writer, state, sort]);
 
@@ -301,7 +322,7 @@ export default function ForumPage() {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 13 }}>
-          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} /> : c.kind === "cipher" ? <CipherCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} />)}
+          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} /> : c.kind === "cipher" ? <CipherCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
         </div>
       )}
     </div>

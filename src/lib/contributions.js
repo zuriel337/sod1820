@@ -182,7 +182,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
 
   if (wantContrib) {
     let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,reactions,created_at")
+      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,reactions,pinned_at,created_at")
       .eq("status", "approved").is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
@@ -190,6 +190,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
       kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
       author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
       target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
+      pinned: !!c.pinned_at, pinned_at: c.pinned_at,
     }))).catch(() => []));
   }
 
@@ -212,7 +213,8 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
   const parts = await Promise.all(tasks);
   return parts.flat()
     .filter(x => x.ts)
-    .sort((a, b) => new Date(b.ts) - new Date(a.ts))   // 🆕 החדשים למעלה
+    // 📌 מוצמדים תמיד למעלה (אדמין), אחר-כך החדשים למעלה
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.ts) - new Date(a.ts))
     .slice(0, limit);
 }
 
@@ -263,5 +265,10 @@ export async function approveContribution(id, { canonical = false, project = tru
 }
 export async function moderateContribution(id, status) {
   const { error } = await supabase.rpc("moderate_contribution", { p_id: id, p_status: status });
+  if (error) throw error;
+}
+// 📌 הצמדת/ביטול-הצמדת תרומה בפורום (אדמין בלבד — נאכף בשרת). pin=false מבטל.
+export async function pinContribution(id, pin = true) {
+  const { error } = await supabase.rpc("pin_contribution", { p_id: id, p_pin: pin });
   if (error) throw error;
 }
