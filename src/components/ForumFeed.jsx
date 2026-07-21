@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { thumb } from "../lib/img.js";
@@ -206,9 +206,17 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
   // ✍️ «דף ריק לכתוב חידוש» — נפתח אוטומטית בהגעה מ-/forum?write=1 (כפתור «שתפו חידוש» בדף הבית)
-  const [writing, setWriting] = useState(() => {
-    try { return new URLSearchParams(window.location.search).get("write") === "1"; } catch { return false; }
-  });
+  const [sp] = useSearchParams();
+  const wantWrite = sp.get("write") === "1";
+  const [writing, setWriting] = useState(wantWrite);
+  const composerRef = useRef(null);
+  // כשמגיעים עם ?write=1 — פותחים וגוללים אל דף-הכתיבה (גם אם הגענו כשהדף כבר היה טעון)
+  useEffect(() => {
+    if (!wantWrite) return;
+    setWriting(true);
+    const t = setTimeout(() => composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    return () => clearTimeout(t);
+  }, [wantWrite]);
 
   // 🌳 עץ אחד: הפורום = קהילה בלבד (בלי פוסטים) — פוסטים חיים ב«פעילות האתר», אפס כפילות.
   const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(setAllItems).catch(() => setAllItems([])); }, []);
@@ -255,7 +263,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   return (
     <div style={{ maxWidth, margin: "0 auto" }}>
       {/* ✍️ דף ריק לכתוב חידוש — המתכונת הקנונית (SubmitChidush), זהה לבית-המדרש ולהיכל */}
-      <div style={{ marginBottom: 16 }}>
+      <div ref={composerRef} style={{ marginBottom: 16, scrollMarginTop: 76 }}>
         {writing ? (
           <div style={{ background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 16px 18px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>

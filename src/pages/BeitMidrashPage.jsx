@@ -1180,6 +1180,22 @@ export default function BeitMidrashPage() {
 
         <BeitMidrashOverview />
 
+        {/* ✍️ באנר בולט למעלה — הגשת חידוש (בקשת צוריאל: שיראו את זה למעלה). פותח את טאב «הגשת חידוש». */}
+        {tab !== "submit" && (
+          <button onClick={() => { setTab("submit"); setTimeout(() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); }} style={{
+            display: "flex", alignItems: "center", gap: 12, width: "100%", boxSizing: "border-box", cursor: "pointer", textAlign: "right",
+            background: "linear-gradient(135deg, #fffdf5, #fbf3da)", border: `1.5px solid ${L.gold}`, borderRadius: 16,
+            padding: "14px 18px", margin: "0 0 18px", boxShadow: "0 2px 12px rgba(154,120,24,0.12)",
+          }}>
+            <span style={{ fontSize: 26, flexShrink: 0 }}>✍️</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", color: L.ink, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>יש לכם חידוש? שתפו אותו כאן</span>
+              <span style={{ display: "block", color: L.sub, fontFamily: F.body, fontSize: 13, marginTop: 2 }}>דף ריק, חופשי לגמרי — השורה הראשונה תהיה הכותרת. יתפרסם עם שמכם.</span>
+            </span>
+            <span style={{ flexShrink: 0, background: "linear-gradient(135deg, #e9c84a, #9a7818)", color: "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 13, borderRadius: 999, padding: "8px 18px", whiteSpace: "nowrap" }}>✦ פתחו דף ←</span>
+          </button>
+        )}
+
         {/* גוף: תפריט-צד + תוכן */}
         <div ref={gridRef} style={{ display: "flex", gap: 26, alignItems: "flex-start", scrollMarginTop: 12 }} className="bm-grid">
           {/* תפריט צד (ימין ב-RTL) */}

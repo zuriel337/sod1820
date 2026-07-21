@@ -583,7 +583,14 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1800, margin: "0 auto" }}>
         <Brand />
 
-        {/* "כאן מתחילים" הוסר זמנית עד סיום הבנייה (לפי בקשת צוריאל) */}
+        {/* 🚀 «כאן מתחילים» — הוחזר לחזית הדסקטופ (הבנייה הושלמה, בקשת צוריאל). דסקטופ בלבד;
+            במובייל קיים באנר ייעודי בראש המגירה. */}
+        <Link to="/start" className="sod-nav-desktop" style={{
+          display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
+          background: "linear-gradient(135deg, #e9c84a, #b8901f)", color: "#1a0e00",
+          fontFamily: F.royal, fontWeight: 800, fontSize: 13.5, borderRadius: 999, padding: "7px 15px",
+          whiteSpace: "nowrap", boxShadow: "0 2px 10px rgba(212,175,55,0.35)", flex: "none",
+        }}>🚀 כאן מתחילים</Link>
 
         {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
         <div className="sod-nav-desktop sod-heichal-group">
