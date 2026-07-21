@@ -99,13 +99,6 @@ export default function CipherPage() {
             {m.author_name && <span>· ✍️ {m.author_name}</span>}
             {m.created_at && <span>· 🕐 {formatDateHe(m.created_at)}</span>}
           </div>
-          {findings.length > 0 && (
-            <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
-              {findings.slice(0, 10).map((f, i) => (
-                <span key={i} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.body, fontSize: 12 }}>{f.t}</span>
-              ))}
-            </div>
-          )}
           {m.description && <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 620, margin: "10px auto 0" }}>{m.description}</p>}
           <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
             <ShareActions type="code" url={`https://sod1820.co.il/codes/${encodeURIComponent(slug)}`}
@@ -113,6 +106,27 @@ export default function CipherPage() {
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
           </div>
         </div>
+
+        {/* 🔍 מה נמצא בצופן — הצגת הממצא עצמו (המילים המוצלבות), כדי שאין צורך לפתוח את הכלי כדי לראות מה נמצא. */}
+        {findings.length > 0 && (
+          <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "14px 16px", margin: "12px 0 4px" }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>🔍 מה נמצא בצופן</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.75, marginBottom: 11 }}>
+              על הציר <b style={{ color: P.accentText }}>«{m.search_term}»</b> (דילוג {m.skip_distance}, ב{m.scope === "tanakh" ? "תנ״ך" : "תורה"}) מצטלבות <b style={{ color: P.accentText }}>{findings.length}</b> המילים:
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {findings.map((f, i) => (
+                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: P.pageBg, border: `1px solid ${f.color || P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.body, fontSize: 15, fontWeight: 700 }}>
+                  <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: f.color || P.accent, flexShrink: 0 }} />
+                  <span style={{ color: P.ink }}>{f.t}</span>
+                </span>
+              ))}
+            </div>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10 }}>
+              עדות — לא ניבוי. {m.image_url ? "התמונה למעלה מציגה את המטריצה." : "לצפייה במטריצה החיה (עם המילים מסומנות), פתחו את הכלי למטה."}
+            </div>
+          </div>
+        )}
 
         {/* 🔗 מחובר אל · 🎖️ רמת מחקר — הופך את העמוד לשער-מחקר (unified_graph_law). מינימלי, גדל עם הנתונים. */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 12, margin: "14px 0 4px" }}>
