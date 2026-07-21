@@ -45,10 +45,22 @@ const STEPS = [
     body: "מוקד אחד לכל הפעילות החיה: הפורום (חידושי הגולשים), הערוצים, עדכוני האתר וחדשות הבנייה — כל זרם כטאב, ותמיד מצביע לתמונה המלאה. כאן רואים «מה חדש» מכל האתר במקום אחד.",
     how: "במקום לרדוף אחרי עדכונים בכמה מקומות — הכל זורם לכאן, כל ערוץ כטאב. כל פריט הוא «מצביע» לעמוד הקנוני שלו, אף פעם לא עותק.",
     to: "/broadcasts" },
-  { tier: "🔭 העדשות", emoji: "📖", title: "פוסטים, חיפוש בכל התנ\"ך והצופן", badge: "חדש",
-    body: "מאות תיעודים ברשת אחת, חיפוש ביטוי/ערך בכל 24 ספרי התנ\"ך, ודילוגי-אותיות עם מובהקות סטטיסטית — כולם עדשות על אותו גרף.",
-    how: "הצופן התנ\"כי (ELS) מחפש מילה כ«דילוג» באותיות התורה, עם חישוב מובהקות — כמה נדיר שהצירוף הזה יופיע במקרה. עדות מדידה, לא ניבוי.",
-    to: "/post" },
+  { tier: "🔭 העדשות", emoji: "🔠", img: "/els-icon.png", title: "הצופן התנ\"כי — דילוגי אותיות (ELS)", badge: "חדש · פתוח בהיכל",
+    body: "חיפוש מילה או שם כ«דילוג» באותיות התורה והתנ\"ך — מיקום, מרחק ואשכולות מצטלבים, עם מובהקות סטטיסטית. עדות מדידה, לא ניבוי.",
+    how: "בוחרים מילה קצרה; המנוע סורק כל דילוג אפשרי באותיות ומחשב כמה נדיר שהצירוף יופיע במקרה. הצלבה של שתי מילים מחזקת את המובהקות. פתוח עכשיו גם בתוך ההיכל.",
+    to: "/code",
+    links: [
+      { label: "🔠 פתחו את הצופן", to: "/code" },
+      { label: "🏛️ הצופן בהיכל", to: "/research?tool=els" },
+    ] },
+  { tier: "🔭 העדשות", emoji: "📖", title: "פוסטים וחיפוש בכל התנ\"ך", badge: "חדש",
+    body: "מאות תיעודים מקושרים ברשת אחת, וחיפוש ביטוי או ערך-גימטרי בכל 24 ספרי התנ\"ך — כולם עדשות על אותו גרף.",
+    how: "כל פוסט מצביע לישויות שבו (מספרים, ביטויים, אירועים) דרך הגרף — לכן «ראו גם» מוביל תמיד לתוכן קשור אמיתי, לא אקראי.",
+    to: "/post",
+    links: [
+      { label: "📖 כל הפוסטים", to: "/post" },
+      { label: "📜 חיפוש בפסוקים", to: "/research?tool=verse" },
+    ] },
   { tier: "👑 ההצטרפות", emoji: "👑", title: "הצטרפו לבני ההיכל",
     body: "גישה לתכנים מתקדמים, כלים בלעדיים וצפנים — וההתגלויות החדשות שמתווספות כל הזמן.",
     how: "המחשבון ובית-המדרש פתוחים לכולם חינם. «בני ההיכל» נותן את השכבה המתקדמת — כלים בלעדיים, צפנים והתגלויות חדשות שממשיכות להתווסף.",
@@ -76,7 +88,9 @@ function StepCard({ s, i }) {
         onMouseEnter={e => { e.currentTarget.closest("div").style.borderInlineStartColor = P.borderStrong; }}
         onMouseLeave={e => { e.currentTarget.closest("div").style.borderInlineStartColor = P.accent; }}
       >
-        <div style={{ fontSize: 30, lineHeight: 1 }}>{s.emoji}</div>
+        <div style={{ fontSize: 30, lineHeight: 1 }}>
+          {s.img ? <img src={s.img} alt="" width={34} height={34} style={{ borderRadius: 8, objectFit: "cover", display: "block" }} /> : s.emoji}
+        </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: P.onAccent, fontFamily: F.heading, fontSize: 11, letterSpacing: 1, marginBottom: 4 }}>{s.tier}</div>
           <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>
