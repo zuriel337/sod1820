@@ -32,6 +32,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
+import WhatsNewCard from "../components/WhatsNewCard.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
@@ -389,6 +390,9 @@ export default function HomeNewPage() {
           </div>
         </div>
       </section>
+
+      {/* ===== 🔔 מה חדש מאז ביקורך — מצביע קומפקטי למרכז השידורים (מופיע רק כשיש חדש; לא-עמוס) ===== */}
+      <WhatsNewCard />
 
       {/* ===== 🔑 חלונות הגילוי — הוסרו מעמוד הבית «בשלב זה» (בקשת צוריאל 10.7.2026).
            הרכיב נשמר (RevelationWindows.jsx) — להחזרה: החזר את השורה למטה ואת ה-import למעלה. ===== */}
