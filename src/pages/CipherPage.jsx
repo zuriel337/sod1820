@@ -34,6 +34,8 @@ export default function CipherPage() {
   const [savedMsg, setSavedMsg] = useState(false);
   const [titleEdit, setTitleEdit] = useState(null);  // עורך-שם (null עד טעינה → m.title)
   const [metaMsg, setMetaMsg] = useState("");         // משוב שם/תמונה
+  const [newFinding, setNewFinding] = useState("");   // 🎯 אדמין — הוספת ממצא (מילה מוצלבת) לצופן הקנוני
+  const [findMsg, setFindMsg] = useState("");          // משוב ניהול-ממצאים
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
   const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
@@ -53,6 +55,7 @@ export default function CipherPage() {
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
+    setNewFinding(""); setFindMsg("");
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
@@ -234,6 +237,24 @@ export default function CipherPage() {
               setM(x => ({ ...x, image_url: url })); setMetaMsg("✓ תמונה: " + label);
             } catch (e) { setMetaMsg("עדכון-תמונה נכשל: " + (e?.message || "")); }
           };
+          // 🎯 ניהול-ממצאים — קידום מילה שגולש הציע לתוך הצופן הקנוני / הסרת ממצא שגוי (update_els_matrix, in-place).
+          const FIND_COLORS = ["#2f9e5a", "#e0851b", "#0d9488", "#7c5cff", "#c0563f", "#2f6df6", "#d0a24a"];
+          const saveFindings = async (nextFindings) => {
+            try {
+              const nextPos = { ...(m.positions || {}), findings: nextFindings };
+              const { error } = await supabase.rpc("update_els_matrix", { p_id: m.id, p_positions: nextPos });
+              if (error) throw error;
+              setM(x => ({ ...x, positions: nextPos })); setFindMsg("✓ עודכן");
+            } catch (e) { setFindMsg("עדכון נכשל: " + (e?.message || "")); }
+          };
+          const addFinding = () => {
+            const t = (newFinding || "").trim().replace(/\s+/g, "");
+            if (!t) return;
+            if (findings.some(f => (f.t || "").replace(/\s+/g, "") === t)) { setFindMsg("הממצא כבר קיים"); return; }
+            saveFindings([...findings, { t, color: FIND_COLORS[findings.length % FIND_COLORS.length] }]);
+            setNewFinding("");
+          };
+          const removeFinding = (i) => saveFindings(findings.filter((_, idx) => idx !== i));
           const st = m.status || "published";
           const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";
           return (
@@ -255,6 +276,28 @@ export default function CipherPage() {
                 <button onClick={() => setImage(cardUrl, "כרטיס מרונדר")} style={aiBtn(P, false)}>🎴 כרטיס מרונדר</button>
                 {shapeUrl && <button onClick={() => setImage(shapeUrl, "תמונת הצופן")} style={aiBtn(P, false)}>🔲 תמונת הצופן</button>}
                 {metaMsg && <span style={{ color: metaMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700 }}>{metaMsg}</span>}
+              </div>
+              {/* 🎯 ניהול-ממצאים — קידום מילה שגולש הציע לתוך הצופן הקנוני, או הסרת ממצא שגוי (in-place) */}
+              <div style={{ background: P.pageBg, border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+                <div style={{ color: P.accentDim, fontSize: 12, fontWeight: 700, marginBottom: 8 }}>🎯 ממצאים מוצלבים ({findings.length}) — הוסף מילה שגולש הציע, או הסר שגוי</div>
+                {findings.length > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
+                    {findings.map((f, i) => (
+                      <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.card, border: `1px solid ${f.color || P.border}`, borderRadius: 999, padding: "4px 6px 4px 11px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>
+                        <span aria-hidden style={{ width: 9, height: 9, borderRadius: "50%", background: f.color || P.accent, flexShrink: 0 }} />
+                        <span style={{ color: P.ink }}>{f.t}</span>
+                        <button onClick={() => removeFinding(i)} title="הסר ממצא" style={{ cursor: "pointer", border: "none", background: "transparent", color: "#c0563f", fontSize: 15, fontWeight: 800, lineHeight: 1, padding: "0 2px" }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <input value={newFinding} onChange={e => { setNewFinding(e.target.value); setFindMsg(""); }}
+                    onKeyDown={e => { if (e.key === "Enter") addFinding(); }} placeholder="מילה מוצלבת חדשה (למשל: ישלם נכרי)"
+                    style={{ flex: 1, minWidth: 160, background: P.card, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 9, padding: "9px 11px", fontFamily: F.body, fontSize: 13.5, direction: "rtl" }} />
+                  <button onClick={addFinding} style={aiBtn(P, true)}>➕ הוסף ממצא</button>
+                  {findMsg && <span style={{ color: findMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700 }}>{findMsg}</span>}
+                </div>
               </div>
               <textarea value={desc || ""} onChange={e => { setDesc(e.target.value); setSavedMsg(false); }}
                 placeholder="כתוב כאן חופשי את הסבר הצופן — או תן ל-AI לנסח, ואז ערוך/מחק כרצונך…"
