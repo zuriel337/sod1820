@@ -1386,8 +1386,29 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 ניתוח AI — הכרטיס המשותף (זהה למצב מחקר — עץ אחד) */}
-            {aiCard}
+            {/* 🌳 מילים שוות — כל הגימטריות בראש (בקשת צוריאל: גימטריות בהתחלה, לפני ה-AI) */}
+            {d.phrases?.length > tasteStart && (
+              <div style={{ marginTop: 16, textAlign: "center" }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+                  {d.phrases.slice(tasteStart, tasteStart + 24).map((p, i) => (
+                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
+                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
+                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
+                  ))}
+                  {(() => {
+                    const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 24));
+                    return (
+                      <button onClick={() => enterDiscoveryWith("words")} title="המשך במצב מחקר — כל המילים השוות"
+                        style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
+                          borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
+                        🔬 {more > 0 ? `עוד ${more.toLocaleString("he")} →` : "למצב מחקר →"}
+                      </button>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
 
             {/* 🔮 הצלבה נסתרת — הריבוע במרכז (שלב א', הכי חשוב: «הכל מתחבר») */}
             {!isNumber ? (
@@ -1422,30 +1443,16 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🌳 מילים שוות — גימטריה רגילה, מלא ומיד בהתחלה (בקשת צוריאל: מלא גימטריות בראש) */}
-            {d.phrases?.length > tasteStart && (
-              <div style={{ marginTop: 16, textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
-                  {d.phrases.slice(tasteStart, tasteStart + 24).map((p, i) => (
-                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
-                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
-                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
-                  ))}
-                  {/* 🔬 קצה שמאל — כמה עוד מילים יש, קפיצה ישירה להיכל הגילוי (כל המילים) */}
-                  {(() => {
-                    const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 24));
-                    return (
-                      <button onClick={() => enterDiscoveryWith("words")} title="המשך במצב מחקר — כל המילים השוות"
-                        style={{ cursor: "pointer", color: P.accentText, background: "transparent", border: `1px dashed ${P.accentText}`,
-                          borderRadius: 9, padding: "6px 12px", fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
-                        🔬 {more > 0 ? `עוד ${more.toLocaleString("he")} →` : "למצב מחקר →"}
-                      </button>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
+            {/* 🤖 כל ניתוחי ה-AI — אקורדיון אחד סגור (בקשת צוריאל: גימטריות בראש; ה-AI + «נתח שיטה» מרוכזים ומקופלים) */}
+            <details className="ai-fold" style={{ maxWidth: 500, margin: "18px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
+              <style>{`.ai-fold summary::-webkit-details-marker{display:none}.ai-fold[open] .ai-fold-caret{transform:rotate(180deg)}`}</style>
+              <summary style={{ cursor: "pointer", listStyle: "none", padding: "13px 16px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+                <span>🤖 ניתוח AI</span>
+                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontWeight: 600 }}>· פרשנות + נתח כל שיטה</span>
+                <span className="ai-fold-caret" style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 12, transition: "transform .2s ease" }}>▾</span>
+              </summary>
+              <div style={{ padding: "0 8px 10px" }}>{aiCard}</div>
+            </details>
 
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋 🎲). המסע = פעולה משנית עדינה, לא הדגשה. */}
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
