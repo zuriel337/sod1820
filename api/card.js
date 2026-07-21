@@ -266,15 +266,12 @@ export default async function handler(req) {
     )
   );
 
+  // הערה: ImageResponse של @vercel/og כבר מגדיר בעצמו Cache-Control ל-max-age=31536000
+  //   (שנה), כך שכל כרטיס (צירוף פרמטרים ייחודי) מרונדר פעם אחת ואז מוגש מה-CDN בלי
+  //   לצרוך Fluid Active CPU. אין צורך להעביר headers ידני (בגרסה 0.11 זה משכפל את הערך).
   return new ImageResponse(tree, {
     width: W,
     height: H,
     fonts: [{ name: 'Heebo', data: font, weight: 800, style: 'normal' }],
-    // כל כרטיס (צירוף פרמטרים ייחודי) נשמר ב-CDN לאורך זמן → מרונדר פעם אחת בלבד,
-    // ואחר-כך מוגש מהמטמון בלי לצרוך Fluid Active CPU. חוסך את רוב הרינדורים החוזרים
-    // (בוט שסורק שוב ושוב את אותו /number/:n · פוסט · צופן).
-    headers: {
-      'Cache-Control': 'public, immutable, no-transform, max-age=31536000, s-maxage=31536000',
-    },
   });
 }
