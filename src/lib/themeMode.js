@@ -25,7 +25,12 @@ export function setTheme(m) {
   try { localStorage.setItem(KEY, mode); } catch { /* ignore */ }
   emit();
 }
-export function toggleTheme() { setTheme(mode === "light" ? "dark" : "light"); }
+// מתג התמה: אם עמוד כופה מצב (forced — כמו «בית תמיד כהה» / «פורום בהיר»), המתג משנה את
+// הכפייה («שינה בעמוד זה») ולא את ההעדפה הגלובלית; אחרת — משנה את ההעדפה הגלובלית הנשמרת.
+export function toggleTheme() {
+  if (forced) { setForcedMode(forced === "dark" ? "light" : "dark"); return; }
+  setTheme(mode === "light" ? "dark" : "light");
+}
 
 // כפיית-מצב (המעבדה: setForcedMode("light") בכניסה, setForcedMode(null) ביציאה).
 // לא נשמר ב-localStorage → לא משנה את העדפת המשתמש, רק את התצוגה הנוכחית.

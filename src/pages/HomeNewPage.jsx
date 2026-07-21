@@ -16,6 +16,7 @@ import { effDate, shortDate, domNum, hintNums } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
+import { setForcedMode } from "../lib/themeMode.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
@@ -144,6 +145,10 @@ export default function HomeNewPage() {
 
   // ברירת המחדל כהה; מי שרוצה בהיר ימצא את ה-🌙/☀️ למעלה. (אין בורר-תמה כפוי למבקר חדש.)
   useEffect(() => { track("home"); }, []);
+  // 🌑 עמוד ראשי תמיד כהה (בקשת צוריאל) — כופה כהה בכניסה גם למי שבחר בהיר גלובלית.
+  // «אלא אם כן שינה בעמוד זה»: המתג (toggleTheme) משנה את הכפייה כל עוד המשתמש בבית.
+  // ביציאה — משחזר את ההעדפה הגלובלית (setForcedMode(null)).
+  useEffect(() => { setForcedMode("dark"); return () => setForcedMode(null); }, []);
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
