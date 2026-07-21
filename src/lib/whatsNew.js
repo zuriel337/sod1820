@@ -1,5 +1,5 @@
 import { getChannelUpdates, getRealityHints, getPostsFromSupabase } from "./supabase.js";
-import { getForumFeed } from "./contributions.js";
+import { getForumFeed, forumItemMeta } from "./contributions.js";
 import { getSystemCiphers } from "./elsMatrices.js";
 import { seenCutoff } from "./crossesNew.js";
 
@@ -29,9 +29,11 @@ export async function getWhatsNewCounts() {
     const activityN = postsN + hintsN + ciphersN;
     const channelsN = (chanArr || []).flat().filter(u => ms(u.created_at) > cC).length;
     const devN = (dev || []).filter(u => ms(u.created_at) > cD).length;
-    // ⛔ ערוצים לא נספרים ב-total: הם תמיד מלאים + יש טיקר-ערוצים חי → אחרת «מכריחים» את הכרטיס להיפתח כל הזמן.
-    // השדה channels נשמר (מצביע-בלבד בכרטיס), אך מה שמחליט אם יש «חדש» = פורום + פעילות + פיתוח.
-    return { forum: forumN, channels: channelsN, activity: activityN, dev: devN, total: forumN + activityN + devN };
+    // 🌐 הכרטיס בבית = פורום-בלבד (החלטת צוריאל): הזרמים האחרים כבר מוצגים בבית (רצועת «עדכונים אחרונים»
+    // = פעילות · טיקר תחתון = ערוצים · טיקר עליון = פיתוח) → כאן רק «מה חדש בקהילה מאז ביקורך».
+    // forumLatest = הפריט האחרון בפורום (getForumFeed ממוין חדש-first) → הכרטיס מציג את כותרתו.
+    const forumLatest = (forum && forum[0]) ? forumItemMeta(forum[0]) : null;
+    return { forum: forumN, channels: channelsN, activity: activityN, dev: devN, forumLatest, total: forumN + activityN + devN };
   } catch {
     return { forum: 0, channels: 0, activity: 0, dev: 0, total: 0 };
   }
