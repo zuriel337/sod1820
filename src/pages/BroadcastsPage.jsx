@@ -12,6 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
 import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
+import ForumFeed from "../components/ForumFeed.jsx";
 
 // 📡 «מרכז השידורים» — בית אחד, 4 טאבים (עץ אחד). כל טאב = עדשה על מקור-אמת אחד שכבר חי:
 //   💬 פורום       — getForumFeed (חידושים · דיונים · תגובות · צפני-גולשים · הודעות גולשים)
@@ -185,6 +186,9 @@ export default function BroadcastsPage() {
         <div className="bc-empty">טוען…</div>
       ) : tab === "channels" ? (
         <ChannelsView P={P} items={channelItems} all={data.channels} chanCounts={chanCounts} filter={chanFilter} setFilter={setChanFilter} focusId={focusId} onOpen={setLb} />
+      ) : tab === "forum" ? (
+        // 🌳 עץ אחד: אותו פורום ממש כמו /forum — אותו רכיב משותף, לא גרסה מוקטנת
+        <ForumFeed maxWidth={760} />
       ) : (
         <RowsView rows={rows[tab] || []} acc={active.acc} cutoff={cutoffs.current[tab]} />
       )}
