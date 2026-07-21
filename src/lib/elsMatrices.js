@@ -131,6 +131,25 @@ export async function moderateMatrix(id, status) {
   if (error) throw error;
 }
 
+// 🔀 «גרסאות» שממתינות למיזוג לצופן זה — els_records שנשמרו על צופן קיים (positions.variantOf=parentId)
+// ולא הוסתרו. אדמין-בלבד בפועל (RLS admin_all_els); ללא-אדמין מוחזר ריק. לפאנל-הניהול בעמוד-הצופן.
+export async function getVariantsOf(parentId) {
+  if (!supabase || !parentId) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status")
+      .eq("positions->>variantOf", parentId).neq("status", "hidden")
+      .order("created_at", { ascending: false });
+    return data || [];
+  } catch { return []; }
+}
+
+// 🔀 מיזוג גרסה לצופן המקורי (#1) + התראה לתורם (#3) — אטומי דרך RPC (אדמין). מחזיר {added,total}.
+export async function mergeVariant(variantId, parentId) {
+  const { data, error } = await supabase.rpc("merge_els_variant", { p_variant_id: variantId, p_parent_id: parentId });
+  if (error) throw error;
+  return data;
+}
+
 // 🗑 מחיקה-לצמיתות (אדמין) — delete_els_matrix (SECURITY DEFINER). לא ניתן לשחזר.
 export async function deleteMatrix(id) {
   const { error } = await supabase.rpc("delete_els_matrix", { p_id: id });

@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { applySeo } from "../lib/seo.js";
-import { getMatrixBySlug } from "../lib/elsMatrices.js";
+import { getMatrixBySlug, getVariantsOf, mergeVariant } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
 import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
@@ -36,6 +36,8 @@ export default function CipherPage() {
   const [metaMsg, setMetaMsg] = useState("");         // משוב שם/תמונה
   const [newFinding, setNewFinding] = useState("");   // 🎯 אדמין — הוספת ממצא (מילה מוצלבת) לצופן הקנוני
   const [findMsg, setFindMsg] = useState("");          // משוב ניהול-ממצאים
+  const [variants, setVariants] = useState([]);        // 🔀 «גרסאות» שממתינות למיזוג (אדמין)
+  const [mergeMsg, setMergeMsg] = useState("");        // משוב מיזוג-גרסה
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
   const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
@@ -55,11 +57,20 @@ export default function CipherPage() {
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
-    setNewFinding(""); setFindMsg("");
+    setNewFinding(""); setFindMsg(""); setVariants([]); setMergeMsg("");
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
   }, [slug]);
+
+  // 🔀 אדמין — שולף «גרסאות» שממתינות למיזוג לצופן זה (רק כשהצופן נטען). מפתח לפי m.id בלבד
+  //    (לא כל שינוי-שדה) כדי לא לרוץ בלולאה על עדכון-ממצאים מקומי.
+  useEffect(() => {
+    if (!isAdmin || !m || typeof m !== "object" || !m.id) { setVariants([]); return; }
+    let alive = true;
+    getVariantsOf(m.id).then(v => { if (alive) setVariants(v || []); }).catch(() => {});
+    return () => { alive = false; };
+  }, [isAdmin, m?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // מזין את עורך-התיאור פעם אחת מהתיאור השמור (אחר-כך desc הוא מקור-האמת של העורך)
   useEffect(() => { if (m && typeof m === "object" && desc === null) setDesc(m.description || ""); }, [m, desc]);
@@ -255,6 +266,16 @@ export default function CipherPage() {
             setNewFinding("");
           };
           const removeFinding = (i) => saveFindings(findings.filter((_, idx) => idx !== i));
+          // 🔀 מיזוג גרסה לצופן (#1) + התראה לתורם (#3) דרך RPC אטומי, ואז רענון הצופן והרשימה.
+          const doMerge = async (v) => {
+            setMergeMsg("");
+            try {
+              const r = await mergeVariant(v.id, m.id);
+              const fresh = await getMatrixBySlug(slug); if (fresh) setM(fresh);
+              setVariants(list => list.filter(x => x.id !== v.id));
+              setMergeMsg(`✓ מוזג — ${r?.added ?? 0} ממצאים חדשים נוספו`);
+            } catch (e) { setMergeMsg("מיזוג נכשל: " + (e?.message || "")); }
+          };
           const st = m.status || "published";
           const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";
           return (
@@ -299,6 +320,36 @@ export default function CipherPage() {
                   {findMsg && <span style={{ color: findMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700 }}>{findMsg}</span>}
                 </div>
               </div>
+              {/* 🔀 גרסאות שממתינות למיזוג (#2 → #1): גולש ששמר על צופן קיים. מיזוג מושך את ממצאיו + מתריע לו (#3). */}
+              {variants.length > 0 && (
+                <div style={{ background: P.pageBg, border: `1px solid ${P.accent}`, borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+                  <div style={{ color: P.accentText, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🔀 גרסאות שממתינות למיזוג ({variants.length})</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {variants.map(v => {
+                      const vf = Array.isArray(v.positions?.findings) ? v.positions.findings : [];
+                      return (
+                        <div key={v.id} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, padding: "9px 11px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: vf.length ? 6 : 0 }}>
+                            <span style={{ color: P.inkSoft, fontSize: 12, fontWeight: 700 }}>✍️ {v.author_name || "אורח"}</span>
+                            <span style={{ color: P.accentDim, fontSize: 11 }}>· {vf.length} ממצאים</span>
+                            <span style={{ flex: 1 }} />
+                            <button onClick={() => doMerge(v)} style={aiBtn(P, true)}>🔀 מזג לצופן</button>
+                          </div>
+                          {vf.length > 0 && (
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {vf.map((f, i) => (
+                                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: P.pageBg, border: `1px solid ${f.color || P.border}`, borderRadius: 999, padding: "3px 10px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700, color: P.ink }}>{f.t}</span>
+                              ))}
+                            </div>
+                          )}
+                          {v.description && <div style={{ color: P.inkSoft, fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>{v.description}</div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {mergeMsg && <div style={{ color: mergeMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700, marginTop: 7 }}>{mergeMsg}</div>}
+                </div>
+              )}
               <textarea value={desc || ""} onChange={e => { setDesc(e.target.value); setSavedMsg(false); }}
                 placeholder="כתוב כאן חופשי את הסבר הצופן — או תן ל-AI לנסח, ואז ערוך/מחק כרצונך…"
                 style={{ width: "100%", minHeight: 118, background: P.pageBg, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 9, padding: 10, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, direction: "rtl", resize: "vertical" }} />
