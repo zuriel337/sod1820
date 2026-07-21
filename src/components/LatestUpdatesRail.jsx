@@ -15,13 +15,14 @@ import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל 
 
 const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/i;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [] }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [] }) {
   const P = usePalette();
   const light = P.mode === "light";
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
   const cPost = light ? "#c76a1f" : "#e8c15a";
   const cResearcher = light ? "#128a4f" : "#3ddc84";   // 🎗 כתב מיוחד (עדכוני-שידור) — ירוק וואטסאפ
+  const cCipher = light ? "#8a6d10" : "#f0d879";        // 🔠 צופן חדש (מערכת)
 
   const items = useMemo(() => {
     const out = [];
@@ -29,8 +30,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: effDate(h) || +new Date(h.created_at || h.occurred_at || 0), data: h }));
     (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
+    (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     return out.sort((a, b) => b.when - a.when).slice(0, 20);
-  }, [posts, convergences, hints, researchers]);
+  }, [posts, convergences, hints, researchers, ciphers]);
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
@@ -63,6 +65,17 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
             <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>
         </button>
+      );
+    }
+    if (it.type === "cipher") {
+      // 🔠 צופן-מערכת חדש → העמוד הקנוני /codes/:slug
+      return (
+        <Link key={"cf" + (d.id || d.slug)} to={`/codes/${encodeURIComponent(d.slug || d.id)}`} className="lur-card" style={{ "--acc": cCipher }}>
+          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${thumb(d.image_url, 200)})` }} /> : <span className="lur-em">🔠</span>}</div>
+          <div className="lur-body"><Tag acc={cCipher} logo={<span className="lur-lem">🔠</span>}>הצופן · צופן חדש</Tag>
+            <h3 className="lur-title">{d.title || d.search_term}</h3>
+            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cCipher }}>לצופן ←</span></div></div>
+        </Link>
       );
     }
     if (it.type === "researcher") {

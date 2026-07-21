@@ -35,7 +35,7 @@ import HomeHeader from "../components/HomeHeader.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
-import { getSavedMatrices } from "../lib/elsMatrices.js";
+import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -102,6 +102,7 @@ export default function HomeNewPage() {
   const [events, setEvents] = useState([]); // אירועי ציר ההתגלות (ל"מהארכיון")
   const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"
   const [ciphers, setCiphers] = useState([]); // 🔠 צפנים חדשים (els_records published) — רצועה מעל «עדכונים אחרונים»
+  const [recentCiphers, setRecentCiphers] = useState([]); // 🔠 צפני-מערכת של 24 השעות האחרונות → «עדכונים אחרונים»
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
   // 🎠 קרוסלת הירו
@@ -166,6 +167,8 @@ export default function HomeNewPage() {
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
     getFeaturedResearchers(6).then(r => setResearchers(r || [])).catch(() => {});
     getSavedMatrices(20).then(r => setCiphers(r || [])).catch(() => {});
+    // 🔠 «עדכונים אחרונים» מציג צפני-מערכת חדשים — כרגע רק של 24 השעות האחרונות (לא כל הצפנים)
+    getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) > Date.now() - 24 * 3600 * 1000))).catch(() => {});
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
@@ -312,6 +315,17 @@ export default function HomeNewPage() {
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
           font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
           text-shadow:0 2px 24px rgba(0,0,0,.5); }
+        /* 👑 A · קלף מלכותי — הפסוק במסגרת-זהב כפולה (שער דף הבית) */
+        .hn-vframe { position:relative; border:1px solid rgba(212,175,55,.45); border-radius:18px;
+          padding:30px 20px 24px; margin:2px 0; max-width:520px; width:100%;
+          box-shadow: inset 0 0 0 4px rgba(9,7,14,.55), inset 0 0 0 5px rgba(212,175,55,.22), 0 20px 50px rgba(0,0,0,.5); }
+        .hn-verse { margin:0 auto; max-width:470px; color:#efe3c4; font-family:${F.regal};
+          font-size:clamp(21px,4.8vw,28px); line-height:1.85; position:relative; padding:6px 22px; text-wrap:balance; }
+        .hn-verse::before,.hn-verse::after { content:""; position:absolute; top:6px; bottom:6px; width:2px; }
+        .hn-verse::before { inset-inline-end:0; background:linear-gradient(#d4af37,transparent); }
+        .hn-verse::after { inset-inline-start:0; background:linear-gradient(transparent,#d4af37); }
+        .hn-verse b { color:#f0d879; }
+        .hn-vsrc { color:#9a8a63; font-family:${F.heading}; font-size:12.5px; margin-top:8px; letter-spacing:.5px; }
         .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:470px;
           background:rgba(9,7,14,.72); border:1px solid rgba(212,175,55,.55); border-radius:16px;
           padding:5px 8px 5px 16px; box-shadow:0 12px 34px rgba(0,0,0,.5); backdrop-filter:blur(3px); }
@@ -357,8 +371,13 @@ export default function HomeNewPage() {
       <section className="hn-livegate">
         <div className="hn-mx-scrim" aria-hidden="true" />
         <div className="hn-gate-inner">
-          <div className="hn-emblem">✦ דילוגי אותיות · גימטריה · הצופן ✦</div>
-          <h1 className="hn-gate-title">כל מילה מסתירה מספר — כל מספר, סוד.</h1>
+          {/* כותרת נסתרת ל-SEO/נגישות — בשער מוצג רק הפסוק (בקשת צוריאל) */}
+          <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
+          {/* 👑 A · קלף מלכותי — הפסוק בלבד במסגרת-זהב */}
+          <div className="hn-vframe">
+            <blockquote className="hn-verse">«כִּי לַה' <b>הַמְּלוּכָה</b> וּמֹשֵׁל בַּגּוֹיִם»</blockquote>
+            <div className="hn-vsrc">— תהלים כב, כט</div>
+          </div>
           <form onSubmit={go} className="hn-search">
             <span className="hn-mag" aria-hidden="true">🔍</span>
             <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
@@ -398,7 +417,7 @@ export default function HomeNewPage() {
         <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
         {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
-        <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} />
+        <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
