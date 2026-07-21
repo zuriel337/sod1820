@@ -25,6 +25,7 @@ import SearchesTab from "../components/SearchesTab.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
 import Discourse from "../components/Discourse.jsx";
 import SubmitChidush from "../components/SubmitChidush.jsx";
+import AdminModerate from "../components/AdminModerate.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -437,14 +438,14 @@ function CommunityTab({ highlightId }) {
       </div>
       {!items.length
         ? <div style={{ color: L.sub, padding: 20 }}>עדיין אין חידושי קהילה — היו הראשונים לשתף.</div>
-        : items.map(it => <CommunityCard key={it.id} it={it} flash={flash === it.id} />)}
+        : items.map(it => <CommunityCard key={it.id} it={it} flash={flash === it.id} onModerated={() => setItems(prev => (prev || []).filter(x => x.id !== it.id))} />)}
     </div>
   );
 }
 
 // כרטיס חידוש-קהילה בודד + מדור תגובות (Discourse הקנוני), נטען לפי דרישה (toggle).
 // עץ אחד: התגובות = research_contributions על target insight (לא מערכת נפרדת).
-function CommunityCard({ it, flash }) {
+function CommunityCard({ it, flash, onModerated }) {
   const [showDisc, setShowDisc] = useState(false);
   return (
     <div id={`comm-${it.id}`} style={{
@@ -456,11 +457,12 @@ function CommunityCard({ it, flash }) {
         <div style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "4px 6px 8px" }}>✨ הנה החידוש שלך — פורסם כאן!</div>
       )}
       <CrossCard item={it} />
-      <div style={{ marginTop: 8, paddingInlineStart: 4 }}>
+      <div style={{ marginTop: 8, paddingInlineStart: 4, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <button onClick={() => setShowDisc(v => !v)} style={{
           cursor: "pointer", background: "transparent", border: `1px solid ${L.gold}`, color: L.goldDeep,
           borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "5px 14px",
         }}>💬 {showDisc ? "הסתר תגובות" : "תגובות והגב"}</button>
+        <span style={{ marginInlineStart: "auto", color: L.sub }}><AdminModerate kind="insight" id={it.id} onDone={onModerated} /></span>
         {showDisc && (
           <div style={{ marginTop: 12 }}>
             <Discourse target={{ type: "insight", id: it.id }} origin="community" />

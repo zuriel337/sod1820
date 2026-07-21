@@ -10,6 +10,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import SubmitChidush from "./SubmitChidush.jsx";
+import AdminModerate from "./AdminModerate.jsx";
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -89,6 +90,11 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
         )}
         <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>💬 המשך בדיון ←</Link>
       </div>
+      {isAdmin && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${P.border}` }}>
+          <AdminModerate kind="contribution" id={c.contribId} onDone={onChanged} />
+        </div>
+      )}
     </div>
   );
 }
@@ -127,7 +133,7 @@ function PostCard({ c, P }) {
   );
 }
 
-function InsightCard({ c, P }) {
+function InsightCard({ c, P, isAdmin, onChanged }) {
   const [open, setOpen] = useState(false);
   const body = stripHtml(c.body || "");
   const long = body.length > 420;
@@ -151,6 +157,11 @@ function InsightCard({ c, P }) {
         {long && <button onClick={() => setOpen(o => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: P.accent, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: 0 }}>{open ? "▴ הסתר" : "▾ קרא עוד"}</button>}
         <Link to={c.link || "/research?tool=midrash"} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>לחידוש המלא ←</Link>
       </div>
+      {isAdmin && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${P.border}` }}>
+          <AdminModerate kind="insight" id={c.id} onDone={onChanged} />
+        </div>
+      )}
     </div>
   );
 }
@@ -307,7 +318,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 13 }}>
-          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} /> : c.kind === "cipher" ? <CipherCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
+          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} /> : c.kind === "cipher" ? <CipherCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
         </div>
       )}
     </div>
