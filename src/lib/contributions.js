@@ -186,12 +186,27 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
       .eq("status", "approved").is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
-    tasks.push(q.then(({ data }) => (data || []).map(c => ({
-      kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
-      author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
-      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
-      pinned: !!c.pinned_at, pinned_at: c.pinned_at,
-    }))).catch(() => []));
+    tasks.push((async () => {
+      const { data } = await q;
+      const rows = data || [];
+      // 🌳 עץ אחד: פותרים את שם-התצוגה הנוכחי (users.display_name) לפי author_user_id — «בחר שם» משתקף
+      // מיד בפורום, בלי לגעת ב-author_name היציב (שעליו נשען הקישור לדף-החוקר). מקור-זהות אחד.
+      const uids = [...new Set(rows.map(c => c.author_user_id).filter(Boolean))];
+      const nameMap = {};
+      if (uids.length) {
+        try {
+          const { data: us } = await supabase.from("users").select("id,display_name").in("id", uids);
+          for (const u of us || []) { const d = (u.display_name || "").trim(); if (d) nameMap[u.id] = d; }
+        } catch { /* noop */ }
+      }
+      return rows.map(c => ({
+        kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
+        author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
+        author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
+        target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
+        pinned: !!c.pinned_at, pinned_at: c.pinned_at,
+      }));
+    })().catch(() => []));
   }
 
   if (wantPosts) {
