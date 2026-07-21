@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { getSearchStatsToday, getGalleryUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
+import { getForumFeed } from "../../lib/contributions.js";
 import { stripHtml } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
@@ -27,6 +28,23 @@ function useLiveTicker() {
           if (!ts || ts < cutoff) continue;
           const title = stripHtml(p.title || "").trim();
           if (title) items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post" });
+        }
+      } catch { /* ignore */ }
+
+      // 1.5) 💬 חידושי-פורום טריים → לדיון. מציג את *כותרת החידוש* למעלה (בקשת צוריאל).
+      //      read-בלבד מ-getForumFeed (בלי כתיבה ל-channel_updates → אפס כפילות עם הטיקר התחתון).
+      try {
+        const feed = await getForumFeed({ limit: 15 });
+        for (const it of (feed || [])) {
+          if (it.kind === "post") continue;   // פוסטים כבר נכנסים דרך מקור (1)
+          const ts = new Date(it.ts || 0).getTime();
+          if (!ts || ts < cutoff) continue;
+          const title = stripHtml(it.title || it.body || "").trim();
+          if (!title) continue;
+          const to = it.kind === "cipher" ? `/codes/${encodeURIComponent(it.slug || "")}`
+            : it.kind === "insight" ? (it.link || "/forum")
+              : `/forum/${it.contribId}`;
+          items.push({ kind: "forum", text: "חידוש חדש — " + title.slice(0, 70), to });
         }
       } catch { /* ignore */ }
 
@@ -65,7 +83,7 @@ function useLiveTicker() {
 }
 
 // אייקון + תווית-מקור קצרה לפי סוג הפריט (בלי «ריבוע» כבד — רק אמוג'י)
-const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊" };
+const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊", forum: "💬" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
