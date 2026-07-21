@@ -16,6 +16,18 @@ export async function getSavedMatrices(limit = 100) {
   } catch { return []; }
 }
 
+// 🔠 צפני-מערכת — published שהמערכת/אדמין הוסיפה (לא 'community' → פורום; לא 'research' → תיקייה נסתרת).
+//    שייכים לזרם-המערכת הקנוני («פעילות האתר»/עדכונים אחרונים). עץ אחד: אותו els_records, עדשה שונה.
+export async function getSystemCiphers(limit = 20) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS)
+      .eq("status", "published").not("source", "in", "(community,research)")
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
 // 🔬 תיקיית-המחקר (נסתרת) — רק צפני-מחקר מאושרים. עדשה על els_records where source='research'.
 // לא מקושרת מהתפריט/בית/כלי — רק מי שנכנס לכתובת /codes/מחקר רואה (unlisted).
 export async function getResearchMatrices(limit = 100) {

@@ -14,6 +14,7 @@ import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/Bran
 import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
 import ForumFeed from "../components/ForumFeed.jsx";
 import SiteUpdatesFeed from "../components/SiteUpdatesFeed.jsx";
+import { getSystemCiphers } from "../lib/elsMatrices.js";
 
 // 📡 «מרכז השידורים» — בית אחד, 4 טאבים (עץ אחד). כל טאב = עדשה על מקור-אמת אחד שכבר חי:
 //   💬 פורום       — getForumFeed (חידושים · דיונים · תגובות · צפני-גולשים · הודעות גולשים)
@@ -52,6 +53,11 @@ function hintRow(h) {
   const n = nums[0];
   return { id: "rh_" + (h.id || Math.random()), ico: "🖼️", title: h.name || (n ? `רמז · ${n}` : "רמז חדש"), who: h.author_name, time: effDate(h) || h.created_at, href: n ? `/number/${n}` : "/archive", image: h.image_url, tag: "זרם המציאות" };
 }
+// 🔠 צופן-מערכת (admin published) → זרם-הפעילות הקנוני. צפני-קהילה נשארים בפורום.
+function sysCipherRow(c) {
+  return { id: "sc_" + c.id, ico: "🔠", title: c.title || c.search_term || "צופן", who: c.author_name || "סוד1820",
+    time: c.created_at, href: `/codes/${encodeURIComponent(c.slug || c.id)}`, image: c.image_url, tag: "צופן חדש" };
+}
 
 export default function BroadcastsPage() {
   const P = usePalette();
@@ -75,15 +81,16 @@ export default function BroadcastsPage() {
   useEffect(() => {
     let live = true;
     (async () => {
-      const [forum, hints, postsRes, chanArrays, dev] = await Promise.all([
+      const [forum, hints, postsRes, sysCiphers, chanArrays, dev] = await Promise.all([
         getForumFeed({ limit: 60, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
         getRealityHints(40).catch(() => []),
         getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(r => r?.posts || []).catch(() => []),  // כל הפוסטים (כולל מערכת)
+        getSystemCiphers(20).catch(() => []),   // 🔠 צפני-מערכת → זרם הפעילות
         Promise.all(REAL_CHANNELS.map(ch => getChannelUpdates(40, ch, true).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => []))),
         getChannelUpdates(60, DEV_CHANNEL, true).catch(() => []),
       ]);
       if (!live) return;
-      setData({ forum: forum || [], hints: hints || [], posts: postsRes || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
+      setData({ forum: forum || [], hints: hints || [], posts: postsRes || [], sysCiphers: sysCiphers || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
     })();
     return () => { live = false; };
   }, []);
@@ -94,7 +101,8 @@ export default function BroadcastsPage() {
   const rows = useMemo(() => {
     if (!data) return { forum: [], activity: [] };
     const forum = data.forum.map(forumRow);   // כבר בלי פוסטים (includePosts:false)
-    const activity = [...(data.posts || []).map(postRow), ...data.hints.map(hintRow)]
+    // פעילות האתר = עדכונים אחרונים (כל הפוסטים) + זרם המציאות + צפני-מערכת חדשים
+    const activity = [...(data.posts || []).map(postRow), ...data.hints.map(hintRow), ...(data.sysCiphers || []).map(sysCipherRow)]
       .sort((a, b) => toMs(b.time) - toMs(a.time));
     return { forum, activity };
   }, [data]);
