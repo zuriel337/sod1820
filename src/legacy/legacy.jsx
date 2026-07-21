@@ -15,6 +15,7 @@ import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
 import ForumUpdatesBox from "../components/ForumUpdatesBox.jsx";
 import Discourse from "../components/Discourse.jsx";
+import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
@@ -4909,24 +4910,17 @@ function PostPageBySlug({ onNav }) {
             {/* מעקב בתוך הפוסט — הרשמה לעדכונים לפי קטגוריה/כותב (עץ אחד: subscribers + notification_prefs) */}
             <PostFollowBox categories={cats} author={author} pc={pc} />
 
-            {/* 💬 מבנה-התגובות שלנו (Discourse הקנוני) — מעל הצ'אט הישן, לא במקומו. תגובה על הפוסט.
-                בלי archive (התגובות הישנות מרונדרות במקטע הנפרד למטה) — כדי לא לשכפל. */}
-            <div style={{ marginTop: 48 }}>
-              <Discourse target={{ type: "post", id: String(post.wp_id) }} origin="post" archive={[]} />
-            </div>
+            {/* 🌱 «הקהילה בשלב ההקמה» — במקום תגובות-פתוחות (0 תגובות = נראה מת), הזמנה איכותית
+                לכתוב חידוש בבית המדרש (החלטת צוריאל). Spot.IM הוסר; תגובות-WP ההיסטוריות בארכיון-מקופל למטה. */}
+            <CommunityForming to="/beit-midrash" />
 
-            <SpotimComments postId={post.wp_id} postUrl={`${SITE_URL}/${post.slug || slug}`} />
-            {/* ── COMMENTS ── */}
+            {/* ── תגובות ישנות (ארכיון WordPress) — מקופל, נשמר ולא נמחק (אופציה ב') ── */}
             {comments.length > 0 && (
-              <div style={{ marginTop: 64 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
-                  <RoyalDivider width={48} />
-                  <span style={{ color: pc.goldDim, fontFamily: F.heading, fontSize: 11, letterSpacing: 4, textTransform: "uppercase" }}>
-                    תגובות ({comments.length})
-                  </span>
-                  <RoyalDivider width={48} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <details style={{ marginTop: 44 }}>
+                <summary style={{ cursor: "pointer", color: pc.goldDim, fontFamily: F.heading, fontSize: 11.5, letterSpacing: 3, textTransform: "uppercase", textAlign: "center", padding: "10px 0" }}>
+                  🗄 תגובות ישנות · ארכיון ({comments.length})
+                </summary>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 22 }}>
                   {comments.map(c => {
                     const isReply = c.parent_wp_id && c.parent_wp_id !== 0;
                     const cDate = c.date
@@ -4955,7 +4949,7 @@ function PostPageBySlug({ onNav }) {
                     );
                   })}
                 </div>
-              </div>
+              </details>
             )}
           </>
         )}
