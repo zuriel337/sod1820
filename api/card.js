@@ -77,6 +77,35 @@ async function topPhrases(n) {
   }
 }
 
+// 🚀 נכסים כבדים (פונט + לוגו) נטענים פעם אחת לכל isolate ונשמרים בזיכרון בין קריאות חמות.
+//    לפני כן הם נמשכו-מחדש וה-base64 של הלוגו קודד מאפס בכל רינדור — בזבוז CPU שחזר על עצמו
+//    בכל בקשה. עכשיו הקידוד היקר קורה רק בקריאה הראשונה של כל isolate (Fluid Active CPU).
+let _fontPromise;
+function loadFont() {
+  if (!_fontPromise) {
+    _fontPromise = fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) => r.arrayBuffer());
+  }
+  return _fontPromise;
+}
+
+let _logoPromise;
+function loadLogo() {
+  if (!_logoPromise) {
+    _logoPromise = fetch(new URL('./_assets/logo.png', import.meta.url))
+      .then((r) => r.arrayBuffer())
+      .then((buf) => {
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+          bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+        }
+        return 'data:image/png;base64,' + btoa(bin);
+      })
+      .catch(() => null);
+  }
+  return _logoPromise;
+}
+
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   const nRaw = searchParams.get('n');
@@ -123,23 +152,11 @@ export default async function handler(req) {
   const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
   const signature = sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
 
-  const font = await fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) =>
-    r.arrayBuffer()
-  );
+  const font = await loadFont();
 
   // 👑 הלוגו האמיתי (הכתר + «כי לה' המלוכה») — מוטמע כ-data URI מתוך _assets, בלי תלות-רשת בזמן רינדור.
   //    logo_integrity_law: המקור היחיד /logo.png (512×512 מרובע) — מוצג contain, בלי חיתוך המילים.
-  const logoDataUri = await fetch(new URL('./_assets/logo.png', import.meta.url))
-    .then((r) => r.arrayBuffer())
-    .then((buf) => {
-      const bytes = new Uint8Array(buf);
-      let bin = '';
-      for (let i = 0; i < bytes.length; i += 0x8000) {
-        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-      }
-      return 'data:image/png;base64,' + btoa(bin);
-    })
-    .catch(() => null);
+  const logoDataUri = await loadLogo();
   const logoSize = story ? 150 : 104;
 
   // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי).
@@ -253,5 +270,11 @@ export default async function handler(req) {
     width: W,
     height: H,
     fonts: [{ name: 'Heebo', data: font, weight: 800, style: 'normal' }],
+    // כל כרטיס (צירוף פרמטרים ייחודי) נשמר ב-CDN לאורך זמן → מרונדר פעם אחת בלבד,
+    // ואחר-כך מוגש מהמטמון בלי לצרוך Fluid Active CPU. חוסך את רוב הרינדורים החוזרים
+    // (בוט שסורק שוב ושוב את אותו /number/:n · פוסט · צופן).
+    headers: {
+      'Cache-Control': 'public, immutable, no-transform, max-age=31536000, s-maxage=31536000',
+    },
   });
 }
