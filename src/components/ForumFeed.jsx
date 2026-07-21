@@ -88,7 +88,7 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
             {c.pinned ? "📌 בטל הצמדה" : "📌 הצמד"}
           </button>
         )}
-        <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>💬 המשך בדיון ←</Link>
+        <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>📖 פתח וקשר ←</Link>
       </div>
       {isAdmin && (
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${P.border}` }}>

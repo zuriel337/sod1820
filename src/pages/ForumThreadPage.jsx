@@ -10,9 +10,9 @@ import Discourse from "../components/Discourse.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import { getContributionById } from "../lib/contributions.js";
 
-// 💬 עמוד-שרשור בפורום (/forum/:id) — תגובה על מחקר מתוך הפורום, בלי לצאת לדף-הישות.
-// עץ אחד: עושה שימוש חוזר ב-Discourse הקנוני עם focusId → מלחין, תגובות, ריאקציות, «מצאתי קשר»
-// ומודרציה — הכל מהרכיב הקיים, לא מקביל. נפתח במצב בהיר כמו שאר הפורום.
+// 📖 עמוד-תרומה בפורום (/forum/:id) — קריאת התרומה וחיבורה לגרף, בלי לצאת לדף-הישות.
+// write-only: לא מגיבים בשרשור — מחברים דרך «🔗 מצאתי קשר» (edge). עץ אחד: שימוש חוזר ב-Discourse
+// הקנוני עם focusId → הכרטיס, ריאקציות, «מצאתי קשר» ומודרציה. נפתח במצב בהיר כמו שאר הפורום.
 export default function ForumThreadPage() {
   const { id } = useParams();
   const P = usePalette();
@@ -49,7 +49,7 @@ export default function ForumThreadPage() {
     <div style={wrap}>
       <div style={{ marginBottom: 14 }}>
         <Link to="/forum" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>← פורום המחקר</Link>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,4.5vw,28px)", fontWeight: 800, margin: "6px 0 2px" }}>💬 דיון מחקר</h1>
+        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,4.5vw,28px)", fontWeight: 800, margin: "6px 0 2px" }}>📖 תרומת מחקר</h1>
         {hasTarget && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5 }}>
             סביב <Link to={c.target_type === "els" ? `/codes/${encodeURIComponent(c.target_id)}` : `/number/${encodeURIComponent(c.target_id)}`} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }}>{c.target_type === "number" ? "🔢" : c.target_type === "els" ? "🔠" : "🔖"} {c.target_id}</Link>
