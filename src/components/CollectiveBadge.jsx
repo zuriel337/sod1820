@@ -5,8 +5,11 @@ import { useAuth } from "../lib/AuthContext.jsx";
 
 // 🔎 אות קהילתי (Collective Discovery) — הספירה הציבורית כ**שער כניסה**:
 // גילוי → סקרנות → רצון להשתתף → הרשמה. גלוי לכולם (הוכחה חברתית = hook).
-// אנונימי → CTA-הצטרפות טבעי · מחובר → תחושת השתייכות.
-// שכבת-קהילה בלבד (research_items) — לא נכתב ל-nodes/edges (הגרף נשאר קשרים מאושרים בלבד).
+// שכבת-קהילה מאוחדת (4a: שמירות + חידושים מאושרים, entity_collective_count) — לא נכתב ל-nodes/edges.
+// ⭐ סף-התכנסות: כש-≥CONVERGENCE_MIN חוקרים שונים נפגשים באותו node — מוקרן כ«התכנסות קהילתית»
+//    (אות מודגש), לא סתם ספירה. כשמעט — נשאר עדין. אות אמיתי, מרוויח את עצמו.
+const CONVERGENCE_MIN = 3;
+
 export default function CollectiveBadge({ type, refv, label = "את זה" }) {
   const { user } = useAuth();
   const [n, setN] = useState(0);
@@ -17,13 +20,27 @@ export default function CollectiveBadge({ type, refv, label = "את זה" }) {
     return () => { alive = false; };
   }, [type, refv]);
   if (n < 1) return null;
+  const convergence = n >= CONVERGENCE_MIN;
   const count = n.toLocaleString("he");
   const verb = n === 1 ? "חוקר אחד חוקר" : `${count} חוקרים חוקרים`;
   return (
-    <div style={{ textAlign: "center", margin: "10px auto 0", maxWidth: 440,
-      background: "var(--card,rgba(196,154,46,.10))", border: "1px solid var(--line,rgba(196,154,46,.35))",
-      borderRadius: 14, padding: "10px 14px" }}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--acc,#c79a2e)" }}>🔎 {verb} {label}</div>
+    <div style={{
+      textAlign: "center", margin: "10px auto 0", maxWidth: 460,
+      background: convergence ? "var(--card,rgba(196,154,46,.16))" : "var(--card,rgba(196,154,46,.10))",
+      border: `1px solid var(--line,rgba(196,154,46,${convergence ? ".6" : ".35"}))`,
+      boxShadow: convergence ? "0 0 0 1px var(--line,rgba(196,154,46,.4)) inset" : "none",
+      borderRadius: 14, padding: "11px 15px",
+    }}>
+      <div style={{ fontSize: convergence ? 14.5 : 14, fontWeight: 800, color: "var(--acc,#c79a2e)" }}>
+        {convergence
+          ? `🔎 התכנסות קהילתית — ${count} חוקרים חוקרים ${label}`
+          : `🔎 ${verb} ${label}`}
+      </div>
+      {convergence && (
+        <div style={{ fontSize: 12, color: "var(--ink,inherit)", opacity: 0.8, marginTop: 3, lineHeight: 1.6 }}>
+          כשהרבה חוקרים נפגשים באותה נקודה — זה סימן ששווה להתעמק בו.
+        </div>
+      )}
       {user ? (
         <div style={{ fontSize: 12, color: "var(--ink,inherit)", opacity: 0.85, marginTop: 4, lineHeight: 1.65 }}>
           אתה חלק מהקהילה שחוקרת את זה · האוסף שלך בונה את המפה האישית שלך.

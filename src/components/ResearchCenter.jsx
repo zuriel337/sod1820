@@ -4,7 +4,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
-import { getAiAnalysis } from "../lib/supabase.js";
+import { getAiAnalysis, getTopCollective } from "../lib/supabase.js";
 import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
@@ -132,6 +132,10 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
 
+  // 🔎 מה שהקהילה חוקרת עכשיו — nodes עם ≥3 חוקרים שונים (Collective Discovery, מקור מאוחד 4a).
+  const [community, setCommunity] = useState([]);
+  useEffect(() => { let a = true; getTopCollective(3, 8).then(r => { if (a) setCommunity(Array.isArray(r) ? r : []); }).catch(() => {}); return () => { a = false; }; }, []);
+
   // 🤖 ניתוח-AI של אוסף-המחקר (מוצמדים + פעיל) — Analyze(Collection). מוצא חוטים אמיתיים בין
   // הישויות שאספת (ערכים משותפים · קשר תמטי · התכנסות), ביושר אם אין. הערכים = עובדה מהמנוע.
   const [aiState, setAiState] = useState("idle"); // idle | busy | done | off
@@ -201,6 +205,25 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     ) },
     { id: "notes", icon: "📝", label: "פנקס", render: bare => (
       <Panel icon="📝" title="פנקס מחקר" bare={bare}><NotesPanel /></Panel>
+    ) },
+    { id: "community", icon: "🔎", label: "קהילה", badge: () => community.length || null, render: bare => (
+      <Panel icon="🔎" title="מה שהקהילה חוקרת" extra={community.length || null} bare={bare}>
+        {community.length === 0
+          ? <div className="rw-empty">כשכמה חוקרים ייגעו באותו מספר או ביטוי — תופיע כאן «התכנסות קהילתית» עם קישור לצלול פנימה.</div>
+          : <div style={{ display: "grid", gap: 6 }}>
+              {community.map((c, i) => {
+                const to = c.entity_type === "els" ? `/codes/${encodeURIComponent(c.entity_ref)}` : `/number/${encodeURIComponent(c.entity_ref)}`;
+                const ic = c.entity_type === "number" ? "🔢" : c.entity_type === "els" ? "🔠" : "🔖";
+                return (
+                  <Link key={i} to={to} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none",
+                    background: "rgba(196,154,46,.08)", border: "1px solid rgba(196,154,46,.28)", borderRadius: 10, padding: "7px 11px", color: "inherit" }}>
+                    <span style={{ fontWeight: 800 }}>{ic} {c.title || c.entity_ref}</span>
+                    <span className="rw-muted" style={{ marginInlineStart: "auto", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>🔎 {c.researchers} חוקרים</span>
+                  </Link>
+                );
+              })}
+            </div>}
+      </Panel>
     ) },
     { id: "active", icon: "🧠", label: "מחקר", badge: () => cart.length + pinned.length, render: bare => (
       <Panel icon="🧠" title="המחקר הפעיל" extra={(cart.length + pinned.length) || null} bare={bare}>
@@ -362,7 +385,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const ids = variant === "tools" ? ["whatsnew"]   // «ai» הוסתר עד שיהיה מוכן (לא «בבנייה» מול הפרצוף)
     // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
     // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
-    : variant === "context" ? ["notes", "active", "history", "journeys", "saved", "roadmap"]
+    : variant === "context" ? ["notes", "active", "community", "history", "journeys", "saved", "roadmap"]
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
