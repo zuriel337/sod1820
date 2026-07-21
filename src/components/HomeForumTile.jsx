@@ -5,39 +5,53 @@ import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml } from "../lib/format.js";
 
-// 💬 «מהפורום» — שורה אחת עם ההודעה האחרונה בפורום (→ /forum), וגם המקום הקנוני שמפנה
-// לכתוב חידוש בבית המדרש (החלטת צוריאל). מקור-אמת יחיד: getForumFeed(limit:1) + forumItemMeta.
+// 💬 «מהפורום» — 3 הפריטים האחרונים בפורום (→ /forum), + המקום הקנוני שמפנה לכתוב חידוש.
+// מציג 3 (לא 1) כדי לא לחפוף לכרטיס «מה חדש» שמצביע על הפריט האחרון בלבד. מקור-אמת: getForumFeed(3) + forumItemMeta.
 export default function HomeForumTile() {
   const P = usePalette();
-  const [it, setIt] = useState(null);
+  const [items, setItems] = useState([]);
   useEffect(() => {
     let alive = true;
-    getForumFeed({ limit: 1 }).then(f => { if (alive) setIt((f && f[0]) || null); }).catch(() => {});
+    getForumFeed({ limit: 3 }).then(f => { if (alive) setItems(Array.isArray(f) ? f.slice(0, 3) : []); }).catch(() => {});
     return () => { alive = false; };
   }, []);
 
-  const m = it ? forumItemMeta(it) : null;
-  const text = m ? (stripHtml(m.text || "").slice(0, 64) || m.label) : "";
-
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 12,
-      background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "11px 15px",
+      marginTop: 12, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "12px 15px",
     }}>
-      <Link to={m ? m.href : "/forum"} style={{ display: "flex", alignItems: "center", gap: 9, flex: 1, minWidth: 200, textDecoration: "none" }}>
+      {/* כותרת + כתיבת-חידוש */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 9 : 0 }}>
         <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>🌐 מהפורום</span>
-        {m
-          ? <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
-              {m.em} {text} <span style={{ color: P.accentDim }}>· ✍️ {m.who}</span>
-            </span>
-          : <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13 }}>הצטרפו למחקר הקהילתי</span>}
-      </Link>
-      <Link to="/beit-midrash" style={{
-        whiteSpace: "nowrap", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
-        fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, borderRadius: 999, padding: "8px 16px",
-      }}>
-        ✍️ שתפו חידוש ←
-      </Link>
+        <Link to="/forum" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>כל הפורום ←</Link>
+        <Link to="/beit-midrash" style={{
+          marginInlineStart: "auto", whiteSpace: "nowrap", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
+          fontFamily: F.heading, fontWeight: 800, fontSize: 12, borderRadius: 999, padding: "7px 14px",
+        }}>✍️ שתפו חידוש ←</Link>
+      </div>
+
+      {/* 3 הפריטים האחרונים */}
+      {items.length ? (
+        <div style={{ display: "grid", gap: 2 }}>
+          {items.map((it, i) => {
+            const m = forumItemMeta(it);
+            const text = stripHtml(m.text || "").slice(0, 70) || m.label;
+            return (
+              <Link key={it.id || i} to={m.href} style={{
+                display: "flex", alignItems: "center", gap: 8, textDecoration: "none", padding: "7px 2px",
+                borderTop: i ? `1px solid ${P.border}` : "none",
+              }}>
+                <span style={{ flexShrink: 0, fontSize: 13 }}>{m.em}</span>
+                <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {text} <span style={{ color: P.accentDim }}>· ✍️ {m.who}</span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13 }}>הצטרפו למחקר הקהילתי — היו הראשונים לשתף חידוש.</span>
+      )}
     </div>
   );
 }
