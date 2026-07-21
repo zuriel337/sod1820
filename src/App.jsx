@@ -31,6 +31,7 @@ import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import { UserCenterProvider } from "./lib/userCenter/UserCenterContext.jsx";
 import UserCenter from "./components/userCenter/UserCenter.jsx";
 import AiQuotaToast from "./components/AiQuotaToast.jsx";
+import ProfileNudge from "./components/ProfileNudge.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
@@ -359,6 +360,7 @@ export default function App() {
         </React.Suspense>
         <UserCenter />
         <AiQuotaToast />
+        <ProfileNudge />
         </UserCenterProvider>
         </ResearchProvider>
     </BrowserRouter>
