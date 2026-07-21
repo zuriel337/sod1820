@@ -94,10 +94,11 @@ export default function ResearchShell({ children, subnav }) {
   const [rightW, setRightW] = useState(() => num("rw_right_w", 320));
   const [leftW, setLeftW] = useState(() => num("rw_left_w", 250));
   // כניסה ראשונה לעולם-המשתמש → נוחתים על הפנקס (גדול); אחר-כך נזכרת בחירת המשתמש.
-  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab") || "notes"; } catch { return "notes"; } });
+  // ברירת-מחדל «active» (המחקר הפעיל) — לא «notes»; מפתח חדש (v2) כדי לנקות את ברירת-הפנקס הישנה השמורה.
+  const [leftTab, setLeftTab] = useState(() => { try { return localStorage.getItem("rw_left_tab2") || "active"; } catch { return "active"; } });
   const [leftSeen, setLeftSeen] = useState(cart.length);
   useEffect(() => { if (leftOpen) setLeftSeen(cart.length); }, [leftOpen, cart.length]);
-  useEffect(() => { try { localStorage.setItem("rw_left_tab", leftTab); } catch { /**/ } }, [leftTab]);
+  useEffect(() => { try { localStorage.setItem("rw_left_tab2", leftTab); } catch { /**/ } }, [leftTab]);
   const leftDot = !leftOpen && cart.length > leftSeen;
   // פתיחת השמאל ישירות לטאב מבוקש (מהמסילה) — מהלך משוכלל: אייקון במסילה = קיצור לטאב
   const openLeftTo = id => { if (id) setLeftTab(id); setLeftOpen(true); };

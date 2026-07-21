@@ -164,7 +164,7 @@ export const rwCss = (t = RW) => `
   .rw-qa .pri{background:var(--acc);border-color:var(--acc);color:#fff}
   .rw-empty{color:var(--ink3);font-size:13px;line-height:1.6;padding:6px 2px}
   /* 📝 פנקס-מחקר — משטח כתיבה חופשי, נשמר מסשן-לסשן */
-  .rw-notes{width:100%;box-sizing:border-box;min-height:380px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+  .rw-notes{width:100%;box-sizing:border-box;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:12px;
     background:var(--bg);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.7;padding:12px 13px;outline:none}
   .rw-notes:focus{border-color:var(--acc)}
   .rw-notes-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}

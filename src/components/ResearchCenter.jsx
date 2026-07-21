@@ -153,7 +153,8 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   } = useResearch();
   const { user, profile, signOut } = useAuth();
   const nav = useNavigate();
-  const [localTab, setLocalTab] = useState("me");
+  // ברירת-מחדל «active» (המחקר הפעיל) ולא «me» — «me» כבר לא בקונטקסט, ונפילה ל-list[0] פתחה פנקס-ענק ריק.
+  const [localTab, setLocalTab] = useState("active");
   const tab = activeTab ?? localTab;
   const setTab = onTab ?? setLocalTab;
 
