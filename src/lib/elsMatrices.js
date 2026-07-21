@@ -144,10 +144,24 @@ export async function getVariantsOf(parentId) {
 }
 
 // 🔀 מיזוג גרסה לצופן המקורי (#1) + התראה לתורם (#3) — אטומי דרך RPC (אדמין). מחזיר {added,total}.
+// משמש גם למיזוג-כפילויות: p_variant_id = הכפילות למזג, p_parent_id = הצופן שנשאר. גנרי.
 export async function mergeVariant(variantId, parentId) {
   const { data, error } = await supabase.rpc("merge_els_variant", { p_variant_id: variantId, p_parent_id: parentId });
   if (error) throw error;
   return data;
+}
+
+// 🔁 כפילויות של צופן — רשומות אחרות עם אותו מונח·דילוג·היקף (מלבד הצופן עצמו). אדמין-בלבד
+// (RLS admin_all_els) — מוצג בפאנל-הניהול כדי למזג ולנקות. כולל כל סטטוס (גם מוסתרים ישנים).
+export async function getDuplicatesOf(m) {
+  if (!supabase || !m?.id || !m.search_term) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status")
+      .eq("search_term", m.search_term).eq("skip_distance", m.skip_distance || 0)
+      .eq("scope", m.scope || "torah").neq("id", m.id)
+      .order("created_at", { ascending: true });
+    return data || [];
+  } catch { return []; }
 }
 
 // 🗑 מחיקה-לצמיתות (אדמין) — delete_els_matrix (SECURITY DEFINER). לא ניתן לשחזר.

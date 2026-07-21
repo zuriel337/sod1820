@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { applySeo } from "../lib/seo.js";
-import { getMatrixBySlug, getVariantsOf, mergeVariant } from "../lib/elsMatrices.js";
+import { getMatrixBySlug, getVariantsOf, mergeVariant, getDuplicatesOf } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
 import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
@@ -37,7 +37,8 @@ export default function CipherPage() {
   const [newFinding, setNewFinding] = useState("");   // 🎯 אדמין — הוספת ממצא (מילה מוצלבת) לצופן הקנוני
   const [findMsg, setFindMsg] = useState("");          // משוב ניהול-ממצאים
   const [variants, setVariants] = useState([]);        // 🔀 «גרסאות» שממתינות למיזוג (אדמין)
-  const [mergeMsg, setMergeMsg] = useState("");        // משוב מיזוג-גרסה
+  const [dups, setDups] = useState([]);                // 🔁 כפילויות (אותו מונח·דילוג·היקף) — אדמין
+  const [mergeMsg, setMergeMsg] = useState("");        // משוב מיזוג-גרסה/כפילות
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
   const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
@@ -57,7 +58,7 @@ export default function CipherPage() {
     //    ולחיצת-שמור דורסת את התיאור הנכון (השחתת-נתונים). מאפסים desc→null כדי שייזרע מחדש.
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
-    setNewFinding(""); setFindMsg(""); setVariants([]); setMergeMsg("");
+    setNewFinding(""); setFindMsg(""); setVariants([]); setDups([]); setMergeMsg("");
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     return () => { alive = false; };
@@ -66,9 +67,10 @@ export default function CipherPage() {
   // 🔀 אדמין — שולף «גרסאות» שממתינות למיזוג לצופן זה (רק כשהצופן נטען). מפתח לפי m.id בלבד
   //    (לא כל שינוי-שדה) כדי לא לרוץ בלולאה על עדכון-ממצאים מקומי.
   useEffect(() => {
-    if (!isAdmin || !m || typeof m !== "object" || !m.id) { setVariants([]); return; }
+    if (!isAdmin || !m || typeof m !== "object" || !m.id) { setVariants([]); setDups([]); return; }
     let alive = true;
     getVariantsOf(m.id).then(v => { if (alive) setVariants(v || []); }).catch(() => {});
+    getDuplicatesOf(m).then(v => { if (alive) setDups(v || []); }).catch(() => {});
     return () => { alive = false; };
   }, [isAdmin, m?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -276,6 +278,16 @@ export default function CipherPage() {
               setMergeMsg(`✓ מוזג — ${r?.added ?? 0} ממצאים חדשים נוספו`);
             } catch (e) { setMergeMsg("מיזוג נכשל: " + (e?.message || "")); }
           };
+          // 🔁 מיזוג-כפילות: אותו RPC (merge_els_variant גנרי) — מושך ממצאים מהכפילות לצופן זה ומסתיר אותה.
+          const doMergeDup = async (v) => {
+            setMergeMsg("");
+            try {
+              const r = await mergeVariant(v.id, m.id);
+              const fresh = await getMatrixBySlug(slug); if (fresh) setM(fresh);
+              setDups(list => list.filter(x => x.id !== v.id));
+              setMergeMsg(`✓ הכפילות מוזגה — ${r?.added ?? 0} ממצאים חדשים · הישנה הוסתרה`);
+            } catch (e) { setMergeMsg("מיזוג-כפילות נכשל: " + (e?.message || "")); }
+          };
           const st = m.status || "published";
           const stLabel = st === "published" ? "מפורסם (גלוי לכולם)" : st === "pending" ? "טיוטה — לא ציבורי" : "מוסתר";
           return (
@@ -348,6 +360,36 @@ export default function CipherPage() {
                     })}
                   </div>
                   {mergeMsg && <div style={{ color: mergeMsg.startsWith("✓") ? "#3fae5f" : "#c98a7a", fontSize: 12, fontWeight: 700, marginTop: 7 }}>{mergeMsg}</div>}
+                </div>
+              )}
+              {/* 🔁 כפילויות — אותו מונח·דילוג·היקף. מיזוג מושך ממצאים לכאן ומסתיר את הכפילות (ניקוי). */}
+              {dups.length > 0 && (
+                <div style={{ background: P.pageBg, border: `1px solid #c0563f`, borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+                  <div style={{ color: "#d98a6f", fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🔁 כפילויות של הצופן הזה ({dups.length}) — «{m.search_term}» · דילוג {m.skip_distance}</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {dups.map(v => {
+                      const vf = Array.isArray(v.positions?.findings) ? v.positions.findings : [];
+                      const vst = v.status === "published" ? "מפורסם" : v.status === "pending" ? "טיוטה" : "מוסתר";
+                      return (
+                        <div key={v.id} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, padding: "9px 11px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: vf.length ? 6 : 0 }}>
+                            <Link to={`/codes/${encodeURIComponent(v.slug)}`} style={{ color: P.accentText, fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>{v.slug}</Link>
+                            <span style={{ color: P.accentDim, fontSize: 11 }}>· {vst} · {vf.length} ממצאים</span>
+                            <span style={{ flex: 1 }} />
+                            <button onClick={() => doMergeDup(v)} style={aiBtn(P, true)}>🔀 מזג לכאן</button>
+                          </div>
+                          {vf.length > 0 && (
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {vf.map((f, i) => (
+                                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: P.pageBg, border: `1px solid ${f.color || P.border}`, borderRadius: 999, padding: "3px 10px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700, color: P.ink }}>{f.t}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ color: P.accentDim, fontSize: 11, marginTop: 7 }}>המיזוג מושך את ממצאי-הכפילות לצופן הזה ומסתיר אותה — כדי שיישאר צופן קנוני אחד.</div>
                 </div>
               )}
               <textarea value={desc || ""} onChange={e => { setDesc(e.target.value); setSavedMsg(false); }}
