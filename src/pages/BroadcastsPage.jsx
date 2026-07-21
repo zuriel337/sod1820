@@ -13,6 +13,7 @@ import { track } from "../lib/tracking.js";
 import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
 import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
 import ForumFeed from "../components/ForumFeed.jsx";
+import SiteUpdatesFeed from "../components/SiteUpdatesFeed.jsx";
 
 // 📡 «מרכז השידורים» — בית אחד, 4 טאבים (עץ אחד). כל טאב = עדשה על מקור-אמת אחד שכבר חי:
 //   💬 פורום       — getForumFeed (חידושים · דיונים · תגובות · צפני-גולשים · הודעות גולשים)
@@ -87,12 +88,11 @@ export default function BroadcastsPage() {
   useEffect(() => { if (data) markSeenKey("bc-" + tab); }, [tab, data]);
 
   const rows = useMemo(() => {
-    if (!data) return { forum: [], activity: [], dev: [] };
+    if (!data) return { forum: [], activity: [] };
     const forum = data.forum.filter(x => x.kind !== "post").map(forumRow);
     const activity = [...data.forum.filter(x => x.kind === "post").map(postRow), ...data.hints.map(hintRow)]
       .sort((a, b) => toMs(b.time) - toMs(a.time));
-    const dev = data.dev.map(u => ({ id: u.id, ico: "🛠️", title: (u.text || "").split("\n")[0] || "עדכון", who: u.credit, time: u.created_at, href: u.link_url || "/whats-new", body: (u.text || "").split("\n").slice(1).join(" ").trim(), tag: "שדרוג" }));
-    return { forum, activity, dev };
+    return { forum, activity };
   }, [data]);
 
   const counts = useMemo(() => {
@@ -102,7 +102,7 @@ export default function BroadcastsPage() {
       forum: nc(rows.forum, "forum"),
       channels: data.channels.filter(u => toMs(u.created_at) > cutoffs.current.channels).length,
       activity: nc(rows.activity, "activity"),
-      dev: nc(rows.dev, "dev"),
+      dev: data.dev.filter(u => toMs(u.created_at) > cutoffs.current.dev).length,
     };
   }, [data, rows]);
 
@@ -189,6 +189,9 @@ export default function BroadcastsPage() {
       ) : tab === "forum" ? (
         // 🌳 עץ אחד: אותו פורום ממש כמו /forum — אותו רכיב משותף, לא גרסה מוקטנת
         <ForumFeed maxWidth={760} />
+      ) : tab === "dev" ? (
+        // 🌳 עץ אחד: אותו «מה חדש באתר» כמו /whats-new — אותו רכיב משותף
+        <SiteUpdatesFeed />
       ) : (
         <RowsView rows={rows[tab] || []} acc={active.acc} cutoff={cutoffs.current[tab]} />
       )}
