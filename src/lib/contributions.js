@@ -60,7 +60,7 @@ export async function getContributions(targetType, targetId, limit = 120) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
@@ -165,10 +165,13 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
       .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score,panel_data")
       .eq("is_active", true)
       .order("created_at", { ascending: false }).limit(limit);
-    tasks.push(q.then(({ data }) => (data || []).map(x => ({
+    tasks.push(q.then(({ data }) => (data || [])
+      // ⛔ חידוש-קהילה מקודם ל-insights (panel_data.community) כבר מופיע בפיד כתרומה — עם דרגת-כותב
+      //    ושרשור. מציגים רק את גרסת-התרומה → אפס כפילות, דרגה עקבית. insights שנשארים = מערכת/AI/צוריאל.
+      .filter(x => !x.panel_data?.community)
+      .map(x => ({
       kind: "insight", id: "i_" + x.id, ts: x.created_at,
-      // 🖋️ חידוש-קהילה מקודם ל-insights עם origin='צוריאל' (המאשר) — המחבר האמיתי ב-panel_data.author.
-      author_name: (x.panel_data?.community && x.panel_data?.author) ? x.panel_data.author : insightAuthor(x.origin),
+      author_name: insightAuthor(x.origin),
       origin: x.origin,
       title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,
       verified: x.verified, has_1820: x.has_1820, convergence_score: x.convergence_score,
@@ -179,14 +182,14 @@ export async function getForumFeed({ type = null, writer = null, limit = 80 } = 
 
   if (wantContrib) {
     let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,created_at")
+      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,reactions,created_at")
       .eq("status", "approved").is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
     tasks.push(q.then(({ data }) => (data || []).map(c => ({
       kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
       author_name: c.author_name, author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
-      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body,
+      target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
     }))).catch(() => []));
   }
 
