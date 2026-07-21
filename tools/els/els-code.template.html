@@ -120,6 +120,15 @@
      background:linear-gradient(160deg,rgba(232,200,74,.06),transparent);border:1px dashed var(--line2);border-radius:11px;padding:9px 12px;transition:border-color .15s,color .15s}
   .howto .ht-more:hover{border-color:var(--gold);color:var(--ink)}
   .howto .ht-more b{color:var(--goldBright)}
+  /* 🧭 מאמן-השיטה — רמז חי כשמקלידים משפט/מילה ארוכה במקום מילה קצרה */
+  .coach{margin:-4px 0 12px;padding:10px 13px;border-radius:12px;border:1px solid rgba(232,200,74,.4);
+     background:linear-gradient(160deg,rgba(232,200,74,.12),var(--panel2));display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+     animation:gfade .18s ease}
+  .coach .coach-t{flex:1 1 200px;min-width:0;font-size:13px;line-height:1.6;color:var(--ink2)}
+  .coach .coach-t b{color:var(--goldBright)}
+  .coach .coach-go{flex:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;border:none;border-radius:999px;
+     padding:8px 16px;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
+  .coach .coach-go:active{transform:translateY(1px)}
   /* 📖 מדריך «חיפוש בתוך הצופן» — אקורדיון נפתח, מתחת למטריצה */
   .ginside{margin:16px 0 4px;background:linear-gradient(160deg,rgba(232,200,74,.05),var(--panel2));border:1px solid var(--line2);border-radius:14px;overflow:hidden}
   .ginside>summary{cursor:pointer;list-style:none;padding:14px 16px;font-family:var(--serif);font-size:16px;font-weight:800;color:var(--goldBright);display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -833,6 +842,40 @@
   .gc-foot button{cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;border-radius:999px;padding:10px 32px;
      border:none;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
   @media(max-width:560px){.guide-card.comp{max-height:92vh}.gc-body{padding:4px 15px 8px}.gc-head{padding:12px 14px 10px}.gc-toc{padding:9px 12px}}
+  /* 🎓 שער-הדרכה חובה — «איך מחפשים נכון» לפני החיפוש הראשון (חד-פעמי, לא נדחה) */
+  .onb-ov{position:fixed;inset:0;z-index:420;display:flex;align-items:center;justify-content:center;padding:16px;
+     background:rgba(6,5,13,.9);backdrop-filter:blur(5px);animation:gfade .18s ease}
+  .onb-card{background:linear-gradient(180deg,#1c140a,#120c05);border:1px solid var(--gold);border-radius:20px;
+     max-width:500px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.75);
+     text-align:right;-webkit-overflow-scrolling:touch}
+  body.classic .onb-card{background:linear-gradient(180deg,#fffdf7,#fbf4e3)}
+  body.klaf .onb-card{background:linear-gradient(180deg,#fdf7e8,#f3e6c9)}
+  .onb-head{padding:18px 22px 6px;text-align:center}
+  .onb-head img{width:44px;height:44px;border-radius:11px;object-fit:contain}
+  .onb-head b{display:block;font-family:var(--serif);font-size:21px;font-weight:800;color:var(--goldBright);margin-top:6px}
+  .onb-head span{display:block;font-size:12.5px;color:var(--ink3);margin-top:2px}
+  .onb-body{padding:8px 20px 4px}
+  .onb-step{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;margin:9px 0;border-radius:13px;
+     border:1px solid var(--line2);background:var(--panel2)}
+  .onb-step .onb-n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px;
+     background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
+  .onb-step .onb-tx{flex:1;min-width:0;font-size:13.5px;line-height:1.65;color:var(--ink2)}
+  .onb-step .onb-tx b{color:var(--ink)}
+  .onb-step .ok{color:#8fe08f;font-weight:800}
+  .onb-step .no{color:#e79090;font-weight:800;text-decoration:line-through}
+  .onb-demo{margin:12px 0 2px;padding:12px 14px;border-radius:13px;border:1px solid rgba(232,200,74,.4);
+     background:linear-gradient(160deg,rgba(232,200,74,.10),var(--panel2));text-align:center}
+  .onb-demo .dm-t{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:8px}
+  .onb-demo .dm-t b{color:var(--goldBright)}
+  .onb-foot{position:sticky;bottom:0;padding:13px 20px 17px;text-align:center;
+     background:linear-gradient(180deg,transparent,#120c05 24%)}
+  body.classic .onb-foot{background:linear-gradient(180deg,transparent,#fbf4e3 24%)}
+  body.klaf .onb-foot{background:linear-gradient(180deg,transparent,#f3e6c9 24%)}
+  .onb-foot .onb-start{cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;border-radius:999px;padding:12px 34px;
+     border:none;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;width:100%;max-width:340px}
+  .onb-foot .onb-start:active{transform:translateY(1px)}
+  .onb-foot .onb-note{margin-top:9px;font-size:11.5px;color:var(--ink3);line-height:1.6}
+  .onb-foot .onb-note b{color:var(--goldBright)}
 </style>
 
 <div class="wrap">
@@ -852,22 +895,23 @@
   <div class="hero">
     <h1><img class="hero-logo" src="__ELS_LOGO__" alt="דילוגי אותיות" /><span>הצופן התנכי</span></h1>
     <div class="eye">חיפוש בדילוגי אותיות · ELS</div>
-    <p>רשום מילה או צירוף — המנוע מוצא אותו כדילוג בתורה ופורש אותו כעמודה. <b style="color:var(--ink)">גרור את המטריצה</b> לחקור אותה, <b style="color:var(--ink)">הוסף ממצאים בצבעים</b>, ושמור.</p>
+    <p>רשום <b style="color:var(--ink)">מילה קצרה אחת</b> (2־5 אותיות) — המנוע מוצא אותה כדילוג בתורה ופורש אותה כעמודה. הכוח האמיתי: <b style="color:var(--ink)">שתי מילים קצרות שנפגשות</b> (🔀 הצלבה).</p>
   </div>
 
   <div class="howto" id="howto">
     <button type="button" class="ht-x" id="howtoX" title="הבנתי — הסתר">הבנתי ✕</button>
-    <div class="ht-step" id="htStep1"><span class="ht-n">1</span><div class="ht-t"><b>כותבים שם או מילה</b><span>בתיבה למטה, ולוחצים «חפש»</span></div></div>
-    <div class="ht-step" id="htStep2"><span class="ht-n">2</span><div class="ht-t"><b>רוצים מפגש? מונח שני</b><span>«🔀 חיפוש מוצלב» — איפה שניהם נפגשים</span></div></div>
+    <div class="ht-step" id="htStep1"><span class="ht-n">1</span><div class="ht-t"><b>מילה קצרה — לא משפט</b><span>2־5 אותיות: «משיח», «אריה» — לא «יום משיח בא»</span></div></div>
+    <div class="ht-step" id="htStep2"><span class="ht-n">2</span><div class="ht-t"><b>הכוח: שתי מילים שנפגשות</b><span>«🔀 הצלבה» — זה החיפוש המוצלח</span></div></div>
     <div class="ht-step" id="htStep3"><span class="ht-n">3</span><div class="ht-t"><b>חוקרים ושומרים</b><span>גוררים · מסמנים ממצאים · «💾 שמור»</span></div></div>
     <button type="button" class="ht-more" id="htMore">⬇️ ואיך מחפשים <b>בתוך</b> הצופן עצמו? גללו למטה — <b>מדריך מלא + כל ההגדרות המתקדמות</b></button>
   </div>
   <div class="bar">
     <span class="step1" aria-hidden="true">1</span>
-    <input id="q" maxlength="40" placeholder="כתבו כאן שם או מילה — למשל «יום משיח בא»" value="יום משיח בא">
+    <input id="q" maxlength="40" placeholder="מילה קצרה — למשל «משיח» או «אריה»" value="">
     <input id="qb" class="qb" maxlength="40" placeholder="🔀 מונח שני — למצוא מפגש" style="display:none">
     <button class="go" id="go">חפש בתורה ◆</button>
   </div>
+  <div class="coach" id="coach" style="display:none"></div>
   <div class="gallery" id="gallery"></div>
   <div class="crossrow">
     <button class="crosstoggle" id="crosstoggle">🔀 חיפוש מוצלב — שני מונחים</button>
@@ -1204,7 +1248,7 @@
   function updGem(){const w=q.value.trim(),t=norm(w);gemEl.innerHTML=t.length>=2?("צירוף «"+w+"» = "+t.length+" אותיות · גימטריה <b>"+heb(gem(w))+"</b>"):"";}
   q.addEventListener("input",updGem);q.addEventListener("keydown",e=>{if(e.key==="Enter")run();});
   go.onclick=()=>run();   // חשוב: לקרוא בלי ארגומנט (אחרת אירוע-הלחיצה נכנס כ-preserveWords ומשמר ממצאים ישנים)
-  ["יום משיח בא","משיח טבת","אברהם","גאולה","תורה קדשה","דוד המלך"].forEach(w=>{
+  ["משיח","אריה","אש","גאולה","אברהם","דוד"].forEach(w=>{
     const b=document.createElement("button");b.textContent=w;b.onclick=()=>{q.value=w;run();};document.getElementById("sugg").appendChild(b);});
 
   // 🔀 הצלבה מוגדרת — סט מונחים סביב ציר. חבילות-נושא מובנות (המשתמש עורך אחריהן חופשי).
@@ -1233,7 +1277,8 @@
   function closeLab(){const lp=document.getElementById("labpanel"),lt=document.getElementById("labtoggle");if(lp){lp.style.display="none";lt.classList.remove("on");}}
   crosstoggle.onclick=()=>{if(!simpleOpen()&&!canCross()){gate("cross");return;}   // 🔀 חיפוש מוצלב לרשומים בלבד
     const on=!simpleOpen();qb.style.display=on?"":"none";crosstoggle.classList.toggle("on",on);
-    if(on){qb.focus();closeLab();if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}else qb.value="";};
+    if(on){qb.focus();closeLab();if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}else qb.value="";
+    try{updateCoach();}catch(e){}};
   qb.addEventListener("keydown",e=>{if(e.key==="Enter")run();});
   // 🔀 «הצלב את התוצאה» — פותח מצב-מוצלב פשוט אחרי חיפוש רגיל, עם המונח הנוכחי כציר. מנוע-התגלית:
   //    הופך כל חיפוש רגיל לשער-כניסה למוצלב (הבעיה הגדולה הייתה תגלית — מעטים ידעו שהמוצלב קיים).
@@ -1301,11 +1346,11 @@
       el.innerHTML='💡 <b>המלצה:</b> '+nT+' מונחים ('+shortN+' קצרים) וטוהר '+st.crossPure+' — צפויות הרבה תוצאות רועשות. כדאי <b>להדק טוהר</b> (≤5) או <b>לסנן אחרי החיפוש</b>: מלאים · דילוג-מוכר · שוויון-גימטריה · 🔭 מילים-על-הקו.';}
     else el.style.display="none";
   }
-  document.getElementById("xrun").onclick=()=>{const w=q.value.trim();
+  document.getElementById("xrun").onclick=()=>{if(!ensureOnboarded())return;const w=q.value.trim();
     if(norm(w).length<2){if(st.crossTerms.length<2){toast("להתכנסות חופשית — הוסף לפחות 2 מונחים (או כתוב ציר למעלה)");return;}runCrossFree();return;}
     if(!st.crossTerms.length){toast("הוסף לפחות מונח אחד לסט");return;}
     runCross(w);};
-  document.getElementById("xbridge").onclick=()=>{const a=q.value.trim();let A,B;
+  document.getElementById("xbridge").onclick=()=>{if(!ensureOnboarded())return;const a=q.value.trim();let A,B;
     if(norm(a).length>=2&&st.crossTerms.length>=1){A=a;B=st.crossTerms[0];}
     else if(st.crossTerms.length>=2){A=st.crossTerms[0];B=st.crossTerms[1];}
     else{toast("לגשר: כתוב ציר עליון + מונח אחד, או הוסף שני מונחים");return;}
@@ -1317,13 +1362,17 @@
   // ── 🔐 שער-הרשמה (רק במצב מוטמע באתר) ────────────────────────────────────────
   // חוקי-הגישה (החלטת צוריאל): לא-רשום → עד 5 חיפושים רגילים · חיפוש-מוצלב = לרשומים בלבד.
   // רשום/אדמין → ללא הגבלה. הספירה בדפדפן; ההרשמה עצמה קורית באתר (העוטף מציג SubscribeGate).
-  const FREE_LIMIT=5,FREEKEY="tzofen_free_v1";
+  const FREE_DEMO=3;   // 🎯 אורח: מספר חיפושי-מילה חינם ל«טעימה» לפני שהשער דורש רישום (צוריאל 21.7.2026)
+  const FREE_LIMIT=FREE_DEMO,FREEKEY="tzofen_free_v1";
   const freeCount=()=>{try{return parseInt(localStorage.getItem(FREEKEY)||"0")||0;}catch(e){return 0;}};
   const bumpFree=()=>{try{localStorage.setItem(FREEKEY,String(freeCount()+1));}catch(e){}};
   const postHost=m=>{try{if(window.parent&&window.parent!==window)window.parent.postMessage(Object.assign({source:"tzofen"},m),"*");}catch(e){}};
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
-  const canCross=()=>true;   // 🔓 חיפוש מוצלב פתוח לכולם (החלטת צוריאל 7.2026)
-  const canRegular=()=>true;  // 🔓 חיפוש רגיל פתוח לכולם — בלי הגבלת-5 (החלטת צוריאל 7.2026). תנ״ך נשאר לרשומים (tanakhLocked)
+  // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
+  //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
+  const canCross=()=>!isAnon();
+  // אורח מקבל FREE_DEMO חיפושי-מילה חינם ל«טעימה» (שיראה שהכלי עובד) ואז נדרש רישום.
+  const canRegular=()=>!isAnon()||freeCount()<FREE_DEMO;
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
   function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{return Math.abs(occ().skip);}catch(e){return 0;}})(),scope:st.scope});}
@@ -1380,6 +1429,7 @@
     setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
   }
   function run(preserveWords){
+    if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
     // 🔀 חיפוש מוצלב פשוט — תיבה שנייה בשורה (לרשומים בלבד)
@@ -3267,7 +3317,7 @@
     document.getElementById("Ncount").textContent=heb(tan?N:TORAH_N);
     const foot=document.querySelector(".foot");if(foot)foot.innerHTML="טקסט המקור: "+(tan?"כל התנ״ך (24 ספרים)":"חמשת חומשי התורה")+" · <b id=\"Ncount\">"+heb(tan?N:TORAH_N)+"</b> אותיות · <b>עדות — לא ניבוי.</b> כלי לימוד והתבוננות.";
     if(!go.disabled)go.textContent=goLabel();
-    if(q)q.placeholder=tan?"למשל: משיח בן דוד":"למשל: יום משיח בא";
+    if(q)q.placeholder=tan?"מילה קצרה — למשל «משיח»":"מילה קצרה — למשל «משיח» או «אריה»";
   }
   // «כל התנ״ך» נעול לכל מי שאינו רשום/מנהל — הנתונים הכבדים (1.2M) לא מפוענחים כלל עד שנפתח
   function tanakhLocked(){return isAnon();}   // מנהל/רשום → פתוח; רק אנונימי נעול
@@ -3310,7 +3360,7 @@
       "<b>דילוג-אותיות</b> (ELS – Equidistant Letter Sequence) הוא מילה או צירוף שמופיעים בטקסט התורה כשמדלגים <b>מרחק קבוע</b> בין אות לאות — למשל כל אות שביעית. הכלי סורק את כל <b>304,805 אותיות התורה</b> (ובכל התנ״ך), מאתר איפה המונח שכתבת מופיע כדילוג כזה, ופורש אותו לפניך כ<b>עמודה במטריצה</b>."+
       "<div class='gc-tip'>🕎 <b>עדות — לא ניבוי.</b> הכלי מראה מה <b>קיים</b> בטקסט, ללימוד ולהתבוננות. הוא אינו מנבא עתיד ואינו מחליף את פשט הכתוב.</div>"},
     {id:"first",e:"⌨️",t:"החיפוש הראשון",h:
-      "<ul><li>כתוב מילה או צירוף בתיבת-החיפוש (למשל «יום משיח בא») ולחץ <b>«חפש»</b>.</li>"+
+      "<ul><li>כתוב <b>מילה קצרה אחת</b> (2־5 אותיות — למשל «משיח») בתיבת-החיפוש ולחץ <b>«חפש»</b>. <b>אל תכתוב משפט שלם</b> — משפט כמעט לעולם אינו קיים כדילוג.</li>"+
       "<li>למעלה בוחרים <b>היקף</b>: <b>📖 תורה</b> (חמשת החומשים — מהיר) או <b>📜 כל התנ״ך</b> (24 הספרים — לחוקרים רשומים).</li>"+
       "<li>המנוע מאתר את הדילוג <b>הקצר ביותר</b> (הנדיר ביותר) קודם, ומציג אותו במטריצה.</li></ul>"+
       "<div class='gc-tip'>💡 אפשר לכתוב עם או בלי רווחים וללא ניקוד — המנוע מנרמל אוטומטית (אותיות סופיות נחשבות כרגילות).</div>"},
@@ -3362,11 +3412,11 @@
       "<li><b>💬 תגובות</b> — דיון על הצופן.</li></ul>"+
       "<div class='gc-tip'>☁️ אדמין מפרסם מיד לספרייה; משתמש רשום — הצופן נכנס <b>לתור-אישור</b> ואז מתפרסם.</div>"},
     {id:"access",e:"🔑",t:"מי יכול מה (גישה)",h:
-      "<b>רוב הכלי פתוח וחינמי — בלי הרשמה בכלל:</b>"+
-      "<ul><li><b>אורח</b> — חיפוש רגיל <b>ללא הגבלה</b>, חיפוש מוצלב, המטריצה, ממצאים בצבעים, מד-איכות, סרט ותמונה.</li>"+
-      "<li><b>רשום</b> (הרשמה חינם + אימות-מייל) — פותח בנוסף <b>חיפוש בכל התנ״ך</b> (24 הספרים, מעבר לתורה) ו<b>שמירה לגלריה</b> בחשבון.</li>"+
+      "<b>אפשר להתחיל לטעום מיד, וההרשמה (חינם) פותחת את החיפוש המוצלח:</b>"+
+      "<ul><li><b>אורח</b> — כמה חיפושי-מילה חינם לטעימה (אחרי קריאת «איך מחפשים נכון»), עם כל המטריצה, ממצאים בצבעים, מד-איכות, סרט ותמונה.</li>"+
+      "<li><b>רשום</b> (הרשמה חינם + אימות-מייל) — פותח את <b>🔀 החיפוש המוצלב</b> (שתי מילים שנפגשות — «החיפוש המוצלח»), <b>📜 כל התנ״ך</b> (24 הספרים) ו<b>💾 שמירה לגלריה</b> בחשבון.</li>"+
       "<li><b>אדמין</b> — הכל, כולל פרסום-מיידי לספרייה ועריכת-צפנים.</li></ul>"+
-      "<div class='gc-tip'>🔓 ההרשמה חינם לחלוטין — מטרתה רק לשמור את המחקר שלך ולפתוח את כל התנ״ך.</div>"},
+      "<div class='gc-tip'>🔓 ההרשמה חינם לחלוטין — מטרתה לוודא שאתם יודעים לחפש נכון, לשמור את המחקר שלכם, ולפתוח את החיפוש המוצלב וכל התנ״ך.</div>"},
     {id:"honesty",e:"🕎",t:"עדות — לא ניבוי",h:
       "<b>הכלי הוא כלי לימוד והתבוננות.</b> הוא מציג <b>עדות מתוך הטקסט</b> — מה קיים בו — ולא ניבוי עתיד. תמיד יש להפריד בין <b>העובדה</b> (הדילוג/הגימטריה שנמצאו במנוע) לבין <b>הפרשנות</b> (הרמז המשלים). כך החקירה נשארת ישרה ומכובדת."+
       "<div class='gc-tip'>🕎 «עדות — לא ניבוי» — העיקרון שמלווה את כל הכלי.</div>"},
@@ -3401,6 +3451,62 @@
   function openGuide(){renderGuide();}
   function closeGuide(){const ov=document.getElementById("guideov");if(ov)ov.remove();try{localStorage.setItem(GUIDEKEY,"1");}catch(e){}}
   const gb=document.getElementById("guidebtn");if(gb)gb.onclick=openGuide;
+
+  // ── 🎓 שער-הדרכה חובה + 🧭 מאמן-שיטה ─────────────────────────────────────────
+  //    צוריאל 21.7.2026: אנשים מקלידים משפט שלם כמחרוזת-דילוג (לא קיים סטטיסטית) → «לא נמצא» → מתייאשים.
+  //    התיקון: (1) לפני החיפוש הראשון — הסבר קצר חובה «איך מחפשים נכון»; (2) מאמן-קלט חי שמפצל משפט
+  //    לשתי מילים ומפנה להצלבה; (3) הצלבה («החיפוש המוצלח») + כל התנ״ך + שמירה = לרשומים (SubscribeGate).
+  const escH=s=>String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});
+  const ONBKEY="tzofen_onboarded_v1";
+  function onboarded(){try{return !!localStorage.getItem(ONBKEY);}catch(e){return false;}}
+  function markOnboarded(){try{localStorage.setItem(ONBKEY,"1");}catch(e){}}
+  function closeOnboard(){const ov=document.getElementById("onbov");if(ov)ov.remove();}
+  function openOnboard(){
+    let ov=document.getElementById("onbov");if(ov)ov.remove();
+    ov=document.createElement("div");ov.className="onb-ov";ov.id="onbov";
+    const logo=(document.querySelector(".hero-logo")||{}).src||"";
+    ov.innerHTML='<div class="onb-card" role="dialog" aria-label="איך מחפשים נכון">'+
+      '<div class="onb-head">'+(logo?'<img src="'+logo+'" alt="">':'')+'<b>איך מחפשים נכון</b><span>30 שניות — וכל חיפוש יצליח ✦</span></div>'+
+      '<div class="onb-body">'+
+        '<div class="onb-step"><span class="onb-n">1</span><div class="onb-tx"><b>מילה קצרה — לא משפט.</b> חפשו מילה אחת של <b>2־5 אותיות</b>. <span class="ok">✓ «משיח» · «אריה» · «אש»</span> &nbsp; <span class="no">✗ «יום משיח בא»</span><br>משפט שלם כמעט לעולם לא קיים כדילוג — ולכן מתקבל «לא נמצא».</div></div>'+
+        '<div class="onb-step"><span class="onb-n">2</span><div class="onb-tx"><b>דילוג נמוך = חזק.</b> המנוע מביא קודם את הדילוג <b>הקצר ביותר</b> (הנדיר ביותר). מילה קצרה נמצאת בקלות — ומשם חוקרים סביבה.</div></div>'+
+        '<div class="onb-step"><span class="onb-n">3</span><div class="onb-tx"><b>הכוח האמיתי — הצלבה 🔀.</b> שתי מילים קצרות שנפגשות סביב אותו ציר. <b>זה החיפוש «המוצלח»</b> — העדות החזקה. למשל «אריאל» שחוצה את «משיח».</div></div>'+
+        '<div class="onb-demo"><div class="dm-t">רוצים לראות שזה עובד? חפשו מילה קצרה עכשיו:</div><button class="onb-start onb-try" type="button" style="max-width:260px">🔍 נסו עכשיו: חפשו «אור»</button></div>'+
+      '</div>'+
+      '<div class="onb-foot"><button class="onb-start onb-go" type="button">הבנתי — התחל לחקור ✦</button>'+
+        '<div class="onb-note">🔀 חיפוש-מוצלב, 📜 כל התנ״ך ו־💾 שמירה — פתוחים <b>לרשומים</b> (הרשמה חינם + אימות מייל).</div></div>'+
+    '</div>';
+    document.body.appendChild(ov);
+    const goB=ov.querySelector(".onb-go");if(goB)goB.onclick=function(){markOnboarded();closeOnboard();try{q.focus();}catch(e){}};
+    const tryB=ov.querySelector(".onb-try");if(tryB)tryB.onclick=function(){markOnboarded();closeOnboard();try{q.value="אור";}catch(e){}run();};
+  }
+  function ensureOnboarded(){if(onboarded())return true;openOnboard();return false;}
+
+  // 🧭 מאמן-הקלט — משפט/מילה-ארוכה → מפנה למילה קצרה או לפיצול-והצלבה
+  function splitToCross(a,b){
+    try{q.value=a;}catch(e){}
+    if(!canCross()){try{qb.value=b;}catch(e){}gate("cross");return;}   // אורח → שער-רישום (הצלבה = «מוצלח»)
+    if(!simpleOpen())crosstoggle.click();
+    try{qb.value=b;qb.focus();}catch(e){}
+    try{updateCoach();}catch(e){}
+    toast("🔀 עכשיו לחצו «חפש» — נמצא איפה «"+a+"» ו־«"+b+"» נפגשים");
+  }
+  function updateCoach(){
+    const el=document.getElementById("coach");if(!el)return;
+    if(simpleOpen()||advOpen()){el.style.display="none";return;}   // כבר במצב הצלבה — אין צורך ברמז
+    const w=q.value.trim();const words=w.split(/\s+/).filter(Boolean);const t=norm(w);
+    if(words.length>=2){
+      const a=words[0],b=words.slice(1).join(" ");
+      el.style.display="";
+      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div><button class="coach-go" type="button">🔀 פצל והצלב</button>';
+      const cb=el.querySelector(".coach-go");if(cb)cb.onclick=function(){splitToCross(a,b);};
+    }else if(t.length>=7){
+      el.style.display="";
+      el.innerHTML='<div class="coach-t">🧭 «'+escH(w)+'» ארוכה ('+heb(t.length)+' אותיות) — נדירה מאוד כדילוג. נסו <b>מילה קצרה</b> (2־5 אותיות), או פצלו לשתי מילים והצליבו.</div>';
+    }else{el.style.display="none";}
+  }
+  try{q.addEventListener("input",updateCoach);}catch(e){}
+
   // 🧭 מדריך-הצעדים הממוספר מחליף את הוראות-הכניסה שקפצו — לא פותחים חלון אוטומטי יותר.
   //    ה-❓ הדרכה נשאר זמין למי שרוצה הסבר מלא. הצעדים עצמם פעילים (מקפיצים לפקד).
   (function(){
