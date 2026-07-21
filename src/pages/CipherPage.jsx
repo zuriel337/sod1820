@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getMatrixBySlug } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
@@ -35,6 +36,16 @@ export default function CipherPage() {
   const [metaMsg, setMetaMsg] = useState("");         // משוב שם/תמונה
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
+  const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
+  const researchRef = useRef(null);                   // 🔬 עוגן ל«מחקר קהילתי» — כדי לגלול+למקד את המלחין בלחיצה אחת
+
+  // 💬 «הוסף ממצא / הגב» — גם כשהמטריצה פתוחה: גולל לאזור-המחקר וממקד את תיבת-הכתיבה, בלי לצאת מהכלי.
+  const goComment = () => {
+    const el = researchRef.current;
+    if (!el) return;
+    try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { el.scrollIntoView(); }
+    setTimeout(() => { const ta = el.querySelector("textarea"); if (ta) { ta.focus(); ta.scrollIntoView({ block: "center" }); } }, 480);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -319,9 +330,20 @@ export default function CipherPage() {
       })()}
 
       {/* 🔬 מחקר קהילתי — העמוד «חי»: חידושים/עדויות/הצלבות מצטברים על הצופן (research_contribution_law) */}
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "22px 14px 70px" }}>
+      <div ref={researchRef} id="cipher-research" style={{ maxWidth: 780, margin: "0 auto", padding: "22px 14px 70px", scrollMarginTop: 70 }}>
         <Discourse target={{ type: "els", id: slug }} origin="els" archive={[]} />
       </div>
+
+      {/* 💬 כפתור צף — «הוסף ממצא / הגב» כשהמטריצה החיה פתוחה. נעלם כשמגירת-המשתמש פתוחה (floating_ui_yields_law). */}
+      {showTool && !uc.isOpen && (
+        <button onClick={goComment} aria-label="הוסף ממצא או הגב על הצופן"
+          style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: "calc(16px + env(safe-area-inset-bottom))", zIndex: 3000,
+            display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", border: "none", borderRadius: 999,
+            background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800,
+            padding: "12px 22px", minHeight: 46, boxShadow: "0 8px 26px rgba(0,0,0,0.55)" }}>
+          💬 מצאת משהו? הוסף ממצא / הגב
+        </button>
+      )}
 
     </div>
   );

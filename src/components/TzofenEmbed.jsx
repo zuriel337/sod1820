@@ -105,28 +105,51 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
       const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
+      // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
+      const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+        quality: d.quality || null, shapeUrl: shapeUrl || null };
+
+      // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
+      //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
+      //    כ«גרסה» מקושרת למקור (variantOf) שממתינה לאישור — לעולם לא דורסים צופן קיים.
+      const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
+      const isReSave = !!(matrix?.id
+        && nrm(d.term) === nrm(matrix.search_term)
+        && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
+        && (d.scope || "torah") === (matrix.scope || "torah"));
+
+      if (isReSave && isAdmin) {
+        const { error } = await supabase.rpc("update_els_matrix", {
+          p_id: matrix.id, p_positions: positions,
+          p_image_url: imageUrl || null, p_description: d.desc || null,
+        });
+        if (error) throw error;
+        postToTool({ type: "saved", ok: true, status: "updated" });
+        pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
+        return;
+      }
+
       const common = {
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
-        // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
-        positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-          quality: d.quality || null, shapeUrl: shapeUrl || null },
+        // גרסה על צופן קיים (לא-אדמין) → מקושרת למקור כדי שהאדמין יראה «גרסה» ולא כפילות אקראית.
+        positions: isReSave ? { ...positions, variantOf: matrix.id, variantOfSlug: matrix.slug || null } : positions,
         // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
         title: d.postTitle || d.term, note: d.desc || null, imageUrl,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
-        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
+        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : (isReSave ? "variant" : "pending") });
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
         await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
-        postToTool({ type: "saved", ok: true, status: "pending" });
+        postToTool({ type: "saved", ok: true, status: isReSave ? "variant" : "pending" });
       }
     } catch {
       postToTool({ type: "saved", ok: false });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
