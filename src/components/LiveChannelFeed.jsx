@@ -132,7 +132,7 @@ export default function LiveChannelFeed() {
         // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
         const [chanArr, forum, hints] = await Promise.all([
           Promise.all(CHANNEL_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
-          getForumFeed({ limit: 15 }).catch(() => []),
+          getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
           getRealityHints(10).catch(() => []),
         ]);
         if (!live) return;

@@ -194,7 +194,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
 
-  const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200 }).then(setAllItems).catch(() => setAllItems([])); }, []);
+  // 🌳 עץ אחד: הפורום = קהילה בלבד (בלי פוסטים) — פוסטים חיים ב«פעילות האתר», אפס כפילות.
+  const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(setAllItems).catch(() => setAllItems([])); }, []);
   useEffect(() => { load(); }, [load]);
 
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
@@ -240,8 +241,6 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
       {/* שורה 1 — סוג. טאב ריק (0 פריטים) = לא-לחיץ. */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
         <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
-        <button disabled={postCount === 0} onClick={postCount === 0 ? undefined : () => pickType("post")}
-          title={postCount === 0 ? "אין עדיין מאמרי כתבים" : undefined} style={chip(type === "post", postCount === 0)}>📜 מאמרי כתבים</button>
         <button disabled={insightCount === 0} onClick={insightCount === 0 ? undefined : () => pickType("insight")}
           title={insightCount === 0 ? "אין עדיין חידושים" : undefined} style={chip(type === "insight", insightCount === 0)}>💡 חידושי בית המדרש</button>
         <button disabled={cipherCount === 0} onClick={cipherCount === 0 ? undefined : () => pickType("cipher")}
@@ -274,16 +273,6 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         <button onClick={() => setSort("new")} style={{ ...chip(sort === "new"), fontSize: 12, padding: "4px 11px" }}>🆕 חדש</button>
         <button onClick={() => setSort("significance")} style={{ ...chip(sort === "significance"), fontSize: 12, padding: "4px 11px" }}>⭐ מובהקות</button>
       </div>
-
-      {/* שורה 2 — כתבים (רק במצב מאמרים) */}
-      {type === "post" && writers.length > 0 && (
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
-          <button onClick={() => setWriter(null)} style={{ ...chip(!writer), fontSize: 12 }}>כל הכתבים</button>
-          {writers.map(w => (
-            <button key={w.name} onClick={() => setWriter(w.name)} style={{ ...chip(writer === w.name), fontSize: 12 }}>{w.name}</button>
-          ))}
-        </div>
-      )}
 
       {items === null ? (
         <div style={{ color: P.accentDim, fontFamily: F.body, textAlign: "center", padding: 40 }}>טוען…</div>

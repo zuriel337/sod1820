@@ -1,4 +1,4 @@
-import { getChannelUpdates, getRealityHints } from "./supabase.js";
+import { getChannelUpdates, getRealityHints, getPostsFromSupabase } from "./supabase.js";
 import { getForumFeed } from "./contributions.js";
 import { seenCutoff } from "./crossesNew.js";
 
@@ -11,16 +11,17 @@ const ms = v => { const t = v ? new Date(v).getTime() : NaN; return Number.isFin
 export async function getWhatsNewCounts() {
   const cut = k => ms(seenCutoff("bc-" + k));
   try {
-    const [forum, hints, chanArr, dev] = await Promise.all([
-      getForumFeed({ limit: 30 }).catch(() => []),
+    const [forum, hints, posts, chanArr, dev] = await Promise.all([
+      getForumFeed({ limit: 30, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
       getRealityHints(25).catch(() => []),
+      getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(r => r?.posts || []).catch(() => []),
       Promise.all(REAL_CHANNELS.map(ch => getChannelUpdates(20, ch, true).catch(() => []))),
       getChannelUpdates(30, "site-news", true).catch(() => []),
     ]);
     const cF = cut("forum"), cC = cut("channels"), cA = cut("activity"), cD = cut("dev");
-    const forumN = (forum || []).filter(x => x.kind !== "post" && ms(x.ts) > cF).length;
-    // פעילות = עדכונים אחרונים (פוסטים) + זרם המציאות (רמזים)
-    const postsN = (forum || []).filter(x => x.kind === "post" && ms(x.ts) > cA).length;
+    const forumN = (forum || []).filter(x => ms(x.ts) > cF).length;   // כבר בלי פוסטים
+    // פעילות = עדכונים אחרונים (כל הפוסטים, כולל מערכת) + זרם המציאות (רמזים)
+    const postsN = (posts || []).filter(p => ms(p.modified || p.date) > cA).length;
     const hintsN = (hints || []).filter(h => ms(h.occurred_at || h.created_at) > cA).length;
     const activityN = postsN + hintsN;
     const channelsN = (chanArr || []).flat().filter(u => ms(u.created_at) > cC).length;

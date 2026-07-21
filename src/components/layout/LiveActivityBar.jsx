@@ -34,9 +34,8 @@ function useLiveTicker() {
       // 1.5) 💬 חידושי-פורום טריים → לדיון. מציג את *כותרת החידוש* למעלה (בקשת צוריאל).
       //      read-בלבד מ-getForumFeed (בלי כתיבה ל-channel_updates → אפס כפילות עם הטיקר התחתון).
       try {
-        const feed = await getForumFeed({ limit: 15 });
+        const feed = await getForumFeed({ limit: 15, includePosts: false });   // קהילה בלבד (פוסטים דרך מקור 1)
         for (const it of (feed || [])) {
-          if (it.kind === "post") continue;   // פוסטים כבר נכנסים דרך מקור (1)
           const ts = new Date(it.ts || 0).getTime();
           if (!ts || ts < cutoff) continue;
           const title = stripHtml(it.title || it.body || "").trim();

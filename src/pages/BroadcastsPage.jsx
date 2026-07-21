@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getChannelUpdates, getRealityHints } from "../lib/supabase.js";
+import { getChannelUpdates, getRealityHints, getPostsFromSupabase } from "../lib/supabase.js";
 import { getForumFeed } from "../lib/contributions.js";
 import { hintNums, effDate } from "../lib/reality.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
-import { timeAgoHe } from "../lib/format.js";
+import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
@@ -41,8 +41,11 @@ function forumRow(x) {
   // contribution (חידוש/דיון/הודעת-גולש)
   return { id: x.id, ico: x.intent === "דיון" ? "🗨️" : "💬", title: x.title || snip(x.body), who: x.author_display || x.author_name, time: x.ts, href: `/forum/${x.contribId}`, tag: x.intent || "חידוש" };
 }
-function postRow(x) {
-  return { id: x.id, ico: "📜", title: x.title || "פוסט", who: x.author_name, time: x.ts, href: `/${x.slug || ""}`, image: x.image_url, tag: "עדכון אחרון" };
+// פוסט מ-getPostsFromSupabase (כל הפוסטים, כולל «המערכת»). author ריק → «סוד1820».
+function postRow(p) {
+  const who = (p.author && String(p.author).trim()) ? String(p.author).trim() : "סוד1820";
+  return { id: "p_" + (p.id || p.slug), ico: "📜", title: stripHtml(p.title || "") || "פוסט",
+    who, time: p.modified || p.date, href: `/${p.slug || ""}`, image: p.image_url, tag: "עדכון אחרון" };
 }
 function hintRow(h) {
   const nums = hintNums(h) || [];
@@ -72,14 +75,15 @@ export default function BroadcastsPage() {
   useEffect(() => {
     let live = true;
     (async () => {
-      const [forum, hints, chanArrays, dev] = await Promise.all([
-        getForumFeed({ limit: 60 }).catch(() => []),
+      const [forum, hints, postsRes, chanArrays, dev] = await Promise.all([
+        getForumFeed({ limit: 60, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
         getRealityHints(40).catch(() => []),
+        getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(r => r?.posts || []).catch(() => []),  // כל הפוסטים (כולל מערכת)
         Promise.all(REAL_CHANNELS.map(ch => getChannelUpdates(40, ch, true).then(r => (r || []).map(u => ({ ...u, ch }))).catch(() => []))),
         getChannelUpdates(60, DEV_CHANNEL, true).catch(() => []),
       ]);
       if (!live) return;
-      setData({ forum: forum || [], hints: hints || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
+      setData({ forum: forum || [], hints: hints || [], posts: postsRes || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
     })();
     return () => { live = false; };
   }, []);
@@ -89,8 +93,8 @@ export default function BroadcastsPage() {
 
   const rows = useMemo(() => {
     if (!data) return { forum: [], activity: [] };
-    const forum = data.forum.filter(x => x.kind !== "post").map(forumRow);
-    const activity = [...data.forum.filter(x => x.kind === "post").map(postRow), ...data.hints.map(hintRow)]
+    const forum = data.forum.map(forumRow);   // כבר בלי פוסטים (includePosts:false)
+    const activity = [...(data.posts || []).map(postRow), ...data.hints.map(hintRow)]
       .sort((a, b) => toMs(b.time) - toMs(a.time));
     return { forum, activity };
   }, [data]);

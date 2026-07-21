@@ -137,10 +137,12 @@ function insightAuthor(origin) {
   return origin; // «צוריאל» וכו'
 }
 
-export async function getForumFeed({ type = null, writer = null, limit = 80 } = {}) {
+export async function getForumFeed({ type = null, writer = null, limit = 80, includePosts = true } = {}) {
   if (!supabase) return [];
   const wantContrib = !type || FORUM_CONTRIB_INTENTS.includes(type);
-  const wantPosts = !type || type === "post";
+  // 🌳 עץ אחד — מניעת-כפילות: פוסטים שייכים ל«פעילות האתר» (כל הפוסטים, כולל מערכת), לא לפורום.
+  //    includePosts=false → הפורום קהילה-בלבד (חידושים·דיונים·צפני-גולשים·insights), בלי זליגת-פוסטים.
+  const wantPosts = includePosts && (!type || type === "post");
   const wantInsights = !type || type === "insight";   // 💡 חידושי בית המדרש (insights)
   const wantCiphers = !type || type === "cipher";     // 🔠 צפני-גולשים (els_records source='community')
   const tasks = [];
