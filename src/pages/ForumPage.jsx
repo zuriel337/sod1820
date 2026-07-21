@@ -50,7 +50,7 @@ function ContribCard({ c, P }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
-        {c.target_id && <Link to={href || "#"} style={{ textDecoration: "none" }}>{badge(P.accent, `${c.target_type === "number" ? "🔢" : c.target_type === "els" ? "🔠" : "🔖"} ${c.target_id}`)}</Link>}
+        {/* 🌳 עץ אחד: תגית-היעד (מספר/ביטוי) לא מוצגת בפיד — הקשר חי במקור ההודעה (עמוד השרשור /forum/:id «סביב …»). */}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
@@ -144,7 +144,7 @@ function CipherCard({ c, P }) {
     <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
         {badge(P.accentText, "🆕 צופן חדש מגולש")}
-        {c.skip_distance ? badge(P.accent, `⏭️ דילוג ${c.skip_distance}`) : null}
+        {/* 🌳 עץ אחד: מרחק-הדילוג לא מוצג כתגית בפיד — חי בעמוד הצופן הקנוני (/codes/:slug). */}
         {badge(P.accentDim, `📖 ${scopeTxt}`)}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>

@@ -50,7 +50,7 @@ export const STATE_META = {
   idea:          { emoji: "🟡", label: "רעיון" },
   discussion:    { emoji: "🔵", label: "בדיון" },
   investigating: { emoji: "🔬", label: "בבדיקה" },
-  validated:     { emoji: "🟢", label: "אומת" },
+  validated:     { emoji: "🟢", label: "מאושר" },
   canonical:     { emoji: "🏛️", label: "קנוני" },
 };
 export const stateMeta = s => STATE_META[s] || STATE_META.idea;
