@@ -10,7 +10,8 @@ import { getWhatsNewCounts } from "../lib/whatsNew.js";
 const CHIPS = [
   { key: "forum", emoji: "💬", label: "פורום", acc: "#4fd6a8" },
   { key: "activity", emoji: "✨", label: "פעילות", acc: "#e8c84a" },
-  { key: "channels", emoji: "📢", label: "ערוצים", acc: "#37d67a" },
+  // 📢 ערוצים = מצביע בלבד, בלי מספר: הם תמיד מלאים ויש להם טיקר-ערוצים חי למטה → מונה כאן = כפילות ומנפח.
+  { key: "channels", emoji: "📢", label: "ערוצים", acc: "#37d67a", noCount: true },
   { key: "dev", emoji: "🛠️", label: "פיתוח", acc: "#a78bfa" },
 ];
 
@@ -26,7 +27,8 @@ export default function WhatsNewCard() {
 
   // אין נתונים עדיין, או אין שום דבר חדש → לא מציגים כלום (אפס עומס).
   if (!counts || !counts.total) return null;
-  const active = CHIPS.filter(c => counts[c.key] > 0);
+  // צ'יפ מוצג אם יש בו חדש — או אם הוא מצביע-בלבד (ערוצים) שנשאר קבוע בלי מספר.
+  const active = CHIPS.filter(c => c.noCount || counts[c.key] > 0);
   const dark = P.mode !== "light";
 
   return (
@@ -72,7 +74,7 @@ export default function WhatsNewCard() {
           {active.map(c => (
             <Link key={c.key} to={`/broadcasts?tab=${c.key}`} className="wn-chip" style={{ "--acc": c.acc }}>
               <span>{c.emoji} {c.label}</span>
-              <span className="n">{counts[c.key]}</span>
+              {!c.noCount && <span className="n">{counts[c.key]}</span>}
             </Link>
           ))}
         </div>
