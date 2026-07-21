@@ -34,6 +34,7 @@ import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/fee
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
+import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
@@ -60,6 +61,7 @@ const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
   { icon: "🌳", label: "עץ ההתכנסויות", to: "/numbers" },
   { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
+  { img: "/els-icon.png", label: "הצופן התנכי", to: "/code" },   // 🔠 לוגו-הצופן האמיתי (כמו בתוך התוכנה)
   { icon: "🖼️", label: "גלריות", to: "/archive" },
   { icon: "🌅", label: "ציר הזמן", to: "/timeline" },
   { icon: "📰", label: "כל הפוסטים", to: "/post" },
@@ -483,10 +485,24 @@ export default function HomeNewPage() {
         <div className="hn-grid6">
           {TILES.map(t => (
             <Link key={t.label} to={t.to} className="hn-tile">
-              <div style={{ fontSize: 26, marginBottom: 6 }}>{t.icon}</div>
+              {t.img
+                ? <img src={t.img} alt="" width={34} height={34} style={{ borderRadius: 9, objectFit: "cover", marginBottom: 6, display: "block", marginInline: "auto" }} />
+                : <div style={{ fontSize: 26, marginBottom: 6 }}>{t.icon}</div>}
               <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.3 }}>{t.label}</div>
             </Link>
           ))}
+        </div>
+
+        {/* 💬 מהפורום — ההודעה האחרונה בשורה אחת + הפניה לכתוב חידוש בבית המדרש */}
+        <HomeForumTile />
+
+        {/* ❓ מה זה גימטריה — מסביר קצר, תחת הריבועים (ליד «בית המדרש») */}
+        <div style={{ marginTop: 12, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 16px", textAlign: "center" }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 6 }}>❓ מה זה גימטריה?</div>
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, margin: "0 auto 11px", maxWidth: 560 }}>
+            לכל אות עברית ערך מספרי (א=1 · ב=2 … ת=400). <b style={{ color: P.ink }}>גימטריה</b> היא סכום הערכים של מילה — וכששתי מילים חולקות אותו ערך, נחשפת ביניהן זיקה נסתרת. באתר כל מספר הוא שער: לוחצים על ערך ורואים אילו מילים, פסוקים ורמזים מתכנסים אליו.
+          </p>
+          <Link to="/gematria" style={{ display: "inline-block", textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, borderRadius: 999, padding: "9px 22px" }}>🧮 נסו את המחשבון ←</Link>
         </div>
       </section>
 
