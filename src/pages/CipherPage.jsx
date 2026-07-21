@@ -7,6 +7,7 @@ import { getMatrixBySlug } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
 import { getAiAnalysis, supabase } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
+import { thumb } from "../lib/img.js";
 import { formatDateHe } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
@@ -282,23 +283,34 @@ export default function CipherPage() {
       ) : (() => {
         // 🔐 חקירת המטריצה החיה של צפני-המחקר שמורה לרשומים (בקשת צוריאל) — צפייה בכרטיס פתוחה לכולם.
         const needReg = m.source === "research" && !verified && !isAdmin;
+        // 🎬 פוסטר-קולנועי: תמונה מרונדרת באיכות בינונית (thumb ~900/60 — קלה למובייל/סוללה חלשה,
+        //    במקום רזולוציה-מלאה שנטענת לאט) + זום-Ken-Burns עדין שנותן תחושת «סרט» בלי לטעון שום מנוע.
+        //    המנוע הכבד (~2.2MB תנ״ך) נטען רק בלחיצה מפורשת — אין «הסתרכות» למטריצה. respect prefers-reduced-motion.
+        const poster = m.image_url ? thumb(m.image_url, 900, 60) : null;
         return (
           <div style={{ maxWidth: 900, margin: "0 auto", padding: "8px 14px 4px" }}>
+            <style>{`
+              @keyframes cipherKenBurns { 0%{transform:scale(1.005) translate3d(0,0,0)} 50%{transform:scale(1.075) translate3d(-1.2%,-1.4%,0)} 100%{transform:scale(1.005) translate3d(0,0,0)} }
+              .cipher-poster-img{ animation:cipherKenBurns 22s ease-in-out infinite; will-change:transform; }
+              @media (prefers-reduced-motion: reduce){ .cipher-poster-img{ animation:none } }
+            `}</style>
             <button onClick={() => needReg ? setGate(true) : setShowTool(true)} aria-label="פתח את הכלי החי"
-              style={{ position: "relative", cursor: "pointer", display: "block", width: "100%", padding: 0, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", background: P.cardGrad || P.cardSoft }}>
-              {m.image_url
-                ? <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", display: "block", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700" }} />
-                : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: P.accentText, fontFamily: F.regal, fontWeight: 800, padding: 16, textAlign: "center" }}>
+              style={{ position: "relative", cursor: "pointer", display: "block", width: "100%", padding: 0, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", background: "#0a0700" }}>
+              {poster
+                ? <img className="cipher-poster-img" src={poster} alt={m.title || m.search_term} loading="eager" style={{ width: "100%", display: "block", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700" }} />
+                : <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: P.accentText, fontFamily: F.regal, fontWeight: 800, padding: 16, textAlign: "center", background: P.cardGrad || P.cardSoft }}>
                     <img src="/els-icon.png" alt="" width="52" height="52" style={{ borderRadius: 12, objectFit: "cover" }} />
                     <div style={{ fontSize: 26 }}>{m.title || m.search_term}</div>
                     <div style={{ fontSize: 13.5, color: P.inkSoft, fontFamily: F.body, fontWeight: 400 }}>דילוג {m.skip_distance} · {m.scope === "tanakh" ? "תנ״ך" : "תורה"}{findings.length ? ` · ${findings.length} ממצאים` : ""}</div>
                   </div>}
-              <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,4,14,0.34)" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, borderRadius: 999, padding: "13px 26px", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, boxShadow: "0 6px 22px rgba(0,0,0,0.5)" }}>{needReg ? "🔒" : "🔍"} חקור במטריצה החיה</span>
+              {/* הצללה קולנועית מלמטה — נותנת עומק-פוסטר ומדגישה את כפתור-החקירה */}
+              <span aria-hidden style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,4,14,0.18) 0%, rgba(6,4,14,0) 34%, rgba(6,4,14,0.12) 62%, rgba(6,4,14,0.6) 100%)" }} />
+              <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "0 0 16px" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.accentBtn, color: P.onAccent, borderRadius: 999, padding: "12px 24px", fontFamily: F.heading, fontSize: 15, fontWeight: 800, boxShadow: "0 6px 22px rgba(0,0,0,0.55)" }}>{needReg ? "🔒" : "🔬"} חקור במטריצה החיה</span>
               </span>
             </button>
             <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>
-              {needReg ? "חקירת המטריצה החיה של צפני-המחקר שמורה לרשומים — הרשמה חינם פותחת." : (m.scope === "tanakh" ? "טעינת כל התנ״ך מתחילה רק בלחיצה — כדי שהכניסה תהיה מהירה." : "לחצו לפתיחת הכלי החי.")}
+              {needReg ? "חקירת המטריצה החיה של צפני-המחקר שמורה לרשומים — הרשמה חינם פותחת." : (m.scope === "tanakh" ? "🎬 תצוגת פוסטר מהירה — המטריצה החיה (כל התנ״ך) נטענת רק בלחיצה." : "🎬 תצוגת פוסטר מהירה — לחצו לפתיחת המטריצה החיה.")}
             </div>
           </div>
         );
