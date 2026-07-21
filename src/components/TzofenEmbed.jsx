@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
@@ -18,6 +19,7 @@ function rowToItem(m) {
   if (!m) return null;
   return {
     id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
+    slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
@@ -171,6 +173,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "contribute" && d.slug) {
+        // ➕ 1ב — שיתוף ממצא מתוך הכלי כתגובת-מחקר על הצופן הנוכחי (עץ אחד: לא צופן חדש, תרומה על הקיים).
+        const words = Array.isArray(d.words) ? d.words.filter(Boolean) : [];
+        if (!words.length) { postToTool({ type: "contributed", ok: false }); return; }
+        const body = `🔭 מצאתי על קו-הצופן «${d.axis || ""}»: ${words.join(" · ")}`;
+        addContribution({ intent: "חידוש", origin: "els", body, targetType: "els", targetId: d.slug, authorName: null })
+          .then(() => postToTool({ type: "contributed", ok: true }))
+          .catch(() => postToTool({ type: "contributed", ok: false }));
       } else if (d.type === "delete" && d.id) {
         // 🗑 מחיקת-צופן מהגלריה (אדמין בלבד) — הסתרה הפיכה (status=hidden) דרך moderate_els_matrix,
         //    ואז ריענון מיידי של מטריצות-הענן בכלי כך שהכרטיס נעלם.

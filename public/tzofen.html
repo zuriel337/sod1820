@@ -1050,7 +1050,7 @@
   ];
   // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
-  const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",scope:"torah",tier:"unlimited"};
+  const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
   // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
   function shownHitsOf(w){
@@ -1351,6 +1351,7 @@
     if(d.type==="deleted"){   // תוצאת מחיקת-צופן (אדמין) — האתר מרענן את הגלריה מיד אחרי
       toast(d.ok?"🗑 הצופן נמחק מהגלריה":"לא ניתן למחוק כרגע — נסו שוב");
     }
+    if(d.type==="contributed"&&!d.ok){toast("שיתוף-הממצא נכשל — נסו שוב");}   // ➕ 1ב — כשל בלבד (הצלחה כבר הודגמה)
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
       try{loadMatrix(d.item,0);}catch(e){}
     }});
@@ -2132,6 +2133,8 @@
     st.postUrl=item.postUrl||"";st.postTitle=item.postTitle||"";   // 📖 קישור-לפוסט של המטריצה
     st.desc=item.desc||"";   // 📖 הסבר-הצופן (מוצג מתחת למטריצה, שמור באתר)
     st.author=item.author||"";   // ✍️ שם-המחבר (לפרֵה-מילוי חלון חובת-ההסבר בשמירה חוזרת)
+    st.cipherSlug=item.slug||"";st.cipherTerm=item.term||"";   // 🔗 1ב — הקשר-הצופן: מאפשר «שתף כממצא» כתגובה
+
     q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
     if(!st.res.hits.length){updGem();render();return;}
     let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
@@ -2154,6 +2157,14 @@
     return {name:o.t,term:o.t,skip:o.s,words:(o.w||[]).map(x=>({t:x.t,color:x.c})),postUrl:o.p||"",postTitle:o.pt||"",scope:o.sc==="tanakh"?"tanakh":"torah"};}catch(e){return null;}}
   function copyText(t){let ok=false;try{const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.top="0";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand("copy");document.body.removeChild(ta);}catch(e){}
     if(!ok&&navigator.clipboard){try{navigator.clipboard.writeText(t);ok=true;}catch(e){}}return ok;}
+  // ➕ 1ב — שיתוף המילים שסומנו כתגובת-מחקר על הצופן הפתוח (עץ אחד: תרומה על הקיים, לא צופן חדש).
+  function shareFinding(){
+    if(!st.cipherSlug){toast("שמור את הצופן קודם כדי לשתף ממצא");return;}
+    const words=st.words.map(w=>w.t).filter(Boolean);
+    if(!words.length){toast("סמן ממצא קודם — «🤖 סרוק שורה» או «🔀 הצלב»");return;}
+    postHost({type:"contribute",slug:st.cipherSlug,axis:st.raw,words});
+    toast("➕ נשלח כתגובת-מחקר על הצופן");
+  }
   function shareLink(){
     if(!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
     const url=location.origin+location.pathname+"#"+encodeMatrix();
@@ -2467,6 +2478,7 @@
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
       (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
+      ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
       '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
@@ -2485,6 +2497,7 @@
     acts.querySelector(".share-act").onclick=shareLink;
     const xAct=acts.querySelector(".cross-act");if(xAct)xAct.onclick=openSimpleCross;   // 🔀 פתח מוצלב עם המונח הנוכחי כציר
     acts.querySelector(".save-act").onclick=addCurrentToGallery;   // 💾 → גלריית-הענן (לא למכשיר)
+    const cba=acts.querySelector(".contrib-act");if(cba)cba.onclick=shareFinding;   // ➕ 1ב — שיתוף ממצא כתגובה
     acts.querySelector(".d3-act").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
     acts.querySelector(".img-act").onclick=downloadMatrixPNG;
     const pa=acts.querySelector(".post-act");if(pa)pa.onclick=()=>{try{window.open(encodeURI(st.postUrl),"_blank","noopener");}catch(e){toast("הקישור: "+st.postUrl);}};
