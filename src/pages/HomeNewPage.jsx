@@ -42,8 +42,6 @@ import { getSavedMatrices } from "../lib/elsMatrices.js";
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
-// 🖼️ תמונת השער מלא-המסך של דף הבית — להחלפה: שנה URL זה בלבד (ברירת-מחדל: באנר ההיכל 1820).
-const HOME_HERO_BG = HERO_IMG;
 const SHVILEI_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png";
 // 🎠 קרוסלת ההירו — סליחה ראשונה = החדש (פוסט המבוא «שבילי שפה»); החלקה שמאלה = הישן («כאן מתחילים»).
 const HERO_SLIDES = [
@@ -301,18 +299,14 @@ export default function HomeNewPage() {
         @media (max-width:520px){ .hn-grid6{grid-template-columns:repeat(2,1fr)} .hn-postgrid{grid-template-columns:1fr 1fr} }
 
         /* ===== 🔠 השער החי — רקע-צופן · חיפוש-לב · דופק (מחויב לעולם הכהה-מלכותי, כמו זרם המציאות) ===== */
-        /* 🖼️ שער מלא-מסך — תמונה מעניינת על כל המסך, התוכן ממורכז מעליה (בקשת צוריאל) */
+        /* 🎨 שער — רקע-CSS מלכותי (בלי תמונה). זוהר-זהב עדין על אבן-לילה. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
-          min-height: calc(100vh - 96px); min-height: calc(100svh - 96px);
-          display:flex; align-items:center; justify-content:center;
-          background:#09080f center/cover no-repeat; background-image:url('${HOME_HERO_BG}');
+          background: radial-gradient(1000px 560px at 50% -10%, #1a1330 0%, #0b0916 58%, #09080f 100%);
           border-bottom:1px solid rgba(212,175,55,.22); }
-        /* כהות-קריאוּת מעל התמונה — כדי שהכותרת והחיפוש יישארו קריאים על כל תמונה */
         .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
-          radial-gradient(circle at 50% 42%, rgba(9,8,15,.30), rgba(9,8,15,.72) 74%),
-          linear-gradient(180deg, rgba(9,8,15,.62) 0%, rgba(9,8,15,.22) 34%, rgba(9,8,15,.82) 100%); }
+          radial-gradient(60% 42% at 50% 34%, rgba(212,175,55,.08), transparent 62%); }
         .hn-gate-inner { position:relative; z-index:2; max-width:680px; margin:0 auto;
-          padding:44px 18px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+          padding:54px 18px 46px; display:flex; flex-direction:column; align-items:center; gap:16px; }
         .hn-emblem { color:#d4af37; font-family:${F.regal}; font-size:12px; letter-spacing:4px;
           text-transform:uppercase; opacity:.92; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
