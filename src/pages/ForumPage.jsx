@@ -265,7 +265,8 @@ export default function ForumPage() {
 
       {/* שורה 1.5 — מצב-מחקר + מיון (מה שהופך אותו לפורום-מחקר, לא צ׳אט) */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 18 }}>
-        {Object.keys(STATE_META).some(k => (stateCounts[k] || 0) > 0) && (
+        {/* שורת «מצב» מופיעה רק כשיש ≥2 מצבים עם תוכן — אחרת «הכל» ו«המצב-היחיד» זהים (כולם בכולם) ומבלבלים. */}
+        {Object.keys(STATE_META).filter(k => (stateCounts[k] || 0) > 0).length >= 2 && (
           <>
             <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מצב:</span>
             <button onClick={() => setState(null)} style={{ ...chip(!state), fontSize: 12, padding: "4px 11px" }}>הכל</button>
