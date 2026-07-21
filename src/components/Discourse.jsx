@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
+import ResearcherLink from "./ResearcherLink.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
@@ -14,8 +15,9 @@ import {
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
 // «מחקר קהילתי», לא «תגובות» (research_contribution_law). ידע מבוקר · רשת-קשרים.
 // מקור-אמת אחד — אותו רכיב בכל דף. theme-aware דרך usePalette.
-// 🌳 write-only (החלטת צוריאל 21.7.2026): כותבים תרומה עצמאית, לא מגיבים בשרשור. החיבור בין
-// תרומות נעשה דרך «🔗 מצאתי קשר» (edge בגרף) — עקבי עם unified_graph_law (חיבור ב-edges, לא קינון).
+// 🌳 write-only רק בפורום (origin="forum", החלטת צוריאל 21.7.2026): שם כותבים תרומה עצמאית ולא
+// מגיבים בשרשור — החיבור נעשה דרך «🔗 מצאתי קשר» (edge בגרף, עקבי עם unified_graph_law). בכל שאר
+// המקומות (דפי-מספר/פסוק/צופן/פרופיל/בית-מדרש) — רדוד רגיל («💬 הגב») נשאר כרגיל.
 
 function timeAgo(ts) {
   if (!ts) return "";
@@ -30,8 +32,8 @@ function timeAgo(ts) {
 }
 
 
-// כרטיס תרומה בודד (write-only — בלי רדוד; חיבור דרך «🔗 מצאתי קשר»)
-function ContribCard({ c, P, user, isAdmin, origin, target, onChanged }) {
+// כרטיס תרומה בודד (+ ילדיו כתגובות, רמה אחת). writeOnly (פורום) → בלי «הגב»/רדוד, רק «מצאתי קשר».
+function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onChanged, writeOnly = false }) {
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const [busy, setBusy] = useState(false);
   const [linking, setLinking] = useState(false);
@@ -71,8 +73,9 @@ function ContribCard({ c, P, user, isAdmin, origin, target, onChanged }) {
       </div>
       {/* 👍 ריאקציות */}
       <div style={{ marginTop: 9 }}><ReactionBar id={c.id} reactions={c.reactions} /></div>
-      {/* פעולות — write-only: חיבור דרך «מצאתי קשר» (edge), בלי רדוד */}
+      {/* פעולות — «הגב» (רדוד) בכל מקום רגיל; בפורום (writeOnly) מוסתר, מחברים דרך «מצאתי קשר» */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
+        {!writeOnly && <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>}
         {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
         {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
         {isAdmin && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
@@ -82,6 +85,20 @@ function ContribCard({ c, P, user, isAdmin, origin, target, onChanged }) {
           <input value={linkVal} onChange={e => setLinkVal(e.target.value)} placeholder="מספר/עוגן לקישור (למשל 116)"
             style={{ flex: 1, minWidth: 140, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "7px 10px", color: P.ink, fontFamily: F.body, fontSize: 13, outline: "none" }} />
           <button disabled={busy} onClick={doLink} style={goldBtn(P)}>חבר לגרף</button>
+        </div>
+      )}
+      {/* תגובות (רמה אחת) — לא בפורום (writeOnly) */}
+      {!writeOnly && kids?.length > 0 && (
+        <div style={{ marginTop: 11, paddingInlineStart: 12, borderInlineStart: `2px solid ${P.border}`, display: "grid", gap: 9 }}>
+          {kids.map(k => {
+            const kim = intentMeta(k.intent);
+            return (
+              <div key={k.id}>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{k.status === "pending" ? " · ⏳" : ""}</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -156,11 +173,14 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   );
 }
 
-// focusId — מיקוד לתרומה אחת (עמוד-הפורום /forum/:id): מציג רק את התרומה הזו (write-only, בלי רדוד).
+// focusId — מיקוד לתרומה אחת (עמוד-הפורום /forum/:id): מציג רק את התרומה הזו.
+// writeOnly — נגזר מ-origin==="forum": בפורום כותבים בלבד (בלי רדוד), בשאר המקומות רדוד רגיל.
 export default function Discourse({ target, origin = "number", archive = [], focusId = null }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
+  const writeOnly = origin === "forum";   // 🌳 פורום = write-only; דפי-מספר/פסוק/צופן/פרופיל = רדוד רגיל
+  const [replyTo, setReplyTo] = useState(null);
   const [showArchive, setShowArchive] = useState(false);
   const [lastForum, setLastForum] = useState(null);   // ההודעה האחרונה בפורום (למצב-ריק)
 
@@ -174,8 +194,9 @@ export default function Discourse({ target, origin = "number", archive = [], foc
 
   if (!target?.id) return null;
   const list = items || [];
-  // מיקוד: רק התרומה הממוקדת (root יחיד). אחרת — כל ה-roots של הישות (write-only, בלי רדוד).
+  // מיקוד: רק התרומה הממוקדת (root יחיד). אחרת — כל ה-roots של הישות.
   const roots = focusId ? list.filter(c => c.id === focusId) : list.filter(c => !c.parent_id);
+  const kidsOf = id => list.filter(c => c.parent_id === id);
   const n = intent => list.filter(c => c.intent === intent).length;
   const validated = list.filter(c => ["validated", "canonical"].includes(c.research_state)).length;
 
@@ -197,12 +218,12 @@ export default function Discourse({ target, origin = "number", archive = [], foc
         )}
       </div>
 
-      {/* מלחין — כתיבת תרומה עצמאית (write-only). אנונימי מקבל שדה-שם ותרומתו עולה מיד; רשומים
-          מקבלים את כל סוגי-הידע. במצב-מיקוד (focusId, עמוד-פורום) מוסתר — שם קוראים ומחברים, לא כותבים חדש. */}
+      {/* מלחין — פתוח לכולם. אנונימי מקבל שדה-שם ומגיב מיד; רשומים מקבלים את כל סוגי-הידע.
+          במצב-מיקוד (focusId, עמוד-פורום) מוסתר: שם קוראים ומחברים («מצאתי קשר»), לא כותבים תרומה חדשה. */}
       {!focusId && <Composer P={P} origin={origin} target={target} onDone={load} anon={!user} />}
       {!focusId && !user && (
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, textAlign: "center", marginTop: -4 }}>
-          כותבים כאורח — או <Link to="/login" style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }}>התחברו לפרופיל קבוע ✨</Link>
+          מגיבים כאורח — או <Link to="/login" style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }}>התחברו לפרופיל קבוע ✨</Link>
         </div>
       )}
 
@@ -234,7 +255,15 @@ export default function Discourse({ target, origin = "number", archive = [], foc
       ) : (
         <div style={{ display: "grid", gap: 11 }}>
           {roots.map(c => (
-            <ContribCard key={c.id} c={c} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} onChanged={load} />
+            <div key={c.id}>
+              <ContribCard c={c} kids={writeOnly ? [] : kidsOf(c.id)} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target}
+                writeOnly={writeOnly} onReply={id => setReplyTo(replyTo === id ? null : id)} onChanged={load} />
+              {!writeOnly && replyTo === c.id && (
+                <div style={{ marginTop: 8, paddingInlineStart: 12 }}>
+                  <Composer P={P} origin={origin} target={target} replyTo={c.id} anon={!user} onDone={() => { setReplyTo(null); load(); }} />
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
