@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
@@ -18,6 +19,7 @@ function rowToItem(m) {
   if (!m) return null;
   return {
     id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
+    slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
@@ -105,28 +107,51 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
       const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
+      // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
+      const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+        quality: d.quality || null, shapeUrl: shapeUrl || null };
+
+      // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
+      //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
+      //    כ«גרסה» מקושרת למקור (variantOf) שממתינה לאישור — לעולם לא דורסים צופן קיים.
+      const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
+      const isReSave = !!(matrix?.id
+        && nrm(d.term) === nrm(matrix.search_term)
+        && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
+        && (d.scope || "torah") === (matrix.scope || "torah"));
+
+      if (isReSave && isAdmin) {
+        const { error } = await supabase.rpc("update_els_matrix", {
+          p_id: matrix.id, p_positions: positions,
+          p_image_url: imageUrl || null, p_description: d.desc || null,
+        });
+        if (error) throw error;
+        postToTool({ type: "saved", ok: true, status: "updated" });
+        pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
+        return;
+      }
+
       const common = {
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
-        // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
-        positions: { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-          quality: d.quality || null, shapeUrl: shapeUrl || null },
+        // גרסה על צופן קיים (לא-אדמין) → מקושרת למקור כדי שהאדמין יראה «גרסה» ולא כפילות אקראית.
+        positions: isReSave ? { ...positions, variantOf: matrix.id, variantOfSlug: matrix.slug || null } : positions,
         // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
         title: d.postTitle || d.term, note: d.desc || null, imageUrl,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
-        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : "pending" });
+        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : (isReSave ? "variant" : "pending") });
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
         await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
-        postToTool({ type: "saved", ok: true, status: "pending" });
+        postToTool({ type: "saved", ok: true, status: isReSave ? "variant" : "pending" });
       }
     } catch {
       postToTool({ type: "saved", ok: false });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
@@ -148,6 +173,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "contribute" && d.slug) {
+        // ➕ 1ב — שיתוף ממצא מתוך הכלי כתגובת-מחקר על הצופן הנוכחי (עץ אחד: לא צופן חדש, תרומה על הקיים).
+        const words = Array.isArray(d.words) ? d.words.filter(Boolean) : [];
+        if (!words.length) { postToTool({ type: "contributed", ok: false }); return; }
+        const body = `🔭 מצאתי על קו-הצופן «${d.axis || ""}»: ${words.join(" · ")}`;
+        addContribution({ intent: "חידוש", origin: "els", body, targetType: "els", targetId: d.slug, authorName: null })
+          .then(() => postToTool({ type: "contributed", ok: true }))
+          .catch(() => postToTool({ type: "contributed", ok: false }));
       } else if (d.type === "delete" && d.id) {
         // 🗑 מחיקת-צופן מהגלריה (אדמין בלבד) — הסתרה הפיכה (status=hidden) דרך moderate_els_matrix,
         //    ואז ריענון מיידי של מטריצות-הענן בכלי כך שהכרטיס נעלם.

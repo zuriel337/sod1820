@@ -72,6 +72,20 @@ export default function CiphersLibraryPage() {
   const [filter, setFilter] = useState("all");   // all · system · community
   const shown = filter === "community" ? community : filter === "system" ? systemC : list;
 
+  // 💎 צפנים חזקים — הבלטת המאומתים והנדירים (curation_over_quantity_law): 4★+ ממויין לפי
+  //    כוכבים → מובהקות-מדודה → נדירות → אחוזון. עדשה על אותה רשימה, לא מקור חדש.
+  const strong = list
+    .filter(m => { const q = m.positions?.quality; return q && ((q.stars || 0) >= 4 || q.verified); })
+    .sort((a, b) => {
+      const qa = a.positions.quality, qb = b.positions.quality;
+      return (qb.stars - qa.stars) || ((qb.verified ? 1 : 0) - (qa.verified ? 1 : 0))
+        || ((qb.rarity || 0) - (qa.rarity || 0)) || ((qb.percentile || 0) - (qa.percentile || 0));
+    })
+    .slice(0, 10);
+  const rarityTxt = (q) => q && (q.rarity || q.rarityCapped)
+    ? (q.rarityCapped ? `נדיר מ־1 ל־${q.trials || 400}` : `נדיר ~1 ל־${q.rarity}`)
+    : (q?.verified ? "מובהקות מדודה" : "");
+
   // 🆕 whats_new_law — «חדש» פר-משתמש: צופן-גולש שנוצר אחרי הביקור האחרון מהבהב עד שנראה (בלי חלון גלובלי).
   const cutoff = seenCutoff("codes-community");
   useEffect(() => { if (community.length) markSeenKey("codes-community"); }, [community.length]);
@@ -113,6 +127,32 @@ export default function CiphersLibraryPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>
             🕐 {formatDateHe(m.created_at)}{isCommunity && m.author_name ? ` · ✍️ ${m.author_name}` : ""}
           </div>
+        </div>
+      </Link>
+    );
+  };
+
+  // 💎 כרטיס-חזק קומפקטי לרצועה — מדגיש כוכבים + נדירות. מפנה לעמוד הקנוני (לא משכפל).
+  const featuredCard = (m) => {
+    const q = m.positions.quality;
+    const rt = rarityTxt(q);
+    return (
+      <Link key={"f" + m.id} to={`/codes/${encodeURIComponent(m.slug || m.id)}`}
+        style={{ flex: "0 0 auto", width: 208, scrollSnapAlign: "start", background: P.card, border: `1px solid ${P.borderStrong || P.accent}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "flex", flexDirection: "column", boxShadow: "0 3px 14px rgba(0,0,0,.32)" }}>
+        <div style={{ position: "relative" }}>
+          {m.image_url ? (
+            <img src={m.image_url} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1200 / 630", objectFit: "cover", background: "#0a0700", display: "block" }} />
+          ) : (
+            <div style={{ width: "100%", aspectRatio: "1200 / 630", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.cardSoft, color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", padding: 10 }}>{m.title || m.search_term}</div>
+          )}
+          <span style={{ position: "absolute", insetInlineStart: 8, top: 8, background: "rgba(212,175,55,.95)", color: "#1a0e00", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px" }}>💎 חזק</span>
+        </div>
+        <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800 }}>{m.title || m.search_term}</div>
+          <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 12.5, letterSpacing: 0.5 }} title={q.verified ? "מובהקות מונטה-קרלו מדודה" : "הערכת איכות"}>
+            {"★".repeat(q.stars)}<span style={{ opacity: 0.3 }}>{"☆".repeat(5 - q.stars)}</span>
+          </div>
+          {rt && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{q.verified ? "🎯 " : ""}{rt}</div>}
         </div>
       </Link>
     );
@@ -190,6 +230,18 @@ export default function CiphersLibraryPage() {
           </div>
         ) : (
           <>
+            {/* 💎 צפנים חזקים — רצועת-מומלצים בראש התצוגה הכללית בלבד (curation over quantity) */}
+            {filter === "all" && strong.length >= 3 && (
+              <section style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 9, flexWrap: "wrap", marginBottom: 10 }}>
+                  <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>💎 צפנים חזקים</span>
+                  <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>המאומתים והנדירים ביותר — מובהקות מונטה-קרלו</span>
+                </div>
+                <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                  {strong.map(featuredCard)}
+                </div>
+              </section>
+            )}
             {/* 🌳 סינון-מקור — עץ אחד; הכל ממוזג כברירת-מחדל, וההבחנה בתג. צ'יפ ריק (0) לא-לחיץ. */}
             <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
               {[
