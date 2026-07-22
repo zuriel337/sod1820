@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { PALETTES, PaletteProvider } from "../lib/palette.js";
 import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -115,7 +115,8 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
 export default function ContributorPage() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const P = usePalette();
+  // 📁 תיק המחקר = סביבת-מחקר → בהיר-נקי תמיד (research_workspace_law), כמו בית המדרש.
+  const P = PALETTES.lab;
   const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
@@ -193,14 +194,15 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [c?.user_id]);
 
-  // דף נעול / בבנייה לא נכנס לאינדקס של גוגל
+  // דף נעול / בבנייה / תיק לא-רשום או פרטי → לא נכנס לאינדקס של גוגל
   useEffect(() => {
-    if (!c?.locked && !c?.building) return;
+    const vis = c?.dossier_settings?.visibility || "public";
+    if (!c?.locked && !c?.building && vis === "public") return;
     const m = document.createElement("meta");
     m.name = "robots"; m.content = "noindex";
     document.head.appendChild(m);
     return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
-  }, [c?.locked, c?.building]);
+  }, [c?.locked, c?.building, c?.dossier_settings?.visibility]);
 
   // 📝 הפוסטים על שמו — עדשה על posts. כולל פוסטים שכתב (author) וגם שהשתתף בהם (authors[]).
   // «participated» = הכתב הראשי הוא מישהו אחר → מסומן «בהשתתפות».
@@ -338,9 +340,24 @@ export default function ContributorPage() {
     </div>
   );
 
-  return (
+  const isOwner = !!(user?.id && c.user_id && user.id === c.user_id);
+  const vis = c?.dossier_settings?.visibility || "public";
+  // 🔒 תיק פרטי — רק הבעלים/אדמין רואים
+  if (vis === "private" && !isOwner && !isAdmin) return (
     <div style={pageWrap}>
-    <div style={{ direction: "rtl", maxWidth: 860, margin: "0 auto", padding: "24px 14px 60px" }}>
+      <div style={{ direction: "rtl", maxWidth: 460, margin: "0 auto", padding: "90px 18px", textAlign: "center" }}>
+        <div style={{ fontSize: 46, marginBottom: 12 }}>🔒</div>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 24, fontWeight: 800 }}>תיק מחקר פרטי</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, margin: "12px 0 20px" }}>החוקר בחר לשמור את התיק הזה פרטי כרגע.</div>
+        <a href="/community/researchers" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 18px" }}>📜 כל הכתבים ←</a>
+      </div>
+    </div>
+  );
+
+  return (
+    <PaletteProvider value={PALETTES.lab}>
+    <div style={pageWrap}>
+    <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "24px 16px 60px" }}>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         {c.avatar_url && (
           <img src={c.avatar_url} alt={c.display_name} loading="lazy"
@@ -631,6 +648,7 @@ export default function ContributorPage() {
       </div>
     </div>
     </div>
+    </PaletteProvider>
   );
 }
 function chip(P, on) {

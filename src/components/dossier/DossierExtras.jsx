@@ -4,6 +4,10 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase } from "../../lib/supabase.js";
 import { getMatricesByOwner } from "../../lib/elsMatrices.js";
+import { METHODS } from "../../lib/gematria.js";
+
+const RAGIL = METHODS.find(m => m.key === "רגיל");
+const nameValue = (name) => { try { return RAGIL ? RAGIL.fn(name) : 0; } catch { return 0; } };
 
 // 📁 אזורי «תיק המחקר» (researcher_dossier_law) — נטענים על ContributorPage לפי c.user_id.
 // עדשות על הקיים (עץ אחד): צפנים=els_records · השפעה=research_level_of · יומן=timestamps.
@@ -172,14 +176,111 @@ function CurrentFocus({ P, focus, isOwner, onSave }) {
   );
 }
 
+// 🧑 על החוקר — קטן (זהות). ביו + גימטריית-השם (מנוע רשמי, רגיל). עריכה inline לבעלים.
+function AboutResearcher({ P, name, about, isOwner, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(about || "");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { setVal(about || ""); }, [about]);
+  const nv = nameValue(name);
+  async function save() { setBusy(true); try { await onSave(val.trim()); setEditing(false); } catch { /* noop */ } setBusy(false); }
+  if (!about && !isOwner && !nv) return null;
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>🧑 על החוקר</div>
+        {isOwner && !editing && <button onClick={() => setEditing(true)} title="ערוך" style={{ background: "none", border: "none", color: P.accentDim, cursor: "pointer", fontSize: 13 }}>✏️</button>}
+      </div>
+      {editing ? (
+        <div style={{ display: "grid", gap: 8 }}>
+          <textarea value={val} onChange={e => setVal(e.target.value)} dir="auto" rows={3} autoFocus
+            placeholder="כמה מילים על עצמך ותחומי-העניין שלך…"
+            style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, background: P.cardSoft, border: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 15, outline: "none", resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={save} disabled={busy} style={{ background: P.accentBtn, color: P.onAccent, border: "none", borderRadius: 10, padding: "8px 16px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>{busy ? "…" : "שמור"}</button>
+            <button onClick={() => { setEditing(false); setVal(about || ""); }} style={{ background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 10, padding: "8px 14px", fontFamily: F.heading, fontSize: 13, cursor: "pointer" }}>ביטול</button>
+          </div>
+        </div>
+      ) : (
+        about ? <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>{about}</div>
+              : isOwner && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5 }}>הוסף כמה מילים על עצמך…</div>
+      )}
+      {nv > 0 && (
+        <div style={{ marginTop: 9 }}>
+          <Link to={`/number/${nv}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 12px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+            🔢 {name} = {nv} <span style={{ color: P.accentDim, fontWeight: 400, fontSize: 11 }}>(גימטריה רגילה · מאומת במנוע)</span>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🕸 הקשרים שלי — המספרים/הישויות שהמחקר נוגע בהם (מ-primary_number + anchor_numbers).
+// הופך את התיק לחלק מהעץ: כל מספר מצביע לדף-המספר הקנוני (/number/:n). לא משכפל.
+function Connections({ P, matrices }) {
+  const nums = useMemo(() => {
+    const m = new Map();
+    matrices.forEach(x => {
+      [x.primary_number, ...(Array.isArray(x.anchor_numbers) ? x.anchor_numbers : [])]
+        .filter(n => Number.isFinite(n) && n > 0)
+        .forEach(n => m.set(n, (m.get(n) || 0) + 1));
+    });
+    return [...m.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0]).slice(0, 24);
+  }, [matrices]);
+  if (!nums.length) return null;
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>🕸 הקשרים שלי</div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>המספרים שהמחקר נוגע בהם — כל אחד מוביל לדף-המספר בעץ הידע.</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {nums.map(([n, cnt]) => (
+          <Link key={n} to={`/number/${n}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", color: P.accentText, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "6px 12px", fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>
+            {n}{cnt > 1 && <span style={{ color: P.accentDim, fontSize: 11, fontFamily: F.body }}>×{cnt}</span>}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ⚙️ בקרת-בעלים — נראות התיק (ציבורי/לא-רשום/פרטי). נשמר ל-dossier_settings.visibility.
+function OwnerControls({ P, visibility, onSave }) {
+  const [busy, setBusy] = useState(false);
+  const opts = [
+    { v: "public", label: "🌍 ציבורי", hint: "גלוי לכולם ובגוגל" },
+    { v: "unlisted", label: "🔗 קישור בלבד", hint: "רק מי שיש לו הקישור · לא בגוגל" },
+    { v: "private", label: "🔒 פרטי", hint: "רק אתה רואה" },
+  ];
+  const cur = visibility || "public";
+  async function pick(v) { if (v === cur) return; setBusy(true); try { await onSave(v); } catch { /* noop */ } setBusy(false); }
+  return (
+    <div style={{ marginBottom: 18, background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "11px 14px" }}>
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 8 }}>⚙️ התיק שלך — מי רואה? <span style={{ fontWeight: 400 }}>(רק אתה רואה את הבקרה הזו)</span></div>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+        {opts.map(o => {
+          const on = o.v === cur;
+          return (
+            <button key={o.v} onClick={() => pick(o.v)} disabled={busy} title={o.hint}
+              style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${on ? P.accent : P.border}`, background: on ? P.glow : "none",
+                color: on ? P.accentText : P.accentDim, borderRadius: 999, padding: "6px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, marginTop: 7 }}>{opts.find(o => o.v === cur)?.hint}</div>
+    </div>
+  );
+}
+
 export default function DossierExtras({ P, c, level, isOwner }) {
   const [matrices, setMatrices] = useState([]);
   const [joinedAt, setJoinedAt] = useState(null);
-  const settings = c?.dossier_settings || {};
-  const [focus, setFocus] = useState(settings.current_focus || "");
+  const [settings, setSettings] = useState(c?.dossier_settings || {});
   const name = c?.display_name || "החוקר";
 
-  useEffect(() => { setFocus((c?.dossier_settings || {}).current_focus || ""); }, [c]);
+  useEffect(() => { setSettings(c?.dossier_settings || {}); }, [c]);
 
   useEffect(() => {
     if (!c?.user_id) return;
@@ -190,19 +291,25 @@ export default function DossierExtras({ P, c, level, isOwner }) {
     return () => { alive = false; };
   }, [c?.user_id, c?.created_at]);
 
-  const saveFocus = useCallback(async (text) => {
-    const { data } = await supabase.rpc("update_my_dossier", { p_settings: { current_focus: text } });
-    if (data?.ok) setFocus(text);
+  // שמירה מרוכזת ל-dossier_settings (על החוקר / כרגע-אני-חוקר / נראות) — RPC update_my_dossier.
+  const saveSettings = useCallback(async (patch) => {
+    const { data } = await supabase.rpc("update_my_dossier", { p_settings: patch });
+    if (data?.ok) setSettings(s => ({ ...s, ...patch }));
+    return data;
   }, []);
 
   if (!c?.user_id) return null;
+  const about = settings.about || c?.bio || "";
   return (
     <div>
-      <CurrentFocus P={P} focus={focus} isOwner={isOwner} onSave={saveFocus} />
+      {isOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
+      <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
+      <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
       <ImpactBar P={P} level={level} matrices={matrices} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />
+      <Connections P={P} matrices={matrices} />
     </div>
   );
 }
