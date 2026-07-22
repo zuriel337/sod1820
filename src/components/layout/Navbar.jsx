@@ -6,6 +6,7 @@ import { GoldButton } from "../ui.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { Avatar } from "../../pages/AuthPage.jsx";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
+import { WaDot } from "../../lib/userCenter/useWaLink.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
@@ -412,7 +413,10 @@ function UserMenu({ user, profile, cc }) {
         <span style={{ color: cc.goldLight, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {profile?.display_name || profile?.username || "פרופיל"}
         </span>
-        <Avatar profile={profile} user={user} size={28} onDark />
+        <span style={{ position: "relative", display: "inline-flex", flex: "none" }}>
+          <Avatar profile={profile} user={user} size={28} onDark />
+          <WaDot size={11} ring={cc.bg} />
+        </span>
       </button>
       {open && (
         <div style={{
