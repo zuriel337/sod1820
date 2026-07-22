@@ -92,6 +92,15 @@
   .go{cursor:pointer;border:none;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00;
      align-self:center;border-radius:10px;padding:13px 46px;font-size:16px;font-weight:800;white-space:nowrap;transition:filter .15s}
   .go:hover{filter:brightness(1.06)}.go:active{transform:translateY(1px)}.go:disabled{opacity:.55;cursor:default}
+  /* 🔄 עיגול-מסתובב על כפתור-החיפוש בזמן חישוב — משוב מיידי בכל חיפוש (גם בתורה המהירה) */
+  .btn-spin{display:inline-block;width:14px;height:14px;margin-inline-end:8px;vertical-align:-2px;border:2px solid rgba(0,0,0,.22);border-top-color:currentColor;border-radius:50%;animation:btnspin .62s linear infinite}
+  @keyframes btnspin{to{transform:rotate(360deg)}}
+  /* 📊 צ׳יפ-מדדים אחרי חיפוש — «נמצא ב-X שניות · N מופעים · דילוג הכי-קצר K» */
+  .searchstat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin:8px auto 0;max-width:520px;
+     background:linear-gradient(160deg,rgba(212,175,55,.1),var(--panel));border:1px solid var(--line2);border-radius:999px;
+     padding:7px 15px;font-size:12px;color:var(--ink2);animation:gfade .4s ease}
+  .searchstat b{color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
+  .searchstat .ss-sep{opacity:.4}
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
@@ -1428,6 +1437,24 @@
     _sl.querySelector(".sl-time").textContent="✓ נמצא ב-"+((_now()-_slT0)/1000).toFixed(1)+" שניות · "+heb(nhits||0)+" מופעים";
     setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
   }
+  // 🔄 כפתור-חיפוש «עסוק» — עיגול-מסתובב + טקסט, משוב מיידי בכל חיפוש (כולל התורה המהירה)
+  function goBusy(txt){go.disabled=true;go.innerHTML='<span class="btn-spin" aria-hidden="true"></span>'+txt;}
+  // 📊 צ׳יפ-מדדים אחרי חיפוש/פתיחה — נמצא ב-X שנ׳ · N מופעים · דילוג. ms=null → בלי זמן (פתיחת-צופן שמור).
+  function hideSearchStat(){const el=document.getElementById("searchstat");if(el)el.style.display="none";}
+  function showSearchStat(res,ms){
+    if(!res||!res.hits||!res.hits.length){hideSearchStat();return;}
+    let el=document.getElementById("searchstat");
+    if(!el){el=document.createElement("div");el.id="searchstat";el.className="searchstat";
+      if(out&&out.parentNode)out.parentNode.insertBefore(el,out);else return;}
+    el.className="searchstat";el.style.display="";
+    const shownSkip=Math.abs(res.hits[st.occ]?res.hits[st.occ].skip:res.hits[0].skip);
+    const parts=[];
+    if(ms!=null){const s=ms/1000;parts.push('<span>✓ נמצא '+(s<0.1?"מיד":("ב-"+s.toFixed(s<1?2:1)+" שנ׳"))+'</span>');}
+    else parts.push('<span>✓ צופן פתוח</span>');
+    parts.push('<span><b>'+heb(res.hits.length)+'</b> מופעים</span>');
+    parts.push('<span>דילוג <b>'+heb(shownSkip)+'</b></span>');
+    el.innerHTML=parts.join('<span class="ss-sep">·</span>');
+  }
   function run(preserveWords){
     if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
@@ -1442,7 +1469,8 @@
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
-    st.raw=w;go.disabled=true;go.textContent="מחפש…";
+    st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
+    const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(()=>{
       st.res=findAll(w,4000);
@@ -1457,6 +1485,9 @@
       // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
       if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
         toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
+      // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
+      if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
+      else hideSearchStat();
     },10);
   }
   function savedWordsInit(){return [];}
@@ -1535,7 +1566,7 @@
     const parts=[A,...st.crossTerms];const axisN=chooseAxis(parts);
     const axis=parts.find(w=>norm(w)===axisN)||A;
     const terms=parts.filter(w=>norm(w)!==axisN);
-    go.disabled=true;go.textContent="מצליב…";if(xr){xr.disabled=true;xr.textContent="סורק…";}
+    goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק…";}
     setTimeout(()=>{
       const {resA,meetings,total}=crossFindMulti(axis,terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
@@ -1550,7 +1581,7 @@
   }
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
   function runCrossSimple(A,B){
-    go.disabled=true;go.textContent="מצליב…";
+    goBusy("מצליב…");
     setTimeout(()=>{
       const r1=crossFindMulti(A,[B],18),r2=crossFindMulti(B,[A],18);   // שני הכיוונים
       go.disabled=false;go.textContent="חפש בתורה ◆";
@@ -1595,7 +1626,7 @@
   }
   function runCrossFree(){
     const terms=st.crossTerms.slice(),xr=document.getElementById("xrun");
-    go.disabled=true;go.textContent="מצליב…";if(xr){xr.disabled=true;xr.textContent="סורק כל מונח כציר…";}
+    goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק כל מונח כציר…";}
     setTimeout(()=>{
       const {zones,resCache,total}=crossFindFree(terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;updateXrunLabel();}
@@ -1617,7 +1648,7 @@
     const forms=sidesForms(A);   // ייחודי (צורה שווה למקור מסוננת)
     const nameOf=new Map(forms.map(f=>[f.w,f.name]));
     const userTerms=(termsSrc||[]).map(norm).filter(t=>t.length>=2);
-    go.disabled=true;go.textContent="סורק מכל הצדדים…";if(xr){xr.disabled=true;xr.textContent="סורק מכל הצדדים…";}
+    goBusy("סורק מכל הצדדים…");if(xr){xr.disabled=true;xr.textContent="סורק מכל הצדדים…";}
     setTimeout(()=>{
       const resCache={},all=[];
       forms.forEach(f=>{
@@ -1654,7 +1685,7 @@
     if(An.length<2||Bn.length<2){toast("לגשר צריך שני מונחים (ציר עליון + מונח, או שני מונחים)");return;}
     if(An===Bn){toast("שני מונחים שונים בבקשה");return;}
     const cands=[...new Set(BRIDGE_CANDS.map(norm))].filter(w=>w.length>=3&&w!==An&&w!==Bn);   // צירי-מחבר אפשריים (רשימה אוצרת)
-    go.disabled=true;go.textContent="מגשר…";if(xr){xr.disabled=true;xr.textContent="מחפש ציר-מחבר…";}
+    goBusy("מגשר…");if(xr){xr.disabled=true;xr.textContent="מחפש ציר-מחבר…";}
     setTimeout(()=>{
       const resCache={},all=[];
       for(const W of cands){
@@ -2199,6 +2230,7 @@
     //    הסרט מתחיל *כשרואים את המטריצה* (armReveal) ולא בטיימר קבוע — כדי שלא יתנגן לפני שהגיעו אליה.
     const n=(filmTimes==null?1:filmTimes);
     if(n>0){try{armReveal(n);}catch(e){}}
+    try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
   }
 
   // ── 🔗 שיתוף · 🖼️ תמונה · 🎬 סרט ──────────────────────────────────────────
@@ -2347,7 +2379,7 @@
   //    חלון-הדרכה/מדריך. כך משתמש שעדיין עובר על המסכים שמעל (או שפתח מטריצה שמורה ונגלל אליה) רואה
   //    את הסרט מתחיל בדיוק כשהמטריצה מולו — לא לפני. (במקום טיימר קבוע שרץ לפני שהגיעו למטריצה.)
   let _revealArm=null;
-  function overlayBlocking(){return !!(document.getElementById("onbov")||document.getElementById("guideov"));}
+  function overlayBlocking(){return !!(document.getElementById("onbov")||document.getElementById("guideov")||document.querySelector(".searchload.on"));}
   function cancelRevealArm(){if(_revealArm){try{_revealArm.io&&_revealArm.io.disconnect();}catch(e){}try{clearInterval(_revealArm.iv);}catch(e){}try{clearTimeout(_revealArm.cap);}catch(e){}_revealArm=null;}}
   function armReveal(n){
     cancelRevealArm();
@@ -2535,7 +2567,7 @@
     cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
     document.body.classList.toggle("searched",!!(r&&r.hits.length));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
-    if(!r||!r.hits.length){out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>נסה איות אחר או מילה קצרה יותר.</div>';return;}
+    if(!r||!r.hits.length){out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>נסה איות אחר או מילה קצרה יותר.</div>';try{hideSearchStat();}catch(e){}return;}
     recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
     const wrap=document.createElement("div");
