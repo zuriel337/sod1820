@@ -2,7 +2,7 @@
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
 import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 
-const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at";
+const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published";
 
 // ספריית-הצפנים הראשית (וגם גלריית-הכלי/בית) — מאושרות, **בלי תיקיית-המחקר** (source='research').
 // אלה חיים רק בתיקייה הנסתרת /codes/מחקר (getResearchMatrices). כך המחקר לא מוצג לכל מי שנכנס.
@@ -126,6 +126,28 @@ export async function getDraftMatrices(limit = 200) {
       .neq("status", "published").order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }
+}
+
+// 📁 תיק המחקר — כל המטריצות של חוקר שגלויות בתיק שלו: «בתיק שלי» (self_published) או שפורסמו לאתר.
+// עדשה ציבורית — anon רואה דרך policy public_read_self_published_els/public_read_published_els.
+// לא כולל טיוטות פרטיות. מקשרת לעמוד הקנוני /codes/:slug (עץ אחד), לא משכפלת.
+export async function getMatricesByOwner(uid, limit = 200) {
+  if (!supabase || !uid) return [];
+  try {
+    const { data } = await supabase.from("els_records").select(COLS + ",status")
+      .eq("owner_user_id", uid)
+      .or("self_published.eq.true,status.eq.published")
+      .order("created_at", { ascending: false }).limit(limit);
+    return data || [];
+  } catch { return []; }
+}
+
+// ✅ סימון/ביטול «בתיק שלי» — RPC self_publish_matrix (בעלים בלבד + סף level>=3 נאכף בשרת).
+// מחזיר {ok:true,self_published,level} או {ok:false,error:'level_too_low'|'not_owner'|…}.
+export async function selfPublishMatrix(id, on = true) {
+  const { data, error } = await supabase.rpc("self_publish_matrix", { p_id: id, p_on: on });
+  if (error) throw error;
+  return data;
 }
 
 export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null }) {

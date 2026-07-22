@@ -8,6 +8,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
+import DossierExtras from "../components/dossier/DossierExtras.jsx";
 import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
@@ -158,20 +159,29 @@ export default function ContributorPage() {
     setC(null); setErr(false); setLightName(null);   // איפוס בין slugs (כולל מעבר אצור↔קל)
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
-    supabase.from("contributors").select("slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into")
-      .or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle()
-      .then(({ data, error }) => {
+    // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
+    const cols = "slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
+    const resolveMe = slug === "me";
+    const q = resolveMe
+      ? supabase.from("contributors").select(cols).eq("user_id", user?.id || "00000000-0000-0000-0000-000000000000").maybeSingle()
+      : supabase.from("contributors").select(cols).or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle();
+    q.then(({ data, error }) => {
         if (!alive) return;
         if (error) { setErr(true); return; }
-        // אין שורת-contributor אצורה → פרופיל-חוקר קל לפי שם (identity_architecture_law)
-        if (!data) { let nm = slug; try { nm = decodeURIComponent(slug); } catch { /* raw */ } setLightName(nm); return; }
+        if (!data) {
+          // אין שורת-תיק אצורה → פרופיל-חוקר קל לפי שם (identity_architecture_law)
+          if (resolveMe) { setLightName(user?.user_metadata?.full_name || user?.email || "החוקר"); return; }
+          let nm = slug; try { nm = decodeURIComponent(slug); } catch { /* raw */ } setLightName(nm); return;
+        }
+        // me → נווט לכתובת הקנונית (URL נקי, deep-link יציב)
+        if (resolveMe && data.slug && data.slug !== "me") { nav(`/community/researcher/${data.slug}`, { replace: true }); return; }
         // 🌳 עץ אחד: דף-כותב שאוחד → הפניה לעמוד הקנוני
         if (data.merged_into && data.merged_into !== slug) { nav(`/community/researcher/${data.merged_into}`, { replace: true }); return; }
         setC(data);
       })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
-  }, [slug, nav]);
+  }, [slug, nav, user]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
   const [level, setLevel] = useState(null);
@@ -340,6 +350,7 @@ export default function ContributorPage() {
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, maxWidth: 460, marginInline: "auto", lineHeight: 1.5 }}>כל הגילויים, החידושים והקשרים שנאספו לאורך הדרך.</div>
         {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
         {level?.level && (
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
@@ -366,6 +377,9 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* 📁 אזורי תיק-המחקר (researcher_dossier_law) — כרגע-אני-חוקר · השפעה · תחומים · צפנים · יומן. המחקר במרכז. */}
+      <DossierExtras P={P} c={c} level={level} isOwner={!!(user?.id && c.user_id && user.id === c.user_id)} />
 
       {/* 🎨 גלריה מודגשת בראש — כתב עם feature_media (contributor_featured_media_law · כרגע ציון). תמונות+טקסט ראשונים למעלה. */}
       {c.feature_media && waUpdates.filter(u => u.image_url).length > 0 && (
@@ -509,7 +523,7 @@ export default function ContributorPage() {
       {posts.length > 0 && (
         <div style={{ marginTop: 26 }}>
           <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
-            📝 הפוסטים של {c.display_name} ({posts.length})
+            🔬 המחקרים של {c.display_name} ({posts.length})
           </div>
           <div style={{ display: "grid", gap: 8 }}>
             {posts.map(p => (
@@ -526,7 +540,7 @@ export default function ContributorPage() {
             ))}
           </div>
           <a href={`/post?author=${encodeURIComponent(c.display_name)}`} style={{ display: "inline-block", marginTop: 10, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>
-            📖 כל הפוסטים של {c.display_name} ←
+            📖 כל המחקרים של {c.display_name} ←
           </a>
         </div>
       )}

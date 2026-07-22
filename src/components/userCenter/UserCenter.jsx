@@ -9,7 +9,7 @@ import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
-import { getMyMatrices } from "../../lib/elsMatrices.js";
+import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel } from "../../lib/commandCenter.js";
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
@@ -784,7 +784,26 @@ function codeBadge(status) {
 }
 function MyCodesPanel({ T, user, goto }) {
   const [items, setItems] = useState(null);
+  const [busy, setBusy] = useState(null);   // id שמתחלף כרגע
+  const [note, setNote] = useState("");      // הודעת-מצב (למשל סף-דרגה)
   useEffect(() => { getMyMatrices(user?.id).then(setItems).catch(() => setItems([])); }, [user]);
+
+  // 📁 החלפת «בתיק שלי» — RPC (סף level>=3 נאכף בשרת). מעדכן מקומית, ומסביר אם נחסם.
+  async function toggleDossier(m) {
+    setBusy(m.id); setNote("");
+    try {
+      const r = await selfPublishMatrix(m.id, !m.self_published);
+      if (r?.ok) {
+        setItems(list => list.map(x => x.id === m.id ? { ...x, self_published: r.self_published } : x));
+        setNote(r.self_published ? "✓ נוסף לתיק המחקר שלך" : "הוסר מהתיק");
+      } else if (r?.error === "level_too_low") {
+        setNote(`כדי להציג צפנים בתיק צריך דרגת «חוקר» (דרגה ${r.required}). אתה בדרגה ${r.level} — עוד קצת מחקר ותגיע!`);
+      } else {
+        setNote("לא הצלחנו לעדכן — נסה שוב.");
+      }
+    } catch { setNote("שגיאה — נסה שוב."); }
+    setBusy(null);
+  }
 
   if (items === null) return <div style={{ color: T.sub, fontSize: 13.5, padding: "8px 0" }}>טוען…</div>;
   if (!items.length) return (
@@ -799,7 +818,8 @@ function MyCodesPanel({ T, user, goto }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-      <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 2 }}>{items.length} צפנים שמרת. לחיצה על צופן שפורסם פותחת את עמודו.</div>
+      <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 2 }}>{items.length} צפנים שמרת. סמן «בתיק שלי» כדי שיופיעו ב<button onClick={() => goto("/community/researcher/me")} style={{ border: "none", background: "none", padding: 0, color: T.acc, fontWeight: 700, cursor: "pointer", fontSize: 12.5, textDecoration: "underline" }}>תיק המחקר שלך</button> — גם לפני אישור לאתר.</div>
+      {note && <div style={{ fontSize: 12, color: T.acc, background: T.card, border: `1px solid ${T.line}`, borderRadius: 9, padding: "8px 10px" }}>{note}</div>}
       {items.map(m => {
         const bd = codeBadge(m.status);
         const inner = (
@@ -818,9 +838,23 @@ function MyCodesPanel({ T, user, goto }) {
             </div>
           </div>
         );
-        return m.status === "published"
-          ? <button key={m.id} onClick={() => goto(`/codes/${encodeURIComponent(m.slug || m.id)}`)} style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }}>{inner}</button>
-          : <div key={m.id}>{inner}</div>;
+        // צופן שפורסם לאתר כבר מופיע בתיק אוטומטית; לממתין/טיוטה מציגים מתג «בתיק שלי».
+        const card = m.status === "published"
+          ? <button onClick={() => goto(`/codes/${encodeURIComponent(m.slug || m.id)}`)} style={{ border: "none", background: "none", padding: 0, cursor: "pointer", display: "block", width: "100%" }}>{inner}</button>
+          : inner;
+        return (
+          <div key={m.id} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {card}
+            {m.status !== "published" && (
+              <button onClick={() => toggleDossier(m)} disabled={busy === m.id}
+                style={{ alignSelf: "flex-start", marginInlineStart: 57, border: `1px solid ${m.self_published ? T.acc : T.line}`,
+                  background: m.self_published ? T.card : "none", color: m.self_published ? T.acc : T.sub,
+                  borderRadius: 999, padding: "3px 11px", fontSize: 11.5, fontWeight: 700, cursor: busy === m.id ? "default" : "pointer" }}>
+                {busy === m.id ? "…" : m.self_published ? "✓ בתיק שלי" : "➕ הצג בתיק שלי"}
+              </button>
+            )}
+          </div>
+        );
       })}
     </div>
   );
