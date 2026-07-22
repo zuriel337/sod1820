@@ -10,7 +10,6 @@ import { buildMessages } from "../lib/numberMessage.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
-import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
 // אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
@@ -716,10 +715,8 @@ export default function CommunityCalculatorPage() {
         </div>
       )}
 
-      {/* 🔎 הקיר החי — מה גולשים מחשבים עכשiו */}
-      <div style={{ marginTop: 30 }}>
-        <VisitorSearchesBox light={P.mode === "light"} onPick={p => { setName1(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
-      </div>
+      {/* 🔎 הקיר החי «מה גולשים חיפשו» (VisitorSearchesBox) הוסתר מהמחשבון הקהילתי בבקשת צוריאל
+          (כולל שורות «מחפשים בדילוגי אותיות»). הקיר נשאר זמין במקומות אחרים. */}
 
       {/* גשר למקצועי */}
       <div style={{ marginTop: 26, textAlign: "center" }}>
