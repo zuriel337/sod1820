@@ -136,8 +136,6 @@ export default function ResearchPage() {
   const isAdmin = realAdmin && !viewAsUser;
   // 📱 בטלפון: דילוגי-אותיות (מטריצה רחבה) עדיפים כדף עצמאי /code, לא דחוסים בהיכל.
   const wide = useMediaQuery("(min-width: 768px)");
-  // 💻 הודעת-מובייל: ההיכל מיטבי במחשב (נדחית — נשמר ב-localStorage)
-  const [hideMobNote, setHideMobNote] = useState(() => { try { return localStorage.getItem("sod_hub_mobnote") === "1"; } catch { return false; } });
   // 🔬 כלל-הכניסה: כניסה להיכל הגילוי מדליקה מצב discovery לכל האתר — כל Hub שנפתח מכאן יורש אותו.
   const { enterDiscovery } = useResearch();
   useEffect(() => { enterDiscovery?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -228,13 +226,8 @@ export default function ResearchPage() {
     <ResearchShell subnav={subnav}>
       {/* 🔗 כל קישורי-המספר בכל כלי נשארים בתוך ההיכל (/research?tool=number) — לא יוצאים לדף העצמאי */}
       <NumHrefCtx.Provider value={n => `/research?tool=number&n=${n}`}>
-      {!wide && !hideMobNote && (
-        <div className="rw-card" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, background: "var(--accS,#eef3ff)", border: "1px solid var(--line,#e4e7ec)", padding: "11px 13px" }}>
-          <span style={{ fontSize: 20 }}>💻</span>
-          <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "var(--ink,#1b1d22)", lineHeight: 1.5 }}>ההיכל עובד בצורה מיטבית דרך המחשב — במובייל חלק מהכלים והפאנלים מוצגים מצומצם.</span>
-          <button onClick={() => { setHideMobNote(true); try { localStorage.setItem("sod_hub_mobnote", "1"); } catch { /* noop */ } }} title="הבנתי" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 17, color: "var(--ink2,#5b6472)", lineHeight: 1 }}>✕</button>
-        </div>
-      )}
+      {/* 📱 באנר-ההתנצלות על המובייל הוסר (research_workspace_law: חייב לעבוד מצוין באייפון —
+          לא מודיעים למשתמש שהחוויה «מצומצמת»). כלים רחבים (ELS) עדיין מציעים דף-מלא בתוכם. */}
       {!tool ? (
         <ResearchHome onOpen={setTool} />
       ) : !ready(tool) ? (

@@ -73,10 +73,16 @@ export default function ResearchHome({ onOpen }) {
   const [tab, setTab] = useState("tools"); // tools | lib
   // 🔎 שדה-חיפוש חופשי: מספר / מילה / ביטוי → דף-המספר בתוך ההיכל.
   const [gateQ, setGateQ] = useState("");
+  const [showSoon, setShowSoon] = useState(false); // כלים-בבנייה מקופלים כברירת-מחדל (פשוט-קודם)
   const gateGo = e => { e.preventDefault(); const v = gateQ.trim(); if (v) navigate(`/research?tool=number&n=${encodeURIComponent(v)}`); };
 
   const bigTools = BIG.map(id => TOOLS.find(t => t.id === id)).filter(Boolean);
-  const restTools = TOOLS.filter(t => !BIG.includes(t.id)); // כולל נעולים/בקרוב — קטנים מתחת
+  const restTools = TOOLS.filter(t => !BIG.includes(t.id));
+  // 🪜 Progressive Disclosure (research_workspace_law): הכלים הפתוחים גלויים תמיד;
+  //    הכלים-בבנייה/נעולים נשארים כמפת-דרך אך מקופלים תחת «בקרוב ▾» — לא מציפים את המסך.
+  const isReady = t => isToolReady(t.id, isAdmin) && !elsLocked(t.id);
+  const restReady = restTools.filter(isReady);
+  const restSoon = restTools.filter(t => !isReady(t));
 
   const tabBtn = active => ({ cursor: "pointer", background: active ? "var(--acc,#2f6df6)" : "var(--card,#fff)", color: active ? "#fff" : "var(--ink2,#5b6472)",
     border: `1px solid ${active ? "var(--acc,#2f6df6)" : "var(--line,#e4e7ec)"}`, borderRadius: 999, padding: "8px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800 });
@@ -107,17 +113,30 @@ export default function ResearchHome({ onOpen }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
             {bigTools.map(t => <BigTile key={t.id} t={t} onOpen={onOpen} isAdmin={isAdmin} />)}
           </div>
-          {/* שאר הכלים — קטנים */}
-          <div className="rw-cat-h" style={{ marginBottom: 8 }}><span className="rw-cat-ic">🧰</span> כל הכלים <span className="rw-cat-n">{restTools.length}</span></div>
+          {/* שאר הכלים הפתוחים — גלויים תמיד (עוד כלי-מחקר פעילים) */}
+          <div className="rw-cat-h" style={{ marginBottom: 8 }}><span className="rw-cat-ic">🧰</span> עוד כלים <span className="rw-cat-n">{restReady.length}</span></div>
           <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {restTools.map(t => {
-              const ready = isToolReady(t.id, isAdmin) && !elsLocked(t.id);
+            {restReady.map(t => {
               const ic = t.img ? <img src={t.img} alt="" style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "middle" }} /> : t.icon;
-              return ready
-                ? <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{ic}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>
-                : <span key={t.id} className="rw-quick-chip" style={{ opacity: 0.5, cursor: "default" }} title="בשדרוג — בקרוב"><span className="qc-ic">{t.img ? ic : "🔒"}</span> {t.title}</span>;
+              return <button key={t.id} className="rw-quick-chip" onClick={() => onOpen(t.id)} title={t.desc}><span className="qc-ic">{ic}</span> {t.title}{isAdminOnlyTool(t.id, isAdmin) && <span className="qc-flag">🔑</span>}</button>;
             })}
           </div>
+          {/* 🔜 כלים-בבנייה — מפת-דרך מקופלת (נראים כשמבקשים, לא מציפים את הפתיחה) */}
+          {restSoon.length > 0 && (
+            <div style={{ marginTop: 14 }}>
+              <button onClick={() => setShowSoon(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", padding: 0, color: "var(--ink2,#5b6472)", fontFamily: "inherit", fontSize: 12.5, fontWeight: 800 }}>
+                {showSoon ? "▴ הסתר" : "▾ עוד"} כלים בבנייה <span className="rw-cat-n">{restSoon.length}</span>
+              </button>
+              {showSoon && (
+                <div className="rw-quick-row" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+                  {restSoon.map(t => {
+                    const ic = t.img ? <img src={t.img} alt="" style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover", display: "inline-block", verticalAlign: "middle" }} /> : "🔒";
+                    return <span key={t.id} className="rw-quick-chip" style={{ opacity: 0.5, cursor: "default" }} title="בשדרוג — בקרוב"><span className="qc-ic">{ic}</span> {t.title}</span>;
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         /* 📚 מאגרי מידע — לעיון (הישן, מוסתר בטאב) */
