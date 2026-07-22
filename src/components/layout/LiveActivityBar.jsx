@@ -2,71 +2,29 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getSearchStatsToday, getGalleryUpdates, getPostsFromSupabase } from "../../lib/supabase.js";
-import { getForumFeed } from "../../lib/contributions.js";
+import { getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
-// 📡 בונה חדשות-טיקר טריות. כל פריט = דבר שקרה היום/עכשיו, לחיץ, מוביל למקומו.
-// מקורות: עדכוני-פוסטים · תמונות חדשות בזרם המציאות · מדדים יומיים. מתחלף כל יום, בלי חזרות.
+// 📡 טיקר עדכוני-האתר. כל פריט = פוסט (עדכון/חדשות שהאתר פרסם), לחיץ, מוביל לפוסט.
+// 🔒 בקשת צוריאל (22.7.2026): הטיקר העליון מציג *רק את עדכוני-האתר* — פוסטים בלבד.
+//    לא פורום, לא זרם-מציאות, לא מדדי-חיפוש. מקור יחיד: getPostsFromSupabase (העדכונים האחרונים).
 function useLiveTicker() {
   const [msgs, setMsgs] = useState([]);
   useEffect(() => {
     let live = true;
     async function load() {
-      // 🔒 בקשת צוריאל: הטיקר = *חדשות טריות יומיות* בלבד — דברים שקרו היום/עכשיו ומתחלפים
-      //    כל יום, בלי חזרות. כל פריט לחיץ ומוביל למקומו (פוסט/זרם המציאות/דף המספר).
-      //    מקורות: עדכוני-פוסטים טריים · תמונות חדשות בזרם המציאות · מדדים יומיים.
       const items = [];
-      const cutoff = Date.now() - 24 * 3600 * 1000;   // "טרי" = 24 שעות אחרונות
-
-      // 1) 📝 עדכוני-פוסטים טריים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
+      // 📝 עדכוני-האתר האחרונים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
+      //    ממוין modified↓ במקור, כך שהעדכונים החדשים למעלה. בלי סף-זמן קשיח כדי שהטיקר
+      //    לא יתרוקן בימים בלי פרסום — «העדכונים האחרונים של האתר», לא «רק היום».
       try {
-        const { posts } = await getPostsFromSupabase({ limit: 20 });
+        const { posts } = await getPostsFromSupabase({ limit: 14 });
         for (const p of (posts || [])) {
-          const ts = new Date(p.modified || p.date || 0).getTime();
-          if (!ts || ts < cutoff) continue;
           const title = stripHtml(p.title || "").trim();
-          if (title) items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post" });
-        }
-      } catch { /* ignore */ }
-
-      // 1.5) 💬 חידושי-פורום טריים → לדיון. מציג את *כותרת החידוש* למעלה (בקשת צוריאל).
-      //      read-בלבד מ-getForumFeed (בלי כתיבה ל-channel_updates → אפס כפילות עם הטיקר התחתון).
-      try {
-        const feed = await getForumFeed({ limit: 15, includePosts: false });   // קהילה בלבד (פוסטים דרך מקור 1)
-        for (const it of (feed || [])) {
-          const ts = new Date(it.ts || 0).getTime();
-          if (!ts || ts < cutoff) continue;
-          const title = stripHtml(it.title || it.body || "").trim();
           if (!title) continue;
-          const to = it.kind === "cipher" ? `/codes/${encodeURIComponent(it.slug || "")}`
-            : it.kind === "insight" ? (it.link || "/forum")
-              : `/forum/${it.contribId}`;
-          items.push({ kind: "forum", text: "חידוש חדש — " + title.slice(0, 70), to });
+          items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post" });
         }
-      } catch { /* ignore */ }
-
-      // 2) 🖼️ תמונות חדשות בזרם המציאות (היום) → לזרם המציאות
-      try {
-        const imgs = await getGalleryUpdates(20);
-        for (const g of (imgs || [])) {
-          const ts = new Date(g.stream_at || g.created_at || 0).getTime();
-          if (!ts || ts < cutoff) continue;
-          const nm = (g.name || "").trim();
-          const label = nm ? nm.slice(0, 46) : (g.primary_value ? `מספר ${g.primary_value}` : "רמז חדש");
-          // ⚠️ הזרם = /archive (לא /reality = עדשת קוד-המציאות). /archive נעול-לרשומים →
-          // אנונימי שלוחץ מקבל את מסך «פתוח לרשומים בלבד» עם הרשמה (בקשת צוריאל).
-          items.push({ kind: "reality", text: `תמונה חדשה בזרם המציאות — ${label}`, to: "/archive" });
-        }
-      } catch { /* ignore */ }
-
-      // 3) 📊 מדדים יומיים (מתחלפים מעצמם) → מרכז המחקר / דף המספר החם
-      try {
-        const s = await getSearchStatsToday();
-        if (s?.month >= 50) items.push({ kind: "stat", text: `${Number(s.month).toLocaleString("he")} חיפושים בוצעו החודש באתר`, to: "/beit-midrash" });
-        if (s?.searches >= 20) items.push({ kind: "stat", text: `${Number(s.searches).toLocaleString("he")} חיפושים בוצעו היום`, to: "/beit-midrash" });
-        if (s?.topNumber) items.push({ kind: "stat", text: `המספר הכי נחקר היום — ${s.topNumber}`, to: `/number/${s.topNumber}` });
       } catch { /* ignore */ }
 
       // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
@@ -81,8 +39,8 @@ function useLiveTicker() {
   return msgs;
 }
 
-// אייקון + תווית-מקור קצרה לפי סוג הפריט (בלי «ריבוע» כבד — רק אמוג'י)
-const KIND_ICON = { post: "📝", reality: "🖼️", stat: "📊", forum: "💬" };
+// אייקון לפי סוג הפריט — הטיקר כולו פוסטים (עדכוני-אתר)
+const KIND_ICON = { post: "📝" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).

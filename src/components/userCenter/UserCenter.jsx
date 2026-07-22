@@ -11,6 +11,39 @@ import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel } from "../../lib/commandCenter.js";
+import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
+
+// 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
+//    מחובר = «מחובר ✓» + ניהול. לחיצה פותחת את מודול «הוואטסאפ שלי» (setActive('whatsapp')).
+function WaHeaderChip({ T, onOpen }) {
+  const { hasUser, loading, linked, phone } = useWaLink();
+  if (!hasUser || loading) return null;
+  const p = String(phone || "").replace(/\D/g, "");
+  const mask = p ? "+" + p.slice(0, 4) + "•••" + p.slice(-3) : "";
+  return (
+    <button onClick={onOpen} style={{
+      display: "flex", alignItems: "center", gap: 9, width: "100%", boxSizing: "border-box", marginTop: 11,
+      cursor: "pointer", textAlign: "right", fontFamily: "inherit",
+      background: "rgba(37,211,102,0.13)", border: "1px solid rgba(37,211,102,0.45)", borderRadius: 12, padding: "9px 12px",
+    }}>
+      <span style={{ width: 24, height: 24, borderRadius: "50%", background: linked ? "#25D366" : "#128C4B", display: "grid", placeItems: "center", color: "#fff", fontSize: 13, flex: "none" }}>🟢</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        {linked ? (
+          <>
+            <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, color: T.ink }}>וואטסאפ מחובר ✓</span>
+            <span style={{ display: "block", fontSize: 11.5, color: T.sub, direction: "ltr", textAlign: "right" }}>{mask}</span>
+          </>
+        ) : (
+          <>
+            <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, color: T.ink }}>חברו וואטסאפ · +100 קרדיט</span>
+            <span style={{ display: "block", fontSize: 11.5, color: T.sub }}>הבוט (רזיאל) יזהה אתכם — קוד אימות בוואטסאפ</span>
+          </>
+        )}
+      </span>
+      <span style={{ color: T.ink, fontWeight: 800, fontSize: 13, flex: "none" }}>{linked ? "נהל" : "חבר ←"}</span>
+    </button>
+  );
+}
 
 // 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
 // החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
@@ -183,10 +216,14 @@ export default function UserCenter() {
               המחקר חי בעולם נפרד («המחקר שלי» — הלשונית בדף המספר + /research); כאן רק מפנים אליו. */}
           <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".07em", color: T.gold, marginBottom: 10 }}>🧑 האזור האישי</div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", flex: "none", overflow: "hidden",
-              display: "grid", placeItems: "center", background: `linear-gradient(135deg,${T.acc},${T.gold})`,
-              color: "#fff", fontWeight: 800, fontSize: 22, border: `2px solid ${T.card}`, boxShadow: `0 0 0 1px ${T.line}` }}>
-              {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initial}
+            <div style={{ position: "relative", flex: "none" }}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", overflow: "hidden",
+                display: "grid", placeItems: "center", background: `linear-gradient(135deg,${T.acc},${T.gold})`,
+                color: "#fff", fontWeight: 800, fontSize: 22, border: `2px solid ${T.card}`, boxShadow: `0 0 0 1px ${T.line}` }}>
+                {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initial}
+              </div>
+              {/* 🟢 נקודת סטטוס-וואטסאפ על האווטאר */}
+              <WaDot size={16} ring={T.card} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 17, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -207,6 +244,8 @@ export default function UserCenter() {
             {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
             {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("stats")} />}
           </div>
+          {/* 🟢 סטטוס וואטסאפ — גלוי מיד בכותרת; מנותק = CTA לחיבור, מחובר = ניהול */}
+          <WaHeaderChip T={T} onOpen={() => setActive("whatsapp")} />
         </div>
 
         {/* body — grid של מודולים או מודול פעיל */}
@@ -607,6 +646,7 @@ function WhatsAppPanel({ T, goto, setActive }) {
     setMsg({ kind: "ok", text: "🎉 הוואטסאפ חובר בהצלחה! מעכשיו הבוט מזהה אותך." });
     setStep("idle"); setPhone(""); setCode(""); setMasked("");
     reload();
+    try { window.dispatchEvent(new Event("sod:wa-changed")); } catch { /* noop */ } // עדכון הנקודה/צ'יפ חי
   }
 
   const input = {
@@ -640,7 +680,7 @@ function WhatsAppPanel({ T, goto, setActive }) {
                 <span style={{ fontSize: 15 }}>🟢</span>
                 <span style={{ flex: 1, fontWeight: 700, fontSize: 13.5, direction: "ltr", textAlign: "left" }}>+{l.phone}</span>
                 <span style={{ fontSize: 11, fontWeight: 800, color: "#1a7f37", background: "#e6f4ea", borderRadius: 999, padding: "2px 9px" }}>מחובר ✓</span>
-                <button onClick={async () => { if (busy) return; setBusy(true); await unlinkMyWa(l.phone); setBusy(false); reload(); }}
+                <button onClick={async () => { if (busy) return; setBusy(true); await unlinkMyWa(l.phone); setBusy(false); reload(); try { window.dispatchEvent(new Event("sod:wa-changed")); } catch { /* noop */ } }}
                   disabled={busy} title="נתק מספר זה"
                   style={{ background: "none", border: "none", color: T.sub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", padding: "0 2px", fontFamily: "inherit" }}>נתק</button>
               </div>

@@ -1143,6 +1143,17 @@ export default function BeitMidrashPage() {
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
   const gridRef = useRef(null);
 
+  // 🧮 נחיתה ישר על המחשבון (בקשת צוריאל) — בכניסה לבית-המדרש בטאב-המחשבון (ברירת-המחדל,
+  //    בלי deep-link מתחרה) גוללים אוטומטית אל גוף-הכלים כך שמחשבון-הגימטריה בראש, בלי
+  //    לגלול ידנית מעבר לכותרת/סקירה. חל גם בהיכל (/research?tool=midrash) — אותו רכיב יורש זאת.
+  useEffect(() => {
+    const q = new URLSearchParams(loc.search);
+    const competing = q.get("atlas") || q.get("insight") || q.get("m") || (q.get("tab") && q.get("tab") !== "calc");
+    if (tab !== "calc" || competing) return;
+    const t = setTimeout(() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 260);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps  — נחיתה ראשונית בלבד
+
   // נייד: רמז שיש עוד מדורים — נדנוד גלילה קל פעם אחת, והסתרת הרמז אחרי גלילה
   const sideRef = useRef(null);
   useEffect(() => {
@@ -1197,7 +1208,7 @@ export default function BeitMidrashPage() {
         )}
 
         {/* גוף: תפריט-צד + תוכן */}
-        <div ref={gridRef} style={{ display: "flex", gap: 26, alignItems: "flex-start", scrollMarginTop: 12 }} className="bm-grid">
+        <div ref={gridRef} style={{ display: "flex", gap: 26, alignItems: "flex-start", scrollMarginTop: 76 }} className="bm-grid">
           {/* תפריט צד (ימין ב-RTL) */}
           <nav className="bm-side" style={{ width: 230, flex: "0 0 auto", position: "sticky", top: 20 }}>
             {/* רמז גלילה — מוצג רק בנייד, נעלם אחרי גלילה ראשונה */}
