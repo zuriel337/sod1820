@@ -414,7 +414,9 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
     // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
     : variant === "context" ? ["notes", "active", "community", "history", "journeys", "saved", "roadmap"]
-    : PANELS.map(p => p.id);
+    // מובייל/כל: מסתירים את פאנל «ai (בבנייה)» גם כאן — לא מציגים placeholder «בבנייה» מול הפרצוף
+    // (עקבי עם הדסקטופ; בקשת צוריאל — «הגרוע בהיכל»). ייחשף אוטומטית כשה-AI יהיה מוכן.
+    : PANELS.filter(p => p.id !== "ai").map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
   if (tabbed) {
