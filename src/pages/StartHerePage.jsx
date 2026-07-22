@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -6,6 +6,8 @@ import { SectionHeader, GoldButton } from "../components/ui.jsx";
 import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 import GematriaMiniDemo from "../components/GematriaMiniDemo.jsx";
 import SiteCountsStrip from "../components/SiteCountsStrip.jsx";
+import StartConcierge from "../components/StartConcierge.jsx";
+import { track } from "../lib/tracking.js";
 
 // "כאן מתחילים" — מסע התחלה קצר לפי מודל העץ האחד: שורש → לב → עדשות → הצטרפות.
 // כל צעד מסומן בשכבה שלו, כך שמההתחלה מבינים את המבנה של האתר.
@@ -132,15 +134,20 @@ function StepCard({ s, i }) {
 
 export default function StartHerePage() {
   const P = usePalette();
+  // 📊 אינסטרומנטציה — לדף היה חסר track() פנימי; עכשיו נמדד גם ב-visitor_events (section='start').
+  useEffect(() => { try { track("start"); } catch { /* noop */ } }, []);
   return (
     <div style={{ direction: "rtl", maxWidth: 880, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
       <SectionHeader eyebrow="ברוכים הבאים" title="כאן מתחילים" />
-      <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 44px" }}>
+      <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 17, lineHeight: 2, textAlign: "center", maxWidth: 640, margin: "-24px auto 32px" }}>
         בשתי דקות — המסע מהשורש אל הלב. כל האתר הוא <span style={{ color: P.accentText }}>גרף ידע אחד</span>,
         וכל לחיצה פותחת מסלול חקירה חדש.
         <br />
         <span style={{ color: P.accentText }}>המחשבון ובית המדרש פתוחים לכולם, חינם.</span>
       </p>
+
+      {/* 🧭 מלווה-כניסה — נתב אישי: 3 נתיבים מהירים + שדה-חופשי לסוכן AI */}
+      <StartConcierge source="start" />
 
       {/* 🧮 טעימה חיה מהמנוע — הקלד מילה, ראה ערך מיָּד */}
       <GematriaMiniDemo />

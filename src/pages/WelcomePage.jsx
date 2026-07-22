@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { METHODS, onlyHeb } from "../lib/gematria.js";
+import StartConcierge from "../components/StartConcierge.jsx";
 
 // 🚪 /welcome — שער הכניסה לסוד 1820. יעד הכפתור «היכנסו» במייל-הפתיחה.
 // עיקרון (identity_architecture_law): לא כולם «חוקרים». שלוש זהויות, מסלול טבעי: מבקר → מגלה → חוקר.
@@ -35,12 +36,24 @@ export default function WelcomePage() {
       <div style={{ textAlign: "center", marginBottom: 10 }}>
         <div style={{ fontSize: 44, lineHeight: 1, marginBottom: 6 }}>👑</div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,40px)", fontWeight: 800, margin: "0 0 10px" }}>ברוכים הבאים לסוד 1820</h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.8, maxWidth: 480, margin: "0 auto" }}>
-          יש כאן <b style={{ color: P.accentText }}>שלוש דרכים</b> לגלות את העולם שלנו. בחרו את הקצב שלכם — אין חובה לחקור.
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16.5, lineHeight: 1.8, maxWidth: 500, margin: "0 auto" }}>
+          מקום שבו <b style={{ color: P.accentText }}>מספרים, פסוקים, שמות ואירועי המציאות</b> נחקרים יחד — כבר יותר מ-14 שנה.
+          יש כאן <b style={{ color: P.accentText }}>שלוש דרכים</b> להיכנס. בחרו את הקצב שלכם — אין חובה לחקור.
         </p>
       </div>
-      <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1, marginBottom: 24 }}>
+      <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1, marginBottom: 22 }}>
         👀 מבקר &nbsp;→&nbsp; 🔎 מגלה &nbsp;→&nbsp; 🔬 חוקר
+      </div>
+
+      {/* 🧭 מלווה-כניסה — נתב אישי (נתיבים מהירים + סוכן AI). אותו רכיב כמו ב-«כאן מתחילים». */}
+      <StartConcierge source="welcome" />
+
+      {/* רוחב — הד לנוסח הניוזלטר: «זה לא אתר גימטריה» */}
+      <div style={{ textAlign: "center", background: P.glow || "rgba(212,175,55,0.08)", border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 16px", marginBottom: 22 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, marginBottom: 3 }}>רגע — זה לא רק אתר גימטריה.</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
+          יש כאן תנ״ך, מציאות, סרטים, שפות — ואנשים שמגלים. אלפי פסוקים, מאות מספרים שנחקרו, דילוגי-אותיות, ניתוח AI וקהילה חיה.
+        </div>
       </div>
 
       <div style={{ display: "grid", gap: 16 }}>
@@ -90,8 +103,16 @@ export default function WelcomePage() {
         </div>
       </div>
 
+      {/* המניפסט — הד לנוסח הניוזלטר */}
+      <div style={{ textAlign: "center", marginTop: 24, padding: "16px 18px", borderTop: `1px solid ${P.border}` }}>
+        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>— המניפסט שלנו —</div>
+        <p style={{ color: P.ink, fontFamily: F.regal, fontSize: 16.5, lineHeight: 1.8, margin: "0 auto", maxWidth: 480, fontStyle: "italic" }}>
+          האתר אינו מבקש שתאמינו למסקנות. הוא מזמין אתכם <b style={{ color: P.accentText, fontStyle: "normal" }}>לחקור, לבדוק ולהצליב בעצמכם</b>.
+        </p>
+      </div>
+
       {/* פילוסופיה */}
-      <p style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "22px auto 0", maxWidth: 470 }}>
+      <p style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "18px auto 0", maxWidth: 470 }}>
         אין חובה לבחור עכשיו — פשוט התחילו. מבקרים שהופכים למגלים, ומגלים שהופכים לחוקרים — <b style={{ color: P.accentText }}>בקצב שלכם</b>.
       </p>
     </div>

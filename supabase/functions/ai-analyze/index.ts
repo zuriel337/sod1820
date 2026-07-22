@@ -64,12 +64,22 @@ const SYSTEM =
   "4. אם אין קשר אמיתי בין הנתונים — אמור זאת ביושר, אל תמציא חיבור.\n" +
   "5. עברית בלבד, חם אך מדויק. בלי כותרות ובלי Markdown.";
 
+// 🧭 מלווה-כניסה (kind="guide") — לא פרשן-גימטריה אלא נתב-ניווט. מקבל טקסט-חופשי של מבקר חדש
+//    ומחזיר JSON עם יעד/ים מתוך רשימה סגורה בלבד (בלי להמציא כתובות). fast=Haiku, זול ומהיר.
+const SYSTEM_GUIDE =
+  "אתה מלווה-כניסה חם וידידותי באתר «סוד 1820» (גימטריה, תורה ורמזי גאולה). מבקר חדש כתב לך במילים שלו מה מביא אותו. תפקידך היחיד: לכוון אותו למקום הנכון באתר.\n" +
+  "כללי ברזל:\n" +
+  "1. החזר אך ורק JSON תקין ותו לא — בלי טקסט לפני/אחרי, בלי Markdown, בלי ```.\n" +
+  "2. מבנה מדויק: {\"message\":\"<משפט חם אחד, עד 18 מילים>\",\"picks\":[{\"label\":\"<תווית קצרה עם אימוג'י>\",\"to\":\"<נתיב>\"}]}\n" +
+  "3. picks = בין 1 ל-3 יעדים, אך ורק מהרשימה המותרת שסופקה (to חייב להיות זהה בדיוק). אסור להמציא נתיבים.\n" +
+  "4. בלי נבואות, בלי הבטחות, בלי טענות על אנשים. עברית בלבד. אם לא ברור מה רוצים — כוון לדף המספר של 1820 ולמנוע החיפוש.";
+
 // ===== מנוע Claude (Anthropic) — ברירת-המחדל =====
-async function runClaude(model: string, user: string, maxTokens: number) {
+async function runClaude(model: string, user: string, maxTokens: number, system: string = SYSTEM) {
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model, max_tokens: maxTokens, system: SYSTEM, messages: [{ role: "user", content: user }] }),
+    body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] }),
   });
   if (!resp.ok) return { error: `anthropic_${resp.status}`, detail: (await resp.text()).slice(0, 200) };
   const data = await resp.json();
@@ -161,6 +171,40 @@ Deno.serve(async (req: Request) => {
 
     const kind = String(body?.kind || "").slice(0, 40);
     const subject = String(body?.subject || "").slice(0, 300);
+
+    // 🧭 kind="guide" — מלווה-כניסה (נתב ניווט). מסלול נפרד לגמרי מנתיב-הגימטריה:
+    //    SYSTEM ייעודי, מודל מהיר (Haiku), רשימת-יעדים סגורה, פלט JSON. מכסה קלה (אנטי-לולאה).
+    if (kind === "guide") {
+      if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
+      const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
+      if (!ask) return json({ analysis: null, error: "empty" });
+      const { identity, tier } = await resolveIdentity(req, body);
+      if (tier === "anon" || tier === "user") {   // אנטי-לולאה בלבד, נדיב
+        const q = await checkQuota(`${identity}:g`, tier, tier === "anon" ? 40 : 300);
+        if (!q.allowed) return json({ analysis: null, error: "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
+          message: "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
+      }
+      const routes =
+        "רשימת היעדים המותרים (to — מתי לבחור):\n" +
+        "/number — יש לו מספר / שם / מילה / ביטוי קונקרטי לבדוק (מנוע החיפוש הראשי)\n" +
+        "/number/1820 — סקרן «מה זה 1820» או חדש לגמרי ורוצה טעימה\n" +
+        "/סוד-1820 — רוצה קודם להבין מה זה האתר בכלל (פוסט המבוא)\n" +
+        "/research?tool=gematria — רוצה לחשב גימטריה במחשבון\n" +
+        "/research?tool=els — דילוגי-אותיות / הצופן התנ\"כי\n" +
+        "/research?tool=verse — לחפש ביטוי/ערך בתוך פסוקי התורה\n" +
+        "/beit-midrash — רוצה ללמוד את שיטות החישוב\n" +
+        "/research — רוצה את כל הכלים / להעמיק בלי יעד מסוים\n" +
+        "/archive?tab=reality — לראות רמזים מהמציאות / חדשות\n" +
+        "/join — רוצה להצטרף / להירשם / וואטסאפ / קהילה\n" +
+        "/members — מנוי מתקדם (בני ההיכל)\n" +
+        "/post — לקרוא מאמרים ורמזים";
+      const guideUser = `${routes}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
+      const out = await runClaude(FAST_MODEL, guideUser, 320, SYSTEM_GUIDE);
+      if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
+      await logTokens("guide", FAST_MODEL, out.usage, identity);
+      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL });
+    }
+
     const isCollection = kind === "research";
     const facts = String(body?.facts || "").slice(0, isCollection ? 3500 : 2000);
     const again = !!body?.again;
