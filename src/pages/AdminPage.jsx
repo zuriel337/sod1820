@@ -4660,6 +4660,39 @@ function EmailsTab() {
 // שלב 1: כתיבה + פילוח (פעילים / לפי מקור) + ספירת נמענים + «שלח בדיקה אליי» + «שלח לכולם».
 // שולח רק ל-active=true. כל מייל כולל לינק הסרה. השליחה מאומתת לפי חשבון האדמין (JWT).
 // דורש RESEND_API_KEY ב-Secrets + אימות דומיין — עד אז «שלח לכולם» יחזיר not_configured.
+// 📧 מעטפת-התצוגה-המקדימה — מראה את התוכן בתוך השלד הקבוע (מראה זהה ל-wrap() ב-send-newsletter).
+// זו תצוגה בלבד; המעטפת האמיתית + לינק-ההסרה מוזרקים בשרת בעת השליחה.
+function newsletterPreview(contentHtml) {
+  return `<div style="margin:0;padding:0;background:#f4f1ea;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:20px 10px;border-collapse:collapse;">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fff;border-radius:14px;overflow:hidden;border-collapse:collapse;box-shadow:0 4px 22px rgba(20,10,40,.12);">
+  <tr><td style="background:#17102b;padding:26px 24px 18px;text-align:center;">
+    <img src="https://sod1820.co.il/logo.png" width="94" alt="סוד 1820" style="display:block;margin:0 auto 8px;width:94px;height:auto;border:0;" />
+    <div style="color:#e7c96b;font-family:Georgia,serif;font-size:12.5px;letter-spacing:4px;">ס ו ד · 1 8 2 0</div>
+  </td></tr>
+  <tr><td style="height:4px;background:linear-gradient(90deg,#8a6d1f,#e7c96b,#8a6d1f);font-size:0;line-height:0;">&nbsp;</td></tr>
+  <tr><td dir="rtl" style="padding:30px 32px 8px;font-family:Georgia,serif;color:#1b1420;line-height:1.9;font-size:16px;text-align:right;">${contentHtml || '<p style="color:#b3aea6;">(התוכן שתכתבו יופיע כאן…)</p>'}</td></tr>
+  <tr><td style="padding:8px 32px 28px;">
+    <div style="border-top:1px solid #ece7dc;margin:18px 0 14px;font-size:0;line-height:0;">&nbsp;</div>
+    <div dir="rtl" style="font-family:Georgia,serif;font-size:12.5px;color:#8a8580;text-align:center;line-height:1.9;">
+      <a href="https://sod1820.co.il" style="color:#9a7b1e;text-decoration:none;font-weight:bold;">sod1820.co.il</a> · כל הרמזים במקום אחד<br />
+      קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.<br />
+      <span style="color:#a8a29a;">להסרה מרשימת התפוצה</span>
+    </div>
+  </td></tr>
+</table></td></tr></table></div>`;
+}
+
+// 🧱 בלוקי-תוכן מוכנים למילוי מהיר (מתאימים לשלד הממותג) — כפתור «הוסף» מדביק אותם בסוף התוכן.
+const NEWSLETTER_BLOCKS = [
+  { label: "כותרת", html: '<h2 style="font-family:Georgia,serif;color:#17102b;font-size:22px;font-weight:bold;margin:0 0 14px;">כותרת הגיליון</h2>' },
+  { label: "פסקה", html: '<p style="margin:0 0 16px;">טקסט הפסקה כאן. מספר בולט: <b style="color:#9a7b1e;">1820</b>.</p>' },
+  { label: "ציטוט-פסוק", html: '<blockquote style="margin:20px 0;padding:14px 18px;background:#faf7ef;border-right:3px solid #e7c96b;border-radius:8px;color:#2a2233;">«הפסוק כאן» — <b style="color:#9a7b1e;">ביטוי = ערך</b><br />מקור הפסוק</blockquote>' },
+  { label: "כפתור", html: '<div style="text-align:center;margin:26px 0;"><a href="https://sod1820.co.il/number/1820" style="display:inline-block;background:#17102b;color:#e7c96b;font-family:Georgia,serif;font-size:15px;font-weight:bold;text-decoration:none;padding:13px 30px;border-radius:999px;">🔢 לצפייה בדף המספר ←</a></div>' },
+  { label: "ראו גם", html: '<p style="margin:22px 0 6px;font-size:14px;color:#6b6660;"><b>ראו גם באתר:</b></p>\n<p style="margin:0 0 4px;font-size:15px;"><a href="https://sod1820.co.il/forum" style="color:#9a7b1e;text-decoration:none;">🌐 פורום המחקר</a></p>' },
+];
+
 function NewsletterTab() {
   const { user } = useAuth();
   const [subs, setSubs] = useState(null);
@@ -4669,6 +4702,7 @@ function NewsletterTab() {
   const [busy, setBusy] = useState("");         // "" | test | send
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState("");
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => { adminGetSubscribers().then(setSubs).catch(() => setSubs([])); }, []);
 
@@ -4714,7 +4748,7 @@ function NewsletterTab() {
       <div style={{ ...card }}>
         <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>✉️ שליחת דיוור לרשימת התפוצה</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
-          נשלח רק ל<b style={{ color: C.goldLight }}> נרשמים פעילים</b>. כל מייל כולל לינק הסרה. תמיד «שלחו בדיקה אליכם» לפני שליחה לכולם.
+          נשלח רק ל<b style={{ color: C.goldLight }}> נרשמים פעילים</b>. <b style={{ color: C.goldLight }}>המעטפת הממותגת</b> (לוגו, כותרת, פס-זהב, פוטר + לינק הסרה) מתווספת <b style={{ color: C.goldLight }}>אוטומטית</b> לכל גיליון — כתבו כאן רק את התוכן הפנימי. תמיד «שלחו בדיקה אליכם» לפני שליחה לכולם.
         </div>
 
         <label style={lbl}>פילוח נמענים</label>
@@ -4729,10 +4763,29 @@ function NewsletterTab() {
         <label style={lbl}>נושא</label>
         <input style={field} value={subject} onChange={e => setSubject(e.target.value)} dir="rtl" placeholder="רמז חדש התגלה על 1820" />
 
-        <label style={lbl}>תוכן (HTML — מותר עברית, קישורים, כותרות)</label>
+        <label style={lbl}>תוכן פנימי (HTML — רק החלק האמצעי; המעטפת הממותגת מתווספת אוטומטית)</label>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "0 0 7px" }}>
+          {NEWSLETTER_BLOCKS.map(b => (
+            <button key={b.label} type="button" onClick={() => setBodyHtml(v => (v ? v + "\n" : "") + b.html)}
+              style={{ cursor: "pointer", background: "transparent", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "4px 11px" }}>
+              ＋ {b.label}
+            </button>
+          ))}
+        </div>
         <textarea style={{ ...field, minHeight: 200, fontFamily: F.mono, fontSize: 13, lineHeight: 1.7, direction: "rtl" }}
           value={bodyHtml} onChange={e => setBodyHtml(e.target.value)}
-          placeholder={"<h2>שלום,</h2>\n<p>התגלתה התכנסות חדשה סביב 1820…</p>\n<p><a href=\"https://sod1820.co.il/number/1820\">לצפייה בדף המספר ←</a></p>"} />
+          placeholder={"<h2 style=\"color:#17102b\">כותרת הגיליון</h2>\n<p>התגלתה התכנסות חדשה סביב <b style=\"color:#9a7b1e\">1820</b>…</p>\n<!-- או פשוט לחצו על בלוק־תוכן למעלה -->"} />
+        <div style={{ marginTop: 8 }}>
+          <button type="button" onClick={() => setPreview(p => !p)}
+            style={{ cursor: "pointer", background: "transparent", border: `1px solid ${C.border}`, color: C.goldLight, borderRadius: 8, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 14px" }}>
+            {preview ? "▴ הסתר תצוגה מקדימה" : "▾ תצוגה מקדימה (המייל המלא)"}
+          </button>
+        </div>
+        {preview && (
+          <div style={{ marginTop: 10, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden", background: "#f4f1ea" }}>
+            <iframe title="תצוגה מקדימה" srcDoc={newsletterPreview(bodyHtml)} style={{ width: "100%", height: 520, border: 0, display: "block" }} />
+          </div>
+        )}
 
         {err && <div style={{ color: C.danger || C.crimsonLight, fontFamily: F.heading, fontSize: 13, marginTop: 12 }}>{err}</div>}
         {msg && <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 13.5, marginTop: 12 }}>{msg}</div>}

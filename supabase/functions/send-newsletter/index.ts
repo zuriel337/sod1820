@@ -31,14 +31,34 @@ async function hmac(email: string) {
 async function unsubUrl(email: string) {
   return `${SUPABASE_URL}/functions/v1/newsletter-unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
 }
+// 📧 תבנית-דיוור קבועה (השלד לכל גיליון) — כותרת ממותגת עם הלוגו + פס-זהב, אזור-תוכן,
+// ופוטר עם הסרה. האדמין ממלא רק את התוכן (${html}); המעטפת מוזרקת אוטומטית לכל מייל.
+// email-safe: table-based, inline styles, לוגו כ-URL מוחלט (logo_integrity_law — לא לחתוך).
 function wrap(html: string, unsub: string) {
-  return `<div dir="rtl" style="font-family:Georgia,'Times New Roman',serif;max-width:600px;margin:0 auto;color:#1b1420;line-height:1.9;font-size:16px;">
+  return `<div style="margin:0;padding:0;background:#f4f1ea;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;border-collapse:collapse;">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;border-collapse:collapse;box-shadow:0 4px 22px rgba(20,10,40,.12);">
+  <tr><td style="background:#17102b;padding:26px 24px 18px;text-align:center;">
+    <img src="https://sod1820.co.il/logo.png" width="94" alt="סוד 1820 — כי לה' המלוכה" style="display:block;margin:0 auto 8px;width:94px;height:auto;border:0;" />
+    <div style="color:#e7c96b;font-family:Georgia,'Times New Roman',serif;font-size:12.5px;letter-spacing:4px;">ס ו ד · 1 8 2 0</div>
+  </td></tr>
+  <tr><td style="height:4px;background:linear-gradient(90deg,#8a6d1f,#e7c96b,#8a6d1f);font-size:0;line-height:0;">&nbsp;</td></tr>
+  <tr><td dir="rtl" style="padding:30px 32px 8px;font-family:Georgia,'Times New Roman',serif;color:#1b1420;line-height:1.9;font-size:16px;text-align:right;">
 ${html}
-<hr style="border:none;border-top:1px solid #e2e2e2;margin:30px 0 12px;">
-<div style="font-size:12px;color:#999;text-align:center;line-height:1.9;">
-קיבלת מייל זה כי נרשמת לעדכוני <b>סוד 1820</b>.<br>
-<a href="${unsub}" style="color:#999;">להסרה מרשימת התפוצה</a>
-</div></div>`;
+  </td></tr>
+  <tr><td style="padding:8px 32px 28px;">
+    <div style="border-top:1px solid #ece7dc;margin:18px 0 14px;font-size:0;line-height:0;">&nbsp;</div>
+    <div dir="rtl" style="font-family:Georgia,serif;font-size:12.5px;color:#8a8580;text-align:center;line-height:1.9;">
+      <a href="https://sod1820.co.il" style="color:#9a7b1e;text-decoration:none;font-weight:bold;">sod1820.co.il</a> · כל הרמזים במקום אחד<br />
+      קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.<br />
+      <a href="${unsub}" style="color:#a8a29a;">להסרה מרשימת התפוצה</a>
+    </div>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</div>`;
 }
 async function sendOne(to: string, subject: string, html: string) {
   const unsub = await unsubUrl(to);
