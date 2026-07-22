@@ -66,14 +66,20 @@ export default function ForumThreadPage() {
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
         </div>
       )}
-      {hasTarget
-        ? <Discourse target={{ type: c.target_type, id: c.target_id }} focusId={c.id} origin="forum" />
-        : (bodyText || c.title) ? (
-          <div style={{ color: P.inkSoft, fontFamily: F.body, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: 16, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-            {c.title && <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>{c.title}</div>}
-            {bodyText}
-          </div>
-        ) : null}
+      {hasTarget ? (
+        <Discourse target={{ type: c.target_type, id: c.target_id }} focusId={c.id} origin="forum" />
+      ) : (
+        <>
+          {(bodyText || c.title) && (
+            <div style={{ color: P.inkSoft, fontFamily: F.body, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: 16, lineHeight: 1.85, whiteSpace: "pre-wrap", marginBottom: 16 }}>
+              {c.title && <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginBottom: 6 }}>{c.title}</div>}
+              {bodyText}
+            </div>
+          )}
+          {/* 💬 תגובות לפריט חסר-יעד — Discourse על יעד-פורום פר-פריט, כדי שאפשר יהיה להגיב לכל כתבה */}
+          <Discourse target={{ type: "forum", id: c.id }} origin="forum" />
+        </>
+      )}
     </div>
   );
 }

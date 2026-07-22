@@ -179,7 +179,8 @@ export default function Discourse({ target, origin = "number", archive = [], foc
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
-  const writeOnly = origin === "forum";   // 🌳 פורום = write-only; דפי-מספר/פסוק/צופן/פרופיל = רדוד רגיל
+  // 💬 החלטת צוריאל: מגיבים בתוך הפורום (רדוד רגיל בכל מקום). *מבחוץ* (בפיד) לא מציגים ספירת/סימן תגובות.
+  const writeOnly = false;
   const [replyTo, setReplyTo] = useState(null);
   const [showArchive, setShowArchive] = useState(false);
   const [lastForum, setLastForum] = useState(null);   // ההודעה האחרונה בפורום (למצב-ריק)
