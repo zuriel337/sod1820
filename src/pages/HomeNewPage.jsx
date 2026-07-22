@@ -34,6 +34,7 @@ import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/fee
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
+import ActivityPulse from "../components/ActivityPulse.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
@@ -411,6 +412,29 @@ export default function HomeNewPage() {
         </div>
       </section>
 
+      {/* ===== 🟢 דופק האתר — מוקד-פעילות מרוכז (הועלה מהתחתית + נוסף הדופק החי; בקשת צוריאל 22.7.2026).
+          מאחד את כל האותות החיים במקום אחד גבוה במקום פיזור: פעילות-חיה · מספרים חמים · מה נפתח ·
+          חיפושים אחרונים · מילות-קהילה. עץ אחד — שימוש חוזר ברכיבים הקיימים, רק מרוכזים. ===== */}
+      <section className="hn-wrap" style={{ padding: "18px 18px 34px" }}>
+        <HomeHeader title="🟢 דופק האתר — מה קורה עכשיו" sub="האתר חי עכשיו — פעילות חיה, החיפושים החמים והמספרים שנפתחים באתר" />
+        {/* ⚡ פעילות חיה + מונה-חקירות מתחלף (פרטי — רק סוג-הפעילות, לא מה חיפשו) */}
+        <ActivityPulse />
+        {/* 🔥 המספרים החמים (search_log, 7 ימים) — לחיצים לדף המספר */}
+        {hotNums.length > 0 && (
+          <div style={{ marginTop: 14, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "15px 16px" }}>
+            <NumberBubbles
+              data={hotNums.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
+              title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
+              hrefFor={b => `/number/${b.nums[0]}`}
+            />
+          </div>
+        )}
+        {/* מה נפתח · מה חיפשו לאחרונה · מילות-קהילה */}
+        <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
+        <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>
+        <div style={{ marginTop: 14 }}><CommunityWordsBox max={4} /></div>
+      </section>
+
       {/* ===== 🔔 מה חדש מאז ביקורך — מצביע קומפקטי למרכז השידורים (מופיע רק כשיש חדש; לא-עמוס) ===== */}
       <WhatsNewCard />
 
@@ -532,26 +556,7 @@ export default function HomeNewPage() {
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
       <StartHereCard />
 
-      {/* ===== מה גולשים מחפשים עכשיו ===== */}
-      <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
-        <HomeHeader title="🔎 מה קורה באתר עכשיו" sub="החיפושים האחרונים של הגולשים · המספרים החמים ביותר לפי מפת-החום" />
-        <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
-        {/* 🔢 אילו דפי-מספר נפתחו בפועל (לא חיפושים אישיים) — מספר = נתון ציבורי */}
-        <div style={{ marginTop: 16 }}>
-          <RecentNumbers max={8} light={P.mode === "light"} />
-        </div>
-        {/* 🔥 המספרים החמים באתר — אותה מפת-חום כמו בקצה הנהר (search_log, 7 ימים) */}
-        {hotNums.length > 0 && (
-          <div style={{ marginTop: 16, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "15px 16px" }}>
-            <NumberBubbles
-              data={hotNums.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
-              title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
-              hrefFor={b => `/number/${b.nums[0]}`}
-            />
-          </div>
-        )}
-        <div style={{ marginTop: 16 }}><CommunityWordsBox max={4} /></div>
-      </section>
+      {/* ===== «מה קורה באתר עכשיו» הועבר למעלה ל«🟢 דופק האתר» (מרוכז, מיד אחרי השער) — 22.7.2026 ===== */}
 
       {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
