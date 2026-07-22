@@ -2196,8 +2196,9 @@
     updGem();render();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
     // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
+    //    הסרט מתחיל *כשרואים את המטריצה* (armReveal) ולא בטיימר קבוע — כדי שלא יתנגן לפני שהגיעו אליה.
     const n=(filmTimes==null?1:filmTimes);
-    if(n>0)setTimeout(()=>{try{playRevealTimes(n);}catch(e){}},560);
+    if(n>0){try{armReveal(n);}catch(e){}}
   }
 
   // ── 🔗 שיתוף · 🖼️ תמונה · 🎬 סרט ──────────────────────────────────────────
@@ -2315,23 +2316,55 @@
   function cipherGridDataURL(){try{const c=buildCipherGrid();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
   // 🎬 סרט-הצופן — חשיפה מדורגת: הציר ואז כל ממצא נדלק אחד-אחד עד התמונה המלאה. מהירות נשלטת (st.filmSpeed).
   let _revealTimers=[];
-  function stopReveal(){_revealTimers.forEach(clearTimeout);_revealTimers=[];if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));}
-  function playReveal(){
-    if(!lastGrid||!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
-    stopReveal();
+  function stopReveal(){cancelRevealArm();_revealTimers.forEach(clearTimeout);_revealTimers=[];if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));}
+  // תכנון-הסרט: אילו תאים (ציר + ממצאים) נדלקים, ובאיזה סדר — משותף לפתיחה-מוקדמת ולנגינה.
+  function _revealPlan(){
+    if(!lastGrid||!st.res||!st.res.hits.length)return null;
     const grid=lastGrid,order=[];
     if(!st.hideMain)occ().positions.forEach(p=>order.push(p));
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>order.push(p))));
-    const uniq=[...new Set(order)];if(!uniq.length){toast("אין מה להציג");return;}
+    const uniq=[...new Set(order)];if(!uniq.length)return null;
     const set=new Set(uniq),byIdx=new Map();
-    grid.querySelectorAll(".mc").forEach(c=>{const i=+c.dataset.i;if(set.has(i)){byIdx.set(i,c);c.classList.add("rv-hide");}});
+    grid.querySelectorAll(".mc").forEach(c=>{const i=+c.dataset.i;if(set.has(i))byIdx.set(i,c);});
+    return {grid,uniq,byIdx};
+  }
+  // הסתרה-מוקדמת: מכבה את תאי-הממצא *לפני* שהמטריצה נכנסת למסך, כדי שלא יבזיקו לפני שהסרט מתחיל.
+  function prehideReveal(){const p=_revealPlan();if(!p)return;p.uniq.forEach(i=>{const c=p.byIdx.get(i);if(c)c.classList.add("rv-hide");});}
+  function playReveal(){
+    const p=_revealPlan();
+    if(!p){toast("חפש מטריצה קודם");return;}
+    stopReveal();
+    const {byIdx,uniq}=p;
+    uniq.forEach(i=>{const c=byIdx.get(i);if(c)c.classList.add("rv-hide");});
     const step=Math.round(Math.max(55,Math.min(230,Math.round(2600/uniq.length)))*(st.filmSpeed||1));
     _revealDur=uniq.length*step+600;   // משך-הסרט (לחזרה)
-    uniq.forEach((p,i)=>{const tm=setTimeout(()=>{const c=byIdx.get(p);if(c){c.classList.remove("rv-hide");c.classList.add("rv-pop");setTimeout(()=>{try{c.classList.remove("rv-pop");}catch(e){}},340);}},i*step);_revealTimers.push(tm);});
+    uniq.forEach((pos,i)=>{const tm=setTimeout(()=>{const c=byIdx.get(pos);if(c){c.classList.remove("rv-hide");c.classList.add("rv-pop");setTimeout(()=>{try{c.classList.remove("rv-pop");}catch(e){}},340);}},i*step);_revealTimers.push(tm);});
   }
   // 🎬 השמעת-הסרט מספר-פעמים ברצף (למשל בביקור-ראשון: תורה קדשה ×2)
   let _revealDur=0;
   function playRevealTimes(n){playReveal();if(n>1){const t=setTimeout(()=>playRevealTimes(n-1),_revealDur||3200);_revealTimers.push(t);}}
+  // 🎬 «מתי מתחילים» — הסרט נפתח *רק כשרואים את המטריצה*: כשהיא בתוך חלון-הצפייה ואינה מכוסה ע״י
+  //    חלון-הדרכה/מדריך. כך משתמש שעדיין עובר על המסכים שמעל (או שפתח מטריצה שמורה ונגלל אליה) רואה
+  //    את הסרט מתחיל בדיוק כשהמטריצה מולו — לא לפני. (במקום טיימר קבוע שרץ לפני שהגיעו למטריצה.)
+  let _revealArm=null;
+  function overlayBlocking(){return !!(document.getElementById("onbov")||document.getElementById("guideov"));}
+  function cancelRevealArm(){if(_revealArm){try{_revealArm.io&&_revealArm.io.disconnect();}catch(e){}try{clearInterval(_revealArm.iv);}catch(e){}try{clearTimeout(_revealArm.cap);}catch(e){}_revealArm=null;}}
+  function armReveal(n){
+    cancelRevealArm();
+    const grid=lastGrid;if(!grid)return;
+    try{prehideReveal();}catch(e){}   // תאי-הממצא כבויים מראש → אין הבזק לפני שהסרט מתחיל
+    let done=false;
+    const fire=()=>{
+      if(done||!_revealArm)return;
+      if(overlayBlocking())return;   // חלון-הדרכה/מדריך מכסה — נחכה שייסגר
+      const r=grid.getBoundingClientRect();const vh=window.innerHeight||document.documentElement.clientHeight;
+      if(r.bottom<48||r.top>vh-48)return;   // המטריצה עדיין לא באמת בתוך המסך
+      done=true;cancelRevealArm();playRevealTimes(n);
+    };
+    _revealArm={iv:setInterval(fire,250),cap:setTimeout(cancelRevealArm,20000)};   // פולינג תופס גם גלילה וגם סגירת-חלון
+    try{_revealArm.io=new IntersectionObserver(fire,{threshold:.25});_revealArm.io.observe(grid);}catch(e){}
+    setTimeout(fire,120);   // ניסיון-פתיחה מיידי אם המטריצה כבר מולנו
+  }
 
   function occ(){return st.res.hits[st.occ];}
 
@@ -2499,6 +2532,7 @@
   }
 
   function render(){
+    cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
     document.body.classList.toggle("searched",!!(r&&r.hits.length));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
     if(!r||!r.hits.length){out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>נסה איות אחר או מילה קצרה יותר.</div>';return;}
