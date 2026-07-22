@@ -126,20 +126,22 @@ export default function JoinPage() {
           </div>
 
           {user ? (
-            <>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                <div style={{ flex: 1, minWidth: 200, background: P.card, border: `1px solid ${P.border}`, borderRadius: 11, padding: "11px 13px", color: P.inkSoft, fontFamily: F.body, fontSize: 13, direction: "ltr", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myRefLink}</div>
-                <button onClick={copyRef} style={{ ...primaryBtn, padding: "11px 20px", fontSize: 14 }}>{copied ? "✓ הועתק" : "📋 העתק"}</button>
+            // 📱 רספונסיבי: הקישור בשורה מלאה משלו (מתקצר עם … ולא דוחף כלום), ומתחת שני
+            //    כפתורים שחולקים את הרוחב ונערמים אנכית במסך צר (flex-basis + wrap, בלי minWidth קשיח).
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 11, padding: "11px 13px", color: P.inkSoft, fontFamily: F.body, fontSize: 13, direction: "ltr", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myRefLink}</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={copyRef} style={{ ...primaryBtn, flex: "1 1 140px", padding: "12px 16px", fontSize: 14 }}>{copied ? "✓ הועתק" : "📋 העתק קישור"}</button>
+                <a href={waShare} target="_blank" rel="noopener noreferrer"
+                  style={{ flex: "1 1 140px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "#083b1a", fontFamily: F.heading, fontSize: 14, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "12px 16px" }}>
+                  📤 שתפו בוואטסאפ
+                </a>
               </div>
-              <a href={waShare} target="_blank" rel="noopener noreferrer"
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, background: "#25D366", color: "#083b1a", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "11px 24px" }}>
-                📤 שתפו בוואטסאפ וזכו
-              </a>
-            </>
+            </div>
           ) : (
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <Link to="/login" style={{ ...primaryBtn, textDecoration: "none", display: "inline-block", padding: "12px 24px", fontSize: 14.5 }}>התחברו לקישור אישי ←</Link>
-              <a href={waShare} target="_blank" rel="noopener noreferrer" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>או שתפו את האתר עכשיו</a>
+              <Link to="/login" style={{ ...primaryBtn, textDecoration: "none", display: "inline-block", flex: "1 1 200px", textAlign: "center", padding: "12px 20px", fontSize: 14.5 }}>התחברו לקישור אישי ←</Link>
+              <a href={waShare} target="_blank" rel="noopener noreferrer" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "none", flex: "1 1 auto", textAlign: "center" }}>או שתפו את האתר עכשיו</a>
             </div>
           )}
         </div>
