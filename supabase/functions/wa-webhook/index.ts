@@ -2,6 +2,9 @@
 // ב-wa_bot_config: מאמת במנוע (fn_ragil) → מפרש (התכנסויות) → מגיב → מוסיף למאגר (wa_add_word).
 // גדרות: רק קבוצות מאושרות · מתג enabled · הגבלת קצב · dedup · סינון תוכן רגיש ·
 // טריגר מצומצם (מילה בודדת / «ביטוי=מספר») · לוג מלא. אימות webhook בסוד ?s=.
+// 🔇 מדיניות מענה (החלטת צוריאל 22.7.2026): הבוט *תמיד סורק ושומר* (מילים למאגר + תיבת-VIP),
+//    אבל *עונה רק כשפונים אליו* — «רזיאל» בהודעה, או תגובה (reply) להודעת הבוט / פקודת «עומק».
+//    בלי פנייה = שקט מוחלט (שומר, לא כותב).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SECRET = "s0d1820wahook_7yq2c9";
@@ -52,16 +55,22 @@ Deno.serve(async (req) => {
     const md = body?.messageData || {};
     if (!msgId) return ok();
 
+    // 🎯 האם פונים לבוט? = תגובה (reply) להודעת הבוט (מזוהה בחתימה) → רק אז הוא עונה.
+    //    («רזיאל» בטקסט נבדק בהמשך לכל הודעה). בלי פנייה → סורק ושומר בשקט.
+    const quoted = md?.quotedMessage || null;
+    const quotedText = quoted ? (quoted.textMessage || quoted.extendedTextMessageData?.text || quoted.extendedTextMessage?.text || "") : "";
+    const replyToBot = !!quoted && (/sod1820/i.test(quotedText) || quotedText.includes("🔯"));
+
     const { data: dup } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).maybeSingle();
     if (dup) return ok();
     const sinceH = new Date(Date.now() - 3600e3).toISOString();
 
-    // 👑 אנשי-זהב (VIP): הבוט תמיד עונה להם בעומק, גם בלי «רזיאל». התאמה לפי מספר או לפי שם.
+    // 👑 אנשי-זהב (VIP): הודעותיהם תמיד נשמרות. מענה — רק בפנייה (ככל שאר הקבוצה, מדיניות 22.7.2026).
     const { data: vips } = await sb.from("wa_vip_senders").select("sender,name_match").eq("active", true);
     const isVip = (vips || []).some((v: { sender?: string; name_match?: string }) =>
       (v.sender && sender.startsWith(v.sender)) || (v.name_match && senderName.includes(v.name_match)));
 
-    // 👁️ תמונה → OCR אוטומטי (קורא את התמונה/הטופס, מחזיר מה שרואים + מספרים). cap 15/שעה.
+    // 👁️ תמונה → OCR אוטומטי (קורא את התמונה/הטופס). סורק ושומר תמיד; עונה רק אם פונים אליו. cap 15/שעה.
     const fileData = md?.fileMessageData || {};
     const imgUrl = (md?.typeMessage === "imageMessage" || fileData.downloadUrl) ? (fileData.downloadUrl || "") : "";
     if (imgUrl) {
@@ -73,6 +82,9 @@ Deno.serve(async (req) => {
       const otext = String(ocr?.text || "").trim();
       if (!nums.length && !otext) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_empty" }); return ok(); }
       if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "image", text_raw: otext, numbers: nums, lang: langOf(otext) });
+      // פנייה לבוט על תמונה = «רזיאל» בכיתוב או reply להודעת-בוט. אחרת: נסרק ונשמר, בלי מענה.
+      const imgAddressed = replyToBot || /רזיאל/.test(String(fileData.caption || ""));
+      if (!imgAddressed) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_scanned" }); return ok(); }
       const head = otext.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 5).join("\n").slice(0, 400);
       const numLine = nums.length ? `\n\n🔢 מספרים: ${nums.join(", ")}` : "";
       await reply(chatId, `👁️ קראתי את התמונה:\n${head}${numLine}\n\n${SIGN}`, msgId);
@@ -86,14 +98,12 @@ Deno.serve(async (req) => {
     // 👑 כל הודעת-טקסט של איש-זהב נשמרת מיד (גם שפה אחרת / בלי גימטריה) — «אל תפספס שום הודעה».
     if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "text", text_raw: text, lang: langOf(text) });
 
-    const since = new Date(Date.now() - 3600e3).toISOString();
-    const { count } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true })
-      .eq("group_id", chatId).eq("action", "replied").gte("created_at", since);
-    if ((count || 0) >= (cfg.max_per_hour || 20)) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "rate_limited" }); return ok(); }
+    // 🎯 פונים לבוט? = «רזיאל» בהודעה או תגובה (reply) להודעת הבוט. רק אז עונים.
+    const called = /רזיאל/.test(text);
+    const addressed = called || replyToBot;
 
-    // 🎯 פקודת-עומק: reply על הודעה + «עומק»/«תעמיק»/🔎 → ניתוח עמוק להודעה המצוטטת
+    // 🎯 פקודת-עומק: reply על הודעה + «עומק»/«תעמיק»/🔎 → בקשה מפורשת → תמיד עונים ומעמיקים.
     const extInfo = md?.extendedTextMessageData || {};
-    const quoted = md?.quotedMessage || null;
     const replyText = (extInfo.text || md?.textMessageData?.textMessage || "").trim();
     if (quoted && /(^|\s)(עומק|תעמיק|🔎)(\s|$)/.test(replyText)) {
       const qtext = quoted.textMessage || quoted.extendedTextMessageData?.text || quoted.extendedTextMessage?.text || "";
@@ -109,7 +119,6 @@ Deno.serve(async (req) => {
     }
 
     // ── טריגר ── (החוק: כותבים «רזיאל» כדי לדבר איתו)
-    const called = /רזיאל/.test(text);
     const base = called ? text.replace(/רזיאל/g, " ").replace(/[?!.]/g, " ").replace(/\s+/g, " ").trim() : text;
     if (called && !base) {
       await reply(chatId, "כן, אני כאן 🔯 כתבו לי מילה או «ביטוי=מספר» ואחשב במנוע — או ענו «עומק» על הודעה כדי שאעמיק.", msgId);
@@ -130,6 +139,23 @@ Deno.serve(async (req) => {
       if (okWord) phrase = c;
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
+
+    // 🔇 לא פונים לבוט → סורק ושומר בלבד (מוסיף למאגר), *בלי מענה ובלי תור-עומק*.
+    if (!addressed) {
+      const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
+      await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: added === "added" ? "scanned+saved" : "scanned" });
+      return ok();
+    }
+
+    // ── מכאן: פונים לבוט → עונים. הגבלת-קצב חלה על מענה בלבד (השמירה כבר בוצעה למעלה בלי-פנייה). ──
+    const since = new Date(Date.now() - 3600e3).toISOString();
+    const { count } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true })
+      .eq("group_id", chatId).eq("action", "replied").gte("created_at", since);
+    if ((count || 0) >= (cfg.max_per_hour || 20)) {
+      const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
+      await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: added === "added" ? "rate_limited+saved" : "rate_limited" });
+      return ok();
+    }
 
     // ⚡ תשובה מהירה מיד · חישוב עמוק «אחר כך» (פעימת-הדקה). אנשי-זהב תמיד → עומק.
     const words = clean(phrase).split(" ").filter(Boolean);
