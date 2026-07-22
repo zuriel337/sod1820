@@ -5,6 +5,7 @@ import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
+import { thumb } from "../lib/img.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
@@ -25,7 +26,9 @@ function rowToItem(m) {
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
     desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
-    image: m.image_url || "", author: m.author_name || "",
+    // 🖼 תצוגה-מקדימה בגלריה = ממוזערת (thumb) ולא הכרטיס המלא — חיסכון ~5-6× Egress, טעינה קלה.
+    //    (resize=contain בתוך thumb → בלי חיתוך. עמוד-הצופן הקנוני מושך את image_url המלא בנפרד.)
+    image: thumb(m.image_url, 200) || "", author: m.author_name || "",
   };
 }
 
