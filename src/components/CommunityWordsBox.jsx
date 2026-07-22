@@ -5,24 +5,28 @@ import { usePalette, PALETTES } from "../lib/palette.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getRecentCommunityWords, getGematriaWordsCount } from "../lib/supabase.js";
 
-// ✦ מילים חדשות שנוספו למאגר — הביטויים האחרונים (עם הערך, המקור והזמן) + סך המילים במאגר לפי האמת.
+// ✦ מילים חדשות שנוספו למאגר — הביטויים האחרונים (עם הערך, שם הכותב/המקור והזמן) + סך המילים במאגר.
 // מקור אחד (gematria_words לפי created_at) — מוצג בבית המדרש (מתחת למחשבון) ובדף הבית.
 // props: light (override פלטה) · max · title.
 
-// המרת ערך-מקור טכני (source ב-gematria_words) לתווית עברית ידידותית לתצוגה.
-function srcLabel(s) {
-  if (!s) return "";
-  const t = String(s).trim();
-  if (/^וואטסאפ/.test(t)) return t;                                   // "וואטסאפ הגילוי היומי"
-  if (t.startsWith("auto:")) return t.slice(5).replace(/\s*wp\d+\s*$/i, "").trim() || "תיעוד אירועים";
-  if (/^גלריי?ת/.test(t)) return "גלריית סוד1820";
-  return ({
+// שם הכותב/מביא הגימטריה (vip_source) — העיקר. בנפילה: תווית-מקור טכנית ידידותית (source).
+function attribution(r) {
+  const author = (r.vip_source || "").trim();
+  if (author) return { label: author, kind: "author" };   // «מאת: <שם>»
+  const s = (r.source || "").trim();
+  if (!s) return null;
+  let src;
+  if (/^וואטסאפ/.test(s)) src = s;                                     // "וואטסאפ הגילוי היומי"
+  else if (s.startsWith("auto:")) src = s.slice(5).replace(/\s*wp\d+\s*$/i, "").trim() || "תיעוד אירועים";
+  else if (/^גלריי?ת/.test(s)) src = "גלריית סוד1820";
+  else src = ({
     excel_import: "מאגר היסוד",
     sod1820: "סוד1820",
     admin_curated: "נבחר ע״י המערכת",
     community: "מהקהילה",
     manual: "הזנה ידנית",
-  })[t] || t;
+  })[s] || s;
+  return { label: src, kind: "source" };
 }
 export default function CommunityWordsBox({ light, max = 4, title = "✦ מילים חדשות שנוספו למאגר" }) {
   const globalP = usePalette();
@@ -57,7 +61,11 @@ export default function CommunityWordsBox({ light, max = 4, title = "✦ מיל�
             style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
             <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
               <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.phrase}</span>
-              {srcLabel(r.source) && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>מקור: {srcLabel(r.source)}</span>}
+              {(() => { const a = attribution(r); return a && (
+                <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {a.kind === "author" ? "מאת: " : "מקור: "}{a.label}
+                </span>
+              ); })()}
             </span>
             <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", flex: "0 0 auto" }}>{r.ragil}</span>
             {r.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(r.created_at)}</span>}
