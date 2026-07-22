@@ -44,6 +44,7 @@ const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
 const MORE_HIDE = ["/start", "/members", "/lab"];
 const moreItems = [
   ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
+  { label: "מחשבון קהילתי", emoji: "🧮", to: "/community/calculator" },
   { label: "צור קשר", emoji: "✉️", to: "/contact" },
 ];
 
@@ -58,6 +59,7 @@ const MOBILE_TILES = [
   { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
+  { e: "🧮", l: "מחשבון קהילתי", to: "/community/calculator" },
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
