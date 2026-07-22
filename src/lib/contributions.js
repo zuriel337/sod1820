@@ -201,12 +201,21 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
           for (const u of us || []) { const d = (u.display_name || "").trim(); if (d) nameMap[u.id] = d; }
         } catch { /* noop */ }
       }
+      // 🔗 ספירת «מצאתי קשר» (edges בגרף) לכל תרומה — תגית «חכמה» שנדלקת רק כשיש קשר (>0).
+      const ids = rows.map(c => c.id);
+      const linkCount = {};
+      if (ids.length) {
+        try {
+          const { data: lk } = await supabase.from("contribution_links").select("from_contribution_id").in("from_contribution_id", ids);
+          for (const l of lk || []) linkCount[l.from_contribution_id] = (linkCount[l.from_contribution_id] || 0) + 1;
+        } catch { /* noop */ }
+      }
       return rows.map(c => ({
         kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
         author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
         target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
-        pinned: !!c.pinned_at, pinned_at: c.pinned_at,
+        pinned: !!c.pinned_at, pinned_at: c.pinned_at, linkCount: linkCount[c.id] || 0,
       }));
     })().catch(() => []));
   }

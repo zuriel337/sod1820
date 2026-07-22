@@ -61,6 +61,8 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
         {ytId && badge(P.accentText, "🎬 סרטון")}
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
+        {/* 🔗 תגית-קשרים חכמה — נדלקת רק כשיש ולו קשר אחד (edge בגרף מ«מצאתי קשר») */}
+        {c.linkCount > 0 && badge(P.accent, `🔗 ${c.linkCount} ${c.linkCount === 1 ? "קשר" : "קשרים"}`)}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
