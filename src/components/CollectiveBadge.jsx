@@ -22,7 +22,7 @@ export default function CollectiveBadge({ type, refv, label = "את זה" }) {
   if (n < 1) return null;
   const convergence = n >= CONVERGENCE_MIN;
   const count = n.toLocaleString("he");
-  const verb = n === 1 ? "חוקר אחד חוקר" : `${count} חוקרים חוקרים`;
+  const verb = n === 1 ? "אדם אחד בודק" : `${count} אנשים בודקים`;
   return (
     <div style={{
       textAlign: "center", margin: "10px auto 0", maxWidth: 460,
@@ -33,22 +33,22 @@ export default function CollectiveBadge({ type, refv, label = "את זה" }) {
     }}>
       <div style={{ fontSize: convergence ? 14.5 : 14, fontWeight: 800, color: "var(--acc,#c79a2e)" }}>
         {convergence
-          ? `🔎 התכנסות קהילתית — ${count} חוקרים חוקרים ${label}`
+          ? `🔎 התכנסות קהילתית — ${count} אנשים בודקים ${label}`
           : `🔎 ${verb} ${label}`}
       </div>
       {convergence && (
         <div style={{ fontSize: 12, color: "var(--ink,inherit)", opacity: 0.8, marginTop: 3, lineHeight: 1.6 }}>
-          כשהרבה חוקרים נפגשים באותה נקודה — זה סימן ששווה להתעמק בו.
+          כשהרבה אנשים נפגשים באותה נקודה — זה סימן ששווה להתעמק בו.
         </div>
       )}
       {user ? (
         <div style={{ fontSize: 12, color: "var(--ink,inherit)", opacity: 0.85, marginTop: 4, lineHeight: 1.65 }}>
-          אתה חלק מהקהילה שחוקרת את זה · האוסף שלך בונה את המפה האישית שלך.
+          אתה חלק מהקהילה שבודקת את זה · האוסף שלך בונה את המפה האישית שלך.
         </div>
       ) : (
         <Link to="/login" style={{ display: "block", marginTop: 5, fontSize: 12.5, fontWeight: 700,
           color: "var(--acc,#b8901f)", textDecoration: "none" }}>
-          גם אתה רוצה להיכלל בגילוי הזה? שמור את הגילוי שלך והצטרף לחוקרים ←
+          גם אתה רוצה להיכלל בגילוי הזה? שמור את הגילוי שלך והצטרף לקהילה ←
         </Link>
       )}
     </div>

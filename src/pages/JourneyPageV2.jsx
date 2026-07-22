@@ -78,7 +78,7 @@ const withTimeout = (p, ms, fallback) => Promise.race([
 ]);
 
 // 🔴 דופק המסע — טיקר תחושת-קהילה עם נתונים אמיתיים בלבד (journey_pulse RPC).
-// «458 אנשים חוקרים מספרים היום» · «המספר X נחקר עכשיו» · «N יצאו למסע היום».
+// «458 אנשים בודקים מספרים היום» · «המספר X נחקר עכשיו» · «N יצאו למסע היום».
 function JourneyPulse({ P }) {
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
@@ -87,7 +87,7 @@ function JourneyPulse({ P }) {
     getJourneyPulse().then(d => {
       if (!alive || !d) return;
       const out = [];
-      if (d.researchers_today >= 8) out.push(`🔴 ${d.researchers_today} אנשים חוקרים מספרים היום`);
+      if (d.researchers_today >= 8) out.push(`🔴 ${d.researchers_today} אנשים בודקים מספרים היום`);
       if (d.journeys_today >= 3) out.push(`🧭 ${d.journeys_today} יצאו למסע היום`);
       (d.recent_numbers || []).slice(0, 6).forEach(n => out.push(`🔍 המספר ${n} נחקר ממש עכשיו`));
       setItems(out);
