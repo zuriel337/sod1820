@@ -47,7 +47,7 @@ function wrap(html: string, unsub: string) {
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;border-collapse:collapse;box-shadow:0 4px 22px rgba(20,10,40,.12);">
   <tr><td style="background:#17102b;padding:26px 24px 18px;text-align:center;">
     <img src="https://sod1820.co.il/logo.png" width="94" alt="סוד 1820 — כי לה' המלוכה" style="display:block;margin:0 auto 8px;width:94px;height:auto;border:0;" />
-    <div style="color:#e7c96b;font-family:Georgia,'Times New Roman',serif;font-size:12.5px;letter-spacing:4px;">ס ו ד · 1 8 2 0</div>
+    <div dir="rtl" style="color:#e7c96b;font-family:Georgia,'Times New Roman',serif;font-size:12.5px;letter-spacing:5px;">ס ו ד · <span dir="ltr" style="unicode-bidi:isolate;">1820</span></div>
   </td></tr>
   <tr><td style="height:4px;background:linear-gradient(90deg,#8a6d1f,#e7c96b,#8a6d1f);font-size:0;line-height:0;">&nbsp;</td></tr>
   <tr><td dir="rtl" style="padding:30px 32px 8px;font-family:Georgia,'Times New Roman',serif;color:#1b1420;line-height:1.9;font-size:16px;text-align:right;">
