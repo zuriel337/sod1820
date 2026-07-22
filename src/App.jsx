@@ -55,6 +55,7 @@ const AuthPage = React.lazy(() => import("./pages/AuthPage.jsx"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage.jsx"));
 const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const PrivacyPage = React.lazy(() => import("./pages/PrivacyPage.jsx"));
+const UnsubscribePage = React.lazy(() => import("./pages/UnsubscribePage.jsx"));
 const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
@@ -270,6 +271,7 @@ export default function App() {
           <Route path="/home-classic" element={<HomePage />} />
           <Route path="/start" element={<StartHerePage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/unsubscribe" element={<UnsubscribePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/numbers" element={<NumbersPage />} />

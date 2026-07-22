@@ -28,8 +28,14 @@ async function hmac(email: string) {
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(email));
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
+// לינק-הסרה למכונה (List-Unsubscribe header / one-click) — פונקציית ה-Edge.
 async function unsubUrl(email: string) {
   return `${SUPABASE_URL}/functions/v1/newsletter-unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
+}
+// לינק-הסרה לאדם (בפוטר המייל) — עמוד באתר (Vercel) שמרנדר HTML תקין בעברית.
+// (Supabase דורס HTML מפונקציות ל-text/plain, לכן הלינק האנושי לא מצביע לפונקציה.)
+async function siteUnsubUrl(email: string) {
+  return `https://sod1820.co.il/unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
 }
 // 📧 תבנית-דיוור קבועה (השלד לכל גיליון) — כותרת ממותגת עם הלוגו + פס-זהב, אזור-תוכן,
 // ופוטר עם הסרה. האדמין ממלא רק את התוכן (${html}); המעטפת מוזרקת אוטומטית לכל מייל.
@@ -61,12 +67,13 @@ ${html}
 </div>`;
 }
 async function sendOne(to: string, subject: string, html: string) {
-  const unsub = await unsubUrl(to);
+  const unsub = await unsubUrl(to);          // מכונה (header one-click) — Edge function
+  const unsubSite = await siteUnsubUrl(to);  // אדם (פוטר) — עמוד האתר
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: FROM, to, subject, html: wrap(html, unsub),
+      from: FROM, to, subject, html: wrap(html, unsubSite),
       headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }),
   });
