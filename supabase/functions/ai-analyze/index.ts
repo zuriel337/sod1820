@@ -74,6 +74,71 @@ const SYSTEM_GUIDE =
   "3. picks = בין 1 ל-3 יעדים, אך ורק מהרשימה המותרת שסופקה (to חייב להיות זהה בדיוק). אסור להמציא נתיבים.\n" +
   "4. בלי נבואות, בלי הבטחות, בלי טענות על אנשים. עברית בלבד. אם לא ברור מה רוצים — כוון לדף המספר של 1820 ולמנוע החיפוש.";
 
+// ===== 🌳 המוח-המשותף של רזיאל (גזע) =====
+// persona="raziel" הופך את ai-analyze לרזיאל — אותה פרסונה + אותו זיכרון של הוואטסאפ (wa-christina).
+// הפרסונה מגיעה ממקור-אמת יחיד ב-DB (fn_raziel_persona) → עדכון אחד משנה את שני הערוצים (חוק העץ האחד).
+// אם ה-DB לא זמין — נפילה-בחן לעותק המוטמע (רזיאל עדיין עונה, בלי חוזה מקביל).
+const RAZIEL_SITE_FALLBACK =
+  "אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820, והשער האישי למערכת המחקר. תמיד ענה בעברית בלבד.\n" +
+  "חוקי ברזל: (1) אל תחשב גימטריה בעצמך — רק ערכים שסופקו לך. אל תמציא ערכים/פסוקים. (2) הפרד עובדה מרמז, בלי נבואות. " +
+  "(3) חם, מדויק, עברית — בלי חתימה (הממשק מציג את זהותך). (4) אם ניתן זיכרון-רקע על המשתמש — התייחס בטבעיות. " +
+  "(5) יש התכנסות אמיתית → בנה תשובה שכבה על שכבה; אין → קצר וישר. (6) לעולם אל תבקש מהמשתמש להריץ מנוע. " +
+  "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
+  "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
+
+const svcHeaders = () => ({ apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" });
+
+// פרסונת-רזיאל ממקור-האמת היחיד (fn_raziel_persona) — משותפת עם wa-christina.
+async function fetchRazielPersona(channel: string): Promise<string> {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_persona`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_channel: channel }),
+    });
+    if (r.ok) { const t = await r.json(); if (typeof t === "string" && t.length > 60) return t; }
+  } catch { /* נפילה לעותק המוטמע */ }
+  return RAZIEL_SITE_FALLBACK;
+}
+// זיכרון משותף — אותו fn_raziel_context/remember שהוואטסאפ קורא/כותב.
+async function fetchRazielContext(userRef: string, channel: string): Promise<any | null> {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_context`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_user_ref: userRef, p_channel: channel }),
+    });
+    if (r.ok) return await r.json();
+  } catch { /* noop */ }
+  return null;
+}
+async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null) {
+  if (!userRef || !content || content.trim().length < 2) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
+      method: "POST", headers: svcHeaders(),
+      body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" }),
+    });
+  } catch { /* לא חוסם */ }
+}
+// זיכרון → טקסט-רקע לפרומפט (רק ב-DM/אתר-מזוהה; פרטי בלבד).
+function razielContextText(ctx: any): string {
+  if (!ctx) return "";
+  const parts: string[] = [];
+  const u = ctx.user_context || {};
+  if (ctx.privacy?.personal_memory_allowed !== false) {
+    if (u.summary) parts.push(`מה שאתה יודע על המשתמש: ${u.summary}`);
+    if (Array.isArray(u.research_threads) && u.research_threads.length) parts.push(`נושאים שחקר לאחרונה: ${u.research_threads.slice(0, 5).join(" · ")}`);
+    if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
+  }
+  if (!parts.length) return "";
+  return `\n\nזיכרון-רקע (פרטי — התייחס בטבעיות, בלי לחשוף אותו כרשימה):\n${parts.join("\n")}`;
+}
+// חילוץ אובייקט JSON מפלט-המודל (עמיד לגדרות-קוד/רעש).
+function parseContract(text: string): any | null {
+  if (!text) return null;
+  let t = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+  const i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if (i < 0 || j <= i) return null;
+  try { const o = JSON.parse(t.slice(i, j + 1)); return (o && typeof o === "object") ? o : null; } catch { return null; }
+}
+
 // ===== מנוע Claude (Anthropic) — ברירת-המחדל =====
 async function runClaude(model: string, user: string, maxTokens: number, system: string = SYSTEM) {
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -203,6 +268,60 @@ Deno.serve(async (req: Request) => {
       if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
       await logTokens("guide", FAST_MODEL, out.usage, identity);
       return json({ analysis: out.text, engine: "claude", model: FAST_MODEL });
+    }
+
+    // ===== 🌳 persona="raziel" — המוח-המשותף (רזיאל באתר = רזיאל בוואטסאפ) =====
+    // מחזיר את חוזה raziel_response_contract (v1). קול+זיכרון ממקור-האמת היחיד. תאימות-לאחור:
+    // אם המודל לא החזיר JSON תקין — נופל למחרוזת {analysis} והפרונט עוטף כ-{answer}.
+    if (String(body?.persona || "").toLowerCase() === "raziel") {
+      if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
+      const rFacts = String(body?.facts || "").slice(0, 3500);
+      const rSubject = subject;
+      const rPath = String(body?.path || "").slice(0, 40);
+      const rCtxHint = String(body?.context || "").slice(0, 600);
+      const rAgain = !!body?.again;
+      if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
+
+      const { identity, tier } = await resolveIdentity(req, body);
+      // מכסת-AI (ai_quota_law) — רזיאל-עומק תחת אותה מכסה כמו שאר האתר (3/15/100/∞).
+      const q = await checkQuota(identity, tier);
+      if (!q.allowed) {
+        return json({ analysis: null, error: "quota", surface: "raziel", tier: q.tier, used: q.used, limit: q.limit,
+          message: q.tier === "anon"
+            ? "השתמשת ב-3 שיחות-רזיאל המעמיקות היומיות. הירשמו בחינם (פחות מדקה) ל-15 ביום, ולשמירת המחקר והמשכיות."
+            : "הגעת למכסת שיחות-רזיאל המעמיקות היומית. המכסה מתחדשת מחר." });
+      }
+
+      const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
+      const [persona, ctx] = await Promise.all([
+        fetchRazielPersona("site"),
+        userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
+      ]);
+      const ctxText = razielContextText(ctx);
+
+      const user =
+        (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
+        (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
+        (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
+        (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
+        (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
+        ctxText +
+        `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
+
+      const out = await runClaude(MODEL, user, 1600, persona);
+      if (out.error) return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail });
+      await logTokens("raziel", MODEL, out.usage, identity);
+      // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
+      if (userRef && rSubject) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }
+
+      const contract = parseContract(out.text || "");
+      if (contract) {
+        contract.v = 1; contract.agent = "raziel";
+        if (contract.continue_wa == null) contract.continue_wa = true;
+        return json({ raziel: contract, engine: "claude", model: MODEL });
+      }
+      // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
+      return json({ analysis: out.text, engine: "claude", model: MODEL });
     }
 
     const isCollection = kind === "research";

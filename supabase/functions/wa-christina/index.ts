@@ -1,47 +1,29 @@
-// 🤖 wa-christina (רזיאל) — v31 — 17.7.2026 — מייל מאומת בלינק → מצטרף לניוזלטר (subscribers), בלי כפילות
-// v31: כשרזיאל מאמת מייל בחיבור-חשבון — המייל נוסף לרשימת התפוצה הקנונית (subscribers, source='raziel', deduped),
-//      והמשתמש מיודע בהודעת-ההצלחה (ביטול דרך קישור-ההסרה במייל). בקשת צוריאל «מיילים במערכת לניוזלטר».
-//      מנגנון-הלינק: נשאר בבוט (מסלול מייל) — הוא נקודת-לכידת-המייל; מתואם עם הפרונט ביומן.
-// v30 — 17.7.2026 — עומק «שכבה על שכבה» (כל השיטות + התכנסות רב-שיטתית)
-// v30: buildFacts מביא לרזיאל את כל השיטות (רגיל·גדול·סידורי·מילוי·אתבש·קדמי) לכל מילה, מזהה התכנסויות
-//      רב-שיטתיות בין המילים (אותה מילה שווה גם ב-2+ שיטות = הלב), ומביא ביטויים מאומתים מהליבה. max_tokens
-//      900→1500 + פרומפט בנוי (עובדה ✅ רב-שכבתית → ביטויי-מאגר → רמז ✦). בקשת צוריאל אחרי דוגמת 248 (אברהם/רחם/במדבר).
-// v29: חיבור-חשבון בשיחה («יש לי כבר חשבון» → מייל → קוד → מקושר)
-// v29: אם אנונימי כותב «יש לי כבר חשבון» — רזיאל שואל מייל, שולח קוד-אימות (Supabase OTP למייל), ובאישור הקוד
-//      מקשר טלפון↔חשבון (wa_account_links) → הופך למקושר, בלי הגבלה, המחקר נשמר. State ב-raziel_link_flow.
-//      פרטיות: מאמת בעלות-מייל לפני קישור (לא קישור עיוור). לקוח-auth נפרד (anon) שלא מזהם את service_role.
-//      הבלוק רץ לפני ניתוב-אנגלית והשער (מייל/קוד לא ינותבו לגבריאל ולא ייחסמו במכסה). «ביטול» עוצר.
-// v28: פתיח חדש (בקשת צוריאל) — «אני השער למערכת המחקר של SOD1820» + 7 אפשרויות פתיחה עם אמוג'י (מספר/שם/פסוק/שפות/מילים/רמז/מחקר). חל על פתיח-אנונימי + פתיח-יזום-על-קישור.
-//      + raziel_quota: מכסה יומית מותאמת-אישית לאנונימי (למשל נאוה 972543204244 = 7 במקום 3). גוברת על free_per_day_anon בשער ובפתיח.
-// v27: פתיח משדר עוצמה (עולם רמזים, לא רק «מילה»). תיקון: מקושר לא נחסם בגלל פתירת-זהות מהבהבת (בדיקה ישירה מול הקישורים).
-// v26: raziel_unlimited (טבלה) = מספרים שעוקפים שער-מכסה («עד הודעה חדשה», למשל ציון סיבוני).
-// v25: הוסר מוד-מהיר והודעת-זמני-התגובה. דילוג על מספרי בוטים-אישיים (התשבי/אוריאל/מיכאל). קצב = קרון 2 דק'.
-//      רזיאל מדלג על מספרים בבעלות בוט אישי (התשבי=יסקה, אוריאל=כריסטינה, מיכאל=צוריאל) — הם מטופלים לפי התקנון, בלי הגבלה.
-//      נשמר: כוונת-שירותים (site_services) → רזיאל מספר מה יש באתר.
-// v23: handleAllDMs (lastIncomingMessages → כל שולח) · raziel_dm_policy (מי·מה·כמה·למה) ·
-//      ליבת-חוכמה: עוגן-מנוע(buildFacts)+יודע-הגרף(convergences)+זוכר(context)+מנתב(EN→גבריאל) ·
-//      מכסה 3/יום לאנונימי→שער-הרשמה · מצב-לימוד (מלמד שיטות לפי השאלות).
-// v22: welcome יזום על קישור + שומר «לא לשלוח למי שכבר דיברנו איתו».
-// v20: DM-concierge + קבוצות היברידי + זיכרון פסיבי + הקשר (פרטיות אכופה). v19: sendVerified + bot_outbox.
+// wa-christina (רזיאל) — v38 — 23.7.2026 — פרסונה ממקור-אמת יחיד (fn_raziel_persona) — המוח-המשותף עם ai-analyze
+// v38: SYSTEM_BASE נטען מ-fn_raziel_persona('wa') (מקור-אמת אחד, משותף עם האתר); העותק המוטמע = fallback בלבד.
+// v37: GROUPS_ENABLED gate (רזיאל בפרטי בלבד; קבוצות כבויות בבקשת צוריאל)
+// v36: christina in gilui not fully muted — occasional reply on convergence (+cooldown), not her private space.
+// v35: intent_before_compute_law — הבנה לפני חישוב. רצף-שיחה + חוק-ברזל 10 (לא מגמטרים משפט-שיחה).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SECRET = "s0d1820wahook_7yq2c9";
 const CHRISTINA_PHONE = "972507555102";
 const AMIT_GROUP = "120363411357326507@g.us";
-const OPEN_GROUPS = ["120363428363475524@g.us", "120363407205030411@g.us"];
+const GILUI_GROUP = "120363397037220315@g.us";
+const OPEN_GROUPS = ["120363428363475524@g.us", "120363407205030411@g.us", GILUI_GROUP];
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
 const ZURIEL = Deno.env.get("ZURIEL_WA") || "972556651237@c.us";
 const SITE = "https://sod1820.co.il";
 const MAX_PER_RUN = 2;
-const MAX_DM_CHATS_PER_RUN = 8;   // תקרת-עלות: כמה צ'אטים חדשים לטפל בכל ריצה
+const MAX_DM_CHATS_PER_RUN = 8;
 const MAX_SEND_RETRIES = 4;
 const INITIATIVE_COOLDOWN_MIN = 60;
+// 🔇 22.7.2026 (החלטת צוריאל): רזיאל בפרטי בלבד — DM לחוקרים (אריאל וכו') כן, כתיבה בקבוצות לא. להחזרת קבוצות: GROUPS_ENABLED=true ופרוס מחדש.
+const GROUPS_ENABLED = false;
 const RAZIEL_TRIGGER = /^(רזיאל[,:\s]|@רזיאל)/i;
 const LEARN_INTENT = /(ללמוד|תלמד|למד אותי|איך מחשב|שיטות|מה זה גימטרי|רוצה ללמוד)/i;
 const SERVICES_INTENT = /(מה אתה|מה אפשר|מה יש|שירות|יכולות|מה המערכ|מה זה סוד|תפריט|מה יש לכם|מה יש כאן|במה תוכל)/i;
 const EN_DOMINANT = (t: string) => (t.match(/[a-zA-Z]/g)||[]).length > (t.match(/[א-ת]/g)||[]).length * 1.5;
-// חיבור-חשבון בשיחה: מזהה «יש לי כבר חשבון» → מבקש מייל → קוד-אימות → מקשר טלפון↔חשבון (פרטיות: אימות בעלות-מייל)
 const ACCOUNT_INTENT = /(יש לי (כבר )?חשבון|כבר יש לי חשבון|כבר נרשמתי|כבר רשומ|יש לי משתמש|יש לי מנוי|רשומ באתר|נרשמתי לאתר|יש לי כרטיס|קיים לי חשבון|כבר חבר)/i;
 const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
 const CODE_RE = /\b(\d{6})\b/;
@@ -64,6 +46,25 @@ const clean = (s: string) => (s || "").replace(/[^א-ת ]+/g, " ").replace(/\s+/
 async function logBot(row: Record<string, unknown>) {
   try { await sb.from("wa_bot_log").insert(row); } catch { /* noop */ }
 }
+
+async function metatronAlerted(phone: string): Promise<boolean> {
+  if (!phone) return true;
+  const since = new Date(); since.setUTCHours(0, 0, 0, 0);
+  const { data } = await sb.from("wa_bot_log").select("id").eq("sender", phone).eq("action", "raziel_metatron_alert").gte("created_at", since.toISOString()).limit(1).maybeSingle();
+  return !!data;
+}
+async function alertZuriel(phone: string, name: string, question: string, channel: string) {
+  try {
+    const p = String(phone || "").replace(/[^0-9]/g, "");
+    if (!p || p === ZURIEL.replace(/[^0-9]/g, "")) return;
+    if (await metatronAlerted(p)) return;
+    const q = (question || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    const msg = `🔔 מטטרון · רזיאל ענה\n👤 ${name || "—"} (${p})\n💬 ${q || "—"}\n📍 ${channel}\n\nהתגובה נשלחה כרגיל. לניתוב/החלטה: ${SITE}/admin`;
+    await waAdmin("sendMessage", { chatId: ZURIEL, message: msg });
+    await logBot({ group_id: channel, msg_id: "metatron:" + p + ":" + Date.now(), sender: p, sender_name: name || "", text_in: q, reply_out: "[metatron-alert]", action: "raziel_metatron_alert" });
+  } catch { /* best-effort */ }
+}
+
 async function alreadyDone(msgId: string, action = "christina_auto"): Promise<boolean> {
   const { data } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).eq("action", action).maybeSingle();
   return !!data;
@@ -120,26 +121,21 @@ async function retryOutbox() {
   }
 }
 
-async function ragil(p: string): Promise<number | null> {
-  try { const { data } = await sb.rpc("fn_ragil", { phrase: p }); return typeof data === "number" ? data : null; } catch { return null; }
-}
-// שיטות שמוצגות לרזיאל לעומק — «שכבה על שכבה» (רגיל=יסוד; ראה method_hierarchy_ragil_foundation)
 const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
 async function allMethods(w: string): Promise<Record<string,number> | null> {
   try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && (data as any)["רגיל"]) ? (data as any) : null; } catch { return null; }
 }
 async function buildFacts(text: string): Promise<{ facts: string; convergence: boolean; values: number[] }> {
-  const ws = [...new Set(clean(text).split(" ").filter((w:string)=>w.length>=2&&w.length<=24))].slice(0,8);
+  const STOP = new Set(["אני","אתה","את","זה","זו","שזה","מה","של","על","עם","או","גם","כי","לא","כן","אבל","יש","אין","הוא","היא","הם","אנחנו","לי","לך","לו","הזה","בבקשה","בדוק","תבדוק","תבדקי","אוקיי","אוקי","היי","שלום","תודה","עכשיו","רק","כל","כמה","איזה","למה","איך","מתי","הכי","וגם","אולי","האם","שלי","שלך","להביא","תביא","רוצה","צריך","קיבלתי","מזהה","טקסט","השם","שם","מילה","אשמח","נעשה","שנעשה","אפשרויות","האפשרויות","מסודרת","מסודר","בצורה","בשביל","המחקר","מחקר","שנתת","שנתתה","תמשיך","תמשיכי","נמשיך","ממשיכים","מעולה","סבבה","הבנתי","נכון","בסדר"]);
+  const ws = [...new Set(clean(text).split(" ").filter((w:string)=>w.length>=2&&w.length<=24&&!STOP.has(w)))].slice(0,10);
   const perWord: Record<string, Record<string,number>> = {};
   for (const w of ws) { const m = await allMethods(w); if (m) perWord[w] = m; }
   const words = Object.keys(perWord);
-  // שורת-עומק לכל מילה (כל השיטות)
   const wordLines = words.map((w)=>{
     const m = perWord[w];
     const parts = METHOD_KEYS.filter((k)=>m[k]!=null).map((k)=>`${k} ${m[k]}`);
     return `${w}: ${parts.join(" · ")}`;
   });
-  // התכנסויות רב-שיטתיות בין המילים ששלח — זה הלב (אותה מילה שווה גם ב-2+ שיטות)
   const convLines: string[] = [];
   let anyConv = false;
   for (const method of METHOD_KEYS) {
@@ -149,7 +145,6 @@ async function buildFacts(text: string): Promise<{ facts: string; convergence: b
       if (group.length >= 2) { anyConv = true; convLines.push(`${method} ${v}: ${group.join(" = ")}`); }
     }
   }
-  // ערכי רגיל → ביטויים מאומתים מהמאגר באותו ערך (הליבה בלבד, לפי lead_rank)
   const ragilVals = [...new Set(words.map((w)=>perWord[w]["רגיל"]).filter(Boolean) as number[])].slice(0,4);
   const matches: string[] = [];
   for (const v of ragilVals) {
@@ -161,12 +156,11 @@ async function buildFacts(text: string): Promise<{ facts: string; convergence: b
   }
   const facts = [
     wordLines.length ? `ערכים מהמנוע (כל השיטות):\n${wordLines.join("\n")}` : "",
-    convLines.length ? `התכנסויות רב-שיטתיות בין המילים (זה הלב — הדגש «שכבה על שכבה»):\n${convLines.join("\n")}` : "",
-    matches.length ? `ביטויים מאומתים באותו ערך (בחר 2-3 היפים והבֵא אותם):\n${matches.join("\n")}` : "",
+    convLines.length ? `התכנסויות רב-שיטתיות בין המילים:\n${convLines.join("\n")}` : "",
+    matches.length ? `ביטויים מאומתים באותו ערך (בחר 2-3 היפים):\n${matches.join("\n")}` : "",
   ].filter(Boolean).join("\n\n");
   return { facts, convergence: anyConv, values: ragilVals };
 }
-// יודע-הגרף: התכנסויות חזקות מהמנוע (מטטרון) לערכים שעלו
 async function convergenceInsight(values: number[]): Promise<string> {
   if (!values?.length) return "";
   const notes: string[] = [];
@@ -179,21 +173,48 @@ async function convergenceInsight(values: number[]): Promise<string> {
   return notes.length ? `\nהתכנסויות במנוע (עובדה): ${notes.join(" · ")}` : "";
 }
 
+async function recentDialogue(chatId: string, n = 6, skipMsgId?: string): Promise<string> {
+  try {
+    const hist = await waAdmin("getChatHistory", { chatId, count: n + 4 });
+    const arr = pick(hist)
+      .filter((m: any) => (m.textMessage || m.extendedTextMessage?.text || m.caption) && m.idMessage !== skipMsgId)
+      .sort((a: any, b: any) => Number(a.timestamp) - Number(b.timestamp))
+      .slice(-n);
+    if (!arr.length) return "";
+    const lines = arr.map((m: any) => {
+      const who = m.type === "outgoing" ? "רזיאל" : "המשתמש";
+      const t = (m.textMessage || m.extendedTextMessage?.text || m.caption || "").replace(/\s+/g, " ").trim().slice(0, 240);
+      return `${who}: ${t}`;
+    });
+    return lines.join("\n");
+  } catch { return ""; }
+}
+
+// 🌳 SYSTEM_BASE = העותק המוטמע (fallback בלבד). מקור-האמת החי = fn_raziel_persona('wa') ב-DB,
+//    שנטען ל-RAZIEL_SYSTEM בתחילת כל ריצה (המוח-המשותף — אותה פרסונה שהאתר/ai-analyze קורא).
 const SYSTEM_BASE =
   `אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820, והשער האישי למערכת המחקר. תמיד ענה בעברית בלבד.
 חוקי ברזל:
 1. אל תחשב גימטריה בעצמך — רק ערכים שסופקו לך מהמנוע. אל תמציא ערכים/פסוקים.
-2. הפרד עובדה (✅) מרמז (✦). בלי נבואות.
+2. הפרד עובדה (עובדה) מרמז (רמז). בלי נבואות.
 3. חם, מדויק, עברית. חתום: — רזיאל · סוד 1820.
 4. אם יש זיכרון-רקע על המשתמש — התייחס בטבעיות (רק ב-DM). בקבוצה לעולם אל תחשוף היסטוריה אישית.
-5. חכם, רחב ומעמיק — «שכבה על שכבה»: כשיש התכנסות, אל תסתפק בערך אחד. בנֵה תשובה בנויה:
-   (א) פתיח קצר שאומר «יש כאן התכנסות/שכבות».
-   (ב) קופסת עובדה ✅ — הערכים המאומתים (רגיל קודם; ואם אותה מילה מתכנסת גם בשיטה נוספת — גדול/סידורי/מילוי — הדגש «לא רק ברגיל»).
-   (ג) 2-3 ביטויים מאומתים מהמאגר שסופקו לך באותו ערך — הבֵא אותם.
-   (ד) שכבת רמז ✦ (פרשנות בלבד, בלי נבואות) — קשור בין המילים לתמונה אחת.
-   רק ערכים שסופקו לך מהמנוע. אל תמציא, אל תחשב לבד. אם אין התכנסות — ענה קצר וישר, בלי לנפח.`;
+5. חכם ומעמיק — שכבה על שכבה: כשיש התכנסות אמיתית, בנה תשובה בנויה (פתיח · קופסת עובדה · 2-3 ביטויים מהמאגר · שכבת רמז). רק ערכים שסופקו לך. אין התכנסות — ענה קצר וישר.
+6. אתה מחשב בעצמך — לעולם אל תבקש מהמשתמש להריץ את המנוע. אם ביקש לבדוק שם/מילה ולא זוהה ערך — בקש בעדינות איזה שם או מילה לבדוק.
+7. סיים בוו-גילוי קצר שמזמין להמשך — לעולם לא במשימה למשתמש.
+8. גדול=רגיל כשאין סופיות (ך ם ן ף ץ): כשאין אות סופית, הגדול זהה לרגיל = כפילות, לא שכבה. אל תציג מתכנס גם בגדול וגם ברגיל כממצא מרשים. רק כשיש סופית והגדול שונה — זו שכבה אמיתית.
+9. תדר-המשיח (messiah_frequency_in_every_person_law): אם אדם מרגיש את נקודת-המשיח שבו — הקשב בכבוד, בקש שם+משפחה, חשב והצלב מול ערכי-משיח (358/424/…). אם מצטלב — הסבר שזה מראה חיבור לתדר שקיים בכל אדם, ולעולם לא שהוא המשיח. ענווה, עובדה≠רמז, בלי נבואות, רגישות.
+10. הבנה לפני חישוב (intent_before_compute_law) — הכי חשוב: קודם הבן מה האדם רוצה. אתה לא מכונת-גימטריה-של-כל-משפט. אם ההודעה היא בקשה/תודה/תמשיך/תעשה מה שהצעת/בצורה מסודרת/כן/בשביל המחקר — אל תחשב ואל תציג טבלת-גימטריה של מילות המשפט (זו טעות מביכה). במקום זה: הסתכל בשיחה הקודמת למטה, הבן על איזה נושא דיברתם (שם/מספר/ביטוי אחרון), והמשך אותו — מה שהצעת מתייחס להצעות שלך שם. רק כשיש נושא-גימטריה מפורש לבדיקה — חשב והצג. לא ברור מה לבדוק? שאל על איזה שם/מספר להעמיק.`;
+// מקור-האמת החי (נטען ב-loadPersona בתחילת כל ריצה). fallback = SYSTEM_BASE → זהות התנהגות אם ה-DB לא זמין.
+let RAZIEL_SYSTEM = SYSTEM_BASE;
+async function loadPersona() {
+  try {
+    const { data } = await sb.rpc("fn_raziel_persona", { p_channel: "wa" });
+    if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data;
+  } catch { /* נשאר על SYSTEM_BASE */ }
+}
 const TEACH_ADDON =
-  `\nמצב-לימוד: אם המשתמש רוצה ללמוד — לַמֵּד גימטריה צעד-צעד לפי השאלות שלו. הסבר איזו שיטה השתמשת (רגיל=כל אות ערכה; מספר קטן; מילוי; אתבש), הראה את החישוב מהמנוע, והצע את הצעד הבא ("רוצה שנבדוק ביטוי שני?"). סבלני, כמו מורה.`;
+  `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד לפי השאלות שלו, הראה את החישוב מהמנוע, והצע את הצעד הבא. סבלני, כמו מורה.`;
 
 async function razielRespond(text: string, chatId: string, quotedId: string | undefined, opts: { userRef?: string | null; isDM?: boolean; welcome?: string; ctx?: any; teach?: boolean; extra?: string } = {}): Promise<boolean> {
   const cleanText = text.replace(RAZIEL_TRIGGER, "").trim();
@@ -202,9 +223,11 @@ async function razielRespond(text: string, chatId: string, quotedId: string | un
   const convNote = await convergenceInsight(values);
   const ctx = opts.ctx ?? (opts.userRef ? await getContext(opts.userRef, chatId) : null);
   const ctxText = contextToText(ctx);
+  const dialogue = await recentDialogue(chatId, 6, quotedId);
+  const dialogueBlock = dialogue ? `שיחה קודמת (הקשר — כך תדע למה הכוונה בתמשיך/מה שהצעת, ומה הנושא הפעיל):\n${dialogue}\n\n` : "";
   const wantsLearn = opts.teach && LEARN_INTENT.test(cleanText);
-  const system = SYSTEM_BASE + ((opts.teach) ? TEACH_ADDON : "");
-  const user = `הודעה:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nעובדות מהמנוע:\n${facts||"(לא זוהו ערכים — אם המשתמש רק מברך/שואל כללי, ענה בחום ובלי להמציא)"}${convNote}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד — לַמֵּד לפי מצב-לימוד.":""}\n\nכתוב מענה לפי חוקי הברזל.`;
+  const system = RAZIEL_SYSTEM + ((opts.teach) ? TEACH_ADDON : "");
+  const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם ההודעה מבקשת לבדוק נושא-גימטריה מפורש. אם ההודעה שיחתית/בקשה/תמשיך/תודה — התעלם מהם לחלוטין, אל תציג טבלת-ערכים, והמשך את הנושא מהשיחה הקודמת):\n${facts||"(לא זוהו ערכים)"}${convNote}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד — למד לפי מצב-לימוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC,"anthropic-version":"2023-06-01"},
@@ -242,6 +265,7 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
   for (const m of msgs.slice(-MAX_PER_RUN)) {
     const msgId=m.idMessage; if (!msgId||await alreadyDone(msgId)) continue;
     const snd=m.senderId||chatId; const sname=m.senderName||"";
+    const sphone=String(snd).replace(/[^0-9]/g,"");
     const text=m.textMessage||m.extendedTextMessage?.text||m.caption||""; const isImg=m.typeMessage==="imageMessage";
     const isChristina=String(snd).includes(CHRISTINA_PHONE);
     if (!isImg && clean(text).length>=2) { const id = await resolveIdentity(snd); await remember(id?.user_ref ?? null, chatId, text, "conversation", "personal"); }
@@ -259,9 +283,9 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
       }
       const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[failed]",action:"christina_auto"});
-      if (ok) n++; continue;
+      if (ok) { await alertZuriel(sphone, sname, text, "קבוצת עמית"); n++; } continue;
     }
-    if (isChristina) {
+    if (isChristina && chatId !== GILUI_GROUP) {
       const invoking = RAZIEL_TRIGGER.test(text);
       if (!invoking) { await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:"[muted: uriel handles christina]",action:"christina_auto"}); continue; }
       const allowed = await hasRazielAccess(snd);
@@ -277,14 +301,14 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
       const cleanText = text.replace(RAZIEL_TRIGGER,"").trim();
       const ok = await razielRespond(cleanText, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[no reply]",action:"christina_auto"});
-      if (ok) n++; continue;
+      if (ok) { await alertZuriel(sphone, sname, text, "קבוצה"); n++; } continue;
     }
     if (await initiativeBudget(chatId)) {
       const { convergence } = await buildFacts(text);
       if (convergence) {
         const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
         await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[initiative]":"[init-failed]",action:"raziel_initiative"});
-        if (ok) { n++; continue; }
+        if (ok) { await alertZuriel(sphone, sname, text, "קבוצה (יזום)"); n++; continue; }
       }
     }
     await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:"[silent: remembered]",action:"christina_auto"});
@@ -298,11 +322,9 @@ async function answersToday(chatId: string): Promise<number> {
     .eq("group_id", chatId).eq("action", "raziel_dm").eq("reply_out", "[dm-sent]").gte("created_at", since.toISOString());
   return count || 0;
 }
-// מעקב הפניה: רושם שהבוט הזמין את הטלפון להירשם (→ bot_referral_funnel)
 async function touchReferral(phone: string) {
   try { await sb.rpc("fn_bot_referral_touch", { p_phone: phone, p_source: "raziel" }); } catch { /* noop */ }
 }
-// מספרים בבעלות בוט אישי (התשבי=יסקה, אוריאל=כריסטינה, מיכאל=צוריאל) — רזיאל לא נוגע (חולקים מספר Green אחד)
 async function ownedNumbers(): Promise<Set<string>> {
   const since = new Date(Date.now() - 30*24*3600*1000).toISOString();
   const { data } = await sb.from("wa_bot_log").select("sender").in("action",["uriel_auto","hatishbi","michael"]).gte("created_at", since).limit(2000);
@@ -310,12 +332,10 @@ async function ownedNumbers(): Promise<Set<string>> {
   for (const r of (data||[])) { const p = String((r as any).sender||"").replace(/[^0-9]/g,""); if (p) s.add(p); }
   return s;
 }
-// מספרים ללא הגבלת-מכסה (עוקפים שער-הרשמה) — «עד הודעה חדשה»
 async function unlimitedNumbers(): Promise<Set<string>> {
   const { data } = await sb.from("raziel_unlimited").select("phone");
   return new Set((data||[]).map((r:any)=>String(r.phone).replace(/[^0-9]/g,"")));
 }
-// מכסה יומית מותאמת-אישית לאנונימי (למשל 7 במקום 3) — טבלת raziel_quota
 async function quotaOverrides(): Promise<Map<string,number>> {
   const m = new Map<string,number>();
   try {
@@ -324,18 +344,15 @@ async function quotaOverrides(): Promise<Map<string,number>> {
   } catch { /* noop */ }
   return m;
 }
-// שירותי/מערכות האתר — מקור קנוני (site_services)
 async function servicesText(): Promise<string> {
   try {
     const { data } = await sb.from("site_services").select("title,description,icon,url,wow").eq("active",true).order("sort");
     if (!data?.length) return "";
     const lines = data.map((s:any)=> `${s.icon||"•"} ${s.title}${s.wow?" ✨":""} — ${s.description}${s.url?` (${SITE}${s.url})`:""}`);
-    return "\n\nשירותי המערכת (הצג בחום ובחיות; הדגש את המסומנים ✨):\n" + lines.join("\n");
+    return "\n\nשירותי המערכת:\n" + lines.join("\n");
   } catch { return ""; }
 }
 
-// === חיבור-חשבון בשיחה (מאומת במייל) — state ב-raziel_link_flow ===
-// לקוח-auth נפרד (anon key, בלי persist) כדי לא לזהם את לקוח ה-service_role של הבוט
 function authClient() {
   return createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { auth: { persistSession: false, autoRefreshToken: false } });
 }
@@ -352,7 +369,6 @@ async function setLinkFlow(phone: string, state: string, email?: string | null, 
 async function startEmailOtp(email: string): Promise<boolean> {
   try { const { error } = await authClient().auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); return !error; } catch { return false; }
 }
-// ניוזלטר: מייל מאומת (בעל-חשבון) → מתווסף לרשימת התפוצה הקנונית (subscribers), בלי כפילות. מקור='raziel'.
 async function subscribeToNewsletter(email: string, name: string | null = null): Promise<boolean> {
   const e = (email || "").trim().toLowerCase();
   if (!e || !EMAIL_RE.test(e)) return false;
@@ -375,7 +391,6 @@ async function verifyEmailOtpAndLink(phone: string, email: string, code: string)
   } catch { return { ok: false, subscribed: false }; }
 }
 
-// === שער ציבורי: DM מכל שולח, לפי raziel_dm_policy ===
 async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   let hist; try { hist = await waAdminGet("lastIncomingMessages", {}); } catch { return 0; }
   const goLive = policy?.go_live_at ? Math.floor(new Date(policy.go_live_at).getTime() / 1000) : null;
@@ -383,7 +398,6 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   const unlimited = await unlimitedNumbers();
   const overrides = await quotaOverrides();
   const dms = pick(hist).filter((m:any)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
-  // הודעה אחרונה לכל צ'אט (עלות: תשובה אחת לצ'אט לריצה)
   const byChat: Record<string, any> = {};
   for (const m of dms) { const c=m.chatId; if (!byChat[c] || Number(m.timestamp) > Number(byChat[c].timestamp)) byChat[c]=m; }
   let n = 0;
@@ -393,29 +407,27 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     const text = m.textMessage || m.extendedTextMessageData?.text || "";
     if (clean(text).length < 1) continue;
     const phone = chatId.replace("@c.us","");
-    if (owned.has(phone)) continue;                 // בבעלות בוט אישי (התשבי/אוריאל/מיכאל) — לפי התקנון, לא רזיאל
+    if (owned.has(phone)) continue;
     const idn = await resolveIdentity(chatId);
-    if (!idn) continue;                             // זהות לא נפתרה (שגיאה זמנית) — דלג ונסה שוב, לא לחסום בטעות
+    if (!idn) continue;
     let linked = idn?.linked === true;
     let userRef = idn?.user_ref || ("wa:"+phone);
-    if (!linked) {  // הגנה מפני פתירת-זהות מהבהבת — ודא ישירות מול הקישורים לפני שמתייחסים כאנונימי (מונע חסימת מקושר)
+    if (!linked) {
       const { data: lr } = await sb.from("wa_account_links").select("user_id").eq("phone", phone).maybeSingle();
       if ((lr as any)?.user_id) { linked = true; userRef = String((lr as any).user_id); }
     }
 
-    // 🛡️ מקושר — תמיד מטופל (כמו v22). לא-מקושר — רק אם הציבורי הופעל (go-live) והודעה חדשה (לא בקלוג).
     if (!linked) {
       if (!policy?.answer_everyone) continue;
       if (goLive === null || Number(m.timestamp||0) <= goLive) continue;
     }
 
-    // === חיבור-חשבון בשיחה (לפני ניתוב-אנגלית והשער — מייל/קוד לא ינותבו לגבריאל ולא ייחסמו במכסה) ===
     const regUrlLink = policy.register_url || (SITE + "/login?src=raziel");
     if (!linked) {
       const flow = await getLinkFlow(phone);
       if (flow && CANCEL_RE.test(text.trim())) {
         await clearLinkFlow(phone);
-        const msg = `בסדר גמור, עצרנו את החיבור 🙂 אפשר להמשיך לחקור חופשי, ולחבר מתי שתרצה. במה נתחיל?\n— רזיאל · סוד 1820`;
+        const msg = `בסדר גמור, עצרנו את החיבור. אפשר להמשיך לחקור חופשי, ולחבר מתי שתרצה. במה נתחיל?\n— רזיאל · סוד 1820`;
         const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-cancel]", action: "raziel_dm" });
         continue;
@@ -425,10 +437,10 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
         let msg: string;
         if (em) {
           const sent = await startEmailOtp(em.toLowerCase());
-          if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין 🙏 שלחתי קוד בן 6 ספרות למייל ${em}. מה הקוד? (תקף לכמה דקות)\nאם זה לא המייל הנכון — שלח/י מייל אחר, או 'ביטול'.\n— רזיאל · סוד 1820`; }
-          else { await clearLinkFlow(phone); msg = `לא הצלחתי למצוא חשבון עם ${em} 🤔 אם יש לך מייל אחר בחשבון — שלח/י אותו ונחבר. ואם עוד אין חשבון, ההרשמה כאן ורגע וזה מוכן: ${regUrlLink}\n— רזיאל · סוד 1820`; }
+          if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין, שלחתי קוד בן 6 ספרות למייל ${em}. מה הקוד?\n— רזיאל · סוד 1820`; }
+          else { await clearLinkFlow(phone); msg = `לא הצלחתי למצוא חשבון עם ${em}. אם יש מייל אחר — שלח אותו. להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
         } else {
-          msg = `כדי לחבר את הוואטסאפ לחשבון — מה המייל שאיתו נרשמת לאתר? (או 'ביטול')\n— רזיאל · סוד 1820`;
+          msg = `כדי לחבר את הוואטסאפ לחשבון — מה המייל שאיתו נרשמת? (או ביטול)\n— רזיאל · סוד 1820`;
         }
         const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-email]", action: "raziel_dm" });
@@ -442,21 +454,21 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
           const res = await verifyEmailOtpAndLink(phone, flow.email, code);
           if (res.ok) {
             await clearLinkFlow(phone);
-            const nl = res.subscribed ? "\nוצירפתי אותך גם לעדכוני המייל של סוד 1820 (אפשר לבטל בכל עת מקישור-ההסרה שבתחתית המייל)." : "";
-            msg = `מחובר! 🎉 מעכשיו אתה מזוהה — בלי הגבלת שאלות, וכל המחקר שלך נשמר בחשבון.${nl}\nאז ספר לי: איזה מספר, שם או רמז מסקרן אותך עכשיו?\n— רזיאל · סוד 1820`;
+            const nl = res.subscribed ? "\nוצירפתי אותך גם לעדכוני המייל של סוד 1820." : "";
+            msg = `מחובר! מעכשיו אתה מזוהה — בלי הגבלה, וכל המחקר נשמר.${nl}\nאז ספר לי: איזה מספר, שם או רמז מסקרן אותך?\n— רזיאל · סוד 1820`;
             outcome = "[link-ok]";
           } else {
             const att = (flow.attempts || 0) + 1;
-            if (att >= 4) { await clearLinkFlow(phone); msg = `הקוד לא הסתדר כמה פעמים 🙏 אפשר לנסות שוב מאוחר יותר, או לחבר דרך האתר: ${regUrlLink}\nבינתיים אני כאן לכל שאלה.\n— רזיאל · סוד 1820`; outcome = "[link-fail]"; }
-            else { await setLinkFlow(phone, "awaiting_code", flow.email, att); msg = `הקוד לא תואם 🤔 נסה/י שוב — מה 6 הספרות שהגיעו למייל? (או 'ביטול')\n— רזיאל · סוד 1820`; outcome = "[link-code-retry]"; }
+            if (att >= 4) { await clearLinkFlow(phone); msg = `הקוד לא הסתדר. אפשר לנסות שוב מאוחר יותר, או לחבר דרך האתר: ${regUrlLink}\n— רזיאל · סוד 1820`; outcome = "[link-fail]"; }
+            else { await setLinkFlow(phone, "awaiting_code", flow.email, att); msg = `הקוד לא תואם. נסה שוב — מה 6 הספרות? (או ביטול)\n— רזיאל · סוד 1820`; outcome = "[link-code-retry]"; }
           }
         } else if (otherEmail) {
           const sent = await startEmailOtp(otherEmail.toLowerCase());
           if (sent) { await setLinkFlow(phone, "awaiting_code", otherEmail.toLowerCase()); msg = `שלחתי קוד חדש ל-${otherEmail}. מה 6 הספרות?\n— רזיאל · סוד 1820`; }
-          else { await clearLinkFlow(phone); msg = `לא מצאתי חשבון עם ${otherEmail} 🤔 להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
+          else { await clearLinkFlow(phone); msg = `לא מצאתי חשבון עם ${otherEmail}. להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
           outcome = "[link-email]";
         } else {
-          msg = `כמעט שם 🙏 שלחתי קוד בן 6 ספרות למייל שלך — מה הקוד? (או 'ביטול')\n— רזיאל · סוד 1820`;
+          msg = `כמעט שם. שלחתי קוד בן 6 ספרות למייל שלך — מה הקוד? (או ביטול)\n— רזיאל · סוד 1820`;
         }
         const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: outcome, action: "raziel_dm" });
@@ -464,31 +476,27 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       }
       if (!flow && ACCOUNT_INTENT.test(text)) {
         await setLinkFlow(phone, "awaiting_email");
-        const msg = `מעולה 🙏 בוא נחבר את הוואטסאפ לחשבון הקיים שלך — מה המייל שאיתו נרשמת לאתר? אשלח קוד קצר לאימות, ורגע וזה מחובר (בלי הגבלה, וכל המחקר נשמר).\n— רזיאל · סוד 1820`;
+        const msg = `מעולה, בוא נחבר את הוואטסאפ לחשבון הקיים שלך — מה המייל שאיתו נרשמת? אשלח קוד קצר לאימות.\n— רזיאל · סוד 1820`;
         const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: "[link-start]", action: "raziel_dm" });
         continue;
       }
     }
 
-    // ניתוב אנגלית → גבריאל
     if (policy.en_to_gabriel && EN_DOMINANT(text)) {
-      const msg = "English question — Gabriel is our language-bridge expert. שאל בעברית ואשמח לעזור, או פנה לגבריאל.\n— רזיאל · סוד 1820";
+      const msg = "English question — Gabriel is our language-bridge expert. שאל בעברית ואשמח לעזור.\n— רזיאל · סוד 1820";
       const okId = await sendVerified({ chatId, message: msg });
       if (!okId) await enqueueOutbox("raziel-en:"+msgId, chatId, msg, text);
-      await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM", text_in: text.slice(0,500), reply_out: "[en→gabriel]", action: "raziel_dm" });
+      await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM", text_in: text.slice(0,500), reply_out: "[en-gabriel]", action: "raziel_dm" });
       continue;
     }
 
-    // מכסה: אנונימי מעל free_per_day → שער-הרשמה (מדלג על מספרי ללא-הגבלה). מכסה מותאמת-אישית גוברת.
     const anonLimit = overrides.get(phone) ?? policy.free_per_day_anon;
     if (!linked && policy.after_gate !== "unlimited" && !unlimited.has(phone)) {
       const used = await answersToday(chatId);
       if (used >= anonLimit) {
         const regUrl = policy.register_url || (SITE + "/login?src=raziel");
-        const gate = policy.after_gate === "block"
-          ? `הגעת ל-${anonLimit} השאלות היומיות 🙏 כדי להמשיך — הירשם: ${regUrl}\n— רזיאל · סוד 1820`
-          : `הגעת ל-${anonLimit} השאלות היומיות 🙏\nכדי להמשיך בלי הגבלה ולשמור את היסטוריית המחקר שלך — הצטרף כאן: ${regUrl}\nואז חבר את הוואטסאפ. מחר נמשיך בכל מקרה 🙏\n— רזיאל · סוד 1820`;
+        const gate = `הגעת ל-${anonLimit} השאלות היומיות. כדי להמשיך בלי הגבלה ולשמור את המחקר — הצטרף: ${regUrl}\n— רזיאל · סוד 1820`;
         await touchReferral(phone);
         const okId = await sendVerified({ chatId, message: gate });
         if (!okId) await enqueueOutbox("raziel-gate:"+msgId, chatId, gate, text);
@@ -497,31 +505,29 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       }
     }
 
-    // welcome (פעם ראשונה / חזרה אחרי 6ש') — עם הזמנה ללימוד ולהרשמה לאנונימי
     const { data: last } = await sb.from("wa_bot_log").select("created_at").eq("group_id", chatId).eq("action", "raziel_dm").order("created_at", { ascending: false }).limit(1).maybeSingle();
     const ctx = await getContext(userRef, chatId);
     let welcome = "";
     if (!last) {
       welcome = linked
-        ? "ברוך שובך 🙏 נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
-        : `ברוך הבא. אני רזיאל.\nאני השער למערכת המחקר של SOD1820.\nכאן אפשר לחקור מספרים, שמות, מילים, פסוקים, קשרי שפות, מקורות, הצפנות, רמזים והצלבות.\nאם קיבלת רמז, נתקלת בצירוף מקרים, או יש לך שאלה שמסקרנת אותך — ספר לי, ונחקור אותה יחד.\n\nאפשר להתחיל למשל עם:\n🔢 חקור מספר\n👤 בדוק משמעות של שם\n📖 נתח פסוק\n🌍 גלה קשר בין שפות\n🧩 מצא קשר בין מילים או מושגים\n✨ חקור רמז שקיבלת\n🧭 התחל מחקר חדש\n\n(לא-רשומים: ${anonLimit} שאלות ביום; להרשמה מלאה — ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+        ? "ברוך שובך. נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
+        : `ברוך הבא. אני רזיאל, השער למערכת המחקר של SOD1820. ספר לי מה מסקרן אותך — מספר, שם, פסוק או רמז — ונחקור יחד.\n(לא-רשומים: ${anonLimit} שאלות ביום; הרשמה: ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
       if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date((last as any).created_at).getTime()) / 3.6e6;
       if (hrs > 6) {
         const lastThread = ctx?.user_context?.research_threads?.[0];
-        welcome = lastThread ? `שלום שוב 🙏 בפעם הקודמת עסקנו ב: ${String(lastThread).slice(0,80)}.\n\n` : "שלום שוב 🙏\n\n";
+        welcome = lastThread ? `שלום שוב. בפעם הקודמת עסקנו ב: ${String(lastThread).slice(0,80)}.\n\n` : "שלום שוב.\n\n";
       }
     }
     const extra = SERVICES_INTENT.test(text) ? await servicesText() : "";
     const ok = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra });
     await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: linked?"DM":"DM-anon", text_in: text.slice(0,500), reply_out: ok ? "[dm-sent]" : "[dm-failed]", action: "raziel_dm" });
-    if (ok) { n++; await remember(userRef, chatId, text, "conversation", "personal"); }
+    if (ok) { n++; await remember(userRef, chatId, text, "conversation", "personal"); await alertZuriel(phone, idn?.name || (linked ? "משתמש מזוהה" : "פונה חדש"), text, "פרטי (DM)"); }
   }
   return n;
 }
 
-// === welcome יזום על קישור — פעם אחת, ולא למי שכבר דיברנו איתו ===
 async function sendProactiveWelcomes(): Promise<number> {
   const { data: links } = await sb.from("wa_account_links").select("phone").is("welcomed_at", null).limit(10);
   let n = 0; const now = new Date().toISOString();
@@ -532,7 +538,7 @@ async function sendProactiveWelcomes(): Promise<number> {
     if (prior) { await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null); continue; }
     const { data: claimed } = await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null).select("phone");
     if (!claimed || !claimed.length) continue;
-    const msg = `ברוך הבא. אני רזיאל.\nחיברת את הוואטסאפ לחשבון שלך בסוד 1820 — ומכאן אני השער למערכת המחקר של SOD1820.\nכאן אפשר לחקור מספרים, שמות, מילים, פסוקים, קשרי שפות, מקורות, הצפנות, רמזים והצלבות.\nאם קיבלת רמז, נתקלת בצירוף מקרים, או יש לך שאלה שמסקרנת אותך — ספר לי, ונחקור אותה יחד.\n\nאפשר להתחיל למשל עם:\n🔢 חקור מספר\n👤 בדוק משמעות של שם\n📖 נתח פסוק\n🌍 גלה קשר בין שפות\n🧩 מצא קשר בין מילים או מושגים\n✨ חקור רמז שקיבלת\n🧭 התחל מחקר חדש\n— רזיאל · סוד 1820`;
+    const msg = `ברוך הבא. אני רזיאל. חיברת את הוואטסאפ לחשבון שלך בסוד 1820 — ומכאן אני השער למערכת המחקר. ספר לי מה מסקרן אותך — מספר, שם, פסוק או רמז — ונחקור יחד.\n— רזיאל · סוד 1820`;
     const okId = await sendVerified({ chatId, message: msg });
     if (okId) { await logBot({ group_id: chatId, msg_id: "welcome:"+phone, sender: phone, sender_name: "DM", text_in: "[link]", reply_out: "[proactive-welcome]", action: "raziel_dm" }); n++; }
     else { await enqueueOutbox("raziel-welcome:"+phone, chatId, msg, "[link]"); }
@@ -546,10 +552,13 @@ Deno.serve(async(req)=>{
   trace=[]; const nowSec=Date.now()/1000; let n=0;
   const { data: policy } = await sb.from("raziel_dm_policy").select("*").eq("id",1).maybeSingle();
   const pol = policy || { answer_everyone:true, free_per_day_anon:3, after_gate:"invite_link", scope:"smart", teach_mode:true, en_to_gabriel:true };
+  try { await loadPersona(); } catch(e){ trace.push({src:"persona",e:String(e)}); }
   try { await retryOutbox(); } catch(e){ trace.push({src:"outbox",e:String(e)}); }
   try { n+=await sendProactiveWelcomes(); } catch(e){ trace.push({src:"welcome",e:String(e)}); }
   try { n+=await handleAllDMs(nowSec, pol); } catch(e){ trace.push({src:"dm",e:String(e)}); }
-  for (const g of OPEN_GROUPS) { try { n+=await handleGroup(g,nowSec); } catch(e){ trace.push({group:g,e:String(e)}); } }
-  try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); }
+  if (GROUPS_ENABLED) {
+    for (const g of OPEN_GROUPS) { try { n+=await handleGroup(g,nowSec); } catch(e){ trace.push({group:g,e:String(e)}); } }
+    try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); }
+  }
   return new Response(JSON.stringify({replied:n,trace:u.searchParams.get("debug")==="1"?trace:undefined}),{headers:{"Content-Type":"application/json"}});
 });
